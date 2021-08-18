@@ -3303,9 +3303,6 @@ class TestHeatDetailView(CommonTest):
             "nom",
             "description_en",
             "description_fr",
-            "manufacturer",
-            "inservice_date",
-            "serial_number",
             "created_by",
             "created_date",
         ]

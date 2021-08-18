@@ -126,11 +126,11 @@ class TestLocModel(CommonTest):
         self.relc = BioFactoryFloor.RelcFactory()
     
     def test_find_relc_from_point(self):
-        # test that given no relc_id one is set based off of location:
+        # test that given no relc_id one is not set based off of location:
         self.loc.loc_lat = self.relc.min_lat
         self.loc.loc_lon = self.relc.min_lon
         self.loc.save()
-        self.assertEqual(self.loc.relc_id, self.relc)
+        self.assertEqual(self.loc.relc_id, None)
 
     def test_no_relc_no_point(self):
         # test that given no relc_id one is not set based off of location:
@@ -140,30 +140,22 @@ class TestLocModel(CommonTest):
         self.assertEqual(self.loc.relc_id, None)
 
     def test_find_relc_from_end_point(self):
-        # test that given only an endpoint inside the relc, it is still found:
+        # test that given only an endpoint inside the relc, it is not found:
         self.loc.loc_lat = self.relc.min_lat - 1
         self.loc.loc_lon = self.relc.min_lon - 1
         self.loc.end_lat = self.relc.min_lat
         self.loc.end_lon = self.relc.min_lon
         self.loc.save()
-        self.assertEqual(self.loc.relc_id, self.relc, msg="loc points: {}-{}, {}-{}. Relc points: {}-{}, "
-                                                          "{}-{}".format(self.loc.loc_lon, self.loc.loc_lat,
-                                                                         self.loc.end_lon, self.loc.end_lat,
-                                                                         self.relc.min_lon, self.relc.min_lat,
-                                                                         self.relc.max_lon, self.relc.max_lat))
+        self.assertEqual(self.loc.relc_id, None)
 
     def test_find_relc_from_line(self):
-        # test that with the line intersecting the relc, but with neither point inside, the relc is still found
+        # test that with the line intersecting the relc, but with neither point inside, the relc is not found
         self.loc.loc_lat = self.relc.min_lat - 1
         self.loc.loc_lon = self.relc.min_lon - 1
         self.loc.end_lat = self.relc.max_lat + 1
         self.loc.end_lon = self.relc.max_lon + 1
         self.loc.save()
-        self.assertEqual(self.loc.relc_id, self.relc, msg="loc points: {}-{}, {}-{}. Relc points: {}-{}, "
-                                                          "{}-{}".format(self.loc.loc_lon, self.loc.loc_lat,
-                                                                         self.loc.end_lon, self.loc.end_lat,
-                                                                         self.relc.min_lon, self.relc.min_lat,
-                                                                         self.relc.max_lon, self.relc.max_lat))
+        self.assertEqual(self.loc.relc_id, None)
 
     def test_point_in_different_relc(self):
         # test that with a relc declared and a point in a different relc, the relc is not replaced
@@ -175,7 +167,7 @@ class TestLocModel(CommonTest):
         self.assertEqual(self.loc.relc_id, self.relc)
 
     def test_point_in_two_relc(self):
-        # test that when a point is in two relc it uses the smaller one:
+        # test that when a point is in two relc it uses neither:
         self.loc.loc_lat = self.relc.min_lat
         self.loc.loc_lon = self.relc.min_lon
         small_relc = self.relc
@@ -185,4 +177,4 @@ class TestLocModel(CommonTest):
         small_relc.max_lon = self.loc.loc_lon + 0.001
         small_relc.save()
         self.loc.save()
-        self.assertEqual(self.loc.relc_id, small_relc)
+        self.assertEqual(self.loc.relc_id, None)

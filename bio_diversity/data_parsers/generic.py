@@ -1,5 +1,7 @@
 import copy
 
+from pandas import DataFrame
+
 from bio_diversity import models
 from bio_diversity import utils
 from bio_diversity.static import calculation_constants
@@ -106,7 +108,7 @@ class GenericIndvParser(DataParser):
                                                       adsc_id.anidc_id.pk, adsc_str=adsc_id.name)
 
 
-class GenericGrpParser(DataParser):
+class GenericUntaggedParser(DataParser):
     sex_dict = calculation_constants.sex_dict
     yr_coll_key = "Year Class"
     rive_key = "River"
@@ -128,7 +130,7 @@ class GenericGrpParser(DataParser):
     comment_key = "Comments"
 
     header = 2
-    sheet_name = "Group"
+    sheet_name = "Untagged"
     start_grp_dict = {}
     end_grp_dict = {}
     converters = {samp_key: str, vial_key: str, envelope_key: str, start_tank_key: str, end_tank_key: str, ufid_key: str, 'Year': str, 'Month': str, 'Day': str}
@@ -146,7 +148,7 @@ class GenericGrpParser(DataParser):
 
     def load_data(self):
         self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key, self.samp_key])
-        super(GenericGrpParser, self).load_data()
+        super(GenericUntaggedParser, self).load_data()
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
@@ -300,3 +302,130 @@ class GenericGrpParser(DataParser):
 
         else:
             self.success = False
+
+
+class GenericGrpParser(DataParser):
+    yr_coll_key = "Year Class"
+    rive_key = "River"
+    prio_key = "Group"
+    start_tank_key = "Origin Pond"
+    end_tank_key = "Destination Pond"
+    nfish_key = "Number of Fish"
+    abs_key = "Whole group (Y/N)"
+    comment_key = "Comments"
+    vax_key = "Vaccinated"
+    mark_key = "Mark Applied"
+
+    header = 2
+    sheet_name = "Group"
+    start_grp_dict = {}
+    end_grp_dict = {}
+    converters = {start_tank_key: str, end_tank_key: str, 'Year': str, 'Month': str, 'Day': str}
+
+    prnt_grp_anidc_id = None
+    prog_grp_anidc_id = None
+    vax_anidc_id = None
+    mark_anidc_id = None
+
+    def load_data(self):
+        self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key])
+        super(GenericGrpParser, self).load_data()
+
+    def data_preper(self):
+        cleaned_data = self.cleaned_data
+        self.prnt_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Parent Group").get()
+        self.prog_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Program Group").get()
+        self.vax_anidc_id = models.AnimalDetCode.objects.filter(name="Vaccination").get()
+        self.mark_anidc_id = models.AnimalDetCode.objects.filter(name="Mark").get()
+
+        # set date
+        self.data = utils.set_row_datetime(self.data)
+        # split year-coll
+        self.data["grp_year"] = self.data.apply(lambda row: utils.year_coll_splitter(row[self.yr_coll_key])[0], axis=1)
+        self.data["grp_coll"] = self.data.apply(lambda row: utils.year_coll_splitter(row[self.yr_coll_key])[1], axis=1)
+
+        # set start and end tank columns:
+        self.data = utils.set_row_tank(self.data, cleaned_data, self.start_tank_key, col_name="start_tank_id")
+        self.data = utils.set_row_tank(self.data, cleaned_data, self.end_tank_key, col_name="end_tank_id")
+        self.data_dict = self.data.to_dict("records")
+
+    def row_parser(self, row):
+        cleaned_data = self.cleaned_data
+        row_date = row["datetime"].date()
+        row_start_grp = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["start_tank_id"],
+                                      row_date, prog_str=row[self.prio_key], fail_on_not_found=True)[0]
+        start_anix, self.row_entered = utils.enter_anix(cleaned_data, grp_pk=row_start_grp.pk)
+        start_contx, contx_entered = utils.enter_contx(row["start_tank_id"], cleaned_data, None, return_contx=True)
+        self.row_entered += contx_entered
+
+        whole_grp = utils.y_n_to_bool(row[self.abs_key])
+        det_anix = None
+        row["start_contx_pk"] = None
+        if not whole_grp:
+            row["start_contx_pk"] = start_contx.pk
+
+        if row["end_tank_id"]:
+            # 4 possible cases here: group in tank or not and whole group move or not:
+            row_end_grp_list = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["end_tank_id"],
+                                             row_date, prog_str=row[self.prio_key])
+            row_end_grp = None
+            if not whole_grp and not row_end_grp_list:
+                # splitting fish group, create end group:
+                row_end_grp = copy.deepcopy(row_start_grp)
+                row_end_grp.pk = None
+                row_end_grp.id = None
+                row_end_grp.save()
+                end_grp_anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=row_end_grp.pk)
+                self.row_entered = anix_entered
+                if utils.nan_to_none(row[self.prio_key]):
+                    self.row_entered += utils.enter_grpd(end_grp_anix.pk, cleaned_data, row_date, None,
+                                                         self.prog_grp_anidc_id, adsc_str=row[self.prio_key])
+            elif not whole_grp:
+                row_end_grp = row_end_grp_list[0]
+
+            if row_end_grp:
+                move_contx = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
+                                                        row_date, grp_pk=row_end_grp.pk, return_end_contx=True)
+                end_grp_anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=row_end_grp.pk)
+                self.row_entered += anix_entered
+                self.row_entered += utils.enter_grpd(end_grp_anix.pk, cleaned_data, row_date, None,
+                                                     self.prnt_grp_anidc_id.pk, frm_grp_id=row_start_grp)
+                cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], move_contx.pk)
+                self.row_entered = cnt_entered
+
+                det_anix = end_grp_anix
+
+            else:
+                det_anix = start_anix
+                move_contx = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
+                                                        row_date, grp_pk=row_start_grp.pk, return_end_contx=True)
+                cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], move_contx.pk,
+                                                   cnt_code="Fish Count")
+                self.row_entered = cnt_entered
+
+        elif whole_grp:
+            cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], start_contx.pk,
+                                               cnt_code="Fish Count")
+            self.row_entered = cnt_entered
+
+
+        # add details to det_anix:
+
+        if utils.nan_to_none(row.get(self.vax_key)):
+            self.row_entered += utils.enter_grpd(det_anix.pk, cleaned_data, row_date, None, self.vax_anidc_id.pk,
+                                                 adsc_str=row[self.vax_key])
+        if utils.nan_to_none(row.get(self.mark_key)):
+            self.row_entered += utils.enter_grpd(det_anix.pk, cleaned_data, row_date, None, self.mark_anidc_id.pk,
+                                                 adsc_str=row[self.mark_key])
+
+    def clean_data(self):
+        if self.success:
+            contx_df = DataFrame(self.data_dict)
+            cnt_df = contx_df.groupby("start_contx_pk", as_index=False).sum()
+            for row in cnt_df.to_dict('records'):
+                if utils.nan_to_none(row["start_contx_pk"]):
+                    cnt, cnt_entered = utils.enter_cnt(self.cleaned_data, 0, int(row["start_contx_pk"]),
+                                                       cnt_code="Fish Removed from Container")
+                    cnt.cnt = row[self.nfish_key]
+                    cnt.save()
+

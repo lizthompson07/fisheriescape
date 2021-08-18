@@ -69,7 +69,8 @@ class ElectrofishingParser(DataParser):
 
         # assign groups to columns, add generic group data:
         self.data["grp_id"] = None
-        river_group_data = self.data.groupby([self.rive_key, self.prio_key, self.coll_key, self.tank_key],
+
+        river_group_data = self.data.groupby([self.rive_key, self.prio_key, self.year_key, self.coll_key, self.tank_key],
                                              dropna=False).size().reset_index()
 
         if not river_group_data[self.tank_key].is_unique:
@@ -82,10 +83,20 @@ class ElectrofishingParser(DataParser):
                 self.data.loc[data_rows, "grp_id"] = None
                 break
             stok_id = models.StockCode.objects.filter(name__icontains=row[self.rive_key]).get()
-            coll_id = utils.coll_getter(row[self.coll_key])
+
+            coll_str = row[self.coll_key]
+            if len(coll_str.lstrip(' 0123456789')) == len(coll_str):
+                # year taken from year coll:
+                coll_id = utils.coll_getter(row[self.coll_key])
+                grp_year = row[self.year_key]
+            else:
+                grp_year, coll_str = utils.year_coll_splitter(row[self.coll_key])
+                coll_id = utils.coll_getter(coll_str)
+
             anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
                                                               grp_id__stok_id=stok_id,
                                                               grp_id__coll_id=coll_id,
+                                                              grp_id__grp_year=grp_year,
                                                               indv_id__isnull=True,
                                                               contx_id__isnull=True,
                                                               loc_id__isnull=True,
@@ -107,7 +118,7 @@ class ElectrofishingParser(DataParser):
                 grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                                    stok_id=stok_id,
                                    coll_id=coll_id,
-                                   grp_year=self.data[self.year_key][0],
+                                   grp_year=grp_year,
                                    grp_valid=True,
                                    created_by=cleaned_data["created_by"],
                                    created_date=cleaned_data["created_date"],
@@ -176,7 +187,6 @@ class ElectrofishingParser(DataParser):
                               created_date=cleaned_data["created_date"],
                               )
         try:
-            loc.set_relc_latlng()
             loc.clean()
             loc.save()
             self.row_entered = True
@@ -235,6 +245,7 @@ class MactaquacElectrofishingParser(ElectrofishingParser):
     fishing_time_key = "Fishing Seconds"
     header = 2
     tank_key = "Destination Pond"
+    coll_key = "Year Class"
 
 
 class AdultCollectionParser(DataParser):
@@ -350,7 +361,6 @@ class AdultCollectionParser(DataParser):
                               created_date=cleaned_data["created_date"],
                               )
         try:
-            loc.set_relc_latlng()
             loc.clean()
             loc.save()
             self.row_entered = True

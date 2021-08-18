@@ -9,7 +9,7 @@ from collections import Counter
 import pytz
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -436,7 +436,6 @@ class ContainerXRef(BioModel):
             return cont
         else:
             return None
-
 
 
 class Count(BioModel):
@@ -951,7 +950,7 @@ class Group(BioModel):
         if get_string:
             cont_str = ""
             for cont in current_cont_list:
-                cont_str += "{}, ".format(cont.name)
+                cont_str += "{}, ".format(cont.__str__())
             return cont_str
         return current_cont_list
 
@@ -1076,6 +1075,22 @@ class Group(BioModel):
         else:
             return None
 
+    def avg_weight(self):
+
+        # INCORPORATE SAMPLE DETS!
+        weight_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Weight").order_by(-"detail_date")
+        last_obs_date = weight_deps.first().detail_date
+        last_obs_set = weight_deps.filter(detail_date__gte=last_obs_date)
+        avg_weight = last_obs_set.aggregate(Avg('det_val'))["det_val"]
+        return avg_weight
+
+    def avg_len(self):
+        weight_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Length").order_by(-"detail_date")
+        last_obs_date = weight_deps.first().detail_date
+        last_obs_set = weight_deps.filter(detail_date__gte=last_obs_date)
+        avg_len = last_obs_set.aggregate(Avg('det_val'))["det_val"]
+        return avg_len
+
 
 class GroupDet(BioDet):
     # grpd tag
@@ -1124,9 +1139,6 @@ class HeathUnit(BioCont):
     # heat tag
     key = "heat"
 
-    manufacturer = models.CharField(max_length=35, verbose_name=_("Maufacturer"), db_column="MANUFACTURER")
-    inservice_date = models.DateField(verbose_name=_("Date unit was put into service"), db_column="INSERVICE_DATE")
-    serial_number = models.CharField(max_length=50, verbose_name=_("Serial Number"), db_column="SERIAL_NUMBER")
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
     class Meta:
@@ -1313,7 +1325,7 @@ class Individual(BioModel):
         if get_string:
             cont_str = ""
             for cont in current_cont_list:
-                cont_str += "{} ".format(cont.name)
+                cont_str += "{} ".format(cont.__str__())
             return cont_str
         return current_cont_list
 
@@ -1565,14 +1577,9 @@ class Location(BioModel):
             self.trib_id = self.relc_id.trib_id
         if self.relc_id and not self.subr_id:
             self.sube_id = self.relc_id.subr_id
-        self.set_relc_latlng()
-        if not self.relc_id and not (self.loc_lon and self.loc_lat):
-            raise ValidationError("Location must have either lat-long specified or site chosen")
+        # if not self.relc_id and not (self.loc_lon and self.loc_lat):
+        #    raise ValidationError("Location must have either lat-long specified or site chosen")
         super(Location, self).clean(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        self.set_relc_latlng()
-        super(Location, self).save(*args, **kwargs)
 
 
 class LocCode(BioLookup):
