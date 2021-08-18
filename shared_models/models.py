@@ -835,15 +835,17 @@ class Organization(SimpleLookup):
 
     # calc
     full_address = models.CharField(max_length=1000, blank=True, null=True, editable=False)
-    full_name_and_address = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_and_address_en = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_and_address_fr = models.CharField(max_length=1000, blank=True, null=True, editable=False)
 
     def save(self, *args, **kwargs):
         self.full_address = self.get_full_address()
-        self.full_name_and_address = self.get_full_name_and_address()
+        self.full_name_and_address_en = self.get_full_name_and_address_en()
+        self.full_name_and_address_fr = self.get_full_name_and_address_fr()
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.full_name_and_address
+        return self.tfull
 
     def get_full_address(self):
         # initial my_str with either address or None
@@ -871,8 +873,23 @@ class Organization(SimpleLookup):
             my_str += self.postal_code
         return my_str
 
-    def get_full_name_and_address(self):
-        return self.tname + f", {self.full_address}"
+    def get_full_name_and_address_en(self):
+        return self.name + f", {self.full_address}"
+
+    def get_full_name_and_address_fr(self):
+        if self.nom:
+            return self.nom + f", {self.full_address}"
+        return self.name + f", {self.full_address}"
+
+    @property
+    def tfull(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("full_name_and_address_en"))):
+            my_str = "{}".format(getattr(self, str(_("full_name_and_address_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.full_name_and_address_en
+        return my_str
 
 
 class Person(MetadataFields):

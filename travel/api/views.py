@@ -500,7 +500,7 @@ class TravellerModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         data['role_choices'] = [dict(text=item.tname, value=item.id) for item in models.Role.objects.all()]
-        data['org_choices'] = [dict(text=item.full_name_and_address, value=item.full_name_and_address) for item in Organization.objects.filter(is_dfo=True)]
+        data['org_choices'] = [dict(text=item.tfull, value=item.tfull) for item in Organization.objects.filter(is_dfo=True)]
         return Response(data)
 
 
