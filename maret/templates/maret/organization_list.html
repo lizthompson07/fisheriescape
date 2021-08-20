@@ -1,0 +1,41 @@
+{% extends "maret/list.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load i18n %}
+
+
+{% block content %}
+  <div id="mySidebar" class="sidebar">
+    {% include "maret/_filters.html" %}
+  </div>
+  <div id="main">
+  {{ block.super }}
+  </div>
+{% endblock %}
+{% block filter %}{% endblock %}
+
+
+{% block table_tr %}
+  {% url row_object_url_name object.id as my_url %}
+  <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}>
+    {% for field in field_list %}
+      {% if "audio" in field.name|lower %}
+        <td>
+          {% if object.audio_file %}
+            <a href="{{ object.audio_file.url }}" class="btn btn-xs btn-outline-primary"><span class="mdi mdi-volume-high h5 text-primary"></span></a>
+          {% else %}
+            ---
+          {% endif %}
+        </td>
+      {% else %}
+        <td class="{{ field.class }}">
+          {% block table_td %}
+            {% get_field_value object field.name safe=True %}
+          {% endblock %}
+        </td>
+      {% endif %}
+    {% endfor %}
+
+  </tr>
+{% endblock %}

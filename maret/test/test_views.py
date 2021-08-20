@@ -35,3 +35,78 @@ class TestIndexView(common_tests.CommonTest):
     @tag('class')
     def test_view_class(self):
         self.assert_inheritance(views.IndexView, shared_views.CommonTemplateView)
+
+
+@tag('all', 'view', 'entry_list')
+class TestEntryListView(common_tests.CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('maret:entry_list')
+        self.expected_template = 'maret/entry_list.html'
+        self.user = self.get_and_login_user(in_group="maret_admin")
+
+    @tag("view")
+    def test_view_class(self):
+        self.assert_inheritance(views.EntryListView, shared_views.CommonFilterView)
+
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+
+@tag('all', 'view', 'org_list')
+class TestOrganizationListView(common_tests.CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('maret:org_list')
+        self.expected_template = 'maret/organization_list.html'
+        self.user = self.get_and_login_user(in_group="maret_admin")
+
+    @tag("view")
+    def test_view_class(self):
+        self.assert_inheritance(views.EntryListView, shared_views.CommonFilterView)
+
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+
+@tag('all', 'view', 'person_list')
+class TestPersonListView(common_tests.CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('maret:person_list')
+        self.expected_template = 'maret/person_list.html'
+        self.user = self.get_and_login_user(in_group="maret_admin")
+
+    @tag("view")
+    def test_view_class(self):
+        self.assert_inheritance(views.EntryListView, shared_views.CommonFilterView)
+
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)

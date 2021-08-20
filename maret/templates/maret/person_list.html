@@ -1,0 +1,26 @@
+{% extends "maret/list.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load i18n %}
+{% load humanize %}
+
+{% block content %}
+  <div id="mySidebar" class="sidebar">
+    {% include "maret/_filters.html" %}
+  </div>
+  <div id="main">
+    {{ block.super }}
+  </div>
+{% endblock %}
+
+{% block table_td %}
+  {% if "last_updated" in field.name %}
+    {{ object.date_last_modified|naturaltime }}
+  {% else %}
+    {% get_field_value object field.name safe=True %}
+  {% endif %}
+{% endblock %}
+
+{% block filter %}{% endblock %}
+
