@@ -80,7 +80,7 @@ class SpawningParser(DataParser):
         self.row_entered += anix_entered
 
         self.row_entered += utils.enter_bulk_indvd(anix_female.pk, cleaned_data, row_date,
-                                                   gender=self.sex_dict["F"],
+                                                   gender="F",
                                                    len_mm=row.get(self.len_key_f_mm),
                                                    len=row.get(self.len_key_f),
                                                    weight=row.get(self.weight_key_f),
@@ -88,7 +88,7 @@ class SpawningParser(DataParser):
                                                    )
 
         self.row_entered += utils.enter_bulk_indvd(anix_male.pk, cleaned_data, row_date,
-                                                   gender=self.sex_dict["M"],
+                                                   gender="M",
                                                    len_mm=row.get(self.len_key_m_mm),
                                                    len=row.get(self.len_key_m),
                                                    weight=row.get(self.weight_key_m),
