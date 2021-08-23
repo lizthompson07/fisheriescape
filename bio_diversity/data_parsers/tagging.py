@@ -5,6 +5,7 @@ from django.db.models.functions import Length
 
 from bio_diversity import models
 from bio_diversity import utils
+from bio_diversity.static import calculation_constants
 from bio_diversity.utils import DataParser
 
 
@@ -122,7 +123,7 @@ class TaggingParser(DataParser):
                 self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.group_key],
                                                       self.prog_grp_anidc_id.pk, adsc_str=row[self.group_key])
 
-        utils.enter_bulk_indvd(anix_indv, self.cleaned_data, row_date,
+        utils.enter_bulk_indvd(anix_indv.pk, self.cleaned_data, row_date,
                                len_mm=row.get(self.len_key_mm),
                                len=row.get(self.len_key),
                                weight=row.get(self.weight_key),
@@ -166,16 +167,32 @@ class TaggingParser(DataParser):
 
 
 class MactaquacTaggingParser(TaggingParser):
+    sex_dict = calculation_constants.sex_dict
     to_tank_key = "Destination Pond"
     from_tank_key = "Origin Pond"
     coll_key = "Collection"
     pit_key = "PIT"
     ufid_key = "UFID"
+    sex_key = "Sex"
+    tissue_key = "Tissue Sample"
     vial_key = "Vial Number"
     crew_key = "Crew"
 
     header = 2
     converters = {to_tank_key: str, from_tank_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
+
+    def data_preper(self):
+        super(MactaquacTaggingParser, self).data_preper()
+        self.sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
+
+    def row_parser(self, row):
+        super().row_parser(row)
+        row_datetime = utils.get_row_date(row)
+        row_date = row_datetime.date()
+        utils.enter_bulk_indvd(self.anix_indv.pk, self.cleaned_data, row_date,
+                               gender=row.get(self.sex_key),
+                               tissue_yn=row.get(self.tissue_key),
+                               )
 
 
 class ColdbrookTaggingParser(TaggingParser):

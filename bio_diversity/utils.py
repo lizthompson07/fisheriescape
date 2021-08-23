@@ -1084,35 +1084,35 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
     return row_entered
 
 
-def enter_bulk_indvd(anix, cleaned_data, det_date, len=None, len_mm=None, weight=None, weight_kg=None, vial=None, scale_envelope=None, gender=None, tissue_yn=None):
+def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len=None, len_mm=None, weight=None, weight_kg=None, vial=None, scale_envelope=None, gender=None, tissue_yn=None):
     data_entered = 0
     health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
     if nan_to_none(len):
         len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, len, len_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, len, len_anidc_id.pk, None)
     if nan_to_none(len_mm):
         len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, 0.1 * len_mm, len_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, 0.1 * len_mm, len_anidc_id.pk, None)
     if nan_to_none(weight):
         weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, weight, weight_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, weight, weight_anidc_id.pk, None)
     if nan_to_none(weight_kg):
         weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, weight_kg * 1000, weight_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, weight_kg * 1000, weight_anidc_id.pk, None)
     if nan_to_none(vial):
         vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, vial, vial_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, vial, vial_anidc_id.pk, None)
     if nan_to_none(scale_envelope):
         envelope_anidc_id = models.AnimalDetCode.objects.filter(name="Scale Envelope").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, scale_envelope, envelope_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, scale_envelope, envelope_anidc_id.pk, None)
     if nan_to_none(gender):
         sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
         func_sex_dict = calculation_constants.sex_dict
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, func_sex_dict[gender.upper()],
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, func_sex_dict[gender.upper()],
                                     sex_anidc_id.pk, adsc_str=func_sex_dict[gender.upper()])
     if nan_to_none(tissue_yn):
         if y_n_to_bool(tissue_yn):
-            data_entered += enter_indvd(anix.pk, cleaned_data, det_date, None, health_anidc_id, "Tissue Sample")
+            data_entered += enter_indvd(anix_pk, cleaned_data, det_date, None, health_anidc_id, "Tissue Sample")
 
     return data_entered
 

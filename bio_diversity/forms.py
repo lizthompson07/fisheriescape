@@ -912,7 +912,7 @@ class MortForm(forms.Form):
             cleaned_data["evnt_id"] = mortality_evnt
             cleaned_data["facic_id"] = mortality_evnt.facic_id
 
-            utils.enter_bulk_indvd(anix, cleaned_data, cleaned_data["mort_date"],
+            utils.enter_bulk_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"],
                                    len=cleaned_data["indv_length"],
                                    weight=cleaned_data["indv_mass"],
                                    vial=cleaned_data["indv_vial"],

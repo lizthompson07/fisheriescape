@@ -65,7 +65,7 @@ class GenericIndvParser(DataParser):
         anix, anix_entered = utils.enter_anix(self.cleaned_data, indv_pk=indv.pk)
         self.row_entered += anix_entered
 
-        utils.enter_bulk_indvd(anix, self.cleaned_data, row_date,
+        utils.enter_bulk_indvd(anix.pk, self.cleaned_data, row_date,
                                gender=row.get(self.sex_key),
                                len_mm=row.get(self.len_key_mm),
                                len=row.get(self.len_key),
