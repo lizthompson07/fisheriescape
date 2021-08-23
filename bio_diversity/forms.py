@@ -9,6 +9,7 @@ from django.forms import modelformset_factory
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from bio_diversity.data_parsers.containers import TroughParser, HeathUnitParser, TankParser
 from bio_diversity.data_parsers.distributions import DistributionIndvParser, DistributionParser
 from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser, \
     ElectrofishingParser, AdultCollectionParser
@@ -290,6 +291,7 @@ class DataForm(CreatePrams):
     data_types = (None, '---------')
     data_type = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
+    facic_id = forms.ModelChoiceField(queryset=models.FacilityCode.objects.all(), label="Facility")
     pickc_id = forms.ModelMultipleChoiceField(queryset=models.CountCode.objects.all(), label="Pick Type")
     adsc_id = forms.ModelMultipleChoiceField(queryset=models.AniDetSubjCode.objects.all(),
                                              label="Additional Detail Columns")
@@ -317,8 +319,20 @@ class DataForm(CreatePrams):
         parser = None
         try:
             if not cleaned_data.get("evntc_id"):
-                parser = SitesParser(cleaned_data)
-                log_data, success = parser.log_data, parser.success
+                if cleaned_data["data_type"].__str__() == "sites":
+                    parser = SitesParser(cleaned_data)
+                    log_data, success = parser.log_data, parser.success
+
+                elif cleaned_data["data_type"].__str__() == "conts":
+                    parser = TankParser(cleaned_data)
+                    log_data += parser.log_data
+                    success += parser.success
+                    parser = TroughParser(cleaned_data)
+                    log_data += parser.log_data
+                    success += parser.success
+                    parser = HeathUnitParser(cleaned_data)
+                    log_data += parser.log_data
+                    success += parser.success
 
             # ----------------------------ELECTROFISHING-----------------------------------
             elif cleaned_data["evntc_id"].__str__() in ["Electrofishing", "Bypass Collection", "Smolt Wheel Collection"]:

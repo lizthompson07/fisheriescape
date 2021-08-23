@@ -21,7 +21,7 @@ class SitesParser(DataParser):
     lon_key = "Min Long"
     max_lon_key = "Max Long"
 
-    header = 1
+    header = 2
     row_count = header + 2
     converters = {name_key: str, lat_key: str, lon_key: str, max_lon_key: str, max_lat_key: str}
 
@@ -70,37 +70,6 @@ class SitesParser(DataParser):
         try:
             site_id.clean()
             site_id.save()
-            self.row_entered = True
-        except (IntegrityError, ValidationError) as err:
-            self.log_data += "Row {} not entered. {} \n".format(self.row_count, err.__str__())
-        self.row_count += 1
-
-
-class TankParser(DataParser):
-    name_key = "Name"
-    desc_key = "Description"
-    facic_key = "Facility (M/C)"
-
-    header = 1
-    row_count = header + 2
-    converters = {name_key: str, desc_key: str, }
-
-    def load_data(self):
-        self.mandatory_keys = [self.name_key, self.desc_key]
-        self.mandatory_filled_keys = [self.name_key, self.desc_key]
-        super(TankParser, self).load_data()
-
-    def row_parser(self, row):
-        cleaned_data = self.cleaned_data
-        tank_id = models.Tank(name=row.get(self.name_key),
-                              description_en=row.get(self.desc_key),
-                              facic_id=cleaned_data["facic_id"],
-                              created_by=cleaned_data["created_by"],
-                              created_date=cleaned_data["created_date"]
-        )
-        try:
-            tank_id.clean()
-            tank_id.save()
             self.row_entered = True
         except (IntegrityError, ValidationError) as err:
             self.log_data += "Row {} not entered. {} \n".format(self.row_count, err.__str__())

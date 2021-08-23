@@ -273,12 +273,14 @@ class DataCreate(mixins.DataMixin, CommonCreate):
         self.get_form_class().base_fields["trof_id"].required = False
         self.get_form_class().base_fields["pickc_id"].required = False
         self.get_form_class().base_fields["adsc_id"].required = False
+        self.get_form_class().base_fields["facic_id"].required = False
 
         self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["adsc_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["pickc_id"].widget = forms.HiddenInput()
 
         if 'evnt' in self.kwargs:
             evnt = models.Event.objects.filter(pk=self.kwargs["evnt"]).select_related("evntc_id", "facic_id").get()
@@ -313,9 +315,13 @@ class DataCreate(mixins.DataMixin, CommonCreate):
         else:
             self.get_form_class().base_fields["evnt_id"].required = False
             self.get_form_class().base_fields["evntc_id"].required = False
-            self.get_form_class().base_fields["facic_id"].required = False
-            self.get_form_class().base_fields["data_type"].required = False
-            self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
+            self.get_form_class().base_fields["facic_id"].required = True
+            self.get_form_class().base_fields["data_type"].required = True
+            data_types = (("sites", "Sites"), ("conts", "Containers"))
+            self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
+                                                                               label=_("Type of data entry"))
+            self.get_form_class().base_fields["facic_id"] = forms.ModelChoiceField(queryset=models.FacilityCode.objects.all(),
+                                                                                   label="Facility")
 
         return init
 
@@ -341,9 +347,9 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 template_url = 'data_templates/measuring.xlsx'
             template_name = "{}-{}".format(facility_code, evnt_code)
         else:
-            context["title"] = "Add Sites"
-            template_url = "data_templates/sites_entry.xlsx"
-            template_name = "Sites Entry"
+            context["title"] = "Bulk add codes"
+            template_url = "data_templates/bulk_entry.xlsx"
+            template_name = "Bulk Entry"
 
         context["template_url"] = template_url
         context["allow_entry"] = allow_entry

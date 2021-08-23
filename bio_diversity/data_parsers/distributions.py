@@ -74,7 +74,6 @@ class DistributionParser(DataParser):
         row_date = utils.get_row_date(row)
 
         # set location:
-        relc_id = None
         relc_id = models.ReleaseSiteCode.objects.filter(name__iexact=row[self.site_key]).get()
         rive_id = relc_id.rive_id
 

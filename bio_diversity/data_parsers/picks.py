@@ -29,7 +29,7 @@ class EDInitParser(DataParser):
     converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     def load_data(self):
-        self.mandatory_keys.extend([self.stock_key, self.trof_key, self.tray_key, self.cross_key, self.crew_key])
+        self.mandatory_keys.extend([self.stock_key, self.trof_key, self.tray_key, self.cross_key])
         super(EDInitParser, self).load_data()
 
     def data_preper(self):
@@ -55,7 +55,7 @@ class EDInitParser(DataParser):
                                                 indv_id__stok_id=row["stok_id"]).get()
 
         anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
-                                                      grp_id__isnull=False).select_related('grp_id').get()
+                                                      grp_id__isnull=False).select_related('grp_id').first()
         grp_id = anix_id.grp_id
         self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
 
@@ -92,7 +92,7 @@ class EDPickParser(DataParser):
     converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     def load_data(self):
-        self.mandatory_keys.extend([self.stock_key, self.trof_key, self.crew_key, self.cross_key, self.tray_key])
+        self.mandatory_keys.extend([self.stock_key, self.trof_key, self.cross_key, self.tray_key])
         super(EDPickParser, self).load_data()
 
     def data_preper(self):
@@ -199,7 +199,7 @@ class EDHUParser(DataParser):
     converters = {trof_key: str, cross_key: str, tray_key: str, cont_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     def load_data(self):
-        self.mandatory_keys.extend([self.stock_key, self.trof_key, self.crew_key, self.cross_key, self.tray_key,
+        self.mandatory_keys.extend([self.stock_key, self.trof_key, self.cross_key, self.tray_key,
                                     self.prog_key, self.cnt_key, self.cont_key])
         super(EDHUParser, self).load_data()
 
