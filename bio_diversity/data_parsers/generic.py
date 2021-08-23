@@ -26,6 +26,7 @@ class GenericIndvParser(DataParser):
     comment_key = "Comments"
     mark_key = "Mark Applied"
     vax_key = "Vaccinated"
+    status_key = "Status"
 
     converters = {vial_key: str, envelope_key: str, start_tank_key: str, end_tank_key: str, pit_key: str, "Year": str, "Month": str, "Day": str}
     header = 2
@@ -76,8 +77,9 @@ class GenericIndvParser(DataParser):
                                vial=row.get(self.vial_key),
                                scale_envelope=row.get(self.envelope_key),
                                tissue_yn=row.get(self.tissue_key),
-                               mark_applied=row.get(self.mark_key),
-                               vaccination=row.get(self.vaccination_key),
+                               mark=row.get(self.mark_key),
+                               vaccinated=row.get(self.vaccination_key),
+                               status=row.get(self.status_key)
                                )
 
         if utils.nan_to_none(row.get(self.precocity_key)):
