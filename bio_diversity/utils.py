@@ -572,18 +572,20 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_
             return contx
         else:
             return row_entered
-    if "evnt_id" in cleaned_data.keys():
-        if cleaned_data["evnt_id"]:
-            # link containers to parent event
-            if not origin:
-                # move indvidual or group to destination and clean up previous contx's
-                if grp_pk:
-                    grp = models.Group.objects.filter(pk=grp_pk).get()
-                    origin_conts = grp.current_cont(movement_date)
-            else:
-                row_entered += enter_contx(origin, cleaned_data, None)
 
-            row_entered += enter_contx(destination, cleaned_data, None)
+    if cleaned_data.get("evnt_id"):
+        # move indvidual or group to destination and clean up previous contx's
+        # link containers to parent event
+        if indv_pk:
+            indv = models.Individual.objects.filter(pk=indv_pk).get()
+            origin_conts = indv.current_cont(movement_date)
+        elif not origin and grp_pk:
+            grp = models.Group.objects.filter(pk=grp_pk).get()
+            origin_conts = grp.current_cont(movement_date)
+        else:
+            row_entered += enter_contx(origin, cleaned_data, None)
+
+        row_entered += enter_contx(destination, cleaned_data, None)
 
     if destination:
         movement_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Movement").get(),
@@ -1084,7 +1086,7 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
     return row_entered
 
 
-def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len=None, len_mm=None, weight=None, weight_kg=None, vial=None, scale_envelope=None, gender=None, tissue_yn=None):
+def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len=None, len_mm=None, weight=None, weight_kg=None, vial=None, scale_envelope=None, gender=None, tissue_yn=None, status=None):
     data_entered = 0
     health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
     if nan_to_none(len):
@@ -1110,6 +1112,10 @@ def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len=None, len_mm=None, wei
         func_sex_dict = calculation_constants.sex_dict
         data_entered += enter_indvd(anix_pk, cleaned_data, det_date, func_sex_dict[gender.upper()],
                                     sex_anidc_id.pk, adsc_str=func_sex_dict[gender.upper()])
+    if nan_to_none(status):
+        status_anidc_pk = models.AnimalDetCode.objects.filter(name="Status").get().pk
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, status,
+                                    status_anidc_pk, adsc_str=status)
     if nan_to_none(tissue_yn):
         if y_n_to_bool(tissue_yn):
             data_entered += enter_indvd(anix_pk, cleaned_data, det_date, None, health_anidc_id, "Tissue Sample")
