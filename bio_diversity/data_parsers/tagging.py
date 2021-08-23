@@ -177,10 +177,6 @@ class MactaquacTaggingParser(TaggingParser):
     header = 2
     converters = {to_tank_key: str, from_tank_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
 
-    def row_parser(self, row):
-        super().row_parser(row)
-        row_datetime = utils.get_row_date(row)
-
 
 class ColdbrookTaggingParser(TaggingParser):
     box_key = "Box"

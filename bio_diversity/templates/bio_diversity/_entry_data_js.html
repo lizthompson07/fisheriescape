@@ -3,6 +3,7 @@
     window.onload = function() {
       $("#loading_fish").hide();
       setDataFields();
+
     };
 
     $('form').on('submit', function(e){
@@ -20,22 +21,26 @@
 
     function setDataFields() {
         var e = document.getElementById("id_data_type");
+        var edFlag = JSON.parse(document.getElementById('ed-flag').textContent);
+
         var dataType = e.value;
-        if ( dataType==0 ) {
-            $("#id_trof_id").parent().show();
-            $("#id_pickc_id").parent().hide();
+        if (edFlag==1) {
+            if ( dataType==0 ) {
+                $("#id_trof_id").parent().show();
+                $("#id_pickc_id").parent().hide();
 
-        }
-        else if ( dataType==1 || dataType==4 ) {
-            $("#id_pickc_id").parent().show();
-            $("#id_trof_id").parent().hide();
-
-        }
-        else if ( dataType==2 || dataType==3 || dataType==-1 ) {
-            if ( $(id_trof_id).parent().is(":visible")) {
-                $("#id_trof_id").parent().hide();
             }
-            $("#id_pickc_id").parent().hide();
+            else if ( dataType==1 || dataType==4 ) {
+                $("#id_pickc_id").parent().show();
+                $("#id_trof_id").parent().hide();
+
+            }
+            else if ( dataType==2 || dataType==3 || dataType==-1 ) {
+                if ( $(id_trof_id).parent().is(":visible")) {
+                    $("#id_trof_id").parent().hide();
+                }
+                $("#id_pickc_id").parent().hide();
+            }
         }
     }
 </script>
