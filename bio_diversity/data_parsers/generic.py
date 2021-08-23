@@ -24,6 +24,8 @@ class GenericIndvParser(DataParser):
     start_tank_key = "Origin Pond"
     end_tank_key = "Destination Pond"
     comment_key = "Comments"
+    mark_key = "Mark Applied"
+    vax_key = "Vaccinated"
 
     converters = {vial_key: str, envelope_key: str, start_tank_key: str, end_tank_key: str, pit_key: str, "Year": str, "Month": str, "Day": str}
     header = 2
@@ -74,6 +76,8 @@ class GenericIndvParser(DataParser):
                                vial=row.get(self.vial_key),
                                scale_envelope=row.get(self.envelope_key),
                                tissue_yn=row.get(self.tissue_key),
+                               mark_applied=row.get(self.mark_key),
+                               vaccination=row.get(self.vaccination_key),
                                )
 
         if utils.nan_to_none(row.get(self.precocity_key)):
@@ -128,6 +132,8 @@ class GenericUntaggedParser(DataParser):
     start_tank_key = "Origin Pond"
     end_tank_key = "Destination Pond"
     comment_key = "Comments"
+    mark_key = "Mark Applied"
+    vax_key = "Vaccinated"
 
     header = 2
     sheet_name = "Untagged"
@@ -145,6 +151,8 @@ class GenericUntaggedParser(DataParser):
     envelope_anidc_id = None
     ani_health_anidc_id = None
     anidc_ufid_id = None
+    vax_anidc_id = None
+    mark_anidc_id = None
 
     def load_data(self):
         self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key, self.samp_key])
@@ -162,6 +170,10 @@ class GenericUntaggedParser(DataParser):
         self.envelope_anidc_id = models.AnimalDetCode.objects.filter(name="Scale Envelope").get()
         self.ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
         self.anidc_ufid_id = models.AnimalDetCode.objects.filter(name="UFID").get()
+        self.vax_anidc_id = models.AnimalDetCode.objects.filter(name="Vaccination").get()
+        self.mark_anidc_id = models.AnimalDetCode.objects.filter(name="Mark").get()
+
+
 
         # The following steps are to set additional columns on each row to facilitate parsing.
         # In particular,  columns set will be: "datetime", "grp_year", "grp_coll", "start_tank_id",
@@ -255,7 +267,14 @@ class GenericUntaggedParser(DataParser):
         if row_samp:
             if utils.nan_to_none(row.get(self.sex_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date,
-                                                      self.sex_dict[row[self.sex_key].upper()], self.sex_anidc_id.pk)
+                                                      self.sex_dict[row[self.sex_key].upper()], self.sex_anidc_id.pk,
+                                                      adsc_str=self.sex_dict[row[self.sex_key].upper()])
+            if utils.nan_to_none(row.get(self.mark_key)):
+                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.mark_key],
+                                                      self.mark_anidc_id.pk, adsc_str=row[self.mark_key])
+            if utils.nan_to_none(row.get(self.vax_key)):
+                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.vax_key],
+                                                      self.vax_anidc_id.pk, adsc_str=row[self.vax_key])
             if utils.nan_to_none(row.get(self.len_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.len_key],
                                                       self.len_anidc_id.pk, )

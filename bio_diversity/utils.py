@@ -1086,7 +1086,8 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
     return row_entered
 
 
-def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len=None, len_mm=None, weight=None, weight_kg=None, vial=None, scale_envelope=None, gender=None, tissue_yn=None, status=None):
+def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len=None, len_mm=None, weight=None, weight_kg=None, vial=None,
+                     scale_envelope=None, gender=None, tissue_yn=None, status=None, mark=None, vaccinated=None):
     data_entered = 0
     health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
     if nan_to_none(len):
@@ -1116,6 +1117,14 @@ def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len=None, len_mm=None, wei
         status_anidc_pk = models.AnimalDetCode.objects.filter(name="Status").get().pk
         data_entered += enter_indvd(anix_pk, cleaned_data, det_date, status,
                                     status_anidc_pk, adsc_str=status)
+    if nan_to_none(mark):
+        mark_anidc_pk = models.AnimalDetCode.objects.filter(name="Mark").get().pk
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, mark,
+                                    mark_anidc_pk, adsc_str=mark)
+    if nan_to_none(vaccinated):
+        vax_anidc_pk = models.AnimalDetCode.objects.filter(name="Vaccination").get().pk
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, vaccinated,
+                                    vax_anidc_pk, adsc_str=vaccinated)
     if nan_to_none(tissue_yn):
         if y_n_to_bool(tissue_yn):
             data_entered += enter_indvd(anix_pk, cleaned_data, det_date, None, health_anidc_id, "Tissue Sample")
