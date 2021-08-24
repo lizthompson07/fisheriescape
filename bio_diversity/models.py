@@ -256,7 +256,7 @@ class BioCont(BioLookup):
     # Make name not unique, is unique together with facility code.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"), db_column="NAME")
 
-    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=[]):
+    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=[], get_grp=False):
         indv_list = []
         grp_list = []
 
@@ -285,7 +285,10 @@ class BioCont(BioLookup):
                 grp_list.append(grp)
             elif in_count > grp_out_set[grp]:
                 indv_list.append(grp)
-        return indv_list, grp_list
+        if get_grp:
+            return grp_list
+        else:
+            return indv_list, grp_list
 
     def degree_days(self, start_date, end_date):
         return []

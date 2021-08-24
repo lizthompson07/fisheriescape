@@ -1,12 +1,7 @@
-import copy
-import math
 from datetime import datetime, timedelta
 
-import pytz
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-import pandas as pd
-import numpy as np
 from django.db.models import Q
 
 from bio_diversity import models
@@ -30,6 +25,7 @@ class EDInitParser(DataParser):
 
     def load_data(self):
         self.mandatory_keys.extend([self.stock_key, self.trof_key, self.tray_key, self.cross_key])
+        self.mandatory_filled_keys.extend([self.stock_key, self.tray_key, self.trof_key, self.cross_key])
         super(EDInitParser, self).load_data()
 
     def data_preper(self):
@@ -118,13 +114,13 @@ class EDPickParser(DataParser):
         cleaned_data = self.cleaned_data
         row_date = utils.get_row_date(row)
         self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
+        # find group from either cross or tray:
         pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
-                                                indv_id__stok_id=row["stok_id"]).get()
-
-        anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
-                                                      grp_id__isnull=False).select_related('grp_id').get()
-        grp_id = anix_id.grp_id
+                                                indv_id__stok_id=row["stok_id"]).first()
         tray_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True, name=row[self.tray_key]).get()
+
+        grp_id = utils.get_tray_group(pair_id, tray_id, row_date)
+
         perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
 
         for pickc_id in cleaned_data["pickc_id"]:
@@ -143,13 +139,12 @@ class EDShockingParser(EDPickParser):
         row_date = utils.get_row_date(row)
         self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
         pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
-                                                indv_id__stok_id=row["stok_id"]).get()
-
-        anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
-                                                      grp_id__isnull=False).select_related('grp_id').get()
-        grp_id = anix_id.grp_id
+                                                indv_id__stok_id=row["stok_id"]).first()
         tray_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True,
                                              name=row[self.tray_key]).get()
+
+        grp_id = utils.get_tray_group(pair_id, tray_id, row_date)
+
         perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
 
         grp_anix = None
@@ -226,11 +221,10 @@ class EDHUParser(DataParser):
         tray_qs = models.Tray.objects.filter(trof_id=row["trof_id"], name=row[self.tray_key])
         tray_id = tray_qs.filter(Q(start_date__lte=row_date, end_date__gte=row_date) | Q(end_date__isnull=True)).get()
         pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
-                                                indv_id__stok_id=row["stok_id"]).get()
+                                                indv_id__stok_id=row["stok_id"]).first()
 
-        anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
-                                                      grp_id__isnull=False).select_related('grp_id').get()
-        grp_id = anix_id.grp_id
+        grp_id = utils.get_tray_group(pair_id, tray_id, row_date)
+
         # want to shift the hu move event, so that the counting math always works out.
         hu_move_date = row_date + timedelta(minutes=1)
         hu_cleaned_data = utils.create_new_evnt(cleaned_data, "Heath Unit Transfer", hu_move_date)

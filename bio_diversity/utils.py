@@ -427,6 +427,20 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
     return final_grp_list
 
 
+def get_tray_group(pair_id, tray_id, row_date):
+    if pair_id:
+        anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
+                                                      grp_id__isnull=False).select_related('grp_id').get()
+        grp_id = anix_id.grp_id
+    else:
+        grp_list = tray_id.fish_in_cont(row_date, get_grp=True)
+        if grp_list:
+            grp_id = grp_list[0]
+        else:
+            raise Exception("No group found in tray {}".format(tray_id.__str__()))
+    return grp_id
+
+
 def set_row_tank(df, cleaned_data, tank_key, col_name="tank_id"):
     tank_qs = models.Tank.objects.filter(facic_id=cleaned_data["facic_id"])
     tank_dict = {tank.name: tank for tank in tank_qs}

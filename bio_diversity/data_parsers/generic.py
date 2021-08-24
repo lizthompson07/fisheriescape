@@ -27,6 +27,7 @@ class GenericIndvParser(DataParser):
     mark_key = "Mark Applied"
     vax_key = "Vaccinated"
     status_key = "Status"
+    prio_key = "Priority"
 
     converters = {vial_key: str, envelope_key: str, start_tank_key: str, end_tank_key: str, pit_key: str, "Year": str, "Month": str, "Day": str}
     header = 2
@@ -78,7 +79,7 @@ class GenericIndvParser(DataParser):
                                scale_envelope=row.get(self.envelope_key),
                                tissue_yn=row.get(self.tissue_key),
                                mark=row.get(self.mark_key),
-                               vaccinated=row.get(self.vaccination_key),
+                               vaccinated=row.get(self.vax_key),
                                status=row.get(self.status_key)
                                )
 
