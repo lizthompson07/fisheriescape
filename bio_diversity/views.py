@@ -1163,7 +1163,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         context["calculated_properties"]["Number of Groups"] = len(grp_set)
         context["calculated_properties"]["Number of Samples"] = len(samp_set)
         context["calculated_properties"]["Number of locations"] = len(loc_set)
-
+        context["calculated_properties"]["Number of pairings"] = len(pair_set)
 
         context["table_list"].extend(["data", "team", "loc", "indv", "grp", "tank", "trof", "heat", "samp", "pair", "evntf",
                                       "prot"])

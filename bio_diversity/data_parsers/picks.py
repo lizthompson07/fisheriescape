@@ -48,7 +48,7 @@ class EDInitParser(DataParser):
         cleaned_data = self.cleaned_data
         row_date = utils.get_row_date(row)
         pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
-                                                indv_id__stok_id=row["stok_id"]).get()
+                                                indv_id__stok_id=row["stok_id"], start_date__year=row[self.year_key]).get()
 
         anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
                                                       grp_id__isnull=False).select_related('grp_id').first()
@@ -63,7 +63,7 @@ class EDInitParser(DataParser):
             cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fecu_key], contx_pk=contx.pk, cnt_code="Photo Count")
             self.row_entered += cnt_entered
 
-        self.team_parser(row[self.crew_key], row)
+        self.team_parser(row.get(self.crew_key), row)
 
         if utils.nan_to_none(row.get(self.comment_key)):
             comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix_id, row_date)
@@ -116,12 +116,12 @@ class EDPickParser(DataParser):
         self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
         # find group from either cross or tray:
         pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
-                                                indv_id__stok_id=row["stok_id"]).first()
+                                                indv_id__stok_id=row["stok_id"], start_date__year=row[self.year_key]).first()
         tray_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True, name=row[self.tray_key]).get()
 
         grp_id = utils.get_tray_group(pair_id, tray_id, row_date)
 
-        perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
+        perc_list, inits_not_found = utils.team_list_splitter(row.get(self.crew_key))
 
         for pickc_id in cleaned_data["pickc_id"]:
             if utils.nan_to_none(row[pickc_id.name]):
@@ -139,13 +139,13 @@ class EDShockingParser(EDPickParser):
         row_date = utils.get_row_date(row)
         self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
         pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
-                                                indv_id__stok_id=row["stok_id"]).first()
+                                                indv_id__stok_id=row["stok_id"], start_date__year=row[self.year_key]).first()
         tray_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True,
                                              name=row[self.tray_key]).get()
 
         grp_id = utils.get_tray_group(pair_id, tray_id, row_date)
 
-        perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
+        perc_list, inits_not_found = utils.team_list_splitter(row.get(self.crew_key))
 
         grp_anix = None
         for pickc_id in cleaned_data["pickc_id"]:
@@ -221,7 +221,7 @@ class EDHUParser(DataParser):
         tray_qs = models.Tray.objects.filter(trof_id=row["trof_id"], name=row[self.tray_key])
         tray_id = tray_qs.filter(Q(start_date__lte=row_date, end_date__gte=row_date) | Q(end_date__isnull=True)).get()
         pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
-                                                indv_id__stok_id=row["stok_id"]).first()
+                                                indv_id__stok_id=row["stok_id"], start_date__year=row[self.year_key]).first()
 
         grp_id = utils.get_tray_group(pair_id, tray_id, row_date)
 
@@ -326,7 +326,7 @@ class EDHUParser(DataParser):
             # link cup to egg development event
             utils.enter_contx(cont, cleaned_data, None)
 
-        perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
+        perc_list, inits_not_found = utils.team_list_splitter(row.get(self.crew_key))
 
         for inits in inits_not_found:
             self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
