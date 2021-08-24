@@ -1,8 +1,6 @@
-from django import forms
-from django.contrib.auth.models import User
-from django.utils.translation import gettext_lazy as _
 import django_filters
-from . import views
+from django.utils.translation import gettext_lazy as _
+
 from . import models
 from . import utils
 
@@ -13,15 +11,18 @@ class SectionFilter(django_filters.FilterSet):
     section = django_filters.ChoiceFilter(field_name='name')
     division = django_filters.ChoiceFilter(field_name='division')
     branch = django_filters.ChoiceFilter(field_name='division__branch')
-    region = django_filters.ChoiceFilter(field_name="division__branch__region")
+    sector = django_filters.ChoiceFilter(field_name='division__branch__sector')
+    region = django_filters.ChoiceFilter(field_name="division__branch__sector__region")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        region_label = _("Region - Sector (NCR)")
+        region_label = _("Region - National (NCR)")
+        sector_label = _("Sector")
         branch_label = _("Branch - Directorate (NCR)")
         division_label = _("Division - Branch (NCR)")
         section_label = _("Section - Team (NCR)")
         region_choices = utils.get_region_choices()
+        sector_choices = utils.get_sector_choices()
         branch_choices = utils.get_branch_choices()
         division_choices = utils.get_division_choices()
 
@@ -30,7 +31,9 @@ class SectionFilter(django_filters.FilterSet):
                                                                lookup_expr='exact', choices=division_choices)
         self.filters['branch'] = django_filters.ChoiceFilter(field_name="division__branch", label=branch_label,
                                                              lookup_expr='exact', choices=branch_choices)
-        self.filters['region'] = django_filters.ChoiceFilter(field_name="division__branch__region", label=region_label,
+        self.filters['sector'] = django_filters.ChoiceFilter(field_name="division__branch__sector", label=sector_label,
+                                                             lookup_expr='exact', choices=sector_choices)
+        self.filters['region'] = django_filters.ChoiceFilter(field_name="division__branch__sector__region", label=region_label,
                                                              lookup_expr='exact', choices=region_choices)
 
         try:
@@ -43,6 +46,19 @@ class SectionFilter(django_filters.FilterSet):
                 branch_choices = utils.get_branch_choices(region_filter=my_region_id)
                 self.filters['branch'] = django_filters.ChoiceFilter(field_name="division__branch", label=branch_label,
                                                                      lookup_expr='exact', choices=branch_choices)
+                sector_choices = utils.get_sector_choices(region_filter=my_region_id)
+                self.filters['sector'] = django_filters.ChoiceFilter(field_name="division__branch__sector", label=sector_label,
+                                                                     lookup_expr='exact', choices=sector_choices)
+
+            # if there is a filter on sector, filter the branch, division
+            if self.data["sector"] != "":
+                my_sector_id = int(self.data["sector"])
+                branch_choices = utils.get_branch_choices(sector_filter=my_sector_id)
+                self.filters['branch'] = django_filters.ChoiceFilter(field_name="division__branch", label=branch_label,
+                                                                     lookup_expr='exact', choices=branch_choices)
+                division_choices = utils.get_division_choices(sector_filter=my_sector_id)
+                self.filters['division'] = django_filters.ChoiceFilter(field_name="division", label=division_label,
+                                                                       lookup_expr='exact', choices=division_choices)
 
             # if there is a filter on branch, filter the division
             if self.data["branch"] != "":
@@ -62,17 +78,21 @@ class DivisionFilter(django_filters.FilterSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        region_label = _("Region - Sector (NCR)")
+        region_label = _("Region - National (NCR)")
+        sector_label = _("Sector")
         branch_label = _("Branch - Directorate (NCR)")
         division_label = _("Division - Branch (NCR)")
 
         region_choices = utils.get_region_choices()
+        sector_choices = utils.get_sector_choices()
         branch_choices = utils.get_branch_choices()
 
         self.filters['division'] = django_filters.CharFilter(field_name="name", label=division_label, lookup_expr='icontains')
-        self.filters['branch'] = django_filters.ChoiceFilter(field_name="branch", label=branch_label,
+        self.filters['sector'] = django_filters.ChoiceFilter(field_name="sector", label=sector_label,
+                                                             lookup_expr='exact', choices=sector_choices)
+        self.filters['branch'] = django_filters.ChoiceFilter(field_name="sector__branch", label=branch_label,
                                                              lookup_expr='exact', choices=branch_choices)
-        self.filters['region'] = django_filters.ChoiceFilter(field_name="branch__region", label=region_label,
+        self.filters['region'] = django_filters.ChoiceFilter(field_name="sector__branch__region", label=region_label,
                                                              lookup_expr='exact', choices=region_choices)
 
         try:
@@ -88,21 +108,37 @@ class DivisionFilter(django_filters.FilterSet):
             print('no data in filter')
 
 
-
 class BranchFilter(django_filters.FilterSet):
     branch = django_filters.ChoiceFilter(field_name='name')
-    region = django_filters.ChoiceFilter(field_name="division__branch__region")
+    sector = django_filters.ChoiceFilter(field_name="sector")
+    region = django_filters.ChoiceFilter(field_name="sector__region")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        region_label = _("Region - Sector (NCR)")
+        region_label = _("Region - National")
+        sector_label = _("Sector")
         branch_label = _("Branch - Directorate (NCR)")
         region_choices = utils.get_region_choices()
+        sector_choices = utils.get_sector_choices()
         self.filters['branch'] = django_filters.CharFilter(field_name="name", label=branch_label, lookup_expr='icontains')
         self.filters['region'] = django_filters.ChoiceFilter(field_name="region", label=region_label,
                                                              lookup_expr='exact', choices=region_choices)
+        self.filters['sector'] = django_filters.ChoiceFilter(field_name="sector__region", label=sector_label,
+                                                             lookup_expr='exact', choices=sector_choices)
 
 
+class SectorFilter(django_filters.FilterSet):
+    sector = django_filters.ChoiceFilter(field_name='name')
+    region = django_filters.ChoiceFilter(field_name="region")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        region_label = _("Region - National (NCR)")
+        sector_label = _("Sector")
+        region_choices = utils.get_region_choices()
+        self.filters['sector'] = django_filters.CharFilter(field_name="name", label=sector_label, lookup_expr='icontains')
+        self.filters['region'] = django_filters.ChoiceFilter(field_name="region", label=region_label,
+                                                             lookup_expr='exact', choices=region_choices)
 
 
 class ProjectCodeFilter(django_filters.FilterSet):

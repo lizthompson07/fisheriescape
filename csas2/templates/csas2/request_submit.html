@@ -17,7 +17,7 @@
         <input class="form-check-input h1" type="checkbox" value="" id="confirmation1" v-model="userConfirmed1">
         <label class="form-check-label h4" for="confirmation1">
           {% blocktrans %}
-            A paper copy of the CSAS Request for has been signed by the appropriate authority and has been uploaded to this record.
+            A PDF copy of the CSAS Request has been signed by the appropriate authority and has been uploaded to this request.
           {% endblocktrans %}
         </label>
       </div>
@@ -25,15 +25,7 @@
         <input class="form-check-input h1" type="checkbox" value="" id="confirmation2" v-model="userConfirmed2">
         <label class="form-check-label h4" for="confirmation2">
           {% blocktrans %}
-            This is a <em>really</em> good request.
-          {% endblocktrans %}
-        </label>
-      </div>
-      <div class="form-check mb-5">
-        <input class="form-check-input h1" type="checkbox" value="" id="confirmation3" v-model="userConfirmed3">
-        <label class="form-check-label h4" for="confirmation3">
-          {% blocktrans %}
-            Some other checklist item...
+            The signed PDF matches the information in this request, i.e., no changes were made to the online request after the PDF was signed and approved.
           {% endblocktrans %}
         </label>
       </div>
@@ -67,7 +59,6 @@
     data: {
       userConfirmed1: false,
       userConfirmed2: false,
-      userConfirmed3: false,
       request: {},
       loading_request: true,
     },
@@ -84,7 +75,7 @@
     },
     computed: {
       allConfirmed() {
-        return this.userConfirmed1 && this.userConfirmed2 && this.userConfirmed3
+        return this.userConfirmed1 && this.userConfirmed2;
       }
     },
     created() {

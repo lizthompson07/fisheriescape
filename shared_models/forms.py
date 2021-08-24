@@ -69,6 +69,18 @@ class BranchForm(forms.ModelForm):
             'admin': forms.Select(attrs=chosen_js),
         }
 
+class SectorForm(forms.ModelForm):
+    class Meta:
+        model = models.Sector
+        exclude = [
+            'date_last_modified',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'head': forms.Select(attrs=chosen_js),
+            'admin': forms.Select(attrs=chosen_js),
+        }
+
 
 class RegionForm(forms.ModelForm):
     class Meta:

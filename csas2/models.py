@@ -76,8 +76,6 @@ class GenericNote(MetadataFields):
 
 class CSASRequest(MetadataFields):
     ''' csas request '''
-    is_carry_over = models.BooleanField(default=False, choices=model_choices.yes_no_choices,
-                                        verbose_name=_("Is this request a carry-over from a previous year?"))
     language = models.IntegerField(default=1, verbose_name=_("language of request"), choices=model_choices.language_choices)
     title = models.CharField(max_length=1000, verbose_name=_("title"))
     translated_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("translated title"))
@@ -86,13 +84,13 @@ class CSASRequest(MetadataFields):
     client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=False)
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"), blank=True, null=False)
     is_multiregional = models.BooleanField(default=False,
-                                           verbose_name=_("Does this request involve more than one region (zonal) or more than one client sector?"))
+                                           verbose_name=_("Click here if this request involves more than one region (zonal) or more than one client sector?"))
     multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region for all involved."))
 
     issue = models.TextField(verbose_name=_("Issue requiring science information and/or advice"), blank=True, null=True,
                              help_text=_("Should be phrased as a question to be answered by Science"))
     had_assistance = models.BooleanField(default=False, verbose_name=_(
-        "Have you had assistance from Science in developing the question/request?"), help_text=_("E.g. with CSAS and/or DFO science staff."))
+        "Click here if you have had assistance from Science in developing the question/request?"), help_text=_("E.g. with CSAS and/or DFO science staff."))
     assistance_text = models.TextField(null=True, blank=True, verbose_name=_(" Please provide details about the assistance received"))
 
     rationale = models.TextField(verbose_name=_("Rationale or context for the request"), blank=True, null=True,
@@ -104,7 +102,7 @@ class CSASRequest(MetadataFields):
                                               help_text=_("e.g., COSEWIC or consultation meetings, Environmental Assessments, legal or regulatory "
                                                           "requirement, Treaty obligation, international commitments, etc)."
                                                           "Please elaborate and provide anticipatory dates"))
-    has_funding = models.BooleanField(default=False, verbose_name=_("Do you have funds to cover any extra costs associated with this request?"),
+    has_funding = models.BooleanField(default=False, verbose_name=_("Click here if you have funds to cover any extra costs associated with this request?"),
                                       help_text=_("i.e., special analysis, meeting costs, translation)?"), )
     funding_text = models.TextField(null=True, blank=True, verbose_name=_("Please describe"))
     prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("How would you classify the prioritization of this request?"),
@@ -125,6 +123,7 @@ class CSASRequest(MetadataFields):
     class Meta:
         ordering = ("fiscal_year", "title")
         verbose_name_plural = _("CSAS Requests")
+        verbose_name = _("CSAS Request")
 
     def __str__(self):
         return self.title

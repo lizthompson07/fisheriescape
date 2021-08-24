@@ -78,7 +78,6 @@ class CSASRequestForm(forms.ModelForm):
             'coordinator',
             'language',
             'title',
-            'is_carry_over',
             'is_multiregional',
             'multiregional_text',
             'issue',

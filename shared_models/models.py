@@ -289,8 +289,10 @@ class Branch(SimpleLookupWithUUID):
         return get_metadata_string(None, None, self.date_last_modified, self.last_modified_by)
 
     def __str__(self):
-        # check to see if a french value is given
-        return f"{self.tname} ({self.sector.tabbrev})"
+        mystr = f"{self.tname}"
+        if self.sector:
+            mystr += f" ({self.sector.tabbrev})"
+        return mystr
 
     def save(self, *args, **kwargs):
         for obj in self.divisions.all():

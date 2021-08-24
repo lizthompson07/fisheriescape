@@ -267,6 +267,7 @@ class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
     submit_text = gettext_lazy("Save")
+    h1 = gettext_lazy("New CSAS Request")
 
     def get_initial(self):
         return dict(
