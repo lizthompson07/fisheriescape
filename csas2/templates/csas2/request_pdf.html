@@ -33,10 +33,10 @@ td, th {
     margin: 0;
 }
 
-th {
-    text-decoration: underline;
+th, .lead {
     font-weight: bold;
     text-align: left;
+    font-size: 12px;
 }
 
 .text-center {
@@ -86,7 +86,7 @@ th {
 }
 
 .block {
-    margin-bottom: 15px;
+    margin-bottom: 25px;
 }
 
 h1 {
@@ -146,5 +146,61 @@ h1 {
 
 
 <div class="block">
-    <img src="{% static 'csas2/canada_logo.png' %}" alt="" width="600px">
+  <img src="{% static 'csas2/canada_logo.png' %}" alt="" width="600px">
+</div>
+
+<div class="block text-center">
+  <h1>{% trans "REQUEST FOR PEER-REVIEWED <br> SCIENCE INFORMATION AND/OR ADVICE" %}</h1>
+</div>
+
+<div class="block">
+  <table class="show-all-borders">
+    <tr>
+      <th>{% trans "Title of Request:" %}</th>
+    </tr>
+    <tr>
+      <td>{{ object.title }}</td>
+    </tr>
+  </table>
+</div>
+
+
+<div class="block">
+  <p class="lead">Client Sector Information:</p>
+  <table class="show-all-borders">
+    <tr>
+      <th>{% trans "Requester Name/ Title" %}</th>
+      <th>{% trans "Email" %}</th>
+    </tr>
+    <tr>
+      <td>{{ object.client }}</td>
+      <td>{{ object.client.email }}</td>
+    </tr>
+    <tr>
+      <th colspan="2">{% trans "Manager Name" %}</th>
+    </tr>
+    <tr>
+      <td colspan="2">  &nbsp; </td>
+    </tr>
+    <tr>
+      <th>{% trans "Region" %}</th>
+      <th>{% trans "Sector" %}</th>
+    </tr>
+    <tr>
+      <td>{{ object.section.division.branch.sector.region.tname }}</td>
+      <td>{{ object.section.division.branch.sector.tname }}</td>
+    </tr>
+    <tr>
+      <th colspan="2">{% trans "Directorate/Branch" %}</th>
+    </tr>
+    <tr>
+      <td colspan="2"> {{ object.section.division.branch.tname }} </td>
+    </tr>
+  </table>
+</div>
+
+<div class="block">
+  {% blocktrans %}
+    This PDF was generate by DM Apps - CSAS Tracking Tool on {{ now }}
+  {% endblocktrans %}
 </div>

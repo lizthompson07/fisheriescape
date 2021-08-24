@@ -272,6 +272,7 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
         obj = self.get_csas_request()
         context = super().get_context_data(**kwargs)
         context["object"] = obj
+        context["now"] = timezone.now()
         return context
 
 
