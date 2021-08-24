@@ -272,7 +272,7 @@ class Sector(SimpleLookupWithUUID):
 class Branch(SimpleLookupWithUUID):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
-    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("region"), related_name="branches")
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("region"), related_name="branches", editable=False)
     sector = models.ForeignKey(Sector, on_delete=models.DO_NOTHING, verbose_name=_("sector"), related_name="branches", blank=True, null=True)
     head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                              verbose_name=_("regional director / NCR director general"),
@@ -295,6 +295,8 @@ class Branch(SimpleLookupWithUUID):
         return mystr
 
     def save(self, *args, **kwargs):
+        if self.sector:
+            self.region = self.sector.region
         for obj in self.divisions.all():
             obj.save()
         super().save(*args, **kwargs)
