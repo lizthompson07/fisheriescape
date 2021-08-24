@@ -1071,6 +1071,23 @@ class Group(BioModel):
         else:
             return prog_grp_list
 
+    def group_mark(self, get_string=False):
+        # gets any marks the group may be tagged with.
+        grpd_set = GroupDet.objects.filter(anix_id__grp_id=self,
+                                           anidc_id__name="Mark",
+                                           adsc_id__isnull=False,
+                                           ).select_related("adsc_id")
+        grp_mark_list = [grpd.adsc_id for grpd in grpd_set]
+        if get_string:
+            mark_str = ""
+            for mark in grp_mark_list:
+                mark_str += "{}, ".format(mark.name)
+
+            return mark_str
+        else:
+            return grp_mark_list
+
+
     def start_date(self):
         first_evnt = self.animal_details.order_by("-evnt_id__start_date").first()
         if first_evnt:

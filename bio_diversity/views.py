@@ -1156,9 +1156,13 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         if evnt_code == "Electrofishing" or evnt_code == "Bypass Collection" or evnt_code == "Smolt Wheel Collection":
             context["coll_btn"] = True
 
+        context["calculated_properties"] = {}
         if evnt_code == "Spawning":
             context["calculated_properties"] = self.object.fecu_dict()
-
+        context["calculated_properties"]["Number of Individuals"] = len(indv_set)
+        context["calculated_properties"]["Number of Groups"] = len(grp_set)
+        context["calculated_properties"]["Number of Samples"] = len(samp_set)
+        context["calculated_properties"]["Number of locations"] = len(loc_set)
 
 
         context["table_list"].extend(["data", "team", "loc", "indv", "grp", "tank", "trof", "heat", "samp", "pair", "evntf",
@@ -1320,6 +1324,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
         context["calculated_properties"] = {}
         context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
+        context["calculated_properties"]["Marks"] = self.object.group_mark(get_string=True)
         context["calculated_properties"]["Current container"] = self.object.current_cont(get_string=True)
         context["calculated_properties"]["Development"] = self.object.get_development()
         context["calculated_properties"]["Fish in group"] = self.object.count_fish_in_group()

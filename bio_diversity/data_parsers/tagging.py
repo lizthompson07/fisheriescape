@@ -15,6 +15,7 @@ class TaggingParser(DataParser):
     from_tank_id_key = "from_tank_id"
     from_tank_key = "From Tank"
     group_key = "Group"
+    mark_key = "Mark"
     coll_key = "Collection"
     stok_key = "Stock"
     ufid_key = "Universal Fish ID"
@@ -45,6 +46,7 @@ class TaggingParser(DataParser):
     weight_anidc_id = None
     ani_health_anidc_id = None
     prog_grp_anidc_id = None
+    mark_anidc_id = None
 
     def load_data(self):
         self.mandatory_keys.extend([self.to_tank_key, self.from_tank_key, self.group_key, self.pit_key, self.stok_key, self.coll_key])
@@ -52,7 +54,8 @@ class TaggingParser(DataParser):
         super(TaggingParser, self).load_data()
 
     def data_preper(self):
-        if len(self.data[self.group_key].unique()) > 1 or len(self.data[self.stok_key].unique()) > 1 or len(self.data[self.coll_key].unique()) > 1:
+        if len(self.data[self.group_key].unique()) > 1 or len(self.data[self.stok_key].unique()) > 1 or \
+                len(self.data[self.coll_key].unique() or len(self.data[self.mark_key].unique())) > 1:
             self.log_data += "\n WARNING: Form only designed for use with single group. Check \"Group\" column and" \
                              " split sheet if needed. \n"
 
@@ -63,6 +66,7 @@ class TaggingParser(DataParser):
         self.weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
         self.ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
         self.prog_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Program Group").get()
+        self.mark_anidc_id = models.AnimalDetCode.objects.filter(name="Mark").get()
 
         # set datetimes:
         self.data = utils.set_row_datetime(self.data)
@@ -72,7 +76,7 @@ class TaggingParser(DataParser):
         self.data = utils.set_row_tank(self.data, self.cleaned_data, self.to_tank_key, col_name=self.to_tank_id_key)
 
         # set column groups, should only be one of these
-        self.data = utils.set_row_grp(self.data, self.stok_key, self.coll_key, self.group_key, self.from_tank_id_key, "datetime")
+        self.data = utils.set_row_grp(self.data, self.stok_key, self.coll_key, self.group_key, self.from_tank_id_key, "datetime", self.mark_key)
         self.grp_id = self.data["grp_id"][0]
 
         year, coll = utils.year_coll_splitter(self.data[self.coll_key][0])
@@ -122,6 +126,10 @@ class TaggingParser(DataParser):
             if not len(indv.prog_group()):
                 self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.group_key],
                                                       self.prog_grp_anidc_id.pk, adsc_str=row[self.group_key])
+        if utils.nan_to_none(row[self.mark_key]):
+            if not len(indv.prog_group()):
+                self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.mark_key],
+                                                      self.mark_anidc_id.pk, adsc_str=row[self.mark_key])
 
         utils.enter_bulk_indvd(anix_indv.pk, self.cleaned_data, row_date,
                                len_mm=row.get(self.len_key_mm),
@@ -180,6 +188,7 @@ class MactaquacTaggingParser(TaggingParser):
 
     header = 2
     converters = {to_tank_key: str, from_tank_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
+    sex_anidc_id = None
 
     def data_preper(self):
         super(MactaquacTaggingParser, self).data_preper()

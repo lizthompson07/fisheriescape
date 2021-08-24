@@ -437,17 +437,21 @@ def get_draw_from_dot(dot_string, cleaned_data):
         return
 
 
-def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().replace(tzinfo=pytz.UTC), prog_grp=None, prog_str=None, fail_on_not_found=False):
+def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().replace(tzinfo=pytz.UTC), prog_grp=None,
+            prog_str=None, grp_mark=None, mark_str=None, fail_on_not_found=False):
 
     if nan_to_none(prog_str):
         prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=prog_str).get()
+
+    if nan_to_none(mark_str):
+        grp_mark = models.AniDetSubjCode.objects.filter(name__iexact=mark_str).get()
 
     coll_id = None
     if nan_to_none(coll_str):
         coll_id = coll_getter(coll_str)
 
     if nan_to_none(cont):
-        indv_list, grp_list =cont.fish_in_cont(at_date, select_fields=["grp_id__coll_id", "grp_id__stok_id"])
+        indv_list, grp_list = cont.fish_in_cont(at_date, select_fields=["grp_id__coll_id", "grp_id__stok_id"])
         if nan_to_none(stock_str):
             grp_list = [grp for grp in grp_list if grp.stok_id.name == stock_str]
         if nan_to_none(coll_id):
@@ -465,20 +469,29 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
             grp_qs = grp_qs.filter(grp_year=grp_year)
         grp_list = [grp for grp in grp_qs]
 
-    final_grp_list = grp_list.copy()
     if prog_grp:
-        final_grp_list = []
+        prog_grp_list = []
         for grp in grp_list:
             if prog_grp in grp.prog_group():
-                final_grp_list.append(grp)
+                prog_grp_list.append(grp)
+        grp_list = prog_grp_list.copy()
+
+    if grp_mark:
+        mark_grp_list = []
+        for grp in grp_list:
+            if grp_mark in grp.group_mark():
+                mark_grp_list.append(grp)
+        grp_list = mark_grp_list.copy()
+
+    final_grp_list = grp_list.copy()
 
     if len(final_grp_list) == 0 and fail_on_not_found:
         if cont:
-            raise Exception("\nGroup {}-{}-{} in container {} and program group {} not uniquely found in"
-                            " db\n Groups in container are: {}".format(stock_str, grp_year, coll_str, cont.name, prog_str, cont.fish_in_cont()[1]))
+            raise Exception("\nGroup {}-{}-{} in container {}, program group {} and mark {} not uniquely found in"
+                            " db\n Groups in container are: {}".format(stock_str, grp_year, coll_str, cont.name, prog_str, mark_str, cont.fish_in_cont()[1]))
         else:
-            raise Exception("\nGroup {}-{}-{} with program group {} not uniquely found in"
-                            " db\n".format(stock_str, grp_year, coll_str, prog_str))
+            raise Exception("\nGroup {}-{}-{} with program group {} and mark {} not uniquely found in"
+                            " db\n".format(stock_str, grp_year, coll_str, prog_str, mark_str))
     return final_grp_list
 
 
@@ -513,7 +526,7 @@ def set_row_datetime(df, datetime_key="datetime"):
     return df
 
 
-def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, grp_col_name="grp_id", return_dict=False):
+def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, mark_key, grp_col_name="grp_id", return_dict=False):
     # function will return a df with a "grp_id" column containing the group associated with the values
     # datetime key must be a datetime object, cont_key must be a cont object
     grp_key = "grp_key"
@@ -526,15 +539,16 @@ def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, grp
 
     # set a string on each row to search a dictionary of all groups in df:
     df[grp_key] = df[stok_key].astype(str) + df[yr_coll_key].astype(str) + df[cont_key].astype(str)\
-                  + df[prio_key].astype(str) + df[datetime_key].astype(str)
+                  + df[prio_key].astype(str) + df[datetime_key].astype(str) + df[mark_key].astype(str)
 
     # identify all unique groups in the table, grp_data is also a df:
-    grp_data = df.groupby([stok_key, grp_year, grp_coll, cont_key, prio_key, datetime_key, grp_key],
+    grp_data = df.groupby([stok_key, grp_year, grp_coll, cont_key, prio_key, datetime_key, mark_key, grp_key],
                           dropna=False, sort=False).size().reset_index()
 
     # for each row in this smaller df, find the grp_id, and then make a dictionary out of these
     grp_data["grp_id"] = grp_data.apply(lambda row: get_grp(row[stok_key], row[grp_year], row[grp_coll], row[cont_key],
                                                             at_date=row[datetime_key], prog_str=nan_to_none(row[prio_key]),
+                                                            mark_str=nan_to_none(row[mark_key]),
                                                             fail_on_not_found=True)[0], axis=1)
 
     grp_dict = dict(zip(grp_data[grp_key], grp_data["grp_id"]))

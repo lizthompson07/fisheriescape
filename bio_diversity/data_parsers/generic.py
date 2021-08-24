@@ -125,6 +125,7 @@ class GenericUntaggedParser(DataParser):
     yr_coll_key = "Year Class"
     rive_key = "River"
     prio_key = "Group"
+    grp_mark_key = "Mark"
     samp_key = "Sample"
     sex_key = "Sex"
     len_key = "Length (cm)"
@@ -163,7 +164,7 @@ class GenericUntaggedParser(DataParser):
     mark_anidc_id = None
 
     def load_data(self):
-        self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key, self.samp_key])
+        self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key, self.grp_mark_key, self.samp_key])
         for extra_col in self.cleaned_data["adsc_id"]:
             self.mandatory_keys.extend([extra_col.name])
         for extra_col in self.cleaned_data["anidc_id"]:
@@ -205,19 +206,19 @@ class GenericUntaggedParser(DataParser):
 
         # set the dict keys for groups, use astype(str) to handle anything that might be a nan.
         self.data, self.start_grp_dict = utils.set_row_grp(self.data, self.rive_key, self.yr_coll_key, self.prio_key,
-                                                           "start_tank_id", "datetime", grp_col_name="start_grp_id",
-                                                           return_dict=True)
+                                                           "start_tank_id", "datetime", self.grp_mark_key,
+                                                           grp_col_name="start_grp_id", return_dict=True)
         for item, grp in self.start_grp_dict.items():
             utils.enter_anix(cleaned_data, grp_pk=grp.pk)
 
         self.data["end_grp_key"] = self.data[self.rive_key] + self.data[self.yr_coll_key] + \
                                    self.data[self.end_tank_key].astype(str) + self.data[self.prio_key].astype(str) + \
-                                   self.data["datetime"].astype(str)
+                                   self.data["datetime"].astype(str) + self.data[self.grp_mark_key].astype(str)
 
         # create the end group dict and create, movement event, groups, counts, contxs, etc. necesarry
         end_grp_data = self.data.groupby(
             [self.rive_key, "grp_year", "grp_coll", "end_tank_id", "start_tank_id", self.prio_key, "datetime",
-             "grp_key", "end_grp_key"],
+             self.grp_mark_key, "grp_key", "end_grp_key"],
             dropna=False, sort=False).size().reset_index()
         for row in end_grp_data.to_dict('records'):
             # check if end tank is set, otherwise, skip this step
@@ -225,7 +226,7 @@ class GenericUntaggedParser(DataParser):
                 self.end_grp_dict[row["end_grp_key"]] = None
                 continue
             grps = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["end_tank_id"],
-                                 at_date=row["datetime"], prog_str=row[self.prio_key])
+                                 at_date=row["datetime"], prog_str=row[self.prio_key], mark_str=row[self.grp_mark_key])
             start_grp_id = self.start_grp_dict[row["grp_key"]]
             start_contx, contx_entered = utils.enter_contx(row["start_tank_id"], cleaned_data, None,
                                                            grp_pk=start_grp_id.pk, return_contx=True)
@@ -246,8 +247,11 @@ class GenericUntaggedParser(DataParser):
                 utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], None, self.prnt_grp_anidc_id.pk,
                                  frm_grp_id=start_grp_id)
                 if utils.nan_to_none(row[self.prio_key]):
-                    utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], None, self.prog_grp_anidc_id.pk,
-                                     row[self.prio_key])
+                    utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], row[self.prio_key],
+                                     self.prog_grp_anidc_id.pk, row[self.prio_key])
+                if utils.nan_to_none(row[self.grp_mark_key]):
+                    utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], row[self.grp_mark_key],
+                                     self.mark_anidc_id.pk, row[self.grp_mark_key])
                 end_contx = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
                                                        row["datetime"],
                                                        grp_pk=end_grp_id.pk, return_end_contx=True)
@@ -337,6 +341,7 @@ class GenericGrpParser(DataParser):
     yr_coll_key = "Year Class"
     rive_key = "River"
     prio_key = "Group"
+    grp_mark_key = "Mark"
     start_tank_key = "Origin Pond"
     end_tank_key = "Destination Pond"
     nfish_key = "Number of Fish"
@@ -389,7 +394,8 @@ class GenericGrpParser(DataParser):
         cleaned_data = self.cleaned_data
         row_date = row["datetime"].date()
         row_start_grp = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["start_tank_id"],
-                                      row_date, prog_str=row[self.prio_key], fail_on_not_found=True)[0]
+                                      row_date, prog_str=row.get(self.prio_key), mark_str=row.get(self.grp_mark_key),
+                                      fail_on_not_found=True)[0]
         start_anix, self.row_entered = utils.enter_anix(cleaned_data, grp_pk=row_start_grp.pk)
         start_contx, contx_entered = utils.enter_contx(row["start_tank_id"], cleaned_data, None, return_contx=True)
         self.row_entered += contx_entered
@@ -403,7 +409,7 @@ class GenericGrpParser(DataParser):
         if row["end_tank_id"]:
             # 4 possible cases here: group in tank or not and whole group move or not:
             row_end_grp_list = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["end_tank_id"],
-                                             row_date, prog_str=row[self.prio_key])
+                                             row_date, prog_str=row[self.prio_key], mark_str=row[self.grp_mark_key])
             row_end_grp = None
             if not whole_grp and not row_end_grp_list:
                 # splitting fish group, create end group:
@@ -414,8 +420,11 @@ class GenericGrpParser(DataParser):
                 end_grp_anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=row_end_grp.pk)
                 self.row_entered = anix_entered
                 if utils.nan_to_none(row[self.prio_key]):
-                    self.row_entered += utils.enter_grpd(end_grp_anix.pk, cleaned_data, row_date, None,
+                    self.row_entered += utils.enter_grpd(end_grp_anix.pk, cleaned_data, row_date, row[self.prio_key],
                                                          self.prog_grp_anidc_id, adsc_str=row[self.prio_key])
+                if utils.nan_to_none(row[self.grp_mark_key]):
+                    self.row_entered += utils.enter_grpd(end_grp_anix.pk, cleaned_data, row_date, row[self.grp_mark_key],
+                                                         self.mark_anidc_id.pk, adsc_str=row[self.grp_mark_key])
             elif not whole_grp:
                 row_end_grp = row_end_grp_list[0]
 

@@ -233,9 +233,9 @@
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-04-06",
-        "min_val": "0.00000",
-        "max_val": "100000.00000",
-        "unit_id": 11,
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
         "ani_subj_flag": true
     }
 },
