@@ -203,7 +203,12 @@ h1 {
 <div class="block">
   <table class="show-all-borders">
     <tr>
-      <th colspan="2">{% get_verbose_label object "is_multiregional" %}</th>
+      <th colspan="2">
+        {% blocktrans %}
+          Does this request involve more than one region (zonal) or more than one client sector?
+          If yes, please provide the contact name, sector, and region.
+        {% endblocktrans %}
+      </th>
     </tr>
     <tr>
       <td class="w10p">
@@ -236,7 +241,11 @@ h1 {
 <div class="block">
   <table class="show-all-borders">
     <tr>
-      <th colspan="2">{% get_verbose_label object "had_assistance" %}</th>
+      <th colspan="2">
+        {% blocktrans %}
+          Have you had assistance from Science in developing the question/request (with CSAS and/or DFO science staff)? If yes, with whom?
+        {% endblocktrans %}
+      </th>
     </tr>
     <tr>
       <td class="w10p">
@@ -300,7 +309,12 @@ h1 {
 <div class="block">
   <table class="show-all-borders">
     <tr>
-      <th colspan="2">{% get_verbose_label object "has_funding" %}</th>
+      <th colspan="2">
+        {% blocktrans %}
+          Do you have funds to cover any extra costs associated with this request (i.e., special analysis, meeting costs, translation)? If yes, please
+          elaborate.
+        {% endblocktrans %}
+      </th>
     </tr>
     <tr>
       <td class="w10p">
