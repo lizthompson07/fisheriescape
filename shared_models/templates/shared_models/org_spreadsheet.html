@@ -59,7 +59,7 @@
           <select v-model="sectorFilter" style="font-size: small" class="form-control form-control-sm" @change="branchFilter=null;divisionFilter=null;">
             <option :value="null" label="----"></option>
             <option
-              v-for="s, index in sectors"
+              v-for="s, index in filteredSectors"
               :key=s.id
               :label="`${s.region_obj.name} - ${s.name}`"
               :value="s.id"></option>
@@ -225,7 +225,7 @@
           <label for="">{% trans "Sector" %}</label>
           <select required v-model="branchToEdit.sector" style="font-size: small" class="form-control form-control-sm" ref="form_start">
             <option
-              v-for="s, index in sectors"
+              v-for="s, index in filteredSectors"
               :key=s.id
               :label="`${s.display}`"
               :value="s.id">
