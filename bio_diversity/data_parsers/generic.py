@@ -42,6 +42,14 @@ class GenericIndvParser(DataParser):
 
     def load_data(self):
         self.mandatory_keys.extend([self.pit_key])
+        for extra_col in self.cleaned_data["adsc_id"]:
+            self.mandatory_keys.extend([extra_col.name])
+        for extra_col in self.cleaned_data["anidc_id"]:
+            self.mandatory_keys.extend([extra_col.name])
+            self.converters[extra_col.name] = str
+        for extra_col in self.cleaned_data["anidc_subj_id"]:
+            self.mandatory_keys.extend([extra_col.name])
+
         self.mandatory_filled_keys.extend([self.pit_key])
         super(GenericIndvParser, self).load_data()
 
@@ -109,10 +117,7 @@ class GenericIndvParser(DataParser):
                 self.log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row[self.pit_key],
                                                                                              row[self.comment_key])
 
-        for adsc_id in self.cleaned_data["adsc_id"]:
-            if utils.y_n_to_bool(row.get(adsc_id.name)):
-                self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, adsc_id.name,
-                                                      adsc_id.anidc_id.pk, adsc_str=adsc_id.name)
+        self.row_entered += utils.parse_extra_cols(row, self.cleaned_data, anix, indv=True)
 
 
 class GenericUntaggedParser(DataParser):
@@ -159,6 +164,13 @@ class GenericUntaggedParser(DataParser):
 
     def load_data(self):
         self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key, self.samp_key])
+        for extra_col in self.cleaned_data["adsc_id"]:
+            self.mandatory_keys.extend([extra_col.name])
+        for extra_col in self.cleaned_data["anidc_id"]:
+            self.mandatory_keys.extend([extra_col.name])
+            self.converters[extra_col.name] = str
+        for extra_col in self.cleaned_data["anidc_subj_id"]:
+            self.mandatory_keys.extend([extra_col.name])
         super(GenericUntaggedParser, self).load_data()
 
     def data_preper(self):
@@ -175,8 +187,6 @@ class GenericUntaggedParser(DataParser):
         self.anidc_ufid_id = models.AnimalDetCode.objects.filter(name="UFID").get()
         self.vax_anidc_id = models.AnimalDetCode.objects.filter(name="Vaccination").get()
         self.mark_anidc_id = models.AnimalDetCode.objects.filter(name="Mark").get()
-
-
 
         # The following steps are to set additional columns on each row to facilitate parsing.
         # In particular,  columns set will be: "datetime", "grp_year", "grp_coll", "start_tank_id",
@@ -317,10 +327,7 @@ class GenericUntaggedParser(DataParser):
                 if not comments_parsed:
                     self.log_data += "Unparsed comment on row {}:\n {} \n\n".format(row, row[self.comment_key])
 
-            for adsc_id in cleaned_data["adsc_id"]:
-                if utils.y_n_to_bool(row.get(adsc_id.name)):
-                    self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, adsc_id.name,
-                                                          adsc_id.anidc_id.pk, adsc_str=adsc_id.name)
+            self.row_entered += utils.parse_extra_cols(row, self.cleaned_data, row_samp, samp=True)
 
         else:
             self.success = False
@@ -351,6 +358,13 @@ class GenericGrpParser(DataParser):
 
     def load_data(self):
         self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key])
+        for extra_col in self.cleaned_data["adsc_id"]:
+            self.mandatory_keys.extend([extra_col.name])
+        for extra_col in self.cleaned_data["anidc_id"]:
+            self.mandatory_keys.extend([extra_col.name])
+            self.converters[extra_col.name] = str
+        for extra_col in self.cleaned_data["anidc_subj_id"]:
+            self.mandatory_keys.extend([extra_col.name])
         super(GenericGrpParser, self).load_data()
 
     def data_preper(self):
@@ -430,7 +444,6 @@ class GenericGrpParser(DataParser):
                                                cnt_code="Fish Count")
             self.row_entered = cnt_entered
 
-
         # add details to det_anix:
 
         if utils.nan_to_none(row.get(self.vax_key)):
@@ -439,6 +452,8 @@ class GenericGrpParser(DataParser):
         if utils.nan_to_none(row.get(self.mark_key)):
             self.row_entered += utils.enter_grpd(det_anix.pk, cleaned_data, row_date, None, self.mark_anidc_id.pk,
                                                  adsc_str=row[self.mark_key])
+
+        self.row_entered += utils.parse_extra_cols(row, self.cleaned_data, det_anix, grp=True)
 
     def clean_data(self):
         if self.success:
@@ -450,4 +465,5 @@ class GenericGrpParser(DataParser):
                                                        cnt_code="Fish Removed from Container")
                     cnt.cnt = row[self.nfish_key]
                     cnt.save()
+        super(GenericGrpParser, self).clean_data()
 

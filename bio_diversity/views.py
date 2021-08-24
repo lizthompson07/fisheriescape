@@ -273,6 +273,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
         self.get_form_class().base_fields["trof_id"].required = False
         self.get_form_class().base_fields["pickc_id"].required = False
         self.get_form_class().base_fields["adsc_id"].required = False
+        self.get_form_class().base_fields["anidc_id"].required = False
+        self.get_form_class().base_fields["anidc_subj_id"].required = False
         self.get_form_class().base_fields["facic_id"].required = False
 
         self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
@@ -280,6 +282,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
         self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["adsc_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["anidc_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["anidc_subj_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["pickc_id"].widget = forms.HiddenInput()
 
         if 'evnt' in self.kwargs:
@@ -312,6 +316,11 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                                                                                    label=_("Type of data entry"))
                 self.get_form_class().base_fields["adsc_id"].widget = forms.SelectMultiple(
                     attrs={"class": "chosen-select-contains"})
+                self.get_form_class().base_fields["anidc_subj_id"].widget = forms.SelectMultiple(
+                    attrs={"class": "chosen-select-contains"})
+                self.get_form_class().base_fields["anidc_id"].widget = forms.SelectMultiple(
+                    attrs={"class": "chosen-select-contains"})
+
         else:
             self.get_form_class().base_fields["evnt_id"].required = False
             self.get_form_class().base_fields["evntc_id"].required = False

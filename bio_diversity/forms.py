@@ -294,7 +294,11 @@ class DataForm(CreatePrams):
     facic_id = forms.ModelChoiceField(queryset=models.FacilityCode.objects.all(), label="Facility")
     pickc_id = forms.ModelMultipleChoiceField(queryset=models.CountCode.objects.all(), label="Pick Type")
     adsc_id = forms.ModelMultipleChoiceField(queryset=models.AniDetSubjCode.objects.all(),
-                                             label="Additional Detail Columns")
+                                             label="Additional Yes/No detail columns")
+    anidc_subj_id = forms.ModelMultipleChoiceField(queryset=models.AnimalDetCode.objects.filter(ani_subj_flag=True),
+                                                   label="Additional code based detail columns")
+    anidc_id = forms.ModelMultipleChoiceField(queryset=models.AnimalDetCode.objects.filter(ani_subj_flag=False),
+                                              label="Additional numerical detail columns")
 
     def __init__(self, request=None, *args, **kwargs):
         self.request = request

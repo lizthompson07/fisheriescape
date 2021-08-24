@@ -276,6 +276,61 @@ def parse_concentration(concentration_str):
         return None
 
 
+def parse_extra_cols(row, cleaned_data, anix, indv=False, grp=False, samp=False):
+    row_date = get_row_date(row)
+    row_entered = False
+    if indv:
+        for adsc_id in cleaned_data["adsc_id"]:
+            if y_n_to_bool(row.get(adsc_id.name)):
+                row_entered += enter_indvd(anix.pk, cleaned_data, row_date, adsc_id.name,
+                                           adsc_id.anidc_id.pk, adsc_str=adsc_id.name)
+
+        for anidc_id in cleaned_data["anidc_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_indvd(anix.pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                           anidc_id.pk)
+
+        for anidc_id in cleaned_data["anidc_subj_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_indvd(anix.pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                           anidc_id.pk, adsc_str=row.get(anidc_id.name))
+    if grp:
+        for adsc_id in cleaned_data["adsc_id"]:
+            if y_n_to_bool(row.get(adsc_id.name)):
+                row_entered += enter_grpd(anix.pk, cleaned_data, row_date, adsc_id.name,
+                                          adsc_id.anidc_id.pk, adsc_str=adsc_id.name)
+
+        for anidc_id in cleaned_data["anidc_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_grpd(anix.pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                          anidc_id.pk)
+
+        for anidc_id in cleaned_data["anidc_subj_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_grpd(anix.pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                          anidc_id.pk, adsc_str=row.get(anidc_id.name))
+    if samp:
+        samp_pk = anix.pk
+        for adsc_id in cleaned_data["adsc_id"]:
+            if y_n_to_bool(row.get(adsc_id.name)):
+                row_entered += enter_sampd(samp_pk, cleaned_data, row_date, adsc_id.name,
+                                           adsc_id.anidc_id.pk, adsc_str=adsc_id.name)
+
+        for anidc_id in cleaned_data["anidc_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_sampd(samp_pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                           anidc_id.pk)
+
+        for anidc_id in cleaned_data["anidc_subj_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_sampd(samp_pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                           anidc_id.pk, adsc_str=row.get(anidc_id.name))
+
+    return row_entered
+
+
+
+
 def load_sfas():
     sfa_file_name = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "map_layers",
                                  "salmon_fishing_areas.geojson")
@@ -835,15 +890,19 @@ def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=N
             anix.save()
             row_entered = True
         except ValidationError:
-            anix = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id,
-                                                       indv_id=anix.indv_id,
-                                                       contx_id=anix.contx_id,
-                                                       loc_id=anix.loc_id,
-                                                       pair_id=anix.pair_id,
-                                                       grp_id=anix.grp_id,
-                                                       team_id=anix.team_id,
-                                                       final_contx_flag=anix.final_contx_flag,
-                                                       ).get()
+            anix_qs = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id,
+                                                          indv_id=anix.indv_id,
+                                                          contx_id=anix.contx_id,
+                                                          loc_id=anix.loc_id,
+                                                          pair_id=anix.pair_id,
+                                                          grp_id=anix.grp_id,
+                                                          team_id=anix.team_id,
+                                                          final_contx_flag=anix.final_contx_flag,
+                                                          )
+            if anix_qs:
+                anix = anix_qs.get()
+            else:
+                raise Exception("Only move individuals/groups once per event.")
         if return_anix:
             return anix
         elif return_sucess:
