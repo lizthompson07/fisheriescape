@@ -256,7 +256,7 @@ class BioCont(BioLookup):
     # Make name not unique, is unique together with facility code.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"), db_column="NAME")
 
-    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=[]):
+    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=[], get_grp=False):
         indv_list = []
         grp_list = []
 
@@ -285,7 +285,10 @@ class BioCont(BioLookup):
                 grp_list.append(grp)
             elif in_count > grp_out_set[grp]:
                 indv_list.append(grp)
-        return indv_list, grp_list
+        if get_grp:
+            return grp_list
+        else:
+            return indv_list, grp_list
 
     def degree_days(self, start_date, end_date):
         return []
@@ -1067,6 +1070,23 @@ class Group(BioModel):
             return prog_str
         else:
             return prog_grp_list
+
+    def group_mark(self, get_string=False):
+        # gets any marks the group may be tagged with.
+        grpd_set = GroupDet.objects.filter(anix_id__grp_id=self,
+                                           anidc_id__name="Mark",
+                                           adsc_id__isnull=False,
+                                           ).select_related("adsc_id")
+        grp_mark_list = [grpd.adsc_id for grpd in grpd_set]
+        if get_string:
+            mark_str = ""
+            for mark in grp_mark_list:
+                mark_str += "{}, ".format(mark.name)
+
+            return mark_str
+        else:
+            return grp_mark_list
+
 
     def start_date(self):
         first_evnt = self.animal_details.order_by("-evnt_id__start_date").first()
