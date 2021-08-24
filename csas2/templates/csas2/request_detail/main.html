@@ -56,11 +56,12 @@
             <button @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
               <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
             </button>
-
+            <a href="{% url 'csas2:request_pdf' object.id %}" class="btn btn-outline-dark btn-sm ml-3">
+              <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
+            </a>
           </div>
 
           <div class="row">
-
             <div class="col">
               <table class="table table-sm">
                 <tr>

@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -13,6 +14,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.timezone import make_aware, utc
 from django.utils.translation import gettext_lazy, gettext as _
+from easy_pdf.views import PDFTemplateView
 
 from lib.functions.custom_functions import fiscal_year, truncate
 from shared_models.models import Person, FiscalYear
@@ -22,8 +24,8 @@ from shared_models.views import CommonTemplateView, CommonFormView, CommonDelete
 from . import models, forms, filters, utils, reports, emails
 from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin, \
     CsasNationalAdminRequiredMixin
-from .utils import in_csas_admin_group, get_quarter
-from datetime import timedelta
+from .utils import in_csas_admin_group
+
 
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     h1 = "home"
@@ -257,6 +259,19 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         context["request_field_list"] = utils.get_request_field_list(obj, self.request.user)
         context["review_field_list"] = utils.get_review_field_list()
+        return context
+
+
+class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
+    template_name = 'csas2/request_pdf.html'
+
+    def get_csas_request(self):
+        return get_object_or_404(models.CSASRequest, pk=self.kwargs.get("pk"))
+
+    def get_context_data(self, **kwargs):
+        obj = self.get_csas_request()
+        context = super().get_context_data(**kwargs)
+        context["object"] = obj
         return context
 
 
