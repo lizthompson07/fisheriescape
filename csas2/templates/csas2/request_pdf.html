@@ -213,7 +213,7 @@ h1 {
           {% trans "No" %}
         {% endif %}
       </td>
-      <td>{{ object.multiregional_text }}</td>
+      <td>{{ object.multiregional_text|nz:"" }}</td>
     </tr>
   </table>
 
@@ -227,7 +227,7 @@ h1 {
       <th>{% get_verbose_label object "issue" %}</th>
     </tr>
     <tr>
-      <td>{{ object.issue_html }}</td>
+      <td>{{ object.issue_html|nz:"" }}</td>
     </tr>
   </table>
 </div>
@@ -246,7 +246,7 @@ h1 {
           {% trans "No" %}
         {% endif %}
       </td>
-      <td>{{ object.assistance_text }}</td>
+      <td>{{ object.assistance_text|nz:"" }}</td>
     </tr>
   </table>
 </div>
@@ -257,7 +257,7 @@ h1 {
       <th>{% get_verbose_label object "rationale" %}</th>
     </tr>
     <tr>
-      <td>{{ object.rationale_html }}</td>
+      <td>{{ object.rationale_html|nz:"" }}</td>
     </tr>
   </table>
 </div>
@@ -268,7 +268,7 @@ h1 {
       <th>{% get_verbose_label object "risk_text" %}</th>
     </tr>
     <tr>
-      <td>{{ object.risk_text_html }}</td>
+      <td>{{ object.risk_text_html|nz:"" }}</td>
     </tr>
   </table>
 </div>
@@ -279,7 +279,7 @@ h1 {
       <th>{% get_verbose_label object "advice_needed_by" %}</th>
     </tr>
     <tr>
-      <td>{{ object.advice_needed_by|date }}</td>
+      <td>{{ object.advice_needed_by|date|nz:"" }}</td>
     </tr>
   </table>
 </div>
@@ -291,7 +291,7 @@ h1 {
       <th>{% get_verbose_label object "rationale_for_timeline" %}</th>
     </tr>
     <tr>
-      <td>{{ object.rationale_for_timeline }}</td>
+      <td>{{ object.rationale_for_timeline|nz:"" }}</td>
     </tr>
   </table>
 </div>
@@ -310,7 +310,7 @@ h1 {
           {% trans "No" %}
         {% endif %}
       </td>
-      <td>{{ object.funding_text }}</td>
+      <td>{{ object.funding_text|nz:"" }}</td>
     </tr>
   </table>
 </div>
