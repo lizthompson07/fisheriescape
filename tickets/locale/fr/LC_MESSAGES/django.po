@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-18 13:08-0300\n"
+"POT-Creation-Date: 2021-08-24 10:05-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -189,7 +189,8 @@ msgstr "Merci ! Votre commentaire a été soumis."
 
 #: .\tickets\templates\tickets\ticket_confirmation.html:15
 msgid "You should receive a confirmation by email from us any moment."
-msgstr "Vous devriez recevoir une confirmation par courriel de notre part sous peu."
+msgstr ""
+"Vous devriez recevoir une confirmation par courriel de notre part sous peu."
 
 #: .\tickets\templates\tickets\ticket_form_popout.html:33
 msgid "Feedback / Bug Form"

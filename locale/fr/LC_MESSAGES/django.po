@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-18 13:08-0300\n"
+"POT-Creation-Date: 2021-08-24 10:05-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -42,7 +42,7 @@ msgid "phone (office)"
 msgstr "téléphone (bureau)"
 
 #: .\accounts\models.py:18 .\inventory\models.py:83
-#: .\shared_models\models.py:901
+#: .\shared_models\models.py:952
 msgid "language preference"
 msgstr "préférence linguistique"
 
@@ -53,14 +53,17 @@ msgstr "préférence linguistique"
 msgid "Section"
 msgstr "Section"
 
+# please never touch this translation!!
 #: .\accounts\models.py:25 .\accounts\models.py:26
 msgid "position_eng"
 msgstr "position_fre"
 
+# please never touch this translation!!
 #: .\accounts\models.py:73 .\accounts\models.py:74
 msgid "subject_en"
 msgstr "subject_fr"
 
+# please never touch this translation!!
 #: .\accounts\models.py:82 .\accounts\models.py:83
 msgid "message_en"
 msgstr "message_fr"
@@ -337,7 +340,7 @@ msgstr ""
 
 #: .\bio_diversity\forms.py:828 .\bio_diversity\models.py:118
 #: .\bio_diversity\models.py:508 .\bio_diversity\models.py:2078
-#: .\shared_models\models.py:559
+#: .\shared_models\models.py:610
 msgid "Start Date"
 msgstr "Date de début"
 
@@ -1016,7 +1019,7 @@ msgid "Comments"
 msgstr "Commentaires"
 
 #: .\bio_diversity\models.py:119 .\bio_diversity\models.py:509
-#: .\bio_diversity\models.py:2079 .\shared_models\models.py:560
+#: .\bio_diversity\models.py:2079 .\shared_models\models.py:611
 msgid "End Date"
 msgstr "Date de fin"
 
@@ -1033,9 +1036,10 @@ msgstr "Date de début"
 #: .\bio_diversity\models.py:257 .\bio_diversity\models.py:506
 #: .\bio_diversity\models.py:552 .\bio_diversity\models.py:2008
 #: .\bio_diversity\models.py:2075 .\bio_diversity\models.py:2116
-#: .\shared_models\models.py:30 .\shared_models\models.py:226
-#: .\shared_models\models.py:258 .\shared_models\models.py:290
-#: .\shared_models\models.py:766 .\shared_models\models.py:828
+#: .\shared_models\models.py:30 .\shared_models\models.py:228
+#: .\shared_models\models.py:273 .\shared_models\models.py:307
+#: .\shared_models\models.py:340 .\shared_models\models.py:817
+#: .\shared_models\models.py:879
 #, fuzzy
 msgid "name (en)"
 msgstr "nom (fra)"
@@ -1856,12 +1860,12 @@ msgstr "Nouveau"
 #: .\sar_search\models.py:56 .\sar_search\models.py:85
 #: .\sar_search\models.py:109 .\shared_models\models.py:19
 #: .\shared_models\models.py:28 .\shared_models\models.py:36
-#: .\shared_models\models.py:37 .\shared_models\models.py:501
-#: .\shared_models\models.py:502 .\shared_models\models.py:518
-#: .\shared_models\models.py:519 .\shared_models\models.py:662
-#: .\shared_models\models.py:663 .\shared_models\models.py:669
-#: .\shared_models\models.py:771 .\shared_models\models.py:772
-#: .\shared_models\models.py:965 .\shared_models\models.py:966
+#: .\shared_models\models.py:37 .\shared_models\models.py:552
+#: .\shared_models\models.py:553 .\shared_models\models.py:569
+#: .\shared_models\models.py:570 .\shared_models\models.py:713
+#: .\shared_models\models.py:714 .\shared_models\models.py:720
+#: .\shared_models\models.py:822 .\shared_models\models.py:823
+#: .\shared_models\models.py:1016 .\shared_models\models.py:1017
 #: .\shared_models\utils.py:22 .\shared_models\views.py:893
 #: .\shared_models\views.py:944 .\shared_models\views.py:1048
 #: .\shares\models.py:61 .\staff\views.py:34 .\staff\views.py:221
@@ -2630,7 +2634,7 @@ msgid "Probes"
 msgstr "Projet"
 
 #: .\grais\templates\grais\base\_nav_left_auth.html:38
-#: .\shared_models\models.py:558
+#: .\shared_models\models.py:609
 msgid "Samplers"
 msgstr ""
 
@@ -3607,7 +3611,7 @@ msgstr "Titre du projet"
 msgid "Date last modified"
 msgstr "Date de la dernière modification"
 
-#: .\publications\models.py:220 .\shared_models\models.py:555
+#: .\publications\models.py:220 .\shared_models\models.py:606
 msgid "Description"
 msgstr "Description"
 
@@ -3808,31 +3812,34 @@ msgid "notes (French)"
 msgstr "notes (français)"
 
 #: .\sar_search\models.py:225 .\sar_search\models.py:327
-#: .\shared_models\models.py:183 .\shared_models\models.py:207
-#: .\shared_models\models.py:235 .\shared_models\models.py:266
-#: .\shared_models\models.py:298
+#: .\shared_models\models.py:183 .\shared_models\models.py:209
+#: .\shared_models\models.py:240 .\shared_models\models.py:284
+#: .\shared_models\models.py:316 .\shared_models\models.py:349
 msgid "date last modified"
 msgstr "date de dernière modification"
 
 #: .\sar_search\models.py:226 .\sar_search\models.py:328
-#: .\shared_models\models.py:184 .\shared_models\models.py:208
-#: .\shared_models\models.py:236 .\shared_models\models.py:267
-#: .\shared_models\models.py:299
+#: .\shared_models\models.py:184 .\shared_models\models.py:210
+#: .\shared_models\models.py:241 .\shared_models\models.py:285
+#: .\shared_models\models.py:317 .\shared_models\models.py:350
 msgid "last modified by"
 msgstr "dernièrement modifié par"
 
+# please never touch this translation!!
 #: .\sar_search\models.py:237 .\sar_search\models.py:240
 #: .\sar_search\models.py:247 .\sar_search\models.py:250
 #: .\sar_search\models.py:262
 msgid "population_eng"
 msgstr "population_fre"
 
+# please never touch this translation!!
 #: .\sar_search\models.py:239 .\sar_search\models.py:243
 #: .\sar_search\models.py:249 .\sar_search\models.py:253
 #: .\sar_search\models.py:257 .\sar_search\views.py:321
 msgid "common_name_eng"
 msgstr "common_name_fre"
 
+# please never touch this translation!!
 #: .\sar_search\models.py:267
 msgid "notes_eng"
 msgstr "notes_fra"
@@ -3956,24 +3963,25 @@ msgid "Duplicate Record"
 msgstr ""
 
 #: .\shared_models\filters.py:20 .\shared_models\filters.py:65
-#: .\shared_models\filters.py:98 .\shared_models\models.py:221
+#: .\shared_models\filters.py:98
 #: .\shared_models\templates\shared_models\org_index.html:13
 msgid "Region - Sector (NCR)"
 msgstr ""
 
 #: .\shared_models\filters.py:21 .\shared_models\filters.py:66
-#: .\shared_models\filters.py:99 .\shared_models\models.py:253
+#: .\shared_models\filters.py:99 .\shared_models\models.py:258
+#: .\shared_models\models.py:302
 #: .\shared_models\templates\shared_models\org_index.html:16
 msgid "Branch - Directorate (NCR)"
 msgstr ""
 
 #: .\shared_models\filters.py:22 .\shared_models\filters.py:67
-#: .\shared_models\models.py:279
+#: .\shared_models\models.py:329
 #: .\shared_models\templates\shared_models\org_index.html:19
 msgid "Division - Branch (NCR)"
 msgstr ""
 
-#: .\shared_models\filters.py:23 .\shared_models\models.py:310
+#: .\shared_models\filters.py:23 .\shared_models\models.py:361
 #: .\shared_models\templates\shared_models\org_index.html:22
 #, fuzzy
 msgid "Section - Team (NCR)"
@@ -4027,12 +4035,14 @@ msgstr ""
 msgid "Please make sure the two email addresses provided match."
 msgstr "Assurez-vous que les deux adresses e-mail fournies correspondent."
 
-#: .\shared_models\models.py:31 .\shared_models\models.py:767
+#: .\shared_models\models.py:31 .\shared_models\models.py:818
 #, fuzzy
 msgid "name (fr)"
 msgstr "nom (fra)"
 
-#: .\shared_models\models.py:51
+#: .\shared_models\models.py:51 .\shared_models\models.py:206
+#: .\shared_models\models.py:237 .\shared_models\models.py:282
+#: .\shared_models\models.py:314 .\shared_models\models.py:347
 msgid "unique identifier"
 msgstr ""
 
@@ -4046,6 +4056,7 @@ msgstr "description (ang)"
 msgid "Description (fr)"
 msgstr "description (fra)"
 
+# please never touch this translation!!
 #: .\shared_models\models.py:69 .\shared_models\models.py:70
 #: .\shared_models\models.py:87 .\shared_models\models.py:88
 #: .\shiny\models.py:38 .\shiny\models.py:39
@@ -4060,11 +4071,11 @@ msgstr ""
 msgid "United States"
 msgstr ""
 
-#: .\shared_models\models.py:179
+#: .\shared_models\models.py:179 .\shared_models\models.py:229
 msgid "abbreviation (English)"
 msgstr ""
 
-#: .\shared_models\models.py:180
+#: .\shared_models\models.py:180 .\shared_models\models.py:230
 msgid "abbreviation (French)"
 msgstr ""
 
@@ -4073,13 +4084,12 @@ msgid "country"
 msgstr ""
 
 #: .\shared_models\models.py:189 .\shared_models\models.py:190
-#, fuzzy
 msgid "abbrev_eng"
 msgstr "abbrev_fre"
 
-#: .\shared_models\models.py:201 .\shared_models\models.py:227
-#: .\shared_models\models.py:259 .\shared_models\models.py:296
-#: .\shared_models\models.py:512 .\shared_models\models.py:829
+#: .\shared_models\models.py:201 .\shared_models\models.py:274
+#: .\shared_models\models.py:308 .\shared_models\models.py:346
+#: .\shared_models\models.py:563 .\shared_models\models.py:880
 msgid "abbreviation"
 msgstr ""
 
@@ -4087,294 +4097,323 @@ msgstr ""
 msgid "RDG / ADM"
 msgstr ""
 
-#: .\shared_models\models.py:204 .\shared_models\models.py:232
-#: .\shared_models\models.py:263 .\shared_models\models.py:294
+#: .\shared_models\models.py:204 .\shared_models\models.py:235
+#: .\shared_models\models.py:280 .\shared_models\models.py:312
+#: .\shared_models\models.py:344
 msgid "admin"
 msgstr ""
 
-#: .\shared_models\models.py:222 .\shared_models\views.py:763
-msgid "Regions - Sectors (NCR)"
-msgstr ""
+#: .\shared_models\models.py:223
+#, fuzzy
+msgid "Region - National (NCR)"
+msgstr "chef de section"
 
-#: .\shared_models\models.py:228 .\shared_models\models.py:960
+#: .\shared_models\models.py:224
+#, fuzzy
+msgid "Regions - National (NCR)"
+msgstr "chef de section"
+
+#: .\shared_models\models.py:231 .\shared_models\models.py:275
+#: .\shared_models\models.py:1011
 msgid "region"
 msgstr ""
 
-#: .\shared_models\models.py:230
-msgid "regional director / NCR director general"
+#: .\shared_models\models.py:233
+msgid "Director General / Associate Deputy Minister"
 msgstr ""
 
-#: .\shared_models\models.py:254
+#: .\shared_models\models.py:259 .\shared_models\models.py:303
 msgid "Branches - Directorates (NCR)"
 msgstr ""
 
-#: .\shared_models\models.py:260 .\shared_models\views.py:695
+# please never touch this translation!!
+#: .\shared_models\models.py:264 .\shared_models\models.py:265
+msgid "abbrev_en"
+msgstr "abbrev_fr"
+
+#: .\shared_models\models.py:276
+#| msgid "section"
+msgid "sector"
+msgstr "secteur"
+
+#: .\shared_models\models.py:278
+msgid "regional director / NCR director general"
+msgstr ""
+
+#: .\shared_models\models.py:309 .\shared_models\views.py:695
 msgid "branch"
 msgstr "direction"
 
-#: .\shared_models\models.py:261
+#: .\shared_models\models.py:310
 #, fuzzy
 msgid "division manager / NCR director"
 msgstr "chef de division"
 
-#: .\shared_models\models.py:280
+#: .\shared_models\models.py:330
 msgid "Divisions - Branches (NCR)"
 msgstr ""
 
-#: .\shared_models\models.py:292
+#: .\shared_models\models.py:342
 #, fuzzy
 msgid "section head  / NCR team lead"
 msgstr "approuvé par le chef de section"
 
-#: .\shared_models\models.py:311
+#: .\shared_models\models.py:362
 msgid "Sections - Teams (NCR)"
 msgstr ""
 
-#: .\shared_models\models.py:368 .\shared_models\models.py:369
+# please never touch this translation!!
+#: .\shared_models\models.py:419 .\shared_models\models.py:420
 msgid "full_name_en"
 msgstr "full_name_fr"
 
-#: .\shared_models\models.py:376 .\shared_models\models.py:377
+# please never touch this translation!!
+#: .\shared_models\models.py:427 .\shared_models\models.py:428
 msgid "full_name_en_ver1"
 msgstr "full_name_fr_ver1"
 
-#: .\shared_models\models.py:553
+#: .\shared_models\models.py:604
 #, fuzzy
 msgid "Mission Number"
 msgstr "Nouvelle organisation"
 
-#: .\shared_models\models.py:554
+#: .\shared_models\models.py:605
 #, fuzzy
 msgid "Mission Name"
 msgstr "Organisation"
 
-#: .\shared_models\models.py:556
+#: .\shared_models\models.py:607
 msgid "Purpose"
 msgstr ""
 
-#: .\shared_models\models.py:557
+#: .\shared_models\models.py:608
 msgid "Chief Scientist"
 msgstr ""
 
-#: .\shared_models\models.py:562
+#: .\shared_models\models.py:613
 msgid "Area of Operation"
 msgstr ""
 
-#: .\shared_models\models.py:563
+#: .\shared_models\models.py:614
 #, fuzzy
 msgid "Number of Profiles"
 msgstr "Projets soumis"
 
-#: .\shared_models\models.py:564
+#: .\shared_models\models.py:615
 msgid "MEDS ID"
 msgstr ""
 
-#: .\shared_models\models.py:569
+#: .\shared_models\models.py:620
 msgid "West Bound Longitude"
 msgstr ""
 
-#: .\shared_models\models.py:571
+#: .\shared_models\models.py:622
 msgid "East Bound Longitude"
 msgstr ""
 
-#: .\shared_models\models.py:573
+#: .\shared_models\models.py:624
 msgid "North Bound Latitude"
 msgstr ""
 
-#: .\shared_models\models.py:575
+#: .\shared_models\models.py:626
 msgid "South Bound Latitude"
 msgstr ""
 
-#: .\shared_models\models.py:577
+#: .\shared_models\models.py:628
 #, fuzzy
 msgid "funding agency name"
 msgstr "programme de financement"
 
-#: .\shared_models\models.py:579
+#: .\shared_models\models.py:630
 #, fuzzy
 msgid "funding project title"
 msgstr "titre du projet"
 
-#: .\shared_models\models.py:581
+#: .\shared_models\models.py:632
 #, fuzzy
 msgid "funding project ID"
 msgstr "but du financement"
 
-#: .\shared_models\models.py:583
+#: .\shared_models\models.py:634
 msgid "research projects programs"
 msgstr ""
 
-#: .\shared_models\models.py:585
+#: .\shared_models\models.py:636
 #, fuzzy
 msgid "references"
 msgstr "Référence"
 
-#: .\shared_models\models.py:618
+#: .\shared_models\models.py:669
 msgid "NS"
 msgstr "N.-É."
 
-#: .\shared_models\models.py:619
+#: .\shared_models\models.py:670
 msgid "NB"
 msgstr "N.-B."
 
-#: .\shared_models\models.py:620
+#: .\shared_models\models.py:671
 msgid "PE"
 msgstr ""
 
-#: .\shared_models\models.py:621
+#: .\shared_models\models.py:672
 msgid "QC"
 msgstr "Qc"
 
-#: .\shared_models\models.py:622
+#: .\shared_models\models.py:673
 #, fuzzy
 msgid "NL"
 msgstr "T.-N.-L."
 
-#: .\shared_models\models.py:677
+#: .\shared_models\models.py:728
 msgid "GCNDB key"
 msgstr ""
 
-#: .\shared_models\models.py:678
+#: .\shared_models\models.py:729
 msgid "Parent GCNDB key"
 msgstr ""
 
-#: .\shared_models\models.py:679
+#: .\shared_models\models.py:730
 msgid "NDADW water body ID"
 msgstr ""
 
-#: .\shared_models\models.py:765
+#: .\shared_models\models.py:816
 #, fuzzy
 msgid "code"
 msgstr "enregistrement"
 
-#: .\shared_models\models.py:783
+#: .\shared_models\models.py:834
 #, fuzzy
 msgid "script"
 msgstr "description"
 
-#: .\shared_models\models.py:813 .\shared_models\models.py:814
+# please never touch this translation!!
+#: .\shared_models\models.py:864 .\shared_models\models.py:865
 msgid "location_en"
 msgstr "Location_fr"
 
-#: .\shared_models\models.py:830
+#: .\shared_models\models.py:881
 #, fuzzy
 #| msgid "Email address"
 msgid "address"
 msgstr "Courriel"
 
-#: .\shared_models\models.py:831
+#: .\shared_models\models.py:882
 #, fuzzy
 msgid "city"
 msgstr "description"
 
-#: .\shared_models\models.py:832
+#: .\shared_models\models.py:883
 msgid "postal code"
 msgstr ""
 
-#: .\shared_models\models.py:834
+#: .\shared_models\models.py:885
 msgid "Is this a DFO location?"
 msgstr ""
 
-#: .\shared_models\models.py:887 .\shared_models\models.py:888
+# please never touch this translation!!
+#: .\shared_models\models.py:938 .\shared_models\models.py:939
 msgid "full_name_and_address_en"
 msgstr "full_name_and_address_fr"
 
-#: .\shared_models\models.py:897
+#: .\shared_models\models.py:948
 msgid "first name"
 msgstr "prénom"
 
-#: .\shared_models\models.py:898
+#: .\shared_models\models.py:949
 msgid "last name"
 msgstr "nom de famille"
 
-#: .\shared_models\models.py:899
+#: .\shared_models\models.py:950
 #, fuzzy
 #| msgid "Close"
 msgid "phone"
 msgstr "Fermer"
 
-#: .\shared_models\models.py:900
+#: .\shared_models\models.py:951
 #, fuzzy
 #| msgid "Email"
 msgid "email"
 msgstr "Courriel"
 
-#: .\shared_models\models.py:902
+#: .\shared_models\models.py:953
 #, fuzzy
 msgid "affiliation"
 msgstr "Organisation"
 
-#: .\shared_models\models.py:903
+#: .\shared_models\models.py:954
 #, fuzzy
 #| msgid "job_title_en"
 msgid "job title (en)"
 msgstr "job_title_fr"
 
-#: .\shared_models\models.py:904
+#: .\shared_models\models.py:955
 #, fuzzy
 msgid "job title (fr)"
 msgstr "titre"
 
-#: .\shared_models\models.py:905
+#: .\shared_models\models.py:956
 #, fuzzy
 msgid "linkage to DM Apps User"
 msgstr "Utilisateur de Applis GD"
 
-#: .\shared_models\models.py:935 .\shared_models\models.py:936
+# please never touch this translation!!
+#: .\shared_models\models.py:986 .\shared_models\models.py:987
 msgid "job_title_en"
 msgstr "job_title_fr"
 
-#: .\shared_models\models.py:951
+#: .\shared_models\models.py:1002
 msgid "authors"
 msgstr ""
 
-#: .\shared_models\models.py:952
+#: .\shared_models\models.py:1003
 #, fuzzy
 #| msgid "Clear"
 msgid "year"
 msgstr "Effacer"
 
-#: .\shared_models\models.py:953
+#: .\shared_models\models.py:1004
 #, fuzzy
 #| msgid "application name"
 msgid "publication name"
 msgstr "nom de l'application"
 
-#: .\shared_models\models.py:954
+#: .\shared_models\models.py:1005
 #, fuzzy
 #| msgid "application name"
 msgid "publication number"
 msgstr "nom de l'application"
 
-#: .\shared_models\models.py:955
+#: .\shared_models\models.py:1006
 msgid "URL (en)"
 msgstr ""
 
-#: .\shared_models\models.py:956
+#: .\shared_models\models.py:1007
 msgid "URL (fr)"
 msgstr ""
 
-#: .\shared_models\models.py:957
+#: .\shared_models\models.py:1008
 msgid "abstract (en)"
 msgstr ""
 
-#: .\shared_models\models.py:958
+#: .\shared_models\models.py:1009
 msgid "abstract (fr)"
 msgstr ""
 
-#: .\shared_models\models.py:959
+#: .\shared_models\models.py:1010
 #, fuzzy
 #| msgid "Cruises"
 msgid "series"
 msgstr "Croisières"
 
-#: .\shared_models\models.py:975 .\shared_models\models.py:976
+# please never touch this translation!!
+#: .\shared_models\models.py:1026 .\shared_models\models.py:1027
 msgid "url_en"
-msgstr ""
+msgstr "url_fr"
 
-#: .\shared_models\models.py:985 .\shared_models\models.py:986
+# please never touch this translation!!
+#: .\shared_models\models.py:1036 .\shared_models\models.py:1037
 msgid "abstract_en"
-msgstr ""
+msgstr "abstract_fr"
 
 #: .\shared_models\templates\shared_models\generic_confirm_delete.html:13
 msgid "You cannot delete this object since it has related items."
@@ -4733,6 +4772,10 @@ msgstr "Secteurs du MPO"
 msgid "division"
 msgstr "division"
 
+#: .\shared_models\views.py:763
+msgid "Regions - Sectors (NCR)"
+msgstr ""
+
 #: .\shared_models\views.py:827
 #, fuzzy
 msgid "Organizations - Sectors (NCR)"
@@ -4853,6 +4896,7 @@ msgstr ""
 msgid "last modified"
 msgstr "dernière modification"
 
+# please never touch this translation!!
 #: .\shiny\models.py:28 .\shiny\models.py:29 .\shiny\models.py:49
 msgid "title_en"
 msgstr "title_fr"

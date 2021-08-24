@@ -203,6 +203,8 @@ class Region(SimpleLookupWithUUID):
                              related_name="shared_models_regions")
     admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
                               related_name="shared_models_admin_regions")
+    uuid = models.UUIDField(editable=True, unique=True, blank=True, null=True, default=uuid.uuid4, verbose_name=_("unique identifier"))
+
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -218,19 +220,22 @@ class Region(SimpleLookupWithUUID):
 
     class Meta:
         ordering = ['name', ]
-        verbose_name = _("Region - Sector (NCR)")
-        verbose_name_plural = _("Regions - Sectors (NCR)")
+        verbose_name = _("Region - National (NCR)")
+        verbose_name_plural = _("Regions - National (NCR)")
 
 
-class Branch(SimpleLookupWithUUID):
+class Sector(SimpleLookupWithUUID):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
-    abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
-    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("region"), related_name="branches")
+    abbrev_en = models.CharField(max_length=10, verbose_name=_("abbreviation (English)"))
+    abbrev_fr = models.CharField(max_length=10, verbose_name=_("abbreviation (French)"))
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("region"), related_name="sectors")
     head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                             verbose_name=_("regional director / NCR director general"),
-                             related_name="shared_models_branches")
+                             verbose_name=_("Director General / Associate Deputy Minister"),
+                             related_name="shared_models_sectors")
     admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
-                              related_name="shared_models_admin_branches")
+                              related_name="shared_models_admin_sectors")
+    uuid = models.UUIDField(editable=True, unique=True, blank=True, null=True, default=uuid.uuid4, verbose_name=_("unique identifier"))
+
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -242,6 +247,50 @@ class Branch(SimpleLookupWithUUID):
     def __str__(self):
         # check to see if a french value is given
         return f"{self.tname} ({self.region})"
+
+    def save(self, *args, **kwargs):
+        for obj in self.branches.all():
+            obj.save()
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['name', ]
+        verbose_name = _("Branch - Directorate (NCR)")
+        verbose_name_plural = _("Branches - Directorates (NCR)")
+
+    @property
+    def tabbrev(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("abbrev_en"))):
+            my_str = "{}".format(getattr(self, str(_("abbrev_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.abbrev_en
+        return my_str
+
+
+class Branch(SimpleLookupWithUUID):
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
+    abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("region"), related_name="branches")
+    sector = models.ForeignKey(Sector, on_delete=models.DO_NOTHING, verbose_name=_("sector"), related_name="branches", blank=True, null=True)
+    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                             verbose_name=_("regional director / NCR director general"),
+                             related_name="shared_models_branches")
+    admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
+                              related_name="shared_models_admin_branches")
+    uuid = models.UUIDField(editable=True, unique=True, blank=True, null=True, default=uuid.uuid4, verbose_name=_("unique identifier"))
+    # meta
+    date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    @property
+    def metadata(self):
+        return get_metadata_string(None, None, self.date_last_modified, self.last_modified_by)
+
+    def __str__(self):
+        # check to see if a french value is given
+        return f"{self.tname} ({self.sector.tabbrev})"
 
     def save(self, *args, **kwargs):
         for obj in self.divisions.all():
@@ -262,6 +311,7 @@ class Division(SimpleLookupWithUUID):
                              related_name="shared_models_divisions")
     admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
                               related_name="shared_models_admin_divisions")
+    uuid = models.UUIDField(editable=True, unique=True, blank=True, null=True, default=uuid.uuid4, verbose_name=_("unique identifier"))
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -294,6 +344,7 @@ class Section(SimpleLookupWithUUID):
     admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
                               related_name="shared_models_admin_sections")
     abbrev = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("abbreviation"))
+    uuid = models.UUIDField(editable=True, unique=True, blank=True, null=True, default=uuid.uuid4, verbose_name=_("unique identifier"))
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))

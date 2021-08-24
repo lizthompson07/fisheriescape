@@ -49,7 +49,7 @@ def digest_csv():
                 )
 
             # section
-            region = Region.objects.get(name__icontains="maritimes")
+            region = Region.objects.get(name__icontains="national")
             # temp_branch, created = Branch.objects.get_or_create(region=region, name="temp")
             # temp_division, created = Division.objects.get_or_create(branch=temp_branch, name="temp")
             section_text = row["section"].strip()
@@ -65,7 +65,7 @@ def digest_csv():
                 print("too many sections with same name:", section_text)
                 break
 
-            zonal = True if row['Zonal?'].lower() == "yes" else False
+            zonal = True if row['Zonal'].lower() == "yes" else False
             zonal_text = row['ZonalText']
             issue = row['TheQuestion']
             assistance = True if row['Have you had assistance from Science?'].lower() == "yes" else False
