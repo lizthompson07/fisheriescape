@@ -273,12 +273,18 @@ class DataCreate(mixins.DataMixin, CommonCreate):
         self.get_form_class().base_fields["trof_id"].required = False
         self.get_form_class().base_fields["pickc_id"].required = False
         self.get_form_class().base_fields["adsc_id"].required = False
+        self.get_form_class().base_fields["anidc_id"].required = False
+        self.get_form_class().base_fields["anidc_subj_id"].required = False
+        self.get_form_class().base_fields["facic_id"].required = False
 
         self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["adsc_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["anidc_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["anidc_subj_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["pickc_id"].widget = forms.HiddenInput()
 
         if 'evnt' in self.kwargs:
             evnt = models.Event.objects.filter(pk=self.kwargs["evnt"]).select_related("evntc_id", "facic_id").get()
@@ -310,12 +316,21 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                                                                                    label=_("Type of data entry"))
                 self.get_form_class().base_fields["adsc_id"].widget = forms.SelectMultiple(
                     attrs={"class": "chosen-select-contains"})
+                self.get_form_class().base_fields["anidc_subj_id"].widget = forms.SelectMultiple(
+                    attrs={"class": "chosen-select-contains"})
+                self.get_form_class().base_fields["anidc_id"].widget = forms.SelectMultiple(
+                    attrs={"class": "chosen-select-contains"})
+
         else:
             self.get_form_class().base_fields["evnt_id"].required = False
             self.get_form_class().base_fields["evntc_id"].required = False
-            self.get_form_class().base_fields["facic_id"].required = False
-            self.get_form_class().base_fields["data_type"].required = False
-            self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
+            self.get_form_class().base_fields["facic_id"].required = True
+            self.get_form_class().base_fields["data_type"].required = True
+            data_types = (("sites", "Sites"), ("conts", "Containers"))
+            self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
+                                                                               label=_("Type of data entry"))
+            self.get_form_class().base_fields["facic_id"] = forms.ModelChoiceField(queryset=models.FacilityCode.objects.all(),
+                                                                                   label="Facility")
 
         return init
 
@@ -328,9 +343,12 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             evnt_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id.__str__().lower()
             facility_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id.__str__().lower()
             context["title"] = "Add {} data".format(evnt_code)
-
-            if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
-                             "master entry", "egg development", "adult collection"]:
+            context["egg_development"] = 0
+            if evnt_code == "egg development":
+                template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code.replace(" ", "_"))
+                context["egg_development"] = 1
+            elif evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
+                             "master entry", "adult collection"]:
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code.replace(" ", "_"))
             elif evnt_code in collection_evntc_list:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
@@ -341,9 +359,9 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 template_url = 'data_templates/measuring.xlsx'
             template_name = "{}-{}".format(facility_code, evnt_code)
         else:
-            context["title"] = "Add Sites"
-            template_url = "data_templates/sites_entry.xlsx"
-            template_name = "Sites Entry"
+            context["title"] = "Bulk add codes"
+            template_url = "data_templates/bulk_entry.xlsx"
+            template_name = "Bulk Entry"
 
         context["template_url"] = template_url
         context["allow_entry"] = allow_entry
@@ -1138,9 +1156,13 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         if evnt_code == "Electrofishing" or evnt_code == "Bypass Collection" or evnt_code == "Smolt Wheel Collection":
             context["coll_btn"] = True
 
+        context["calculated_properties"] = {}
         if evnt_code == "Spawning":
             context["calculated_properties"] = self.object.fecu_dict()
-
+        context["calculated_properties"]["Number of Individuals"] = len(indv_set)
+        context["calculated_properties"]["Number of Groups"] = len(grp_set)
+        context["calculated_properties"]["Number of Samples"] = len(samp_set)
+        context["calculated_properties"]["Number of locations"] = len(loc_set)
 
 
         context["table_list"].extend(["data", "team", "loc", "indv", "grp", "tank", "trof", "heat", "samp", "pair", "evntf",
@@ -1302,6 +1324,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
         context["calculated_properties"] = {}
         context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
+        context["calculated_properties"]["Marks"] = self.object.group_mark(get_string=True)
         context["calculated_properties"]["Current container"] = self.object.current_cont(get_string=True)
         context["calculated_properties"]["Development"] = self.object.get_development()
         context["calculated_properties"]["Fish in group"] = self.object.count_fish_in_group()

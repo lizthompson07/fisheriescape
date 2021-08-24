@@ -5,6 +5,7 @@
 {% load custom_filters %}
 
 {% block content %}<div class="container">
+    {{ egg_development|json_script:"ed-flag" }}
     <div class="card border border-dark mt-2 pt-1">
         <div class="card-header">
             <h2>{% trans title %}</h2>
@@ -26,20 +27,20 @@
 
                     {% for field in form %}
                        {% if field.field.create_url %}
-                        <div>
-                            {% bootstrap_label field.label %}
-                             {% if field.name in help_text_dict %}
-                                <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" title="{{ field.label }}"
-                                 data-content="{{ help_text_dict|lookup:field.name }}" data-trigger="hover">
-                            {% endif %}
-                       </div>
-                        <div class="row col pl-0">
-                            <span class="col">
-                            {% bootstrap_field field placeholder="" size="small" show_label=false %}
-                            </span><span class="col-1">
-                            <button class="btn btn-primary" onclick="return pop('{% url ''|add:field.field.create_url 'pop' %}', 'id_{{field.name}}' )" >+</button>
-                            </span>
-                        </div>
+                            <div>
+                                {% bootstrap_label field.label %}
+                                 {% if field.name in help_text_dict %}
+                                    <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" title="{{ field.label }}"
+                                     data-content="{{ help_text_dict|lookup:field.name }}" data-trigger="hover">
+                                {% endif %}
+                           </div>
+                            <div class="row col pl-0">
+                                <span class="col">
+                                {% bootstrap_field field placeholder="" size="small" show_label=false %}
+                                </span><span class="col-1">
+                                <button class="btn btn-primary" onclick="return pop('{% url ''|add:field.field.create_url 'pop' %}', 'id_{{field.name}}' )" >+</button>
+                                </span>
+                            </div>
                         {% else %}
 
                             {% if field.name in help_text_dict %}
@@ -59,12 +60,13 @@
                     {% endbuttons %}
                 </form>
             {% else %}
-            <div>
-                <h2>Data Entry not allowed</h2>
-                <p>Auto generated data type event. Use a measuring event to load template based data.</p>
-            </div>
+                <div>
+                    <h2>Data Entry not allowed</h2>
+                    <p>Auto generated data type event. Use a measuring event to load template based data.</p>
+                </div>
             {% endif %}
         </div>
     </div>
 </div>
 {% endblock content %}
+
