@@ -104,7 +104,7 @@
         </div>
         <div class="form-group">
           <label for="">{% trans "Abbreviation" %}</label>
-          <textarea v-model="sectionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+          <input type="text" v-model="sectionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"/>
         </div>
         <div class="form-group">
           <label for="">{% trans "Name" %}</label>
@@ -169,7 +169,7 @@
         </div>
         <div class="form-group">
           <label for="">{% trans "Abbreviation" %}</label>
-          <textarea v-model="divisionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+          <input type="text" v-model="divisionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"/>
         </div>
         <div class="form-group">
           <label for="">{% trans "Name" %}</label>
@@ -234,7 +234,7 @@
         </div>
         <div class="form-group">
           <label for="">{% trans "Abbreviation" %}</label>
-          <textarea v-model="branchToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+          <input type="text" v-model="branchToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"/>
         </div>
         <div class="form-group">
           <label for="">{% trans "Name" %}</label>
@@ -300,11 +300,11 @@
         </div>
         <div class="form-group">
           <label for="">{% trans "Abbreviation (English)" %}</label>
-          <textarea v-model="sectorToEdit.abbrev_en" class="form-control form-control-sm" style="font-size: small"></textarea>
+          <input type="text" v-model="sectorToEdit.abbrev_en" class="form-control form-control-sm" style="font-size: small"/>
         </div>
         <div class="form-group">
           <label for="">{% trans "Abbreviation (French)" %}</label>
-          <textarea v-model="sectorToEdit.abbrev_fr" class="form-control form-control-sm" style="font-size: small"></textarea>
+          <input type="text" v-model="sectorToEdit.abbrev_fr" class="form-control form-control-sm" style="font-size: small"/>
         </div>
         <div class="form-group">
           <label for="">{% trans "Name" %}</label>
@@ -360,7 +360,7 @@
       <form v-else-if="regionToEdit" @submit.prevent="updateRegion">
         <div class="form-group">
           <label for="">{% trans "Abbreviation" %}</label>
-          <textarea v-model="regionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+          <input type="text" v-model="regionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"/>
         </div>
         <div class="form-group">
           <label for="">{% trans "Name" %}</label>
@@ -810,7 +810,7 @@
       },
       editBranch(branch) {
         this.errors = null;
-        if (!branch) this.branchToEdit = {region: this.regionFilter};
+        if (!branch) this.branchToEdit = {sector: this.sectorFilter};
         else this.branchToEdit = branch;
         this.$nextTick(() => {
           this.$refs.form_start.focus()
@@ -1002,11 +1002,11 @@
       filteredBranches() {
         myarray = []
         for (var i = 0; i < this.branches.length; i++) {
-          if (this.regionFilter) {
-            if (this.branches[i].sector_obj.region === this.regionFilter) myarray.push(this.branches[i])
-          } else if (this.sectorFilter) {
+          if (this.sectorFilter) {
             if (this.branches[i].sector === this.sectorFilter) myarray.push(this.branches[i])
-          } else myarray.push(this.branches[i])
+          } else if (this.regionFilter) {
+            if (this.branches[i].sector_obj.region === this.regionFilter) myarray.push(this.branches[i])
+          }  else myarray.push(this.branches[i])
         }
         return myarray
       },
