@@ -255,8 +255,7 @@ class Sector(SimpleLookupWithUUID):
 
     class Meta:
         ordering = ['name', ]
-        verbose_name = _("Branch - Directorate (NCR)")
-        verbose_name_plural = _("Branches - Directorates (NCR)")
+        verbose_name = _("Sector")
 
     @property
     def tabbrev(self):
