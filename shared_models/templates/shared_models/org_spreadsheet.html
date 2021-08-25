@@ -534,9 +534,10 @@
             <tbody>
             <tr v-for="obj, index in filteredBranches" :key="obj.id" :ref="`branch_${obj.id}`">
               <td v-if="obj.sector_obj.region_obj">${obj.sector_obj.region_obj.name}</td>
+              <td v-else>---</td>
               <td v-if="obj.sector_obj">${obj.sector_obj.name}</td>
               <td v-else>---</td>
-              <td>${obj.name}</td>
+              <td>${obj.name} <span v-if="obj.region_obj">[${obj.region_obj.name}]</span></td> {# TODO: This should be deleted eventually #}
               <td>${obj.nom}</td>
               <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
