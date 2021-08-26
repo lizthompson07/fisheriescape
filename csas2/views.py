@@ -407,6 +407,7 @@ class CSASRequestFileCreateView(CanModifyRequestRequiredMixin, CommonPopoutCreat
     model = models.CSASRequestFile
     form_class = forms.CSASRequestFileForm
     is_multipart_form_data = True
+    h1 = gettext_lazy("New CSAS Request File")
 
     def form_valid(self, form):
         obj = form.save(commit=False)
