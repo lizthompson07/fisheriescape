@@ -5,6 +5,7 @@ import decimal
 import math
 
 import numpy as np
+from django.db.models import Q
 from pandas import read_excel
 import pytz
 from django.core.exceptions import ValidationError, MultipleObjectsReturned, ObjectDoesNotExist
@@ -43,6 +44,8 @@ class DataParser:
     year_key = "Year"
     month_key = "Month"
     day_key = "Day"
+
+    catch_error = Exception
 
     mandatory_keys = []
     mandatory_filled_keys = []
@@ -102,7 +105,7 @@ class DataParser:
         if self.success:
             try:
                 self.data_preper()
-            except Exception as err:
+            except self.catch_error as err:
                 err_msg = common_err_parser(err)
                 self.log_data += "\n Error preparing data: {}".format(err_msg)
                 self.success = False
@@ -117,7 +120,7 @@ class DataParser:
                     self.row_entered = False
                     try:
                         self.row_parser(row)
-                    except Exception as err:
+                    except self.catch_error as err:
                         err_msg = common_err_parser(err)
                         self.log_data += "\nError:  {} \nError occured when parsing row: \n".format(err_msg)
                         self.log_data += str(row)
@@ -134,7 +137,7 @@ class DataParser:
         if self.success:
             try:
                 self.data_cleaner()
-            except Exception as err:
+            except self.catch_error as err:
                 err_msg = common_err_parser(err)
 
                 self.log_data += "Error parsing common data: \n"
@@ -329,8 +332,9 @@ def parse_extra_cols(row, cleaned_data, anix, indv=False, grp=False, samp=False)
     return row_entered
 
 
-def parse_cont_strs(cont_str, facic_id):
-    cont_names = []
+def parse_cont_strs(cont_str, facic_id, at_date):
+    cont_str = cont_str.replace(" ", "")
+    cont_ids = []
     if "," in cont_str:
         cont_list = cont_str.split(",")
     else:
@@ -344,12 +348,13 @@ def parse_cont_strs(cont_str, facic_id):
                 high_conts = cont_lims[1].split(".")
                 low_conts = [int(cont) for cont in low_conts]
                 high_conts = [int(cont) for cont in high_conts]
-                hu = low_conts[0]
-                drawer = low_conts[1]
                 if len(low_conts) == 3:
+                    hu = low_conts[0]
+                    drawer = low_conts[1]
                     while hu <= high_conts[0]:
                         draw_qs = models.Drawer.objects.filter(heat_id__facic_id=facic_id, heat_id__name__iexact=hu)
-                        cup_qs = models.Cup.objects.filter(draw_id__heat_id__facic_id=facic_id, draw_id__heat_id__name__iexact=hu).select_related('draw_id')
+                        cup_qs = models.Cup.objects.filter(draw_id__heat_id__facic_id=facic_id, draw_id__heat_id__name__iexact=hu, start_date__lte=at_date)
+                        cup_qs = cup_qs.filter(Q(end_date__gte=at_date) | Q(end_date__isnull=True)).select_related('draw_id')
                         for draw_id in draw_qs:
                             if int(draw_id.name) == low_conts[1] and int(hu) == low_conts[0]:
                                 cup = low_conts[2]
@@ -360,26 +365,46 @@ def parse_cont_strs(cont_str, facic_id):
                                     if (cup_id.draw_id == draw_id) and \
                                             int(cup_id.name) >= cup and\
                                             (int(cup_id.name) <= high_conts[2] or (hu < high_conts[0] or int(draw_id.name) < high_conts[1])):
-                                        cont_names.append("{}.{}.{}".format(hu, draw_id.name, cup_id.name))
+                                        cont_ids.append(cup_id)
                         hu += 1
                         drawer = 0
 
                 else:
-                    while hu <= high_conts[0]:
-                        draw_qs = models.Drawer.objects.filter(heat_id__facic_id=facic_id, heat_id__name__iexact=hu)
-                        for draw_id in draw_qs:
-                            if int(draw_id.name) >= drawer and (int(draw_id.name) <= high_conts[1] or hu < high_conts[0]):
-                                cont_names.append("{}.{}".format(hu, draw_id.name))
-                        hu += 1
-                        drawer = 0
+                    trof = low_conts[0]
+                    tray = low_conts[1]
+                    while trof <= high_conts[0]:
+                        tray_qs = models.Tray.objects.filter(trof_id__facic_id=facic_id, trof_id__name__iexact=trof, start_date__lte=at_date)
+                        tray_qs = tray_qs.filter(Q(end_date__gte=at_date) | Q(end_date__isnull=True))
+                        for tray_id in tray_qs:
+                            if int(tray_id.name) >= tray and (int(tray_id.name) <= high_conts[1] or trof < high_conts[0]):
+                                cont_ids.append(tray_id)
+                        trof += 1
+                        tray = 0
             else:
                 cont_range = range(int(cont_lims[0]), int(cont_lims[1]) + 1)
-                cont_names.extend(cont_range)
+                for tank_name in cont_range:
+                    tank_id = models.Tank.objects.filter(name__iexact=tank_name).get()
+                    cont_ids.append(tank_id)
         else:
-            cont_names.append(cont)
-    # clean cont names:
-    cont_names = [str(cont).strip() for cont in cont_names]
-    return cont_names
+            if "." in cont:
+                cont_list = cont.split(".")
+                if len(cont_list) == 3:
+                    hu, draw, cup = cont_list
+                    cup_qs = models.Cup.objects.filter(draw_id__heat_id__facic_id=facic_id, name=cup,
+                                                       draw_id__heat_id__name__iexact=hu, start_date__lte=at_date)
+                    cup_qs = cup_qs.filter(Q(end_date__gte=at_date) | Q(end_date__isnull=True)).select_related(
+                        'draw_id')
+                    cont_ids.append(cup_qs.get())
+                else:
+                    trof, tray = cont_list
+                    tray_qs = models.Tray.objects.filter(trof_id__facic_id=facic_id, trof_id__name__iexact=trof,
+                                                         start_date__lte=at_date, name=tray)
+                    tray_qs = tray_qs.filter(Q(end_date__gte=at_date) | Q(end_date__isnull=True))
+                    cont_ids.append(tray_qs.get())
+            else:
+                tank_id = models.Tank.objects.filter(name__iexact=cont).get()
+                cont_ids.append(tank_id)
+    return cont_ids
 
 
 def load_sfas():
@@ -450,7 +475,7 @@ def get_cont_from_dot(dot_string, cleaned_data, start_date, get_trof=False):
                 return None
 
 
-def get_cup_from_dot(dot_string, cleaned_data, start_date):
+def get_cup_from_dot(dot_string, cleaned_data, start_date, create_on_not_found=True):
     cont_list = dot_string.split(".")
     if len(cont_list) == 3:
         heat, draw, cup = cont_list
@@ -459,7 +484,7 @@ def get_cup_from_dot(dot_string, cleaned_data, start_date):
     cup_qs = models.Cup.objects.filter(name=cup, draw_id__name=draw, draw_id__heat_id__name=heat, draw_id__heat_id__facic_id=cleaned_data["facic_id"], end_date__isnull=True)
     if cup_qs.exists():
         return cup_qs.get()
-    else:
+    elif create_on_not_found:
         cup_obj = models.Cup(name=cup,
                              start_date=start_date,
                              draw_id=models.Drawer.objects.filter(name=draw, heat_id__name=heat, heat_id__facic_id=cleaned_data["facic_id"]).get(),
@@ -473,6 +498,8 @@ def get_cup_from_dot(dot_string, cleaned_data, start_date):
         except (ValidationError, IntegrityError):
             return None
         return cup_obj
+    else:
+        return None
 
 
 def get_draw_from_dot(dot_string, cleaned_data):

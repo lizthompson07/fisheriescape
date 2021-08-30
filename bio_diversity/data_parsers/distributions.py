@@ -21,8 +21,7 @@ class DistributionParser(DataParser):
     year_coll_key = "Year Collection"
     prog_key = "Program"
     mark_key = "Mark"
-    tank_key = "Tank"
-    trof_key = "Trough"
+    cont_key = "Container"
     relm_key = "Release Method"
     temp_key = "River Temp"
     truck_temp = "Truck Temp"
@@ -46,7 +45,7 @@ class DistributionParser(DataParser):
     driver_role_id = None
 
     header = 2
-    converters = {tank_key: str, trof_key: str, 'Year': str, 'Month': str, 'Day': str}
+    converters = {cont_key: str, 'Year': str, 'Month': str, 'Day': str}
     sheet_name = "Groups"
 
     def load_data(self):
@@ -142,6 +141,7 @@ class DistributionParser(DataParser):
 
         if utils.nan_to_none(row.get(self.len_key)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.len_key], self.len_anidc_id.name)
+
         if utils.nan_to_none(row.get(self.len_key_mm)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, 0.1 * row[self.len_key_mm],
                                                     self.len_anidc_id.name)
@@ -155,14 +155,12 @@ class DistributionParser(DataParser):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.lifestage_key],
                                                     self.lifestage_anidc_id.name, row[self.lifestage_key])
 
-        # get contanier row:
-        tank_list = []
-        if utils.nan_to_none(row[self.tank_key]):
-            tank_list = str(row[self.tank_key]).split(",")
+        # get container row:
+        cont_list = []
+        if utils.nan_to_none(row[self.cont_key]):
+            cont_list = utils.parse_cont_strs(str(row[self.cont_key]), cleaned_data["facic_id"], row_date)
 
-        for tank in tank_list:
-            tank = tank.replace(" ", "")
-            cont_id = models.Tank.objects.filter(name__iexact=tank, facic_id__name=cleaned_data["facic_id"]).get()
+        for cont_id in cont_list:
             contx, data_entered = utils.enter_contx(cont_id, cleaned_data, return_contx=True)
             self.row_entered += data_entered
             grp_list = utils.get_grp(utils.nan_to_none(row[self.stok_key]), cnt_year, coll, cont_id, row_date,
@@ -173,25 +171,6 @@ class DistributionParser(DataParser):
                 self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
                 self.row_entered += utils.enter_contx(cont_id, cleaned_data)
                 self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk, return_sucess=True)
-
-        trof_list = []
-        if utils.nan_to_none(row[self.trof_key]):
-            trof_list = row[self.trof_key].split(",")
-
-        for trof in trof_list:
-            trof = trof.replace(" ", "")
-            cont_id = utils.get_cont_from_dot(trof, cleaned_data, row_date, get_trof=True)
-            contx, data_entered = utils.enter_contx(cont_id, cleaned_data, return_contx=True)
-            self.row_entered += data_entered
-            grp_list = utils.get_grp(utils.nan_to_none(row[self.stok_key]), cnt_year, coll, cont_id, row_date,
-                                     prog_str=utils.nan_to_none(row.get(self.prog_key)),
-                                     mark_str=utils.nan_to_none(row.get(self.mark_key)))
-            if grp_list:
-                grp_id = grp_list[0]
-                self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
-                self.row_entered += utils.enter_contx(cont_id, cleaned_data)
-                self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk,
-                                                     return_sucess=True)
 
 
 class DistributionIndvParser(DataParser):
@@ -262,12 +241,6 @@ class DistributionIndvParser(DataParser):
         if utils.nan_to_none(row[self.tank_key]):
             if "," in str(row[self.tank_key]):
                 tank_list = str(row[self.tank_key]).split(",")
-                for tank in tank_list:
-                    if "-" in tank:
-                        tank_range = tank.split("-")
-                        tank_names = range(int(tank_range[0]), int(tank_range[1]) + 1)
-
-
 
             cont_id = models.Tank.objects.filter(name__iexact=row[self.tank_key], facic_id__name=cleaned_data["facic_id"]).get()
         elif utils.nan_to_none(row[self.trof_key]):
@@ -327,32 +300,19 @@ class DistributionIndvParser(DataParser):
             self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.acclimation_key],
                                                  self.acclimation_locdc_id.pk, None)
 
+        self.row_entered += utils.enter_bulk_indvd(anix.pk, self.cleaned_data, row_date,
+                                                   gender=row.get(self.sex_key),
+                                                   len_mm=row.get(self.len_key_mm),
+                                                   len=row.get(self.len_key),
+                                                   weight=row.get(self.weight_key),
+                                                   weight_kg=row.get(self.weight_key_kg),
+                                                   vial=row.get(self.vial_key),
+                                                   tissue_yn=row.get(self.tissue_key)
+                                                   )
+
         if utils.nan_to_none(row.get(self.lifestage_key)):
             self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row[self.lifestage_key], self.lifestage_anidc_id.pk,
                                                   adsc_str=row[self.lifestage_key])
-
-        if utils.nan_to_none(row.get(self.len_key)):
-            self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row[self.len_key], self.len_anidc_id.pk)
-
-        if utils.nan_to_none(row.get(self.len_key_mm)):
-            self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, 0.1 * row[self.len_key_mm],
-                                                  self.len_anidc_id.pk)
-
-        if utils.nan_to_none(row.get(self.weight_key)):
-            self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row[self.weight_key],
-                                                  self.weight_anidc_id.pk)
-        if utils.nan_to_none(row.get(self.weight_key_kg)):
-            self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, 1000 * row[self.weight_key_kg],
-                                                  self.weight_anidc_id.pk)
-        if utils.nan_to_none(row.get(self.vial_key)):
-            self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row[self.vial_key],
-                                                  self.vial_anidc_id.pk)
-        if utils.nan_to_none(row.get(self.sex_key)):
-            self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date,
-                                                  self.sex_dict[row[self.sex_key].upper()], self.sex_anidc_id.pk)
-        if utils.nan_to_none(row.get(self.tissue_key)):
-            if utils.y_n_to_bool(row[self.tissue_key]):
-                self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, None, None, anidc_str="Tissue Sample")
 
         if utils.nan_to_none(row.get(self.comment_key)):
             comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix, row_date)

@@ -77,19 +77,19 @@ class GenericIndvParser(DataParser):
         anix, anix_entered = utils.enter_anix(self.cleaned_data, indv_pk=indv.pk)
         self.row_entered += anix_entered
 
-        utils.enter_bulk_indvd(anix.pk, self.cleaned_data, row_date,
-                               gender=row.get(self.sex_key),
-                               len_mm=row.get(self.len_key_mm),
-                               len=row.get(self.len_key),
-                               weight=row.get(self.weight_key),
-                               weight_kg=row.get(self.weight_key_kg),
-                               vial=row.get(self.vial_key),
-                               scale_envelope=row.get(self.envelope_key),
-                               tissue_yn=row.get(self.tissue_key),
-                               mark=row.get(self.mark_key),
-                               vaccinated=row.get(self.vax_key),
-                               status=row.get(self.status_key)
-                               )
+        self.row_entered += utils.enter_bulk_indvd(anix.pk, self.cleaned_data, row_date,
+                                                   gender=row.get(self.sex_key),
+                                                   len_mm=row.get(self.len_key_mm),
+                                                   len=row.get(self.len_key),
+                                                   weight=row.get(self.weight_key),
+                                                   weight_kg=row.get(self.weight_key_kg),
+                                                   vial=row.get(self.vial_key),
+                                                   scale_envelope=row.get(self.envelope_key),
+                                                   tissue_yn=row.get(self.tissue_key),
+                                                   mark=row.get(self.mark_key),
+                                                   vaccinated=row.get(self.vax_key),
+                                                   status=row.get(self.status_key)
+                                                   )
 
         if utils.nan_to_none(row.get(self.precocity_key)):
             if utils.y_n_to_bool(row[self.precocity_key]):

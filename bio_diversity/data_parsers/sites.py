@@ -59,10 +59,10 @@ class SitesParser(DataParser):
                                          rive_id=rive_id,
                                          trib_id=trib_id,
                                          subr_id=subr_id,
-                                         min_lat=row.get(self.lat_key),
-                                         max_lat=row.get(self.max_lat_key),
-                                         min_lon=row.get(self.lon_key),
-                                         max_lon=row.get(self.max_lon_key),
+                                         min_lat=utils.nan_to_none(row.get(self.lat_key)),
+                                         max_lat=utils.nan_to_none(row.get(self.max_lat_key)),
+                                         min_lon=utils.nan_to_none(row.get(self.lon_key)),
+                                         max_lon=utils.nan_to_none(row.get(self.max_lon_key)),
                                          created_by=cleaned_data["created_by"],
                                          created_date=cleaned_data["created_date"]
         )
