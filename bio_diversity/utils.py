@@ -329,6 +329,57 @@ def parse_extra_cols(row, cleaned_data, anix, indv=False, grp=False, samp=False)
     return row_entered
 
 
+def parse_cont_strs(cont_str, facic_id):
+    cont_names = []
+    if "," in cont_str:
+        cont_list = cont_str.split(",")
+    else:
+        cont_list = [cont_str]
+
+    for cont in cont_list:
+        if "-" in cont:
+            cont_lims = cont.split("-")
+            if "." in cont_lims[0]:
+                low_conts = cont_lims[0].split(".")
+                high_conts = cont_lims[1].split(".")
+                low_conts = [int(cont) for cont in low_conts]
+                high_conts = [int(cont) for cont in high_conts]
+                hu = low_conts[0]
+                drawer = low_conts[1]
+                if len(low_conts) == 3:
+                    while hu <= high_conts[0]:
+                        draw_qs = models.Drawer.objects.filter(heat_id__facic_id=facic_id, heat_id__name__iexact=hu)
+                        cup_qs = models.Cup.objects.filter(draw_id__heat_id__facic_id=facic_id, draw_id__heat_id__name__iexact=hu).select_related('draw_id')
+                        for draw_id in draw_qs:
+                            if int(draw_id.name) == low_conts[1] and int(hu) == low_conts[0]:
+                                cup = low_conts[2]
+                            else:
+                                cup = 0
+                            if int(draw_id.name) >= drawer and (int(draw_id.name) <= high_conts[1] or hu < high_conts[0]):
+                                for cup_id in cup_qs:
+                                    if (cup_id.draw_id == draw_id) and \
+                                            int(cup_id.name) >= cup and\
+                                            (int(cup_id.name) <= high_conts[2] or (hu < high_conts[0] or int(draw_id.name) < high_conts[1])):
+                                        cont_names.append("{}.{}.{}".format(hu, draw_id.name, cup_id.name))
+                        hu += 1
+                        drawer = 0
+
+                else:
+                    while hu <= high_conts[0]:
+                        draw_qs = models.Drawer.objects.filter(heat_id__facic_id=facic_id, heat_id__name__iexact=hu)
+                        for draw_id in draw_qs:
+                            if int(draw_id.name) >= drawer and (int(draw_id.name) <= high_conts[1] or hu < high_conts[0]):
+                                cont_names.append("{}.{}".format(hu, draw_id.name))
+                        hu += 1
+                        drawer = 0
+            else:
+                cont_range = range(int(cont_lims[0]), int(cont_lims[1]) + 1)
+                cont_names.extend(cont_range)
+        else:
+            cont_names.append(cont)
+    # clean cont names:
+    cont_names = [str(cont).strip() for cont in cont_names]
+    return cont_names
 
 
 def load_sfas():

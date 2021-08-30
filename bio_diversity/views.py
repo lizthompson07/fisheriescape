@@ -3442,7 +3442,7 @@ class TemplFormView(mixins.TemplMixin, BioCommonFormView):
         if os.path.exists(file_url):
             with open(file_url, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-                response['Content-Disposition'] = f'inline; filename="{facility_code}_{evnt_code}_({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+                response['Content-Disposition'] = f'inline; filename="{facility_code}_{evnt_code.replace(" ", "_")}_({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
                 return response
         raise Http404
 

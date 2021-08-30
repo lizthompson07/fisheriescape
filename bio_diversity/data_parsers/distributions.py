@@ -257,12 +257,18 @@ class DistributionIndvParser(DataParser):
         cleaned_data = self.cleaned_data
         row_date = utils.get_row_date(row)
 
-        # need to find contanier and group for row:
+        # need to find container and group for row:
         cont_id = None
         if utils.nan_to_none(row[self.tank_key]):
             if "," in str(row[self.tank_key]):
                 tank_list = str(row[self.tank_key]).split(",")
-                # TODO
+                for tank in tank_list:
+                    if "-" in tank:
+                        tank_range = tank.split("-")
+                        tank_names = range(int(tank_range[0]), int(tank_range[1]) + 1)
+
+
+
             cont_id = models.Tank.objects.filter(name__iexact=row[self.tank_key], facic_id__name=cleaned_data["facic_id"]).get()
         elif utils.nan_to_none(row[self.trof_key]):
             if "," in row[self.trof_key]:
