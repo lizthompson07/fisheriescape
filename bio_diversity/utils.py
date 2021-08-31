@@ -672,14 +672,11 @@ def comment_parser(comment_str, anix_indv, det_date):
     data_entered = False
     com_key_dict = get_comment_keywords_dict()
     parser_list = com_key_dict.keys()
-    mortality = False
     parsed = False
     for term in parser_list:
         if term.lower() in comment_str.lower():
             parsed = True
             adsc = com_key_dict[term]
-            if adsc.name == "Mortality":
-                mortality = True
             indvd_parsed = models.IndividualDet(anix_id_id=anix_indv.pk,
                                                 anidc_id=adsc.anidc_id,
                                                 adsc_id=adsc,
@@ -695,12 +692,7 @@ def comment_parser(comment_str, anix_indv, det_date):
                 data_entered = True
             except (ValidationError, IntegrityError):
                 pass
-    if mortality:
-        parsed = True
-        if anix_indv.indv_id.indv_valid:
-            data_entered = True
-        anix_indv.indv_id.indv_valid = False
-        anix_indv.indv_id.save()
+
     return parsed, data_entered
 
 
@@ -881,7 +873,7 @@ def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk, ret
         return row_entered
 
 
-def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_code, perc_id, shocking=False, return_anix=False):
+def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_code, perc_id, shocking=False, return_anix=False, pick_comments=None):
     row_entered = False
     new_cleaned_data = cleaned_data.copy()
     if shocking:
@@ -914,6 +906,9 @@ def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_c
     anix = None
     if grp_pk:
         anix = enter_anix(new_cleaned_data, grp_pk=grp_pk, return_anix=True)
+        row_entered += enter_bulk_grpd(anix.pk, cleaned_data, pick_datetime,
+                                                  comments=pick_comments)
+
     contx, data_entered = enter_contx(tray, new_cleaned_data, None, grp_pk=grp_pk, return_contx=True)
     if contx:
         row_entered = True
@@ -1201,6 +1196,7 @@ def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=N
                                det_val=det_value,
                                detail_date=det_date,
                                qual_id=models.QualCode.objects.filter(name="Good").get(),
+                               comments=comments,
                                created_by=cleaned_data["created_by"],
                                created_date=cleaned_data["created_date"],
                                )
@@ -1239,6 +1235,7 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
                                      det_val=det_value,
                                      detail_date=det_date,
                                      qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                     comments=comments,
                                      created_by=cleaned_data["created_by"],
                                      created_date=cleaned_data["created_date"],
                                      )
@@ -1251,13 +1248,13 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
     return row_entered
 
 
-def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len=None, len_mm=None, weight=None, weight_kg=None, vial=None,
-                     scale_envelope=None, gender=None, tissue_yn=None, status=None, mark=None, vaccinated=None):
+def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None, weight=None, weight_kg=None, vial=None,
+                     scale_envelope=None, gender=None, tissue_yn=None, status=None, mark=None, prog_grp=None, vaccinated=None, comments=None):
     data_entered = 0
     health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
-    if nan_to_none(len):
+    if nan_to_none(len_val):
         len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
-        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, len, len_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, len_val, len_anidc_id.pk, None)
     if nan_to_none(len_mm):
         len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
         data_entered += enter_indvd(anix_pk, cleaned_data, det_date, 0.1 * len_mm, len_anidc_id.pk, None)
@@ -1286,6 +1283,10 @@ def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len=None, len_mm=None, wei
         mark_anidc_pk = models.AnimalDetCode.objects.filter(name="Mark").get().pk
         data_entered += enter_indvd(anix_pk, cleaned_data, det_date, mark,
                                     mark_anidc_pk, adsc_str=mark)
+    if nan_to_none(prog_grp):
+        prog_anidc_pk = models.AnimalDetCode.objects.filter(name="Program Group").get().pk
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, prog_grp,
+                                    prog_anidc_pk, adsc_str=prog_grp)
     if nan_to_none(vaccinated):
         vax_anidc_pk = models.AnimalDetCode.objects.filter(name="Vaccination").get().pk
         data_entered += enter_indvd(anix_pk, cleaned_data, det_date, vaccinated,
@@ -1293,6 +1294,54 @@ def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len=None, len_mm=None, wei
     if nan_to_none(tissue_yn):
         if y_n_to_bool(tissue_yn):
             data_entered += enter_indvd(anix_pk, cleaned_data, det_date, None, health_anidc_id, "Tissue Sample")
+
+    if nan_to_none(comments):
+        comment_anidc_id = models.AnimalDetCode.objects.filter(name="Comment").get()
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, None, comment_anidc_id, comments=comments)
+
+    return data_entered
+
+
+def enter_bulk_grpd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None, weight=None, weight_kg=None,
+                    status=None, mark=None, prnt_grp=None, prog_grp=None, vaccinated=None, comments=None):
+    data_entered = 0
+    if nan_to_none(len_val):
+        len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, len_val, len_anidc_id.pk, None)
+    if nan_to_none(len_mm):
+        len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, 0.1 * len_mm, len_anidc_id.pk, None)
+    if nan_to_none(weight):
+        weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, weight, weight_anidc_id.pk, None)
+    if nan_to_none(weight_kg):
+        weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, weight_kg * 1000, weight_anidc_id.pk, None)
+
+    if nan_to_none(status):
+        status_anidc_pk = models.AnimalDetCode.objects.filter(name="Status").get().pk
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, status,
+                                    status_anidc_pk, adsc_str=status)
+    if nan_to_none(mark):
+        mark_anidc_pk = models.AnimalDetCode.objects.filter(name="Mark").get().pk
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, mark,
+                                    mark_anidc_pk, adsc_str=mark)
+    if nan_to_none(prog_grp):
+        prog_anidc_pk = models.AnimalDetCode.objects.filter(name="Program Group").get().pk
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, prog_grp,
+                                    prog_anidc_pk, adsc_str=prog_grp)
+    if nan_to_none(prnt_grp):
+        prnt_grp_anidc_pk = models.AnimalDetCode.objects.filter(name="Parent Group").get().pk
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, prnt_grp.__str__(),
+                                         prnt_grp_anidc_pk, frm_grp_id=prnt_grp)
+    if nan_to_none(vaccinated):
+        vax_anidc_pk = models.AnimalDetCode.objects.filter(name="Vaccination").get().pk
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, vaccinated,
+                                    vax_anidc_pk, adsc_str=vaccinated)
+
+    if nan_to_none(comments):
+        comment_anidc_id = models.AnimalDetCode.objects.filter(name="Comment").get()
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, None, comment_anidc_id, comments=comments)
 
     return data_entered
 
@@ -1344,6 +1393,7 @@ def enter_locd(loc_pk, cleaned_data, det_date, det_value, locdc_pk, ldsc_str=Non
                                   det_val=det_value,
                                   detail_date=det_date,
                                   qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                  comments=comments,
                                   created_by=cleaned_data["created_by"],
                                   created_date=cleaned_data["created_date"],
                                   )
@@ -1490,15 +1540,16 @@ def enter_samp(cleaned_data, samp_num, spec_pk, sampc_pk, anix_pk=None, loc_pk=N
 
 def enter_sampd(samp_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=None, adsc_str=None, comments=None):
     row_entered = False
-    if not nan_to_none(det_value):
-        return False
+    if isinstance(det_value, float):
+        if math.isnan(det_value):
+            return False
     if anidc_str:
         anidc_pk = models.AnimalDetCode.objects.filter(name=anidc_str).get().pk
     if adsc_str:
         sampd = models.SampleDet(samp_id_id=samp_pk,
                                  anidc_id_id=anidc_pk,
                                  adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
-                                 det_val=None,
+                                 det_val=adsc_str,
                                  detail_date=det_date,
                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
                                  comments=comments,
@@ -1511,6 +1562,7 @@ def enter_sampd(samp_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
                                  det_val=det_value,
                                  detail_date=det_date,
                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                 comments=comments,
                                  created_by=cleaned_data["created_by"],
                                  created_date=cleaned_data["created_date"],
                                  )

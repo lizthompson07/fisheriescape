@@ -65,12 +65,8 @@ class EDInitParser(DataParser):
 
         self.team_parser(row.get(self.crew_key), row)
 
-        if utils.nan_to_none(row.get(self.comment_key)):
-            comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix_id, row_date)
-            self.row_entered += data_entered
-            if not comments_parsed:
-                self.log_data += "Unparsed comment on row with stock ({}), cross ({}): \n {}" \
-                                 " \n\n".format(row[self.stock_key], row[self.cross_key], row[self.comment_key])
+        self.row_entered += utils.enter_bulk_grpd(anix_id.pk, cleaned_data, row_date,
+                                                  comments=row.get(self.comment_key))
 
 
 # ED = egg development
@@ -126,7 +122,8 @@ class EDPickParser(DataParser):
         for pickc_id in cleaned_data["pickc_id"]:
             if utils.nan_to_none(row[pickc_id.name]):
                 self.row_entered += utils.create_picks_evnt(cleaned_data, tray_id, grp_id.pk, row[pickc_id.name],
-                                                            row_date, pickc_id.name, perc_list[0])
+                                                            row_date, pickc_id.name, perc_list[0],
+                                                            pick_comments=row.get(self.comment_key))
         for inits in inits_not_found:
             self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
 
@@ -152,7 +149,8 @@ class EDShockingParser(EDPickParser):
             if utils.nan_to_none(row[pickc_id.name]):
                 grp_anix, evnt_entered = utils.create_picks_evnt(cleaned_data, tray_id, grp_id.pk, row[pickc_id.name],
                                                                  row_date, pickc_id.name, perc_list[0], shocking=True,
-                                                                 return_anix=True)
+                                                                 return_anix=True,
+                                                                 pick_comments=row.get(self.comment_key))
                 self.row_entered += evnt_entered
         for inits in inits_not_found:
             self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
@@ -190,7 +188,7 @@ class EDHUParser(DataParser):
     tank_key = "Tank"
 
     header = 2
-    sheet_name = "Transfer"
+    sheet_name = "Allocations"
     converters = {trof_key: str, cross_key: str, tray_key: str, cont_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     def load_data(self):
@@ -227,7 +225,7 @@ class EDHUParser(DataParser):
 
         # want to shift the hu move event, so that the counting math always works out.
         hu_move_date = row_date + timedelta(minutes=1)
-        hu_cleaned_data = utils.create_new_evnt(cleaned_data, "Heath Unit Transfer", hu_move_date)
+        hu_cleaned_data = utils.create_new_evnt(cleaned_data, "Allocation", hu_move_date)
         hu_anix, data_entered = utils.enter_anix(hu_cleaned_data, grp_pk=grp_id.pk)
         self.row_entered += data_entered
         hu_contx, data_entered = utils.enter_contx(tray_id, hu_cleaned_data, None, grp_pk=grp_id.pk,
@@ -283,17 +281,18 @@ class EDHUParser(DataParser):
                 final_grp = final_grp[0]
             final_grp_anix = utils.enter_anix(cleaned_data, grp_pk=final_grp.pk, return_anix=True)
             self.row_entered += utils.enter_anix(hu_cleaned_data, grp_pk=final_grp.pk, return_sucess=True)
-            self.row_entered += utils.enter_grpd(final_grp_anix.pk, cleaned_data, row_date, grp_id.__str__(), None,
-                                                 anidc_str="Parent Group", frm_grp_id=grp_id)
-            self.row_entered += utils.enter_grpd(final_grp_anix.pk, cleaned_data, row_date, None, None,
-                                                 anidc_str="Program Group", adsc_str=row[self.prog_key])
+            self.row_entered += utils.enter_bulk_grpd(final_grp_anix, cleaned_data, row_date,
+                                                      prnt_grp=grp_id,
+                                                      prog_grp=row.get(self.prog_key),
+                                                      comments=row.get(self.comment_key)
+                                                      )
             self.row_entered += utils.enter_grpd(final_grp_anix.pk, cleaned_data, row_date, dev_at_hu_transfer, None,
                                                  anidc_str="Development")
 
             # create movement for the new group, create 2 contx's and 3 anix's
             # cup contx is contx used to link the positive counts
             cont_contx = utils.create_egg_movement_evnt(tray_id, cont, cleaned_data, row_date, final_grp.pk,
-                                                       return_cup_contx=True)
+                                                        return_cup_contx=True)
 
             move_cleaned_data = cleaned_data.copy()
             move_cleaned_data["evnt_id"] = cont_contx.evnt_id

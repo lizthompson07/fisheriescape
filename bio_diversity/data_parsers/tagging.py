@@ -122,21 +122,15 @@ class TaggingParser(DataParser):
         self.row_entered += anix_entered
         self.anix_indv = anix_indv
 
-        if utils.nan_to_none(row[self.group_key]):
-            if not len(indv.prog_group()):
-                self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.group_key],
-                                                      self.prog_grp_anidc_id.pk, adsc_str=row[self.group_key])
-        if utils.nan_to_none(row[self.mark_key]):
-            if not len(indv.prog_group()):
-                self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.mark_key],
-                                                      self.mark_anidc_id.pk, adsc_str=row[self.mark_key])
-
         utils.enter_bulk_indvd(anix_indv.pk, self.cleaned_data, row_date,
                                len_mm=row.get(self.len_key_mm),
-                               len=row.get(self.len_key),
+                               len_val=row.get(self.len_key),
                                weight=row.get(self.weight_key),
                                weight_kg=row.get(self.weight_key_kg),
                                vial=row.get(self.vial_key),
+                               mark=row.get(self.mark_key),
+                               prog_grp=row.get(self.group_key),
+                               comments=row.get(self.comment_key),
                                )
 
         if utils.nan_to_none(row.get(self.precocity_key)):
@@ -155,14 +149,6 @@ class TaggingParser(DataParser):
             for inits in inits_not_found:
                 self.log_data += "No valid personnel with initials ({}) for row with pit tag" \
                                  " {}\n".format(inits, row[self.pit_key])
-
-        if utils.nan_to_none(row.get(self.comment_key)):
-            comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix_indv,
-                                                                 det_date=row_datetime.date())
-            self.row_entered += data_entered
-            if not comments_parsed:
-                self.log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row[self.pit_key],
-                                                                                             row[self.comment_key])
 
     def data_cleaner(self):
         from_tanks = self.data[self.from_tank_key].value_counts()

@@ -301,7 +301,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                     attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["data_type"].required = True
                 data_types = ((-1, "---------"), (0, 'Temperature'), (1, 'Picks'),
-                              (2, 'Initial'), (3, 'Heath Unit Transfer'), (4, 'Shocking'))
+                              (2, 'Initial'), (3, 'Allocations'), (4, 'Shocking'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
             elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing",

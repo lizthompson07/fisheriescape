@@ -368,6 +368,22 @@
     }
 },
 {
+    "model": "bio_diversity.animaldetcode",
+    "pk": 26,
+    "fields": {
+        "name": "Comment",
+        "nom": null,
+        "description_en": "Comments relevant to fish.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-06",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "ani_subj_flag": true
+    }
+},
+{
     "model": "bio_diversity.anidetsubjcode",
     "pk": 2,
     "fields": {
@@ -1712,7 +1728,7 @@
     "model": "bio_diversity.eventcode",
     "pk": 13,
     "fields": {
-        "name": "Heath Unit Transfer",
+        "name": "Allocation",
         "nom": null,
         "description_en": "Event in egg development in which eggs are transfered to heath units.",
         "description_fr": "",

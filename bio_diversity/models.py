@@ -317,6 +317,9 @@ class AnimalDetCode(BioLookup):
     def __str__(self):
         return "{} ({})".format(self.name, self.unit_id.__str__())
 
+    class Meta:
+        ordering = ['name', ]
+
 
 class AniDetSubjCode(BioLookup):
     # adsc tag

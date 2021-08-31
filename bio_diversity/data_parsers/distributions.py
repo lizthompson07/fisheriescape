@@ -239,14 +239,8 @@ class DistributionIndvParser(DataParser):
         # need to find container and group for row:
         cont_id = None
         if utils.nan_to_none(row[self.tank_key]):
-            if "," in str(row[self.tank_key]):
-                tank_list = str(row[self.tank_key]).split(",")
-
             cont_id = models.Tank.objects.filter(name__iexact=row[self.tank_key], facic_id__name=cleaned_data["facic_id"]).get()
         elif utils.nan_to_none(row[self.trof_key]):
-            if "," in row[self.trof_key]:
-                trof_list = row[self.trof_key].split(",")
-                # TODO
             cont_id = models.Trough.objects.filter(name__iexact=row[self.trof_key], facic_id__name=cleaned_data["facic_id"]).get()
 
         indv_id = models.Individual.objects.filter(pit_tag__iexact=row[self.pit_key]).get()
@@ -303,7 +297,7 @@ class DistributionIndvParser(DataParser):
         self.row_entered += utils.enter_bulk_indvd(anix.pk, self.cleaned_data, row_date,
                                                    gender=row.get(self.sex_key),
                                                    len_mm=row.get(self.len_key_mm),
-                                                   len=row.get(self.len_key),
+                                                   len_val=row.get(self.len_key),
                                                    weight=row.get(self.weight_key),
                                                    weight_kg=row.get(self.weight_key_kg),
                                                    vial=row.get(self.vial_key),
