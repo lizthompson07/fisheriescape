@@ -59,16 +59,16 @@ class ProjectForm(forms.ModelForm):
         widgets = {
             'ecosystem_type': forms.Select(choices=choices.ECOSYSTEM_TYPE, attrs=attr_chosen),
             'region': forms.Select(choices=choices.REGION, attrs=attr_chosen),
-            'species': forms.Select(choices=choices.SPECIES, attrs=multi_select_js),
+            'species': forms.SelectMultiple(choices=choices.SPECIES, attrs=multi_select_js),
             'smu_name': forms.Select(choices=choices.SMU_NAME, attrs=attr_chosen),
-            'salmon_life_cycle': forms.SelectMultiple(choices=choices.SALMON_LIFE_CYCLE, attrs=multi_select_js),
+            'salmon_life_stage': forms.SelectMultiple(choices=choices.SALMON_LIFE_CYCLE, attrs=multi_select_js),
             'project_stage': forms.Select(choices=choices.PROJECT_STAGE,attrs=attr_chosen),
             'project_type': forms.Select(choices=choices.PROJECT_TYPE, attrs=attr_chosen),
-            'project_sub_type': forms.Select(choices=choices.PROJECT_SUB_TYPE, attrs=multi_select_js),
+            'project_sub_type': forms.SelectMultiple(choices=choices.PROJECT_SUB_TYPE, attrs=multi_select_js),
             'monitoring_approach': forms.Select(choices=choices.MONITORING_APPROACH, attrs=attr_chosen),
-            'project_theme': forms.Select(choices=choices.PROJECT_THEME, attrs=multi_select_js),
-            'core_component': forms.Select(choices=choices.PROJECT_CORE_ELEMENT, attrs=multi_select_js),
-            'supportive_component': forms.Select(choices=choices.SUPPORTIVE_COMPONENT, attrs=multi_select_js),
+            'project_theme': forms.SelectMultiple(choices=choices.PROJECT_THEME, attrs=multi_select_js),
+            'core_component': forms.SelectMultiple(choices=choices.PROJECT_CORE_ELEMENT, attrs=multi_select_js),
+            'supportive_component': forms.SelectMultiple(choices=choices.SUPPORTIVE_COMPONENT, attrs=multi_select_js),
             'project_purpose': forms.SelectMultiple(choices=choices.PROJECT_PURPOSE, attrs=multi_select_js),
             'DFO_link': forms.Select(choices=choices.DFO_LINK, attrs=attr_chosen),
             'government_organization': forms.Select(choices=choices.GOVERNMENT_LINK, attrs=attr_chosen),
@@ -91,10 +91,11 @@ class ObjectiveForm(forms.ModelForm):
             'project': forms.HiddenInput(),
             'activity': forms.Select(choices=choices.ACTIVITY_NUMBER, attrs=attr_chosen),
             'key_element': forms.Select(choices=choices.KEY_ELEMENT, attrs=attr_chosen),
-            'species': forms.Select(choices=choices.SPECIES, attrs=multi_select_js),
+            'element_title': forms.Select(choices=choices.ELEMENT_TITLE, attrs=attr_chosen),
+            'species': forms.SelectMultiple(choices=choices.SPECIES, attrs=multi_select_js),
             'objective_category': forms.SelectMultiple(choices=choices.PROJECT_THEME, attrs=multi_select_js),
-            'outcome_barrier': forms.Select(choices=choices.OUTCOME_BARRIER, attrs=multi_select_js),
-            'capacity_building': forms.Select(choices=choices.CAPACITY, attrs=multi_select_js),
+            'outcome_barrier': forms.SelectMultiple(choices=choices.OUTCOME_BARRIER, attrs=multi_select_js),
+            'capacity_building': forms.SelectMultiple(choices=choices.CAPACITY, attrs=multi_select_js),
             'outcome_deadline': forms.DateInput(),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
@@ -107,10 +108,10 @@ class MethodForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'project': forms.HiddenInput(),
-            'planning_method_type': forms.Select(choices=choices.PLANNING_METHOD, attrs=multi_select_js),
-            'field_work_method_type': forms.Select(choices=choices.FIELD_WORK, attrs=multi_select_js),
-            'sample_processing_method_type': forms.Select(choices=choices.SAMPLE_PROCESSING, attrs=multi_select_js),
-            'data_entry_method_type': forms.Select(choices=choices.DATA_ENTRY, attrs=multi_select_js),
+            'planning_method_type': forms.SelectMultiple(choices=choices.PLANNING_METHOD, attrs=multi_select_js),
+            'field_work_method_type': forms.SelectMultiple(choices=choices.FIELD_WORK, attrs=multi_select_js),
+            'sample_processing_method_type': forms.SelectMultiple(choices=choices.SAMPLE_PROCESSING, attrs=multi_select_js),
+            'data_entry_method_type': forms.SelectMultiple(choices=choices.DATA_ENTRY, attrs=multi_select_js),
             'method_document_type': forms.Select(choices=choices.METHOD_DOCUMENT, attrs=attr_chosen),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
@@ -126,16 +127,16 @@ class DataForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'project': forms.HiddenInput(),
-            'species_data': forms.Select(choices=choices.SPECIES, attrs=multi_select_js),
-            'samples_collected': forms.Select(choices=choices.SAMPLES_COLLECTED, attrs=multi_select_js),
-            'samples_collected_database': forms.Select(choices=choices.DATABASE, attrs=multi_select_js),
-            'sample_barrier': forms.Select(choices=choices.SAMPLE_BARRIER, attrs=multi_select_js),
-            'barrier_data_check_entry': forms.Select(choices=choices.DATA_BARRIER, attrs=multi_select_js),
-            'sample_format': forms.Select(choices=choices.SAMPLE_FORMAT, attrs=multi_select_js),
-            'data_products': forms.Select(choices=choices.DATA_PRODUCTS, attrs=multi_select_js),
-            'data_products_database': forms.Select(choices=choices.DATABASE, attrs=multi_select_js),
-            'data_programs': forms.Select(choices=choices.DATA_PROGRAMS, attrs=multi_select_js),
-            'data_communication': forms.Select(choices=choices.DATA_COMMUNICATION, attrs=multi_select_js),
+            'species_data': forms.SelectMultiple(choices=choices.SPECIES, attrs=multi_select_js),
+            'samples_collected': forms.SelectMultiple(choices=choices.SAMPLES_COLLECTED, attrs=multi_select_js),
+            'samples_collected_database': forms.SelectMultiple(choices=choices.DATABASE, attrs=multi_select_js),
+            'sample_barrier': forms.SelectMultiple(choices=choices.SAMPLE_BARRIER, attrs=multi_select_js),
+            'barrier_data_check_entry': forms.SelectMultiple(choices=choices.DATA_BARRIER, attrs=multi_select_js),
+            'sample_format': forms.SelectMultiple(choices=choices.SAMPLE_FORMAT, attrs=multi_select_js),
+            'data_products': forms.SelectMultiple(choices=choices.DATA_PRODUCTS, attrs=multi_select_js),
+            'data_products_database': forms.SelectMultiple(choices=choices.DATABASE, attrs=multi_select_js),
+            'data_programs': forms.SelectMultiple(choices=choices.DATA_PROGRAMS, attrs=multi_select_js),
+            'data_communication': forms.SelectMultiple(choices=choices.DATA_COMMUNICATION, attrs=multi_select_js),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }
@@ -184,21 +185,6 @@ class ReportsForm(forms.ModelForm):
         }
 
 
-class AgreementHistoryForm(forms.ModelForm):
-    class Meta:
-        model = models.AgreementHistory
-        fields = '__all__'
-        widgets = {
-            'project': forms.HiddenInput(),
-            'agreement_database': forms.Select(choices=choices.AGREEMENT_DATABASE, attrs=attr_chosen),
-            'funding_sources': forms.Select(choices=choices.FUNDING_SOURCES, attrs=attr_chosen),
-            'agreement_type': forms.Select(choices=choices.AGREEMENT_TYPE, attrs=attr_chosen),
-            'project_lead_organization': forms.Select(choices=choices.LEAD_ORGANIZATION, attrs=attr_chosen),
-            'last_modified_by': forms.HiddenInput(),
-            'date_last_modified': forms.HiddenInput(),
-        }
-
-
 class ObjectiveDataTypeQualityForm(forms.ModelForm):
     class Meta:
         model = models.ObjectiveDataTypeQuality
@@ -241,3 +227,28 @@ class LakeSystemForm(forms.ModelForm):
     class Meta:
         model = models.River
         fields = '__all__'
+
+
+class FundingYearForm(forms.ModelForm):
+    class Meta:
+        model = models.FundingYears
+        fields = '__all__'
+
+    widgets = {
+        'project': forms.HiddenInput(),
+        'sample_type': forms.Select(choices=choices.FUNDING_YEARS, attrs=attr_chosen),
+        'last_modified_by': forms.HiddenInput(),
+        'date_last_modified': forms.HiddenInput(),
+    }
+
+
+class MethodDocumentForm(forms.ModelForm):
+    class Meta:
+        model = models.MethodDocument
+        fields = '__all__'
+
+    widgets = {
+        'method': forms.HiddenInput(),
+        'last_modified_by': forms.HiddenInput(),
+        'date_last_modified': forms.HiddenInput(),
+    }

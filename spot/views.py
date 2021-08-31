@@ -1,5 +1,6 @@
 import os
-
+import csv
+from datetime import date
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -72,7 +73,6 @@ class IndexTemplateView(SpotAccessRequiredMixin, TemplateView):
 class OrganizationListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/organization_list.html'
     filterset_class = filters.OrganizationFilter
-    model = models.Organization
     queryset = models.Organization.objects.annotate(
         search_term=Concat('name', 'id', output_field=TextField()))
 
@@ -97,11 +97,11 @@ class OrganizationDetailView(SpotAccessRequiredMixin, DetailView):
         context["field_list"] = [
             'name',
             'organization_type',
+            'section',
             'address',
             'province',
             'country',
             'city',
-            'postal_code',
             'phone',
             'email',
             'website',
@@ -263,6 +263,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'agreement_number',
+            'agreement_history',
             'name',
             'project_description',
             'start_date',
@@ -274,11 +275,12 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'lake_system',
             'watershed',
             'management_area',
+
             'smu_name',
             'cu_index',
             'cu_name',
             'species',
-            'salmon_life_cycle',
+            'salmon_life_stage',
 
             'project_stage',
             'project_type',
@@ -307,6 +309,14 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'primary_contact_contractor',
             'partner',
             'primary_contact_partner',
+
+            'agreement_database',
+            'agreement_comment',
+            'funding_sources',
+            'other_funding_sources',
+            'agreement_type',
+            'project_lead_organization',
+
             'date_last_modified',
             'last_modified_by',
         ]
@@ -364,8 +374,8 @@ class ObjectiveListView(SpotAccessRequiredMixin, FilterView):
         context["my_object"] = models.Objective.objects.first()
         context["field_list"] = [
             'project',
-            'key_element',
-            'activity',
+            'element_title',
+            'activity_title',
             'location',
         ]
         return context
@@ -380,27 +390,26 @@ class ObjectiveDetailView(SpotAccessRequiredMixin, DetailView):
         context["field_list"] = [
             'project',
             'task_description',
-            'key_element',
-            'activity',
             'element_title',
             'activity_title',
+
             'pst_requirement',
             'location',
             'objective_category',
             'species',
-            'target_sample_number',
-            'sample_type',
             'sil_requirement',
+
             'expected_results',
             'dfo_report',
-            'outcome_deadline_met',
+
+            'outcome_met',
             'outcomes_contact',
             'outcomes_comment',
             'outcome_barrier',
             'capacity_building',
             'key_lesson',
             'missed_opportunities',
-            'report_reference',
+
             'date_last_modified',
             'last_modified_by',
         ]
@@ -465,18 +474,10 @@ class MethodListView(SpotAccessRequiredMixin, FilterView):
         context["my_object"] = models.Method.objects.first()
         context["field_list"] = [
             'project',
-            'project_core_component',
             'planning_method_type',
             'field_work_method_type',
             'sample_processing_method_type',
             'data_entry_method_type',
-            'data_analysis_method_type',
-            'document_topic',
-            'author',
-            'publication_year',
-            'reference_number',
-            'publisher',
-            'form_link',
         ]
         return context
 
@@ -493,21 +494,13 @@ class MethodDetailView(SpotAccessRequiredMixin, DetailView):
             'field_work_method_type',
             'sample_processing_method_type',
             'data_entry_method_type',
-            'data_analysis_method_type',
-            'reporting_method_type',
+
             'scale_processing_location',
             'otolith_processing_location',
             'DNA_processing_location',
             'heads_processing_location',
             'instrument_data_processing_location',
-            'shared_drive',
-            'method_document_type',
-            'authors',
-            'publication_year',
-            'title',
-            'reference_number',
-            'publisher',
-            'document_link',
+
             'date_last_modified',
             'last_modified_by',
 
@@ -605,14 +598,15 @@ class DataDetailView(SpotAccessRequiredMixin, DetailView):
             'species_data',
             'samples_collected',
             'samples_collected_comment',
-            'samples_collected_database',
-            'samples',
+            'samples_data_database',
+            'shared_drive',
             'sample_barrier',
             'sample_entered_database',
             'data_quality_check',
             'data_quality_person',
             'barrier_data_check_entry',
             'sample_format',
+
             'data_products',
             'data_products_database',
             'data_products_comment',
@@ -680,7 +674,7 @@ class DataDeleteView(SpotAccessRequiredMixin, DeleteView):
 
 # FEEDBACK #
 ############
-class FeedbackListView(SpotAdminRequiredMixin,FilterView):
+class FeedbackListView(SpotAdminRequiredMixin, FilterView):
     template_name = 'spot/feedback_list.html'
     filterset_class = filters.FeedbackFilter
     model = models.Feedback
@@ -821,14 +815,12 @@ class ReportsListView(SpotAccessRequiredMixin,FilterView):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Reports.objects.first()
         context["field_list"] = [
-            'report_topic_program_level',
             'report_timeline',
-            'report_purpose',
-            'report_format_project_level',
-            'report_client',
+            'report_type',
             'document_name',
             'document_author',
             'document_location',
+            'document_reference_information',
             'document_link',
         ]
         return context
@@ -847,7 +839,6 @@ class ReportsDetailView(SpotAccessRequiredMixin, DetailView):
             'report_concerns',
             'document_name',
             'document_author',
-            'document_location',
             'document_reference_information',
             'document_link',
             'date_last_modified',
@@ -910,86 +901,6 @@ class ReportsDeleteView(SpotAccessRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
-
-
-# Agreement History #
-########
-class AgreementHistoryCreateView(SpotAccessRequiredMixin, CreateView):
-    model = models.AgreementHistory
-    template_name = 'spot/agreementhistory_form.html'
-    form_class = forms.AgreementHistoryForm
-
-    def get_initial(self):
-        my_project = models.Project.objects.get(pk=self.kwargs['project'])
-        return {
-            'project': my_project,
-            'last_modified_by': self.request.user
-        }
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        my_project = models.Project.objects.get(pk=self.kwargs['project'])
-        context['project'] = my_project
-        return context
-
-    def form_valid(self, form):
-        my_object = form.save()
-        return HttpResponseRedirect(reverse_lazy("spot:agreementhistory_detail", kwargs={"pk": my_object.id}))
-
-
-class AgreementHistoryUpdateView(SpotAccessRequiredMixin, UpdateView):
-    model = models.AgreementHistory
-    template_name = 'spot/agreementhistory_form.html'
-    form_class = forms.AgreementHistoryForm
-
-    def form_valid(self, form):
-        my_object = form.save()
-        return HttpResponseRedirect(reverse_lazy("spot:agreementhistory_detail", kwargs={"pk": my_object.id}))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user
-        }
-
-
-class AgreementHistoryDeleteView(SpotAccessRequiredMixin, DeleteView):
-    template_name = 'spot/agreementhistory_confirm_delete.html'
-    model = models.AgreementHistory
-    success_message = 'The Agreement History was successfully removed!'
-
-    def get_success_url(self):
-        my_project = models.AgreementHistory.objects.get(pk=self.kwargs['pk']).project
-        return reverse_lazy('spot:project_detail', kwargs={"pk": my_project.id})
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
-
-
-class AgreementHistoryDetailView(SpotAccessRequiredMixin, DetailView):
-    model = models.AgreementHistory
-    template_name = 'spot/agreementhistory_detail.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'history',
-            'agreement_database',
-            'agreement_status_comment',
-            'funding_sources',
-            'agreement_type',
-            'project_lead_organization',
-            'agreement_cost',
-            'salmon_relevant_cost',
-            'funding_years',
-            'date_last_modified',
-            'last_modified_by',
-        ]
-        return context
 
 
 # ObjectiveDataTypeQuality #
@@ -1278,3 +1189,109 @@ class LakeSystemDeleteView(SpotAccessRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+# Funding Year #
+class FundingYearCreateView(SpotAccessRequiredMixin, CreateView):
+    model = models.FundingYears
+    template_name = 'spot/funding_year_popout.html'
+    form_class = forms.FundingYearForm
+
+    def get_initial(self):
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': my_project,
+            'last_modified_by': self.request.user
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        context['project'] = my_project
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
+
+class FundingYearUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.FundingYears
+    template_name = 'spot/funding_year_popout.html'
+    form_class = forms.FundingYearForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user
+        }
+
+
+class FundingYearDeleteView(SpotAccessRequiredMixin, DeleteView):
+    model = models.FundingYears
+    success_message = 'The Funding Year was successfully removed!'
+    template_name = 'spot/funding_year_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('spot:close_me')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+# Method Document #
+class MethodDocumentCreateView(SpotAccessRequiredMixin, CreateView):
+    model = models.MethodDocument
+    template_name = 'spot/method_document_popout.html'
+    form_class = forms.MethodDocumentForm
+
+    def get_initial(self):
+        my_method = models.Method.objects.get(pk=self.kwargs['meth'])
+        return {
+            'method': my_method,
+            'last_modified_by': self.request.user
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_method = models.Method.objects.get(pk=self.kwargs['meth'])
+        context['method'] = my_method
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
+
+class MethodDocumentUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.MethodDocument
+    template_name = 'spot/method_document_popout.html'
+    form_class = forms.MethodDocumentForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user
+        }
+
+
+class MethodDocumentDeleteView(SpotAccessRequiredMixin, DeleteView):
+    model = models.MethodDocument
+    success_message = 'The Document was successfully removed!'
+    template_name = 'spot/method_document_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('spot:close_me')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+

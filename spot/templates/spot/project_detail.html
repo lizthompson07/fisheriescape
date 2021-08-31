@@ -59,11 +59,15 @@
                          {% for field in field_list %}
                             {% verbose_field_display object field %}
                             {% if field == 'salmon_life_cycle' %}
-                                <h2><u>Project Categorization</u></h2>
+                                <br><h2><u>Project Categorization</u></h2><br>
                             {% elif field == 'category_comments' %}
-                                <h2><u>Project Links</u></h2>
+                                <br><h2><u>Project Links</u></h2><br>
                             {% elif field == 'government_reference' %}
-                                <h2><u>Project Contacts</u></h2>
+                                <br><h2><u>Project Contacts</u></h2><br>
+                            {% elif field == 'primary_contact_partner' %}
+                                <br><h2><u>Costing</u></h2><br>
+                            {% elif field == 'project_lead_organization' %}
+                                <br>{% include "spot/_funding_years.html" %}<br>
                             {% endif %}
                         {% endfor %}
                         <br>
@@ -72,22 +76,6 @@
                 </div>
                  </div>
                 </div>
-            <div class="card">
-                <div class="card-header" id="headingTwo">
-                  <h2 class="mb-0">
-                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                      {% trans "Agreement Lineage" %}
-                    </button>
-                  </h2>
-                </div>
-                <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo">
-                 <div class="card-body">
-                <div>
-                     {% include "spot/_agreement_lineage.html" %}
-                </div>
-                 </div>
-                </div>
-            </div>
             <div class="card">
                 <div class="card-header" id="headingThree">
                   <h2 class="mb-0">
@@ -151,8 +139,10 @@
                          {% include "spot/_objectives.html" %}
                     </div>
                      </div>
-                        </div>
-            </div>
+                    </div>
+        </div>
+        </div>
+
     </div>
 {% endblock content %}
 

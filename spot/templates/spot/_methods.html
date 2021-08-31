@@ -32,21 +32,6 @@
             <th class="width: 120px">
                 {% trans "Data Analysis Method Type" %}
             </th>
-            <th class="width: 120px">
-                {% trans "Data Reporting Method Type" %}
-            </th>
-            <th class="width: 120px">
-                {% trans "Author" %}
-            </th>
-            <th class="width: 120px">
-                {% trans "Publication Year" %}
-            </th>
-            <th class="width: 120px">
-                {% trans "Title" %}
-            </th>
-            <th class="width: 120px">
-                {% trans "Reference Number" %}
-            </th>
         </tr>
         <tbody>
         {% for obj in object.project_method.all %}
@@ -65,21 +50,6 @@
                 </td>
                 <td>
                     {{ obj.data_analysis_method_type }}
-                </td>
-                <td>
-                    {{ obj.reporting_method_type }}
-                </td>
-                <td>
-                    {{ obj.authors}}
-                </td>
-                <td>
-                    {{ obj.publication_year }}
-                </td>
-                <td>
-                    {{ obj.title }}
-                </td>
-                <td>
-                    {{ obj.reference_number }}
                 </td>
             </tr>
         {% endfor %}

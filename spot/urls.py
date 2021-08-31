@@ -78,13 +78,6 @@ urlpatterns = [
     path('report/<int:pk>/edit/', views.ReportsUpdateView.as_view(), name="reports_edit"),
     path('report/<int:pk>/delete/', views.ReportsDeleteView.as_view(), name="reports_delete"),
 
-    # Agreement History #
-    #####################
-    path('project/<int:project>/agreementhistory/new/', views.AgreementHistoryCreateView.as_view(), name="agreementhistory_new"),
-    path('agreementhistory/<int:pk>/view/', views.AgreementHistoryDetailView.as_view(), name="agreementhistory_detail"),
-    path('agreementhistory/<int:pk>/edit/', views.AgreementHistoryUpdateView.as_view(), name="agreementhistory_edit"),
-    path('agreementhistory/<int:pk>/delete/', views.AgreementHistoryDeleteView.as_view(), name="agreementhistory_delete"),
-
     # Objective Data Type Quality #
     ###############################
     path('obj/<int:obj>/objectivedatatypequality/new/', views.ObjectiveDataTypeQualityCreateView.as_view(), name="objectivedatatypequality_new"),
@@ -121,5 +114,16 @@ urlpatterns = [
     path('lakesystem/<int:pk>/edit/', views.LakeSystemUpdateView.as_view(), name="lakesystem_edit"),
     path('lakesystem/<int:pk>/delete/', views.LakeSystemDeleteView.as_view(), name="lakesystem_delete"),
 
+    # Funding Year #
+    ################
+    path('project/<int:project>/fundingyear/new/', views.FundingYearCreateView.as_view(), name="fundingyear_new"),
+    path('fundingyear/<int:pk>/edit/', views.FundingYearUpdateView.as_view(), name="fundingyear_edit"),
+    path('fundingyear/<int:pk>/delete/', views.FundingYearDeleteView.as_view(), name="fundingyear_delete"),
+
+    # Method Document #
+    ###################
+    path('meth/<int:meth>/methoddocument/new/', views.MethodDocumentCreateView.as_view(), name="methoddocument_new"),
+    path('methoddocument/<int:pk>/edit/', views.MethodDocumentUpdateView.as_view(), name="methoddocument_edit"),
+    path('methoddocument/<int:pk>/delete/', views.MethodDocumentDeleteView.as_view(), name="methoddocument_delete"),
 ]
 
