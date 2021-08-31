@@ -1,9 +1,6 @@
 import os
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-import pandas as pd
-
-from datetime import date, datetime, timedelta
 
 
 from bio_diversity import models
@@ -33,15 +30,16 @@ class SpawningParser(DataParser):
     weight_key_m_kg = "Wt (kg), M"
     choice_key = "Choice"
     egg_est_key = "Exp. #"
+    status_key_f = "Status, F"
+    status_key_m = "Status, M"
+    dest_key_f = "End Tank, F"
+    dest_key_m = "End Tank, M"
 
     header = 2
     start_grp_dict = {}
     end_grp_dict = {}
-    converters = {pit_key_f: str, pit_key_m: str, 'Year': str, 'Month': str, 'Day': str}
+    converters = {pit_key_f: str, pit_key_m: str, dest_key_m: str, dest_key_f:str, 'Year': str, 'Month': str, 'Day': str}
 
-    sex_anidc_id = None
-    len_anidc_id = None
-    weight_anidc_id = None
     fecu_spwndc_id = None
     dud_spwndc_id = None
 
@@ -53,9 +51,6 @@ class SpawningParser(DataParser):
         super(SpawningParser, self).load_data()
 
     def data_preper(self):
-        self.sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
-        self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
-        self.weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
         self.fecu_spwndc_id = models.SpawnDetCode.objects.filter(name="Fecundity").get()
         self.dud_spwndc_id = models.SpawnDetCode.objects.filter(name="Dud").get()
 
@@ -82,33 +77,31 @@ class SpawningParser(DataParser):
         anix_male, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv_male.pk)
         self.row_entered += anix_entered
 
-        self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, self.sex_dict["F"], self.sex_anidc_id.pk,
-                                              None)
-        if utils.nan_to_none(row.get(self.len_key_f)):
-            self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, row[self.len_key_f],
-                                                  self.len_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.len_key_f_mm)):
-            self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, 0.1 * row[self.len_key_f_mm],
-                                                  self.len_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.weight_key_f_kg)):
-            self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, 1000 *
-                                                  row[self.weight_key_f_kg], self.weight_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.weight_key_f)):
-            self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, row[self.weight_key_f],
-                                                  self.weight_anidc_id.pk, None)
-        self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, self.sex_dict["M"], self.sex_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.len_key_m)):
-            self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, row[self.len_key_m],
-                                                  self.len_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.len_key_m_mm)):
-            self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, 0.1 * row[self.len_key_m_mm],
-                                                  self.len_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.weight_key_m_kg)):
-            self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, 1000 *
-                                                  row[self.weight_key_m_kg], self.weight_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.weight_key_m)):
-            self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, row[self.weight_key_m],
-                                                  self.weight_anidc_id.pk, None)
+        self.row_entered += utils.enter_bulk_indvd(anix_female.pk, cleaned_data, row_date,
+                                                   gender="F",
+                                                   len_mm=row.get(self.len_key_f_mm),
+                                                   len=row.get(self.len_key_f),
+                                                   weight=row.get(self.weight_key_f),
+                                                   weight_kg=row.get(self.weight_key_f_kg),
+                                                   status=row.get(self.status_key_f)
+                                                   )
+
+        self.row_entered += utils.enter_bulk_indvd(anix_male.pk, cleaned_data, row_date,
+                                                   gender="M",
+                                                   len_mm=row.get(self.len_key_m_mm),
+                                                   len=row.get(self.len_key_m),
+                                                   weight=row.get(self.weight_key_m),
+                                                   weight_kg=row.get(self.weight_key_m_kg),
+                                                   status=row.get(self.status_key_m)
+                                                   )
+
+        if utils.nan_to_none(row.get(self.dest_key_f)):
+            end_tank_id_f = models.Tank.objects.filter(name=row[self.dest_key_f], facic_id=cleaned_data["facic_id"]).get()
+            self.row_entered += utils.create_movement_evnt(None, end_tank_id_f, cleaned_data, row_date, indv_female.pk)
+
+        if utils.nan_to_none(row.get(self.dest_key_m)):
+            end_tank_id_m = models.Tank.objects.filter(name=row[self.dest_key_m], facic_id=cleaned_data["facic_id"]).get()
+            self.row_entered += utils.create_movement_evnt(None, end_tank_id_m, cleaned_data, row_date, indv_male.pk)
 
         # pair
 
@@ -149,7 +142,7 @@ class SpawningParser(DataParser):
 
         self.row_entered += utils.enter_anix(cleaned_data, pair_pk=pair.pk, return_sucess=True)
 
-        # fecu/dud
+        # fecu/dud/extra male
         if row[self.egg_est_key] > 0:
             self.row_entered += utils.enter_spwnd(pair.pk, cleaned_data, int(row[self.egg_est_key]),
                                                   self.fecu_spwndc_id.pk, None, "Calculated")

@@ -184,6 +184,7 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
         if not my_object.created_by:
             my_object.created_by = self.request.user
         my_object.save()
+        super().form_valid(form)  # needed to save the m2m fields
 
         utils.manage_trip_warning(my_object.trip, self.request)
 
@@ -217,7 +218,7 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
         my_object = form.save(commit=False)
         my_object.created_by = self.request.user
         my_object.save()
-
+        super().form_valid(form)  # needed to save the m2m fields
         # add user as traveller if asked to
         if form.cleaned_data.get("is_traveller", None):
             # just make sure they are not already on another trip!!
@@ -684,6 +685,7 @@ class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
     model = models.Trip
     form_class = forms.TripForm
     home_url_name = "travel:index"
+    h1 = gettext_lazy("Add a New Trip")
 
     def get_initial(self):
         return dict(is_adm_approval_required=None)

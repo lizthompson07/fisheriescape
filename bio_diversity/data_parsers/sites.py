@@ -21,15 +21,14 @@ class SitesParser(DataParser):
     lon_key = "Min Long"
     max_lon_key = "Max Long"
 
-    header = 1
+    header = 2
     row_count = header + 2
     converters = {name_key: str, lat_key: str, lon_key: str, max_lon_key: str, max_lat_key: str}
 
     def load_data(self):
         self.mandatory_keys = [self.name_key, self.rive_key, self.lat_key, self.lon_key, self.max_lon_key,
                                self.max_lat_key, self.desc_key, self.subr_key, self.trib_key]
-        self.mandatory_filled_keys = [self.name_key, self.rive_key, self.lat_key, self.lon_key, self.max_lon_key,
-                                      self.max_lat_key]
+        self.mandatory_filled_keys = [self.name_key, self.rive_key]
         super(SitesParser, self).load_data()
 
     def row_parser(self, row):
@@ -72,5 +71,7 @@ class SitesParser(DataParser):
             site_id.save()
             self.row_entered = True
         except (IntegrityError, ValidationError) as err:
-            self.log_data += "Row {} not entered. {} \n".format(self.row_count, err.__str__())
+            self.log_data += "Row {} not entered. \n".format(self.row_count)
         self.row_count += 1
+
+

@@ -221,7 +221,7 @@ def get_project_year_queryset(request):
 
     # if a regular user is making the request, show only approved projects (and not hidden projects)
     if not is_management_or_admin(request.user):
-        qs = qs.filter(project__is_hidden=False, status=4)
+        qs = qs.filter(project__is_hidden=False, status__in=[2, 3, 4])
     return qs.distinct()
 
 

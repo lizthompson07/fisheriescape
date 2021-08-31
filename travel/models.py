@@ -497,9 +497,9 @@ class TripRequest(models.Model):
         (22, _("Cancelled")),
     )
     uuid = models.UUIDField(blank=True, null=True, verbose_name="unique identifier", editable=False)
+    trip = models.ForeignKey(Trip, on_delete=models.DO_NOTHING, verbose_name=_("trip"), related_name="requests")
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True,
                                 verbose_name=_("under which section is this request being made?"), related_name="requests")
-    trip = models.ForeignKey(Trip, on_delete=models.DO_NOTHING, verbose_name=_("trip"), related_name="requests")
     objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("what is the objective of this activity (conference, meeting, fieldwork)?"))
     benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("what are the benefits to DFO?"))
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("other attendees covered under BTA"))
@@ -525,6 +525,9 @@ class TripRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_updated_by", blank=True, null=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    def get_absolute_url(self):
+        return reverse('travel:request_detail', args=[self.id])
 
     def unsubmit(self):
         self.submitted = None

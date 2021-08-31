@@ -344,3 +344,7 @@
 .w-40 {
     width: 40%;
 }
+
+.greyed {
+    background-color: #dddcdc;
+}

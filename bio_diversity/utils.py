@@ -210,8 +210,8 @@ def year_coll_splitter(full_str):
         coll = full_str.lstrip(' 0123456789')
         year = int(full_str[:len(full_str) - len(coll)])
     except Exception:
-        raise Exception("Collection column must be formated: YYYY AA, where AA is the collection name/acronym.  Collction entered:"
-                        " {}".format(full_str))
+        raise Exception("Collection column must be formated: YYYY AA, where AA is the collection name/acronym.  "
+                        "Collction entered: {}".format(full_str))
 
     return year, coll.strip()
 
@@ -274,6 +274,61 @@ def parse_concentration(concentration_str):
         return Decimal(1.0/float(concentration_str))
     else:
         return None
+
+
+def parse_extra_cols(row, cleaned_data, anix, indv=False, grp=False, samp=False):
+    row_date = get_row_date(row)
+    row_entered = False
+    if indv:
+        for adsc_id in cleaned_data["adsc_id"]:
+            if y_n_to_bool(row.get(adsc_id.name)):
+                row_entered += enter_indvd(anix.pk, cleaned_data, row_date, adsc_id.name,
+                                           adsc_id.anidc_id.pk, adsc_str=adsc_id.name)
+
+        for anidc_id in cleaned_data["anidc_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_indvd(anix.pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                           anidc_id.pk)
+
+        for anidc_id in cleaned_data["anidc_subj_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_indvd(anix.pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                           anidc_id.pk, adsc_str=row.get(anidc_id.name))
+    if grp:
+        for adsc_id in cleaned_data["adsc_id"]:
+            if y_n_to_bool(row.get(adsc_id.name)):
+                row_entered += enter_grpd(anix.pk, cleaned_data, row_date, adsc_id.name,
+                                          adsc_id.anidc_id.pk, adsc_str=adsc_id.name)
+
+        for anidc_id in cleaned_data["anidc_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_grpd(anix.pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                          anidc_id.pk)
+
+        for anidc_id in cleaned_data["anidc_subj_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_grpd(anix.pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                          anidc_id.pk, adsc_str=row.get(anidc_id.name))
+    if samp:
+        samp_pk = anix.pk
+        for adsc_id in cleaned_data["adsc_id"]:
+            if y_n_to_bool(row.get(adsc_id.name)):
+                row_entered += enter_sampd(samp_pk, cleaned_data, row_date, adsc_id.name,
+                                           adsc_id.anidc_id.pk, adsc_str=adsc_id.name)
+
+        for anidc_id in cleaned_data["anidc_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_sampd(samp_pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                           anidc_id.pk)
+
+        for anidc_id in cleaned_data["anidc_subj_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_sampd(samp_pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                           anidc_id.pk, adsc_str=row.get(anidc_id.name))
+
+    return row_entered
+
+
 
 
 def load_sfas():
@@ -382,17 +437,21 @@ def get_draw_from_dot(dot_string, cleaned_data):
         return
 
 
-def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().replace(tzinfo=pytz.UTC), prog_grp=None, prog_str=None, fail_on_not_found=False):
+def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().replace(tzinfo=pytz.UTC), prog_grp=None,
+            prog_str=None, grp_mark=None, mark_str=None, fail_on_not_found=False):
 
     if nan_to_none(prog_str):
         prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=prog_str).get()
+
+    if nan_to_none(mark_str):
+        grp_mark = models.AniDetSubjCode.objects.filter(name__iexact=mark_str).get()
 
     coll_id = None
     if nan_to_none(coll_str):
         coll_id = coll_getter(coll_str)
 
     if nan_to_none(cont):
-        indv_list, grp_list =cont.fish_in_cont(at_date, select_fields=["grp_id__coll_id", "grp_id__stok_id"])
+        indv_list, grp_list = cont.fish_in_cont(at_date, select_fields=["grp_id__coll_id", "grp_id__stok_id"])
         if nan_to_none(stock_str):
             grp_list = [grp for grp in grp_list if grp.stok_id.name == stock_str]
         if nan_to_none(coll_id):
@@ -410,21 +469,44 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
             grp_qs = grp_qs.filter(grp_year=grp_year)
         grp_list = [grp for grp in grp_qs]
 
-    final_grp_list = grp_list.copy()
     if prog_grp:
-        final_grp_list = []
+        prog_grp_list = []
         for grp in grp_list:
             if prog_grp in grp.prog_group():
-                final_grp_list.append(grp)
+                prog_grp_list.append(grp)
+        grp_list = prog_grp_list.copy()
+
+    if grp_mark:
+        mark_grp_list = []
+        for grp in grp_list:
+            if grp_mark in grp.group_mark():
+                mark_grp_list.append(grp)
+        grp_list = mark_grp_list.copy()
+
+    final_grp_list = grp_list.copy()
 
     if len(final_grp_list) == 0 and fail_on_not_found:
         if cont:
-            raise Exception("\nGroup {}-{}-{} in container {} and program group {} not uniquely found in"
-                            " db\n Groups in container are: {}".format(stock_str, grp_year, coll_str, cont.name, prog_str, cont.fish_in_cont()[1]))
+            raise Exception("\nGroup {}-{}-{} in container {}, program group {} and mark {} not uniquely found in"
+                            " db\n Groups in container are: {}".format(stock_str, grp_year, coll_str, cont.name, prog_str, mark_str, cont.fish_in_cont()[1]))
         else:
-            raise Exception("\nGroup {}-{}-{} with program group {} not uniquely found in"
-                            " db\n".format(stock_str, grp_year, coll_str, prog_str))
+            raise Exception("\nGroup {}-{}-{} with program group {} and mark {} not uniquely found in"
+                            " db\n".format(stock_str, grp_year, coll_str, prog_str, mark_str))
     return final_grp_list
+
+
+def get_tray_group(pair_id, tray_id, row_date):
+    if pair_id:
+        anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
+                                                      grp_id__isnull=False).select_related('grp_id').get()
+        grp_id = anix_id.grp_id
+    else:
+        grp_list = tray_id.fish_in_cont(row_date, get_grp=True)
+        if grp_list:
+            grp_id = grp_list[0]
+        else:
+            raise Exception("No group found in tray {}".format(tray_id.__str__()))
+    return grp_id
 
 
 def set_row_tank(df, cleaned_data, tank_key, col_name="tank_id"):
@@ -444,7 +526,7 @@ def set_row_datetime(df, datetime_key="datetime"):
     return df
 
 
-def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, grp_col_name="grp_id", return_dict=False):
+def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, mark_key, grp_col_name="grp_id", return_dict=False):
     # function will return a df with a "grp_id" column containing the group associated with the values
     # datetime key must be a datetime object, cont_key must be a cont object
     grp_key = "grp_key"
@@ -457,15 +539,16 @@ def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, grp
 
     # set a string on each row to search a dictionary of all groups in df:
     df[grp_key] = df[stok_key].astype(str) + df[yr_coll_key].astype(str) + df[cont_key].astype(str)\
-                  + df[prio_key].astype(str) + df[datetime_key].astype(str)
+                  + df[prio_key].astype(str) + df[datetime_key].astype(str) + df[mark_key].astype(str)
 
     # identify all unique groups in the table, grp_data is also a df:
-    grp_data = df.groupby([stok_key, grp_year, grp_coll, cont_key, prio_key, datetime_key, grp_key],
+    grp_data = df.groupby([stok_key, grp_year, grp_coll, cont_key, prio_key, datetime_key, mark_key, grp_key],
                           dropna=False, sort=False).size().reset_index()
 
     # for each row in this smaller df, find the grp_id, and then make a dictionary out of these
     grp_data["grp_id"] = grp_data.apply(lambda row: get_grp(row[stok_key], row[grp_year], row[grp_coll], row[cont_key],
                                                             at_date=row[datetime_key], prog_str=nan_to_none(row[prio_key]),
+                                                            mark_str=nan_to_none(row[mark_key]),
                                                             fail_on_not_found=True)[0], axis=1)
 
     grp_dict = dict(zip(grp_data[grp_key], grp_data["grp_id"]))
@@ -557,6 +640,9 @@ def samp_comment_parser(comment_str, cleaned_data, samp_pk, det_date):
 
 
 def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_pk=None, grp_pk=None, return_end_contx=False):
+    # Creates and returns a movement event if the origin and destination containers are different
+    # Also links the containers to the event as well as any specified group or individual
+
     row_entered = False
     end_contx = False
     origin_conts = []
@@ -564,20 +650,25 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_
     new_cleaned_data = cleaned_data.copy()
     if (origin == destination or not nan_to_none(destination)) and nan_to_none(origin):
         # if both origin and destination are the same, or just if origin is entered, only enter contx.
-        row_entered = enter_contx(origin, cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk)
-        return row_entered
-    if "evnt_id" in cleaned_data.keys():
-        if cleaned_data["evnt_id"]:
-            # link containers to parent event
-            if not origin:
-                # move indvidual or group to destination and clean up previous contx's
-                if grp_pk:
-                    grp = models.Group.objects.filter(pk=grp_pk).get()
-                    origin_conts = grp.current_cont(movement_date)
-            else:
-                row_entered += enter_contx(origin, cleaned_data, None)
+        contx, row_entered = enter_contx(origin, cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, return_contx=True)
+        if return_end_contx:
+            return contx
+        else:
+            return row_entered
 
-            row_entered += enter_contx(destination, cleaned_data, None)
+    if cleaned_data.get("evnt_id"):
+        # move indvidual or group to destination and clean up previous contx's
+        # link containers to parent event
+        if indv_pk:
+            indv = models.Individual.objects.filter(pk=indv_pk).get()
+            origin_conts = indv.current_cont(movement_date)
+        elif not origin and grp_pk:
+            grp = models.Group.objects.filter(pk=grp_pk).get()
+            origin_conts = grp.current_cont(movement_date)
+        else:
+            row_entered += enter_contx(origin, cleaned_data, None)
+
+        row_entered += enter_contx(destination, cleaned_data, None)
 
     if destination:
         movement_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Movement").get(),
@@ -813,15 +904,19 @@ def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=N
             anix.save()
             row_entered = True
         except ValidationError:
-            anix = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id,
-                                                       indv_id=anix.indv_id,
-                                                       contx_id=anix.contx_id,
-                                                       loc_id=anix.loc_id,
-                                                       pair_id=anix.pair_id,
-                                                       grp_id=anix.grp_id,
-                                                       team_id=anix.team_id,
-                                                       final_contx_flag=anix.final_contx_flag,
-                                                       ).get()
+            anix_qs = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id,
+                                                          indv_id=anix.indv_id,
+                                                          contx_id=anix.contx_id,
+                                                          loc_id=anix.loc_id,
+                                                          pair_id=anix.pair_id,
+                                                          grp_id=anix.grp_id,
+                                                          team_id=anix.team_id,
+                                                          final_contx_flag=anix.final_contx_flag,
+                                                          )
+            if anix_qs:
+                anix = anix_qs.get()
+            else:
+                raise Exception("Only move individuals/groups once per event.")
         if return_anix:
             return anix
         elif return_sucess:
@@ -1078,35 +1173,48 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
     return row_entered
 
 
-def enter_bulk_indvd(anix, cleaned_data, det_date, len=None, len_mm=None, weight=None, weight_kg=None, vial=None, scale_envelope=None, gender=None, tissue_yn=None):
+def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len=None, len_mm=None, weight=None, weight_kg=None, vial=None,
+                     scale_envelope=None, gender=None, tissue_yn=None, status=None, mark=None, vaccinated=None):
     data_entered = 0
     health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
     if nan_to_none(len):
         len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, len, len_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, len, len_anidc_id.pk, None)
     if nan_to_none(len_mm):
         len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, 0.1 * len_mm, len_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, 0.1 * len_mm, len_anidc_id.pk, None)
     if nan_to_none(weight):
         weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, weight, weight_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, weight, weight_anidc_id.pk, None)
     if nan_to_none(weight_kg):
         weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, weight_kg * 1000, weight_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, weight_kg * 1000, weight_anidc_id.pk, None)
     if nan_to_none(vial):
         vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, vial, vial_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, vial, vial_anidc_id.pk, None)
     if nan_to_none(scale_envelope):
         envelope_anidc_id = models.AnimalDetCode.objects.filter(name="Scale Envelope").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, scale_envelope, envelope_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, scale_envelope, envelope_anidc_id.pk, None)
     if nan_to_none(gender):
         sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
-        sex_dict = calculation_constants.sex_dict
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, sex_dict[gender.upper()],
-                                    sex_anidc_id.pk, adsc_str=sex_dict[gender.upper()])
+        func_sex_dict = calculation_constants.sex_dict
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, func_sex_dict[gender.upper()],
+                                    sex_anidc_id.pk, adsc_str=func_sex_dict[gender.upper()])
+    if nan_to_none(status):
+        status_anidc_pk = models.AnimalDetCode.objects.filter(name="Status").get().pk
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, status,
+                                    status_anidc_pk, adsc_str=status)
+    if nan_to_none(mark):
+        mark_anidc_pk = models.AnimalDetCode.objects.filter(name="Mark").get().pk
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, mark,
+                                    mark_anidc_pk, adsc_str=mark)
+    if nan_to_none(vaccinated):
+        vax_anidc_pk = models.AnimalDetCode.objects.filter(name="Vaccination").get().pk
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, vaccinated,
+                                    vax_anidc_pk, adsc_str=vaccinated)
     if nan_to_none(tissue_yn):
         if y_n_to_bool(tissue_yn):
-            data_entered += enter_indvd(anix.pk, cleaned_data, det_date, None, health_anidc_id, "Tissue Sample")
+            data_entered += enter_indvd(anix_pk, cleaned_data, det_date, None, health_anidc_id, "Tissue Sample")
 
     return data_entered
 
