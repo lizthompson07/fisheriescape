@@ -20,6 +20,7 @@ class DistributionParser(DataParser):
     stok_key = "Stock"
     year_coll_key = "Year Collection"
     prog_key = "Program"
+    mark_key = "Mark"
     tank_key = "Tank"
     trof_key = "Trough"
     relm_key = "Release Method"
@@ -74,7 +75,6 @@ class DistributionParser(DataParser):
         row_date = utils.get_row_date(row)
 
         # set location:
-        relc_id = None
         relc_id = models.ReleaseSiteCode.objects.filter(name__iexact=row[self.site_key]).get()
         rive_id = relc_id.rive_id
 
@@ -166,7 +166,8 @@ class DistributionParser(DataParser):
             contx, data_entered = utils.enter_contx(cont_id, cleaned_data, return_contx=True)
             self.row_entered += data_entered
             grp_list = utils.get_grp(utils.nan_to_none(row[self.stok_key]), cnt_year, coll, cont_id, row_date,
-                                     prog_str=utils.nan_to_none(row.get(self.prog_key)))
+                                     prog_str=utils.nan_to_none(row.get(self.prog_key)),
+                                     mark_str=utils.nan_to_none(row.get(self.mark_key)))
             if grp_list:
                 grp_id = grp_list[0]
                 self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
@@ -183,7 +184,8 @@ class DistributionParser(DataParser):
             contx, data_entered = utils.enter_contx(cont_id, cleaned_data, return_contx=True)
             self.row_entered += data_entered
             grp_list = utils.get_grp(utils.nan_to_none(row[self.stok_key]), cnt_year, coll, cont_id, row_date,
-                                     prog_str=utils.nan_to_none(row.get(self.prog_key)))
+                                     prog_str=utils.nan_to_none(row.get(self.prog_key)),
+                                     mark_str=utils.nan_to_none(row.get(self.mark_key)))
             if grp_list:
                 grp_id = grp_list[0]
                 self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
