@@ -34,7 +34,6 @@ class TestMactaquacParsers(CommonTest):
         # used to get the full path from the static directory
         self.electrofishing_test_data = finders.find("test\\parser_test_files\\test-electrofishing.xlsx")
         self.tagging_test_data = finders.find("test\\parser_test_files\\test-tagging.xlsx")
-        self.measuring_test_data = finders.find("test\\parser_test_files\\test-generic-untagged.xlsx")
         self.measuring_test_data = finders.find("test\\parser_test_files\\test-generic-group.xlsx")
         self.measuring_indv_test_data = finders.find("test\\parser_test_files\\test-generic-indv.xlsx")
         self.dist_indv_test_data = finders.find("test\\parser_test_files\\test-indv-distribution.xlsx")
@@ -50,6 +49,8 @@ class TestMactaquacParsers(CommonTest):
             "evnt_id": self.electrofishing_evnt,
             "evntc_id": self.electrofishing_evntc,
             "adsc_id": [],
+            "anidc_id": [],
+            "anidc_subj_id": [],
             "data_csv": self.electrofishing_test_data,
             "created_by": self.electrofishing_evnt.created_by,
             "created_date": self.electrofishing_evnt.created_date,

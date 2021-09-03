@@ -13,7 +13,7 @@
                 <div class="col">
                     <hr>
                     <div class="container pt-3">
-                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:create_data'%}">{% trans "Sites Entry " %}</a>
+                        <a class="btn btn-secondary btn-lg" name="add-data-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_data' 'pop' %}')" title="{% trans 'Bulk Entry' %}">{% trans 'Bulk Entry' %}</a>
                     </div>
                     <div class="container pt-3">
                         <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_prot'%}">{% trans "Protocol " %}</a>
