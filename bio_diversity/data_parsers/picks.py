@@ -77,6 +77,7 @@ class EDPickParser(DataParser):
     cross_key = "Cross"
     tray_key = "Tray"
     hu_key = "Heath Unit Location"
+    shocking_key = "Shocking (Y/N)"
     crew_key = "Crew"
     comment_key = "Comments"
 
@@ -126,44 +127,22 @@ class EDPickParser(DataParser):
 
         perc_list, inits_not_found = utils.team_list_splitter(row.get(self.crew_key))
 
-        for pickc_id in cleaned_data["pickc_id"]:
-            if utils.nan_to_none(row[pickc_id.name]):
-                self.row_entered += utils.create_picks_evnt(cleaned_data, tray_id, grp_id.pk, row[pickc_id.name],
-                                                            row_date, pickc_id.name, perc_list[0],
-                                                            pick_comments=row.get(self.comment_key))
-        for inits in inits_not_found:
-            self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
-
-
-class EDShockingParser(EDPickParser):
-    sheet_name = "Shocking"
-
-    def row_parser(self, row):
-        cleaned_data = self.cleaned_data
-        row_date = utils.get_row_date(row)
-        self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
-        pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
-                                                indv_id__stok_id=row["stok_id"], start_date__year=row[self.year_key]).first()
-        tray_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True,
-                                             name=row[self.tray_key]).get()
-
-        grp_id = utils.get_tray_group(pair_id, tray_id, row_date)
-
-        perc_list, inits_not_found = utils.team_list_splitter(row.get(self.crew_key))
-
         grp_anix = None
+        shock = False
         for pickc_id in cleaned_data["pickc_id"]:
             if utils.nan_to_none(row[pickc_id.name]):
-                grp_anix, evnt_entered = utils.create_picks_evnt(cleaned_data, tray_id, grp_id.pk, row[pickc_id.name],
-                                                                 row_date, pickc_id.name, perc_list[0], shocking=True,
+                shock = utils.y_n_to_bool(row.get(self.shocking_key))
+                grp_anix, evnt_entered = utils.create_picks_evnt(cleaned_data, cont_id, grp_id.pk, row[pickc_id.name],
+                                                                 row_date, pickc_id.name, perc_list[0], shocking=shock,
                                                                  return_anix=True,
                                                                  pick_comments=row.get(self.comment_key))
                 self.row_entered += evnt_entered
+
         for inits in inits_not_found:
             self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
 
         # record development
-        if grp_anix:
+        if grp_anix and shock:
             pick_evnt_cleaned_data = cleaned_data.copy()
             pick_evnt_cleaned_data["evnt_id"] = grp_anix.evnt_id
             dev_at_pick = grp_id.get_development(row_date)

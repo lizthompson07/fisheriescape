@@ -401,8 +401,6 @@ class DataForm(CreatePrams):
                     parser = EDInitParser(cleaned_data)
                 elif cleaned_data["data_type"] == "3":
                     parser = EDHUParser(cleaned_data)
-                elif cleaned_data["data_type"] == "4":
-                    parser = EDShockingParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
             # ------------------------------MEASURING----------------------------------------
