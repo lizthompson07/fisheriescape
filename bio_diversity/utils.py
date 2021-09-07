@@ -370,16 +370,15 @@ def parse_cont_strs(cont_str, facic_id, at_date):
                         drawer = 0
 
                 else:
-                    trof = low_conts[0]
-                    tray = low_conts[1]
-                    while trof <= high_conts[0]:
-                        tray_qs = models.Tray.objects.filter(trof_id__facic_id=facic_id, trof_id__name__iexact=trof, start_date__lte=at_date)
-                        tray_qs = tray_qs.filter(Q(end_date__gte=at_date) | Q(end_date__isnull=True))
-                        for tray_id in tray_qs:
-                            if int(tray_id.name) >= tray and (int(tray_id.name) <= high_conts[1] or trof < high_conts[0]):
-                                cont_ids.append(tray_id)
-                        trof += 1
-                        tray = 0
+                    hu = low_conts[0]
+                    drawer = low_conts[1]
+                    while hu <= high_conts[0]:
+                        draw_qs = models.Drawer.objects.filter(heat_id__facic_id=facic_id, heat_id__name__iexact=hu)
+                        for draw_id in draw_qs:
+                            if int(draw_id.name) >= drawer and (int(draw_id.name) <= high_conts[1] or hu < high_conts[0]):
+                                cont_ids.append(draw_id)
+                        hu += 1
+                        drawer = 0
             else:
                 cont_range = range(int(cont_lims[0]), int(cont_lims[1]) + 1)
                 for tank_name in cont_range:

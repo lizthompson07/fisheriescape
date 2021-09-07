@@ -76,6 +76,7 @@ class EDPickParser(DataParser):
     trof_key = "Trough"
     cross_key = "Cross"
     tray_key = "Tray"
+    hu_key = "Heath Unit Location"
     crew_key = "Crew"
     comment_key = "Comments"
 
@@ -113,9 +114,15 @@ class EDPickParser(DataParser):
         # find group from either cross or tray:
         pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
                                                 indv_id__stok_id=row["stok_id"], start_date__year=row[self.year_key]).first()
-        tray_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True, name=row[self.tray_key]).get()
 
-        grp_id = utils.get_tray_group(pair_id, tray_id, row_date)
+        if utils.nan_to_none(row.get(self.hu_key)):
+            cont_id = utils.get_cont_from_dot(row[self.hu_key], cleaned_data, row_date)
+        elif utils.nan_to_none(row.get(self.tray_key)):
+            cont_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True, name=row[self.tray_key]).get()
+        else:
+            cont_id = row["trof_id"]
+
+        grp_id = utils.get_tray_group(pair_id, cont_id, row_date)
 
         perc_list, inits_not_found = utils.team_list_splitter(row.get(self.crew_key))
 

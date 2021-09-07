@@ -494,6 +494,8 @@ def generate_individual_report(indv_id):
         ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
         ws_evnt['C' + str(row_count)].value = ""
         ws_evnt['D' + str(row_count)].value = indv_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date), get_string=True)
+        ws_evnt['E' + str(row_count)].value = evnt.comments
+
         row_count += 1
 
     for grp_tuple in prnt_grp_set:
@@ -512,6 +514,7 @@ def generate_individual_report(indv_id):
                 ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
                 ws_evnt['C' + str(row_count)].value = grp_id.__str__()
                 ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
+                ws_evnt['E' + str(row_count)].value = evnt.comments
                 row_count += 1
 
     # -----------------Container Sheet------------------------
@@ -610,6 +613,7 @@ def generate_grp_report(grp_id):
         ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
         ws_evnt['C' + str(row_count)].value = ""
         ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date), get_string=True)
+        ws_evnt['E' + str(row_count)].value = evnt.comments
         row_count += 1
 
     for grp_tuple in prnt_grp_set:
@@ -628,6 +632,7 @@ def generate_grp_report(grp_id):
                 ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
                 ws_evnt['C' + str(row_count)].value = grp_id.__str__()
                 ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
+                ws_evnt['E' + str(row_count)].value = evnt.comments
                 row_count += 1
 
     # -----------------Container Sheet------------------------

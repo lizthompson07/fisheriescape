@@ -308,6 +308,11 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                                      "Bypass Collection", "Smolt Wheel Collection", "Adult Collection"]:
                 self.get_form_class().base_fields["data_type"].required = False
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
+            elif evntc.__str__() in ["Distribution"]:
+                self.get_form_class().base_fields["data_type"].required = True
+                data_types = ((None, "---------"), ('Individual', 'Individual'), ('Group', 'Group'))
+                self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
+                                                                                   label=_("Type of data entry"))
             else:
                 self.get_form_class().base_fields["data_type"].required = True
                 data_types = ((None, "---------"), ('Individual', 'Individual'), ('Untagged', 'Untagged'),

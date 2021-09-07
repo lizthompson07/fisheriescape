@@ -152,6 +152,7 @@ class BioDet(BioModel):
 class BioLookup(shared_models.Lookup):
     class Meta:
         abstract = True
+        ordering = ['name']
 
     created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
     created_date = models.DateField(verbose_name=_("Created Date"))
@@ -324,9 +325,6 @@ class AnimalDetCode(BioLookup):
 class AniDetSubjCode(BioLookup):
     # adsc tag
     anidc_id = models.ForeignKey("AnimalDetCode", on_delete=models.CASCADE, verbose_name=_("Type of measurement"), db_column="ANI_DET_ID")
-
-    class Meta:
-        ordering = ['name', ]
 
 
 class AniDetailXref(BioModel):
@@ -648,6 +646,7 @@ class EnvCondFile(BioModel):
     class Meta:
         ordering = ['created_date']
 
+
 @receiver(models.signals.post_delete, sender=EnvCondFile)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
     """
@@ -781,9 +780,7 @@ def my_handler(sender, instance, **kwargs):
 
 class EventCode(BioLookup):
     # evntc tag
-    class Meta:
-        ordering = ['name']
-
+    pass
 
 def evntf_directory_path(instance, filename):
     return 'bio_diversity/event_files/{}'.format(filename)
@@ -1832,15 +1829,11 @@ class ReleaseSiteCode(BioLookup):
     max_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column="MAX_LONGITUDE",
                                   verbose_name=_("Max Longitude"))
 
-    class Meta:
-        ordering = ['name']
-
     def clean(self):
         super(ReleaseSiteCode, self).clean()
         if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
             if float(self.min_lon) > float(self.max_lon) or float(self.min_lat) > float(self.max_lat):
                 raise ValidationError("Max lat/lon must be greater than min lat/lon")
-
 
     @property
     def bbox(self):
@@ -1916,7 +1909,6 @@ class Sample(BioModel):
             return latest_indvd.det_val
         else:
             return None
-
 
 
 class SampleCode(BioLookup):
