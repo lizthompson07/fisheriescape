@@ -15,7 +15,7 @@ class TemperatureParser(DataParser):
     time_key = "Time(hh:mm:ss)"
 
     def load_data(self):
-        self.mandatory_keys =[]
+        self.mandatory_keys = []
         super(TemperatureParser, self).load_data()
 
     def data_reader(self):

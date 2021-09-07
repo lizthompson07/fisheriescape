@@ -332,8 +332,10 @@ def parse_extra_cols(row, cleaned_data, anix, indv=False, grp=False, samp=False)
     return row_entered
 
 
-def parse_cont_strs(cont_str, facic_id, at_date):
+def parse_cont_strs(cont_str, facic_id, at_date, exclude_str=""):
     cont_str = cont_str.replace(" ", "")
+    exclude_str = exclude_str.replace(" ", "")
+    exclude_list = exclude_str.split("")
     cont_ids = []
     if "," in cont_str:
         cont_list = cont_str.split(",")
@@ -355,17 +357,22 @@ def parse_cont_strs(cont_str, facic_id, at_date):
                         draw_qs = models.Drawer.objects.filter(heat_id__facic_id=facic_id, heat_id__name__iexact=hu)
                         cup_qs = models.Cup.objects.filter(draw_id__heat_id__facic_id=facic_id, draw_id__heat_id__name__iexact=hu, start_date__lte=at_date)
                         cup_qs = cup_qs.filter(Q(end_date__gte=at_date) | Q(end_date__isnull=True)).select_related('draw_id')
+                        # loop through all drawers in hu:
                         for draw_id in draw_qs:
-                            if int(draw_id.name) == low_conts[1] and int(hu) == low_conts[0]:
-                                cup = low_conts[2]
-                            else:
-                                cup = 0
-                            if int(draw_id.name) >= drawer and (int(draw_id.name) <= high_conts[1] or hu < high_conts[0]):
-                                for cup_id in cup_qs:
-                                    if (cup_id.draw_id == draw_id) and \
-                                            int(cup_id.name) >= cup and\
-                                            (int(cup_id.name) <= high_conts[2] or (hu < high_conts[0] or int(draw_id.name) < high_conts[1])):
-                                        cont_ids.append(cup_id)
+                            if draw_id.dot_str not in exclude_list:
+                                # first cup in drawer:
+                                if int(draw_id.name) == low_conts[1] and int(hu) == low_conts[0]:
+                                    cup = low_conts[2]
+                                else:
+                                    cup = 0
+
+                                if int(draw_id.name) >= drawer and (int(draw_id.name) <= high_conts[1] or hu < high_conts[0]):
+                                    for cup_id in cup_qs:
+                                        if (cup_id.draw_id == draw_id) and int(cup_id.name) >= cup \
+                                                and (int(cup_id.name) <= high_conts[2] or
+                                                     (hu < high_conts[0] or int(draw_id.name) < high_conts[1])):
+                                            if cup_id.dot_str not in exclude_list:
+                                                cont_ids.append(cup_id)
                         hu += 1
                         drawer = 0
 
@@ -376,7 +383,8 @@ def parse_cont_strs(cont_str, facic_id, at_date):
                         draw_qs = models.Drawer.objects.filter(heat_id__facic_id=facic_id, heat_id__name__iexact=hu)
                         for draw_id in draw_qs:
                             if int(draw_id.name) >= drawer and (int(draw_id.name) <= high_conts[1] or hu < high_conts[0]):
-                                cont_ids.append(draw_id)
+                                if draw_id.dot_str not in exclude_list:
+                                    cont_ids.append(draw_id)
                         hu += 1
                         drawer = 0
             else:

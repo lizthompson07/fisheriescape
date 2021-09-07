@@ -515,6 +515,9 @@ class Cup(BioCont):
     def __str__(self):
         return "HU {}.{}.{}".format(self.draw_id.heat_id.__str__(), self.draw_id.name, self.name)
 
+    def dot_str(self):
+        return "{}.{}.{}".format(self.draw_id.heat_id.name, self.draw_id.name, self.name)
+
     @property
     def facic_id(self):
         return self.draw_id.facic_id
@@ -563,6 +566,9 @@ class Drawer(BioCont):
 
     def __str__(self):
         return "HU {}.{}".format(self.heat_id.__str__(), self.name)
+
+    def dot_str(self):
+        return "{}.{}".format(self.heat_id.name, self.name)
 
 
 class EnvCode(BioLookup):
