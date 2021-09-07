@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+import pytz
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.models import Q
@@ -16,7 +17,6 @@ class EDInitParser(DataParser):
     cross_key = "Cross"
     tray_key = "Tray"
     fecu_key = "Fecundity"
-    crew_key = "Crew"
     comment_key = "Comments"
 
     header = 2
@@ -63,8 +63,6 @@ class EDInitParser(DataParser):
             cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fecu_key], contx_pk=contx.pk, cnt_code="Photo Count")
             self.row_entered += cnt_entered
 
-        self.team_parser(row.get(self.crew_key), row)
-
         self.row_entered += utils.enter_bulk_grpd(anix_id.pk, cleaned_data, row_date,
                                                   comments=row.get(self.comment_key))
 
@@ -78,12 +76,12 @@ class EDPickParser(DataParser):
     tray_key = "Tray"
     hu_key = "Heath Unit Location"
     shocking_key = "Shocking (Y/N)"
-    crew_key = "Crew"
     comment_key = "Comments"
 
     header = 2
     sheet_name = "Picking"
     converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
+    default_pickc_id = None
 
     def load_data(self):
         self.mandatory_keys.extend([self.stock_key, self.trof_key, self.cross_key, self.tray_key])
@@ -91,6 +89,7 @@ class EDPickParser(DataParser):
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
+        self.default_pickc_id = models.CountCode.objects.filter(name="Cleaning Picks").get()
 
         for pickc_id in cleaned_data["pickc_id"]:
             if pickc_id.name not in self.data.keys():
@@ -125,23 +124,28 @@ class EDPickParser(DataParser):
 
         grp_id = utils.get_tray_group(pair_id, cont_id, row_date)
 
-        perc_list, inits_not_found = utils.team_list_splitter(row.get(self.crew_key))
-
         grp_anix = None
         shock = False
         for pickc_id in cleaned_data["pickc_id"]:
             if utils.nan_to_none(row[pickc_id.name]):
                 shock = utils.y_n_to_bool(row.get(self.shocking_key))
                 grp_anix, evnt_entered = utils.create_picks_evnt(cleaned_data, cont_id, grp_id.pk, row[pickc_id.name],
-                                                                 row_date, pickc_id.name, perc_list[0], shocking=shock,
+                                                                 row_date, pickc_id.name,
+                                                                 cleaned_data["evnt_id"].perc_id, shocking=shock,
                                                                  return_anix=True,
                                                                  pick_comments=row.get(self.comment_key))
                 self.row_entered += evnt_entered
 
-        for inits in inits_not_found:
-            self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
+        for day in range(1, 32):
+            if utils.nan_to_none(row.get(str(day))):
+                pick_date = datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + str(day),
+                                              "%Y-%b-%d").replace(tzinfo=pytz.UTC)
+                self.row_entered += utils.create_picks_evnt(cleaned_data, cont_id, grp_id.pk, row[str(day)],
+                                                            pick_date, self.default_pickc_id,
+                                                            cleaned_data["evnt_id"].perc_id,
+                                                            pick_comments=row.get(self.comment_key))
 
-        # record development
+       # record development
         if grp_anix and shock:
             pick_evnt_cleaned_data = cleaned_data.copy()
             pick_evnt_cleaned_data["evnt_id"] = grp_anix.evnt_id
@@ -165,7 +169,6 @@ class EDHUParser(DataParser):
     cont_key = "Destination"
     loss_key = "Transfer Loss"
     final_key = "Final (Y/N)"
-    crew_key = "Crew"
     comment_key = "Comments"
 
     end_trof_key = "End Trough"
@@ -310,8 +313,3 @@ class EDHUParser(DataParser):
 
             # link cup to egg development event
             utils.enter_contx(cont, cleaned_data, None)
-
-        perc_list, inits_not_found = utils.team_list_splitter(row.get(self.crew_key))
-
-        for inits in inits_not_found:
-            self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
