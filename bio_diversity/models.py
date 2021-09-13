@@ -765,9 +765,10 @@ class Event(BioTimeModel):
 
     def fecu_dict(self):
         fecu_dict = {}
+        # the order by call is needed for distinct() to work as expected and return only a single object.
         stok_coll_set = Individual.objects.filter(animal_details__evnt_id=self).values("stok_id", "coll_id",
                                                                                        "stok_id__name",
-                                                                                       "coll_id__name").distinct()
+                                                                                       "coll_id__name").distinct().order_by()
         for stok_coll in stok_coll_set:
             key = "Alpha, Beta for {}-{}".format(stok_coll["stok_id__name"], stok_coll["coll_id__name"])
             fecu_id = Fecundity.objects.filter(stok_id_id=stok_coll["stok_id"], coll_id_id=stok_coll["coll_id"]).first()
@@ -972,7 +973,7 @@ class Group(BioModel):
                                        Q(loc_id__animal_details__grp_id=self, loc_id__loc_date__lte=at_date))\
             .select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
 
-        absolute_codes = ["Egg Count", "Fish Count", "Counter Count", ]
+        absolute_codes = ["Egg Count", "Fish Count", "Counter Count", "Fecundity Estimate"]
         add_codes = ["Fish in Container", "Photo Count", "Eggs Added", "Fish Caught"]
         subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "Eggs Removed",
                           "Fish Removed from Container", "Fish Distributed"]

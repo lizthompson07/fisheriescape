@@ -9,14 +9,14 @@ from bio_diversity import utils
 from bio_diversity.utils import DataParser
 
 
-class TemperatureParser(DataParser):
+class DataLoggerTemperatureParser(DataParser):
     temp_key = "Temperature (°C)"
     date_key = "Date(yyyy-mm-dd)"
     time_key = "Time(hh:mm:ss)"
 
     def load_data(self):
         self.mandatory_keys = []
-        super(TemperatureParser, self).load_data()
+        super(DataLoggerTemperatureParser, self).load_data()
 
     def data_reader(self):
         self.data = pd.read_csv(self.cleaned_data["data_csv"], encoding='ISO-8859-1', header=7)
@@ -36,7 +36,7 @@ class TemperatureParser(DataParser):
 
         self.data["env"] = self.data.apply(
             lambda row: utils.enter_env(row[self.temp_key], row["datetime"].date(), cleaned_data,
-                                        envc_id, env_start=row["datetime"].time(), contx=contx,
+                                        envc_id, env_time=row["datetime"].time(), contx=contx,
                                         save=False, qual_id=qual_id), axis=1)
         entered_list = models.EnvCondition.objects.bulk_create(list(self.data["env"].dropna()))
         self.rows_parsed = len(self.data["env"])
@@ -44,3 +44,39 @@ class TemperatureParser(DataParser):
 
     def iterate_rows(self):
         pass
+
+
+class TemperatureParser(DataParser):
+    temp_key = "Temperature"
+    trof_key = "Trough"
+
+    header = 2
+    sheet_name = "Temperatures"
+    converters = {trof_key: str, 'Year': str, 'Month': str, 'Day': str}
+    qual_id = None
+    envc_id = None
+
+    def data_preper(self):
+        cleaned_data = self.cleaned_data
+        contx, data_entered = utils.enter_trof_contx(cleaned_data["trof_id"].name, cleaned_data, final_flag=None,
+                                                     return_contx=True)
+        self.qual_id = models.QualCode.objects.filter(name="Good").get()
+        self.envc_id = models.EnvCode.objects.filter(name="Temperature").get()
+
+        trof_qs = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"])
+        len(trof_qs)  # force eval of lazy qs
+        trof_dict = {trof.name: trof for trof in trof_qs}
+        self.data["trof_id"] = self.data.apply(lambda row: trof_dict[row[self.trof_key]], axis=1)
+
+    def row_parser(self, row):
+        cleaned_data = self.cleaned_data
+        row_datetime = utils.get_row_date(row, get_time=True)
+
+        row_contx, contx_entered = utils.enter_contx(row["trof_id"], cleaned_data, final_flag=None, return_contx=True)
+        self.row_entered += contx_entered
+
+        self.row_entered += utils.enter_env(row[self.temp_key], row_datetime.date(), cleaned_data,
+                                            self.envc_id, env_time=row_datetime.time(), contx=row_contx,
+                                            save=False, qual_id=self.qual_id)
+
+

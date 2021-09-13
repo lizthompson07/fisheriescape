@@ -83,13 +83,15 @@ class EDPickParser(DataParser):
     converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
     default_pickc_id = None
 
+    date_dict = {}
+
     def load_data(self):
         self.mandatory_keys.extend([self.stock_key, self.trof_key, self.cross_key, self.tray_key])
         super(EDPickParser, self).load_data()
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
-        self.default_pickc_id = models.CountCode.objects.filter(name="Cleaning Picks").get()
+        self.default_pickc_id = models.CountCode.objects.filter(name="Cleaning Loss").get()
 
         for pickc_id in cleaned_data["pickc_id"]:
             if pickc_id.name not in self.data.keys():
@@ -136,16 +138,18 @@ class EDPickParser(DataParser):
                                                                  pick_comments=row.get(self.comment_key))
                 self.row_entered += evnt_entered
 
-        for day in range(1, 32):
-            if utils.nan_to_none(row.get(str(day))):
-                pick_date = datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + str(day),
-                                              "%Y-%b-%d").replace(tzinfo=pytz.UTC)
-                self.row_entered += utils.create_picks_evnt(cleaned_data, cont_id, grp_id.pk, row[str(day)],
-                                                            pick_date, self.default_pickc_id,
+        for col_name in row.keys():
+            col_date = utils.get_col_date(col_name)
+
+            if col_date:
+                col_date_str = datetime.strftime(col_date, "%Y-%b-%d")
+                self.date_dict[col_date_str] = True
+                self.row_entered += utils.create_picks_evnt(cleaned_data, cont_id, grp_id.pk, row[col_name],
+                                                            col_date, self.default_pickc_id,
                                                             cleaned_data["evnt_id"].perc_id,
                                                             pick_comments=row.get(self.comment_key))
 
-       # record development
+        # record development
         if grp_anix and shock:
             pick_evnt_cleaned_data = cleaned_data.copy()
             pick_evnt_cleaned_data["evnt_id"] = grp_anix.evnt_id
@@ -153,6 +157,11 @@ class EDPickParser(DataParser):
             utils.enter_grpd(grp_anix.pk, pick_evnt_cleaned_data, row_date, dev_at_pick, None,
                              anidc_str="Development")
             self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
+
+    def data_cleaner(self):
+        self.log_data += "\nDate columns read from headers:"
+        for date_str in self.date_dict.keys():
+            self.log_data += "{}\n".format(date_str)
 
 
 # ED = egg development

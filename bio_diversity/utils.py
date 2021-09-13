@@ -1101,14 +1101,11 @@ def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual
 
 
 def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=None, contx=None, inst_id=None,
-              env_start=None, avg=False, save=True, qual_id=False):
+              env_time=datetime.min.time(), avg=False, save=True, qual_id=False):
     row_entered = False
     if not nan_to_none(env_value):
         return False
-    if env_start:
-        env_datetime = naive_to_aware(env_date, env_start)
-    else:
-        env_datetime = naive_to_aware(env_date)
+    env_datetime = naive_to_aware(env_date, env_time)
 
     if not qual_id:
         qual_id = models.QualCode.objects.filter(name="Good").get()
@@ -1955,3 +1952,11 @@ def get_cont_from_tag(cont_tag, cont_id):
     elif cont_tag == "trof":
         cont = models.Trough.objects.filter(pk=cont_id).get()
     return cont
+
+
+def get_col_date(col_name):
+    try:
+        col_date = datetime.strptime(col_name, "%Y-%b-%d").replace(tzinfo=pytz.UTC)
+    except:
+        col_date = False
+    return col_date
