@@ -1972,3 +1972,24 @@ def get_col_date(col_name):
     except:
         col_date = False
     return col_date
+
+
+def parse_trof_str(trof_str, facic_id):
+    cont_str = trof_str.replace(" ", "")
+    cont_ids = []
+    if "," in cont_str:
+        cont_list = cont_str.split(",")
+    else:
+        cont_list = [cont_str]
+
+    for cont in cont_list:
+        if "-" in cont:
+            cont_lims = cont.split("-")
+            cont_range = range(int(cont_lims[0]), int(cont_lims[1]) + 1)
+            for trof_name in cont_range:
+                trof_id = models.Trough.objects.filter(name__iexact=trof_name, facic_id=facic_id).get()
+                cont_ids.append(trof_id)
+        else:
+            trof_id = models.Trough.objects.filter(name__iexact=cont, facic_id=facic_id).get()
+            cont_ids.append(trof_id)
+    return cont_ids

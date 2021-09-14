@@ -114,8 +114,6 @@ class EDPickParser(DataParser):
         row_date = utils.get_row_date(row)
         self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
         # find group from either cross or tray:
-        pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
-                                                indv_id__stok_id=row["stok_id"], start_date__year=row[self.year_key]).first()
 
         if utils.nan_to_none(row.get(self.hu_key)):
             cont_id = utils.get_cont_from_dot(row[self.hu_key], cleaned_data, row_date)
@@ -124,7 +122,12 @@ class EDPickParser(DataParser):
         else:
             cont_id = row["trof_id"]
 
-        grp_id = utils.get_tray_group(pair_id, cont_id, row_date)
+        if utils.nan_to_none(row.get(self.cross_key)):
+            pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
+                                                    indv_id__stok_id=row["stok_id"], start_date__year=row[self.year_key]).first()
+            grp_id = utils.get_tray_group(pair_id, cont_id, row_date)
+        else:
+            grp_id = cont_id.fish_in_cont(row_date, get_grp=True)
 
         grp_anix = None
         shock = False
@@ -144,10 +147,11 @@ class EDPickParser(DataParser):
             if col_date:
                 col_date_str = datetime.strftime(col_date, "%Y-%b-%d")
                 self.date_dict[col_date_str] = True
-                self.row_entered += utils.create_picks_evnt(cleaned_data, cont_id, grp_id.pk, row[col_name],
-                                                            col_date, self.default_pickc_id,
-                                                            cleaned_data["evnt_id"].perc_id,
-                                                            pick_comments=row.get(self.comment_key))
+                if utils.nan_to_none(row.get(col_name)):
+                    self.row_entered += utils.create_picks_evnt(cleaned_data, cont_id, grp_id.pk, row[col_name],
+                                                                col_date, self.default_pickc_id,
+                                                                cleaned_data["evnt_id"].perc_id,
+                                                                pick_comments=row.get(self.comment_key))
 
         # record development
         if grp_anix and shock:
