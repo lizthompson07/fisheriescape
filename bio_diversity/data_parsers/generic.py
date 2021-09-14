@@ -28,16 +28,12 @@ class GenericIndvParser(DataParser):
     vax_key = "Vaccinated"
     status_key = "Status"
     prio_key = "Priority"
+    lifestage_key = "Lifestage"
 
     converters = {vial_key: str, envelope_key: str, start_tank_key: str, end_tank_key: str, pit_key: str, "Year": str, "Month": str, "Day": str}
     header = 2
     sheet_name = "Individual"
 
-    sex_anidc_id = None
-    len_anidc_id = None
-    weight_anidc_id = None
-    vial_anidc_id = None
-    envelope_anidc_id = None
     ani_health_anidc_id = None
 
     def load_data(self):
@@ -54,11 +50,6 @@ class GenericIndvParser(DataParser):
         super(GenericIndvParser, self).load_data()
 
     def data_preper(self):
-        self.sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
-        self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
-        self.weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
-        self.vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
-        self.envelope_anidc_id = models.AnimalDetCode.objects.filter(name="Scale Envelope").get()
         self.ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
 
     def row_parser(self, row):
@@ -90,6 +81,7 @@ class GenericIndvParser(DataParser):
                                                    mark=row.get(self.mark_key),
                                                    vaccinated=row.get(self.vax_key),
                                                    status=row.get(self.status_key),
+                                                   lifestage=row.get(self.lifestage_key),
                                                    comments=row.get(self.comment_key)
                                                    )
 
@@ -127,6 +119,7 @@ class GenericUntaggedParser(DataParser):
     len_key_mm = "Length (mm)"
     weight_key = "Weight (g)"
     weight_key_kg = "Weight (kg)"
+    lifestage_key = "Lifestage"
     vial_key = "Vial"
     envelope_key = "Scale Envelope"
     mort_key = "Mortality (Y/N)"
@@ -158,6 +151,7 @@ class GenericUntaggedParser(DataParser):
     vax_anidc_id = None
     mark_anidc_id = None
     comment_anidc_id = None
+    lifestage_anidc_id = None
 
     def load_data(self):
         self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key, self.grp_mark_key, self.samp_key])
@@ -184,6 +178,7 @@ class GenericUntaggedParser(DataParser):
         self.anidc_ufid_id = models.AnimalDetCode.objects.filter(name="UFID").get()
         self.vax_anidc_id = models.AnimalDetCode.objects.filter(name="Vaccination").get()
         self.mark_anidc_id = models.AnimalDetCode.objects.filter(name="Mark").get()
+        self.lifestage_anidc_id = models.AnimalDetCode.objects.filter(name="Lifestage").get()
         self.comment_anidc_id = models.AnimalDetCode.objects.filter(name="Comment").get()
 
         # The following steps are to set additional columns on each row to facilitate parsing.
@@ -286,6 +281,9 @@ class GenericUntaggedParser(DataParser):
             if utils.nan_to_none(row.get(self.mark_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.mark_key],
                                                       self.mark_anidc_id.pk, adsc_str=row[self.mark_key])
+            if utils.nan_to_none(row.get(self.lifestage_key)):
+                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.lifestage_key],
+                                                      self.lifestage_anidc_id.pk, adsc_str=row[self.lifestage_key])
             if utils.nan_to_none(row.get(self.vax_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.vax_key],
                                                       self.vax_anidc_id.pk, adsc_str=row[self.vax_key])
@@ -342,6 +340,7 @@ class GenericGrpParser(DataParser):
     abs_key = "Whole group (Y/N)"
     comment_key = "Comments"
     vax_key = "Vaccinated"
+    lifestage_key = "Lifestage"
     mark_key = "Mark Applied"
 
     header = 2
@@ -443,6 +442,7 @@ class GenericGrpParser(DataParser):
         self.row_entered += utils.enter_bulk_grpd(det_anix.pk, cleaned_data, row_date,
                                                   vaccinated=row.get(self.vax_key),
                                                   mark=row.get(self.mark_key),
+                                                  lifestage=row.get(self.lifestage_key),
                                                   comments=row.get(self.comment_key))
 
         self.row_entered += utils.parse_extra_cols(row, self.cleaned_data, det_anix, grp=True)

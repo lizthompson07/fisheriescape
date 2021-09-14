@@ -1253,7 +1253,8 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
 
 
 def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None, weight=None, weight_kg=None, vial=None,
-                     scale_envelope=None, gender=None, tissue_yn=None, status=None, mark=None, prog_grp=None, vaccinated=None, comments=None):
+                     scale_envelope=None, gender=None, tissue_yn=None, status=None, mark=None, prog_grp=None,
+                     vaccinated=None, lifestage=None, comments=None):
     data_entered = 0
     if nan_to_none(len_val):
         len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
@@ -1286,6 +1287,10 @@ def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None,
         mark_anidc_pk = models.AnimalDetCode.objects.filter(name="Mark").get().pk
         data_entered += enter_indvd(anix_pk, cleaned_data, det_date, mark,
                                     mark_anidc_pk, adsc_str=mark)
+    if nan_to_none(lifestage):
+        lifestage_anidc_pk = models.AnimalDetCode.objects.filter(name="Lifestage").get().pk
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, lifestage,
+                                    lifestage_anidc_pk, adsc_str=lifestage)
     if nan_to_none(prog_grp):
         prog_anidc_pk = models.AnimalDetCode.objects.filter(name="Program Group").get().pk
         data_entered += enter_indvd(anix_pk, cleaned_data, det_date, prog_grp,
@@ -1307,7 +1312,8 @@ def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None,
 
 
 def enter_bulk_grpd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None, weight=None, weight_kg=None,
-                    status=None, mark=None, prnt_grp=None, prog_grp=None, vaccinated=None, comments=None):
+                    status=None, mark=None, prnt_grp=None, prog_grp=None, vaccinated=None, lifestage=None,
+                    comments=None):
     data_entered = 0
     if nan_to_none(len_val):
         len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
@@ -1330,6 +1336,10 @@ def enter_bulk_grpd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None, 
         mark_anidc_pk = models.AnimalDetCode.objects.filter(name="Mark").get().pk
         data_entered += enter_grpd(anix_pk, cleaned_data, det_date, mark,
                                    mark_anidc_pk, adsc_str=mark)
+    if nan_to_none(lifestage):
+        lifestage_anidc_pk = models.AnimalDetCode.objects.filter(name="Lifestage").get().pk
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, lifestage,
+                                   lifestage_anidc_pk, adsc_str=lifestage)
     if nan_to_none(prog_grp):
         prog_anidc_pk = models.AnimalDetCode.objects.filter(name="Program Group").get().pk
         data_entered += enter_grpd(anix_pk, cleaned_data, det_date, prog_grp,
@@ -1891,6 +1901,8 @@ def ajax_get_fields(request):
 
 def naive_to_aware(naive_date, naive_time=datetime.min.time()):
     # adds null time and timezone to dates
+    if not nan_to_none(naive_time):
+        naive_time = datetime.min.time()
     return datetime.combine(naive_date, naive_time).replace(tzinfo=pytz.UTC)
 
 

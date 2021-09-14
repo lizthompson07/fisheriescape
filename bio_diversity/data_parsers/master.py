@@ -17,6 +17,7 @@ class MasterIndvParser(DataParser):
     ufid_key = "UFID"
     comment_key = "Comments"
     sex_key = "Sex"
+    lifestage_key = "Lifestage"
 
     header = 2
     sheet_name = "Individual"
@@ -70,6 +71,7 @@ class MasterIndvParser(DataParser):
 
         self.row_entered += utils.enter_bulk_indvd(anix.pk, cleaned_data, row_date,
                                                    gender=row.get(self.sex_key),
+                                                   lifestage=row.get(self.lifestage_key),
                                                    comments=row.get(self.comment_key))
 
 
@@ -80,6 +82,7 @@ class MasterGrpParser(DataParser):
     stok_key = "Stock"
     year_coll_key = "Collection"
     cnt_key = "Number of Fish"
+    lifestage_key = "Lifestage"
     comment_key = "Comments"
 
     header = 2
@@ -145,6 +148,7 @@ class MasterGrpParser(DataParser):
         self.row_entered = utils.enter_bulk_grpd(anix.pk, cleaned_data, row_datetime,
                                                  prog_grp=row.get(self.group_key),
                                                  mark=row.get(self.mark_key),
+                                                 lifestage=row.get(self.lifestage_key),
                                                  comments=row.get(self.comment_key))
 
         contx, contx_entered = utils.enter_contx(tank_id, cleaned_data, True, grp_pk=grp_id.pk, return_contx=True)

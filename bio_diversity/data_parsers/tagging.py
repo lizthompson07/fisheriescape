@@ -21,6 +21,7 @@ class TaggingParser(DataParser):
     ufid_key = "Universal Fish ID"
     pit_key = "PIT Tag #"
     comment_key = "Comments"
+    lifestage_key = "Lifestage"
     len_key = "Length (cm)"
     len_key_mm = "Length (mm)"
     weight_key = "Weight (g)"
@@ -41,12 +42,7 @@ class TaggingParser(DataParser):
     grp_id = None
     anix_indv = None
 
-    vial_anidc_id = None
-    len_anidc_id = None
-    weight_anidc_id = None
     ani_health_anidc_id = None
-    prog_grp_anidc_id = None
-    mark_anidc_id = None
 
     def load_data(self):
         self.mandatory_keys.extend([self.to_tank_key, self.from_tank_key, self.group_key, self.pit_key, self.stok_key, self.coll_key])
@@ -61,12 +57,7 @@ class TaggingParser(DataParser):
 
         self.tagger_code = models.RoleCode.objects.filter(name__iexact="Tagger").get()
         self.salmon_id = models.SpeciesCode.objects.filter(name__iexact="Salmon").get()
-        self.vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
-        self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
-        self.weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
         self.ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
-        self.prog_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Program Group").get()
-        self.mark_anidc_id = models.AnimalDetCode.objects.filter(name="Mark").get()
 
         # set datetimes:
         self.data = utils.set_row_datetime(self.data)
@@ -130,6 +121,7 @@ class TaggingParser(DataParser):
                                vial=row.get(self.vial_key),
                                mark=row.get(self.mark_key),
                                prog_grp=row.get(self.group_key),
+                               lifestage=row.get(self.lifestage_key),
                                comments=row.get(self.comment_key),
                                )
 
