@@ -28,16 +28,12 @@ class GenericIndvParser(DataParser):
     vax_key = "Vaccinated"
     status_key = "Status"
     prio_key = "Priority"
+    lifestage_key = "Lifestage"
 
     converters = {vial_key: str, envelope_key: str, start_tank_key: str, end_tank_key: str, pit_key: str, "Year": str, "Month": str, "Day": str}
     header = 2
     sheet_name = "Individual"
 
-    sex_anidc_id = None
-    len_anidc_id = None
-    weight_anidc_id = None
-    vial_anidc_id = None
-    envelope_anidc_id = None
     ani_health_anidc_id = None
 
     def load_data(self):
@@ -54,11 +50,6 @@ class GenericIndvParser(DataParser):
         super(GenericIndvParser, self).load_data()
 
     def data_preper(self):
-        self.sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
-        self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
-        self.weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
-        self.vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
-        self.envelope_anidc_id = models.AnimalDetCode.objects.filter(name="Scale Envelope").get()
         self.ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
 
     def row_parser(self, row):
@@ -73,23 +64,26 @@ class GenericIndvParser(DataParser):
             self.log_data += str(row)
             self.log_data += "\nFish with PIT {} not found in db\n".format(row[self.pit_key])
             self.success = False
+            return
 
         anix, anix_entered = utils.enter_anix(self.cleaned_data, indv_pk=indv.pk)
         self.row_entered += anix_entered
 
-        utils.enter_bulk_indvd(anix.pk, self.cleaned_data, row_date,
-                               gender=row.get(self.sex_key),
-                               len_mm=row.get(self.len_key_mm),
-                               len=row.get(self.len_key),
-                               weight=row.get(self.weight_key),
-                               weight_kg=row.get(self.weight_key_kg),
-                               vial=row.get(self.vial_key),
-                               scale_envelope=row.get(self.envelope_key),
-                               tissue_yn=row.get(self.tissue_key),
-                               mark=row.get(self.mark_key),
-                               vaccinated=row.get(self.vax_key),
-                               status=row.get(self.status_key)
-                               )
+        self.row_entered += utils.enter_bulk_indvd(anix.pk, self.cleaned_data, row_date,
+                                                   gender=row.get(self.sex_key),
+                                                   len_mm=row.get(self.len_key_mm),
+                                                   len_val=row.get(self.len_key),
+                                                   weight=row.get(self.weight_key),
+                                                   weight_kg=row.get(self.weight_key_kg),
+                                                   vial=row.get(self.vial_key),
+                                                   scale_envelope=row.get(self.envelope_key),
+                                                   tissue_yn=row.get(self.tissue_key),
+                                                   mark=row.get(self.mark_key),
+                                                   vaccinated=row.get(self.vax_key),
+                                                   status=row.get(self.status_key),
+                                                   lifestage=row.get(self.lifestage_key),
+                                                   comments=row.get(self.comment_key)
+                                                   )
 
         if utils.nan_to_none(row.get(self.precocity_key)):
             if utils.y_n_to_bool(row[self.precocity_key]):
@@ -110,13 +104,6 @@ class GenericIndvParser(DataParser):
             self.row_entered += utils.create_movement_evnt(in_tank, out_tank, self.cleaned_data, row_datetime,
                                                            indv_pk=indv.pk)
 
-        if utils.nan_to_none(row.get(self.comment_key)):
-            comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix, row_date)
-            self.row_entered += data_entered
-            if not comments_parsed:
-                self.log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row[self.pit_key],
-                                                                                             row[self.comment_key])
-
         self.row_entered += utils.parse_extra_cols(row, self.cleaned_data, anix, indv=True)
 
 
@@ -132,6 +119,7 @@ class GenericUntaggedParser(DataParser):
     len_key_mm = "Length (mm)"
     weight_key = "Weight (g)"
     weight_key_kg = "Weight (kg)"
+    lifestage_key = "Lifestage"
     vial_key = "Vial"
     envelope_key = "Scale Envelope"
     mort_key = "Mortality (Y/N)"
@@ -162,6 +150,8 @@ class GenericUntaggedParser(DataParser):
     anidc_ufid_id = None
     vax_anidc_id = None
     mark_anidc_id = None
+    comment_anidc_id = None
+    lifestage_anidc_id = None
 
     def load_data(self):
         self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key, self.grp_mark_key, self.samp_key])
@@ -188,6 +178,8 @@ class GenericUntaggedParser(DataParser):
         self.anidc_ufid_id = models.AnimalDetCode.objects.filter(name="UFID").get()
         self.vax_anidc_id = models.AnimalDetCode.objects.filter(name="Vaccination").get()
         self.mark_anidc_id = models.AnimalDetCode.objects.filter(name="Mark").get()
+        self.lifestage_anidc_id = models.AnimalDetCode.objects.filter(name="Lifestage").get()
+        self.comment_anidc_id = models.AnimalDetCode.objects.filter(name="Comment").get()
 
         # The following steps are to set additional columns on each row to facilitate parsing.
         # In particular,  columns set will be: "datetime", "grp_year", "grp_coll", "start_tank_id",
@@ -289,6 +281,9 @@ class GenericUntaggedParser(DataParser):
             if utils.nan_to_none(row.get(self.mark_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.mark_key],
                                                       self.mark_anidc_id.pk, adsc_str=row[self.mark_key])
+            if utils.nan_to_none(row.get(self.lifestage_key)):
+                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.lifestage_key],
+                                                      self.lifestage_anidc_id.pk, adsc_str=row[self.lifestage_key])
             if utils.nan_to_none(row.get(self.vax_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.vax_key],
                                                       self.vax_anidc_id.pk, adsc_str=row[self.vax_key])
@@ -324,12 +319,9 @@ class GenericUntaggedParser(DataParser):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.envelope_key],
                                                       self.envelope_anidc_id.pk)
 
-            if utils.nan_to_none(row[self.comment_key]):
-                comments_parsed, data_entered = utils.samp_comment_parser(row[self.comment_key], cleaned_data,
-                                                                          row_samp.pk, row_date)
-                self.row_entered += data_entered
-                if not comments_parsed:
-                    self.log_data += "Unparsed comment on row {}:\n {} \n\n".format(row, row[self.comment_key])
+            if utils.nan_to_none(row.get(self.comment_key)):
+                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, None,
+                                                      self.comment_anidc_id.pk, comments=row[self.comment_key])
 
             self.row_entered += utils.parse_extra_cols(row, self.cleaned_data, row_samp, samp=True)
 
@@ -348,6 +340,7 @@ class GenericGrpParser(DataParser):
     abs_key = "Whole group (Y/N)"
     comment_key = "Comments"
     vax_key = "Vaccinated"
+    lifestage_key = "Lifestage"
     mark_key = "Mark Applied"
 
     header = 2
@@ -357,9 +350,6 @@ class GenericGrpParser(DataParser):
     converters = {start_tank_key: str, end_tank_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     prnt_grp_anidc_id = None
-    prog_grp_anidc_id = None
-    vax_anidc_id = None
-    mark_anidc_id = None
 
     def load_data(self):
         self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key])
@@ -375,9 +365,6 @@ class GenericGrpParser(DataParser):
     def data_preper(self):
         cleaned_data = self.cleaned_data
         self.prnt_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Parent Group").get()
-        self.prog_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Program Group").get()
-        self.vax_anidc_id = models.AnimalDetCode.objects.filter(name="Vaccination").get()
-        self.mark_anidc_id = models.AnimalDetCode.objects.filter(name="Mark").get()
 
         # set date
         self.data = utils.set_row_datetime(self.data)
@@ -419,12 +406,10 @@ class GenericGrpParser(DataParser):
                 row_end_grp.save()
                 end_grp_anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=row_end_grp.pk)
                 self.row_entered = anix_entered
-                if utils.nan_to_none(row[self.prio_key]):
-                    self.row_entered += utils.enter_grpd(end_grp_anix.pk, cleaned_data, row_date, row[self.prio_key],
-                                                         self.prog_grp_anidc_id, adsc_str=row[self.prio_key])
-                if utils.nan_to_none(row[self.grp_mark_key]):
-                    self.row_entered += utils.enter_grpd(end_grp_anix.pk, cleaned_data, row_date, row[self.grp_mark_key],
-                                                         self.mark_anidc_id.pk, adsc_str=row[self.grp_mark_key])
+
+                self.row_entered += utils.enter_bulk_grpd(end_grp_anix.pk, cleaned_data, row_date,
+                                                          prog_grp=row.get(self.prio_key),
+                                                          mark=row.get(self.mark_key))
             elif not whole_grp:
                 row_end_grp = row_end_grp_list[0]
 
@@ -454,13 +439,11 @@ class GenericGrpParser(DataParser):
             self.row_entered = cnt_entered
 
         # add details to det_anix:
-
-        if utils.nan_to_none(row.get(self.vax_key)):
-            self.row_entered += utils.enter_grpd(det_anix.pk, cleaned_data, row_date, None, self.vax_anidc_id.pk,
-                                                 adsc_str=row[self.vax_key])
-        if utils.nan_to_none(row.get(self.mark_key)):
-            self.row_entered += utils.enter_grpd(det_anix.pk, cleaned_data, row_date, None, self.mark_anidc_id.pk,
-                                                 adsc_str=row[self.mark_key])
+        self.row_entered += utils.enter_bulk_grpd(det_anix.pk, cleaned_data, row_date,
+                                                  vaccinated=row.get(self.vax_key),
+                                                  mark=row.get(self.mark_key),
+                                                  lifestage=row.get(self.lifestage_key),
+                                                  comments=row.get(self.comment_key))
 
         self.row_entered += utils.parse_extra_cols(row, self.cleaned_data, det_anix, grp=True)
 

@@ -80,19 +80,21 @@ class SpawningParser(DataParser):
         self.row_entered += utils.enter_bulk_indvd(anix_female.pk, cleaned_data, row_date,
                                                    gender="F",
                                                    len_mm=row.get(self.len_key_f_mm),
-                                                   len=row.get(self.len_key_f),
+                                                   len_val=row.get(self.len_key_f),
                                                    weight=row.get(self.weight_key_f),
                                                    weight_kg=row.get(self.weight_key_f_kg),
-                                                   status=row.get(self.status_key_f)
+                                                   status=row.get(self.status_key_f),
+                                                   comments=row.get(self.comment_key_f)
                                                    )
 
         self.row_entered += utils.enter_bulk_indvd(anix_male.pk, cleaned_data, row_date,
                                                    gender="M",
                                                    len_mm=row.get(self.len_key_m_mm),
-                                                   len=row.get(self.len_key_m),
+                                                   len_val=row.get(self.len_key_m),
                                                    weight=row.get(self.weight_key_m),
                                                    weight_kg=row.get(self.weight_key_m_kg),
-                                                   status=row.get(self.status_key_m)
+                                                   status=row.get(self.status_key_m),
+                                                   comments=row.get(self.comment_key_m)
                                                    )
 
         if utils.nan_to_none(row.get(self.dest_key_f)):
