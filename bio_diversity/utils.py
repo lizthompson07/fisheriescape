@@ -430,7 +430,17 @@ def load_sfas():
 def get_cont_evnt(contx_tuple):
     # input should be in the form (contx, bool/null)
     contx = contx_tuple[0]
-    in_out_dict = {None: "", False: "Origin", True: "Destination"}
+    output_dict = {"evnt_id": contx.evnt_id, "contx_id": contx, "destination": contx_tuple[1]}
+    for cont in [contx.tank_id, contx.cup_id, contx.tray_id, contx.trof_id, contx.draw_id, contx.heat_id]:
+        if cont:
+            output_dict["cont_id"] = cont
+            break
+    return output_dict
+
+
+def get_view_cont_list(contx_tuple):
+    # input should be in the form (contx, bool/null)
+    contx = contx_tuple[0]
     output_list = [contx.evnt_id.evntc_id.__str__(), contx.evnt_id.start_date, in_out_dict[contx_tuple[1]]]
     for cont in [contx.tank_id, contx.cup_id, contx.tray_id, contx.trof_id, contx.draw_id, contx.heat_id]:
         if cont:
@@ -1945,7 +1955,6 @@ def common_err_parser(err):
     err_msg = err.__str__()
     if issubclass(type(err), ObjectDoesNotExist):
         err_msg = "Could not find a {} object from worksheet in database.".format(err.__str__().split(" ")[0])
-
     return err_msg
 
 

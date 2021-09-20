@@ -22,6 +22,7 @@ class DistributionParser(DataParser):
     prog_key = "Program"
     mark_key = "Mark"
     cont_key = "Container"
+    trof_key = "Trough"
     exclude_key = "Exclude"
     relm_key = "Release Method"
     temp_key = "River Temp"
@@ -119,7 +120,6 @@ class DistributionParser(DataParser):
             self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.acclimation_key],
                                                  self.acclimation_locdc_id.pk, None)
 
-
         # ----------Count and count details----------------
         cnt_year = None
         coll_id = None
@@ -161,6 +161,8 @@ class DistributionParser(DataParser):
         if utils.nan_to_none(row[self.cont_key]):
             cont_list = utils.parse_cont_strs(str(row[self.cont_key]), cleaned_data["facic_id"], row_date,
                                               exclude_str=row.get(self.exclude_key))
+        elif utils.nan_to_none(row.get(self.trof_key)):
+            cont_list = utils.parse_trof_str(str(row[self.trof_key]), cleaned_data["facic_id"])
 
         for cont_id in cont_list:
             contx, data_entered = utils.enter_contx(cont_id, cleaned_data, return_contx=True)

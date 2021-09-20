@@ -25,7 +25,6 @@ import pytz
 from django.utils.translation import gettext_lazy as _
 
 from .static.calculation_constants import collection_evntc_list, egg_dev_evntc_list
-from .utils import get_cont_evnt
 
 
 class IndexTemplateView(TemplateView):
@@ -1290,12 +1289,9 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "objects_list": obj_list,
                                            "field_list": obj_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
+        cont_list = self.object.get_cont_history(get_str=True)
 
-        anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                          pair_id__isnull=True).select_related("contx_id")
-
-        contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
-        context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]
+        context["cont_evnt_list"] = cont_list
         context["cont_evnt_field_list"] = [
             "Event",
             "Date",
@@ -1479,7 +1475,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
                                                           pair_id__isnull=True)\
             .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
-        context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]
+        context["cont_evnt_list"] = [utils.get_view_cont_list(contx) for contx in contx_tuple_set]
         context["cont_evnt_field_list"] = [
             "Event",
             "Date",

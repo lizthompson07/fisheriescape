@@ -257,9 +257,12 @@ class BioCont(BioLookup):
     # Make name not unique, is unique together with facility code.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"), db_column="NAME")
 
-    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=[], get_grp=False):
+    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=None, get_grp=False):
         indv_list = []
         grp_list = []
+
+        if not select_fields:
+            select_fields = []
 
         filter_arg = "contx_id__{}_id".format(self.key)
 
@@ -921,7 +924,7 @@ class Group(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTTS")
 
     def __str__(self):
-        return "{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
+        return "{}-{}-{}-{}".format(self.pk, self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
 
     def current_tank(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
         return self.current_cont_by_key('tank', at_date)
@@ -963,6 +966,19 @@ class Group(BioModel):
                 cont_str += "{}, ".format(cont.__str__())
             return cont_str
         return current_cont_list
+
+    def get_cont_history(self, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now()), get_str=False):
+        anix_evnt_set = AniDetailXref.objects.filter(grp_id=self, contx_id__isnull=False, loc_id__isnull=True,
+                                                     pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
+                                                     evnt_id__start_datetime__gte=start_date).select_related("contx_id")
+
+        contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
+        if get_str:
+            out_list = [utils.get_view_cont_list(contx) for contx in contx_tuple_set]
+        else:
+            out_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+
+        return out_list
 
     def count_fish_in_group(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
         fish_count = 0
@@ -1094,7 +1110,6 @@ class Group(BioModel):
         else:
             return grp_mark_list
 
-
     def start_date(self):
         first_evnt = self.animal_details.order_by("-evnt_id__start_date").first()
         if first_evnt:
@@ -1102,20 +1117,25 @@ class Group(BioModel):
         else:
             return None
 
-    def avg_weight(self):
-
+    def avg_weight(self, at_date=utils.naive_to_aware(datetime.now())):
         # INCORPORATE SAMPLE DETS!
-        weight_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Weight").order_by(-"detail_date")
+        weight_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Weight", detail_date__lte=at_date)
+        if not weight_deps:
+            return ""
+        weight_deps =weight_deps.order_by("-detail_date")
         last_obs_date = weight_deps.first().detail_date
         last_obs_set = weight_deps.filter(detail_date__gte=last_obs_date)
-        avg_weight = last_obs_set.aggregate(Avg('det_val'))["det_val"]
+        avg_weight = last_obs_set.aggregate(Avg('det_val'))["det_val__avg"]
         return avg_weight
 
-    def avg_len(self):
-        weight_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Length").order_by(-"detail_date")
-        last_obs_date = weight_deps.first().detail_date
-        last_obs_set = weight_deps.filter(detail_date__gte=last_obs_date)
-        avg_len = last_obs_set.aggregate(Avg('det_val'))["det_val"]
+    def avg_len(self, at_date=utils.naive_to_aware(datetime.now())):
+        len_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Length", detail_date__lte=at_date)
+        if not len_deps:
+            return ""
+        len_deps = len_deps.order_by("-detail_date")
+        last_obs_date = len_deps.first().detail_date
+        last_obs_set = len_deps.filter(detail_date__gte=last_obs_date)
+        avg_len = last_obs_set.aggregate(Avg('det_val'))["det_val__avg"]
         return avg_len
 
 

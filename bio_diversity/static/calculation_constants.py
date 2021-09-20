@@ -24,3 +24,5 @@ collection_evntc_list = ["electrofishing", "bypass collection", "smolt wheel col
                          "fall parr collection"]
 
 egg_dev_evntc_list = ["egg development", "heath unit transfer", "picking", "shocking"]
+
+in_out_dict = {None: "", False: "Origin", True: "Destination"}

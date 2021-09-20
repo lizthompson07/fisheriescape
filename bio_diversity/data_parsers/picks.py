@@ -76,6 +76,8 @@ class EDPickParser(DataParser):
     tray_key = "Tray"
     hu_key = "Heath Unit Location"
     shocking_key = "Shocking (Y/N)"
+    first_key = "First Hatch Observed (Y/N)"
+    all_hatch_key = "100% Hatch Observed (Y/N)"
     comment_key = "Comments"
 
     header = 2

@@ -12,6 +12,7 @@ from bokeh.resources import CDN
 from django.db.models.functions import Concat
 from openpyxl import load_workbook
 from bio_diversity import models, utils
+from bio_diversity.static.calculation_constants import in_out_dict
 from dm_apps import settings
 
 
@@ -54,18 +55,19 @@ class ExcelReport:
 
 def cont_treat_writer(ws, cont_evnt_list, row_count, treat_row_count, end_date=utils.naive_to_aware(datetime.now())):
     treat_list = []
-    for cont_evnt in cont_evnt_list:
+    for contx_dict in cont_evnt_list:
+        evnt_id = contx_dict["evnt_id"]
         # cont_evnt = [evntc, date, direction, container]
-        ws['A' + str(row_count)].value = cont_evnt[1]
-        ws['B' + str(row_count)].value = cont_evnt[0]
-        ws['C' + str(row_count)].value = cont_evnt[3].name
-        ws['D' + str(row_count)].value = cont_evnt[2]
+        ws['A' + str(row_count)].value = evnt_id.start_datetime.date()
+        ws['B' + str(row_count)].value = evnt_id.evntc_id.name
+        ws['C' + str(row_count)].value = contx_dict["cont_id"].name
+        ws['D' + str(row_count)].value = in_out_dict[contx_dict["destination"]]
         row_count += 1
-        if cont_evnt[2] == "Destination":
-            start_date = cont_evnt[1]
-            treat_list.extend(cont_evnt[3].cont_treatments(start_date, end_date))
-        if cont_evnt[2] == "Origin":
-            end_date = cont_evnt[1]
+        if contx_dict["destination"]:
+            start_date = evnt_id.start_datetime
+            treat_list.extend(contx_dict["cont"].cont_treatments(start_date, end_date))
+        if not contx_dict["destination"] and contx_dict is not None:
+            end_date = evnt_id.start_datetime
 
     for treat in treat_list:
         ws['G' + str(treat_row_count)].value = treat.envtc_id.name
@@ -154,18 +156,11 @@ def generate_stock_code_report(stok_id, coll_id, year, at_date=datetime.now().re
     indv_qs = indv_qs.select_related("stok_id", "coll_id")
     grp_qs = grp_qs.select_related("stok_id", "coll_id")
 
-
-    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
-    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
-    ws_indv = report.copy_template("Individuals")
-    ws_grp = report.copy_template("Groups")
+    ws_indv = report.get_sheet("Individuals")
+    ws_grp = report.get_sheet("Groups")
 
     ws_indv['A1'].value = "Stock: {}".format(stok_id.name)
-    ws_indv["I2"].style = 'Normal'
-    ws_indv["I2"].value = ''
     ws_grp['A1'].value = "Stock: {}".format(stok_id.name)
-    ws_grp["A2"].style = 'Normal'
-    ws_grp["A2"].value = ''
     # start writing data at row 3 in the sheet
     row_count = 3
     for item in indv_qs:
@@ -191,11 +186,19 @@ def generate_stock_code_report(stok_id, coll_id, year, at_date=datetime.now().re
 
     row_count = 3
     for item in grp_qs:
-        ws_grp['B' + str(row_count)].value = item.grp_year
-        ws_grp['C' + str(row_count)].value = item.coll_id.name
-        ws_grp['D' + str(row_count)].value = item.prog_group(get_string=True)
-        ws_grp['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont(at_date)])
+        ws_grp['A' + str(row_count)].value = item.grp_year
+        ws_grp['B' + str(row_count)].value = item.coll_id.name
+        ws_grp['C' + str(row_count)].value = item.prog_group(get_string=True)
+        ws_grp['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont(at_date)])
+        ws_grp['F' + str(row_count)].value = item.avg_len(at_date=at_date)
+        ws_grp['G' + str(row_count)].value = item.avg_weight(at_date=at_date)
         ws_grp['H' + str(row_count)].value = item.count_fish_in_group(at_date)
+        grp_history = item.get_cont_history()
+        cont_str = ""
+        for contx_dict in grp_history:
+            if contx_dict["destination"] is not None:
+                cont_str += contx_dict["cont_id"].name + ", "
+        ws_grp['I' + str(row_count)].value = cont_str
 
         row_count += 1
 
@@ -503,13 +506,9 @@ def generate_individual_report(indv_id):
         if grp_id:
             start_date = utils.naive_to_aware(grp_id.start_date())
             end_date = utils.naive_to_aware(grp_tuple[2])
-            anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                         pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
-                                                         evnt_id__start_datetime__gte=start_date)\
-                .order_by("-evnt_id__start_datetime").select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id',
-                                                                    'evnt_id__prog_id', 'evnt_id__perc_id')
-            evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
-            for evnt in evnt_list:
+            cont_evnt_list = grp_id.get_cont_history(start_date=start_date, end_date=end_date)
+            for contx_dict in cont_evnt_list:
+                evnt = contx_dict["evnt_id"]
                 ws_evnt['A' + str(row_count)].value = evnt.start_date
                 ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
                 ws_evnt['C' + str(row_count)].value = grp_id.__str__()
@@ -531,13 +530,7 @@ def generate_individual_report(indv_id):
         if grp_id:
             start_date = utils.naive_to_aware(grp_id.start_date())
             end_date = utils.naive_to_aware(grp_tuple[2])
-            anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                         pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
-                                                         evnt_id__start_datetime__gte=start_date)\
-                .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
-                .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
-            contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
-            cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+            cont_evnt_list = grp_id.get_cont_history(start_date=start_date, end_date=end_date)
             treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, end_date=treat_end_date)[2]
 
     # -----------------Details Sheet------------------------
@@ -636,11 +629,7 @@ def generate_grp_report(grp_id):
                 row_count += 1
 
     # -----------------Container Sheet------------------------
-    anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True, pair_id__isnull=True)\
-        .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
-        .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
-    contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
-    cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+    cont_evnt_list = grp_id.get_cont_history()
     row_count = 5
     row_count, treat_row_count, treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, row_count)
 
@@ -649,13 +638,7 @@ def generate_grp_report(grp_id):
         if grp_id:
             start_date = utils.naive_to_aware(grp_id.start_date())
             end_date = utils.naive_to_aware(grp_tuple[2])
-            anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                         pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
-                                                         evnt_id__start_datetime__gte=start_date)\
-                .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
-                .select_related('contx_id', 'contx_id__evnt_id__evntc_id','contx_id__evnt_id')
-            contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
-            cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+            cont_evnt_list = grp_id.get_cont_history(end_date=end_date, start_date=start_date)
             treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count)[2]
 
     report.save_wb()
