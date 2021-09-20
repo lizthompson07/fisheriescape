@@ -109,6 +109,8 @@ class CSASRequestForm(forms.ModelForm):
         section_choices = [(obj.id, obj.full_name) for obj in Section.objects.all()]
         section_choices.insert(0, (None, "------"))
 
+
+
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = section_choices
 

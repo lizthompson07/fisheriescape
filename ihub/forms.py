@@ -38,6 +38,18 @@ class EntryCreateForm(forms.ModelForm):
         sector_choices = [(obj.id, f"{obj.region} - {obj.tname}") for obj in ml_models.Sector.objects.all()]
         self.fields["sectors"].choices = sector_choices
 
+    def clean_organizations(self):
+        organizations = self.cleaned_data['organizations']
+        if not organizations:
+            raise forms.ValidationError("You must select at least one organization!")
+        return organizations
+
+    def clean_sectors(self):
+        sectors = self.cleaned_data['sectors']
+        if not sectors:
+            raise forms.ValidationError("You must select at least one sector!")
+        return sectors
+
 
 class EntryForm(forms.ModelForm):
     class Meta:
@@ -67,6 +79,18 @@ class EntryForm(forms.ModelForm):
         self.fields['initial_date'].widget.format = '%Y-%m-%d'
         self.fields['anticipated_end_date'].widget.format = '%Y-%m-%d'
         self.fields['response_requested_by'].widget.format = '%Y-%m-%d'
+
+    def clean_organizations(self):
+        organizations = self.cleaned_data['organizations']
+        if not organizations:
+            raise forms.ValidationError("You must select at least one organization!")
+        return organizations
+
+    def clean_sectors(self):
+        sectors = self.cleaned_data['sectors']
+        if not sectors:
+            raise forms.ValidationError("You must select at least one sector!")
+        return sectors
 
 class NoteForm(forms.ModelForm):
     class Meta:
