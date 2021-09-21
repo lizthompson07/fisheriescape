@@ -135,10 +135,13 @@ def generate_facility_tank_report(facic_id):
     return report.target_url
 
 
-def generate_stock_code_report(stok_id, coll_id, year, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+def generate_stock_code_report(stok_id, coll_id, year, start_date=datetime.min, end_date=datetime.now()):
     # report is given a stock code and returns location of all associated fish
     report = ExcelReport()
     report.load_wb("stock_code_report_template.xlsx")
+
+    start_date = utils.naive_to_aware(start_date)
+    end_date = utils.naive_to_aware(end_date)
 
     indv_qs = models.Individual.objects.all()
     grp_qs = models.Group.objects.filter(grp_valid=True)
@@ -168,7 +171,7 @@ def generate_stock_code_report(stok_id, coll_id, year, at_date=datetime.now().re
         ws_indv['B' + str(row_count)].value = item.indv_year
         ws_indv['C' + str(row_count)].value = item.coll_id.name
         ws_indv['D' + str(row_count)].value = item.prog_group(get_string=True)
-        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank(at_date)])
+        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank(end_date)])
 
         item_indvd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Animal Health",
                                                          adsc_id__isnull=False, anix_id__indv_id=item).select_related("adsc_id")
@@ -186,19 +189,23 @@ def generate_stock_code_report(stok_id, coll_id, year, at_date=datetime.now().re
 
     row_count = 3
     for item in grp_qs:
-        ws_grp['A' + str(row_count)].value = item.grp_year
-        ws_grp['B' + str(row_count)].value = item.coll_id.name
-        ws_grp['C' + str(row_count)].value = item.prog_group(get_string=True)
-        ws_grp['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont(at_date)])
-        ws_grp['F' + str(row_count)].value = item.avg_len(at_date=at_date)
-        ws_grp['G' + str(row_count)].value = item.avg_weight(at_date=at_date)
-        ws_grp['H' + str(row_count)].value = item.count_fish_in_group(at_date)
-        grp_history = item.get_cont_history()
+        current_cont_str = ', '.join([cont.__str__() for cont in item.current_cont(end_date)])
+        ws_grp['A' + str(row_count)].value = item.pk
+        ws_grp['B' + str(row_count)].value = item.grp_year
+        ws_grp['C' + str(row_count)].value = item.coll_id.name
+        ws_grp['D' + str(row_count)].value = item.prog_group(get_string=True)
+        ws_grp['E' + str(row_count)].value = current_cont_str
+        ws_grp['G' + str(row_count)].value = item.avg_len(at_date=end_date)
+        ws_grp['H' + str(row_count)].value = item.avg_weight(at_date=end_date)
+        ws_grp['I' + str(row_count)].value = item.count_fish_in_group(end_date)
+        grp_history = item.get_cont_history(start_date=start_date, end_date=end_date)
         cont_str = ""
         for contx_dict in grp_history:
             if contx_dict["destination"] is not None:
                 cont_str += contx_dict["cont_id"].name + ", "
-        ws_grp['I' + str(row_count)].value = cont_str
+        if not cont_str:
+            cont_str = current_cont_str
+        ws_grp['J' + str(row_count)].value = cont_str
 
         row_count += 1
 

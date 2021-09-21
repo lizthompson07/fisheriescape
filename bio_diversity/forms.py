@@ -1040,11 +1040,17 @@ class ReportForm(forms.Form):
                                     queryset=models.Group.objects.all().select_related("stok_id", "coll_id"),
                                     label=_("Group"))
     on_date = forms.DateField(required=False, label=_("Report Date"))
+    start_date = forms.DateField(required=False, label=_("Report Start Date"))
+    end_date = forms.DateField(required=False, label=_("Report End Date"))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["on_date"].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
                                                                "class": "fp-date"})
+        self.fields["start_date"].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                  "class": "fp-date"})
+        self.fields["end_date"].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                "class": "fp-date"})
 
     def clean(self):
         cleaned_data = super().clean()

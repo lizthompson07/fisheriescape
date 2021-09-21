@@ -3244,8 +3244,10 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
             if form.cleaned_data["year"]:
                 year = int(form.cleaned_data["year"])
                 arg_str += f"&year={year}"
-            if form.cleaned_data["on_date"]:
-                arg_str += f"&on_date={form.cleaned_data['on_date']}"
+            if form.cleaned_data["start_date"]:
+                arg_str += f"&start_date={form.cleaned_data['start_date']}"
+            if form.cleaned_data["end_date"]:
+                arg_str += f"&end_date={form.cleaned_data['end_date']}"
             return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + arg_str)
         elif report == 3:
             adsc_pk = int(form.cleaned_data["adsc_id"].pk)
@@ -3298,9 +3300,16 @@ def facility_tank_report(request):
 
 @login_required()
 def stock_code_report(request):
-    on_date = request.GET.get("on_date")
-    if not on_date:
-        on_date = datetime.now().replace(tzinfo=pytz.UTC)
+    start_date = request.GET.get("start_date")
+    if not start_date:
+        start_date = datetime.min
+    else:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+    end_date = request.GET.get("end_date")
+    if not end_date:
+        end_date = datetime.now()
+    else:
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
     stok_pk = request.GET.get("stok_pk")
     stok_id = None
     if stok_pk:
@@ -3311,7 +3320,7 @@ def stock_code_report(request):
         coll_id = models.Collection.objects.filter(pk=coll_pk).get()
     year = request.GET.get("year")
 
-    file_url = reports.generate_stock_code_report(stok_id, coll_id, year, on_date)
+    file_url = reports.generate_stock_code_report(stok_id, coll_id, year, start_date, end_date)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:

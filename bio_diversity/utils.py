@@ -592,9 +592,13 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
 
 def get_tray_group(pair_id, tray_id, row_date):
     if pair_id:
-        anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
-                                                      grp_id__isnull=False).select_related('grp_id').get()
-        grp_id = anix_id.grp_id
+        anix_qs = models.AniDetailXref.objects.filter(pair_id=pair_id,
+                                                      grp_id__isnull=False).select_related('grp_id')
+        grp_list = anix_qs.values_list('grp_id', flat=True).distinct()
+        if len(grp_list) == 1:
+            grp_id = models.Group.objects.filter(pk=grp_list[0]).get()
+        else:
+            raise Exception("multiple groups associated with this pairing")
     else:
         grp_list = tray_id.fish_in_cont(row_date, get_grp=True)
         if grp_list:
