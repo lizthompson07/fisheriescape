@@ -108,7 +108,7 @@ class CSASRequest(MetadataFields):
     rationale_for_timeline = models.TextField(null=True, blank=True, verbose_name=_("Rationale for deadline?"),
                                               help_text=_("e.g., COSEWIC or consultation meetings, Environmental Assessments, legal or regulatory "
                                                           "requirement, Treaty obligation, international commitments, etc)."
-                                                          "Please elaborate and provide anticipatory dates"))
+                                                          " Please elaborate and provide anticipatory dates"))
     has_funding = models.BooleanField(default=False, verbose_name=_("Click here if you have funds to cover any extra costs associated with this request?"),
                                       help_text=_("i.e., special analysis, meeting costs, translation)?"), )
     funding_text = models.TextField(null=True, blank=True, verbose_name=_("Please describe"))
