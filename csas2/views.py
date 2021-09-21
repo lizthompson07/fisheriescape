@@ -339,6 +339,7 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
     template_name = 'csas2/request_submit.html'
     form_class = forms.TripRequestTimestampUpdateForm
     submit_text = gettext_lazy("Proceed")
+    h2 = None
 
     def get_h1(self):
         my_object = self.get_object()

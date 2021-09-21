@@ -56,9 +56,9 @@
             <button @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
               <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
             </button>
-            <a href="{% url 'csas2:request_pdf' object.id %}" class="btn btn-outline-dark btn-sm ml-3">
+            <button @click="exportPDF" class="btn btn-outline-dark btn-sm ml-3">
               <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
-            </a>
+            </button>
           </div>
 
           <div class="row">
@@ -291,6 +291,11 @@
           this.requestLabels = data.labels;
         });
       },
+      exportPDF() {
+        //url="{% url 'csas2:request_pdf' object.id %}"
+        let msg = "{% trans 'PLEASE NOTE THE FOLLOWING: \n\n All fields in the request form should be completed before the form is printed for approvals. \n\nThe signed / approved PDF must match the request submitted through the application.' %}";
+        window.alert(msg);
+      },
     },
     computed: {
       canModify() {
@@ -301,10 +306,10 @@
       yesNo: vueFiltersObject["yesNo"],
     },
     created() {
-      this.getCurrentUser()
-      this.getRequest(true)
-      this.getReviewMetadata()
-      this.getRequestMetadata()
+      this.getCurrentUser();
+      this.getRequest(true);
+      this.getReviewMetadata();
+      this.getRequestMetadata();
     },
   });
 

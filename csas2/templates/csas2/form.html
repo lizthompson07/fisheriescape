@@ -42,15 +42,16 @@
       {% bootstrap_field field placeholder="" show_label=False show_help=False %}
 
     {% elif field.widget_type !=  "checkbox" %}
-      <div class="">
-        {% bootstrap_label field.label %}
-      </div>
-      <div class="">
-        <span class="small m-0 p-0 form-text text-muted">{{ field.help_text }}</span>
-      </div>
-      {% bootstrap_field field placeholder="" show_label=False show_help=False %}
+      {% if not field.is_hidden %}
+        <div class="">
+          {% bootstrap_label field.label %}
+        </div>
+        <div class="">
+          <span class="small m-0 p-0 form-text text-muted">{{ field.help_text }}</span>
+        </div>
+        {% bootstrap_field field placeholder="" show_label=False show_help=False %}
+      {% endif %}
     {% else %}
-
       {% bootstrap_field field placeholder="" %}
     {% endif %}
 
