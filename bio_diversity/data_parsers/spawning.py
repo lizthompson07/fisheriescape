@@ -34,6 +34,7 @@ class SpawningParser(DataParser):
     status_key_m = "Status, M"
     dest_key_f = "End Tank, F"
     dest_key_m = "End Tank, M"
+    prog_key = "Program"
 
     header = 2
     start_grp_dict = {}
@@ -42,6 +43,7 @@ class SpawningParser(DataParser):
 
     fecu_spwndc_id = None
     dud_spwndc_id = None
+    prog_spwndc_id = None
 
     sex_dict = calculation_constants.sex_dict
 
@@ -53,6 +55,7 @@ class SpawningParser(DataParser):
     def data_preper(self):
         self.fecu_spwndc_id = models.SpawnDetCode.objects.filter(name="Fecundity").get()
         self.dud_spwndc_id = models.SpawnDetCode.objects.filter(name="Dud").get()
+        self.prog_spwndc_id = models.SpawnDetCode.objects.filter(name="Program").get()
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
@@ -144,6 +147,11 @@ class SpawningParser(DataParser):
 
         self.row_entered += utils.enter_anix(cleaned_data, pair_pk=pair.pk, return_sucess=True)
 
+        # pairing program:
+        if utils.nan_to_none(row.get(self.prog_key)):
+            self.row_entered += utils.enter_spwnd(pair.pk, cleaned_data, row[self.prog_key], self.prog_spwndc_id.pk,
+                                                  spwnsc_str=row[self.prog_key])
+
         # fecu/dud/extra male
         if row[self.egg_est_key] > 0:
             self.row_entered += utils.enter_spwnd(pair.pk, cleaned_data, int(row[self.egg_est_key]),
@@ -159,7 +167,8 @@ class SpawningParser(DataParser):
                                                           indv_id__isnull=True,
                                                           contx_id__isnull=True,
                                                           loc_id__isnull=True,
-                                                          )
+                                                      )
+        anix_grp = False
         if anix_grp_qs.count() == 0:
 
             grp = models.Group(spec_id=indv_female.spec_id,
@@ -174,7 +183,7 @@ class SpawningParser(DataParser):
                 grp.clean()
                 grp.save()
                 row_entered = True
-                row_entered += utils.enter_anix(cleaned_data, grp_pk=grp.pk, return_sucess=True)
+                anix_grp, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp.pk)
                 row_entered += utils.enter_anix(cleaned_data, grp_pk=grp.pk, pair_pk=pair.pk, return_sucess=True)
                 grp.grp_valid = True
                 grp.save()
@@ -187,6 +196,9 @@ class SpawningParser(DataParser):
         elif anix_grp_qs.count() == 1:
             anix_grp = anix_grp_qs.get()
             grp = anix_grp.grp_id
+
+        if anix_grp:
+            utils.enter_bulk_grpd(anix_grp, cleaned_data, row_date, prog_grp=row[self.prog_key])
 
     def data_cleaner(self):
         # evntf

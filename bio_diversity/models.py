@@ -1709,6 +1709,21 @@ class Pairing(BioDateModel):
             models.UniqueConstraint(fields=['indv_id', 'start_date'], name='Pairing_Uniqueness')
         ]
 
+    def prog_group(self, get_string=False):
+        # gets program groups this group may be a part of.
+        spwnd_set = self.spawning_details.filter(spwndc_id__name="Program Group",
+                                                 spwnsc_id__isnull=False,
+                                                 ).select_related("spwnsc_id")
+        prog_pair_list = [spwnd.spwnsc_id for spwnd in spwnd_set]
+        if get_string:
+            prog_str = ""
+            for prog_grp in prog_pair_list:
+                prog_str += "{}, ".format(prog_grp.name)
+
+            return prog_str
+        else:
+            return prog_pair_list
+
 
 class PersonnelCode(BioModel):
     # perc tag

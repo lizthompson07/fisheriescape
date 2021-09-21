@@ -559,7 +559,7 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
         if nan_to_none(stock_str):
             grp_qs = grp_qs.filter(stok_id__name=stock_str)
         if nan_to_none(coll_id):
-            grp_qs = grp_qs.filter( coll_id=coll_id)
+            grp_qs = grp_qs.filter(coll_id=coll_id)
         if nan_to_none(grp_year):
             grp_qs = grp_qs.filter(grp_year=grp_year)
         grp_list = [grp for grp in grp_qs]
@@ -606,6 +606,32 @@ def get_tray_group(pair_id, tray_id, row_date):
         else:
             raise Exception("No group found in tray {}".format(tray_id.__str__()))
     return grp_id
+
+
+def get_pair(cross_str, stok_id, pair_year, end_date_isnull=True, prog_grp=None, prog_str=None,
+             fail_on_not_found=False):
+
+    if nan_to_none(prog_str):
+        prog_grp = models.SpawnDetSubjCode.objects.filter(name__iexact=prog_str).get()
+
+    pair_qs = models.Pairing.objects.filter(cross=cross_str, end_date__isnull=end_date_isnull, indv_id__stok_id=stok_id,
+                                           start_date__year=pair_year)
+    pair_list = [pair for pair in pair_qs]
+
+    prog_pair_list = []
+    for pair in pair_list:
+        if prog_grp:
+            if prog_grp in pair.prog_group():
+                prog_pair_list.append(pair)
+        else:
+            if not pair.prog_group():
+                prog_pair_list.append(pair)
+    pair_list = prog_pair_list.copy()
+
+    if len(pair_list) == 0 and fail_on_not_found:
+        raise Exception("\nPair with cross {}, sotck {}, year {} and with program group {} not uniquely found in"
+                        " db\n".format(cross_str, stok_id.name, pair_year, prog_str))
+    return pair_list
 
 
 def set_row_tank(df, cleaned_data, tank_key, col_name="tank_id"):
