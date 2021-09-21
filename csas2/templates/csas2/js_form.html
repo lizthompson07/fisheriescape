@@ -44,7 +44,7 @@
   });
 
   function refreshMultiregionalSection() {
-    if ($is_multiregional.prop("checked")) {
+    if ($is_multiregional.val() === "1") {
       $(".multiregional_text_div").removeClass("gone");
     } else {
       $(".multiregional_text_div").addClass("gone");

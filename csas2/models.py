@@ -19,6 +19,12 @@ from lib.templatetags.custom_filters import percentage
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
     SimpleLookupWithUUID
 
+NULL_YES_NO_CHOICES = (
+    (None, _("Unsure")),
+    (1, _("Yes")),
+    (0, _("No")),
+)
+
 
 def request_directory_path(instance, filename):
     return 'csas/request_{0}/{1}'.format(instance.csas_request.id, filename)
@@ -83,9 +89,11 @@ class CSASRequest(MetadataFields):
                                     blank=True, null=False)
     client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=False)
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"), blank=True, null=False)
-    is_multiregional = models.BooleanField(default=False,
-                                           verbose_name=_("Click here if this request involves more than one region (zonal) or more than one client sector?"))
-    multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region for all involved."))
+    is_multiregional = models.IntegerField(default=False, choices=NULL_YES_NO_CHOICES, blank=True, null=True,
+                                           verbose_name=_("Could the advice provided potentially be applicable to other regions and/or sectors?"),
+                                           help_text=_(
+                                               "(e.g., frameworks, tools, issues and/or aquatic species widely distributed throughout more than one region)"))
+    multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please list other sectors and/or regions and provide brief rationale"))
 
     issue = models.TextField(verbose_name=_("Issue requiring science information and/or advice"), blank=True, null=True,
                              help_text=_("Should be phrased as a question to be answered by Science"))
@@ -175,10 +183,11 @@ class CSASRequest(MetadataFields):
 
     @property
     def multiregional_display(self):
-        if self.is_multiregional:
+        display = self.get_is_multiregional_display()
+        if self.is_multiregional == 1:
             text = self.multiregional_text if self.multiregional_text else gettext("no further details provided.")
-            return "{} - {}".format(gettext("Yes"), text)
-        return gettext("No")
+            return "{} - {}".format(display, text)
+        return display
 
     @property
     def status_display(self):
@@ -220,7 +229,6 @@ class CSASRequest(MetadataFields):
     @property
     def region(self):
         return self.section.division.branch.region.tname
-
 
 
 class CSASRequestNote(GenericNote):

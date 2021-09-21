@@ -395,7 +395,6 @@ class CSASRequestCloneUpdateView(CSASRequestUpdateView):
         new_obj.uuid = None
         new_obj.ref_number = None
         new_obj.created_by = self.request.user
-        new_obj.notes = None
         new_obj.save()
         return HttpResponseRedirect(reverse_lazy("csas2:request_detail", args=[new_obj.id]))
 

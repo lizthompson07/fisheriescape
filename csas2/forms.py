@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy, gettext
@@ -40,7 +41,7 @@ class TripRequestTimestampUpdateForm(forms.ModelForm):
     class Meta:
         model = models.CSASRequest
         fields = [
-            "has_funding", # just a random field
+            "has_funding",  # just a random field
         ]
         widgets = {
             "has_funding": forms.HiddenInput()
@@ -108,11 +109,12 @@ class CSASRequestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         section_choices = [(obj.id, obj.full_name) for obj in Section.objects.all()]
         section_choices.insert(0, (None, "------"))
-
-
+        coordinator_choices = [(u.id, u.get_full_name()) for u in User.objects.filter(groups__name__in=["csas_regional_admin", "csas_national_admin"])]
+        coordinator_choices.insert(0, (None, "------"))
 
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = section_choices
+        self.fields['coordinator'].choices = coordinator_choices
 
     def clean(self):
         cleaned_data = super().clean()
@@ -306,7 +308,6 @@ class MeetingForm(forms.ModelForm):
     class Meta:
         model = models.Meeting
         exclude = ["start_date", "end_date"]
-
 
 
 class DocumentForm(forms.ModelForm):
