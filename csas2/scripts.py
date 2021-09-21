@@ -83,7 +83,6 @@ def digest_csv():
                             is_multiregional=zonal,
                             multiregional_text=zonal_text,
                             issue=issue,
-                            had_assistance=assistance,
                             assistance_text=assistance_text,
                             rationale=rationale,
                             risk_text=risk_text,
@@ -102,7 +101,6 @@ def digest_csv():
                         r.is_multiregional = zonal
                         r.multiregional_text = zonal_text
                         r.issue = issue
-                        r.had_assistance = assistance
                         r.assistance_text = assistance_text
                         r.rationale = rationale
                         r.risk_text = risk_text

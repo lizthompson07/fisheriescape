@@ -30,7 +30,6 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     status_display = serializers.SerializerMethodField()
     multiregional_display = serializers.SerializerMethodField()
     issue_html = serializers.SerializerMethodField()
-    assistance_display = serializers.SerializerMethodField()
     rationale_html = serializers.SerializerMethodField()
     advice_needed_by_display = serializers.SerializerMethodField()
     prioritization_display = serializers.SerializerMethodField()
@@ -67,9 +66,6 @@ class CSASRequestSerializer(serializers.ModelSerializer):
 
     def get_rationale_html(self, instance):
         return instance.rationale_html
-
-    def get_assistance_display(self, instance):
-        return instance.assistance_display
 
     def get_issue_html(self, instance):
         return instance.issue_html
@@ -475,7 +471,6 @@ class CSASRequestNoteSerializer(serializers.ModelSerializer):
 
     def get_type_display(self, instance):
         return instance.get_type_display()
-
 
 
 class DocumentCostSerializer(serializers.ModelSerializer):

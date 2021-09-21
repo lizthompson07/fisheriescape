@@ -204,19 +204,12 @@ h1 {
   <table class="show-all-borders">
     <tr>
       <th colspan="2">
-        {% blocktrans %}
-          Does this request involve more than one region (zonal) or more than one client sector?
-          If yes, please provide the contact name, sector, and region.
-        {% endblocktrans %}
+        {% get_verbose_label object "is_multiregional" %}
       </th>
     </tr>
     <tr>
       <td class="w10p">
-        {% if object.is_multiregional %}
-          {% trans "Yes" %}
-        {% else %}
-          {% trans "No" %}
-        {% endif %}
+        {{ object.get_is_multiregional_display }}
       </td>
       <td>{{ object.multiregional_text|nz:" " }}</td>
     </tr>
@@ -241,20 +234,9 @@ h1 {
 <div class="block">
   <table class="show-all-borders">
     <tr>
-      <th colspan="2">
-        {% blocktrans %}
-          Have you had assistance from Science in developing the question/request (with CSAS and/or DFO science staff)? If yes, with whom?
-        {% endblocktrans %}
-      </th>
+      <th>{% get_verbose_label object "assistance_text" %}</th>
     </tr>
     <tr>
-      <td class="w10p">
-        {% if object.had_assistance %}
-          {% trans "Yes" %}
-        {% else %}
-          {% trans "No" %}
-        {% endif %}
-      </td>
       <td>{{ object.assistance_text|nz:" " }}</td>
     </tr>
   </table>

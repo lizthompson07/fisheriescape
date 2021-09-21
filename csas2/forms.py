@@ -82,7 +82,6 @@ class CSASRequestForm(forms.ModelForm):
             'is_multiregional',
             'multiregional_text',
             'issue',
-            'had_assistance',
             'assistance_text',
             'rationale',
             'risk_text',

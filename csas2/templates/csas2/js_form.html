@@ -25,7 +25,6 @@
 
   <script type="application/javascript">
   var $is_multiregional = $("#id_is_multiregional");
-  var $had_assistance = $("#id_had_assistance");
   var $has_funding = $("#id_has_funding");
   var $is_deferred = $("#id_is_deferred");
   var $is_virtual = $("#id_is_virtual");
@@ -35,7 +34,6 @@
   $(document).ready(function () {
     // Stuff to do as soon as the DOM is ready
     refreshMultiregionalSection();
-    refreshAssistanceSection();
     refreshFundingSection();
     refreshDeferredSection();
     refreshVirtualSection();
@@ -48,15 +46,6 @@
       $(".multiregional_text_div").removeClass("gone");
     } else {
       $(".multiregional_text_div").addClass("gone");
-    }
-  }
-
-
-  function refreshAssistanceSection() {
-    if ($had_assistance.prop("checked")) {
-      $(".assistance_text_div").removeClass("gone");
-    } else {
-      $(".assistance_text_div").addClass("gone");
     }
   }
 
@@ -108,10 +97,6 @@
 
   $is_multiregional.change(function () {
     refreshMultiregionalSection();
-  })
-
-  $had_assistance.change(function () {
-    refreshAssistanceSection();
   })
 
   $has_funding.change(function () {

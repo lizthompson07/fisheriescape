@@ -284,6 +284,7 @@ class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
     submit_text = gettext_lazy("Save")
     h1 = gettext_lazy("New CSAS Request")
+    h2 = gettext_lazy("All fields are mandatory before approvals and submission")
 
     def get_initial(self):
         return dict(
@@ -307,6 +308,7 @@ class CSASRequestUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
     template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+    h2 = gettext_lazy("All fields are mandatory before approvals and submission")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

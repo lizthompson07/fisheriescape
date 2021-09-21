@@ -92,14 +92,13 @@ class CSASRequest(MetadataFields):
     is_multiregional = models.IntegerField(default=False, choices=NULL_YES_NO_CHOICES, blank=True, null=True,
                                            verbose_name=_("Could the advice provided potentially be applicable to other regions and/or sectors?"),
                                            help_text=_(
-                                               "(e.g., frameworks, tools, issues and/or aquatic species widely distributed throughout more than one region)"))
+                                               "e.g., frameworks, tools, issues and/or aquatic species widely distributed throughout more than one region"))
     multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please list other sectors and/or regions and provide brief rationale"))
 
     issue = models.TextField(verbose_name=_("Issue requiring science information and/or advice"), blank=True, null=True,
                              help_text=_("Should be phrased as a question to be answered by Science"))
-    had_assistance = models.BooleanField(default=False, verbose_name=_(
-        "Click here if you have had assistance from Science in developing the question/request?"), help_text=_("E.g. with CSAS and/or DFO science staff."))
-    assistance_text = models.TextField(null=True, blank=True, verbose_name=_(" Please provide details about the assistance received"))
+    assistance_text = models.TextField(null=True, blank=True, verbose_name=_(
+        "From whom in Science have you had assistance in developing the question/request (CSAS and/or DFO science staff)"))
 
     rationale = models.TextField(verbose_name=_("Rationale or context for the request"), blank=True, null=True,
                                  help_text=_("What will the information/advice be used for? Who will be the end user(s)? Will it impact other DFO "
@@ -200,13 +199,6 @@ class CSASRequest(MetadataFields):
         mystr = slugify(self.get_status_display()) if self.status else ""
         activate(lang)
         return mystr
-
-    @property
-    def assistance_display(self):
-        if self.had_assistance:
-            text = self.assistance_text if self.assistance_text else gettext("no further details provided.")
-            return "{} - {}".format(gettext("Yes"), text)
-        return gettext("No")
 
     @property
     def funding_display(self):
@@ -449,7 +441,7 @@ class Meeting(SimpleLookup, MetadataFields):
     time_description_en = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description of meeting times (en)"),
                                            help_text=_("e.g.: 9am to 4pm (Atlantic)"))
     time_description_fr = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description of meeting times (fr)"),
-                                           help_text=_("p. ex. : 9h à 16h (Atlantique)"))
+                                           help_text=_("e.g.: 9h à 16h (Atlantique)"))
 
     # non-editable
     somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))
