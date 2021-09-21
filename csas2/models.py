@@ -25,6 +25,8 @@ NULL_YES_NO_CHOICES = (
     (0, _("No")),
 )
 
+YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
+
 
 def request_directory_path(instance, filename):
     return 'csas/request_{0}/{1}'.format(instance.csas_request.id, filename)
@@ -147,16 +149,18 @@ class CSASRequest(MetadataFields):
         if self.id and self.processes.exists():
             # if all processes linked to the request are complete, this request should also be complete
             if self.processes.filter(status=2).count() == self.processes.all().count():
-                self.status = 4
+                self.status = 5  # complete
             else:
-                self.status = 11
+                self.status = 11  # on
         else:
             # look at the review to help determine the status
             self.status = 1  # draft
             if self.submission_date:
                 self.status = 2  # submitted
+            if self.files.filter(is_approval=True).exists():
+                self.status = 3  # approved
             if hasattr(self, "review") and self.review.id:
-                self.status = 3  # under review
+                self.status = 4  # under review
                 if self.review.decision:
                     self.status = self.review.decision + 10
 
@@ -271,6 +275,7 @@ class CSASRequestReview(MetadataFields):
 
 class CSASRequestFile(GenericFile):
     csas_request = models.ForeignKey(CSASRequest, related_name="files", on_delete=models.CASCADE, editable=False)
+    is_approval = models.BooleanField(default=False, verbose_name=_("is this file an approval for this request?"), choices=YES_NO_CHOICES)
     file = models.FileField(upload_to=request_directory_path)
 
 

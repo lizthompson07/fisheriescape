@@ -70,7 +70,7 @@ h1 {
     background-color: #84c6ff;
 }
 
-.finalization, .tentative {
+.finalization, .tentative, .ready-for-review {
     background-color: #e3aefa;
 }
 

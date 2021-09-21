@@ -56,9 +56,12 @@
             <button @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
               <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
             </button>
-            <button @click="exportPDF" class="btn btn-outline-dark btn-sm ml-3">
-              <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
-            </button>
+            {% if object.status >= 2 %}
+
+              <a href="{% url 'csas2:request_pdf' object.id %}" class="btn btn-outline-dark btn-sm ml-3">
+                <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
+              </a>
+            {% endif %}
           </div>
 
           <div class="row">
@@ -290,11 +293,6 @@
         apiService(endpoint).then(data => {
           this.requestLabels = data.labels;
         });
-      },
-      exportPDF() {
-        //url="{% url 'csas2:request_pdf' object.id %}"
-        let msg = "{% trans 'PLEASE NOTE THE FOLLOWING: \n\n All fields in the request form should be completed before the form is printed for approvals. \n\nThe signed / approved PDF must match the request submitted through the application.' %}";
-        window.alert(msg);
       },
     },
     computed: {

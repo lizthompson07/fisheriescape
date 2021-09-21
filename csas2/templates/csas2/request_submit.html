@@ -13,22 +13,66 @@
 
 
     <div v-if="request.id && !request.submission_date" class="mt-5 mb-5" v-cloak>
+
+      <p class="h4">
+        {% blocktrans %}
+          Once this request is submitted, you will not be able to un-submit it.
+        {% endblocktrans %}
+      </p>
       <div class="form-check mb-5">
         <input class="form-check-input h1" type="checkbox" value="" id="confirmation1" v-model="userConfirmed1">
-        <label class="form-check-label h4" for="confirmation1">
-          {% blocktrans %}
-            A PDF copy of the CSAS Request has been signed by the appropriate authority and has been uploaded to this request.
-          {% endblocktrans %}
+        <label class="form-check-label" for="confirmation1">
+          {% trans "I understand" %}
         </label>
       </div>
+
       <div class="form-check mb-5">
         <input class="form-check-input h1" type="checkbox" value="" id="confirmation2" v-model="userConfirmed2">
         <label class="form-check-label h4" for="confirmation2">
           {% blocktrans %}
-            The signed PDF matches the information in this request, i.e., no changes were made to the online request after the PDF was signed and approved.
+            Once this request is submitted, you will not be able to delete it or modify its contents.
           {% endblocktrans %}
         </label>
       </div>
+
+      <div class="form-check mb-5">
+        <input class="form-check-input h1" type="checkbox" value="" id="confirmation3" v-model="userConfirmed3">
+        <label class="form-check-label h4" for="confirmation3">
+          {% blocktrans %}
+            After submitting this form, you will see the option for exporting the PDF.
+          {% endblocktrans %}
+        </label>
+      </div>
+
+
+      <div class="form-check mb-5">
+        <input class="form-check-input h1" type="checkbox" value="" id="confirmation4" v-model="userConfirmed4">
+        <label class="form-check-label h4" for="confirmation4">
+          {% blocktrans %}
+            Please have that PDF signed by the appropriate authority (e.g., director) and send it by email to your CSAS coordinator
+          {% endblocktrans %}
+          &rarr; <a href="mailto:{{ object.coordinator.email }}">{{ object.coordinator.email }}</a>
+        </label>
+      </div>
+
+
+      {##}
+      {#      <div class="form-check mb-5">#}
+      {#        <input class="form-check-input h1" type="checkbox" value="" id="confirmation1" v-model="userConfirmed1">#}
+      {#        <label class="form-check-label h4" for="confirmation1">#}
+      {#          {% blocktrans %}#}
+      {#            A PDF copy of the CSAS Request has been signed by the appropriate authority and has been uploaded to this request.#}
+      {#          {% endblocktrans %}#}
+      {#        </label>#}
+      {#      </div>#}
+      {#            <div class="form-check mb-5">#}
+      {#              <input class="form-check-input h1" type="checkbox" value="" id="confirmation2" v-model="userConfirmed2">#}
+      {#              <label class="form-check-label h4" for="confirmation2">#}
+      {#                {% blocktrans %}#}
+      {#                  The signed PDF matches the information in this request, i.e., no changes were made to the online request after the PDF was signed and approved.#}
+      {#                {% endblocktrans %}#}
+      {#              </label>#}
+      {#            </div>#}
     </div>
 
     <div class="mb-5">
@@ -59,6 +103,8 @@
     data: {
       userConfirmed1: false,
       userConfirmed2: false,
+      userConfirmed3: false,
+      userConfirmed4: false,
       request: {},
       loading_request: true,
     },
@@ -75,7 +121,7 @@
     },
     computed: {
       allConfirmed() {
-        return this.userConfirmed1 && this.userConfirmed2;
+        return this.userConfirmed1 && this.userConfirmed2 && this.userConfirmed3 && this.userConfirmed4;
       }
     },
     created() {

@@ -172,6 +172,16 @@ class CSASRequestFileForm(forms.ModelForm):
         model = models.CSASRequestFile
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        if kwargs.get("instance"):
+            csas_request = kwargs.get("instance").csas_request
+        else:
+            csas_request = get_object_or_404(models.CSASRequest, pk=kwargs.get("initial").get("csas_request"))
+
+        super().__init__(*args, **kwargs)
+        if not csas_request.submission_date:
+            del self.fields["is_approval"]
+
 
 class MeetingFileForm(forms.ModelForm):
     class Meta:
