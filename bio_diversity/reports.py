@@ -347,7 +347,7 @@ def generate_detail_report(adsc_id, stok_id=None):
 
 
 def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
-    cnt_slots = "GHIJKLMNOPQRSTUV"
+    cnt_slots = "HIJKLMNOPQRSTUV"
     grps = [(anix.grp_id.__str__(), anix.grp_id.prog_group(get_string=True)) for anix in
             site_location.animal_details.filter(grp_id__isnull=False).select_related("grp_id__stok_id",
                                                                                      "grp_id__coll_id")]
@@ -372,6 +372,7 @@ def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
     ws['D' + str(row_count)].value = site_location.locc_id.name
     ws['E' + str(row_count)].value = coll_str
     ws['F' + str(row_count)].value = grp_str
+    ws['H' + str(row_count)].value = site_location.comments
     cnt_col = 0
     for cnt in loc_cnt_qs:
         ws[cnt_slots[cnt_col] + str(row_count)].value = cnt.cntc_id.name
@@ -390,8 +391,6 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
     report = ExcelReport()
     report.load_wb("site_report_template.xlsx")
 
-       # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
-    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
     ws = report.get_sheet("Sites")
     ws_indv = report.get_sheet("Individuals")
 
@@ -495,6 +494,8 @@ def generate_individual_report(indv_id):
         ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
         ws_evnt['C' + str(row_count)].value = ""
         ws_evnt['D' + str(row_count)].value = indv_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date), get_string=True)
+        ws_evnt['E' + str(row_count)].value = evnt.comments
+
         row_count += 1
 
     for grp_tuple in prnt_grp_set:
@@ -513,6 +514,7 @@ def generate_individual_report(indv_id):
                 ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
                 ws_evnt['C' + str(row_count)].value = grp_id.__str__()
                 ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
+                ws_evnt['E' + str(row_count)].value = evnt.comments
                 row_count += 1
 
     # -----------------Container Sheet------------------------
@@ -551,16 +553,17 @@ def generate_individual_report(indv_id):
         ws_dets['C' + str(row_count)].value = adsc_name
         ws_dets['D' + str(row_count)].value = indvd.det_val
         ws_dets['E' + str(row_count)].value = indv_id.current_cont(indvd.detail_date, get_string=True)
+        ws_dets['F' + str(row_count)].value = indvd.comments
         row_count += 1
 
     indvt_set = models.IndTreatment.objects.filter(anix_id__indv_id=indv_id).distinct().select_related("indvtc_id",
                                                                                                            "unit_id")
     row_count = 5
     for indvt in indvt_set:
-        ws_dets['H' + str(row_count)].value = indvt.start_date
-        ws_dets['I' + str(row_count)].value = indvt.indvtc_id.name
-        ws_dets['J' + str(row_count)].value = indvt.dose
-        ws_dets['K' + str(row_count)].value = indvt.unit_id.name
+        ws_dets['I' + str(row_count)].value = indvt.start_date
+        ws_dets['J' + str(row_count)].value = indvt.indvtc_id.name
+        ws_dets['K' + str(row_count)].value = indvt.dose
+        ws_dets['L' + str(row_count)].value = indvt.unit_id.name
         row_count += 1
 
     report.save_wb()
@@ -610,6 +613,7 @@ def generate_grp_report(grp_id):
         ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
         ws_evnt['C' + str(row_count)].value = ""
         ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date), get_string=True)
+        ws_evnt['E' + str(row_count)].value = evnt.comments
         row_count += 1
 
     for grp_tuple in prnt_grp_set:
@@ -628,6 +632,7 @@ def generate_grp_report(grp_id):
                 ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
                 ws_evnt['C' + str(row_count)].value = grp_id.__str__()
                 ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
+                ws_evnt['E' + str(row_count)].value = evnt.comments
                 row_count += 1
 
     # -----------------Container Sheet------------------------

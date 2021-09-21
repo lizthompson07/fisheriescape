@@ -9,7 +9,7 @@ from collections import Counter
 import pytz
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -152,6 +152,7 @@ class BioDet(BioModel):
 class BioLookup(shared_models.Lookup):
     class Meta:
         abstract = True
+        ordering = ['name']
 
     created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
     created_date = models.DateField(verbose_name=_("Created Date"))
@@ -256,7 +257,7 @@ class BioCont(BioLookup):
     # Make name not unique, is unique together with facility code.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"), db_column="NAME")
 
-    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=[]):
+    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=[], get_grp=False):
         indv_list = []
         grp_list = []
 
@@ -285,7 +286,10 @@ class BioCont(BioLookup):
                 grp_list.append(grp)
             elif in_count > grp_out_set[grp]:
                 indv_list.append(grp)
-        return indv_list, grp_list
+        if get_grp:
+            return grp_list
+        else:
+            return indv_list, grp_list
 
     def degree_days(self, start_date, end_date):
         return []
@@ -314,13 +318,13 @@ class AnimalDetCode(BioLookup):
     def __str__(self):
         return "{} ({})".format(self.name, self.unit_id.__str__())
 
+    class Meta:
+        ordering = ['name', ]
+
 
 class AniDetSubjCode(BioLookup):
     # adsc tag
     anidc_id = models.ForeignKey("AnimalDetCode", on_delete=models.CASCADE, verbose_name=_("Type of measurement"), db_column="ANI_DET_ID")
-
-    class Meta:
-        ordering = ['name', ]
 
 
 class AniDetailXref(BioModel):
@@ -438,7 +442,6 @@ class ContainerXRef(BioModel):
             return None
 
 
-
 class Count(BioModel):
     # cnt tag
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Location"),
@@ -512,6 +515,9 @@ class Cup(BioCont):
     def __str__(self):
         return "HU {}.{}.{}".format(self.draw_id.heat_id.__str__(), self.draw_id.name, self.name)
 
+    def dot_str(self):
+        return "{}.{}.{}".format(self.draw_id.heat_id.name, self.draw_id.name, self.name)
+
     @property
     def facic_id(self):
         return self.draw_id.facic_id
@@ -560,6 +566,9 @@ class Drawer(BioCont):
 
     def __str__(self):
         return "HU {}.{}".format(self.heat_id.__str__(), self.name)
+
+    def dot_str(self):
+        return "{}.{}".format(self.heat_id.name, self.name)
 
 
 class EnvCode(BioLookup):
@@ -642,6 +651,7 @@ class EnvCondFile(BioModel):
 
     class Meta:
         ordering = ['created_date']
+
 
 @receiver(models.signals.post_delete, sender=EnvCondFile)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
@@ -755,9 +765,10 @@ class Event(BioTimeModel):
 
     def fecu_dict(self):
         fecu_dict = {}
+        # the order by call is needed for distinct() to work as expected and return only a single object.
         stok_coll_set = Individual.objects.filter(animal_details__evnt_id=self).values("stok_id", "coll_id",
                                                                                        "stok_id__name",
-                                                                                       "coll_id__name").distinct()
+                                                                                       "coll_id__name").distinct().order_by()
         for stok_coll in stok_coll_set:
             key = "Alpha, Beta for {}-{}".format(stok_coll["stok_id__name"], stok_coll["coll_id__name"])
             fecu_id = Fecundity.objects.filter(stok_id_id=stok_coll["stok_id"], coll_id_id=stok_coll["coll_id"]).first()
@@ -776,9 +787,7 @@ def my_handler(sender, instance, **kwargs):
 
 class EventCode(BioLookup):
     # evntc tag
-    class Meta:
-        ordering = ['name']
-
+    pass
 
 def evntf_directory_path(instance, filename):
     return 'bio_diversity/event_files/{}'.format(filename)
@@ -951,7 +960,7 @@ class Group(BioModel):
         if get_string:
             cont_str = ""
             for cont in current_cont_list:
-                cont_str += "{}, ".format(cont.name)
+                cont_str += "{}, ".format(cont.__str__())
             return cont_str
         return current_cont_list
 
@@ -964,7 +973,7 @@ class Group(BioModel):
                                        Q(loc_id__animal_details__grp_id=self, loc_id__loc_date__lte=at_date))\
             .select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
 
-        absolute_codes = ["Egg Count", "Fish Count", "Counter Count", ]
+        absolute_codes = ["Egg Count", "Fish Count", "Counter Count", "Fecundity Estimate"]
         add_codes = ["Fish in Container", "Photo Count", "Eggs Added", "Fish Caught"]
         subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "Eggs Removed",
                           "Fish Removed from Container", "Fish Distributed"]
@@ -1069,12 +1078,45 @@ class Group(BioModel):
         else:
             return prog_grp_list
 
+    def group_mark(self, get_string=False):
+        # gets any marks the group may be tagged with.
+        grpd_set = GroupDet.objects.filter(anix_id__grp_id=self,
+                                           anidc_id__name="Mark",
+                                           adsc_id__isnull=False,
+                                           ).select_related("adsc_id")
+        grp_mark_list = [grpd.adsc_id for grpd in grpd_set]
+        if get_string:
+            mark_str = ""
+            for mark in grp_mark_list:
+                mark_str += "{}, ".format(mark.name)
+
+            return mark_str
+        else:
+            return grp_mark_list
+
+
     def start_date(self):
         first_evnt = self.animal_details.order_by("-evnt_id__start_date").first()
         if first_evnt:
             return first_evnt.evnt_id.start_date
         else:
             return None
+
+    def avg_weight(self):
+
+        # INCORPORATE SAMPLE DETS!
+        weight_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Weight").order_by(-"detail_date")
+        last_obs_date = weight_deps.first().detail_date
+        last_obs_set = weight_deps.filter(detail_date__gte=last_obs_date)
+        avg_weight = last_obs_set.aggregate(Avg('det_val'))["det_val"]
+        return avg_weight
+
+    def avg_len(self):
+        weight_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Length").order_by(-"detail_date")
+        last_obs_date = weight_deps.first().detail_date
+        last_obs_set = weight_deps.filter(detail_date__gte=last_obs_date)
+        avg_len = last_obs_set.aggregate(Avg('det_val'))["det_val"]
+        return avg_len
 
 
 class GroupDet(BioDet):
@@ -1124,9 +1166,6 @@ class HeathUnit(BioCont):
     # heat tag
     key = "heat"
 
-    manufacturer = models.CharField(max_length=35, verbose_name=_("Maufacturer"), db_column="MANUFACTURER")
-    inservice_date = models.DateField(verbose_name=_("Date unit was put into service"), db_column="INSERVICE_DATE")
-    serial_number = models.CharField(max_length=50, verbose_name=_("Serial Number"), db_column="SERIAL_NUMBER")
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
     class Meta:
@@ -1313,7 +1352,7 @@ class Individual(BioModel):
         if get_string:
             cont_str = ""
             for cont in current_cont_list:
-                cont_str += "{} ".format(cont.name)
+                cont_str += "{} ".format(cont.__str__())
             return cont_str
         return current_cont_list
 
@@ -1565,14 +1604,9 @@ class Location(BioModel):
             self.trib_id = self.relc_id.trib_id
         if self.relc_id and not self.subr_id:
             self.sube_id = self.relc_id.subr_id
-        self.set_relc_latlng()
-        if not self.relc_id and not (self.loc_lon and self.loc_lat):
-            raise ValidationError("Location must have either lat-long specified or site chosen")
+        # if not self.relc_id and not (self.loc_lon and self.loc_lat):
+        #    raise ValidationError("Location must have either lat-long specified or site chosen")
         super(Location, self).clean(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        self.set_relc_latlng()
-        super(Location, self).save(*args, **kwargs)
 
 
 class LocCode(BioLookup):
@@ -1802,15 +1836,11 @@ class ReleaseSiteCode(BioLookup):
     max_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column="MAX_LONGITUDE",
                                   verbose_name=_("Max Longitude"))
 
-    class Meta:
-        ordering = ['name']
-
     def clean(self):
         super(ReleaseSiteCode, self).clean()
         if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
             if float(self.min_lon) > float(self.max_lon) or float(self.min_lat) > float(self.max_lat):
                 raise ValidationError("Max lat/lon must be greater than min lat/lon")
-
 
     @property
     def bbox(self):
@@ -1886,7 +1916,6 @@ class Sample(BioModel):
             return latest_indvd.det_val
         else:
             return None
-
 
 
 class SampleCode(BioLookup):

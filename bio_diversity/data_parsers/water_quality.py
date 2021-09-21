@@ -50,20 +50,20 @@ class WaterQualityParser(DataParser):
 
         if utils.nan_to_none(row.get(self.temp_key)):
             self.row_entered += utils.enter_env(row[self.temp_key], row_date, cleaned_data, self.temp_envc_id,
-                                                contx=contx, env_start=row_time)
+                                                contx=contx, env_time=row_time)
         if utils.nan_to_none(row.get(self.dox_key)):
             self.row_entered += utils.enter_env(row[self.dox_key], row_date, cleaned_data, self.oxlvl_envc_id,
-                                                contx=contx, env_start=row_time)
+                                                contx=contx, env_time=row_time)
         if utils.nan_to_none(row.get(self.ph_key)):
             self.row_entered += utils.enter_env(row[self.ph_key], row_date, cleaned_data, self.ph_envc_id, contx=contx,
-                                                env_start=row_time)
+                                                env_time=row_time)
         if utils.nan_to_none(row.get(self.dn_key)):
             self.row_entered += utils.enter_env(row[self.dn_key], row_date, cleaned_data, self.disn_envc_id,
-                                                contx=contx, env_start=row_time)
+                                                contx=contx, env_time=row_time)
         if utils.nan_to_none(row.get(self.source_key)):
             source_envsc_id = models.EnvSubjCode.objects.filter(name__icontains=row[self.source_key]).get()
             self.row_entered += utils.enter_env(row[self.source_key], row_date, cleaned_data, self.ws_envc_id,
-                                                envsc_id=source_envsc_id, contx=contx, env_start=row_time)
+                                                envsc_id=source_envsc_id, contx=contx, env_time=row_time)
 
         if utils.nan_to_none(row.get(self.crew_key)):
             perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])

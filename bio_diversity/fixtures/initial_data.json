@@ -60,7 +60,7 @@
         "min_val": null,
         "max_val": null,
         "unit_id": null,
-        "ani_subj_flag": false
+        "ani_subj_flag": true
     }
 },
 {
@@ -76,7 +76,7 @@
         "min_val": null,
         "max_val": null,
         "unit_id": null,
-        "ani_subj_flag": false
+        "ani_subj_flag": true
     }
 },
 {
@@ -220,7 +220,7 @@
         "min_val": null,
         "max_val": null,
         "unit_id": null,
-        "ani_subj_flag": false
+        "ani_subj_flag": true
     }
 },
 {
@@ -233,10 +233,10 @@
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-04-06",
-        "min_val": "0.00000",
-        "max_val": "100000.00000",
-        "unit_id": 11,
-        "ani_subj_flag": false
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "ani_subj_flag": true
     }
 },
 {
@@ -316,7 +316,7 @@
         "min_val": null,
         "max_val": null,
         "unit_id": null,
-        "ani_subj_flag": false
+        "ani_subj_flag": true
     }
 },
 {
@@ -333,6 +333,54 @@
         "max_val": "100000.00000",
         "unit_id": 11,
         "ani_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.animaldetcode",
+    "pk": 24,
+    "fields": {
+        "name": "Vaccination",
+        "nom": null,
+        "description_en": "Fish vaccinated.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-06",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "ani_subj_flag": true
+    }
+},
+{
+    "model": "bio_diversity.animaldetcode",
+    "pk": 25,
+    "fields": {
+        "name": "Mark",
+        "nom": null,
+        "description_en": "Mark applied to a fish.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-06",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "ani_subj_flag": true
+    }
+},
+{
+    "model": "bio_diversity.animaldetcode",
+    "pk": 26,
+    "fields": {
+        "name": "Comment",
+        "nom": null,
+        "description_en": "Comments relevant to fish.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-06",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "ani_subj_flag": true
     }
 },
 {
@@ -1680,7 +1728,7 @@
     "model": "bio_diversity.eventcode",
     "pk": 13,
     "fields": {
-        "name": "Heath Unit Transfer",
+        "name": "Allocation",
         "nom": null,
         "description_en": "Event in egg development in which eggs are transfered to heath units.",
         "description_fr": "",
@@ -1881,9 +1929,6 @@
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-03-17",
         "name": "1",
-        "manufacturer": "Heath Unit Inc.",
-        "inservice_date": "2021-03-17",
-        "serial_number": "123456",
         "facic_id": 1
     }
 },
@@ -1897,9 +1942,6 @@
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-03-26",
         "name": "3",
-        "manufacturer": "Heath Unit Inc.",
-        "inservice_date": "2021-01-01",
-        "serial_number": "Abc",
         "facic_id": 1
     }
 },
@@ -1913,9 +1955,6 @@
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-03-26",
         "name": "2",
-        "manufacturer": "Heath Unit Inc.",
-        "inservice_date": "2021-01-01",
-        "serial_number": "Def",
         "facic_id": 1
     }
 },
@@ -1929,9 +1968,6 @@
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-03-30",
         "name": "10",
-        "manufacturer": "Heath Unit Inc.",
-        "inservice_date": "2020-03-01",
-        "serial_number": "ghi",
         "facic_id": 1
     }
 },
@@ -1945,9 +1981,6 @@
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-06-07",
         "name": "7",
-        "manufacturer": "HU Inc.",
-        "inservice_date": "2021-06-01",
-        "serial_number": "789",
         "facic_id": 1
     }
 },
@@ -1961,9 +1994,6 @@
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-06-07",
         "name": "5",
-        "manufacturer": "HU Inc.",
-        "inservice_date": "2021-06-01",
-        "serial_number": "456",
         "facic_id": 1
     }
 },

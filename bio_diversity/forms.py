@@ -9,6 +9,7 @@ from django.forms import modelformset_factory
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from bio_diversity.data_parsers.containers import TroughParser, HeathUnitParser, TankParser
 from bio_diversity.data_parsers.distributions import DistributionIndvParser, DistributionParser
 from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser, \
     ElectrofishingParser, AdultCollectionParser
@@ -17,12 +18,12 @@ from bio_diversity.static.calculation_constants import sfa_nums
 
 from bio_diversity import models
 from bio_diversity import utils
-from bio_diversity.data_parsers.generic import GenericIndvParser, GenericGrpParser
+from bio_diversity.data_parsers.generic import GenericIndvParser, GenericGrpParser, GenericUntaggedParser
 from bio_diversity.data_parsers.master import MasterIndvParser, MasterGrpParser
-from bio_diversity.data_parsers.picks import EDInitParser, EDPickParser, EDHUParser, EDShockingParser
+from bio_diversity.data_parsers.picks import EDInitParser, EDPickParser, EDHUParser
 from bio_diversity.data_parsers.spawning import MactaquacSpawningParser, ColdbrookSpawningParser
 from bio_diversity.data_parsers.tagging import ColdbrookTaggingParser, MactaquacTaggingParser
-from bio_diversity.data_parsers.temperatures import TemperatureParser
+from bio_diversity.data_parsers.temperatures import TemperatureParser, DataLoggerTemperatureParser
 from bio_diversity.data_parsers.treatment import MactaquacTreatmentParser, ColdbrookTreatmentParser
 from bio_diversity.data_parsers.water_quality import WaterQualityParser
 
@@ -290,9 +291,15 @@ class DataForm(CreatePrams):
     data_types = (None, '---------')
     data_type = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
-    pickc_id = forms.ModelMultipleChoiceField(queryset=models.CountCode.objects.all(), label="Pick Type")
+    facic_id = forms.ModelChoiceField(queryset=models.FacilityCode.objects.all(), label="Facility")
+    pickc_id = forms.ModelMultipleChoiceField(queryset=models.CountCode.objects.all(), required=False,
+                                              label="Pick Type")
     adsc_id = forms.ModelMultipleChoiceField(queryset=models.AniDetSubjCode.objects.all(),
-                                             label="Additional Detail Columns")
+                                             label="Additional Yes/No detail columns")
+    anidc_subj_id = forms.ModelMultipleChoiceField(queryset=models.AnimalDetCode.objects.filter(ani_subj_flag=True),
+                                                   label="Additional code based detail columns")
+    anidc_id = forms.ModelMultipleChoiceField(queryset=models.AnimalDetCode.objects.filter(ani_subj_flag=False),
+                                              label="Additional numerical detail columns")
 
     def __init__(self, request=None, *args, **kwargs):
         self.request = request
@@ -305,7 +312,7 @@ class DataForm(CreatePrams):
     def clean(self):
         cleaned_data = super().clean()
 
-        if cleaned_data["data_type"] == '0':
+        if cleaned_data["data_type"] == '4':
             if cleaned_data["trof_id"] is None:
                 self.add_error("trof_id", "Field Cannot Be Empty")
 
@@ -317,8 +324,20 @@ class DataForm(CreatePrams):
         parser = None
         try:
             if not cleaned_data.get("evntc_id"):
-                parser = SitesParser(cleaned_data)
-                log_data, success = parser.log_data, parser.success
+                if cleaned_data["data_type"].__str__() == "sites":
+                    parser = SitesParser(cleaned_data)
+                    log_data, success = parser.log_data, parser.success
+
+                elif cleaned_data["data_type"].__str__() == "conts":
+                    parser = TankParser(cleaned_data)
+                    log_data += parser.log_data
+                    success += parser.success
+                    parser = TroughParser(cleaned_data)
+                    log_data += parser.log_data
+                    success += parser.success
+                    parser = HeathUnitParser(cleaned_data)
+                    log_data += parser.log_data
+                    success += parser.success
 
             # ----------------------------ELECTROFISHING-----------------------------------
             elif cleaned_data["evntc_id"].__str__() in ["Electrofishing", "Bypass Collection", "Smolt Wheel Collection"]:
@@ -376,21 +395,21 @@ class DataForm(CreatePrams):
                 if cleaned_data["data_type"] == "0":
                     parser = TemperatureParser(cleaned_data)
                 elif cleaned_data["data_type"] == "1":
-                    if not cleaned_data["pickc_id"]:
-                        self.add_error('pickc_id', gettext("Must choose a picking code"))
                     parser = EDPickParser(cleaned_data)
                 elif cleaned_data["data_type"] == "2":
                     parser = EDInitParser(cleaned_data)
                 elif cleaned_data["data_type"] == "3":
                     parser = EDHUParser(cleaned_data)
                 elif cleaned_data["data_type"] == "4":
-                    parser = EDShockingParser(cleaned_data)
+                    parser = DataLoggerTemperatureParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
             # ------------------------------MEASURING----------------------------------------
             elif cleaned_data["evntc_id"].__str__() in ["Measuring", "Mortality", "Scanning", "Movement", "Maturity Sorting" ]:
                 if cleaned_data["data_type"].__str__() == "Individual":
                     parser = GenericIndvParser(cleaned_data)
+                elif cleaned_data["data_type"].__str__() == "Untagged":
+                    parser = GenericUntaggedParser(cleaned_data)
                 elif cleaned_data["data_type"].__str__() == "Group":
                     parser = GenericGrpParser(cleaned_data)
                 log_data = parser.log_data
@@ -896,7 +915,7 @@ class MortForm(forms.Form):
             cleaned_data["evnt_id"] = mortality_evnt
             cleaned_data["facic_id"] = mortality_evnt.facic_id
 
-            utils.enter_bulk_indvd(anix, cleaned_data, cleaned_data["mort_date"],
+            utils.enter_bulk_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"],
                                    len=cleaned_data["indv_length"],
                                    weight=cleaned_data["indv_mass"],
                                    vial=cleaned_data["indv_vial"],

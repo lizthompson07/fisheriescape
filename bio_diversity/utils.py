@@ -5,6 +5,7 @@ import decimal
 import math
 
 import numpy as np
+from django.db.models import Q
 from pandas import read_excel
 import pytz
 from django.core.exceptions import ValidationError, MultipleObjectsReturned, ObjectDoesNotExist
@@ -43,6 +44,8 @@ class DataParser:
     year_key = "Year"
     month_key = "Month"
     day_key = "Day"
+
+    catch_error = Exception
 
     mandatory_keys = []
     mandatory_filled_keys = []
@@ -102,7 +105,7 @@ class DataParser:
         if self.success:
             try:
                 self.data_preper()
-            except Exception as err:
+            except self.catch_error as err:
                 err_msg = common_err_parser(err)
                 self.log_data += "\n Error preparing data: {}".format(err_msg)
                 self.success = False
@@ -117,7 +120,7 @@ class DataParser:
                     self.row_entered = False
                     try:
                         self.row_parser(row)
-                    except Exception as err:
+                    except self.catch_error as err:
                         err_msg = common_err_parser(err)
                         self.log_data += "\nError:  {} \nError occured when parsing row: \n".format(err_msg)
                         self.log_data += str(row)
@@ -134,7 +137,7 @@ class DataParser:
         if self.success:
             try:
                 self.data_cleaner()
-            except Exception as err:
+            except self.catch_error as err:
                 err_msg = common_err_parser(err)
 
                 self.log_data += "Error parsing common data: \n"
@@ -210,8 +213,8 @@ def year_coll_splitter(full_str):
         coll = full_str.lstrip(' 0123456789')
         year = int(full_str[:len(full_str) - len(coll)])
     except Exception:
-        raise Exception("Collection column must be formated: YYYY AA, where AA is the collection name/acronym.  Collction entered:"
-                        " {}".format(full_str))
+        raise Exception("Collection column must be formated: YYYY AA, where AA is the collection name/acronym.  "
+                        "Collction entered: {}".format(full_str))
 
     return year, coll.strip()
 
@@ -274,6 +277,141 @@ def parse_concentration(concentration_str):
         return Decimal(1.0/float(concentration_str))
     else:
         return None
+
+
+def parse_extra_cols(row, cleaned_data, anix, indv=False, grp=False, samp=False):
+    row_date = get_row_date(row)
+    row_entered = False
+    if indv:
+        for adsc_id in cleaned_data["adsc_id"]:
+            if y_n_to_bool(row.get(adsc_id.name)):
+                row_entered += enter_indvd(anix.pk, cleaned_data, row_date, adsc_id.name,
+                                           adsc_id.anidc_id.pk, adsc_str=adsc_id.name)
+
+        for anidc_id in cleaned_data["anidc_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_indvd(anix.pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                           anidc_id.pk)
+
+        for anidc_id in cleaned_data["anidc_subj_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_indvd(anix.pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                           anidc_id.pk, adsc_str=row.get(anidc_id.name))
+    if grp:
+        for adsc_id in cleaned_data["adsc_id"]:
+            if y_n_to_bool(row.get(adsc_id.name)):
+                row_entered += enter_grpd(anix.pk, cleaned_data, row_date, adsc_id.name,
+                                          adsc_id.anidc_id.pk, adsc_str=adsc_id.name)
+
+        for anidc_id in cleaned_data["anidc_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_grpd(anix.pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                          anidc_id.pk)
+
+        for anidc_id in cleaned_data["anidc_subj_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_grpd(anix.pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                          anidc_id.pk, adsc_str=row.get(anidc_id.name))
+    if samp:
+        samp_pk = anix.pk
+        for adsc_id in cleaned_data["adsc_id"]:
+            if y_n_to_bool(row.get(adsc_id.name)):
+                row_entered += enter_sampd(samp_pk, cleaned_data, row_date, adsc_id.name,
+                                           adsc_id.anidc_id.pk, adsc_str=adsc_id.name)
+
+        for anidc_id in cleaned_data["anidc_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_sampd(samp_pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                           anidc_id.pk)
+
+        for anidc_id in cleaned_data["anidc_subj_id"]:
+            if nan_to_none(row.get(anidc_id.name)):
+                row_entered += enter_sampd(samp_pk, cleaned_data, row_date, row.get(anidc_id.name),
+                                           anidc_id.pk, adsc_str=row.get(anidc_id.name))
+
+    return row_entered
+
+
+def parse_cont_strs(cont_str, facic_id, at_date, exclude_str=""):
+    cont_str = cont_str.replace(" ", "")
+    exclude_str = exclude_str.replace(" ", "")
+    exclude_list = exclude_str.split("")
+    cont_ids = []
+    if "," in cont_str:
+        cont_list = cont_str.split(",")
+    else:
+        cont_list = [cont_str]
+
+    for cont in cont_list:
+        if "-" in cont:
+            cont_lims = cont.split("-")
+            if "." in cont_lims[0]:
+                low_conts = cont_lims[0].split(".")
+                high_conts = cont_lims[1].split(".")
+                low_conts = [int(cont) for cont in low_conts]
+                high_conts = [int(cont) for cont in high_conts]
+                if len(low_conts) == 3:
+                    hu = low_conts[0]
+                    drawer = low_conts[1]
+                    while hu <= high_conts[0]:
+                        draw_qs = models.Drawer.objects.filter(heat_id__facic_id=facic_id, heat_id__name__iexact=hu)
+                        cup_qs = models.Cup.objects.filter(draw_id__heat_id__facic_id=facic_id, draw_id__heat_id__name__iexact=hu, start_date__lte=at_date)
+                        cup_qs = cup_qs.filter(Q(end_date__gte=at_date) | Q(end_date__isnull=True)).select_related('draw_id')
+                        # loop through all drawers in hu:
+                        for draw_id in draw_qs:
+                            if draw_id.dot_str not in exclude_list:
+                                # first cup in drawer:
+                                if int(draw_id.name) == low_conts[1] and int(hu) == low_conts[0]:
+                                    cup = low_conts[2]
+                                else:
+                                    cup = 0
+
+                                if int(draw_id.name) >= drawer and (int(draw_id.name) <= high_conts[1] or hu < high_conts[0]):
+                                    for cup_id in cup_qs:
+                                        if (cup_id.draw_id == draw_id) and int(cup_id.name) >= cup \
+                                                and (int(cup_id.name) <= high_conts[2] or
+                                                     (hu < high_conts[0] or int(draw_id.name) < high_conts[1])):
+                                            if cup_id.dot_str not in exclude_list:
+                                                cont_ids.append(cup_id)
+                        hu += 1
+                        drawer = 0
+
+                else:
+                    hu = low_conts[0]
+                    drawer = low_conts[1]
+                    while hu <= high_conts[0]:
+                        draw_qs = models.Drawer.objects.filter(heat_id__facic_id=facic_id, heat_id__name__iexact=hu)
+                        for draw_id in draw_qs:
+                            if int(draw_id.name) >= drawer and (int(draw_id.name) <= high_conts[1] or hu < high_conts[0]):
+                                if draw_id.dot_str not in exclude_list:
+                                    cont_ids.append(draw_id)
+                        hu += 1
+                        drawer = 0
+            else:
+                cont_range = range(int(cont_lims[0]), int(cont_lims[1]) + 1)
+                for tank_name in cont_range:
+                    tank_id = models.Tank.objects.filter(name__iexact=tank_name).get()
+                    cont_ids.append(tank_id)
+        else:
+            if "." in cont:
+                cont_list = cont.split(".")
+                if len(cont_list) == 3:
+                    hu, draw, cup = cont_list
+                    cup_qs = models.Cup.objects.filter(draw_id__heat_id__facic_id=facic_id, name=cup,
+                                                       draw_id__heat_id__name__iexact=hu, start_date__lte=at_date)
+                    cup_qs = cup_qs.filter(Q(end_date__gte=at_date) | Q(end_date__isnull=True)).select_related(
+                        'draw_id')
+                    cont_ids.append(cup_qs.get())
+                else:
+                    trof, tray = cont_list
+                    tray_qs = models.Tray.objects.filter(trof_id__facic_id=facic_id, trof_id__name__iexact=trof,
+                                                         start_date__lte=at_date, name=tray)
+                    tray_qs = tray_qs.filter(Q(end_date__gte=at_date) | Q(end_date__isnull=True))
+                    cont_ids.append(tray_qs.get())
+            else:
+                tank_id = models.Tank.objects.filter(name__iexact=cont).get()
+                cont_ids.append(tank_id)
+    return cont_ids
 
 
 def load_sfas():
@@ -344,7 +482,7 @@ def get_cont_from_dot(dot_string, cleaned_data, start_date, get_trof=False):
                 return None
 
 
-def get_cup_from_dot(dot_string, cleaned_data, start_date):
+def get_cup_from_dot(dot_string, cleaned_data, start_date, create_on_not_found=True):
     cont_list = dot_string.split(".")
     if len(cont_list) == 3:
         heat, draw, cup = cont_list
@@ -353,7 +491,7 @@ def get_cup_from_dot(dot_string, cleaned_data, start_date):
     cup_qs = models.Cup.objects.filter(name=cup, draw_id__name=draw, draw_id__heat_id__name=heat, draw_id__heat_id__facic_id=cleaned_data["facic_id"], end_date__isnull=True)
     if cup_qs.exists():
         return cup_qs.get()
-    else:
+    elif create_on_not_found:
         cup_obj = models.Cup(name=cup,
                              start_date=start_date,
                              draw_id=models.Drawer.objects.filter(name=draw, heat_id__name=heat, heat_id__facic_id=cleaned_data["facic_id"]).get(),
@@ -367,6 +505,8 @@ def get_cup_from_dot(dot_string, cleaned_data, start_date):
         except (ValidationError, IntegrityError):
             return None
         return cup_obj
+    else:
+        return None
 
 
 def get_draw_from_dot(dot_string, cleaned_data):
@@ -382,17 +522,21 @@ def get_draw_from_dot(dot_string, cleaned_data):
         return
 
 
-def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().replace(tzinfo=pytz.UTC), prog_grp=None, prog_str=None, fail_on_not_found=False):
+def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().replace(tzinfo=pytz.UTC), prog_grp=None,
+            prog_str=None, grp_mark=None, mark_str=None, fail_on_not_found=False):
 
     if nan_to_none(prog_str):
         prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=prog_str).get()
+
+    if nan_to_none(mark_str):
+        grp_mark = models.AniDetSubjCode.objects.filter(name__iexact=mark_str).get()
 
     coll_id = None
     if nan_to_none(coll_str):
         coll_id = coll_getter(coll_str)
 
     if nan_to_none(cont):
-        indv_list, grp_list =cont.fish_in_cont(at_date, select_fields=["grp_id__coll_id", "grp_id__stok_id"])
+        indv_list, grp_list = cont.fish_in_cont(at_date, select_fields=["grp_id__coll_id", "grp_id__stok_id"])
         if nan_to_none(stock_str):
             grp_list = [grp for grp in grp_list if grp.stok_id.name == stock_str]
         if nan_to_none(coll_id):
@@ -410,21 +554,44 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
             grp_qs = grp_qs.filter(grp_year=grp_year)
         grp_list = [grp for grp in grp_qs]
 
-    final_grp_list = grp_list.copy()
     if prog_grp:
-        final_grp_list = []
+        prog_grp_list = []
         for grp in grp_list:
             if prog_grp in grp.prog_group():
-                final_grp_list.append(grp)
+                prog_grp_list.append(grp)
+        grp_list = prog_grp_list.copy()
+
+    if grp_mark:
+        mark_grp_list = []
+        for grp in grp_list:
+            if grp_mark in grp.group_mark():
+                mark_grp_list.append(grp)
+        grp_list = mark_grp_list.copy()
+
+    final_grp_list = grp_list.copy()
 
     if len(final_grp_list) == 0 and fail_on_not_found:
         if cont:
-            raise Exception("\nGroup {}-{}-{} in container {} and program group {} not uniquely found in"
-                            " db\n Groups in container are: {}".format(stock_str, grp_year, coll_str, cont.name, prog_str, cont.fish_in_cont()[1]))
+            raise Exception("\nGroup {}-{}-{} in container {}, program group {} and mark {} not uniquely found in"
+                            " db\n Groups in container are: {}".format(stock_str, grp_year, coll_str, cont.name, prog_str, mark_str, cont.fish_in_cont()[1]))
         else:
-            raise Exception("\nGroup {}-{}-{} with program group {} not uniquely found in"
-                            " db\n".format(stock_str, grp_year, coll_str, prog_str))
+            raise Exception("\nGroup {}-{}-{} with program group {} and mark {} not uniquely found in"
+                            " db\n".format(stock_str, grp_year, coll_str, prog_str, mark_str))
     return final_grp_list
+
+
+def get_tray_group(pair_id, tray_id, row_date):
+    if pair_id:
+        anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
+                                                      grp_id__isnull=False).select_related('grp_id').get()
+        grp_id = anix_id.grp_id
+    else:
+        grp_list = tray_id.fish_in_cont(row_date, get_grp=True)
+        if grp_list:
+            grp_id = grp_list[0]
+        else:
+            raise Exception("No group found in tray {}".format(tray_id.__str__()))
+    return grp_id
 
 
 def set_row_tank(df, cleaned_data, tank_key, col_name="tank_id"):
@@ -444,7 +611,7 @@ def set_row_datetime(df, datetime_key="datetime"):
     return df
 
 
-def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, grp_col_name="grp_id", return_dict=False):
+def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, mark_key, grp_col_name="grp_id", return_dict=False):
     # function will return a df with a "grp_id" column containing the group associated with the values
     # datetime key must be a datetime object, cont_key must be a cont object
     grp_key = "grp_key"
@@ -457,15 +624,16 @@ def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, grp
 
     # set a string on each row to search a dictionary of all groups in df:
     df[grp_key] = df[stok_key].astype(str) + df[yr_coll_key].astype(str) + df[cont_key].astype(str)\
-                  + df[prio_key].astype(str) + df[datetime_key].astype(str)
+                  + df[prio_key].astype(str) + df[datetime_key].astype(str) + df[mark_key].astype(str)
 
     # identify all unique groups in the table, grp_data is also a df:
-    grp_data = df.groupby([stok_key, grp_year, grp_coll, cont_key, prio_key, datetime_key, grp_key],
+    grp_data = df.groupby([stok_key, grp_year, grp_coll, cont_key, prio_key, datetime_key, mark_key, grp_key],
                           dropna=False, sort=False).size().reset_index()
 
     # for each row in this smaller df, find the grp_id, and then make a dictionary out of these
     grp_data["grp_id"] = grp_data.apply(lambda row: get_grp(row[stok_key], row[grp_year], row[grp_coll], row[cont_key],
                                                             at_date=row[datetime_key], prog_str=nan_to_none(row[prio_key]),
+                                                            mark_str=nan_to_none(row[mark_key]),
                                                             fail_on_not_found=True)[0], axis=1)
 
     grp_dict = dict(zip(grp_data[grp_key], grp_data["grp_id"]))
@@ -511,14 +679,11 @@ def comment_parser(comment_str, anix_indv, det_date):
     data_entered = False
     com_key_dict = get_comment_keywords_dict()
     parser_list = com_key_dict.keys()
-    mortality = False
     parsed = False
     for term in parser_list:
         if term.lower() in comment_str.lower():
             parsed = True
             adsc = com_key_dict[term]
-            if adsc.name == "Mortality":
-                mortality = True
             indvd_parsed = models.IndividualDet(anix_id_id=anix_indv.pk,
                                                 anidc_id=adsc.anidc_id,
                                                 adsc_id=adsc,
@@ -534,12 +699,7 @@ def comment_parser(comment_str, anix_indv, det_date):
                 data_entered = True
             except (ValidationError, IntegrityError):
                 pass
-    if mortality:
-        parsed = True
-        if anix_indv.indv_id.indv_valid:
-            data_entered = True
-        anix_indv.indv_id.indv_valid = False
-        anix_indv.indv_id.save()
+
     return parsed, data_entered
 
 
@@ -557,6 +717,9 @@ def samp_comment_parser(comment_str, cleaned_data, samp_pk, det_date):
 
 
 def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_pk=None, grp_pk=None, return_end_contx=False):
+    # Creates and returns a movement event if the origin and destination containers are different
+    # Also links the containers to the event as well as any specified group or individual
+
     row_entered = False
     end_contx = False
     origin_conts = []
@@ -564,20 +727,25 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_
     new_cleaned_data = cleaned_data.copy()
     if (origin == destination or not nan_to_none(destination)) and nan_to_none(origin):
         # if both origin and destination are the same, or just if origin is entered, only enter contx.
-        row_entered = enter_contx(origin, cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk)
-        return row_entered
-    if "evnt_id" in cleaned_data.keys():
-        if cleaned_data["evnt_id"]:
-            # link containers to parent event
-            if not origin:
-                # move indvidual or group to destination and clean up previous contx's
-                if grp_pk:
-                    grp = models.Group.objects.filter(pk=grp_pk).get()
-                    origin_conts = grp.current_cont(movement_date)
-            else:
-                row_entered += enter_contx(origin, cleaned_data, None)
+        contx, row_entered = enter_contx(origin, cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, return_contx=True)
+        if return_end_contx:
+            return contx
+        else:
+            return row_entered
 
-            row_entered += enter_contx(destination, cleaned_data, None)
+    if cleaned_data.get("evnt_id"):
+        # move indvidual or group to destination and clean up previous contx's
+        # link containers to parent event
+        if indv_pk:
+            indv = models.Individual.objects.filter(pk=indv_pk).get()
+            origin_conts = indv.current_cont(movement_date)
+        elif not origin and grp_pk:
+            grp = models.Group.objects.filter(pk=grp_pk).get()
+            origin_conts = grp.current_cont(movement_date)
+        else:
+            row_entered += enter_contx(origin, cleaned_data, None)
+
+        row_entered += enter_contx(destination, cleaned_data, None)
 
     if destination:
         movement_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Movement").get(),
@@ -712,7 +880,7 @@ def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk, ret
         return row_entered
 
 
-def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_code, perc_id, shocking=False, return_anix=False):
+def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_code, perc_id, shocking=False, return_anix=False, pick_comments=None):
     row_entered = False
     new_cleaned_data = cleaned_data.copy()
     if shocking:
@@ -745,6 +913,9 @@ def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_c
     anix = None
     if grp_pk:
         anix = enter_anix(new_cleaned_data, grp_pk=grp_pk, return_anix=True)
+        row_entered += enter_bulk_grpd(anix.pk, cleaned_data, pick_datetime,
+                                                  comments=pick_comments)
+
     contx, data_entered = enter_contx(tray, new_cleaned_data, None, grp_pk=grp_pk, return_contx=True)
     if contx:
         row_entered = True
@@ -813,15 +984,19 @@ def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=N
             anix.save()
             row_entered = True
         except ValidationError:
-            anix = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id,
-                                                       indv_id=anix.indv_id,
-                                                       contx_id=anix.contx_id,
-                                                       loc_id=anix.loc_id,
-                                                       pair_id=anix.pair_id,
-                                                       grp_id=anix.grp_id,
-                                                       team_id=anix.team_id,
-                                                       final_contx_flag=anix.final_contx_flag,
-                                                       ).get()
+            anix_qs = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id,
+                                                          indv_id=anix.indv_id,
+                                                          contx_id=anix.contx_id,
+                                                          loc_id=anix.loc_id,
+                                                          pair_id=anix.pair_id,
+                                                          grp_id=anix.grp_id,
+                                                          team_id=anix.team_id,
+                                                          final_contx_flag=anix.final_contx_flag,
+                                                          )
+            if anix_qs:
+                anix = anix_qs.get()
+            else:
+                raise Exception("Only move individuals/groups once per event.")
         if return_anix:
             return anix
         elif return_sucess:
@@ -926,14 +1101,11 @@ def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual
 
 
 def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=None, contx=None, inst_id=None,
-              env_start=None, avg=False, save=True, qual_id=False):
+              env_time=datetime.min.time(), avg=False, save=True, qual_id=False):
     row_entered = False
     if not nan_to_none(env_value):
         return False
-    if env_start:
-        env_datetime = naive_to_aware(env_date, env_start)
-    else:
-        env_datetime = naive_to_aware(env_date)
+    env_datetime = naive_to_aware(env_date, env_time)
 
     if not qual_id:
         qual_id = models.QualCode.objects.filter(name="Good").get()
@@ -1028,6 +1200,7 @@ def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=N
                                det_val=det_value,
                                detail_date=det_date,
                                qual_id=models.QualCode.objects.filter(name="Good").get(),
+                               comments=comments,
                                created_by=cleaned_data["created_by"],
                                created_date=cleaned_data["created_date"],
                                )
@@ -1066,6 +1239,7 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
                                      det_val=det_value,
                                      detail_date=det_date,
                                      qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                     comments=comments,
                                      created_by=cleaned_data["created_by"],
                                      created_date=cleaned_data["created_date"],
                                      )
@@ -1078,35 +1252,110 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
     return row_entered
 
 
-def enter_bulk_indvd(anix, cleaned_data, det_date, len=None, len_mm=None, weight=None, weight_kg=None, vial=None, scale_envelope=None, gender=None, tissue_yn=None):
+def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None, weight=None, weight_kg=None, vial=None,
+                     scale_envelope=None, gender=None, tissue_yn=None, status=None, mark=None, prog_grp=None,
+                     vaccinated=None, lifestage=None, comments=None):
     data_entered = 0
-    health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
-    if nan_to_none(len):
+    if nan_to_none(len_val):
         len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, len, len_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, len_val, len_anidc_id.pk, None)
     if nan_to_none(len_mm):
         len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, 0.1 * len_mm, len_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, 0.1 * len_mm, len_anidc_id.pk, None)
     if nan_to_none(weight):
         weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, weight, weight_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, weight, weight_anidc_id.pk, None)
     if nan_to_none(weight_kg):
         weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, weight_kg * 1000, weight_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, weight_kg * 1000, weight_anidc_id.pk, None)
     if nan_to_none(vial):
         vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, vial, vial_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, vial, vial_anidc_id.pk, None)
     if nan_to_none(scale_envelope):
         envelope_anidc_id = models.AnimalDetCode.objects.filter(name="Scale Envelope").get()
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, scale_envelope, envelope_anidc_id.pk, None)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, scale_envelope, envelope_anidc_id.pk, None)
     if nan_to_none(gender):
         sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
-        sex_dict = calculation_constants.sex_dict
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, sex_dict[gender.upper()],
-                                    sex_anidc_id.pk, adsc_str=sex_dict[gender.upper()])
+        func_sex_dict = calculation_constants.sex_dict
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, func_sex_dict[gender.upper()],
+                                    sex_anidc_id.pk, adsc_str=func_sex_dict[gender.upper()])
+    if nan_to_none(status):
+        status_anidc_pk = models.AnimalDetCode.objects.filter(name="Status").get().pk
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, status,
+                                    status_anidc_pk, adsc_str=status)
+    if nan_to_none(mark):
+        mark_anidc_pk = models.AnimalDetCode.objects.filter(name="Mark").get().pk
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, mark,
+                                    mark_anidc_pk, adsc_str=mark)
+    if nan_to_none(lifestage):
+        lifestage_anidc_pk = models.AnimalDetCode.objects.filter(name="Lifestage").get().pk
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, lifestage,
+                                    lifestage_anidc_pk, adsc_str=lifestage)
+    if nan_to_none(prog_grp):
+        prog_anidc_pk = models.AnimalDetCode.objects.filter(name="Program Group").get().pk
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, prog_grp,
+                                    prog_anidc_pk, adsc_str=prog_grp)
+    if nan_to_none(vaccinated):
+        vax_anidc_pk = models.AnimalDetCode.objects.filter(name="Vaccination").get().pk
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, vaccinated,
+                                    vax_anidc_pk, adsc_str=vaccinated)
     if nan_to_none(tissue_yn):
         if y_n_to_bool(tissue_yn):
-            data_entered += enter_indvd(anix.pk, cleaned_data, det_date, None, health_anidc_id, "Tissue Sample")
+            health_anidc_pk = models.AnimalDetCode.objects.filter(name="Animal Health").get().pk
+            data_entered += enter_indvd(anix_pk, cleaned_data, det_date, None, health_anidc_pk, "Tissue Sample")
+
+    if nan_to_none(comments):
+        comment_anidc_pk = models.AnimalDetCode.objects.filter(name="Comment").get().pk
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, None, comment_anidc_pk, comments=comments)
+
+    return data_entered
+
+
+def enter_bulk_grpd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None, weight=None, weight_kg=None,
+                    status=None, mark=None, prnt_grp=None, prog_grp=None, vaccinated=None, lifestage=None,
+                    comments=None):
+    data_entered = 0
+    if nan_to_none(len_val):
+        len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, len_val, len_anidc_id.pk, None)
+    if nan_to_none(len_mm):
+        len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, 0.1 * len_mm, len_anidc_id.pk, None)
+    if nan_to_none(weight):
+        weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, weight, weight_anidc_id.pk, None)
+    if nan_to_none(weight_kg):
+        weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, weight_kg * 1000, weight_anidc_id.pk, None)
+
+    if nan_to_none(status):
+        status_anidc_pk = models.AnimalDetCode.objects.filter(name="Status").get().pk
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, status,
+                                   status_anidc_pk, adsc_str=status)
+    if nan_to_none(mark):
+        mark_anidc_pk = models.AnimalDetCode.objects.filter(name="Mark").get().pk
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, mark,
+                                   mark_anidc_pk, adsc_str=mark)
+    if nan_to_none(lifestage):
+        lifestage_anidc_pk = models.AnimalDetCode.objects.filter(name="Lifestage").get().pk
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, lifestage,
+                                   lifestage_anidc_pk, adsc_str=lifestage)
+    if nan_to_none(prog_grp):
+        prog_anidc_pk = models.AnimalDetCode.objects.filter(name="Program Group").get().pk
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, prog_grp,
+                                   prog_anidc_pk, adsc_str=prog_grp)
+    if nan_to_none(prnt_grp):
+        prnt_grp_anidc_pk = models.AnimalDetCode.objects.filter(name="Parent Group").get().pk
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, prnt_grp.__str__(),
+                                   prnt_grp_anidc_pk, frm_grp_id=prnt_grp)
+    if nan_to_none(vaccinated):
+        vax_anidc_pk = models.AnimalDetCode.objects.filter(name="Vaccination").get().pk
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, vaccinated,
+                                   vax_anidc_pk, adsc_str=vaccinated)
+
+    if nan_to_none(comments):
+        comment_anidc_pk = models.AnimalDetCode.objects.filter(name="Comment").get().pk
+        data_entered += enter_grpd(anix_pk, cleaned_data, det_date, None, comment_anidc_pk, comments=comments)
 
     return data_entered
 
@@ -1158,6 +1407,7 @@ def enter_locd(loc_pk, cleaned_data, det_date, det_value, locdc_pk, ldsc_str=Non
                                   det_val=det_value,
                                   detail_date=det_date,
                                   qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                  comments=comments,
                                   created_by=cleaned_data["created_by"],
                                   created_date=cleaned_data["created_date"],
                                   )
@@ -1304,15 +1554,16 @@ def enter_samp(cleaned_data, samp_num, spec_pk, sampc_pk, anix_pk=None, loc_pk=N
 
 def enter_sampd(samp_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=None, adsc_str=None, comments=None):
     row_entered = False
-    if not nan_to_none(det_value):
-        return False
+    if isinstance(det_value, float):
+        if math.isnan(det_value):
+            return False
     if anidc_str:
         anidc_pk = models.AnimalDetCode.objects.filter(name=anidc_str).get().pk
     if adsc_str:
         sampd = models.SampleDet(samp_id_id=samp_pk,
                                  anidc_id_id=anidc_pk,
                                  adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
-                                 det_val=None,
+                                 det_val=adsc_str,
                                  detail_date=det_date,
                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
                                  comments=comments,
@@ -1325,6 +1576,7 @@ def enter_sampd(samp_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
                                  det_val=det_value,
                                  detail_date=det_date,
                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                 comments=comments,
                                  created_by=cleaned_data["created_by"],
                                  created_date=cleaned_data["created_date"],
                                  )
@@ -1649,6 +1901,8 @@ def ajax_get_fields(request):
 
 def naive_to_aware(naive_date, naive_time=datetime.min.time()):
     # adds null time and timezone to dates
+    if not nan_to_none(naive_time):
+        naive_time = datetime.min.time()
     return datetime.combine(naive_date, naive_time).replace(tzinfo=pytz.UTC)
 
 
@@ -1710,3 +1964,32 @@ def get_cont_from_tag(cont_tag, cont_id):
     elif cont_tag == "trof":
         cont = models.Trough.objects.filter(pk=cont_id).get()
     return cont
+
+
+def get_col_date(col_name):
+    try:
+        col_date = datetime.strptime(col_name, "%Y-%b-%d").replace(tzinfo=pytz.UTC)
+    except:
+        col_date = False
+    return col_date
+
+
+def parse_trof_str(trof_str, facic_id):
+    cont_str = trof_str.replace(" ", "")
+    cont_ids = []
+    if "," in cont_str:
+        cont_list = cont_str.split(",")
+    else:
+        cont_list = [cont_str]
+
+    for cont in cont_list:
+        if "-" in cont:
+            cont_lims = cont.split("-")
+            cont_range = range(int(cont_lims[0]), int(cont_lims[1]) + 1)
+            for trof_name in cont_range:
+                trof_id = models.Trough.objects.filter(name__iexact=trof_name, facic_id=facic_id).get()
+                cont_ids.append(trof_id)
+        else:
+            trof_id = models.Trough.objects.filter(name__iexact=cont, facic_id=facic_id).get()
+            cont_ids.append(trof_id)
+    return cont_ids
