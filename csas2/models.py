@@ -105,7 +105,7 @@ class CSASRequest(MetadataFields):
 
     rationale = models.TextField(verbose_name=_("Rationale or context for the request"), blank=True, null=True,
                                  help_text=_("What will the information/advice be used for? Who will be the end user(s)? Will it impact other DFO "
-                                             "programs or regions?"))
+                                             "programs or regions? The text provided here will serve as the context for the terms of reference."))
     risk_text = models.TextField(null=True, blank=True, verbose_name=_("What is the expected consequence if science advice is not provided?"))
     advice_needed_by = models.DateTimeField(verbose_name=_("Latest possible date to receive Science advice"))
     rationale_for_timeline = models.TextField(null=True, blank=True, verbose_name=_("Rationale for deadline?"),
