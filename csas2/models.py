@@ -98,7 +98,8 @@ class CSASRequest(MetadataFields):
     multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please list other sectors and/or regions and provide brief rationale"))
 
     issue = models.TextField(verbose_name=_("Issue requiring science information and/or advice"), blank=True, null=True,
-                             help_text=_("Should be phrased as a question to be answered by Science"))
+                             help_text=_(
+                                 "Should be phrased as a question to be answered by Science. The text provided here will serve as the objectives for the terms of reference."))
     assistance_text = models.TextField(null=True, blank=True, verbose_name=_(
         "From whom in Science have you had assistance in developing the question/request (CSAS and/or DFO science staff)"))
 
