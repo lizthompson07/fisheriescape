@@ -271,7 +271,8 @@ class Sector(SimpleLookupWithUUID):
 class Branch(SimpleLookupWithUUID):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
-    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("region"), related_name="branches", editable=False, blank=True, null=True)  # TODO: this needs to be removed eventually.
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("region"), related_name="branches", editable=False, blank=True,
+                               null=True)  # TODO: this needs to be removed eventually.
     sector = models.ForeignKey(Sector, on_delete=models.DO_NOTHING, verbose_name=_("sector"), related_name="branches", blank=False, null=True)
     head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                              verbose_name=_("regional director / NCR director general"),
@@ -946,6 +947,10 @@ class Organization(SimpleLookup):
         return my_str
 
 
+class SubjectMatter(SimpleLookupWithUUID):
+    pass
+
+
 class Person(MetadataFields):
     # Choices for role
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
@@ -959,6 +964,7 @@ class Person(MetadataFields):
     dmapps_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("linkage to DM Apps User"),
                                        related_name="contact")
     old_id = models.IntegerField(blank=True, null=True, editable=False)
+    expertise = models.ManyToManyField(SubjectMatter, blank=True, verbose_name=_("expertise"))
 
     def __str__(self):
         return self.full_name

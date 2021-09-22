@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy, gettext
 
 from lib.templatetags.custom_filters import nz
-from shared_models.models import Section, Person, FiscalYear
+from shared_models.models import Section, Person, FiscalYear, SubjectMatter
 from . import models
 
 attr_fp_date = {"class": "fp-date", "placeholder": gettext_lazy("Click to select a date..")}
@@ -31,10 +31,23 @@ class PersonForm(forms.ModelForm):
             "affiliation",
             "language",
             "dmapps_user",
+            "expertise",
         ]
         widgets = {
             'dmapps_user': forms.Select(attrs=chosen_js),
+            'expertise': forms.SelectMultiple(attrs=chosen_js),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if kwargs.get("instance") and kwargs.get("instance").dmapps_user:
+            del self.fields["first_name"]
+            del self.fields["last_name"]
+            del self.fields["phone"]
+            del self.fields["email"]
+            del self.fields["affiliation"]
+            del self.fields["language"]
+            del self.fields["dmapps_user"]
 
 
 class TripRequestTimestampUpdateForm(forms.ModelForm):
@@ -367,6 +380,19 @@ class DocumentTypeForm(forms.ModelForm):
 DocumentTypeFormset = modelformset_factory(
     model=models.DocumentType,
     form=DocumentTypeForm,
+    extra=1,
+)
+
+
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = SubjectMatter
+        fields = "__all__"
+
+
+TagFormset = modelformset_factory(
+    model=SubjectMatter,
+    form=TagForm,
     extra=1,
 )
 

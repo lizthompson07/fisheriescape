@@ -17,7 +17,7 @@ from django.utils.translation import gettext_lazy, gettext as _
 from easy_pdf.views import PDFTemplateView
 
 from lib.functions.custom_functions import fiscal_year, truncate
-from shared_models.models import Person, FiscalYear
+from shared_models.models import Person, FiscalYear, SubjectMatter
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
     CommonHardDeleteView
@@ -40,6 +40,23 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
 
 # settings
 ##########
+
+
+class TagHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView):
+    model = SubjectMatter
+    success_url = reverse_lazy("csas2:manage_tags")
+
+
+class TagFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
+    template_name = 'csas2/formset.html'
+    h1 = "Manage Tags"
+    queryset = SubjectMatter.objects.all()
+    formset_class = forms.TagFormset
+    success_url = reverse_lazy("csas2:manage_tags")
+    home_url_name = "csas2:index"
+    delete_url_name = "csas2:delete_tag"
+    container_class = "container bg-light curvy"
+
 
 class DocumentTypeFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
     template_name = 'csas2/formset.html'
@@ -169,6 +186,10 @@ class PersonUpdateView(CsasAdminRequiredMixin, CommonUpdateView):
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("csas2:person_list")}
 
+    def get_h3(self):
+        if self.get_object().dmapps_user:
+            return _("Some details of this contact cannot be modified since they are connected to a DM Apps account.")
+
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("csas2:person_detail", args=[self.get_object().id])}
 
@@ -252,7 +273,7 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
     def get_active_page_name_crumb(self):
-        return "{} {}".format(_("Request"), self.get_object().id)
+        return truncate(self.get_object().title, 50)
 
     def get_context_data(self, **kwargs):
         obj = self.get_object()
@@ -316,7 +337,7 @@ class CSASRequestUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
         return context
 
     def get_parent_crumb(self):
-        return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+        return {"title": truncate(self.get_object().title, 50), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -332,7 +353,7 @@ class CSASRequestDeleteView(CanModifyRequestRequiredMixin, CommonDeleteView):
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
     def get_parent_crumb(self):
-        return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+        return {"title": truncate(self.get_object().title, 50), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
 
 class CSASRequestSubmitView(CSASRequestUpdateView):
@@ -348,13 +369,8 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
         else:
             return _("Do you wish to submit the following request?")
 
-    # def get_h3(self):
-    #     my_object = self.get_object()
-    #     if not my_object.submission_date:
-    #         return _("Please ensure the following items have been completed:")
-
     def get_parent_crumb(self):
-        return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+        return {"title": truncate(self.get_object().title, 50), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)

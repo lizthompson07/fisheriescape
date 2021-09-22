@@ -13,7 +13,9 @@ urlpatterns = [
     # permissions
     path('settings/user-permissions/', views.UserListView.as_view(), name='user_list'),
     path('settings/user-permissions/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
-
+    # tags
+    path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
+    path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
 
     # people #
     ##########
