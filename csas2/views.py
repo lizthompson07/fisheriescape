@@ -348,10 +348,10 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
         else:
             return _("Do you wish to submit the following request?")
 
-    def get_h3(self):
-        my_object = self.get_object()
-        if not my_object.submission_date:
-            return _("Please ensure the following items have been completed:")
+    # def get_h3(self):
+    #     my_object = self.get_object()
+    #     if not my_object.submission_date:
+    #         return _("Please ensure the following items have been completed:")
 
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
