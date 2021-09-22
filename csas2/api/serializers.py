@@ -74,7 +74,7 @@ class CSASRequestSerializer(serializers.ModelSerializer):
         return instance.multiregional_display
 
     def get_status_display(self, instance):
-        return f'<span class=" px-1 py-1 {slugify(instance.get_status_display())}">{instance.get_status_display()}</span>'
+        return f'<span class=" px-1 py-1 {instance.status_class}">{instance.get_status_display()}</span>'
 
     def get_review(self, instance):
         if hasattr(instance, "review"):
