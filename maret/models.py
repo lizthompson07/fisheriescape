@@ -1,17 +1,11 @@
 from django.contrib.auth.models import User
-from django.db import models
-from django.db.models import Q
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
-from django.urls import reverse
+from django.db import models
 
-from masterlist import models as ml_models
+from django.utils.translation import gettext_lazy as _
 
 from shared_models import models as shared_models
-from shared_models.utils import get_metadata_string
 
-from lib.functions.custom_functions import listrify
-from lib.functions.custom_functions import nz
 
 NULL_YES_NO_CHOICES = (
     (None, _("---------")),
@@ -19,118 +13,113 @@ NULL_YES_NO_CHOICES = (
     (0, _("No")),
 )
 
+ROLE_DFO_CHOICES = (
+    (1, "Programs"),
+    (2, "Manager"),
+    (3, "Director"),
+    (4, "Regional Director"),
+    (5, "Associate Regional Director General"),
+    (6, "Regional Director General"),
+    (7, "Director General"),
+    (8, "Assistant Deputy Minister"),
+    (9, "Senior Assistant Deputy Minister"),
+    (10, "Deputy Minister"),
+    (11, "Minister"),
+)
 
-class EntryType(shared_models.SimpleLookup):
-    color = models.CharField(max_length=25, blank=True, null=True)
 
-
-class Status(shared_models.SimpleLookup):
-    color = models.CharField(max_length=25, blank=True, null=True)
-
-
-class FundingPurpose(shared_models.SimpleLookup):
+class DiscussionTopic(shared_models.SimpleLookup):
     pass
 
 
-class FundingProgram(shared_models.SimpleLookup):
-
-    abbrev_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation (English)"))
-    abbrev_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation (French)"))
-
-    @property
-    def full_eng(self):
-        return "{} ({})".format(self.name, self.abbrev_eng)
-
-    @property
-    def full_fre(self):
-        return "{} ({})".format(self.nom, self.abbrev_fre)
+class Species(shared_models.SimpleLookup):
+    pass
 
 
-class Entry(models.Model):
-    # basic
-    title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title"))
-    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
-    proponent = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("proponent"))
-    organizations = models.ManyToManyField(ml_models.Organization, related_name="entries", verbose_name=_("organizations"))
-    initial_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
-    response_requested_by = models.DateTimeField(verbose_name=_("response requested by"), blank=True, null=True)
-    anticipated_end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
-    is_faa_required = models.BooleanField(null=True, blank=True, verbose_name=_("is an FAA required?"))
-    status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
-                               related_name="entries")
-    sectors = models.ManyToManyField(ml_models.Sector, related_name="entries", verbose_name=_("DFO sectors"))
-    entry_type = models.ForeignKey(EntryType, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries",
-                                   verbose_name=_("Entry Type"))  # title case needed
-    regions = models.ManyToManyField(shared_models.Region, related_name="entries", verbose_name=_("regions"))
-    response_deadline = models.DateTimeField(verbose_name=_("response deadline"), blank=True, null=True)
+class Committee(models.Model):
+    meeting_frequency_choices = (
+        (0, "Monthly"),
+        (1, "Once a year"),
+        (2, "1-2 times per year"),
+        (3, "Twice a year"),
+        (4, "2-3 times per year"),
+        (5, "Three times a year"),
+        (6, "Four times a year"),
+        (7, "As needed"),
+        (8, "Every other year"),
+        (9, "Other"),
+    )
 
-    # funding
-    funding_program = models.ForeignKey(FundingProgram, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                        verbose_name=_("funding program"), related_name="entries")
-    fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))
-    funding_needed = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("is funding needed?"))
-    funding_purpose = models.ForeignKey(FundingPurpose, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                        verbose_name=_("funding purpose"), related_name="entries")
-    amount_requested = models.FloatField(blank=True, null=True, verbose_name=_("funding requested"))  # title case needed
-    amount_approved = models.FloatField(blank=True, null=True, verbose_name=_("funding approved"))
-    amount_transferred = models.FloatField(blank=True, null=True, verbose_name=_("amount transferred"))
-    amount_lapsed = models.FloatField(blank=True, null=True, verbose_name=_("amount lapsed"))
-    amount_owing = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES,
-                                       verbose_name=_("does any funding need to be recovered?"))
+    name = models.CharField(max_length=255, verbose_name=_("Name of committee/Working Group"))
+    branch = models.ForeignKey(shared_models.Branch, default=1, on_delete=models.DO_NOTHING,
+                               related_name="committee_branch", verbose_name=_("Lead DFO Branch"))
+    division = models.ForeignKey(shared_models.Division, default=1, on_delete=models.DO_NOTHING,
+                                 verbose_name=_("Division"))
 
-    # meta
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    date_created = models.DateTimeField(default=timezone.now, verbose_name=_("date created"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
-    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("created by"),
-                                   related_name="user_entries")
-    old_id = models.IntegerField(blank=True, null=True, editable=False, unique=True)  # used for importing new data.
+    # leaving this out for now because it may be a redundant filed included in the interactions model
+    # role_dfo = models.IntegerField(choices=ROLE_DFO_CHOICES)
+    is_dfo_chair = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES,
+                                       verbose_name=_("Does DFO chair/co-chair"))
 
-    @property
-    def has_funding_detail(self):
-        return self.funding_program or self.fiscal_year or self.funding_needed or \
-               self.funding_purpose or self.amount_requested or self.amount_approved or \
-               self.amount_transferred or self.amount_lapsed or self.amount_owing
+    # Todo: add External Chair linked to external contacts
 
-    class Meta:
-        ordering = ['-date_created', ]
+    dfo_liaison = models.ManyToManyField(User, related_name="committee_dfo_liaison",
+                                         verbose_name=_("DFO liaison/secretariat"))
+    other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="committee_dfo_branch",
+                                              verbose_name=_("Other participating DFO branches/regions/area offices")
+                                              )
+    first_nation_participation = models.BooleanField(default=False,
+                                                     verbose_name=_("First Nations/Indigenous group participation?"))
+    provincial_participation = models.BooleanField(default=False,
+                                                   verbose_name=_("Provincial government participation?"))
 
-    def __str__(self):
-        return "{}".format(self.title)
+    # Todo: add External organization and contacts
 
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        # self.fiscal_year = fiscal_year(date=self.initial_date)
-        super().save(*args, **kwargs)
+    meeting_frequency = models.IntegerField(choices=meeting_frequency_choices, verbose_name=_("Meeting frequency"),
+                                            default=1)
+    are_tor = models.BooleanField(default=False, verbose_name=_("Are there terms of reference?"))
+    location_of_tor = models.TextField(blank=True, null=True, verbose_name=_("Location of terms of reference"))
+    main_actions = models.TextField(default="-----", verbose_name=_("Main actions"))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("Comments"))
+    last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
+                                         verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("last modified by"))
 
-    def get_absolute_url(self):
-        return reverse('ihub:entry_detail', kwargs={'pk': self.pk})
 
-    @property
-    def amount_outstanding(self):
-        return nz(self.amount_approved, 0) - nz(self.amount_transferred, 0) - nz(self.amount_lapsed, 0)
+class Interaction(models.Model):
+    interaction_type_choices = (
+        (1, "Minister meeting"),
+        (2, "Deputy Minister meeting"),
+        (3, "Maritimes Region ad hoc meeting"),
+        (4, "Committee / Working Group meeting"),
+        (5, "Committee / Working Group correspondence"),
+        (6, "Ministerial correspondence"),
+        (7, "Deputy Minister correspondence"),
+        (8, "Maritimes Region correspondence "),
+    )
 
-    @property
-    def followups(self):
-        return self.notes.filter(type=4)
+    interaction_type = models.IntegerField(choices=interaction_type_choices, default=None)
+    committee = models.ForeignKey(Committee, on_delete=models.DO_NOTHING, default=1,
+                                  verbose_name="Committee / Working Group")
+    dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=None)
+    dfo_liaison = models.ManyToManyField(User, related_name="interaction_dfo_liaison",
+                                         verbose_name=_("DFO liaison/secretariat"))
+    other_dfo_participants = models.ManyToManyField(User, related_name="interaction_dfo_participants",
+                                                    verbose_name=_("Other DFO participants/contributors"))
 
-    @property
-    def other_notes(self):
-        return self.notes.filter(~Q(type__in=[4]))
+    # Todo: add External organization and contacts
 
-    @property
-    def orgs_str(self):
-        return listrify([org for org in self.organizations.all()])
+    date_of_meeting = models.DateTimeField(blank=True, null=True, default=timezone.now,
+                                           verbose_name=_("Date of Meeting"))
+    main_topic = models.ManyToManyField(DiscussionTopic, related_name="main_topics",
+                                        verbose_name=_("Main Topic(s) of discussion"))
+    species = models.ManyToManyField(Species, related_name="species",
+                                     verbose_name=_("Main species of discussion"))
+    action_items = models.TextField(default="-----", verbose_name=_("Main actions"))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("Comments"))
+    last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
+                                         verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("last modified by"))
 
-    @property
-    def sectors_str(self):
-        return listrify([sec for sec in self.sectors.all()])
-
-    @property
-    def metadata(self):
-        return get_metadata_string(
-            self.date_created,
-            self.created_by,
-            self.date_last_modified,
-            self.last_modified_by,
-        )

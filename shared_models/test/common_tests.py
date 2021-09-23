@@ -410,7 +410,8 @@ class CommonTest(TestCase):
         :param model: the model class to test
         :param fields: list of  field names to check
         """
-        model_field_list = [field.name for field in model._meta.fields]
+        model_field_list = [field.name for field in model._meta.fields] + \
+                           [field.name for field in model._meta.many_to_many]
         for field in fields:
             self.assertIn(field, model_field_list)
 

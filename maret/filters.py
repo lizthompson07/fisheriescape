@@ -12,33 +12,16 @@ ind_organizations = ml_models.Organization.objects.filter(grouping__is_indigenou
 chosen_js = {"class": "chosen-select-contains"}
 
 
-class EntryFilter(django_filters.FilterSet):
+class InteractionFilter(django_filters.FilterSet):
     class Meta:
-        model = models.Entry
-        fields = {
-            'title': ['icontains'],
-            'status': ['exact'],
-            'entry_type': ['exact'],
-            'organizations': ['exact'],
-            'sectors': ['exact'],
-            'regions': ['exact'],
-            # 'people__user': ['exact'],
-            'created_by': ['exact'],
-        }
+        model = models.Interaction
+        exclude = {}
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.filters['organizations'].queryset = ind_organizations
-        # self.filters['people__user'].queryset = User.objects.filter(maret_entry_people__isnull=False).order_by("first_name", "last_name").distinct()
-        self.filters['created_by'].queryset = User.objects.filter(user_entries__isnull=False).order_by("first_name", "last_name").distinct()
-        # self.filters['people__user'].label = _("Entry Contact")
-        self.filters['title__icontains'].label = _("title contains")
 
-        self.filters['organizations'].field.widget.attrs = chosen_js
-        self.filters['sectors'].field.widget.attrs = chosen_js
-        self.filters['regions'].field.widget.attrs = chosen_js
-        # self.filters['people__user'].field.widget.attrs = chosen_js
-        self.filters['created_by'].field.widget.attrs = chosen_js
+class CommitteeFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Committee
+        exclude = {}
 
 
 class OrganizationFilter(django_filters.FilterSet):

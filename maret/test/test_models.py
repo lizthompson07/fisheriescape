@@ -1,11 +1,57 @@
+from django.test import tag
+
+from maret import models
+from maret.test import FactoryFloor
+from maret.test.common_tests import CommonMaretTest as CommonTest
 
 
-# Entry tests
-# Function: Save - function should set the date_last_modified field to timezone.now()
-# Function: get_absolute_url - function should return the reverse() url for the selected entry
-# Property: amount_outstanding - compute amount of outstanding fund (approved - transferred - lapsed)
-# Property: followups - return note table elements of type 4 (whatever it is that type 4 is)
-# Property: other_notes - return note table elements NOT of type 4
-# Property: orgs_str - return a list of organizations.
-# Property: sectors_str - return a list of sectors
-# Property: metadata - short snippet about the Entry object
+@tag("interaction", "model", "interaction_model")
+class TestInteractionModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.InteractionFactory()
+
+    @tag("fields", "interaction_model_fields")
+    def test_fields(self):
+        fields_to_check = ["interaction_type", "committee", "dfo_role", "dfo_liaison", "other_dfo_participants",
+                           "date_of_meeting", "main_topic", "species", "action_items", "comments",
+                           "last_modified", "last_modified_by"]
+        self.assert_has_fields(models.Interaction, fields_to_check)
+
+
+@tag("committee", "model", "committee_model")
+class TestCommitteeModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.CommitteeFactory()
+
+    @tag("fields", "committee_model_fields")
+    def test_fields(self):
+        fields_to_check = ['name', 'branch', 'division', 'is_dfo_chair', 'dfo_liaison', 'other_dfo_branch',
+                           'first_nation_participation', 'provincial_participation', 'meeting_frequency', 'are_tor',
+                           'location_of_tor', 'main_actions', 'comments', 'last_modified', 'last_modified_by']
+        self.assert_has_fields(models.Committee, fields_to_check)
+
+
+@tag("species", "model", "species_model")
+class TestSpeciesModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.SpeciesFactory()
+
+    @tag("fields", "species_model_fields")
+    def test_fields(self):
+        fields_to_check = ["name", "nom"]
+        self.assert_has_fields(models.Species, fields_to_check)
+
+
+@tag("discussion_topic", "model", "discussion_topic_model")
+class TestDiscussionTopicModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.DiscussionTopicFactory()
+
+    @tag("fields", "discussion_topic_model_fields")
+    def test_fields(self):
+        fields_to_check = ["name", "nom"]
+        self.assert_has_fields(models.DiscussionTopic, fields_to_check)
