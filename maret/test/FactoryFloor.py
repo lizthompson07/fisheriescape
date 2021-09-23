@@ -24,13 +24,13 @@ class InteractionFactory(factory.django.DjangoModelFactory):
     @factory.post_generation
     def main_topic(self, create, extracted, **kwargs):
         if create:
-            dis = DiscussionTopicFactory()
+            dis = models.DiscussionTopic.objects.first()
             self.main_topic.set((dis,))
 
     @factory.post_generation
     def species(self, create, extracted, **kwargs):
         if create:
-            species = SpeciesFactory()
+            species = models.Species.objects.first()
             self.species.set((species,))
 
     @factory.post_generation
@@ -49,8 +49,8 @@ class InteractionFactory(factory.django.DjangoModelFactory):
     def get_valid_data():
         obj = InteractionFactory.build()
         committee = CommitteeFactory()
-        dis = DiscussionTopicFactory()
-        species = SpeciesFactory()
+        dis = models.DiscussionTopic.objects.first()
+        species = models.Species.objects.first()
         usr = UserFactory()
 
         return {
@@ -58,8 +58,8 @@ class InteractionFactory(factory.django.DjangoModelFactory):
             'committee': committee.pk,
             'dfo_role': obj.dfo_role,
             'action_items': obj.action_items,
-            'species': [species.pk, ],
-            'main_topic': [dis.pk, ],
+            'species': [species, ],
+            'main_topic': [dis, ],
             'dfo_liaison': [usr.pk, ],
             'other_dfo_participants': [usr.pk, ],
         }
@@ -115,30 +115,3 @@ class CommitteeFactory(factory.django.DjangoModelFactory):
 class SimpleLookupFactory:
     name = factory.lazy_attribute(lambda o: faker.name())
     nom = factory.lazy_attribute(lambda o: faker.name())
-
-
-class SpeciesFactory(SimpleLookupFactory, factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.Species
-
-    @staticmethod
-    def get_valid_data():
-        obj = SpeciesFactory.build()
-        return {
-            'name': obj.name,
-            'nom': obj.nom,
-        }
-
-
-class DiscussionTopicFactory(SimpleLookupFactory, factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.DiscussionTopic
-
-    @staticmethod
-    def get_valid_data():
-        obj = DiscussionTopicFactory.build()
-        return {
-            'name': obj.name,
-            'nom': obj.nom,
-        }
-

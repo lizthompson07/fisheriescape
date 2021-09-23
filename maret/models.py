@@ -86,6 +86,9 @@ class Committee(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          verbose_name=_("last modified by"))
 
+    def __str__(self):
+        return self.name
+
 
 class Interaction(models.Model):
     interaction_type_choices = (

@@ -15,17 +15,5 @@
 {% block filter %}{% endblock %}
 
 {% block table_td %}
-
-  {% if "entry_type" in field.name %}
-    <span class='px-2 py-1' style="background-color: {{ object.entry_type.color }}">{% get_field_value object field.name safe=True %}
-    </span>
-
-  {% elif "status" in field.name %}
-    <span class='px-2 py-1' style="background-color: {{ object.status.color }}">{% get_field_value object field.name safe=True %}
-    </span>
-
-  {% else %}
-    {% get_field_value object field.name safe=True %}
-
-  {% endif %}
+  {% get_field_value object field.name safe=True %}
 {% endblock %}

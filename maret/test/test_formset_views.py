@@ -2,7 +2,7 @@ from django.test import tag
 from django.urls import reverse_lazy
 
 from maret import views
-from maret.utils import UserRequiredMixin
+from maret.utils import AdminRequiredMixin
 from maret.test.common_tests import CommonMaretTest as CommonTest
 
 from shared_models.views import CommonFormsetView
@@ -31,7 +31,7 @@ class TestAllFormsets(CommonTest):
     @tag("formsets_view")
     def test_view_class(self):
         for v in self.test_views:
-            self.assert_inheritance(v, UserRequiredMixin)
+            self.assert_inheritance(v, AdminRequiredMixin)
             self.assert_inheritance(v, CommonFormsetView)
 
     @tag("formsets_access")

@@ -37,7 +37,7 @@ class TestCommitteeModel(CommonTest):
 class TestSpeciesModel(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.SpeciesFactory()
+        self.instance = models.Species.objects.first()
 
     @tag("fields", "species_model_fields")
     def test_fields(self):
@@ -49,7 +49,7 @@ class TestSpeciesModel(CommonTest):
 class TestDiscussionTopicModel(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.DiscussionTopicFactory()
+        self.instance = models.DiscussionTopic.objects.first()
 
     @tag("fields", "discussion_topic_model_fields")
     def test_fields(self):
