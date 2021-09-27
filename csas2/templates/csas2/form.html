@@ -50,6 +50,8 @@
           <span class="m-0 p-0 form-text text-muted">{{ field.help_text }}</span>
         </div>
         {% bootstrap_field field placeholder="" show_label=False show_help=False %}
+      {% else %}
+        {% bootstrap_field field placeholder="" show_label=False show_help=False %}
       {% endif %}
     {% else %}
       {% bootstrap_field field placeholder="" %}
