@@ -5,8 +5,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy, gettext
 
 from lib.templatetags.custom_filters import nz
-from shared_models.models import Section, Person, FiscalYear, SubjectMatter
-from . import models
+from shared_models.models import Section, Person, FiscalYear, SubjectMatter, Region, Division, Sector
+from . import models, model_choices
 
 attr_fp_date = {"class": "fp-date", "placeholder": gettext_lazy("Click to select a date..")}
 attr_fp_date_range = {"class": "fp-date-range", "placeholder": gettext_lazy("Click to select a range of dates..")}
@@ -65,10 +65,19 @@ class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
         (1, "Meetings for Website"),
+        (2, "CSAS Request batch export"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal year'))
     is_posted = forms.ChoiceField(required=False, label=gettext_lazy('Posted processes?'))
+    request_status = forms.ChoiceField(required=False, label=gettext_lazy('Request Status'))
+
+    region = forms.ChoiceField(required=False, label=gettext_lazy('DFO Region'))
+    sector = forms.ChoiceField(required=False, label=gettext_lazy('DFO Sector'))
+    division = forms.ChoiceField(required=False, label=gettext_lazy('DFO Division'))
+    section = forms.ChoiceField(required=False, label=gettext_lazy('DFO Section'))
+
+    csas_requests = forms.MultipleChoiceField(required=False, label=gettext_lazy('CSAS Requests'), help_text=gettext("leave blank for all"))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -79,8 +88,32 @@ class ReportSearchForm(forms.Form):
         )
         fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(processes__isnull=False).distinct()]
         fy_choices.insert(0, (None, "All"))
+
+        request_status_choices = [obj for obj in model_choices.request_status_choices]
+        request_status_choices.insert(0, (None, "All"))
+
+        region_choices = [(obj.id, str(obj)) for obj in Region.objects.all()]
+        region_choices.insert(0, (None, "All"))
+
+        sector_choices = [(obj.id, str(obj)) for obj in Sector.objects.all()]
+        sector_choices.insert(0, (None, "All"))
+
+        division_choices = [(obj.id, obj) for obj in Division.objects.all()]
+        division_choices.insert(0, (None, "All"))
+
+        section_choices = [(obj.id, obj.full_name) for obj in Section.objects.filter(csas_requests__isnull=False).distinct()]
+        section_choices.insert(0, (None, "All"))
+
         self.fields["fiscal_year"].choices = fy_choices
         self.fields["is_posted"].choices = posted_choices
+        self.fields["request_status"].choices = request_status_choices
+
+        self.fields['region'].choices = region_choices
+        self.fields['sector'].choices = sector_choices
+        self.fields['division'].choices = division_choices
+        self.fields['section'].choices = section_choices
+        self.fields['csas_requests'].widget.attrs = multi_select_js
+
 
 
 class CSASRequestForm(forms.ModelForm):
