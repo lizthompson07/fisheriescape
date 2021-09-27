@@ -68,7 +68,7 @@ class Entry(models.Model):
     is_faa_required = models.BooleanField(null=True, blank=True, verbose_name=_("is an FAA required?"))
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
                                related_name="entries")
-    sectors = models.ManyToManyField(ml_models.Sector, related_name="entries", verbose_name=_("DFO sectors"), blank=True)
+    sectors = models.ManyToManyField(ml_models.Sector, blank=True, related_name="entries", verbose_name=_("DFO sectors"))
     entry_type = models.ForeignKey(EntryType, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries",
                                    verbose_name=_("Entry Type"))  # title case needed
     regions = models.ManyToManyField(shared_models.Region, related_name="entries", verbose_name=_("regions"))
