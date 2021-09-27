@@ -15,13 +15,13 @@ chosen_js = {"class": "chosen-select-contains"}
 class InteractionFilter(django_filters.FilterSet):
     class Meta:
         model = models.Interaction
-        exclude = {}
+        fields = {"interaction_type", "main_topic", "dfo_liaison"}
 
 
 class CommitteeFilter(django_filters.FilterSet):
     class Meta:
         model = models.Committee
-        exclude = {}
+        fields = {"name", "branch", "division"}
 
 
 class OrganizationFilter(django_filters.FilterSet):
