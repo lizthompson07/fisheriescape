@@ -1,0 +1,178 @@
+[
+{
+    "model": "maret.discussiontopic",
+    "pk": 1,
+    "fields": {
+        "name": "Aquaculture",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 2,
+    "fields": {
+        "name": "Conservation",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 3,
+    "fields": {
+        "name": "Consultation",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 4,
+    "fields": {
+        "name": "Dams",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 5,
+    "fields": {
+        "name": "Energy",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 6,
+    "fields": {
+        "name": "Enforcement",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 7,
+    "fields": {
+        "name": "Environment",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 8,
+    "fields": {
+        "name": "Fish passage",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 9,
+    "fields": {
+        "name": "Fixed gear",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 10,
+    "fields": {
+        "name": "Georges Bank",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 11,
+    "fields": {
+        "name": "Gulf of Maine",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 12,
+    "fields": {
+        "name": "Industry",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 13,
+    "fields": {
+        "name": "Marine conservation",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 14,
+    "fields": {
+        "name": "Marine debris",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 15,
+    "fields": {
+        "name": "Offshore petroleum",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 16,
+    "fields": {
+        "name": "Processing",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 17,
+    "fields": {
+        "name": "Public safety",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 18,
+    "fields": {
+        "name": "River",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 19,
+    "fields": {
+        "name": "River restoration",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 20,
+    "fields": {
+        "name": "Species",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 21,
+    "fields": {
+        "name": "Sustainability",
+        "nom": null
+    }
+},
+{
+    "model": "maret.discussiontopic",
+    "pk": 22,
+    "fields": {
+        "name": "United States",
+        "nom": null
+    }
+}
+]

@@ -1,0 +1,306 @@
+[
+{
+    "model": "maret.species",
+    "pk": 1,
+    "fields": {
+        "name": "Atlantic salmon",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 2,
+    "fields": {
+        "name": "Atlantic whitefish",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 3,
+    "fields": {
+        "name": "Bluefin tuna",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 4,
+    "fields": {
+        "name": "Clam",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 5,
+    "fields": {
+        "name": "Cod",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 6,
+    "fields": {
+        "name": "Eel",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 7,
+    "fields": {
+        "name": "Elver",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 8,
+    "fields": {
+        "name": "Gaspereau",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 9,
+    "fields": {
+        "name": "Groundfish",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 10,
+    "fields": {
+        "name": "Haddock",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 11,
+    "fields": {
+        "name": "Hagfish",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 12,
+    "fields": {
+        "name": "Herring",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 13,
+    "fields": {
+        "name": "Irish moss",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 14,
+    "fields": {
+        "name": "Lobster",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 15,
+    "fields": {
+        "name": "Mackerel",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 16,
+    "fields": {
+        "name": "Marine mammals",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 17,
+    "fields": {
+        "name": "Marine plants",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 18,
+    "fields": {
+        "name": "Marine worm",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 19,
+    "fields": {
+        "name": "North Atlantic Right Whale",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 20,
+    "fields": {
+        "name": "Oyster",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 21,
+    "fields": {
+        "name": "Quahog",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 22,
+    "fields": {
+        "name": "Redfish",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 23,
+    "fields": {
+        "name": "Rock crab",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 24,
+    "fields": {
+        "name": "Rockweed",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 25,
+    "fields": {
+        "name": "Salmon",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 26,
+    "fields": {
+        "name": "Scallop",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 27,
+    "fields": {
+        "name": "Sea cucumber",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 28,
+    "fields": {
+        "name": "Sea urchin",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 29,
+    "fields": {
+        "name": "Seal",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 30,
+    "fields": {
+        "name": "Shark",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 31,
+    "fields": {
+        "name": "Shellfish",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 32,
+    "fields": {
+        "name": "Shrimp",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 33,
+    "fields": {
+        "name": "Small pelagics",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 34,
+    "fields": {
+        "name": "Snow crab",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 35,
+    "fields": {
+        "name": "Swordfish",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 36,
+    "fields": {
+        "name": "Tuna",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 37,
+    "fields": {
+        "name": "Whelk",
+        "nom": null
+    }
+},
+{
+    "model": "maret.species",
+    "pk": 38,
+    "fields": {
+        "name": "Yellowtail flounder",
+        "nom": null
+    }
+}
+]

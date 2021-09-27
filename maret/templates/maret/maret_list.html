@@ -1,0 +1,19 @@
+{% extends "maret/list.html" %}
+{% load static %}
+{% load custom_filters %}
+{% load verbose_names %}
+
+
+{% block content %}
+  <div id="mySidebar" class="sidebar">
+    {% include "maret/_filters.html" %}
+  </div>
+  <div id="main">
+  {{ block.super }}
+  </div>
+{% endblock %}
+{% block filter %}{% endblock %}
+
+{% block table_td %}
+  {% get_field_value object field.name safe=True %}
+{% endblock %}
