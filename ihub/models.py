@@ -57,10 +57,10 @@ class FundingProgram(SimpleLookup):
 
 class Entry(models.Model):
     # basic
-    title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title"))
+    title = models.CharField(max_length=1000, blank=False, null=True, verbose_name=_("title"))
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
     proponent = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("proponent"))
-    organizations = models.ManyToManyField(ml_models.Organization, blank=True, related_name="entries",
+    organizations = models.ManyToManyField(ml_models.Organization, related_name="entries", blank=True,
                                            limit_choices_to={'grouping__is_indigenous': True}, verbose_name=_("organizations"))
     initial_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
     response_requested_by = models.DateTimeField(verbose_name=_("response requested by"), blank=True, null=True)

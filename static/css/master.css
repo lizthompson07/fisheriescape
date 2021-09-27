@@ -348,3 +348,11 @@
 .greyed {
     background-color: #dddcdc;
 }
+
+.pointy {
+     cursor: pointer;
+ }
+
+.helper {
+     cursor: help;
+ }

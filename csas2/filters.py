@@ -22,12 +22,14 @@ class PersonFilter(django_filters.FilterSet):
         fields = {
             'last_name': ['exact'],
             'affiliation': ['icontains'],
+            'expertise': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filters["last_name"] = django_filters.CharFilter(field_name='search_term', label=_("Any part of name or email"),
                                                               lookup_expr='icontains', widget=forms.TextInput())
+        self.filters["expertise"].field.widget = forms.SelectMultiple(attrs=chosen_js)
 
 
 class CSASRequestFilter(django_filters.FilterSet):
@@ -40,7 +42,6 @@ class CSASRequestFilter(django_filters.FilterSet):
     status = django_filters.MultipleChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"),
                                                  widget=forms.SelectMultiple(attrs=chosen_js), choices=request_status_choices)
     client = django_filters.ChoiceFilter(field_name="client", label=_("Client"), lookup_expr='exact')
-
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -89,7 +90,8 @@ class ProcessFilter(django_filters.FilterSet):
 
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year"))
         self.filters['lead_region'] = django_filters.ChoiceFilter(field_name="lead_region", label=_("Lead Region"), lookup_expr='exact', choices=region_choices)
-        self.filters['csas_requests__client'] = django_filters.ChoiceFilter(field_name="csas_requests__client", label=_("Request client"), lookup_expr='exact', choices=client_choices)
+        self.filters['csas_requests__client'] = django_filters.ChoiceFilter(field_name="csas_requests__client", label=_("Request client"), lookup_expr='exact',
+                                                                            choices=client_choices)
 
     class Meta:
         model = models.Process

@@ -500,8 +500,9 @@ class TripRequest(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.DO_NOTHING, verbose_name=_("trip"), related_name="requests")
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True,
                                 verbose_name=_("under which section is this request being made?"), related_name="requests")
-    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("what is the objective of this activity (conference, meeting, fieldwork)?"))
-    benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("what are the benefits to DFO?"))
+    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("describe the objective(s) related to this activity. "
+                                                                                "(See help bubble for additional information.)"))
+    benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("describe the benefits to DFO. (See help bubble for additional information.)"))
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("other attendees covered under BTA"))
     late_justification = models.TextField(blank=True, null=True, verbose_name=_("justification for late submissions"))
     funding_source = models.TextField(blank=True, null=True, verbose_name=_("what is the DFO funding source?"))

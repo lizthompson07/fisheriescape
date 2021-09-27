@@ -1,11 +1,12 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy, gettext
 
 from lib.templatetags.custom_filters import nz
-from shared_models.models import Section, Person, FiscalYear
-from . import models
+from shared_models.models import Section, Person, FiscalYear, SubjectMatter, Region, Division, Sector
+from . import models, model_choices
 
 attr_fp_date = {"class": "fp-date", "placeholder": gettext_lazy("Click to select a date..")}
 attr_fp_date_range = {"class": "fp-date-range", "placeholder": gettext_lazy("Click to select a range of dates..")}
@@ -30,20 +31,33 @@ class PersonForm(forms.ModelForm):
             "affiliation",
             "language",
             "dmapps_user",
+            "expertise",
         ]
         widgets = {
             'dmapps_user': forms.Select(attrs=chosen_js),
+            'expertise': forms.SelectMultiple(attrs=chosen_js),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if kwargs.get("instance") and kwargs.get("instance").dmapps_user:
+            del self.fields["first_name"]
+            del self.fields["last_name"]
+            del self.fields["phone"]
+            del self.fields["email"]
+            del self.fields["affiliation"]
+            del self.fields["language"]
+            del self.fields["dmapps_user"]
 
 
 class TripRequestTimestampUpdateForm(forms.ModelForm):
     class Meta:
         model = models.CSASRequest
         fields = [
-            "has_funding", # just a random field
+            "is_multiregional",  # just a random field
         ]
         widgets = {
-            "has_funding": forms.HiddenInput()
+            "is_multiregional": forms.HiddenInput()
         }
 
 
@@ -51,10 +65,19 @@ class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
         (1, "Meetings for Website"),
+        (2, "CSAS Request batch export"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal year'))
     is_posted = forms.ChoiceField(required=False, label=gettext_lazy('Posted processes?'))
+    request_status = forms.ChoiceField(required=False, label=gettext_lazy('Request Status'))
+
+    region = forms.ChoiceField(required=False, label=gettext_lazy('DFO Region'))
+    sector = forms.ChoiceField(required=False, label=gettext_lazy('DFO Sector'))
+    division = forms.ChoiceField(required=False, label=gettext_lazy('DFO Division'))
+    section = forms.ChoiceField(required=False, label=gettext_lazy('DFO Section'))
+
+    csas_requests = forms.MultipleChoiceField(required=False, label=gettext_lazy('CSAS Requests'), help_text=gettext("leave blank for all"))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -65,8 +88,32 @@ class ReportSearchForm(forms.Form):
         )
         fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(processes__isnull=False).distinct()]
         fy_choices.insert(0, (None, "All"))
+
+        request_status_choices = [obj for obj in model_choices.request_status_choices]
+        request_status_choices.insert(0, (None, "All"))
+
+        region_choices = [(obj.id, str(obj)) for obj in Region.objects.all()]
+        region_choices.insert(0, (None, "All"))
+
+        sector_choices = [(obj.id, str(obj)) for obj in Sector.objects.all()]
+        sector_choices.insert(0, (None, "All"))
+
+        division_choices = [(obj.id, obj) for obj in Division.objects.all()]
+        division_choices.insert(0, (None, "All"))
+
+        section_choices = [(obj.id, obj.full_name) for obj in Section.objects.filter(csas_requests__isnull=False).distinct()]
+        section_choices.insert(0, (None, "All"))
+
         self.fields["fiscal_year"].choices = fy_choices
         self.fields["is_posted"].choices = posted_choices
+        self.fields["request_status"].choices = request_status_choices
+
+        self.fields['region'].choices = region_choices
+        self.fields['sector'].choices = sector_choices
+        self.fields['division'].choices = division_choices
+        self.fields['section'].choices = section_choices
+        self.fields['csas_requests'].widget.attrs = multi_select_js
+
 
 
 class CSASRequestForm(forms.ModelForm):
@@ -78,11 +125,9 @@ class CSASRequestForm(forms.ModelForm):
             'coordinator',
             'language',
             'title',
-            'is_carry_over',
             'is_multiregional',
             'multiregional_text',
             'issue',
-            'had_assistance',
             'assistance_text',
             'rationale',
             'risk_text',
@@ -109,9 +154,12 @@ class CSASRequestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         section_choices = [(obj.id, obj.full_name) for obj in Section.objects.all()]
         section_choices.insert(0, (None, "------"))
+        coordinator_choices = [(u.id, u.get_full_name()) for u in User.objects.filter(groups__name__in=["csas_regional_admin", "csas_national_admin"])]
+        coordinator_choices.insert(0, (None, "------"))
 
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = section_choices
+        self.fields['coordinator'].choices = coordinator_choices
 
     def clean(self):
         cleaned_data = super().clean()
@@ -169,6 +217,16 @@ class CSASRequestFileForm(forms.ModelForm):
     class Meta:
         model = models.CSASRequestFile
         fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.get("instance"):
+            csas_request = kwargs.get("instance").csas_request
+        else:
+            csas_request = get_object_or_404(models.CSASRequest, pk=kwargs.get("initial").get("csas_request"))
+
+        super().__init__(*args, **kwargs)
+        if not csas_request.submission_date:
+            del self.fields["is_approval"]
 
 
 class MeetingFileForm(forms.ModelForm):
@@ -307,7 +365,6 @@ class MeetingForm(forms.ModelForm):
         exclude = ["start_date", "end_date"]
 
 
-
 class DocumentForm(forms.ModelForm):
     class Meta:
         model = models.Document
@@ -356,6 +413,19 @@ class DocumentTypeForm(forms.ModelForm):
 DocumentTypeFormset = modelformset_factory(
     model=models.DocumentType,
     form=DocumentTypeForm,
+    extra=1,
+)
+
+
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = SubjectMatter
+        fields = "__all__"
+
+
+TagFormset = modelformset_factory(
+    model=SubjectMatter,
+    form=TagForm,
     extra=1,
 )
 

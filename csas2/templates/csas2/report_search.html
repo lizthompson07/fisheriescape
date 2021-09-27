@@ -37,9 +37,23 @@
 
   function hideAll() {
     $(".fiscal_year_div").addClass("gone");
-    $("#id_fiscal_year").prop("required", false);
     $(".is_posted_div").addClass("gone");
+    $(".request_status_div").addClass("gone");
+    $(".region_div").addClass("gone");
+    $(".sector_div").addClass("gone");
+    $(".division_div").addClass("gone");
+    $(".section_div").addClass("gone");
+    $(".csas_requests_div").addClass("gone");
+
+    $("#id_fiscal_year").prop("required", false);
     $("#id_is_posted").prop("required", false);
+    $("#id_request_status").prop("required", false);
+    $("#id_region").prop("required", false);
+    $("#id_sector").prop("required", false);
+    $("#id_division").prop("required", false);
+    $("#id_section").prop("required", false);
+    $("#id_csas_requests").prop("required", false);
+
   }
 
   function configureForm() {
@@ -50,7 +64,14 @@
       $("#id_fiscal_year").prop("required", false);
       $(".is_posted_div").removeClass("gone");
       $("#id_is_posted").prop("required", false);
-
+    } else if (reportChoice === "2") {
+      $(".fiscal_year_div").removeClass("gone");
+      $(".request_status_div").removeClass("gone");
+      $(".region_div").removeClass("gone");
+      $(".sector_div").removeClass("gone");
+      $(".division_div").removeClass("gone");
+      $(".section_div").removeClass("gone");
+      $(".csas_requests_div").removeClass("gone");
     }
   }
 

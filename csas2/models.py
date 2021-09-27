@@ -19,6 +19,14 @@ from lib.templatetags.custom_filters import percentage
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
     SimpleLookupWithUUID
 
+NULL_YES_NO_CHOICES = (
+    (None, _("Unsure")),
+    (1, _("Yes")),
+    (0, _("No")),
+)
+
+YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
+
 
 def request_directory_path(instance, filename):
     return 'csas/request_{0}/{1}'.format(instance.csas_request.id, filename)
@@ -76,35 +84,35 @@ class GenericNote(MetadataFields):
 
 class CSASRequest(MetadataFields):
     ''' csas request '''
-    is_carry_over = models.BooleanField(default=False, choices=model_choices.yes_no_choices,
-                                        verbose_name=_("Is this request a carry-over from a previous year?"))
     language = models.IntegerField(default=1, verbose_name=_("language of request"), choices=model_choices.language_choices)
     title = models.CharField(max_length=1000, verbose_name=_("title"))
     translated_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("translated title"))
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("Regional CSAS coordinator"),
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("CSAS coordinator"),
                                     blank=True, null=False)
     client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=False)
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"), blank=True, null=False)
-    is_multiregional = models.BooleanField(default=False,
-                                           verbose_name=_("Does this request involve more than one region (zonal) or more than one client sector?"))
-    multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region for all involved."))
+    is_multiregional = models.IntegerField(default=False, choices=NULL_YES_NO_CHOICES, blank=True, null=True,
+                                           verbose_name=_("Could the advice provided potentially be applicable to other regions and/or sectors?"),
+                                           help_text=_(
+                                               "e.g., frameworks, tools, issues and/or aquatic species widely distributed throughout more than one region"))
+    multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please list other sectors and/or regions and provide brief rationale"))
 
     issue = models.TextField(verbose_name=_("Issue requiring science information and/or advice"), blank=True, null=True,
-                             help_text=_("Should be phrased as a question to be answered by Science"))
-    had_assistance = models.BooleanField(default=False, verbose_name=_(
-        "Have you had assistance from Science in developing the question/request?"), help_text=_("E.g. with CSAS and/or DFO science staff."))
-    assistance_text = models.TextField(null=True, blank=True, verbose_name=_(" Please provide details about the assistance received"))
+                             help_text=_(
+                                 "Should be phrased as a question to be answered by Science. The text provided here will serve as the objectives for the terms of reference."))
+    assistance_text = models.TextField(null=True, blank=True, verbose_name=_(
+        "From whom in Science have you had assistance in developing the question/request (CSAS and/or DFO science staff)"))
 
     rationale = models.TextField(verbose_name=_("Rationale or context for the request"), blank=True, null=True,
                                  help_text=_("What will the information/advice be used for? Who will be the end user(s)? Will it impact other DFO "
-                                             "programs or regions?"))
+                                             "programs or regions? The text provided here will serve as the context for the terms of reference."))
     risk_text = models.TextField(null=True, blank=True, verbose_name=_("What is the expected consequence if science advice is not provided?"))
     advice_needed_by = models.DateTimeField(verbose_name=_("Latest possible date to receive Science advice"))
     rationale_for_timeline = models.TextField(null=True, blank=True, verbose_name=_("Rationale for deadline?"),
                                               help_text=_("e.g., COSEWIC or consultation meetings, Environmental Assessments, legal or regulatory "
                                                           "requirement, Treaty obligation, international commitments, etc)."
-                                                          "Please elaborate and provide anticipatory dates"))
-    has_funding = models.BooleanField(default=False, verbose_name=_("Do you have funds to cover any extra costs associated with this request?"),
+                                                          " Please elaborate and provide anticipatory dates"))
+    has_funding = models.BooleanField(default=False, verbose_name=_("Click here if you have funds to cover any extra costs associated with this request?"),
                                       help_text=_("i.e., special analysis, meeting costs, translation)?"), )
     funding_text = models.TextField(null=True, blank=True, verbose_name=_("Please describe"))
     prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("How would you classify the prioritization of this request?"),
@@ -125,6 +133,7 @@ class CSASRequest(MetadataFields):
     class Meta:
         ordering = ("fiscal_year", "title")
         verbose_name_plural = _("CSAS Requests")
+        verbose_name = _("CSAS Request")
 
     def __str__(self):
         return self.title
@@ -141,16 +150,18 @@ class CSASRequest(MetadataFields):
         if self.id and self.processes.exists():
             # if all processes linked to the request are complete, this request should also be complete
             if self.processes.filter(status=2).count() == self.processes.all().count():
-                self.status = 4
+                self.status = 5  # complete
             else:
-                self.status = 11
+                self.status = 11  # on
         else:
             # look at the review to help determine the status
             self.status = 1  # draft
             if self.submission_date:
                 self.status = 2  # submitted
+            if self.files.filter(is_approval=True).exists():
+                self.status = 3  # approved
             if hasattr(self, "review") and self.review.id:
-                self.status = 3  # under review
+                self.status = 4  # under review
                 if self.review.decision:
                     self.status = self.review.decision + 10
 
@@ -176,10 +187,11 @@ class CSASRequest(MetadataFields):
 
     @property
     def multiregional_display(self):
-        if self.is_multiregional:
+        display = self.get_is_multiregional_display()
+        if self.is_multiregional == 1:
             text = self.multiregional_text if self.multiregional_text else gettext("no further details provided.")
-            return "{} - {}".format(gettext("Yes"), text)
-        return gettext("No")
+            return "{} - {}".format(display, text)
+        return display
 
     @property
     def status_display(self):
@@ -192,13 +204,6 @@ class CSASRequest(MetadataFields):
         mystr = slugify(self.get_status_display()) if self.status else ""
         activate(lang)
         return mystr
-
-    @property
-    def assistance_display(self):
-        if self.had_assistance:
-            text = self.assistance_text if self.assistance_text else gettext("no further details provided.")
-            return "{} - {}".format(gettext("Yes"), text)
-        return gettext("No")
 
     @property
     def funding_display(self):
@@ -222,6 +227,26 @@ class CSASRequest(MetadataFields):
     def region(self):
         return self.section.division.branch.region.tname
 
+    @property
+    def is_complete(self):
+        required_fields = [
+            'language',
+            'title',
+            'coordinator',
+            'client',
+            'section',
+            'issue',
+            'assistance_text',
+            'rationale',
+            'risk_text',
+            'advice_needed_by',
+            'rationale_for_timeline',
+            'prioritization',
+        ]
+        for field in required_fields:
+            if getattr(self, field) in [None, ""]:
+                return False
+        return True
 
 
 class CSASRequestNote(GenericNote):
@@ -272,6 +297,7 @@ class CSASRequestReview(MetadataFields):
 
 class CSASRequestFile(GenericFile):
     csas_request = models.ForeignKey(CSASRequest, related_name="files", on_delete=models.CASCADE, editable=False)
+    is_approval = models.BooleanField(default=False, verbose_name=_("is this file an approval for this request?"), choices=YES_NO_CHOICES)
     file = models.FileField(upload_to=request_directory_path)
 
 
@@ -442,7 +468,7 @@ class Meeting(SimpleLookup, MetadataFields):
     time_description_en = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description of meeting times (en)"),
                                            help_text=_("e.g.: 9am to 4pm (Atlantic)"))
     time_description_fr = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description of meeting times (fr)"),
-                                           help_text=_("p. ex. : 9h à 16h (Atlantique)"))
+                                           help_text=_("e.g.: 9h à 16h (Atlantique)"))
 
     # non-editable
     somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))

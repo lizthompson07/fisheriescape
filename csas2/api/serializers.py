@@ -30,7 +30,6 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     status_display = serializers.SerializerMethodField()
     multiregional_display = serializers.SerializerMethodField()
     issue_html = serializers.SerializerMethodField()
-    assistance_display = serializers.SerializerMethodField()
     rationale_html = serializers.SerializerMethodField()
     advice_needed_by_display = serializers.SerializerMethodField()
     prioritization_display = serializers.SerializerMethodField()
@@ -40,6 +39,10 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     metadata = serializers.SerializerMethodField()
     funding_display = serializers.SerializerMethodField()
     risk_text_html = serializers.SerializerMethodField()
+    is_complete = serializers.SerializerMethodField()
+
+    def get_is_complete(self, instance):
+        return instance.is_complete
 
     def get_risk_text_html(self, instance):
         return instance.risk_text_html
@@ -68,9 +71,6 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     def get_rationale_html(self, instance):
         return instance.rationale_html
 
-    def get_assistance_display(self, instance):
-        return instance.assistance_display
-
     def get_issue_html(self, instance):
         return instance.issue_html
 
@@ -78,7 +78,7 @@ class CSASRequestSerializer(serializers.ModelSerializer):
         return instance.multiregional_display
 
     def get_status_display(self, instance):
-        return f'<span class=" px-1 py-1 {slugify(instance.get_status_display())}">{instance.get_status_display()}</span>'
+        return f'<span class=" px-1 py-1 {instance.status_class}">{instance.get_status_display()}</span>'
 
     def get_review(self, instance):
         if hasattr(instance, "review"):
@@ -475,7 +475,6 @@ class CSASRequestNoteSerializer(serializers.ModelSerializer):
 
     def get_type_display(self, instance):
         return instance.get_type_display()
-
 
 
 class DocumentCostSerializer(serializers.ModelSerializer):

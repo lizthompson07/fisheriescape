@@ -12,6 +12,11 @@ def save_request_on_review_save(sender, instance, created, **kwargs):
     instance.csas_request.save()
 
 
+@receiver(models.signals.post_save, sender=CSASRequestFile)
+def save_request_on_file_save(sender, instance, created, **kwargs):
+    instance.csas_request.save()
+
+
 @receiver(models.signals.post_save, sender=Process)
 def update_fiscal_year_on_process_save(sender, instance, created, **kwargs):
     for r in instance.csas_requests.all():
@@ -51,6 +56,7 @@ def auto_delete_csas2_request_file_on_delete(sender, instance, **kwargs):
     if instance.file:
         if os.path.isfile(instance.file.path):
             os.remove(instance.file.path)
+    instance.csas_request.save()
 
 
 @receiver(models.signals.pre_save, sender=CSASRequestFile)

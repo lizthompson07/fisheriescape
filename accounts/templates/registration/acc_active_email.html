@@ -1,15 +1,27 @@
 {% autoescape off %}
-    Hi {{ user.first_name }},
-    <p>
-        Please click on the following link to confirm your registration on the DM Apps website.
-        <br>
-        http://{{ domain }}{% url 'accounts:activate' uidb64=uid token=token %}
-    </p>
+  {{ user.first_name }} {{ user.last_name }},
+  <p>
+    Please click on the following link to confirm your registration on the DM Apps website.
+    <br>
+    http://{{ domain }}{% url 'accounts:activate' uidb64=uid token=token %}
+  </p>
 
-    <p>
-        Veuillez cliquer sur le lien suivant pour confirmer votre inscription sur le site Web de DM Apps.
-        <br>
-        http://{{ domain }}{% url 'accounts:activate' uidb64=uid token=token %}
-    </p>
+  <p>
+    Please note, the activation link above will only remain valid for a limited period of time.
+  </p>
+
+  <p>
+    ****************************************************
+  </p>
+
+  <p>
+    Veuillez cliquer sur le lien suivant pour confirmer votre inscription sur le site Web de DM Apps.
+    <br>
+    http://{{ domain }}{% url 'accounts:activate' uidb64=uid token=token %}
+  </p>
+
+  <p>
+    Veuillez noter que le lien d'activation ci-dessus ne restera valable que pendant une période de temps limitée
+  </p>
 
 {% endautoescape %}

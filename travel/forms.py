@@ -509,7 +509,7 @@ class OrganizationForm1(forms.Form):
     orgs = forms.ChoiceField(required=False)
 
     def __init__(self, *args, **kwargs):
-        org_choices = [(org.full_name_and_address, org.full_name_and_address) for org in shared_models.Organization.objects.filter(is_dfo=True)]
+        org_choices = [(org.tfull, org.tfull) for org in shared_models.Organization.objects.filter(is_dfo=True)]
         org_choices.insert(0, (None, "-------"))
         super().__init__(*args, **kwargs)
         self.fields['orgs'].choices = org_choices
