@@ -69,6 +69,18 @@ class BranchViewSet(ModelViewSet):
         serializer.save(last_modified_by=self.request.user)
 
 
+class SectorViewSet(ModelViewSet):
+    queryset = models.Sector.objects.order_by("region__name", "name")
+    serializer_class = serializers.SectorSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(last_modified_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(last_modified_by=self.request.user)
+
+
 class DivisionViewSet(ModelViewSet):
     queryset = models.Division.objects.order_by("branch__region__name", "branch__name", "name")
     serializer_class = serializers.DivisionSerializer

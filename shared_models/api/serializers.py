@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 
-from shared_models.models import FiscalYear, Region, Division, Section, Person, Branch
+from shared_models.models import FiscalYear, Region, Division, Section, Person, Branch, Sector
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -65,10 +65,47 @@ class BranchSerializer(serializers.ModelSerializer):
         model = Branch
         fields = "__all__"
 
+    sector_obj = serializers.SerializerMethodField()
+    region_obj = serializers.SerializerMethodField()  # should eventually be deleted
+    head_display = serializers.SerializerMethodField()
+    admin_display = serializers.SerializerMethodField()
+    metadata = serializers.SerializerMethodField()
+    display = serializers.SerializerMethodField()
+
+    def get_display(self, instance):
+        return str(instance)
+
+    def get_metadata(self, instance):
+        return instance.metadata
+
+    def get_admin_display(self, instance):
+        if instance.admin:
+            return instance.admin.get_full_name()
+
+    def get_head_display(self, instance):
+        if instance.head:
+            return instance.head.get_full_name()
+
+    def get_region_obj(self, instance):
+        return RegionSerializer(instance.region).data
+
+    def get_sector_obj(self, instance):
+        return SectorSerializer(instance.sector).data
+
+
+class SectorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sector
+        fields = "__all__"
+
     region_obj = serializers.SerializerMethodField()
     head_display = serializers.SerializerMethodField()
     admin_display = serializers.SerializerMethodField()
     metadata = serializers.SerializerMethodField()
+    display = serializers.SerializerMethodField()
+
+    def get_display(self, instance):
+        return str(instance)
 
     def get_metadata(self, instance):
         return instance.metadata

@@ -349,6 +349,7 @@ def get_person_field_list():
         'affiliation',
         'tposition|{}'.format(_("job title")),
         'dmapps_user',
+        'expertise',
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)

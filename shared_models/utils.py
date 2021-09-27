@@ -15,7 +15,7 @@ def special_capitalize(raw_string):
     return raw_string
 
 
-def get_section_choices(full_name=True, region_filter=None, branch_filter=None, division_filter=None):
+def get_section_choices(full_name=True, region_filter=None, sector_filter=None, branch_filter=None, division_filter=None):
     if full_name:
         my_attr = "full_name"
     else:
@@ -23,11 +23,20 @@ def get_section_choices(full_name=True, region_filter=None, branch_filter=None, 
 
     if region_filter:
         reg_kwargs = {
-            "division__branch__region_id": region_filter
+            "division__branch__sector__region_id": region_filter
         }
     else:
         reg_kwargs = {
-            "division__branch__region_id__isnull": False
+            "division__branch__sector__region_id__isnull": False
+        }
+
+    if sector_filter:
+        sector_kwargs = {
+            "division__branch__sector_id": sector_filter
+        }
+    else:
+        sector_kwargs = {
+            "division__branch__sector__isnull": False
         }
 
     if branch_filter:
@@ -50,33 +59,41 @@ def get_section_choices(full_name=True, region_filter=None, branch_filter=None, 
 
     my_choice_list = [(s.id, getattr(s, my_attr)) for s in
                       models.Section.objects.order_by(
-                          "division__branch__region",
+                          "division__branch__sector__region",
+                          "division__branch__sector",
                           "division__branch",
                           "division",
                           "name"
-                      ).filter(**div_kwargs).filter(**reg_kwargs).filter(**branch_kwargs)]
+                      ).filter(**div_kwargs).filter(**reg_kwargs).filter(**sector_kwargs).filter(**branch_kwargs)]
 
     return my_choice_list
 
 
-def get_division_choices(region_filter=None, branch_filter=None):
+def get_division_choices(region_filter=None, sector_filter=None, branch_filter=None):
     division_list = set(
         [models.Section.objects.get(pk=s[0]).division_id for s in
-         get_section_choices(region_filter=region_filter, branch_filter=branch_filter)])
+         get_section_choices(region_filter=region_filter, sector_filter=sector_filter, branch_filter=branch_filter)])
     return [(d.id, str(d)) for d in
-            models.Division.objects.filter(id__in=division_list).order_by("branch__region", "name")]
+            models.Division.objects.filter(id__in=division_list).order_by("branch__sector__region", "branch__sector", "branch", "name")]
 
 
-def get_branch_choices(region_filter=None):
+def get_branch_choices(region_filter=None, sector_filter=None):
     branch_list = set(
-        [models.Division.objects.get(pk=d[0]).branch_id for d in get_division_choices(region_filter=region_filter)])
+        [models.Division.objects.get(pk=d[0]).branch_id for d in get_division_choices(region_filter=region_filter, sector_filter=sector_filter)])
     return [(b.id, str(b)) for b in
-            models.Branch.objects.filter(id__in=branch_list).order_by("region", "name")]
+            models.Branch.objects.filter(id__in=branch_list).order_by("sector__region", "sector", "name")]
+
+
+def get_sector_choices(region_filter=None):
+    sector_list = set(
+        [models.Branch.objects.get(pk=b[0]).sector_id for b in get_branch_choices(region_filter=region_filter)])
+    return [(s.id, str(s)) for s in
+            models.Sector.objects.filter(id__in=sector_list).order_by("region", "name")]
 
 
 def get_region_choices():
     region_list = set(
-        [models.Division.objects.get(pk=d[0]).branch.region_id for d in get_division_choices()])
+        [models.Division.objects.get(pk=d[0]).branch.sector.region_id for d in get_division_choices()])
     return [(r.id, str(r)) for r in
             models.Region.objects.filter(id__in=region_list).order_by("name", )]
 

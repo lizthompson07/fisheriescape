@@ -13,7 +13,9 @@ urlpatterns = [
     # permissions
     path('settings/user-permissions/', views.UserListView.as_view(), name='user_list'),
     path('settings/user-permissions/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
-
+    # tags
+    path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
+    path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
 
     # people #
     ##########
@@ -27,6 +29,7 @@ urlpatterns = [
     path('requests/', views.CSASRequestListView.as_view(), name="request_list"),
     path('requests/new/', views.CSASRequestCreateView.as_view(), name="request_new"),
     path('requests/<int:pk>/view/', views.CSASRequestDetailView.as_view(), name="request_detail"),
+    path('requests/<int:pk>/pdf/', views.CSASRequestPDFView.as_view(), name="request_pdf"),
     path('requests/<int:pk>/edit/', views.CSASRequestUpdateView.as_view(), name="request_edit"),
     path('requests/<int:pk>/clone/', views.CSASRequestCloneUpdateView.as_view(), name="request_clone"),
     path('requests/<int:pk>/delete/', views.CSASRequestDeleteView.as_view(), name="request_delete"),

@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -13,17 +14,18 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.timezone import make_aware, utc
 from django.utils.translation import gettext_lazy, gettext as _
+from easy_pdf.views import PDFTemplateView
 
 from lib.functions.custom_functions import fiscal_year, truncate
-from shared_models.models import Person, FiscalYear
+from shared_models.models import Person, FiscalYear, SubjectMatter
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
     CommonHardDeleteView
 from . import models, forms, filters, utils, reports, emails
 from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin, \
     CsasNationalAdminRequiredMixin
-from .utils import in_csas_admin_group, get_quarter
-from datetime import timedelta
+from .utils import in_csas_admin_group
+
 
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     h1 = "home"
@@ -38,6 +40,23 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
 
 # settings
 ##########
+
+
+class TagHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView):
+    model = SubjectMatter
+    success_url = reverse_lazy("csas2:manage_tags")
+
+
+class TagFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
+    template_name = 'csas2/formset.html'
+    h1 = "Manage Tags"
+    queryset = SubjectMatter.objects.all()
+    formset_class = forms.TagFormset
+    success_url = reverse_lazy("csas2:manage_tags")
+    home_url_name = "csas2:index"
+    delete_url_name = "csas2:delete_tag"
+    container_class = "container bg-light curvy"
+
 
 class DocumentTypeFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
     template_name = 'csas2/formset.html'
@@ -167,6 +186,10 @@ class PersonUpdateView(CsasAdminRequiredMixin, CommonUpdateView):
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("csas2:person_list")}
 
+    def get_h3(self):
+        if self.get_object().dmapps_user:
+            return _("Some details of this contact cannot be modified since they are connected to a DM Apps account.")
+
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("csas2:person_detail", args=[self.get_object().id])}
 
@@ -250,13 +273,27 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
     def get_active_page_name_crumb(self):
-        return "{} {}".format(_("Request"), self.get_object().id)
+        return truncate(self.get_object().title, 50)
 
     def get_context_data(self, **kwargs):
         obj = self.get_object()
         context = super().get_context_data(**kwargs)
         context["request_field_list"] = utils.get_request_field_list(obj, self.request.user)
         context["review_field_list"] = utils.get_review_field_list()
+        return context
+
+
+class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
+    template_name = 'csas2/request_pdf.html'
+
+    def get_csas_request(self):
+        return get_object_or_404(models.CSASRequest, pk=self.kwargs.get("pk"))
+
+    def get_context_data(self, **kwargs):
+        obj = self.get_csas_request()
+        context = super().get_context_data(**kwargs)
+        context["object"] = obj
+        context["now"] = timezone.now()
         return context
 
 
@@ -267,6 +304,8 @@ class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
     submit_text = gettext_lazy("Save")
+    h1 = gettext_lazy("New CSAS Request")
+    h2 = gettext_lazy("All fields are mandatory before approvals and submission")
 
     def get_initial(self):
         return dict(
@@ -290,6 +329,7 @@ class CSASRequestUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
     template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+    h2 = gettext_lazy("All fields are mandatory before approvals and submission")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -297,7 +337,7 @@ class CSASRequestUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
         return context
 
     def get_parent_crumb(self):
-        return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+        return {"title": truncate(self.get_object().title, 50), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -313,13 +353,14 @@ class CSASRequestDeleteView(CanModifyRequestRequiredMixin, CommonDeleteView):
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
     def get_parent_crumb(self):
-        return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+        return {"title": truncate(self.get_object().title, 50), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
 
 class CSASRequestSubmitView(CSASRequestUpdateView):
     template_name = 'csas2/request_submit.html'
     form_class = forms.TripRequestTimestampUpdateForm
     submit_text = gettext_lazy("Proceed")
+    h2 = None
 
     def get_h1(self):
         my_object = self.get_object()
@@ -328,13 +369,8 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
         else:
             return _("Do you wish to submit the following request?")
 
-    def get_h3(self):
-        my_object = self.get_object()
-        if not my_object.submission_date:
-            return _("Please ensure the following items have been completed:")
-
     def get_parent_crumb(self):
-        return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+        return {"title": truncate(self.get_object().title, 50), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -378,7 +414,6 @@ class CSASRequestCloneUpdateView(CSASRequestUpdateView):
         new_obj.uuid = None
         new_obj.ref_number = None
         new_obj.created_by = self.request.user
-        new_obj.notes = None
         new_obj.save()
         return HttpResponseRedirect(reverse_lazy("csas2:request_detail", args=[new_obj.id]))
 
@@ -390,6 +425,10 @@ class CSASRequestFileCreateView(CanModifyRequestRequiredMixin, CommonPopoutCreat
     model = models.CSASRequestFile
     form_class = forms.CSASRequestFileForm
     is_multipart_form_data = True
+    h1 = gettext_lazy("New CSAS Request File")
+
+    def get_initial(self):
+        return dict(csas_request=self.kwargs.get("crequest"))
 
     def form_valid(self, form):
         obj = form.save(commit=False)

@@ -13,8 +13,9 @@ language_choices = (
 request_status_choices = (
     (1, _("Draft")),
     (2, _("Submitted")),
-    (3, _("Under review")),
-    (4, _("Complete")),
+    (3, _("Ready for review")),
+    (4, _("Under review")),
+    (5, _("Complete")),
     # all status below here should correspond to review decision choice + 10
     (11, _("On")),
     (12, _("Off")),

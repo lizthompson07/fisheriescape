@@ -69,11 +69,11 @@ class TestBranchModel(CommonTest):
     @tag('models', 'relations')
     def test_related(self):
         # a `branch` that is attached to a given `region` should be accessible by the reverse name `branches`
-        region = FactoryFloor.RegionFactory()
+        sector = FactoryFloor.SectorFactory()
         my_instance = self.instance
-        my_instance.region = region
+        my_instance.sector = sector
         my_instance.save()
-        self.assertIn(my_instance, region.branches.all())
+        self.assertIn(my_instance, sector.branches.all())
 
     @tag('models', 'branch')
     def test_uuid(self):

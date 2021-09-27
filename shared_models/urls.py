@@ -33,6 +33,14 @@ urlpatterns = [
     path('branch/<int:pk>/delete/', views.BranchDeleteView.as_view(), name="branch_delete"),  # TESTED
     path('branch/new/', views.BranchCreateView.as_view(), name="branch_new"),  # TESTED
 
+    # SECTORS #
+    ############
+    path('sectors/', views.SectorListView.as_view(), name="sector_list"),  # TESTED
+    path('sector/<int:pk>/update/', views.SectorUpdateView.as_view(), name="sector_edit"),  # TESTED
+    path('sector/<int:pk>/delete/', views.SectorDeleteView.as_view(), name="sector_delete"),  # TESTED
+    path('sector/new/', views.SectorCreateView.as_view(), name="sector_new"),  # TESTED
+
+
     # REGION #
     ############
     path('regions/', views.RegionListView.as_view(), name="region_list"),  # TESTED

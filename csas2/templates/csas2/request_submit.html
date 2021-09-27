@@ -13,28 +13,66 @@
 
 
     <div v-if="request.id && !request.submission_date" class="mt-5 mb-5" v-cloak>
-      <div class="form-check mb-5">
+
+      <p class="h4">
+        {% blocktrans %}
+          Once this request is submitted, you will not be able to un-submit it.
+        {% endblocktrans %}
+      </p>
+      <div class="form-check mb-5 text-left">
         <input class="form-check-input h1" type="checkbox" value="" id="confirmation1" v-model="userConfirmed1">
-        <label class="form-check-label h4" for="confirmation1">
-          {% blocktrans %}
-            A paper copy of the CSAS Request for has been signed by the appropriate authority and has been uploaded to this record.
-          {% endblocktrans %}
+        <label class="form-check-label text-danger" for="confirmation1">
+          {% trans "I understand" %}
         </label>
       </div>
-      <div class="form-check mb-5">
+
+      <p class="h4">
+        {% blocktrans %}
+          Once this request is submitted, you will not be able to delete it or modify its contents.
+        {% endblocktrans %}
+      </p>
+      <div class="form-check mb-5 text-left">
         <input class="form-check-input h1" type="checkbox" value="" id="confirmation2" v-model="userConfirmed2">
-        <label class="form-check-label h4" for="confirmation2">
-          {% blocktrans %}
-            This is a <em>really</em> good request.
-          {% endblocktrans %}
+        <label class="form-check-label text-danger" for="confirmation2">
+          {% trans "I understand" %}
         </label>
       </div>
-      <div class="form-check mb-5">
+
+
+      <p class="h4">
+        {% blocktrans %}
+          After submitting this form, you will see the option for exporting the PDF.
+        {% endblocktrans %}
+      </p>
+      <div class="form-check mb-5 text-left">
         <input class="form-check-input h1" type="checkbox" value="" id="confirmation3" v-model="userConfirmed3">
-        <label class="form-check-label h4" for="confirmation3">
-          {% blocktrans %}
-            Some other checklist item...
-          {% endblocktrans %}
+        <label class="form-check-label text-danger" for="confirmation3">
+          {% trans "I understand" %}
+        </label>
+      </div>
+
+      <p class="h4">
+        {% blocktrans %}
+          Please have that PDF signed by the appropriate authority (e.g., director) and send it by email to your CSAS coordinator
+        {% endblocktrans %}
+        &rarr; <a href="mailto:{{ object.coordinator.email }}">{{ object.coordinator.email }}</a>
+      </p>
+      <div class="form-check mb-5 text-left">
+        <input class="form-check-input h1" type="checkbox" value="" id="confirmation4" v-model="userConfirmed4">
+        <label class="form-check-label text-danger" for="confirmation4">
+          {% trans "I understand" %}
+        </label>
+      </div>
+
+      <p class="h4">
+        {% blocktrans %}
+          The request will not be reviewed by the CSAS Office until a signed and approved copy is received.
+        {% endblocktrans %}
+      </p>
+      <div class="form-check mb-5 text-left">
+        <input class="form-check-input h1" type="checkbox" value="" id="confirmation5" v-model="userConfirmed5">
+        <label class="form-check-label text-danger" for="confirmation5">
+          {% trans "I understand" %}
         </label>
       </div>
     </div>
@@ -68,6 +106,8 @@
       userConfirmed1: false,
       userConfirmed2: false,
       userConfirmed3: false,
+      userConfirmed4: false,
+      userConfirmed5: false,
       request: {},
       loading_request: true,
     },
@@ -84,7 +124,7 @@
     },
     computed: {
       allConfirmed() {
-        return this.userConfirmed1 && this.userConfirmed2 && this.userConfirmed3
+        return this.userConfirmed1 && this.userConfirmed2 && this.userConfirmed3 && this.userConfirmed4 && this.userConfirmed5;
       }
     },
     created() {
