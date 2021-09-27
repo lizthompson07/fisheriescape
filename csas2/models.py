@@ -227,6 +227,27 @@ class CSASRequest(MetadataFields):
     def region(self):
         return self.section.division.branch.region.tname
 
+    @property
+    def is_complete(self):
+        required_fields = [
+            'language',
+            'title',
+            'coordinator',
+            'client',
+            'section',
+            'issue',
+            'assistance_text',
+            'rationale',
+            'risk_text',
+            'advice_needed_by',
+            'rationale_for_timeline',
+            'prioritization',
+        ]
+        for field in required_fields:
+            if getattr(self, field) in [None, ""]:
+                return False
+        return True
+
 
 class CSASRequestNote(GenericNote):
     ''' a note pertaining to a csas request'''

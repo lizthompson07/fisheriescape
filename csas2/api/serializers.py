@@ -39,6 +39,10 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     metadata = serializers.SerializerMethodField()
     funding_display = serializers.SerializerMethodField()
     risk_text_html = serializers.SerializerMethodField()
+    is_complete = serializers.SerializerMethodField()
+
+    def get_is_complete(self, instance):
+        return instance.is_complete
 
     def get_risk_text_html(self, instance):
         return instance.risk_text_html

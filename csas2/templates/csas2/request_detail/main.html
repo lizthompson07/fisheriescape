@@ -28,7 +28,7 @@
           {% include "shared_models/_generic_breadcrumbs.html" %}
           <div class="mb-3">
             <h2 class="">{{ h1|safe }}</h2>
-{#            <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>#}
+            {#            <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>#}
           </div>
           {% bootstrap_messages %}
 
@@ -48,9 +48,21 @@
           </div>
           <div class="mb-3">
             <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
-            <a v-if="canModify" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
-              {% if object.submission_date %}{% trans "Un-Submit" %}{% else %}{% trans "Submit" %}{% endif %}
-            </a>
+
+            <span v-if="canModify">
+              <a v-if="request.submission_date" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
+                {% trans "Un-Submit" %}
+              </a>
+              <a v-else-if="request.is_complete" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
+                {% trans "Submit" %}
+              </a>
+              <span v-else  class="helper" data-toggle="tooltip" title="{% trans "All fields are mandatory before approvals and submission" %}">
+                <a  class="btn btn-sm btn-primary disabled" href="{% url 'csas2:request_submit' object.id %}">
+                  {% trans "Submit" %}
+                </a>
+              </span>
+            </span>
+
             <a v-if="canModify" class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
             <a class="btn btn-sm btn-secondary helper"
                data-toggle="tooltip" title="{% trans "Click here to clone this request into a new request" %}"
