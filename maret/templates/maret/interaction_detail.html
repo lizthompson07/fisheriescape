@@ -15,10 +15,10 @@
 {% block subcontent %}
 
   <div class="btns mb-3">
-    <a class="btn btn-sm btn-warning" href="{% url 'maret:committee_edit' object.id %}">
+    <a class="btn btn-sm btn-warning" href="{% url 'maret:interaction_edit' object.id %}">
       {% trans "Edit" %}
     </a>
-    <a class="btn btn-sm btn-danger " href="{% url 'maret:committee_delete' object.id %}">
+    <a class="btn btn-sm btn-danger " href="{% url 'maret:interaction_delete' object.id %}">
       {% trans "Delete" %}
     </a>
   </div>

@@ -7,10 +7,11 @@ from shared_models import views as shared_views
 
 from maret import views, models, utils
 from maret.test import FactoryFloor
+from maret.test.common_tests import CommonMaretTest
 
 
 @tag('all', 'view', 'index')
-class TestIndexView(common_tests.CommonTest):
+class TestIndexView(CommonMaretTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('maret:index')
@@ -40,7 +41,7 @@ class TestIndexView(common_tests.CommonTest):
 
 
 @tag('all', 'view', 'org_list')
-class TestOrganizationListView(common_tests.CommonTest):
+class TestOrganizationListView(CommonMaretTest):
 
     def setUp(self):
         super().setUp()
@@ -66,7 +67,7 @@ class TestOrganizationListView(common_tests.CommonTest):
 
 
 @tag('all', 'view', 'person_list')
-class TestPersonListView(common_tests.CommonTest):
+class TestPersonListView(CommonMaretTest):
 
     def setUp(self):
         super().setUp()
@@ -95,7 +96,7 @@ class TestPersonListView(common_tests.CommonTest):
 # Committee / Working Groups
 #######################################################
 @tag('all', 'view', 'list', 'committee_list')
-class TestCommitteeListView(common_tests.CommonTest):
+class TestCommitteeListView(CommonMaretTest):
 
     def setUp(self):
         super().setUp()
@@ -121,7 +122,7 @@ class TestCommitteeListView(common_tests.CommonTest):
 
 
 @tag('all', 'view', 'create', 'committee_create')
-class TestCommitteeCreateView(common_tests.CommonTest):
+class TestCommitteeCreateView(CommonMaretTest):
 
     def setUp(self):
         super().setUp()
@@ -145,7 +146,7 @@ class TestCommitteeCreateView(common_tests.CommonTest):
 
 
 @tag('all', 'view', 'details', 'committee_details')
-class TestCommitteeDetailView(common_tests.CommonTest):
+class TestCommitteeDetailView(CommonMaretTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.CommitteeFactory()
@@ -170,7 +171,7 @@ class TestCommitteeDetailView(common_tests.CommonTest):
 
 
 @tag('all', 'view', 'delete', 'committee_delete')
-class TestCommitteeDeleteView(common_tests.CommonTest):
+class TestCommitteeDeleteView(CommonMaretTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.CommitteeFactory()
@@ -198,7 +199,7 @@ class TestCommitteeDeleteView(common_tests.CommonTest):
 
 
 @tag('all', 'view', 'update', 'committee_update')
-class TestCommitteeUpdateView(common_tests.CommonTest):
+class TestCommitteeUpdateView(CommonMaretTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.CommitteeFactory()
@@ -227,7 +228,7 @@ class TestCommitteeUpdateView(common_tests.CommonTest):
 # Interactions
 #######################################################
 @tag('all', 'view', 'interaction_list')
-class TestInteractionListView(common_tests.CommonTest):
+class TestInteractionListView(CommonMaretTest):
 
     def setUp(self):
         super().setUp()
@@ -253,7 +254,7 @@ class TestInteractionListView(common_tests.CommonTest):
 
 
 @tag('all', 'view', 'interaction_create')
-class TestInteractionCreateView(common_tests.CommonTest):
+class TestInteractionCreateView(CommonMaretTest):
 
     def setUp(self):
         super().setUp()
@@ -277,7 +278,7 @@ class TestInteractionCreateView(common_tests.CommonTest):
 
 
 @tag('all', 'view', 'details', 'interaction_details')
-class TestInteractionDetailView(common_tests.CommonTest):
+class TestInteractionDetailView(CommonMaretTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.InteractionFactory()
@@ -301,8 +302,36 @@ class TestInteractionDetailView(common_tests.CommonTest):
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
 
+@tag('all', 'view', 'delete', 'interaction_delete')
+class TestInteractionDeleteView(CommonMaretTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.InteractionFactory()
+        self.test_url = reverse_lazy('maret:interaction_delete', args=[self.instance.pk, ])
+        self.expected_template = 'maret/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="maret_admin")
+
+    @tag("view", 'interaction_delete_view')
+    def test_view_class(self):
+        self.assert_inheritance(views.InteractionDeleteView, CommonDeleteView)
+        self.assert_inheritance(views.InteractionDeleteView, utils.AuthorRequiredMixin)
+
+    @tag("access", 'interaction_delete_access')
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("submit", 'interaction_delete_submit')
+    def test_submit(self):
+        data = FactoryFloor.InteractionFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.Interaction.objects.filter(pk=self.instance.pk).count(), 0)
+
+
 @tag('all', 'view', 'update', 'interaction_update')
-class TestCommitteeUpdateView(common_tests.CommonTest):
+class TestInteractionUpdateView(CommonMaretTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.InteractionFactory()

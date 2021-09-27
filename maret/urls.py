@@ -15,6 +15,7 @@ urlpatterns = [
     path('interaction/new/', views.InteractionCreateView.as_view(), name="interaction_new"),
     path('interaction/<int:pk>/view/', views.InteractionDetailView.as_view(), name="interaction_detail"),
     path('interaction/<int:pk>/edit/', views.InteractionUpdateView.as_view(), name="interaction_edit"),
+    path('interaction/<int:pk>/delete/', views.InteractionDeleteView.as_view(), name="interaction_delete"),
 
     path('committee/', views.CommitteeListView.as_view(), name="committee_list"),
     path('committee/new/', views.CommitteeCreateView.as_view(), name="committee_new"),

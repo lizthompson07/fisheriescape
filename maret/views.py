@@ -130,6 +130,18 @@ class InteractionDetailView(UserRequiredMixin, CommonDetailView):
         return context
 
 
+class InteractionDeleteView(AuthorRequiredMixin, CommonDeleteView):
+    model = models.Interaction
+    success_url = reverse_lazy('maret:interaction_list')
+    home_url_name = "maret:index"
+    grandparent_crumb = {"title": gettext_lazy("Committee"), "url": reverse_lazy("maret:interaction_list")}
+    template_name = "maret/confirm_delete.html"
+    delete_protection = False
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("maret:interaction_detail", args=[self.get_object().id])}
+
+
 class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
     model = models.Interaction
     form_class = forms.InteractionCreateForm

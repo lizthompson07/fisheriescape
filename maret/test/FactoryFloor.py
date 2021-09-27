@@ -58,8 +58,8 @@ class InteractionFactory(factory.django.DjangoModelFactory):
             'committee': committee.pk,
             'dfo_role': obj.dfo_role,
             'action_items': obj.action_items,
-            'species': [species, ],
-            'main_topic': [dis, ],
+            'species': [species.pk, ],
+            'main_topic': [dis.pk, ],
             'dfo_liaison': [usr.pk, ],
             'other_dfo_participants': [usr.pk, ],
         }
