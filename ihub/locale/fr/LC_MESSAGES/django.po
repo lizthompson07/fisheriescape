@@ -230,7 +230,7 @@ msgstr "Utilisateur"
 
 #: .\ihub\models.py:162
 msgid "name"
-msgstr "Nom"
+msgstr "nom"
 
 #: .\ihub\models.py:164
 msgid "role"
