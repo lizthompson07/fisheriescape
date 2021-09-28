@@ -17,15 +17,15 @@ request_status_choices = (
     (4, _("Under review")),
     (5, _("Complete")),
     # all status below here should correspond to review decision choice + 10
-    (11, _("On")),
-    (12, _("Off")),
+    (11, _("Approved")),
+    (12, _("Unapproved")),
     (13, _("Withdrawn")),
     (14, _("Deferred")),
 )
 
 request_decision_choices = (
-    (1, _("On")),
-    (2, _("Off")),
+    (1, _("Approved")),
+    (2, _("Unapproved")),
     (3, _("Withdrawn")),
     (4, _("Deferred")),
 )
