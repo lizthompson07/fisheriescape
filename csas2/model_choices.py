@@ -12,22 +12,18 @@ language_choices = (
 
 request_status_choices = (
     (1, _("Draft")),
-    (2, _("Submitted")),
-    (3, _("Ready for review")),
-    (4, _("Under review")),
+    (2, _("Submitted")),  # client submits request
+    (3, _("Ready for review")),  # signed PDF
+    (4, _("Under review")),  # review is created by coordinator
     (5, _("Complete")),
     # all status below here should correspond to review decision choice + 10
-    (11, _("Approved")),
-    (12, _("Unapproved")),
-    (13, _("Withdrawn")),
-    (14, _("Deferred")),
+    (11, _("Approved")),  # coordinator approves
+    (12, _("Withdrawn")),  # client (coordinator) withdraws
 )
 
 request_decision_choices = (
     (1, _("Approved")),
-    (2, _("Unapproved")),
-    (3, _("Withdrawn")),
-    (4, _("Deferred")),
+    (2, _("Withdrawn")),
 )
 
 prioritization_choices = (

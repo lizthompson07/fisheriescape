@@ -146,13 +146,9 @@ class CSASRequest(MetadataFields):
         else:
             self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
 
-        # if there is a process, the request status will follow the process status
+        # if there is a process, the request the request MUST have been approved.
         if self.id and self.processes.exists():
-            # if all processes linked to the request are complete, this request should also be complete
-            if self.processes.filter(status=2).count() == self.processes.all().count():
-                self.status = 5  # complete
-            else:
-                self.status = 11  # on
+            self.status = 11  # approved
         else:
             # look at the review to help determine the status
             self.status = 1  # draft
