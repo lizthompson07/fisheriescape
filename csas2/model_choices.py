@@ -19,6 +19,8 @@ request_status_choices = (
     # all status below here should correspond to review decision choice + 10
     (11, _("Approved")),  # coordinator approves
     (12, _("Withdrawn")),  # client (coordinator) withdraws
+    (13, _("temp 1")),  # client (coordinator) withdraws
+    (14, _("temp 2")),  # client (coordinator) withdraws
 )
 
 request_decision_choices = (
