@@ -386,7 +386,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     def regions(self):
         mystr = self.lead_region
         if self.other_regions.exists():
-            mystr = f"<u>{mystr}</u>"
+            mystr = f"<b><u>{mystr}</u></b>"
             mystr += f", {listrify(self.other_regions.all())}"
         return mystr
 

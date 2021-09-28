@@ -242,7 +242,7 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'id', "class": "", "width": "50px"},
         {"name": 'fiscal_year', "class": "", "width": "100px"},
-        {"name": 'title|{}'.format("title"), "class": "", "width": "400px"},
+        {"name": 'title|{}'.format("title"), "class": "w-35"},
         {"name": 'status', "class": "", "width": "100px"},
         {"name": 'coordinator', "class": "", "width": "150px"},
         {"name": 'client', "class": "", "width": "150px"},
