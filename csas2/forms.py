@@ -78,8 +78,8 @@ class ReportSearchForm(forms.Form):
     branch = forms.ChoiceField(required=False, label=gettext_lazy('DFO Branch'))
     division = forms.ChoiceField(required=False, label=gettext_lazy('DFO Division'))
     section = forms.ChoiceField(required=False, label=gettext_lazy('DFO Section'))
-
-    csas_requests = forms.MultipleChoiceField(required=False, label=gettext_lazy('CSAS Requests'), help_text=gettext("leave blank for all"))
+    csas_requests = forms.MultipleChoiceField(required=False, label=gettext_lazy('CSAS Requests'), help_text=gettext("leave blank for all"),
+                                              widget=forms.SelectMultiple(attrs=dict(style="height: 200px")))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

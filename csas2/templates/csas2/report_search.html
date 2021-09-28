@@ -193,7 +193,6 @@
     if (status) endpoint += `status=${status}&`;
 
     apiService(endpoint).then(data => {
-      console.log(data)
       var $el = $("#id_csas_requests");
       $el.empty(); // remove old options
       for (const item of data) {
