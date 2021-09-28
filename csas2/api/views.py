@@ -47,6 +47,16 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CSASRequestSerializer
     permission_classes = [CanModifyRequestOrReadOnly]
     queryset = models.CSASRequest.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = [
+        'section__division__branch__sector__region',
+        "section__division__branch__sector",
+        "section__division__branch",
+        "section__division",
+        "section",
+        "fiscal_year",
+        "status",
+    ]
 
 
 class CSASRequestNoteViewSet(viewsets.ModelViewSet):

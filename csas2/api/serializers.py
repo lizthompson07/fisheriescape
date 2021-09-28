@@ -28,6 +28,7 @@ class CSASRequestSerializer(serializers.ModelSerializer):
 
     review = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
+    status_display_html = serializers.SerializerMethodField()
     multiregional_display = serializers.SerializerMethodField()
     issue_html = serializers.SerializerMethodField()
     rationale_html = serializers.SerializerMethodField()
@@ -77,8 +78,11 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     def get_multiregional_display(self, instance):
         return instance.multiregional_display
 
-    def get_status_display(self, instance):
+    def get_status_display_html(self, instance):
         return f'<span class=" px-1 py-1 {instance.status_class}">{instance.get_status_display()}</span>'
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
 
     def get_review(self, instance):
         if hasattr(instance, "review"):
@@ -603,6 +607,7 @@ class ProcessSerializer(serializers.ModelSerializer):
     client_leads = serializers.SerializerMethodField()
     committee_members = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
+    status_display_html = serializers.SerializerMethodField()
 
     def get_committee_members(self, instance):
         return instance.committee_members
@@ -649,4 +654,7 @@ class ProcessSerializer(serializers.ModelSerializer):
         return instance.tname
 
     def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_status_display_html(self, instance):
         return f'<span class=" px-1 py-1 {instance.status_class}">{instance.get_status_display()}</span>'

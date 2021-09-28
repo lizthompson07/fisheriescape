@@ -30,46 +30,29 @@ def in_csas_admin_group(user):
 
 
 def get_section_choices(with_requests=False, full_name=True, region_filter=None, division_filter=None):
+    my_attr = _("name")
     if full_name:
         my_attr = "full_name"
-    else:
-        my_attr = _("name")
 
+    reg_kwargs = dict(division__branch__region_id__isnull=False)
     if region_filter:
-        reg_kwargs = {
-            "division__branch__region_id": region_filter
-        }
-    else:
-        reg_kwargs = {
-            "division__branch__region_id__isnull": False
-        }
+        reg_kwargs = dict(division__branch__region_id=region_filter)
 
+    div_kwargs = dict(division_id__isnull=False)
     if division_filter:
-        div_kwargs = {
-            "division_id": division_filter
-        }
-    else:
-        div_kwargs = {
-            "division_id__isnull": False
-        }
+        div_kwargs = dict(division_id=division_filter)
 
-    if not with_requests:
-        my_choice_list = [(s.id, getattr(s, my_attr)) for s in
-                          Section.objects.all().order_by(
-                              "division__branch__region",
-                              "division__branch",
-                              "division",
-                              "name",
-                          ).filter(**div_kwargs).filter(**reg_kwargs).filter(csas_requests__isnull=False)]
-    else:
-        my_choice_list = [(s.id, getattr(s, my_attr)) for s in
-                          Section.objects.filter(
-                              division__branch__name__icontains="science").order_by(
-                              "division__branch__region",
-                              "division__branch",
-                              "division",
-                              "name"
-                          ).filter(**div_kwargs).filter(**reg_kwargs)]
+    request_kwargs = dict()
+    if with_requests:
+        div_kwargs = dict(csas_requests__isnull=False)
+
+    my_choice_list = [(s.id, getattr(s, my_attr)) for s in
+                      Section.objects.all().order_by(
+                          "division__branch__region",
+                          "division__branch",
+                          "division",
+                          "name"
+                      ).filter(**div_kwargs).filter(**reg_kwargs).filter(**request_kwargs).distinct()]
     return my_choice_list
 
 
@@ -95,8 +78,7 @@ def get_sector_choices(with_requests=False, region_filter=None):
 
 
 def get_region_choices(with_requests=False):
-    region_list = set(
-        [Division.objects.get(pk=d[0]).branch.region_id for d in get_division_choices(with_requests=with_requests)])
+    region_list = set([Sector.objects.get(pk=s[0]).region_id for s in get_sector_choices(with_requests=with_requests)])
     return [(r.id, str(r)) for r in
             Region.objects.filter(id__in=region_list).order_by("name", )]
 
@@ -373,4 +355,3 @@ def get_quarter(date, as_int=False):
     else:
         quarter = 3 if as_int else _("Fall")
     return quarter
-

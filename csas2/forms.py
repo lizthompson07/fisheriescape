@@ -5,8 +5,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy, gettext
 
 from lib.templatetags.custom_filters import nz
-from shared_models.models import Section, Person, FiscalYear, SubjectMatter, Region, Division, Sector
-from . import models, model_choices
+from shared_models.models import Section, Person, FiscalYear, SubjectMatter
+from . import models, model_choices, utils
 
 attr_fp_date = {"class": "fp-date", "placeholder": gettext_lazy("Click to select a date..")}
 attr_fp_date_range = {"class": "fp-date-range", "placeholder": gettext_lazy("Click to select a range of dates..")}
@@ -74,6 +74,7 @@ class ReportSearchForm(forms.Form):
 
     region = forms.ChoiceField(required=False, label=gettext_lazy('DFO Region'))
     sector = forms.ChoiceField(required=False, label=gettext_lazy('DFO Sector'))
+    branch = forms.ChoiceField(required=False, label=gettext_lazy('DFO Branch'))
     division = forms.ChoiceField(required=False, label=gettext_lazy('DFO Division'))
     section = forms.ChoiceField(required=False, label=gettext_lazy('DFO Section'))
 
@@ -92,16 +93,19 @@ class ReportSearchForm(forms.Form):
         request_status_choices = [obj for obj in model_choices.request_status_choices]
         request_status_choices.insert(0, (None, "All"))
 
-        region_choices = [(obj.id, str(obj)) for obj in Region.objects.all()]
+        region_choices = utils.get_region_choices(with_requests=True)
         region_choices.insert(0, (None, "All"))
 
-        sector_choices = [(obj.id, str(obj)) for obj in Sector.objects.all()]
+        branch_choices = utils.get_branch_choices(with_requests=True)
+        branch_choices.insert(0, (None, "All"))
+
+        sector_choices = utils.get_sector_choices(with_requests=True)
         sector_choices.insert(0, (None, "All"))
 
-        division_choices = [(obj.id, obj) for obj in Division.objects.all()]
+        division_choices = utils.get_division_choices(with_requests=True)
         division_choices.insert(0, (None, "All"))
 
-        section_choices = [(obj.id, obj.full_name) for obj in Section.objects.filter(csas_requests__isnull=False).distinct()]
+        section_choices = utils.get_section_choices(with_requests=True)
         section_choices.insert(0, (None, "All"))
 
         self.fields["fiscal_year"].choices = fy_choices
@@ -110,10 +114,9 @@ class ReportSearchForm(forms.Form):
 
         self.fields['region'].choices = region_choices
         self.fields['sector'].choices = sector_choices
+        self.fields['branch'].choices = branch_choices
         self.fields['division'].choices = division_choices
         self.fields['section'].choices = section_choices
-        self.fields['csas_requests'].widget.attrs = multi_select_js
-
 
 
 class CSASRequestForm(forms.ModelForm):
