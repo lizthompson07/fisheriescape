@@ -220,8 +220,16 @@ class CSASRequest(MetadataFields):
         return self.section.division.branch.tname
 
     @property
+    def sector(self):
+        return self.section.division.branch.sector.tname
+
+    @property
     def region(self):
         return self.section.division.branch.region.tname
+
+    @property
+    def has_process(self):
+        return self.processes.exists()
 
     @property
     def is_complete(self):

@@ -345,6 +345,10 @@
     width: 40%;
 }
 
+.w-45 {
+    width: 45%;
+}
+
 .greyed {
     background-color: #dddcdc;
 }

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iHub - traduction 2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-27 08:27-0300\n"
+"POT-Creation-Date: 2021-09-28 10:24-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -41,53 +41,53 @@ msgstr "Le nom contiens"
 msgid "Click to select a date.."
 msgstr "Cliquez pour sélectionner une date..."
 
-#: .\ihub\forms.py:116
+#: .\ihub\forms.py:140
 msgid "Capacity Report (Excel Spreadsheet)"
 msgstr "Rapport sur les capacités (tableur excel)"
 
-#: .\ihub\forms.py:117
+#: .\ihub\forms.py:141
 msgid "Organizational Report / Cue Card (PDF)"
 msgstr "Rapport sur l'organisation (PDF)"
 
-#: .\ihub\forms.py:118
+#: .\ihub\forms.py:142
 msgid "iHub Summary Report"
 msgstr "Rapport sommaire du iHub"
 
-#: .\ihub\forms.py:119
+#: .\ihub\forms.py:143
 msgid "Engagement Update Log"
 msgstr "Mises à jour de la mobilisation"
 
-#: .\ihub\forms.py:120
+#: .\ihub\forms.py:144
 msgid "Consultation Instructions (PDF)"
 msgstr "Instructions de consultation (PDF)"
 
-#: .\ihub\forms.py:121
+#: .\ihub\forms.py:145
 msgid "Consultation Instructions - Mail Merge (xlsx)"
 msgstr "Instructions de consultations (Liste de courriels)"
 
-#: .\ihub\forms.py:122
+#: .\ihub\forms.py:146
 #, fuzzy
 #| msgid "Consultation Roles"
 msgid "Consultation Report (xlsx)"
 msgstr "Rôles de consultation"
 
-#: .\ihub\forms.py:145 .\ihub\forms.py:153 .\ihub\models.py:201
+#: .\ihub\forms.py:169 .\ihub\forms.py:177 .\ihub\models.py:201
 msgid "Internal"
 msgstr "Note interne"
 
-#: .\ihub\forms.py:146 .\ihub\forms.py:154
+#: .\ihub\forms.py:170 .\ihub\forms.py:178
 msgid "Internal (** for internal reports only)"
 msgstr ""
 
-#: .\ihub\forms.py:147 .\ihub\models.py:200
+#: .\ihub\forms.py:171 .\ihub\models.py:200
 msgid "Follow-up (*)"
 msgstr "Suivi (*)"
 
-#: .\ihub\forms.py:280
+#: .\ihub\forms.py:304
 msgid "DFO employee"
 msgstr "Employé du MPO"
 
-#: .\ihub\forms.py:309
+#: .\ihub\forms.py:333
 msgid "Select a contact"
 msgstr "Sélectionner un contact"
 
