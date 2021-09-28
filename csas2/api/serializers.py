@@ -602,6 +602,7 @@ class ProcessSerializer(serializers.ModelSerializer):
     science_leads = serializers.SerializerMethodField()
     client_leads = serializers.SerializerMethodField()
     committee_members = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
 
     def get_committee_members(self, instance):
         return instance.committee_members
@@ -646,3 +647,6 @@ class ProcessSerializer(serializers.ModelSerializer):
 
     def get_tname(self, instance):
         return instance.tname
+
+    def get_status_display(self, instance):
+        return f'<span class=" px-1 py-1 {instance.status_class}">{instance.get_status_display()}</span>'
