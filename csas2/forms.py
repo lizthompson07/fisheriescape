@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy, gettext
@@ -87,7 +88,7 @@ class ReportSearchForm(forms.Form):
             (1, gettext("Only posted")),
             (0, gettext("Only un-posted")),
         )
-        fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(processes__isnull=False).distinct()]
+        fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(Q(processes__isnull=False)|Q(csas_requests__isnull=False)).distinct()]
         fy_choices.insert(0, (None, "All"))
 
         request_status_choices = [obj for obj in model_choices.request_status_choices]
