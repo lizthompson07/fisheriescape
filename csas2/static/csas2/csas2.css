@@ -79,12 +79,12 @@ h1 {
     background-color: #4c6fc6;
 }
 
-.off, .deferred, .delayed {
+.unapproved, .deferred, .delayed {
     color: white;
     background-color: #e94a65;
 }
 
-.on, .posted, .ok, .complete, .final {
+.approved, .posted, .ok, .complete, .final {
     background-color: #d5faae;
 }
 
