@@ -288,13 +288,42 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
     template_name = 'csas2/request_pdf.html'
 
     def get_object_list(self):
+        """
+        qp.get("request_status")
+        qp.get("region")
+        qp.get("sector")
+        qp.get("branch")
+        qp.get("division")
+        qp.get("section")
+
+        """
         qp = self.request.GET
         qs = models.CSASRequest.objects.all()
         if qp.get("csas_requests"):
             csas_requests = qp.get("csas_requests").split(",")
-            print(csas_requests)
             qs = qs.filter(id__in=csas_requests)
-
+        else:
+            fiscal_year = qp.get("fiscal_year", None)
+            request_status = qp.get("request_status", None)
+            region = qp.get("region", None)
+            sector = qp.get("sector", None)
+            branch = qp.get("branch", None)
+            division = qp.get("division", None)
+            section = qp.get("section", None)
+            if fiscal_year:
+                qs = qs.filter(fiscal_year_id=fiscal_year)
+            if request_status:
+                qs = qs.filter(status=request_status)
+            if region:
+                qs = qs.filter(section__division__bramch__sector__region_id=region)
+            if sector:
+                qs = qs.filter(section__division__bramch__sector_id=sector)
+            if branch:
+                qs = qs.filter(section__division__branch_id=branch)
+            if division:
+                qs = qs.filter(section__division_id=division)
+            if section:
+                qs = qs.filter(section_id=section)
         return qs
 
     def get_context_data(self, **kwargs):
@@ -1154,10 +1183,6 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
         division = form.cleaned_data["division"] if form.cleaned_data["division"] else "None"
         section = form.cleaned_data["section"] if form.cleaned_data["section"] else "None"
         csas_requests = listrify(form.cleaned_data["csas_requests"], ",") if form.cleaned_data["csas_requests"] else "None"
-
-        if csas_requests != "None":
-            print(csas_requests, type(csas_requests))
-            pass
 
         is_posted = form.cleaned_data["is_posted"] if form.cleaned_data["is_posted"] != "" else "None"
         if report == 1:

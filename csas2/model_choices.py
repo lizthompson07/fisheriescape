@@ -17,12 +17,12 @@ request_status_choices = (
     (4, _("Under review")),  # review is created by coordinator
     (5, _("Complete")),
     # all status below here should correspond to review decision choice + 10
-    (11, _("Approved")),  # coordinator approves
+    (11, _("Accepted")),  # coordinator approves
     (12, _("Withdrawn")),  # client (coordinator) withdraws
 )
 
 request_decision_choices = (
-    (1, _("Approved")),
+    (1, _("Accepted")),
     (2, _("Withdrawn")),
 )
 
