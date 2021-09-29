@@ -102,6 +102,7 @@ class Interaction(models.Model):
         (8, "Maritimes Region correspondence "),
     )
 
+    description = models.CharField(max_length=255, default="N/A", verbose_name="Short Description")
     interaction_type = models.IntegerField(choices=interaction_type_choices, default=None)
     committee = models.ForeignKey(Committee, on_delete=models.DO_NOTHING, default=1,
                                   verbose_name="Committee / Working Group")

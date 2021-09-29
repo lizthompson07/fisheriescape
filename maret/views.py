@@ -83,6 +83,7 @@ class InteractionListView(UserRequiredMixin, CommonFilterView):
     filterset_class = filters.InteractionFilter
     model = models.Interaction
     field_list = [
+        {"name": 'description', "class": "", "width": ""},
         {"name": 'interaction_type', "class": "", "width": ""},
         {"name": 'main_topics', "class": "", "width": ""},
         {"name": 'date_of_meeting', "class": "", "width": ""},
