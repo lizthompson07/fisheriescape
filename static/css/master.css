@@ -101,12 +101,12 @@
     font-size: small;
 }
 
-.bad {
+.bad, .no {
     background-color: pink;
     color: black;
 }
 
-.good {
+.good, .yes {
     background-color: lightgreen;
     color: black;
 }

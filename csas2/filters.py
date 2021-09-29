@@ -97,6 +97,7 @@ class ProcessFilter(django_filters.FilterSet):
         model = models.Process
         fields = {
             'type': ['exact'],
+            'status': ['exact'],
         }
 
 

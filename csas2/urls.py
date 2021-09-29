@@ -29,11 +29,11 @@ urlpatterns = [
     path('requests/', views.CSASRequestListView.as_view(), name="request_list"),
     path('requests/new/', views.CSASRequestCreateView.as_view(), name="request_new"),
     path('requests/<int:pk>/view/', views.CSASRequestDetailView.as_view(), name="request_detail"),
-    path('requests/<int:pk>/pdf/', views.CSASRequestPDFView.as_view(), name="request_pdf"),
     path('requests/<int:pk>/edit/', views.CSASRequestUpdateView.as_view(), name="request_edit"),
     path('requests/<int:pk>/clone/', views.CSASRequestCloneUpdateView.as_view(), name="request_clone"),
     path('requests/<int:pk>/delete/', views.CSASRequestDeleteView.as_view(), name="request_delete"),
     path('requests/<int:pk>/submit/', views.CSASRequestSubmitView.as_view(), name="request_submit"),
+    path('requests/print-requests/', views.CSASRequestPDFView.as_view(), name="request_pdf"),
 
     # request files
     path('requests/<int:crequest>/new-file/', views.CSASRequestFileCreateView.as_view(), name='request_file_new'),

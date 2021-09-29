@@ -242,7 +242,7 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'id', "class": "", "width": "50px"},
         {"name": 'fiscal_year', "class": "", "width": "100px"},
-        {"name": 'title|{}'.format("title"), "class": "w-40"},
+        {"name": 'title|{}'.format("title"), "class": "w-35"},
         {"name": 'status', "class": "", "width": "100px"},
         {"name": 'has_process|{}'.format("has process?"), "class": "text-center", "width": "120px"},
         {"name": 'coordinator', "class": "", "width": "150px"},
@@ -287,13 +287,19 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
 class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
     template_name = 'csas2/request_pdf.html'
 
-    def get_csas_request(self):
-        return get_object_or_404(models.CSASRequest, pk=self.kwargs.get("pk"))
+    def get_object_list(self):
+        qp = self.request.GET
+        qs = models.CSASRequest.objects.all()
+        if qp.get("csas_requests"):
+            csas_requests = qp.get("csas_requests").split(",")
+            print(csas_requests)
+            qs = qs.filter(id__in=csas_requests)
+
+        return qs
 
     def get_context_data(self, **kwargs):
-        obj = self.get_csas_request()
         context = super().get_context_data(**kwargs)
-        context["object"] = obj
+        context["object_list"] = self.get_object_list()
         context["now"] = timezone.now()
         return context
 
@@ -532,6 +538,7 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
             data["name"] = csas_request.title
             data["csas_requests"] = [csas_request.id, ]
             data["coordinator"] = csas_request.coordinator
+            data["advice_date"] = csas_request.target_advice_date
         return data
 
     def form_valid(self, form):
@@ -1140,9 +1147,29 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
         fy = form.cleaned_data["fiscal_year"] if form.cleaned_data["fiscal_year"] else "None"
+        request_status = form.cleaned_data["request_status"] if form.cleaned_data["request_status"] else "None"
+        region = form.cleaned_data["region"] if form.cleaned_data["region"] else "None"
+        sector = form.cleaned_data["sector"] if form.cleaned_data["sector"] else "None"
+        branch = form.cleaned_data["branch"] if form.cleaned_data["branch"] else "None"
+        division = form.cleaned_data["division"] if form.cleaned_data["division"] else "None"
+        section = form.cleaned_data["section"] if form.cleaned_data["section"] else "None"
+        csas_requests = form.cleaned_data["csas_requests"] if form.cleaned_data["csas_requests"] else "None"
+
         is_posted = form.cleaned_data["is_posted"] if form.cleaned_data["is_posted"] != "" else "None"
         if report == 1:
             return HttpResponseRedirect(f"{reverse('csas2:meeting_report')}?fiscal_year={fy}&is_posted={is_posted}")
+        if report == 2:
+            return HttpResponseRedirect(f"{reverse('csas2:request_pdf')}?"
+                                        f"fiscal_year={fy}&"
+                                        f"request_status={request_status}&"
+                                        f"region={region}&"
+                                        f"sector={sector}&"
+                                        f"branch={branch}&"
+                                        f"division={division}&"
+                                        f"section={section}&"
+                                        f"csas_requests={csas_requests}&"
+                                        )
+
         messages.error(self.request, "Report is not available. Please select another report.")
         return HttpResponseRedirect(reverse("csas2:reports"))
 

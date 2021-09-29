@@ -72,7 +72,7 @@
             </button>
             {% if object.status >= 2 %}
 
-              <a href="{% url 'csas2:request_pdf' object.id %}" class="btn btn-outline-dark btn-sm ml-3">
+              <a href="{% url 'csas2:request_pdf' %}?csas_requests={{ object.id }}" class="btn btn-outline-dark btn-sm ml-3">
                 <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
               </a>
             {% endif %}

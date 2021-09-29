@@ -252,6 +252,12 @@ class CSASRequest(MetadataFields):
                 return False
         return True
 
+    @property
+    def target_advice_date(self):
+        if self.review and self.review.advice_date:
+            return self.review.advice_date
+        return self.advice_needed_by
+
 
 class CSASRequestNote(GenericNote):
     ''' a note pertaining to a csas request'''
@@ -308,8 +314,7 @@ class CSASRequestFile(GenericFile):
 class Process(SimpleLookupWithUUID, MetadataFields):
     name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (fr)"))
-    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="processes", verbose_name=_("fiscal year"))
-    status = models.IntegerField(choices=model_choices.process_status_choices, verbose_name=_("status"), default=1)
+    status = models.IntegerField(choices=model_choices.get_process_status_choices(), verbose_name=_("status"), default=1)
     scope = models.IntegerField(verbose_name=_("scope"), choices=model_choices.process_scope_choices)
     type = models.IntegerField(verbose_name=_("type"), choices=model_choices.process_type_choices)
     lead_region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions", verbose_name=_("lead region"))
@@ -320,11 +325,13 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
     editors = models.ManyToManyField(User, blank=True, verbose_name=_("process editors"), related_name="process_editors",
                                      help_text=_("A list of non-CSAS staff with permissions to edit the process, meetings and documents"))
+    advice_date = models.DateTimeField(verbose_name=_("Target date for to provide Science advice"), blank=True, null=True)
 
     # non-editable
     is_posted = models.BooleanField(default=False, verbose_name=_("is posted on CSAS website?"))
     posting_request_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Date of posting request"))
     posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="processes", verbose_name=_("fiscal year"), editable=False)
 
     # calculated
 
@@ -332,15 +339,23 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         ordering = ["fiscal_year", _("name")]
 
     def save(self, *args, **kwargs):
-        # # if this is a new record, populate fy based on current time
-        # if not self.fiscal_year:
-        #     self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
+        # if there is no advice date, take the target date from the first attached request
+        if not self.advice_date and self.csas_requests.exists():
+            self.advice_date = self.csas_requests.first().target_advice_date
+
+        # if there is an advice date, FY should follow it..
+        if self.advice_date:
+            self.fiscal_year_id = fiscal_year(self.advice_date, sap_style=True)
+
+
         # # if there is a meeting, look to the latest meeting to determine fy
         # elif self.meetings.exists():
         #     self.fiscal_year_id = fiscal_year(self.meetings.order_by("start_date").last().start_date, sap_style=True)
         # # otherwise, look to the creation date
         # else:
         #     self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
+
+
 
         super().save(*args, **kwargs)
 

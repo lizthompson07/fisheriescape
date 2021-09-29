@@ -94,6 +94,8 @@ class ReportSearchForm(forms.Form):
         request_status_choices = [obj for obj in model_choices.request_status_choices]
         request_status_choices.insert(0, (None, "All"))
 
+        request_choices = [(obj.id, f"{obj.id} - {obj.title}") for obj in models.CSASRequest.objects.all()]
+
         region_choices = utils.get_region_choices(with_requests=True)
         region_choices.insert(0, (None, "All"))
 
@@ -112,6 +114,7 @@ class ReportSearchForm(forms.Form):
         self.fields["fiscal_year"].choices = fy_choices
         self.fields["is_posted"].choices = posted_choices
         self.fields["request_status"].choices = request_status_choices
+        self.fields["csas_requests"].choices = request_choices
 
         self.fields['region'].choices = region_choices
         self.fields['sector'].choices = sector_choices
@@ -290,7 +293,7 @@ class ProcessForm(forms.ModelForm):
             'csas_requests',
             'name',
             'nom',
-            'fiscal_year',
+            'advice_date',
             'status',
             'scope',
             'type',
