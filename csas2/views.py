@@ -298,26 +298,29 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
 
         """
         qp = self.request.GET
+
+        csas_requests = qp.get("fiscal_year") if qp.get("csas_requests") and qp.get("csas_requests") != "None" else None
+        fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
+        request_status = qp.get("request_status") if qp.get("request_status") and qp.get("request_status") != "None" else None
+        region = qp.get("region") if qp.get("region") and qp.get("region") != "None" else None
+        sector = qp.get("sector") if qp.get("sector") and qp.get("sector") != "None" else None
+        branch = qp.get("branch") if qp.get("branch") and qp.get("branch") != "None" else None
+        division = qp.get("division") if qp.get("division") and qp.get("division") != "None" else None
+        section = qp.get("section") if qp.get("section") and qp.get("section") != "None" else None
+
         qs = models.CSASRequest.objects.all()
-        if qp.get("csas_requests"):
+        if csas_requests:
             csas_requests = qp.get("csas_requests").split(",")
             qs = qs.filter(id__in=csas_requests)
         else:
-            fiscal_year = qp.get("fiscal_year", None)
-            request_status = qp.get("request_status", None)
-            region = qp.get("region", None)
-            sector = qp.get("sector", None)
-            branch = qp.get("branch", None)
-            division = qp.get("division", None)
-            section = qp.get("section", None)
             if fiscal_year:
                 qs = qs.filter(fiscal_year_id=fiscal_year)
             if request_status:
                 qs = qs.filter(status=request_status)
             if region:
-                qs = qs.filter(section__division__bramch__sector__region_id=region)
+                qs = qs.filter(section__division__branch__sector__region_id=region)
             if sector:
-                qs = qs.filter(section__division__bramch__sector_id=sector)
+                qs = qs.filter(section__division__branch__sector_id=sector)
             if branch:
                 qs = qs.filter(section__division__branch_id=branch)
             if division:
