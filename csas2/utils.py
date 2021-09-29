@@ -223,7 +223,7 @@ def get_review_field_list():
         'prioritization_display|{}'.format(_("prioritization")),
         'decision_display|{}'.format(_("decision")),
         'advice_date',
-        'deferred_display|{}'.format(_("What the original request date deferred?")),
+        'deferred_display|{}'.format(_("Was the original request date deferred?")),
         'notes',
         'metadata|{}'.format(_("metadata")),
     ]
