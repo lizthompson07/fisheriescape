@@ -16,7 +16,7 @@ from django.utils.timezone import make_aware, utc
 from django.utils.translation import gettext_lazy, gettext as _
 from easy_pdf.views import PDFTemplateView
 
-from lib.functions.custom_functions import fiscal_year, truncate
+from lib.functions.custom_functions import fiscal_year, truncate, listrify
 from shared_models.models import Person, FiscalYear, SubjectMatter
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
@@ -1153,7 +1153,11 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
         branch = form.cleaned_data["branch"] if form.cleaned_data["branch"] else "None"
         division = form.cleaned_data["division"] if form.cleaned_data["division"] else "None"
         section = form.cleaned_data["section"] if form.cleaned_data["section"] else "None"
-        csas_requests = form.cleaned_data["csas_requests"] if form.cleaned_data["csas_requests"] else "None"
+        csas_requests = listrify(form.cleaned_data["csas_requests"], ",") if form.cleaned_data["csas_requests"] else "None"
+
+        if csas_requests != "None":
+            print(csas_requests, type(csas_requests))
+            pass
 
         is_posted = form.cleaned_data["is_posted"] if form.cleaned_data["is_posted"] != "" else "None"
         if report == 1:
