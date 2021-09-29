@@ -40,7 +40,10 @@ class TestIndexView(CommonMaretTest):
         self.assert_inheritance(views.IndexView, shared_views.CommonTemplateView)
 
 
-@tag('all', 'view', 'org_list')
+#######################################################
+# Organizations
+#######################################################
+@tag('all', 'view', 'list', 'org_list')
 class TestOrganizationListView(CommonMaretTest):
 
     def setUp(self):
@@ -66,6 +69,35 @@ class TestOrganizationListView(CommonMaretTest):
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
 
+@tag('all', 'view', 'details', 'org_details')
+class TestOrganizationDetailView(CommonMaretTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.OrganizationFactory()
+        self.test_url = reverse_lazy('maret:org_detail', args=[self.instance.pk, ])
+        self.expected_template = 'maret/organization_detail.html'
+        self.user = self.get_and_login_user(in_group="maret_user")
+
+    @tag("view", "org_details_view")
+    def test_view_class(self):
+        self.assert_inheritance(views.OrganizationDetailView, CommonDetailView)
+
+    @tag("access", "org_details_access", )
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("context", "org_details_context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+
+#######################################################
+# Person / Contacts
+#######################################################
 @tag('all', 'view', 'person_list')
 class TestPersonListView(CommonMaretTest):
 

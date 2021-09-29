@@ -25,35 +25,6 @@ class IndexView(UserRequiredMixin, CommonTemplateView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class OrganizationListView(UserRequiredMixin, CommonFilterView):
-    template_name = 'maret/maret_list.html'
-    queryset = ml_models.Organization.objects.all().distinct().annotate(
-        search_term=Concat(
-            'name_eng', Value(" "),
-            'abbrev', Value(" "),
-            'name_ind', Value(" "),
-            'former_name', Value(" "),
-            'province__name', Value(" "),
-            'province__nom', Value(" "),
-            'province__abbrev_eng', Value(" "),
-            'province__abbrev_fre', output_field=TextField()))
-    filterset_class = filters.OrganizationFilter
-    paginate_by = 25
-    field_list = [
-        {"name": 'name_eng', "class": "", "width": ""},
-        {"name": 'name_ind', "class": "", "width": ""},
-        {"name": 'abbrev', "class": "", "width": ""},
-        {"name": 'province', "class": "", "width": ""},
-        {"name": 'grouping', "class": "", "width": "200px"},
-        {"name": 'full_address|' + str(_("Full address")), "class": "", "width": "300px"},
-        {"name": 'Audio recording|{}'.format(_("Audio recording")), "class": "", "width": ""},
-    ]
-    home_url_name = "maret:index"
-    new_object_url_name = "maret:org_new"
-    # row_object_url_name = "maret:org_detail"
-    container_class = "container-fluid"
-
-
 class PersonListView(UserRequiredMixin, CommonFilterView):
     template_name = 'maret/maret_list.html'
     filterset_class = filters.PersonFilter
@@ -158,7 +129,6 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
         return {'last_modified_by': self.request.user}
 
 
-
 #######################################################
 # Committee / Working Groups
 #######################################################
@@ -242,6 +212,38 @@ class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateView):
         return {'last_modified_by': self.request.user}
 
 
+#######################################################
+# Organization
+#######################################################
+class OrganizationListView(UserRequiredMixin, CommonFilterView):
+    template_name = 'maret/maret_list.html'
+    queryset = ml_models.Organization.objects.all().distinct().annotate(
+        search_term=Concat(
+            'name_eng', Value(" "),
+            'abbrev', Value(" "),
+            'name_ind', Value(" "),
+            'former_name', Value(" "),
+            'province__name', Value(" "),
+            'province__nom', Value(" "),
+            'province__abbrev_eng', Value(" "),
+            'province__abbrev_fre', output_field=TextField()))
+    filterset_class = filters.OrganizationFilter
+    paginate_by = 25
+    field_list = [
+        {"name": 'name_eng', "class": "", "width": ""},
+        {"name": 'name_ind', "class": "", "width": ""},
+        {"name": 'abbrev', "class": "", "width": ""},
+        {"name": 'province', "class": "", "width": ""},
+        {"name": 'grouping', "class": "", "width": "200px"},
+        {"name": 'full_address|' + str(_("Full address")), "class": "", "width": "300px"},
+        {"name": 'Audio recording|{}'.format(_("Audio recording")), "class": "", "width": ""},
+    ]
+    home_url_name = "maret:index"
+    new_object_url_name = "maret:org_new"
+    row_object_url_name = "maret:org_detail"
+    container_class = "container-fluid"
+
+
 class OrganizationCreateView(AuthorRequiredMixin, CommonCreateView):
     model = ml_models.Organization
     template_name = 'maret/form.html'
@@ -257,6 +259,52 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateView):
         object.locked_by_ihub = True
         super().form_valid(form)
         return HttpResponseRedirect(reverse_lazy('maret:org_detail', kwargs={'pk': object.id}))
+
+
+class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
+    model = ml_models.Organization
+    template_name = 'maret/organization_detail.html'
+    field_list = [
+        'name_eng',
+        'name_ind',
+        'former_name',
+        'abbrev',
+        'address',
+        'mailing_address',
+        'city',
+        'postal_code',
+        'province',
+        'phone',
+        'fax',
+        'grouping',
+        'regions',
+        'sectors',
+        'dfo_contact_instructions',
+        'relationship_rating',
+        'orgs',
+        'nation',
+        'website',
+        'council_quorum',
+        'next_election',
+        'new_coucil_effective_date',
+        'election_term',
+        'population_on_reserve',
+        'population_off_reserve',
+        'population_other_reserve',
+        'fin',
+        'processing_plant',
+        'wharf',
+        'reserves',
+        "metadata|{}".format(gettext_lazy("metadata")),
+    ]
+    home_url_name = "maret:index"
+    parent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("maret:org_list")}
+    container_class = "container-fluid"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return context
 
 
 class TopicFormsetView(AdminRequiredMixin, CommonFormsetView):

@@ -8,6 +8,7 @@ urlpatterns = [
 
     path('organization/', views.OrganizationListView.as_view(), name="org_list"),
     path('organization/new/', views.OrganizationCreateView.as_view(), name="org_new"),
+    path('organization/<int:pk>/view/', views.OrganizationDetailView.as_view(), name="org_detail"),
 
     path('person/', views.PersonListView.as_view(), name="person_list"),
 

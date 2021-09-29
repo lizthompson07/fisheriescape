@@ -7,6 +7,7 @@ from django.utils import timezone
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, BranchFactory, DivisionFactory
 
 from maret import models
+from masterlist import models as ml_models
 
 faker = Factory.create()
 
@@ -15,6 +16,7 @@ class InteractionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Interaction
 
+    description = factory.lazy_attribute(lambda o: faker.text())
     interaction_type = factory.lazy_attribute(lambda o: faker.pyint(1, 3))
     committee = factory.SubFactory("maret.test.FactoryFloor.CommitteeFactory")
     dfo_role = factory.lazy_attribute(lambda o: faker.pyint(1, 11))
@@ -54,6 +56,7 @@ class InteractionFactory(factory.django.DjangoModelFactory):
         usr = UserFactory()
 
         return {
+            'description': obj.description,
             'interaction_type': obj.interaction_type,
             'committee': committee.pk,
             'dfo_role': obj.dfo_role,
@@ -109,6 +112,22 @@ class CommitteeFactory(factory.django.DjangoModelFactory):
             'last_modified_by': user.pk,
             'dfo_liaison': [user.pk, ],
             'other_dfo_branch': [branch.pk, ]
+        }
+
+
+class OrganizationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ml_models.Organization
+
+    name_eng = factory.lazy_attribute(lambda o: faker.word())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'name_eng': faker.word(),
+            'processing_plant': 0,
+            'wharf': 0,
+            'grouping': ml_models.Grouping.objects.filter(is_indigenous=True).first().id,
         }
 
 
