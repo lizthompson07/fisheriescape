@@ -8,6 +8,7 @@ from django.db import models
 from django.db.models import Sum
 from django.template.defaultfilters import date, slugify, pluralize
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext, get_language, activate
 from markdown import markdown
@@ -254,7 +255,7 @@ class CSASRequest(MetadataFields):
 
     @property
     def target_advice_date(self):
-        if self.review and self.review.advice_date:
+        if hasattr(self, "review") and self.review.advice_date:
             return self.review.advice_date
         return self.advice_needed_by
 
@@ -347,25 +348,43 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         if self.advice_date:
             self.fiscal_year_id = fiscal_year(self.advice_date, sap_style=True)
 
+        # if there is a process, the request the request MUST have been approved.
+        if hasattr(self, "tor") and self.tor.is_complete:
+            self.status = 22  # tor complete!
+        now = timezone.now()
 
-        # # if there is a meeting, look to the latest meeting to determine fy
-        # elif self.meetings.exists():
-        #     self.fiscal_year_id = fiscal_year(self.meetings.order_by("start_date").last().start_date, sap_style=True)
-        # # otherwise, look to the creation date
-        # else:
-        #     self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
+        # has the latest scheduled meeting passed
+        meeting_qs = self.meetings.filter(is_planning=False).order_by("end_date")
+        if meeting_qs.exists() and meeting_qs.last().end_date and meeting_qs.last().end_date <= now:
+            self.status = 25  # meeting complete!
 
-
+        # has the key doc been completed
+        doc_qs = self.documents.filter(status__in=[12, 17])
+        if doc_qs.exists():
+            self.status = 100  # complete!
 
         super().save(*args, **kwargs)
 
+    # @property
+    # def status_display(self):
+    #     return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
+    #
+    # @property
+    # def status_class(self):
+    #     return slugify(self.get_status_display()) if self.status else ""
+
+
+
     @property
     def status_display(self):
-        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
+        stage = model_choices.get_process_status_lookup().get(self.status).get("stage")
+        return mark_safe(f'<span class=" px-1 py-1 {stage}">{self.get_status_display()}</span>')
 
     @property
     def status_class(self):
-        return slugify(self.get_status_display()) if self.status else ""
+        return model_choices.get_process_status_lookup().get(self.status).get("stage")
+
+
 
     def get_absolute_url(self):
         return reverse("csas2:process_detail", args=[self.pk])
@@ -424,6 +443,8 @@ class TermsOfReference(MetadataFields):
                                    verbose_name=_("Linked to which meeting?"),
                                    help_text=_("The ToR will pull several fields from the linked meeting (e.g., dates, chair, location, ...)"))
     expected_document_types = models.ManyToManyField("DocumentType", blank=True, verbose_name=_("expected publications"))
+    is_complete = models.BooleanField(default=False, verbose_name=_("Are the ToRs complete?"), choices=YES_NO_CHOICES,
+                                      help_text=_("Selecting yes will update the process status"))
 
     @property
     def context_en_html(self):

@@ -310,6 +310,7 @@ class ProcessForm(forms.ModelForm):
             'coordinator': forms.Select(attrs=chosen_js),
             'lead_region': forms.Select(attrs=chosen_js),
             'other_regions': forms.SelectMultiple(attrs=chosen_js),
+            'advice_date': forms.DateInput(attrs=dict(type="date")),
         }
 
     def __init__(self, *args, **kwargs):
