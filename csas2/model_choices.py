@@ -64,11 +64,6 @@ process_status_dict = (
     dict(trigger=None, stage="complete", text=_("Complete"), value=100),
     ####################
     dict(trigger=None, stage="withdrawn", text=_("Withdrawn"), value=90),
-    ####################
-    dict(trigger=None, stage="withdrawn", text=_("temp-complete"), value=2),
-    dict(trigger=None, stage="withdrawn", text=_("temp-deferred"), value=3),
-    dict(trigger=None, stage="withdrawn", text=_("temp-delayed"), value=4),
-    dict(trigger=None, stage="withdrawn", text=_("temp-tentative"), value=5),
 )
 
 
