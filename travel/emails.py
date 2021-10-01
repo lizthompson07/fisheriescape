@@ -161,7 +161,7 @@ class TripCostWarningEmail(Email):
     subject_fr = "Avertissement de coût de voyage ***"
 
     def get_recipient_list(self):
-        travel_admin_list = [user.email for user in User.objects.filter(groups__name="travel_admin")]
+        travel_admin_list = [user.email for user in User.objects.filter(groups__name="travel_adm_admin")]
         travel_admin_list.append("DFO.ScienceTravel-VoyagesSciences.MPO@dfo-mpo.gc.ca")
         return travel_admin_list
 
