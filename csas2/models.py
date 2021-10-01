@@ -42,7 +42,7 @@ def doc_directory_path(instance, filename):
 
 
 class GenericFile(models.Model):
-    caption = models.CharField(max_length=255)
+    caption = models.CharField(max_length=255, verbose_name=_("caption"))
     file = models.FileField()
     date_created = models.DateTimeField(auto_now=True, editable=False)
 
@@ -56,8 +56,8 @@ class GenericFile(models.Model):
 
 class GenericCost(models.Model):
     cost_category = models.IntegerField(choices=model_choices.cost_category_choices, verbose_name=_("cost category"))
-    description = models.CharField(max_length=1000, blank=True, null=True)
-    funding_source = models.CharField(max_length=255, blank=True, null=True)
+    description = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description"))
+    funding_source = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("funding source"))
     amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
 
     def save(self, *args, **kwargs):
@@ -373,8 +373,6 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     # def status_class(self):
     #     return slugify(self.get_status_display()) if self.status else ""
 
-
-
     @property
     def status_display(self):
         stage = model_choices.get_process_status_lookup().get(self.status).get("stage")
@@ -382,9 +380,10 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     @property
     def status_class(self):
-        return model_choices.get_process_status_lookup().get(self.status).get("stage")
-
-
+        try:
+            return model_choices.get_process_status_lookup().get(self.status).get("stage")
+        except:
+            pass
 
     def get_absolute_url(self):
         return reverse("csas2:process_detail", args=[self.pk])
@@ -662,7 +661,7 @@ class MeetingResource(SimpleLookup, MetadataFields):
 
 
 class MeetingCost(GenericCost):
-    meeting = models.ForeignKey(Meeting, related_name='costs', on_delete=models.CASCADE)
+    meeting = models.ForeignKey(Meeting, related_name='costs', on_delete=models.CASCADE , verbose_name=_("meeting"))
 
 
 class MeetingFile(GenericFile):
@@ -729,7 +728,7 @@ class DocumentType(SimpleLookup):
 
 
 class Document(MetadataFields):
-    process = models.ForeignKey(Process, on_delete=models.CASCADE, related_name="documents", editable=False)
+    process = models.ForeignKey(Process, on_delete=models.CASCADE, related_name="documents", editable=False, verbose_name=_("process"))
     document_type = models.ForeignKey(DocumentType, on_delete=models.DO_NOTHING, verbose_name=_("document type"))
     title_en = models.CharField(max_length=255, verbose_name=_("title (English)"), blank=True, null=True)
     title_fr = models.CharField(max_length=255, verbose_name=_("title (French)"), blank=True, null=True)
@@ -897,8 +896,8 @@ class DocumentTracking(MetadataFields):
 
 class Author(models.Model):
     ''' a person that was invited to a meeting'''
-    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="authors")
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="authorship")
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="authors", verbose_name=_("document"))
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="authorship", verbose_name=_("person"))
     is_lead = models.BooleanField(default=False, verbose_name=_("lead author?"))
 
     class Meta:

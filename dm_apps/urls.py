@@ -139,11 +139,6 @@ if settings.INSTALLED_APPS.count("diets"):
 else:
     print("not connecting diets app")
 
-if settings.INSTALLED_APPS.count("projects"):
-    urlpatterns += i18n_patterns(path('projects/', include('projects.urls')), prefix_default_language=True)
-else:
-    print("not connecting projects app")
-
 if settings.INSTALLED_APPS.count("projects2"):
     urlpatterns += i18n_patterns(path('project-planning/', include('projects2.urls')), prefix_default_language=True)
 else:
@@ -223,11 +218,6 @@ if settings.INSTALLED_APPS.count("shiny"):
     urlpatterns += i18n_patterns(path('shiny-apps/', include('shiny.urls')), prefix_default_language=True)
 else:
     print("not connecting shiny app repo")
-
-if settings.INSTALLED_APPS.count("csas"):
-    urlpatterns += i18n_patterns(path('csas/', include('csas.urls')), prefix_default_language=True)
-else:
-    print("not connecting csas app")
 
 if settings.INSTALLED_APPS.count("csas2"):
     urlpatterns += i18n_patterns(path('csas-sccs/', include('csas2.urls')), prefix_default_language=True)

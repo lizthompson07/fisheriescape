@@ -177,11 +177,10 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
         if self.h1:
             return self.h1
         else:
-            return gettext(
-                "Are you sure you want to delete the following {}? <br>  <span class='red-font'>{}</span>".format(
-                    self.model._meta.verbose_name,
-                    self.get_object(),
-                ))
+            return gettext("Are you sure you want to delete the following {item_name}? <br>  <span class='red-font'>{item}</span>").format(
+                    item_name=self.model._meta.verbose_name,
+                    item=self.get_object(),
+                )
 
     def get_submit_text(self):
         if self.submit_text:

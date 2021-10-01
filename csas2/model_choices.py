@@ -96,8 +96,8 @@ def get_process_status_lookup():
 #
 
 note_type_choices = (
-    (1, 'General comment'),
-    (2, 'To Do'),
+    (1, _('General comment')),
+    (2, _('To Do')),
 )
 
 # document_type_choices = (

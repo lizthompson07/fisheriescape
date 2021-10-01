@@ -244,7 +244,7 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'fiscal_year', "class": "", "width": "100px"},
         {"name": 'title|{}'.format("title"), "class": "w-35"},
         {"name": 'status', "class": "", "width": "100px"},
-        {"name": 'has_process|{}'.format("has process?"), "class": "text-center", "width": "120px"},
+        {"name": 'has_process|{}'.format(gettext_lazy("has process?")), "class": "text-center", "width": "120px"},
         {"name": 'coordinator', "class": "", "width": "150px"},
         {"name": 'client', "class": "", "width": "150px"},
         {"name": 'region|{}'.format(_("region")), "class": "", "width": "75px"},
@@ -498,6 +498,7 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
     row_object_url_name = row_ = "csas2:process_detail"
     container_class = "container-fluid"
     open_row_in_new_tab = True
+    h1 = gettext_lazy("CSAS Processes")
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
@@ -559,6 +560,7 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
     submit_text = gettext_lazy("Save")
+    h1 = gettext_lazy("New CSAS Process")
 
     def get_initial(self):
         data = dict(
@@ -709,6 +711,7 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
     home_url_name = "csas2:index"
     submit_text = gettext_lazy("Initiate ToR")
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+    h1 = gettext_lazy("New Terms of Reference")
 
     def get_h3(self):
         if self.get_process().is_posted:
@@ -848,6 +851,7 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
     home_url_name = "csas2:index"
     row_object_url_name = row_ = "csas2:meeting_detail"
     container_class = "container-fluid"
+    h1 = gettext_lazy("Meetings")
 
     field_list = [
         {"name": 'process', "class": "", "width": "400px"},
@@ -897,6 +901,7 @@ class MeetingCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
     template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+    h1 = gettext_lazy("New Meeting")
 
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_process().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_process().id])}
@@ -1112,6 +1117,7 @@ class DocumentCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
     is_multipart_form_data = True
+    h1 = gettext_lazy("New Document")
 
     def get_initial(self):
         """ For the benefit of the form class"""
