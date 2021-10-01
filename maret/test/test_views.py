@@ -1,13 +1,23 @@
-from django.test import tag
+from django.test import tag, RequestFactory
 from django.urls import reverse_lazy
 
-from shared_models.test import common_tests
-from shared_models.views import CommonCreateView, CommonDetailView, CommonDeleteView, CommonUpdateView
+from shared_models.views import CommonCreateView, CommonDetailView, CommonDeleteView, CommonUpdateView, \
+    CommonPopoutUpdateView, CommonPopoutCreateView
 from shared_models import views as shared_views
+from masterlist import models as ml_models
 
 from maret import views, models, utils
 from maret.test import FactoryFloor
 from maret.test.common_tests import CommonMaretTest
+
+from ihub.test import FactoryFloor as i_factory
+
+
+def setup_view(view, request, *args, **kwargs):
+    view.request = request
+    view.args = args
+    view.kwargs = kwargs
+    return view
 
 
 @tag('all', 'view', 'index')
@@ -96,9 +106,60 @@ class TestOrganizationDetailView(CommonMaretTest):
 
 
 #######################################################
+# Organizations memberships
+#######################################################
+@tag('all', 'view', 'member_create')
+class TestOrganizationMemberCreateView(CommonMaretTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.OrganizationFactory()
+        self.test_url = reverse_lazy('maret:member_new', args=[self.instance.pk, ])
+        self.expected_template = 'maret/member_form_popout.html'
+        self.user = self.get_and_login_user(in_group="maret_author")
+
+    @tag("view", "member_create_view")
+    def test_view_class(self):
+        self.assert_inheritance(views.MemberCreateView, CommonPopoutCreateView)
+
+    @tag("access", "member_create_access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("submit", "member_create_submit")
+    def test_submit(self):
+        data = i_factory.OrganizationMemberFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+
+@tag('all', 'view', 'member_update')
+class TestOrganizationMemberUpdateView(CommonMaretTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = i_factory.OrganizationMemberFactory()
+        self.test_url = reverse_lazy('maret:member_edit', args=[self.instance.pk, ])
+        self.expected_template = 'maret/member_form_popout.html'
+        self.user = self.get_and_login_user(in_group="maret_author")
+
+    @tag("view", "member_update_view")
+    def test_view_class(self):
+        self.assert_inheritance(views.MemberUpdateView, CommonPopoutUpdateView)
+
+    @tag("access", "member_update_access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("submit", "member_update_submit")
+    def test_submit(self):
+        data = i_factory.OrganizationMemberFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+
+#######################################################
 # Person / Contacts
 #######################################################
-@tag('all', 'view', 'person_list')
+@tag('all', 'view', 'person', 'person_list')
 class TestPersonListView(CommonMaretTest):
 
     def setUp(self):
@@ -122,6 +183,144 @@ class TestPersonListView(CommonMaretTest):
             "field_list",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+
+@tag('all', 'view', 'create', 'person', 'person_create')
+class TestPersonCreateView(CommonMaretTest):
+
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('maret:person_new')
+        self.test_url1 = reverse_lazy('maret:person_new_pop')
+        self.expected_template = 'maret/form.html'
+        self.expected_template1 = 'shared_models/generic_popout_form.html'
+        self.user = self.get_and_login_user(in_group="maret_author")
+
+    @tag("view", "person_create_view")
+    def test_view_class(self):
+        self.assert_inheritance(views.PersonCreateView, CommonCreateView)
+        self.assert_inheritance(views.PersonCreateView, views.AuthorRequiredMixin)
+        self.assert_inheritance(views.PersonCreateViewPopout, CommonPopoutCreateView)
+        self.assert_inheritance(views.PersonCreateViewPopout, views.AuthorRequiredMixin)
+
+    @tag("access", "person_create_access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+        self.assert_good_response(self.test_url1)
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template1, user=self.user)
+
+    @tag("submit", "person_create_submit")
+    def test_submit(self):
+        data = i_factory.PersonFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+        self.assert_success_url(self.test_url1, data=data, user=self.user)
+
+
+@tag('all', 'view', 'create', 'person', 'person_update')
+class TestPersonUpdateView(CommonMaretTest):
+
+    def setUp(self):
+        super().setUp()
+        self.instance = i_factory.PersonFactory()
+        self.test_url = reverse_lazy('maret:person_edit', args=[self.instance.pk, ])
+        self.test_url1 = reverse_lazy('maret:person_edit_pop', args=[self.instance.pk, ])
+        self.expected_template = 'maret/form.html'
+        self.expected_template1 = 'shared_models/generic_popout_form.html'
+        self.user = self.get_and_login_user(in_group="maret_author")
+
+    @tag("view", "person_update_view")
+    def test_view_class(self):
+        self.assert_inheritance(views.PersonUpdateView, CommonUpdateView)
+        self.assert_inheritance(views.PersonUpdateView, views.AuthorRequiredMixin)
+        self.assert_inheritance(views.PersonUpdateViewPopout, CommonPopoutUpdateView)
+        self.assert_inheritance(views.PersonUpdateViewPopout, views.AuthorRequiredMixin)
+
+    @tag("access", "person_update_access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+        self.assert_good_response(self.test_url1)
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template1, user=self.user)
+
+    @tag("submit", "person_update_submit")
+    def test_submit(self):
+        data = i_factory.PersonFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+        self.assert_success_url(self.test_url1, data=data, user=self.user)
+
+    @tag("locked", "person_update_locked")
+    def test_locked_by_ihub(self):
+        self.instance.locked_by_ihub = True
+        self.instance.save()
+
+        update_data = i_factory.PersonFactory.get_valid_data()
+        self.assert_message_returned_url(self.test_url, data=update_data, user=self.user,
+                                         expected_messages=["This record can only be modified through iHub",])
+        self.assert_message_returned_url(self.test_url1, data=update_data, user=self.user,
+                                         expected_messages=["This record can only be modified through iHub",])
+
+
+@tag('all', 'view', 'details', 'person', 'person_details')
+class TestPersonDetailView(CommonMaretTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = i_factory.PersonFactory()
+        self.test_url = reverse_lazy('maret:person_detail', args=[self.instance.pk, ])
+        self.expected_template = 'maret/person_detail.html'
+        self.user = self.get_and_login_user(in_group="maret_user")
+
+    def test_view_class(self):
+        self.assert_inheritance(views.CommitteeDetailView, CommonDetailView)
+
+    @tag("access", "person_details_access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("context", "person_details_context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+
+@tag('all', 'view', 'delete', 'person', 'person_delete')
+class TestPersonDeleteView(CommonMaretTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = i_factory.PersonFactory()
+        self.test_url = reverse_lazy('maret:person_delete', args=[self.instance.pk, ])
+        self.expected_template = 'maret/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="maret_admin")
+
+    @tag("view", "person_delete_view")
+    def test_view_class(self):
+        self.assert_inheritance(views.PersonDeleteView, CommonDeleteView)
+        self.assert_inheritance(views.PersonDeleteView, utils.AdminRequiredMixin)
+
+    @tag("access", "person_delete_access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("submit", "person_delete_submit")
+    def test_submit(self):
+        data = i_factory.PersonFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(ml_models.Person.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("locked", "person_delete_locked")
+    def test_locked_by_ihub(self):
+        self.instance.locked_by_ihub = True
+        self.instance.save()
+
+        update_data = i_factory.PersonFactory.get_valid_data()
+        self.assert_message_returned_url(self.test_url, data=update_data, user=self.user,
+                                         expected_messages=["This record can only be modified through iHub",])
 
 
 #######################################################

@@ -10,7 +10,7 @@ multi_select_js = {"class": "multi-select"}
 attr_fp_date = {"class": "fp-date", "placeholder": gettext_lazy("Click to select a date..")}
 
 
-class CommitteeCreateForm(forms.ModelForm):
+class CommitteeForm(forms.ModelForm):
     class Meta:
         model = models.Committee
         exclude = [
@@ -21,7 +21,7 @@ class CommitteeCreateForm(forms.ModelForm):
         }
 
 
-class InteractionCreateForm(forms.ModelForm):
+class InteractionForm(forms.ModelForm):
     class Meta:
         model = models.Interaction
         exclude = [
@@ -53,6 +53,46 @@ class OrganizationForm(forms.ModelForm):
         from ihub.views import get_ind_organizations
         org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
         self.fields["orgs"].choices = org_choices_all
+
+
+class MemberForm(forms.ModelForm):
+    class Meta:
+        model = ml_models.OrganizationMember
+        exclude = ["date_last_modified", ]
+        widgets = {
+            'person': forms.Select(attrs=chosen_js),
+            'organization': forms.HiddenInput(),
+            'last_modified_by': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={"rows": "3"}),
+        }
+        labels = {
+            'person': gettext_lazy("Select a contact"),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['person'].required = False
+
+
+class PersonForm(forms.ModelForm):
+    class Meta:
+        model = ml_models.Person
+        fields = [
+            "designation",
+            "first_name",
+            "last_name",
+            "phone_1",
+            "phone_2",
+            "email_1",
+            "email_2",
+            "cell",
+            "fax",
+            "language",
+            "notes",
+        ]
+        widgets = {
+            'notes': forms.Textarea(attrs={"rows": "3"}),
+        }
 
 
 class TopicForm(forms.ModelForm):

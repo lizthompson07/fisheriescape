@@ -8,6 +8,7 @@ from shared_models.test.SharedModelsFactoryFloor import UserFactory, BranchFacto
 
 from maret import models
 from masterlist import models as ml_models
+from ihub.test import FactoryFloor as i_factory
 
 faker = Factory.create()
 
