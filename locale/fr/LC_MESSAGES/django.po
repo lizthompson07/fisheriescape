@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-01 13:16-0300\n"
+"POT-Creation-Date: 2021-10-01 13:29-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -4674,16 +4674,25 @@ msgstr "abstract_fr"
 
 #: .\shared_models\templates\shared_models\generic_confirm_delete.html:13
 msgid "You cannot delete this object since it has related items."
-msgstr "Vous ne pouvez pas supprimer cet objet car il possède des éléments associés."
+msgstr ""
+"Vous ne pouvez pas supprimer cet objet car il possède des éléments associés."
 
 #: .\shared_models\templates\shared_models\generic_confirm_delete.html:30
 #: .\shared_models\templates\shared_models\generic_popout_confirm_delete.html:12
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                        This %(model_name)s is related to the following "
+#| "items:\n"
+#| "                    "
 msgid ""
 "\n"
 "                        This %(model_name)s is related to the following "
 "items:\n"
 "                    "
-msgstr "\nCet objet est lié aux éléments suivants :"
+msgstr ""
+"\n"
+"Cet objet est lié aux éléments suivants :"
 
 #: .\shared_models\templates\shared_models\generic_confirm_delete.html:44
 #: .\shared_models\templates\shared_models\generic_popout_confirm_delete.html:26
@@ -5009,7 +5018,9 @@ msgstr "Mis à jour :"
 msgid ""
 "Are you sure you want to delete the following {item_name}? <br>  <span "
 "class='red-font'>{item}</span>"
-msgstr "Êtes-vous certain de vouloir supprimer l'objet suivant ? <br> <span class='red-font'>{item}</span>"
+msgstr ""
+"Êtes-vous certain de vouloir supprimer l'objet suivant ? <br> <span "
+"class='red-font'>{item}</span>"
 
 #: .\shared_models\views.py:252
 msgid "Delete Confirmation"
