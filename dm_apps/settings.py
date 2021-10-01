@@ -302,6 +302,7 @@ else:
     STATICFILES_STORAGE = 'backend.custom_azure.AzureStaticStorage'
     AZURE_CUSTOM_DOMAIN = f'{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net'
     STATIC_URL = f'https://{AZURE_STORAGE_ACCOUNT_NAME}.z9.web.core.windows.net/'
+    MEDIA_ROOT = None
 
 # This setting should allow for submitting forms with lots of fields. This is especially relevent when using formsets as in ihub > settings > orgs...
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
