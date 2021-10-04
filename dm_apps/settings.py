@@ -110,15 +110,7 @@ else:
 # Allowed Hosts
 # the user can provide a one-off host to allow (i.e., if they do not wish to add it to the settings file)
 ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    'dmapps',
-    'dmapps.ent.dfo-mpo.ca',
-    'dmapps-dev-ase.dfo-dev-ase01.appserviceenvironment.net',
-    'dmapps-test-ase.dfo-dev-ase01.appserviceenvironment.net',
-    'dmapps-prod-ase.dfo-prod-ase02.appserviceenvironment.net',
-    'sci-zone.azure.cloud.dfo-mpo.gc.ca',
-    'sci-zone.dfo-mpo.gc.ca',
+    '*',
 ]
 ALLOWED_HOST_TO_ADD = config("ALLOWED_HOST_TO_ADD", cast=str, default="")
 if ALLOWED_HOST_TO_ADD != "":
