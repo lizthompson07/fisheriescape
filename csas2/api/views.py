@@ -219,19 +219,19 @@ class ProcessNoteViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
-class MeetingCostViewSet(viewsets.ModelViewSet):
-    queryset = models.MeetingCost.objects.all()
-    serializer_class = serializers.MeetingCostSerializer
+class ProcessCostViewSet(viewsets.ModelViewSet):
+    queryset = models.ProcessCost.objects.all()
+    serializer_class = serializers.ProcessCostSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params
-        if qp.get("meeting"):
-            meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
-            qs = meeting.costs.all()
+        if qp.get("process"):
+            process = get_object_or_404(models.Process, pk=qp.get("process"))
+            qs = process.costs.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
-        raise ValidationError(_("You need to specify a meeting"))
+        raise ValidationError(_("You need to specify a process"))
 
     def perform_create(self, serializer):
         serializer.save()
@@ -463,27 +463,6 @@ class DocumentNoteViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
-
-
-class DocumentCostViewSet(viewsets.ModelViewSet):
-    queryset = models.DocumentCost.objects.all()
-    serializer_class = serializers.DocumentCostSerializer
-    permission_classes = [CanModifyProcessOrReadOnly]
-
-    def list(self, request, *args, **kwargs):
-        qp = request.query_params
-        if qp.get("document"):
-            document = get_object_or_404(models.Document, pk=qp.get("document"))
-            qs = document.costs.all()
-            serializer = self.get_serializer(qs, many=True)
-            return Response(serializer.data)
-        raise ValidationError(_("You need to specify a document"))
-
-    def perform_create(self, serializer):
-        serializer.save()
-
-    def perform_update(self, serializer):
-        serializer.save()
 
 
 class PersonViewSet(viewsets.ModelViewSet):

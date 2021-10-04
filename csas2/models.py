@@ -428,6 +428,10 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         return mystr
 
 
+class ProcessCost(GenericCost):
+    process = models.ForeignKey(Process, related_name='costs', on_delete=models.CASCADE, verbose_name=_("process"))
+
+
 class TermsOfReference(MetadataFields):
     process = models.OneToOneField(Process, on_delete=models.CASCADE, related_name="tor", editable=False)
     context_en = models.TextField(blank=True, null=True, verbose_name=_("context (en)"), help_text=_("English"))
@@ -661,7 +665,7 @@ class MeetingResource(SimpleLookup, MetadataFields):
 
 
 class MeetingCost(GenericCost):
-    meeting = models.ForeignKey(Meeting, related_name='costs', on_delete=models.CASCADE , verbose_name=_("meeting"))
+    meeting = models.ForeignKey(Meeting, related_name='costs', on_delete=models.CASCADE, verbose_name=_("meeting"))
 
 
 class MeetingFile(GenericFile):

@@ -151,7 +151,6 @@ class DocumentSerializer(serializers.ModelSerializer):
     status_display = serializers.SerializerMethodField()
     process = serializers.StringRelatedField()
     metadata = serializers.SerializerMethodField()
-    total_cost = serializers.SerializerMethodField()
     tracking = serializers.SerializerMethodField()
     file_en_size = serializers.SerializerMethodField()
     tstatus_display = serializers.SerializerMethodField()
@@ -188,9 +187,6 @@ class DocumentSerializer(serializers.ModelSerializer):
     def get_tracking(self, instance):
         if hasattr(instance, "tracking"):
             return DocumentTrackingSerializer(instance.tracking).data
-
-    def get_total_cost(self, instance):
-        return instance.total_cost
 
     def get_metadata(self, instance):
         return instance.metadata
@@ -363,7 +359,6 @@ class MeetingSerializer(serializers.ModelSerializer):
     attendees = serializers.SerializerMethodField()
     length_days = serializers.SerializerMethodField()
     process = serializers.StringRelatedField()
-    total_cost = serializers.SerializerMethodField()
     display = serializers.SerializerMethodField()
     somp_notification_date = serializers.SerializerMethodField()
     is_posted = serializers.SerializerMethodField()
@@ -384,9 +379,6 @@ class MeetingSerializer(serializers.ModelSerializer):
 
     def get_display(self, instance):
         return instance.display
-
-    def get_total_cost(self, instance):
-        return instance.total_cost
 
     def get_length_days(self, instance):
         return instance.length_days
@@ -481,20 +473,9 @@ class CSASRequestNoteSerializer(serializers.ModelSerializer):
         return instance.get_type_display()
 
 
-class DocumentCostSerializer(serializers.ModelSerializer):
+class ProcessCostSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.DocumentCost
-        fields = "__all__"
-
-    cost_category_display = serializers.SerializerMethodField()
-
-    def get_cost_category_display(self, instance):
-        return instance.get_cost_category_display()
-
-
-class MeetingCostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.MeetingCost
+        model = models.ProcessCost
         fields = "__all__"
 
     cost_category_display = serializers.SerializerMethodField()
@@ -608,6 +589,11 @@ class ProcessSerializer(serializers.ModelSerializer):
     committee_members = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     status_display_html = serializers.SerializerMethodField()
+
+    advice_date_display = serializers.SerializerMethodField()
+
+    def get_advice_date_display(self, instance):
+        return date(instance.advice_date)
 
     def get_committee_members(self, instance):
         return instance.committee_members

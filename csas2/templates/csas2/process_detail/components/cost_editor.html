@@ -15,8 +15,8 @@
       <div class="modal-wrapper">
         <div class="modal-container" style="width: 800px">
           <div class="modal-header">
-            <h4 v-if="!cost.id"> {% trans "Add Cost" %} </h4>
-            <h4 v-else> {% trans "Edit Cost" %} </h4>
+            <h4 v-if="!cost.id"> Add Cost </h4>
+            <h4 v-else> Edit Cost </h4>
           </div>
           <div class="modal-body">
 
@@ -78,7 +78,7 @@ Vue.component("cost-editor", {
   delimiters: ["${", "}"],
   name: "cost-editor",
   props: {
-    document_id: {
+    process_id: {
       required: false
     },
     cost: {
@@ -121,7 +121,7 @@ Vue.component("cost-editor", {
         nom: null,
         url_en: null,
         url_fr: null,
-        document: this.document_id
+        process: this.process_id
       };
     },
     getCostMetadata() {
@@ -136,10 +136,10 @@ Vue.component("cost-editor", {
       var method;
       var endpoint;
       if (this.cost.id) {
-        endpoint = `/api/csas/doc-costs/${this.cost.id}/`;
+        endpoint = `/api/csas/process-costs/${this.cost.id}/`;
         method = "PUT";
       } else {
-        endpoint = "/api/csas/doc-costs/";
+        endpoint = "/api/csas/process-costs/";
         method = "POST";
       }
       apiService(endpoint, method, this.costToEdit).then(response => {

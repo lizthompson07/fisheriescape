@@ -16,6 +16,13 @@ vueFiltersObject = {
     if (value === null || value === "") return arg;
     return value
   },
+  date: function (value) {
+    if (value !== null || value !== "") {
+      let d = new Date(value);
+      value = d.toLocaleDateString();
+    }
+    return value
+  },
   percentage: function (value, decimals) {
     // https://gist.github.com/belsrc/672b75d1f89a9a5c192c
     if (!value) {
