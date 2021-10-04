@@ -355,3 +355,11 @@ def get_quarter(date, as_int=False):
     else:
         quarter = 3 if as_int else _("Fall")
     return quarter
+
+
+def has_todos(user):
+    kwargs = dict(type=2, is_complete=False)
+    return user.csasrequestnote_created_by.filter(**kwargs).exists() or \
+           user.processnote_created_by.filter(**kwargs).exists() or \
+           user.meetingnote_created_by.filter(**kwargs).exists() or \
+           user.documentnote_created_by.filter(**kwargs).exists()

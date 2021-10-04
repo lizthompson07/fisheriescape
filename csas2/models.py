@@ -664,10 +664,6 @@ class MeetingResource(SimpleLookup, MetadataFields):
         ordering = [_("name")]
 
 
-class MeetingCost(GenericCost):
-    meeting = models.ForeignKey(Meeting, related_name='costs', on_delete=models.CASCADE, verbose_name=_("meeting"))
-
-
 class MeetingFile(GenericFile):
     meeting = models.ForeignKey(Meeting, related_name="files", on_delete=models.CASCADE, editable=False)
     file = models.FileField(upload_to=meeting_directory_path)
@@ -832,10 +828,6 @@ class Document(MetadataFields):
 class DocumentNote(GenericNote):
     ''' a note pertaining to a meeting'''
     document = models.ForeignKey(Document, related_name='notes', on_delete=models.CASCADE)
-
-
-class DocumentCost(GenericCost):
-    document = models.ForeignKey(Document, related_name='costs', on_delete=models.CASCADE)
 
 
 class DocumentTracking(MetadataFields):

@@ -75,6 +75,9 @@ urlpatterns = [
     path('documents/<int:pk>/edit/', views.DocumentUpdateView.as_view(), name="document_edit"),
     path('documents/<int:pk>/delete/', views.DocumentDeleteView.as_view(), name="document_delete"),
 
+    # to-do
+    path('my-todo-list/', views.ToDoListTemplateView.as_view(), name="todo_list"),
+
     # reports
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
     path('reports/meeting/', views.meeting_report, name="meeting_report"),

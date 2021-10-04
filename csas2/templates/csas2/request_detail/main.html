@@ -200,7 +200,7 @@
             </div>
             {# Notes #}
             <div class="col-4">
-              <note-pad v-if="request.id" parent_name="csas_request" :parent_id="request.id" :notes="notes" @update-notes="getNotes"></note-pad>
+              <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify"></note-pad>
             </div>
           </div>
         </div>
@@ -262,7 +262,7 @@
         });
       },
       getNotes() {
-        let endpoint = `/api/csas/csas_request-notes/?csas_request=${requestId}`;
+        let endpoint = `/api/csas/request-notes/?csas_request=${requestId}`;
         apiService(endpoint).then(data => {
           this.notes = data;
         });

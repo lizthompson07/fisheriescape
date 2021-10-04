@@ -35,6 +35,7 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["is_admin"] = in_csas_admin_group(self.request.user)
+        context["has_todos"] = utils.has_todos(self.request.user)
         return context
 
 
@@ -1173,6 +1174,16 @@ class DocumentDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
     def get_parent_crumb(self):
         return {"title": truncate(str(self.get_object()), 50), "url": reverse_lazy("csas2:document_detail", args=[self.get_object().id])}
 
+
+
+# To Do List #
+##############
+
+
+class ToDoListTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
+    template_name = 'csas2/todo_list.html'
+    home_url_name = "csas2:index"
+    h1= gettext_lazy("To Do List")
 
 # reports #
 ###########

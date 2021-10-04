@@ -416,10 +416,15 @@ class MeetingSerializer(serializers.ModelSerializer):
 class MeetingNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.MeetingNote
-        exclude = ["updated_at", "created_at"]  # "slug", 'author'
+        fields = "__all__"
 
     type_display = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
+
+    meeting_display = serializers.SerializerMethodField()
+
+    def get_meeting_display(self, instance):
+        return str(instance.meeting)
 
     def get_last_modified(self, instance):
         return instance.last_modified
@@ -431,10 +436,15 @@ class MeetingNoteSerializer(serializers.ModelSerializer):
 class ProcessNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ProcessNote
-        exclude = ["updated_at", "created_at"]  # "slug", 'author'
+        fields = "__all__"
 
     type_display = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
+
+    process_display = serializers.SerializerMethodField()
+
+    def get_process_display(self, instance):
+        return str(instance.process)
 
     def get_last_modified(self, instance):
         return instance.last_modified
@@ -446,10 +456,14 @@ class ProcessNoteSerializer(serializers.ModelSerializer):
 class DocumentNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.DocumentNote
-        exclude = ["updated_at", "created_at"]  # "slug", 'author'
+        fields = "__all__"
 
     type_display = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
+    document_display = serializers.SerializerMethodField()
+
+    def get_document_display(self, instance):
+        return str(instance.document)
 
     def get_last_modified(self, instance):
         return instance.last_modified
@@ -461,7 +475,12 @@ class DocumentNoteSerializer(serializers.ModelSerializer):
 class CSASRequestNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CSASRequestNote
-        exclude = ["updated_at", "created_at"]  # "slug", 'author'
+        fields = "__all__"
+
+    request_display = serializers.SerializerMethodField()
+
+    def get_request_display(self, instance):
+        return str(instance.csas_request)
 
     type_display = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
