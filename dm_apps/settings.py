@@ -57,6 +57,7 @@ try:
 except Exception as E:
     print(E)
     GIT_VERSION = "n/a"
+print("DM Apps version: ", GIT_VERSION)
 # Azure Instrumentation KEy for application insights
 USE_AZURE_APPLICATION_INSIGHT = config("USE_AZURE_APPLICATION_INSIGHT", cast=bool, default=False)
 AZURE_INSTRUMENTATION_KEY = config("AZURE_INSTRUMENTATION_KEY", cast=str, default="")
