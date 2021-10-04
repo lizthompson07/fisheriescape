@@ -116,7 +116,7 @@ ALLOWED_HOSTS = [
     'dmapps.ent.dfo-mpo.ca',
     'dmapps-dev-ase.dfo-dev-ase01.appserviceenvironment.net',
     'dmapps-test-ase.dfo-dev-ase01.appserviceenvironment.net',
-    'https://dmapps-web.dfo-prod-ase01.appserviceenvironment.net',
+    'dmapps-prod-ase.dfo-prod-ase02.appserviceenvironment.net',
     'sci-zone.azure.cloud.dfo-mpo.gc.ca',
     'sci-zone.dfo-mpo.gc.ca',
 ]
