@@ -2,7 +2,7 @@ from django.test import tag, RequestFactory
 from django.urls import reverse_lazy
 
 from shared_models.views import CommonCreateView, CommonDetailView, CommonDeleteView, CommonUpdateView, \
-    CommonPopoutUpdateView, CommonPopoutCreateView
+    CommonPopoutUpdateView, CommonPopoutCreateView, CommonPopoutDeleteView
 from shared_models import views as shared_views
 from masterlist import models as ml_models
 
@@ -53,7 +53,7 @@ class TestIndexView(CommonMaretTest):
 #######################################################
 # Organizations
 #######################################################
-@tag('all', 'view', 'list', 'org_list')
+@tag('all', 'view', 'list', 'org', 'org_list')
 class TestOrganizationListView(CommonMaretTest):
 
     def setUp(self):
@@ -62,16 +62,16 @@ class TestOrganizationListView(CommonMaretTest):
         self.expected_template = 'maret/maret_list.html'
         self.user = self.get_and_login_user(in_group="maret_user")
 
-    @tag("view")
+    @tag("view", 'org_list_view')
     def test_view_class(self):
         self.assert_inheritance(views.OrganizationListView, shared_views.CommonFilterView)
 
-    @tag("access")
+    @tag("access", 'org_list_access')
     def test_view(self):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("context")
+    @tag("context", 'org_list_context')
     def test_context(self):
         context_vars = [
             "field_list",
@@ -79,7 +79,7 @@ class TestOrganizationListView(CommonMaretTest):
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
 
-@tag('all', 'view', 'details', 'org_details')
+@tag('all', 'view', 'details', 'org', 'org_details')
 class TestOrganizationDetailView(CommonMaretTest):
     def setUp(self):
         super().setUp()
@@ -105,10 +105,80 @@ class TestOrganizationDetailView(CommonMaretTest):
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
 
+@tag('all', 'view', 'update', 'org', 'org_update')
+class TestOrganizationUpdateView(CommonMaretTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.OrganizationFactory()
+        self.test_url = reverse_lazy('maret:org_edit', args=[self.instance.pk, ])
+        self.expected_template = 'maret/form.html'
+        self.user = self.get_and_login_user(in_group="maret_author")
+
+    @tag("view", "org_update_view")
+    def test_view_class(self):
+        self.assert_inheritance(views.OrganizationUpdateView, CommonUpdateView)
+        self.assert_inheritance(views.OrganizationUpdateView, utils.AuthorRequiredMixin)
+
+    @tag("access", "org_update_access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("submit", "org_update_submit")
+    def test_submit(self):
+        data = FactoryFloor.OrganizationFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("locked", "org_update_locked")
+    def test_locked_by_ihub(self):
+        self.instance.locked_by_ihub = True
+        self.instance.save()
+
+        update_data = FactoryFloor.OrganizationFactory.get_valid_data()
+        self.assert_message_returned_url(self.test_url, data=update_data, user=self.user,
+                                         expected_messages=["This record can only be modified through iHub",])
+
+
+@tag('all', 'view', 'delete', 'org', 'org_delete')
+class TestOrganizationDeleteView(CommonMaretTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.OrganizationFactory()
+        self.test_url = reverse_lazy('maret:org_delete', args=[self.instance.pk, ])
+        self.expected_template = 'maret/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="maret_admin")
+
+    @tag("view", "org_delete_view")
+    def test_view_class(self):
+        self.assert_inheritance(views.OrganizationDeleteView, CommonDeleteView)
+
+    @tag("access", "org_delete_access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("submit", "org_delete_submit")
+    def test_submit(self):
+        data = FactoryFloor.OrganizationFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(ml_models.Organization.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("locked", "org_delete_locked")
+    def test_locked_by_ihub(self):
+        self.instance.locked_by_ihub = True
+        self.instance.save()
+
+        update_data = FactoryFloor.OrganizationFactory.get_valid_data()
+        self.assert_message_returned_url(self.test_url, data=update_data, user=self.user,
+                                         expected_messages=["This record can only be modified through iHub",])
+
+
 #######################################################
 # Organizations memberships
 #######################################################
-@tag('all', 'view', 'member_create')
+@tag('all', 'view', 'create', 'member', 'member_create')
 class TestOrganizationMemberCreateView(CommonMaretTest):
     def setUp(self):
         super().setUp()
@@ -131,8 +201,18 @@ class TestOrganizationMemberCreateView(CommonMaretTest):
         data = i_factory.OrganizationMemberFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
+    @tag("locked", "member_create_locked")
+    def test_locked_by_ihub(self):
+        self.instance.locked_by_ihub = True
+        self.instance.save()
 
-@tag('all', 'view', 'member_update')
+        data = i_factory.OrganizationMemberFactory.get_valid_data()
+        data["organization"] = self.instance.id
+        self.assert_message_returned_url(self.test_url, data=data, user=self.user,
+                                         expected_messages=["This record can only be modified through iHub",])
+
+
+@tag('all', 'view', 'update', 'member', 'member_update')
 class TestOrganizationMemberUpdateView(CommonMaretTest):
     def setUp(self):
         super().setUp()
@@ -155,11 +235,60 @@ class TestOrganizationMemberUpdateView(CommonMaretTest):
         data = i_factory.OrganizationMemberFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
+    @tag("locked", "member_update_locked")
+    def test_locked_by_ihub(self):
+        org = self.instance.organization
+        org.locked_by_ihub = True
+        org.save()
+
+        data = i_factory.OrganizationMemberFactory.get_valid_data()
+        data["organization"] = self.instance.id
+        self.assert_message_returned_url(self.test_url, data=data, user=self.user,
+                                         expected_messages=["This record can only be modified through iHub",])
+
+
+@tag('all', 'view', 'delete', 'member', 'member_delete')
+class TestOrganizationMemberDeleteView(CommonMaretTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = i_factory.OrganizationMemberFactory()
+        self.test_url = reverse_lazy('maret:member_delete', args=[self.instance.pk, ])
+        self.expected_template = 'shared_models/generic_popout_confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="maret_admin")
+
+    @tag("view", "member_delete_view")
+    def test_view_class(self):
+        self.assert_inheritance(views.MemberDeleteView, CommonPopoutDeleteView)
+
+    @tag("access", "member_delete_access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("submit", "member_delete_submit")
+    def test_submit(self):
+        data = i_factory.OrganizationMemberFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(ml_models.OrganizationMember.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("locked", "member_delete_locked")
+    def test_locked_by_ihub(self):
+        org = self.instance.organization
+        org.locked_by_ihub = True
+        org.save()
+
+        data = i_factory.OrganizationMemberFactory.get_valid_data()
+        data["organization"] = self.instance.id
+        self.assert_message_returned_url(self.test_url, data=data, user=self.user,
+                                         expected_messages=["This record can only be modified through iHub",])
+
 
 #######################################################
 # Person / Contacts
 #######################################################
-@tag('all', 'view', 'person', 'person_list')
+@tag('all', 'view', 'list', 'person', 'person_list')
 class TestPersonListView(CommonMaretTest):
 
     def setUp(self):

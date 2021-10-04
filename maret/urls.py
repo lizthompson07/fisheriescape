@@ -9,6 +9,8 @@ urlpatterns = [
     path('organization/', views.OrganizationListView.as_view(), name="org_list"),
     path('organization/new/', views.OrganizationCreateView.as_view(), name="org_new"),
     path('organization/<int:pk>/view/', views.OrganizationDetailView.as_view(), name="org_detail"),
+    path('organization/<int:pk>/edit/', views.OrganizationUpdateView.as_view(), name="org_edit"),
+    path('organization/<int:pk>/delete/', views.OrganizationDeleteView.as_view(), name="org_delete"),
 
     # PERSON #
     ##########
@@ -24,7 +26,7 @@ urlpatterns = [
     ######################
     path('organization/<int:org>/member/new/', views.MemberCreateView.as_view(), name="member_new"),
     path('member/<int:pk>/edit/', views.MemberUpdateView.as_view(), name="member_edit"),
-    # path('member/<int:pk>/delete/', views.MemberDeleteView.as_view(), name="member_delete"),
+    path('member/<int:pk>/delete/', views.MemberDeleteView.as_view(), name="member_delete"),
 
     path('interaction/', views.InteractionListView.as_view(), name="interaction_list"),
     path('interaction/new/', views.InteractionCreateView.as_view(), name="interaction_new"),

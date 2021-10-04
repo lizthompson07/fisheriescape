@@ -1,5 +1,6 @@
 from shared_models.views import CommonTemplateView, CommonFilterView, CommonCreateView, CommonFormsetView, \
-    CommonDetailView, CommonDeleteView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView
+    CommonDetailView, CommonDeleteView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
+    CommonPopoutDeleteView
 
 from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -411,6 +412,52 @@ class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
         return context
 
 
+class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
+    model = ml_models.Organization
+    template_name = 'maret/form.html'
+    form_class = forms.OrganizationForm
+    home_url_name = "maret:index"
+    parent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("maret:org_list")}
+    is_multipart_form_data = True
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("maret:org_detail", args=[self.get_object().id])}
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        if obj.locked_by_ihub:
+            messages.error(self.request, _("This record can only be modified through iHub"))
+            return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.pk, ]))
+
+        obj.save()
+        return super().form_valid(form)
+
+
+class OrganizationDeleteView(AdminRequiredMixin, CommonDeleteView):
+    model = ml_models.Organization
+    template_name = 'maret/confirm_delete.html'
+    success_url = reverse_lazy('maret:org_list')
+    home_url_name = "maret:index"
+    grandparent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("maret:org_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("maret:org_detail", args=[self.get_object().id])}
+
+    def delete(self, request, *args, **kwargs):
+        obj = ml_models.Organization.objects.get(pk=kwargs['pk'])
+        if obj.locked_by_ihub:
+            messages.error(self.request, _("This record can only be modified through iHub"))
+            return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.pk, ]))
+
+        return super().delete(request, *args, **kwargs)
+
+
+
 #######################################################
 # Organization Memberships
 #######################################################
@@ -430,7 +477,12 @@ class MemberCreateView(AuthorRequiredMixin, CommonPopoutCreateView):
         }
 
     def form_valid(self, form):
-        obj = form.save()
+        obj = form.save(commit=False)
+        if obj.organization.locked_by_ihub:
+            messages.error(self.request, _("This record can only be modified through iHub"))
+            return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.organization.pk, ]))
+
+        obj.save()
         return HttpResponseRedirect(reverse("ihub:member_edit", args=[obj.id]))
 
 
@@ -445,6 +497,27 @@ class MemberUpdateView(AuthorRequiredMixin, CommonPopoutUpdateView):
         return {
             'last_modified_by': self.request.user,
         }
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        if obj.organization.locked_by_ihub:
+            messages.error(self.request, _("This record can only be modified through iHub"))
+            return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.organization.pk, ]))
+
+        obj.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class MemberDeleteView(AdminRequiredMixin, CommonPopoutDeleteView):
+    model = ml_models.OrganizationMember
+
+    def delete(self, request, *args, **kwargs):
+        obj = ml_models.OrganizationMember.objects.get(pk=kwargs['pk'])
+        if obj.organization.locked_by_ihub:
+            messages.error(self.request, _("This record can only be modified through iHub"))
+            return HttpResponseRedirect(reverse("maret:person_detail", args=[obj.pk, ]))
+
+        return super().delete(request, *args, **kwargs)
 
 
 class TopicFormsetView(AdminRequiredMixin, CommonFormsetView):

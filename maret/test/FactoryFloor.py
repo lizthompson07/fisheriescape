@@ -116,19 +116,36 @@ class CommitteeFactory(factory.django.DjangoModelFactory):
         }
 
 
+class GroupingFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ml_models.Grouping
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    is_indigenous = False
+
+
 class OrganizationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ml_models.Organization
 
     name_eng = factory.lazy_attribute(lambda o: faker.word())
 
+    @factory.post_generation
+    def grouping(self, create, extracted, **kwargs):
+        if create:
+            grp = GroupingFactory()
+            self.grouping.set((grp,))
+
     @staticmethod
     def get_valid_data():
+        org = OrganizationFactory.build()
+        grp = GroupingFactory()
+
         return {
-            'name_eng': faker.word(),
+            'name_eng': org.name_eng,
             'processing_plant': 0,
             'wharf': 0,
-            'grouping': ml_models.Grouping.objects.filter(is_indigenous=True).first().id,
+            'grouping': [grp.pk, ],
         }
 
 

@@ -38,7 +38,7 @@
     {% if field.name == "person" %}
       {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
       <div class="mb-4">
-        <a pop-href="{# url 'maret:person_new_pop' #}" href="#" id="add_person" class="">
+        <a pop-href="{% url 'maret:person_new_pop' %}" href="#" id="add_person" class="">
           <em>({% trans "add a new contact" %})</em>
         </a>
       </div>
@@ -94,7 +94,7 @@
     <a class="btn btn-primary" href="{# url 'maret:consultee_new' object.organization.id object.id #}">
       {% trans "Add Consultation Role" %}
     </a>
-    <a class="btn btn-danger" href="{# url 'maret:member_delete' object.id #}">
+    <a class="btn btn-danger" href="{ url 'maret:member_delete' object.id }">
       {% trans "Delete" %}
     </a>
   {% endif %}
