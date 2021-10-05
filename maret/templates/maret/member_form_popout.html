@@ -94,7 +94,7 @@
     <a class="btn btn-primary" href="{# url 'maret:consultee_new' object.organization.id object.id #}">
       {% trans "Add Consultation Role" %}
     </a>
-    <a class="btn btn-danger" href="{ url 'maret:member_delete' object.id }">
+    <a class="btn btn-danger" href="{% url 'maret:member_delete' object.id %}">
       {% trans "Delete" %}
     </a>
   {% endif %}
