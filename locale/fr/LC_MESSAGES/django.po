@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-01 13:29-0300\n"
+"POT-Creation-Date: 2021-10-06 12:51-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -67,6 +67,12 @@ msgstr "subject_fr"
 #: .\accounts\models.py:82 .\accounts\models.py:83
 msgid "message_en"
 msgstr "message_fr"
+
+#: .\accounts\templates\accounts\accounts_base.html:7
+#: .\templates\index.html:114 .\templates\index_OLD.html:32
+#: .\templates\index_OLD.html:41
+msgid "DM Apps"
+msgstr "Applis GD"
 
 #: .\accounts\templates\accounts\request_access_form_popout.html:12
 msgid "New Access Request:"
@@ -1991,11 +1997,11 @@ msgstr "période de temps"
 msgid "Instruments"
 msgstr "Instruments"
 
-#: .\dm_apps\my_conf.py:394 .\dm_apps\settings.py:277
+#: .\dm_apps\my_conf.py:394 .\dm_apps\settings.py:270
 msgid "English"
 msgstr "Anglais"
 
-#: .\dm_apps\my_conf.py:395 .\dm_apps\settings.py:278
+#: .\dm_apps\my_conf.py:395 .\dm_apps\settings.py:271
 msgid "French"
 msgstr "Français"
 
@@ -5322,16 +5328,12 @@ msgstr "Mon profil"
 msgid "Logout"
 msgstr "Déconnecter"
 
-#: .\templates\index.html:114 .\templates\index_OLD.html:32
-#: .\templates\index_OLD.html:41
-msgid "DM Apps"
-msgstr "Applis GD"
-
 #: .\templates\index.html:146
 msgid "close"
 msgstr "fermer"
 
 #: .\templates\index.html:163
+#, python-format
 msgid ""
 "\n"
 "                        Please <a href=\"%(sign_in_url)s\">sign in</a> or "
@@ -5339,10 +5341,11 @@ msgid ""
 "                      "
 msgstr ""
 "\n"
-"Veuillez <a href=\"%(sign_in_url)s\">vous connecter</a> ou sélectionner une application ci-dessous"
-
+"Veuillez <a href=\"%(sign_in_url)s\">vous connecter</a> ou sélectionner une "
+"application ci-dessous"
 
 #: .\templates\index.html:167
+#, python-format
 msgid ""
 "\n"
 "                        If you do not have an account, you can register for "

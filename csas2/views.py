@@ -1165,7 +1165,6 @@ class DocumentDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
         return {"title": truncate(str(self.get_object()), 50), "url": reverse_lazy("csas2:document_detail", args=[self.get_object().id])}
 
 
-
 # To Do List #
 ##############
 
@@ -1173,7 +1172,8 @@ class DocumentDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
 class ToDoListTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     template_name = 'csas2/todo_list.html'
     home_url_name = "csas2:index"
-    h1= gettext_lazy("To Do List")
+    h1 = gettext_lazy("To Do List")
+
 
 # reports #
 ###########
@@ -1250,6 +1250,7 @@ def meeting_report(request):
             return response
     raise Http404
 
+
 @login_required()
 def request_list_report(request):
     qp = request.GET
@@ -1296,34 +1297,20 @@ def request_list_report(request):
 @login_required()
 def process_list_report(request):
     qp = request.GET
-    csas_requests = qp.get("fiscal_year") if qp.get("csas_requests") and qp.get("csas_requests") != "None" else None
     fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
-    request_status = qp.get("request_status") if qp.get("request_status") and qp.get("request_status") != "None" else None
-    region = qp.get("region") if qp.get("region") and qp.get("region") != "None" else None
-    sector = qp.get("sector") if qp.get("sector") and qp.get("sector") != "None" else None
-    branch = qp.get("branch") if qp.get("branch") and qp.get("branch") != "None" else None
-    division = qp.get("division") if qp.get("division") and qp.get("division") != "None" else None
-    section = qp.get("section") if qp.get("section") and qp.get("section") != "None" else None
+    process_status = qp.get("process_status") if qp.get("process_status") and qp.get("process_status") != "None" else None
+    process_type = qp.get("process_type") if qp.get("process_type") and qp.get("process_type") != "None" else None
+    lead_region = qp.get("lead_region") if qp.get("lead_region") and qp.get("lead_region") != "None" else None
 
-    qs = models.CSASRequest.objects.all()
-    if csas_requests:
-        csas_requests = qp.get("csas_requests").split(",")
-        qs = qs.filter(id__in=csas_requests)
-    else:
-        if fiscal_year:
-            qs = qs.filter(fiscal_year_id=fiscal_year)
-        if request_status:
-            qs = qs.filter(status=request_status)
-        if region:
-            qs = qs.filter(section__division__branch__sector__region_id=region)
-        if sector:
-            qs = qs.filter(section__division__branch__sector_id=sector)
-        if branch:
-            qs = qs.filter(section__division__branch_id=branch)
-        if division:
-            qs = qs.filter(section__division_id=division)
-        if section:
-            qs = qs.filter(section_id=section)
+    qs = models.Process.objects.all()
+    if fiscal_year:
+        qs = qs.filter(fiscal_year_id=fiscal_year)
+    if process_status:
+        qs = qs.filter(status=process_status)
+    if process_type:
+        qs = qs.filter(status=process_type)
+    if lead_region:
+        qs = qs.filter(section__division__branch__sector__region_id=lead_region)
 
     file_url = reports.generate_request_list(qs)
 
