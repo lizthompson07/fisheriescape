@@ -131,7 +131,7 @@ msgid ""
 msgstr ""
 "\n"
 "                            Si vous n'avez pas de compte, vous pouvez en "
-"créer <a href=\"%(sign_up_url)s\">ici</a>.\n"
+"créer un <a href=\"%(sign_up_url)s\">ici</a>.\n"
 "                        "
 
 #: .\accounts\templates\registration\login.html:63
@@ -5328,17 +5328,10 @@ msgid "DM Apps"
 msgstr "Applis GD"
 
 #: .\templates\index.html:146
-#, fuzzy
 msgid "close"
-msgstr "Fermer"
+msgstr "fermer"
 
 #: .\templates\index.html:163
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                        Welcome back, %(name)s! Please select an "
-#| "application below.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        Please <a href=\"%(sign_in_url)s\">sign in</a> or "
@@ -5346,17 +5339,10 @@ msgid ""
 "                      "
 msgstr ""
 "\n"
-"                        Bienvenue, %(name)s! Veuillez sélectionner une "
-"application ci-dessous.\n"
-"                    "
+"Veuillez <a href=\"%(sign_in_url)s\">vous connecter</a> ou sélectionner une application ci-dessous"
+
 
 #: .\templates\index.html:167
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                        If you do not have an account, you can create one "
-#| "<a href=\"%(sign_up_url)s\">here</a>.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        If you do not have an account, you can register for "
