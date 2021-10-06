@@ -30,14 +30,20 @@ YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
 
 
 def request_directory_path(instance, filename):
-    return 'csas/request_{0}/{1}'.format(instance.csas_request.id, filename)
+    ext = filename.split(".")[-1]
+    file = filename.split(".")[0]
+    return 'csas/request_{0}/{1}.{2}'.format(instance.csas_request.id, slugify(file), ext)
 
 
 def meeting_directory_path(instance, filename):
-    return 'csas/meeting_{0}/{1}'.format(instance.meeting.id, filename)
+    ext = filename.split(".")[-1]
+    file = filename.split(".")[0]
+    return 'csas/meeting_{0}/{1}.{2}'.format(instance.meeting.id, slugify(file), ext)
 
 
 def doc_directory_path(instance, filename):
+    ext = filename.split(".")[-1]
+    file = filename.split(".")[0]
     return 'csas/document_{0}/{1}'.format(instance.id, filename)
 
 
