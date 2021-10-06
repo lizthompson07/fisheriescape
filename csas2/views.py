@@ -253,6 +253,15 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'section|{}'.format(gettext_lazy("section")), "class": ""},
     ]
 
+    def get_extra_button_dict1(self):
+        ids = listrify([obj.id for obj in self.object_list])
+
+        return {
+            "name": _("<span class=' mr-1 mdi mdi-file-excel'></span> {name}").format(name=_("Export")),
+            "url": reverse("csas2:request_list_report") + f"?csas_requests={ids}",
+            "class": "btn-outline-dark",
+        }
+
     def get_queryset(self):
         qp = self.request.GET
         qs = models.CSASRequest.objects.all()
@@ -290,7 +299,7 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
 
     def get_object_list(self):
         qp = self.request.GET
-        csas_requests = qp.get("fiscal_year") if qp.get("csas_requests") and qp.get("csas_requests") != "None" else None
+        csas_requests = qp.get("csas_requests") if qp.get("csas_requests") and qp.get("csas_requests") != "None" else None
         fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
         request_status = qp.get("request_status") if qp.get("request_status") and qp.get("request_status") != "None" else None
         region = qp.get("region") if qp.get("region") and qp.get("region") != "None" else None
@@ -1254,7 +1263,7 @@ def meeting_report(request):
 @login_required()
 def request_list_report(request):
     qp = request.GET
-    csas_requests = qp.get("fiscal_year") if qp.get("csas_requests") and qp.get("csas_requests") != "None" else None
+    csas_requests = qp.get("csas_requests") if qp.get("csas_requests") and qp.get("csas_requests") != "None" else None
     fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
     request_status = qp.get("request_status") if qp.get("request_status") and qp.get("request_status") != "None" else None
     region = qp.get("region") if qp.get("region") and qp.get("region") != "None" else None
