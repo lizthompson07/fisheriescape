@@ -65,13 +65,19 @@ class TripRequestTimestampUpdateForm(forms.ModelForm):
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
-        (1, "Meetings for Website"),
-        (2, "CSAS Request batch export"),
+        (1, "Meetings for Website (Excel)"),
+        (2, "CSAS Request batch export (PDF)"),
+        (3, "CSAS Request list (Excel)"),
+        (4, "State of Our Processes (Excel)"),
+        (999, "Participant List (Excel) --> placeholder"),
+        (999, "Process Cost Report (Excel) --> placeholder"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal year'))
     is_posted = forms.ChoiceField(required=False, label=gettext_lazy('Posted processes?'))
     request_status = forms.ChoiceField(required=False, label=gettext_lazy('Request Status'))
+    process_status = forms.ChoiceField(required=False, label=gettext_lazy('Process Status'))
+    process_type = forms.ChoiceField(required=False, label=gettext_lazy('Process Type'))
 
     region = forms.ChoiceField(required=False, label=gettext_lazy('DFO Region'))
     sector = forms.ChoiceField(required=False, label=gettext_lazy('DFO Sector'))

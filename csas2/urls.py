@@ -81,6 +81,8 @@ urlpatterns = [
     # reports
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
     path('reports/meeting/', views.meeting_report, name="meeting_report"),
+    path('reports/requests/', views.request_list_report, name="request_list_report"),
+    path('reports/processes/', views.process_list_report, name="process_list_report"),
 
 ]
 

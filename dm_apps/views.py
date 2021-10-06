@@ -135,7 +135,7 @@ def get_app_dict(request):
         app_dict["csas2"] = {
             "title": _("Canadian Science Advisory Secretariat (v2)"),
             "description": _("Tool for tracking meetings, requests and publications."),
-            "status": "dev",
+            "status": "beta",
             "access": "login-required",
             "url": reverse('csas2:index'),
             "icon_path": 'img/csas/csas_image.svg',
@@ -382,7 +382,7 @@ def get_app_dict(request):
         app_dict["spot"] = {
             "title": _("Grants & Contributions"),
             "description": _("Gulf Region application for the tracking of Gs & Cs."),
-            "status": "beta",
+            "status": "dev",
             "access": "permission-required",
             "url": reverse('spot:index'),
             "icon_path": 'img/icons/agreement.svg',
