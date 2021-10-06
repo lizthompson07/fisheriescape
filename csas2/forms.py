@@ -155,7 +155,7 @@ class CSASRequestForm(forms.ModelForm):
             'client': forms.Select(attrs=chosen_js),
             'coordinator': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
-            'advice_needed_by': forms.DateInput(attrs=dict(type="date")),
+            'advice_needed_by': forms.DateInput(attrs=dict(type="date"), format="%Y-%m-%d"),
             'multiregional_text': forms.Textarea(attrs=rows3),
             'assistance_text': forms.Textarea(attrs=rows3),
             'funding_text': forms.Textarea(attrs=rows3),
@@ -316,7 +316,7 @@ class ProcessForm(forms.ModelForm):
             'coordinator': forms.Select(attrs=chosen_js),
             'lead_region': forms.Select(attrs=chosen_js),
             'other_regions': forms.SelectMultiple(attrs=chosen_js),
-            'advice_date': forms.DateInput(attrs=dict(type="date")),
+            'advice_date': forms.DateInput(attrs=dict(type="date"), format="%Y-%m-%d"),
         }
 
     def __init__(self, *args, **kwargs):
