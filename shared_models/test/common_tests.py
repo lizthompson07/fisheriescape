@@ -2,6 +2,7 @@ import os
 
 from django.conf import settings
 from django.test import TestCase
+from django.contrib.messages import get_messages
 from django.urls import resolve, reverse
 from django.utils.translation import activate
 from html2text import html2text
@@ -313,6 +314,30 @@ class CommonTest(TestCase):
 
         if expected_success_url:
             self.assertRedirects(response=response, expected_url=expected_success_url)
+
+    def assert_message_returned_url(self, test_url, data=None, user=None, expected_messages=None,
+                                    use_anonymous_user=False):
+        """
+        test that upon a successful form the view redirects to the expected success url
+        :param test_url: URL being tested
+        :param data: optional data to use when submitting the form
+        :param user: an optional user that can be used to generate the response
+        :param expected_url_name: the name of the url to which a successful submission should be redirected
+        :param use_anonymous_user: should this function be run without logging in a uer? if so, set this optional arg
+        :param expected_messages: List of messages expected to be returned from the form_valid method
+        data will be stored in
+        """
+        # arbitrarily activate the english locale
+        activate('en')
+
+        # if a user is provided in the arg, log in with that user
+        if not use_anonymous_user:
+            self.get_and_login_user(user)
+
+        response = self.client.post(test_url, data=data)
+        messages = list(get_messages(response.wsgi_request))
+        for m in expected_messages:
+            self.assertIn(m, [m.message for m in messages])
 
     def assert_form_valid(self, form_class, data, instance=None, initial=None):
         """

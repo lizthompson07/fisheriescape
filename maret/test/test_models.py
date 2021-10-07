@@ -13,9 +13,9 @@ class TestInteractionModel(CommonTest):
 
     @tag("fields", "interaction_model_fields")
     def test_fields(self):
-        fields_to_check = ["interaction_type", "committee", "dfo_role", "dfo_liaison", "other_dfo_participants",
-                           "date_of_meeting", "main_topic", "species", "action_items", "comments",
-                           "last_modified", "last_modified_by"]
+        fields_to_check = ["description", "interaction_type", "committee", "dfo_role", "dfo_liaison",
+                           "other_dfo_participants", "date_of_meeting", "main_topic", "species", "action_items",
+                           "comments", "last_modified", "last_modified_by"]
         self.assert_has_fields(models.Interaction, fields_to_check)
 
 
