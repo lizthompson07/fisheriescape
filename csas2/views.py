@@ -257,7 +257,7 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
         ids = listrify([obj.id for obj in self.object_list])
         return {
             "name": _("<span class=' mr-1 mdi mdi-file-excel'></span> {name}").format(name=_("Export")),
-            "url": reverse("csas2:request_list_report") + f"?csas_requests={ids}",
+            "url": reverse("csas2:request_list_report") + "?csas_requests=ids",
             "class": "btn-outline-dark",
         }
 
