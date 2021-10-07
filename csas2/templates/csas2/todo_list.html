@@ -36,25 +36,27 @@
         <table v-if="requestNotes.length" class="table table-sm">
           <thead>
           <tr>
-            <th>{% trans "Item" %}</th>
-            <th>{% trans "CSAS Request" %}</th>
-            <th>{% trans "Created" %}</th>
+            <th></th>
+            <th class="w-40">{% trans "Item" %}</th>
+            <th class="w-25">{% trans "CSAS Request" %}</th>
+            <th class="w-25">{% trans "Created" %}</th>
           </tr>
           </thead>
           <tbody>
           <tr v-for="(n, index) in requestNotes" :key="`request${n.id}`">
+            <td style="vertical-align: top">
+              <button class="btn btn-sm px-0 py-0 mr-1" style="vertical-align: top" @click="toggleComplete(n, 'request')">
+                <span v-if="!n.is_complete" class="py-0 my-0 mdi mdi-checkbox-blank-outline h6"></span>
+                <span v-else class="py-0 my-0 mdi mdi-checkbox-marked-outline h6"></span>
+              </button>
+            </td>
             <td>
               <span :class="{strike:n.is_complete}">${n.note}</span>
             <td>
               <a :href="`/csas-sccs/requests/${n.csas_request}/view/`">${n.request_display}</a>
             </td>
             <td>${n.created_at|date}</td>
-
             <td style="vertical-align: top">
-              <button class="btn btn-sm px-0 py-0 mr-1" style="vertical-align: top" @click="toggleComplete(n, 'request')">
-                <span v-if="!n.is_complete" class="py-0 my-0 mdi mdi-checkbox-blank-outline h6"></span>
-                <span v-else class="py-0 my-0 mdi mdi-checkbox-marked-outline h6"></span>
-              </button>
               <button @click="deleteNote(n, 'request')" class="btn btn-sm px-0 py-0 mr-1" data-toggle="tooltip" title="{% trans "Delete" %}"
                       style="vertical-align: top">
                 <span class="mdi mdi-delete py-0 my-0"></span>
@@ -82,25 +84,27 @@
         <table v-if="processNotes.length" class="table table-sm">
           <thead>
           <tr>
-            <th>{% trans "Item" %}</th>
-            <th>{% trans "Process" %}</th>
-            <th>{% trans "Created" %}</th>
+            <th></th>
+            <th class="w-40">{% trans "Item" %}</th>
+            <th class="w-25">{% trans "Process" %}</th>
+            <th class="w-25">{% trans "Created" %}</th>
           </tr>
           </thead>
           <tbody>
           <tr v-for="(n, index) in processNotes" :key="`process${n.id}`">
+            <td style="vertical-align: top">
+              <button class="btn btn-sm px-0 py-0 mr-1" style="vertical-align: top" @click="toggleComplete(n, 'process')">
+                <span v-if="!n.is_complete" class="py-0 my-0 mdi mdi-checkbox-blank-outline h6"></span>
+                <span v-else class="py-0 my-0 mdi mdi-checkbox-marked-outline h6"></span>
+              </button>
+            </td>
             <td>
               <span :class="{strike:n.is_complete}">${n.note}</span>
             <td>
               <a :href="`/csas-sccs/processes/${n.process}/view/`">${n.process_display}</a>
             </td>
             <td>${n.created_at|date}</td>
-
             <td style="vertical-align: top">
-              <button class="btn btn-sm px-0 py-0 mr-1" style="vertical-align: top" @click="toggleComplete(n, 'process')">
-                <span v-if="!n.is_complete" class="py-0 my-0 mdi mdi-checkbox-blank-outline h6"></span>
-                <span v-else class="py-0 my-0 mdi mdi-checkbox-marked-outline h6"></span>
-              </button>
               <button @click="deleteNote(n, 'process')" class="btn btn-sm px-0 py-0 mr-1" data-toggle="tooltip" title="{% trans "Delete" %}"
                       style="vertical-align: top">
                 <span class="mdi mdi-delete py-0 my-0"></span>
@@ -128,25 +132,27 @@
         <table v-if="meetingNotes.length" class="table table-sm">
           <thead>
           <tr>
-            <th>{% trans "Item" %}</th>
-            <th>{% trans "Meeting" %}</th>
-            <th>{% trans "Created" %}</th>
+            <th></th>
+            <th class="w-40">{% trans "Item" %}</th>
+            <th class="w-25">{% trans "Meeting" %}</th>
+            <th class="w-25">{% trans "Created" %}</th>
           </tr>
           </thead>
           <tbody>
           <tr v-for="(n, index) in meetingNotes" :key="`meeting${n.id}`">
+            <td style="vertical-align: top">
+              <button class="btn btn-sm px-0 py-0 mr-1" style="vertical-align: top" @click="toggleComplete(n, 'meeting')">
+                <span v-if="!n.is_complete" class="py-0 my-0 mdi mdi-checkbox-blank-outline h6"></span>
+                <span v-else class="py-0 my-0 mdi mdi-checkbox-marked-outline h6"></span>
+              </button>
+            </td>
             <td>
               <span :class="{strike:n.is_complete}">${n.note}</span>
             <td>
               <a :href="`/csas-sccs/meetings/${n.meeting}/view/`">${n.meeting_display}</a>
             </td>
             <td>${n.created_at|date}</td>
-
             <td style="vertical-align: top">
-              <button class="btn btn-sm px-0 py-0 mr-1" style="vertical-align: top" @click="toggleComplete(n, 'meeting')">
-                <span v-if="!n.is_complete" class="py-0 my-0 mdi mdi-checkbox-blank-outline h6"></span>
-                <span v-else class="py-0 my-0 mdi mdi-checkbox-marked-outline h6"></span>
-              </button>
               <button @click="deleteNote(n, 'meeting')" class="btn btn-sm px-0 py-0 mr-1" data-toggle="tooltip" title="{% trans "Delete" %}"
                       style="vertical-align: top">
                 <span class="mdi mdi-delete py-0 my-0"></span>
@@ -161,7 +167,7 @@
       </div>
     </div>
 
-  <div class="mb-4">
+    <div class="mb-4">
       <p class="lead">{% trans "Document" %}</p>
       <div v-if="documentNotesLoading" class="loading mb-3 mt-3 mt-5">
         <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
@@ -172,13 +178,20 @@
         <table v-if="documentNotes.length" class="table table-sm">
           <thead>
           <tr>
-            <th>{% trans "Item" %}</th>
-            <th>{% trans "Document" %}</th>
-            <th>{% trans "Created" %}</th>
+            <th></th>
+            <th class="w-40">{% trans "Item" %}</th>
+            <th class="w-25">{% trans "Document" %}</th>
+            <th class="w-25">{% trans "Created" %}</th>
           </tr>
           </thead>
           <tbody>
           <tr v-for="(n, index) in documentNotes" :key="`document${n.id}`">
+            <td style="vertical-align: top">
+              <button class="btn btn-sm px-0 py-0 mr-1" style="vertical-align: top" @click="toggleComplete(n, 'document')">
+                <span v-if="!n.is_complete" class="py-0 my-0 mdi mdi-checkbox-blank-outline h6"></span>
+                <span v-else class="py-0 my-0 mdi mdi-checkbox-marked-outline h6"></span>
+              </button>
+            </td>
             <td>
               <span :class="{strike:n.is_complete}">${n.note}</span>
             <td>
@@ -187,10 +200,6 @@
             <td>${n.created_at|date}</td>
 
             <td style="vertical-align: top">
-              <button class="btn btn-sm px-0 py-0 mr-1" style="vertical-align: top" @click="toggleComplete(n, 'document')">
-                <span v-if="!n.is_complete" class="py-0 my-0 mdi mdi-checkbox-blank-outline h6"></span>
-                <span v-else class="py-0 my-0 mdi mdi-checkbox-marked-outline h6"></span>
-              </button>
               <button @click="deleteNote(n, 'document')" class="btn btn-sm px-0 py-0 mr-1" data-toggle="tooltip" title="{% trans "Delete" %}"
                       style="vertical-align: top">
                 <span class="mdi mdi-delete py-0 my-0"></span>
