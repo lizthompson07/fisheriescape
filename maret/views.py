@@ -189,6 +189,9 @@ class InteractionDetailView(UserRequiredMixin, CommonDetailView):
     parent_crumb = {"title": gettext_lazy("Interactions"), "url": reverse_lazy("maret:interaction_list")}
     container_class = "container-fluid"
 
+    def get_h1(self):
+        return self.object.description
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
@@ -202,6 +205,7 @@ class InteractionDetailView(UserRequiredMixin, CommonDetailView):
             'species',
             'action_items',
             'comments',
+            'external_organization',
         ]
 
         return context

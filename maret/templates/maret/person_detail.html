@@ -15,7 +15,7 @@
             <a class="btn btn-sm btn-warning" href="{% url 'maret:person_edit' object.id %}">
                 {% trans "Edit" %}
             </a>
-            <a class="btn btn-sm btn-danger " href="{%  url 'maret:person_delete' object.id %}">
+            <a class="btn btn-sm btn-danger " href="{% url 'maret:person_delete' object.id %}">
                 {% trans "Delete" %}
             </a>
         </div>
@@ -34,7 +34,7 @@
     <br><br>
 
     <div class="row">
-        <div class="col">
+        <div class="col-5">
             <div class="card entry-card">
                 <div class="card-header">
                     <h5 class="card-title"> {% trans "Person Detail:" %}</h5>
@@ -48,7 +48,7 @@
                 </div>
             </div>
         </div>
-        <div class="col">
+        <div class="col-5">
             <div class="card entry-card">
                 <div class="card-header">
                     <h5 class="card-title"> {% trans "Membership:" %}</h5>
@@ -78,6 +78,19 @@
                             </em>
                         {% endfor %}
                     </ul>
+                </div>
+            </div>
+
+            <div class="card entry-card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Committee / Working Group" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover table-sm ">
+                        {% for obj in object.committee_ext_contact.all %}
+                        <tr href="{% url 'maret:committee_detail' obj.id %}"><td>{{ obj.name }}</td></tr>
+                        {% endfor %}
+                    </table>
                 </div>
             </div>
         </div>
