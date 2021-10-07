@@ -1,0 +1,54 @@
+{% extends "shared_models/generic_base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block bug_create %}
+  {% include "scuba/base/_bug_url.html" %}
+{% endblock bug_create %}
+
+{% block title %}
+  {% include "scuba/base/_app_title.html" %}
+  {% block subtitle %} - {{ subtitle }}{% endblock %}
+{% endblock title %}
+
+{% block header %}
+  {{ block.super }}
+  {% include "scuba/base/_style.html" %}
+{% endblock %}
+
+{% block body %}
+  {{ block.super }}
+{% endblock body %}
+
+{% block left_auth %}
+  {% include "scuba/base/_nav_left_auth.html" %}
+{% endblock left_auth %}
+
+{% block subcontent %}
+
+{% endblock %}
+
+{% block body_js %}
+
+  {#  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>#}
+  {#<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"></script>#}
+  {% if DEBUG %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+  {% else %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  {% endif %}
+  <script type="application/javascript">
+  let greenIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+  });
+  let redIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+  });
+  </script>
+
+{% endblock %}

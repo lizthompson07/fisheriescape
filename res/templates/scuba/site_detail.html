@@ -1,0 +1,131 @@
+{% extends 'scuba/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block subcontent %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <style>
+  #map {
+      height: 200px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
+
+  <div class="btns mb-3">
+    <a href="{% url 'scuba:site_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
+    <a href="{% url 'scuba:site_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+  </div>
+
+  <div class="mb-3 row">
+    <div class="col">
+      <table class="table table-sm w-75">
+        {% for field in field_list %}
+          {% verbose_td_display object field %}
+        {% endfor %}
+      </table>
+    </div>
+    <div class="col">
+      {% if object.get_coordinates %}
+        <div id="map"></div>
+      {% else %}
+        <div class="alert alert-danger lead mb-3" role="alert">
+          <span class="mdi mdi-emoticon-confused-outline h3 mr-2"></span>
+          {% trans "None of the transects associated with this site contains any coordinates." %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <div class="float-right">
+      <a href="{% url 'scuba:transect_new' object.id %}" class="btn btn-sm btn-success"> {% trans "Add Transect" %}</a>
+    </div>
+    <h3>{% trans "Transects" %}</h3>
+
+
+    {% if object.transects.exists %}
+
+      <table class="table table-sm">
+        <thead>
+        <tr>
+          {% for field in transect_field_list %}
+            <th>
+              {% get_verbose_label object.transects.first field %}
+            </th>
+          {% endfor %}
+          <th>{% trans "No. of dives" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for transect in object.transects.all %}
+          <tr>
+            {% for field in transect_field_list %}
+              <td>
+                {% get_field_value transect field %}
+              </td>
+            {% endfor %}
+            <td>{{ transect.dives.count }}</td>
+            <td>
+              <a href="{% url 'scuba:transect_edit' transect.id %}">
+                {% trans "Edit" %} <span class="mdi mdi-pencil"></span>
+              </a>
+            </td>
+            <td>
+              <a href="{% url 'scuba:transect_delete' transect.id %}">
+                {% trans "Delete" %}<span class="mdi mdi-delete"></span>
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+
+    {% else %}
+      <em>{% trans "This site has no transects." %}</em>
+    {% endif %}
+  </div>
+
+  {% if object.get_coordinates %}
+    <script type="application/javascript">
+    function initialize() {
+      map = new L.Map("map", {
+        center: new L.LatLng({{ object.get_coordinates.x }}, {{ object.get_coordinates.y }}),
+        zoom: 14,
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map)
+      let latLong = [{{object.get_coordinates.x}}, {{ object.get_coordinates.y }}];
+      var coords = [latLong,];
+
+      {% for transect in object.transects.all %}
+        {% if transect.get_starting_coordinates and transect.get_ending_coordinates %}
+          var lineCoords = [
+            [{{transect.get_starting_coordinates.x }}, {{transect.get_starting_coordinates.y }}],
+            [{{transect.get_ending_coordinates.x }}, {{transect.get_ending_coordinates.y }}],
+          ];
+          L.polyline([lineCoords], {
+            color: 'black',
+            dashArray: '4',
+            weight: 2,
+          }).addTo(map).bindPopup("Transect: {{transect}}");
+          for (var i = 0; i < lineCoords.length; i++) {
+            coords.push(lineCoords[i])
+          }
+        {% endif %}
+      {% endfor %}
+      map.fitBounds(coords);
+
+    }
+
+    $(document).ready(function () {
+      // Stuff to do as soon as the DOM is ready
+      initialize()
+
+    });
+    </script>
+  {% endif %}
+
+{% endblock %}

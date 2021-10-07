@@ -424,7 +424,7 @@ class Trip(models.Model):
         """
         this is a comprehensive list of the non-dfo funding sources for the trip
         """
-        qs = self.travellers.filter(non_dfo_org__isnull=False)
+        qs = self.travellers.filter(non_dfo_org__isnull=False).filter(~Q(non_dfo_org=""))
         if qs.exists():
             return listrify(set([item.non_dfo_org for item in qs]))
 
@@ -685,7 +685,7 @@ class TripRequest(models.Model):
         """
         this is a comprehensive list of the non-dfo funding sources
         """
-        qs = self.travellers.filter(non_dfo_org__isnull=False)
+        qs = self.travellers.filter(non_dfo_org__isnull=False).filter(~Q(non_dfo_org=""))
         if qs.exists():
             return listrify(set([item.non_dfo_org for item in qs]))
 
@@ -837,7 +837,7 @@ class Traveller(models.Model):
 
     @property
     def non_dfo_costs_html(self):
-        if self.non_dfo_costs:
+        if self.non_dfo_org or self.non_dfo_costs:
             return f"{currency(self.non_dfo_costs, True)} ({self.non_dfo_org})"
         return "---"
 

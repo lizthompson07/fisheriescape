@@ -1,0 +1,207 @@
+{% extends 'scuba/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+{% load custom_filters %}
+
+{% block subcontent %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <style>
+  #map {
+      height: 400px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
+  <div class="btns mb-3">
+    <a href="{% url 'scuba:dive_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
+    <a href="{% url 'scuba:dive_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+    {% if object.transect %}
+      <a href="{% url 'scuba:dive_data_entry' object.id %}" class="btn btn-primary btn-sm">{% trans "Data Entry Mode" %}</a>
+    {% endif %}
+  </div>
+
+  <div class="mb-3 row">
+    <div class="col">
+      <table class="table table-sm w-75">
+        {% for field in field_list %}
+          {% if "descent" in field %}
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              <td>{{ object.start_descent|time }}</td>
+            </tr>
+          {% elif "transect" in field %}
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              {% if object.transect %}
+                <td><a href="{% url 'scuba:site_detail' object.transect.site.id %}">{% trans "Transect" %} {{ object.transect }}</a></td>
+              {% else %}
+                <td>n/a</td>
+              {% endif %}
+            </tr>
+          {% else %}
+            {% verbose_td_display object field %}
+          {% endif %}
+        {% endfor %}
+      </table>
+    </div>
+    <div class="col">
+      {% if not object.transect.get_starting_coordinates %}
+        <div class="alert alert-danger lead mb-3" role="alert">
+          {% url 'scuba:transect_edit' object.transect.id as transect_url %}
+          <span class="mdi mdi-emoticon-confused-outline h3 mr-2"></span>
+          {% blocktrans with transect_url=transect_url %}
+            This transect associated with this dive is missing some coordinates. Please add some <a href="{{ transect_url }}" target="_blank">here</a>.
+          {% endblocktrans %}
+        </div>
+      {% endif %}
+      <div id="map">
+      </div>
+    </div>
+  </div>
+
+
+  <div class="mb-3">
+    <h3>{% trans "Observations" %}</h3>
+
+    {% if object.sections.exists %}
+
+      <table class="table table-bordered table-sm" style="width: auto;">
+        <thead>
+        <tr>
+          {% for field in section_field_list %}
+            <th rowspan="2">
+              {% get_verbose_label object.sections.first field %}
+            </th>
+          {% endfor %}
+          <th class="text-center" colspan="8">{% trans "Observations" %}</th>
+        </tr>
+        <tr>
+          {% for field in observation_field_list %}
+            <th>
+              {% get_verbose_label random_observation field %}
+            </th>
+          {% endfor %}
+        </tr>
+        </thead>
+        {% for section in object.sections.all %}
+          <tbody>
+          {% for obs in section.observations.all %}
+            <tr>
+              {% if forloop.counter == 1 %}
+                {% for field in section_field_list %}
+                  {% if field == "comment" %}
+                    <td style="width: 10%" rowspan="{{ section.observations.count }}" class="text-center">
+
+                      {% if section.comment %}
+                        <span class="mdi mdi-comment-text h5" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ section.comment }}"></span>
+                      {% endif %}
+                    </td>
+
+                  {% elif field == "substrate_profile" %}
+                    <td style="width: 25%" rowspan="{{ section.observations.count }}">{% get_field_value section field %}</td>
+                  {% else %}
+                    <td rowspan="{{ section.observations.count }}">{% get_field_value section field %}</td>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+
+              {% for field in observation_field_list %}
+                {% if "comment" in field %}
+                  <td class="text-center">
+                    {% if obs.comment %}
+                      <span class="mdi mdi-comment-text h5" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ obs.comment }}"></span>
+                    {% endif %}
+                  </td>
+                {% elif "certain" in field %}
+                  <td>
+                    <span class="{{ obs.certainty_rating_special_display }} py-1 px-2">{% get_field_value obs field %}</span>
+                  </td>
+                {% else %}
+                  <td>{% get_field_value obs field %}</td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+          {% empty %}
+            <tr>
+              {% for field in section_field_list %}
+                {% if field == "comment" %}
+                  <td style="width: 10%" class="text-center">
+                    {% if section.comment %}
+                      <span class="mdi mdi-comment-text h5" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ section.comment }}"></span>
+                    {% endif %}
+                  </td>
+                {% elif field == "substrate_profile" %}
+                  <td style="width: 25%">{% get_field_value section field %}</td>
+                {% else %}
+                  <td>{% get_field_value section field %}</td>
+                {% endif %}
+              {% endfor %}
+              <td>---</td>
+              <td>---</td>
+              <td>---</td>
+              <td>---</td>
+              <td>---</td>
+              <td></td>
+
+            </tr>
+          {% endfor %}
+          </tbody>
+        {% endfor %}
+      </table>
+
+    {% else %}
+
+      <em>{% trans "This dive has no observations." %}</em>
+
+    {% endif %}
+  </div>
+
+{% endblock %}
+{% block body_js %}
+  {{ block.super }}
+
+
+  <script type="application/javascript">
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+  })
+  </script>
+
+  {% if object.transect.get_starting_coordinates and  object.transect.get_ending_coordinates %}
+    <script type="application/javascript">
+
+    function initialize() {
+      map = new L.Map("map", {
+        center: new L.LatLng({{ object.transect.get_starting_coordinates.x }}, {{ object.transect.get_starting_coordinates.y }}),
+        zoom: 14,
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map)
+
+      var lineCoords = [
+        [{{object.transect.get_starting_coordinates.x }}, {{object.transect.get_starting_coordinates.y }}],
+        [{{object.transect.get_ending_coordinates.x }}, {{object.transect.get_ending_coordinates.y }}],
+      ];
+      L.marker(lineCoords[0], {icon: greenIcon}).addTo(map).bindPopup("<b>Start (0m)");
+      L.marker(lineCoords[1], {icon: redIcon}).addTo(map).bindPopup("<b>End (100m)");
+      L.polyline([lineCoords], {
+        color: 'black',
+        dashArray: '3',
+        weight: 1,
+      }).addTo(map).bindPopup("Transect: {{object.transect}}").openPopup();
+
+      map.fitBounds(lineCoords);
+    }
+
+    $(document).ready(function () {
+      // Stuff to do as soon as the DOM is ready
+      initialize()
+
+    });
+    </script>
+  {% endif %}
+
+{% endblock %}
