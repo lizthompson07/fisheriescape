@@ -92,7 +92,11 @@ h1 {
     background-color: #cacaca;
 }
 
-.deferred, .fulfilled {
+.fulfilled {
+    background-color: #87ff76;
+}
+
+.deferred {
     background-color: #854747;
     color: white;
 }
