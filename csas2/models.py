@@ -155,7 +155,10 @@ class CSASRequest(MetadataFields):
 
         # if there is a process, the request the request MUST have been approved.
         if self.id and self.processes.exists():
-            self.status = 11  # approved
+            if self.processes.filter(status=100).count() == self.processes.all().count():
+                self.status = 5  # fulfilled
+            else:
+                self.status = 11  # accepted
         else:
             # look at the review to help determine the status
             self.status = 1  # draft
@@ -803,14 +806,12 @@ class Document(MetadataFields):
             my_str = "{}".format(getattr(self, str(_("title_en"))))
         else:
             my_str = self.title_en
+        if not my_str:
+            my_str = str(self.id)
         return my_str
 
     def __str__(self):
         return self.ttitle
-
-    @property
-    def total_cost(self):
-        return self.costs.aggregate(dsum=Sum("amount"))["dsum"]
 
     @property
     def status_display(self):

@@ -17,7 +17,7 @@ def save_request_on_file_save(sender, instance, created, **kwargs):
 
 
 @receiver(models.signals.post_save, sender=Process)
-def update_fiscal_year_on_process_save(sender, instance, created, **kwargs):
+def save_requests_on_process_save(sender, instance, created, **kwargs):
     for r in instance.csas_requests.all():
         r.save()
 
@@ -56,8 +56,13 @@ def save_process_on_doc_save(sender, instance, created, **kwargs):
     instance.process.save()
 
 
+@receiver(models.signals.post_save, sender=DocumentTracking)
+def save_process_on_doc_tracking_save(sender, instance, created, **kwargs):
+    instance.document.process.save()
+
+
 @receiver(models.signals.post_save, sender=TermsOfReference)
-def save_process_on_doc_save(sender, instance, created, **kwargs):
+def save_process_on_tor_save(sender, instance, created, **kwargs):
     instance.process.save()
 
 

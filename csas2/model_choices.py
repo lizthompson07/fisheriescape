@@ -15,7 +15,7 @@ request_status_choices = (
     (2, _("Submitted")),  # client submits request
     (3, _("Ready for review")),  # signed PDF
     (4, _("Under review")),  # review is created by coordinator
-    (5, _("Complete")),
+    (5, _("Fulfilled")),
     # all status below here should correspond to review decision choice + 10
     (11, _("Accepted")),  # coordinator approves
     (12, _("Withdrawn")),  # client (coordinator) withdraws
