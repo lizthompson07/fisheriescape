@@ -11,10 +11,7 @@ class CruiseForm(forms.ModelForm):
     class Meta:
         model = shared_models.Cruise
         exclude = ["season", ]
-        # labels={
-        #     'district':mark_safe("District (<a href='#' >search</a>)"),
-        #     'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
-        # }
+
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date'}),
             'end_date': forms.DateInput(attrs={'type': 'date'}),

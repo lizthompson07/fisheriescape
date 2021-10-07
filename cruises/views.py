@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy, gettext
 import csv
@@ -150,10 +152,44 @@ class CruiseUpdateView(OceanographyAdminRequiredMixin, CommonUpdateView):
         return context
 
 
+
+class CruiseCloneView(CruiseUpdateView):
+    h1 = gettext_lazy("Clone")
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = models.Cruise.objects.get(pk=new_obj.pk)
+
+        new_obj.pk = None
+        new_obj.save()
+
+        # for each year of old project, clone into new project...
+        for old_instrument in old_obj.instruments.all():
+            new_instrument = deepcopy(old_instrument)
+            new_instrument.cruise = new_obj
+            new_instrument.pk = None
+            new_instrument.save()
+
+            for old_component in old_instrument.components.all():
+                new_component = deepcopy(old_component)
+                new_component.instrument = new_instrument
+                new_component.pk = None
+                new_component.save()
+
+
+        return HttpResponseRedirect(reverse_lazy("cruises:cruise_detail", kwargs={"pk": new_obj.id}))
+
+    def get_initial(self):
+        obj = self.get_object()
+        return dict(
+            mission_number=obj.mission_number + " CLONED"
+        )
+
 class CruiseDeleteView(OceanographyAdminRequiredMixin, CommonDeleteView):
     model = shared_models.Cruise
     template_name = 'cruises/confirm_delete.html'
     home_url_name = "cruises:index"
+    success_url = reverse_lazy('cruises:cruise_list')
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("cruises:cruise_detail", args=[self.get_object().id])}
