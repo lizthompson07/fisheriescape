@@ -255,8 +255,7 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
 
     def get_extra_button_dict1(self):
         # qs = self.filterset.qs
-        # ids = listrify([obj.id for obj in qs])
-        ids=""
+        ids = listrify([])
         return {
             "name": _("<span class=' mr-1 mdi mdi-file-excel'></span> {name}").format(name=_("Export")),
             "url": reverse("csas2:request_list_report") + f"?csas_requests={ids}",
