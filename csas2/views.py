@@ -255,8 +255,8 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        filter_qs = self.filterset.qs
-        ids = listrify([obj.id for obj in filter_qs])
+        # filter_qs = self.filterset.qs
+        # ids = listrify([obj.id for obj in filter_qs])
         # context["extra_button_dict1"] = {
         #     "name": _("<span class=' mr-1 mdi mdi-file-excel'></span> {name}").format(name=_("Export")),
         #     "url": reverse("csas2:request_list_report") + f"?csas_requests={ids}",
