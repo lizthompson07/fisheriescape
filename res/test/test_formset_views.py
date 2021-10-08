@@ -20,17 +20,17 @@ class TestAllFormsets(CommonTest):
             "manage_divers",
         ]
 
-        self.test_urls = [reverse_lazy("scuba:" + name) for name in self.test_url_names]
+        self.test_urls = [reverse_lazy("res:" + name) for name in self.test_url_names]
         self.test_views = [
             views.DiverFormsetView,
         ]
-        self.expected_template = 'scuba/formset.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.expected_template = 'res/formset.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag('formsets', "view")
     def test_view_class(self):
         for v in self.test_views:
-            self.assert_inheritance(v, views.ScubaAdminRequiredMixin)
+            self.assert_inheritance(v, views.ResAdminRequiredMixin)
             self.assert_inheritance(v, CommonFormsetView)
 
     @tag('formsets', "access")
@@ -54,7 +54,7 @@ class TestAllHardDeleteViews(CommonTest):
         ]
         self.test_dicts = list()
 
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_user(in_group="res_admin")
         for d in self.starter_dicts:
             new_d = d
             m = d["model"]
@@ -63,13 +63,13 @@ class TestAllHardDeleteViews(CommonTest):
             else:
                 obj = m.objects.create(name=faker.word())
             new_d["obj"] = obj
-            new_d["url"] = reverse_lazy("scuba:" + d["url_name"], kwargs={"pk": obj.id})
+            new_d["url"] = reverse_lazy("res:" + d["url_name"], kwargs={"pk": obj.id})
             self.test_dicts.append(new_d)
 
     @tag('hard_delete', "view")
     def test_view_class(self):
         for d in self.test_dicts:
-            self.assert_inheritance(d["view"], views.ScubaAdminRequiredMixin)
+            self.assert_inheritance(d["view"], views.ResAdminRequiredMixin)
             self.assert_inheritance(d["view"], CommonHardDeleteView)
 
     @tag('hard_delete', "access")

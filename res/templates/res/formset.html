@@ -2,17 +2,17 @@
 {% load static %}
 
 {% block bug_create %}
-    {% include "scuba/base/_bug_url.html" %}
+    {% include "res/base/_bug_url.html" %}
 {% endblock bug_create %}
 
 {% block title %}
-    {% include "scuba/base/_app_title.html" %}
+    {% include "res/base/_app_title.html" %}
     {% block subtitle %} - {{ subtitle }}{% endblock %}
 {% endblock title %}
 
 {% block header %}
     {{ block.super }}
-    {% include "scuba/base/_style.html" %}
+    {% include "res/base/_style.html" %}
 {% endblock %}
 
 {% block body %}
@@ -20,5 +20,5 @@
 {% endblock body %}
 
 {% block left_auth %}
-    {% include "scuba/base/_nav_left_auth.html" %}
+    {% include "res/base/_nav_left_auth.html" %}
 {% endblock left_auth %}

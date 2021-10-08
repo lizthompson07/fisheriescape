@@ -241,6 +241,13 @@ if settings.INSTALLED_APPS.count("fisheriescape"):
 else:
     print("not connecting fisheriescape app")
 
+
+if settings.INSTALLED_APPS.count("res"):
+    urlpatterns += i18n_patterns(path('res-sub/', include('res.urls')),
+                                 prefix_default_language=True)
+else:
+    print("not connecting res app")
+
 if settings.AZURE_STORAGE_ACCOUNT_NAME == "":
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,
                                                                                             document_root=settings.MEDIA_ROOT)

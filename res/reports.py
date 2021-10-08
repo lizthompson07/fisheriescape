@@ -5,7 +5,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
-from scuba import models
+from res import models
 
 
 def generate_dive_log(year):
@@ -48,7 +48,7 @@ def generate_dive_log(year):
     # define the header
     header = [get_verbose_label(dives.first(), field) for field in field_list]
     # header.append('Number of projects tagged')
-    title = "SCUBA Dive Log"
+    title = "res Dive Log"
 
     # define a worksheet
     my_ws = workbook.add_worksheet(name="trip list")

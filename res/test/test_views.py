@@ -17,9 +17,9 @@ class TestDiveCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.SampleFactory()
-        self.test_url = reverse_lazy('scuba:dive_new', args=[self.instance.id])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:dive_new', args=[self.instance.id])
+        self.expected_template = 'res/form.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Dive", "dive_new", "view")
     def test_view_class(self):
@@ -38,16 +38,16 @@ class TestDiveCreateView(CommonTest):
     @tag("Dive", "dive_new", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:dive_new", f"/en/scuba/samples/{self.instance.pk}/new-dive/", [self.instance.pk])
+        self.assert_correct_url("res:dive_new", f"/en/res/samples/{self.instance.pk}/new-dive/", [self.instance.pk])
 
 
 class TestDiveDataEntryDetailView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.DiveFactory()
-        self.test_url = reverse_lazy('scuba:dive_data_entry', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/dive_data_entry/main.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:dive_data_entry', args=[self.instance.pk, ])
+        self.expected_template = 'res/dive_data_entry/main.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Dive", "dive_data_entry", "view")
     def test_view_class(self):
@@ -74,16 +74,16 @@ class TestDiveDataEntryDetailView(CommonTest):
     @tag("Dive", "dive_data_entry", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:dive_data_entry", f"/en/scuba/dives/{self.instance.pk}/data-entry/", [self.instance.pk])
+        self.assert_correct_url("res:dive_data_entry", f"/en/res/dives/{self.instance.pk}/data-entry/", [self.instance.pk])
 
 
 class TestDiveDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.DiveFactory()
-        self.test_url = reverse_lazy('scuba:dive_delete', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:dive_delete', args=[self.instance.pk, ])
+        self.expected_template = 'res/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Dive", "dive_delete", "view")
     def test_view_class(self):
@@ -105,16 +105,16 @@ class TestDiveDeleteView(CommonTest):
     @tag("Dive", "dive_delete", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:dive_delete", f"/en/scuba/dives/{self.instance.pk}/delete/", [self.instance.pk])
+        self.assert_correct_url("res:dive_delete", f"/en/res/dives/{self.instance.pk}/delete/", [self.instance.pk])
 
 
 class TestDiveDetailView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.DiveFactory()
-        self.test_url = reverse_lazy('scuba:dive_detail', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/dive_detail.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:dive_detail', args=[self.instance.pk, ])
+        self.expected_template = 'res/dive_detail.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Dive", "dive_detail", "view")
     def test_view_class(self):
@@ -137,7 +137,7 @@ class TestDiveDetailView(CommonTest):
     @tag("Dive", "dive_detail", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:dive_detail", f"/en/scuba/dives/{self.instance.pk}/view/", [self.instance.pk])
+        self.assert_correct_url("res:dive_detail", f"/en/res/dives/{self.instance.pk}/view/", [self.instance.pk])
 
 
 class TestDiveLogReportView(CommonTest):
@@ -147,8 +147,8 @@ class TestDiveLogReportView(CommonTest):
         DiveFactory()
         DiveFactory()
         DiveFactory()
-        self.test_url = reverse_lazy('scuba:dive_log_report')
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:dive_log_report')
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("DiveLog", "dive_log_report", "access")
     def test_view(self):
@@ -158,16 +158,16 @@ class TestDiveLogReportView(CommonTest):
     @tag("DiveLog", "dive_log_report", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:dive_log_report", f"/en/scuba/reports/dive-log/")
+        self.assert_correct_url("res:dive_log_report", f"/en/res/reports/dive-log/")
 
 
 class TestDiveUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.DiveFactory()
-        self.test_url = reverse_lazy('scuba:dive_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:dive_edit', args=[self.instance.pk, ])
+        self.expected_template = 'res/form.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Dive", "dive_edit", "view")
     def test_view_class(self):
@@ -205,15 +205,15 @@ class TestDiveUpdateView(CommonTest):
     @tag("Dive", "dive_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:dive_edit", f"/en/scuba/dives/{self.instance.pk}/edit/", [self.instance.pk])
+        self.assert_correct_url("res:dive_edit", f"/en/res/dives/{self.instance.pk}/edit/", [self.instance.pk])
 
 
 class TestRegionCreateView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.test_url = reverse_lazy('scuba:region_new')
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:region_new')
+        self.expected_template = 'res/form.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Region", "region_new", "view")
     def test_view_class(self):
@@ -232,16 +232,16 @@ class TestRegionCreateView(CommonTest):
     @tag("Region", "region_new", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:region_new", f"/en/scuba/regions/new/")
+        self.assert_correct_url("res:region_new", f"/en/res/regions/new/")
 
 
 class TestRegionDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.RegionFactory()
-        self.test_url = reverse_lazy('scuba:region_delete', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:region_delete', args=[self.instance.pk, ])
+        self.expected_template = 'res/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Region", "region_delete", "view")
     def test_view_class(self):
@@ -263,16 +263,16 @@ class TestRegionDeleteView(CommonTest):
     @tag("Region", "region_delete", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:region_delete", f"/en/scuba/regions/{self.instance.pk}/delete/", [self.instance.pk])
+        self.assert_correct_url("res:region_delete", f"/en/res/regions/{self.instance.pk}/delete/", [self.instance.pk])
 
 
 class TestRegionDetailView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.RegionFactory()
-        self.test_url = reverse_lazy('scuba:region_detail', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/region_detail.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:region_detail', args=[self.instance.pk, ])
+        self.expected_template = 'res/region_detail.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Region", "region_detail", "view")
     def test_view_class(self):
@@ -293,15 +293,15 @@ class TestRegionDetailView(CommonTest):
     @tag("Region", "region_detail", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:region_detail", f"/en/scuba/regions/{self.instance.pk}/view/", [self.instance.pk])
+        self.assert_correct_url("res:region_detail", f"/en/res/regions/{self.instance.pk}/view/", [self.instance.pk])
 
 
 class TestRegionListView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.test_url = reverse_lazy('scuba:region_list')
-        self.expected_template = 'scuba/list.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:region_list')
+        self.expected_template = 'res/list.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Region", "region_list", "view")
     def test_view_class(self):
@@ -322,16 +322,16 @@ class TestRegionListView(CommonTest):
     @tag("Region", "region_list", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:region_list", f"/en/scuba/regions/")
+        self.assert_correct_url("res:region_list", f"/en/res/regions/")
 
 
 class TestRegionUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.RegionFactory()
-        self.test_url = reverse_lazy('scuba:region_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:region_edit', args=[self.instance.pk, ])
+        self.expected_template = 'res/form.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Region", "region_edit", "view")
     def test_view_class(self):
@@ -350,15 +350,15 @@ class TestRegionUpdateView(CommonTest):
     @tag("Region", "region_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:region_edit", f"/en/scuba/regions/{self.instance.pk}/edit/", [self.instance.pk])
+        self.assert_correct_url("res:region_edit", f"/en/res/regions/{self.instance.pk}/edit/", [self.instance.pk])
 
 
 class TestReportSearchFormView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.test_url = reverse_lazy('scuba:reports')
-        self.expected_template = 'scuba/report_search.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:reports')
+        self.expected_template = 'res/report_search.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("ReportSearch", "reports", "view")
     def test_view_class(self):
@@ -377,15 +377,15 @@ class TestReportSearchFormView(CommonTest):
     @tag("ReportSearch", "reports", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:reports", f"/en/scuba/reports/")
+        self.assert_correct_url("res:reports", f"/en/res/reports/")
 
 
 class TestSampleCreateView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.test_url = reverse_lazy('scuba:sample_new')
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:sample_new')
+        self.expected_template = 'res/form.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Sample", "sample_new", "view")
     def test_view_class(self):
@@ -404,16 +404,16 @@ class TestSampleCreateView(CommonTest):
     @tag("Sample", "sample_new", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:sample_new", f"/en/scuba/samples/new/")
+        self.assert_correct_url("res:sample_new", f"/en/res/samples/new/")
 
 
 class TestSampleDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.SampleFactory()
-        self.test_url = reverse_lazy('scuba:sample_delete', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:sample_delete', args=[self.instance.pk, ])
+        self.expected_template = 'res/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Sample", "sample_delete", "view")
     def test_view_class(self):
@@ -435,16 +435,16 @@ class TestSampleDeleteView(CommonTest):
     @tag("Sample", "sample_delete", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:sample_delete", f"/en/scuba/samples/{self.instance.pk}/delete/", [self.instance.pk])
+        self.assert_correct_url("res:sample_delete", f"/en/res/samples/{self.instance.pk}/delete/", [self.instance.pk])
 
 
 class TestSampleDetailView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.SampleFactory()
-        self.test_url = reverse_lazy('scuba:sample_detail', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/sample_detail.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:sample_detail', args=[self.instance.pk, ])
+        self.expected_template = 'res/sample_detail.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Sample", "sample_detail", "view")
     def test_view_class(self):
@@ -465,15 +465,15 @@ class TestSampleDetailView(CommonTest):
     @tag("Sample", "sample_detail", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:sample_detail", f"/en/scuba/samples/{self.instance.pk}/view/", [self.instance.pk])
+        self.assert_correct_url("res:sample_detail", f"/en/res/samples/{self.instance.pk}/view/", [self.instance.pk])
 
 
 class TestSampleListView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.test_url = reverse_lazy('scuba:sample_list')
-        self.expected_template = 'scuba/list.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:sample_list')
+        self.expected_template = 'res/list.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Sample", "sample_list", "view")
     def test_view_class(self):
@@ -494,16 +494,16 @@ class TestSampleListView(CommonTest):
     @tag("Sample", "sample_list", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:sample_list", f"/en/scuba/samples/")
+        self.assert_correct_url("res:sample_list", f"/en/res/samples/")
 
 
 class TestSampleUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.SampleFactory()
-        self.test_url = reverse_lazy('scuba:sample_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:sample_edit', args=[self.instance.pk, ])
+        self.expected_template = 'res/form.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Sample", "sample_edit", "view")
     def test_view_class(self):
@@ -522,16 +522,16 @@ class TestSampleUpdateView(CommonTest):
     @tag("Sample", "sample_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:sample_edit", f"/en/scuba/samples/{self.instance.pk}/edit/", [self.instance.pk])
+        self.assert_correct_url("res:sample_edit", f"/en/res/samples/{self.instance.pk}/edit/", [self.instance.pk])
 
 
 class TestSiteCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.RegionFactory()
-        self.test_url = reverse_lazy('scuba:site_new', args=[self.instance.id])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:site_new', args=[self.instance.id])
+        self.expected_template = 'res/form.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Site", "site_new", "view")
     def test_view_class(self):
@@ -550,16 +550,16 @@ class TestSiteCreateView(CommonTest):
     @tag("Site", "site_new", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:site_new", f"/en/scuba/regions/{self.instance.id}/new-site/", test_url_args=[self.instance.id])
+        self.assert_correct_url("res:site_new", f"/en/res/regions/{self.instance.id}/new-site/", test_url_args=[self.instance.id])
 
 
 class TestSiteDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.SiteFactory()
-        self.test_url = reverse_lazy('scuba:site_delete', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:site_delete', args=[self.instance.pk, ])
+        self.expected_template = 'res/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Site", "site_delete", "view")
     def test_view_class(self):
@@ -581,16 +581,16 @@ class TestSiteDeleteView(CommonTest):
     @tag("Site", "site_delete", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:site_delete", f"/en/scuba/sites/{self.instance.pk}/delete/", [self.instance.pk])
+        self.assert_correct_url("res:site_delete", f"/en/res/sites/{self.instance.pk}/delete/", [self.instance.pk])
 
 
 class TestSiteDetailView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.SiteFactory()
-        self.test_url = reverse_lazy('scuba:site_detail', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/site_detail.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:site_detail', args=[self.instance.pk, ])
+        self.expected_template = 'res/site_detail.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Site", "site_detail", "view")
     def test_view_class(self):
@@ -611,16 +611,16 @@ class TestSiteDetailView(CommonTest):
     @tag("Site", "site_detail", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:site_detail", f"/en/scuba/sites/{self.instance.pk}/view/", [self.instance.pk])
+        self.assert_correct_url("res:site_detail", f"/en/res/sites/{self.instance.pk}/view/", [self.instance.pk])
 
 
 class TestSiteUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.SiteFactory()
-        self.test_url = reverse_lazy('scuba:site_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:site_edit', args=[self.instance.pk, ])
+        self.expected_template = 'res/form.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Site", "site_edit", "view")
     def test_view_class(self):
@@ -651,16 +651,16 @@ class TestSiteUpdateView(CommonTest):
     @tag("Site", "site_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:site_edit", f"/en/scuba/sites/{self.instance.pk}/edit/", [self.instance.pk])
+        self.assert_correct_url("res:site_edit", f"/en/res/sites/{self.instance.pk}/edit/", [self.instance.pk])
 
 
 class TestTransectCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.SiteFactory()
-        self.test_url = reverse_lazy('scuba:transect_new', args=[self.instance.id])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:transect_new', args=[self.instance.id])
+        self.expected_template = 'res/form.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Transect", "transect_new", "view")
     def test_view_class(self):
@@ -679,16 +679,16 @@ class TestTransectCreateView(CommonTest):
     @tag("Transect", "transect_new", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:transect_new", f"/en/scuba/sites/{self.instance.id}/new-transect/", test_url_args=[self.instance.id])
+        self.assert_correct_url("res:transect_new", f"/en/res/sites/{self.instance.id}/new-transect/", test_url_args=[self.instance.id])
 
 
 class TestTransectDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.TransectFactory()
-        self.test_url = reverse_lazy('scuba:transect_delete', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:transect_delete', args=[self.instance.pk, ])
+        self.expected_template = 'res/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Transect", "transect_delete", "view")
     def test_view_class(self):
@@ -710,16 +710,16 @@ class TestTransectDeleteView(CommonTest):
     @tag("Transect", "transect_delete", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:transect_delete", f"/en/scuba/transects/{self.instance.pk}/delete/", [self.instance.pk])
+        self.assert_correct_url("res:transect_delete", f"/en/res/transects/{self.instance.pk}/delete/", [self.instance.pk])
 
 
 class TestTransectUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.TransectFactory()
-        self.test_url = reverse_lazy('scuba:transect_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/transect_form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('res:transect_edit', args=[self.instance.pk, ])
+        self.expected_template = 'res/transect_form.html'
+        self.user = self.get_and_login_user(in_group="res_admin")
 
     @tag("Transect", "transect_edit", "view")
     def test_view_class(self):
@@ -756,4 +756,4 @@ class TestTransectUpdateView(CommonTest):
     @tag("Transect", "transect_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:transect_edit", f"/en/scuba/transects/{self.instance.pk}/edit/", [self.instance.pk])
+        self.assert_correct_url("res:transect_edit", f"/en/res/transects/{self.instance.pk}/edit/", [self.instance.pk])

@@ -1,8 +1,8 @@
 from django.apps import AppConfig
 
 
-class ScubaConfig(AppConfig):
-    name = 'scuba'
+class resConfig(AppConfig):
+    name = 'res'
 
     def ready(self):
         pass

@@ -1,1 +1,1 @@
-default_app_config = 'scuba.apps.ScubaConfig'
+default_app_config = 'res.apps.resConfig'

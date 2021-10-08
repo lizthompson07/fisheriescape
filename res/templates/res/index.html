@@ -1,11 +1,11 @@
-{% extends "scuba/base.html" %}
+{% extends "res/base.html" %}
 {% load i18n %}
 {% load static %}
 {% load custom_tags %}
 
 {% block header %}
   {{ block.super }}
-  {% include "scuba/_background_img.html" %}
+  {% include "res/_background_img.html" %}
 {% endblock %}
 
 {% block content %}
@@ -17,14 +17,14 @@
   <div class="container bg-light curvy mb-3 mt-3">
 
     <h1 class="text-center mt-3 mb-5">
-      {% trans "SCUBA Survey" %}
+      {% trans "res Survey" %}
     </h1>
     <h3 class="text-center text-muted">
       {% trans "Gulf Region Lobster Survey Data Entry and Archiving Tool" %}
     </h3>
     <div class="mb-5"></div>
         <div class="text-center">
-          <a href="{% url 'scuba:sample_list' %}" class="btn btn-primary">{% trans "View Samples" %}</a>
+          <a href="{% url 'res:sample_list' %}" class="btn btn-primary">{% trans "View Samples" %}</a>
         </div>
     </div>
 

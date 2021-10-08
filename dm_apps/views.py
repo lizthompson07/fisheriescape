@@ -444,6 +444,19 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["res"] = {
+            "title": _("SE-RES Career Progression Dossier App"),
+            "description": _("Research Scientist Dossier Tracking Application"),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('res:index'),
+            "icon_path": 'img/icons/success.png',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
         app_dict["projects"] = {
             "title": _("Project Planning (ARCHIVE ONLY)"),
             "description": _("Tool for the tracking, development and coordination of science project workplans."),

@@ -18,11 +18,11 @@ class TestCurrentUserAPIView(CommonTest):
         super().setUp()
         self.user = self.get_and_login_user()
         self.instance = UserFactory()
-        self.test_url = reverse("scuba-current-user", args=None)
+        self.test_url = reverse("res-current-user", args=None)
 
     @tag("api", 'current-user')
     def test_url(self):
-        self.assert_correct_url("scuba-current-user", test_url_args=None, expected_url_path=f"/api/scuba/user/")
+        self.assert_correct_url("res-current-user", test_url_args=None, expected_url_path=f"/api/res/user/")
 
     @tag("api", 'current-user')
     def test_get(self):
@@ -61,11 +61,11 @@ class TestObservationListCreateAPIView(CommonTest):
         self.observation = ObservationFactory(section=self.section)
         for i in range(0, 5):
             ObservationFactory()
-        self.test_url = reverse("scuba-observation-list", args=None)
+        self.test_url = reverse("res-observation-list", args=None)
 
     @tag("api", 'observation-list')
     def test_url(self):
-        self.assert_correct_url("scuba-observation-list", test_url_args=None, expected_url_path=f"/api/scuba/observations/")
+        self.assert_correct_url("res-observation-list", test_url_args=None, expected_url_path=f"/api/res/observations/")
 
     @tag("api", 'observation-list')
     def test_get(self):
@@ -93,7 +93,7 @@ class TestObservationListCreateAPIView(CommonTest):
     def test_post(self):
         # PERMISSIONS
         # authenticated users
-        self.get_and_login_user(in_group="scuba_admin")
+        self.get_and_login_user(in_group="res_admin")
         data = ObservationFactory.get_valid_data()
         response = self.client.post(self.test_url, data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -104,7 +104,7 @@ class TestObservationListCreateAPIView(CommonTest):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # RESPONSE DATA
-        self.get_and_login_user(in_group="scuba_admin")
+        self.get_and_login_user(in_group="res_admin")
         response = self.client.post(self.test_url, data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         keys = [
@@ -123,14 +123,14 @@ class TestObservationListCreateAPIView(CommonTest):
 class TestObservationRetrieveUpdateDestroyAPIView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_user(in_group="res_admin")
         self.instance = FactoryFloor.ObservationFactory()
-        self.test_url = reverse("scuba-observation-detail", args=[self.instance.pk])
+        self.test_url = reverse("res-observation-detail", args=[self.instance.pk])
         # self.client = APIClient()
 
     @tag("api", 'observation-detail')
     def test_url(self):
-        self.assert_correct_url("scuba-observation-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/scuba/observations/{self.instance.pk}/")
+        self.assert_correct_url("res-observation-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/res/observations/{self.instance.pk}/")
 
     @tag("api", 'observation-detail')
     def test_get(self):
@@ -187,16 +187,16 @@ class TestObservationRetrieveUpdateDestroyAPIView(CommonTest):
 class TestSectionListCreateAPIView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_user(in_group="res_admin")
         self.dive = DiveFactory()
         self.section = SectionFactory(dive=self.dive)
         for i in range(0, 5):
             SectionFactory()
-        self.test_url = reverse("scuba-section-list", args=None)
+        self.test_url = reverse("res-section-list", args=None)
 
     @tag("api", 'section-list')
     def test_url(self):
-        self.assert_correct_url("scuba-section-list", test_url_args=None, expected_url_path=f"/api/scuba/sections/")
+        self.assert_correct_url("res-section-list", test_url_args=None, expected_url_path=f"/api/res/sections/")
 
     @tag("api", 'section-list')
     def test_get(self):
@@ -253,13 +253,13 @@ class TestSectionListCreateAPIView(CommonTest):
 class TestSectionRetrieveUpdateDestroyAPIView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_user(in_group="res_admin")
         self.instance = FactoryFloor.SectionFactory()
-        self.test_url = reverse("scuba-section-detail", args=[self.instance.pk])
+        self.test_url = reverse("res-section-detail", args=[self.instance.pk])
 
     @tag("api", 'section-detail')
     def test_url(self):
-        self.assert_correct_url("scuba-section-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/scuba/sections/{self.instance.pk}/")
+        self.assert_correct_url("res-section-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/res/sections/{self.instance.pk}/")
 
     @tag("api", 'section-detail')
     def test_get(self):
