@@ -7,40 +7,56 @@
 {% load humanize %}
 
 {% block title_area %}
-  <div class="my-3">
-    <p class="h1">{{ h1 }}</p>
-  </div>
+    <div class="my-3">
+        <p class="h1">{{ h1 }}</p>
+    </div>
 {% endblock %}
 
 {% block subcontent %}
 
-  <div class="btns mb-3">
-    <a class="btn btn-sm btn-warning" href="{% url 'maret:committee_edit' object.id %}">
-      {% trans "Edit" %}
-    </a>
-    <a class="btn btn-sm btn-danger " href="{% url 'maret:committee_delete' object.id %}">
-      {% trans "Delete" %}
-    </a>
-  </div>
-
-  <div class="row">
-    <div class="col-5">
-
-      <div class="card entry-card mb-3">
-        <div class="card-header">
-          <h5 class="card-title"> {% trans "Committee / Working Group Details" %}</h5>
-        </div>
-        <div class="card-body">
-          <table class="table table-sm ">
-            {% for field in field_list %}
-                {% verbose_td_display object field %}
-            {% endfor %}
-          </table>
-        </div>
-      </div>
+    <div class="btns mb-3">
+        <a class="btn btn-sm btn-warning" href="{% url 'maret:committee_edit' object.id %}">
+            {% trans "Edit" %}
+        </a>
+        <a class="btn btn-sm btn-danger " href="{% url 'maret:committee_delete' object.id %}">
+            {% trans "Delete" %}
+        </a>
     </div>
 
-  </div>
+    <div class="row">
+        <div class="col-5">
+
+            <div class="card entry-card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Committee / Working Group Details" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm ">
+                        {% for field in field_list %}
+                            {% verbose_td_display object field %}
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+            <div class="card entry-card mt-3 mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "External Contacts" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover table-sm">
+                        {% for ext_con in object.external_contact.all %}
+                            <tr href="{% url 'maret:person_detail' ext_con.id %}">
+                                <td>{{ ext_con.last_name }}, {{ ext_con.first_name }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
 
 
 
@@ -52,8 +68,8 @@
 
 {% block body_js %}
 
-  <script type="application/javascript">
+    <script type="application/javascript">
 
-  </script>
+    </script>
 
 {% endblock %}

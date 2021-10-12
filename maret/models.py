@@ -5,6 +5,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from shared_models import models as shared_models
+from masterlist import models as ml_models
 
 
 NULL_YES_NO_CHOICES = (
@@ -61,8 +62,8 @@ class Committee(models.Model):
     is_dfo_chair = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES,
                                        verbose_name=_("Does DFO chair/co-chair"))
 
-    # Todo: add External Chair linked to external contacts
-
+    external_chair = models.ForeignKey(ml_models.Person, blank=True, null=True, on_delete=models.DO_NOTHING,
+                                       verbose_name=_("External Chair"))
     dfo_liaison = models.ManyToManyField(User, related_name="committee_dfo_liaison",
                                          verbose_name=_("DFO liaison/secretariat"))
     other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="committee_dfo_branch",
@@ -72,9 +73,10 @@ class Committee(models.Model):
                                                      verbose_name=_("First Nations/Indigenous group participation?"))
     provincial_participation = models.BooleanField(default=False,
                                                    verbose_name=_("Provincial government participation?"))
-
-    # Todo: add External organization and contacts
-
+    external_contact = models.ManyToManyField(ml_models.Person, verbose_name=_("External Contact(s)"),
+                                              blank=True,related_name="committee_ext_contact")
+    external_organization = models.ManyToManyField(ml_models.Organization, verbose_name=_("External Organization(s)"),
+                                                   blank=True, related_name="committee_ext_organization")
     meeting_frequency = models.IntegerField(choices=meeting_frequency_choices, verbose_name=_("Meeting frequency"),
                                             default=1)
     are_tor = models.BooleanField(default=False, verbose_name=_("Are there terms of reference?"))
@@ -102,6 +104,7 @@ class Interaction(models.Model):
         (8, "Maritimes Region correspondence "),
     )
 
+    description = models.CharField(max_length=255, default="N/A", verbose_name="Short Description")
     interaction_type = models.IntegerField(choices=interaction_type_choices, default=None)
     committee = models.ForeignKey(Committee, on_delete=models.DO_NOTHING, default=1,
                                   verbose_name="Committee / Working Group")
@@ -110,9 +113,10 @@ class Interaction(models.Model):
                                          verbose_name=_("DFO liaison/secretariat"))
     other_dfo_participants = models.ManyToManyField(User, related_name="interaction_dfo_participants",
                                                     verbose_name=_("Other DFO participants/contributors"))
-
-    # Todo: add External organization and contacts
-
+    external_contact = models.ManyToManyField(ml_models.Person, verbose_name=_("External Contact(s)"),
+                                              blank=True, related_name="interaction_ext_contact")
+    external_organization = models.ManyToManyField(ml_models.Organization, verbose_name=_("External Organization(s)"),
+                                                   blank=True, related_name="interaction_ext_organization")
     date_of_meeting = models.DateTimeField(blank=True, null=True, default=timezone.now,
                                            verbose_name=_("Date of Meeting"))
     main_topic = models.ManyToManyField(DiscussionTopic, related_name="main_topics",

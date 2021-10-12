@@ -1,5 +1,6 @@
 from shared_models.views import CommonTemplateView, CommonFilterView, CommonCreateView, CommonFormsetView, \
-    CommonDetailView, CommonDeleteView, CommonUpdateView
+    CommonDetailView, CommonDeleteView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
+    CommonPopoutDeleteView
 
 from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -25,35 +26,9 @@ class IndexView(UserRequiredMixin, CommonTemplateView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class OrganizationListView(UserRequiredMixin, CommonFilterView):
-    template_name = 'maret/maret_list.html'
-    queryset = ml_models.Organization.objects.all().distinct().annotate(
-        search_term=Concat(
-            'name_eng', Value(" "),
-            'abbrev', Value(" "),
-            'name_ind', Value(" "),
-            'former_name', Value(" "),
-            'province__name', Value(" "),
-            'province__nom', Value(" "),
-            'province__abbrev_eng', Value(" "),
-            'province__abbrev_fre', output_field=TextField()))
-    filterset_class = filters.OrganizationFilter
-    paginate_by = 25
-    field_list = [
-        {"name": 'name_eng', "class": "", "width": ""},
-        {"name": 'name_ind', "class": "", "width": ""},
-        {"name": 'abbrev', "class": "", "width": ""},
-        {"name": 'province', "class": "", "width": ""},
-        {"name": 'grouping', "class": "", "width": "200px"},
-        {"name": 'full_address|' + str(_("Full address")), "class": "", "width": "300px"},
-        {"name": 'Audio recording|{}'.format(_("Audio recording")), "class": "", "width": ""},
-    ]
-    home_url_name = "maret:index"
-    new_object_url_name = "maret:org_new"
-    # row_object_url_name = "maret:org_detail"
-    container_class = "container-fluid"
-
-
+#######################################################
+# Person
+#######################################################
 class PersonListView(UserRequiredMixin, CommonFilterView):
     template_name = 'maret/maret_list.html'
     filterset_class = filters.PersonFilter
@@ -67,12 +42,113 @@ class PersonListView(UserRequiredMixin, CommonFilterView):
         {"name": 'email_1', "class": "", "width": ""},
         {"name": 'last_updated|{}'.format(_("last updated")), "class": "", "width": ""},
     ]
-    # new_object_url_name = "maret:person_new"
-    # row_object_url_name = "maret:person_detail"
+    new_object_url_name = "maret:person_new"
+    row_object_url_name = "maret:person_detail"
     home_url_name = "maret:index"
     paginate_by = 100
     h1 = _("Contacts")
     container_class = "container-fluid"
+
+
+class PersonDetailView(UserRequiredMixin, CommonDetailView):
+    model = ml_models.Person
+    template_name = 'maret/person_detail.html'
+    field_list = [
+        "designation",
+        "first_name",
+        "last_name",
+        "phone_1",
+        "phone_2",
+        "email_1",
+        "email_2",
+        "cell",
+        "fax",
+        "language",
+        "notes",
+        "metadata|{}".format(gettext_lazy("metadata")),
+    ]
+    home_url_name = "maret:index"
+    parent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("maret:person_list")}
+
+
+class PersonCreateView(AuthorRequiredMixin, CommonCreateView):
+    model = ml_models.Person
+    form_class = forms.PersonForm
+    parent_crumb = {"title": gettext_lazy("Person"), "url": reverse_lazy("maret:person_list")}
+    template_name = "maret/form.html"
+    h1 = gettext_lazy("New Contact")
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+            'created_by': self.request.user
+        }
+
+
+class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
+    model = ml_models.Person
+    form_class = forms.PersonForm
+    parent_crumb = {"title": gettext_lazy("Person"), "url": reverse_lazy("maret:person_list")}
+    template_name = "maret/form.html"
+    h1 = gettext_lazy("Contact")
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        if obj.locked_by_ihub:
+            messages.error(self.request, _("This record can only be modified through iHub"))
+            return HttpResponseRedirect(reverse("maret:person_detail", args=[obj.pk, ]))
+
+        obj.save()
+        return super().form_valid(form)
+
+
+class PersonCreateViewPopout(AuthorRequiredMixin, CommonPopoutCreateView):
+    model = ml_models.Person
+    form_class = forms.PersonForm
+    h1 = gettext_lazy("New Contact")
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+            'created_by': self.request.user
+        }
+
+
+class PersonUpdateViewPopout(AuthorRequiredMixin, CommonPopoutUpdateView):
+    model = ml_models.Person
+    form_class = forms.PersonForm
+    parent_crumb = {"title": gettext_lazy("Person"), "url": reverse_lazy("maret:person_list")}
+    template_name = 'shared_models/generic_popout_form.html'
+    h1 = gettext_lazy("Contact")
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
+
+
+class PersonDeleteView(AdminRequiredMixin, CommonDeleteView):
+    model = ml_models.Person
+    template_name = 'maret/confirm_delete.html'
+    success_url = reverse_lazy('maret:person_list')
+    home_url_name = "maret:index"
+    grandparent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("maret:person_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("maret:person_detail", args=[self.get_object().id])}
+
+    def delete(self, request, *args, **kwargs):
+        obj = ml_models.Person.objects.get(pk=kwargs['pk'])
+        if obj.locked_by_ihub:
+            messages.error(self.request, _("This record can only be modified through iHub"))
+            return HttpResponseRedirect(reverse("maret:person_detail", args=[obj.pk, ]))
+
+        return super().delete(request, *args, **kwargs)
 
 
 #######################################################
@@ -83,6 +159,7 @@ class InteractionListView(UserRequiredMixin, CommonFilterView):
     filterset_class = filters.InteractionFilter
     model = models.Interaction
     field_list = [
+        {"name": 'description', "class": "", "width": ""},
         {"name": 'interaction_type', "class": "", "width": ""},
         {"name": 'main_topics', "class": "", "width": ""},
         {"name": 'date_of_meeting', "class": "", "width": ""},
@@ -92,9 +169,9 @@ class InteractionListView(UserRequiredMixin, CommonFilterView):
     home_url_name = "maret:index"
 
 
-class InteractionCreateView(UserRequiredMixin, CommonCreateView):
+class InteractionCreateView(AuthorRequiredMixin, CommonCreateView):
     model = models.Interaction
-    form_class = forms.InteractionCreateForm
+    form_class = forms.InteractionForm
     parent_crumb = {"title": gettext_lazy("Interaction"), "url": reverse_lazy("maret:interaction_list")}
     template_name = "maret/form.html"
     h1 = gettext_lazy("New Interaction")
@@ -112,6 +189,9 @@ class InteractionDetailView(UserRequiredMixin, CommonDetailView):
     parent_crumb = {"title": gettext_lazy("Interactions"), "url": reverse_lazy("maret:interaction_list")}
     container_class = "container-fluid"
 
+    def get_h1(self):
+        return self.object.description
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
@@ -125,6 +205,7 @@ class InteractionDetailView(UserRequiredMixin, CommonDetailView):
             'species',
             'action_items',
             'comments',
+            'external_organization',
         ]
 
         return context
@@ -144,7 +225,7 @@ class InteractionDeleteView(AuthorRequiredMixin, CommonDeleteView):
 
 class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
     model = models.Interaction
-    form_class = forms.InteractionCreateForm
+    form_class = forms.InteractionForm
     home_url_name = "maret:index"
     grandparent_crumb = {"title": gettext_lazy("Interaction"),
                          "url": reverse_lazy("maret:interaction_list")}
@@ -155,7 +236,6 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
-
 
 
 #######################################################
@@ -175,7 +255,7 @@ class CommitteeListView(UserRequiredMixin, CommonFilterView):
 
 class CommitteeCreateView(UserRequiredMixin, CommonCreateView):
     model = models.Committee
-    form_class = forms.CommitteeCreateForm
+    form_class = forms.CommitteeForm
     parent_crumb = {"title": gettext_lazy("Committees"), "url": reverse_lazy("maret:committee_list")}
     template_name = "maret/form.html"
     h1 = gettext_lazy("New Committee")
@@ -228,7 +308,7 @@ class CommitteeDeleteView(AuthorRequiredMixin, CommonDeleteView):
 
 class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateView):
     model = models.Committee
-    form_class = forms.CommitteeCreateForm
+    form_class = forms.CommitteeForm
     home_url_name = "maret:index"
     grandparent_crumb = {"title": gettext_lazy("Committees / Working Groups"),
                          "url": reverse_lazy("maret:committee_list")}
@@ -239,6 +319,38 @@ class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateView):
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
+
+
+#######################################################
+# Organization
+#######################################################
+class OrganizationListView(UserRequiredMixin, CommonFilterView):
+    template_name = 'maret/maret_list.html'
+    queryset = ml_models.Organization.objects.all().distinct().annotate(
+        search_term=Concat(
+            'name_eng', Value(" "),
+            'abbrev', Value(" "),
+            'name_ind', Value(" "),
+            'former_name', Value(" "),
+            'province__name', Value(" "),
+            'province__nom', Value(" "),
+            'province__abbrev_eng', Value(" "),
+            'province__abbrev_fre', output_field=TextField()))
+    filterset_class = filters.OrganizationFilter
+    paginate_by = 25
+    field_list = [
+        {"name": 'name_eng', "class": "", "width": ""},
+        {"name": 'name_ind', "class": "", "width": ""},
+        {"name": 'abbrev', "class": "", "width": ""},
+        {"name": 'province', "class": "", "width": ""},
+        {"name": 'grouping', "class": "", "width": "200px"},
+        {"name": 'full_address|' + str(_("Full address")), "class": "", "width": "300px"},
+        {"name": 'Audio recording|{}'.format(_("Audio recording")), "class": "", "width": ""},
+    ]
+    home_url_name = "maret:index"
+    new_object_url_name = "maret:org_new"
+    row_object_url_name = "maret:org_detail"
+    container_class = "container-fluid"
 
 
 class OrganizationCreateView(AuthorRequiredMixin, CommonCreateView):
@@ -256,6 +368,160 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateView):
         object.locked_by_ihub = True
         super().form_valid(form)
         return HttpResponseRedirect(reverse_lazy('maret:org_detail', kwargs={'pk': object.id}))
+
+
+class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
+    model = ml_models.Organization
+    template_name = 'maret/organization_detail.html'
+    field_list = [
+        'name_eng',
+        'name_ind',
+        'former_name',
+        'abbrev',
+        'address',
+        'mailing_address',
+        'city',
+        'postal_code',
+        'province',
+        'phone',
+        'fax',
+        'grouping',
+        'regions',
+        'sectors',
+        'dfo_contact_instructions',
+        'relationship_rating',
+        'orgs',
+        'nation',
+        'website',
+        'council_quorum',
+        'next_election',
+        'new_coucil_effective_date',
+        'election_term',
+        'population_on_reserve',
+        'population_off_reserve',
+        'population_other_reserve',
+        'fin',
+        'processing_plant',
+        'wharf',
+        'reserves',
+        "metadata|{}".format(gettext_lazy("metadata")),
+    ]
+    home_url_name = "maret:index"
+    parent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("maret:org_list")}
+    container_class = "container-fluid"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return context
+
+
+class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
+    model = ml_models.Organization
+    template_name = 'maret/form.html'
+    form_class = forms.OrganizationForm
+    home_url_name = "maret:index"
+    parent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("maret:org_list")}
+    is_multipart_form_data = True
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("maret:org_detail", args=[self.get_object().id])}
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        if obj.locked_by_ihub:
+            messages.error(self.request, _("This record can only be modified through iHub"))
+            return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.pk, ]))
+
+        obj.save()
+        return super().form_valid(form)
+
+
+class OrganizationDeleteView(AdminRequiredMixin, CommonDeleteView):
+    model = ml_models.Organization
+    template_name = 'maret/confirm_delete.html'
+    success_url = reverse_lazy('maret:org_list')
+    home_url_name = "maret:index"
+    grandparent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("maret:org_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("maret:org_detail", args=[self.get_object().id])}
+
+    def delete(self, request, *args, **kwargs):
+        obj = ml_models.Organization.objects.get(pk=kwargs['pk'])
+        if obj.locked_by_ihub:
+            messages.error(self.request, _("This record can only be modified through iHub"))
+            return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.pk, ]))
+
+        return super().delete(request, *args, **kwargs)
+
+
+
+#######################################################
+# Organization Memberships
+#######################################################
+class MemberCreateView(AuthorRequiredMixin, CommonPopoutCreateView):
+    model = ml_models.OrganizationMember
+    template_name = 'maret/member_form_popout.html'
+    form_class = forms.MemberForm
+    width = 1000
+    height = 700
+    h1 = gettext_lazy("New Organization Member")
+
+    def get_initial(self):
+        org = ml_models.Organization.objects.get(pk=self.kwargs['org'])
+        return {
+            'organization': org,
+            'last_modified_by': self.request.user,
+        }
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        if obj.organization.locked_by_ihub:
+            messages.error(self.request, _("This record can only be modified through iHub"))
+            return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.organization.pk, ]))
+
+        obj.save()
+        return HttpResponseRedirect(reverse("ihub:member_edit", args=[obj.id]))
+
+
+class MemberUpdateView(AuthorRequiredMixin, CommonPopoutUpdateView):
+    model = ml_models.OrganizationMember
+    template_name = 'maret/member_form_popout.html'
+    form_class = forms.MemberForm
+    width = 1000
+    height = 800
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user,
+        }
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        if obj.organization.locked_by_ihub:
+            messages.error(self.request, _("This record can only be modified through iHub"))
+            return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.organization.pk, ]))
+
+        obj.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class MemberDeleteView(AdminRequiredMixin, CommonPopoutDeleteView):
+    model = ml_models.OrganizationMember
+
+    def delete(self, request, *args, **kwargs):
+        obj = ml_models.OrganizationMember.objects.get(pk=kwargs['pk'])
+        if obj.organization.locked_by_ihub:
+            messages.error(self.request, _("This record can only be modified through iHub"))
+            return HttpResponseRedirect(reverse("maret:person_detail", args=[obj.pk, ]))
+
+        return super().delete(request, *args, **kwargs)
 
 
 class TopicFormsetView(AdminRequiredMixin, CommonFormsetView):
