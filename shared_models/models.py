@@ -882,7 +882,7 @@ class Location(models.Model):
         ordering = ["country", "location_en"]
 
 
-class Organization(SimpleLookup):
+class Organization(SimpleLookupWithUUID):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     abbrev = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
     address = models.TextField(blank=True, null=True, verbose_name=_("address"))

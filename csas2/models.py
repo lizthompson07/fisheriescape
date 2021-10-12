@@ -363,7 +363,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         now = timezone.now()
 
         # has the latest scheduled meeting passed
-        meeting_qs = self.meetings.filter(is_planning=False).order_by("end_date")
+        meeting_qs = self.meetings.filter(is_planning=False, is_estimate=False).order_by("end_date")
         if meeting_qs.exists() and meeting_qs.last().end_date and meeting_qs.last().end_date <= now:
             self.status = 25  # meeting complete!
 
