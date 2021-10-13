@@ -5,9 +5,23 @@ from . import views
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
-    # # reference tables
-    # path('settings/divers/', views.DiverFormsetView.as_view(), name="manage_divers"),  # tested
-    # path('settings/diver/<int:pk>/delete/', views.DiverHardDeleteView.as_view(), name="delete_diver"),  # tested
+    # reference tables
+    path('settings/contexts/', views.ContextFormsetView.as_view(), name="manage_contexts"),
+    path('settings/context/<int:pk>/delete/', views.ContextHardDeleteView.as_view(), name="delete_context"),
+
+    path('settings/outcomes/', views.OutcomeFormsetView.as_view(), name="manage_outcomes"),
+    path('settings/outcome/<int:pk>/delete/', views.OutcomeHardDeleteView.as_view(), name="delete_outcome"),
+
+    path('settings/achievement-categories/', views.AchievementCategoryFormsetView.as_view(), name="manage_achievement_categories"),
+    path('settings/achievement-category/<int:pk>/delete/', views.AchievementCategoryHardDeleteView.as_view(), name="delete_achievement_category"),
+
+    path('settings/group-levels/', views.GroupLevelFormsetView.as_view(), name="manage_group_levels"),
+    path('settings/group-level/<int:pk>/delete/', views.GroupLevelHardDeleteView.as_view(), name="delete_group_level"),
+    
+    path('settings/publication-types/', views.PublicationTypeFormsetView.as_view(), name="manage_publication_types"),
+    path('settings/publication-type/<int:pk>/delete/', views.PublicationTypeHardDeleteView.as_view(), name="delete_publication_type"),
+    
+
     #
     #
     # # reports

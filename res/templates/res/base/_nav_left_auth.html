@@ -18,12 +18,21 @@
         {% trans "Settings" %}
       </a>
       <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-{#        <a class="dropdown-item" href="{% url 'res:region_list' %}">#}
-{#          {% trans "Regions, Sites and Transects" %}#}
-{#        </a>#}
-{#        <a class="dropdown-item" href="{% url 'res:manage_divers' %}">#}
-{#          {% trans "Divers" %}#}
-{#        </a>#}
+        <a class="dropdown-item" href="{% url 'res:manage_group_levels' %}">
+          {% trans "RES Groups / Levels" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'res:manage_contexts' %}">
+          {% trans "Contexts" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'res:manage_outcomes' %}">
+          {% trans "Valued Outcomes" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'res:manage_achievement_categories' %}">
+          {% trans "Achievement Categories" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'res:manage_publication_types' %}">
+          {% trans "Publication Types" %}
+        </a>
       </div>
     </li>
 

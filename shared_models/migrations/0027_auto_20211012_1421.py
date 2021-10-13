@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='organization',
             name='uuid',
-            field=models.UUIDField(blank=True, default=uuid.uuid4, editable=False, null=True, unique=True, verbose_name='unique identifier'),
+            field=models.UUIDField(blank=True, editable=False, null=True, unique=True, verbose_name='unique identifier'),
         ),
     ]

@@ -16,28 +16,43 @@ class Context(Lookup):
 
 class Outcome(Lookup):
     context = models.ForeignKey(Context, on_delete=models.DO_NOTHING, verbose_name=_("context"), related_name="outcomes")
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
+    # where as order is important, I am taking the easy way out and using model to order the formset (currently no other way to do this) - DJF
+    description_en = models.TextField(blank=True, null=True, verbose_name=_("Description (en)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (fr)"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description (fr)"))
+
+    class Meta:
+        ordering = ["context", "name"]
 
 
 class AchievementCategory(SimpleLookup):
     code = models.CharField(max_length=5, verbose_name=_("category code"))
 
-
+    class Meta:
+        ordering = ["code"]
 
 
 class GroupLevel(UnilingualSimpleLookup):
     pass
 
 
+class PublicationType(SimpleLookup):
+    pass
+
+
 class Application(MetadataFields):
     # Basic Information
     applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("DM Apps user"), related_name="res_applications")
-    current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current", verbose_name=_("Current Group and Level"))
+    current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current",
+                                            verbose_name=_("Current Group and Level"))
     current_position_title = models.CharField(max_length=100, verbose_name=_("Position Title"), blank=True, null=True)
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="applications", verbose_name=_("DFO Section"))
     organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, related_name="applications", verbose_name=_("Work Location"))
     last_application = models.DateTimeField(verbose_name=_("Last Application for Advancement"), blank=True, null=True)
     last_promotion = models.DateTimeField(verbose_name=_("Last Promotion"), blank=True, null=True)
-    target_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_target", verbose_name=_("Group and level being sought"))
+    target_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_target",
+                                           verbose_name=_("Group and level being sought"))
     application_start_date = models.DateTimeField(verbose_name=_("application start date"))
     application_end_date = models.DateTimeField(verbose_name=_("application end date"))
     academic_background = models.TextField(blank=True, null=True, verbose_name=_("Academic Background"))
@@ -66,16 +81,8 @@ class ApplicationOutcome(MetadataFields):
     text = models.TextField(blank=True, null=True, verbose_name=_("text"))
 
 
-
 class ApplicationAchievement(MetadataFields):
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="achievements")
     category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements")
-    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.CASCADE, related_name="achievements")
+    date = models.DateTimeField(verbose_name=_("date of publication / achievement"), editable=False)
     detail = models.TextField(verbose_name=_("detail"))
-
-
-
-
-
-
-
