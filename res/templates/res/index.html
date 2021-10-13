@@ -23,10 +23,15 @@
       {% trans "DFO Research Scientist Dossier Tracking Application" %}
     </h3>
     <div class="mb-5"></div>
-        <div class="text-center">
-{#          <a href="{% url 'res:sample_list' %}" class="btn btn-primary">{% trans "View Samples" %}</a>#}
-        </div>
+    <div class="text-center mb-3">
+      <a href="{% url 'res:application_list' %}" class="btn btn-primary mx-2" data-toggle="tooltip" title="{% trans "View all applications" %}"><span
+        class="mdi mdi-format-list-bulleted text-light"></span></a>
+      <a href="{% url 'res:application_list' %}?personalized=true" class="btn btn-warning mx-2" data-toggle="tooltip"
+         title="{% trans "View your applications connected to you" %}"><span class="mdi mdi-heart"></span></a>
+      <a href="{% url 'res:application_new' %}" class="btn btn-success mx-2" data-toggle="tooltip" title="{% trans "Create a New request" %}"><span
+        class="mdi mdi-plus text-light"></span></a>
     </div>
+  </div>
 
 
   </div>

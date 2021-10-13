@@ -17,10 +17,16 @@ urlpatterns = [
 
     path('settings/group-levels/', views.GroupLevelFormsetView.as_view(), name="manage_group_levels"),
     path('settings/group-level/<int:pk>/delete/', views.GroupLevelHardDeleteView.as_view(), name="delete_group_level"),
-    
+
     path('settings/publication-types/', views.PublicationTypeFormsetView.as_view(), name="manage_publication_types"),
     path('settings/publication-type/<int:pk>/delete/', views.PublicationTypeHardDeleteView.as_view(), name="delete_publication_type"),
-    
+
+    # APPLICATIONS
+    path('applications/', views.ApplicationListView.as_view(), name="application_list"),
+    path('applications/new/', views.ApplicationCreateView.as_view(), name="application_new"),
+    path('applications/<int:pk>/view/', views.ApplicationDetailView.as_view(), name="application_detail"),
+    path('applications/<int:pk>/edit/', views.ApplicationUpdateView.as_view(), name="application_edit"),
+    path('applications/<int:pk>/delete/', views.ApplicationDeleteView.as_view(), name="application_delete"),
 
     #
     #

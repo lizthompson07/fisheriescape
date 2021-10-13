@@ -74,3 +74,10 @@ PublicationTypeFormset = modelformset_factory(
     form=PublicationTypeForm,
     extra=1,
 )
+
+
+
+class ApplicationForm(forms.ModelForm):
+    class Meta:
+        model = models.Application
+        fields = "__all__"

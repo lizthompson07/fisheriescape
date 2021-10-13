@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext_lazy as _, gettext
 
+from lib.functions.custom_functions import fiscal_year
+from res import model_choices
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, MetadataFields, Section, Organization, Lookup, FiscalYear
 
 YES_NO_CHOICES = (
@@ -47,7 +49,7 @@ class Application(MetadataFields):
     current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current",
                                             verbose_name=_("Current Group and Level"))
     current_position_title = models.CharField(max_length=100, verbose_name=_("Position Title"), blank=True, null=True)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="applications", verbose_name=_("DFO Section"))
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="res_applications", verbose_name=_("DFO Section"))
     organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, related_name="applications", verbose_name=_("Work Location"))
     last_application = models.DateTimeField(verbose_name=_("Last Application for Advancement"), blank=True, null=True)
     last_promotion = models.DateTimeField(verbose_name=_("Last Promotion"), blank=True, null=True)
@@ -60,16 +62,24 @@ class Application(MetadataFields):
     objectives = models.TextField(blank=True, null=True, verbose_name=_("Department / Sectoral Objectives"), help_text=_("no more than 200 words"))
     relevant_factors = models.TextField(blank=True, null=True, verbose_name=_("Relevant Factors"), help_text=_("no more than 400 words"))
 
+    # non-editables
+    submission_date = models.DateTimeField(verbose_name=_("submission date"), blank=True, null=True, editable=False)
+
+    # calculated
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year"),
+                                    related_name="res_applications", editable=False)
+    status = models.IntegerField(default=10, verbose_name=_("status"), choices=model_choices.application_status_choices, editable=False)
+
+    def save(self, *args, **kwargs):
+        self.fiscal_year_id = fiscal_year(self.application_end_date, sap_style=True)
+        super().save(*args, **kwargs)
+
 
 class Recommendation(MetadataFields):
-    decision_choices = (
-        (0, _("In my opinion, the dossier contains sufficient evidence to warrant consideration of the application by the appropriate committee.")),
-        (1, _("In my opinion, the dossier does not contain sufficient evidence to warrant consideration of the application by the appropriate committee.")),
-    )
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="recommendations")
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("DM Apps user"), related_name="res_recommendations")
     recommendation_text = models.TextField(blank=True, null=True, verbose_name=_("recommendation text"), help_text=_("no more than 250 words"))
-    decision = models.IntegerField(verbose_name=_("Recommendation decision"), choices=decision_choices)
+    decision = models.IntegerField(verbose_name=_("Recommendation decision"), choices=model_choices.decision_choices)
     manager_signed = models.DateTimeField(verbose_name=_("date signed by manager"), editable=False)
     applicant_comment = models.TextField(blank=True, null=True, verbose_name=_("applicant comments (optional)"), help_text=_("no more than 250 words"))
     applicant_signed = models.DateTimeField(verbose_name=_("date signed by applicant"), editable=False)
