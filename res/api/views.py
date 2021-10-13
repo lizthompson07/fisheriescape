@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 
 from . import permissions
 from . import serializers
-from .. import models
+from .. import models, utils
 
 
 # USER
@@ -16,7 +16,13 @@ class CurrentUserAPIView(APIView):
     def get(self, request):
         serializer = serializers.UserDisplaySerializer(instance=request.user)
         data = serializer.data
+        qp = request.GET
+        data["is_admin"] = utils.in_res_admin_group(request.user)
+        if qp.get("application"):
+            data["can_modify"] = utils.can_modify_application(request.user, qp.get("application"), return_as_dict=True)
         return Response(data)
+
+
 
 #
 # # Observations

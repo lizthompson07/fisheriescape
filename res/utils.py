@@ -65,7 +65,7 @@ def can_modify_application(user, application_id, return_as_dict=False):
         application = get_object_or_404(models.Application, pk=application_id)
         # check to see if they are the client
         if is_client(user, application_id=application.id) and not application.submission_date:
-            my_dict["reason"] = "You can modify this record because you are the request client"
+            my_dict["reason"] = "You can modify this record because you are the applicant!"
             my_dict["can_modify"] = True
         # check to see if they are the client
         elif is_creator(user, application_id=application.id) and not application.submission_date:

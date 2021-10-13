@@ -1,10 +1,69 @@
+import datetime
+
 import factory
 from django.utils import timezone
 from faker import Factory
 
+from shared_models.test.SharedModelsFactoryFloor import UserFactory, SectionFactory
 from .. import models
 
 faker = Factory.create()
+
+
+
+
+class ApplicationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Application
+
+    applicant = factory.SubFactory(UserFactory)
+    section = factory.SubFactory(SectionFactory)
+    application_start_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
+    application_end_date = factory.lazy_attribute(lambda o: o.start_date + datetime.timedelta(days=faker.random_int(1, 10)))
+    current_position_title = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    current_group_level = factory.lazy_attribute(lambda o: models.GroupLevel.objects.all()[faker.random_int(0, models.GroupLevel.objects.count() - 1)])
+    target_group_level = factory.lazy_attribute(lambda o: models.GroupLevel.objects.all()[faker.random_int(0, models.GroupLevel.objects.count() - 1)])
+
+    location = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    is_adm_approval_required = factory.lazy_attribute(lambda o: faker.pybool())
+
+    @staticmethod
+    def get_valid_data():
+        start_date = faker.future_datetime(tzinfo=timezone.get_current_timezone())
+        end_date = start_date + datetime.timedelta(days=faker.random_int(1, 10))
+        return {
+            'applicant': UserFactory().id,
+            'section': SectionFactory().id,
+            "application_start_date": start_date.strftime("%Y-%m-%d %H:%M"),
+            "application_end_date": end_date.strftime("%Y-%m-%d %H:%M"),
+            'current_position_title': faker.catch_phrase(),
+
+            'trip_subcategory': models.TripSubcategory.objects.all()[faker.random_int(0, models.TripSubcategory.objects.count() - 1)].id,
+            'location': faker.catch_phrase(),
+            'is_virtual': faker.pybool(),
+            'is_adm_approval_required': faker.pybool(),
+
+        }
+
+
+class ApplicationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Application
+
+    application_start_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
+    var2 = factory.lazy_attribute(lambda o: faker.word())
+    var3 = factory.lazy_attribute(lambda o: faker.word())
+    var4 = factory.lazy_attribute(lambda o: faker.word())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'application_start_date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
+            'var2': faker.word(),
+            'var3': faker.word(),
+            'var4': faker.word(),
+        }
+
 
 
 class RegionFactory(factory.django.DjangoModelFactory):

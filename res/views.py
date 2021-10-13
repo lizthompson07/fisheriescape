@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
@@ -117,14 +119,11 @@ class ApplicationListView(LoginAccessRequiredMixin, CommonFilterView):
 
     field_list = [
         {"name": 'id', "class": "", "width": "50px"},
-        {"name": 'fiscal_year', "class": "", "width": "100px"},
-        {"name": 'title|{}'.format(gettext_lazy("title")), "class": "w-35"},
-        {"name": 'status', "class": "", "width": "100px"},
-        {"name": 'has_process|{}'.format(gettext_lazy("has process?")), "class": "text-center", "width": "120px"},
-        {"name": 'coordinator', "class": "", "width": "150px"},
-        {"name": 'client', "class": "", "width": "150px"},
-        {"name": 'region|{}'.format(gettext_lazy("region")), "class": "", "width": "75px"},
-        {"name": 'sector|{}'.format(gettext_lazy("sector")), "class": ""},
+        {"name": 'fiscal_year', "class": ""},
+        {"name": 'applicant', "class": ""},
+        {"name": 'target_group_level', "class": ""},
+        {"name": 'status', "class": ""},
+        {"name": 'region|{}'.format(gettext_lazy("region")), "class": ""},
         {"name": 'section|{}'.format(gettext_lazy("section")), "class": ""},
     ]
 
@@ -138,23 +137,22 @@ class ApplicationListView(LoginAccessRequiredMixin, CommonFilterView):
     #     }
 
     def get_queryset(self):
-        qp = self.request.GET
-        qs = models.Application.objects.all()
-        if qp.get("personalized"):
+        if not in_res_admin_group(self.request.user):
             qs = utils.get_related_applications(self.request.user)
-        # qs = qs.annotate(search_term=Concat('title', Value(" "), 'translated_title', Value(" "), 'ref_number', output_field=TextField()))
+        else:
+            qs = models.Application.objects.all()
         return qs
 
     def get_h1(self):
-        qp = self.request.GET
-        if qp.get("personalized"):
+        if not in_res_admin_group(self.request.user):
             return _("My Applications")
         return _("Applications")
 
 
+
 class ApplicationDetailView(LoginAccessRequiredMixin, CommonDetailView):
     model = models.Application
-    template_name = 'res/request_detail/main.html'
+    template_name = 'res/application_detail/main.html'
     home_url_name = "res:index"
     parent_crumb = {"title": gettext_lazy("Applications"), "url": reverse_lazy("res:application_list")}
 
@@ -176,7 +174,7 @@ class ApplicationCreateView(LoginAccessRequiredMixin, CommonCreateView):
 
     def get_initial(self):
         return dict(
-            client=self.request.user
+            applicant=self.request.user
         )
 
     def get_context_data(self, **kwargs):
@@ -186,8 +184,19 @@ class ApplicationCreateView(LoginAccessRequiredMixin, CommonCreateView):
 
     def form_valid(self, form):
         obj = form.save(commit=False)
+        range = form.cleaned_data["date_range"]
+        if range:
+            range = range.split("to")
+            start_date = datetime.strptime(range[0].strip(), "%Y-%m-%d")
+            obj.application_start_date = start_date
+            if len(range) > 1:
+                end_date = datetime.strptime(range[1].strip(), "%Y-%m-%d")
+                obj.application_end_date = end_date
+            else:
+                obj.application_end_date = start_date
         obj.created_by = self.request.user
         return super().form_valid(form)
+
 
 
 class ApplicationUpdateView(CanModifyApplicationRequiredMixin, CommonUpdateView):

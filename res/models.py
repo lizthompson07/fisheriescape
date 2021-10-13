@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _, gettext
 
 from lib.functions.custom_functions import fiscal_year
@@ -44,19 +45,18 @@ class PublicationType(SimpleLookup):
 
 
 class Application(MetadataFields):
-    # Basic Information
-    applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("DM Apps user"), related_name="res_applications")
-    current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current",
-                                            verbose_name=_("Current Group and Level"))
-    current_position_title = models.CharField(max_length=100, verbose_name=_("Position Title"), blank=True, null=True)
+    # mandatories
+    applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("DM Apps user"), related_name="res_applications")
+    current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current", verbose_name=_("Current Group/Level"))
+    target_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_target", verbose_name=_("Group/level being sought"))
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="res_applications", verbose_name=_("DFO Section"))
-    organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, related_name="applications", verbose_name=_("Work Location"))
-    last_application = models.DateTimeField(verbose_name=_("Last Application for Advancement"), blank=True, null=True)
-    last_promotion = models.DateTimeField(verbose_name=_("Last Promotion"), blank=True, null=True)
-    target_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_target",
-                                           verbose_name=_("Group and level being sought"))
     application_start_date = models.DateTimeField(verbose_name=_("application start date"))
     application_end_date = models.DateTimeField(verbose_name=_("application end date"))
+
+    current_position_title = models.CharField(max_length=255, verbose_name=_("Position Title"), blank=True, null=True)
+    work_location = models.CharField(max_length=1000, verbose_name=_("Work Location"), blank=True, null=True)
+    last_application = models.DateTimeField(verbose_name=_("Last Application for Advancement"), blank=True, null=True)
+    last_promotion = models.DateTimeField(verbose_name=_("Last Promotion"), blank=True, null=True)
     academic_background = models.TextField(blank=True, null=True, verbose_name=_("Academic Background"))
     employment_history = models.TextField(blank=True, null=True, verbose_name=_("Employment History"))
     objectives = models.TextField(blank=True, null=True, verbose_name=_("Department / Sectoral Objectives"), help_text=_("no more than 200 words"))
@@ -74,6 +74,15 @@ class Application(MetadataFields):
         self.fiscal_year_id = fiscal_year(self.application_end_date, sap_style=True)
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f"{self.applicant} ({self.target_group_level})"
+
+    @property
+    def region(self):
+        return self.section.division.branch.sector.region
+
+    def get_absolute_url(self):
+        return reverse('res:application_detail', kwargs={'pk': self.id})
 
 class Recommendation(MetadataFields):
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="recommendations")

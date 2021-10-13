@@ -1,0 +1,101 @@
+{% load i18n %}
+
+<div v-if="!showSidebar">
+  <button class="btn btn-sm btn-warning ml-2" @click="showSidebar=true" data-toggle="tooltip" title="{% trans "Open sidebar" %}">
+    <span class="mdi mdi-arrow-collapse-left "></span>
+  </button>
+  <p class="vertical lead my-5 p-0 mx-1">
+    {% trans "REVIEW PANEL" %}
+  </p>
+</div>
+<div v-else class="mb-5 px-2 py-2">
+  <div class="mb-3">
+    <button class="btn btn-sm btn-warning float-right" @click="showSidebar=false" data-toggle="tooltip" title="{% trans "Open sidebar" %}">
+      <span class="mdi mdi-arrow-collapse-right "></span>
+    </button>
+    <h4>{% trans "Review Panel" %}</h4>
+    <hr>
+  </div>
+  <div v-if="errors" class="alert alert-danger" role="alert">
+    <p>${errors}</p>
+  </div>
+  <div class="form-group">
+    <label for="">${reviewLabels.ref_number}</label>
+    <input type="text" class="form-control" v-model="request.review.ref_number" @change="updateReview">
+  </div>
+  <div class="form-group">
+    <label for="">${reviewLabels.prioritization}</label>
+    <v-select
+      style="width: 100%"
+      v-model="request.review.prioritization"
+      @input="updateReview"
+      :options="prioritizationChoices"
+      :reduce="choice => choice.value"
+      label="text"
+      :clearable="false"
+      class="bg-light"
+    >
+    </v-select>
+  </div>
+  <div v-if="request.review.prioritization" class="form-group">
+    <label for="">${reviewLabels.prioritization_text}</label>
+    <textarea rows="3" class="form-control" v-model="request.review.prioritization_text" @change="updateReview"></textarea>
+  </div>
+  <div class="form-group">
+    <label for="">${reviewLabels.decision}</label>
+    <v-select
+      style="width: 100%"
+      v-model="request.review.decision"
+      @input="updateReview"
+      :options="decisionChoices"
+      :reduce="choice => choice.value"
+      label="text"
+      :clearable="false"
+      class="bg-light"
+    >
+    </v-select>
+  </div>
+  <div class="form-group">
+    <label for="">${reviewLabels.decision_date}</label>
+    <input v-model="request.review.decision_date_display" type="date" class="mydate form-control" placeholder="{% trans "Click to select dates" %}"
+           @change="updateReview">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="request.review.decision_date"
+              @click="request.review.decision_date_display=null;request.review.decision_date=null; updateReview()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="">${reviewLabels.decision_text}</label>
+    <textarea rows="3" class="form-control" v-model="request.review.decision_text" @change="updateReview"></textarea>
+  </div>
+  <div class="form-group">
+    <label for="">${reviewLabels.advice_date}</label>
+    <input v-model="request.review.advice_date_display" type="date" class="mydate form-control" placeholder="{% trans "Click to select dates" %}"
+           @change="updateReview">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="request.review.advice_date"
+              @click="request.review.advice_date_display=null;request.review.advice_date=null; updateReview()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+  <div class="form-group">
+    <input v-model="request.review.is_deferred" class="" type="checkbox" id="is_deferred" @change="updateReview">
+    <label class="form-check-label" for="is_deferred"> ${reviewLabels.is_deferred} </label>
+  </div>
+  <div v-if="request.review.is_deferred" class="form-group">
+    <label for="">${reviewLabels.deferred_text}</label>
+    <textarea rows="3" class="form-control" v-model="request.review.deferred_text" @change="updateReview"></textarea>
+  </div>
+  <div class="form-group">
+    <label for="">${reviewLabels.notes}</label>
+    <textarea rows="8" class="form-control" v-model="request.review.notes" @change="updateReview"></textarea>
+  </div>
+
+
+  <div class="mb-3">
+    <button class="btn btn-sm btn-danger" @click="deleteReview(review)">{% trans "Delete Review" %}</button>
+  </div>
+</div>

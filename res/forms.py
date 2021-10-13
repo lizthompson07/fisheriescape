@@ -1,8 +1,11 @@
 from django import forms
 from django.forms import modelformset_factory
+from django.utils.translation import gettext_lazy
 
+from shared_models.models import Section
 from . import models
 
+attr_fp_date_range = {"class": "fp-date-range", "placeholder": gettext_lazy("Click to select a range of dates..")}
 attr_fp_date_time = {"class": "fp-date-time-with-seconds", "placeholder": "Select Date and Time.."}
 chosen_js = {"class": "chosen-select-contains"}
 YES_NO_CHOICES = (
@@ -76,8 +79,25 @@ PublicationTypeFormset = modelformset_factory(
 )
 
 
-
 class ApplicationForm(forms.ModelForm):
+    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Period covered by this application"), required=True)
+
     class Meta:
         model = models.Application
-        fields = "__all__"
+        fields = [
+            "applicant",
+            "current_group_level",
+            "target_group_level",
+            "section",
+        ]
+        widgets = {
+            'applicant': forms.Select(attrs=chosen_js),
+            'section': forms.Select(attrs=chosen_js),
+        }
+
+    def __init__(self, *args, **kwargs):
+        section_choices = [(obj.id, obj.full_name) for obj in Section.objects.all()]
+        section_choices.insert(0, (None, "------"))
+
+        super().__init__(*args, **kwargs)
+        self.fields['section'].choices = section_choices
