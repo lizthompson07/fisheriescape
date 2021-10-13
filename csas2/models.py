@@ -360,9 +360,9 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         # if there is a process, the request the request MUST have been approved.
         if hasattr(self, "tor") and self.tor.is_complete:
             self.status = 22  # tor complete!
-        now = timezone.now()
 
         # has the latest scheduled meeting passed
+        now = timezone.now()
         meeting_qs = self.meetings.filter(is_planning=False, is_estimate=False).order_by("end_date")
         if meeting_qs.exists() and meeting_qs.last().end_date and meeting_qs.last().end_date <= now:
             self.status = 25  # meeting complete!

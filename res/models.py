@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext_lazy as _, gettext
 
-from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, MetadataFields, Section, Organization
+from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, MetadataFields, Section, Organization, Lookup, FiscalYear
 
 YES_NO_CHOICES = (
     (True, gettext("Yes")),
@@ -10,12 +10,22 @@ YES_NO_CHOICES = (
 )
 
 
+class Context(Lookup):
+    word_limit = models.IntegerField(verbose_name=_("word limit"), default=500)
+
+
+class Outcome(Lookup):
+    context = models.ForeignKey(Context, on_delete=models.DO_NOTHING, verbose_name=_("context"), related_name="outcomes")
+
+
+class AchievementCategory(SimpleLookup):
+    code = models.CharField(max_length=5, verbose_name=_("category code"))
+
+
+
+
 class GroupLevel(UnilingualSimpleLookup):
     pass
-
-
-class Context(SimpleLookup):
-    word_limit = models.IntegerField(verbose_name=_("word limit"), default=500)
 
 
 class Application(MetadataFields):
@@ -50,13 +60,22 @@ class Recommendation(MetadataFields):
     applicant_signed = models.DateTimeField(verbose_name=_("date signed by applicant"), editable=False)
 
 
-class Outcome(MetadataFields):
+class ApplicationOutcome(MetadataFields):
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="outcomes")
-    context = models.ForeignKey(Context, on_delete=models.DO_NOTHING, verbose_name=_("context"), related_name="outcomes")
-    # recommendation_text = models.TextField(blank=True, null=True, verbose_name=_("recommendation text"), help_text=_("no more than 250 words"))
-    # decision = models.IntegerField(verbose_name=_("Recommendation decision"), choices=decision_choices)
-    # manager_signed = models.DateTimeField(verbose_name=_("date signed by manager"), editable=False)
-    # applicant_comment = models.TextField(blank=True, null=True, verbose_name=_("applicant comments (optional)"), help_text=_("no more than 250 words"))
-    # applicant_signed = models.DateTimeField(verbose_name=_("date signed by applicant"), editable=False)
+    outcome = models.ForeignKey(Outcome, on_delete=models.CASCADE, related_name="outcomes")
+    text = models.TextField(blank=True, null=True, verbose_name=_("text"))
+
+
+
+class ApplicationAchievement(MetadataFields):
+    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="achievements")
+    category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements")
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.CASCADE, related_name="achievements")
+    detail = models.TextField(verbose_name=_("detail"))
+
+
+
+
+
 
 
