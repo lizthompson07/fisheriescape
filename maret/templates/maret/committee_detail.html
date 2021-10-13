@@ -38,8 +38,40 @@
                     </table>
                 </div>
             </div>
+        </div>
+        <div class="col-5">
 
-            <div class="card entry-card mt-3 mb-3">
+            <div class="card entry-card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Interaction(s)" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-hover">
+                        {% for interaction in object.committee_interactions.all %}
+                            <tr href="{% url 'maret:interaction_detail' interaction.id %}">
+                                <td>{{ interaction.description }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+            <div class="card entry-card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "External Organization(s)" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover table-sm">
+                        {% for ext_org in object.external_organization.all %}
+                            <tr href="{% url 'maret:org_detail' ext_org.id %}">
+                                <td>{{ ext_org.name_eng }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+            <div class="card entry-card mb-3">
                 <div class="card-header">
                     <h5 class="card-title"> {% trans "External Contacts" %}</h5>
                 </div>

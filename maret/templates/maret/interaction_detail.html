@@ -57,7 +57,9 @@
                 </div>
                 <div class="card-body">
                     <table class="table table-sm ">
-                        <tr><th>{% trans 'Name' %}</th></tr>
+                        <tr>
+                            <th>{% trans 'Name' %}</th>
+                        </tr>
                         {% for ext_org in object.external_organization.all %}
                             <tr>
                                 <td>
@@ -67,6 +69,23 @@
                         {% endfor %}
                     </table>
                 </div>
+            </div>
+        <div>
+                <div class="card entry-card mb-3">
+                    <div class="card-header">
+                        <h5 class="card-title"> {% trans "External Contacts" %}</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover table-sm">
+                            {% for ext_con in object.external_contact.all %}
+                                <tr href="{% url 'maret:person_detail' ext_con.id %}">
+                                    <td>{{ ext_con.last_name }}, {{ ext_con.first_name }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
