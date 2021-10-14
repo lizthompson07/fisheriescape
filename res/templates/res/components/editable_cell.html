@@ -12,11 +12,11 @@
       <div class="col">
         <div v-if="display_field">
           <span v-if="object[display_field]" v-html="object[display_field]"></span>
-          <span v-else>-----</span>
+          <em v-else class="red-font">{% trans "missing" %}</em>
         </div>
         <div v-else>
           <span v-if="input" v-html="input"></span>
-          <span v-else>-----</span>
+          <em v-else class="red-font">{% trans "missing" %}</em>
         </div>
       </div>
       <div v-if="editable" class="col text-right">

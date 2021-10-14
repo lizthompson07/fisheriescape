@@ -126,12 +126,14 @@ class Application(MetadataFields):
 
 
 class Recommendation(MetadataFields):
-    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="recommendations")
+    application = models.OneToOneField(Application, on_delete=models.CASCADE, related_name="recommendation")
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("DM Apps user"), related_name="res_recommendations")
     recommendation_text = models.TextField(blank=True, null=True, verbose_name=_("recommendation text"), help_text=_("no more than 250 words"))
     decision = models.IntegerField(verbose_name=_("Recommendation decision"), choices=model_choices.decision_choices)
-    manager_signed = models.DateTimeField(verbose_name=_("date signed by manager"), editable=False)
     applicant_comment = models.TextField(blank=True, null=True, verbose_name=_("applicant comments (optional)"), help_text=_("no more than 250 words"))
+
+    # non-editables
+    manager_signed = models.DateTimeField(verbose_name=_("date signed by manager"), editable=False)
     applicant_signed = models.DateTimeField(verbose_name=_("date signed by applicant"), editable=False)
 
 

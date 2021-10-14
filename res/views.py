@@ -115,7 +115,6 @@ class ApplicationListView(LoginAccessRequiredMixin, CommonFilterView):
     new_object_url = reverse_lazy("res:application_new")
     row_object_url_name = row_ = "res:application_detail"
     container_class = "container-fluid"
-    open_row_in_new_tab = True
 
     field_list = [
         {"name": 'id', "class": "", "width": "50px"},

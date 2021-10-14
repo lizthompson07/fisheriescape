@@ -198,6 +198,5 @@ label.filter {
 
 .table-div {
     padding: 5px 4px;
-    border-top: gray solid 1px;
-    border-bottom: gray solid 1px;
+    border-bottom: lightgray solid 1px;
 }

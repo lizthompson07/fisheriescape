@@ -20,32 +20,31 @@
 {% block subcontent %}
   <div id="app" v-cloak>
     <div>
-      <div>
-        {% include "shared_models/_generic_breadcrumbs.html" %}
-        <div v-if="application.id" class="mb-3">
-          <h2 class="">${application.applicant_display} (${application.target_group_level_display})</h2>
-          <p class="lead text-muted mt-1 mb-0 small">{% trans "Application ID:" %} {{ object.id }}</p>
-        </div>
-        {% bootstrap_messages %}
+      {% include "shared_models/_generic_breadcrumbs.html" %}
+      <div v-if="application.id" class="mb-3">
+        <h2 class="">${application.applicant_display} (${application.target_group_level_display})</h2>
+        <p class="lead text-muted mt-1 mb-0 small">{% trans "Application ID:" %} {{ object.id }}</p>
+      </div>
+      {% bootstrap_messages %}
 
-        <div v-if="canModify" class="alert alert-primary no-print" role="alert">
-          <p class="mb-0">
-            <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
-          </p>
-        </div>
+      <div v-if="canModify" class="alert alert-primary no-print" role="alert">
+        <p class="mb-0">
+          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
+        </p>
+      </div>
 
-        <div class="mb-3 float-right">
-          {% if object.submission_date %}
-            <button v-if="!application.review" class="btn btn-sm btn-dark" @click="primeReview">{% trans "Start a Review" %}</button>
-            {% if not object.processes.exists %}
-              <a v-if="canModify" class="btn btn-sm btn-dark" href="{% url 'res:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>
-            {% endif %}
+      <div class="mb-3 float-right">
+        {% if object.submission_date %}
+          <button v-if="!application.review" class="btn btn-sm btn-dark" @click="primeReview">{% trans "Start a Review" %}</button>
+          {% if not object.processes.exists %}
+            <a v-if="canModify" class="btn btn-sm btn-dark" href="{% url 'res:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>
           {% endif %}
-        </div>
-        <div class="mb-3">
-          {#            <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'res:application_edit' object.id %}">{% trans "Edit" %}</a>#}
+        {% endif %}
+      </div>
+      <div class="mb-3">
+        {#            <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'res:application_edit' object.id %}">{% trans "Edit" %}</a>#}
 
-          <span v-if="canModify">
+        <span v-if="canModify">
 {#              <a v-if="application.submission_date" class="btn btn-sm btn-primary" href="{% url 'res:application_submit' object.id %}">#}
               <a v-if="application.submission_date" class="btn btn-sm btn-primary" href="#">
                 {% trans "Un-Submit" %}
@@ -61,132 +60,22 @@
               </span>
             </span>
 
-          <a v-if="canModify" class="btn btn-sm btn-danger" href="{% url 'res:application_delete' object.id %}">{% trans "Delete" %}</a>
-          <a class="btn btn-sm btn-secondary helper"
-             data-toggle="tooltip" title="{% trans "Click here to clone this application into a new application" %}"
-             href="#">{% trans "Clone Me" %}</a>
+        <a v-if="canModify" class="btn btn-sm btn-danger" href="{% url 'res:application_delete' object.id %}">{% trans "Delete" %}</a>
+        <a class="btn btn-sm btn-secondary helper"
+           data-toggle="tooltip" title="{% trans "Click here to clone this application into a new application" %}"
+           href="#">{% trans "Clone Me" %}</a>
 
-          {% if object.status >= 2 %}
-            <a href="#" class="btn btn-outline-dark btn-sm ml-3">
-              <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
-            </a>
-          {% endif %}
-        </div>
-        <div v-if="loadingApplication" class="loading mb-3 mt-3 mt-5">
-          <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
-            <span class="sr-only"></span>
-          </div>
-        </div>
-        <div v-else class="table table-sm">
-          <editable-cell
-            :label="applicationLabels.fiscal_year"
-            :object="application"
-            field="fiscal_year_display"
-          ></editable-cell>
-          <editable-cell
-            :label="applicationLabels.status"
-            :object="application"
-            field="status_display_html"
-          ></editable-cell>
-          <editable-cell
-            :label="applicationLabels.applicant"
-            :object="application" field="applicant" display_field="applicant_display"
-            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="select" :options="applicantChoices"
-            @keypress="unsavedChanges=true" @change="updateApplication"
-          ></editable-cell>
-          <editable-cell
-            :label="applicationLabels.application_start_date"
-            :object="application" field="application_start_date" display_field="application_start_date_display"
-            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="date"
-            @keypress="unsavedChanges=true" @change="updateApplication"
-          ></editable-cell>
-          <editable-cell
-            :label="applicationLabels.application_end_date"
-            :object="application" field="application_end_date" display_field="application_end_date_display"
-            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="date"
-            @keypress="unsavedChanges=true" @change="updateApplication"
-          ></editable-cell>
-          <editable-cell
-            label="{% trans "Application period" %}"
-            :object="application"
-            field="application_range_description"
-          ></editable-cell>
-          <editable-cell
-            :label="applicationLabels.section"
-            :object="application" field="section" display_field="section_display"
-            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="select" :options="sectionChoices"
-            @keypress="unsavedChanges=true" @change="updateApplication"
-          ></editable-cell>
-          <editable-cell
-            :label="applicationLabels.current_group_level"
-            :object="application" field="current_group_level" display_field="current_group_level_display"
-            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="select" :options="groupLevelChoices"
-            @keypress="unsavedChanges=true" @change="updateApplication"
-          ></editable-cell>
-          <editable-cell
-            :label="applicationLabels.target_group_level"
-            :object="application" field="target_group_level" display_field="target_group_level_display"
-            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="select" :options="groupLevelChoices"
-            @keypress="unsavedChanges=true" @change="updateApplication"
-          ></editable-cell>
-
-          <editable-cell
-            :label="applicationLabels.current_position_title"
-            :object="application" field="current_position_title"
-            :editable="canModify" :class="{'bad':unsavedChanges}"
-            @change="updateApplication" @keypress="unsavedChanges=true"
-          ></editable-cell>
-
-          <editable-cell
-            :label="applicationLabels.work_location"
-            :object="application" field="work_location"
-            :editable="canModify" :class="{'bad':unsavedChanges}"
-            @change="updateApplication" @keypress="unsavedChanges=true"
-          ></editable-cell>
-          <editable-cell
-            :label="applicationLabels.last_application"
-            :object="application" field="last_application" display_field="last_application_display"
-            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="date"
-            @keypress="unsavedChanges=true" @change="updateApplication"
-          ></editable-cell>
-          <editable-cell
-            :label="applicationLabels.last_promotion"
-            :object="application" field="last_promotion" display_field="last_promotion_display"
-            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="date"
-            @keypress="unsavedChanges=true" @change="updateApplication"
-          ></editable-cell>
-
-          <editable-cell
-            :label="applicationLabels.academic_background" :object="application" field="academic_background"
-            display_field="academic_background_html"
-            input_type="textarea" :markdown="true"
-            :editable="canModify" :class="{'bad':unsavedChanges}"
-            @change="updateApplication" @keypress="unsavedChanges=true"
-          ></editable-cell>
-          <editable-cell
-            input_type="textarea"
-            :label="applicationLabels.employment_history" :object="application"
-            field="employment_history" display_field="employment_history_html"
-            :markdown="true" :editable="canModify" :class="{'bad':unsavedChanges}"
-            @change="updateApplication" @keypress="unsavedChanges=true"
-          ></editable-cell>
-          <editable-cell
-            input_type="textarea"
-            :label="applicationLabels.objectives"
-            :object="application"
-            field="objectives" display_field="objectives_html"
-            :markdown="true" :editable="canModify" :class="{'bad':unsavedChanges}" @change="updateApplication" @keypress="unsavedChanges=true"
-          ></editable-cell>
-          <editable-cell
-            input_type="textarea"
-            :label="applicationLabels.relevant_factors"
-            :object="application" field="relevant_factors" display_field="relevant_factors_html"
-            :markdown="true" :editable="canModify"
-            :class="{'bad':unsavedChanges}" @change="updateApplication" @keypress="unsavedChanges=true"
-          ></editable-cell>
-
-        </div>
+        {% if object.status >= 2 %}
+          <a href="#" class="btn btn-outline-dark btn-sm ml-3">
+            <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
+          </a>
+        {% endif %}
       </div>
+      <div class="">
+        <p class="lead">{% trans "Basic Information" %}</p>
+      {% include "res/application_detail/_basic.html" %}
+      </div>
+
     </div>
   </div>
 
