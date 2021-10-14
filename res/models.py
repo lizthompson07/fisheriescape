@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _, gettext, get_language, activate
+from markdown import markdown
 
 from lib.functions.custom_functions import fiscal_year
 from res import model_choices
@@ -48,7 +50,8 @@ class Application(MetadataFields):
     # mandatories
     applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("DM Apps user"), related_name="res_applications")
     current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current", verbose_name=_("Current Group/Level"))
-    target_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_target", verbose_name=_("Group/level being sought"))
+    target_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_target",
+                                           verbose_name=_("Group/level being sought"))
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="res_applications", verbose_name=_("DFO Section"))
     application_start_date = models.DateTimeField(verbose_name=_("application start date"))
     application_end_date = models.DateTimeField(verbose_name=_("application end date"))
@@ -83,6 +86,39 @@ class Application(MetadataFields):
 
     def get_absolute_url(self):
         return reverse('res:application_detail', kwargs={'pk': self.id})
+
+    @property
+    def status_class(self):
+        lang = get_language()
+        activate("en")
+        mystr = slugify(self.get_status_display()) if self.status else ""
+        activate(lang)
+        return mystr
+
+    @property
+    def status_display_html(self):
+        return f'<span class=" px-1 py-1 {self.status_class}">{self.get_status_display()}</span>'
+
+    @property
+    def academic_background_html(self):
+        if self.academic_background:
+            return markdown(self.academic_background)
+
+    @property
+    def employment_history_html(self):
+        if self.employment_history:
+            return markdown(self.employment_history)
+
+    @property
+    def objectives_html(self):
+        if self.objectives:
+            return markdown(self.objectives)
+
+    @property
+    def relevant_factors_html(self):
+        if self.relevant_factors:
+            return markdown(self.relevant_factors)
+
 
 class Recommendation(MetadataFields):
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="recommendations")

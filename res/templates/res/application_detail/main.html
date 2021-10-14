@@ -19,189 +19,200 @@
 
 {% block subcontent %}
   <div id="app" v-cloak>
-    <div class="row">
+    <div>
       <div>
-        <div>
-          {% include "shared_models/_generic_breadcrumbs.html" %}
-          <div class="mb-3">
-            <h2 class="">{{ h1|safe }}</h2>
-            <p class="lead text-muted mt-1 mb-0 small">{% trans "Application ID:" %} {{ object.id }}</p>
-          </div>
-          {% bootstrap_messages %}
+        {% include "shared_models/_generic_breadcrumbs.html" %}
+        <div class="mb-3">
+          <h2 class="">{{ h1|safe }}</h2>
+          <p class="lead text-muted mt-1 mb-0 small">{% trans "Application ID:" %} {{ object.id }}</p>
+        </div>
+        {% bootstrap_messages %}
 
-          <div v-if="canModify" class="alert alert-primary no-print" role="alert">
-            <p class="mb-0">
-              <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
-            </p>
-          </div>
+        <div v-if="canModify" class="alert alert-primary no-print" role="alert">
+          <p class="mb-0">
+            <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
+          </p>
+        </div>
 
-          <div class="mb-3 float-right">
-            {% if object.submission_date %}
-              <button v-if="!request.review" class="btn btn-sm btn-dark" @click="primeReview">{% trans "Start a Review" %}</button>
-              {% if not object.processes.exists %}
-                <a v-if="canModify" class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>
-              {% endif %}
+        <div class="mb-3 float-right">
+          {% if object.submission_date %}
+            <button v-if="!application.review" class="btn btn-sm btn-dark" @click="primeReview">{% trans "Start a Review" %}</button>
+            {% if not object.processes.exists %}
+              <a v-if="canModify" class="btn btn-sm btn-dark" href="{% url 'res:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>
             {% endif %}
-          </div>
-          <div class="mb-3">
-            <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
+          {% endif %}
+        </div>
+        <div class="mb-3">
+          {#            <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'res:application_edit' object.id %}">{% trans "Edit" %}</a>#}
 
-            <span v-if="canModify">
-              <a v-if="request.submission_date" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
+          <span v-if="canModify">
+{#              <a v-if="application.submission_date" class="btn btn-sm btn-primary" href="{% url 'res:application_submit' object.id %}">#}
+              <a v-if="application.submission_date" class="btn btn-sm btn-primary" href="#">
                 {% trans "Un-Submit" %}
               </a>
-              <a v-else-if="request.is_complete" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
+{#              <a v-else-if="application.is_complete" class="btn btn-sm btn-primary" href="{% url 'res:application_submit' object.id %}">#}
+              <a v-else-if="application.is_complete" class="btn btn-sm btn-primary" href="#">
                 {% trans "Submit" %}
               </a>
               <span v-else class="helper" data-toggle="tooltip" title="{% trans "All fields are mandatory before approvals and submission" %}">
-                <a class="btn btn-sm btn-primary disabled" href="{% url 'csas2:request_submit' object.id %}">
+                <a class="btn btn-sm btn-primary disabled" href="">
                   {% trans "Submit" %}
                 </a>
               </span>
             </span>
 
-            <a v-if="canModify" class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
-            <a class="btn btn-sm btn-secondary helper"
-               data-toggle="tooltip" title="{% trans "Click here to clone this request into a new request" %}"
-               href="{% url 'csas2:request_clone' object.id %}">{% trans "Clone Me" %}</a>
-            <button v-if="canModify" @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
-              <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
-            </button>
-            {% if object.status >= 2 %}
+          <a v-if="canModify" class="btn btn-sm btn-danger" href="{% url 'res:application_delete' object.id %}">{% trans "Delete" %}</a>
+          <a class="btn btn-sm btn-secondary helper"
+             data-toggle="tooltip" title="{% trans "Click here to clone this application into a new application" %}"
+             href="#">{% trans "Clone Me" %}</a>
 
-              <a href="{% url 'csas2:request_pdf' %}?csas_requests={{ object.id }}" class="btn btn-outline-dark btn-sm ml-3">
-                <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
-              </a>
-            {% endif %}
-          </div>
-
-          <div class="row">
-            <div class="col">
-              <table class="table table-sm">
-                <tr>
-                  <th class="text-left w250" v-html="requestLabels.fiscal_year"></th>
-                  <td class="text-left" v-html="request.fiscal_year"></td>
-                </tr>
-                <tr>
-                  <th class="text-left w250" v-html="requestLabels.status"></th>
-                  <td class="text-left" v-html="request.status_display_html"></td>
-                </tr>
-                <tr>
-                  <th class="text-left">{% trans "is carry over?" %}</th>
-                  <td class="text-left">${request.is_carry_over|yesNo}</td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.language"></th>
-                  <td class="text-left" v-html="request.language_display"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.section"></th>
-                  <td class="text-left" v-html="request.section_display"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.coordinator"></th>
-                  <td class="text-left" v-html="request.coordinator"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.client"></th>
-                  <td class="text-left" v-html="request.client"></td>
-                </tr>
-                <tr>
-                  <th class="text-left">{% trans "Multiregional / multisector?" %}</th>
-                  <td class="text-left" v-html="request.multiregional_display"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.issue"></th>
-                  <td class="text-left" v-html="request.issue_html"></td>
-                </tr>
-                <tr>
-                  <th class="text-left">{% trans "Assistance from DFO Science" %}</th>
-                  <td class="text-left" v-html="request.assistance_text"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.rationale"></th>
-                  <td class="text-left" v-html="request.rationale_html"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.risk_text"></th>
-                  <td class="text-left" v-html="request.risk_text_html"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.advice_needed_by"></th>
-                  <td class="text-left" v-html="request.advice_needed_by_display"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.rationale_for_timeline"></th>
-                  <td class="text-left" v-html="request.rationale_for_timeline"></td>
-                </tr>
-                <tr>
-                  <th class="text-left">{% trans "Client funding?" %}</th>
-                  <td class="text-left" v-html="request.funding_display"></td>
-                </tr>
-                <tr>
-                  <th class="text-left">{% trans "Client prioritization?" %}</th>
-                  <td class="text-left" v-html="request.prioritization_display"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.submission_date"></th>
-                  <td class="text-left" v-html="request.submission_date_display"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.uuid"></th>
-                  <td class="text-left" v-html="request.uuid"></td>
-                </tr>
-                <tr>
-                  <th>
-                    {% trans "Files" %}
-                  </th>
-                  <td>
-                    {% if object.files.exists %}
-                      {% for file in object.files.all %}
-                        <div>
-                          <a href="{{ file.file.url }}">{{ file.caption }}</a> (uploaded on: {{ file.date_created|date:"F d Y" }})
-                          <button class="btn" @click="openPopout('{% url 'csas2:request_file_edit' file.id %}')" class="ml-3">
-                            <span class="mdi mdi-pencil" style="font-size: large"></span>
-                          </button>
-                          <button class="btn" @click="openPopout('{% url 'csas2:request_file_delete' file.id %}')">
-                            <span class="mdi mdi-delete" style="font-size: large"></span>
-                          </button>
-                        </div>
-                      {% endfor %}
-                    {% else %}
-                      <em>{% trans "There are no files attached to this request." %}</em>
-                    {% endif %}
-                  </td>
-                </tr>
-                {# files #}
-                <tr>
-                  <th>
-                    {% trans "Connected processes" %}
-                  </th>
-                  <td>
-                    {% if object.processes.exists %}
-                      {% for process in object.processes.all %}
-                        <div>
-                          {{ process.status_display }} &rarr; <a href="{% url 'csas2:process_detail' process.id %}">{{ process }} ({{ process.id }})</a>
-                        </div>
-                      {% endfor %}
-                    {% else %}
-                      <em>{% trans "There are no processes attached to this request." %}</em>
-                    {% endif %}
-                  </td>
-                </tr>
-                <tr>
-                  <th class="text-left">{% trans "Metadata" %}</th>
-                  <td class="text-left" v-html="request.metadata"></td>
-                </tr>
-              </table>
-            </div>
-            {# Notes #}
+          {% if object.status >= 2 %}
+            <a href="#" class="btn btn-outline-dark btn-sm ml-3">
+              <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
+            </a>
+          {% endif %}
+        </div>
+        <div v-if="loadingApplication" class="loading mb-3 mt-3 mt-5">
+          <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+            <span class="sr-only"></span>
           </div>
         </div>
-      </div>
+        <div v-else class="table table-sm">
+          <editable-cell
+            :label="applicationLabels.fiscal_year"
+            :object="application"
+            field="fiscal_year_display"
+          >
+          </editable-cell>
+          <editable-cell
+            :label="applicationLabels.current_position_title"
+            :object="application"
+            field="current_position_title"
+            :editable="true"
+            :class="{'bad':unsavedChanges}"
+            @change="updateApplication"
+            @keypress="unsavedChanges=true"
+          >
+          </editable-cell>
 
+          <editable-cell
+            input_type="textarea"
+            rows="10"
+            :label="applicationLabels.academic_background"
+            :object="application"
+            field="academic_background"
+            display_field="academic_background_html"
+            :editable="true"
+            :class="{'bad':unsavedChanges}"
+            @change="updateApplication"
+            @keypress="unsavedChanges=true"
+          >
+          </editable-cell>
+
+          academic_background
+          employment_history
+          objectives
+          relevant_factors
+
+
+          {#              <tr>#}
+          {#                <th class="text-left w250" v-html="applicationLabels.status"></th>#}
+          {#                <td class="text-left" v-html="application.status_display_html"></td>#}
+          {#              </tr>#}
+          {#              <tr>#}
+          {#                <th class="text-left w250" v-html="applicationLabels.applicant"></th>#}
+          {#                <td>#}
+          {#                  <editable-cell type="number" rows="5" :val="application.applicant"></editable-cell>#}
+          {#                </td>#}
+          {#              </tr>#}
+          {#              <tr>#}
+          {#                <th class="text-left w250" v-html="applicationLabels.applicant"></th>#}
+          {#                <td>#}
+          {#                  <editable-cell type="number" rows="5" :val="application.applicant"></editable-cell>#}
+          {#                </td>#}
+          {#              </tr>#}
+          {#              <tr>#}
+          {#                <th class="text-left w250" v-html="applicationLabels.objectives"></th>#}
+          {#                <td>#}
+          {#                  <editable-cell type="textarea" rows="5" :val="application.objectives"></editable-cell>#}
+          {#                </td>#}
+          {#              </tr>#}
+
+          {#                <tr>#}
+          {#                  <th class="text-left">{% trans "is carry over?" %}</th>#}
+          {#                  <td class="text-left">${application.is_carry_over|yesNo}</td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left" v-html="applicationLabels.language"></th>#}
+          {#                  <td class="text-left" v-html="application.language_display"></td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left" v-html="applicationLabels.section"></th>#}
+          {#                  <td class="text-left" v-html="application.section_display"></td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left" v-html="applicationLabels.coordinator"></th>#}
+          {#                  <td class="text-left" v-html="application.coordinator"></td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left" v-html="applicationLabels.client"></th>#}
+          {#                  <td class="text-left" v-html="application.client"></td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left">{% trans "Multiregional / multisector?" %}</th>#}
+          {#                  <td class="text-left" v-html="application.multiregional_display"></td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left" v-html="applicationLabels.issue"></th>#}
+          {#                  <td class="text-left" v-html="application.issue_html"></td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left">{% trans "Assistance from DFO Science" %}</th>#}
+          {#                  <td class="text-left" v-html="application.assistance_text"></td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left" v-html="applicationLabels.rationale"></th>#}
+          {#                  <td class="text-left" v-html="application.rationale_html"></td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left" v-html="applicationLabels.risk_text"></th>#}
+          {#                  <td class="text-left" v-html="application.risk_text_html"></td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left" v-html="applicationLabels.advice_needed_by"></th>#}
+          {#                  <td class="text-left" v-html="application.advice_needed_by_display"></td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left" v-html="applicationLabels.rationale_for_timeline"></th>#}
+          {#                  <td class="text-left" v-html="application.rationale_for_timeline"></td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left">{% trans "Client funding?" %}</th>#}
+          {#                  <td class="text-left" v-html="application.funding_display"></td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left">{% trans "Client prioritization?" %}</th>#}
+          {#                  <td class="text-left" v-html="application.prioritization_display"></td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left" v-html="applicationLabels.submission_date"></th>#}
+          {#                  <td class="text-left" v-html="application.submission_date_display"></td>#}
+          {#                </tr>#}
+          {#                <tr>#}
+          {#                  <th class="text-left" v-html="applicationLabels.uuid"></th>#}
+          {#                  <td class="text-left" v-html="application.uuid"></td>#}
+          {#                </tr>#}
+
+          {#              <tr>#}
+          {#                <th class="text-left">{% trans "Metadata" %}</th>#}
+          {#                <td class="text-left" v-html="application.metadata"></td>#}
+          {#              </tr>#}
+        </div>
+        {# Notes #}
+      </div>
     </div>
   </div>
+
 
 
 {% endblock %}
@@ -209,6 +220,7 @@
 
 {% block body_js %}
   {{ block.super }}
+  {% include "res/components/editable_cell.html" %}
 
   <script type="application/javascript">
   var applicationId = "{{ object.id }}"
@@ -222,16 +234,16 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: {},
-      loadingRequest: false,
-      request: {},
-      requestLabels: {},
-      review: {},
-      reviewLabels: {},
+      loadingApplication: false,
+      application: {},
+      applicationLabels: {},
       errors: null,
-      prioritizationChoices: [],
-      decisionChoices: [],
-      notes: [],
-      showSidebar: true,
+      unsavedChanges: false, // currently unused
+      applicationErrorMsg: null, // currently unused
+      //prioritizationChoices: [],
+      //decisionChoices: [],
+      //notes: [],
+      //showSidebar: true,
     },
     methods: {
       getCurrentUser() {
@@ -241,64 +253,44 @@
               this.currentUser = response;
             })
       },
-      openPopout(url) {
-        popitup(url, 'popoutWindow' + Date.now());
-      },
-
-      getRequest(update_notes) {
-        let endpoint = `/api/csas/requests/${applicationId}/`;
+      getApplication() {
+        loadingApplication = true;
+        let endpoint = `/api/res/applications/${applicationId}/`;
         apiService(endpoint).then(data => {
           if (data) {
-            this.request = data;
-            if (update_notes) this.getNotes();
+            this.application = data;
+            loadingApplication = false;
           }
         });
       },
-      getNotes() {
-        let endpoint = `/api/csas/request-notes/?csas_request=${applicationId}`;
-        apiService(endpoint).then(data => {
-          this.notes = data;
-        });
-      },
-      primeReview() {
-        let endpoint = `/api/csas/request-reviews/`;
-        apiService(endpoint, "POST", {csas_request: this.request.id}).then(() => {
-          this.getRequest();
-        })
-      },
-      updateReview() {
-        this.errors = null;
-        if (this.request.review.advice_date_display) this.request.review.advice_date = this.request.review.advice_date_display + "T12:00:00";
-        else this.request.review.advice_date = null;
-        if (this.request.review.decision_date_display) this.request.review.decision_date = this.request.review.decision_date_display + "T12:00:00"
-        else this.request.review.decision_date = null;
-        let endpoint = `/api/csas/request-reviews/${this.request.review.id}/`;
-        apiService(endpoint, "PUT", this.request.review).then(data => {
-          if (!data.id) this.errors = groomJSON(data);
-          else this.getRequest();
-        });
-      },
-      deleteReview() {
-        let userInput = confirm("{% trans 'Are you certain you want to delete this review?' %}")
-        if (userInput) {
-          let endpoint = `/api/csas/request-reviews/${this.request.review.id}/`;
-          apiService(endpoint, "DELETE").then(() => {
-            this.getRequest();
-          })
+      cleanApplication(application) {
+        //sample.datetime = sample.datetime_display
+        for (const applicationKey in application) {
+          if (application[applicationKey] === "") application[applicationKey] = null;
         }
+        return application;
       },
-      getReviewMetadata() {
-        let endpoint = `/api/csas/meta/models/request-review/`;
-        apiService(endpoint).then(data => {
-          this.reviewLabels = data.labels;
-          this.prioritizationChoices = data.prioritization_choices;
-          this.decisionChoices = data.decision_choices;
-        });
+
+      updateApplication(application) {
+        this.applicationErrorMsg = null;
+        endpoint = `/api/res/applications/${application.id}/`;
+        application = this.cleanApplication(application);
+        apiService(endpoint, "PUT", application)
+            .then(response => {
+              console.log(response)
+              if (!response.id) {
+                this.applicationErrorMsg = groomJSON(response);
+              } else {
+                this.unsavedChanges = false;
+              }
+              this.getApplication(application)
+            })
       },
-      getRequestMetadata() {
-        let endpoint = `/api/csas/meta/models/request/`;
-        apiService(endpoint).then(data => {
-          this.requestLabels = data.labels;
+
+
+      getModelMetadata() {
+        apiService(`/api/res/meta/models/application/`).then(data => {
+          this.applicationLabels = data.labels;
         });
       },
     },
@@ -309,12 +301,13 @@
     },
     filters: {
       yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
     },
     created() {
+      this.getModelMetadata();
       this.getCurrentUser();
-      {#this.getRequest(true);#}
+      this.getApplication();
       {#this.getReviewMetadata();#}
-      {#this.getRequestMetadata();#}
     },
   });
 

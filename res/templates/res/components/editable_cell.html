@@ -1,0 +1,136 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="editable-cell-template">
+
+<div class="row table-div">
+  <div class="col-2">
+    <label for="my-input">${label}</label>
+  </div>
+  <div v-if="!editMode" class="col">
+    <div class="row">
+      <div class="col">
+        <div v-if="">
+        <span v-if="input" v-html="input"></span>
+        <span v-else>-----</span>
+        </div>
+      </div>
+      <div v-if="editable" class="col text-right">
+        <button class="btn btn-xs btn-warning" @click="toggleEditMode"><span class="mdi mdi-pencil"></span></button>
+      </div>
+    </div>
+  </div>
+  <div v-else class="col">
+    <div class="row">
+      <div class="col">
+        <select
+          class="form-control"
+          v-if="input_type==='select'"
+          v-model="input"
+          @change="update"
+          ref="input"
+          id="my-input"
+          @keypress="$emit('keypress')"
+        >
+          <option value="">${blankOption}</option>
+          <option v-for="(option, index) in options" :value="option.value">${option.text}</option>
+        </select>
+        <textarea
+          class="form-control"
+          v-if="input_type==='textarea'"
+          v-model="input"
+          @change="update"
+          ref="input"
+          :rows="rows"
+          id="my-input"
+          @keypress="$emit('keypress')"
+        ></textarea>
+        <input
+          :type="input_type" class="form-control" step="any"
+          v-else
+          v-model="input"
+          @change="update"
+          ref="input"
+          id="my-input"
+          @keypress="$emit('keypress')"
+        >
+        ${input}
+      </div>
+      <div class="col-1">
+        <button class="btn btn-xs btn-success" @click="toggleEditMode"><span class="mdi mdi-check text-light"></span></button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+</script>
+<script type=" application/javascript">
+
+Vue.component("editable-cell", {
+  template: "#editable-cell-template",
+  delimiters: ["${", "}"],
+  name: "editable-cell",
+  props: {
+    editable: {
+      type: Boolean,
+      default: false
+    },
+    field: {
+      type: String,
+      required: true
+    },
+    display_field: {
+      type: String,
+    },
+    object: {
+      type: Object,
+    },
+    input_type: {
+      type: String,
+      default: "text"
+    },
+    label: {
+      type: String,
+    },
+    rows: {
+      default: 5
+    },
+    options: {
+      type: Array,
+      required: false
+    },
+    blank_option: {
+      type: String,
+      required: false
+    },
+  },
+  data() {
+    return {
+      input: null,
+      editMode: false,
+    };
+  },
+  methods: {
+    toggleEditMode() {
+      this.editMode = !this.editMode;
+    },
+    update() {
+      this.object[this.field] = this.input
+      this.$emit("change", this.object)
+    }
+  },
+  watch: {
+    object() {
+      this.input = this.object[this.field];
+    }
+  },
+  computed: {
+    blankOption() {
+      if (this.blank_option) return this.blank_option;
+      else return "-----";
+    }
+  }
+});
+</script>

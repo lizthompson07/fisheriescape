@@ -1,10 +1,12 @@
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, ListAPIView
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
-from . import permissions
+from shared_models.api.views import _get_labels
 from . import serializers
+from .permissions import CanModifyApplicationOrReadOnly
 from .. import models, utils
 
 
@@ -22,6 +24,21 @@ class CurrentUserAPIView(APIView):
             data["can_modify"] = utils.can_modify_application(request.user, qp.get("application"), return_as_dict=True)
         return Response(data)
 
+
+class ApplicationViewSet(ModelViewSet):
+    serializer_class = serializers.ApplicationSerializer
+    permission_classes = [CanModifyApplicationOrReadOnly]
+    queryset = models.Application.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = [
+        'section__division__branch__sector__region',
+        "section__division__branch__sector",
+        "section__division__branch",
+        "section__division",
+        "section",
+        "fiscal_year",
+        "status",
+    ]
 
 
 #
@@ -83,3 +100,17 @@ class CurrentUserAPIView(APIView):
 #
 #     def perform_update(self, serializer):
 #         serializer.save(updated_by=self.request.user)
+
+
+# Lookups
+
+
+class ApplicationModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Application
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        # data['type_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.note_type_choices]
+        return Response(data)

@@ -195,3 +195,9 @@ label.filter {
 /*@media screen and (max-height: 450px) {*/
 /*  .sidebar {padding-top: 15px;}*/
 /*}*/
+
+.table-div {
+    padding: 5px 4px;
+    border-top: gray solid 1px;
+    border-bottom: gray solid 1px;
+}
