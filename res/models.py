@@ -52,21 +52,21 @@ class Application(MetadataFields):
     applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("applicant name"), related_name="res_applications")
     manager = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("manager name"), related_name="manager_res_applications",
                                 help_text=_("This is the person who will provide a recommendation on this application"))
-    current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current", verbose_name=_("Current Group/Level"))
+    current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current", verbose_name=_("Current group / level"))
     target_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_target",
-                                           verbose_name=_("Group/level being sought"))
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="res_applications", verbose_name=_("DFO Section"))
+                                           verbose_name=_("Group / level being sought"))
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="res_applications", verbose_name=_("DFO section"))
     application_start_date = models.DateTimeField(verbose_name=_("application start date"))
     application_end_date = models.DateTimeField(verbose_name=_("application end date"))
 
-    current_position_title = models.CharField(max_length=255, verbose_name=_("Position Title"), blank=True, null=True)
-    work_location = models.CharField(max_length=1000, verbose_name=_("Work Location"), blank=True, null=True)
-    last_application = models.DateTimeField(verbose_name=_("Last Application for Advancement"), blank=True, null=True)
-    last_promotion = models.DateTimeField(verbose_name=_("Last Promotion"), blank=True, null=True)
-    academic_background = models.TextField(blank=True, null=True, verbose_name=_("Academic Background"))
-    employment_history = models.TextField(blank=True, null=True, verbose_name=_("Employment History"))
-    objectives = models.TextField(blank=True, null=True, verbose_name=_("Department / Sectoral Objectives"), help_text=_("no more than 200 words"))
-    relevant_factors = models.TextField(blank=True, null=True, verbose_name=_("Relevant Factors"), help_text=_("no more than 400 words"))
+    current_position_title = models.CharField(max_length=255, verbose_name=_("position title"), blank=True, null=True)
+    work_location = models.CharField(max_length=1000, verbose_name=_("work location"), blank=True, null=True)
+    last_application = models.DateTimeField(verbose_name=_("last application for advancement"), blank=True, null=True)
+    last_promotion = models.DateTimeField(verbose_name=_("last Promotion"), blank=True, null=True)
+    academic_background = models.TextField(blank=True, null=True, verbose_name=_("academic background"))
+    employment_history = models.TextField(blank=True, null=True, verbose_name=_("employment history"))
+    objectives = models.TextField(blank=True, null=True, verbose_name=_("department / sectoral objectives"), help_text=_("no more than 200 words"))
+    relevant_factors = models.TextField(blank=True, null=True, verbose_name=_("relevant ractors"), help_text=_("no more than 400 words"))
 
     # non-editables
     submission_date = models.DateTimeField(verbose_name=_("submission date"), blank=True, null=True, editable=False)
