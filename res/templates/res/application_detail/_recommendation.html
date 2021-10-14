@@ -12,7 +12,7 @@
     :label="recommendationLabels.recommendation_text" :object="recommendation" field="recommendation_text"
     display_field="recommendation_text_html"
     input_type="textarea" :markdown="true"
-    :editable="canModifyRecommendation" :class="{'bad':unsavedChanges}"
+    :editable="canModifyRecommendation"
     @change="updateRecommendation" @keypress="unsavedChanges=true"
   ></editable-cell>
 
@@ -20,7 +20,7 @@
     key="r2"
     :label="recommendationLabels.decision"
     :object="recommendation" field="decision" display_field="decision_display"
-    :class="{'bad':unsavedChanges}" :editable="canModifyRecommendation" input_type="select" :options="decisionChoices"
+    :editable="canModifyRecommendation" input_type="select" :options="decisionChoices"
     @keypress="unsavedChanges=true" @change="updateRecommendation"
   ></editable-cell>
 
@@ -41,7 +41,7 @@
           </span>
         </div>
         <div v-else>
-          <button class="btn btn-xs btn-danger">{% trans "Sign Now!" %}</button>
+          <button @click="" class="btn btn-xs btn-danger">{% trans "Sign Now!" %}</button>
         </div>
       </div>
       <div v-else>

@@ -122,11 +122,11 @@ class ApplicationSerializer(serializers.ModelSerializer):
             msg = _('The application end date must be after the application start date')
             raise ValidationError(msg)
 
-        if last_application > timezone.now():
+        if last_application and last_application > timezone.now():
             msg = _('The date of your last application must be in the past')
             raise ValidationError(msg)
 
-        if last_promotion > timezone.now():
+        if last_promotion and last_promotion > timezone.now():
             msg = _('The date of your last promotion must be in the past')
             raise ValidationError(msg)
 

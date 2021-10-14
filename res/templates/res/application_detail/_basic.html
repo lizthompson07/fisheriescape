@@ -20,25 +20,25 @@
   <editable-cell
     :label="applicationLabels.applicant"
     :object="application" field="applicant" display_field="applicant_display"
-    :class="{'bad':unsavedChanges}" :editable="canModify" input_type="select" :options="applicantChoices"
+     :editable="canModify" input_type="select" :options="applicantChoices"
     @keypress="unsavedChanges=true" @change="updateApplication"
   ></editable-cell>
   <editable-cell
     :label="applicationLabels.manager"
     :object="application" field="manager" display_field="manager_display"
-    :class="{'bad':unsavedChanges}" :editable="canModify" input_type="select" :options="applicantChoices"
+     :editable="canModify" input_type="select" :options="applicantChoices"
     @keypress="unsavedChanges=true" @change="updateApplication"
   ></editable-cell>
   <editable-cell
     :label="applicationLabels.application_start_date"
     :object="application" field="application_start_date" display_field="application_start_date_display"
-    :class="{'bad':unsavedChanges}" :editable="canModify" input_type="date"
+     :editable="canModify" input_type="date"
     @keypress="unsavedChanges=true" @change="updateApplication"
   ></editable-cell>
   <editable-cell
     :label="applicationLabels.application_end_date"
     :object="application" field="application_end_date" display_field="application_end_date_display"
-    :class="{'bad':unsavedChanges}" :editable="canModify" input_type="date"
+     :editable="canModify" input_type="date"
     @keypress="unsavedChanges=true" @change="updateApplication"
   ></editable-cell>
   <editable-cell
@@ -49,45 +49,45 @@
   <editable-cell
     :label="applicationLabels.section"
     :object="application" field="section" display_field="section_display"
-    :class="{'bad':unsavedChanges}" :editable="canModify" input_type="select" :options="sectionChoices"
+     :editable="canModify" input_type="select" :options="sectionChoices"
     @keypress="unsavedChanges=true" @change="updateApplication"
   ></editable-cell>
   <editable-cell
     :label="applicationLabels.current_group_level"
     :object="application" field="current_group_level" display_field="current_group_level_display"
-    :class="{'bad':unsavedChanges}" :editable="canModify" input_type="select" :options="groupLevelChoices"
+     :editable="canModify" input_type="select" :options="groupLevelChoices"
     @keypress="unsavedChanges=true" @change="updateApplication"
   ></editable-cell>
   <editable-cell
     :label="applicationLabels.target_group_level"
     :object="application" field="target_group_level" display_field="target_group_level_display"
-    :class="{'bad':unsavedChanges}" :editable="canModify" input_type="select" :options="groupLevelChoices"
+     :editable="canModify" input_type="select" :options="groupLevelChoices"
     @keypress="unsavedChanges=true" @change="updateApplication"
   ></editable-cell>
 
   <editable-cell
     :label="applicationLabels.current_position_title"
     :object="application" field="current_position_title"
-    :editable="canModify" :class="{'bad':unsavedChanges}"
+    :editable="canModify" 
     @change="updateApplication" @keypress="unsavedChanges=true"
   ></editable-cell>
 
   <editable-cell
     :label="applicationLabels.work_location"
     :object="application" field="work_location"
-    :editable="canModify" :class="{'bad':unsavedChanges}" :options="orgChoices"
+    :editable="canModify"  :options="orgChoices"
     @change="updateApplication" @keypress="unsavedChanges=true"
   ></editable-cell>
   <editable-cell
     :label="applicationLabels.last_application"
     :object="application" field="last_application" display_field="last_application_display"
-    :class="{'bad':unsavedChanges}" :editable="canModify" input_type="date"
+     :editable="canModify" input_type="date"
     @keypress="unsavedChanges=true" @change="updateApplication"
   ></editable-cell>
   <editable-cell
     :label="applicationLabels.last_promotion"
     :object="application" field="last_promotion" display_field="last_promotion_display"
-    :class="{'bad':unsavedChanges}" :editable="canModify" input_type="date"
+     :editable="canModify" input_type="date"
     @keypress="unsavedChanges=true" @change="updateApplication"
   ></editable-cell>
 
@@ -95,14 +95,14 @@
     :label="applicationLabels.academic_background" :object="application" field="academic_background"
     display_field="academic_background_html"
     input_type="textarea" :markdown="true"
-    :editable="canModify" :class="{'bad':unsavedChanges}"
+    :editable="canModify" 
     @change="updateApplication" @keypress="unsavedChanges=true"
   ></editable-cell>
   <editable-cell
     input_type="textarea"
     :label="applicationLabels.employment_history" :object="application"
     field="employment_history" display_field="employment_history_html"
-    :markdown="true" :editable="canModify" :class="{'bad':unsavedChanges}"
+    :markdown="true" :editable="canModify" 
     @change="updateApplication" @keypress="unsavedChanges=true"
   ></editable-cell>
   <editable-cell
@@ -110,14 +110,14 @@
     :label="applicationLabels.objectives"
     :object="application"
     field="objectives" display_field="objectives_html"
-    :markdown="true" :editable="canModify" :class="{'bad':unsavedChanges}" @change="updateApplication" @keypress="unsavedChanges=true"
+    :markdown="true" :editable="canModify"  @change="updateApplication" @keypress="unsavedChanges=true"
   ></editable-cell>
   <editable-cell
     input_type="textarea"
     :label="applicationLabels.relevant_factors"
     :object="application" field="relevant_factors" display_field="relevant_factors_html"
     :markdown="true" :editable="canModify"
-    :class="{'bad':unsavedChanges}" @change="updateApplication" @keypress="unsavedChanges=true"
+     @change="updateApplication" @keypress="unsavedChanges=true"
   ></editable-cell>
   <editable-cell
     :label="applicationLabels.submission_date"
