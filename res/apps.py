@@ -5,4 +5,4 @@ class resConfig(AppConfig):
     name = 'res'
 
     def ready(self):
-        pass
+        import res.signals

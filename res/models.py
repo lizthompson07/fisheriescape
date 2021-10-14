@@ -78,7 +78,22 @@ class Application(MetadataFields):
 
     def save(self, *args, **kwargs):
         self.fiscal_year_id = fiscal_year(self.application_end_date, sap_style=True)
+
+        # look at the review to help determine the status
+        self.status = 1  # draft
+        if self.submission_date:
+            self.status = 20  # submitted
+        if hasattr(self, "recommendation") and self.recommendation.id:
+            self.status = 30  # submitted
+            if self.recommendation.manager_signed:
+                self.status = 40  #
+            if self.recommendation.applicant_signed:
+                    self.status = 50  # submitted
+
         super().save(*args, **kwargs)
+
+
+
 
     def __str__(self):
         return f"{self.applicant} ({self.target_group_level})"
