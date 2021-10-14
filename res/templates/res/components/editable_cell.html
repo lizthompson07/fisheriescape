@@ -10,13 +10,17 @@
   <div v-if="!editMode" class="col">
     <div class="row">
       <div class="col">
-        <div v-if="">
-        <span v-if="input" v-html="input"></span>
-        <span v-else>-----</span>
+        <div v-if="display_field">
+          <span v-if="object[display_field]" v-html="object[display_field]"></span>
+          <span v-else>-----</span>
+        </div>
+        <div v-else>
+          <span v-if="input" v-html="input"></span>
+          <span v-else>-----</span>
         </div>
       </div>
       <div v-if="editable" class="col text-right">
-        <button class="btn btn-xs btn-warning" @click="toggleEditMode"><span class="mdi mdi-pencil"></span></button>
+        <button class="btn btn-sm btn-light" @click="toggleEditMode"><span class="mdi mdi-pencil"></span></button>
       </div>
     </div>
   </div>
@@ -37,7 +41,7 @@
         </select>
         <textarea
           class="form-control"
-          v-if="input_type==='textarea'"
+          v-else-if="input_type==='textarea'"
           v-model="input"
           @change="update"
           ref="input"
@@ -46,15 +50,18 @@
           @keypress="$emit('keypress')"
         ></textarea>
         <input
-          :type="input_type" class="form-control" step="any"
           v-else
+          :type="input_type" class="form-control" step="any"
           v-model="input"
           @change="update"
           ref="input"
           id="my-input"
           @keypress="$emit('keypress')"
         >
-        ${input}
+        <a v-if="markdown" href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"
+           title="{% trans "Markdown syntax is supported in this field" %}">
+          <span class="mdi mdi-language-markdown ml-1 py-0 lead helper" style="color: blue"></span>
+        </a>
       </div>
       <div class="col-1">
         <button class="btn btn-xs btn-success" @click="toggleEditMode"><span class="mdi mdi-check text-light"></span></button>
@@ -84,6 +91,10 @@ Vue.component("editable-cell", {
     display_field: {
       type: String,
     },
+    markdown: {
+      type: Boolean,
+      default: false
+    },
     object: {
       type: Object,
     },
@@ -95,7 +106,7 @@ Vue.component("editable-cell", {
       type: String,
     },
     rows: {
-      default: 5
+      default: "10"
     },
     options: {
       type: Array,

@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -5,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from shared_models.api.views import _get_labels
+from shared_models.models import Section
 from . import serializers
 from .permissions import CanModifyApplicationOrReadOnly
 from .. import models, utils
@@ -112,5 +114,7 @@ class ApplicationModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
-        # data['type_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.note_type_choices]
+        data['applicant_choices'] = [dict(text=str(c), value=c.id) for c in User.objects.all()]
+        data['group_level_choices'] = [dict(text=str(c), value=c.id) for c in models.GroupLevel.objects.all()]
+        data['section_choices'] = [dict(text=c.full_name, value=c.id) for c in Section.objects.all()]
         return Response(data)

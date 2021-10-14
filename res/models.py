@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _, gettext, get_language, a
 from markdown import markdown
 
 from lib.functions.custom_functions import fiscal_year
+from lib.templatetags.custom_filters import timedelta_duration_days
 from res import model_choices
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, MetadataFields, Section, Organization, Lookup, FiscalYear
 
@@ -48,7 +49,7 @@ class PublicationType(SimpleLookup):
 
 class Application(MetadataFields):
     # mandatories
-    applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("DM Apps user"), related_name="res_applications")
+    applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("applicant name"), related_name="res_applications")
     current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current", verbose_name=_("Current Group/Level"))
     target_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_target",
                                            verbose_name=_("Group/level being sought"))
@@ -79,6 +80,10 @@ class Application(MetadataFields):
 
     def __str__(self):
         return f"{self.applicant} ({self.target_group_level})"
+
+    @property
+    def application_range_description(self):
+        return timedelta_duration_days(self.application_end_date - self.application_start_date)
 
     @property
     def region(self):

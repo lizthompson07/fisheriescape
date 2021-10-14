@@ -22,8 +22,8 @@
     <div>
       <div>
         {% include "shared_models/_generic_breadcrumbs.html" %}
-        <div class="mb-3">
-          <h2 class="">{{ h1|safe }}</h2>
+        <div v-if="application.id" class="mb-3">
+          <h2 class="">${application.applicant_display} (${application.target_group_level_display})</h2>
           <p class="lead text-muted mt-1 mb-0 small">{% trans "Application ID:" %} {{ object.id }}</p>
         </div>
         {% bootstrap_messages %}
@@ -82,133 +82,110 @@
             :label="applicationLabels.fiscal_year"
             :object="application"
             field="fiscal_year_display"
-          >
-          </editable-cell>
+          ></editable-cell>
+          <editable-cell
+            :label="applicationLabels.status"
+            :object="application"
+            field="status_display_html"
+          ></editable-cell>
+          <editable-cell
+            :label="applicationLabels.applicant"
+            :object="application" field="applicant" display_field="applicant_display"
+            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="select" :options="applicantChoices"
+            @keypress="unsavedChanges=true" @change="updateApplication"
+          ></editable-cell>
+          <editable-cell
+            :label="applicationLabels.application_start_date"
+            :object="application" field="application_start_date" display_field="application_start_date_display"
+            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="date"
+            @keypress="unsavedChanges=true" @change="updateApplication"
+          ></editable-cell>
+          <editable-cell
+            :label="applicationLabels.application_end_date"
+            :object="application" field="application_end_date" display_field="application_end_date_display"
+            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="date"
+            @keypress="unsavedChanges=true" @change="updateApplication"
+          ></editable-cell>
+          <editable-cell
+            label="{% trans "Application period" %}"
+            :object="application"
+            field="application_range_description"
+          ></editable-cell>
+          <editable-cell
+            :label="applicationLabels.section"
+            :object="application" field="section" display_field="section_display"
+            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="select" :options="sectionChoices"
+            @keypress="unsavedChanges=true" @change="updateApplication"
+          ></editable-cell>
+          <editable-cell
+            :label="applicationLabels.current_group_level"
+            :object="application" field="current_group_level" display_field="current_group_level_display"
+            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="select" :options="groupLevelChoices"
+            @keypress="unsavedChanges=true" @change="updateApplication"
+          ></editable-cell>
+          <editable-cell
+            :label="applicationLabels.target_group_level"
+            :object="application" field="target_group_level" display_field="target_group_level_display"
+            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="select" :options="groupLevelChoices"
+            @keypress="unsavedChanges=true" @change="updateApplication"
+          ></editable-cell>
+
           <editable-cell
             :label="applicationLabels.current_position_title"
-            :object="application"
-            field="current_position_title"
-            :editable="true"
-            :class="{'bad':unsavedChanges}"
-            @change="updateApplication"
-            @keypress="unsavedChanges=true"
-          >
-          </editable-cell>
+            :object="application" field="current_position_title"
+            :editable="canModify" :class="{'bad':unsavedChanges}"
+            @change="updateApplication" @keypress="unsavedChanges=true"
+          ></editable-cell>
 
           <editable-cell
-            input_type="textarea"
-            rows="10"
-            :label="applicationLabels.academic_background"
-            :object="application"
-            field="academic_background"
+            :label="applicationLabels.work_location"
+            :object="application" field="work_location"
+            :editable="canModify" :class="{'bad':unsavedChanges}"
+            @change="updateApplication" @keypress="unsavedChanges=true"
+          ></editable-cell>
+          <editable-cell
+            :label="applicationLabels.last_application"
+            :object="application" field="last_application" display_field="last_application_display"
+            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="date"
+            @keypress="unsavedChanges=true" @change="updateApplication"
+          ></editable-cell>
+          <editable-cell
+            :label="applicationLabels.last_promotion"
+            :object="application" field="last_promotion" display_field="last_promotion_display"
+            :class="{'bad':unsavedChanges}" :editable="canModify" input_type="date"
+            @keypress="unsavedChanges=true" @change="updateApplication"
+          ></editable-cell>
+
+          <editable-cell
+            :label="applicationLabels.academic_background" :object="application" field="academic_background"
             display_field="academic_background_html"
-            :editable="true"
-            :class="{'bad':unsavedChanges}"
-            @change="updateApplication"
-            @keypress="unsavedChanges=true"
-          >
-          </editable-cell>
+            input_type="textarea" :markdown="true"
+            :editable="canModify" :class="{'bad':unsavedChanges}"
+            @change="updateApplication" @keypress="unsavedChanges=true"
+          ></editable-cell>
+          <editable-cell
+            input_type="textarea"
+            :label="applicationLabels.employment_history" :object="application"
+            field="employment_history" display_field="employment_history_html"
+            :markdown="true" :editable="canModify" :class="{'bad':unsavedChanges}"
+            @change="updateApplication" @keypress="unsavedChanges=true"
+          ></editable-cell>
+          <editable-cell
+            input_type="textarea"
+            :label="applicationLabels.objectives"
+            :object="application"
+            field="objectives" display_field="objectives_html"
+            :markdown="true" :editable="canModify" :class="{'bad':unsavedChanges}" @change="updateApplication" @keypress="unsavedChanges=true"
+          ></editable-cell>
+          <editable-cell
+            input_type="textarea"
+            :label="applicationLabels.relevant_factors"
+            :object="application" field="relevant_factors" display_field="relevant_factors_html"
+            :markdown="true" :editable="canModify"
+            :class="{'bad':unsavedChanges}" @change="updateApplication" @keypress="unsavedChanges=true"
+          ></editable-cell>
 
-          academic_background
-          employment_history
-          objectives
-          relevant_factors
-
-
-          {#              <tr>#}
-          {#                <th class="text-left w250" v-html="applicationLabels.status"></th>#}
-          {#                <td class="text-left" v-html="application.status_display_html"></td>#}
-          {#              </tr>#}
-          {#              <tr>#}
-          {#                <th class="text-left w250" v-html="applicationLabels.applicant"></th>#}
-          {#                <td>#}
-          {#                  <editable-cell type="number" rows="5" :val="application.applicant"></editable-cell>#}
-          {#                </td>#}
-          {#              </tr>#}
-          {#              <tr>#}
-          {#                <th class="text-left w250" v-html="applicationLabels.applicant"></th>#}
-          {#                <td>#}
-          {#                  <editable-cell type="number" rows="5" :val="application.applicant"></editable-cell>#}
-          {#                </td>#}
-          {#              </tr>#}
-          {#              <tr>#}
-          {#                <th class="text-left w250" v-html="applicationLabels.objectives"></th>#}
-          {#                <td>#}
-          {#                  <editable-cell type="textarea" rows="5" :val="application.objectives"></editable-cell>#}
-          {#                </td>#}
-          {#              </tr>#}
-
-          {#                <tr>#}
-          {#                  <th class="text-left">{% trans "is carry over?" %}</th>#}
-          {#                  <td class="text-left">${application.is_carry_over|yesNo}</td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left" v-html="applicationLabels.language"></th>#}
-          {#                  <td class="text-left" v-html="application.language_display"></td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left" v-html="applicationLabels.section"></th>#}
-          {#                  <td class="text-left" v-html="application.section_display"></td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left" v-html="applicationLabels.coordinator"></th>#}
-          {#                  <td class="text-left" v-html="application.coordinator"></td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left" v-html="applicationLabels.client"></th>#}
-          {#                  <td class="text-left" v-html="application.client"></td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left">{% trans "Multiregional / multisector?" %}</th>#}
-          {#                  <td class="text-left" v-html="application.multiregional_display"></td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left" v-html="applicationLabels.issue"></th>#}
-          {#                  <td class="text-left" v-html="application.issue_html"></td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left">{% trans "Assistance from DFO Science" %}</th>#}
-          {#                  <td class="text-left" v-html="application.assistance_text"></td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left" v-html="applicationLabels.rationale"></th>#}
-          {#                  <td class="text-left" v-html="application.rationale_html"></td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left" v-html="applicationLabels.risk_text"></th>#}
-          {#                  <td class="text-left" v-html="application.risk_text_html"></td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left" v-html="applicationLabels.advice_needed_by"></th>#}
-          {#                  <td class="text-left" v-html="application.advice_needed_by_display"></td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left" v-html="applicationLabels.rationale_for_timeline"></th>#}
-          {#                  <td class="text-left" v-html="application.rationale_for_timeline"></td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left">{% trans "Client funding?" %}</th>#}
-          {#                  <td class="text-left" v-html="application.funding_display"></td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left">{% trans "Client prioritization?" %}</th>#}
-          {#                  <td class="text-left" v-html="application.prioritization_display"></td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left" v-html="applicationLabels.submission_date"></th>#}
-          {#                  <td class="text-left" v-html="application.submission_date_display"></td>#}
-          {#                </tr>#}
-          {#                <tr>#}
-          {#                  <th class="text-left" v-html="applicationLabels.uuid"></th>#}
-          {#                  <td class="text-left" v-html="application.uuid"></td>#}
-          {#                </tr>#}
-
-          {#              <tr>#}
-          {#                <th class="text-left">{% trans "Metadata" %}</th>#}
-          {#                <td class="text-left" v-html="application.metadata"></td>#}
-          {#              </tr>#}
         </div>
-        {# Notes #}
       </div>
     </div>
   </div>
@@ -240,7 +217,9 @@
       errors: null,
       unsavedChanges: false, // currently unused
       applicationErrorMsg: null, // currently unused
-      //prioritizationChoices: [],
+      applicantChoices: [],
+      groupLevelChoices: [],
+      sectionChoices: [],
       //decisionChoices: [],
       //notes: [],
       //showSidebar: true,
@@ -258,16 +237,23 @@
         let endpoint = `/api/res/applications/${applicationId}/`;
         apiService(endpoint).then(data => {
           if (data) {
+            if (data.application_start_date) data.application_start_date = data.application_start_date.split("T")[0];
+            if (data.application_end_date) data.application_end_date = data.application_end_date.split("T")[0];
+            if (data.last_promotion) data.last_promotion = data.last_promotion.split("T")[0];
+            if (data.last_application) data.last_application = data.last_application.split("T")[0];
             this.application = data;
             loadingApplication = false;
           }
         });
       },
       cleanApplication(application) {
-        //sample.datetime = sample.datetime_display
         for (const applicationKey in application) {
           if (application[applicationKey] === "") application[applicationKey] = null;
         }
+        if (application.application_start_date) application.application_start_date = application.application_start_date + "T12:00:00";
+        if (application.application_end_date) application.application_end_date = application.application_end_date + "T12:00:00";
+        if (application.last_application) application.last_application = application.last_application + "T12:00:00";
+        if (application.last_promotion) application.last_promotion = application.last_promotion + "T12:00:00";
         return application;
       },
 
@@ -291,6 +277,9 @@
       getModelMetadata() {
         apiService(`/api/res/meta/models/application/`).then(data => {
           this.applicationLabels = data.labels;
+          this.applicantChoices = data.applicant_choices;
+          this.groupLevelChoices = data.group_level_choices;
+          this.sectionChoices = data.section_choices;
         });
       },
     },
