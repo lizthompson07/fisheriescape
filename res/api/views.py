@@ -6,10 +6,10 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from shared_models.api.views import _get_labels
-from shared_models.models import Section
+from shared_models.models import Section, Organization
 from . import serializers
 from .permissions import CanModifyApplicationOrReadOnly
-from .. import models, utils
+from .. import models, utils, model_choices
 
 
 # USER
@@ -24,6 +24,9 @@ class CurrentUserAPIView(APIView):
         data["is_admin"] = utils.in_res_admin_group(request.user)
         if qp.get("application"):
             data["can_modify"] = utils.can_modify_application(request.user, qp.get("application"), return_as_dict=True)
+            data["can_modify_recommendation"] = utils.can_modify_recommendation(request.user, qp.get("application"), return_as_dict=True)
+            data["is_manager"] = utils.is_manager(request.user, qp.get("application"))
+            data["is_applicant"] = utils.is_applicant(request.user, qp.get("application"))
         return Response(data)
 
 
@@ -41,6 +44,12 @@ class ApplicationViewSet(ModelViewSet):
         "fiscal_year",
         "status",
     ]
+
+
+class RecommendationViewSet(ModelViewSet):
+    serializer_class = serializers.RecommendationSerializer
+    # permission_classes = [CanModifyApplicationOrReadOnly]
+    queryset = models.Recommendation.objects.all()
 
 
 #
@@ -114,7 +123,19 @@ class ApplicationModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
-        data['applicant_choices'] = [dict(text=str(c), value=c.id) for c in User.objects.all()]
+        data['applicant_choices'] = [dict(text=f"{c.last_name}, {c.first_name}", value=c.id) for c in User.objects.order_by("last_name", "first_name")]
         data['group_level_choices'] = [dict(text=str(c), value=c.id) for c in models.GroupLevel.objects.all()]
         data['section_choices'] = [dict(text=c.full_name, value=c.id) for c in Section.objects.all()]
+        data['org_choices'] = [dict(text=item.tfull, value=item.tfull) for item in Organization.objects.filter(is_dfo=True)]
+        return Response(data)
+
+
+class RecommendationModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Recommendation
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        data['decision_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.decision_choices]
         return Response(data)

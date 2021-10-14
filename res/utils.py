@@ -36,7 +36,7 @@ def get_related_applications(user):
 
 
 
-def is_client(user, application_id):
+def is_applicant(user, application_id):
     if user.id:
         application = get_object_or_404(models.Application, pk=application_id)
         return application.applicant == user
@@ -46,6 +46,12 @@ def is_creator(user, application_id):
     if user.id:
         application = get_object_or_404(models.Application, pk=application_id)
         return application.created_by == user
+
+
+def is_manager(user, application_id):
+    if user.id:
+        application = get_object_or_404(models.Application, pk=application_id)
+        return application.manager == user
 
 
 
@@ -61,10 +67,10 @@ def can_modify_application(user, application_id, return_as_dict=False):
     my_dict = dict(can_modify=False, reason=_("You are not logged in"))
 
     if user.id:
-        my_dict["reason"] = "You do not have the permissions to modify this request"
+        my_dict["reason"] = "You do not have the permissions to modify this application"
         application = get_object_or_404(models.Application, pk=application_id)
         # check to see if they are the client
-        if is_client(user, application_id=application.id) and not application.submission_date:
+        if is_applicant(user, application_id=application.id) and not application.submission_date:
             my_dict["reason"] = "You can modify this record because you are the applicant!"
             my_dict["can_modify"] = True
         # check to see if they are the client
@@ -84,6 +90,39 @@ def can_modify_application(user, application_id, return_as_dict=False):
         #     my_dict["reason"] = "You can modify this record because you are a regional CSAS administrator"
         #     my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]
+
+
+
+
+def can_modify_recommendation(user, application_id, return_as_dict=False):
+    """
+    returns True if user has permissions to delete or modify an application
+    The answer of this question will depend on the business rules...
+
+    always: admin
+    if NOT submitted: applicant, created_by, manager?
+
+    """
+    my_dict = dict(can_modify=False, reason=_("You are not logged in"))
+
+    if user.id:
+        my_dict["reason"] = "You do not have the permissions to modify this recommendation"
+        application = get_object_or_404(models.Application, pk=application_id)
+        if hasattr(application, "recommendation"):
+            recommendation = application.recommendation
+            # check to see if they are the client
+            if is_manager(user, application_id=application.id) and not recommendation.manager_signed:
+                my_dict["reason"] = "You can modify this record because you are the active manager!"
+                my_dict["can_modify"] = True
+
+            # # are they a national administrator?
+            elif in_res_admin_group(user):
+                my_dict["reason"] = "You can modify this record because you are a system administrator"
+                my_dict["can_modify"] = True
+
+
+        return my_dict if return_as_dict else my_dict["can_modify"]
+
 
 
 def get_section_choices(with_application=False, full_name=True, region_filter=None, division_filter=None):

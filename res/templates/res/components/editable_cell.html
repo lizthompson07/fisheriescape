@@ -12,14 +12,20 @@
       <div class="col">
         <div v-if="display_field">
           <span v-if="object[display_field]" v-html="object[display_field]"></span>
-          <em v-else class="red-font">{% trans "missing" %}</em>
+          <div v-else>
+            <span v-if="null_mark" v-html="null_mark"></span>
+            <em v-else class="red-font">{% trans "missing" %}</em>
+          </div>
         </div>
         <div v-else>
-          <span v-if="input" v-html="input"></span>
-          <em v-else class="red-font">{% trans "missing" %}</em>
+          <span v-if="object[field]" v-html="object[field]"></span>
+          <div v-else>
+            <span v-if="null_mark" v-html="null_mark"></span>
+            <em v-else class="red-font">{% trans "missing" %}</em>
+          </div>
         </div>
       </div>
-      <div v-if="editable" class="col text-right">
+      <div v-if="editable" class="col-1 text-right">
         <button class="btn btn-sm btn-light" @click="toggleEditMode"><span class="mdi mdi-pencil"></span></button>
       </div>
     </div>
@@ -49,15 +55,20 @@
           id="my-input"
           @keypress="$emit('keypress')"
         ></textarea>
-        <input
-          v-else
-          :type="input_type" class="form-control" step="any"
-          v-model="input"
-          @change="update"
-          ref="input"
-          id="my-input"
-          @keypress="$emit('keypress')"
-        >
+        <div v-else>
+          <input
+            :type="input_type" class="form-control" step="any"
+            v-model="input"
+            @change="update"
+            ref="input"
+            id="my-input"
+            @keypress="$emit('keypress')"
+            list="mydatalist"
+          >
+          <datalist v-if="options && options.length" id="mydatalist">
+            <option v-for="(obj, index) in options" :value="obj.value"></option>
+          </datalist>
+        </div>
         <a v-if="markdown" href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"
            title="{% trans "Markdown syntax is supported in this field" %}">
           <span class="mdi mdi-language-markdown ml-1 py-0 lead helper" style="color: blue"></span>
@@ -112,6 +123,9 @@ Vue.component("editable-cell", {
       type: Array,
       required: false
     },
+    null_mark: {
+      type: String,
+    },
     blank_option: {
       type: String,
       required: false
@@ -119,7 +133,7 @@ Vue.component("editable-cell", {
   },
   data() {
     return {
-      input: null,
+      input: this.object[this.field],
       editMode: false,
     };
   },

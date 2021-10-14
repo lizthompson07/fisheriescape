@@ -24,6 +24,12 @@
     @keypress="unsavedChanges=true" @change="updateApplication"
   ></editable-cell>
   <editable-cell
+    :label="applicationLabels.manager"
+    :object="application" field="manager" display_field="manager_display"
+    :class="{'bad':unsavedChanges}" :editable="canModify" input_type="select" :options="applicantChoices"
+    @keypress="unsavedChanges=true" @change="updateApplication"
+  ></editable-cell>
+  <editable-cell
     :label="applicationLabels.application_start_date"
     :object="application" field="application_start_date" display_field="application_start_date_display"
     :class="{'bad':unsavedChanges}" :editable="canModify" input_type="date"
@@ -69,7 +75,7 @@
   <editable-cell
     :label="applicationLabels.work_location"
     :object="application" field="work_location"
-    :editable="canModify" :class="{'bad':unsavedChanges}"
+    :editable="canModify" :class="{'bad':unsavedChanges}" :options="orgChoices"
     @change="updateApplication" @keypress="unsavedChanges=true"
   ></editable-cell>
   <editable-cell
@@ -112,6 +118,17 @@
     :object="application" field="relevant_factors" display_field="relevant_factors_html"
     :markdown="true" :editable="canModify"
     :class="{'bad':unsavedChanges}" @change="updateApplication" @keypress="unsavedChanges=true"
+  ></editable-cell>
+  <editable-cell
+    :label="applicationLabels.submission_date"
+    :object="application"
+    field="submission_date_display"
+    null_mark="-----"
+  ></editable-cell>
+  <editable-cell
+    label="{% trans "Metadata" %}"
+    :object="application"
+    field="metadata"
   ></editable-cell>
 
 </div>

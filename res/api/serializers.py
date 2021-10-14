@@ -25,17 +25,31 @@ class ApplicationSerializer(serializers.ModelSerializer):
     objectives_html = serializers.SerializerMethodField()
     relevant_factors_html = serializers.SerializerMethodField()
     applicant_display = serializers.SerializerMethodField()
-
     target_group_level_display = serializers.SerializerMethodField()
     current_group_level_display = serializers.SerializerMethodField()
     section_display = serializers.SerializerMethodField()
-
     application_end_date_display = serializers.SerializerMethodField()
     application_start_date_display = serializers.SerializerMethodField()
-
     last_application_display = serializers.SerializerMethodField()
     last_promotion_display = serializers.SerializerMethodField()
     application_range_description = serializers.SerializerMethodField()
+    recommendation = serializers.SerializerMethodField()
+    is_complete = serializers.SerializerMethodField()
+    manager_display = serializers.SerializerMethodField()
+    submission_date = serializers.SerializerMethodField()
+
+    def get_submission_date(self, instance):
+        return date(instance.submission_date)
+
+    def get_manager_display(self, instance):
+        return str(instance.manager)
+
+    def get_is_complete(self, instance):
+        return instance.is_complete
+
+    def get_recommendation(self, instance):
+        if hasattr(instance, "recommendation"):
+            return instance.recommendation.id
 
     def get_application_range_description(self, instance):
         return instance.application_range_description
@@ -117,6 +131,35 @@ class ApplicationSerializer(serializers.ModelSerializer):
             raise ValidationError(msg)
 
         return attrs
+
+
+class RecommendationSerializer(serializers.ModelSerializer):
+    recommendation_text_html = serializers.SerializerMethodField()
+    applicant_comment_html = serializers.SerializerMethodField()
+    manager_signed_display = serializers.SerializerMethodField()
+    applicant_signed_display = serializers.SerializerMethodField()
+
+    decision_display = serializers.SerializerMethodField()
+
+    def get_decision_display(self, instance):
+        return instance.get_decision_display()
+
+    def get_manager_signed_display(self, instance):
+        return date(instance.manager_signed)
+
+    def get_applicant_signed_display(self, instance):
+        return date(instance.applicant_signed)
+
+    def get_applicant_comment_html(self, instance):
+        return instance.applicant_comment_html
+
+    def get_recommendation_text_html(self, instance):
+        return instance.recommendation_text_html
+
+    class Meta:
+        model = models.Recommendation
+        fields = "__all__"
+
 #
 #
 # class ObservationSerializer(serializers.ModelSerializer):

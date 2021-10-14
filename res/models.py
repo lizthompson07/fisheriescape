@@ -50,6 +50,8 @@ class PublicationType(SimpleLookup):
 class Application(MetadataFields):
     # mandatories
     applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("applicant name"), related_name="res_applications")
+    manager = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("manager name"), related_name="manager_res_applications",
+                                help_text=_("This is the person who will provide a recommendation on this application"))
     current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current", verbose_name=_("Current Group/Level"))
     target_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_target",
                                            verbose_name=_("Group/level being sought"))
@@ -124,17 +126,32 @@ class Application(MetadataFields):
         if self.relevant_factors:
             return markdown(self.relevant_factors)
 
+    @property
+    def is_complete(self):
+        """placeholder"""
+        return True
+
 
 class Recommendation(MetadataFields):
     application = models.OneToOneField(Application, on_delete=models.CASCADE, related_name="recommendation")
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("DM Apps user"), related_name="res_recommendations")
-    recommendation_text = models.TextField(blank=True, null=True, verbose_name=_("recommendation text"), help_text=_("no more than 250 words"))
-    decision = models.IntegerField(verbose_name=_("Recommendation decision"), choices=model_choices.decision_choices)
-    applicant_comment = models.TextField(blank=True, null=True, verbose_name=_("applicant comments (optional)"), help_text=_("no more than 250 words"))
+    recommendation_text = models.TextField(blank=True, null=True, verbose_name=_("manager's assessment"), help_text=_("no more than 250 words"))
+    decision = models.IntegerField(verbose_name=_("decision"), choices=model_choices.decision_choices, blank=True, null=True)
+    applicant_comment = models.TextField(blank=True, null=True, verbose_name=_("applicant comment"), help_text=_("no more than 250 words"))
 
     # non-editables
-    manager_signed = models.DateTimeField(verbose_name=_("date signed by manager"), editable=False)
-    applicant_signed = models.DateTimeField(verbose_name=_("date signed by applicant"), editable=False)
+    manager_signed = models.DateTimeField(verbose_name=_("signed by manager"), editable=False, blank=True, null=True)
+    applicant_signed = models.DateTimeField(verbose_name=_("signed by applicant"), editable=False, blank=True, null=True)
+
+    @property
+    def recommendation_text_html(self):
+        if self.recommendation_text:
+            return markdown(self.recommendation_text)
+
+    @property
+    def applicant_comment_html(self):
+        if self.applicant_comment:
+            return markdown(self.applicant_comment)
 
 
 class ApplicationOutcome(MetadataFields):

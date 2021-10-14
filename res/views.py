@@ -11,7 +11,7 @@ from lib.functions.custom_functions import listrify
 from res.mixins import LoginAccessRequiredMixin, ResAdminRequiredMixin, CanModifyApplicationRequiredMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonCreateView, CommonFilterView, CommonDetailView, \
     CommonUpdateView, CommonDeleteView
-from . import models, forms, filters, utils
+from . import models, forms, filters, utils, emails
 from .utils import in_res_admin_group
 
 
@@ -231,36 +231,39 @@ class ApplicationDeleteView(CanModifyApplicationRequiredMixin, CommonDeleteView)
         return {"title": self.get_object(), "url": reverse_lazy("res:request_detail", args=[self.get_object().id])}
 
 
-# class ApplicationSubmitView(ApplicationUpdateView):
-#     template_name = 'res/request_submit.html'
-#     form_class = forms.TripRequestTimestampUpdateForm
-#     submit_text = gettext_lazy("Proceed")
-#     h2 = None
-#
-#     def get_h1(self):
-#         my_object = self.get_object()
-#         if my_object.submission_date:
-#             return _("Do you wish to un-submit the following request?")
-#         else:
-#             return _("Do you wish to submit the following request?")
-#
-#     def get_parent_crumb(self):
-#         return {"title": truncate(self.get_object().title, 50), "url": reverse_lazy("res:request_detail", args=[self.get_object().id])}
-#
-#     def form_valid(self, form):
-#         obj = form.save(commit=False)
-#         obj.updated_by = self.request.user
-#         if obj.submission_date:
-#             obj.submission_date = None
-#         else:
-#             obj.submission_date = timezone.now()
-#         obj.save()
-#
-#         # if the request was just submitted, send an email
-#         if obj.submission_date:
-#             email = emails.NewRequestEmail(self.request, obj)
-#             email.send()
-#         return HttpResponseRedirect(self.get_success_url())
+class ApplicationSubmitView(ApplicationUpdateView):
+    template_name = 'res/application_submit.html'
+    form_class = forms.ApplicationTimestampUpdateForm
+    submit_text = gettext_lazy("Proceed")
+    h2 = None
+
+    def get_h1(self):
+        my_object = self.get_object()
+        if my_object.submission_date:
+            return _("Do you wish to un-submit the following application?")
+        else:
+            return _("Do you wish to submit the following application?")
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("res:application_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        if obj.submission_date:
+            obj.submission_date = None
+        else:
+            obj.submission_date = timezone.now()
+        obj.save()
+
+        # if the request was just submitted, send an email
+        if obj.submission_date:
+            # create a recommendation
+            recommendation, created = models.Recommendation.objects.get_or_create(application=obj, user=obj.manager)
+            email = emails.NewRecommendationEmail(self.request, recommendation)
+            email.send()
+
+        return HttpResponseRedirect(self.get_success_url())
 
 
 # class ApplicationCloneUpdateView(ApplicationUpdateView):

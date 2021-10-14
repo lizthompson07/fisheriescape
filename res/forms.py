@@ -86,6 +86,7 @@ class ApplicationForm(forms.ModelForm):
         model = models.Application
         fields = [
             "applicant",
+            "manager",
             "current_group_level",
             "target_group_level",
             "section",
@@ -101,3 +102,16 @@ class ApplicationForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = section_choices
+
+
+
+class ApplicationTimestampUpdateForm(forms.ModelForm):
+    class Meta:
+        model = models.Application
+        fields = [
+            "work_location",
+        ]
+        widgets = {
+            "work_location": forms.HiddenInput()
+        }
+
