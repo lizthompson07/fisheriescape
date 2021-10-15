@@ -95,6 +95,7 @@ class ApplicationForm(forms.ModelForm):
         ]
         widgets = {
             'applicant': forms.Select(attrs=chosen_js),
+            'manager': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
             'application_start_date': forms.DateTimeInput(attrs=dict(type="date")),
             'application_end_date': forms.DateTimeInput(attrs=dict(type="date")),

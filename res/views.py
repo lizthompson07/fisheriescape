@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.functions.custom_functions import listrify
-from res.mixins import LoginAccessRequiredMixin, ResAdminRequiredMixin, CanModifyApplicationRequiredMixin
+from res.mixins import LoginAccessRequiredMixin, ResAdminRequiredMixin, CanModifyApplicationRequiredMixin, CanViewApplicationRequiredMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonCreateView, CommonFilterView, CommonDetailView, \
     CommonUpdateView, CommonDeleteView
 from . import models, forms, filters, utils, emails
@@ -151,7 +151,7 @@ class ApplicationListView(LoginAccessRequiredMixin, CommonFilterView):
 
 
 
-class ApplicationDetailView(LoginAccessRequiredMixin, CommonDetailView):
+class ApplicationDetailView(CanViewApplicationRequiredMixin, CommonDetailView):
     model = models.Application
     template_name = 'res/application_detail/main.html'
     home_url_name = "res:index"
@@ -176,6 +176,7 @@ class ApplicationCreateView(LoginAccessRequiredMixin, CommonCreateView):
     def get_initial(self):
         return dict(
             applicant=self.request.user,
+            application_start_date=datetime(year=timezone.now().year, month=1, day=1).strftime("%Y-%m-%d"),
             application_end_date=datetime(year=timezone.now().year, month=12, day=31).strftime("%Y-%m-%d")
         )
 
@@ -186,6 +187,13 @@ class ApplicationCreateView(LoginAccessRequiredMixin, CommonCreateView):
 
     def form_valid(self, form):
         obj = form.save(commit=False)
+        obj.created_by = self.request.user
+        super().form_valid(form)
+
+        # attach all possible outcomes
+        for o in models.Outcome.objects.all():
+            models.ApplicationOutcome.objects.create(application=obj, outcome=o)
+
         # range = form.cleaned_data["date_range"]
         # if range:
         #     range = range.split("to")
@@ -196,31 +204,30 @@ class ApplicationCreateView(LoginAccessRequiredMixin, CommonCreateView):
         #         obj.application_end_date = end_date
         #     else:
         #         obj.application_end_date = start_date
-        obj.created_by = self.request.user
         return super().form_valid(form)
 
 
-
-class ApplicationUpdateView(CanModifyApplicationRequiredMixin, CommonUpdateView):
-    model = models.Application
-    form_class = forms.ApplicationForm
-    template_name = 'res/form.html'
-    home_url_name = "res:index"
-    grandparent_crumb = {"title": gettext_lazy("Applications"), "url": reverse_lazy("res:application_list")}
-    h2 = gettext_lazy("All fields are mandatory before approvals and submission")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["is_admin"] = in_res_admin_group(self.request.user)
-        return context
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("res:request_detail", args=[self.get_object().id])}
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.updated_by = self.request.user
-        return super().form_valid(form)
+#
+# class ApplicationUpdateView(CanModifyApplicationRequiredMixin, CommonUpdateView):
+#     model = models.Application
+#     form_class = forms.ApplicationForm
+#     template_name = 'res/form.html'
+#     home_url_name = "res:index"
+#     grandparent_crumb = {"title": gettext_lazy("Applications"), "url": reverse_lazy("res:application_list")}
+#     h2 = gettext_lazy("All fields are mandatory before approvals and submission")
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["is_admin"] = in_res_admin_group(self.request.user)
+#         return context
+#
+#     def get_parent_crumb(self):
+#         return {"title": self.get_object(), "url": reverse_lazy("res:request_detail", args=[self.get_object().id])}
+#
+#     def form_valid(self, form):
+#         obj = form.save(commit=False)
+#         obj.updated_by = self.request.user
+#         return super().form_valid(form)
 
 
 class ApplicationDeleteView(CanModifyApplicationRequiredMixin, CommonDeleteView):
@@ -231,14 +238,18 @@ class ApplicationDeleteView(CanModifyApplicationRequiredMixin, CommonDeleteView)
     grandparent_crumb = {"title": gettext_lazy("Applications"), "url": reverse_lazy("res:application_list")}
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("res:request_detail", args=[self.get_object().id])}
+        return {"title": self.get_object(), "url": reverse_lazy("res:application_detail", args=[self.get_object().id])}
 
 
-class ApplicationSubmitView(ApplicationUpdateView):
+class ApplicationSubmitView(CanModifyApplicationRequiredMixin, CommonUpdateView):
+    model = models.Application
+    home_url_name = "res:index"
     template_name = 'res/application_submit.html'
     form_class = forms.ApplicationTimestampUpdateForm
     submit_text = gettext_lazy("Proceed")
+    grandparent_crumb = {"title": gettext_lazy("Applications"), "url": reverse_lazy("res:application_list")}
     h2 = None
+
 
     def get_h1(self):
         my_object = self.get_object()

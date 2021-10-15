@@ -50,11 +50,23 @@ class ApplicationViewSet(ModelViewSet):
         "status",
     ]
 
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
 
 class RecommendationViewSet(ModelViewSet):
     serializer_class = serializers.RecommendationSerializer
     # permission_classes = [CanModifyApplicationOrReadOnly]
     queryset = models.Recommendation.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
 
     def post(self, request, pk):
         qp = request.query_params
@@ -104,6 +116,48 @@ class RecommendationViewSet(ModelViewSet):
             return Response(serializers.RecommendationSerializer(recommendation).data, status.HTTP_200_OK)
 
         raise ValidationError(_("This endpoint cannot be used without a query param"))
+
+
+class ApplicationOutcomeViewSet(ModelViewSet):
+    queryset = models.ApplicationOutcome.objects.all()
+    serializer_class = serializers.ApplicationOutcomeSerializer
+    permission_classes = [CanModifyApplicationOrReadOnly]
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("application"):
+            application = get_object_or_404(models.Application, pk=qp.get("application"))
+            qs = application.outcomes.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a RES application"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+
+class AchievementViewSet(ModelViewSet):
+    queryset = models.Achievement.objects.all()
+    serializer_class = serializers.AchievementSerializer
+    permission_classes = [CanModifyApplicationOrReadOnly]
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("application"):
+            application = get_object_or_404(models.Application, pk=qp.get("application"))
+            qs = application.achievements.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a RES application"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
 
 
 #
@@ -185,6 +239,16 @@ class ApplicationModelMetaAPIView(APIView):
 
 
 class RecommendationModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Recommendation
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        data['decision_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.decision_choices]
+        return Response(data)
+
+class AchievementModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.Recommendation
 

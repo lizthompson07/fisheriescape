@@ -31,6 +31,9 @@ class Outcome(Lookup):
     class Meta:
         ordering = ["context", "name"]
 
+    def __str__(self):
+        return f"{self.context} - {self.tname}"
+
 
 class AchievementCategory(SimpleLookup):
     code = models.CharField(max_length=5, verbose_name=_("category code"))
@@ -52,10 +55,11 @@ class Application(MetadataFields):
     applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("researcher name"), related_name="res_applications")
     manager = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("manager name"), related_name="manager_res_applications",
                                 help_text=_("This is the person who will provide a recommendation on this application"))
-    current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current", verbose_name=_("Current group / level"))
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="res_applications", verbose_name=_("DFO section"))
+    current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current",
+                                            verbose_name=_("Current group / level"))
     target_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_target",
                                            verbose_name=_("Group / level being sought"))
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="res_applications", verbose_name=_("DFO section"))
     application_start_date = models.DateTimeField(verbose_name=_("application start date"))
     application_end_date = models.DateTimeField(verbose_name=_("application end date"))
 
@@ -170,9 +174,25 @@ class ApplicationOutcome(MetadataFields):
     outcome = models.ForeignKey(Outcome, on_delete=models.CASCADE, related_name="outcomes")
     text = models.TextField(blank=True, null=True, verbose_name=_("text"))
 
+    def __str__(self):
+        return f"{self.outcome}"
 
-class ApplicationAchievement(MetadataFields):
+    @property
+    def text_html(self):
+        if self.text:
+            return markdown(self.text)
+
+
+class Achievement(MetadataFields):
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="achievements")
     category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements")
     date = models.DateTimeField(verbose_name=_("date of publication / achievement"), editable=False)
     detail = models.TextField(verbose_name=_("detail"))
+
+    def __str__(self):
+        return f"{self.category}"
+
+    @property
+    def detail_html(self):
+        if self.detail:
+            return markdown(self.detail)

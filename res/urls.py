@@ -25,7 +25,7 @@ urlpatterns = [
     path('applications/', views.ApplicationListView.as_view(), name="application_list"),
     path('applications/new/', views.ApplicationCreateView.as_view(), name="application_new"),
     path('applications/<int:pk>/view/', views.ApplicationDetailView.as_view(), name="application_detail"),
-    path('applications/<int:pk>/edit/', views.ApplicationUpdateView.as_view(), name="application_edit"),
+    # path('applications/<int:pk>/edit/', views.ApplicationUpdateView.as_view(), name="application_edit"),
     path('applications/<int:pk>/delete/', views.ApplicationDeleteView.as_view(), name="application_delete"),
     path('applications/<int:pk>/submit/', views.ApplicationSubmitView.as_view(), name="application_submit"),
 

@@ -17,11 +17,11 @@ class CanModifyApplicationOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         else:
-            request_id = None
+            application_id = None
             if isinstance(obj, models.Application):
-                request_id = obj.id
-            # elif isinstance(obj, models.CSASRequestReview) or isinstance(obj, models.CSASRequestNote):
-            #     request_id = obj.csas_request.id
-            return can_modify_application(request.user, request_id)
+                application_id = obj.id
+            elif isinstance(obj, models.ApplicationOutcome) or isinstance(obj, models.Achievement):
+                application_id = obj.application.id
+            return can_modify_application(request.user, application_id)
 
 

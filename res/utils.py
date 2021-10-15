@@ -1,13 +1,8 @@
-import math
-
-from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext as _
-
 from django.contrib.auth.models import Group
-
-
 # open basic access up to anybody who is logged in
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 
 from res import models
 from shared_models.models import Section, Division, Branch, Sector, Region
@@ -34,8 +29,6 @@ def get_related_applications(user):
     return qs
 
 
-
-
 def is_applicant(user, application_id):
     if user.id:
         application = get_object_or_404(models.Application, pk=application_id)
@@ -52,7 +45,6 @@ def is_manager(user, application_id):
     if user.id:
         application = get_object_or_404(models.Application, pk=application_id)
         return application.manager == user
-
 
 
 def can_modify_application(user, application_id, return_as_dict=False):
@@ -92,6 +84,26 @@ def can_modify_application(user, application_id, return_as_dict=False):
         return my_dict if return_as_dict else my_dict["can_modify"]
 
 
+def can_view_application(user, application_id):
+    """
+    returns True if user has permissions to delete or modify an application
+    The answer of this question will depend on the business rules...
+
+    always: admin
+    if NOT submitted: applicant, created_by, manager?
+
+    """
+    if user.id:
+        application = get_object_or_404(models.Application, pk=application_id)
+        # check to see if they are the client
+        if is_applicant(user, application_id=application.id):
+            return True
+        # check to see if they are the client
+        elif is_creator(user, application_id=application.id):
+            return True
+        # # are they a national administrator?
+        elif in_res_admin_group(user):
+            return True
 
 
 def can_modify_recommendation(user, application_id, return_as_dict=False):
@@ -120,9 +132,7 @@ def can_modify_recommendation(user, application_id, return_as_dict=False):
             #     my_dict["reason"] = "You can modify this record because you are a system administrator"
             #     my_dict["can_modify"] = True
 
-
         return my_dict if return_as_dict else my_dict["can_modify"]
-
 
 
 def get_section_choices(with_application=False, full_name=True, region_filter=None, division_filter=None):
@@ -177,5 +187,3 @@ def get_region_choices(with_application=False):
     region_list = set([Sector.objects.get(pk=s[0]).region_id for s in get_sector_choices(with_application=with_application)])
     return [(r.id, str(r)) for r in
             Region.objects.filter(id__in=region_list).order_by("name", )]
-
-

@@ -160,6 +160,52 @@ class RecommendationSerializer(serializers.ModelSerializer):
         model = models.Recommendation
         fields = "__all__"
 
+
+class ApplicationOutcomeSerializer(serializers.ModelSerializer):
+    text_html = serializers.SerializerMethodField()
+    created_at_display = serializers.SerializerMethodField()
+    updated_at_display = serializers.SerializerMethodField()
+
+    def get_created_at_display(self, instance):
+        return date(instance.created_at, "DATETIME_FORMAT")
+
+    def get_updated_at_display(self, instance):
+        return date(instance.updated_at, "DATETIME_FORMAT")
+
+    def get_text_html(self, instance):
+        return instance.recommendation_text_html
+
+    class Meta:
+        model = models.ApplicationOutcome
+        fields = "__all__"
+
+
+class AchievementSerializer(serializers.ModelSerializer):
+    text_html = serializers.SerializerMethodField()
+    created_at_display = serializers.SerializerMethodField()
+    updated_at_display = serializers.SerializerMethodField()
+    date_display = serializers.SerializerMethodField()
+    category_display = serializers.SerializerMethodField()
+
+    def get_category_display(self, instance):
+        return instance.get_category_display()
+
+    def get_date_display(self, instance):
+        return date(instance.date)
+
+    def get_created_at_display(self, instance):
+        return date(instance.created_at, "DATETIME_FORMAT")
+
+    def get_updated_at_display(self, instance):
+        return date(instance.updated_at, "DATETIME_FORMAT")
+
+    def get_text_html(self, instance):
+        return instance.recommendation_text_html
+
+    class Meta:
+        model = models.Achievement
+        fields = "__all__"
+
 #
 #
 # class ObservationSerializer(serializers.ModelSerializer):

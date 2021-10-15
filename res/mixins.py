@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from . import models
-from .utils import in_res_crud_group, in_res_admin_group, can_modify_application
+from .utils import in_res_crud_group, in_res_admin_group, can_modify_application, can_view_application
 
 
 class LoginAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -40,9 +40,6 @@ class ResAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-
-
-
 class CanModifyApplicationRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         # the assumption is that either we are passing in a Project object or an object that has a project as an attribute
@@ -62,6 +59,33 @@ class CanModifyApplicationRequiredMixin(LoginRequiredMixin, UserPassesTestMixin)
         finally:
             if application_id:
                 return can_modify_application(self.request.user, application_id)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:denied_access'))
+        return super().dispatch(request, *args, **kwargs)
+
+
+class CanViewApplicationRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        # the assumption is that either we are passing in a Project object or an object that has a project as an attribute
+        application_id = None
+        try:
+            obj = self.get_object()
+            if isinstance(obj, models.Application):
+                application_id = obj.id
+            # elif isinstance(obj, models.CSASRequestReview) or isinstance(obj, models.CSASRequestFile):
+            #     request_id = obj.csas_request_id
+
+        except AttributeError:
+            pass
+            if self.kwargs.get("application"):
+                application_id = self.kwargs.get("application")
+
+        finally:
+            if application_id:
+                return can_view_application(self.request.user, application_id)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
