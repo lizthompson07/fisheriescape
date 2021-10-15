@@ -111,16 +111,12 @@
       applicationLabels: {},
       recommendationLabels: {},
       errors: null,
-      unsavedChanges: false, // currently unused
-      applicationErrorMsg: null, // currently unused
+      unsavedChanges: false,
       applicantChoices: [],
       groupLevelChoices: [],
       sectionChoices: [],
       orgChoices: [],
       decisionChoices: [],
-      //decisionChoices: [],
-      //notes: [],
-      //showSidebar: true,
     },
     methods: {
       getCurrentUser() {
@@ -130,8 +126,8 @@
               this.currentUser = response;
             })
       },
-      getApplication() {
-        this.loadingApplication = true;
+      getApplication(reload = true) {
+        if (reload) this.loadingApplication = true;
         let endpoint = `/api/res/applications/${applicationId}/`;
         apiService(endpoint).then(data => {
           if (data) {
@@ -141,12 +137,12 @@
             if (data.last_application) data.last_application = data.last_application.split("T")[0];
             this.application = data;
             this.loadingApplication = false;
-            if (data.recommendation) this.getRecommendation(data.recommendation);
+            if (data.recommendation) this.getRecommendation(data.recommendation, reload);
           }
         });
       },
-      getRecommendation(recommendationId) {
-        this.loadingRecommendation = true;
+      getRecommendation(recommendationId, reload = true) {
+        if (reload) this.loadingRecommendation = true;
         let endpoint = `/api/res/recommendations/${recommendationId}/`;
         apiService(endpoint).then(data => {
           if (data) {
@@ -156,41 +152,45 @@
         });
       },
       cleanApplication(application) {
-        for (const applicationKey in application) {
-          if (application[applicationKey] === "") application[applicationKey] = null;
-        }
+        for (const applicationKey in application) if (application[applicationKey] === "") application[applicationKey] = null;
         if (application.application_start_date) application.application_start_date = application.application_start_date + "T12:00:00";
         if (application.application_end_date) application.application_end_date = application.application_end_date + "T12:00:00";
         if (application.last_application) application.last_application = application.last_application + "T12:00:00";
         if (application.last_promotion) application.last_promotion = application.last_promotion + "T12:00:00";
         return application;
       },
-      cleanRecommendation(recommendation) {
-        for (const recommendationKey in recommendation) {
-          if (recommendation[recommendationKey] === "") recommendation[recommendationKey] = null;
-        }
-        return recommendation;
-      },
+
       updateApplication(application) {
-        this.applicationErrorMsg = null;
+        this.errors = null;
         endpoint = `/api/res/applications/${application.id}/`;
         application = this.cleanApplication(application);
         apiService(endpoint, "PUT", application)
             .then(response => {
-              if (!response.id) this.applicationErrorMsg = groomJSON(response);
-              else this.unsavedChanges = false;
-              this.getApplication(application)
+              if (!response.id) {
+                this.errors = groomJSON(response);
+                this.$nextTick(() => {
+                  this.$refs.errors.focus();
+                });
+              } else this.unsavedChanges = false;
+              this.getApplication(application, reload = false)
             })
       },
+      cleanRecommendation(recommendation) {
+        for (const recommendationKey in recommendation) if (recommendation[recommendationKey] === "") recommendation[recommendationKey] = null;
+        return recommendation;
+      },
       updateRecommendation(recommendation) {
-        console.log(recommendation)
-        this.applicationErrorMsg = null;
+        this.errors = null;
         endpoint = `/api/res/recommendations/${recommendation.id}/`;
         recommendation = this.cleanRecommendation(recommendation);
         apiService(endpoint, "PUT", recommendation)
             .then(response => {
-              if (!response.id) this.recommendationErrorMsg = groomJSON(response);
-              else this.unsavedChanges = false;
+              if (!response.id) {
+                this.errors = groomJSON(response);
+                this.$nextTick(() => {
+                  this.$refs.errors.focus();
+                });
+              } else this.unsavedChanges = false;
               this.getRecommendation(recommendation.id)
             })
       },
@@ -219,6 +219,9 @@
       },
       isManager() {
         return this.currentUser.is_manager;
+      },
+      isApplicant() {
+        return this.currentUser.is_applicant;
       }
     },
     filters: {

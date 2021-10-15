@@ -6,13 +6,13 @@
   </div>
 </div>
 
-<div v-else class="table table-sm">
+<div class="table table-sm">
   <editable-cell
     key="r1"
     :label="recommendationLabels.recommendation_text" :object="recommendation" field="recommendation_text"
     display_field="recommendation_text_html"
     input_type="textarea" :markdown="true"
-    :editable="canModifyRecommendation"
+    :editable="canModifyRecommendation" :dirty="unsavedChanges"
     @change="updateRecommendation" @keypress="unsavedChanges=true"
   ></editable-cell>
 
@@ -34,10 +34,10 @@
       <div v-if="recommendation.manager_signed">
         ${recommendation.manager_signed_display}
       </div>
-      <div v-else-if="isManager">
+      <div v-else-if="isManager && application.submission_date">
         <div v-if="recommendation.decision === null || recommendation.recommendation_text === null">
           <span data-toggle="tooltip" title="{% trans "Cannot sign until all required fields have been completed." %}">
-            <button class="btn btn-xs btn-danger helper" disabled>{% trans "Sign Now!" %}</button>
+            <button @click="updateRecommendation(recommendation)" class="btn btn-xs btn-danger helper" disabled>{% trans "Sign Now!" %}</button>
           </span>
         </div>
         <div v-else>
@@ -61,7 +61,7 @@
       <div v-if="recommendation.applicant_signed">
         ${recommendation.applicant_signed_display}
       </div>
-      <div v-else-if="isApplicant">
+      <div v-else-if="isApplicant && application.submission_date">
         <div v-if="!recommendation.manager_signed">
           <span data-toggle="tooltip" title="{% trans "Cannot sign until has been signed by manager." %}">
             <button class="btn btn-xs btn-danger helper" disabled>{% trans "Sign Now!" %}</button>

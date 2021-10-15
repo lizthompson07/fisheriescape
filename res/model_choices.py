@@ -19,8 +19,10 @@ application_status_choices = (
     (10, _("Draft")),
     (20, _("Submitted")),
     (30, _("Awaiting manager decision")),  # client submits request
-    (40, _("Awaiting applicant signature decision")),  # client submits request
+    (40, _("Awaiting applicant signature")),  # client submits request
     (50, _("Under further review")),  # ??
+    (90, _("Not approved")),  # ??
+    (100, _("Approved")),  # ??
 )
 #
 # request_decision_choices = (

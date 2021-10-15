@@ -1,12 +1,14 @@
 {% load i18n %}
 
+{% include "res/application_detail/_error_alert.html" %}
+
 <div v-if="loadingApplication" class="loading mb-3 mt-3 mt-5">
   <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
     <span class="sr-only"></span>
   </div>
 </div>
 
-<div v-else class="table table-sm">
+<div class="table table-sm">
   <editable-cell
     :label="applicationLabels.fiscal_year"
     :object="application"
@@ -95,20 +97,20 @@
     :label="applicationLabels.academic_background" :object="application" field="academic_background"
     display_field="academic_background_html"
     input_type="textarea" :markdown="true"
-    :editable="canModify" 
+    :editable="canModify" :dirty="unsavedChanges"
     @change="updateApplication" @keypress="unsavedChanges=true"
   ></editable-cell>
   <editable-cell
     input_type="textarea"
     :label="applicationLabels.employment_history" :object="application"
     field="employment_history" display_field="employment_history_html"
-    :markdown="true" :editable="canModify" 
+    :markdown="true" :editable="canModify" :dirty="unsavedChanges"
     @change="updateApplication" @keypress="unsavedChanges=true"
   ></editable-cell>
   <editable-cell
     input_type="textarea"
     :label="applicationLabels.objectives"
-    :object="application"
+    :object="application" :dirty="unsavedChanges"
     field="objectives" display_field="objectives_html"
     :markdown="true" :editable="canModify"  @change="updateApplication" @keypress="unsavedChanges=true"
   ></editable-cell>
@@ -116,7 +118,7 @@
     input_type="textarea"
     :label="applicationLabels.relevant_factors"
     :object="application" field="relevant_factors" display_field="relevant_factors_html"
-    :markdown="true" :editable="canModify"
+    :markdown="true" :editable="canModify" :dirty="unsavedChanges"
      @change="updateApplication" @keypress="unsavedChanges=true"
   ></editable-cell>
   <editable-cell

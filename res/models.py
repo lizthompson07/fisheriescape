@@ -80,10 +80,10 @@ class Application(MetadataFields):
         self.fiscal_year_id = fiscal_year(self.application_end_date, sap_style=True)
 
         # look at the review to help determine the status
-        self.status = 1  # draft
+        self.status = 10  # draft
         if self.submission_date:
             self.status = 20  # submitted
-        if hasattr(self, "recommendation") and self.recommendation.id:
+        elif self.submission_date and hasattr(self, "recommendation") and self.recommendation.id:
             self.status = 30  # submitted
             if self.recommendation.manager_signed:
                 self.status = 40  #

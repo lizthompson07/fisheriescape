@@ -1,8 +1,10 @@
 from datetime import datetime
 
+from django.db import IntegrityError
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
@@ -259,7 +261,12 @@ class ApplicationSubmitView(ApplicationUpdateView):
         # if the request was just submitted, send an email
         if obj.submission_date:
             # create a recommendation
-            recommendation, created = models.Recommendation.objects.get_or_create(application=obj, user=obj.manager)
+            try:
+                recommendation, created = models.Recommendation.objects.get_or_create(application=obj, user=obj.manager)
+            except IntegrityError:
+                # means that there was a change in manager. Need to delete old recommendation and create new one
+                get_object_or_404(models.Recommendation, application=obj).delete()
+                recommendation, created = models.Recommendation.objects.get_or_create(application=obj, user=obj.manager)
             email = emails.NewRecommendationEmail(self.request, recommendation)
             email.send()
 
