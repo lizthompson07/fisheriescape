@@ -185,9 +185,10 @@ class ApplicationOutcome(MetadataFields):
 
 class Achievement(MetadataFields):
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="achievements")
-    category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements")
-    date = models.DateTimeField(verbose_name=_("date of publication / achievement"), editable=False)
-    detail = models.TextField(verbose_name=_("detail"))
+    category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True)
+    publication_type = models.ForeignKey(PublicationType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True)
+    date = models.DateTimeField(verbose_name=_("date of publication / achievement"), editable=False, blank=True, null=True)
+    detail = models.TextField(verbose_name=_("detail"), blank=True, null=True)
 
     def __str__(self):
         return f"{self.category}"

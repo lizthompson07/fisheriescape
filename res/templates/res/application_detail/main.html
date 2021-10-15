@@ -34,22 +34,13 @@
       </div>
 
       <div class="mb-3 float-right">
-        {#        {% if object.submission_date %}#}
-        {#          <button v-if="!application.review" class="btn btn-sm btn-dark" @click="primeReview">{% trans "Start a Review" %}</button>#}
-        {#          {% if not object.processes.exists %}#}
-        {#            <a v-if="canModify" class="btn btn-sm btn-dark" href="{% url 'res:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>#}
-        {#          {% endif %}#}
-        {#        {% endif %}#}
       </div>
       <div class="mb-3">
-        {#            <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'res:application_edit' object.id %}">{% trans "Edit" %}</a>#}
 
         <span v-if="canModify">
-{#              <a v-if="application.submission_date" class="btn btn-sm btn-primary" href="{% url 'res:application_submit' object.id %}">#}
               <a v-if="application.submission_date" class="btn btn-sm btn-primary" href="{% url 'res:application_submit' object.id %}">
                 {% trans "Un-Submit" %}
               </a>
-{#              <a v-else-if="application.is_complete" class="btn btn-sm btn-primary" href="{% url 'res:application_submit' object.id %}">#}
               <a v-else-if="application.is_complete" class="btn btn-sm btn-primary" href="{% url 'res:application_submit' object.id %}">
                 {% trans "Submit" %}
               </a>
@@ -72,11 +63,24 @@
         {% endif %}
       </div>
       <div class="mb-5">
-        <p class="lead">{% trans "Basic Information" %}</p>
+        <p class="lead">{% trans "BASIC INFORMATION" %}</p>
         {% include "res/application_detail/_basic.html" %}
       </div>
-      <div v-if="recommendation.id" class="mb-5">
-        <p class="lead">{% trans "Accountable Manager’s Assessment and Recommendation" %}</p>
+      <div class="mb-5">
+        <p class="lead">{% trans "CONTEXTS AND VALUED OUTCOMES" %}</p>
+        {% include "res/application_detail/_outcomes.html" %}
+      </div>
+
+      <div class="mb-5">
+        <button class="float-right btn btn-primary" data-toggle="tooltip" title="{% trans "Add an achievement" %}" @click="newAchievement">
+          <span class="mdi mdi-plus text-light"></span>
+        </button>
+        <p class="lead">{% trans "LISTS OF ACHIEVEMENTS AND CONTRIBUTIONS" %}</p>
+        {% include "res/application_detail/_achievements.html" %}
+      </div>
+
+      <div v-if="application.submission_date && recommendation.id" class="mb-5">
+        <p class="lead">{% trans "ACCOUNTABLE MANAGER’S ASSESSMENT AND RECOMMENDATION" %}</p>
         {% include "res/application_detail/_recommendation.html" %}
       </div>
 
@@ -106,8 +110,12 @@
       currentUser: {},
       loadingApplication: false,
       loadingRecommendation: false,
+      loadingOutcomes: false,
+      loadingAchievements: false,
       application: {},
       recommendation: {},
+      outcomes: [],
+      achievements: [],
       applicationLabels: {},
       recommendationLabels: {},
       errors: null,
@@ -117,6 +125,8 @@
       sectionChoices: [],
       orgChoices: [],
       decisionChoices: [],
+      publicationTypeChoices: [],
+      categoryChoices: [],
     },
     methods: {
       getCurrentUser() {
@@ -138,6 +148,8 @@
             this.application = data;
             if (reload) this.loadingApplication = false;
             if (data.recommendation) this.getRecommendation(data.recommendation, reload);
+            this.getOutcomes();
+            this.getAchievements();
           }
         });
       },
@@ -151,6 +163,38 @@
           }
         });
       },
+      getOutcomes(reload = true) {
+        if (reload) this.loadingOutcomes = true;
+        let endpoint = `/api/res/outcomes/?application=${applicationId}`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.outcomes = data;
+            if (reload) this.loadingOutcomes = false;
+          }
+        });
+      },
+      getAchievements(reload = true) {
+        if (reload) this.loadingAchievements = true;
+        let endpoint = `/api/res/achievements/?application=${applicationId}`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.achievements = data;
+            if (reload) this.loadingAchievements = false;
+          }
+        });
+      },
+      newAchievement() {
+        let endpoint = `/api/res/achievements/`;
+        apiService(endpoint, "POST", {application: applicationId}).then(data => {
+          this.achievements.push(data)
+        });
+      },
+      deleteAchievement(achievement) {
+        let endpoint = `/api/res/achievements/${achievement.id}`;
+        apiService(endpoint, "DELETE").then(data => {
+          this.$delete(this.achievements, this.achievements.indexOf(data))
+        });
+      },
       cleanApplication(application) {
         for (const applicationKey in application) if (application[applicationKey] === "") application[applicationKey] = null;
         if (application.application_start_date) application.application_start_date = application.application_start_date + "T12:00:00";
@@ -159,7 +203,6 @@
         if (application.last_promotion) application.last_promotion = application.last_promotion + "T12:00:00";
         return application;
       },
-
       updateApplication(application) {
         this.errors = null;
         endpoint = `/api/res/applications/${application.id}/`;
@@ -173,6 +216,34 @@
                 });
               } else this.unsavedChanges = false;
               this.getApplication(false)
+            })
+      },
+      updateOutcome(outcome) {
+        this.errors = null;
+        endpoint = `/api/res/outcomes/${outcome.id}/`;
+        apiService(endpoint, "PUT", outcome)
+            .then(response => {
+              if (!response.id) {
+                this.errors = groomJSON(response);
+                this.$nextTick(() => {
+                  this.$refs.errors.focus();
+                });
+              } else this.unsavedChanges = false;
+              this.getOutcomes(false)
+            })
+      },
+      updateAchievement(achievement) {
+        this.errors = null;
+        endpoint = `/api/res/achievements/${achievement.id}/`;
+        apiService(endpoint, "PUT", achievement)
+            .then(response => {
+              if (!response.id) {
+                this.errors = groomJSON(response);
+                this.$nextTick(() => {
+                  this.$refs.errors.focus();
+                });
+              } else this.unsavedChanges = false;
+              this.getAchievements(false)
             })
       },
       cleanRecommendation(recommendation) {
@@ -206,8 +277,6 @@
               });
         }
       },
-
-
       getModelMetadata() {
         apiService(`/api/res/meta/models/application/`).then(data => {
           this.applicationLabels = data.labels;
@@ -219,6 +288,11 @@
         apiService(`/api/res/meta/models/recommendation/`).then(data => {
           this.recommendationLabels = data.labels;
           this.decisionChoices = data.decision_choices;
+        });
+        apiService(`/api/res/meta/models/achievement/`).then(data => {
+          this.achievmentLabels = data.labels;
+          this.categoryChoices = data.category_choices;
+          this.publicationTypeChoices = data.publication_type_choices;
         });
       },
     },

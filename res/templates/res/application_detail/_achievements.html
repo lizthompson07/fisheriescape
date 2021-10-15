@@ -1,0 +1,25 @@
+{% load i18n %}
+
+<div v-if="loadingAchievements" class="loading mb-3 mt-3 mt-5">
+  <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+    <span class="sr-only"></span>
+  </div>
+</div>
+
+<div v-else class="table table-sm">
+  <div v-if="achievements.length">
+    <editable-cell
+      v-for="achievement in achievements" :key="achievement.id" col_class="col-4"
+      :label="achievement.category_display" :object="achievement" field="detail"
+      display_field="detail_html"
+      input_type="textarea" :markdown="true"
+      :editable="canModify" :dirty="unsavedChanges"
+      @change="updateAchievement" @keypress="unsavedChanges=true"
+    ></editable-cell>
+  </div>
+  <div v-else>
+    <em class="text-muted">
+      {% trans "No achievements have been added to this application." %}
+    </em>
+  </div>
+</div>

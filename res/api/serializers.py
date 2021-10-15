@@ -165,6 +165,10 @@ class ApplicationOutcomeSerializer(serializers.ModelSerializer):
     text_html = serializers.SerializerMethodField()
     created_at_display = serializers.SerializerMethodField()
     updated_at_display = serializers.SerializerMethodField()
+    outcome_display = serializers.SerializerMethodField()
+
+    def get_outcome_display(self, instance):
+        return str(instance.outcome)
 
     def get_created_at_display(self, instance):
         return date(instance.created_at, "DATETIME_FORMAT")
@@ -173,7 +177,7 @@ class ApplicationOutcomeSerializer(serializers.ModelSerializer):
         return date(instance.updated_at, "DATETIME_FORMAT")
 
     def get_text_html(self, instance):
-        return instance.recommendation_text_html
+        return instance.text_html
 
     class Meta:
         model = models.ApplicationOutcome
@@ -181,14 +185,18 @@ class ApplicationOutcomeSerializer(serializers.ModelSerializer):
 
 
 class AchievementSerializer(serializers.ModelSerializer):
-    text_html = serializers.SerializerMethodField()
+    detail_html = serializers.SerializerMethodField()
     created_at_display = serializers.SerializerMethodField()
     updated_at_display = serializers.SerializerMethodField()
     date_display = serializers.SerializerMethodField()
     category_display = serializers.SerializerMethodField()
+    publication_type_display = serializers.SerializerMethodField()
 
     def get_category_display(self, instance):
-        return instance.get_category_display()
+        return str(instance.category)
+
+    def get_publication_type_display(self, instance):
+        return str(instance.publication_type)
 
     def get_date_display(self, instance):
         return date(instance.date)
@@ -199,8 +207,8 @@ class AchievementSerializer(serializers.ModelSerializer):
     def get_updated_at_display(self, instance):
         return date(instance.updated_at, "DATETIME_FORMAT")
 
-    def get_text_html(self, instance):
-        return instance.recommendation_text_html
+    def get_detail_html(self, instance):
+        return instance.detail_html
 
     class Meta:
         model = models.Achievement
