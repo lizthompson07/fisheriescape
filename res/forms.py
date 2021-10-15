@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import modelformset_factory
-from django.utils.translation import gettext_lazy
+from django.utils.translation import gettext_lazy, gettext as _
 
 from shared_models.models import Section
 from . import models
@@ -80,7 +80,7 @@ PublicationTypeFormset = modelformset_factory(
 
 
 class ApplicationForm(forms.ModelForm):
-    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Period covered by this application"), required=True)
+    # date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Period covered by this application"), required=True)
 
     class Meta:
         model = models.Application
@@ -90,10 +90,14 @@ class ApplicationForm(forms.ModelForm):
             "current_group_level",
             "target_group_level",
             "section",
+            "application_start_date",
+            "application_end_date",
         ]
         widgets = {
             'applicant': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
+            'application_start_date': forms.DateTimeInput(attrs=dict(type="date")),
+            'application_end_date': forms.DateTimeInput(attrs=dict(type="date")),
         }
 
     def __init__(self, *args, **kwargs):
@@ -103,6 +107,17 @@ class ApplicationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = section_choices
 
+    def clean(self):
+        """
+        - make sure that application end date is after application start date
+        """
+        cleaned_data = super().clean()
+        application_start_date = cleaned_data.get("application_start_date")
+        application_end_date = cleaned_data.get("application_end_date")
+        if application_end_date < application_start_date:
+            msg = _('The application end date must be after the application start date')
+            self.add_error('end_date', msg)
+        return self.cleaned_data
 
 
 class ApplicationTimestampUpdateForm(forms.ModelForm):
@@ -114,4 +129,3 @@ class ApplicationTimestampUpdateForm(forms.ModelForm):
         widgets = {
             "work_location": forms.HiddenInput()
         }
-

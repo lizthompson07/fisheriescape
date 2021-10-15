@@ -175,7 +175,8 @@ class ApplicationCreateView(LoginAccessRequiredMixin, CommonCreateView):
 
     def get_initial(self):
         return dict(
-            applicant=self.request.user
+            applicant=self.request.user,
+            application_end_date=datetime(year=timezone.now().year, month=12, day=31).strftime("%Y-%m-%d")
         )
 
     def get_context_data(self, **kwargs):
@@ -185,16 +186,16 @@ class ApplicationCreateView(LoginAccessRequiredMixin, CommonCreateView):
 
     def form_valid(self, form):
         obj = form.save(commit=False)
-        range = form.cleaned_data["date_range"]
-        if range:
-            range = range.split("to")
-            start_date = datetime.strptime(range[0].strip(), "%Y-%m-%d")
-            obj.application_start_date = start_date
-            if len(range) > 1:
-                end_date = datetime.strptime(range[1].strip(), "%Y-%m-%d")
-                obj.application_end_date = end_date
-            else:
-                obj.application_end_date = start_date
+        # range = form.cleaned_data["date_range"]
+        # if range:
+        #     range = range.split("to")
+        #     start_date = datetime.strptime(range[0].strip(), "%Y-%m-%d")
+        #     obj.application_start_date = start_date
+        #     if len(range) > 1:
+        #         end_date = datetime.strptime(range[1].strip(), "%Y-%m-%d")
+        #         obj.application_end_date = end_date
+        #     else:
+        #         obj.application_end_date = start_date
         obj.created_by = self.request.user
         return super().form_valid(form)
 
@@ -254,6 +255,11 @@ class ApplicationSubmitView(ApplicationUpdateView):
         obj.updated_by = self.request.user
         if obj.submission_date:
             obj.submission_date = None
+            if hasattr(obj, "recommendation"):
+                recommendation = obj.recommendation
+                recommendation.manager_signed = None
+                recommendation.applicant_signed = None
+                recommendation.save()
         else:
             obj.submission_date = timezone.now()
         obj.save()

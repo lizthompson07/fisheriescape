@@ -49,7 +49,7 @@ class PublicationType(SimpleLookup):
 
 class Application(MetadataFields):
     # mandatories
-    applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("applicant name"), related_name="res_applications")
+    applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("researcher name"), related_name="res_applications")
     manager = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("manager name"), related_name="manager_res_applications",
                                 help_text=_("This is the person who will provide a recommendation on this application"))
     current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current", verbose_name=_("Current group / level"))
@@ -62,11 +62,11 @@ class Application(MetadataFields):
     current_position_title = models.CharField(max_length=255, verbose_name=_("position title"), blank=True, null=True)
     work_location = models.CharField(max_length=1000, verbose_name=_("work location"), blank=True, null=True)
     last_application = models.DateTimeField(verbose_name=_("last application for advancement"), blank=True, null=True)
-    last_promotion = models.DateTimeField(verbose_name=_("last Promotion"), blank=True, null=True)
+    last_promotion = models.DateTimeField(verbose_name=_("last promotion"), blank=True, null=True)
     academic_background = models.TextField(blank=True, null=True, verbose_name=_("academic background"))
     employment_history = models.TextField(blank=True, null=True, verbose_name=_("employment history"))
     objectives = models.TextField(blank=True, null=True, verbose_name=_("department / sectoral objectives"), help_text=_("no more than 200 words"))
-    relevant_factors = models.TextField(blank=True, null=True, verbose_name=_("relevant ractors"), help_text=_("no more than 400 words"))
+    relevant_factors = models.TextField(blank=True, null=True, verbose_name=_("relevant factors"), help_text=_("no more than 400 words"))
 
     # non-editables
     submission_date = models.DateTimeField(verbose_name=_("submission date"), blank=True, null=True, editable=False)
@@ -88,12 +88,8 @@ class Application(MetadataFields):
             if self.recommendation.manager_signed:
                 self.status = 40  #
             if self.recommendation.applicant_signed:
-                    self.status = 50  # submitted
-
+                self.status = 50  #
         super().save(*args, **kwargs)
-
-
-
 
     def __str__(self):
         return f"{self.applicant} ({self.target_group_level})"
@@ -149,14 +145,14 @@ class Application(MetadataFields):
 
 class Recommendation(MetadataFields):
     application = models.OneToOneField(Application, on_delete=models.CASCADE, related_name="recommendation")
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("DM Apps user"), related_name="res_recommendations")
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("manager"), related_name="res_recommendations")
     recommendation_text = models.TextField(blank=True, null=True, verbose_name=_("manager's assessment"), help_text=_("no more than 250 words"))
     decision = models.IntegerField(verbose_name=_("decision"), choices=model_choices.decision_choices, blank=True, null=True)
-    applicant_comment = models.TextField(blank=True, null=True, verbose_name=_("applicant comment"), help_text=_("no more than 250 words"))
+    applicant_comment = models.TextField(blank=True, null=True, verbose_name=_("researcher's comment"), help_text=_("no more than 250 words"))
 
     # non-editables
     manager_signed = models.DateTimeField(verbose_name=_("signed by manager"), editable=False, blank=True, null=True)
-    applicant_signed = models.DateTimeField(verbose_name=_("signed by applicant"), editable=False, blank=True, null=True)
+    applicant_signed = models.DateTimeField(verbose_name=_("signed by researcher"), editable=False, blank=True, null=True)
 
     @property
     def recommendation_text_html(self):

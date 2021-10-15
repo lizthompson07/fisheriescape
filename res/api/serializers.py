@@ -55,10 +55,10 @@ class ApplicationSerializer(serializers.ModelSerializer):
         return instance.application_range_description
 
     def get_last_application_display(self, instance):
-        return naturaltime(instance.last_application)
+        return f"{date(instance.last_application)} ({naturaltime(instance.last_application)})"
 
     def get_last_promotion_display(self, instance):
-        return naturaltime(instance.last_promotion)
+        return f"{date(instance.last_promotion)} ({naturaltime(instance.last_promotion)})"
 
     def get_application_start_date_display(self, instance):
         return date(instance.application_start_date)

@@ -6,7 +6,13 @@
   </div>
 </div>
 
-<div class="table table-sm">
+<div v-else class="table table-sm">
+  <div v-if="canModifyRecommendation" class="alert alert-primary no-print" role="alert">
+    <p class="mb-0">
+      <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify_recommendation.reason}</span>
+    </p>
+  </div>
+
   <editable-cell
     key="r1"
     :label="recommendationLabels.recommendation_text" :object="recommendation" field="recommendation_text"
@@ -37,11 +43,15 @@
       <div v-else-if="isManager && application.submission_date">
         <div v-if="recommendation.decision === null || recommendation.recommendation_text === null">
           <span data-toggle="tooltip" title="{% trans "Cannot sign until all required fields have been completed." %}">
-            <button class="btn btn-xs btn-danger helper" disabled>{% trans "Sign Now!" %}</button>
+            <button class="btn btn-xs btn-danger helper" disabled>
+             <span class="mdi mdi-fountain-pen text-light mr-1"></span>{% trans "Sign Now!" %}
+            </button>
           </span>
         </div>
         <div v-else>
-          <button @click="updateRecommendation(recommendation, 'sign-by-manager')" class="btn btn-xs btn-danger">{% trans "Sign Now!" %}</button>
+          <button @click="updateRecommendation(recommendation, 'sign-by-manager')" class="btn btn-xs btn-danger">
+            <span class="mdi mdi-fountain-pen text-light mr-1"></span>{% trans "Sign Now!" %}
+          </button>
         </div>
       </div>
       <div v-else>
@@ -64,11 +74,15 @@
       <div v-else-if="isApplicant && application.submission_date">
         <div v-if="!recommendation.manager_signed">
           <span data-toggle="tooltip" title="{% trans "Cannot sign until has been signed by manager." %}">
-            <button class="btn btn-xs btn-danger helper" disabled>{% trans "Sign Now!" %}</button>
+            <button class="btn btn-xs btn-danger helper" disabled>
+             <span class="mdi mdi-fountain-pen text-light mr-1"></span>{% trans "Sign Now!" %}
+            </button>
           </span>
         </div>
         <div v-else>
-          <button @click="updateRecommendation(recommendation, 'sign-by-applicant')" class="btn btn-xs btn-danger">{% trans "Sign Now!" %}</button>
+          <button @click="updateRecommendation(recommendation, 'sign-by-applicant')" class="btn btn-xs btn-danger">
+            <span class="mdi mdi-fountain-pen text-light mr-1"></span>{% trans "Sign Now!" %}
+          </button>
         </div>
       </div>
       <div v-else>

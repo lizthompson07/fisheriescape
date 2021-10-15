@@ -126,7 +126,7 @@
               this.currentUser = response;
             })
       },
-      getApplication(reload = true) {
+      getApplication(reload = false) {
         if (reload) this.loadingApplication = true;
         let endpoint = `/api/res/applications/${applicationId}/`;
         apiService(endpoint).then(data => {
@@ -136,18 +136,18 @@
             if (data.last_promotion) data.last_promotion = data.last_promotion.split("T")[0];
             if (data.last_application) data.last_application = data.last_application.split("T")[0];
             this.application = data;
-            this.loadingApplication = false;
+            if (reload) this.loadingApplication = false;
             if (data.recommendation) this.getRecommendation(data.recommendation, reload);
           }
         });
       },
-      getRecommendation(recommendationId, reload = true) {
+      getRecommendation(recommendationId, reload = false) {
         if (reload) this.loadingRecommendation = true;
         let endpoint = `/api/res/recommendations/${recommendationId}/`;
         apiService(endpoint).then(data => {
           if (data) {
             this.recommendation = data;
-            this.loadingRecommendation = false;
+            if (reload) this.loadingRecommendation = false;
           }
         });
       },
@@ -172,7 +172,7 @@
                   this.$refs.errors.focus();
                 });
               } else this.unsavedChanges = false;
-              this.getApplication(application, reload = false)
+              this.getApplication(false)
             })
       },
       cleanRecommendation(recommendation) {
@@ -183,22 +183,28 @@
         this.errors = null;
         let endpoint = `/api/res/recommendations/${recommendation.id}/`;
         let method = 'PUT'
+        let userConfirmation = true;
         if (param) {
+          userConfirmation = confirm("{% trans "Are you sure you want to sign this record?" %}")
+          if (param === "sign-by-applicant") recommendation.applicant_comment = prompt("{% trans "Comments (optional):" %}");
           if (param === "sign-by-applicant") recommendation.applicant_comment = prompt("{% trans "Comments (optional):" %}");
           endpoint += `?${param}=true`
           method = "POST"
         }
-        recommendation = this.cleanRecommendation(recommendation);
-        apiService(endpoint, method, recommendation)
-            .then(response => {
-              if (!response.id) {
-                this.errors = groomJSON(response);
-                this.$nextTick(() => {
-                  this.$refs.errors.focus();
-                });
-              } else this.unsavedChanges = false;
-              this.getRecommendation(recommendation.id)
-            })
+        if (userConfirmation) {
+          recommendation = this.cleanRecommendation(recommendation);
+          apiService(endpoint, method, recommendation)
+              .then(response => {
+                if (!response.id) {
+                  this.errors = groomJSON(response);
+                  this.$nextTick(() => {
+                    this.$refs.errors.focus();
+                  });
+                } else this.unsavedChanges = false;
+                this.getRecommendation(recommendation.id, false)
+                if (param) this.getCurrentUser(); // update the permissions
+              });
+        }
       },
 
 
@@ -237,7 +243,7 @@
     created() {
       this.getModelMetadata();
       this.getCurrentUser();
-      this.getApplication();
+      this.getApplication(true);
     },
   });
 

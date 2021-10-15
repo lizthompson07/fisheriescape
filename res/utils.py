@@ -116,9 +116,9 @@ def can_modify_recommendation(user, application_id, return_as_dict=False):
                 my_dict["can_modify"] = True
 
             # # are they a national administrator?
-            elif in_res_admin_group(user):
-                my_dict["reason"] = "You can modify this record because you are a system administrator"
-                my_dict["can_modify"] = True
+            # elif in_res_admin_group(user):
+            #     my_dict["reason"] = "You can modify this record because you are a system administrator"
+            #     my_dict["can_modify"] = True
 
 
         return my_dict if return_as_dict else my_dict["can_modify"]

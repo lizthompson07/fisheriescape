@@ -50,7 +50,7 @@
             class="form-control"
             v-else-if="input_type==='textarea'"
             v-model="input"
-            @change="update" @keypress="$emit('keypress')"
+            @keypress="$emit('keypress')"
             ref="input" id="my-input" :rows="rows"
             @keydown.ctrl.83.prevent="update"
           ></textarea>
