@@ -1,5 +1,10 @@
 from django.contrib.auth.models import User
+from django.utils import timezone
+from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,7 +14,7 @@ from shared_models.api.views import _get_labels
 from shared_models.models import Section, Organization
 from . import serializers
 from .permissions import CanModifyApplicationOrReadOnly
-from .. import models, utils, model_choices
+from .. import models, utils, model_choices, emails
 
 
 # USER
@@ -50,6 +55,55 @@ class RecommendationViewSet(ModelViewSet):
     serializer_class = serializers.RecommendationSerializer
     # permission_classes = [CanModifyApplicationOrReadOnly]
     queryset = models.Recommendation.objects.all()
+
+    def post(self, request, pk):
+        qp = request.query_params
+        recommendation = get_object_or_404(models.Recommendation, pk=pk)
+        if qp.get("sign-by-manager"):
+            """
+            we have to make sure this user is allowed to sign:
+            - they must be the correct person
+            - application must be submitted
+            - recommendation fields must be complete
+            - should not have already happened
+            """
+            if not recommendation.application.manager == request.user:
+                raise ValidationError(_("Sorry, you are not the right person to be recommending this application. We were expecting:") +
+                                      f"{recommendation.application.manager}")
+            elif recommendation.decision and recommendation.recommendation_text:
+                raise ValidationError(_("You must provide recommendation text and a decision before signing."))
+            elif not recommendation.application.submission_date:
+                raise ValidationError(_("You can only sign a recommendation for an application that has been submitted."))
+            elif recommendation.manager_signed:
+                raise ValidationError(_("You have already signed this recommendation."))
+            recommendation.manager_signed = timezone.now()
+            recommendation.save()
+            email = emails.SignatureAwaitingEmail(request, recommendation)
+            email.send()
+            return Response(serializers.RecommendationSerializer(recommendation).data, status.HTTP_200_OK)
+        elif qp.get("sign-by-applicant"):
+            """
+            we have to make sure this user is allowed to sign:
+            - they must be the correct person
+            - application must be submitted
+            - must be signed by the manager
+            - should not have already happened
+            """
+            if not recommendation.application.applicant == request.user:
+                raise ValidationError(_("Sorry, you are not the right person to be signing. We were expecting:") +
+                                      f"{recommendation.application.manager}")
+            elif not recommendation.application.submission_date:
+                raise ValidationError(_("You can only sign a recommendation for an application that has been submitted."))
+            elif not recommendation.manager_signed:
+                raise ValidationError(_("Your manager has not yet signed this recommendation."))
+            elif recommendation.applicant_signed:
+                raise ValidationError(_("You have already signed this recommendation."))
+            recommendation.applicant_signed = timezone.now()
+            recommendation.applicant_comment = request.data.get("applicant_comment")
+            recommendation.save()
+            return Response(serializers.RecommendationSerializer(recommendation).data, status.HTTP_200_OK)
+
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
 
 
 #

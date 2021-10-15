@@ -145,10 +145,10 @@ class RecommendationSerializer(serializers.ModelSerializer):
         return instance.get_decision_display()
 
     def get_manager_signed_display(self, instance):
-        return date(instance.manager_signed)
+        return date(instance.manager_signed, "DATETIME_FORMAT")
 
     def get_applicant_signed_display(self, instance):
-        return date(instance.applicant_signed)
+        return date(instance.applicant_signed, "DATETIME_FORMAT")
 
     def get_applicant_comment_html(self, instance):
         return instance.applicant_comment_html

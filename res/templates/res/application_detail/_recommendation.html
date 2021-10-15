@@ -37,11 +37,11 @@
       <div v-else-if="isManager && application.submission_date">
         <div v-if="recommendation.decision === null || recommendation.recommendation_text === null">
           <span data-toggle="tooltip" title="{% trans "Cannot sign until all required fields have been completed." %}">
-            <button @click="updateRecommendation(recommendation)" class="btn btn-xs btn-danger helper" disabled>{% trans "Sign Now!" %}</button>
+            <button class="btn btn-xs btn-danger helper" disabled>{% trans "Sign Now!" %}</button>
           </span>
         </div>
         <div v-else>
-          <button @click="" class="btn btn-xs btn-danger">{% trans "Sign Now!" %}</button>
+          <button @click="updateRecommendation(recommendation, 'sign-by-manager')" class="btn btn-xs btn-danger">{% trans "Sign Now!" %}</button>
         </div>
       </div>
       <div v-else>
@@ -68,7 +68,7 @@
           </span>
         </div>
         <div v-else>
-          <button class="btn btn-xs btn-danger">{% trans "Sign Now!" %}</button>
+          <button @click="updateRecommendation(recommendation, 'sign-by-applicant')" class="btn btn-xs btn-danger">{% trans "Sign Now!" %}</button>
         </div>
       </div>
       <div v-else>

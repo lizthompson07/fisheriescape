@@ -10,3 +10,12 @@ class NewRecommendationEmail(Email):
 
     def get_recipient_list(self):
         return [self.instance.user.email]
+
+
+class SignatureAwaitingEmail(Email):
+    email_template_path = 'res/emails/signature_awaiting.html'
+    subject_en = 'A RES promotion application is awaiting your signature'
+    subject_fr = "Une demande de promotion RES attend votre signature"
+
+    def get_recipient_list(self):
+        return [self.instance.user.email]

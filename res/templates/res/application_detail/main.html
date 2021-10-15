@@ -179,11 +179,17 @@
         for (const recommendationKey in recommendation) if (recommendation[recommendationKey] === "") recommendation[recommendationKey] = null;
         return recommendation;
       },
-      updateRecommendation(recommendation) {
+      updateRecommendation(recommendation, param) {
         this.errors = null;
-        endpoint = `/api/res/recommendations/${recommendation.id}/`;
+        let endpoint = `/api/res/recommendations/${recommendation.id}/`;
+        let method = 'PUT'
+        if (param) {
+          if (param === "sign-by-applicant") recommendation.applicant_comment = prompt("{% trans "Comments (optional):" %}");
+          endpoint += `?${param}=true`
+          method = "POST"
+        }
         recommendation = this.cleanRecommendation(recommendation);
-        apiService(endpoint, "PUT", recommendation)
+        apiService(endpoint, method, recommendation)
             .then(response => {
               if (!response.id) {
                 this.errors = groomJSON(response);
