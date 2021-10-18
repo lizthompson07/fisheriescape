@@ -4,11 +4,11 @@
 <script type="text/x-template" id="achievement-template">
 
 <div>
-  <div class="row table-div">
+  <div class="row table-div" :id="`REF${object.id}`">
 
     {# VIEW MODE #}
     <div v-if="!editMode" class="col">
-      <span v-html="object.achievement_display"></span> [<a href="#" >REF ${object.id}</a>]
+      <span v-html="object.achievement_display"></span> [<span @click="copyRef(object.id)" class="copy-me text-primary">REF ${object.id}</span>]
     </div>
 
     {# EDIT MODE #}
@@ -149,6 +149,11 @@ Vue.component("achievement", {
     },
     remove() {
       this.$emit("remove", this.achievement)
+    },
+    copyRef(id) {
+      navigator.clipboard.writeText(`[REF${id}]`);
+      alert(`{% trans "Reference #${id} has been copied to the clipboard!" %}`);
+
     }
   },
   filters: {

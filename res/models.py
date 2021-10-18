@@ -175,13 +175,43 @@ class ApplicationOutcome(MetadataFields):
     outcome = models.ForeignKey(Outcome, on_delete=models.CASCADE, related_name="outcomes")
     text = models.TextField(blank=True, null=True, verbose_name=_("text"))
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.outcome}"
 
     @property
     def text_html(self):
-        if self.text:
-            return markdown(self.text)
+        txt = self.text
+        if txt:
+            # comb through the text and see if you can connect to an achievement
+            text_list = txt.split(" ")
+            ref_list = list()
+            for word in text_list:
+                if "[REF" in word:
+                    for part in word.split("["):
+                        if "REF" in part:
+                            ref_list.append(part.split("]")[0])
+            ref_set = set(ref_list)
+            for ref in ref_set:
+                # try to get the achievement
+                pk = ref.replace("REF", "")
+                code = "???"
+                try:
+                    a = self.application.achievements.get(pk=pk)
+                    tip = a.achievement_display
+                    if a.category:
+                        code = a.category.code
+                    text_class = "text-primary"
+                except:
+                    tip = gettext("Bad reference!!")
+                    text_class = "text-danger"
+                text = f"{code}<sup>{pk}</sup>"
+                replace_text = f"<span class='{text_class} helper' data-toggle='tooltip' title='{tip}'>{text}</span>"
+                txt = txt.replace(f"[{ref}]", replace_text)
+
+            return markdown(txt)
 
 
 class Achievement(MetadataFields):
@@ -201,6 +231,7 @@ class Achievement(MetadataFields):
 
     @property
     def achievement_display(self):
+        code = "???"
         cat = "<span class='red-font'>{text}</span>".format(text=gettext("missing category"))
         pub_type = "<span class='red-font'>{text}</span>".format(text=gettext("missing publication type"))
         fy = "<span class='red-font'>{text}</span>".format(text=gettext("missing fiscal year"))
@@ -211,6 +242,7 @@ class Achievement(MetadataFields):
             pub_type = self.publication_type
 
         if self.category:
+            code = self.category.code
             if self.is_publication:
                 cat = f"{self.category} - {pub_type}"
             else:
@@ -223,7 +255,7 @@ class Achievement(MetadataFields):
         if self.detail:
             detail = self.detail
 
-        mystr = f"{cat} ({fy}) {detail} - {dt}"
+        mystr = f"{code} - {cat} ({fy}) {detail} - {dt}"
         return mystr
 
     @property

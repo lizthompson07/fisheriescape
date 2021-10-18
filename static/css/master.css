@@ -360,3 +360,6 @@
 .helper {
      cursor: help;
  }
+.copy-me {
+     cursor: copy;
+ }
