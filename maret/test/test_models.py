@@ -55,3 +55,17 @@ class TestDiscussionTopicModel(CommonTest):
     def test_fields(self):
         fields_to_check = ["name", "nom"]
         self.assert_has_fields(models.DiscussionTopic, fields_to_check)
+
+
+@tag("area", "model", "area_model")
+class TestAreaModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = models.Area.objects.first()
+
+    @tag("fields", "area_model_fields")
+    def test_fields(self):
+        fields_to_check = ["name", "nom"]
+        self.assert_has_fields(models.Area, fields_to_check)
+
+

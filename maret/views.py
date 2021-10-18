@@ -524,20 +524,28 @@ class MemberDeleteView(AdminRequiredMixin, CommonPopoutDeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class TopicFormsetView(AdminRequiredMixin, CommonFormsetView):
+class CommonMaretFormset(AdminRequiredMixin, CommonFormsetView):
     template_name = 'maret/formset.html'
+    home_url_name = "maret:index"
+
+
+class TopicFormsetView(CommonMaretFormset):
     h1 = _("Manage Discussion Topics")
     queryset = models.DiscussionTopic.objects.all()
     formset_class = forms.TopicFormSet
     success_url_name = "maret:manage_topics"
-    home_url_name = "maret:index"
     # delete_url_name = "maret:delete_topics"
 
 
-class SpeciesFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'maret/formset.html'
+class SpeciesFormsetView(CommonMaretFormset):
     h1 = _("Manage Species")
     queryset = models.Species.objects.all()
     formset_class = forms.SpeciesFormSet
     success_url_name = "maret:manage_species"
-    home_url_name = "maret:index"
+
+
+class AreaFormsetView(CommonMaretFormset):
+    h1 = _("Manage Areas")
+    queryset = models.Area.objects.all()
+    formset_class = forms.AreaFormSet
+    success_url_name = "maret:manage_areas"

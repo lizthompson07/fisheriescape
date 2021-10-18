@@ -37,6 +37,10 @@ class Species(shared_models.SimpleLookup):
     pass
 
 
+class Area(shared_models.SimpleLookup):
+    pass
+
+
 class Committee(models.Model):
     meeting_frequency_choices = (
         (0, "Monthly"),

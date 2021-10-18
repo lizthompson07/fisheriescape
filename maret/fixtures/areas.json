@@ -1,0 +1,34 @@
+[
+    {
+        "model": "maret.area",
+        "pk": 1,
+        "fields": {
+            "name": "ENS",
+            "nom": null
+        }
+    },
+    {
+        "model": "maret.area",
+        "pk": 2,
+        "fields": {
+            "name": "RHQ",
+            "nom": null
+        }
+    },
+    {
+        "model": "maret.area",
+        "pk": 3,
+        "fields": {
+            "name": "SWNB",
+            "nom": null
+        }
+    },
+    {
+        "model": "maret.area",
+        "pk": 4,
+        "fields": {
+            "name": "SWNS",
+            "nom": null
+        }
+    }
+]

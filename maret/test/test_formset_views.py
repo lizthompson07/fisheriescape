@@ -19,6 +19,7 @@ class TestAllFormsets(CommonTest):
         self.test_url_names = [
             "manage_topics",
             "manage_species",
+            "manage_areas",
         ]
         self.test_urls = [reverse_lazy("maret:" + name) for name in self.test_url_names]
         self.test_views = [

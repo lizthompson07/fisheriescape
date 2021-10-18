@@ -119,3 +119,16 @@ SpeciesFormSet = modelformset_factory(
     form=SpeciesForm,
     extra=1,
 )
+
+
+class AreaForm(forms.ModelForm):
+    class Meta:
+        model = models.Area
+        fields = "__all__"
+
+
+AreaFormSet = modelformset_factory(
+    model=models.Area,
+    form=AreaForm,
+    extra=1,
+)

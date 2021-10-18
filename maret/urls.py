@@ -42,6 +42,7 @@ urlpatterns = [
 
     path('manage/topics/', views.TopicFormsetView.as_view(), name="manage_topics"),
     path('manage/species/', views.SpeciesFormsetView.as_view(), name="manage_species"),
+    path('manage/areas/', views.AreaFormsetView.as_view(), name="manage_areas"),
 ]
 
 
