@@ -19,6 +19,15 @@
 
 {% block subcontent %}
   <div id="app" v-cloak>
+
+    <div class="sidebar">
+        <p class="vertical lead p-3 my-5 p-0 mx-1">
+          {% trans "Table of Contents" %}
+        </p>
+       {% include "res/application_detail/_toc.html" %}
+
+    </div>
+
     <div>
       {% include "shared_models/_generic_breadcrumbs.html" %}
       <div v-if="application.id" class="mb-3">
@@ -63,26 +72,35 @@
         {% endif %}
       </div>
       <div class="mb-5">
-        <p class="lead">{% trans "BASIC INFORMATION" %}</p>
+        <p class="lead" id="section0">{% trans "BASIC INFORMATION" %}</p>
         {% include "res/application_detail/_basic.html" %}
       </div>
+
+      {#    <div v-if="application.submission_date && recommendation.id" class="mb-5">#}
       <div class="mb-5">
+        <p class="lead" id="section1">{% trans "SECTION 1: Accountable Manager's Assessment and Recommendation" %}</p>
+        {% include "res/application_detail/_recommendation.html" %}
+      </div>
+
+
+      <div class="mb-5">
+        <p class="lead" id="section2">{% trans "SECTION 2: Demonstrated Achievements and Contributions" %}</p>
+        {% include "res/application_detail/_section_2.html" %}
+      </div>
+
+      <div class="mb-5" id="section3">
         <p class="lead">{% trans "CONTEXTS AND VALUED OUTCOMES" %}</p>
         {% include "res/application_detail/_outcomes.html" %}
       </div>
 
-      <div class="mb-5">
+      <div class="mb-5" id="annex">
         <button class="float-right btn btn-primary" data-toggle="tooltip" title="{% trans "Add an achievement" %}" @click="newAchievement">
           <span class="mdi mdi-plus text-light"></span>
         </button>
-        <p class="lead">{% trans "LISTS OF ACHIEVEMENTS AND CONTRIBUTIONS" %}</p>
+        <p class="lead">{% trans "ANNEX: List of Achievements and Contributions" %}</p>
         {% include "res/application_detail/_achievements.html" %}
       </div>
 
-      <div v-if="application.submission_date && recommendation.id" class="mb-5">
-        <p class="lead">{% trans "ACCOUNTABLE MANAGER’S ASSESSMENT AND RECOMMENDATION" %}</p>
-        {% include "res/application_detail/_recommendation.html" %}
-      </div>
 
     </div>
   </div>
@@ -265,6 +283,7 @@
                 });
               } else this.unsavedChanges = false;
               this.getAchievements(false)
+              this.getOutcomes(false)
             })
       },
       cleanRecommendation(recommendation) {

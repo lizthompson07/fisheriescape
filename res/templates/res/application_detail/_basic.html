@@ -108,20 +108,6 @@
     @change="updateApplication" @keypress="unsavedChanges=true"
   ></editable-cell>
   <editable-cell
-    input_type="textarea"
-    :label="applicationLabels.objectives"
-    :object="application" :dirty="unsavedChanges"
-    field="objectives" display_field="objectives_html"
-    :markdown="true" :editable="canModify"  @change="updateApplication" @keypress="unsavedChanges=true"
-  ></editable-cell>
-  <editable-cell
-    input_type="textarea"
-    :label="applicationLabels.relevant_factors"
-    :object="application" field="relevant_factors" display_field="relevant_factors_html"
-    :markdown="true" :editable="canModify" :dirty="unsavedChanges"
-     @change="updateApplication" @keypress="unsavedChanges=true"
-  ></editable-cell>
-  <editable-cell
     :label="applicationLabels.submission_date"
     :object="application"
     field="submission_date_display"
