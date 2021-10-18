@@ -32,7 +32,7 @@
                 <option v-for="(option, index) in category_choices" :value="option.value">${option.text}</option>
               </select>
             </div>
-            <div class="mb-3">
+            <div v-if="achievement.is_publication" class="mb-3">
               <label for="">${labels.publication_type}</label>
               <select
                 class="form-control"
@@ -46,7 +46,8 @@
               </select>
             </div>
             <div class="mb-3">
-              <label for="">${labels.date}</label>
+              <label v-if="achievement.is_publication" for="">{% trans "Date of publication" %}</label>
+              <label v-else for="">{% trans "Date of achievement" %}</label>
               <input
                 type="date" class="form-control" step="any"
                 v-model="achievement.date"

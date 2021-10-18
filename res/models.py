@@ -189,7 +189,7 @@ class Achievement(MetadataFields):
     category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
                                  verbose_name=_("achievement category"))
     publication_type = models.ForeignKey(PublicationType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
-                                         verbose_name=_("publication type (if applicable)"))
+                                         verbose_name=_("publication type"))
     date = models.DateTimeField(verbose_name=_("date of publication / achievement"), blank=True, null=True)
     detail = models.CharField(verbose_name=_("detail"), blank=True, null=True, max_length=2000)
 
