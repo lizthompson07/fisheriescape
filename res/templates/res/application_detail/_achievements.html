@@ -8,14 +8,18 @@
 
 <div v-else class="table table-sm">
   <div v-if="achievements.length">
-    <editable-cell
-      v-for="achievement in achievements" :key="achievement.id" col_class="col-4"
-      :label="achievement.category_display" :object="achievement" field="detail"
-      display_field="detail_html"
-      input_type="textarea" :markdown="true"
+    <achievement
+      v-for="achievement in achievements" :key="achievement.id"
+      :object="achievement"
       :editable="canModify" :dirty="unsavedChanges"
-      @change="updateAchievement" @keypress="unsavedChanges=true"
-    ></editable-cell>
+      @keypress="unsavedChanges=true"
+      :category_choices="categoryChoices"
+      :publication_type_choices="publicationTypeChoices"
+      :labels="achievementLabels"
+      @change="updateAchievement"
+      @clone="cloneAchievement"
+      @remove="deleteAchievement"
+    ></achievement>
   </div>
   <div v-else>
     <em class="text-muted">

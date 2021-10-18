@@ -185,30 +185,37 @@ class ApplicationOutcomeSerializer(serializers.ModelSerializer):
 
 
 class AchievementSerializer(serializers.ModelSerializer):
-    detail_html = serializers.SerializerMethodField()
     created_at_display = serializers.SerializerMethodField()
     updated_at_display = serializers.SerializerMethodField()
     date_display = serializers.SerializerMethodField()
     category_display = serializers.SerializerMethodField()
     publication_type_display = serializers.SerializerMethodField()
+    achievement_display = serializers.SerializerMethodField()
+    is_publication = serializers.SerializerMethodField()
+
+    def get_is_publication(self, instance):
+        return instance.is_publication
+
+    def get_achievement_display(self, instance):
+        return instance.achievement_display
 
     def get_category_display(self, instance):
-        return str(instance.category)
+        if instance.category:
+            return str(instance.category)
 
     def get_publication_type_display(self, instance):
-        return str(instance.publication_type)
+        if instance.publication_type:
+            return str(instance.publication_type)
 
     def get_date_display(self, instance):
-        return date(instance.date)
+        if instance.date:
+            return date(instance.date)
 
     def get_created_at_display(self, instance):
         return date(instance.created_at, "DATETIME_FORMAT")
 
     def get_updated_at_display(self, instance):
         return date(instance.updated_at, "DATETIME_FORMAT")
-
-    def get_detail_html(self, instance):
-        return instance.detail_html
 
     class Meta:
         model = models.Achievement

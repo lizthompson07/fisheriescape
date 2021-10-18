@@ -1,0 +1,161 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="achievement-template">
+
+<div>
+  <div class="row table-div">
+
+    {# VIEW MODE #}
+    <div v-if="!editMode" class="col">
+      <span v-html="object.achievement_display"></span> [<a href="#" >REF ${object.id}</a>]
+    </div>
+
+    {# EDIT MODE #}
+    <div v-else class="col">
+      <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">
+          {% trans "Achievement ID:" %} ${object.id}
+        </h4>
+        <div class="row">
+          <div class="col-4">
+            <div class="mb-3">
+              <label for="">${labels.category}</label>
+              <select
+                class="form-control"
+                v-model="achievement.category"
+                @change="update"
+                ref="category"
+                id="category"
+              >
+                <option value="">-----</option>
+                <option v-for="(option, index) in category_choices" :value="option.value">${option.text}</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="">${labels.publication_type}</label>
+              <select
+                class="form-control"
+                v-model="achievement.publication_type"
+                @change="update"
+                ref="category"
+                id="category"
+              >
+                <option value="">-----</option>
+                <option v-for="(option, index) in publication_type_choices" :value="option.value">${option.text}</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="">${labels.date}</label>
+              <input
+                type="date" class="form-control" step="any"
+                v-model="achievement.date"
+                ref="date" id="date"
+                @keypress.enter.prevent="update"
+                @keydown.ctrl.83.prevent="update"
+              >
+            </div>
+          </div>
+          <div class="col">
+            <div class="mb-3">
+              <label for="">${labels.detail}</label>
+              <textarea
+                class="form-control"
+                v-model="achievement.detail"
+                @keypress="$emit('keypress')"
+                ref="detail" id="detail" rows="10"
+                @keydown.ctrl.83.prevent="update"
+              ></textarea>
+            </div>
+            <div class="float-right mt-3" v-if="dirty">
+              <span class="badge badge-danger m-1">{% trans "Unsaved changes" %}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+    {# Buttons #}
+    <div v-if="editable && !editMode" class="col-2 text-right">
+      <button class="btn btn-sm btn-outline-dark" @click="toggleEditMode"><span class="mdi mdi-pencil"></span></button>
+      <button class="btn btn-sm btn-outline-dark" @click="clone"><span class="mdi mdi-content-copy"></span></button>
+      <button class="btn btn-sm btn-outline-dark" @click="remove"><span class="mdi mdi-delete"></span></button>
+    </div>
+    <div v-else-if="editable" class="col-2 text-right">
+      <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span></button>
+      <button class="btn btn-sm btn-success" @click="toggleEditMode"><span class="mdi mdi-check text-light"></span></button>
+    </div>
+  </div>
+</div>
+
+
+</script>
+<script type=" application/javascript">
+
+Vue.component("achievement", {
+  template: "#achievement-template",
+  delimiters: ["${", "}"],
+  name: "achievement",
+  props: {
+    editable: {
+      type: Boolean,
+      default: false
+    },
+    dirty: {
+      type: Boolean,
+      default: false
+    },
+    object: {
+      type: Object,
+    },
+    labels: {
+      type: Object,
+      required: true,
+    },
+    category_choices: {
+      type: Array,
+      required: true
+    },
+    publication_type_choices: {
+      type: Array,
+      required: true
+    },
+  },
+  data() {
+    return {
+      achievement: this.object,
+      editMode: false,
+    };
+  },
+  methods: {
+    toggleEditMode() {
+      if (this.editMode) this.update();
+      this.editMode = !this.editMode;
+    },
+    update() {
+      this.$emit("change", this.achievement)
+    },
+    clone() {
+      this.$emit("clone", this.achievement)
+    },
+    remove() {
+      this.$emit("remove", this.achievement)
+    }
+  },
+  filters: {
+    yesNo: vueFiltersObject["yesNo"],
+    nz: vueFiltersObject["nz"],
+  },
+  watch: {
+    object() {
+      this.achievement = this.object;
+    },
+    dirty() {
+      //do nothing
+    },
+  },
+  computed: {}
+});
+</script>

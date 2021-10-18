@@ -37,6 +37,7 @@ class Outcome(Lookup):
 
 class AchievementCategory(SimpleLookup):
     code = models.CharField(max_length=5, verbose_name=_("category code"))
+    is_publication = models.BooleanField(default=False, verbose_name=_("Is this a category for publications?"))
 
     class Meta:
         ordering = ["code"]
@@ -185,15 +186,46 @@ class ApplicationOutcome(MetadataFields):
 
 class Achievement(MetadataFields):
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="achievements")
-    category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True)
-    publication_type = models.ForeignKey(PublicationType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True)
-    date = models.DateTimeField(verbose_name=_("date of publication / achievement"), editable=False, blank=True, null=True)
-    detail = models.TextField(verbose_name=_("detail"), blank=True, null=True)
+    category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
+                                 verbose_name=_("achievement category"))
+    publication_type = models.ForeignKey(PublicationType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
+                                         verbose_name=_("publication type (if applicable)"))
+    date = models.DateTimeField(verbose_name=_("date of publication / achievement"), blank=True, null=True)
+    detail = models.CharField(verbose_name=_("detail"), blank=True, null=True, max_length=2000)
+
+    class Meta:
+        ordering = ["application", "category", "publication_type", "-date"]
 
     def __str__(self):
         return f"{self.category}"
 
     @property
-    def detail_html(self):
+    def achievement_display(self):
+        cat = "<span class='red-font'>{text}</span>".format(text=gettext("missing category"))
+        pub_type = "<span class='red-font'>{text}</span>".format(text=gettext("missing publication type"))
+        fy = "<span class='red-font'>{text}</span>".format(text=gettext("missing fiscal year"))
+        detail = "<span class='red-font'>{text}</span>".format(text=gettext("missing detail"))
+        dt = "<span class='red-font'>{text}</span>".format(text=gettext("missing date"))
+
+        if self.publication_type:
+            pub_type = self.publication_type
+
+        if self.category:
+            if self.is_publication:
+                cat = f"{self.category} - {pub_type}"
+            else:
+                cat = str(self.category)
+
+        if self.date:
+            fy = fiscal_year(self.date)
+            dt = self.date.strftime("%Y-%m-%d")
+
         if self.detail:
-            return markdown(self.detail)
+            detail = self.detail
+
+        mystr = f"{cat} ({fy}) {detail} - {dt}"
+        return mystr
+
+    @property
+    def is_publication(self):
+        return self.category and self.category.is_publication

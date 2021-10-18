@@ -95,6 +95,7 @@
 {% block body_js %}
   {{ block.super }}
   {% include "res/components/editable_cell.html" %}
+  {% include "res/application_detail/components/achievement.html" %}
 
   <script type="application/javascript">
   var applicationId = "{{ object.id }}"
@@ -118,6 +119,7 @@
       achievements: [],
       applicationLabels: {},
       recommendationLabels: {},
+      achievementLabels: {},
       errors: null,
       unsavedChanges: false,
       applicantChoices: [],
@@ -178,6 +180,9 @@
         let endpoint = `/api/res/achievements/?application=${applicationId}`;
         apiService(endpoint).then(data => {
           if (data) {
+            for (const datum of data) {
+              if (datum.date) datum.date = datum.date.split("T")[0];
+            }
             this.achievements = data;
             if (reload) this.loadingAchievements = false;
           }
@@ -190,9 +195,19 @@
         });
       },
       deleteAchievement(achievement) {
-        let endpoint = `/api/res/achievements/${achievement.id}`;
-        apiService(endpoint, "DELETE").then(data => {
-          this.$delete(this.achievements, this.achievements.indexOf(data))
+        userInput = confirm("{% trans "Are you certain you want to permanently delete this achievement?" %}")
+        if (userInput) {
+          let endpoint = `/api/res/achievements/${achievement.id}`;
+          apiService(endpoint, "DELETE").then(data => {
+            this.$delete(this.achievements, this.achievements.indexOf(achievement))
+          });
+        }
+      },
+      cloneAchievement(achievement) {
+        let endpoint = `/api/res/achievements/${achievement.id}/?clone=true`;
+        apiService(endpoint, "POST").then(data => {
+          if (data.date) data.date = data.date.split("T")[0];
+          this.achievements.push(data)
         });
       },
       cleanApplication(application) {
@@ -202,6 +217,11 @@
         if (application.last_application) application.last_application = application.last_application + "T12:00:00";
         if (application.last_promotion) application.last_promotion = application.last_promotion + "T12:00:00";
         return application;
+      },
+      cleanAchievement(achievement) {
+        for (const achievementKey in achievement) if (achievement[achievementKey] === "") achievement[achievementKey] = null;
+        if (achievement.date) achievement.date = achievement.date + "T12:00:00";
+        return achievement;
       },
       updateApplication(application) {
         this.errors = null;
@@ -235,6 +255,7 @@
       updateAchievement(achievement) {
         this.errors = null;
         endpoint = `/api/res/achievements/${achievement.id}/`;
+        achievement = this.cleanAchievement(achievement);
         apiService(endpoint, "PUT", achievement)
             .then(response => {
               if (!response.id) {
@@ -290,7 +311,7 @@
           this.decisionChoices = data.decision_choices;
         });
         apiService(`/api/res/meta/models/achievement/`).then(data => {
-          this.achievmentLabels = data.labels;
+          this.achievementLabels = data.labels;
           this.categoryChoices = data.category_choices;
           this.publicationTypeChoices = data.publication_type_choices;
         });

@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -160,6 +162,19 @@ class AchievementViewSet(ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
+    def post(self, request, pk):
+        qp = request.query_params
+        old_achievement = get_object_or_404(models.Achievement, pk=pk)
+        if qp.get("clone"):
+            new_achievement = deepcopy(old_achievement)
+            new_achievement.pk = None
+            new_achievement.detail = "*** CLONED *** " + new_achievement.detail
+            new_achievement.save()
+            return Response(serializers.AchievementSerializer(new_achievement).data, status.HTTP_200_OK)
+
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
+
+
 
 
 class ApplicationModelMetaAPIView(APIView):
@@ -189,7 +204,7 @@ class RecommendationModelMetaAPIView(APIView):
 
 class AchievementModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    model = models.Recommendation
+    model = models.Achievement
 
     def get(self, request):
         data = dict()
