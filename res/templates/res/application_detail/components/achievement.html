@@ -80,9 +80,15 @@
 
     {# Buttons #}
     <div v-if="editable && !editMode" class="col-2 text-right">
-      <button class="btn btn-sm btn-outline-dark" @click="toggleEditMode"><span class="mdi mdi-pencil"></span></button>
-      <button class="btn btn-sm btn-outline-dark" @click="clone"><span class="mdi mdi-content-copy"></span></button>
-      <button class="btn btn-sm btn-outline-dark" @click="remove"><span class="mdi mdi-delete"></span></button>
+      <button class="btn btn-sm btn-outline-dark" @click="toggleEditMode" data-toggle="tooltip" title="{% trans "Edit this achievement" %}">
+        <span class="mdi mdi-pencil helper"></span>
+      </button>
+      <button class="btn btn-sm btn-outline-dark" @click="clone" data-toggle="tooltip" title="{% trans "Clone this achievement" %}">
+        <span class="mdi mdi-content-copy helper"></span>
+      </button>
+      <button class="btn btn-sm btn-outline-dark" @click="remove" data-toggle="tooltip" title="{% trans "Delete this achievement" %}">
+        <span class="mdi mdi-delete helper"></span>
+      </button>
     </div>
     <div v-else-if="editable" class="col-2 text-right">
       <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span></button>
