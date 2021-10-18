@@ -192,6 +192,10 @@ class AchievementSerializer(serializers.ModelSerializer):
     publication_type_display = serializers.SerializerMethodField()
     achievement_display = serializers.SerializerMethodField()
     is_publication = serializers.SerializerMethodField()
+    code = serializers.SerializerMethodField()
+
+    def get_code(self, instance):
+        return instance.code
 
     def get_is_publication(self, instance):
         return instance.is_publication

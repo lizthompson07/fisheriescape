@@ -36,11 +36,15 @@ class Outcome(Lookup):
 
 
 class AchievementCategory(SimpleLookup):
-    code = models.CharField(max_length=5, verbose_name=_("category code"))
+    code = models.CharField(max_length=5, verbose_name=_("category code"), unique=True)
     is_publication = models.BooleanField(default=False, verbose_name=_("Is this a category for publications?"))
 
     class Meta:
         ordering = ["code"]
+
+    def __str__(self):
+        return f"{self.code} - {self.tname}"
+
 
 
 class GroupLevel(UnilingualSimpleLookup):
@@ -61,8 +65,8 @@ class Application(MetadataFields):
                                             verbose_name=_("Current group / level"))
     target_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_target",
                                            verbose_name=_("Group / level being sought"))
-    application_start_date = models.DateTimeField(verbose_name=_("application start date"))
-    application_end_date = models.DateTimeField(verbose_name=_("application end date"))
+    application_start_date = models.DateTimeField(verbose_name=_("period covered by this application (start) "))
+    application_end_date = models.DateTimeField(verbose_name=_("period covered by this application (end) "))
 
     current_position_title = models.CharField(max_length=255, verbose_name=_("position title"), blank=True, null=True)
     work_location = models.CharField(max_length=1000, verbose_name=_("work location"), blank=True, null=True)
@@ -186,42 +190,38 @@ class ApplicationOutcome(MetadataFields):
         txt = self.text
         if txt:
             # comb through the text and see if you can connect to an achievement
-            text_list = txt.split(" ")
+            text_list = txt.split("[")
             ref_list = list()
             for word in text_list:
-                if "[REF" in word:
-                    for part in word.split("["):
-                        if "REF" in part:
-                            ref_list.append(part.split("]")[0])
+                if word.lower().startswith("ref"):
+                    ref_list.append(word.split("]")[0])
             ref_set = set(ref_list)
             for ref in ref_set:
                 # try to get the achievement
-                pk = ref.replace("REF", "")
-                code = "???"
+                pk = ref.lower().replace("ref", "").strip()
                 try:
                     a = self.application.achievements.get(pk=pk)
                     tip = a.achievement_display
                     if a.category:
                         code = a.category.code
                     text_class = "text-primary"
+                    text = f"{a.code}"
                 except:
                     tip = gettext("Bad reference!!")
                     text_class = "text-danger"
-                text = f"{code}<sup>{pk}</sup>"
+                    text = "???"
                 replace_text = f"<span class='{text_class} helper' data-toggle='tooltip' title='{tip}'>{text}</span>"
                 txt = txt.replace(f"[{ref}]", replace_text)
-
             return markdown(txt)
 
 
 class Achievement(MetadataFields):
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="achievements")
-    category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
-                                 verbose_name=_("achievement category"))
+    category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements", verbose_name=_("achievement category"))
     publication_type = models.ForeignKey(PublicationType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
                                          verbose_name=_("publication type"))
     date = models.DateTimeField(verbose_name=_("date of publication / achievement"), blank=True, null=True)
-    detail = models.CharField(verbose_name=_("detail"), blank=True, null=True, max_length=2000)
+    detail = models.CharField(verbose_name=_("detail"), max_length=2000)
 
     class Meta:
         ordering = ["application", "category", "publication_type", "-date"]
@@ -230,32 +230,25 @@ class Achievement(MetadataFields):
         return f"{self.category}"
 
     @property
+    def code(self):
+        id_list = [a.id for a in self.application.achievements.filter(category=self.category)]
+        code = f"{self.category.code}-{id_list.index(self.id) + 1}"
+        return code
+
+    @property
     def achievement_display(self):
-        code = "???"
-        cat = "<span class='red-font'>{text}</span>".format(text=gettext("missing category"))
-        pub_type = "<span class='red-font'>{text}</span>".format(text=gettext("missing publication type"))
-        fy = "<span class='red-font'>{text}</span>".format(text=gettext("missing fiscal year"))
-        detail = "<span class='red-font'>{text}</span>".format(text=gettext("missing detail"))
-        dt = "<span class='red-font'>{text}</span>".format(text=gettext("missing date"))
 
-        if self.publication_type:
-            pub_type = self.publication_type
-
-        if self.category:
-            code = self.category.code
-            if self.is_publication:
-                cat = f"{self.category} - {pub_type}"
-            else:
-                cat = str(self.category)
+        mystr = f"{self.code} &rarr; "
 
         if self.date:
             fy = fiscal_year(self.date)
-            dt = self.date.strftime("%Y-%m-%d")
+            mystr += f"{fy}."
+
+        if self.category and self.publication_type:
+            mystr += f" {self.publication_type}."
 
         if self.detail:
-            detail = self.detail
-
-        mystr = f"{code} - {cat} ({fy}) {detail} - {dt}"
+            mystr += f" {self.detail}"
         return mystr
 
     @property

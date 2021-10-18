@@ -68,10 +68,11 @@
                 @keydown.ctrl.83.prevent="update"
               ></textarea>
             </div>
-            <div class="float-right mt-3" v-if="dirty">
-              <span class="badge badge-danger m-1">{% trans "Unsaved changes" %}</span>
-            </div>
           </div>
+        </div>
+        <div class="text-right">
+          <button class="btn btn-sm btn-success" @click="toggleEditMode"><span class="mdi mdi-check text-light"></span> {% trans "Save and Close" %}</button>
+          <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span> {% trans "Save" %}</button>
         </div>
       </div>
 
@@ -89,10 +90,6 @@
       <button class="btn btn-sm btn-outline-dark" @click="remove" data-toggle="tooltip" title="{% trans "Delete this achievement" %}">
         <span class="mdi mdi-delete helper"></span>
       </button>
-    </div>
-    <div v-else-if="editable" class="col-2 text-right">
-      <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span></button>
-      <button class="btn btn-sm btn-success" @click="toggleEditMode"><span class="mdi mdi-check text-light"></span></button>
     </div>
   </div>
 </div>
