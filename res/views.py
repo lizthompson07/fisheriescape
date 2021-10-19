@@ -256,7 +256,7 @@ class ApplicationSubmitView(CanModifyApplicationRequiredMixin, CommonUpdateView)
         if my_object.submission_date:
             return _("Do you wish to un-submit the following application?")
         else:
-            return _("Do you wish to submit the following application?")
+            return _("Do you wish to submit the following application to your accountable manager for their assessment and recommendation?")
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("res:application_detail", args=[self.get_object().id])}
