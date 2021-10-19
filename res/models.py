@@ -46,6 +46,10 @@ class AchievementCategory(SimpleLookup):
     def __str__(self):
         return f"{self.code} - {self.tname}"
 
+    @property
+    def display1(self):
+        return f"{self.tname} ({self.code})"
+
 
 class GroupLevel(UnilingualSimpleLookup):
     pass
@@ -161,6 +165,10 @@ class Application(MetadataFields):
             for outcome in self.outcomes.filter(outcome__context=context.id):
                 d[context.id] += outcome.word_count
         return d
+
+    @property
+    def achievement_categories(self):
+        return AchievementCategory.objects.filter(achievements__application=self).distinct()
 
 
 class Recommendation(MetadataFields):

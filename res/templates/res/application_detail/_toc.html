@@ -12,12 +12,11 @@
   <li class="m-3">
     <a href="#section3">{% trans "CONTEXTS AND VALUED OUTCOMES" %}</a>
     <ul>
-
       <li v-for="context in contexts">
         <a :href="`#context${context.id}`"> ${context.tname} </a>
         <ul>
           <li v-for="outcome in context.outcomes">
-            <a :href="`#outcome${context.id}`"> ${outcome.tname} </a>
+            <a :href="`#outcome${outcome.id}`"> ${outcome.tname} </a>
           </li>
         </ul>
       </li>
@@ -25,5 +24,11 @@
   </li>
   <li class="m-3">
     <a href="#annex">{% trans "ANNEX: List of Achievements and Contributions" %}</a>
+    <ul>
+      <li v-for="category in application.achievement_categories">
+        <a :href="`#category${category.id}`"> ${category.display} </a>
+      </li>
+    </ul>
+
   </li>
 </ul>

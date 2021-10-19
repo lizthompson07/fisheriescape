@@ -38,6 +38,10 @@ class ApplicationSerializer(serializers.ModelSerializer):
     manager_display = serializers.SerializerMethodField()
     submission_date = serializers.SerializerMethodField()
     context_word_count_dict = serializers.SerializerMethodField()
+    achievement_categories = serializers.SerializerMethodField()
+
+    def get_achievement_categories(self, instance):
+        return AchievementCategorySerializer(instance.achievement_categories, many=True, read_only=True).data
 
     def get_context_word_count_dict(self, instance):
         return instance.context_word_count_dict
@@ -263,6 +267,22 @@ class ContextSerializer(serializers.ModelSerializer):
 
     def get_tname(self, instance):
         return instance.tname
+
+
+class AchievementCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AchievementCategory
+        fields = "__all__"
+
+    tname = serializers.SerializerMethodField()
+    display = serializers.SerializerMethodField()
+
+    def get_display(self, instance):
+        return instance.display1
+
+    def get_tname(self, instance):
+        return instance.tname
+
 #
 # class ObservationSerializer(serializers.ModelSerializer):
 #     section = SectionLITESerializer(read_only=True)
