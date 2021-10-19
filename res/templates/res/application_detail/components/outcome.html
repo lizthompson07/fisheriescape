@@ -9,8 +9,8 @@
     <div v-if="!editMode" class="col">
       <b @click="toggleCollapse" class="text-primary pointy">
         ${outcome.tname}
-        <span v-if="collapse" class="mdi mdi-arrow-collapse-down text-primary" data-toggle="tooltip" title="{% trans "display text" %}"></span>
-        <span v-else class="mdi mdi-arrow-collapse-up text-primary" data-toggle="tooltip" title="{% trans "hide text" %}"></span>
+        <span v-if="collapse" class="mdi mdi-arrow-collapse-up text-primary" data-toggle="tooltip" title="{% trans "display text" %}"></span>
+        <span v-else class="mdi mdi-arrow-collapse-down text-primary" data-toggle="tooltip" title="{% trans "hide text" %}"></span>
       </b>
       <p class="text-muted small">${outcome.tdescription}</p>
       <p v-if="!collapse">
@@ -38,11 +38,12 @@
             @keydown.ctrl.83.prevent="update"
           ></textarea>
         </div>
-        <div class="float-right">
+        <div class="float-right mb-3">
+          <button class="btn btn-sm btn-primary"><span class="mdi mdi-plus mr-1 text-light"></span> {% trans "Add Reference" %}</button>
           <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span> {% trans "Save" %}</button>
           <button class="btn btn-sm btn-success" @click="toggleEditMode"><span class="mdi mdi-check text-light"></span> {% trans "Save and Close" %}</button>
         </div>
-        <div class="">
+        <div class="mb-3">
           ${wordCount} {% trans "words" %}
         </div>
 
