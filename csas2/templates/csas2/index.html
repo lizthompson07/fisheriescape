@@ -37,6 +37,9 @@
                  title="{% trans "Requests connected to you" %}"><span class="mdi mdi-heart"></span></a>
               <a href="{% url 'csas2:request_new' %}" class="btn btn-success" data-toggle="tooltip" title="{% trans "New request" %}"><span
                 class="mdi mdi-plus text-light"></span></a>
+              <a href="{% url 'csas2:request_reviews' %}" class="btn btn-info" data-toggle="tooltip" title="{% trans "Review multiple requests " %}">
+                <span class="mdi mdi-eye"></span>
+              </a>
             </div>
           </div>
         </div>

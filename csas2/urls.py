@@ -6,16 +6,23 @@ urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
     # settings
+
+
     path('settings/document-types/', views.DocumentTypeFormsetView.as_view(), name="manage_document_types"),
     path('settings/document-types/<int:pk>/delete/', views.DocumentTypeHardDeleteView.as_view(), name="delete_document_type"),
     path('settings/invitee-roles/', views.InviteeRoleFormsetView.as_view(), name="manage_invitee_roles"),
     path('settings/invitee-role/<int:pk>/delete/', views.InviteeRoleHardDeleteView.as_view(), name="delete_invitee_role"),
     # permissions
+    path('settings/csas-admin-users/', views.CSASAdminUserFormsetView.as_view(), name="manage_csas_admin_users"),
+    path('settings/csas-admin-user/<int:pk>/delete/', views.CSASAdminUserHardDeleteView.as_view(), name="delete_csas_admin_user"),
+
+
     path('settings/user-permissions/', views.UserListView.as_view(), name='user_list'),
     path('settings/user-permissions/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
     # tags
     path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
     path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
+
 
     # people #
     ##########
@@ -34,6 +41,9 @@ urlpatterns = [
     path('requests/<int:pk>/delete/', views.CSASRequestDeleteView.as_view(), name="request_delete"),
     path('requests/<int:pk>/submit/', views.CSASRequestSubmitView.as_view(), name="request_submit"),
     path('requests/print-requests/', views.CSASRequestPDFView.as_view(), name="request_pdf"),
+
+    # request reviews
+    path('requests-reviews/', views.CSASRequestReviewTemplateView.as_view(), name="request_reviews"),
 
     # request files
     path('requests/<int:crequest>/new-file/', views.CSASRequestFileCreateView.as_view(), name='request_file_new'),

@@ -89,6 +89,21 @@ class InviteeRoleHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDelete
     success_url = reverse_lazy("csas2:manage_invitee_roles")
 
 
+class CSASAdminUserFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
+    template_name = 'csas2/formset.html'
+    h1 = "Manage CSAS Administrative Users"
+    queryset = models.CSASAdminUser.objects.all()
+    formset_class = forms.CSASAdminUserFormset
+    success_url_name = "csas2:manage_csas_admin_users"
+    home_url_name = "csas2:index"
+    delete_url_name = "csas2:delete_csas_admin_user"
+
+
+class CSASAdminUserHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView):
+    model = models.CSASAdminUser
+    success_url = reverse_lazy("csas2:manage_csas_admin_users")
+
+
 # user permissions
 class UserListView(CsasNationalAdminRequiredMixin, CommonFilterView):
     template_name = "csas2/user_list.html"
@@ -329,10 +344,15 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
                 qs = qs.filter(section_id=section)
         return qs
 
+
+class CSASRequestReviewTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
+    template_name = 'csas2/request_reviews/main.html'
+    h1 = gettext_lazy("CSAS Request Review Console")
+    container_class = "container-fluid"
+    home_url_name = "csas2:index"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["object_list"] = self.get_object_list()
-        context["now"] = timezone.now()
         return context
 
 

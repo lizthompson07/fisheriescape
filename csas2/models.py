@@ -47,6 +47,18 @@ def doc_directory_path(instance, filename):
     return 'csas/document_{0}/{1}'.format(instance.id, filename)
 
 
+class CSASAdminUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="csas_admin_user", verbose_name=_("DM Apps user"))
+    region = models.ForeignKey(Region, verbose_name=_("To which region?"), related_name="csas_admin_user", on_delete=models.CASCADE)
+    is_national_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["user__first_name", ]
+
+
 class GenericFile(models.Model):
     caption = models.CharField(max_length=255, verbose_name=_("caption"))
     file = models.FileField()

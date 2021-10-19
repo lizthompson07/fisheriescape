@@ -94,7 +94,7 @@ class ReportSearchForm(forms.Form):
             (1, gettext("Only posted")),
             (0, gettext("Only un-posted")),
         )
-        fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(Q(processes__isnull=False)|Q(csas_requests__isnull=False)).distinct()]
+        fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(Q(processes__isnull=False) | Q(csas_requests__isnull=False)).distinct()]
         fy_choices.insert(0, (None, "All"))
 
         request_status_choices = [obj for obj in model_choices.request_status_choices]
@@ -440,6 +440,22 @@ class TagForm(forms.ModelForm):
 TagFormset = modelformset_factory(
     model=SubjectMatter,
     form=TagForm,
+    extra=1,
+)
+
+
+class CSASAdminUserForm(forms.ModelForm):
+    class Meta:
+        model = models.CSASAdminUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+CSASAdminUserFormset = modelformset_factory(
+    model=models.CSASAdminUser,
+    form=CSASAdminUserForm,
     extra=1,
 )
 
