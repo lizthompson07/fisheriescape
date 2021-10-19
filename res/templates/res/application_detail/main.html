@@ -94,9 +94,18 @@
       </div>
 
       <div class="mb-5" id="annex">
-        <button v-if="canModify" class="float-right btn btn-primary" data-toggle="tooltip" title="{% trans "Add an achievement" %}" @click="newAchievement">
-          <span class="mdi mdi-plus text-light"></span>
-        </button>
+        <div v-if="canModify" class="float-right">
+          <ref-editor
+            :labels="achievementLabels"
+            :category_choices="categoryChoices"
+            :publication_type_choices="publicationTypeChoices"
+            @new="newAchievement"
+          ></ref-editor>
+        </div>
+
+{#        <button  class="float-right btn btn-primary" data-toggle="tooltip" title="{% trans "Add an achievement" %}" @click="newAchievement">#}
+{#          <span class="mdi mdi-plus text-light"></span>#}
+{#        </button>#}
         <p class="lead">{% trans "ANNEX: List of Achievements and Contributions" %}</p>
         {% include "res/application_detail/_achievements.html" %}
       </div>
@@ -115,6 +124,7 @@
   {% include "res/components/editable_cell.html" %}
   {% include "res/application_detail/components/achievement.html" %}
   {% include "res/application_detail/components/outcome.html" %}
+  {% include "res/application_detail/components/ref_editor.html" %}
 
   <script type="application/javascript">
   var applicationId = "{{ object.id }}"
@@ -219,10 +229,13 @@
           }
         });
       },
-      newAchievement() {
+      newAchievement(achievement) {
+        achievement.application = applicationId;
+        achievement = this.cleanAchievement(achievement);
         let endpoint = `/api/res/achievements/`;
-        apiService(endpoint, "POST", {application: applicationId}).then(data => {
+        apiService(endpoint, "POST", achievement).then(data => {
           this.achievements.push(data)
+          this.getApplication(false);
         });
       },
       deleteAchievement(achievement) {

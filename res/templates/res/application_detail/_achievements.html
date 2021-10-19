@@ -10,7 +10,7 @@
 
   <div v-if="achievements.length">
     <div v-for="category in application.achievement_categories" :key="category.id" class="mb-5">
-      <h6 :id="`category${category.id}`">
+      <h6 :id="`category${category.id}`" >
         ${category.display}
       </h6>
       <achievement
