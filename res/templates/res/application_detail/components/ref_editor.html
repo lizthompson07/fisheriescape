@@ -10,56 +10,12 @@
     <div class="modal-mask">
       <div class="modal-wrapper">
         <div class="modal-container" style="width: 850px">
-
-
           <div class="modal-header">
             <h4> {% trans "Add Achievement / Publication" %}</h4>
           </div>
           <div class="modal-body">
-            <form @submit.prevent="onSubmit">
-              <div class="mb-3">
-                <div class="form-group">
-                  <label for="">${labels.category}</label>
-                  <select
-                    class="form-control" required
-                    v-model="reference.category"
-                    ref="category"
-                    id="category"
-                  >
-                    <option value="">-----</option>
-                    <option v-for="(option, index) in category_choices" :value="option.value">${option.text}</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="">${labels.publication_type}</label>
-                  <select
-                    class="form-control"
-                    v-model="reference.publication_type"
-                    ref="category"
-                    id="category"
-                  >
-                    <option value="">-----</option>
-                    <option v-for="(option, index) in publication_type_choices" :value="option.value">${option.text}</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="">${labels.date}</label>
-                  <input type="date" v-model="reference.date" class="form-control"/>
-                </div>
-                <div class="form-group">
-                  <label for="">${labels.detail}</label>
-                  <textarea v-model="reference.detail" required class="form-control" rows="8"></textarea>
-                </div>
-              </div>
-              <div class="mb-3">
-                <button type="submit" class="btn btn-success">
-                  {% trans "Add" %}
-                </button>
-                <button class="mx-1 btn btn-primary" @click="closeOverlay" type="button">{% trans "Back" %}</button>
-              </div>
-            </form>
+            {% include 'res/application_detail/components/_ref_form.html' %}
           </div>
-
         </div>
       </div>
     </div>

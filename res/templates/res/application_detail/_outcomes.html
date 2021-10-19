@@ -14,8 +14,9 @@
   </div>
   <div v-else>
 
-    <div v-for="context in contexts" :key="context.id" class="mb-5">
-      <h6 v-if="application.context_word_count_dict[context.id]<=context.word_limit" class="float-right">${application.context_word_count_dict[context.id]} / ${context.word_limit} {% trans "words" %}</h6>
+    <div v-if="application.id" v-for="context in contexts" :key="context.id" class="mb-5">
+      <h6 v-if="application.context_word_count_dict[context.id]<=context.word_limit" class="float-right">${application.context_word_count_dict[context.id]} /
+        ${context.word_limit} {% trans "words" %}</h6>
       <h6 v-else class="float-right red-font">${application.context_word_count_dict[context.id]} / ${context.word_limit} {% trans "words" %}</h6>
       <h6 :id="`context${context.id}`">
         ${context.tname}
@@ -31,6 +32,9 @@
           :outcome="outcome"
           :editable="canModify" :dirty="unsavedChanges"
           @change="updateOutcome" @keypress="unsavedChanges=true"
+          :achievement_labels="achievementLabels"
+          :category_choices="categoryChoices"
+          :publication_type_choices="publicationTypeChoices"
         ></outcome>
 
       </div>

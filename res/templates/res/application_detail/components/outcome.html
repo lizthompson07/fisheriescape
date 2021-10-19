@@ -45,7 +45,14 @@
         </div>
 
         <div class="float-right mb-3">
-          <button class="btn btn-sm btn-primary"><span class="mdi mdi-plus mr-1 text-light"></span> {% trans "Add Reference" %}</button>
+
+          <ref-inserter
+            class="neighbours"
+            :labels="achievement_labels"
+            :category_choices="category_choices"
+            :publication_type_choices="publication_type_choices"
+            @insert="insert"
+          ></ref-inserter>
           <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span> {% trans "Save" %}</button>
           <button class="btn btn-sm btn-success" @click="toggleEditMode"><span class="mdi mdi-check text-light"></span> {% trans "Save and Close" %}</button>
         </div>
@@ -91,6 +98,15 @@ Vue.component("outcome", {
     outcome: {
       type: Object,
     },
+    achievement_labels: {
+      type: Object,
+    },
+    category_choices: {
+      type: Array,
+    },
+    publication_type_choices: {
+      type: Array,
+    },
   },
   data() {
     return {
@@ -116,6 +132,12 @@ Vue.component("outcome", {
     },
     remove() {
       this.$emit("remove", this.valuedOutcome)
+    },
+    insert(achievement) {
+      this.valuedOutcome.text += ` [ref ${achievement.id}]`;
+      this.$nextTick(()=>{
+        this.$refs.text.focus();
+      });
     },
   },
   filters: {

@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -145,15 +146,11 @@ class AchievementViewSet(ModelViewSet):
     queryset = models.Achievement.objects.all()
     serializer_class = serializers.AchievementSerializer
     permission_classes = [CanModifyApplicationOrReadOnly]
-
-    def list(self, request, *args, **kwargs):
-        qp = request.query_params
-        if qp.get("application"):
-            application = get_object_or_404(models.Application, pk=qp.get("application"))
-            qs = application.achievements.all()
-            serializer = self.get_serializer(qs, many=True)
-            return Response(serializer.data)
-        raise ValidationError(_("You need to specify a RES application"))
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['detail']
+    filterset_fields = [
+        'application',
+    ]
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
