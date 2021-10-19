@@ -245,7 +245,7 @@ class Achievement(MetadataFields):
             fy = fiscal_year(self.date)
             mystr += f"{fy}."
 
-        if self.category and self.publication_type:
+        if self.category and self.category.is_publication and self.publication_type:
             mystr += f" {self.publication_type}."
 
         if self.detail:
