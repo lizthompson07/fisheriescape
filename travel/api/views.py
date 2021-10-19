@@ -226,7 +226,7 @@ class TravellerViewSet(viewsets.ModelViewSet):
         # if the trip is NOT in draft mode, need to provide annotation in the admin notes.
         if my_request.status != 8:
             my_request.add_admin_note(f"{date(timezone.now())}: {instance.smart_name} was removed from this request by {self.request.user.get_full_name()}")
-            email = emails.RemovedTravellerEmail(self.request, instance)
+            email = emails.RemovedTravellerEmail(self.request, instance, my_request)
             email.send()
 
         # if after deleting this traveller, there are no more travellers, we should unsubmit this trip.

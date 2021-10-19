@@ -154,6 +154,16 @@ class RemovedTravellerEmail(Email):
     def get_recipient_list(self):
         return [self.instance.email, ]
 
+    def __init__(self, request, instance=None, trip_request=None):
+        super().__init__(request)
+        self.request = request
+        self.instance = instance
+        self.trip_request = trip_request
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context.update({'instance': self.instance, 'trip_request': self.trip_request})
+        return context
 
 class TripCostWarningEmail(Email):
     email_template_path = 'travel/emails/email_trip_cost_warning.html'

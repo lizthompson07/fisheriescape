@@ -1083,12 +1083,14 @@ class TripReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
         my_reviewer = form.save()
         stay_on_page = form.cleaned_data.get("stay_on_page")
         reset = form.cleaned_data.get("reset")
+        approved = form.cleaned_data.get("approved")
+        print(approved)
 
         if not stay_on_page:
             if reset:
                 utils.reset_trip_review_process(my_reviewer.trip)
             else:
-                # if it was approved, then we change the reviewer status to 'approved'
+                # always change the reviewer status to 'complete'
                 my_reviewer.status = 26
                 my_reviewer.status_date = timezone.now()
                 my_reviewer.save()
@@ -1098,9 +1100,13 @@ class TripReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
                     qs = models.Reviewer.objects.filter(request__trip=my_reviewer.trip, request__status=14, role=5)
                     for r in qs:
                         r.user = self.request.user
-                        r.comments = "approved / approuvé"
-                        r.status = 2
                         r.status_date = timezone.now()
+                        if approved:
+                            r.comments = "approved / approuvé"
+                            r.status = 2
+                        else:
+                            r.comments = "denied / refusé"
+                            r.status = 3
                         r.save()
                         utils.approval_seeker(r.request, False, self.request)
 

@@ -26,7 +26,7 @@ def in_res_crud_group(user):
 def get_related_applications(user):
     """give me a user and I'll send back a queryset with all related requests, i.e.
      they are a client || they are a coordinator || they are the request.created_by"""
-    qs = models.Application.objects.filter(Q(created_by=user) | Q(applicant=user)).distinct()
+    qs = models.Application.objects.filter(Q(created_by=user) | Q(applicant=user) | Q(manager=user)).distinct()
     return qs
 
 

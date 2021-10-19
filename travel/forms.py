@@ -54,6 +54,7 @@ class ReviewerApprovalForm(forms.ModelForm):
 class TripReviewerApprovalForm(forms.ModelForm):
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     reset = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = models.TripReviewer
