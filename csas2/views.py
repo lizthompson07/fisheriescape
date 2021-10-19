@@ -104,62 +104,6 @@ class CSASAdminUserHardDeleteView(SuperuserOrCsasNationalAdminRequiredMixin, Com
     success_url = reverse_lazy("csas2:manage_csas_admin_users")
 
 
-# user permissions
-class UserListView(CsasNationalAdminRequiredMixin, CommonFilterView):
-    template_name = "csas2/user_list.html"
-    filterset_class = filters.UserFilter
-    home_url_name = "index"
-    paginate_by = 25
-    h1 = "CSAS Tracking Tool User Permissions"
-    field_list = [
-        {"name": 'first_name', "class": "", "width": ""},
-        {"name": 'last_name', "class": "", "width": ""},
-        {"name": 'email', "class": "", "width": ""},
-        {"name": 'last_login|{}'.format(gettext_lazy("Last login to DM Apps")), "class": "", "width": ""},
-    ]
-    new_object_url = reverse_lazy("shared_models:user_new")
-
-    def get_queryset(self):
-        queryset = User.objects.order_by("first_name", "last_name").annotate(
-            search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
-        )
-        if self.request.GET.get("csas_only"):
-            nat_group, created = Group.objects.get_or_create(name="csas_national_admin")
-            reg_group, created = Group.objects.get_or_create(name="csas_regional_admin")
-            queryset = queryset.filter(groups__in=[nat_group, reg_group]).distinct()
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        nat_group, created = Group.objects.get_or_create(name="csas_national_admin")
-        reg_group, created = Group.objects.get_or_create(name="csas_regional_admin")
-        context["nat_group"] = nat_group
-        context["reg_group"] = reg_group
-        return context
-
-
-@login_required(login_url='/accounts/login/')
-@user_passes_test(utils.in_csas_national_admin_group, login_url='/accounts/denied/')
-def toggle_user(request, pk, type):
-    if utils.in_csas_national_admin_group(request.user):
-        my_user = User.objects.get(pk=pk)
-        nat_group, created = Group.objects.get_or_create(name="csas_national_admin")
-        reg_group, created = Group.objects.get_or_create(name="csas_regional_admin")
-        group = None
-        if type == "nat":
-            group = nat_group
-        elif type == "reg":
-            group = reg_group
-        if group:
-            my_user.groups.remove(group) if group in my_user.groups.all() else my_user.groups.add(group)
-            return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
-        else:
-            return HttpResponseNotFound("Sorry, group type not recognized")
-
-    else:
-        return HttpResponseForbidden("sorry, not authorized")
-
-
 # people #
 ##########
 
@@ -347,13 +291,17 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
 
 class CSASRequestReviewTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     template_name = 'csas2/request_reviews/main.html'
-    h1 = gettext_lazy("CSAS Request Review Console")
     container_class = "container-fluid"
     home_url_name = "csas2:index"
+    h1 = gettext_lazy("CSAS Request Review Console")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+
+
+
 
 
 class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):

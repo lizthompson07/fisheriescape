@@ -21,6 +21,8 @@
       <h2 class="">{{ h1|safe }}</h2>
     </div>
     {% bootstrap_messages %}
+    
+    {% include "csas2/request_reviews/_filter.html" %}
 
     {#    <div v-if="canModify && request.review && request.review.id" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar}">#}
     {#      {% include "csas2/request_detail/_review.html" %}#}
@@ -213,6 +215,8 @@
 
 {% block body_js %}
   {{ block.super }}
+  {% include "csas2/components/filter_control.html" %}
+
   <script type="application/javascript">
 
   // register vue-select
@@ -230,6 +234,7 @@
       review: {},
       reviewLabels: {},
       errors: null,
+      statusChoices: [],
       prioritizationChoices: [],
       decisionChoices: [],
       notes: [],
@@ -289,18 +294,15 @@
           })
         }
       },
-      getReviewMetadata() {
-        let endpoint = `/api/csas/meta/models/request-review/`;
-        apiService(endpoint).then(data => {
+      getMetadata() {
+        apiService(`/api/csas/meta/models/request/`).then(data => {
+          this.requestLabels = data.labels;
+          this.statusChoices = data.status_choices;
+        });
+        apiService(`/api/csas/meta/models/request-review/`).then(data => {
           this.reviewLabels = data.labels;
           this.prioritizationChoices = data.prioritization_choices;
           this.decisionChoices = data.decision_choices;
-        });
-      },
-      getRequestMetadata() {
-        let endpoint = `/api/csas/meta/models/request/`;
-        apiService(endpoint).then(data => {
-          this.requestLabels = data.labels;
         });
       },
     },
@@ -313,10 +315,10 @@
       yesNo: vueFiltersObject["yesNo"],
     },
     created() {
-      {#this.getCurrentUser();#}
+      this.getCurrentUser();
       {#this.getRequest(true);#}
       {#this.getReviewMetadata();#}
-      {#this.getRequestMetadata();#}
+      this.getMetadata();
     },
   });
 

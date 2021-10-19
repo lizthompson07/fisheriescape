@@ -1,0 +1,38 @@
+{% load i18n %}
+
+<div class="table-bordered py-3 px-2 admin-panel mb-3">
+  <div class="row">
+    <div class="col">
+      <filter-control
+        label="{% trans "Search term (ID, Title, ...)" %}"
+        filter_param="search"
+      ></filter-control>
+    </div>
+
+    <div class="col">
+      <filter-control
+        label="{% trans "Region" %}"
+        filter_param="section__division__branch__sector__region"
+      ></filter-control>
+    </div>
+
+    <div class="col">
+      <filter-control
+        :label="requestLabels.fiscal_year"
+        filter_param="fiscal_year"
+        input_type="select"
+      ></filter-control>
+    </div>
+
+    <div class="col">
+      <filter-control
+        :label="requestLabels.status"
+        filter_param="status"
+        input_type="select"
+        :choices="statusChoices"
+      ></filter-control>
+    </div>
+
+  </div>
+
+</div>

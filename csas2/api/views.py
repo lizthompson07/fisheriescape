@@ -32,6 +32,12 @@ class CurrentUserAPIView(APIView):
         qp = request.GET
         data["is_csas_national_admin"] = utils.in_csas_national_admin_group(request.user)
         data["is_admin"] = utils.in_csas_admin_group(request.user)
+
+        # provide the region for which that use is an admin for, if applicable
+        data["regional_admin"] = None
+        if hasattr(request.user, "csas_admin_user"):
+            data["regional_admin"] = request.user.csas_admin_user.region
+
         if qp.get("request"):
             data["can_modify"] = utils.can_modify_request(request.user, qp.get("request"), return_as_dict=True)
         elif qp.get("process"):
@@ -631,6 +637,10 @@ class RequestModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
+
+        status_choices = [dict(text=c[1], value=c[0]) for c in model_choices.request_status_choices]
+        status_choices.insert(0, dict(text="-----", value=None))
+        data['status_choices'] = status_choices
         return Response(data)
 
 
@@ -643,8 +653,8 @@ class RequestReviewModelMetaAPIView(APIView):
         data['labels'] = _get_labels(self.model)
 
         prioritization_choices = [dict(text=c[1], value=c[0]) for c in model_choices.prioritization_choices]
-        decision_choices = [dict(text=c[1], value=c[0]) for c in model_choices.request_decision_choices]
         prioritization_choices.insert(0, dict(text="-----", value=None))
+        decision_choices = [dict(text=c[1], value=c[0]) for c in model_choices.request_decision_choices]
         decision_choices.insert(0, dict(text="-----", value=None))
         data['prioritization_choices'] = prioritization_choices
         data['decision_choices'] = decision_choices

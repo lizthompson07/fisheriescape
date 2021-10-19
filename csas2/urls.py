@@ -15,10 +15,6 @@ urlpatterns = [
     # permissions
     path('settings/csas-admin-users/', views.CSASAdminUserFormsetView.as_view(), name="manage_csas_admin_users"),
     path('settings/csas-admin-user/<int:pk>/delete/', views.CSASAdminUserHardDeleteView.as_view(), name="delete_csas_admin_user"),
-
-
-    path('settings/user-permissions/', views.UserListView.as_view(), name='user_list'),
-    path('settings/user-permissions/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
     # tags
     path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
     path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
