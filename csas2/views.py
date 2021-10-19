@@ -23,7 +23,7 @@ from shared_models.views import CommonTemplateView, CommonFormView, CommonDelete
     CommonHardDeleteView
 from . import models, forms, filters, utils, reports, emails
 from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin, \
-    CsasNationalAdminRequiredMixin
+    CsasNationalAdminRequiredMixin, SuperuserOrCsasNationalAdminRequiredMixin
 from .utils import in_csas_admin_group
 
 
@@ -89,7 +89,7 @@ class InviteeRoleHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDelete
     success_url = reverse_lazy("csas2:manage_invitee_roles")
 
 
-class CSASAdminUserFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
+class CSASAdminUserFormsetView(SuperuserOrCsasNationalAdminRequiredMixin, CommonFormsetView):
     template_name = 'csas2/formset.html'
     h1 = "Manage CSAS Administrative Users"
     queryset = models.CSASAdminUser.objects.all()
@@ -99,7 +99,7 @@ class CSASAdminUserFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView
     delete_url_name = "csas2:delete_csas_admin_user"
 
 
-class CSASAdminUserHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView):
+class CSASAdminUserHardDeleteView(SuperuserOrCsasNationalAdminRequiredMixin, CommonHardDeleteView):
     model = models.CSASAdminUser
     success_url = reverse_lazy("csas2:manage_csas_admin_users")
 
