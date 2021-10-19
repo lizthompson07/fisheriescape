@@ -37,7 +37,13 @@
             ref="text" id="text" rows="20"
             @keydown.ctrl.83.prevent="update"
           ></textarea>
+          <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1" class="helper"
+             title="{% trans "Markdown syntax is supported in this field" %}">
+            <small>{% trans "You can use markdown syntax in this field" %}</small>
+            <span class="mdi mdi-language-markdown ml-1 py-0" style="color: blue"></span>
+          </a>
         </div>
+
         <div class="float-right mb-3">
           <button class="btn btn-sm btn-primary"><span class="mdi mdi-plus mr-1 text-light"></span> {% trans "Add Reference" %}</button>
           <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span> {% trans "Save" %}</button>
@@ -125,7 +131,7 @@ Vue.component("outcome", {
   },
   computed: {
     wordCount() {
-      if(this.valuedOutcome.text) return this.valuedOutcome.text.split(" ").length;
+      if (this.valuedOutcome.text) return this.valuedOutcome.text.split(" ").length;
       return 0
     }
   }

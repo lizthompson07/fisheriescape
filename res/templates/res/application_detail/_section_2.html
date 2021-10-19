@@ -11,14 +11,14 @@
 <div v-else class="table table-sm">
 
   <editable-cell
-    input_type="textarea" col_class="col-3"
+    input_type="textarea" col_class="col-3" :word_limit="200"
     :label="applicationLabels.objectives"
     :object="application" :dirty="unsavedChanges"
     field="objectives" display_field="objectives_html"
     :markdown="true" :editable="canModify"  @change="updateApplication" @keypress="unsavedChanges=true"
   ></editable-cell>
   <editable-cell
-    input_type="textarea" col_class="col-3"
+    input_type="textarea" col_class="col-3"  :word_limit="400"
     :label="applicationLabels.relevant_factors"
     :object="application" field="relevant_factors" display_field="relevant_factors_html"
     :markdown="true" :editable="canModify" :dirty="unsavedChanges"

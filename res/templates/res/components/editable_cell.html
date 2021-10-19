@@ -7,6 +7,11 @@
   <div class="row table-div">
     <div :class="col_class">
       <label for="my-input">${label}</label>
+      <p v-if="word_limit">
+        <em>
+          (${wordCount} / ${word_limit} {% trans "words" %})
+        </em>
+      </p>
     </div>
     <div v-if="!editMode" class="col">
       <div class="row">
@@ -144,6 +149,9 @@ Vue.component("editable-cell", {
       type: String,
       default: "text"
     },
+    word_limit: {
+      type: Number,
+    },
     label: {
       type: String,
     },
@@ -190,6 +198,10 @@ Vue.component("editable-cell", {
     blankOption() {
       if (this.blank_option) return this.blank_option;
       else return "-----";
+    },
+    wordCount() {
+      if (this.input) return this.input.split(" ").length;
+      return 0
     }
   }
 });

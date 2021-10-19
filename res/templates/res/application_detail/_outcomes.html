@@ -17,7 +17,9 @@
     <div v-for="context in contexts" :key="context.id" class="mb-5">
       <h6 v-if="application.context_word_count_dict[context.id]<=context.word_limit" class="float-right">${application.context_word_count_dict[context.id]} / ${context.word_limit} {% trans "words" %}</h6>
       <h6 v-else class="float-right red-font">${application.context_word_count_dict[context.id]} / ${context.word_limit} {% trans "words" %}</h6>
-      <h6 :id="`context${context.id}`"> ${context.tname} </h6>
+      <h6 :id="`context${context.id}`">
+        ${context.tname}
+      </h6>
 
       <div v-for="outcome in context.outcomes" :key="outcome.id" class="mb-3">
 
