@@ -76,6 +76,7 @@
                 ref="input" id="my-input"
                 list="mydatalist"
                 @keydown.ctrl.83.prevent="update"
+                @change="update"
               >
               <datalist id="mydatalist">
                 <option v-for="(obj, index) in options" :value="obj.value"></option>
@@ -88,6 +89,7 @@
                 @keypress="$emit('keypress')"
                 ref="input" id="my-input"
                 @keydown.ctrl.83.prevent="update"
+                @change="update"
               >
             </div>
           </div>
