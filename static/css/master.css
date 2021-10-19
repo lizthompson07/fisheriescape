@@ -101,12 +101,12 @@
     font-size: small;
 }
 
-.bad {
+.bad, .no {
     background-color: pink;
     color: black;
 }
 
-.good {
+.good, .yes {
     background-color: lightgreen;
     color: black;
 }
@@ -345,6 +345,10 @@
     width: 40%;
 }
 
+.w-45 {
+    width: 45%;
+}
+
 .greyed {
     background-color: #dddcdc;
 }
@@ -355,4 +359,7 @@
 
 .helper {
      cursor: help;
+ }
+.copy-me {
+     cursor: copy;
  }

@@ -72,7 +72,7 @@
             </button>
             {% if object.status >= 2 %}
 
-              <a href="{% url 'csas2:request_pdf' object.id %}" class="btn btn-outline-dark btn-sm ml-3">
+              <a href="{% url 'csas2:request_pdf' %}?csas_requests={{ object.id }}" class="btn btn-outline-dark btn-sm ml-3">
                 <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
               </a>
             {% endif %}
@@ -87,7 +87,7 @@
                 </tr>
                 <tr>
                   <th class="text-left w250" v-html="requestLabels.status"></th>
-                  <td class="text-left" v-html="request.status_display"></td>
+                  <td class="text-left" v-html="request.status_display_html"></td>
                 </tr>
                 <tr>
                   <th class="text-left">{% trans "is carry over?" %}</th>
@@ -184,7 +184,7 @@
                     {% if object.processes.exists %}
                       {% for process in object.processes.all %}
                         <div>
-                          <a href="{% url 'csas2:process_detail' process.id %}">{{ process }} ({{ process.id }}) &rarr; {{ process.get_status_display }}</a>
+                          {{ process.status_display }} &rarr; <a href="{% url 'csas2:process_detail' process.id %}">{{ process }} ({{ process.id }})</a>
                         </div>
                       {% endfor %}
                     {% else %}
@@ -200,7 +200,7 @@
             </div>
             {# Notes #}
             <div class="col-4">
-              <note-pad v-if="request.id" parent_name="csas_request" :parent_id="request.id" :notes="notes" @update-notes="getNotes"></note-pad>
+              <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify"></note-pad>
             </div>
           </div>
         </div>
@@ -238,7 +238,7 @@
       prioritizationChoices: [],
       decisionChoices: [],
       notes: [],
-      showSidebar: false,
+      showSidebar: true,
     },
     methods: {
       getCurrentUser() {
@@ -262,7 +262,7 @@
         });
       },
       getNotes() {
-        let endpoint = `/api/csas/csas_request-notes/?csas_request=${requestId}`;
+        let endpoint = `/api/csas/request-notes/?csas_request=${requestId}`;
         apiService(endpoint).then(data => {
           this.notes = data;
         });

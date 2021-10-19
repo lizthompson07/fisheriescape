@@ -29,11 +29,11 @@ urlpatterns = [
     path('requests/', views.CSASRequestListView.as_view(), name="request_list"),
     path('requests/new/', views.CSASRequestCreateView.as_view(), name="request_new"),
     path('requests/<int:pk>/view/', views.CSASRequestDetailView.as_view(), name="request_detail"),
-    path('requests/<int:pk>/pdf/', views.CSASRequestPDFView.as_view(), name="request_pdf"),
     path('requests/<int:pk>/edit/', views.CSASRequestUpdateView.as_view(), name="request_edit"),
     path('requests/<int:pk>/clone/', views.CSASRequestCloneUpdateView.as_view(), name="request_clone"),
     path('requests/<int:pk>/delete/', views.CSASRequestDeleteView.as_view(), name="request_delete"),
     path('requests/<int:pk>/submit/', views.CSASRequestSubmitView.as_view(), name="request_submit"),
+    path('requests/print-requests/', views.CSASRequestPDFView.as_view(), name="request_pdf"),
 
     # request files
     path('requests/<int:crequest>/new-file/', views.CSASRequestFileCreateView.as_view(), name='request_file_new'),
@@ -75,9 +75,14 @@ urlpatterns = [
     path('documents/<int:pk>/edit/', views.DocumentUpdateView.as_view(), name="document_edit"),
     path('documents/<int:pk>/delete/', views.DocumentDeleteView.as_view(), name="document_delete"),
 
+    # to-do
+    path('my-todo-list/', views.ToDoListTemplateView.as_view(), name="todo_list"),
+
     # reports
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
     path('reports/meeting/', views.meeting_report, name="meeting_report"),
+    path('reports/requests/', views.request_list_report, name="request_list_report"),
+    path('reports/processes/', views.process_list_report, name="process_list_report"),
 
 ]
 

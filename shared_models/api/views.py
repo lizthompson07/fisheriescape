@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -57,10 +58,12 @@ class RegionViewSet(ModelViewSet):
         serializer.save(last_modified_by=self.request.user)
 
 
-class BranchViewSet(ModelViewSet):
-    queryset = models.Branch.objects.order_by("region__name", "name")
-    serializer_class = serializers.BranchSerializer
+class SectorViewSet(ModelViewSet):
+    queryset = models.Sector.objects.order_by("region__name", "name")
+    serializer_class = serializers.SectorSerializer
     permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['region']
 
     def perform_create(self, serializer):
         serializer.save(last_modified_by=self.request.user)
@@ -69,10 +72,12 @@ class BranchViewSet(ModelViewSet):
         serializer.save(last_modified_by=self.request.user)
 
 
-class SectorViewSet(ModelViewSet):
-    queryset = models.Sector.objects.order_by("region__name", "name")
-    serializer_class = serializers.SectorSerializer
+class BranchViewSet(ModelViewSet):
+    queryset = models.Branch.objects.order_by("region__name", "name")
+    serializer_class = serializers.BranchSerializer
     permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['sector__region', "sector"]
 
     def perform_create(self, serializer):
         serializer.save(last_modified_by=self.request.user)
@@ -85,6 +90,8 @@ class DivisionViewSet(ModelViewSet):
     queryset = models.Division.objects.order_by("branch__region__name", "branch__name", "name")
     serializer_class = serializers.DivisionSerializer
     permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['branch__sector__region', "branch__sector", "branch"]
 
     def perform_create(self, serializer):
         serializer.save(last_modified_by=self.request.user)
@@ -97,6 +104,8 @@ class SectionViewSet(ModelViewSet):
     queryset = models.Section.objects.order_by("division__branch__region__name", "division__branch__name", "division__name", "name")
     serializer_class = serializers.SectionSerializer
     permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['division__branch__sector__region', "division__branch__sector", "division__branch", "division"]
 
     def perform_create(self, serializer):
         serializer.save(last_modified_by=self.request.user)

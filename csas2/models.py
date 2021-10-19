@@ -8,6 +8,7 @@ from django.db import models
 from django.db.models import Sum
 from django.template.defaultfilters import date, slugify, pluralize
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext, get_language, activate
 from markdown import markdown
@@ -29,19 +30,25 @@ YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
 
 
 def request_directory_path(instance, filename):
-    return 'csas/request_{0}/{1}'.format(instance.csas_request.id, filename)
+    ext = filename.split(".")[-1]
+    file = filename.split(".")[0]
+    return 'csas/request_{0}/{1}.{2}'.format(instance.csas_request.id, slugify(file), ext)
 
 
 def meeting_directory_path(instance, filename):
-    return 'csas/meeting_{0}/{1}'.format(instance.meeting.id, filename)
+    ext = filename.split(".")[-1]
+    file = filename.split(".")[0]
+    return 'csas/meeting_{0}/{1}.{2}'.format(instance.meeting.id, slugify(file), ext)
 
 
 def doc_directory_path(instance, filename):
+    ext = filename.split(".")[-1]
+    file = filename.split(".")[0]
     return 'csas/document_{0}/{1}'.format(instance.id, filename)
 
 
 class GenericFile(models.Model):
-    caption = models.CharField(max_length=255)
+    caption = models.CharField(max_length=255, verbose_name=_("caption"))
     file = models.FileField()
     date_created = models.DateTimeField(auto_now=True, editable=False)
 
@@ -55,8 +62,8 @@ class GenericFile(models.Model):
 
 class GenericCost(models.Model):
     cost_category = models.IntegerField(choices=model_choices.cost_category_choices, verbose_name=_("cost category"))
-    description = models.CharField(max_length=1000, blank=True, null=True)
-    funding_source = models.CharField(max_length=255, blank=True, null=True)
+    description = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description"))
+    funding_source = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("funding source"))
     amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
 
     def save(self, *args, **kwargs):
@@ -146,13 +153,12 @@ class CSASRequest(MetadataFields):
         else:
             self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
 
-        # if there is a process, the request status will follow the process status
+        # if there is a process, the request the request MUST have been approved.
         if self.id and self.processes.exists():
-            # if all processes linked to the request are complete, this request should also be complete
-            if self.processes.filter(status=2).count() == self.processes.all().count():
-                self.status = 5  # complete
+            if self.processes.filter(status=100).count() == self.processes.all().count():
+                self.status = 5  # fulfilled
             else:
-                self.status = 11  # on
+                self.status = 11  # accepted
         else:
             # look at the review to help determine the status
             self.status = 1  # draft
@@ -224,8 +230,16 @@ class CSASRequest(MetadataFields):
         return self.section.division.branch.tname
 
     @property
+    def sector(self):
+        return self.section.division.branch.sector.tname
+
+    @property
     def region(self):
         return self.section.division.branch.region.tname
+
+    @property
+    def has_process(self):
+        return self.processes.exists()
 
     @property
     def is_complete(self):
@@ -247,6 +261,12 @@ class CSASRequest(MetadataFields):
             if getattr(self, field) in [None, ""]:
                 return False
         return True
+
+    @property
+    def target_advice_date(self):
+        if hasattr(self, "review") and self.review.advice_date:
+            return self.review.advice_date
+        return self.advice_needed_by
 
 
 class CSASRequestNote(GenericNote):
@@ -304,8 +324,7 @@ class CSASRequestFile(GenericFile):
 class Process(SimpleLookupWithUUID, MetadataFields):
     name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (fr)"))
-    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="processes", verbose_name=_("fiscal year"))
-    status = models.IntegerField(choices=model_choices.process_status_choices, verbose_name=_("status"), default=1)
+    status = models.IntegerField(choices=model_choices.get_process_status_choices(), verbose_name=_("status"), default=1)
     scope = models.IntegerField(verbose_name=_("scope"), choices=model_choices.process_scope_choices)
     type = models.IntegerField(verbose_name=_("type"), choices=model_choices.process_type_choices)
     lead_region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions", verbose_name=_("lead region"))
@@ -316,11 +335,13 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
     editors = models.ManyToManyField(User, blank=True, verbose_name=_("process editors"), related_name="process_editors",
                                      help_text=_("A list of non-CSAS staff with permissions to edit the process, meetings and documents"))
+    advice_date = models.DateTimeField(verbose_name=_("Target date for to provide Science advice"), blank=True, null=True)
 
     # non-editable
     is_posted = models.BooleanField(default=False, verbose_name=_("is posted on CSAS website?"))
     posting_request_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Date of posting request"))
     posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="processes", verbose_name=_("fiscal year"), editable=False)
 
     # calculated
 
@@ -328,25 +349,50 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         ordering = ["fiscal_year", _("name")]
 
     def save(self, *args, **kwargs):
-        # # if this is a new record, populate fy based on current time
-        # if not self.fiscal_year:
-        #     self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
-        # # if there is a meeting, look to the latest meeting to determine fy
-        # elif self.meetings.exists():
-        #     self.fiscal_year_id = fiscal_year(self.meetings.order_by("start_date").last().start_date, sap_style=True)
-        # # otherwise, look to the creation date
-        # else:
-        #     self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
+        # if there is no advice date, take the target date from the first attached request
+        if not self.advice_date and self.csas_requests.exists():
+            self.advice_date = self.csas_requests.first().target_advice_date
+
+        # if there is an advice date, FY should follow it..
+        if self.advice_date:
+            self.fiscal_year_id = fiscal_year(self.advice_date, sap_style=True)
+
+        # if there is a process, the request the request MUST have been approved.
+        if hasattr(self, "tor") and self.tor.is_complete:
+            self.status = 22  # tor complete!
+
+        # has the latest scheduled meeting passed
+        now = timezone.now()
+        meeting_qs = self.meetings.filter(is_planning=False, is_estimate=False).order_by("end_date")
+        if meeting_qs.exists() and meeting_qs.last().end_date and meeting_qs.last().end_date <= now:
+            self.status = 25  # meeting complete!
+
+        # has the key doc been completed
+        doc_qs = self.documents.filter(status__in=[12, 17])
+        if doc_qs.exists():
+            self.status = 100  # complete!
 
         super().save(*args, **kwargs)
 
+    # @property
+    # def status_display(self):
+    #     return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
+    #
+    # @property
+    # def status_class(self):
+    #     return slugify(self.get_status_display()) if self.status else ""
+
     @property
     def status_display(self):
-        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
+        stage = model_choices.get_process_status_lookup().get(self.status).get("stage")
+        return mark_safe(f'<span class=" px-1 py-1 {stage}">{self.get_status_display()}</span>')
 
     @property
     def status_class(self):
-        return slugify(self.get_status_display()) if self.status else ""
+        try:
+            return model_choices.get_process_status_lookup().get(self.status).get("stage")
+        except:
+            pass
 
     def get_absolute_url(self):
         return reverse("csas2:process_detail", args=[self.pk])
@@ -386,9 +432,13 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     def regions(self):
         mystr = self.lead_region
         if self.other_regions.exists():
-            mystr = f"<u>{mystr}</u>"
+            mystr = f"<b><u>{mystr}</u></b>"
             mystr += f", {listrify(self.other_regions.all())}"
         return mystr
+
+
+class ProcessCost(GenericCost):
+    process = models.ForeignKey(Process, related_name='costs', on_delete=models.CASCADE, verbose_name=_("process"))
 
 
 class TermsOfReference(MetadataFields):
@@ -405,6 +455,8 @@ class TermsOfReference(MetadataFields):
                                    verbose_name=_("Linked to which meeting?"),
                                    help_text=_("The ToR will pull several fields from the linked meeting (e.g., dates, chair, location, ...)"))
     expected_document_types = models.ManyToManyField("DocumentType", blank=True, verbose_name=_("expected publications"))
+    is_complete = models.BooleanField(default=False, verbose_name=_("Are the ToRs complete?"), choices=YES_NO_CHOICES,
+                                      help_text=_("Selecting yes will update the process status"))
 
     @property
     def context_en_html(self):
@@ -621,10 +673,6 @@ class MeetingResource(SimpleLookup, MetadataFields):
         ordering = [_("name")]
 
 
-class MeetingCost(GenericCost):
-    meeting = models.ForeignKey(Meeting, related_name='costs', on_delete=models.CASCADE)
-
-
 class MeetingFile(GenericFile):
     meeting = models.ForeignKey(Meeting, related_name="files", on_delete=models.CASCADE, editable=False)
     file = models.FileField(upload_to=meeting_directory_path)
@@ -689,7 +737,7 @@ class DocumentType(SimpleLookup):
 
 
 class Document(MetadataFields):
-    process = models.ForeignKey(Process, on_delete=models.CASCADE, related_name="documents", editable=False)
+    process = models.ForeignKey(Process, on_delete=models.CASCADE, related_name="documents", editable=False, verbose_name=_("process"))
     document_type = models.ForeignKey(DocumentType, on_delete=models.DO_NOTHING, verbose_name=_("document type"))
     title_en = models.CharField(max_length=255, verbose_name=_("title (English)"), blank=True, null=True)
     title_fr = models.CharField(max_length=255, verbose_name=_("title (French)"), blank=True, null=True)
@@ -758,14 +806,12 @@ class Document(MetadataFields):
             my_str = "{}".format(getattr(self, str(_("title_en"))))
         else:
             my_str = self.title_en
+        if not my_str:
+            my_str = str(self.id)
         return my_str
 
     def __str__(self):
         return self.ttitle
-
-    @property
-    def total_cost(self):
-        return self.costs.aggregate(dsum=Sum("amount"))["dsum"]
 
     @property
     def status_display(self):
@@ -789,10 +835,6 @@ class Document(MetadataFields):
 class DocumentNote(GenericNote):
     ''' a note pertaining to a meeting'''
     document = models.ForeignKey(Document, related_name='notes', on_delete=models.CASCADE)
-
-
-class DocumentCost(GenericCost):
-    document = models.ForeignKey(Document, related_name='costs', on_delete=models.CASCADE)
 
 
 class DocumentTracking(MetadataFields):
@@ -857,8 +899,8 @@ class DocumentTracking(MetadataFields):
 
 class Author(models.Model):
     ''' a person that was invited to a meeting'''
-    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="authors")
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="authorship")
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="authors", verbose_name=_("document"))
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="authorship", verbose_name=_("person"))
     is_lead = models.BooleanField(default=False, verbose_name=_("lead author?"))
 
     class Meta:

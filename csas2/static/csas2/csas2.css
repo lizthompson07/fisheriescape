@@ -62,11 +62,11 @@ h1 {
 }
 
 
-.draft, .preparation {
+.draft, .preparation, .initiation {
     background-color: #ffff9d;
 }
 
-.submitted, .complete {
+.submitted {
     background-color: #84c6ff;
 }
 
@@ -79,17 +79,21 @@ h1 {
     background-color: #4c6fc6;
 }
 
-.off, .deferred, .delayed {
+.unapproved, .deferred, .delayed {
     color: white;
     background-color: #e94a65;
 }
 
-.on, .posted, .ok, .complete, .final {
+.accepted, .approved, .posted, .ok, .complete, .final {
     background-color: #d5faae;
 }
 
 .withdrawn {
     background-color: #cacaca;
+}
+
+.fulfilled {
+    background-color: #87ff76;
 }
 
 .deferred {

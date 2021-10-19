@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
@@ -30,6 +31,7 @@ class CurrentUserAPIView(APIView):
         data = serializer.data
         qp = request.GET
         data["is_csas_national_admin"] = utils.in_csas_national_admin_group(request.user)
+        data["is_admin"] = utils.in_csas_admin_group(request.user)
         if qp.get("request"):
             data["can_modify"] = utils.can_modify_request(request.user, qp.get("request"), return_as_dict=True)
         elif qp.get("process"):
@@ -47,6 +49,16 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CSASRequestSerializer
     permission_classes = [CanModifyRequestOrReadOnly]
     queryset = models.CSASRequest.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = [
+        'section__division__branch__sector__region',
+        "section__division__branch__sector",
+        "section__division__branch",
+        "section__division",
+        "section",
+        "fiscal_year",
+        "status",
+    ]
 
 
 class CSASRequestNoteViewSet(viewsets.ModelViewSet):
@@ -61,7 +73,12 @@ class CSASRequestNoteViewSet(viewsets.ModelViewSet):
             qs = csas_request.notes.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
-        raise ValidationError(_("You need to specify a csas request"))
+        elif qp.get("user"):
+            user = get_object_or_404(User, pk=qp.get("user"))
+            qs = user.csasrequestnote_created_by.filter(type=2, is_complete=False)
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify at least one query param."))
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -179,6 +196,11 @@ class MeetingNoteViewSet(viewsets.ModelViewSet):
             qs = meeting.notes.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
+        elif qp.get("user"):
+            user = get_object_or_404(User, pk=qp.get("user"))
+            qs = user.meetingnote_created_by.filter(type=2, is_complete=False)
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
         raise ValidationError(_("You need to specify a meeting"))
 
     def perform_create(self, serializer):
@@ -200,6 +222,11 @@ class ProcessNoteViewSet(viewsets.ModelViewSet):
             qs = process.notes.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
+        elif qp.get("user"):
+            user = get_object_or_404(User, pk=qp.get("user"))
+            qs = user.processnote_created_by.filter(type=2, is_complete=False)
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
         raise ValidationError(_("You need to specify a process"))
 
     def perform_create(self, serializer):
@@ -209,19 +236,19 @@ class ProcessNoteViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
-class MeetingCostViewSet(viewsets.ModelViewSet):
-    queryset = models.MeetingCost.objects.all()
-    serializer_class = serializers.MeetingCostSerializer
+class ProcessCostViewSet(viewsets.ModelViewSet):
+    queryset = models.ProcessCost.objects.all()
+    serializer_class = serializers.ProcessCostSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params
-        if qp.get("meeting"):
-            meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
-            qs = meeting.costs.all()
+        if qp.get("process"):
+            process = get_object_or_404(models.Process, pk=qp.get("process"))
+            qs = process.costs.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
-        raise ValidationError(_("You need to specify a meeting"))
+        raise ValidationError(_("You need to specify a process"))
 
     def perform_create(self, serializer):
         serializer.save()
@@ -446,6 +473,11 @@ class DocumentNoteViewSet(viewsets.ModelViewSet):
             qs = document.notes.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
+        elif qp.get("user"):
+            user = get_object_or_404(User, pk=qp.get("user"))
+            qs = user.documentnote_created_by.filter(type=2, is_complete=False)
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
         raise ValidationError(_("You need to specify a document"))
 
     def perform_create(self, serializer):
@@ -453,27 +485,6 @@ class DocumentNoteViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
-
-
-class DocumentCostViewSet(viewsets.ModelViewSet):
-    queryset = models.DocumentCost.objects.all()
-    serializer_class = serializers.DocumentCostSerializer
-    permission_classes = [CanModifyProcessOrReadOnly]
-
-    def list(self, request, *args, **kwargs):
-        qp = request.query_params
-        if qp.get("document"):
-            document = get_object_or_404(models.Document, pk=qp.get("document"))
-            qs = document.costs.all()
-            serializer = self.get_serializer(qs, many=True)
-            return Response(serializer.data)
-        raise ValidationError(_("You need to specify a document"))
-
-    def perform_create(self, serializer):
-        serializer.save()
-
-    def perform_update(self, serializer):
-        serializer.save()
 
 
 class PersonViewSet(viewsets.ModelViewSet):

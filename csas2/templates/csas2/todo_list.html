@@ -1,0 +1,304 @@
+{% extends "csas2/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% block crumbs %}
+{% endblock %}
+
+{% block messages %}{% endblock %}
+{% block title_area %}
+{% endblock %}
+
+{% block header %}
+  {{ block.super }}
+
+{% endblock %}
+
+{% block subcontent %}
+  <div id="app" v-cloak>
+  <div>
+    {% include "shared_models/_generic_breadcrumbs.html" %}
+    <div class="mb-3">
+      <h2 class="">{{ h1|safe }}</h2>
+    </div>
+
+    <div class="mb-4">
+      <p class="lead">{% trans "CSAS Requests" %}</p>
+      <div v-if="requestNotesLoading" class="loading mb-3 mt-3 mt-5">
+        <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+      </div>
+      <div v-else>
+        <table v-if="requestNotes.length" class="table table-sm">
+          <thead>
+          <tr>
+            <th></th>
+            <th class="w-40">{% trans "Item" %}</th>
+            <th class="w-25">{% trans "CSAS Request" %}</th>
+            <th class="w-25">{% trans "Created" %}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="(n, index) in requestNotes" :key="`request${n.id}`">
+            <td style="vertical-align: top">
+              <button class="btn btn-sm px-0 py-0 mr-1" style="vertical-align: top" @click="toggleComplete(n, 'request')">
+                <span v-if="!n.is_complete" class="py-0 my-0 mdi mdi-checkbox-blank-outline h6"></span>
+                <span v-else class="py-0 my-0 mdi mdi-checkbox-marked-outline h6"></span>
+              </button>
+            </td>
+            <td>
+              <span :class="{strike:n.is_complete}">${n.note}</span>
+            <td>
+              <a :href="`/csas-sccs/requests/${n.csas_request}/view/`">${n.request_display}</a>
+            </td>
+            <td>${n.created_at|date}</td>
+            <td style="vertical-align: top">
+              <button @click="deleteNote(n, 'request')" class="btn btn-sm px-0 py-0 mr-1" data-toggle="tooltip" title="{% trans "Delete" %}"
+                      style="vertical-align: top">
+                <span class="mdi mdi-delete py-0 my-0"></span>
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <div v-else class="text-muted">
+          <em>{% trans "No outstanding notes to display." %}</em>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="mb-4">
+      <p class="lead">{% trans "Processes" %}</p>
+      <div v-if="processNotesLoading" class="loading mb-3 mt-3 mt-5">
+        <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+      </div>
+      <div v-else>
+        <table v-if="processNotes.length" class="table table-sm">
+          <thead>
+          <tr>
+            <th></th>
+            <th class="w-40">{% trans "Item" %}</th>
+            <th class="w-25">{% trans "Process" %}</th>
+            <th class="w-25">{% trans "Created" %}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="(n, index) in processNotes" :key="`process${n.id}`">
+            <td style="vertical-align: top">
+              <button class="btn btn-sm px-0 py-0 mr-1" style="vertical-align: top" @click="toggleComplete(n, 'process')">
+                <span v-if="!n.is_complete" class="py-0 my-0 mdi mdi-checkbox-blank-outline h6"></span>
+                <span v-else class="py-0 my-0 mdi mdi-checkbox-marked-outline h6"></span>
+              </button>
+            </td>
+            <td>
+              <span :class="{strike:n.is_complete}">${n.note}</span>
+            <td>
+              <a :href="`/csas-sccs/processes/${n.process}/view/`">${n.process_display}</a>
+            </td>
+            <td>${n.created_at|date}</td>
+            <td style="vertical-align: top">
+              <button @click="deleteNote(n, 'process')" class="btn btn-sm px-0 py-0 mr-1" data-toggle="tooltip" title="{% trans "Delete" %}"
+                      style="vertical-align: top">
+                <span class="mdi mdi-delete py-0 my-0"></span>
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <div v-else class="text-muted">
+          <em>{% trans "No outstanding notes to display." %}</em>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="mb-4">
+      <p class="lead">{% trans "Meetings" %}</p>
+      <div v-if="meetingNotesLoading" class="loading mb-3 mt-3 mt-5">
+        <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+      </div>
+      <div v-else>
+        <table v-if="meetingNotes.length" class="table table-sm">
+          <thead>
+          <tr>
+            <th></th>
+            <th class="w-40">{% trans "Item" %}</th>
+            <th class="w-25">{% trans "Meeting" %}</th>
+            <th class="w-25">{% trans "Created" %}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="(n, index) in meetingNotes" :key="`meeting${n.id}`">
+            <td style="vertical-align: top">
+              <button class="btn btn-sm px-0 py-0 mr-1" style="vertical-align: top" @click="toggleComplete(n, 'meeting')">
+                <span v-if="!n.is_complete" class="py-0 my-0 mdi mdi-checkbox-blank-outline h6"></span>
+                <span v-else class="py-0 my-0 mdi mdi-checkbox-marked-outline h6"></span>
+              </button>
+            </td>
+            <td>
+              <span :class="{strike:n.is_complete}">${n.note}</span>
+            <td>
+              <a :href="`/csas-sccs/meetings/${n.meeting}/view/`">${n.meeting_display}</a>
+            </td>
+            <td>${n.created_at|date}</td>
+            <td style="vertical-align: top">
+              <button @click="deleteNote(n, 'meeting')" class="btn btn-sm px-0 py-0 mr-1" data-toggle="tooltip" title="{% trans "Delete" %}"
+                      style="vertical-align: top">
+                <span class="mdi mdi-delete py-0 my-0"></span>
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <div v-else class="text-muted">
+          <em>{% trans "No outstanding notes to display." %}</em>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <p class="lead">{% trans "Document" %}</p>
+      <div v-if="documentNotesLoading" class="loading mb-3 mt-3 mt-5">
+        <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+      </div>
+      <div v-else>
+        <table v-if="documentNotes.length" class="table table-sm">
+          <thead>
+          <tr>
+            <th></th>
+            <th class="w-40">{% trans "Item" %}</th>
+            <th class="w-25">{% trans "Document" %}</th>
+            <th class="w-25">{% trans "Created" %}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="(n, index) in documentNotes" :key="`document${n.id}`">
+            <td style="vertical-align: top">
+              <button class="btn btn-sm px-0 py-0 mr-1" style="vertical-align: top" @click="toggleComplete(n, 'document')">
+                <span v-if="!n.is_complete" class="py-0 my-0 mdi mdi-checkbox-blank-outline h6"></span>
+                <span v-else class="py-0 my-0 mdi mdi-checkbox-marked-outline h6"></span>
+              </button>
+            </td>
+            <td>
+              <span :class="{strike:n.is_complete}">${n.note}</span>
+            <td>
+              <a :href="`/csas-sccs/documents/${n.document}/view/`">${n.document_display}</a>
+            </td>
+            <td>${n.created_at|date}</td>
+
+            <td style="vertical-align: top">
+              <button @click="deleteNote(n, 'document')" class="btn btn-sm px-0 py-0 mr-1" data-toggle="tooltip" title="{% trans "Delete" %}"
+                      style="vertical-align: top">
+                <span class="mdi mdi-delete py-0 my-0"></span>
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <div v-else class="text-muted">
+          <em>{% trans "No outstanding notes to display." %}</em>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+
+  {% include "csas2/components/note_pad.html" %}
+
+  <script type="application/javascript">
+  // register vue-select
+  Vue.component('v-select', VueSelect.VueSelect);
+
+  // vuejs instance
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: {},
+      requestNotesLoading: false,
+      processNotesLoading: false,
+      meetingNotesLoading: false,
+      documentNotesLoading: false,
+
+      requestNotes: [],
+      processNotes: [],
+      meetingNotes: [],
+      documentNotes: [],
+    },
+    methods: {
+      getCurrentUser() {
+        let endpoint = `/api/csas/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+              this.getNotes("request");
+              this.getNotes("process");
+              this.getNotes("meeting");
+              this.getNotes("document");
+
+            })
+      },
+      getNotes(type) {
+        this[type + "NotesLoading"] = true;
+        let endpoint = `/api/csas/${type}-notes/?user=${this.currentUser.id}`;
+        apiService(endpoint).then(data => {
+          this[type + "Notes"] = data;
+          this[type + "NotesLoading"] = false;
+        });
+      },
+      deleteNote(note, type) {
+        let userInput = true;
+        if (!note.is_complete) userInput = confirm("{% trans 'Are you certain you want to delete this Note?' %}");
+        if (userInput) {
+          let endpoint = `/api/csas/${type}-notes/${note.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.$delete(this[type + "Notes"], this[type + "Notes"].indexOf(note));
+          });
+        }
+      },
+      toggleComplete(note, type) {
+        let endpoint = `/api/csas/${type}-notes/${note.id}/`;
+        apiService(endpoint, "PATCH", {
+          is_complete: !note.is_complete
+        }).then(response => {
+          this.$set(this[type + "Notes"], this[type + "Notes"].indexOf(note), response);
+        });
+      },
+    },
+    filters: {
+      nz: vueFiltersObject["nz"],
+      yesNo: vueFiltersObject["yesNo"],
+      date: vueFiltersObject["date"],
+    },
+    computed: {},
+    created() {
+      this.getCurrentUser();
+    },
+  });
+
+
+  </script>
+
+{% endblock %}

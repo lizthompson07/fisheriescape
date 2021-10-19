@@ -12,22 +12,18 @@ language_choices = (
 
 request_status_choices = (
     (1, _("Draft")),
-    (2, _("Submitted")),
-    (3, _("Ready for review")),
-    (4, _("Under review")),
-    (5, _("Complete")),
+    (2, _("Submitted")),  # client submits request
+    (3, _("Ready for review")),  # signed PDF
+    (4, _("Under review")),  # review is created by coordinator
+    (5, _("Fulfilled")),
     # all status below here should correspond to review decision choice + 10
-    (11, _("On")),
-    (12, _("Off")),
-    (13, _("Withdrawn")),
-    (14, _("Deferred")),
+    (11, _("Accepted")),  # coordinator approves
+    (12, _("Withdrawn")),  # client (coordinator) withdraws
 )
 
 request_decision_choices = (
-    (1, _("On")),
-    (2, _("Off")),
-    (3, _("Withdrawn")),
-    (4, _("Deferred")),
+    (1, _("Accepted")),
+    (2, _("Withdrawn")),
 )
 
 prioritization_choices = (
@@ -48,13 +44,42 @@ process_type_choices = (
     # (3, _('Peer Review')),
 )
 
-process_status_choices = (
-    (1, _('In-progress')),
-    (2, _('Complete')),
-    (3, _('Deferred')),
-    (4, _('Delayed')),
-    (5, _('Tentative')),
+# process_status_choices = (
+#     (1, _('In-progress')),
+#     (2, _('Complete')),
+#     (3, _('Deferred')),
+#     (4, _('Delayed')),
+#     (5, _('Tentative')),
+# )
+
+process_status_dict = (
+    dict(trigger=None, stage="initiation", text=_("Initiated"), value=1),
+    ####################
+    dict(trigger=None, stage="in-progress", text=_("On"), value=20),
+    dict(trigger=None, stage="in-progress", text=_("ToR Complete"), value=22),
+    dict(trigger=None, stage="in-progress", text=_("Meeting Complete"), value=25),
+    ####################
+    dict(trigger=None, stage="deferred", text=_("Deferred"), value=30),
+    ####################
+    dict(trigger=None, stage="complete", text=_("Complete"), value=100),
+    ####################
+    dict(trigger=None, stage="withdrawn", text=_("Withdrawn"), value=90),
 )
+
+
+def get_process_status_choices():
+    return [(item["value"], item["text"]) for item in process_status_dict]
+
+
+def get_process_status_lookup():
+    my_dict = dict()
+    for item in process_status_dict:
+        my_dict[item["value"]] = dict()
+        my_dict[item["value"]]["stage"] = item["stage"]
+        my_dict[item["value"]]["text"] = item["text"]
+    return my_dict
+
+
 
 # meeting_type_choices = (
 #     (1, _("Planning")),
@@ -71,8 +96,8 @@ process_status_choices = (
 #
 
 note_type_choices = (
-    (1, 'General comment'),
-    (2, 'To Do'),
+    (1, _('General comment')),
+    (2, _('To Do')),
 )
 
 # document_type_choices = (

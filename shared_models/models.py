@@ -603,7 +603,7 @@ class Vessel(models.Model):
 # oceanography
 # diets
 # snowcrab
-class Cruise(models.Model):
+class Cruise(MetadataFields):
     institute = models.ForeignKey(Institute, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="cruises")
     mission_number = models.CharField(max_length=255, verbose_name=_("Mission Number"), unique=True)
     mission_name = models.CharField(max_length=255, verbose_name=_("Mission Name"))
@@ -613,11 +613,10 @@ class Cruise(models.Model):
     samplers = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Samplers"))
     start_date = models.DateTimeField(null=True, blank=True, verbose_name=_("Start Date"))
     end_date = models.DateTimeField(null=True, blank=True, verbose_name=_("End Date"))
-    probe = models.ForeignKey(Probe, null=True, blank=True, on_delete=models.DO_NOTHING)
+    probe = models.ForeignKey(Probe, null=True, blank=True, on_delete=models.DO_NOTHING, editable=False)
     area_of_operation = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Area of Operation"))
     number_of_profiles = models.IntegerField(blank=True, null=True, verbose_name=_("Number of Profiles"))
     meds_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("MEDS ID"))
-    notes = models.CharField(max_length=255, null=True, blank=True)
     season = models.IntegerField(null=True, blank=True)
     vessel = models.ForeignKey(Vessel, on_delete=models.DO_NOTHING, related_name="cruises", blank=True, null=True)
     west_bound_longitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_(
@@ -638,6 +637,10 @@ class Cruise(models.Model):
         "research projects programs"))  # , verbose_name="The collaborative research or programs which the cruise is part of, separate them with comma")
     references = models.TextField(null=True, blank=True, verbose_name=_(
         "references"))  # , verbose_name="Provide the bibliographic citations for publications describing the data set. Example: cruise report, scientific paper")
+    notes = models.TextField(null=True, blank=True)
+    editors = models.ManyToManyField(User, blank=True, verbose_name=_("editors"), related_name="cruise_editors",
+                                     help_text=_("A list of dmapps user who can edit this cruise"))
+
 
     class Meta:
         ordering = ['mission_number', ]
@@ -879,7 +882,7 @@ class Location(models.Model):
         ordering = ["country", "location_en"]
 
 
-class Organization(SimpleLookup):
+class Organization(SimpleLookupWithUUID):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     abbrev = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
     address = models.TextField(blank=True, null=True, verbose_name=_("address"))

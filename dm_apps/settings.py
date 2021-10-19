@@ -57,6 +57,7 @@ try:
 except Exception as E:
     print(E)
     GIT_VERSION = "n/a"
+print("DM Apps version: ", GIT_VERSION)
 # Azure Instrumentation KEy for application insights
 USE_AZURE_APPLICATION_INSIGHT = config("USE_AZURE_APPLICATION_INSIGHT", cast=bool, default=False)
 AZURE_INSTRUMENTATION_KEY = config("AZURE_INSTRUMENTATION_KEY", cast=str, default="")
@@ -110,15 +111,7 @@ else:
 # Allowed Hosts
 # the user can provide a one-off host to allow (i.e., if they do not wish to add it to the settings file)
 ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    'dmapps',
-    'dmapps.ent.dfo-mpo.ca',
-    'dmapps-dev-docker.azurewebsites.net',
-    'dmapps-test-docker.azurewebsites.net',
-    'https://dmapps-web.dfo-prod-ase01.appserviceenvironment.net',
-    'sci-zone.azure.cloud.dfo-mpo.gc.ca',
-    'sci-zone.dfo-mpo.gc.ca',
+    '*',
 ]
 ALLOWED_HOST_TO_ADD = config("ALLOWED_HOST_TO_ADD", cast=str, default="")
 if ALLOWED_HOST_TO_ADD != "":

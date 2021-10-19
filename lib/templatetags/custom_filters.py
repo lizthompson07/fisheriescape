@@ -1,9 +1,6 @@
 import textile
 from django import template
-from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
-from html2text import html2text
-import re
 
 register = template.Library()
 
@@ -184,8 +181,6 @@ def repeat(value, arg):
     return repeat_string
 
 
-
-
 @register.filter
 def getattribute(value, arg):
     """Gets an attribute of an object dynamically from a string name"""
@@ -207,6 +202,7 @@ def get_model_name(obj):
     except (TypeError, ValueError):
         return None
 
+
 @register.filter
 def get_model_verbose_name(obj, plural=False):
     try:
@@ -216,3 +212,21 @@ def get_model_verbose_name(obj, plural=False):
             return obj._meta.model._meta.verbose_name
     except (AttributeError, TypeError, ValueError):
         return None
+
+
+@register.filter
+def timedelta_duration_days(td):
+    total_seconds = int(td.total_seconds())
+    days = total_seconds // 86400
+    remaining_hours = total_seconds % 86400
+    remaining_minutes = remaining_hours % 3600
+    hours = remaining_hours // 3600
+    minutes = remaining_minutes // 60
+    seconds = remaining_minutes % 60
+
+    days_str = f'{days} days ' if days else ''
+    hours_str = f'{hours}h ' if hours else ''
+    minutes_str = f'{minutes}m ' if minutes else ''
+    seconds_str = f'{seconds}s' if seconds and not hours_str else ''
+
+    return f'{days_str}'

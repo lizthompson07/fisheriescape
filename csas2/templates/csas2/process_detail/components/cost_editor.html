@@ -1,0 +1,161 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="cost-editor-template">
+<div class="">
+  <button @click="openOverlay" v-if="!cost.id" class="btn btn-sm btn-primary py-0 px-1">
+    <span class="h5 mdi mdi-plus text-light"></span>
+  </button>
+  <button class="btn btn-sm" @click="openOverlay" v-else>
+    <span class="mdi mdi-pencil"></span>
+  </button>
+
+  <transition v-if="overlay" name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container" style="width: 800px">
+          <div class="modal-header">
+            <h4 v-if="!cost.id"> Add Cost </h4>
+            <h4 v-else> Edit Cost </h4>
+          </div>
+          <div class="modal-body">
+
+            <form @submit.prevent="onSubmit">
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="">${labels.cost_category}</label>
+                  <v-select
+                    v-model="costToEdit.cost_category"
+                    :options="costCategoryChoices"
+                    :reduce="choice => choice.value"
+                    label="text"
+                    class="no-borders"
+                    :clearable=false
+                    required
+                  ></v-select>
+                </div>
+
+                <div class="form-group">
+                  <label for="">${labels.description}</label>
+                  <input type="text" v-model="costToEdit.description" class="form-control"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${labels.funding_source}</label>
+                  <input type="text" v-model="costToEdit.funding_source" class="form-control"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${labels.amount}</label>
+                  <input type="number" step="any" v-model="costToEdit.amount" class="form-control"/>
+                </div>
+
+              </div>
+              <div class="alert alert-danger mb-3" role="alert" v-if="error">
+                <p class="lead">
+                  ${ error }
+                </p>
+              </div>
+              <div class="mb-3">
+                <button type="submit" class="btn btn-success">
+                  <span v-if="cost.id">{% trans "Update" %}</span>
+                  <span v-else>{% trans "Create" %}</span>
+                </button>
+                <button class="mx-1 btn btn-primary" @click="closeOverlay" type="button">{% trans "Back" %}</button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+
+</script>
+<script type="application/javascript">
+
+Vue.component("cost-editor", {
+  template: "#cost-editor-template",
+  delimiters: ["${", "}"],
+  name: "cost-editor",
+  props: {
+    process_id: {
+      required: false
+    },
+    cost: {
+      required: false,
+      default: function () {
+        return {};
+      }
+    }
+  },
+  data() {
+    return {
+      overlay: false,
+      costToEdit: {},
+      labels: {},
+      costCategoryChoices: [],
+      error: null
+    };
+  },
+  methods: {
+    openOverlay() {
+      this.error = null;
+      this.overlay = true;
+      if (!this.cost.id) {
+        this.primeCost();
+      } else {
+        this.costToEdit = JSON.parse(JSON.stringify(this.cost)); // deep copy;
+      }
+    },
+    closeOverlay() {
+      this.error = null;
+      if (this.cost.id) {
+        this.primeCost();
+        this.costToEdit = this.cost;
+      }
+      this.overlay = false;
+    },
+    primeCost() {
+      this.costToEdit = {
+        name: null,
+        nom: null,
+        url_en: null,
+        url_fr: null,
+        process: this.process_id
+      };
+    },
+    getCostMetadata() {
+      let endpoint = `/api/csas/meta/models/cost/`;
+      apiService(endpoint).then(data => {
+        this.labels = data.labels;
+        this.costCategoryChoices = data.cost_category_choices;
+      });
+    },
+    onSubmit() {
+      this.error = null;
+      var method;
+      var endpoint;
+      if (this.cost.id) {
+        endpoint = `/api/csas/process-costs/${this.cost.id}/`;
+        method = "PUT";
+      } else {
+        endpoint = "/api/csas/process-costs/";
+        method = "POST";
+      }
+      apiService(endpoint, method, this.costToEdit).then(response => {
+        if (response.id) {
+          this.$emit("update-costs");
+          if (!this.costToEdit.id) this.primeCost();
+          this.overlay = false;
+        } else {
+          this.error = groomJSON(response)
+        }
+      });
+    }
+  },
+  created() {
+    this.getCostMetadata();
+  },
+  computed: {}
+});
+</script>

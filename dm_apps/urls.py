@@ -46,6 +46,10 @@ if settings.INSTALLED_APPS.count("csas2"):
     urlpatterns.append(
         path('api/', include('csas2.api.urls')),
     )
+if settings.INSTALLED_APPS.count("res"):
+    urlpatterns.append(
+        path('api/', include('res.api.urls')),
+    )
 if settings.INSTALLED_APPS.count("scuba"):
     urlpatterns.append(
         path('api/', include('scuba.api.urls')),
@@ -139,11 +143,6 @@ if settings.INSTALLED_APPS.count("diets"):
 else:
     print("not connecting diets app")
 
-if settings.INSTALLED_APPS.count("projects"):
-    urlpatterns += i18n_patterns(path('projects/', include('projects.urls')), prefix_default_language=True)
-else:
-    print("not connecting projects app")
-
 if settings.INSTALLED_APPS.count("projects2"):
     urlpatterns += i18n_patterns(path('project-planning/', include('projects2.urls')), prefix_default_language=True)
 else:
@@ -224,11 +223,6 @@ if settings.INSTALLED_APPS.count("shiny"):
 else:
     print("not connecting shiny app repo")
 
-if settings.INSTALLED_APPS.count("csas"):
-    urlpatterns += i18n_patterns(path('csas/', include('csas.urls')), prefix_default_language=True)
-else:
-    print("not connecting csas app")
-
 if settings.INSTALLED_APPS.count("csas2"):
     urlpatterns += i18n_patterns(path('csas-sccs/', include('csas2.urls')), prefix_default_language=True)
 else:
@@ -250,6 +244,13 @@ if settings.INSTALLED_APPS.count("fisheriescape"):
                                  prefix_default_language=True)
 else:
     print("not connecting fisheriescape app")
+
+
+if settings.INSTALLED_APPS.count("res"):
+    urlpatterns += i18n_patterns(path('res-sub/', include('res.urls')),
+                                 prefix_default_language=True)
+else:
+    print("not connecting res app")
 
 if settings.AZURE_STORAGE_ACCOUNT_NAME == "":
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,

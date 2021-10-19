@@ -1,0 +1,73 @@
+{% load verbose_names %}
+{% load i18n %}
+<style>
+.email-table {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+    padding-left: 5px;
+    padding-right: 2px;
+}
+
+</style>
+
+<em>
+  *** un message français suivra
+</em>
+<br><br>
+
+{% language 'en' %}
+  <p>
+    Hello {{ object.user.first_name }},
+  </p>
+  <p>
+    This is an automated message to notify you that a RES promotion application submitted by {{ object.application.applicant }} is awaiting your recommendation.
+  </p>
+
+  <p>
+    You can navigate to the application by using this link: <br>
+    <a href="{{ SITE_FULL_URL }}{% url 'res:application_detail' object.application.id %}">
+      {{ SITE_FULL_URL }}{% url 'res:application_detail' object.application.id %}
+    </a>.
+  </p>
+
+
+{% endlanguage %}
+
+<p>
+  With thanks,
+  <br><br>
+  DM Apps
+</p>
+
+<hr>
+<p>
+  Bonjour {{ object.coordinator.first_name }},
+</p>
+{% language 'fr' %}
+  <p>
+    Ceci est un message automatisé pour vous informer qu'une demande de promotion RES soumise par
+    {{ object.application.applicant }} est en attente de votre recommandation.
+  </p>
+  <p>
+    Vous pouvez accéder à l'application en utilisant ce lien: <br>
+    <a href="{{ SITE_FULL_URL }}{% url 'res:application_detail' object.application.id %}">
+      {{ SITE_FULL_URL }}{% url 'res:application_detail' object.application.id %}
+    </a>.
+  </p>
+
+{% endlanguage %}
+
+<p>
+  Cordialement,
+  <br><br>
+  Applis GD
+</p>
+
+
+
+
+
+
+
+

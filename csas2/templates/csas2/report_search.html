@@ -28,7 +28,11 @@
 
       </form>
 
-      <div class="loader hidden"></div>
+      <div class="loader">
+        <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -41,6 +45,7 @@
     $(".request_status_div").addClass("gone");
     $(".region_div").addClass("gone");
     $(".sector_div").addClass("gone");
+    $(".branch_div").addClass("gone");
     $(".division_div").addClass("gone");
     $(".section_div").addClass("gone");
     $(".csas_requests_div").addClass("gone");
@@ -50,10 +55,10 @@
     $("#id_request_status").prop("required", false);
     $("#id_region").prop("required", false);
     $("#id_sector").prop("required", false);
+    $("#id_branch").prop("required", false);
     $("#id_division").prop("required", false);
     $("#id_section").prop("required", false);
     $("#id_csas_requests").prop("required", false);
-
   }
 
   function configureForm() {
@@ -64,11 +69,12 @@
       $("#id_fiscal_year").prop("required", false);
       $(".is_posted_div").removeClass("gone");
       $("#id_is_posted").prop("required", false);
-    } else if (reportChoice === "2") {
+    } else if (reportChoice === "2" || reportChoice === "3") {
       $(".fiscal_year_div").removeClass("gone");
       $(".request_status_div").removeClass("gone");
       $(".region_div").removeClass("gone");
       $(".sector_div").removeClass("gone");
+      $(".branch_div").removeClass("gone");
       $(".division_div").removeClass("gone");
       $(".section_div").removeClass("gone");
       $(".csas_requests_div").removeClass("gone");
@@ -79,6 +85,7 @@
     // Stuff to do as soon as the DOM is ready
     hideAll();
     configureForm();
+    $(".loader").hide()
   });
 
 
@@ -89,19 +96,147 @@
 
   $("form").submit(function () {
     var reportChoice = $("#id_report")[0].value;
-    // species count report
-
-    if (reportChoice != 4) {
-      $(this).addClass("hidden");
-      $(".loader").removeClass("hidden");
-      window.setTimeout(closeLoader, 5000)
-    }
+    $(this).hide();
+    $(".loader").show();
+    window.setTimeout(closeLoader, 5000);
   });
 
   function closeLoader() {
-    $("form").removeClass("hidden");
-    $(".loader").addClass("hidden");
+    $("form").show();
+    $(".loader").hide();
   }
+
+  var $region = $("#id_region")
+  var $sector = $("#id_sector")
+  var $branch = $("#id_branch")
+  var $division = $("#id_division")
+  var $section = $("#id_section")
+  var $csas_request = $("#id_csas_request")
+  var $fiscalYear = $("#id_fiscal_year")
+  var $status = $("#id_request_status")
+
+
+  function updateSectors(region) {
+    let endpoint = `/api/shared/viewsets/sectors/`;
+    if (region) endpoint += `?region=${region}`;
+    apiService(endpoint).then(data => {
+      var $el = $("#id_sector");
+      $el.empty(); // remove old options
+      $el.append($("<option></option>")
+          .attr("value", "").text("{% trans 'All' %}"));
+      for (const item of data) {
+        $el.append($("<option></option>")
+            .attr("value", item.id).text(item.display));
+      }
+    })
+  }
+
+  function updateBranches(region, sector) {
+    let endpoint = `/api/shared/viewsets/branches/?`;
+    if (region) endpoint += `sector__region=${region}&`;
+    if (sector) endpoint += `sector=${sector}&`;
+    apiService(endpoint).then(data => {
+      var $el = $("#id_branch");
+      $el.empty(); // remove old options
+      $el.append($("<option></option>")
+          .attr("value", "").text("{% trans 'All' %}"));
+      for (const item of data) {
+        $el.append($("<option></option>")
+            .attr("value", item.id).text(item.display));
+      }
+    })
+  }
+
+  function updateDivisions(region, sector, branch) {
+    let endpoint = `/api/shared/viewsets/divisions/?`;
+    if (region) endpoint += `branch__sector__region=${region}&`;
+    if (sector) endpoint += `branch__sector=${sector}&`;
+    if (branch) endpoint += `branch=${branch}&`;
+    apiService(endpoint).then(data => {
+      var $el = $("#id_division");
+      $el.empty(); // remove old options
+      $el.append($("<option></option>")
+          .attr("value", "").text("{% trans 'All' %}"));
+      for (const item of data) {
+        $el.append($("<option></option>")
+            .attr("value", item.id).text(item.display));
+      }
+    })
+  }
+
+  function updateSections(region, sector, branch, division) {
+    let endpoint = `/api/shared/viewsets/sections/?`;
+    if (region) endpoint += `division__branch__sector__region=${region}&`;
+    if (sector) endpoint += `division__branch__sector=${sector}&`;
+    if (branch) endpoint += `division__branch=${branch}&`;
+    if (division) endpoint += `division=${division}&`;
+    apiService(endpoint).then(data => {
+      var $el = $("#id_section");
+      $el.empty(); // remove old options
+      $el.append($("<option></option>")
+          .attr("value", "").text("{% trans 'All' %}"));
+      for (const item of data) {
+        $el.append($("<option></option>")
+            .attr("value", item.id).text(item.full_name));
+      }
+    })
+  }
+
+  function updateCSASRequests(region, sector, branch, division, section, fy, status) {
+    let endpoint = `/api/csas/requests/?`;
+    if (region) endpoint += `section__division__branch__sector__region=${region}&`;
+    if (sector) endpoint += `section__division__branch__sector=${sector}&`;
+    if (branch) endpoint += `section__division__branch=${branch}&`;
+    if (division) endpoint += `section__division=${division}&`;
+    if (section) endpoint += `section=${division}&`;
+    if (fy) endpoint += `fiscal_year=${fy}&`;
+    if (status) endpoint += `status=${status}&`;
+
+    apiService(endpoint).then(data => {
+      var $el = $("#id_csas_requests");
+      $el.empty(); // remove old options
+      for (const item of data) {
+        $el.append($("<option></option>")
+            .attr("value", item.id).text(`${item.id} - ${item.title} (${item.status_display})`));
+      }
+    })
+  }
+
+  $fiscalYear.change(function () {
+    let thisVal = $(this).val();
+    updateCSASRequests($region.val(), $sector.val(), $branch.val(), $division.val(), $section.val(), thisVal, $status.val());
+  })
+  $status.change(function () {
+    let thisVal = $(this).val();
+    updateCSASRequests($region.val(), $sector.val(), $branch.val(), $division.val(), $section.val(), $fiscalYear.val(), thisVal);
+  })
+  $region.change(function () {
+    let thisVal = $(this).val();
+    updateSectors(thisVal);
+    updateBranches(thisVal);
+    updateDivisions(thisVal);
+    updateSections(thisVal);
+    updateCSASRequests(thisVal, $sector.val(), $branch.val(), $division.val(), $section.val(), $fiscalYear.val(), $status.val());
+  })
+  $sector.change(function () {
+    let thisVal = $(this).val();
+    updateBranches($region.val(), thisVal);
+    updateDivisions($region.val(), thisVal);
+    updateSections($region.val(), thisVal);
+    updateCSASRequests($region.val(), thisVal, $branch.val(), $division.val(), $section.val(), $fiscalYear.val(), $status.val());
+  })
+  $branch.change(function () {
+    let thisVal = $(this).val();
+
+  })
+  $division.change(function () {
+    let thisVal = $(this).val();
+
+  })
+  $section.change(function () {
+    let thisVal = $(this).val();
+
+  })
 
 
   </script>
