@@ -174,7 +174,7 @@ class Application(MetadataFields):
 class Recommendation(MetadataFields):
     application = models.OneToOneField(Application, on_delete=models.CASCADE, related_name="recommendation")
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("manager"), related_name="res_recommendations")
-    recommendation_text = models.TextField(blank=True, null=True, verbose_name=_("manager's assessment"), help_text=_("no more than 250 words"))
+    recommendation_text = models.TextField(blank=True, null=True, verbose_name=_("accountable manager's assessment"), help_text=_("no more than 250 words"))
     decision = models.IntegerField(verbose_name=_("decision"), choices=model_choices.decision_choices, blank=True, null=True)
     applicant_comment = models.TextField(blank=True, null=True, verbose_name=_("researcher's comment"), help_text=_("no more than 250 words"))
 
