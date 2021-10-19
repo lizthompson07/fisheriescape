@@ -16,6 +16,12 @@
         <div v-if="searchMode" class="modal-container" style="width: 850px">
           <div class="modal-header">
             <h4> {% trans "Find a Reference" %}</h4>
+            <div class="mb-3">
+              <button class="mx-1 btn btn-secondary" @click="closeOverlay" type="button">{% trans "Close" %}</button>
+              <button type="submit" class="btn btn-primary float-right" @click="toggleSearchMode">
+                <span class="mdi mdi-plus text-light mr-1"></span> {% trans "New Reference" %}
+              </button>
+            </div>
           </div>
           <div class="modal-body">
             <div class="row">
@@ -47,12 +53,7 @@
               </div>
             </div>
           </div>
-          <div class="mb-3">
-            <button type="submit" class="btn btn-success float-right" @click="toggleSearchMode">
-              <span class="mdi mdi-plus text-light mr-1"></span> {% trans "New" %}
-            </button>
-            <button class="mx-1 btn btn-secondary" @click="closeOverlay" type="button">{% trans "Close" %}</button>
-          </div>
+
         </div>
 
         <div v-else class="modal-container" style="width: 850px">
@@ -95,7 +96,7 @@ Vue.component("ref-inserter", {
       reference: {},
       overlay: false,
       achievements: [],
-      search: null,
+      search: "",
       searchMode: true,
       loadingAchievements: false,
     };
@@ -105,13 +106,14 @@ Vue.component("ref-inserter", {
       this.error = null;
       this.reference = {};
       this.achievements = [];
-      this.search = null;
+      this.search = "";
       this.searchMode = true;
       this.overlay = false;
     },
     openOverlay() {
       this.error = null;
       this.overlay = true;
+      this.getAchievements();
       this.$nextTick(() => {
         this.$refs.search.focus()
       })
@@ -137,16 +139,12 @@ Vue.component("ref-inserter", {
       if (close) this.closeOverlay();
     },
     getAchievements() {
-      if (this.search.length === 0) {
-        this.achievements = [];
-      } else {
-        this.loadingAchievements = true;
-        let endpoint = `/api/res/achievements/?application=${applicationId}&search=${this.search}`;
-        apiService(endpoint).then(data => {
-          this.achievements = data;
-          this.loadingAchievements = false;
-        });
-      }
+      this.loadingAchievements = true;
+      let endpoint = `/api/res/achievements/?application=${applicationId}&search=${this.search}`;
+      apiService(endpoint).then(data => {
+        this.achievements = data;
+        this.loadingAchievements = false;
+      });
     },
 
   },
