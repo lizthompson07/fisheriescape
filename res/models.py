@@ -8,6 +8,7 @@ from markdown import markdown
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import timedelta_duration_days
 from res import model_choices
+from res.utils import connect_refs
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, MetadataFields, Section, Organization, Lookup, FiscalYear
 
 YES_NO_CHOICES = (
@@ -44,7 +45,6 @@ class AchievementCategory(SimpleLookup):
 
     def __str__(self):
         return f"{self.code} - {self.tname}"
-
 
 
 class GroupLevel(UnilingualSimpleLookup):
@@ -138,18 +138,29 @@ class Application(MetadataFields):
 
     @property
     def objectives_html(self):
-        if self.objectives:
-            return markdown(self.objectives)
+        txt = self.objectives
+        if txt:
+            return connect_refs(txt, self.achievements)
 
     @property
     def relevant_factors_html(self):
-        if self.relevant_factors:
-            return markdown(self.relevant_factors)
+        txt = self.relevant_factors
+        if txt:
+            return connect_refs(txt, self.achievements)
 
     @property
     def is_complete(self):
         """placeholder"""
         return True
+
+    @property
+    def context_word_count_dict(self):
+        d = dict()
+        for context in Context.objects.all():
+            d[context.id] = 0
+            for outcome in self.outcomes.filter(outcome__context=context.id):
+                d[context.id] += outcome.word_count
+        return d
 
 
 class Recommendation(MetadataFields):
@@ -189,31 +200,13 @@ class ApplicationOutcome(MetadataFields):
     def text_html(self):
         txt = self.text
         if txt:
-            # comb through the text and see if you can connect to an achievement
-            text_list = txt.split("[")
-            ref_list = list()
-            for word in text_list:
-                if word.lower().startswith("ref"):
-                    ref_list.append(word.split("]")[0])
-            ref_set = set(ref_list)
-            for ref in ref_set:
-                # try to get the achievement
-                pk = ref.lower().replace("ref", "").strip()
-                try:
-                    a = self.application.achievements.get(pk=pk)
-                    tip = a.achievement_display
-                    if a.category:
-                        code = a.category.code
-                    text_class = "text-primary"
-                    text = f"{a.code}"
-                except:
-                    tip = gettext("Bad reference!!")
-                    text_class = "text-danger"
-                    text = "???"
-                replace_text = f"<span class='{text_class} helper' data-toggle='tooltip' title='{tip}'>{text}</span>"
-                txt = txt.replace(f"[{ref}]", replace_text)
-            return markdown(txt)
+            return connect_refs(txt, self.application.achievements)
 
+    @property
+    def word_count(self):
+        if self.text:
+            return len(self.text.split(" "))
+        return 0
 
 class Achievement(MetadataFields):
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="achievements")

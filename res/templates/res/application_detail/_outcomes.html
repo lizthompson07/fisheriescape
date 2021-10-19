@@ -7,14 +7,32 @@
 </div>
 
 <div v-else class="table table-sm">
-  <div >
-    <editable-cell
-      v-for="outcome in outcomes" :key="outcome.id" col_class="col-4"
-      :label="outcome.outcome_display" :object="outcome" field="text"
-      display_field="text_html"
-      input_type="textarea" :markdown="true"
-      :editable="canModify" :dirty="unsavedChanges"
-      @change="updateOutcome" @keypress="unsavedChanges=true"
-    ></editable-cell>
+  <div v-if="loadingContexts" class="loading mb-3 mt-3 mt-5">
+    <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+      <span class="sr-only"></span>
+    </div>
+  </div>
+  <div v-else>
+
+    <div v-for="context in contexts" :key="context.id" class="mb-3">
+      <h6 v-if="application.context_word_count_dict[context.id]<=context.word_limit" class="float-right">${application.context_word_count_dict[context.id]} / ${context.word_limit} {% trans "words" %}</h6>
+      <h6 v-else class="float-right red-font">${application.context_word_count_dict[context.id]} / ${context.word_limit} {% trans "words" %}</h6>
+      <h6 :id="`context${context.id}`"> ${context.tname} </h6>
+
+      <div v-for="outcome in context.outcomes" :key="outcome.id">
+
+        <outcome
+          v-for="o in outcomes"
+          v-if="o.outcome === outcome.id"
+          :key="o.id"
+          :object="o"
+          :outcome="outcome"
+          :editable="canModify" :dirty="unsavedChanges"
+          @change="updateOutcome" @keypress="unsavedChanges=true"
+        ></outcome>
+
+      </div>
+    </div>
+
   </div>
 </div>

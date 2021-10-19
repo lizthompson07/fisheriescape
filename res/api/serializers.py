@@ -37,6 +37,10 @@ class ApplicationSerializer(serializers.ModelSerializer):
     is_complete = serializers.SerializerMethodField()
     manager_display = serializers.SerializerMethodField()
     submission_date = serializers.SerializerMethodField()
+    context_word_count_dict = serializers.SerializerMethodField()
+
+    def get_context_word_count_dict(self, instance):
+        return instance.context_word_count_dict
 
     def get_submission_date(self, instance):
         return date(instance.submission_date)
@@ -166,6 +170,10 @@ class ApplicationOutcomeSerializer(serializers.ModelSerializer):
     created_at_display = serializers.SerializerMethodField()
     updated_at_display = serializers.SerializerMethodField()
     outcome_display = serializers.SerializerMethodField()
+    word_count = serializers.SerializerMethodField()
+
+    def get_word_count(self, instance):
+        return instance.word_count
 
     def get_outcome_display(self, instance):
         return str(instance.outcome)
@@ -225,7 +233,36 @@ class AchievementSerializer(serializers.ModelSerializer):
         model = models.Achievement
         fields = "__all__"
 
-#
+
+class OutcomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Outcome
+        fields = "__all__"
+
+    tname = serializers.SerializerMethodField()
+    tdescription = serializers.SerializerMethodField()
+
+    def get_tdescription(self, instance):
+        return instance.tdescription
+
+    def get_tname(self, instance):
+        return instance.tname
+
+
+class ContextSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Context
+        fields = "__all__"
+
+    outcomes = OutcomeSerializer(read_only=False, many=True)
+    tname = serializers.SerializerMethodField()
+    tdescription = serializers.SerializerMethodField()
+
+    def get_tdescription(self, instance):
+        return instance.tdescription
+
+    def get_tname(self, instance):
+        return instance.tname
 #
 # class ObservationSerializer(serializers.ModelSerializer):
 #     section = SectionLITESerializer(read_only=True)

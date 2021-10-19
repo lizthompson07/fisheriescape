@@ -2,7 +2,8 @@ from django.contrib.auth.models import Group
 # open basic access up to anybody who is logged in
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext
+from markdown import markdown
 
 from res import models
 from shared_models.models import Section, Division, Branch, Sector, Region
@@ -187,3 +188,30 @@ def get_region_choices(with_application=False):
     region_list = set([Sector.objects.get(pk=s[0]).region_id for s in get_sector_choices(with_application=with_application)])
     return [(r.id, str(r)) for r in
             Region.objects.filter(id__in=region_list).order_by("name", )]
+
+
+def connect_refs(txt, achievements_qs):
+    # comb through the text and see if you can connect to an achievement
+    text_list = txt.split("[")
+    ref_list = list()
+    for word in text_list:
+        if word.lower().startswith("ref"):
+            ref_list.append(word.split("]")[0])
+    ref_set = set(ref_list)
+    for ref in ref_set:
+        # try to get the achievement
+        pk = ref.lower().replace("ref", "").strip()
+        try:
+            a = achievements_qs.get(pk=pk)
+            tip = a.achievement_display
+            if a.category:
+                code = a.category.code
+            text_class = "text-primary"
+            text = f"{a.code}"
+        except:
+            tip = gettext("Bad reference!!")
+            text_class = "text-danger"
+            text = "???"
+        replace_text = f"<span class='{text_class} helper' data-toggle='tooltip' title='{tip}'>{text}</span>"
+        txt = txt.replace(f"[{ref}]", replace_text)
+    return markdown(txt)

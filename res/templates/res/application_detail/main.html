@@ -21,10 +21,10 @@
   <div id="app" v-cloak>
 
     <div class="sidebar">
-        <p class="vertical lead p-3 my-5 p-0 mx-1">
-          {% trans "Table of Contents" %}
-        </p>
-       {% include "res/application_detail/_toc.html" %}
+      <p class="vertical lead p-3 my-5 p-0 mx-1">
+        {% trans "Table of Contents" %}
+      </p>
+      {% include "res/application_detail/_toc.html" %}
 
     </div>
 
@@ -114,6 +114,7 @@
   {{ block.super }}
   {% include "res/components/editable_cell.html" %}
   {% include "res/application_detail/components/achievement.html" %}
+  {% include "res/application_detail/components/outcome.html" %}
 
   <script type="application/javascript">
   var applicationId = "{{ object.id }}"
@@ -131,9 +132,11 @@
       loadingRecommendation: false,
       loadingOutcomes: false,
       loadingAchievements: false,
+      loadingContexts: false,
       application: {},
       recommendation: {},
       outcomes: [],
+      contexts: [],
       achievements: [],
       applicationLabels: {},
       recommendationLabels: {},
@@ -168,8 +171,8 @@
             this.application = data;
             if (reload) this.loadingApplication = false;
             if (data.recommendation) this.getRecommendation(data.recommendation, reload);
-            this.getOutcomes();
-            this.getAchievements();
+            this.getOutcomes(reload);
+            this.getAchievements(reload);
           }
         });
       },
@@ -185,11 +188,21 @@
       },
       getOutcomes(reload = true) {
         if (reload) this.loadingOutcomes = true;
-        let endpoint = `/api/res/outcomes/?application=${applicationId}`;
+        let endpoint = `/api/res/application-outcomes/?application=${applicationId}`;
         apiService(endpoint).then(data => {
           if (data) {
             this.outcomes = data;
             if (reload) this.loadingOutcomes = false;
+          }
+        });
+      },
+      getContexts() {
+        this.loadingContexts = true;
+        let endpoint = `/api/res/contexts/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.loadingContexts = false;
+            this.contexts = data;
           }
         });
       },
@@ -258,7 +271,7 @@
       },
       updateOutcome(outcome) {
         this.errors = null;
-        endpoint = `/api/res/outcomes/${outcome.id}/`;
+        endpoint = `/api/res/application-outcomes/${outcome.id}/`;
         apiService(endpoint, "PUT", outcome)
             .then(response => {
               if (!response.id) {
@@ -268,6 +281,7 @@
                 });
               } else this.unsavedChanges = false;
               this.getOutcomes(false)
+              this.getApplication(false)
             })
       },
       updateAchievement(achievement) {
@@ -355,6 +369,7 @@
       nz: vueFiltersObject["nz"],
     },
     created() {
+      this.getContexts();
       this.getModelMetadata();
       this.getCurrentUser();
       this.getApplication(true);

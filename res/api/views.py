@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -161,7 +161,6 @@ class AchievementViewSet(ModelViewSet):
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
 
-
     def post(self, request, pk):
         qp = request.query_params
         old_achievement = get_object_or_404(models.Achievement, pk=pk)
@@ -175,6 +174,10 @@ class AchievementViewSet(ModelViewSet):
         raise ValidationError(_("This endpoint cannot be used without a query param"))
 
 
+class ContextListAPIView(ListAPIView):
+    queryset = models.Context.objects.all()
+    serializer_class = serializers.ContextSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class ApplicationModelMetaAPIView(APIView):
