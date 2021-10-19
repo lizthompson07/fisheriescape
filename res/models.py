@@ -225,14 +225,14 @@ class Achievement(MetadataFields):
     detail = models.CharField(verbose_name=_("detail"), max_length=2000)
 
     class Meta:
-        ordering = ["application", "category", "publication_type", "-date"]
+        ordering = ["application", "category", "publication_type", "id"]
 
     def __str__(self):
         return f"{self.category}"
 
     @property
     def code(self):
-        id_list = [a.id for a in self.application.achievements.filter(category=self.category)]
+        id_list = [a.id for a in self.application.achievements.filter(category=self.category).order_by("application", "category", "publication_type", "id")]
         code = f"{self.category.code}-{id_list.index(self.id) + 1}"
         return code
 
