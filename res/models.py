@@ -61,8 +61,8 @@ class PublicationType(SimpleLookup):
 
 class Application(MetadataFields):
     # mandatories
-    applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("researcher name"), related_name="res_applications")
-    manager = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("manager name"), related_name="manager_res_applications",
+    applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("researcher"), related_name="res_applications")
+    manager = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("accountable manager"), related_name="manager_res_applications",
                                 help_text=_("This is the person who will provide a recommendation on this application"))
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="res_applications", verbose_name=_("DFO section"))
     current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current",
