@@ -33,6 +33,8 @@ class InteractionForm(forms.ModelForm):
 
 
 class OrganizationForm(forms.ModelForm):
+    area = forms.MultipleChoiceField(required=False, label=_("Area(s)"))
+
     class Meta:
         model = ml_models.Organization
         exclude = ["date_last_modified", "old_id", 'last_modified_by']
@@ -43,6 +45,7 @@ class OrganizationForm(forms.ModelForm):
             'sectors': forms.SelectMultiple(attrs=multi_select_js),
             'reserves': forms.SelectMultiple(attrs=multi_select_js),
             'orgs': forms.SelectMultiple(attrs=multi_select_js),
+            'area': forms.SelectMultiple(attrs=multi_select_js),
             # dates
             'next_election': forms.TextInput(attrs=attr_fp_date),
             'new_coucil_effective_date': forms.TextInput(attrs=attr_fp_date)
@@ -50,9 +53,15 @@ class OrganizationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.order_fields(['name_eng', 'name_ind', 'abbrev', 'address', 'mailing_address', 'city', 'postal_code',
+                           'province', 'phone', 'fax', 'dfo_contact_instructions', 'notes', 'key_species', 'grouping',
+                           'area'])
         from ihub.views import get_ind_organizations
         org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
         self.fields["orgs"].choices = org_choices_all
+
+        area_choices = [(y.pk, y.tname,) for idx, y in enumerate(models.Area.objects.all())]
+        self.fields['area'].choices = area_choices
 
 
 class MemberForm(forms.ModelForm):

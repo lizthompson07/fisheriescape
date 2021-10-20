@@ -365,8 +365,17 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateView):
     def form_valid(self, form):
         object = form.save(commit=False)
         object.last_modified_by = self.request.user
-        object.locked_by_ihub = True
         super().form_valid(form)
+
+        ext_org = None
+        fields = form.cleaned_data
+        if fields['area']:
+            if not ext_org:
+                ext_org = models.OrganizationExtension(organization=object)
+                ext_org.save()
+            ext_org.area.set(fields['area'])
+            ext_org.save()
+
         return HttpResponseRedirect(reverse_lazy('maret:org_detail', kwargs={'pk': object.id}))
 
 
@@ -428,8 +437,15 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
         return {"title": self.get_object(), "url": reverse("maret:org_detail", args=[self.get_object().id])}
 
     def get_initial(self):
+        areas = []
+        if models.OrganizationExtension.objects.filter(organization=self.object):
+            ext_org = models.OrganizationExtension.objects.get(organization=self.object)
+            if ext_org:
+                areas = [a.pk for a in ext_org.area.all()]
+
         return {
             'last_modified_by': self.request.user,
+            'area': areas,
         }
 
     def form_valid(self, form):
@@ -439,6 +455,19 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
             return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.pk, ]))
 
         obj.save()
+
+        ext_org = None
+        if models.OrganizationExtension.objects.filter(organization=obj):
+            ext_org = models.OrganizationExtension.objects.get(organization=obj)
+
+        fields = form.cleaned_data
+        if fields['area']:
+            if not ext_org:
+                ext_org = models.OrganizationExtension(organization=obj)
+                ext_org.save()
+            ext_org.area.set(fields['area'])
+            ext_org.save()
+
         return super().form_valid(form)
 
 

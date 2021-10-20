@@ -116,6 +116,27 @@ class CommitteeFactory(factory.django.DjangoModelFactory):
         }
 
 
+class OrganizationExtensionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.OrganizationExtension
+
+    organization = factory.SubFactory(i_factory.OrganizationFactory)
+
+    @factory.post_generation
+    def area(self, create, extracted, **kwargs):
+        if create:
+            area = faker.pyint(1, 4)
+            self.area.set((area,))
+
+    @staticmethod
+    def get_valid_data():
+        org_ext = OrganizationExtensionFactory.build()
+
+        return {
+            "organziation": org_ext.organization.pk,
+            "area": org_ext.area
+        }
+
 class GroupingFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ml_models.Grouping
