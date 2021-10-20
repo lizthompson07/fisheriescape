@@ -36,7 +36,7 @@ class CurrentUserAPIView(APIView):
         # provide the region for which that use is an admin for, if applicable
         data["regional_admin"] = None
         if hasattr(request.user, "csas_admin_user"):
-            data["regional_admin"] = request.user.csas_admin_user.region
+            data["regional_admin"] = request.user.csas_admin_user.region.id
 
         if qp.get("request"):
             data["can_modify"] = utils.can_modify_request(request.user, qp.get("request"), return_as_dict=True)
