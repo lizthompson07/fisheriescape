@@ -110,7 +110,7 @@ class Interaction(models.Model):
 
     description = models.CharField(max_length=255, default="N/A", verbose_name="Short Description")
     interaction_type = models.IntegerField(choices=interaction_type_choices, default=None)
-    committee = models.ForeignKey(Committee, on_delete=models.DO_NOTHING, default=1,
+    committee = models.ForeignKey(Committee, blank=True, null=True, on_delete=models.DO_NOTHING,
                                   verbose_name="Committee / Working Group", related_name="committee_interactions")
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=None)
     dfo_liaison = models.ManyToManyField(User, related_name="interaction_dfo_liaison",
