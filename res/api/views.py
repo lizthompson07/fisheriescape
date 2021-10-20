@@ -186,7 +186,7 @@ class ApplicationModelMetaAPIView(APIView):
         data['labels'] = _get_labels(self.model)
         data['applicant_choices'] = [dict(text=f"{c.last_name}, {c.first_name}", value=c.id) for c in User.objects.order_by("last_name", "first_name")]
         data['group_level_choices'] = [dict(text=str(c), value=c.id) for c in models.GroupLevel.objects.all()]
-        data['section_choices'] = [dict(text=c.full_name, value=c.id) for c in Section.objects.all()]
+        data['section_choices'] = [dict(text=c.full_name, value=c.id) for c in Section.objects.filter(division__branch__sector__name__icontains="science")]
         data['org_choices'] = [dict(text=item.tfull, value=item.tfull) for item in Organization.objects.filter(is_dfo=True)]
         return Response(data)
 
