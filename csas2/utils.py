@@ -182,7 +182,7 @@ def can_modify_process(user, process_id, return_as_dict=False):
             my_dict["reason"] = _("You can modify this record because you are a national CSAS administrator")
             my_dict["can_modify"] = True
         # are they a regional administrator?
-        elif in_csas_regional_admin_group(user) and user.csas_admin_user.region in process.regions:
+        elif in_csas_regional_admin_group(user) and user.csas_admin_user.region in process.regions.all():
             my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
             my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]
