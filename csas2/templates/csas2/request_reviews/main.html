@@ -48,11 +48,18 @@
           <thead>
           <tr>
             <th class="w25">Id</th>
-            <th class="w75">${requestLabels.fiscal_year}</th>
-            <th class="w-25">${requestLabels.title}</th>
-            <th class="w150">{% trans "Region" %}</th>
+            <th>${requestLabels.fiscal_year}</th>
+            <th class="w150">${requestLabels.title}</th>
+            <th>{% trans "Region" %}</th>
             <th class="w150">{% trans "Section" %}</th>
-            <th class="w50">${requestLabels.status}</th>
+            <th>${requestLabels.status}</th>
+            <th>${reviewLabels.prioritization}</th>
+            <th>${reviewLabels.decision}</th>
+            <th>${reviewLabels.decision_text}</th>
+            <th>${reviewLabels.advice_date}</th>
+            <th>${reviewLabels.is_deferred}</th>
+            <th>${reviewLabels.deferred_text}</th>
+            <th>${reviewLabels.notes}</th>
           </tr>
           </thead>
           <tbody>
@@ -63,6 +70,50 @@
             <td>${r.region}</td>
             <td>${r.section_display}</td>
             <td>${r.status_display}</td>
+            <td>
+              <v-select
+                v-if="r.review"
+                style="width: 100%"
+                v-model="r.review.prioritization"
+                @input="updateReview(r)"
+                :options="prioritizationChoices"
+                :reduce="choice => choice.value"
+                label="text"
+                :clearable="false"
+                class="bg-light"
+              >
+              </v-select>
+            </td>
+            <td>
+              <v-select
+                v-if="r.review"
+                style="width: 100%"
+                v-model="r.review.decision"
+                @input="updateReview(r)"
+                :options="decisionChoices"
+                :reduce="choice => choice.value"
+                label="text"
+                :clearable="false"
+                class="bg-light"
+              >
+              </v-select>
+            </td>
+            <td>
+              <textarea rows="3" class="form-control" v-model="r.review.decision_text" @change="updateReview"></textarea>
+            </td>
+            <td>
+              <input v-model="r.review.advice_date_display" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
+                     @change="updateReview">
+            </td>
+            <td>
+                  <input v-model="r.review.is_deferred" class="" type="checkbox" id="is_deferred" @change="updateReview">
+            </td>
+            <td>
+                  <textarea rows="3" class="form-control" v-model="r.review.deferred_text" @change="updateReview"></textarea>
+            </td>
+            <td>
+                  <textarea rows="8" class="form-control" v-model="r.review.notes" @change="updateReview"></textarea>
+            </td>
           </tr>
           </tbody>
         </table>
@@ -320,12 +371,11 @@
           }
         });
       },
-      getRequest(update_notes) {
-        let endpoint = `/api/csas/requests/${requestId}/`;
+      getRequest(request) {
+        let endpoint = `/api/csas/requests/${request.id}/`;
         apiService(endpoint).then(data => {
           if (data) {
-            this.request = data;
-            if (update_notes) this.getNotes();
+            this.$set(this.requests, this.requests.indexOf(request), data)
           }
         });
       },
@@ -341,16 +391,19 @@
           this.getRequest();
         })
       },
-      updateReview() {
-        this.errors = null;
-        if (this.request.review.advice_date_display) this.request.review.advice_date = this.request.review.advice_date_display + "T12:00:00";
-        else this.request.review.advice_date = null;
-        if (this.request.review.decision_date_display) this.request.review.decision_date = this.request.review.decision_date_display + "T12:00:00"
-        else this.request.review.decision_date = null;
-        let endpoint = `/api/csas/request-reviews/${this.request.review.id}/`;
-        apiService(endpoint, "PUT", this.request.review).then(data => {
+      cleanReview(review) {
+        for (const reviewKey in review) if (review[reviewKey] === "") review[reviewKey] = null;
+        if (review.advice_date_display) review.advice_date = review.advice_date_display + "T12:00:00";
+        if (review.advice_date_display) review.decision_date = review.advice_date_display + "T12:00:00";
+        return review;
+      },
+      updateReview(request) {
+        this.errorMsg = null;
+        review = this.cleanReview(request.review);
+        let endpoint = `/api/csas/request-reviews/${review.id}/`;
+        apiService(endpoint, "PUT", review).then(data => {
           if (!data.id) this.errors = groomJSON(data);
-          else this.getRequest();
+          else this.getRequest(request);
         });
       },
       //deleteReview() {

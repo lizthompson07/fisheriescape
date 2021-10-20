@@ -1,6 +1,11 @@
 {% load i18n %}
 
 <div class="table-bordered py-3 px-2 admin-panel mb-3">
+  <div class="float-right">
+    <br>
+      <button class="btn btn-sm btn-dark" @click="getRequests"> <span class="mdi mdi-refresh text-light"></span> </button>
+    </div>
+
   <div class="row">
     <div class="col">
       <filter-control
@@ -57,6 +62,7 @@
         @filter="getRequests"
       ></filter-control>
     </div>
+
 
 
   </div>
