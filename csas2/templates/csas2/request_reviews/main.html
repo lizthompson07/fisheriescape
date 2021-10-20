@@ -21,9 +21,53 @@
       <h2 class="">{{ h1|safe }}</h2>
     </div>
     {% bootstrap_messages %}
-    
-    {% include "csas2/request_reviews/_filter.html" %}
 
+    {% include "csas2/request_reviews/_filter.html" %}
+    <div v-if="loadingRequests" class="loading mb-3 mt-3 mt-5">
+      <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+        <span class="sr-only"></span>
+      </div>
+    </div>
+    <div v-else>
+      <div v-if="fresh">
+        <div class="mt-5">
+          <em class="lead">
+            {% trans "Please use the filters to get started..." %}
+          </em>
+        </div>
+      </div>
+      <div v-else-if="!requests.length">
+        <div class="mt-5">
+          <em class="lead">
+            {% trans "No requests found..." %}
+          </em>
+        </div>
+      </div>
+      <div v-else class="m-3 mt-4">
+        <table class="table table-sm">
+          <thead>
+          <tr>
+            <th class="w25">Id</th>
+            <th class="w75">${requestLabels.fiscal_year}</th>
+            <th class="w-25">${requestLabels.title}</th>
+            <th class="w150">{% trans "Region" %}</th>
+            <th class="w150">{% trans "Section" %}</th>
+            <th class="w50">${requestLabels.status}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="r in requests" :key="r.id">
+            <td>${r.id}</td>
+            <td>${r.fiscal_year}</td>
+            <td>${r.title}</td>
+            <td>${r.region}</td>
+            <td>${r.section_display}</td>
+            <td>${r.status_display}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
     {#    <div v-if="canModify && request.review && request.review.id" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar}">#}
     {#      {% include "csas2/request_detail/_review.html" %}#}
     {#    </div>#}
@@ -228,17 +272,19 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: {},
-      loadingRequest: false,
-      request: {},
+      loadingRequests: false,
+      requests: [],
       requestLabels: {},
-      review: {},
       reviewLabels: {},
-      errors: null,
+      errorMsg: null,
       statusChoices: [],
       prioritizationChoices: [],
       decisionChoices: [],
-      notes: [],
-      showSidebar: true,
+      fyChoices: [],
+      regionChoices: [],
+      sectorChoices: [],
+      fresh: true,
+      requestsEndpoint: `/api/csas/requests/?`
     },
     methods: {
       getCurrentUser() {
@@ -251,7 +297,29 @@
       openPopout(url) {
         popitup(url, 'popoutWindow' + Date.now());
       },
-
+      appliedFilter(p, v) {
+        if (!v) v = "";
+        root = this.requestsEndpoint.split("?")[0]
+        params = this.requestsEndpoint.split("?")[1]
+        let found = false;
+        let newParamArray = [];
+        for (const param of params.split("&")) {
+          if (!param.includes(p)) newParamArray.push(param);
+        }
+        this.requestsEndpoint = `${root}?${newParamArray.join("&")}`
+        this.requestsEndpoint += `${p}=${v}&`
+      },
+      getRequests(param, val) {
+        this.appliedFilter(param, val);
+        this.loadingRequests = true;
+        this.fresh = false;
+        apiService(this.requestsEndpoint).then(data => {
+          if (data) {
+            this.requests = data;
+            this.loadingRequests = false;
+          }
+        });
+      },
       getRequest(update_notes) {
         let endpoint = `/api/csas/requests/${requestId}/`;
         apiService(endpoint).then(data => {
@@ -285,19 +353,22 @@
           else this.getRequest();
         });
       },
-      deleteReview() {
-        let userInput = confirm("{% trans 'Are you certain you want to delete this review?' %}")
-        if (userInput) {
-          let endpoint = `/api/csas/request-reviews/${this.request.review.id}/`;
-          apiService(endpoint, "DELETE").then(() => {
-            this.getRequest();
-          })
-        }
-      },
+      //deleteReview() {
+      //  let userInput = confirm("{% trans 'Are you certain you want to delete this review?' %}")
+      //  if (userInput) {
+      //    let endpoint = `/api/csas/request-reviews/${this.request.review.id}/`;
+      //    apiService(endpoint, "DELETE").then(() => {
+      //      this.getRequest();
+      //    })
+      //  }
+      //},
       getMetadata() {
         apiService(`/api/csas/meta/models/request/`).then(data => {
           this.requestLabels = data.labels;
           this.statusChoices = data.status_choices;
+          this.regionChoices = data.region_choices;
+          this.sectorChoices = data.sector_choices;
+          this.fyChoices = data.fy_choices;
         });
         apiService(`/api/csas/meta/models/request-review/`).then(data => {
           this.reviewLabels = data.labels;

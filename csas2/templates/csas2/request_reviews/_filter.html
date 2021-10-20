@@ -4,8 +4,19 @@
   <div class="row">
     <div class="col">
       <filter-control
+        :label="requestLabels.fiscal_year"
+        filter_param="fiscal_year"
+        input_type="select"
+        @filter="getRequests"
+        :choices="fyChoices" blank_option="-----"
+      ></filter-control>
+    </div>
+
+    <div class="col">
+      <filter-control
         label="{% trans "Search term (ID, Title, ...)" %}"
         filter_param="search"
+        @filter="getRequests"
       ></filter-control>
     </div>
 
@@ -13,16 +24,19 @@
       <filter-control
         label="{% trans "Region" %}"
         filter_param="section__division__branch__sector__region"
+        @filter="getRequests"
+        :choices="regionChoices" blank_option="-----"
+      ></filter-control>
+    </div>
+    <div class="col">
+      <filter-control
+        label="{% trans "Sector" %}"
+        filter_param="section__division__branch__sector"
+        @filter="getRequests"
+        :choices="sectorChoices" blank_option="-----"
       ></filter-control>
     </div>
 
-    <div class="col">
-      <filter-control
-        :label="requestLabels.fiscal_year"
-        filter_param="fiscal_year"
-        input_type="select"
-      ></filter-control>
-    </div>
 
     <div class="col">
       <filter-control
@@ -30,8 +44,20 @@
         filter_param="status"
         input_type="select"
         :choices="statusChoices"
+        @filter="getRequests"
       ></filter-control>
     </div>
+
+    <div class="col">
+      <filter-control
+        label="{% trans "Review decision" %}"
+        filter_param="review__decision"
+        input_type="select"
+        :choices="decisionChoices"
+        @filter="getRequests"
+      ></filter-control>
+    </div>
+
 
   </div>
 

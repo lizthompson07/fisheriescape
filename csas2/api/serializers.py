@@ -41,7 +41,11 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     funding_display = serializers.SerializerMethodField()
     risk_text_html = serializers.SerializerMethodField()
     is_complete = serializers.SerializerMethodField()
+    region = serializers.SerializerMethodField()
 
+    def get_region(self, instance):
+        return instance.region
+    
     def get_is_complete(self, instance):
         return instance.is_complete
 

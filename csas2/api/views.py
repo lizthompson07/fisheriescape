@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -14,7 +15,7 @@ from unidecode import unidecode
 
 from shared_models.api.serializers import PersonSerializer
 from shared_models.api.views import _get_labels
-from shared_models.models import Person, Language, Region
+from shared_models.models import Person, Language, Region, FiscalYear
 from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission
@@ -55,7 +56,8 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CSASRequestSerializer
     permission_classes = [CanModifyRequestOrReadOnly]
     queryset = models.CSASRequest.objects.all()
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['id', 'title', 'translated_title']
     filterset_fields = [
         'section__division__branch__sector__region',
         "section__division__branch__sector",
@@ -64,6 +66,7 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
         "section",
         "fiscal_year",
         "status",
+        "review__decision",
     ]
 
 
@@ -637,10 +640,12 @@ class RequestModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
-
         status_choices = [dict(text=c[1], value=c[0]) for c in model_choices.request_status_choices]
         status_choices.insert(0, dict(text="-----", value=None))
         data['status_choices'] = status_choices
+        data['region_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_region_choices()]
+        data['sector_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_sector_choices()]
+        data['fy_choices'] = [dict(text=str(c), value=c.id) for c in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
         return Response(data)
 
 

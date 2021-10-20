@@ -289,7 +289,7 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
         return qs
 
 
-class CSASRequestReviewTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
+class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonTemplateView):
     template_name = 'csas2/request_reviews/main.html'
     container_class = "container-fluid"
     home_url_name = "csas2:index"
