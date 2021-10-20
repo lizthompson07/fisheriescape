@@ -3,8 +3,8 @@
 <div class="table-bordered py-3 px-2 admin-panel mb-3">
   <div class="float-right">
     <br>
-      <button class="btn btn-sm btn-dark" @click="getRequests"> <span class="mdi mdi-refresh text-light"></span> </button>
-    </div>
+    <button class="btn btn-sm btn-dark" @click="getRequests"><span class="mdi mdi-refresh text-light"></span></button>
+  </div>
 
   <div class="row">
     <div class="col">
@@ -28,6 +28,7 @@
     <div class="col">
       <filter-control
         label="{% trans "Region" %}"
+        input_type="select"
         filter_param="section__division__branch__sector__region"
         @filter="getRequests"
         :choices="regionChoices" blank_option="-----"
@@ -36,6 +37,7 @@
     <div class="col">
       <filter-control
         label="{% trans "Sector" %}"
+        input_type="select"
         filter_param="section__division__branch__sector"
         @filter="getRequests"
         :choices="sectorChoices" blank_option="-----"
@@ -62,7 +64,6 @@
         @filter="getRequests"
       ></filter-control>
     </div>
-
 
 
   </div>
