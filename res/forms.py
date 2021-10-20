@@ -102,7 +102,7 @@ class ApplicationForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        section_choices = [(obj.id, obj.full_name) for obj in Section.objects.all()]
+        section_choices = [(obj.id, obj.full_name) for obj in Section.objects.filter(division__branch__sector__name__icontains="science")]
         section_choices.insert(0, (None, "------"))
 
         super().__init__(*args, **kwargs)

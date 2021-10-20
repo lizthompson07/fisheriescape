@@ -56,7 +56,13 @@ class GroupLevel(UnilingualSimpleLookup):
 
 
 class PublicationType(SimpleLookup):
-    pass
+    code = models.CharField(max_length=5, verbose_name=_("category code"))
+
+    def __str__(self):
+        return f"{self.code}. {self.tname}"
+
+    class Meta:
+        ordering = ["code"]
 
 
 class Application(MetadataFields):
@@ -246,7 +252,7 @@ class Achievement(MetadataFields):
             mystr += f"{fy}."
 
         if self.category and self.category.is_publication and self.publication_type:
-            mystr += f" {self.publication_type}."
+            mystr += f" {self.publication_type.tname}."
 
         if self.detail:
             mystr += f" {self.detail}"

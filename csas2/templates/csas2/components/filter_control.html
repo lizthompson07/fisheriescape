@@ -14,8 +14,8 @@
         ref="input"
         id="my-input"
       >
-        <option value="">${blankOption}</option>
-        <option v-for="(choice, index) in choices" :value="choice.value">${option.text}</option>
+        <option v-if="blank_option" value="">${blank_option}</option>
+        <option v-for="(choice, index) in choices" :value="choice.value">${choice.text}</option>
       </select>
     </div>
     <div v-else>
@@ -47,6 +47,9 @@ Vue.component("filter-control", {
       required: true
     },
     label: {
+      type: String,
+    },
+    blank_option: {
       type: String,
     },
     initial_input: {
