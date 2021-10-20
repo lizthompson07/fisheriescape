@@ -156,6 +156,7 @@ class ApplicationDetailView(CanViewApplicationRequiredMixin, CommonDetailView):
     template_name = 'res/application_detail/main.html'
     home_url_name = "res:index"
     parent_crumb = {"title": gettext_lazy("Applications"), "url": reverse_lazy("res:application_list")}
+    container_class = " "
 
     def get_context_data(self, **kwargs):
         obj = self.get_object()
