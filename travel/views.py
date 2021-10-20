@@ -1152,6 +1152,9 @@ class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
         elif report == 2:
             return HttpResponseRedirect(reverse("travel:export_trip_list") +
                                         f'?fy={fy}&region={region}&adm={adm}&from_date={from_date}&to_date={to_date}&')
+        elif report == 3:
+            return HttpResponseRedirect(reverse("travel:export_request_summary"))
+
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("travel:reports"))
@@ -1211,6 +1214,25 @@ def export_upcoming_trips(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_upcoming_trip_list(site_url)
     export_file_name = '{} {}.xlsx'.format(_("upcoming trips"), timezone.now().strftime("%Y-%m-%d"))
+
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/", "||")]) + f'?blob_name=true;export_file_name={export_file_name}')
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="{export_file_name}"'
+            return response
+    raise Http404
+
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def export_request_summary(request):
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_request_summary(site_url)
+    export_file_name = '{} {}.xlsx'.format(_("trip request summary"), timezone.now().strftime("%Y-%m-%d"))
 
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
         return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/", "||")]) + f'?blob_name=true;export_file_name={export_file_name}')

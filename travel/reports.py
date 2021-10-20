@@ -283,6 +283,8 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
     field_list = [
         "fiscal_year",
         "name",
+        "status",
+        "trip_subcategory",
         "is_adm_approval_required",
         "location",
         "start_date",
@@ -342,7 +344,7 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
                 my_val = listrify(my_list, "\n")
                 my_ws.write(i, j, my_val, normal_format)
 
-            elif "fiscal_year" in field:
+            elif "fiscal_year" in field or "subcategory" in field or "status" in field:
                 my_val = str(get_field_value(trip, field))
                 my_ws.write(i, j, my_val, normal_format)
 
@@ -466,6 +468,65 @@ def generate_upcoming_trip_list(site_url):
                 else:
                     col_max[j] = 75
             j += 1
+        i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        utils.upload_to_azure_blob(target_file_path, f'temp/{target_file}')
+    return target_url
+
+
+
+def generate_request_summary(site_url):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path, {'remove_timezone': True})
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#D6D1C0', "align": 'normal', "text_wrap": True})
+    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, })
+    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+
+    # get the request list
+    request_list = models.TripRequest.objects.all()
+    header = [
+        "Fiscal year",
+        ]
+    header.extend([item.tname for item in models.TripSubcategory.objects.all()])
+    header.extend(
+        ["Total"]
+    )
+    # header.append('Number of projects tagged')
+    title = gettext("Trip Request Summary")
+
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name="list")
+    my_ws.write(0, 0, title, title_format)
+    my_ws.write_row(2, 0, header, header_format)
+
+    i = 3
+    fiscal_years = shared_models.FiscalYear.objects.filter(requests__isnull=False).distinct()
+
+    for fy in fiscal_years:
+        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+
+        data_row = [str(fy)]
+        for sc in models.TripSubcategory.objects.all():
+            data_row.append(fy.requests.filter(trip__trip_subcategory=sc).count())
+        data_row.append(fy.requests.all().count())
+
+        my_ws.write_row(i, 0, data_row, normal_format)
         i += 1
 
         # set column widths

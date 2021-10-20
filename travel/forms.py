@@ -275,6 +275,7 @@ class ReportSearchForm(forms.Form):
         (None, "------"),
         (1, gettext_lazy("CFTS export (xlsx)")),
         (2, gettext_lazy("Export trip list (xlsx)")),
+        (3, gettext_lazy("Trip request summary (xlsx)")),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES, label=gettext_lazy("Report"))
     # report #1
