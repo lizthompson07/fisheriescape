@@ -4,6 +4,7 @@ from datetime import datetime
 import xlsxwriter as xlsxwriter
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import yesno
 from django.urls import reverse
@@ -480,7 +481,6 @@ def generate_upcoming_trip_list(site_url):
     return target_url
 
 
-
 def generate_request_summary(site_url):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
@@ -492,6 +492,7 @@ def generate_request_summary(site_url):
 
     # create formatting variables
     title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    subtitle_format = workbook.add_format({'bold': False, "align": 'normal', 'font_size': 16, })
     header_format = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#D6D1C0', "align": 'normal', "text_wrap": True})
     total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
@@ -502,10 +503,10 @@ def generate_request_summary(site_url):
     request_list = models.TripRequest.objects.all()
     header = [
         "Fiscal year",
-        ]
+    ]
     header.extend([item.tname for item in models.TripSubcategory.objects.all()])
     header.extend(
-        ["Total"]
+        ["Total travellers", "Total reviews facilitated"]
     )
     # header.append('Number of projects tagged')
     title = gettext("Trip Request Summary")
@@ -513,29 +514,50 @@ def generate_request_summary(site_url):
     # define a worksheet
     my_ws = workbook.add_worksheet(name="list")
     my_ws.write(0, 0, title, title_format)
-    my_ws.write_row(2, 0, header, header_format)
+    my_ws.write(2, 0, "Breakdown of travellers by fiscal year by trip category", subtitle_format)
+    my_ws.write_row(3, 0, header, header_format)
 
-    i = 3
+    i = 4
     fiscal_years = shared_models.FiscalYear.objects.filter(requests__isnull=False).distinct()
+    regions = shared_models.Region.objects.filter(sectors__branches__divisions__sections__requests__isnull=False).distinct()
 
     for fy in fiscal_years:
         col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-
         data_row = [str(fy)]
+        qs = models.Traveller.objects.filter(request__fiscal_year=fy).filter(~Q(request__status=8))
         for sc in models.TripSubcategory.objects.all():
-            data_row.append(
-                models.Traveller.objects.filter(request__trip__trip_subcategory=sc, request__fiscal_year=fy).count()
-            )
-        data_row.append(
-            models.Traveller.objects.filter(request__fiscal_year=fy).count()
-        )
-
+            data_row.append(qs.filter(request__trip__trip_subcategory=sc).count())
+        data_row.append(qs.count())
+        data_row.append(models.Reviewer.objects.filter(request__fiscal_year=fy, status__in=[1, 2, 3]).count())
         my_ws.write_row(i, 0, data_row, normal_format)
         i += 1
 
         # set column widths
         for j in range(0, len(col_max)):
             my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    my_ws.write(i + 1, 0, "Breakdown of travellers by fiscal year by region", subtitle_format)
+    header = [
+        "Fiscal year",
+    ]
+    header.extend([item.tname for item in regions])
+    header.extend(
+        ["Total travellers"]
+    )
+    my_ws.write_row(i + 2, 0, header, header_format)
+    i += 3
+
+    for fy in fiscal_years:
+
+        data_row = [str(fy)]
+        qs = models.Traveller.objects.filter(request__fiscal_year=fy).filter(~Q(request__status=8))
+        for region in regions:
+            data_row.append(qs.filter(request__section__division__branch__sector__region=region).count())
+        data_row.append(qs.count())
+
+        my_ws.write_row(i, 0, data_row, normal_format)
+        i += 1
+
 
     workbook.close()
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
