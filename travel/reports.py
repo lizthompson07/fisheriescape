@@ -523,8 +523,12 @@ def generate_request_summary(site_url):
 
         data_row = [str(fy)]
         for sc in models.TripSubcategory.objects.all():
-            data_row.append(fy.requests.filter(trip__trip_subcategory=sc).count())
-        data_row.append(fy.requests.all().count())
+            data_row.append(
+                models.Traveller.objects.filter(request__trip__trip_subcategory=sc, request__fiscal_year=fy).count()
+            )
+        data_row.append(
+            models.Traveller.objects.filter(request__fiscal_year=fy).count()
+        )
 
         my_ws.write_row(i, 0, data_row, normal_format)
         i += 1
