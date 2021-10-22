@@ -151,6 +151,12 @@ class CSASRequestForm(forms.ModelForm):
             'prioritization',
             'prioritization_text',
         ]
+        required_fields = [
+            'client',
+            'section',
+            'coordinator',
+            'advice_needed_by',
+        ]
         widgets = {
             'client': forms.Select(attrs=chosen_js),
             'coordinator': forms.Select(attrs=chosen_js),
@@ -308,6 +314,14 @@ class ProcessForm(forms.ModelForm):
             'coordinator',
             'advisors',
             'editors',
+        ]
+        required_fields = [
+            'csas_requests',
+            gettext_lazy('name'),
+            'scope',
+            'type',
+            'coordinator',
+            'lead_region',
         ]
         widgets = {
             'csas_requests': forms.SelectMultiple(attrs=chosen_js),

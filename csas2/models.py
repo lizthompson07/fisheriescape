@@ -362,12 +362,14 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     def save(self, *args, **kwargs):
         # if there is no advice date, take the target date from the first attached request
-        if not self.advice_date and self.csas_requests.exists():
+        if not self.advice_date and self.id and self.csas_requests.exists():
             self.advice_date = self.csas_requests.first().target_advice_date
 
         # if there is an advice date, FY should follow it..
         if self.advice_date:
             self.fiscal_year_id = fiscal_year(self.advice_date, sap_style=True)
+        else:
+            self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
 
         # if there is a process, the request the request MUST have been approved.
         if hasattr(self, "tor") and self.tor.is_complete:

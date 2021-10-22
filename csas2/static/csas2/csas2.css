@@ -66,8 +66,9 @@ h1 {
     background-color: #ffff9d;
 }
 
-.submitted {
-    background-color: #84c6ff;
+.submitted, .on {
+    background-color: #009fdb;
+    color: white;
 }
 
 .finalization, .tentative, .ready-for-review {

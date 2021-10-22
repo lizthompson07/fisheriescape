@@ -200,7 +200,7 @@
             </div>
             {# Notes #}
             <div class="col-4">
-              <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify"></note-pad>
+              <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify" :current_user="currentUser"></note-pad>
             </div>
           </div>
         </div>

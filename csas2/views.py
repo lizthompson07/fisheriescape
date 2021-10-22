@@ -3,11 +3,10 @@ from datetime import datetime
 from datetime import timedelta
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.decorators import login_required
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden, HttpResponseNotFound
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -288,6 +287,12 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
                 qs = qs.filter(section_id=section)
         return qs
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object_list"] = self.get_object_list()
+        context["now"] = timezone.now()
+        return context
+
 
 class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonTemplateView):
     template_name = 'csas2/request_reviews/main.html'
@@ -300,10 +305,6 @@ class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonTemplateView):
         return context
 
 
-
-
-
-
 class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     model = models.CSASRequest
     form_class = forms.CSASRequestForm
@@ -312,7 +313,9 @@ class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
     submit_text = gettext_lazy("Save")
     h1 = gettext_lazy("New CSAS Request")
-    h2 = gettext_lazy("All fields are mandatory before approvals and submission")
+    h2 = gettext_lazy(
+        "All fields are mandatory before approvals and submission. The fields in <span class='red-font'>red</span> are mandatory before saving."
+    )
 
     def get_initial(self):
         return dict(
@@ -336,7 +339,9 @@ class CSASRequestUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
     template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
-    h2 = gettext_lazy("All fields are mandatory before approvals and submission")
+    h2 = gettext_lazy(
+        "All fields are mandatory before approvals and submission. The fields in <span class='red-font'>red</span> are mandatory before saving."
+    )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

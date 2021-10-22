@@ -23,7 +23,7 @@
                 <div class="mb-2">
                   <em class="small mb-1" v-html="n.last_modified"></em><br><span>${n.note}</span>
                 </div>
-                <div class="btn-group">
+                <div v-if="is_admin || n.created_by === current_user.id" class="btn-group">
                   <button v-if="!n.is_complete" class="btn btn-xs px-0 py-0 mr-2" @click="openOverlay(n)">
                     <span class=" text-primary">{% trans "Edit" %}</span>
                   </button>
@@ -149,6 +149,9 @@ Vue.component("note-pad", {
     is_admin: {
       type: Boolean,
       default: true
+    },
+    current_user: {
+      type: Object,
     }
   },
   data() {
@@ -200,6 +203,9 @@ Vue.component("note-pad", {
       let endpoint = `/api/csas/meta/models/note/`;
       apiService(endpoint).then(data => {
         this.labels = data.labels;
+        if(!this.is_admin) {
+            data.type_choices = [data.type_choices[0]];
+        }
         this.typeChoices = data.type_choices;
       });
     },
