@@ -39,7 +39,7 @@ urlpatterns = [
     path('requests/print-requests/', views.CSASRequestPDFView.as_view(), name="request_pdf"),
 
     # request reviews
-    path('requests-reviews/', views.CSASRequestReviewTemplateView.as_view(), name="request_reviews"),
+    path('request-reviews/', views.CSASRequestReviewTemplateView.as_view(), name="request_reviews"),
 
     # request files
     path('requests/<int:crequest>/new-file/', views.CSASRequestFileCreateView.as_view(), name='request_file_new'),
@@ -53,6 +53,9 @@ urlpatterns = [
     path('processes/<int:pk>/edit/', views.ProcessUpdateView.as_view(), name="process_edit"),
     path('processes/<int:pk>/delete/', views.ProcessDeleteView.as_view(), name="process_delete"),
     path('processes/manage-postings/', views.ProcessPostingsVueJSView.as_view(), name="process_postings"),
+
+    # request reviews
+    path('process-reviews/', views.ProcessReviewTemplateView.as_view(), name="process_reviews"),
 
     # ToR
     path('processes/<int:process>/new-tor/', views.TermsOfReferenceCreateView.as_view(), name="tor_new"),

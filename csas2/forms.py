@@ -153,6 +153,7 @@ class CSASRequestForm(forms.ModelForm):
         ]
         required_fields = [
             'client',
+            'title',
             'section',
             'coordinator',
             'advice_needed_by',

@@ -56,6 +56,11 @@
                  title="{% trans "CSAS processes connected to you" %}"><span class="mdi mdi-heart"></span></a>
               <a href="{% url 'csas2:process_new' %}" class="btn btn-success" data-toggle="tooltip" title="{% trans "New process" %}"><span
                 class="mdi mdi-plus text-light"></span></a>
+              {% if is_admin %}
+                <a href="{% url 'csas2:process_reviews' %}" class="btn btn-info" data-toggle="tooltip" title="{% trans "Review multiple processes" %}">
+                  <span class="mdi mdi-eye"></span>
+                </a>
+              {% endif %}
             </div>
           </div>
         </div>

@@ -305,6 +305,18 @@ class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonTemplateView):
         return context
 
 
+class ProcessReviewTemplateView(CsasAdminRequiredMixin, CommonTemplateView):
+    template_name = 'csas2/process_reviews/main.html'
+    container_class = "container-fluid"
+    home_url_name = "csas2:index"
+    h1 = gettext_lazy("CSAS Process Review Console")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+
 class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     model = models.CSASRequest
     form_class = forms.CSASRequestForm

@@ -42,7 +42,7 @@
             {% if object.submission_date %}
               <button v-if="!request.review" class="btn btn-sm btn-dark" @click="primeReview">{% trans "Start a Review" %}</button>
               {% if not object.processes.exists %}
-                <a v-if="canModify" class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>
+                <a v-if="canModify" class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Initiate a Process" %}</a>
               {% endif %}
             {% endif %}
           </div>

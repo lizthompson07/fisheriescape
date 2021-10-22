@@ -113,8 +113,14 @@ class ProcessViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ProcessSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
     pagination_class = StandardResultsSetPagination
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['fiscal_year', 'id', 'lead_region', "is_posted"]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ['id', 'name', 'nom']
+    filterset_fields = [
+        'fiscal_year',
+        'id',
+        'lead_region',
+        "is_posted"
+    ]
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -673,4 +679,8 @@ class ProcessModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
+        data['status_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.get_process_status_choices()]
+        data['region_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_region_choices()]
+        data['fy_choices'] = [dict(text=str(c), value=c.id) for c in FiscalYear.objects.filter(processes__isnull=False).distinct()]
+
         return Response(data)
