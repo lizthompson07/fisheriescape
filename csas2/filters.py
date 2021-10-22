@@ -49,7 +49,7 @@ class CSASRequestFilter(django_filters.FilterSet):
         region_choices = utils.get_region_choices()
         sector_choices = utils.get_sector_choices()
         fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
-        client_choices = [(u.id, str(u)) for u in User.objects.filter(csas_client_requests__isnull=False).distinct()]
+        client_choices = [(u.id, str(u)) for u in User.objects.filter(csas_client_requests__isnull=False).order_by("first_name","last_name").distinct()]
 
         self.filters['fiscal_year'] = django_filters.MultipleChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices,
                                                                           label=_("Fiscal year"), widget=forms.SelectMultiple(attrs=chosen_js))
@@ -58,7 +58,7 @@ class CSASRequestFilter(django_filters.FilterSet):
         self.filters['sector'] = django_filters.ChoiceFilter(field_name="section__division__branch__sector", label=_("Sector"), lookup_expr='exact',
                                                              choices=sector_choices)
         self.filters['client'] = django_filters.ChoiceFilter(field_name="client", label=_("Client"), lookup_expr='exact', choices=client_choices)
-
+        self.filters['client'].field.widget.attrs = chosen_js
         try:
             if self.data["region"] != "":
                 my_region_id = int(self.data["region"])

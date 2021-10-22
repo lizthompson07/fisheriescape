@@ -49,7 +49,8 @@ def doc_directory_path(instance, filename):
 
 class CSASAdminUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="csas_admin_user", verbose_name=_("DM Apps user"))
-    region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="csas_admin_user", on_delete=models.CASCADE, blank=True, null=True)
+    region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="csas_admin_user", on_delete=models.CASCADE, blank=True,
+                               null=True)
     is_national_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
 
     def __str__(self):
@@ -165,10 +166,14 @@ class CSASRequest(MetadataFields):
         else:
             self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
 
+
+        # set the STATUS
         # if there is a process, the request the request MUST have been approved.
         if self.id and self.processes.exists():
             if self.processes.filter(status=100).count() == self.processes.all().count():
                 self.status = 5  # fulfilled
+            elif self.processes.filter(status=90).count() == self.processes.all().count():
+                self.status = 12  # withdrawn
             else:
                 self.status = 11  # accepted
         else:
@@ -371,20 +376,24 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         else:
             self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
 
-        # if there is a process, the request the request MUST have been approved.
-        if hasattr(self, "tor") and self.tor.is_complete:
-            self.status = 22  # tor complete!
+        # set the STATUS of the process
+        # if the status is withdrawn, not further logic should be pursued.
+        if not self.status == 90:
 
-        # has the latest scheduled meeting passed
-        now = timezone.now()
-        meeting_qs = self.meetings.filter(is_planning=False, is_estimate=False).order_by("end_date")
-        if meeting_qs.exists() and meeting_qs.last().end_date and meeting_qs.last().end_date <= now:
-            self.status = 25  # meeting complete!
+            # if there is a process, the request the request MUST have been approved.
+            if hasattr(self, "tor") and self.tor.is_complete:
+                self.status = 22  # tor complete!
 
-        # has the key doc been completed
-        doc_qs = self.documents.filter(status__in=[12, 17])
-        if doc_qs.exists():
-            self.status = 100  # complete!
+            # has the latest scheduled meeting passed
+            now = timezone.now()
+            meeting_qs = self.meetings.filter(is_planning=False, is_estimate=False).order_by("end_date")
+            if meeting_qs.exists() and meeting_qs.last().end_date and meeting_qs.last().end_date <= now:
+                self.status = 25  # meeting complete!
+
+            # has the key doc been completed
+            doc_qs = self.documents.filter(status__in=[12, 17])
+            if doc_qs.exists():
+                self.status = 100  # complete!
 
         super().save(*args, **kwargs)
 

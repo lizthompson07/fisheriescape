@@ -704,7 +704,7 @@ class TripRequest(models.Model):
 
     @property
     def expenditure_initiation(self):
-        qs = self.reviewers.filter(role__in=[6, 7]).order_by("order", "-id")
+        qs = self.reviewers.filter(role__in=[6, 7]).order_by("order", "id")
         return qs.last()
 
     @property
