@@ -146,17 +146,16 @@ class RecommendationSerializer(serializers.ModelSerializer):
     applicant_comment_html = serializers.SerializerMethodField()
     manager_signed_display = serializers.SerializerMethodField()
     applicant_signed_display = serializers.SerializerMethodField()
-
     decision_display = serializers.SerializerMethodField()
 
     def get_decision_display(self, instance):
         return instance.get_decision_display()
 
     def get_manager_signed_display(self, instance):
-        return date(instance.manager_signed, "DATETIME_FORMAT")
+        return instance.manager_signature
 
     def get_applicant_signed_display(self, instance):
-        return date(instance.applicant_signed, "DATETIME_FORMAT")
+        return instance.applicant_signature
 
     def get_applicant_comment_html(self, instance):
         return instance.applicant_comment_html

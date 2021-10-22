@@ -1,0 +1,35 @@
+{% load i18n %}
+
+
+<div class="table table-sm">
+{% for category in object.achievement_categories %}
+{{ category }}
+{% endfor %}
+
+  
+  <div v-if="achievements.length">
+    <div v-for="category in application.achievement_categories" :key="category.id" class="mb-5">
+      <h6 :id="`category${category.id}`" >
+        ${category.display}
+      </h6>
+      <achievement
+        v-for="achievement in achievements" :key="achievement.id"
+        v-if="achievement.category === category.id"
+        :object="achievement"
+        :editable="canModify" :dirty="unsavedChanges"
+        @keypress="unsavedChanges=true"
+        :category_choices="categoryChoices"
+        :publication_type_choices="publicationTypeChoices"
+        :labels="achievementLabels"
+        @change="updateAchievement"
+        @clone="cloneAchievement"
+        @remove="deleteAchievement"
+      ></achievement>
+    </div>
+  </div>
+  <div v-else>
+    <em class="text-muted">
+      {% trans "No achievements have been added to this application." %}
+    </em>
+  </div>
+</div>

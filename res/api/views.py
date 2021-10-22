@@ -91,6 +91,7 @@ class RecommendationViewSet(ModelViewSet):
                 raise ValidationError(_("You can only sign a recommendation for an application that has been submitted."))
             elif recommendation.manager_signed:
                 raise ValidationError(_("You have already signed this recommendation."))
+            recommendation.manager_signed_by = request.user
             recommendation.manager_signed = timezone.now()
             recommendation.save()
             email = emails.SignatureAwaitingEmail(request, recommendation)
@@ -113,6 +114,7 @@ class RecommendationViewSet(ModelViewSet):
                 raise ValidationError(_("Your manager has not yet signed this recommendation."))
             elif recommendation.applicant_signed:
                 raise ValidationError(_("You have already signed this recommendation."))
+            recommendation.applicant_signed_by = request.user
             recommendation.applicant_signed = timezone.now()
             recommendation.applicant_comment = request.data.get("applicant_comment")
             recommendation.save()

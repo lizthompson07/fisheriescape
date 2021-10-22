@@ -1,0 +1,155 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="ref-inserter-template">
+<div class="">
+
+
+  <button @click="openOverlay" class="btn btn-sm btn-primary">
+    <span class="mdi mdi-plus mr-1 text-light"></span> {% trans "Add Reference" %}
+  </button>
+
+  <transition v-if="overlay" name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+
+        <div v-if="searchMode" class="modal-container" style="width: 850px">
+          <div class="modal-header">
+            <h4> {% trans "Find a Reference" %}</h4>
+            <div class="mb-3">
+              <button class="mx-1 btn btn-secondary" @click="closeOverlay" type="button">{% trans "Close" %}</button>
+              <button type="submit" class="btn btn-primary float-right" @click="toggleSearchMode">
+                <span class="mdi mdi-plus text-light mr-1"></span> {% trans "New Reference" %}
+              </button>
+            </div>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-10">
+                <div class="form-group">
+                  <label for="">{% trans "Search:" %}</label>
+                  <input type="text" @keyup="getAchievements" v-model="search" class="form-control" ref="search">
+                </div>
+              </div>
+              <div class="col-1">
+                <div v-if="loadingAchievements" class="loading mb-3 mt-3 mt-5">
+                  <div class="spinner-border mb-3" style="width: 1rem; height: 1rem;" role="status">
+                    <span class="sr-only"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="">
+              <div>
+                <ul>
+                  <li v-for="achievement in achievements" :key="achievement.id" class="mb-2">
+                    <span
+                      class="text-primary pointy"
+                      @click="insert(achievement)"
+                      v-html=achievement.achievement_display
+                    ></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div v-else class="modal-container" style="width: 850px">
+          <div class="modal-header">
+            <h4> {% trans "Add Achievement / Publication" %}</h4>
+          </div>
+          <div class="modal-body">
+            {% include 'res/application_detail/components/_ref_form.html' %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+
+</script>
+<script type="application/javascript">
+
+Vue.component("ref-inserter", {
+  template: "#ref-inserter-template",
+  delimiters: ["${", "}"],
+  name: "ref-inserter",
+  props: {
+    labels: {
+      type: Object,
+      required: true,
+    },
+    category_choices: {
+      type: Array,
+      required: true
+    },
+    publication_type_choices: {
+      type: Array,
+      required: true
+    },
+
+  },
+  data() {
+    return {
+      reference: {},
+      overlay: false,
+      achievements: [],
+      search: "",
+      searchMode: true,
+      loadingAchievements: false,
+    };
+  },
+  methods: {
+    closeOverlay() {
+      this.error = null;
+      this.reference = {};
+      this.achievements = [];
+      this.search = "";
+      this.searchMode = true;
+      this.overlay = false;
+    },
+    openOverlay() {
+      this.error = null;
+      this.overlay = true;
+      this.getAchievements();
+      this.$nextTick(() => {
+        this.$refs.search.focus()
+      })
+    },
+    toggleSearchMode() {
+      this.searchMode = !this.searchMode;
+    },
+    cleanAchievement(achievement) {
+      for (const achievementKey in achievement) if (achievement[achievementKey] === "") achievement[achievementKey] = null;
+      if (achievement.date) achievement.date = achievement.date + "T12:00:00";
+      return achievement;
+    },
+    onSubmit() {
+      this.reference.application = applicationId;
+      this.reference = this.cleanAchievement(this.reference);
+      let endpoint = `/api/res/achievements/`;
+      apiService(endpoint, "POST", this.reference).then(data => {
+        this.insert(data, true);
+      });
+    },
+    insert(achievement, close) {
+      this.$emit("insert", achievement);
+      if (close) this.closeOverlay();
+    },
+    getAchievements() {
+      this.loadingAchievements = true;
+      let endpoint = `/api/res/achievements/?application=${applicationId}&search=${this.search}`;
+      apiService(endpoint).then(data => {
+        this.achievements = data;
+        this.loadingAchievements = false;
+      });
+    },
+
+  },
+  created() {
+  },
+  computed: {}
+});
+</script>

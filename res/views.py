@@ -1,15 +1,12 @@
 from datetime import datetime
 
 from django.db import IntegrityError
-from django.db.models import Value, TextField
-from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
-from lib.functions.custom_functions import listrify
 from res.mixins import LoginAccessRequiredMixin, ResAdminRequiredMixin, CanModifyApplicationRequiredMixin, CanViewApplicationRequiredMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonCreateView, CommonFilterView, CommonDetailView, \
     CommonUpdateView, CommonDeleteView
@@ -150,17 +147,52 @@ class ApplicationListView(LoginAccessRequiredMixin, CommonFilterView):
         return _("Applications")
 
 
-
 class ApplicationDetailView(CanViewApplicationRequiredMixin, CommonDetailView):
     model = models.Application
-    template_name = 'res/application_detail/main.html'
     home_url_name = "res:index"
     parent_crumb = {"title": gettext_lazy("Applications"), "url": reverse_lazy("res:application_list")}
     container_class = " "
 
+    def get_template_names(self):
+        if self.request.GET.get("print"):
+            return 'res/application_print/main.html'
+        return 'res/application_detail/main.html'
+
     def get_context_data(self, **kwargs):
         obj = self.get_object()
         context = super().get_context_data(**kwargs)
+        if self.request.GET.get("print"):
+            context["contexts"] = models.Context.objects.all()
+            context["basic_fields"] = [
+                "fiscal_year",
+                "status",
+                "applicant",
+                "manager",
+                "dates|{}".format(_("dates")),
+                "section",
+                "current_group_level",
+                "target_group_level",
+                "current_position_title",
+                "work_location",
+                "last_application",
+                "last_promotion",
+                "academic_background_html",
+                "employment_history_html",
+                "submission_date",
+                "metadata",
+            ]
+            context["recommendation_fields"] = [
+                "recommendation_text_html",
+                "decision",
+                "manager_signature|{}".format(_("manager signature")),
+                "applicant_signature|{}".format(_("applicant signature")),
+                "applicant_comment",
+                "metadata",
+            ]
+            context["section_2_fields"] = [
+                "objectives_html",
+                "relevant_factors_html",
+            ]
         return context
 
 
@@ -195,16 +227,6 @@ class ApplicationCreateView(LoginAccessRequiredMixin, CommonCreateView):
         for o in models.Outcome.objects.all():
             models.ApplicationOutcome.objects.create(application=obj, outcome=o)
 
-        # range = form.cleaned_data["date_range"]
-        # if range:
-        #     range = range.split("to")
-        #     start_date = datetime.strptime(range[0].strip(), "%Y-%m-%d")
-        #     obj.application_start_date = start_date
-        #     if len(range) > 1:
-        #         end_date = datetime.strptime(range[1].strip(), "%Y-%m-%d")
-        #         obj.application_end_date = end_date
-        #     else:
-        #         obj.application_end_date = start_date
         return super().form_valid(form)
 
 
@@ -251,7 +273,6 @@ class ApplicationSubmitView(CanModifyApplicationRequiredMixin, CommonUpdateView)
     grandparent_crumb = {"title": gettext_lazy("Applications"), "url": reverse_lazy("res:application_list")}
     h2 = None
 
-
     def get_h1(self):
         my_object = self.get_object()
         if my_object.submission_date:
@@ -289,7 +310,6 @@ class ApplicationSubmitView(CanModifyApplicationRequiredMixin, CommonUpdateView)
             email.send()
 
         return HttpResponseRedirect(self.get_success_url())
-
 
 # class ApplicationCloneUpdateView(ApplicationUpdateView):
 #     h1 = gettext_lazy("Clone an Application")

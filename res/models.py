@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.template.defaultfilters import date
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _, gettext, get_language, activate
 from markdown import markdown
@@ -118,6 +120,13 @@ class Application(MetadataFields):
         return timedelta_duration_days(self.application_end_date - self.application_start_date)
 
     @property
+    def dates(self):
+        my_str = date(self.application_start_date)
+        if self.application_end_date:
+            my_str += f" &rarr; {date(self.application_end_date)} ({self.application_range_description})"
+        return mark_safe(my_str)
+
+    @property
     def region(self):
         return self.section.division.branch.sector.region
 
@@ -185,8 +194,12 @@ class Recommendation(MetadataFields):
     applicant_comment = models.TextField(blank=True, null=True, verbose_name=_("researcher's comment"), help_text=_("no more than 250 words"))
 
     # non-editables
-    manager_signed = models.DateTimeField(verbose_name=_("signed by manager"), editable=False, blank=True, null=True)
-    applicant_signed = models.DateTimeField(verbose_name=_("signed by researcher"), editable=False, blank=True, null=True)
+    manager_signed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("manager signed by"),
+                                          related_name="res_manager_signed_by_recommendations", editable=False)
+    manager_signed = models.DateTimeField(verbose_name=_("manager signature"), editable=False, blank=True, null=True)
+    applicant_signed = models.DateTimeField(verbose_name=_("researcher signature"), editable=False, blank=True, null=True)
+    applicant_signed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("applicant signed by"),
+                                            related_name="res_applicant_signed_by_recommendations", editable=False)
 
     @property
     def recommendation_text_html(self):
@@ -197,6 +210,16 @@ class Recommendation(MetadataFields):
     def applicant_comment_html(self):
         if self.applicant_comment:
             return markdown(self.applicant_comment)
+
+    @property
+    def manager_signature(self):
+        if self.manager_signed_by and self.manager_signed:
+            return _("Signed by {user} at {date}").format(user=self.manager_signed_by, date=date(self.manager_signed))
+
+    @property
+    def applicant_signature(self):
+        if self.applicant_signed_by and self.applicant_signed:
+            return _("Signed by {user} at {date}").format(user=self.applicant_signed_by, date=date(self.applicant_signed))
 
 
 class ApplicationOutcome(MetadataFields):
@@ -221,6 +244,7 @@ class ApplicationOutcome(MetadataFields):
         if self.text:
             return len(self.text.split(" "))
         return 0
+
 
 class Achievement(MetadataFields):
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="achievements")

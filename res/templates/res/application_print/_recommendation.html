@@ -1,0 +1,14 @@
+{% load i18n %}
+{% load verbose_names %}
+
+{% if object.recommendation %}
+  <table class="table table-sm w-auto">
+    <tbody>
+    {% for field in recommendation_fields %}
+      {% verbose_td_display object.recommendation field crop_html=True th_width="300px" %}
+    {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <em>{% trans "No Recommendation has been created." %}</em>
+{% endif %}

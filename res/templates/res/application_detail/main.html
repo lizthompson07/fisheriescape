@@ -66,8 +66,8 @@
            href="#">{% trans "Clone Me" %}</a>
 
         {% if object.status >= 2 %}
-          <a href="#" class="btn btn-outline-dark btn-sm ml-3">
-            <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
+          <a href="{% url 'res:application_detail' object.id %}?print=true" class="btn btn-outline-dark btn-sm ml-3">
+            <span class="mdi mdi-printer mr-1"></span>{% trans "Print View" %}
           </a>
         {% endif %}
       </div>
@@ -325,8 +325,7 @@
         let userConfirmation = true;
         if (param) {
           userConfirmation = confirm("{% trans "Are you sure you want to sign this record?" %}")
-          if (param === "sign-by-applicant") recommendation.applicant_comment = prompt("{% trans "Comments (optional):" %}");
-          if (param === "sign-by-applicant") recommendation.applicant_comment = prompt("{% trans "Comments (optional):" %}");
+          if (userConfirmation && param === "sign-by-applicant") recommendation.applicant_comment = prompt("{% trans "Comments (optional):" %}");
           endpoint += `?${param}=true`
           method = "POST"
         }
