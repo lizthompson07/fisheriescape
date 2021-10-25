@@ -19,6 +19,35 @@ YES_NO_CHOICES = (
 )
 
 
+class SiteSection(models.Model):
+    section_choices = (
+        (1, "ANNEX A"),
+        (2, "ANNEX B"),
+        (3, "For new applications"),
+    )
+    section = models.IntegerField(verbose_name=_("section"), choices=section_choices, unique=True)
+    description_en = models.TextField(blank=True, null=True, verbose_name=_("Description (en)"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description (fr)"))
+
+    @property
+    def tdescription(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("description_en"))):
+            my_str = "{}".format(getattr(self, str(_("description_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.description_en
+        return my_str
+
+    class Meta:
+        ordering = ["section"]
+
+    @property
+    def description_html(self):
+        if self.tdescription:
+            return markdown(self.tdescription)
+
+
 class Context(Lookup):
     word_limit = models.IntegerField(verbose_name=_("word limit"), default=500)
 
@@ -38,12 +67,11 @@ class Outcome(Lookup):
     def __str__(self):
         return f"{self.context} - {self.tname}"
 
-
-
     @property
     def description_html(self):
         if self.tdescription:
             return markdown(self.tdescription)
+
 
 class AchievementCategory(SimpleLookup):
     code = models.CharField(max_length=5, verbose_name=_("category code"), unique=True)
@@ -261,7 +289,7 @@ class Achievement(MetadataFields):
     detail = models.CharField(verbose_name=_("detail"), max_length=2000)
 
     class Meta:
-        ordering = ["application", "category", "publication_type", "id"]
+        ordering = ["application", "category", "publication_type", "date"]
 
     def __str__(self):
         return f"{self.category}"
@@ -274,25 +302,19 @@ class Achievement(MetadataFields):
 
     @property
     def achievement_display(self):
-
         mystr = f"{self.code} &rarr; "
-
         if self.date:
             fy = fiscal_year(self.date)
             mystr += f"{fy}."
-
         if self.category and self.category.is_publication and self.publication_type:
             mystr += f" {self.publication_type.tname}."
-
         if self.detail:
             mystr += f" {self.detail}"
         return mystr
 
     @property
     def achievement_display_no_code(self):
-
         mystr = ""
-
         if self.date:
             fy = fiscal_year(self.date)
             mystr += f"{fy}."

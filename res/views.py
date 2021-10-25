@@ -1,8 +1,6 @@
 from datetime import datetime
 
-from django.db import IntegrityError
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
@@ -102,6 +100,22 @@ class PublicationTypeHardDeleteView(ResAdminRequiredMixin, CommonHardDeleteView)
     success_url = reverse_lazy("res:manage_publication_types")
 
 
+class SiteSectionFormsetView(ResAdminRequiredMixin, CommonFormsetView):
+    template_name = 'res/formset.html'
+    h1 = "Manage Site Sections"
+    queryset = models.SiteSection.objects.all()
+    formset_class = forms.SiteSectionFormset
+    success_url_name = "res:manage_site_sections"
+    home_url_name = "res:index"
+    delete_url_name = "res:delete_site_section"
+    container_class = "container-fluid"
+
+
+class SiteSectionHardDeleteView(ResAdminRequiredMixin, CommonHardDeleteView):
+    model = models.SiteSection
+    success_url = reverse_lazy("res:manage_site_sections")
+
+
 # APPLICATIONS
 ##############
 
@@ -124,15 +138,6 @@ class ApplicationListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'region|{}'.format(gettext_lazy("region")), "class": ""},
         {"name": 'section|{}'.format(gettext_lazy("section")), "class": ""},
     ]
-
-    # def get_extra_button_dict1(self):
-    #     qs = self.filterset.qs
-    #     ids = listrify([obj.id for obj in qs])
-    #     return {
-    #         "name": _("<span class=' mr-1 mdi mdi-file-excel'></span> {name}").format(name=_("Export")),
-    #         "url": reverse("res:application_list_report") + f"?csas_requests={ids}",
-    #         "class": "btn-outline-dark",
-    #     }
 
     def get_queryset(self):
         if not in_res_admin_group(self.request.user):
@@ -161,6 +166,14 @@ class ApplicationDetailView(CanViewApplicationRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         obj = self.get_object()
         context = super().get_context_data(**kwargs)
+
+        qs1 = models.SiteSection.objects.filter(section=1)
+        if qs1.exists():
+            context["annex_a_text"] = qs1.first().description_html
+        qs2 = models.SiteSection.objects.filter(section=2)
+        if qs2.exists():
+            context["annex_b_text"] = qs2.first().description_html
+
         if self.request.GET.get("print"):
             context["contexts"] = models.Context.objects.all()
             context["basic_fields"] = [
@@ -203,8 +216,14 @@ class ApplicationCreateView(LoginAccessRequiredMixin, CommonCreateView):
     home_url_name = "res:index"
     parent_crumb = {"title": gettext_lazy("Applications"), "url": reverse_lazy("res:application_list")}
     submit_text = gettext_lazy("Save")
-    h1 = gettext_lazy("New Application")
+    h1 = gettext_lazy("Application for the Preparation of Researchers’ Career Advancement")
     h2 = gettext_lazy("All fields are mandatory before approvals and submission")
+
+    def get_h3(self):
+        qs = models.SiteSection.objects.filter(section=3)
+        if qs.exists():
+            msg = f'<div class="alert alert-secondary h6">{qs.first().description_html}</div>'
+            return msg
 
     def get_initial(self):
         return dict(

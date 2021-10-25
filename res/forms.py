@@ -79,6 +79,24 @@ PublicationTypeFormset = modelformset_factory(
 )
 
 
+class SiteSectionForm(forms.ModelForm):
+    class Meta:
+        model = models.SiteSection
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['description_en'].widget.attrs = dict(rows=10)
+        self.fields['description_fr'].widget.attrs = dict(rows=10)
+
+
+SiteSectionFormset = modelformset_factory(
+    model=models.SiteSection,
+    form=SiteSectionForm,
+    extra=1,
+)
+
+
 class ApplicationForm(forms.ModelForm):
     # date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Period covered by this application"), required=True)
 

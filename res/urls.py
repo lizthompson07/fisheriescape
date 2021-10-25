@@ -21,6 +21,10 @@ urlpatterns = [
     path('settings/publication-types/', views.PublicationTypeFormsetView.as_view(), name="manage_publication_types"),
     path('settings/publication-type/<int:pk>/delete/', views.PublicationTypeHardDeleteView.as_view(), name="delete_publication_type"),
 
+    path('settings/site-sections/', views.SiteSectionFormsetView.as_view(), name="manage_site_sections"),
+    path('settings/site-section/<int:pk>/delete/', views.SiteSectionHardDeleteView.as_view(), name="delete_site_section"),
+
+
     # APPLICATIONS
     path('applications/', views.ApplicationListView.as_view(), name="application_list"),
     path('applications/new/', views.ApplicationCreateView.as_view(), name="application_new"),
