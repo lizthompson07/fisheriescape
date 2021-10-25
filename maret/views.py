@@ -182,6 +182,11 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateView):
             'created_by': self.request.user
         }
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scripts'] = ['maret/js/interactionForm.html']
+        return context
+
 
 class InteractionDetailView(UserRequiredMixin, CommonDetailView):
     model = models.Interaction

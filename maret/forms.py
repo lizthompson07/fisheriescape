@@ -29,6 +29,7 @@ class InteractionForm(forms.ModelForm):
             'date_created',
         ]
         widgets = {
+            'date_of_meeting': forms.DateInput(attrs=attr_fp_date)
         }
 
 
