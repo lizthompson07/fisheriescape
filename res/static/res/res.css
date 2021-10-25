@@ -175,6 +175,13 @@ label.filter {
     }
 }
 
+
+@media screen {
+    .print-only, .print-only * {
+        display: none !important;
+    }
+}
+
 .high {
     background-color: pink;
 }

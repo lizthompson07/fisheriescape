@@ -283,5 +283,21 @@ class Achievement(MetadataFields):
         return mystr
 
     @property
+    def achievement_display_no_code(self):
+
+        mystr = ""
+
+        if self.date:
+            fy = fiscal_year(self.date)
+            mystr += f"{fy}."
+
+        if self.category and self.category.is_publication and self.publication_type:
+            mystr += f" {self.publication_type.tname}."
+
+        if self.detail:
+            mystr += f" {self.detail}"
+        return mystr
+
+    @property
     def is_publication(self):
         return self.category and self.category.is_publication

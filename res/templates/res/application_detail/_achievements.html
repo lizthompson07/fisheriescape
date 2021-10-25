@@ -14,6 +14,7 @@
         ${category.display}
       </h6>
       <achievement
+        :id="`achievement${achievement.id}`"
         v-for="achievement in achievements" :key="achievement.id"
         v-if="achievement.category === category.id"
         :object="achievement"

@@ -203,15 +203,17 @@ def connect_refs(txt, achievements_qs):
         pk = ref.lower().replace("ref", "").strip()
         try:
             a = achievements_qs.get(pk=pk)
-            tip = a.achievement_display
+            tip = a.achievement_display_no_code
             if a.category:
                 code = a.category.code
             text_class = "text-primary"
             text = f"{a.code}"
+            href = f"#achievement{a.id}"
         except:
             tip = gettext("Bad reference!!")
             text_class = "text-danger"
             text = "???"
-        replace_text = f"<span class='{text_class} helper' data-toggle='tooltip' title='{tip}'>{text}</span>"
+            href = "??"
+        replace_text = f"<a href='{href}' class='{text_class} helper' data-toggle='tooltip' title='{tip}'>{text}</a>"
         txt = txt.replace(f"[{ref}]", replace_text)
     return markdown(txt)
