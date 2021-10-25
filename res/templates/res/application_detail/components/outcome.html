@@ -12,7 +12,7 @@
         <span v-if="collapse" class="mdi mdi-arrow-collapse-up text-primary" data-toggle="tooltip" title="{% trans "display text" %}"></span>
         <span v-else class="mdi mdi-arrow-collapse-down text-primary" data-toggle="tooltip" title="{% trans "hide text" %}"></span>
       </b>
-      <p class="text-muted small">${outcome.tdescription}</p>
+      <p class="text-muted small" v-html="outcome.description_html"></p>
       <p v-if="!collapse">
         <span v-html="object.text_html"></span>
       </p>

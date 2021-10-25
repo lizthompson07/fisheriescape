@@ -85,7 +85,7 @@ class RecommendationViewSet(ModelViewSet):
             if not recommendation.application.manager == request.user:
                 raise ValidationError(_("Sorry, you are not the right person to be recommending this application. We were expecting:") +
                                       f"{recommendation.application.manager}")
-            elif recommendation.decision is None or recommendation.recommendation_text is None:
+            elif not (recommendation.decision and recommendation.recommendation_text):
                 raise ValidationError(_("You must provide recommendation text and a decision before signing."))
             elif not recommendation.application.submission_date:
                 raise ValidationError(_("You can only sign a recommendation for an application that has been submitted."))

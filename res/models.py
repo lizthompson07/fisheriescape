@@ -39,6 +39,12 @@ class Outcome(Lookup):
         return f"{self.context} - {self.tname}"
 
 
+
+    @property
+    def description_html(self):
+        if self.tdescription:
+            return markdown(self.tdescription)
+
 class AchievementCategory(SimpleLookup):
     code = models.CharField(max_length=5, verbose_name=_("category code"), unique=True)
     is_publication = models.BooleanField(default=False, verbose_name=_("Is this a category for publications?"))

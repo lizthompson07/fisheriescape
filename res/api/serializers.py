@@ -244,7 +244,11 @@ class OutcomeSerializer(serializers.ModelSerializer):
 
     tname = serializers.SerializerMethodField()
     tdescription = serializers.SerializerMethodField()
+    description_html = serializers.SerializerMethodField()
 
+    def get_description_html(self, instance):
+        return instance.description_html
+    
     def get_tdescription(self, instance):
         return instance.tdescription
 
