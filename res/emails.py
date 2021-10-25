@@ -9,7 +9,7 @@ class NewRecommendationEmail(Email):
     subject_fr = "Une nouvelle demande de promotion RES attend votre recommandation"
 
     def get_recipient_list(self):
-        return [self.instance.user.email]
+        return [self.instance.application.manager.email]
 
 
 class SignatureAwaitingEmail(Email):
@@ -18,4 +18,4 @@ class SignatureAwaitingEmail(Email):
     subject_fr = "Une demande de promotion RES attend votre signature"
 
     def get_recipient_list(self):
-        return [self.instance.user.email]
+        return [self.instance.application.applicant.email]

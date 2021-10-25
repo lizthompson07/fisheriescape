@@ -7,173 +7,177 @@
 {% load custom_filters %}
 
 {% block subtitle %}
-    - {% trans "Resources" %}
+  - {% trans "Resources" %}
 {% endblock %}
 
 {% block content %}
 
-    <style>
-        table {
-            width: auto;
-        }
+  <style>
+  table {
+      width: auto;
+  }
 
-        table, td, th {
-            font-size: small;
-        }
+  table, td, th {
+      font-size: small;
+  }
 
-    </style>
+  </style>
 
 
-    <div class="container-fluid">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="{% url 'inventory:index' %}">
-                        {% trans "Home" %}
-                    </a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">
-                    {% trans "Full Calalogue" %}
-                </li>
-            </ol>
-        </nav>
+  <div class="container-fluid">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'inventory:index' %}">
+            {% trans "Home" %}
+          </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {% trans "Full Calalogue" %}
+        </li>
+      </ol>
+    </nav>
 
-        <p>
-        <h1>Data Resource Inventory </h1>
-        TOTAL: {{ filter.qs.count }}
-        </p>
+    <p>
+    <h1>Data Resource Inventory </h1>
+    TOTAL: {{ filter.qs.count }}
+    </p>
 
-        <form class="form" action="." method="get" style="width: 85%; font-size: small" id="filter-form">
-            <div class="row">
-                {% for field in filter.form %}
-                    <div class="col">
-                        {% bootstrap_field field size="small" %}
-                    </div>
-                {% endfor %}
-                <div class="col" style="vertical-align: bottom;">
-                    <br>
-                    <div class="btn-group">
-                        <input type="submit" value="Filter" class="btn btn-sm btn-warning">
-                        <a href="." class="btn btn-sm btn-secondary">Clear</a>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-            </div>
-        </form>
-        <br>
-        {% paginate 50 filter.qs as filter_list %}
-
-        <div class="row">
-            <div class="col">
-                {% trans "(click on a header to sort table)" %}
-            </div>
-            <div class="col" style="text-align: center">
-                {% show_pages %}
-                <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
-            </div>
-            <div class="col mb-2" style="text-align: right">
-                <a href="{% url 'inventory:resource_new' %}" class="btn btn-sm btn-primary">New Resource</a>
-            </div>
+    <form class="form" action="." method="get" style="width: 95%; font-size: small" id="filter-form">
+      <div class="row">
+        {% for field in filter.form %}
+          <div class="col">
+            {% bootstrap_field field size="small" %}
+          </div>
+        {% endfor %}
+        <div class="col" style="vertical-align: bottom;">
+          <br>
+          <div class="btn-group">
+            <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+            <a href="." class="btn btn-sm btn-secondary">Clear</a>
+          </div>
         </div>
+      </div>
+      <div class="row">
+      </div>
+    </form>
+    <br>
+    {% paginate 150 filter.qs as filter_list %}
 
-        <table class="table table-hover table-sm sortable">
-            <thead>
-            <tr>
-                {# <th scope="col">Id</th> #}
-                <th scope="col">
-                    {% trans "Region" %}
-                </th>
-                <th scope="col" style="width: 30%">
-                    {% trans "Title" %}
-                </th>
-                <th scope="col">
-                    {% trans "Status" %}
-                </th>
-                <th scope="col">
-                    {% trans "Section" %}
-                </th>
-                <th scope="col">
-                    {% trans "Previous time certified" %}
-                </th>
-                <th scope="col">
-                    {% trans "Completeness Rating" %}
-                </th>
-                <th scope="col">
-                    {% trans "Translation Needed" %}
-                </th>
-                <th scope="col">
-                    {% trans "Published to FGP?" %}
-                </th>
-                <th scope="col">
-                    {% trans "Open Data Inventory ID" %}
-                </th>
-                <th scope="col" colspan="2">
-                    {% trans "External Links" %}
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for obj in filter_list %}
-                <tr href="{% url 'inventory:resource_detail' obj.id %}">
-                    <td>{{ obj.section.division.branch.region }}</td>
-                    <td>{{ obj.title_eng }}</td>
-
-                    {% if obj.status.id == 3 %}
-                        <td class="good">
-
-                            {% elif obj.status.id == 1 %}
-                        <td class="bad">
-                            {% else %}
-                        <td>
-
-                    {% endif %}
-                    {{ obj.status }}
-                    </td>
-
-
-                    <td>{{ obj.section.name }}</td>
-
-                    <td>
-                        {% if obj.certification_history.count > 0 %}
-                            {{ obj.certification_history.first.certification_date|naturaltime }}
-                        {% else %}
-                            <span class="red-font"><b>Never</b></span>
-                        {% endif %}
-                    </td>
-                    <td>{{ obj.completedness_rating|percentage:0 }}</td>
-                    <td>{{ obj.translation_needed|yesno }}</td>
-                    <td>
-                        {{ obj.fgp_publication_date|yesno:"yes,no,no" }}
-                    </td>
-                    <td>
-                        {{ obj.odi_id|nz:"---" }}
-                    </td>
-                    <td>
-                        {% if obj.fgp_url %}
-                            <a class="stop-blank" href="{{ obj.fgp_url }}" data-toggle="tooltip"
-                               title="Open URL in the Federal Geospatial Platform">
-                                <img src="{% static 'img/icons/fgp.png' %}" alt="" width="25px">
-                            </a>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if obj.public_url %}
-                            <a class="stop-blank" href="{{ obj.public_url }}" data-toggle="tooltip"
-                               title="Open URL in the Open Government Portal">
-                                <img src="{% static 'img/icons/canada.png' %}" alt="" width="25px">
-                            </a>
-                        {% endif %}
-                    </td>
-
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
+    <div class="row">
+      <div class="col">
+        {% trans "(click on a header to sort table)" %}
+      </div>
+      <div class="col" style="text-align: center">
         {% show_pages %}
-
+        <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
+      </div>
+      <div class="col mb-2" style="text-align: right">
+        <a href="{% url 'inventory:resource_new' %}" class="btn btn-sm btn-primary">New Resource</a>
+      </div>
     </div>
+
+    <table class="table table-hover table-sm sortable">
+      <thead>
+      <tr>
+        {# <th scope="col">Id</th> #}
+        <th scope="col">
+          {% trans "Region" %}
+        </th>
+        <th scope="col" style="width: 30%">
+          {% trans "Title" %}
+        </th>
+        <th scope="col">
+          {% trans "Resource Type" %}
+        </th>
+        <th scope="col">
+          {% trans "Status" %}
+        </th>
+        <th scope="col">
+          {% trans "Section" %}
+        </th>
+        <th scope="col">
+          {% trans "Previous time certified" %}
+        </th>
+        <th scope="col">
+          {% trans "Completeness Rating" %}
+        </th>
+        <th scope="col">
+          {% trans "Translation Needed" %}
+        </th>
+        <th scope="col">
+          {% trans "Published to FGP?" %}
+        </th>
+        <th scope="col">
+          {% trans "Open Data Inventory ID" %}
+        </th>
+        <th scope="col" colspan="2">
+          {% trans "External Links" %}
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for obj in filter_list %}
+        <tr href="{% url 'inventory:resource_detail' obj.id %}">
+          <td>{{ obj.section.division.branch.region }}</td>
+          <td>{{ obj.title_eng }}</td>
+          <td>{{ obj.resource_type|nz:"---" }}</td>
+
+          {% if obj.status.id == 3 %}
+            <td class="good">
+
+              {% elif obj.status.id == 1 %}
+            <td class="bad">
+              {% else %}
+            <td>
+
+          {% endif %}
+          {{ obj.status }}
+          </td>
+
+
+          <td>{{ obj.section.name }}</td>
+
+          <td>
+            {% if obj.certification_history.count > 0 %}
+              {{ obj.certification_history.first.certification_date|naturaltime }}
+            {% else %}
+              <span class="red-font"><b>Never</b></span>
+            {% endif %}
+          </td>
+          <td>{{ obj.completedness_rating|percentage:0 }}</td>
+          <td>{{ obj.translation_needed|yesno }}</td>
+          <td>
+            {{ obj.fgp_publication_date|yesno:"yes,no,no" }}
+          </td>
+          <td>
+            {{ obj.odi_id|nz:"---" }}
+          </td>
+          <td>
+            {% if obj.fgp_url %}
+              <a class="stop-blank" href="{{ obj.fgp_url }}" data-toggle="tooltip"
+                 title="Open URL in the Federal Geospatial Platform">
+                <img src="{% static 'img/icons/fgp.png' %}" alt="" width="25px">
+              </a>
+            {% endif %}
+          </td>
+          <td>
+            {% if obj.public_url %}
+              <a class="stop-blank" href="{{ obj.public_url }}" data-toggle="tooltip"
+                 title="Open URL in the Open Government Portal">
+                <img src="{% static 'img/icons/canada.png' %}" alt="" width="25px">
+              </a>
+            {% endif %}
+          </td>
+
+        </tr>
+      {% endfor %}
+
+      </tbody>
+    </table>
+    {% show_pages %}
+
+  </div>
 
 
 

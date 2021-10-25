@@ -300,12 +300,7 @@ class ApplicationSubmitView(CanModifyApplicationRequiredMixin, CommonUpdateView)
         # if the request was just submitted, send an email
         if obj.submission_date:
             # create a recommendation
-            try:
-                recommendation, created = models.Recommendation.objects.get_or_create(application=obj, user=obj.manager)
-            except IntegrityError:
-                # means that there was a change in manager. Need to delete old recommendation and create new one
-                get_object_or_404(models.Recommendation, application=obj).delete()
-                recommendation, created = models.Recommendation.objects.get_or_create(application=obj, user=obj.manager)
+            recommendation, created = models.Recommendation.objects.get_or_create(application=obj)
             email = emails.NewRecommendationEmail(self.request, recommendation)
             email.send()
 
