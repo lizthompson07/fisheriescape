@@ -173,6 +173,13 @@ class ApplicationDetailView(CanViewApplicationRequiredMixin, CommonDetailView):
     parent_crumb = {"title": gettext_lazy("Applications"), "url": reverse_lazy("res:application_list")}
     container_class = " "
 
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        # attach all possible outcomes
+        for o in models.Outcome.objects.all():
+            models.ApplicationOutcome.objects.get_or_create(application=obj, outcome=o)
+        return super().dispatch(request, *args, **kwargs)
+
     def get_template_names(self):
         if self.request.GET.get("print"):
             return 'res/application_print/main.html'

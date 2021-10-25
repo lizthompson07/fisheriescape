@@ -160,6 +160,7 @@ Vue.component("achievement", {
 
     },
     copyToClipboard(textToCopy) {
+      // from https://stackoverflow.com/questions/51805395/navigator-clipboard-is-undefined
       // navigator clipboard api needs a secure context (https)
       if (navigator.clipboard && window.isSecureContext) {
         // navigator clipboard api method'
