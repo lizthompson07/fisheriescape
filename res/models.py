@@ -30,9 +30,10 @@ class Outcome(Lookup):
     description_en = models.TextField(blank=True, null=True, verbose_name=_("Description (en)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (fr)"))
     description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description (fr)"))
+    order = models.IntegerField(verbose_name=_("order"), blank=True, null=True)
 
     class Meta:
-        ordering = ["context", "name"]
+        ordering = ["context", "order", "name"]
 
     def __str__(self):
         return f"{self.context} - {self.tname}"
