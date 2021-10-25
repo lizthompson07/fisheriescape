@@ -44,9 +44,9 @@
                 <ul>
                   <li v-for="achievement in achievements" :key="achievement.id" class="mb-2">
                     <span
-                      class="text-primary pointy"
+                      class="text-primary pointy small"
                       @click="insert(achievement)"
-                      v-html=achievement.achievement_display
+                      v-html=achievement.achievement_display_no_code
                     ></span>
                   </li>
                 </ul>

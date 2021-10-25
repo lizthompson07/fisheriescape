@@ -204,6 +204,10 @@ class AchievementSerializer(serializers.ModelSerializer):
     achievement_display = serializers.SerializerMethodField()
     is_publication = serializers.SerializerMethodField()
     code = serializers.SerializerMethodField()
+    achievement_display_no_code = serializers.SerializerMethodField()
+
+    def get_achievement_display_no_code(self, instance):
+        return instance.achievement_display_no_code
 
     def get_code(self, instance):
         return instance.code
