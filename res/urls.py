@@ -24,6 +24,9 @@ urlpatterns = [
     path('settings/site-sections/', views.SiteSectionFormsetView.as_view(), name="manage_site_sections"),
     path('settings/site-section/<int:pk>/delete/', views.SiteSectionHardDeleteView.as_view(), name="delete_site_section"),
 
+    path('settings/review-types/', views.ReviewTypeFormsetView.as_view(), name="manage_review_types"),
+    path('settings/review-type/<int:pk>/delete/', views.ReviewTypeHardDeleteView.as_view(), name="delete_review_type"),
+
 
     # APPLICATIONS
     path('applications/', views.ApplicationListView.as_view(), name="application_list"),

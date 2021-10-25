@@ -4,7 +4,7 @@
 <script type="text/x-template" id="outcome-template">
 
 <div>
-  <div class="row table-div" :id="`outcome${outcome.id}`">
+  <div class="row" :id="`outcome${outcome.id}`">
     {# VIEW MODE #}
     <div v-if="!editMode" class="col">
       <b @click="toggleCollapse" class="text-primary pointy">

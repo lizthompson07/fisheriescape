@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _, gettext, get_language, a
 from markdown import markdown
 
 from lib.functions.custom_functions import fiscal_year
-from lib.templatetags.custom_filters import timedelta_duration_days
+from lib.templatetags.custom_filters import timedelta_duration_days, nz
 from res import model_choices
 from res.utils import connect_refs
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, MetadataFields, Section, Organization, Lookup, FiscalYear
@@ -93,10 +93,20 @@ class GroupLevel(UnilingualSimpleLookup):
 
 
 class PublicationType(SimpleLookup):
-    code = models.CharField(max_length=5, verbose_name=_("category code"))
+    code = models.CharField(max_length=5, verbose_name=_("display code"))
 
     def __str__(self):
         return f"{self.code}. {self.tname}"
+
+    class Meta:
+        ordering = ["code"]
+
+
+class ReviewType(SimpleLookup):
+    code = models.CharField(max_length=5, verbose_name=_("display code"), blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.tname}"
 
     class Meta:
         ordering = ["code"]
@@ -285,29 +295,41 @@ class Achievement(MetadataFields):
     category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements", verbose_name=_("achievement category"))
     publication_type = models.ForeignKey(PublicationType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
                                          verbose_name=_("publication type"))
+    review_type = models.ForeignKey(ReviewType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
+                                         verbose_name=_("peer review type"))
     date = models.DateTimeField(verbose_name=_("date of publication / achievement"), blank=True, null=True)
     detail = models.CharField(verbose_name=_("detail"), max_length=2000)
 
     class Meta:
-        ordering = ["application", "category", "publication_type", "date"]
+        ordering = ["application", "category", "publication_type", "-date"]
 
     def __str__(self):
         return f"{self.category}"
 
     @property
     def code(self):
-        id_list = [a.id for a in self.application.achievements.filter(category=self.category).order_by("application", "category", "publication_type", "id")]
+        id_list = [a.id for a in self.application.achievements.filter(category=self.category).order_by("application", "category", "publication_type", "-date")]
         code = f"{self.category.code}-{id_list.index(self.id) + 1}"
         return code
 
     @property
     def achievement_display(self):
-        mystr = f"{self.code} &rarr; "
-        if self.date:
-            fy = fiscal_year(self.date)
-            mystr += f"{fy}."
-        if self.category and self.category.is_publication and self.publication_type:
-            mystr += f" {self.publication_type.tname}."
+        mystr = f"{self.code} &mdash; "
+        if self.category and self.category.is_publication:
+            if self.publication_type:
+                mystr += f"{self.publication_type.tname}. "
+
+            if self.date:
+                mystr += f"{self.date.year}"
+            else:
+                mystr += "n/a"
+
+            if self.review_type:
+                mystr += f"{nz(self.review_type.code, '')}"
+
+            mystr += "."
+        elif self.date:
+            mystr += f"{self.date.year}."
         if self.detail:
             mystr += f" {self.detail}"
         return mystr

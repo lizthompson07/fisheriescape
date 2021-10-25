@@ -79,6 +79,19 @@ PublicationTypeFormset = modelformset_factory(
 )
 
 
+class ReviewTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.ReviewType
+        fields = "__all__"
+
+
+ReviewTypeFormset = modelformset_factory(
+    model=models.ReviewType,
+    form=ReviewTypeForm,
+    extra=1,
+)
+
+
 class SiteSectionForm(forms.ModelForm):
     class Meta:
         model = models.SiteSection

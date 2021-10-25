@@ -116,6 +116,21 @@ class SiteSectionHardDeleteView(ResAdminRequiredMixin, CommonHardDeleteView):
     success_url = reverse_lazy("res:manage_site_sections")
 
 
+class ReviewTypeFormsetView(ResAdminRequiredMixin, CommonFormsetView):
+    template_name = 'res/formset.html'
+    h1 = "Manage Review Types"
+    queryset = models.ReviewType.objects.all()
+    formset_class = forms.ReviewTypeFormset
+    success_url_name = "res:manage_review_types"
+    home_url_name = "res:index"
+    delete_url_name = "res:delete_review_type"
+
+class ReviewTypeHardDeleteView(ResAdminRequiredMixin, CommonHardDeleteView):
+    model = models.ReviewType
+    success_url = reverse_lazy("res:manage_review_types")
+
+
+
 # APPLICATIONS
 ##############
 

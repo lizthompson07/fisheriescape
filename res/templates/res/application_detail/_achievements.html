@@ -10,7 +10,7 @@
 
   <div v-if="achievements.length">
     <div v-for="category in application.achievement_categories" :key="category.id" class="mb-5">
-      <h6 :id="`category${category.id}`" >
+      <h6 :id="`category${category.id}`" class="mb-3">
         ${category.display}
       </h6>
       <achievement
@@ -27,6 +27,7 @@
         @clone="cloneAchievement"
         @remove="deleteAchievement"
       ></achievement>
+      <hr>
     </div>
   </div>
   <div v-else>
