@@ -52,6 +52,19 @@
                 <option v-for="(option, index) in publication_type_choices" :value="option.value">${option.text}</option>
               </select>
             </div>
+            <div v-if="achievement.is_publication" class="mb-3">
+              <label for="">${labels.review_type}</label>
+              <select
+                class="form-control"
+                v-model="achievement.review_type"
+                @change="update"
+                ref="category"
+                id="category"
+              >
+                <option value="">-----</option>
+                <option v-for="(option, index) in review_type_choices" :value="option.value">${option.text}</option>
+              </select>
+            </div>
             <div class="mb-3">
               <label v-if="achievement.is_publication" for="">{% trans "Date of publication" %}</label>
               <label v-else for="">{% trans "Date of achievement" %}</label>
@@ -130,6 +143,10 @@ Vue.component("achievement", {
       required: true
     },
     publication_type_choices: {
+      type: Array,
+      required: true
+    },
+    review_type_choices: {
       type: Array,
       required: true
     },

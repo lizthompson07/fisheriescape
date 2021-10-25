@@ -164,6 +164,7 @@
       orgChoices: [],
       decisionChoices: [],
       publicationTypeChoices: [],
+      reviewTypeChoices: [],
       categoryChoices: [],
     },
     methods: {
@@ -364,6 +365,7 @@
           this.achievementLabels = data.labels;
           this.categoryChoices = data.category_choices;
           this.publicationTypeChoices = data.publication_type_choices;
+          this.reviewTypeChoices = data.review_type_choices;
         });
       },
     },

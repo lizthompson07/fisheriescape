@@ -213,4 +213,5 @@ class AchievementModelMetaAPIView(APIView):
         data['labels'] = _get_labels(self.model)
         data['category_choices'] = [dict(text=str(item), value=item.id) for item in models.AchievementCategory.objects.all()]
         data['publication_type_choices'] = [dict(text=str(item), value=item.id) for item in models.PublicationType.objects.all()]
+        data['review_type_choices'] = [dict(text=str(item), value=item.id) for item in models.ReviewType.objects.all()]
         return Response(data)
