@@ -3,7 +3,7 @@
         "model": "maret.area",
         "pk": 1,
         "fields": {
-            "name": "ENS",
+            "name": "Eastern Nova Scotia",
             "nom": null
         }
     },
@@ -11,7 +11,7 @@
         "model": "maret.area",
         "pk": 2,
         "fields": {
-            "name": "RHQ",
+            "name": "Regional Headquarters",
             "nom": null
         }
     },
@@ -19,7 +19,7 @@
         "model": "maret.area",
         "pk": 3,
         "fields": {
-            "name": "SWNB",
+            "name": "Southwest New Brunswick",
             "nom": null
         }
     },
@@ -27,7 +27,7 @@
         "model": "maret.area",
         "pk": 4,
         "fields": {
-            "name": "SWNS",
+            "name": "Southwest Nova Scotia",
             "nom": null
         }
     }

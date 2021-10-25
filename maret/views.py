@@ -252,6 +252,11 @@ class CommitteeListView(UserRequiredMixin, CommonFilterView):
     row_object_url_name = "maret:committee_detail"
     home_url_name = "maret:index"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scripts'] = ['maret/js/divisionFilter.html']
+        return context
+
 
 class CommitteeCreateView(UserRequiredMixin, CommonCreateView):
     model = models.Committee
