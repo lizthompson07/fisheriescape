@@ -217,3 +217,39 @@ def connect_refs(txt, achievements_qs):
         replace_text = f"<a href='{href}' class='{text_class} helper' data-toggle='tooltip' title='{tip}'>{text}</a>"
         txt = txt.replace(f"[{ref}]", replace_text)
     return markdown(txt)
+
+
+def achievements_summary_table(user):
+    payload = list()
+    last_application = user.res_applications.filter(last_promotion__isnull=False).order_by("last_promotion").last()
+    before_last_promotion = "---"
+    since_last_promotion = "---"
+    for publication_type in models.PublicationType.objects.all():
+        qs = user.achievements.filter(publication_type=publication_type, category__is_publication=True)
+        if last_application:
+            last_promotion = last_application.last_promotion
+            before_last_promotion = qs.filter(date__lt=last_promotion).count()
+            since_last_promotion = qs.filter(date__gte=last_promotion).count()
+        payload.append(
+            dict(
+                publication_type=f"{publication_type.code}. {publication_type.tname}",
+                before_last_promotion=before_last_promotion,
+                since_last_promotion=since_last_promotion,
+                total=qs.count(),
+            )
+        )
+
+    qs = user.achievements.filter(category__is_publication=True)
+    if last_application:
+        last_promotion = last_application.last_promotion
+        before_last_promotion = qs.filter(date__lt=last_promotion).count()
+        since_last_promotion = qs.filter(date__gte=last_promotion).count()
+    payload.append(
+            dict(
+                publication_type=_("TOTAL"),
+                before_last_promotion=before_last_promotion,
+                since_last_promotion=since_last_promotion,
+                total=qs.count(),
+            )
+        )
+    return payload

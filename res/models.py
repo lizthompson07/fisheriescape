@@ -10,7 +10,7 @@ from markdown import markdown
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import timedelta_duration_days, nz
 from res import model_choices
-from res.utils import connect_refs
+from res.utils import connect_refs, achievements_summary_table
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, MetadataFields, Section, Organization, Lookup, FiscalYear
 
 YES_NO_CHOICES = (
@@ -234,6 +234,10 @@ class Application(MetadataFields):
     def achievement_publication_types(self):
         return PublicationType.objects.filter(achievements__user=self.applicant, achievements__category__is_publication=True).distinct()
 
+    @property
+    def achievement_summary_table(self):
+        return achievements_summary_table(self.applicant)
+
 
 class Recommendation(MetadataFields):
     application = models.OneToOneField(Application, on_delete=models.CASCADE, related_name="recommendation")
@@ -295,7 +299,6 @@ class ApplicationOutcome(MetadataFields):
 
 
 class Achievement(MetadataFields):
-    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True)  # delete me
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="achievements")
     category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements", verbose_name=_("achievement category"))
     publication_type = models.ForeignKey(PublicationType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,

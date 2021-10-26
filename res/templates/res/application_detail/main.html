@@ -149,6 +149,7 @@
       loadingRecommendation: false,
       loadingOutcomes: false,
       loadingAchievements: false,
+      loadingAchievementsSummary: false,
       loadingContexts: false,
       loadingCategories: false,
       application: {},
@@ -157,6 +158,7 @@
       contexts: [],
       categories: [],
       achievements: [],
+      achievementsSummary: [],
       applicationLabels: {},
       recommendationLabels: {},
       achievementLabels: {},
@@ -193,6 +195,7 @@
             if (data.recommendation) this.getRecommendation(data.recommendation, reload);
             this.getOutcomes(reload);
             this.getAchievements(reload);
+            this.getAchievementsSummary();
           }
         });
       },
@@ -246,6 +249,16 @@
             }
             this.achievements = data;
             if (reload) this.loadingAchievements = false;
+          }
+        });
+      },
+      getAchievementsSummary() {
+        this.loadingAchievementsSummary = true;
+        let endpoint = `/api/res/achievements/?user=${this.application.applicant}&summary-table=true`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.achievementsSummary = data;
+            this.loadingAchievementsSummary = false;
           }
         });
       },

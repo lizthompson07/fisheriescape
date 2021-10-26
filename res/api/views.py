@@ -22,6 +22,9 @@ from .. import models, utils, model_choices, emails
 
 # USER
 #######
+from ..utils import achievements_summary_table
+
+
 class CurrentUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -153,6 +156,17 @@ class AchievementViewSet(ModelViewSet):
     filterset_fields = [
         'user',
     ]
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("summary-table"):
+            if not qp.get("user"):
+                raise ValidationError(_("Cannot run summary without user param."))
+            user = get_object_or_404(User, pk=qp.get("user"))
+            data = achievements_summary_table(user)
+            print(data)
+            return Response(data)
+        return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
