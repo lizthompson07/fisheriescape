@@ -182,6 +182,11 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateView):
             'created_by': self.request.user
         }
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scripts'] = ['maret/js/interactionForm.html']
+        return context
+
 
 class InteractionDetailView(UserRequiredMixin, CommonDetailView):
     model = models.Interaction
@@ -251,6 +256,11 @@ class CommitteeListView(UserRequiredMixin, CommonFilterView):
     new_object_url_name = "maret:committee_new"
     row_object_url_name = "maret:committee_detail"
     home_url_name = "maret:index"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scripts'] = ['maret/js/divisionFilter.html']
+        return context
 
 
 class CommitteeCreateView(UserRequiredMixin, CommonCreateView):
@@ -365,8 +375,17 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateView):
     def form_valid(self, form):
         object = form.save(commit=False)
         object.last_modified_by = self.request.user
-        object.locked_by_ihub = True
         super().form_valid(form)
+
+        ext_org = None
+        fields = form.cleaned_data
+        if fields['area']:
+            if not ext_org:
+                ext_org = models.OrganizationExtension(organization=object)
+                ext_org.save()
+            ext_org.area.set(fields['area'])
+            ext_org.save()
+
         return HttpResponseRedirect(reverse_lazy('maret:org_detail', kwargs={'pk': object.id}))
 
 
@@ -428,8 +447,15 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
         return {"title": self.get_object(), "url": reverse("maret:org_detail", args=[self.get_object().id])}
 
     def get_initial(self):
+        areas = []
+        if models.OrganizationExtension.objects.filter(organization=self.object):
+            ext_org = models.OrganizationExtension.objects.get(organization=self.object)
+            if ext_org:
+                areas = [a.pk for a in ext_org.area.all()]
+
         return {
             'last_modified_by': self.request.user,
+            'area': areas,
         }
 
     def form_valid(self, form):
@@ -439,6 +465,19 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
             return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.pk, ]))
 
         obj.save()
+
+        ext_org = None
+        if models.OrganizationExtension.objects.filter(organization=obj):
+            ext_org = models.OrganizationExtension.objects.get(organization=obj)
+
+        fields = form.cleaned_data
+        if fields['area']:
+            if not ext_org:
+                ext_org = models.OrganizationExtension(organization=obj)
+                ext_org.save()
+            ext_org.area.set(fields['area'])
+            ext_org.save()
+
         return super().form_valid(form)
 
 
@@ -524,20 +563,28 @@ class MemberDeleteView(AdminRequiredMixin, CommonPopoutDeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class TopicFormsetView(AdminRequiredMixin, CommonFormsetView):
+class CommonMaretFormset(AdminRequiredMixin, CommonFormsetView):
     template_name = 'maret/formset.html'
+    home_url_name = "maret:index"
+
+
+class TopicFormsetView(CommonMaretFormset):
     h1 = _("Manage Discussion Topics")
     queryset = models.DiscussionTopic.objects.all()
     formset_class = forms.TopicFormSet
     success_url_name = "maret:manage_topics"
-    home_url_name = "maret:index"
     # delete_url_name = "maret:delete_topics"
 
 
-class SpeciesFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'maret/formset.html'
+class SpeciesFormsetView(CommonMaretFormset):
     h1 = _("Manage Species")
     queryset = models.Species.objects.all()
     formset_class = forms.SpeciesFormSet
     success_url_name = "maret:manage_species"
-    home_url_name = "maret:index"
+
+
+class AreaFormsetView(CommonMaretFormset):
+    h1 = _("Manage Areas")
+    queryset = models.Area.objects.all()
+    formset_class = forms.AreaFormSet
+    success_url_name = "maret:manage_areas"

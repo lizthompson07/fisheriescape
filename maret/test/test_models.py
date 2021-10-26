@@ -33,6 +33,18 @@ class TestCommitteeModel(CommonTest):
         self.assert_has_fields(models.Committee, fields_to_check)
 
 
+@tag("org_ext", "model", "org_ext_model")
+class TestOrganizationExtensionModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.OrganizationExtensionFactory()
+
+    @tag("fields", "org_ext_model_fields")
+    def test_fields(self):
+        fields_to_check = ['organization', 'area', ]
+        self.assert_has_fields(models.OrganizationExtension, fields_to_check)
+
+
 @tag("species", "model", "species_model")
 class TestSpeciesModel(CommonTest):
     def setUp(self):
@@ -55,3 +67,17 @@ class TestDiscussionTopicModel(CommonTest):
     def test_fields(self):
         fields_to_check = ["name", "nom"]
         self.assert_has_fields(models.DiscussionTopic, fields_to_check)
+
+
+@tag("area", "model", "area_model")
+class TestAreaModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = models.Area.objects.first()
+
+    @tag("fields", "area_model_fields")
+    def test_fields(self):
+        fields_to_check = ["name", "nom"]
+        self.assert_has_fields(models.Area, fields_to_check)
+
+

@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views, utils
 
 app_name = 'maret'
 
@@ -42,6 +42,9 @@ urlpatterns = [
 
     path('manage/topics/', views.TopicFormsetView.as_view(), name="manage_topics"),
     path('manage/species/', views.SpeciesFormsetView.as_view(), name="manage_species"),
+    path('manage/areas/', views.AreaFormsetView.as_view(), name="manage_areas"),
+
+    path('ajax/get_divisions/', utils.ajax_get_divisions, name='ajax_get_divisions'),
 ]
 
 

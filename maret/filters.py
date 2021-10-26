@@ -1,7 +1,7 @@
 import django_filters
 
+from django_filters.filters import OrderingFilter
 from django import forms
-from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 from django.utils.safestring import mark_safe
 
@@ -15,13 +15,13 @@ chosen_js = {"class": "chosen-select-contains"}
 class InteractionFilter(django_filters.FilterSet):
     class Meta:
         model = models.Interaction
-        fields = {"external_organization", "external_contact", "interaction_type", "dfo_liaison", "main_topic"}
+        fields = ["interaction_type", "dfo_liaison", "main_topic", "external_organization", "external_contact"]
 
 
 class CommitteeFilter(django_filters.FilterSet):
     class Meta:
         model = models.Committee
-        fields = {"external_organization", "external_contact", "branch", "division", "name"}
+        fields = ["name", "branch", "division", "external_organization", "external_contact"]
 
 
 class OrganizationFilter(django_filters.FilterSet):

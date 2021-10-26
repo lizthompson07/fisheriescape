@@ -19,6 +19,16 @@
     }
   },
   {
+    "model": "shared_models.branch",
+    "pk": 2,
+    "fields": {
+      "name": "Test Branch 2",
+      "abbrev": "TB2",
+      "region": 1,
+      "date_last_modified": "2021-09-21T09:21:36.840-03:00"
+    }
+  },
+  {
     "model": "shared_models.division",
     "pk": 1,
     "fields": {
@@ -27,5 +37,26 @@
       "branch": 1,
       "date_last_modified": "2021-09-21T09:21:36.840-03:00"
     }
+  },
+  {
+      "model": "shared_models.division",
+      "pk": 2,
+      "fields": {
+        "name": "Test Division 2",
+        "abbrev": "TD2",
+        "branch": 1,
+        "date_last_modified": "2021-09-21T09:21:36.840-03:00"
+      }
+  },
+    {
+      "model": "shared_models.division",
+      "pk": 3,
+      "fields": {
+        "name": "Test Division 3",
+        "abbrev": "TD3",
+        "branch": 2,
+        "date_last_modified": "2021-09-21T09:21:36.840-03:00"
+      }
   }
- ]
+
+]
