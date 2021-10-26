@@ -312,7 +312,11 @@ class Achievement(MetadataFields):
         ordering = ["category", "publication_type", "-date", "id"]
 
     def __str__(self):
-        return f"{self.category}"
+        return f"{self.as_ref}"
+
+    @property
+    def as_ref(self):
+        return _("Reference") + f" {self.id}"
 
     @property
     def code(self):

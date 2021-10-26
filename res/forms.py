@@ -161,3 +161,9 @@ class ApplicationTimestampUpdateForm(forms.ModelForm):
         widgets = {
             "work_location": forms.HiddenInput()
         }
+
+
+class AchievementForm(forms.ModelForm):
+    class Meta:
+        model = models.Achievement
+        exclude = ("user",)

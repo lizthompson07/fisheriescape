@@ -36,6 +36,14 @@ urlpatterns = [
     path('applications/<int:pk>/delete/', views.ApplicationDeleteView.as_view(), name="application_delete"),
     path('applications/<int:pk>/submit/', views.ApplicationSubmitView.as_view(), name="application_submit"),
 
+    # ACHIEVEMENTS
+    path('achievements/', views.AchievementListView.as_view(), name="achievement_list"),
+    path('achievements/new/', views.AchievementCreateView.as_view(), name="achievement_new"),
+    path('achievements/<int:pk>/view/', views.AchievementDetailView.as_view(), name="achievement_detail"),
+    path('achievements/<int:pk>/edit/', views.AchievementUpdateView.as_view(), name="achievement_edit"),
+    path('achievements/<int:pk>/delete/', views.AchievementDeleteView.as_view(), name="achievement_delete"),
+    path('achievements/<int:pk>/clone/', views.AchievementCloneUpdateView.as_view(), name="achievement_clone"),
+
     #
     #
     # # reports

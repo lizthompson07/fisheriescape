@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from . import models
-from .utils import in_res_crud_group, in_res_admin_group, can_modify_application, can_view_application
+from .utils import in_res_crud_group, in_res_admin_group, can_modify_application, can_view_application, can_modify_achievement, can_view_achievement
 
 
 class LoginAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -92,3 +92,60 @@ class CanViewApplicationRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse('accounts:denied_access'))
         return super().dispatch(request, *args, **kwargs)
+
+
+
+class CanModifyAchievementRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        # the assumption is that either we are passing in a Project object or an object that has a project as an attribute
+        achievement_id = None
+        try:
+            obj = self.get_object()
+            if isinstance(obj, models.Achievement):
+                achievement_id = obj.id
+            # elif isinstance(obj, models.CSASRequestReview) or isinstance(obj, models.CSASRequestFile):
+            #     request_id = obj.csas_request_id
+
+        except AttributeError:
+            pass
+            if self.kwargs.get("achievement"):
+                achievement_id = self.kwargs.get("achievement")
+
+        finally:
+            if achievement_id:
+                return can_modify_achievement(self.request.user, achievement_id)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:denied_access'))
+        return super().dispatch(request, *args, **kwargs)
+
+
+
+class CanViewAchievementRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        # the assumption is that either we are passing in a Project object or an object that has a project as an attribute
+        achievement_id = None
+        try:
+            obj = self.get_object()
+            if isinstance(obj, models.Achievement):
+                achievement_id = obj.id
+            # elif isinstance(obj, models.CSASRequestReview) or isinstance(obj, models.CSASRequestFile):
+            #     request_id = obj.csas_request_id
+
+        except AttributeError:
+            pass
+            if self.kwargs.get("achievement"):
+                achievement_id = self.kwargs.get("achievement")
+
+        finally:
+            if achievement_id:
+                return can_view_achievement(self.request.user, achievement_id)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:denied_access'))
+        return super().dispatch(request, *args, **kwargs)
+

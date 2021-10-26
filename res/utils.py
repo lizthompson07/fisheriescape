@@ -136,6 +136,45 @@ def can_modify_recommendation(user, application_id, return_as_dict=False):
         return my_dict if return_as_dict else my_dict["can_modify"]
 
 
+
+def can_modify_achievement(user, achievement_id, return_as_dict=False):
+    """
+    returns True if user has permissions to delete or modify an achievement
+    The answer of this question will depend on the business rules...
+
+    always: admin
+    if NOT submitted: applicant, created_by, manager?
+
+    """
+    my_dict = dict(can_modify=False, reason=_("You are not logged in"))
+    if user.id:
+        my_dict["reason"] = "You do not have the permissions to modify this achievement"
+        achievement = get_object_or_404(models.Achievement, pk=achievement_id)
+        # check to see if they are the client
+        if user == achievement.user:
+            my_dict["reason"] = "You can modify this record because you are the owner!"
+            my_dict["can_modify"] = True
+        elif in_res_admin_group(user):
+            my_dict["reason"] = "You can modify this record because you are a system administrator"
+            my_dict["can_modify"] = True
+        return my_dict if return_as_dict else my_dict["can_modify"]
+
+
+def can_view_achievement(user, achievement_id):
+    """
+    returns True if user has permissions to delete or modify an achievement
+    The answer of this question will depend on the business rules...
+
+    always: admin
+    if NOT submitted: applicant, created_by, manager?
+
+    """
+    if user.id:
+        achievement = get_object_or_404(models.Achievement, pk=achievement_id)
+        return user == achievement.user or in_res_admin_group(user)
+
+
+
 def get_section_choices(with_application=False, full_name=True, region_filter=None, division_filter=None):
     my_attr = _("name")
     if full_name:

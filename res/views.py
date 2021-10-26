@@ -5,7 +5,8 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
-from res.mixins import LoginAccessRequiredMixin, ResAdminRequiredMixin, CanModifyApplicationRequiredMixin, CanViewApplicationRequiredMixin
+from res.mixins import LoginAccessRequiredMixin, ResAdminRequiredMixin, CanModifyApplicationRequiredMixin, CanViewApplicationRequiredMixin, \
+    CanViewAchievementRequiredMixin, CanModifyAchievementRequiredMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonCreateView, CommonFilterView, CommonDetailView, \
     CommonUpdateView, CommonDeleteView
 from . import models, forms, filters, utils, emails
@@ -125,10 +126,10 @@ class ReviewTypeFormsetView(ResAdminRequiredMixin, CommonFormsetView):
     home_url_name = "res:index"
     delete_url_name = "res:delete_review_type"
 
+
 class ReviewTypeHardDeleteView(ResAdminRequiredMixin, CommonHardDeleteView):
     model = models.ReviewType
     success_url = reverse_lazy("res:manage_review_types")
-
 
 
 # APPLICATIONS
@@ -271,29 +272,6 @@ class ApplicationCreateView(LoginAccessRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-#
-# class ApplicationUpdateView(CanModifyApplicationRequiredMixin, CommonUpdateView):
-#     model = models.Application
-#     form_class = forms.ApplicationForm
-#     template_name = 'res/form.html'
-#     home_url_name = "res:index"
-#     grandparent_crumb = {"title": gettext_lazy("Applications"), "url": reverse_lazy("res:application_list")}
-#     h2 = gettext_lazy("All fields are mandatory before approvals and submission")
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["is_admin"] = in_res_admin_group(self.request.user)
-#         return context
-#
-#     def get_parent_crumb(self):
-#         return {"title": self.get_object(), "url": reverse_lazy("res:request_detail", args=[self.get_object().id])}
-#
-#     def form_valid(self, form):
-#         obj = form.save(commit=False)
-#         obj.updated_by = self.request.user
-#         return super().form_valid(form)
-
-
 class ApplicationDeleteView(CanModifyApplicationRequiredMixin, CommonDeleteView):
     model = models.Application
     success_url = reverse_lazy('res:application_list')
@@ -347,6 +325,7 @@ class ApplicationSubmitView(CanModifyApplicationRequiredMixin, CommonUpdateView)
 
         return HttpResponseRedirect(self.get_success_url())
 
+
 # class ApplicationCloneUpdateView(ApplicationUpdateView):
 #     h1 = gettext_lazy("Clone an Application")
 #     h2 = gettext_lazy("Please update the request details")
@@ -375,3 +354,138 @@ class ApplicationSubmitView(CanModifyApplicationRequiredMixin, CommonUpdateView)
 #         new_obj.created_by = self.request.user
 #         new_obj.save()
 #         return HttpResponseRedirect(reverse_lazy("res:request_detail", args=[new_obj.id]))
+
+
+# ACHIEVEMENTS
+##############
+
+class AchievementListView(LoginAccessRequiredMixin, CommonFilterView):
+    template_name = 'res/list.html'
+    filterset_class = filters.AchievementFilter
+    paginate_by = 25
+    home_url_name = "res:index"
+    new_object_url = reverse_lazy("res:achievement_new")
+    row_object_url_name = row_ = "res:achievement_detail"
+    container_class = "container-fluid"
+
+    def get_field_list(self):
+        field_list = [
+            {"name": 'id', "class": "", "width": "50px"},
+            {"name": 'category', "class": ""},
+            {"name": 'publication_type', "class": ""},
+            {"name": 'review_type', "class": ""},
+            {"name": 'date', "class": ""},
+        ]
+        if in_res_admin_group(self.request.user):
+            field_list.insert(1, {"name": 'user', "class": ""})
+        return field_list
+
+    def get_queryset(self):
+        if not in_res_admin_group(self.request.user):
+            qs = self.request.user.achievements.all()
+        else:
+            qs = models.Achievement.objects.all()
+        return qs
+
+    def get_h1(self):
+        if not in_res_admin_group(self.request.user):
+            return _("My Achievements")
+        return _("Achievements")
+
+
+class AchievementDetailView(CanViewAchievementRequiredMixin, CommonDetailView):
+    model = models.Achievement
+    home_url_name = "res:index"
+    parent_crumb = {"title": gettext_lazy("Achievements"), "url": reverse_lazy("res:achievement_list")}
+    template_name = 'res/achievement_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            "id",
+            "user",
+            "category",
+            "publication_type",
+            "review_type",
+            "date",
+            "detail",
+            "metadata|{}".format(_("metadata")),
+        ]
+        return context
+
+
+class AchievementCreateView(LoginAccessRequiredMixin, CommonCreateView):
+    model = models.Achievement
+    form_class = forms.AchievementForm
+    template_name = 'res/form.html'
+    home_url_name = "res:index"
+    parent_crumb = {"title": gettext_lazy("Achievements"), "url": reverse_lazy("res:achievement_list")}
+    submit_text = gettext_lazy("Save")
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.created_by = self.request.user
+        obj.user = self.request.user
+        super().form_valid(form)
+        return super().form_valid(form)
+
+
+class AchievementUpdateView(CanModifyAchievementRequiredMixin, CommonUpdateView):
+    model = models.Achievement
+    form_class = forms.AchievementForm
+    template_name = 'res/form.html'
+    home_url_name = "res:index"
+    grandparent_crumb = {"title": gettext_lazy("Achievements"), "url": reverse_lazy("res:achievement_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = in_res_admin_group(self.request.user)
+        return context
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("res:achievement_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class AchievementDeleteView(CanModifyAchievementRequiredMixin, CommonDeleteView):
+    model = models.Achievement
+    success_url = reverse_lazy('res:achievement_list')
+    template_name = 'res/confirm_delete.html'
+    delete_protection = False
+    grandparent_crumb = {"title": gettext_lazy("Achievements"), "url": reverse_lazy("res:achievement_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("res:achievement_detail", args=[self.get_object().id])}
+
+
+
+class AchievementCloneUpdateView(AchievementUpdateView):
+    h1 = gettext_lazy("Clone an Achievement")
+
+    def test_func(self):
+        if self.request.user.id:
+            return True
+
+    def get_initial(self):
+        my_object = models.Achievement.objects.get(pk=self.kwargs["pk"])
+        data = dict(
+            detail=f"CLONE {my_object.detail}",
+        )
+        return data
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        new_obj.pk = None
+        new_obj.status = 1
+        new_obj.submission_date = None
+        new_obj.old_id = None
+        new_obj.uuid = None
+        new_obj.ref_number = None
+        new_obj.created_by = self.request.user
+        new_obj.save()
+        return HttpResponseRedirect(reverse_lazy("res:achievement_detail", args=[new_obj.id]))
+
