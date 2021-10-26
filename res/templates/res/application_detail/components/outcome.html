@@ -36,6 +36,7 @@
             @keypress="$emit('keypress')"
             ref="text" id="text" rows="20"
             @keydown.ctrl.83.prevent="update"
+            @keydown.ctrl.82.prevent="openDialog"
           ></textarea>
           <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1" class="helper"
              title="{% trans "Markdown syntax is supported in this field" %}">
@@ -47,13 +48,16 @@
         <div class="float-right mb-3">
 
           <ref-inserter
+            ref="ref-inserter"
             class="neighbours"
             :labels="achievement_labels"
             :category_choices="category_choices"
             :publication_type_choices="publication_type_choices"
+            :review_type_choices="review_type_choices"
+            :categories="categories"
             @insert="insert"
           ></ref-inserter>
-          <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span> {% trans "Save" %}</button>
+          <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span> {% trans "Save (Ctrl-S)" %}</button>
           <button class="btn btn-sm btn-success" @click="toggleEditMode"><span class="mdi mdi-check text-light"></span> {% trans "Save and Close" %}</button>
         </div>
         <div class="mb-3">
@@ -107,6 +111,12 @@ Vue.component("outcome", {
     publication_type_choices: {
       type: Array,
     },
+    review_type_choices: {
+      type: Array,
+    },
+    categories: {
+      type: Array,
+    },
   },
   data() {
     return {
@@ -135,10 +145,13 @@ Vue.component("outcome", {
     },
     insert(achievement) {
       this.valuedOutcome.text += ` [ref ${achievement.id}]`;
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.$refs.text.focus();
       });
     },
+    openDialog() {
+      this.$refs["ref-inserter"].openOverlay();
+    }
   },
   filters: {
     yesNo: vueFiltersObject["yesNo"],

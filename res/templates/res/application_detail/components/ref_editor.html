@@ -36,12 +36,17 @@ Vue.component("ref-editor", {
     },
     categories: {
       type: Array,
+      required: true
     },
     category_choices: {
       type: Array,
       required: true
     },
     publication_type_choices: {
+      type: Array,
+      required: true
+    },
+    review_type_choices: {
       type: Array,
       required: true
     },
@@ -72,6 +77,18 @@ Vue.component("ref-editor", {
   },
   created() {
   },
-  computed: {}
+  computed: {
+    currentCategoryObj() {
+      if (this.reference.category) {
+        for (const category of this.categories) {
+          if (category.id === this.reference.category) {
+            return category;
+          }
+        }
+      }
+      return {};
+    }
+
+  }
 });
 </script>

@@ -328,9 +328,6 @@ class Achievement(MetadataFields):
     def achievement_display(self):
         mystr = f"{self.code} &mdash; "
         if self.category and self.category.is_publication:
-            if self.publication_type:
-                mystr += f"{self.publication_type.tname}. "
-
             if self.date:
                 mystr += f"{self.date.year}"
             else:
@@ -349,13 +346,16 @@ class Achievement(MetadataFields):
     @property
     def achievement_display_no_code(self):
         mystr = ""
-        if self.date:
-            fy = fiscal_year(self.date)
-            mystr += f"{fy}."
-
-        if self.category and self.category.is_publication and self.publication_type:
-            mystr += f" {self.publication_type.tname}."
-
+        if self.category and self.category.is_publication:
+            if self.date:
+                mystr += f"{self.date.year}"
+            else:
+                mystr += "n/a"
+            if self.review_type:
+                mystr += f"{nz(self.review_type.code, '')}"
+            mystr += "."
+        elif self.date:
+            mystr += f"{self.date.year}."
         if self.detail:
             mystr += f" {self.detail}"
         return mystr

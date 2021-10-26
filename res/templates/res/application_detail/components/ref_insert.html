@@ -6,7 +6,7 @@
 
 
   <button @click="openOverlay" class="btn btn-sm btn-primary">
-    <span class="mdi mdi-plus mr-1 text-light"></span> {% trans "Add Reference" %}
+    <span class="mdi mdi-plus mr-1 text-light"></span> {% trans "Add Reference (Ctrl-R)" %}
   </button>
 
   <transition v-if="overlay" name="modal">
@@ -17,9 +17,9 @@
           <div class="modal-header">
             <h4> {% trans "Find a Reference" %}</h4>
             <div class="mb-3">
-              <button class="mx-1 btn btn-secondary" @click="closeOverlay" type="button">{% trans "Close" %}</button>
-              <button type="submit" class="btn btn-primary float-right" @click="toggleSearchMode">
-                <span class="mdi mdi-plus text-light mr-1"></span> {% trans "New Reference" %}
+              <button class="mx-1 btn btn-secondary float-right" @click="closeOverlay" type="button">{% trans "Close" %}</button>
+              <button type="submit" class="btn btn-primary" @click="toggleSearchMode">
+                <span class="mdi mdi-plus text-light mr-1"></span> {% trans "New Reference (Ctrl-A)" %}
               </button>
             </div>
           </div>
@@ -28,7 +28,13 @@
               <div class="col-10">
                 <div class="form-group">
                   <label for="">{% trans "Search:" %}</label>
-                  <input type="text" @keyup="getAchievements" v-model="search" class="form-control" ref="search">
+                  <input type="text"
+                         @keyup="getAchievements"
+                         v-model="search"
+                         class="form-control"
+                         ref="search"
+                         @keydown.ctrl.65.prevent="toggleSearchMode"
+                  >
                 </div>
               </div>
               <div class="col-1">
@@ -41,15 +47,39 @@
             </div>
             <div class="">
               <div>
-                <ul>
-                  <li v-for="achievement in achievements" :key="achievement.id" class="mb-2">
-                    <span
-                      class="text-primary pointy small"
-                      @click="insert(achievement)"
-                      v-html=achievement.achievement_display_no_code
-                    ></span>
+                <table class="table table-sm table-bordered">
+                  <thead>
+                  <tr>
+                    <th class="w50">{% trans "ID" %}</th>
+                    <th>{% trans "Reference" %}</th>
+                    <th>{% trans "Add to Text" %}</th>
+                    <th>{% trans "Add and Close" %}</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="achievement in achievements" :key="achievement.id">
+                    <td>ref ${achievement.id}</td>
+                    <td>
+                      <span
+                        v-html=achievement.achievement_display_no_code
+                      ></span>
+                    </td>
+                    <td>
+                      <button class="btn btn-sm btn-success">
+                        <span @click="insert(achievement)" class="mdi mdi-plus text-light"></span>
+                      </button>
+                    </td>
+                    <td>
+                      <button class="btn btn-sm btn-danger">
+                        <span @click="insert(achievement, true)" class="mdi mdi-plus text-light"></span>
+                      </button>
+                    </td>
+                  </tr>
+
+
                   </li>
-                </ul>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -81,6 +111,10 @@ Vue.component("ref-inserter", {
       type: Object,
       required: true,
     },
+    categories: {
+      type: Array,
+      required: true
+    },
     category_choices: {
       type: Array,
       required: true
@@ -89,7 +123,10 @@ Vue.component("ref-inserter", {
       type: Array,
       required: true
     },
-
+    review_type_choices: {
+      type: Array,
+      required: true
+    },
   },
   data() {
     return {
@@ -120,6 +157,11 @@ Vue.component("ref-inserter", {
     },
     toggleSearchMode() {
       this.searchMode = !this.searchMode;
+      if (!this.searchMode) {
+        this.$nextTick(() => {
+          this.$refs.category.focus();
+        })
+      }
     },
     cleanAchievement(achievement) {
       for (const achievementKey in achievement) if (achievement[achievementKey] === "") achievement[achievementKey] = null;
@@ -150,6 +192,17 @@ Vue.component("ref-inserter", {
   },
   created() {
   },
-  computed: {}
+  computed: {
+    currentCategoryObj() {
+      if (this.reference.category) {
+        for (const category of this.categories) {
+          if (category.id === this.reference.category) {
+            return category;
+          }
+        }
+      }
+      return {};
+    }
+  }
 });
 </script>
