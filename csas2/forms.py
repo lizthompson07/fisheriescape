@@ -94,7 +94,7 @@ class ReportSearchForm(forms.Form):
             (1, gettext("Only posted")),
             (0, gettext("Only un-posted")),
         )
-        fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(Q(processes__isnull=False)|Q(csas_requests__isnull=False)).distinct()]
+        fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(Q(processes__isnull=False) | Q(csas_requests__isnull=False)).distinct()]
         fy_choices.insert(0, (None, "All"))
 
         request_status_choices = [obj for obj in model_choices.request_status_choices]
@@ -150,6 +150,13 @@ class CSASRequestForm(forms.ModelForm):
             'funding_text',
             'prioritization',
             'prioritization_text',
+        ]
+        required_fields = [
+            'client',
+            'title',
+            'section',
+            'coordinator',
+            'advice_needed_by',
         ]
         widgets = {
             'client': forms.Select(attrs=chosen_js),
@@ -309,6 +316,14 @@ class ProcessForm(forms.ModelForm):
             'advisors',
             'editors',
         ]
+        required_fields = [
+            'csas_requests',
+            gettext_lazy('name'),
+            'scope',
+            'type',
+            'coordinator',
+            'lead_region',
+        ]
         widgets = {
             'csas_requests': forms.SelectMultiple(attrs=chosen_js),
             'advisors': forms.SelectMultiple(attrs=chosen_js),
@@ -440,6 +455,22 @@ class TagForm(forms.ModelForm):
 TagFormset = modelformset_factory(
     model=SubjectMatter,
     form=TagForm,
+    extra=1,
+)
+
+
+class CSASAdminUserForm(forms.ModelForm):
+    class Meta:
+        model = models.CSASAdminUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+CSASAdminUserFormset = modelformset_factory(
+    model=models.CSASAdminUser,
+    form=CSASAdminUserForm,
     extra=1,
 )
 

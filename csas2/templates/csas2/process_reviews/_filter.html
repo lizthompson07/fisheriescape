@@ -1,0 +1,50 @@
+{% load i18n %}
+
+<div class="table-bordered py-3 px-2 admin-panel mb-3">
+  <div class="float-right">
+    <br>
+    <button class="btn btn-sm btn-dark" @click="getProcesses"><span class="mdi mdi-refresh text-light"></span></button>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <filter-control
+        :label="processLabels.fiscal_year"
+        filter_param="fiscal_year"
+        input_type="select"
+        @filter="getProcesses"
+        :choices="fyChoices" blank_option="-----"
+      ></filter-control>
+    </div>
+
+    <div class="col">
+      <filter-control
+        label="{% trans "Search term (ID, Name, ...)" %}"
+        filter_param="search"
+        @filter="getProcesses"
+      ></filter-control>
+    </div>
+
+    <div class="col">
+      <filter-control
+        label="{% trans "Lead region" %}"
+        input_type="select"
+        filter_param="lead_region"
+        @filter="getProcesses"
+        :choices="regionChoices" blank_option="-----"
+      ></filter-control>
+    </div>
+
+    <div class="col">
+      <filter-control
+        :label="processLabels.status"
+        filter_param="status"
+        input_type="select"
+        :choices="statusChoices"
+        @filter="getProcesses"
+      ></filter-control>
+    </div>
+
+  </div>
+
+</div>

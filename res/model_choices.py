@@ -11,8 +11,8 @@ language_choices = (
 )
 
 decision_choices = (
-    (0, _("In my opinion, the dossier contains sufficient evidence to warrant consideration of the application by the appropriate committee.")),
-    (1, _("In my opinion, the dossier does not contain sufficient evidence to warrant consideration of the application by the appropriate committee.")),
+    (1, _("In my opinion, the dossier contains sufficient evidence to warrant consideration of the application by the appropriate committee.")),
+    (2, _("In my opinion, the dossier does not contain sufficient evidence to warrant consideration of the application by the appropriate committee.")),
 )
 
 application_status_choices = (

@@ -14,7 +14,7 @@
   </div>
 
   <editable-cell
-    key="r1" :word_limit="250"
+    key="r1" :word_limit="250" col_class="col-3"
     :label="recommendationLabels.recommendation_text" :object="recommendation" field="recommendation_text"
     display_field="recommendation_text_html"
     input_type="textarea" :markdown="true"
@@ -24,14 +24,14 @@
 
   <editable-cell
     key="r2"
-    :label="recommendationLabels.decision"
+    :label="recommendationLabels.decision" col_class="col-3"
     :object="recommendation" field="decision" display_field="decision_display"
     :editable="canModifyRecommendation" input_type="select" :options="decisionChoices"
     @keypress="unsavedChanges=true" @change="updateRecommendation"
   ></editable-cell>
 
   <div class="row table-div">
-    <div class="col-2">
+    <div class="col-3">
       <label for="">
         ${recommendationLabels.manager_signed}
       </label>
@@ -62,7 +62,7 @@
 
 
   <div class="row table-div">
-    <div class="col-2">
+    <div class="col-3">
       <label for="">
         ${recommendationLabels.applicant_signed}
       </label>
@@ -93,7 +93,7 @@
 
 
   <editable-cell
-    key="r3"
+    key="r3"  col_class="col-3"
     :label="recommendationLabels.applicant_comment"
     :object="recommendation"
     field="applicant_comment_html"
@@ -101,7 +101,7 @@
   ></editable-cell>
 
   <editable-cell
-    key="r4"
+    key="r4"  col_class="col-3"
     label="{% trans "Metadata" %}"
     :object="application"
     field="metadata"

@@ -42,7 +42,7 @@
             {% if object.submission_date %}
               <button v-if="!request.review" class="btn btn-sm btn-dark" @click="primeReview">{% trans "Start a Review" %}</button>
               {% if not object.processes.exists %}
-                <a v-if="canModify" class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>
+                <a v-if="canModify" class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Initiate a Process" %}</a>
               {% endif %}
             {% endif %}
           </div>
@@ -200,7 +200,7 @@
             </div>
             {# Notes #}
             <div class="col-4">
-              <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify"></note-pad>
+              <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify" :current_user="currentUser"></note-pad>
             </div>
           </div>
         </div>
@@ -238,7 +238,7 @@
       prioritizationChoices: [],
       decisionChoices: [],
       notes: [],
-      showSidebar: true,
+      showSidebar: false,
     },
     methods: {
       getCurrentUser() {

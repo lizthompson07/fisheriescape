@@ -11,16 +11,14 @@ from shared_models.models import Section, Division, Region, Branch, Sector
 
 def in_csas_regional_admin_group(user):
     # make sure the following group exist:
-    admin_group, created = Group.objects.get_or_create(name="csas_regional_admin")
     if user:
-        return admin_group in user.groups.all()
+        return bool(hasattr(user, "csas_admin_user") and user.csas_admin_user.region)
 
 
 def in_csas_national_admin_group(user):
     # make sure the following group exist:
-    admin_group, created = Group.objects.get_or_create(name="csas_national_admin")
     if user:
-        return admin_group in user.groups.all()
+        return bool(hasattr(user, "csas_admin_user") and user.csas_admin_user.is_national_admin)
 
 
 def in_csas_admin_group(user):
@@ -131,27 +129,27 @@ def can_modify_request(user, request_id, return_as_dict=False):
     my_dict = dict(can_modify=False, reason=_("You are not logged in"))
 
     if user.id:
-        my_dict["reason"] = "You do not have the permissions to modify this request"
+        my_dict["reason"] = _("You do not have the permissions to modify this request")
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
         # check to see if they are the client
         if is_client(user, request_id=csas_request.id) and not csas_request.submission_date:
-            my_dict["reason"] = "You can modify this record because you are the request client"
+            my_dict["reason"] = _("You can modify this record because you are the request client")
             my_dict["can_modify"] = True
         # check to see if they are the client
         elif is_creator(user, request_id=csas_request.id) and not csas_request.submission_date:
-            my_dict["reason"] = "You can modify this record because you are the record creator"
+            my_dict["reason"] = _("You can modify this record because you are the record creator")
             my_dict["can_modify"] = True
         # check to see if they are the coordinator
         elif is_request_coordinator(user, request_id=csas_request.id):
-            my_dict["reason"] = "You can modify this record because you are the CSAS coordinator"
+            my_dict["reason"] = _("You can modify this record because you are the CSAS coordinator")
             my_dict["can_modify"] = True
         # are they a national administrator?
         elif in_csas_national_admin_group(user):
-            my_dict["reason"] = "You can modify this record because you are a national CSAS administrator"
+            my_dict["reason"] = _("You can modify this record because you are a national CSAS administrator")
             my_dict["can_modify"] = True
         # are they a regional administrator?
-        elif in_csas_regional_admin_group(user):
-            my_dict["reason"] = "You can modify this record because you are a regional CSAS administrator"
+        elif in_csas_regional_admin_group(user) and user.csas_admin_user.region == csas_request.section.division.branch.sector.region:
+            my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
             my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]
 
@@ -164,28 +162,28 @@ def can_modify_process(user, process_id, return_as_dict=False):
     my_dict = dict(can_modify=False, reason=_("You are not logged in"))
 
     if user.id:
-        my_dict["reason"] = "You do not have the permissions to modify this process"
+        my_dict["reason"] = _("You do not have the permissions to modify this process")
         process = get_object_or_404(models.Process, pk=process_id)
         # check to see if they are the client
         # are they an editor?
         if is_editor(user, process.id):
-            my_dict["reason"] = "You can modify this record because you have been tagged as a process editor"
+            my_dict["reason"] = _("You can modify this record because you have been tagged as a process editor")
             my_dict["can_modify"] = True
         # are they an advisor?
         if is_advisor(user, process.id):
-            my_dict["reason"] = "You can modify this record because you are a science advisor for this process"
+            my_dict["reason"] = _("You can modify this record because you are a science advisor for this process")
             my_dict["can_modify"] = True
         # are they a coordinator?
         elif is_process_coordinator(user, process.id):
-            my_dict["reason"] = "You can modify this record because you are the coordinator for this process"
+            my_dict["reason"] = _("You can modify this record because you are the coordinator for this process")
             my_dict["can_modify"] = True
         # are they a national administrator?
         elif in_csas_national_admin_group(user):
-            my_dict["reason"] = "You can modify this record because you are a national CSAS administrator"
+            my_dict["reason"] = _("You can modify this record because you are a national CSAS administrator")
             my_dict["can_modify"] = True
         # are they a regional administrator?
-        elif in_csas_regional_admin_group(user):
-            my_dict["reason"] = "You can modify this record because you are a regional CSAS administrator"
+        elif in_csas_regional_admin_group(user) and (user.csas_admin_user.region == process.lead_region or process.other_regions.filter(id=user.csas_admin_user.region.id).exists()):
+            my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
             my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]
 

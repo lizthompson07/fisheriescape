@@ -79,6 +79,37 @@ PublicationTypeFormset = modelformset_factory(
 )
 
 
+class ReviewTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.ReviewType
+        fields = "__all__"
+
+
+ReviewTypeFormset = modelformset_factory(
+    model=models.ReviewType,
+    form=ReviewTypeForm,
+    extra=1,
+)
+
+
+class SiteSectionForm(forms.ModelForm):
+    class Meta:
+        model = models.SiteSection
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['description_en'].widget.attrs = dict(rows=10)
+        self.fields['description_fr'].widget.attrs = dict(rows=10)
+
+
+SiteSectionFormset = modelformset_factory(
+    model=models.SiteSection,
+    form=SiteSectionForm,
+    extra=1,
+)
+
+
 class ApplicationForm(forms.ModelForm):
     # date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Period covered by this application"), required=True)
 
@@ -102,7 +133,7 @@ class ApplicationForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        section_choices = [(obj.id, obj.full_name) for obj in Section.objects.all()]
+        section_choices = [(obj.id, obj.full_name) for obj in Section.objects.filter(division__branch__sector__name__icontains="science")]
         section_choices.insert(0, (None, "------"))
 
         super().__init__(*args, **kwargs)
@@ -130,3 +161,9 @@ class ApplicationTimestampUpdateForm(forms.ModelForm):
         widgets = {
             "work_location": forms.HiddenInput()
         }
+
+
+class AchievementForm(forms.ModelForm):
+    class Meta:
+        model = models.Achievement
+        exclude = ("user",)

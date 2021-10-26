@@ -43,8 +43,8 @@
 
     {% elif field.widget_type !=  "checkbox" %}
       {% if not field.is_hidden %}
-        <div class="">
-          {% bootstrap_label field.label %}
+        <div class="{% if field.name in form.Meta.required_fields %}red-font{% endif %}">
+          {% bootstrap_label field.label %} {% if field.name in form.Meta.required_fields %}(*){% endif %}
         </div>
         <div class="">
           <span class="m-0 p-0 form-text text-muted">{{ field.help_text }}</span>

@@ -18,6 +18,9 @@
         {% trans "Settings" %}
       </a>
       <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <a class="dropdown-item" href="{% url 'res:manage_site_sections' %}">
+          {% trans "Site Text" %}
+        </a>
         <a class="dropdown-item" href="{% url 'res:manage_group_levels' %}">
           {% trans "RES Groups / Levels" %}
         </a>
@@ -32,6 +35,9 @@
         </a>
         <a class="dropdown-item" href="{% url 'res:manage_publication_types' %}">
           {% trans "Publication Types" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'res:manage_review_types' %}">
+          {% trans "Review Types" %}
         </a>
       </div>
     </li>

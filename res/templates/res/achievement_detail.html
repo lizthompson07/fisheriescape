@@ -1,0 +1,25 @@
+{% extends "res/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load i18n %}
+
+
+{% block subcontent %}
+
+  <div class="btns mb-3">
+    <a class="btn btn-sm btn-warning" href="{% url 'res:achievement_edit' object.id %}">{% trans "Edit" %}</a>
+    <a class="btn btn-sm btn-danger " href="{% url 'res:achievement_delete' object.id %}">{% trans "Delete" %}</a>
+    <a class="btn btn-sm btn-dark " href="{% url 'res:achievement_clone' object.id %}">{% trans "Clone" %}</a>
+  </div>
+  <div class="mb-5">
+    <table class="table table-sm">
+      {% for field in field_list %}
+        {% verbose_td_display object field %}
+      {% endfor %}
+    </table>
+  </div>
+
+{% endblock %}

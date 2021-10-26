@@ -22,6 +22,9 @@ from .. import models, utils, model_choices, emails
 
 # USER
 #######
+from ..utils import achievements_summary_table
+
+
 class CurrentUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -85,12 +88,13 @@ class RecommendationViewSet(ModelViewSet):
             if not recommendation.application.manager == request.user:
                 raise ValidationError(_("Sorry, you are not the right person to be recommending this application. We were expecting:") +
                                       f"{recommendation.application.manager}")
-            elif recommendation.decision and recommendation.recommendation_text:
+            elif not (recommendation.decision and recommendation.recommendation_text):
                 raise ValidationError(_("You must provide recommendation text and a decision before signing."))
             elif not recommendation.application.submission_date:
                 raise ValidationError(_("You can only sign a recommendation for an application that has been submitted."))
             elif recommendation.manager_signed:
                 raise ValidationError(_("You have already signed this recommendation."))
+            recommendation.manager_signed_by = request.user
             recommendation.manager_signed = timezone.now()
             recommendation.save()
             email = emails.SignatureAwaitingEmail(request, recommendation)
@@ -113,6 +117,7 @@ class RecommendationViewSet(ModelViewSet):
                 raise ValidationError(_("Your manager has not yet signed this recommendation."))
             elif recommendation.applicant_signed:
                 raise ValidationError(_("You have already signed this recommendation."))
+            recommendation.applicant_signed_by = request.user
             recommendation.applicant_signed = timezone.now()
             recommendation.applicant_comment = request.data.get("applicant_comment")
             recommendation.save()
@@ -149,8 +154,19 @@ class AchievementViewSet(ModelViewSet):
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['detail']
     filterset_fields = [
-        'application',
+        'user',
     ]
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("summary-table"):
+            if not qp.get("user"):
+                raise ValidationError(_("Cannot run summary without user param."))
+            user = get_object_or_404(User, pk=qp.get("user"))
+            data = achievements_summary_table(user)
+            print(data)
+            return Response(data)
+        return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -164,7 +180,7 @@ class AchievementViewSet(ModelViewSet):
         if qp.get("clone"):
             new_achievement = deepcopy(old_achievement)
             new_achievement.pk = None
-            new_achievement.detail = "*** CLONED *** " + new_achievement.detail
+            new_achievement.detail = "CLONED " + new_achievement.detail
             new_achievement.save()
             return Response(serializers.AchievementSerializer(new_achievement).data, status.HTTP_200_OK)
 
@@ -177,6 +193,12 @@ class ContextListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated]
 
 
+class AchievementCategoryListAPIView(ListAPIView):
+    queryset = models.AchievementCategory.objects.all()
+    serializer_class = serializers.AchievementCategorySerializer
+    permission_classes = [IsAuthenticated]
+
+
 class ApplicationModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.Application
@@ -186,7 +208,7 @@ class ApplicationModelMetaAPIView(APIView):
         data['labels'] = _get_labels(self.model)
         data['applicant_choices'] = [dict(text=f"{c.last_name}, {c.first_name}", value=c.id) for c in User.objects.order_by("last_name", "first_name")]
         data['group_level_choices'] = [dict(text=str(c), value=c.id) for c in models.GroupLevel.objects.all()]
-        data['section_choices'] = [dict(text=c.full_name, value=c.id) for c in Section.objects.all()]
+        data['section_choices'] = [dict(text=c.full_name, value=c.id) for c in Section.objects.filter(division__branch__sector__name__icontains="science")]
         data['org_choices'] = [dict(text=item.tfull, value=item.tfull) for item in Organization.objects.filter(is_dfo=True)]
         return Response(data)
 
@@ -211,4 +233,5 @@ class AchievementModelMetaAPIView(APIView):
         data['labels'] = _get_labels(self.model)
         data['category_choices'] = [dict(text=str(item), value=item.id) for item in models.AchievementCategory.objects.all()]
         data['publication_type_choices'] = [dict(text=str(item), value=item.id) for item in models.PublicationType.objects.all()]
+        data['review_type_choices'] = [dict(text=str(item), value=item.id) for item in models.ReviewType.objects.all()]
         return Response(data)

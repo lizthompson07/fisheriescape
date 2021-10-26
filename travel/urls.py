@@ -98,6 +98,7 @@ urlpatterns = [
     path('reports/export-cfts-list/', views.export_cfts_list, name="export_cfts_list"),  # tested
     path('reports/trip-list/', views.export_trip_list, name="export_trip_list"),  # tested
     path('reports/upcoming-trips/', views.export_upcoming_trips, name="export_upcoming_trips"),  # tested
+    path('reports/request-summary/', views.export_request_summary, name="export_request_summary"),  # TODO: TEST
     path('reports/cfts/request/<int:trip_request>/', views.export_request_cfts, name="export_cfts_request"),  # tested
     path('reports/cfts/trip/<int:trip>/', views.export_request_cfts, name="export_cfts_trip"),  # tested
 ]

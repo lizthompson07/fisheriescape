@@ -1,0 +1,54 @@
+{% load i18n %}
+<ul>
+  <li class="m-3">
+    <a href="#section0">{% trans "BASIC INFORMATION" %}</a>
+  </li>
+  <li class="m-3">
+    <a href="#section1">{% trans "SECTION 1: Accountable Manager's Assessment and Recommendation" %}</a>
+  </li>
+  <li class="m-3">
+    <a href="#section2">{% trans "SECTION 2: Demonstrated Achievements and Contributions" %}</a>
+  </li>
+  <li class="m-3">
+    <a href="#section3">{% trans "ANNEX A: CONTEXTS AND VALUED OUTCOMES" %}</a>
+    <ul>
+      {% for context in contexts %}
+
+        <li>
+          <a href="#context{{ context.id }}"> {{ context.tname }} </a>
+          <ul>
+            {% for outcome in context.outcomes.all %}
+              <li>
+                <a href="#outcome{{ outcome.id }}"> {{ outcome.tname }} </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endfor %}
+
+    </ul>
+  </li>
+  <li class="m-3">
+    <a href="#annex">{% trans "ANNEX B: Complete List of Achievements / Contributions" %}</a>
+    <ul>
+      {% for category in object.achievement_categories %}
+        <li>
+          <a href="#category{{ category.id }}"> {{ category }} </a>
+          {% if category.is_publication %}
+            <ul>
+              {% for publication_type in object.achievement_publication_types %}
+                <li>
+                  <a href="#publication_type{{ publication_type.id }}"> {{ publication_type }} </a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </li>
+      {% endfor %}
+      <li>
+        <a href="#summary_table"> {% trans "Table of the cumulative NUMBER of publications prior to and since last promotion" %} </a>
+      </li>
+    </ul>
+
+  </li>
+</ul>

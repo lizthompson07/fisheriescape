@@ -55,7 +55,8 @@ process_type_choices = (
 process_status_dict = (
     dict(trigger=None, stage="initiation", text=_("Initiated"), value=1),
     ####################
-    dict(trigger=None, stage="in-progress", text=_("On"), value=20),
+    dict(trigger=None, stage="on", text=_("On"), value=20),
+    ####################
     dict(trigger=None, stage="in-progress", text=_("ToR Complete"), value=22),
     dict(trigger=None, stage="in-progress", text=_("Meeting Complete"), value=25),
     ####################

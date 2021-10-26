@@ -3,11 +3,10 @@ from datetime import datetime
 from datetime import timedelta
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.decorators import login_required
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden, HttpResponseNotFound
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -23,7 +22,7 @@ from shared_models.views import CommonTemplateView, CommonFormView, CommonDelete
     CommonHardDeleteView
 from . import models, forms, filters, utils, reports, emails
 from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin, \
-    CsasNationalAdminRequiredMixin
+    CsasNationalAdminRequiredMixin, SuperuserOrCsasNationalAdminRequiredMixin
 from .utils import in_csas_admin_group
 
 
@@ -89,60 +88,19 @@ class InviteeRoleHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDelete
     success_url = reverse_lazy("csas2:manage_invitee_roles")
 
 
-# user permissions
-class UserListView(CsasNationalAdminRequiredMixin, CommonFilterView):
-    template_name = "csas2/user_list.html"
-    filterset_class = filters.UserFilter
-    home_url_name = "index"
-    paginate_by = 25
-    h1 = "CSAS Tracking Tool User Permissions"
-    field_list = [
-        {"name": 'first_name', "class": "", "width": ""},
-        {"name": 'last_name', "class": "", "width": ""},
-        {"name": 'email', "class": "", "width": ""},
-        {"name": 'last_login|{}'.format(gettext_lazy("Last login to DM Apps")), "class": "", "width": ""},
-    ]
-    new_object_url = reverse_lazy("shared_models:user_new")
-
-    def get_queryset(self):
-        queryset = User.objects.order_by("first_name", "last_name").annotate(
-            search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
-        )
-        if self.request.GET.get("csas_only"):
-            nat_group, created = Group.objects.get_or_create(name="csas_national_admin")
-            reg_group, created = Group.objects.get_or_create(name="csas_regional_admin")
-            queryset = queryset.filter(groups__in=[nat_group, reg_group]).distinct()
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        nat_group, created = Group.objects.get_or_create(name="csas_national_admin")
-        reg_group, created = Group.objects.get_or_create(name="csas_regional_admin")
-        context["nat_group"] = nat_group
-        context["reg_group"] = reg_group
-        return context
+class CSASAdminUserFormsetView(SuperuserOrCsasNationalAdminRequiredMixin, CommonFormsetView):
+    template_name = 'csas2/formset.html'
+    h1 = "Manage CSAS Administrative Users"
+    queryset = models.CSASAdminUser.objects.all()
+    formset_class = forms.CSASAdminUserFormset
+    success_url_name = "csas2:manage_csas_admin_users"
+    home_url_name = "csas2:index"
+    delete_url_name = "csas2:delete_csas_admin_user"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(utils.in_csas_national_admin_group, login_url='/accounts/denied/')
-def toggle_user(request, pk, type):
-    if utils.in_csas_national_admin_group(request.user):
-        my_user = User.objects.get(pk=pk)
-        nat_group, created = Group.objects.get_or_create(name="csas_national_admin")
-        reg_group, created = Group.objects.get_or_create(name="csas_regional_admin")
-        group = None
-        if type == "nat":
-            group = nat_group
-        elif type == "reg":
-            group = reg_group
-        if group:
-            my_user.groups.remove(group) if group in my_user.groups.all() else my_user.groups.add(group)
-            return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
-        else:
-            return HttpResponseNotFound("Sorry, group type not recognized")
-
-    else:
-        return HttpResponseForbidden("sorry, not authorized")
+class CSASAdminUserHardDeleteView(SuperuserOrCsasNationalAdminRequiredMixin, CommonHardDeleteView):
+    model = models.CSASAdminUser
+    success_url = reverse_lazy("csas2:manage_csas_admin_users")
 
 
 # people #
@@ -336,6 +294,29 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
         return context
 
 
+class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonTemplateView):
+    template_name = 'csas2/request_reviews/main.html'
+    container_class = "container-fluid"
+    home_url_name = "csas2:index"
+    h1 = gettext_lazy("CSAS Request Review Console")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class ProcessReviewTemplateView(CsasAdminRequiredMixin, CommonTemplateView):
+    template_name = 'csas2/process_reviews/main.html'
+    container_class = "container-fluid"
+    home_url_name = "csas2:index"
+    h1 = gettext_lazy("CSAS Process Review Console")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+
 class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     model = models.CSASRequest
     form_class = forms.CSASRequestForm
@@ -344,7 +325,9 @@ class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
     submit_text = gettext_lazy("Save")
     h1 = gettext_lazy("New CSAS Request")
-    h2 = gettext_lazy("All fields are mandatory before approvals and submission")
+    h2 = gettext_lazy(
+        "All fields are mandatory before approvals and submission. The fields in <span class='red-font'>red</span> are mandatory before saving."
+    )
 
     def get_initial(self):
         return dict(
@@ -368,7 +351,9 @@ class CSASRequestUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
     template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
-    h2 = gettext_lazy("All fields are mandatory before approvals and submission")
+    h2 = gettext_lazy(
+        "All fields are mandatory before approvals and submission. The fields in <span class='red-font'>red</span> are mandatory before saving."
+    )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

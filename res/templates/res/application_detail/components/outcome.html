@@ -4,7 +4,7 @@
 <script type="text/x-template" id="outcome-template">
 
 <div>
-  <div class="row table-div" :id="`outcome${outcome.id}`">
+  <div class="row" :id="`outcome${outcome.id}`">
     {# VIEW MODE #}
     <div v-if="!editMode" class="col">
       <b @click="toggleCollapse" class="text-primary pointy">
@@ -12,7 +12,7 @@
         <span v-if="collapse" class="mdi mdi-arrow-collapse-up text-primary" data-toggle="tooltip" title="{% trans "display text" %}"></span>
         <span v-else class="mdi mdi-arrow-collapse-down text-primary" data-toggle="tooltip" title="{% trans "hide text" %}"></span>
       </b>
-      <p class="text-muted small">${outcome.tdescription}</p>
+      <p class="text-muted small" v-html="outcome.description_html"></p>
       <p v-if="!collapse">
         <span v-html="object.text_html"></span>
       </p>
@@ -36,6 +36,7 @@
             @keypress="$emit('keypress')"
             ref="text" id="text" rows="20"
             @keydown.ctrl.83.prevent="update"
+            @keydown.ctrl.82.prevent="openDialog"
           ></textarea>
           <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1" class="helper"
              title="{% trans "Markdown syntax is supported in this field" %}">
@@ -47,13 +48,17 @@
         <div class="float-right mb-3">
 
           <ref-inserter
+            ref="ref-inserter"
             class="neighbours"
             :labels="achievement_labels"
             :category_choices="category_choices"
             :publication_type_choices="publication_type_choices"
+            :review_type_choices="review_type_choices"
+            :categories="categories"
+            :applicant="applicant"
             @insert="insert"
           ></ref-inserter>
-          <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span> {% trans "Save" %}</button>
+          <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span> {% trans "Save (Ctrl-S)" %}</button>
           <button class="btn btn-sm btn-success" @click="toggleEditMode"><span class="mdi mdi-check text-light"></span> {% trans "Save and Close" %}</button>
         </div>
         <div class="mb-3">
@@ -95,6 +100,9 @@ Vue.component("outcome", {
     object: {
       type: Object,
     },
+    applicant: {
+      type: Number,
+    },
     outcome: {
       type: Object,
     },
@@ -105,6 +113,12 @@ Vue.component("outcome", {
       type: Array,
     },
     publication_type_choices: {
+      type: Array,
+    },
+    review_type_choices: {
+      type: Array,
+    },
+    categories: {
       type: Array,
     },
   },
@@ -135,10 +149,13 @@ Vue.component("outcome", {
     },
     insert(achievement) {
       this.valuedOutcome.text += ` [ref ${achievement.id}]`;
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.$refs.text.focus();
       });
     },
+    openDialog() {
+      this.$refs["ref-inserter"].openOverlay();
+    }
   },
   filters: {
     yesNo: vueFiltersObject["yesNo"],

@@ -28,7 +28,7 @@
 
     </div>
 
-    <div>
+    <div id="main">
       {% include "shared_models/_generic_breadcrumbs.html" %}
       <div v-if="application.id" class="mb-3">
         <h2 class="">${application.applicant_display} (${application.target_group_level_display})</h2>
@@ -66,8 +66,8 @@
            href="#">{% trans "Clone Me" %}</a>
 
         {% if object.status >= 2 %}
-          <a href="#" class="btn btn-outline-dark btn-sm ml-3">
-            <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
+          <a href="{% url 'res:application_detail' object.id %}?print=true" class="btn btn-outline-dark btn-sm ml-3">
+            <span class="mdi mdi-printer mr-1"></span>{% trans "Print View" %}
           </a>
         {% endif %}
       </div>
@@ -89,7 +89,11 @@
       </div>
 
       <div class="mb-5" id="section3">
-        <p class="lead">{% trans "CONTEXTS AND VALUED OUTCOMES" %}</p>
+        <p class="lead">{% trans "ANNEX A: CONTEXTS AND VALUED OUTCOMES" %}</p>
+        <div class="alert alert-secondary">
+          {{ annex_a_text|safe }}
+        </div>
+
         {% include "res/application_detail/_outcomes.html" %}
       </div>
 
@@ -99,14 +103,16 @@
             :labels="achievementLabels"
             :category_choices="categoryChoices"
             :publication_type_choices="publicationTypeChoices"
+            :review_type_choices="reviewTypeChoices"
+            :categories="categories"
             @new="newAchievement"
           ></ref-editor>
         </div>
 
-{#        <button  class="float-right btn btn-primary" data-toggle="tooltip" title="{% trans "Add an achievement" %}" @click="newAchievement">#}
-{#          <span class="mdi mdi-plus text-light"></span>#}
-{#        </button>#}
-        <p class="lead">{% trans "ANNEX: List of Achievements and Contributions" %}</p>
+        <p class="lead">{% trans "ANNEX B: Complete List of Achievements / Contributions" %}</p>
+        <div class="alert alert-secondary">
+          {{ annex_b_text|safe }}
+        </div>
         {% include "res/application_detail/_achievements.html" %}
       </div>
 
@@ -143,12 +149,16 @@
       loadingRecommendation: false,
       loadingOutcomes: false,
       loadingAchievements: false,
+      loadingAchievementsSummary: false,
       loadingContexts: false,
+      loadingCategories: false,
       application: {},
       recommendation: {},
       outcomes: [],
       contexts: [],
+      categories: [],
       achievements: [],
+      achievementsSummary: [],
       applicationLabels: {},
       recommendationLabels: {},
       achievementLabels: {},
@@ -160,6 +170,7 @@
       orgChoices: [],
       decisionChoices: [],
       publicationTypeChoices: [],
+      reviewTypeChoices: [],
       categoryChoices: [],
     },
     methods: {
@@ -184,6 +195,7 @@
             if (data.recommendation) this.getRecommendation(data.recommendation, reload);
             this.getOutcomes(reload);
             this.getAchievements(reload);
+            this.getAchievementsSummary();
           }
         });
       },
@@ -217,9 +229,19 @@
           }
         });
       },
+      getCategories() {
+        this.loadingCategories = true;
+        let endpoint = `/api/res/achievement-categories/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.loadingCategories = false;
+            this.categories = data;
+          }
+        });
+      },
       getAchievements(reload = true) {
         if (reload) this.loadingAchievements = true;
-        let endpoint = `/api/res/achievements/?application=${applicationId}`;
+        let endpoint = `/api/res/achievements/?user=${this.application.applicant}`;
         apiService(endpoint).then(data => {
           if (data) {
             for (const datum of data) {
@@ -230,13 +252,27 @@
           }
         });
       },
+      getAchievementsSummary() {
+        this.loadingAchievementsSummary = true;
+        let endpoint = `/api/res/achievements/?user=${this.application.applicant}&summary-table=true`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.achievementsSummary = data;
+            this.loadingAchievementsSummary = false;
+          }
+        });
+      },
       newAchievement(achievement) {
-        achievement.application = applicationId;
+        achievement.user = this.application.applicant;
         achievement = this.cleanAchievement(achievement);
         let endpoint = `/api/res/achievements/`;
         apiService(endpoint, "POST", achievement).then(data => {
-          this.achievements.push(data)
-          this.getApplication(false);
+          if (data.id) {
+            this.achievements.push(data)
+            this.getApplication(false);
+          } else {
+            this.errors = groomJSON(data);
+          }
         });
       },
       deleteAchievement(achievement) {
@@ -325,8 +361,7 @@
         let userConfirmation = true;
         if (param) {
           userConfirmation = confirm("{% trans "Are you sure you want to sign this record?" %}")
-          if (param === "sign-by-applicant") recommendation.applicant_comment = prompt("{% trans "Comments (optional):" %}");
-          if (param === "sign-by-applicant") recommendation.applicant_comment = prompt("{% trans "Comments (optional):" %}");
+          if (userConfirmation && param === "sign-by-applicant") recommendation.applicant_comment = prompt("{% trans "Comments (optional):" %}");
           endpoint += `?${param}=true`
           method = "POST"
         }
@@ -361,6 +396,7 @@
           this.achievementLabels = data.labels;
           this.categoryChoices = data.category_choices;
           this.publicationTypeChoices = data.publication_type_choices;
+          this.reviewTypeChoices = data.review_type_choices;
         });
       },
     },
@@ -384,6 +420,7 @@
     },
     created() {
       this.getContexts();
+      this.getCategories();
       this.getModelMetadata();
       this.getCurrentUser();
       this.getApplication(true);

@@ -1,0 +1,75 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="filter-control-template">
+
+<div>
+  <div class="form-group">
+    <label for="my-input">${label}</label>
+    <div v-if="input_type==='select'">
+      <select
+        class="form-control"
+        v-model="input"
+        @change="filter"
+        ref="input"
+        id="my-input"
+      >
+        <option v-if="blank_option" value="">${blank_option}</option>
+        <option v-for="(choice, index) in choices" :value="choice.value">${choice.text}</option>
+      </select>
+    </div>
+    <div v-else>
+      <input
+        :type="input_type" class="form-control" step="any"
+        v-model="input"
+        ref="input" id="my-input"
+        @change="filter"
+      >
+    </div>
+  </div>
+</div>
+
+
+</script>
+<script type=" application/javascript">
+
+Vue.component("filter-control", {
+  template: "#filter-control-template",
+  delimiters: ["${", "}"],
+  name: "filter-control",
+  props: {
+    input_type: {
+      type: String,
+      default: "text"
+    },
+    filter_param: {
+      type: String,
+      required: true
+    },
+    label: {
+      type: String,
+    },
+    blank_option: {
+      type: String,
+    },
+    initial_input: {
+      required: false
+    },
+    choices: {
+      type: Array,
+      required: false
+    },
+  },
+  data() {
+    return {
+      input: this.initial_input,
+      editMode: false,
+    };
+  },
+  methods: {
+    filter() {
+      this.$emit("filter", this.filter_param, this.input)
+    }
+  },
+});
+</script>

@@ -22,6 +22,10 @@
         ${context.tname}
       </h6>
 
+      <p class="font-italic text-muted mb-4">
+        ${context.tdescription}
+      </p>
+
       <div v-for="outcome in context.outcomes" :key="outcome.id" class="mb-3">
 
         <outcome
@@ -35,8 +39,11 @@
           :achievement_labels="achievementLabels"
           :category_choices="categoryChoices"
           :publication_type_choices="publicationTypeChoices"
+          :review_type_choices="reviewTypeChoices"
+          :categories="categories"
+          :applicant="application.applicant"
         ></outcome>
-
+        <hr>
       </div>
     </div>
 

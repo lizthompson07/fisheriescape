@@ -154,13 +154,13 @@ label.filter {
 @media screen {
     .sidebar {
         height: 100%; /* 100% Full-height */
-        width: 300px; /* 0 width - change this with JavaScript */
+        width: 400px; /* 0 width - change this with JavaScript */
         position: fixed; /* Stay in place */
         z-index: 1; /* Stay on top */
         top: 0;
         left: 0;
         overflow-x: hidden; /* Disable horizontal scroll */
-        padding-top: 60px; /* Place content 60px from the top */
+        padding-top: 40px; /* Place content 60px from the top */
         transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
         border-right: solid grey 1px; /* 0.5 second transition effect to slide in the sidebar */
     }
@@ -169,8 +169,16 @@ label.filter {
     /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
     #main {
         transition: margin-left .5s; /* If you want a transition effect */
-        margin-left: 225px; /* If you want a transition effect */
+        margin-left: 425px; /* If you want a transition effect */
+        margin-right: 50px; /* If you want a transition effect */
         padding: 20px;
+    }
+}
+
+
+@media screen {
+    .print-only, .print-only * {
+        display: none !important;
     }
 }
 

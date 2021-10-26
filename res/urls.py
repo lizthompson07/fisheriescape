@@ -21,6 +21,13 @@ urlpatterns = [
     path('settings/publication-types/', views.PublicationTypeFormsetView.as_view(), name="manage_publication_types"),
     path('settings/publication-type/<int:pk>/delete/', views.PublicationTypeHardDeleteView.as_view(), name="delete_publication_type"),
 
+    path('settings/site-sections/', views.SiteSectionFormsetView.as_view(), name="manage_site_sections"),
+    path('settings/site-section/<int:pk>/delete/', views.SiteSectionHardDeleteView.as_view(), name="delete_site_section"),
+
+    path('settings/review-types/', views.ReviewTypeFormsetView.as_view(), name="manage_review_types"),
+    path('settings/review-type/<int:pk>/delete/', views.ReviewTypeHardDeleteView.as_view(), name="delete_review_type"),
+
+
     # APPLICATIONS
     path('applications/', views.ApplicationListView.as_view(), name="application_list"),
     path('applications/new/', views.ApplicationCreateView.as_view(), name="application_new"),
@@ -28,6 +35,14 @@ urlpatterns = [
     # path('applications/<int:pk>/edit/', views.ApplicationUpdateView.as_view(), name="application_edit"),
     path('applications/<int:pk>/delete/', views.ApplicationDeleteView.as_view(), name="application_delete"),
     path('applications/<int:pk>/submit/', views.ApplicationSubmitView.as_view(), name="application_submit"),
+
+    # ACHIEVEMENTS
+    path('achievements/', views.AchievementListView.as_view(), name="achievement_list"),
+    path('achievements/new/', views.AchievementCreateView.as_view(), name="achievement_new"),
+    path('achievements/<int:pk>/view/', views.AchievementDetailView.as_view(), name="achievement_detail"),
+    path('achievements/<int:pk>/edit/', views.AchievementUpdateView.as_view(), name="achievement_edit"),
+    path('achievements/<int:pk>/delete/', views.AchievementDeleteView.as_view(), name="achievement_delete"),
+    path('achievements/<int:pk>/clone/', views.AchievementCloneUpdateView.as_view(), name="achievement_clone"),
 
     #
     #

@@ -4,11 +4,18 @@
 <script type="text/x-template" id="achievement-template">
 
 <div>
-  <div class="row table-div" :id="`REF${object.id}`">
+  <div class="row" :id="`REF${object.id}`">
 
     {# VIEW MODE #}
-    <div v-if="!editMode" class="col">
-      <span v-html="object.achievement_display"></span> [<span @click="copyRef(object.id)" class="copy-me text-primary">REF ${object.id}</span>]
+    <div v-if="!editMode" class="col small">
+      <span v-html="object.achievement_display"></span>
+
+      [<span tabindex="1" class="text-primary helper"  {# @click="copyRef(object.id)" #}
+             @click="copyRef(object.id)"
+             data-toggle="tooltip"
+             :title="`{% trans "This reference can be cited in your text as: [ref${object.id}], [ref ${object.id}], [REF ${object.id}], etc.." %}`"
+             :ref="`ref${object.id}`"
+    >ref ${object.id}</span>]
     </div>
 
     {# EDIT MODE #}
@@ -24,7 +31,6 @@
               <select
                 class="form-control"
                 v-model="achievement.category"
-                @change="update"
                 ref="category"
                 id="category"
               >
@@ -37,12 +43,24 @@
               <select
                 class="form-control"
                 v-model="achievement.publication_type"
-                @change="update"
                 ref="category"
                 id="category"
               >
                 <option value="">-----</option>
                 <option v-for="(option, index) in publication_type_choices" :value="option.value">${option.text}</option>
+              </select>
+            </div>
+            <div v-if="achievement.is_publication" class="mb-3">
+              <label for="">${labels.review_type}</label>
+              <select
+                class="form-control"
+                v-model="achievement.review_type"
+                @change="update"
+                ref="category"
+                id="category"
+              >
+                <option value="">-----</option>
+                <option v-for="(option, index) in review_type_choices" :value="option.value">${option.text}</option>
               </select>
             </div>
             <div class="mb-3">
@@ -92,6 +110,8 @@
       </button>
     </div>
   </div>
+  <hr class="m-1">
+
 </div>
 
 
@@ -126,6 +146,10 @@ Vue.component("achievement", {
       type: Array,
       required: true
     },
+    review_type_choices: {
+      type: Array,
+      required: true
+    },
   },
   data() {
     return {
@@ -148,9 +172,33 @@ Vue.component("achievement", {
       this.$emit("remove", this.achievement)
     },
     copyRef(id) {
-      navigator.clipboard.writeText(`[REF${id}]`);
+      this.copyToClipboard(`[ref${id}]`);
       alert(`{% trans "Reference #${id} has been copied to the clipboard!" %}`);
 
+    },
+    copyToClipboard(textToCopy) {
+      // from https://stackoverflow.com/questions/51805395/navigator-clipboard-is-undefined
+      // navigator clipboard api needs a secure context (https)
+      if (navigator.clipboard && window.isSecureContext) {
+        // navigator clipboard api method'
+        return navigator.clipboard.writeText(textToCopy);
+      } else {
+        // text area method
+        let textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        // make the textarea out of viewport
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        return new Promise((res, rej) => {
+          // here the magic happens
+          document.execCommand('copy') ? res() : rej();
+          textArea.remove();
+        });
+      }
     }
   },
   filters: {

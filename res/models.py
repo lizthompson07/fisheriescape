@@ -1,20 +1,51 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.template.defaultfilters import date
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _, gettext, get_language, activate
 from markdown import markdown
 
 from lib.functions.custom_functions import fiscal_year
-from lib.templatetags.custom_filters import timedelta_duration_days
+from lib.templatetags.custom_filters import timedelta_duration_days, nz
 from res import model_choices
-from res.utils import connect_refs
+from res.utils import connect_refs, achievements_summary_table
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, MetadataFields, Section, Organization, Lookup, FiscalYear
 
 YES_NO_CHOICES = (
     (True, gettext("Yes")),
     (False, gettext("No")),
 )
+
+
+class SiteSection(models.Model):
+    section_choices = (
+        (1, "ANNEX A"),
+        (2, "ANNEX B"),
+        (3, "For new applications"),
+    )
+    section = models.IntegerField(verbose_name=_("section"), choices=section_choices, unique=True)
+    description_en = models.TextField(blank=True, null=True, verbose_name=_("Description (en)"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description (fr)"))
+
+    @property
+    def tdescription(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("description_en"))):
+            my_str = "{}".format(getattr(self, str(_("description_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.description_en
+        return my_str
+
+    class Meta:
+        ordering = ["section"]
+
+    @property
+    def description_html(self):
+        if self.tdescription:
+            return markdown(self.tdescription)
 
 
 class Context(Lookup):
@@ -28,12 +59,18 @@ class Outcome(Lookup):
     description_en = models.TextField(blank=True, null=True, verbose_name=_("Description (en)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (fr)"))
     description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description (fr)"))
+    order = models.IntegerField(verbose_name=_("order"), blank=True, null=True)
 
     class Meta:
-        ordering = ["context", "name"]
+        ordering = ["context", "order", "name"]
 
     def __str__(self):
         return f"{self.context} - {self.tname}"
+
+    @property
+    def description_html(self):
+        if self.tdescription:
+            return markdown(self.tdescription)
 
 
 class AchievementCategory(SimpleLookup):
@@ -56,13 +93,29 @@ class GroupLevel(UnilingualSimpleLookup):
 
 
 class PublicationType(SimpleLookup):
-    pass
+    code = models.CharField(max_length=5, verbose_name=_("display code"))
+
+    def __str__(self):
+        return f"{self.code}. {self.tname}"
+
+    class Meta:
+        ordering = ["code"]
+
+
+class ReviewType(SimpleLookup):
+    code = models.CharField(max_length=5, verbose_name=_("display code"), blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.tname}"
+
+    class Meta:
+        ordering = ["code"]
 
 
 class Application(MetadataFields):
     # mandatories
-    applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("researcher name"), related_name="res_applications")
-    manager = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("manager name"), related_name="manager_res_applications",
+    applicant = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("researcher"), related_name="res_applications")
+    manager = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("accountable manager"), related_name="manager_res_applications",
                                 help_text=_("This is the person who will provide a recommendation on this application"))
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="res_applications", verbose_name=_("DFO section"))
     current_group_level = models.ForeignKey(GroupLevel, on_delete=models.DO_NOTHING, related_name="applications_current",
@@ -112,6 +165,13 @@ class Application(MetadataFields):
         return timedelta_duration_days(self.application_end_date - self.application_start_date)
 
     @property
+    def dates(self):
+        my_str = date(self.application_start_date)
+        if self.application_end_date:
+            my_str += f" &rarr; {date(self.application_end_date)} ({self.application_range_description})"
+        return mark_safe(my_str)
+
+    @property
     def region(self):
         return self.section.division.branch.sector.region
 
@@ -144,13 +204,13 @@ class Application(MetadataFields):
     def objectives_html(self):
         txt = self.objectives
         if txt:
-            return connect_refs(txt, self.achievements)
+            return connect_refs(txt, self.applicant.achievements.all())
 
     @property
     def relevant_factors_html(self):
         txt = self.relevant_factors
         if txt:
-            return connect_refs(txt, self.achievements)
+            return connect_refs(txt, self.applicant.achievements.all())
 
     @property
     def is_complete(self):
@@ -168,19 +228,30 @@ class Application(MetadataFields):
 
     @property
     def achievement_categories(self):
-        return AchievementCategory.objects.filter(achievements__application=self).distinct()
+        return AchievementCategory.objects.filter(achievements__user=self.applicant).distinct()
+
+    @property
+    def achievement_publication_types(self):
+        return PublicationType.objects.filter(achievements__user=self.applicant, achievements__category__is_publication=True).distinct()
+
+    @property
+    def achievement_summary_table(self):
+        return achievements_summary_table(self.applicant)
 
 
 class Recommendation(MetadataFields):
     application = models.OneToOneField(Application, on_delete=models.CASCADE, related_name="recommendation")
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("manager"), related_name="res_recommendations")
-    recommendation_text = models.TextField(blank=True, null=True, verbose_name=_("manager's assessment"), help_text=_("no more than 250 words"))
+    recommendation_text = models.TextField(blank=True, null=True, verbose_name=_("accountable manager's assessment"), help_text=_("no more than 250 words"))
     decision = models.IntegerField(verbose_name=_("decision"), choices=model_choices.decision_choices, blank=True, null=True)
     applicant_comment = models.TextField(blank=True, null=True, verbose_name=_("researcher's comment"), help_text=_("no more than 250 words"))
 
     # non-editables
-    manager_signed = models.DateTimeField(verbose_name=_("signed by manager"), editable=False, blank=True, null=True)
-    applicant_signed = models.DateTimeField(verbose_name=_("signed by researcher"), editable=False, blank=True, null=True)
+    manager_signed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("manager signed by"),
+                                          related_name="res_manager_signed_by_recommendations", editable=False)
+    manager_signed = models.DateTimeField(verbose_name=_("manager signature"), editable=False, blank=True, null=True)
+    applicant_signed = models.DateTimeField(verbose_name=_("researcher signature"), editable=False, blank=True, null=True)
+    applicant_signed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("applicant signed by"),
+                                            related_name="res_applicant_signed_by_recommendations", editable=False)
 
     @property
     def recommendation_text_html(self):
@@ -191,6 +262,16 @@ class Recommendation(MetadataFields):
     def applicant_comment_html(self):
         if self.applicant_comment:
             return markdown(self.applicant_comment)
+
+    @property
+    def manager_signature(self):
+        if self.manager_signed_by and self.manager_signed:
+            return _("Signed by {user} at {date}").format(user=self.manager_signed_by, date=date(self.manager_signed))
+
+    @property
+    def applicant_signature(self):
+        if self.applicant_signed_by and self.applicant_signed:
+            return _("Signed by {user} at {date}").format(user=self.applicant_signed_by, date=date(self.applicant_signed))
 
 
 class ApplicationOutcome(MetadataFields):
@@ -208,7 +289,7 @@ class ApplicationOutcome(MetadataFields):
     def text_html(self):
         txt = self.text
         if txt:
-            return connect_refs(txt, self.application.achievements)
+            return connect_refs(txt, self.application.applicant.achievements.all())
 
     @property
     def word_count(self):
@@ -216,38 +297,73 @@ class ApplicationOutcome(MetadataFields):
             return len(self.text.split(" "))
         return 0
 
+
 class Achievement(MetadataFields):
-    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="achievements")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="achievements")
     category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements", verbose_name=_("achievement category"))
     publication_type = models.ForeignKey(PublicationType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
                                          verbose_name=_("publication type"))
+    review_type = models.ForeignKey(ReviewType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
+                                    verbose_name=_("peer review type"))
     date = models.DateTimeField(verbose_name=_("date of publication / achievement"), blank=True, null=True)
     detail = models.CharField(verbose_name=_("detail"), max_length=2000)
 
     class Meta:
-        ordering = ["application", "category", "publication_type", "-date"]
+        ordering = ["category", "publication_type", "-date", "id"]
 
     def __str__(self):
-        return f"{self.category}"
+        return f"{self.as_ref}"
+
+    @property
+    def as_ref(self):
+        return _("Reference") + f" {self.id}"
 
     @property
     def code(self):
-        id_list = [a.id for a in self.application.achievements.filter(category=self.category)]
-        code = f"{self.category.code}-{id_list.index(self.id) + 1}"
+        if self.category.is_publication and self.publication_type:
+            id_list = [a.id for a in
+                       self.user.achievements.filter(category=self.category, publication_type=self.publication_type).order_by("category",
+                                                                                                                              "publication_type",
+                                                                                                                              "-date", "id")]
+            code = f"{self.category.code}{self.publication_type.code}-{id_list.index(self.id) + 1}"
+        else:
+            id_list = [a.id for a in
+                       self.user.achievements.filter(category=self.category).order_by("category", "publication_type", "-date", "id")]
+            code = f"{self.category.code}-{id_list.index(self.id) + 1}"
         return code
 
     @property
     def achievement_display(self):
+        mystr = f"{self.code} &mdash; "
+        if self.category and self.category.is_publication:
+            if self.date:
+                mystr += f"{self.date.year}"
+            else:
+                mystr += "n/a"
 
-        mystr = f"{self.code} &rarr; "
+            if self.review_type:
+                mystr += f"{nz(self.review_type.code, '')}"
 
-        if self.date:
-            fy = fiscal_year(self.date)
-            mystr += f"{fy}."
+            mystr += "."
+        elif self.date:
+            mystr += f"{self.date.year}."
+        if self.detail:
+            mystr += f" {self.detail}"
+        return mystr
 
-        if self.category and self.publication_type:
-            mystr += f" {self.publication_type}."
-
+    @property
+    def achievement_display_no_code(self):
+        mystr = ""
+        if self.category and self.category.is_publication:
+            if self.date:
+                mystr += f"{self.date.year}"
+            else:
+                mystr += "n/a"
+            if self.review_type:
+                mystr += f"{nz(self.review_type.code, '')}"
+            mystr += "."
+        elif self.date:
+            mystr += f"{self.date.year}."
         if self.detail:
             mystr += f" {self.detail}"
         return mystr

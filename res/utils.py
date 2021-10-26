@@ -26,7 +26,7 @@ def in_res_crud_group(user):
 def get_related_applications(user):
     """give me a user and I'll send back a queryset with all related requests, i.e.
      they are a client || they are a coordinator || they are the request.created_by"""
-    qs = models.Application.objects.filter(Q(created_by=user) | Q(applicant=user)).distinct()
+    qs = models.Application.objects.filter(Q(created_by=user) | Q(applicant=user) | Q(manager=user)).distinct()
     return qs
 
 
@@ -136,6 +136,45 @@ def can_modify_recommendation(user, application_id, return_as_dict=False):
         return my_dict if return_as_dict else my_dict["can_modify"]
 
 
+
+def can_modify_achievement(user, achievement_id, return_as_dict=False):
+    """
+    returns True if user has permissions to delete or modify an achievement
+    The answer of this question will depend on the business rules...
+
+    always: admin
+    if NOT submitted: applicant, created_by, manager?
+
+    """
+    my_dict = dict(can_modify=False, reason=_("You are not logged in"))
+    if user.id:
+        my_dict["reason"] = "You do not have the permissions to modify this achievement"
+        achievement = get_object_or_404(models.Achievement, pk=achievement_id)
+        # check to see if they are the client
+        if user == achievement.user:
+            my_dict["reason"] = "You can modify this record because you are the owner!"
+            my_dict["can_modify"] = True
+        elif in_res_admin_group(user):
+            my_dict["reason"] = "You can modify this record because you are a system administrator"
+            my_dict["can_modify"] = True
+        return my_dict if return_as_dict else my_dict["can_modify"]
+
+
+def can_view_achievement(user, achievement_id):
+    """
+    returns True if user has permissions to delete or modify an achievement
+    The answer of this question will depend on the business rules...
+
+    always: admin
+    if NOT submitted: applicant, created_by, manager?
+
+    """
+    if user.id:
+        achievement = get_object_or_404(models.Achievement, pk=achievement_id)
+        return user == achievement.user or in_res_admin_group(user)
+
+
+
 def get_section_choices(with_application=False, full_name=True, region_filter=None, division_filter=None):
     my_attr = _("name")
     if full_name:
@@ -203,15 +242,53 @@ def connect_refs(txt, achievements_qs):
         pk = ref.lower().replace("ref", "").strip()
         try:
             a = achievements_qs.get(pk=pk)
-            tip = a.achievement_display
+            tip = a.achievement_display_no_code
             if a.category:
                 code = a.category.code
             text_class = "text-primary"
             text = f"{a.code}"
+            href = f"#achievement{a.id}"
         except:
             tip = gettext("Bad reference!!")
             text_class = "text-danger"
             text = "???"
-        replace_text = f"<span class='{text_class} helper' data-toggle='tooltip' title='{tip}'>{text}</span>"
+            href = "??"
+        replace_text = f"<a href='{href}' class='{text_class} helper' data-toggle='tooltip' title='{tip}'>{text}</a>"
         txt = txt.replace(f"[{ref}]", replace_text)
     return markdown(txt)
+
+
+def achievements_summary_table(user):
+    payload = list()
+    last_application = user.res_applications.filter(last_promotion__isnull=False).order_by("last_promotion").last()
+    before_last_promotion = "---"
+    since_last_promotion = "---"
+    for publication_type in models.PublicationType.objects.all():
+        qs = user.achievements.filter(publication_type=publication_type, category__is_publication=True)
+        if last_application:
+            last_promotion = last_application.last_promotion
+            before_last_promotion = qs.filter(date__lt=last_promotion).count()
+            since_last_promotion = qs.filter(date__gte=last_promotion).count()
+        payload.append(
+            dict(
+                publication_type=f"{publication_type.code}. {publication_type.tname}",
+                before_last_promotion=before_last_promotion,
+                since_last_promotion=since_last_promotion,
+                total=qs.count(),
+            )
+        )
+
+    qs = user.achievements.filter(category__is_publication=True)
+    if last_application:
+        last_promotion = last_application.last_promotion
+        before_last_promotion = qs.filter(date__lt=last_promotion).count()
+        since_last_promotion = qs.filter(date__gte=last_promotion).count()
+    payload.append(
+            dict(
+                publication_type=_("TOTAL"),
+                before_last_promotion=before_last_promotion,
+                since_last_promotion=since_last_promotion,
+                total=qs.count(),
+            )
+        )
+    return payload

@@ -1083,12 +1083,14 @@ class TripReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
         my_reviewer = form.save()
         stay_on_page = form.cleaned_data.get("stay_on_page")
         reset = form.cleaned_data.get("reset")
+        approved = form.cleaned_data.get("approved")
+        print(approved)
 
         if not stay_on_page:
             if reset:
                 utils.reset_trip_review_process(my_reviewer.trip)
             else:
-                # if it was approved, then we change the reviewer status to 'approved'
+                # always change the reviewer status to 'complete'
                 my_reviewer.status = 26
                 my_reviewer.status_date = timezone.now()
                 my_reviewer.save()
@@ -1098,9 +1100,13 @@ class TripReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
                     qs = models.Reviewer.objects.filter(request__trip=my_reviewer.trip, request__status=14, role=5)
                     for r in qs:
                         r.user = self.request.user
-                        r.comments = "approved / approuvé"
-                        r.status = 2
                         r.status_date = timezone.now()
+                        if approved:
+                            r.comments = "approved / approuvé"
+                            r.status = 2
+                        else:
+                            r.comments = "denied / refusé"
+                            r.status = 3
                         r.save()
                         utils.approval_seeker(r.request, False, self.request)
 
@@ -1146,6 +1152,9 @@ class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
         elif report == 2:
             return HttpResponseRedirect(reverse("travel:export_trip_list") +
                                         f'?fy={fy}&region={region}&adm={adm}&from_date={from_date}&to_date={to_date}&')
+        elif report == 3:
+            return HttpResponseRedirect(reverse("travel:export_request_summary"))
+
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("travel:reports"))
@@ -1205,6 +1214,25 @@ def export_upcoming_trips(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_upcoming_trip_list(site_url)
     export_file_name = '{} {}.xlsx'.format(_("upcoming trips"), timezone.now().strftime("%Y-%m-%d"))
+
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/", "||")]) + f'?blob_name=true;export_file_name={export_file_name}')
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="{export_file_name}"'
+            return response
+    raise Http404
+
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+def export_request_summary(request):
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_request_summary(site_url)
+    export_file_name = '{} {}.xlsx'.format(_("trip request summary"), timezone.now().strftime("%Y-%m-%d"))
 
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
         return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/", "||")]) + f'?blob_name=true;export_file_name={export_file_name}')

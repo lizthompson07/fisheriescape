@@ -47,6 +47,19 @@ def doc_directory_path(instance, filename):
     return 'csas/document_{0}/{1}'.format(instance.id, filename)
 
 
+class CSASAdminUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="csas_admin_user", verbose_name=_("DM Apps user"))
+    region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="csas_admin_user", on_delete=models.CASCADE, blank=True,
+                               null=True)
+    is_national_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_national_admin", "user__first_name", ]
+
+
 class GenericFile(models.Model):
     caption = models.CharField(max_length=255, verbose_name=_("caption"))
     file = models.FileField()
@@ -153,10 +166,14 @@ class CSASRequest(MetadataFields):
         else:
             self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
 
+
+        # set the STATUS
         # if there is a process, the request the request MUST have been approved.
         if self.id and self.processes.exists():
             if self.processes.filter(status=100).count() == self.processes.all().count():
                 self.status = 5  # fulfilled
+            elif self.processes.filter(status=90).count() == self.processes.all().count():
+                self.status = 12  # withdrawn
             else:
                 self.status = 11  # accepted
         else:
@@ -350,27 +367,33 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     def save(self, *args, **kwargs):
         # if there is no advice date, take the target date from the first attached request
-        if not self.advice_date and self.csas_requests.exists():
+        if not self.advice_date and self.id and self.csas_requests.exists():
             self.advice_date = self.csas_requests.first().target_advice_date
 
         # if there is an advice date, FY should follow it..
         if self.advice_date:
             self.fiscal_year_id = fiscal_year(self.advice_date, sap_style=True)
+        else:
+            self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
 
-        # if there is a process, the request the request MUST have been approved.
-        if hasattr(self, "tor") and self.tor.is_complete:
-            self.status = 22  # tor complete!
+        # set the STATUS of the process
+        # if the status is withdrawn, not further logic should be pursued.
+        if not self.status == 90:
 
-        # has the latest scheduled meeting passed
-        now = timezone.now()
-        meeting_qs = self.meetings.filter(is_planning=False, is_estimate=False).order_by("end_date")
-        if meeting_qs.exists() and meeting_qs.last().end_date and meeting_qs.last().end_date <= now:
-            self.status = 25  # meeting complete!
+            # if there is a process, the request the request MUST have been approved.
+            if hasattr(self, "tor") and self.tor.is_complete:
+                self.status = 22  # tor complete!
 
-        # has the key doc been completed
-        doc_qs = self.documents.filter(status__in=[12, 17])
-        if doc_qs.exists():
-            self.status = 100  # complete!
+            # has the latest scheduled meeting passed
+            now = timezone.now()
+            meeting_qs = self.meetings.filter(is_planning=False, is_estimate=False).order_by("end_date")
+            if meeting_qs.exists() and meeting_qs.last().end_date and meeting_qs.last().end_date <= now:
+                self.status = 25  # meeting complete!
+
+            # has the key doc been completed
+            doc_qs = self.documents.filter(status__in=[12, 17])
+            if doc_qs.exists():
+                self.status = 100  # complete!
 
         super().save(*args, **kwargs)
 

@@ -292,6 +292,17 @@
     .no-print, .no-print * {
         display: none !important;
     }
+
+    .new-page {
+        page-break-after: always;
+    }
+}
+
+
+@media screen {
+    .print-only, .print-only * {
+        display: none !important;
+    }
 }
 
 
@@ -354,12 +365,13 @@
 }
 
 .pointy {
-     cursor: pointer;
- }
+    cursor: pointer;
+}
 
 .helper {
-     cursor: help;
- }
+    cursor: help;
+}
+
 .copy-me {
-     cursor: copy;
- }
+    cursor: copy;
+}

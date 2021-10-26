@@ -39,6 +39,10 @@ class ApplicationSerializer(serializers.ModelSerializer):
     submission_date = serializers.SerializerMethodField()
     context_word_count_dict = serializers.SerializerMethodField()
     achievement_categories = serializers.SerializerMethodField()
+    achievement_publication_types = serializers.SerializerMethodField()
+
+    def get_achievement_publication_types(self, instance):
+        return PublicationTypeSerializer(instance.achievement_publication_types, many=True, read_only=True).data
 
     def get_achievement_categories(self, instance):
         return AchievementCategorySerializer(instance.achievement_categories, many=True, read_only=True).data
@@ -146,17 +150,16 @@ class RecommendationSerializer(serializers.ModelSerializer):
     applicant_comment_html = serializers.SerializerMethodField()
     manager_signed_display = serializers.SerializerMethodField()
     applicant_signed_display = serializers.SerializerMethodField()
-
     decision_display = serializers.SerializerMethodField()
 
     def get_decision_display(self, instance):
         return instance.get_decision_display()
 
     def get_manager_signed_display(self, instance):
-        return date(instance.manager_signed, "DATETIME_FORMAT")
+        return instance.manager_signature
 
     def get_applicant_signed_display(self, instance):
-        return date(instance.applicant_signed, "DATETIME_FORMAT")
+        return instance.applicant_signature
 
     def get_applicant_comment_html(self, instance):
         return instance.applicant_comment_html
@@ -205,6 +208,10 @@ class AchievementSerializer(serializers.ModelSerializer):
     achievement_display = serializers.SerializerMethodField()
     is_publication = serializers.SerializerMethodField()
     code = serializers.SerializerMethodField()
+    achievement_display_no_code = serializers.SerializerMethodField()
+
+    def get_achievement_display_no_code(self, instance):
+        return instance.achievement_display_no_code
 
     def get_code(self, instance):
         return instance.code
@@ -245,7 +252,11 @@ class OutcomeSerializer(serializers.ModelSerializer):
 
     tname = serializers.SerializerMethodField()
     tdescription = serializers.SerializerMethodField()
+    description_html = serializers.SerializerMethodField()
 
+    def get_description_html(self, instance):
+        return instance.description_html
+    
     def get_tdescription(self, instance):
         return instance.tdescription
 
@@ -264,6 +275,17 @@ class ContextSerializer(serializers.ModelSerializer):
 
     def get_tdescription(self, instance):
         return instance.tdescription
+
+    def get_tname(self, instance):
+        return instance.tname
+
+
+class PublicationTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.PublicationType
+        fields = "__all__"
+
+    tname = serializers.SerializerMethodField()
 
     def get_tname(self, instance):
         return instance.tname
