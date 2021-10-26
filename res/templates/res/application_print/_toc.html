@@ -34,6 +34,16 @@
       {% for category in object.achievement_categories %}
         <li>
           <a href="#category{{ category.id }}"> {{ category }} </a>
+          {% if category.is_publication %}
+            <ul>
+              {% for publication_type in object.achievement_publication_types %}
+                <li>
+                  <a href="#publication_type{{ publication_type.id }}"> {{ publication_type }} </a>
+                </li>
+              {% endfor %}
+            </ul>
+
+          {% endif %}
         </li>
       {% endfor %}
     </ul>

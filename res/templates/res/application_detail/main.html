@@ -103,7 +103,7 @@
             :labels="achievementLabels"
             :category_choices="categoryChoices"
             :publication_type_choices="publicationTypeChoices"
-            @new="newAchievement"
+            :categories="categories"
           ></ref-editor>
         </div>
 
@@ -148,10 +148,12 @@
       loadingOutcomes: false,
       loadingAchievements: false,
       loadingContexts: false,
+      loadingCategories: false,
       application: {},
       recommendation: {},
       outcomes: [],
       contexts: [],
+      categories: [],
       achievements: [],
       applicationLabels: {},
       recommendationLabels: {},
@@ -219,6 +221,16 @@
           if (data) {
             this.loadingContexts = false;
             this.contexts = data;
+          }
+        });
+      },
+      getCategories() {
+        this.loadingCategories = true;
+        let endpoint = `/api/res/achievement-categories/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.loadingCategories = false;
+            this.categories = data;
           }
         });
       },
@@ -389,6 +401,7 @@
     },
     created() {
       this.getContexts();
+      this.getCategories();
       this.getModelMetadata();
       this.getCurrentUser();
       this.getApplication(true);

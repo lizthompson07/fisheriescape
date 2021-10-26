@@ -8,15 +8,57 @@
     <h6>
       {{ category.tname }} ({{ category.code }})
     </h6>
-    {% for achievement in object.achievements.all %}
-      {% if achievement.category.id == category.id %}
-        <div class="" id="achievement{{ achievement.id }}">
-          {{ achievement.achievement_display|safe }}
+    {% if not category.is_publication %}
+      {% for achievement in object.achievements.all %}
+        {% if achievement.category.id == category.id %}
+          <div class="" id="achievement{{ achievement.id }}">
+            {{ achievement.achievement_display|safe }}
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      {% for publication_type in object.achievement_publication_types %}
+        <div class="mb-5">
+          <u class="mb-3 font-italic">
+            {{ publication_type }}
+          </u>
+          {% for achievement in object.achievements.all %}
+            {% if achievement.category.id == category.id and achievement.publication_type.id == publication_type.id %}
+              <div class="" id="achievement{{ achievement.id }}">
+                {{ achievement.achievement_display|safe }}
+              </div>
+            {% endif %}
+          {% endfor %}
         </div>
-      {% endif %}
-    {% endfor %}
-      <hr>
+      {% endfor %}
 
+
+    {% endif %}
+    <hr>
+
+
+    {#  <div v-else>#}
+    {#        <div v-for="publication_type in application.achievement_publication_types" :key="publication_type.id" class="mb-5">#}
+    {#          <u :id="`publication_type{publication_type.id}`" class="mb-3 font-italic">#}
+    {#            ${publication_type.tname}#}
+    {#          </u>#}
+    {#          <achievement#}
+    {#            :id="`achievement${achievement.id}`"#}
+    {#            v-for="achievement in achievements" :key="achievement.id"#}
+    {#            v-if="achievement.category === category.id && achievement.publication_type === publication_type.id"#}
+    {#            :object="achievement"#}
+    {#            :editable="canModify" :dirty="unsavedChanges"#}
+    {#            @keypress="unsavedChanges=true"#}
+    {#            :category_choices="categoryChoices"#}
+    {#            :publication_type_choices="publicationTypeChoices"#}
+    {#            :review_type_choices="reviewTypeChoices"#}
+    {#            :labels="achievementLabels"#}
+    {#            @change="updateAchievement"#}
+    {#            @clone="cloneAchievement"#}
+    {#            @remove="deleteAchievement"#}
+    {#          ></achievement>#}
+    {#        </div>#}
+    {#      </div#}
 
 
   </div>

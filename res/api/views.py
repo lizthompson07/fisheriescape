@@ -166,7 +166,7 @@ class AchievementViewSet(ModelViewSet):
         if qp.get("clone"):
             new_achievement = deepcopy(old_achievement)
             new_achievement.pk = None
-            new_achievement.detail = "*** CLONED *** " + new_achievement.detail
+            new_achievement.detail = "CLONED " + new_achievement.detail
             new_achievement.save()
             return Response(serializers.AchievementSerializer(new_achievement).data, status.HTTP_200_OK)
 
@@ -176,6 +176,12 @@ class AchievementViewSet(ModelViewSet):
 class ContextListAPIView(ListAPIView):
     queryset = models.Context.objects.all()
     serializer_class = serializers.ContextSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class AchievementCategoryListAPIView(ListAPIView):
+    queryset = models.AchievementCategory.objects.all()
+    serializer_class = serializers.AchievementCategorySerializer
     permission_classes = [IsAuthenticated]
 
 

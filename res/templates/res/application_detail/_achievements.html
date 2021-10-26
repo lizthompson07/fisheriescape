@@ -13,21 +13,46 @@
       <h6 :id="`category${category.id}`" class="mb-3">
         ${category.display}
       </h6>
-      <achievement
-        :id="`achievement${achievement.id}`"
-        v-for="achievement in achievements" :key="achievement.id"
-        v-if="achievement.category === category.id"
-        :object="achievement"
-        :editable="canModify" :dirty="unsavedChanges"
-        @keypress="unsavedChanges=true"
-        :category_choices="categoryChoices"
-        :publication_type_choices="publicationTypeChoices"
-        :review_type_choices="reviewTypeChoices"
-        :labels="achievementLabels"
-        @change="updateAchievement"
-        @clone="cloneAchievement"
-        @remove="deleteAchievement"
-      ></achievement>
+      <div v-if="!category.is_publication">
+        <achievement
+          :id="`achievement${achievement.id}`"
+          v-for="achievement in achievements" :key="achievement.id"
+          v-if="achievement.category === category.id"
+          :object="achievement"
+          :editable="canModify" :dirty="unsavedChanges"
+          @keypress="unsavedChanges=true"
+          :category_choices="categoryChoices"
+          :publication_type_choices="publicationTypeChoices"
+          :review_type_choices="reviewTypeChoices"
+          :labels="achievementLabels"
+          @change="updateAchievement"
+          @clone="cloneAchievement"
+          @remove="deleteAchievement"
+        ></achievement>
+      </div>
+      <div v-else>
+        <div v-for="publication_type in application.achievement_publication_types" :key="publication_type.id" class="mb-5">
+          <u :id="`publication_type{publication_type.id}`" class="mb-3 font-italic">
+            ${publication_type.tname}
+          </u>
+          <achievement
+            :id="`achievement${achievement.id}`"
+            v-for="achievement in achievements" :key="achievement.id"
+            v-if="achievement.category === category.id && achievement.publication_type === publication_type.id"
+            :object="achievement"
+            :editable="canModify" :dirty="unsavedChanges"
+            @keypress="unsavedChanges=true"
+            :category_choices="categoryChoices"
+            :publication_type_choices="publicationTypeChoices"
+            :review_type_choices="reviewTypeChoices"
+            :labels="achievementLabels"
+            @change="updateAchievement"
+            @clone="cloneAchievement"
+            @remove="deleteAchievement"
+          ></achievement>
+        </div>
+      </div>
+
     </div>
   </div>
   <div v-else>

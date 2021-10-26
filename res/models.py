@@ -230,6 +230,10 @@ class Application(MetadataFields):
     def achievement_categories(self):
         return AchievementCategory.objects.filter(achievements__application=self).distinct()
 
+    @property
+    def achievement_publication_types(self):
+        return PublicationType.objects.filter(achievements__application=self, achievements__category__is_publication=True).distinct()
+
 
 class Recommendation(MetadataFields):
     application = models.OneToOneField(Application, on_delete=models.CASCADE, related_name="recommendation")
@@ -296,7 +300,7 @@ class Achievement(MetadataFields):
     publication_type = models.ForeignKey(PublicationType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
                                          verbose_name=_("publication type"))
     review_type = models.ForeignKey(ReviewType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
-                                         verbose_name=_("peer review type"))
+                                    verbose_name=_("peer review type"))
     date = models.DateTimeField(verbose_name=_("date of publication / achievement"), blank=True, null=True)
     detail = models.CharField(verbose_name=_("detail"), max_length=2000)
 
@@ -308,8 +312,16 @@ class Achievement(MetadataFields):
 
     @property
     def code(self):
-        id_list = [a.id for a in self.application.achievements.filter(category=self.category).order_by("application", "category", "publication_type", "-date")]
-        code = f"{self.category.code}-{id_list.index(self.id) + 1}"
+        if self.category.is_publication and self.publication_type:
+            id_list = [a.id for a in
+                       self.application.achievements.filter(category=self.category, publication_type=self.publication_type).order_by("application", "category",
+                                                                                                                                     "publication_type",
+                                                                                                                                     "-date")]
+            code = f"{self.category.code}{self.publication_type.code}-{id_list.index(self.id) + 1}"
+        else:
+            id_list = [a.id for a in
+                       self.application.achievements.filter(category=self.category).order_by("application", "category", "publication_type", "-date")]
+            code = f"{self.category.code}-{id_list.index(self.id) + 1}"
         return code
 
     @property

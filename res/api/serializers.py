@@ -39,6 +39,10 @@ class ApplicationSerializer(serializers.ModelSerializer):
     submission_date = serializers.SerializerMethodField()
     context_word_count_dict = serializers.SerializerMethodField()
     achievement_categories = serializers.SerializerMethodField()
+    achievement_publication_types = serializers.SerializerMethodField()
+
+    def get_achievement_publication_types(self, instance):
+        return PublicationTypeSerializer(instance.achievement_publication_types, many=True, read_only=True).data
 
     def get_achievement_categories(self, instance):
         return AchievementCategorySerializer(instance.achievement_categories, many=True, read_only=True).data
@@ -271,6 +275,17 @@ class ContextSerializer(serializers.ModelSerializer):
 
     def get_tdescription(self, instance):
         return instance.tdescription
+
+    def get_tname(self, instance):
+        return instance.tname
+
+
+class PublicationTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.PublicationType
+        fields = "__all__"
+
+    tname = serializers.SerializerMethodField()
 
     def get_tname(self, instance):
         return instance.tname

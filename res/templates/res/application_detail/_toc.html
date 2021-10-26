@@ -27,6 +27,11 @@
     <ul>
       <li v-for="category in application.achievement_categories">
         <a :href="`#category${category.id}`"> ${category.display} </a>
+        <ul v-if="category.is_publication">
+          <li v-for="publication_type in application.achievement_publication_types">
+            <a :href="`#publication_type{publication_type.id}`"> ${publication_type.tname} </a>
+          </li>
+        </ul>
       </li>
     </ul>
 
