@@ -204,13 +204,13 @@ class Application(MetadataFields):
     def objectives_html(self):
         txt = self.objectives
         if txt:
-            return connect_refs(txt, self.achievements)
+            return connect_refs(txt, self.applicant.achievements.all())
 
     @property
     def relevant_factors_html(self):
         txt = self.relevant_factors
         if txt:
-            return connect_refs(txt, self.achievements)
+            return connect_refs(txt, self.applicant.achievements.all())
 
     @property
     def is_complete(self):
@@ -228,11 +228,11 @@ class Application(MetadataFields):
 
     @property
     def achievement_categories(self):
-        return AchievementCategory.objects.filter(achievements__application=self).distinct()
+        return AchievementCategory.objects.filter(achievements__user=self.applicant).distinct()
 
     @property
     def achievement_publication_types(self):
-        return PublicationType.objects.filter(achievements__application=self, achievements__category__is_publication=True).distinct()
+        return PublicationType.objects.filter(achievements__user=self.applicant, achievements__category__is_publication=True).distinct()
 
 
 class Recommendation(MetadataFields):
@@ -285,7 +285,7 @@ class ApplicationOutcome(MetadataFields):
     def text_html(self):
         txt = self.text
         if txt:
-            return connect_refs(txt, self.application.achievements)
+            return connect_refs(txt, self.application.applicant.achievements.all())
 
     @property
     def word_count(self):
@@ -295,7 +295,8 @@ class ApplicationOutcome(MetadataFields):
 
 
 class Achievement(MetadataFields):
-    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="achievements")
+    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True)  # delete me
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="achievements")
     category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements", verbose_name=_("achievement category"))
     publication_type = models.ForeignKey(PublicationType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
                                          verbose_name=_("publication type"))
@@ -305,7 +306,7 @@ class Achievement(MetadataFields):
     detail = models.CharField(verbose_name=_("detail"), max_length=2000)
 
     class Meta:
-        ordering = ["application", "category", "publication_type", "-date"]
+        ordering = ["category", "publication_type", "-date", "id"]
 
     def __str__(self):
         return f"{self.category}"
@@ -314,13 +315,13 @@ class Achievement(MetadataFields):
     def code(self):
         if self.category.is_publication and self.publication_type:
             id_list = [a.id for a in
-                       self.application.achievements.filter(category=self.category, publication_type=self.publication_type).order_by("application", "category",
-                                                                                                                                     "publication_type",
-                                                                                                                                     "-date")]
+                       self.user.achievements.filter(category=self.category, publication_type=self.publication_type).order_by("category",
+                                                                                                                              "publication_type",
+                                                                                                                              "-date", "id")]
             code = f"{self.category.code}{self.publication_type.code}-{id_list.index(self.id) + 1}"
         else:
             id_list = [a.id for a in
-                       self.application.achievements.filter(category=self.category).order_by("application", "category", "publication_type", "-date")]
+                       self.user.achievements.filter(category=self.category).order_by("category", "publication_type", "-date", "id")]
             code = f"{self.category.code}-{id_list.index(self.id) + 1}"
         return code
 

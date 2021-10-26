@@ -55,6 +55,7 @@
             :publication_type_choices="publication_type_choices"
             :review_type_choices="review_type_choices"
             :categories="categories"
+            :applicant="applicant"
             @insert="insert"
           ></ref-inserter>
           <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span> {% trans "Save (Ctrl-S)" %}</button>
@@ -98,6 +99,9 @@ Vue.component("outcome", {
     },
     object: {
       type: Object,
+    },
+    applicant: {
+      type: Number,
     },
     outcome: {
       type: Object,

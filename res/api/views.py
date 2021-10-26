@@ -151,7 +151,7 @@ class AchievementViewSet(ModelViewSet):
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['detail']
     filterset_fields = [
-        'application',
+        'user',
     ]
 
     def perform_create(self, serializer):

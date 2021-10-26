@@ -115,6 +115,10 @@ Vue.component("ref-inserter", {
       type: Array,
       required: true
     },
+    applicant: {
+      type: Number,
+      required: true
+    },
     category_choices: {
       type: Array,
       required: true
@@ -169,7 +173,7 @@ Vue.component("ref-inserter", {
       return achievement;
     },
     onSubmit() {
-      this.reference.application = applicationId;
+      this.reference.user = this.applicant;
       this.reference = this.cleanAchievement(this.reference);
       let endpoint = `/api/res/achievements/`;
       apiService(endpoint, "POST", this.reference).then(data => {
@@ -182,7 +186,7 @@ Vue.component("ref-inserter", {
     },
     getAchievements() {
       this.loadingAchievements = true;
-      let endpoint = `/api/res/achievements/?application=${applicationId}&search=${this.search}`;
+      let endpoint = `/api/res/achievements/?user=${this.applicant}&search=${this.search}`;
       apiService(endpoint).then(data => {
         this.achievements = data;
         this.loadingAchievements = false;

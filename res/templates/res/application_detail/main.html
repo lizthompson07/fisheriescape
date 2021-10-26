@@ -91,7 +91,7 @@
       <div class="mb-5" id="section3">
         <p class="lead">{% trans "ANNEX A: CONTEXTS AND VALUED OUTCOMES" %}</p>
         <div class="alert alert-secondary">
-              {{ annex_a_text|safe }}
+          {{ annex_a_text|safe }}
         </div>
 
         {% include "res/application_detail/_outcomes.html" %}
@@ -111,7 +111,7 @@
 
         <p class="lead">{% trans "ANNEX B: Complete List of Achievements / Contributions" %}</p>
         <div class="alert alert-secondary">
-              {{ annex_b_text|safe }}
+          {{ annex_b_text|safe }}
         </div>
         {% include "res/application_detail/_achievements.html" %}
       </div>
@@ -238,7 +238,7 @@
       },
       getAchievements(reload = true) {
         if (reload) this.loadingAchievements = true;
-        let endpoint = `/api/res/achievements/?application=${applicationId}`;
+        let endpoint = `/api/res/achievements/?user=${this.application.applicant}`;
         apiService(endpoint).then(data => {
           if (data) {
             for (const datum of data) {
@@ -250,12 +250,16 @@
         });
       },
       newAchievement(achievement) {
-        achievement.application = applicationId;
+        achievement.user = this.application.applicant;
         achievement = this.cleanAchievement(achievement);
         let endpoint = `/api/res/achievements/`;
         apiService(endpoint, "POST", achievement).then(data => {
-          this.achievements.push(data)
-          this.getApplication(false);
+          if (data.id) {
+            this.achievements.push(data)
+            this.getApplication(false);
+          } else {
+            this.errors = groomJSON(data);
+          }
         });
       },
       deleteAchievement(achievement) {
