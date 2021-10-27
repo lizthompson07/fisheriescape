@@ -2,8 +2,10 @@ from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.template.defaultfilters import date, slugify
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from markdown import markdown
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
@@ -282,8 +284,8 @@ class StaffSerializer(serializers.ModelSerializer):
     level_display = serializers.SerializerMethodField()
     funding_source_display = serializers.SerializerMethodField()
     student_program_display = serializers.SerializerMethodField()
-    project_year_id = serializers.SerializerMethodField()
-    project_year = ProjectYearSerializer(read_only=True)
+    # project_year_id = serializers.SerializerMethodField()
+    # project_year = ProjectYearSerializer(read_only=True)
 
     def get_smart_name(self, instance):
         return instance.smart_name
@@ -300,8 +302,8 @@ class StaffSerializer(serializers.ModelSerializer):
     def get_student_program_display(self, instance):
         return instance.get_student_program_display()
 
-    def get_project_year_id(self, instance):
-        return instance.project_year_id
+    # def get_project_year_id(self, instance):
+    #     return instance.project_year_id
 
 
 class OMCostSerializer(serializers.ModelSerializer):
@@ -401,19 +403,6 @@ class CollaborationSerializer(serializers.ModelSerializer):
         return instance.project_year_id
 
 
-#
-# class GCCostSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = models.GCCost
-#         exclude = ["project_year"]
-#
-#     project_year_id = serializers.SerializerMethodField()
-#
-#     def get_project_year_id(self, instance):
-#         return instance.project_year_id
-#
-#
-
 
 class StatusReportSerializer(serializers.ModelSerializer):
     target_completion_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
@@ -501,6 +490,21 @@ class FileSerializer(serializers.ModelSerializer):
 
     def get_ref(self, instance):
         return instance.ref
+
+    def validate(self, attrs):
+        """
+        form validation:
+        - make that there is at least a project, project year or status report
+        """
+        project = attrs.get("project")
+        project_year = attrs.get("project_year")
+        status_report = attrs.get("status_report")
+
+        if not (project or project_year or status_report):
+            msg = _('You must supply either a project, project year or status report')
+            raise ValidationError(msg)
+        return attrs
+
 
 
 class FiscalYearSerializer(serializers.ModelSerializer):

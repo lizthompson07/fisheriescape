@@ -810,13 +810,21 @@ def file_directory_path(instance, filename):
 
 
 class File(models.Model):
-    project = models.ForeignKey(Project, related_name="files", on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, related_name="files", on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("resource name"))
     file = models.FileField(upload_to=file_directory_path, blank=True, null=True, verbose_name=_("file attachment"))
     project_year = models.ForeignKey(ProjectYear, related_name="files", on_delete=models.CASCADE, blank=True, null=True)
     status_report = models.ForeignKey("StatusReport", related_name="files", on_delete=models.CASCADE, blank=True, null=True)
     external_url = models.URLField(blank=True, null=True, verbose_name=_("external URL"))
     date_created = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.status_report:
+            self.project_year = self.status_report.project_year
+            self.project = self.status_report.project_year.project
+        elif self.project_year:
+            self.project = self.project_year.project
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['project', 'project_year', 'status_report', 'name']

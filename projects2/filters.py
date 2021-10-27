@@ -69,7 +69,31 @@ class ProjectFilter(django_filters.FilterSet):
         self.filters['fiscal_years'] = django_filters.ChoiceFilter(field_name='fiscal_years', label=_("Fiscal year"), widget=forms.Select(), choices=fy_choices)
 
 
-class OMCostFilter(django_filters.FilterSet):
+class ProjectYearChildFilter(django_filters.FilterSet):
+    project_year = django_filters.NumberFilter(field_name='project_year')
     project = django_filters.NumberFilter(field_name='project_year__project')
     year = django_filters.NumberFilter(field_name='project_year__fiscal_year' )
     region_name = django_filters.CharFilter(field_name='project_year__project__section__division__branch__region__name', lookup_expr="icontains")
+
+class ProjectYearChildFilter(django_filters.FilterSet):
+    project_year = django_filters.NumberFilter(field_name='project_year')
+    project = django_filters.NumberFilter(field_name='project_year__project')
+    year = django_filters.NumberFilter(field_name='project_year__fiscal_year' )
+    region_name = django_filters.CharFilter(field_name='project_year__project__section__division__branch__region__name', lookup_expr="icontains")
+
+
+class ProjectYearFilter(django_filters.FilterSet):
+    is_hidden = django_filters.CharFilter(field_name='project__is_hidden')
+    status = django_filters.NumberFilter(field_name='status' )
+    title = django_filters.CharFilter(field_name='project__title', lookup_expr="icontains")
+    id = django_filters.NumberFilter(field_name='project__id')
+    staff = django_filters.CharFilter(field_name='project__staff_search_field', lookup_expr="icontains")
+    fiscal_year = django_filters.NumberFilter(field_name='fiscal_year')
+    tag = django_filters.NumberFilter(field_name='project__tags')
+    theme = django_filters.NumberFilter(field_name='project__functional_group__theme')
+    functional_group = django_filters.NumberFilter(field_name='project__functional_group')
+    funding_source = django_filters.NumberFilter(field_name='project__default_funding_source')
+    region = django_filters.NumberFilter(field_name='project__section__division__branch__sector__region')
+    division = django_filters.NumberFilter(field_name='project__section__division')
+    section = django_filters.NumberFilter(field_name='project__section')
+
