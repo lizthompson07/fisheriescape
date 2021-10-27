@@ -259,7 +259,11 @@ class Project(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        return self.title
+        return self.project_id_name
+
+    @property
+    def project_id_name(self):
+        return _("Project") + f" {self.id}"
 
     @property
     def metadata(self):

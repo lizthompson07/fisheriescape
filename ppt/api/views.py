@@ -444,8 +444,8 @@ class ActivityUpdateViewSet(ModelViewSet):
     permission_classes = [permissions.CanModifyOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = [
-        "status_report"
-        "project_year"
+        "status_report",
+        "status_report__project_year",
     ]
 
     def perform_update(self, serializer):
@@ -584,7 +584,7 @@ class DivisionListAPIView(ListAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = [
-        "branch__sector__region"
+        "branch__sector__region",
     ]
 
     def get_queryset(self):

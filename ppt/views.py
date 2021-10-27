@@ -213,8 +213,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         return "{} {}".format(_("Project"), self.get_object().id)
 
     def get_h1(self):
-        mystr = str(self.get_object())
-        return mystr
+        return self.get_object().title
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

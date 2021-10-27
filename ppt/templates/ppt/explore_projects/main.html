@@ -189,20 +189,20 @@
         if (!endpoint) {
           endpoint = `/api/ppt/project-years/?`;
           // apply filters
-          if(this.filter.is_hidden) endpoint += `is_hidden=1&`
-          if(this.filter.id) endpoint += `id=${this.filter.id}&`
-          if(this.filter.title) endpoint += `title=${this.filter.title}&`
-          if(this.filter.staff) endpoint += `staff=${this.filter.staff}&`
-          if(this.filter.fiscal_year) endpoint += `fiscal_year=${this.filter.fiscal_year}&`
-          if(this.filter.tag) endpoint += `tag=${this.filter.tag}&`
-          if(this.filter.theme) endpoint += `theme=${this.filter.theme}&`
-          if(this.filter.functional_group) endpoint += `functional_group=${this.filter.functional_group}&`
-          if(this.filter.funding_source) endpoint += `funding_source=${this.filter.funding_source}&`
-          if(this.filter.region) endpoint += `region=${this.filter.region}&`
-          if(this.filter.division) endpoint += `division=${this.filter.division}&`
-          if(this.filter.section) endpoint += `section=${this.filter.section}&`
-          if(this.filter.status) endpoint += `status=${this.filter.status}&`
-          if(this.filter.id) endpoint += `id=${this.filter.id}&`
+          if (this.filter.is_hidden) endpoint += `is_hidden=1&`
+          if (this.filter.id) endpoint += `id=${this.filter.id}&`
+          if (this.filter.title) endpoint += `title=${this.filter.title}&`
+          if (this.filter.staff) endpoint += `staff=${this.filter.staff}&`
+          if (this.filter.fiscal_year) endpoint += `fiscal_year=${this.filter.fiscal_year}&`
+          if (this.filter.tag) endpoint += `tag=${this.filter.tag}&`
+          if (this.filter.theme) endpoint += `theme=${this.filter.theme}&`
+          if (this.filter.functional_group) endpoint += `functional_group=${this.filter.functional_group}&`
+          if (this.filter.funding_source) endpoint += `funding_source=${this.filter.funding_source}&`
+          if (this.filter.region) endpoint += `region=${this.filter.region}&`
+          if (this.filter.division) endpoint += `division=${this.filter.division}&`
+          if (this.filter.section) endpoint += `section=${this.filter.section}&`
+          if (this.filter.status) endpoint += `status=${this.filter.status}&`
+          if (this.filter.id) endpoint += `id=${this.filter.id}&`
         }
 
         apiService(endpoint)
@@ -244,45 +244,13 @@
         this.currentSort = s;
       },
     },
-
     filters: {
-      floatformat: function (value, precision = 2) {
-        if (value == null) return '';
-        value = Number(value).toFixed(precision).toLocaleString("en");
-        return value
-      },
-      currencyFormat: function (value, precision = 2) {
-        if (value == null) return '';
-        value = accounting.formatNumber(value, precision);
-        return value
-      },
-      zero2NullMark: function (value) {
-        if (!value || value === "0.00" || value == 0) return '---';
-        return value
-      },
-      nz: function (value, arg = "---") {
-        if (value == null || value === "None") return arg;
-        return value
-      },
-      yesNo: function (value) {
-        if (value == null || value == false || value == 0) return 'No';
-        return "Yes"
-      },
-      percentage: function (value, decimals) {
-        // https://gist.github.com/belsrc/672b75d1f89a9a5c192c
-        if (!value) {
-          value = 0;
-        }
-
-        if (!decimals) {
-          decimals = 0;
-        }
-
-        value = value * 100;
-        value = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
-        value = value + '%';
-        return value;
-      }
+      yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
+      floatformat: vueFiltersObject["floatformat"],
+      currencyFormat: vueFiltersObject["currencyFormat"],
+      zero2NullMark: vueFiltersObject["zero2NullMark"],
+      percentage: vueFiltersObject["percentage"],
     },
     computed: {
 
