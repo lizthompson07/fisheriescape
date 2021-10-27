@@ -487,19 +487,19 @@ class ReviewViewSet(ModelViewSet):
     def perform_update(self, serializer):
         obj = serializer.save()
         obj.project_year.update_modified_by(self.request.user)
-        qp = self.request.query_params
-        if qp.get("approval_email_update"):
+        data = self.request.data
+        if data.get("approval_email_update"):
             obj.send_approval_email(self.request)
-        elif qp.get("review_email_update"):
+        elif data.get("review_email_update"):
             obj.send_review_email(self.request)
 
     def perform_create(self, serializer):
         obj = serializer.save()
         obj.project_year.update_modified_by(self.request.user)
-        qp = self.request.query_params
-        if qp.get("approval_email_update"):
+        data = self.request.data
+        if data.get("approval_email_update"):
             obj.send_approval_email(self.request)
-        elif qp.get("review_email_update"):
+        elif data.get("review_email_update"):
             obj.send_review_email(self.request)
 
 
@@ -544,9 +544,9 @@ class FunctionalGroupListAPIView(ListAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = [
-        "sections"
-        "sections__division"
-        "sections__division__branch__sector__region"
+        "sections",
+        "sections__division",
+        "sections__division__branch__sector__region",
     ]
 
     def get_queryset(self):
@@ -600,8 +600,8 @@ class SectionListAPIView(ListAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = [
-        "division"
-        "division__branch__sector__region"
+        "division",
+        "division__branch__sector__region",
     ]
 
     def get_queryset(self):

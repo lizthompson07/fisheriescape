@@ -379,6 +379,7 @@ def get_project_field_list(project):
         'fiscal_years|{}'.format(_("Project years")),
         'funding_sources',
         'lead_staff',
+        'is_hidden',
 
         # acrdp fields
         'overview|{}'.format(gettext_lazy("Project overview / ACRDP objectives")) if is_acrdp else None,

@@ -117,9 +117,206 @@
 {% block body_js %}
   {{ block.super }}
 
-  <script src="{% static '/ppt/mainExploreProjects.js' %}?version=1.1" type="application/javascript"></script>
+
   <script type="application/javascript">
-  //reload other scripts that we care about
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      showSidebar: true,
+      currentUser: {},
+      isAdminOrMgmt: false,
+      hover: false,
+
+      currentSort: 'name',
+      currentSortDir: 'asc',
+
+      projects_loading: true,
+      projectYears: [],
+      next: null,
+      previous: null,
+      count: 0,
+
+      // filters
+      filter: {
+        is_hidden: "",
+      },
+
+
+      fiscalYears: [],
+      tags: [],
+      themes: [],
+      functionalGroups: [],
+      fundingSources: [],
+      regions: [],
+      divisions: [],
+      sections: [],
+
+    },
+    methods: {
+      getCurrentUser() {
+        let endpoint = `/api/ppt/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+              this.isAdminOrMgmt = this.currentUser.is_admin || this.currentUser.is_management
+            })
+      },
+      goProjectDetail(projectYear) {
+        url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
+        var win = window.open(url, '_blank');
+      },
+      getFilterData() {
+        apiService(`/api/ppt/fiscal-years/`).then(response => this.fiscalYears = response)
+        apiService(`/api/ppt/tags/`).then(response => this.tags = response)
+        apiService(`/api/ppt/themes/`).then(response => this.themes = response)
+        apiService(`/api/ppt/funding-sources/`).then(response => this.fundingSources = response)
+        apiService(`/api/ppt/regions/`).then(response => this.regions = response)
+
+        var query = "";
+        if (this.filter.region && this.filter.region !== "") query = `?region=${this.filter.region}`
+        apiService(`/api/ppt/divisions/${query}`).then(response => this.divisions = response)
+
+        if (this.filter.division && this.filter.division !== "") query = `?division=${this.filter.division}`
+        apiService(`/api/ppt/sections/${query}`).then(response => this.sections = response)
+
+        if (this.filter.section && this.filter.section !== "") query = `?section=${this.filter.section}`
+        apiService(`/api/ppt/functional-groups/${query}`).then(response => this.functionalGroups = response)
+
+      },
+      getProjectYears(endpoint) {
+        this.projects_loading = true;
+        if (!endpoint) {
+          endpoint = `/api/ppt/project-years/?`;
+          // apply filters
+          if(this.filter.is_hidden) endpoint += `is_hidden=1&`
+          if(this.filter.id) endpoint += `id=${this.filter.id}&`
+          if(this.filter.title) endpoint += `title=${this.filter.title}&`
+          if(this.filter.staff) endpoint += `staff=${this.filter.staff}&`
+          if(this.filter.fiscal_year) endpoint += `fiscal_year=${this.filter.fiscal_year}&`
+          if(this.filter.tag) endpoint += `tag=${this.filter.tag}&`
+          if(this.filter.theme) endpoint += `theme=${this.filter.theme}&`
+          if(this.filter.functional_group) endpoint += `functional_group=${this.filter.functional_group}&`
+          if(this.filter.funding_source) endpoint += `funding_source=${this.filter.funding_source}&`
+          if(this.filter.region) endpoint += `region=${this.filter.region}&`
+          if(this.filter.division) endpoint += `division=${this.filter.division}&`
+          if(this.filter.section) endpoint += `section=${this.filter.section}&`
+          if(this.filter.status) endpoint += `status=${this.filter.status}&`
+          if(this.filter.id) endpoint += `id=${this.filter.id}&`
+        }
+
+        apiService(endpoint)
+            .then(response => {
+              if (response.results) {
+                this.projects_loading = false;
+                this.projectYears.push(...response.results);
+                this.next = response.next;
+                this.previous = response.previous;
+                this.count = response.count;
+              }
+            })
+      },
+      clearProjectYears() {
+        this.projectYears = []
+        this.next = null
+        this.count = 0
+      },
+      loadMoreResults() {
+        if (this.next) {
+          this.getProjectYears(this.next)
+        }
+      },
+      clearFilters() {
+        this.filter = {};
+        this.updateResults()
+      },
+      updateResults() {
+        this.clearProjectYears();
+        this.getProjectYears();
+        this.getFilterData();
+      },
+      sort(s) {
+        // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
+        //if s == current sort, reverse
+        if (s === this.currentSort) {
+          this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
+        }
+        this.currentSort = s;
+      },
+    },
+
+    filters: {
+      floatformat: function (value, precision = 2) {
+        if (value == null) return '';
+        value = Number(value).toFixed(precision).toLocaleString("en");
+        return value
+      },
+      currencyFormat: function (value, precision = 2) {
+        if (value == null) return '';
+        value = accounting.formatNumber(value, precision);
+        return value
+      },
+      zero2NullMark: function (value) {
+        if (!value || value === "0.00" || value == 0) return '---';
+        return value
+      },
+      nz: function (value, arg = "---") {
+        if (value == null || value === "None") return arg;
+        return value
+      },
+      yesNo: function (value) {
+        if (value == null || value == false || value == 0) return 'No';
+        return "Yes"
+      },
+      percentage: function (value, decimals) {
+        // https://gist.github.com/belsrc/672b75d1f89a9a5c192c
+        if (!value) {
+          value = 0;
+        }
+
+        if (!decimals) {
+          decimals = 0;
+        }
+
+        value = value * 100;
+        value = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+        value = value + '%';
+        return value;
+      }
+    },
+    computed: {
+
+      sortedProjectYears() {
+        return this.projectYears.sort((a, b) => {
+          let modifier = 1;
+          if (this.currentSortDir === 'desc') modifier = -1;
+
+          if (this.currentSort && this.currentSort.search("fiscal") > -1) {
+            if (a["fiscal_year"] < b["fiscal_year"]) return -1 * modifier;
+            if (a["fiscal_year"] > b["fiscal_year"]) return 1 * modifier;
+          } else if (this.currentSort === "id") {
+            if (a["project"]["id"] < b["project"]["id"]) return -1 * modifier;
+            if (a["project"]["id"] > b["project"]["id"]) return 1 * modifier;
+          } else if (this.projectYears[0][this.currentSort] == null) {
+            if (a["project"][this.currentSort] < b["project"][this.currentSort]) return -1 * modifier;
+            if (a["project"][this.currentSort] > b["project"][this.currentSort]) return 1 * modifier;
+          } else {
+            if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+            if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+          }
+          return 0;
+        });
+      },
+    },
+    created() {
+      this.getCurrentUser()
+      this.getProjectYears()
+      this.getFilterData()
+    },
+    mounted() {
+    },
+  });
+
   </script>
 
   <script type="text/javascript" src="{% static "js/clickableTableRows.js" %}?version=1.1.7"></script>

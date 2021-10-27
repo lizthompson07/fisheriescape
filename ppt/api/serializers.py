@@ -36,7 +36,7 @@ class UserDisplaySerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Review
-        exclude = ["project_year", ]
+        fields = "__all__"
 
     metadata = serializers.SerializerMethodField()
     general_comment_html = serializers.SerializerMethodField()
@@ -91,13 +91,27 @@ class ProjectYearSerializerLITE(serializers.ModelSerializer):
             "submitted",
             "status_class",
             "status_display",
+            "formatted_status",
+            "project_title",
+            "project_section",
         ]
 
     display_name = serializers.SerializerMethodField()
     submitted = serializers.SerializerMethodField()
-
     status_display = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
+    formatted_status = serializers.SerializerMethodField()
+    project_title = serializers.SerializerMethodField()
+    project_section = serializers.SerializerMethodField()
+
+    def get_project_section(self, instance):
+        return str(instance.project.section)
+
+    def get_project_title(self, instance):
+        return instance.project.title
+
+    def get_formatted_status(self, instance):
+        return instance.formatted_status
 
     def get_status_class(self, instance):
         return slugify(instance.get_status_display())
@@ -284,8 +298,10 @@ class StaffSerializer(serializers.ModelSerializer):
     level_display = serializers.SerializerMethodField()
     funding_source_display = serializers.SerializerMethodField()
     student_program_display = serializers.SerializerMethodField()
-    # project_year_id = serializers.SerializerMethodField()
-    # project_year = ProjectYearSerializer(read_only=True)
+    project_year_obj = serializers.SerializerMethodField()
+
+    def get_project_year_obj(self, instance):
+        return ProjectYearSerializerLITE(instance.project_year).data
 
     def get_smart_name(self, instance):
         return instance.smart_name
@@ -301,9 +317,6 @@ class StaffSerializer(serializers.ModelSerializer):
 
     def get_student_program_display(self, instance):
         return instance.get_student_program_display()
-
-    # def get_project_year_id(self, instance):
-    #     return instance.project_year_id
 
 
 class OMCostSerializer(serializers.ModelSerializer):
@@ -401,7 +414,6 @@ class CollaborationSerializer(serializers.ModelSerializer):
 
     def get_project_year_id(self, instance):
         return instance.project_year_id
-
 
 
 class StatusReportSerializer(serializers.ModelSerializer):
@@ -504,7 +516,6 @@ class FileSerializer(serializers.ModelSerializer):
             msg = _('You must supply either a project, project year or status report')
             raise ValidationError(msg)
         return attrs
-
 
 
 class FiscalYearSerializer(serializers.ModelSerializer):

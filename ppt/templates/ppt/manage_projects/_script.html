@@ -1,3 +1,7 @@
+{% include "ppt/manage_projects/components/staff_projects_list.html" %}
+{% include "ppt/manage_projects/components/review_modal.html" %}
+
+<script type="application/javascript">
 Vue.component('v-select', VueSelect.VueSelect);
 var app = new Vue({
   el: '#app',
@@ -33,18 +37,7 @@ var app = new Vue({
     count: 0,
 
     // filters
-    filter_id: null,
-    filter_title: null,
-    filter_staff: null,
-    filter_fiscal_year: "",
-    filter_tag: "",
-    filter_theme: "",
-    filter_functional_group: "",
-    filter_funding_source: "",
-    filter_section: "",
-    filter_region: "",
-    filter_division: "",
-    filter_status: "",
+    filter: {},
 
     showColumnAllocation: false,
     showColumnLeads: true,
@@ -88,36 +81,31 @@ var app = new Vue({
       apiService(`/api/ppt/fiscal-years/${query}`).then(response => this.fiscalYears = response)
       apiService(`/api/ppt/tags/${query}`).then(response => this.tags = response)
       apiService(`/api/ppt/funding-sources/${query}`).then(response => this.fundingSources = response)
-
       apiService(`/api/ppt/regions/${query}`).then(response => this.regions = response)
-
       if (this.filter_region && this.filter_region !== "") query += `&region=${this.filter_region}`
       apiService(`/api/ppt/divisions/${query}`).then(response => this.divisions = response)
-
       if (this.filter_division && this.filter_division !== "") query += `&division=${this.filter_division}`
       apiService(`/api/ppt/sections/${query}`).then(response => this.sections = response)
-
       if (this.filter_section && this.filter_section !== "") query += `&section=${this.filter_section}`
       apiService(`/api/ppt/functional-groups/${query}`).then(response => this.functionalGroups = response)
 
     },
 
     getFilterString() {
-        endpoint = `user=true&` +
-          `id=${this.filter_id}&` +
-          `title=${this.filter_title}&` +
-          `staff=${this.filter_staff}&` +
-          `fiscal_year=${this.filter_fiscal_year}&` +
-          `tag=${this.filter_tag}&` +
-          `theme=${this.filter_theme}&` +
-          `functional_group=${this.filter_functional_group}&` +
-          `funding_source=${this.filter_funding_source}&` +
-          `region=${this.filter_region}&` +
-          `division=${this.filter_division}&` +
-          `section=${this.filter_section}&` +
-          `status=${this.filter_status}&`;
-
-        return endpoint
+      let endpoint = `user=true&`
+      if (this.filter.id) endpoint += `id=${this.filter.id}&`;
+      if (this.filter.title) endpoint += `title=${this.filter.title}&`;
+      if (this.filter.staff) endpoint += `staff=${this.filter.staff}&`;
+      if (this.filter.fiscal_year) endpoint += `fiscal_year=${this.filter.fiscal_year}&`;
+      if (this.filter.tag) endpoint += `tag=${this.filter.tag}&`;
+      if (this.filter.theme) endpoint += `theme=${this.filter.theme}&`;
+      if (this.filter.functional_group) endpoint += `functional_group=${this.filter.functional_group}&`;
+      if (this.filter.funding_source) endpoint += `funding_source=${this.filter.funding_source}&`;
+      if (this.filter.region) endpoint += `region=${this.filter.region}&`;
+      if (this.filter.division) endpoint += `division=${this.filter.division}&`;
+      if (this.filter.section) endpoint += `section=${this.filter.section}&`;
+      if (this.filter.status) endpoint += `status=${this.filter.status}&`;
+      return endpoint
     },
 
     getProjectYearsEndpoint(pageSize = 45) {
@@ -159,7 +147,7 @@ var app = new Vue({
       this.errorTooBigStaff = false
       this.errorTooSmallStaff = false
       this.errorNoFiscalYear = false
-      if (!this.filter_fiscal_year) {
+      if (!this.filter.fiscal_year) {
         this.staff_loading = false;
         this.errorNoFiscalYear = true;
       } else if (!this.projectYears.length) {
@@ -184,7 +172,7 @@ var app = new Vue({
                     pyIds.push(response.results[i].id)
                   }
 
-                  let endpoint2 = `/api/ppt/fte-breakdown/?year=${this.filter_fiscal_year}&ids=${pyIds}`;
+                  let endpoint2 = `/api/ppt/fte-breakdown/?year=${this.filter.fiscal_year}&ids=${pyIds}`;
                   apiService(endpoint2)
                       .then(response => {
                         this.staff_loading = false;
@@ -240,7 +228,7 @@ var app = new Vue({
         else msg = unsubmitMsg
         userInput = confirm(msg + projectYear.display_name)
         if (userInput) {
-          let endpoint = `/api/ppt/project-years/${projectYear.id}/${action}/`;
+          let endpoint = `/api/ppt/project-years/${projectYear.id}/?${action}=true`;
           apiService(endpoint, "POST")
               .then(response => {
                 this.$set(this.projectYears, this.projectYears.indexOf(projectYear), response);
@@ -270,20 +258,7 @@ var app = new Vue({
       }
     },
     clearFilters() {
-      this.filter_id = null;
-      this.filter_title = null;
-      this.filter_staff = null;
-      this.filter_fiscal_year = "";
-      this.filter_tag = "";
-      this.filter_theme = "";
-      this.filter_functional_group = "";
-      this.filter_funding_source = "";
-      this.filter_region = "";
-      this.filter_division = "";
-      this.filter_section = "";
-      this.filter_status = "";
-      this.filter_is_hidden = false;
-
+      this.filter = {};
       this.updateResults()
     },
     updateResults() {
@@ -322,7 +297,7 @@ var app = new Vue({
       this.$forceUpdate()
     },
     generateReports(url, tag) {
-        window.open(url + "?" + this.getFilterString(), tag, 'toolbar=0,status=0,height=500,width=600');
+      window.open(url + "?" + this.getFilterString(), tag, 'toolbar=0,status=0,height=500,width=600');
     }
   },
 
@@ -416,3 +391,5 @@ var app = new Vue({
   },
 });
 
+
+</script>

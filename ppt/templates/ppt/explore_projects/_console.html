@@ -27,39 +27,39 @@
       {# Id #}
       <div class="row">
         <div class="col-4">
-          <label class="filter" for="filter_id">{% trans "Id" %}</label>
+          <label class="filter" for="filter.id">{% trans "Id" %}</label>
         </div>
         <div class="col">
           <input
-            v-model="filter_id"
+            v-model="filter.id"
             @change="updateResults"
-            type="number" class="w100 filter" id="filter_id" placeholder="">
+            type="number" class="w100 filter" id="filter.id" placeholder="">
         </div>
       </div>
 
       {# Title #}
       <div class="row">
         <div class="col-4">
-          <label class="filter" for="filter_title">{% trans "Title" %}</label>
+          <label class="filter" for="filter.title">{% trans "Title" %}</label>
         </div>
         <div class="col">
           <input
-            v-model="filter_title"
+            v-model="filter.title"
             @change="updateResults"
-            type="text" class="w100 filter" id="filter_title" placeholder="">
+            type="text" class="w100 filter" id="filter.title" placeholder="">
         </div>
       </div>
 
       {# Staff #}
       <div class="row">
         <div class="col-4">
-          <label class="filter" for="filter_staff">{% trans "Staff" %}</label>
+          <label class="filter" for="filter.staff">{% trans "Staff" %}</label>
         </div>
         <div class="col">
           <input
-            v-model="filter_staff"
+            v-model="filter.staff"
             @change="updateResults"
-            type="text" class="w100 filter" id="filter_staff" placeholder="">
+            type="text" class="w100 filter" id="filter.staff" placeholder="">
         </div>
       </div>
 
@@ -67,13 +67,13 @@
       <div class="row">
         <div class="col-4">
 
-          <label class="filter" for="filter_fiscal_year">{% trans "Year" %}</label>
+          <label class="filter" for="filter.fiscal_year">{% trans "Year" %}</label>
         </div>
         <div class="col">
           <select
-            v-model="filter_fiscal_year"
+            v-model="filter.fiscal_year"
             @change="updateResults"
-            class="w100 filter" id="filter_fiscal_year"
+            class="w100 filter" id="filter.fiscal_year"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in fiscalYears" :value="obj.id">${obj.full}</option>
@@ -85,13 +85,13 @@
       {# Region #}
       <div class="row">
         <div class="col-4">
-          <label class="filter" for="filter_region">{% trans "Region" %}</label>
+          <label class="filter" for="filter.region">{% trans "Region" %}</label>
         </div>
         <div class="col">
           <select
-            v-model="filter_region"
+            v-model="filter.region"
             @change="updateResults"
-            class="w100 filter" id="filter_region"
+            class="w100 filter" id="filter.region"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in regions" :value="obj.id">${obj.name}</option>
@@ -102,13 +102,13 @@
       {# Division #}
       <div class="row">
         <div class="col-4">
-          <label class="filter" for="filter_division">{% trans "Division" %}</label>
+          <label class="filter" for="filter.division">{% trans "Division" %}</label>
         </div>
         <div class="col">
           <select
-            v-model="filter_division"
+            v-model="filter.division"
             @change="updateResults"
-            class="w100 filter" id="filter_division"
+            class="w100 filter" id="filter.division"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in divisions" :value="obj.id">${obj.display}</option>
@@ -120,13 +120,13 @@
       <div class="row">
         <div class="col-4">
 
-          <label class="filter" for="filter_section">{% trans "Section" %}</label>
+          <label class="filter" for="filter.section">{% trans "Section" %}</label>
         </div>
         <div class="col">
           <select
-            v-model="filter_section"
+            v-model="filter.section"
             @change="updateResults"
-            class="w100 filter" id="filter_section"
+            class="w100 filter" id="filter.section"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in sections" :value="obj.id">${obj.full_name}</option>
@@ -138,13 +138,13 @@
       <div class="row">
         <div class="col-4">
 
-          <label class="filter" for="filter_functional_group">{% trans "Functional Group" %}</label>
+          <label class="filter" for="filter.functional_group">{% trans "Functional Group" %}</label>
         </div>
         <div class="col">
           <select
-            v-model="filter_functional_group"
+            v-model="filter.functional_group"
             @change="updateResults"
-            class="w100 filter" id="filter_functional_group"
+            class="w100 filter" id="filter.functional_group"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in functionalGroups" :value="obj.id">${obj.name}</option>
@@ -156,13 +156,13 @@
       <div class="row">
         <div class="col-4">
 
-          <label class="filter" for="filter_tag">{% trans "Tag" %}</label>
+          <label class="filter" for="filter.tag">{% trans "Tag" %}</label>
         </div>
         <div class="col">
           <select
-            v-model="filter_tag"
+            v-model="filter.tag"
             @change="updateResults"
-            class="w100 filter" id="filter_tag"
+            class="w100 filter" id="filter.tag"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in tags" :value="obj.id">${obj.name}</option>
@@ -174,13 +174,13 @@
       <div class="row">
         <div class="col-4">
 
-          <label class="filter" for="filter_theme">{% trans "Theme" %}</label>
+          <label class="filter" for="filter.theme">{% trans "Theme" %}</label>
         </div>
         <div class="col">
           <select
-            v-model="filter_theme"
+            v-model="filter.theme"
             @change="updateResults"
-            class="w100 filter" id="filter_theme"
+            class="w100 filter" id="filter.theme"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in themes" :value="obj.id">${obj.name}</option>
@@ -193,13 +193,13 @@
       <div class="row">
         <div class="col-4">
 
-          <label class="filter" for="filter_funding_source">{% trans "Funding Source" %}</label>
+          <label class="filter" for="filter.funding_source">{% trans "Funding Source" %}</label>
         </div>
         <div class="col">
           <select
-            v-model="filter_funding_source"
+            v-model="filter.funding_source"
             @change="updateResults"
-            class="w100 filter" id="filter_funding_source"
+            class="w100 filter" id="filter.funding_source"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in fundingSources" :value="obj.id">${obj.display}</option>
@@ -217,13 +217,13 @@
         <div class="row">
           <div class="col-4">
 
-            <label class="filter" for="filter_status">{% trans "Project Status" %}</label>
+            <label class="filter" for="filter.status">{% trans "Project Status" %}</label>
           </div>
           <div class="col">
             <select
-              v-model="filter_status"
+              v-model="filter.status"
               @change="updateResults"
-              class="w100 filter" id="filter_status"
+              class="w100 filter" id="filter.status"
             >
               <option value selected>{% trans "all" %}</option>
               {% for status in status_choices %}
@@ -241,13 +241,13 @@
         {# Is Hidden #}
         <div class="form-check">
           <input
-            v-model="filter_is_hidden"
+            v-model="filter.is_hidden"
             @change="updateResults"
             class="form-check-input" type="checkbox"
-            id="filter_is_hidden"
+            id="filter.is_hidden"
           >
 
-          <label class="filter" class="form-check-label" for="filter_is_hidden">
+          <label class="filter" class="form-check-label" for="filter.is_hidden">
             {% trans "Only show hidden projects" %}
           </label>
         </div>
