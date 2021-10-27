@@ -24,7 +24,7 @@
 
     <div class="row mb-4 justify-content-center">
       <div class="col text-center">
-        <a href="{% url 'ppt:project_new' %}" class="btn btn-success w200">
+        <a href="{% url 'ppt:project_new' %}" class="btn btn-primary w200">
           <span class="mdi mdi-plus-thick mr-1 text-light"></span>
           {% trans "Start a New Project" %}
         </a>
@@ -38,8 +38,8 @@
         </a>
       </div>
       <div class="col text-center">
-        <a href="{% url 'ppt:explore_projects' %}" class="btn btn-warning w200">
-          <span class="mdi mdi-telescope mr-1"></span>
+        <a href="{% url 'ppt:explore_projects' %}" class="btn btn-primary w200">
+          <span class="mdi mdi-telescope mr-1 text-light"></span>
           {% trans "Explore Projects" %}
         </a>
       </div>
@@ -48,7 +48,7 @@
       {% if is_management_or_admin %}
         <div class="col text-center">
           <div class="">
-            <a href="{% url 'ppt:manage_projects' %}" class="btn btn-dark w200">
+            <a href="{% url 'ppt:manage_projects' %}" class="btn btn-primary w200">
               <span class="mdi mdi-playlist-edit mr-1 text-light"></span>
               {% trans "Manage Projects" %}
             </a>

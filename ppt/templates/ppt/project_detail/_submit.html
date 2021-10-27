@@ -5,6 +5,8 @@
     <div class="pointy" @click="collapseSubmit = !collapseSubmit">
       <h4>
         {% trans "Submission Status" %}
+        <span v-if="!collapseSubmit" class="ml-1 mdi mdi-toggle-switch-off"></span>
+        <span v-else class="ml-1 mdi mdi-toggle-switch"></span>
       </h4>
     </div>
 

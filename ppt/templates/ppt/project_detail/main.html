@@ -21,117 +21,36 @@
 {% block subcontent %}
   <div id="app" @keydown.esc.prevent="closeModals()" v-cloak>
 
-    <div id="mySidebar" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar, 'no-print':true}">
-      {% include "ppt/project_detail/_console.html" %}
-    </div>
+  <div id="mySidebar" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar, 'no-print':true}">
+    {% include "ppt/project_detail/_console.html" %}
+  </div>
 
-    <div :class="{'main-opened':showSidebar, 'main-closed':!showSidebar}">
-      <div style="padding-left: 30px">
-        {% include "shared_models/_generic_breadcrumbs.html" %}
+  <div :class="{'main-opened':showSidebar, 'main-closed':!showSidebar}">
+    <div style="padding-left: 30px">
+      {% include "shared_models/_generic_breadcrumbs.html" %}
 
-        <div class="mb-3">
-          <h2 class="">{{ h1|safe }}</h2>
-          <p class="lead text-muted mt-1 mb-0">{% trans "Project ID:" %} {{ object.id }}</p>
-        </div>
-
-
-        {% bootstrap_messages %}
-        <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
-          <p class="mb-0">
-            <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
-          </p>
-        </div>
+      <div class="mb-3">
+        <h2 class="">{{ h1|safe }}</h2>
+        <p class="lead text-muted mt-1 mb-0">{% trans "Project ID:" %} {{ object.id }}</p>
       </div>
 
-      <div class="row container-fluid bg-light curvy">
-        <div class="col">
-          <div v-if="showOverview">
-            <div class="mb-3">
-              <div class="section-card">
-                <div class="pointy" @click="collapseOverview = !collapseOverview">
-                  <div v-if="canModify" class="mb-3 float-right">
-                    <button class="btn btn-sm btn-warning no-print" @click="goProjectEdit(project.id)">
-                      <span class="mdi mdi-pencil"></span> {% trans "Edit" %}
-                    </button>
-                  </div>
-                  <h4 id="overview"> {% trans "Project Overview" %} </h4>
-                </div>
-                <div v-if="!collapseOverview">
-                  {% trans "<span class='red-font'>missing</span>" as nulltext %}
-                  <table class="table table-sm mb-5">
-                    {% for field in project_field_list %}
-                      {% if "overview" in field %}
-                        <tr>
-                          <th>{% get_verbose_label object field %}</th>
-                          <td>
-                            {{ object.overview_html|nz:nulltext }}
-                          </td>
-                        </tr>
-                      {% elif "references" in field %}
-                        <tr>
-                          <th>
-                            {% get_verbose_label object field %}
-                            (<a href="{% url 'ppt:project_references' object.id %}">{% trans "manage" %}</a>)
-                          </th>
-                          <td>
-                            {% if object.references.exists %}
-                              <ul>
-                                {% for ref in object.references.all %}
-                                  <li>{{ ref.short_citation_html|safe }}</li>
-                                {% endfor %}
-                              </ul>
-                            {% else %}
-                              ---
-                            {% endif %}
-                          </td>
-                        </tr>
 
-                      {% elif "csrf_theme" in field %}
-                        <tr>
-                          <th>{% get_verbose_label object field %}</th>
-                          <td>
-                            {% if object.client_information %}
-                              {{ object.client_information.csrf_priority.csrf_sub_theme.csrf_theme }}
-                            {% else %}
-                              ---
-                            {% endif %}
-                          </td>
-                        </tr>
-                      {% elif "csrf_sub_theme" in field %}
-                        <tr>
-                          <th>{% get_verbose_label object field %}</th>
-                          <td>
-                            {% if object.client_information %}
-                              {{ object.client_information.csrf_priority.csrf_sub_theme }}
-                            {% else %}
-                              ---
-                            {% endif %}
-                          </td>
-                        </tr>
-                      {% elif "csrf_priority" in field %}
-                        <tr>
-                          <th>{% get_verbose_label object field %}</th>
-                          <td>
-                            {% if object.client_information %}
-                              {{ object.client_information.csrf_priority }} ({{ object.client_information.csrf_priority.code }})
-                            {% else %}
-                              ---
-                            {% endif %}
-                          </td>
-                        </tr>
-                      {% else %}
-                        {% verbose_td_display object field th_width="30%" td_width="70%" nullmark=nulltext %}
-                      {% endif %}
-                    {% endfor %}
-                  </table>
-                </div>
-              </div>
-            </div>
+      {% bootstrap_messages %}
+      <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
+        <p class="mb-0">
+          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
+        </p>
+      </div>
+    </div>
 
+    <div class="row container-fluid bg-light curvy">
+      <div class="col">
+        <div v-if="showOverview">
+          <div class="mb-3">
+
+            {% include "ppt/project_detail/_overview.html" %}
             {% include "ppt/project_detail/_project_financials.html" %}
-
             {% include "ppt/project_detail/_submit.html" %}
-
 
             <div class="mb-5" id="project-year">
               <div class="section-card">
