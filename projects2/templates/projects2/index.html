@@ -10,7 +10,7 @@
 
 {% block content %}
 
-  {% echo "btn btn-outline-dark " as btn_class %}
+  {% echo "btn btn-outline-dark w250" as btn_class %}
   {% echo "btn btn-outline-secondary " as admin_btn_class %}
 
 
@@ -22,39 +22,47 @@
 
     <div class="mb-5"></div>
 
-    <div class="row mb-4">
-      <div class="col">
-        <div class="btn-group-vertical vgroup">
-          <a href="{% url 'projects2:project_new' %}" class="{{ btn_class }}">
-            {% trans "Start a New Project" %}
-          </a>
-          <a href="{% url 'projects2:my_project_list' %}" class="{{ btn_class }}">
-            {% trans "Your Projects" %} ({{ my_project_count }})
-          </a>
-          <a href="{% url 'projects2:explore_projects' %}" class="{{ btn_class }}">
-            {% trans "Explore Projects" %}
-          </a>
+    <div class="row mb-4 justify-content-center">
+      <div class="col text-center">
+        <a href="{% url 'projects2:project_new' %}" class="btn btn-success w200">
+          <span class="mdi mdi-plus-thick mr-1 text-light"></span>
+          {% trans "Start a New Project" %}
+        </a>
+      </div>
+      <div class="col text-center">
+        <a href="{% url 'projects2:my_project_list' %}" class="btn btn-primary w200">
+          <span class="mdi mdi-heart mr-1 text-light"></span>
+          {% trans "Your Projects" %}
+          <span class="badge badge-dark pt-1 ml-1">{{ my_project_count }}</span>
 
-        </div>
+        </a>
+      </div>
+      <div class="col text-center">
+        <a href="{% url 'projects2:explore_projects' %}" class="btn btn-warning w200">
+          <span class="mdi mdi-telescope mr-1"></span>
+          {% trans "Explore Projects" %}
+        </a>
+      </div>
 
-        {% if is_management_or_admin %}
-          <div class="mt-3">
-            <p class="text-muted mb-0">{% trans "Manager Menu" %}</p>
-            <div class="btn-group-vertical vgroup mt-0">
-              <a href="{% url 'projects2:manage_projects' %}" class="{{ admin_btn_class }}">
-                {% trans "Manage Projects" %}
-              </a>
-            </div>
+
+      {% if is_management_or_admin %}
+        <div class="col text-center">
+          <div class="">
+            <a href="{% url 'projects2:manage_projects' %}" class="btn btn-dark w200">
+              <span class="mdi mdi-playlist-edit mr-1 text-light"></span>
+              {% trans "Manage Projects" %}
+            </a>
+            <small class="text-muted mb-0">{% trans "Management Only" %}</small>
           </div>
-        {% endif %}
-      </div>
-      <div class="col-8">
-        {% include "projects2/_upcoming_dates.html" %}
-      </div>
+        </div>
+      {% endif %}
     </div>
 
-
+    {% include "projects2/_upcoming_dates.html" %}
   </div>
+
+
+
   <br>
   <br>
   <br>
