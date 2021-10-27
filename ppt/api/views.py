@@ -204,7 +204,7 @@ class ProjectYearViewSet(ModelViewSet):
                 recipient_list=email.to_list
             )
             return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
-        elif qp.get("submit"):
+        elif qp.get("unsubmit"):
             project_year.unsubmit(request)
             return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
         elif qp.get("add-all-costs"):
@@ -459,9 +459,9 @@ class FileViewSet(ModelViewSet):
     permission_classes = [permissions.CanModifyOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = [
-        "status_report"
-        "project_year"
-        "project"
+        "status_report",
+        "project_year",
+        "project",
     ]
 
     def perform_destroy(self, instance):

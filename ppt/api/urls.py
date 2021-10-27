@@ -9,11 +9,12 @@ router.register(r'staff', views.StaffViewSet)
 router.register(r'om-costs', views.OMCostViewSet)
 router.register(r'capital-costs', views.CapitalCostViewSet)
 router.register(r'activities', views.ActivityViewSet)
-router.register(r'collaboration', views.CollaborationViewSet)
+router.register(r'collaborations', views.CollaborationViewSet)
 router.register(r'status-reports', views.StatusReportViewSet)
 router.register(r'activity-updates', views.ActivityUpdateViewSet)
 router.register(r'citations', views.CitationViewSet)
 router.register(r'reviews', views.ReviewViewSet)
+router.register(r'files', views.FileViewSet)
 
 urlpatterns = [
     path("ppt/", include(router.urls)),  # tested

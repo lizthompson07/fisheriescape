@@ -215,12 +215,12 @@ class ProjectYearForm(forms.ModelForm):
         ]
         widgets = {
             'project': forms.HiddenInput(),
-            'start_date': forms.DateInput(attrs=attr_fp_date),
-            'end_date': forms.DateInput(attrs=attr_fp_date),
+            'start_date': forms.DateInput(attrs=dict(type="date"), format="%Y-%m-%d"),
+            'end_date': forms.DateInput(attrs=dict(type="date"), format="%Y-%m-%d"),
             'priorities': forms.Textarea(attrs=class_editable),
             'deliverables': forms.Textarea(attrs=class_editable),
-            "responsibility_center": forms.Select(attrs=chosen_js),
-            "allotment_code": forms.Select(attrs=chosen_js),
+            # "responsibility_center": forms.Select(attrs=chosen_js),
+            # "allotment_code": forms.Select(attrs=chosen_js),
             "existing_project_codes": forms.SelectMultiple(attrs=chosen_js),
 
             # SPECIALIZED EQUIPMENT

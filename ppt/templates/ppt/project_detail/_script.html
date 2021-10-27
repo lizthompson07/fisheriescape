@@ -1,4 +1,9 @@
+{% load i18n %}
+
+<script type="application/javascript">
+
 Vue.component('v-select', VueSelect.VueSelect);
+
 var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
@@ -84,19 +89,14 @@ var app = new Vue({
   methods: {
     displayOverview() {
       this.collapseOverview = false;
-      // this.projectYear = {};
     },
     displaySubmit() {
       this.showSubmit = true
       this.showOverview = false
     },
     displayProjectYear(yearId) {
-      // this.showOverview = true;
-      // this.getProjectYear(yearId)
       window.location.hash = "#project-year"
       window.location.search = `?project_year=${yearId}`
-      // update the query params
-
     },
     getProjectYear(yearId) {
       this.py_loading = true;
@@ -116,7 +116,7 @@ var app = new Vue({
             this.getFinancials(yearId)
           })
     },
-    getProject(projectId) {
+    getProject() {
       this.project_loading = true;
       let endpoint = `/api/ppt/projects/${projectId}/`;
       apiService(endpoint)
@@ -150,27 +150,27 @@ var app = new Vue({
         userInput = confirm(msg + projectYear.display_name)
         if (userInput) {
           this.project_loading = true;
-          let endpoint = `/api/ppt/project-years/${projectYear.id}/${action}/`;
+          let endpoint = `/api/ppt/project-years/${projectYear.id}/?${action}=true`;
           apiService(endpoint, "POST")
               .then(response => {
                 this.project_loading = false;
-                this.getProject(projectYear.project)
+                this.getProject()
               })
         }
       }
     },
     getFinancials(yearId) {
       this.financials_loading = true;
-      let endpoint = `/api/ppt/project-years/${yearId}/financials/`;
+      let endpoint = `/api/ppt/financials/?project_year=${yearId}`;
       apiService(endpoint)
           .then(response => {
             this.financials_loading = false;
             this.financials = response;
           })
     },
-    getProjectFinancials(projectId) {
+    getProjectFinancials() {
       this.project_financials_loading = true;
-      let endpoint = `/api/ppt/projects/${projectId}/financials/`;
+      let endpoint = `/api/ppt/financials/?project=${projectId}`;
       apiService(endpoint)
           .then(response => {
             this.project_financials_loading = false;
@@ -188,7 +188,7 @@ var app = new Vue({
     // Staff
     getStaff(yearId) {
       this.staff_loading = true;
-      let endpoint = `/api/ppt/project-years/${yearId}/staff/`;
+      let endpoint = `/api/ppt/staff/?project_year=${yearId}`;
       apiService(endpoint)
           .then(response => {
             this.staff_loading = false;
@@ -222,7 +222,7 @@ var app = new Vue({
     // O&M
     getOMCosts(yearId) {
       this.om_cost_loading = true;
-      let endpoint = `/api/ppt/project-years/${yearId}/om-costs/`;
+      let endpoint = `/api/ppt/om-costs/?project_year=${yearId}`;
       apiService(endpoint)
           .then(response => {
             this.om_cost_loading = false;
@@ -242,7 +242,7 @@ var app = new Vue({
     addAllOMCosts() {
       if (this.projectYear.id) {
         this.om_cost_loading = true;
-        let endpoint = `/api/ppt/project-years/${this.projectYear.id}/add-all-costs/`;
+        let endpoint = `/api/ppt/project-years/${this.projectYear.id}/?add-all-costs=true`;
         apiService(endpoint, "POST")
             .then(response => {
               this.om_cost_loading = false;
@@ -253,7 +253,7 @@ var app = new Vue({
     clearEmptyOMCosts() {
       if (this.projectYear.id) {
         this.om_cost_loading = true;
-        let endpoint = `/api/ppt/project-years/${this.projectYear.id}/remove-empty-costs/`;
+        let endpoint = `/api/ppt/project-years/${this.projectYear.id}/?remove-empty-costs=true`;
         apiService(endpoint, "POST")
             .then(response => {
               this.om_cost_loading = false;
@@ -274,7 +274,7 @@ var app = new Vue({
     // Capital
     getCapitalCosts(yearId) {
       this.capital_cost_loading = true;
-      let endpoint = `/api/ppt/project-years/${yearId}/capital-costs/`;
+      let endpoint = `/api/ppt/capital-costs/?project_year=${yearId}`;
       apiService(endpoint)
           .then(response => {
             this.capital_cost_loading = false;
@@ -305,7 +305,7 @@ var app = new Vue({
     // Activities
     getActivities(yearId) {
       this.activity_loading = true;
-      let endpoint = `/api/ppt/project-years/${yearId}/activities/`;
+      let endpoint = `/api/ppt/activities/?project_year=${yearId}`;
       apiService(endpoint)
           .then(response => {
             this.activity_loading = false;
@@ -343,7 +343,7 @@ var app = new Vue({
     // Collaboration
     getCollaborations(yearId) {
       this.collaboration_loading = true;
-      let endpoint = `/api/ppt/project-years/${yearId}/collaborations/`;
+      let endpoint = `/api/ppt/collaborations/?project_year=${yearId}`;
       apiService(endpoint)
           .then(response => {
             this.collaboration_loading = false;
@@ -374,7 +374,7 @@ var app = new Vue({
     // Status Report
     getStatusReports(yearId) {
       this.status_report_loading = true;
-      let endpoint = `/api/ppt/project-years/${yearId}/status-reports/`;
+      let endpoint = `/api/ppt/status-reports/?project_year=${yearId}`;
       apiService(endpoint)
           .then(response => {
             this.status_report_loading = false;
@@ -404,7 +404,7 @@ var app = new Vue({
     // File
     getFiles(yearId) {
       this.file_loading = true;
-      let endpoint = `/api/ppt/project-years/${yearId}/files/`;
+      let endpoint = `/api/ppt/files/?project_year=${yearId}`;
       apiService(endpoint)
           .then(response => {
             this.file_loading = false;
@@ -456,14 +456,6 @@ var app = new Vue({
       if (projectYear) {
         this.$nextTick(() => {
           this.getProjectYear(projectYear.id)
-          // this.getStaff(projectYear.id)
-          // this.getOMCosts(projectYear.id)
-          // this.getCapitalCosts(projectYear.id)
-          // this.getActivities(projectYear.id)
-          // this.getStatusReports(projectYear.id)
-          // this.getCollaborations(projectYear.id)
-          // this.getFiles(projectYear.id)
-          // this.getFinancials(projectYear.id)
           this.getProjectFinancials(projectYear.project.id)
           this.getCurrentUser(projectYear.project.id)
 
@@ -501,21 +493,17 @@ var app = new Vue({
         return name.toLowerCase().search("c-base") > -1
       }
     },
-    getActivityMetadata() {
-      let endpoint = `/api/ppt/meta/models/activity/`;
-      apiService(endpoint).then(data => {
+    getModelMetadata() {
+      apiService(`/api/ppt/meta/models/om-cost/`).then(data => {
+        this.omCostLabels = data.labels;
+        this.omCategoryChoices = data.om_category_choices;
+      });
+      apiService(`/api/ppt/meta/models/activity/`).then(data => {
         this.activityLabels = data.labels;
         this.activityTypeChoices = data.type_choices;
         this.likelihoodChoices = data.likelihood_choices;
         this.impactChoices = data.impact_choices;
         this.riskRatingChoices = data.risk_rating_choices;
-      });
-    },
-    getOMCostMetadata() {
-      let endpoint = `/api/ppt/meta/models/om-cost/`;
-      apiService(endpoint).then(data => {
-        this.omCostLabels = data.labels;
-        this.omCategoryChoices = data.om_category_choices;
       });
     },
     markActivity(activity, action) {
@@ -575,13 +563,22 @@ var app = new Vue({
 
   },
   created() {
-    this.getActivityMetadata();
-    this.getOMCostMetadata();
+    this.getModelMetadata();
     this.getProjectFinancials(projectId)
     this.getCurrentUser(projectId)
     this.getProject(projectId)
   },
   mounted() {
   },
+  filters: {
+    yesNo: vueFiltersObject["yesNo"],
+    nz: vueFiltersObject["nz"],
+    floatformat: vueFiltersObject["floatformat"],
+    currencyFormat: vueFiltersObject["currencyFormat"],
+    zero2NullMark: vueFiltersObject["zero2NullMark"],
+  },
+
 });
 
+
+</script>

@@ -25,7 +25,7 @@ YES_NO_CHOICES = (
 
 
 class PPTAdminUser(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="projects_admin_user", verbose_name=_("DM Apps user"))
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="ppt_admin_user", verbose_name=_("DM Apps user"))
     region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="projects_admin_user", on_delete=models.CASCADE, blank=True,
                                null=True)
     is_national_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
@@ -441,9 +441,9 @@ class ProjectYear(models.Model):
     # coding
     responsibility_center = models.ForeignKey(shared_models.ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
                                               null=True, related_name='projects_ppt',
-                                              verbose_name=_("responsibility center (if known)"))
+                                              verbose_name=_("responsibility center (if known)"), editable=False)
     allotment_code = models.ForeignKey(shared_models.AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                       related_name='projects_ppt', verbose_name=_("allotment code (if known)"))
+                                       related_name='projects_ppt', verbose_name=_("allotment code (if known)"), editable=False)
     existing_project_codes = models.ManyToManyField(shared_models.Project, blank=True, verbose_name=_("existing project codes (if known)"),
                                                     related_name="projects")
 
