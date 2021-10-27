@@ -1,0 +1,128 @@
+{% load i18n %}
+{% load static %}
+{% load custom_tags %}
+
+{% echo "btn btn-outline-dark btn-sm custom-btn" as btn_class_black %}
+{% echo "btn btn-outline-primary btn-sm custom-btn" as btn_class_blue %}
+{% echo "btn btn-outline-success btn-sm custom-btn" as btn_class_green %}
+{% echo "btn btn-outline-danger btn-sm custom-btn" as btn_class_red %}
+<div v-if="!showSidebar">
+  <button class="{{ btn_class_black }} ml-2" @click="showSidebar=true" data-toggle="tooltip" title="{% trans "Open sidebar" %}">
+    <span class="mdi mdi-arrow-collapse-right"></span>
+  </button>
+</div>
+<div v-else class="container">
+  <button class="{{ btn_class_black }} float-right mb-3" @click="showSidebar=false"><span class="mdi mdi-arrow-collapse-left"></span></button>
+  <h6>
+    {% trans "Reports" %}
+  </h6>
+  <div class="btn-group-vertical vgroup">
+    <button class="{{ btn_class_black }}" onclick="window.print()">
+      <span class="icon mdi mdi-printer"></span>
+      {% trans "Print" %}
+    </button>
+    <a v-if="isACRDP" class="{{ btn_class_black }}" onclick="userProfileWarning()" href="{% url 'ppt:export_acrdp_application' object.id %}">
+      <span class="icon mdi mdi-file-word"></span>
+      {% trans "ACRDP Application" %}
+    </a>
+    <a v-else-if="isCSRF" class="{{ btn_class_black }}" onclick="userProfileWarning()" href="{% url 'ppt:csrf_application' object.id %}">
+      <span class="icon mdi mdi-file-word"></span>
+      {% trans "CSRF Application (EN)" %}
+    </a>
+    <a v-else-if="isSARA" class="{{ btn_class_black }}" onclick="saraWarning()" href="{% url 'ppt:sara_application' object.id %}">
+      <span class="icon mdi mdi-file-word"></span>
+      {% trans "SARA Application (EN)" %}
+    </a>
+
+
+    <script type="application/javascript">
+    function userProfileWarning() {
+      alert("This report will pull some information from the project lead's DM Apps profile. Please ensure the profile information is complete and up-to-date. " +
+          "You can access your profile by clicking on the circle with your initials at the top right.")
+    }
+
+    function saraWarning() {
+      alert("The SARA application is currently a single year proposal. When there is more than one project year, this report will be drawn from the last project year.")
+    }
+    </script>
+
+    <a v-if="isACRDP" class="{{ btn_class_black }}" href="{% url 'ppt:export_acrdp_budget' object.id %}">
+      <span class="icon mdi mdi-file-excel"></span>
+      {% trans "ACRDP Budget" %}
+    </a>
+
+  </div>
+
+  <h6>
+    {% trans "Actions" %}
+  </h6>
+
+  <div class="btn-group-vertical vgroup">
+
+    <a v-if="canModify" class="{{ btn_class_black }}"
+       href="{% url 'ppt:project_edit' object.id %}">
+      <span class="icon mdi mdi-pencil"></span>
+      {% trans "Edit Overview" %}
+    </a>
+    <a v-if="canModify" class="{{ btn_class_black }}"
+       href="{% url 'ppt:project_references' object.id %}">
+      <span class="icon mdi mdi-format-letter-case"></span>
+      {% trans "Manage References" %}
+    </a>
+
+    <a v-if="canModify" class="{{ btn_class_black }}  {% if object.submitted %}disabled{% endif %}"
+       href="{% url 'ppt:project_delete' object.id %}">
+      <span class="icon mdi mdi-delete"></span>
+      {% trans "Delete Project" %}
+    </a>
+
+
+    <a v-if="canModify && project && project.years && project.years.length" class="{{ btn_class_black }}" href="#submit" @click="collapseSubmit=false">
+      <span v-if="project.has_unsubmitted_years"><span class="icon mdi mdi-email"></span> {% trans "Submit Project" %}</span>
+      <span v-else><span class="icon mdi mdi-cancel"></span> {% trans "Unsubmit Project" %}</span>
+    </a>
+
+    <a
+      href="{% url 'ppt:project_clone' object.id %}"
+      class="{{ btn_class_black }}"
+      data-toggle="tooltip"
+      title="{% trans "Use this project as a template for a new project" %}"
+    >
+      <span class="icon mdi mdi-content-copy"></span>
+      {% trans "Clone Project" %}
+    </a>
+
+  </div>
+
+  <h6>
+    {% trans "Navigation" %}
+  </h6>
+
+
+  <div class="btn-group-vertical vgroup">
+    <a href="#overview" class="{{ btn_class_black }}" @click="displayOverview">
+      <span class="icon mdi mdi-menu-right-outline"></span>
+      {% trans "Overview" %}
+    </a>
+
+    {# add a button for each project year #}
+    <a v-for="(year, index) in project.years" @click="displayProjectYear(year.id)"
+       :class="{ '{{ btn_class_black }}': true, active: year.id == projectYear.id }"
+       href="#project-year">
+      <span v-if="year.submitted" class="text-primary"><span class="icon mdi mdi-menu-right-outline"></span> ${ year.display_name }</span>
+      <span v-else class="text-danger"><span
+        class="icon mdi mdi-menu-right-outline"></span> ${ year.display_name } ({% trans "draft" %})</span>
+    </a>
+
+    <a v-if="canModify && project.years && project.years.length " href="#" class="{{ btn_class_green }} " data-toggle="modal" data-target="#new-year-modal"
+       title="{% trans "Add a new year to this project" %}">
+      <span class="icon mdi mdi-plus"></span>
+      {% trans "Add New Year" %}
+    </a>
+    <a v-else-if="canModify" href="{% url 'ppt:year_new' object.id %}" class="{{ btn_class_green }}">
+      <span class="icon mdi mdi-plus"></span>
+      {% trans "Add New Year" %}
+    </a>
+  </div>
+
+</div>

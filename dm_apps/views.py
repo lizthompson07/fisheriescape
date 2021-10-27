@@ -80,12 +80,12 @@ def get_app_dict(request):
             pass
 
     try:
-        app_dict["projects2"] = {
-            "title": _("Project Planning (Version 2)"),
+        app_dict["ppt"] = {
+            "title": _("Science Project Planning Tool (PPT)"),
             "description": _("Tool for the tracking, development and coordination of science project workplans."),
             "status": "dev",
             "access": "login-required",
-            "url": reverse('projects2:index'),
+            "url": reverse('ppt:index'),
             "icon_path": 'img/icons/scope.svg',
             "region": "all",
         }
