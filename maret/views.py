@@ -276,6 +276,11 @@ class CommitteeCreateView(UserRequiredMixin, CommonCreateView):
             'created_by': self.request.user
         }
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scripts'] = ['maret/js/divisionFilter.html']
+        return context
+
 
 class CommitteeDetailView(UserRequiredMixin, CommonDetailView):
     model = models.Committee
@@ -329,6 +334,11 @@ class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateView):
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scripts'] = ['maret/js/divisionFilter.html']
+        return context
 
 
 #######################################################

@@ -45,8 +45,6 @@ class OrganizationForm(forms.ModelForm):
             'regions': forms.SelectMultiple(attrs=multi_select_js),
             'sectors': forms.SelectMultiple(attrs=multi_select_js),
             'reserves': forms.SelectMultiple(attrs=multi_select_js),
-            'orgs': forms.SelectMultiple(attrs=multi_select_js),
-            'area': forms.SelectMultiple(attrs=multi_select_js),
             # dates
             'next_election': forms.TextInput(attrs=attr_fp_date),
             'new_coucil_effective_date': forms.TextInput(attrs=attr_fp_date)
@@ -57,11 +55,16 @@ class OrganizationForm(forms.ModelForm):
         self.order_fields(['name_eng', 'name_ind', 'abbrev', 'address', 'mailing_address', 'city', 'postal_code',
                            'province', 'phone', 'fax', 'dfo_contact_instructions', 'notes', 'key_species', 'grouping',
                            'area'])
+
+        self.fields['area'].widget = forms.SelectMultiple(attrs=multi_select_js)
+        self.fields['orgs'].widget = forms.SelectMultiple(attrs=multi_select_js)
+
         from ihub.views import get_ind_organizations
         org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
         self.fields["orgs"].choices = org_choices_all
 
-        area_choices = [(y.pk, y.tname,) for idx, y in enumerate(models.Area.objects.all())]
+
+        area_choices = [(a.id, a) for a in models.Area.objects.all()]
         self.fields['area'].choices = area_choices
 
 
