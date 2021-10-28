@@ -207,20 +207,6 @@ var app = new Vue({
             this.staff = response;
           })
     },
-    deleteStaffMember(staffMember) {
-      userInput1 = confirm(deleteMsg)
-      if (userInput1) {
-        if (this.currentUser && this.currentUser.id == staffMember.user) userInput2 = confirm(deleteSelfMsg)
-        else userInput2 = true
-        if (userInput2) {
-          let endpoint = `/api/ppt/staff/${staffMember.id}/`;
-          apiService(endpoint, "DELETE")
-              .then(response => {
-                if (!response.detail) this.$delete(this.staff, this.staff.indexOf(staffMember));
-              })
-        }
-      }
-    },
     openStaffModal(staff = null) {
       if (!staff) {
         this.showNewStaffModal = true;
@@ -228,7 +214,6 @@ var app = new Vue({
         this.staffToEdit = staff;
         this.showOldStaffModal = true;
       }
-
     },
 
     // O&M
@@ -240,16 +225,6 @@ var app = new Vue({
             this.om_cost_loading = false;
             this.om_costs = response;
           })
-    },
-    deleteOMCost(OMCost) {
-      userInput = confirm(deleteMsg + OMCost.om_category_display)
-      if (userInput) {
-        let endpoint = `/api/ppt/om-costs/${OMCost.id}/`;
-        apiService(endpoint, "DELETE")
-            .then(response => {
-              if (!response.detail) this.$delete(this.om_costs, this.om_costs.indexOf(OMCost));
-            })
-      }
     },
     addAllOMCosts() {
       if (this.projectYear.id) {
@@ -293,16 +268,6 @@ var app = new Vue({
             this.capital_costs = response;
           })
     },
-    deleteCapitalCost(capitalCost) {
-      userInput = confirm(deleteMsg + capitalCost.category_display)
-      if (userInput) {
-        let endpoint = `/api/ppt/capital-costs/${capitalCost.id}/`;
-        apiService(endpoint, "DELETE")
-            .then(response => {
-              if (!response.detail) this.$delete(this.capital_costs, this.capital_costs.indexOf(capitalCost));
-            })
-      }
-    },
 
     openCapitalCostModal(capitalCost) {
       if (!capitalCost) {
@@ -323,16 +288,6 @@ var app = new Vue({
             this.activity_loading = false;
             this.activities = response;
           })
-    },
-    deleteActivity(activity) {
-      userInput = confirm(deleteMsg + activity.name)
-      if (userInput) {
-        let endpoint = `/api/ppt/activities/${activity.id}/`;
-        apiService(endpoint, "DELETE")
-            .then(response => {
-              if (!response.detail) this.$delete(this.activities, this.activities.indexOf(activity))
-            })
-      }
     },
     cloneActivity(activity) {
       let endpoint = `/api/ppt/activities/${activity.id}/?clone=true`;
@@ -362,16 +317,6 @@ var app = new Vue({
             this.collaborations = response;
           })
     },
-    deleteCollaboration(collaboration) {
-      userInput = confirm(deleteMsg + collaboration.name)
-      if (userInput) {
-        let endpoint = `/api/ppt/collaborations/${collaboration.id}/`;
-        apiService(endpoint, "DELETE")
-            .then(response => {
-              if (!response.detail) this.$delete(this.collaborations, this.collaborations.indexOf(collaboration));
-            })
-      }
-    },
 
     openCollaborationModal(collaboration) {
       if (!collaboration) {
@@ -393,16 +338,6 @@ var app = new Vue({
             this.status_reports = response;
           })
     },
-    deleteStatusReport(statusReport) {
-      userInput = confirm(deleteMsg + statusReport.name)
-      if (userInput) {
-        let endpoint = `/api/ppt/status-reports/${statusReport.id}/`;
-        apiService(endpoint, "DELETE")
-            .then(response => {
-              if (!response.detail) this.$delete(this.status_reports, this.status_reports.indexOf(statusReport));
-            })
-      }
-    },
 
     openStatusReportModal(statusReport) {
       if (!statusReport) {
@@ -422,16 +357,6 @@ var app = new Vue({
             this.file_loading = false;
             this.files = response;
           })
-    },
-    deleteFile(file) {
-      userInput = confirm(deleteMsg + file.name)
-      if (userInput) {
-        let endpoint = `/api/ppt/files/${file.id}/`;
-        apiService(endpoint, "DELETE")
-            .then(response => {
-              if (!response.detail) this.$delete(this.files, this.files.indexOf(file));
-            })
-      }
     },
 
     openFileModal(file) {
