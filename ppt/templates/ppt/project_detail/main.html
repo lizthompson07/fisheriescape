@@ -82,35 +82,31 @@
 
                 <div v-if="projectYear.id">
                   {% include "ppt/project_detail/_project_year_detail.html" %}
-                  {% include "ppt/project_detail/_project_year_modal_form.html" %}
 
-                  <modal v-if="showNewStaffModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'staff'"></modal>
-                  <modal v-if="showOldStaffModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'staff'"
-                         :my_staff="staffToEdit"></modal>
+                  <staff-modal v-if="showNewStaffModal" @close="closeModals(projectYear)" :year="projectYear"></staff-modal>
+                  <staff-modal v-if="showOldStaffModal" @close="closeModals(projectYear)" :year="projectYear" :my_staff="staffToEdit"></staff-modal>
 
-                  <modal v-if="showNewOMCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'om_cost'"></modal>
-                  <modal v-if="showOldOMCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'om_cost'"
-                         :my_om_cost="omCostToEdit"></modal>
+                  <om-cost-modal v-if="showNewOMCostModal" @close="closeModals(projectYear)" :year="projectYear"></om-cost-modal>
+                  <om-cost-modal v-if="showOldOMCostModal" @close="closeModals(projectYear)" :year="projectYear" :my_om_cost="omCostToEdit"></om-cost-modal>
 
-                  <modal v-if="showNewCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'capital_cost'"></modal>
-                  <modal v-if="showOldCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'capital_cost'"
-                         :my_capital_cost="capitalCostToEdit"></modal>
+                  <capital-cost-modal v-if="showNewCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear"></capital-cost-modal>
+                  <capital-cost-modal v-if="showOldCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear"
+                                      :my_capital_cost="capitalCostToEdit"></capital-cost-modal>
 
-                  <modal v-if="showNewActivityModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'activity'"></modal>
-                  <modal v-if="showOldActivityModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'activity'"
-                         :my_activity="activityToEdit"></modal>
+                  <activity-modal v-if="showNewActivityModal" @close="closeModals(projectYear)" :year="projectYear"></activity-modal>
+                  <activity-modal v-if="showOldActivityModal" @close="closeModals(projectYear)" :year="projectYear"
+                                  :my_activity="activityToEdit"></activity-modal>
 
-                  <modal v-if="showNewCollaborationModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaboration'"></modal>
-                  <modal v-if="showOldCollaborationModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaboration'"
-                         :my_collaboration="collaborationToEdit"></modal>
+                  <collaboration-modal v-if="showNewCollaborationModal" @close="closeModals(projectYear)" :year="projectYear"></collaboration-modal>
+                  <collaboration-modal v-if="showOldCollaborationModal" @close="closeModals(projectYear)" :year="projectYear"
+                                       :my_collaboration="collaborationToEdit"></collaboration-modal>
 
-                  <modal v-if="showNewStatusReportModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'status_report'"></modal>
-                  <modal v-if="showOldStatusReportModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'status_report'"
-                         :my_status_report="statusReportToEdit"></modal>
+                  <status-report-modal v-if="showNewStatusReportModal" @close="closeModals(projectYear)" :year="projectYear"></status-report-modal>
+                  <status-report-modal v-if="showOldStatusReportModal" @close="closeModals(projectYear)" :year="projectYear"
+                                       :my_status_report="statusReportToEdit"></status-report-modal>
 
-                  <modal v-if="showNewFileModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'file'"></modal>
-                  <modal v-if="showOldFileModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'file'"
-                         :my_file="fileToEdit"></modal>
+                  <file-modal v-if="showNewFileModal" @close="closeModals(projectYear)" :year="projectYear"></file-modal>
+                  <file-modal v-if="showOldFileModal" @close="closeModals(projectYear)" :year="projectYear" :my_file="fileToEdit"></file-modal>
 
                 </div>
 
@@ -182,13 +178,16 @@
 
 {% block body_js %}
   {{ block.super }}
+
+  {% include "ppt/project_detail/components/_project_year_modal_form.html" %}
+
   <script type="application/javascript">
 
   let projectId = "{{ object.id }}"
   let warningMsg = "{% trans "WARNING! If you remove yourself as project lead you will loose the ability to further modify this project." %}";
   let submitMsg = "{% trans "Are certain you want to submit the following year of the project?" %} \n\n"
   let unsubmitMsg = "{% trans "Are certain you want to un-submit the following year of the project? The status of the project year will be reset!" %} \n\n"
-  let deleteMsg = "{% trans "Are you sure you want to delete this item: " %} \n\n"
+  let deleteMsg = "{% trans "Are you sure you want to delete this item? " %} \n\n"
   let deleteSelfMsg = "{% trans "Are you sure you want to remove yourself?" %}\n\n{% trans "WARNING: This action might result in you loosing the ability to modify this project." %}"
   let processOTMsg = "{% trans "Do you want to add this OT description to the current staff member?" %}"
   let markActivityAsComplete = "{% trans "Do you want to mark this activity as 'complete'? \n\nYou may provide comments below (optional)." %}"
@@ -207,7 +206,6 @@
 
   </script>
   {% include "ppt/project_detail/_script.html" %}
-  <script src="{% static '/ppt/mainProjectDetailModal.js' %}?version=1.0" type="application/javascript"></script>
 
 
   {#  // reload other scripts that we care about#}

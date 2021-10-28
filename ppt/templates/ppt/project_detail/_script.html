@@ -87,6 +87,18 @@ var app = new Vue({
 
   },
   methods: {
+
+    deleteObject(object, type, list) {
+      userInput = confirm("{% trans "Are you sure you want to delete this item? " %}")
+      if (userInput) {
+        let endpoint = `/api/ppt/${type}/${object.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              if (!response.detail) this.$delete(list, list.indexOf(object));
+            })
+      }
+    },
+
     displayOverview() {
       this.collapseOverview = false;
     },
