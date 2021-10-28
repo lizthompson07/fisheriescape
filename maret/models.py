@@ -41,6 +41,10 @@ class Area(shared_models.SimpleLookup):
     pass
 
 
+class OrgCategory(shared_models.SimpleLookup):
+    pass
+
+
 class Committee(models.Model):
     meeting_frequency_choices = (
         (0, "Monthly"),
@@ -138,4 +142,5 @@ class Interaction(models.Model):
 class OrganizationExtension(models.Model):
     organization = models.ForeignKey(ml_models.Organization, blank=False, null=False, default=1, related_name="ext_org",
                                      verbose_name="Organization", on_delete=models.CASCADE)
+    category = models.ManyToManyField(OrgCategory, related_name="ext_org_category", verbose_name="Category")
     area = models.ManyToManyField(Area, related_name="ext_org_area", verbose_name="Area")

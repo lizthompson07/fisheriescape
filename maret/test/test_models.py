@@ -41,7 +41,7 @@ class TestOrganizationExtensionModel(CommonTest):
 
     @tag("fields", "org_ext_model_fields")
     def test_fields(self):
-        fields_to_check = ['organization', 'area', ]
+        fields_to_check = ['organization', 'area', 'category']
         self.assert_has_fields(models.OrganizationExtension, fields_to_check)
 
 
@@ -80,4 +80,15 @@ class TestAreaModel(CommonTest):
         fields_to_check = ["name", "nom"]
         self.assert_has_fields(models.Area, fields_to_check)
 
+
+@tag("org_category", "model", "org_category_model")
+class TestOrgCategoryModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = models.OrgCategory.objects.first()
+
+    @tag("fields", "org_category_model_fields")
+    def test_fields(self):
+        fields_to_check = ["name", "nom"]
+        self.assert_has_fields(models.OrgCategory, fields_to_check)
 

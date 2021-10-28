@@ -34,6 +34,7 @@ class InteractionForm(forms.ModelForm):
 
 
 class OrganizationForm(forms.ModelForm):
+    category = forms.MultipleChoiceField(required=False, label=_("Categories"))
     area = forms.MultipleChoiceField(required=False, label=_("Area(s)"))
 
     class Meta:
@@ -52,20 +53,23 @@ class OrganizationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['name_eng', 'name_ind', 'abbrev', 'address', 'mailing_address', 'city', 'postal_code',
-                           'province', 'phone', 'fax', 'dfo_contact_instructions', 'notes', 'key_species', 'grouping',
-                           'area'])
+        self.order_fields(['name_eng', 'category', 'name_ind', 'abbrev', 'address', 'mailing_address', 'city',
+                           'postal_code', 'province', 'phone', 'fax', 'dfo_contact_instructions', 'notes',
+                           'key_species', 'grouping', 'area'])
 
         self.fields['area'].widget = forms.SelectMultiple(attrs=multi_select_js)
+        self.fields['category'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['orgs'].widget = forms.SelectMultiple(attrs=multi_select_js)
 
         from ihub.views import get_ind_organizations
         org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
         self.fields["orgs"].choices = org_choices_all
 
-
         area_choices = [(a.id, a) for a in models.Area.objects.all()]
         self.fields['area'].choices = area_choices
+
+        category_choices = [(c.id, c) for c in models.OrgCategory.objects.all()]
+        self.fields['category'].choices = category_choices
 
 
 class MemberForm(forms.ModelForm):
@@ -117,7 +121,7 @@ class TopicForm(forms.ModelForm):
 TopicFormSet = modelformset_factory(
     model=models.DiscussionTopic,
     form=TopicForm,
-    extra=1,
+    extra=3,
 )
 
 
@@ -130,18 +134,18 @@ class SpeciesForm(forms.ModelForm):
 SpeciesFormSet = modelformset_factory(
     model=models.Species,
     form=SpeciesForm,
-    extra=1,
+    extra=3,
 )
 
 
-class AreaForm(forms.ModelForm):
+class OrgCategoryForm(forms.ModelForm):
     class Meta:
-        model = models.Area
+        model = models.OrgCategory
         fields = "__all__"
 
 
-AreaFormSet = modelformset_factory(
-    model=models.Area,
-    form=AreaForm,
-    extra=1,
+OrgCategoriesFormSet = modelformset_factory(
+    model=models.OrgCategory,
+    form=OrgCategoryForm,
+    extra=3,
 )
