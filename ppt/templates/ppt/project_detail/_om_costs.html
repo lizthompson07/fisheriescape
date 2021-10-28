@@ -10,7 +10,7 @@
   </div>
 
   <div v-if="!om_cost_loading" class="mb-3 neighbours">
-    <button @click="openOMCostModal()" class="{{ btn_class_1 }} no-print" v-if="canModify">
+    <button @click="openModal(null, 'om_cost')" class="{{ btn_class_1 }} no-print" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add O&M Cost" %}
     </button>
     <button @click="addAllOMCosts()" class="{{ btn_class_1 }} no-print" v-if="canModify">
@@ -64,7 +64,7 @@
           <span v-else>${item.amount | currencyFormat}</span>
         </td>
         <td class="to-the-right" v-if="canModify">
-          <button @click="openOMCostModal(item)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
+          <button @click="openModal(item, 'om_cost')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteObject(item, 'om-costs', om_costs)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
         </td>
       </tr>

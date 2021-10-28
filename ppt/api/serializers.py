@@ -307,13 +307,13 @@ class StaffSerializer(serializers.ModelSerializer):
         return instance.smart_name
 
     def get_employee_type_display(self, instance):
-        return str(instance.employee_type)
+        return str(instance.employee_type) if instance.employee_type else None
 
     def get_level_display(self, instance):
-        return str(instance.level)
+        return str(instance.level) if instance.level else None
 
     def get_funding_source_display(self, instance):
-        return str(instance.funding_source)
+        return str(instance.funding_source) if instance.funding_source else None
 
     def get_student_program_display(self, instance):
         return instance.get_student_program_display()
@@ -322,7 +322,7 @@ class StaffSerializer(serializers.ModelSerializer):
 class OMCostSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.OMCost
-        exclude = ["project_year"]
+        fields = "__all__"
 
     funding_source_display = serializers.SerializerMethodField()
     om_category_display = serializers.SerializerMethodField()
@@ -349,7 +349,7 @@ class OMCostSerializer(serializers.ModelSerializer):
 class CapitalCostSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CapitalCost
-        exclude = ["project_year"]
+        fields = "__all__"
 
     funding_source_display = serializers.SerializerMethodField()
     category_display = serializers.SerializerMethodField()
@@ -370,7 +370,7 @@ class ActivitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Activity
-        exclude = ["project_year"]
+        fields = "__all__"
 
     latest_update = serializers.SerializerMethodField()
     target_date_display = serializers.SerializerMethodField()
@@ -400,7 +400,7 @@ class ActivitySerializer(serializers.ModelSerializer):
 class CollaborationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Collaboration
-        exclude = ["project_year"]
+        fields = "__all__"
 
     project_year_id = serializers.SerializerMethodField()
     new_or_existing_display = serializers.SerializerMethodField()
@@ -421,7 +421,7 @@ class StatusReportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.StatusReport
-        exclude = ["project_year"]
+        fields = "__all__"
 
     project_year_id = serializers.SerializerMethodField()
     target_completion_date_display = serializers.SerializerMethodField()

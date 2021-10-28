@@ -29,12 +29,20 @@ var app = new Vue({
     project_financials: [],
     project_financials_loading: false,
 
+    objectToEdit: {},
+    showModal: {
+      staff: false,
+      om_cost: false,
+      capital_cost: false,
+      activity: false,
+      collaboration: false,
+      status_report: false,
+      file: false,
+    },
+
     // staff
     staff_loading: false,
     staff: [],
-    staffToEdit: {},
-    showNewStaffModal: false,
-    showOldStaffModal: false,
 
     // om costs
     om_cost_loading: false,
@@ -207,13 +215,9 @@ var app = new Vue({
             this.staff = response;
           })
     },
-    openStaffModal(staff = null) {
-      if (!staff) {
-        this.showNewStaffModal = true;
-      } else {
-        this.staffToEdit = staff;
-        this.showOldStaffModal = true;
-      }
+    openModal(obj, which) {
+      this.objectToEdit = obj;
+      this.showModal[which] = true;
     },
 
     // O&M
@@ -369,27 +373,10 @@ var app = new Vue({
     },
 
     closeModals(projectYear) {
-      this.showNewStaffModal = false;
-      this.showOldStaffModal = false;
-
-      this.showNewOMCostModal = false;
-      this.showOldOMCostModal = false;
-
-      this.showNewCapitalCostModal = false;
-      this.showOldCapitalCostModal = false;
-
-      this.showNewActivityModal = false;
-      this.showOldActivityModal = false;
-
-      this.showNewCollaborationModal = false;
-      this.showOldCollaborationModal = false;
-
-      this.showNewStatusReportModal = false;
-      this.showOldStatusReportModal = false;
-
-      this.showNewFileModal = false;
-      this.showOldFileModal = false;
-
+      for (const showModalKey in this.showModal) {
+        this.showModal[showModalKey] = false;
+      }
+      this.objectToEdit = {}
       if (projectYear) {
         this.$nextTick(() => {
           this.getProjectYear(projectYear.id)

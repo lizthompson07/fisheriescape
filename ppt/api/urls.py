@@ -23,6 +23,7 @@ urlpatterns = [
     path("ppt/user/", views.CurrentUserAPIView.as_view(), name="ppt-current-user"),  # tested
     path("ppt/fte-breakdown/", views.FTEBreakdownAPIView.as_view(), name="ppt-fte-breakdown"),  # tested
     path("ppt/financials/", views.FinancialsAPIView.as_view(), name="ppt-financials"),
+    path("ppt/get-dates/", views.GetDatesAPIView.as_view(), name="ppt-get-dates"),
 
     # lookups
     path("ppt/fiscal-years/", views.FiscalYearListAPIView.as_view(), name="ppt-fiscal-year-list"),

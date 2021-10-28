@@ -11,7 +11,7 @@
   </div>
 
   <div class="mb-3 neighbours btn-group">
-    <button @click="openStaffModal()" class="{{ btn_class_1 }} no-print" v-if="canModify">
+    <button @click="openModal(null, 'staff')" class="{{ btn_class_1 }} no-print" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Staff" %}
     </button>
   </div>
@@ -85,7 +85,7 @@
           {% endif %}
         {% endfor %}
         <td class="to-the-right" v-if="canModify">
-          <button @click="openStaffModal(s)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
+          <button @click="openModal(s, 'staff')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteObject(s, 'staff', staff)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
         </td>
       </tr>

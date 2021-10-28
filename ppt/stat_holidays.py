@@ -103,6 +103,31 @@ stat_holiday_list = [
     # Boxing Day
     datetime.datetime.strptime("December 26, 2022", "%B %d, %Y"),
 
+    # 2023 #
+    ########
+
+    # New Year's Day
+    datetime.datetime.strptime("January 1, 2023", "%B %d, %Y"),
+    # Good Friday
+    datetime.datetime.strptime("April 7, 2023", "%B %d, %Y"),
+    # Easter Monday
+    datetime.datetime.strptime("April 10, 2023", "%B %d, %Y"),
+    # Victoria Day
+    datetime.datetime.strptime("May 23, 2023", "%B %d, %Y"),
+    # Canada Day
+    datetime.datetime.strptime("July 1, 2023", "%B %d, %Y"),
+    # Civic Holiday
+    datetime.datetime.strptime("August 7, 2023", "%B %d, %Y"),
+    # Labour Day
+    datetime.datetime.strptime("September 4, 2023", "%B %d, %Y"),
+    # Thanksgiving Day
+    datetime.datetime.strptime("October 9, 2023", "%B %d, %Y"),
+    # Remembrance Day
+    datetime.datetime.strptime("November 11, 2023", "%B %d, %Y"),
+    # Christmas Day
+    datetime.datetime.strptime("December 25, 2023", "%B %d, %Y"),
+    # Boxing Day
+    datetime.datetime.strptime("December 26, 2023", "%B %d, %Y"),
 
 
 ]

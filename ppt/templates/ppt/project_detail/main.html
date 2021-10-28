@@ -83,31 +83,16 @@
                 <div v-if="projectYear.id">
                   {% include "ppt/project_detail/_project_year_detail.html" %}
 
-                  <staff-modal v-if="showNewStaffModal" @close="closeModals(projectYear)" :year="projectYear"></staff-modal>
-                  <staff-modal v-if="showOldStaffModal" @close="closeModals(projectYear)" :year="projectYear" :my_staff="staffToEdit"></staff-modal>
-
-                  <om-cost-modal v-if="showNewOMCostModal" @close="closeModals(projectYear)" :year="projectYear"></om-cost-modal>
-                  <om-cost-modal v-if="showOldOMCostModal" @close="closeModals(projectYear)" :year="projectYear" :my_om_cost="omCostToEdit"></om-cost-modal>
-
-                  <capital-cost-modal v-if="showNewCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear"></capital-cost-modal>
-                  <capital-cost-modal v-if="showOldCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear"
-                                      :my_capital_cost="capitalCostToEdit"></capital-cost-modal>
-
-                  <activity-modal v-if="showNewActivityModal" @close="closeModals(projectYear)" :year="projectYear"></activity-modal>
-                  <activity-modal v-if="showOldActivityModal" @close="closeModals(projectYear)" :year="projectYear"
-                                  :my_activity="activityToEdit"></activity-modal>
-
-                  <collaboration-modal v-if="showNewCollaborationModal" @close="closeModals(projectYear)" :year="projectYear"></collaboration-modal>
-                  <collaboration-modal v-if="showOldCollaborationModal" @close="closeModals(projectYear)" :year="projectYear"
-                                       :my_collaboration="collaborationToEdit"></collaboration-modal>
-
-                  <status-report-modal v-if="showNewStatusReportModal" @close="closeModals(projectYear)" :year="projectYear"></status-report-modal>
-                  <status-report-modal v-if="showOldStatusReportModal" @close="closeModals(projectYear)" :year="projectYear"
-                                       :my_status_report="statusReportToEdit"></status-report-modal>
-
-                  <file-modal v-if="showNewFileModal" @close="closeModals(projectYear)" :year="projectYear"></file-modal>
-                  <file-modal v-if="showOldFileModal" @close="closeModals(projectYear)" :year="projectYear" :my_file="fileToEdit"></file-modal>
-
+                  <staff-modal v-if="showModal.staff" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></staff-modal>
+                  <om-cost-modal v-if="showModal.om_cost" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></om-cost-modal>
+                  <capital-cost-modal v-if="showModal.capital_cost" @close="closeModals(projectYear)" :year="projectYear"
+                                      :my_object="objectToEdit"></capital-cost-modal>
+                  <activity-modal v-if="showModal.activity" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></activity-modal>
+                  <collaboration-modal v-if="showModal.collaboration" @close="closeModals(projectYear)" :year="projectYear"
+                                       :my_object="objectToEdit"></collaboration-modal>
+                  <status-report-modal v-if="showModal.status_report" @close="closeModals(projectYear)" :year="projectYear"
+                                       :my_object="objectToEdit"></status-report-modal>
+                  <file-modal v-if="showModal.file" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></file-modal>
                 </div>
 
 
@@ -179,8 +164,9 @@
 {% block body_js %}
   {{ block.super }}
 
-  {% include "ppt/project_detail/components/_project_year_modal_form.html" %}
+{#  {% include "ppt/project_detail/components/_project_year_modal_form.html" %}#}
   {% include "ppt/project_detail/components/staff_modal.html" %}
+  {% include "ppt/project_detail/components/om_cost_modal.html" %}
 
   <script type="application/javascript">
 
