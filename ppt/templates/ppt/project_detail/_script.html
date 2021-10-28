@@ -219,11 +219,11 @@ var app = new Vue({
     // O&M
     getOMCosts(yearId) {
       this.om_cost_loading = true;
-      let endpoint = `/api/ppt/om-costs/?project_year=${yearId}`;
+      let endpoint = `/api/ppt/om-costs/?project_year=${yearId}&page_size=5000`;
       apiService(endpoint)
           .then(response => {
             this.om_cost_loading = false;
-            this.om_costs = response;
+            this.om_costs = response.results;
           })
     },
     addAllOMCosts() {
@@ -261,11 +261,11 @@ var app = new Vue({
     // Capital
     getCapitalCosts(yearId) {
       this.capital_cost_loading = true;
-      let endpoint = `/api/ppt/capital-costs/?project_year=${yearId}`;
+      let endpoint = `/api/ppt/capital-costs/?project_year=${yearId}&page_size=5000`;
       apiService(endpoint)
           .then(response => {
             this.capital_cost_loading = false;
-            this.capital_costs = response;
+            this.capital_costs = response.results;
           })
     },
 

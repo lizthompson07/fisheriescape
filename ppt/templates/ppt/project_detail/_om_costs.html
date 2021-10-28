@@ -65,7 +65,7 @@
         </td>
         <td class="to-the-right" v-if="canModify">
           <button @click="openOMCostModal(item)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
-          <button @click="deleteOMCost(item)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
+          <button @click="deleteObject(item, 'om-costs', om_costs)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
         </td>
       </tr>
       </tbody>

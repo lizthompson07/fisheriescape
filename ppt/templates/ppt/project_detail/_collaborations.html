@@ -59,7 +59,7 @@
         {% endfor %}
         <td class="to-the-right" v-if="canModify">
           <button @click="openCollaborationModal(item)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
-          <button @click="deleteCollaboration(item)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
+          <button @click="deleteObject(item, 'collaborations', collaborations)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
         </td>
       </tr>
       </tbody>
