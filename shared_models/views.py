@@ -35,12 +35,12 @@ class CloserNoRefreshTemplateView(TemplateView):
 def in_admin_group(user):
     """give a list of groups that would be allowed to access this form"""
     if user.id:
-        if user.groups.filter(name='travel_admin').count() != 0 or \
-                user.groups.filter(name='projects_admin').count() or \
-                user.groups.filter(name='scifi_admin').count() or \
-                user.groups.filter(name='travel_adm_admin').count() or \
-                user.groups.filter(name='csas_regional_admin').count() or \
-                user.groups.filter(name='csas_national_admin').count():
+        if user.groups.filter(name='travel_admin').exists() or \
+                user.groups.filter(name='travel_adm_admin').exists() or \
+                user.ppt_admin_user.filter(region__isnull=False).exists() or \
+                user.ppt_admin_user.filter(is_national_admin=True).exists() or \
+                user.csas_admin_user.filter(region__isnull=False).exists() or \
+                user.csas_admin_user.filter(is_national_admin=True).exists():
             return True
 
 
