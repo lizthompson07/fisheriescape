@@ -164,10 +164,6 @@ Vue.component("modal", {
   },
   methods: {
 
-    onFileChange() {
-      this.fileToUpload = this.$refs.file.files[0];
-    },
-
     onSubmit() {
       this.errors = null
 
@@ -216,53 +212,6 @@ Vue.component("modal", {
       }
 
 
-      // file
-      else if (this.mtype === "file") {
-        if (this.my_file) {
-          // if there is a file attribute, delete it since we send back the file through a separate request
-          if (this.file.file) delete this.file.file
-
-          let endpoint = `/api/ppt/files/${this.my_file.id}/`;
-          apiService(endpoint, "PATCH", this.file).then(response => {
-            if (response.id) {
-              if (this.fileToUpload) {
-                fileApiService(endpoint, "PATCH", "file", this.fileToUpload)
-                this.fileToUpload = null
-              }
-              this.$emit('close')
-            } else {
-              var myString = "";
-              for (var i = 0; i < Object.keys(response).length; i++) {
-                key = Object.keys(response)[i]
-                myString += String(key) + ": " + response[key] + "<br>"
-              }
-              this.errors = myString
-            }
-          })
-        } else {
-          let endpoint = `/api/ppt/project-years/${this.year.id}/files/`;
-          apiService(endpoint, "POST", this.file).then(response => {
-            if (response.id) {
-              // now we have to upload the file
-              if (this.fileToUpload) {
-                let endpoint = `/api/ppt/files/${response.id}/`;
-                fileApiService(endpoint, "PATCH", "file", this.fileToUpload)
-                this.fileToUpload = null
-              }
-              this.$emit('close')
-            } else {
-              var myString = "";
-              for (var i = 0; i < Object.keys(response).length; i++) {
-                key = Object.keys(response)[i]
-                myString += String(key) + ": " + response[key] + "<br>"
-              }
-              this.errors = myString
-            }
-          })
-        }
-
-
-      }
     },
 
     getCurrentUser() {
@@ -303,9 +252,7 @@ Vue.component("modal", {
 
       // files
       else if (this.mtype === "file") {
-        if (this.my_file && this.my_file.id) {
-          this.file = this.my_file
-        }
+
       }
 
     })

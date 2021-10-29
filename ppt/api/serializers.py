@@ -477,25 +477,13 @@ class ActivityUpdateSerializer(serializers.ModelSerializer):
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.File
-        exclude = ["project", "status_report", "project_year"]
+        fields = "__all__"
 
-    project_id = serializers.SerializerMethodField()
-    project_year_id = serializers.SerializerMethodField()
-    status_report_id = serializers.SerializerMethodField()
     date_created = serializers.SerializerMethodField()
     ref = serializers.SerializerMethodField()
 
     def get_new_or_existing_display(self, instance):
         return instance.get_new_or_existing_display()
-
-    def get_project_id(self, instance):
-        return instance.project_id
-
-    def get_project_year_id(self, instance):
-        return instance.project_year_id
-
-    def get_status_report_id(self, instance):
-        return instance.status_report_id
 
     def get_date_created(self, instance):
         return date(instance.date_created)
@@ -511,8 +499,9 @@ class FileSerializer(serializers.ModelSerializer):
         project = attrs.get("project")
         project_year = attrs.get("project_year")
         status_report = attrs.get("status_report")
+        file = attrs.get("file")
 
-        if not (project or project_year or status_report):
+        if not (file or project or project_year or status_report):
             msg = _('You must supply either a project, project year or status report')
             raise ValidationError(msg)
         return attrs

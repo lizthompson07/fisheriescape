@@ -9,7 +9,7 @@
     <p class="lead">{% trans "Supporting Resources" %}</p>
   </div>
   <div v-if="!file_loading" class="btn-group mb-3 neighbours">
-    <button @click="openFileModal()"class="{{ btn_class_1 }} no-print" v-if="canModify">
+    <button @click="openModal(null, 'file')"class="{{ btn_class_1 }} no-print" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Supporting Resource" %}
     </button>
   </div>
@@ -30,7 +30,7 @@
       {% trans "No supporting resources have been added to this year of the project" %}
     </div>
 
-    <table v-else class="table table-sm" style="width: auto">
+    <table v-else class="table table-sm w-50">
       <thead>
       {% get_file_field_list as file_field_list %}
       {% for field in file_field_list %}
@@ -45,14 +45,14 @@
           {% if "ref" in field %}
             <td>${item.ref }</td>
           {% elif "external" in field %}
-            <td class="text-center">
-              <a v-if="item.external_url" :href="item.external_url" target="_blank">
+            <td class="">
+              <a v-if="item.external_url" :href="item.external_url" target="_blank" data-toggle="tooltip" title="{{ item.external_url }}">
                 <span class="mdi mdi-web h5"></span>
               </a>
               <p v-else>---</p>
             </td>
           {% elif "file" in field %}
-            <td class="text-center">
+            <td class="">
               <a v-if="item.file" :href="item.file" target="_blank">
                 <span class="mdi mdi-attachment h5" ></span>
               </a>
@@ -63,7 +63,7 @@
           {% endif %}
         {% endfor %}
         <td class="to-the-right" v-if="canModify">
-          <button @click="openFileModal(item)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
+          <button @click="openModal(item, 'file')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteObject(item, 'files', files)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
         </td>
       </tr>
