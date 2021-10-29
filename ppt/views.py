@@ -56,6 +56,7 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
         project_count = models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title").count()
         orphen_count = models.Project.objects.filter(years__isnull=True, modified_by=self.request.user).count()
         context["my_project_count"] = project_count + orphen_count
+        context["is_admin"] = in_ppt_admin_group(self.request.user)
         return context
 
 
@@ -1469,50 +1470,3 @@ def export_project_summary(request):
             return response
     raise Http404
 
-
-# ADMIN USERS
-class UserListView(AdminRequiredMixin, CommonFilterView):
-    template_name = "ppt/user_list.html"
-    filterset_class = filters.UserFilter
-    home_url_name = "index"
-    paginate_by = 25
-    h1 = "Project Planning User Permissions"
-    field_list = [
-        {"name": 'first_name', "class": "", "width": ""},
-        {"name": 'last_name', "class": "", "width": ""},
-        {"name": 'email', "class": "", "width": ""},
-        {"name": 'last_login|{}'.format(gettext_lazy("Last login to DM Apps")), "class": "", "width": ""},
-    ]
-    new_object_url = reverse_lazy("shared_models:user_new")
-
-    def get_queryset(self):
-        queryset = User.objects.order_by("first_name", "last_name").annotate(
-            search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
-        )
-        if self.request.GET.get("projects"):
-            group = Group.objects.get(name="projects_admin")
-            queryset = queryset.filter(groups__in=[group.id]).distinct()
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["admin_group"] = Group.objects.get(name="projects_admin")
-        return context
-
-
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_ppt_admin_group, login_url='/accounts/denied/')
-def toggle_user(request, pk, type):
-    if in_ppt_admin_group(request.user):
-        my_user = User.objects.get(pk=pk)
-        admin_group = Group.objects.get(name="projects_admin")
-        if type == "admin":
-            # if the user is in the admin group, remove them
-            if admin_group in my_user.groups.all():
-                my_user.groups.remove(admin_group)
-            # otherwise add them
-            else:
-                my_user.groups.add(admin_group)
-        return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
-    else:
-        return HttpResponseForbidden("sorry, not authorized")
