@@ -34,9 +34,9 @@ urlpatterns = [
 ]
 
 # Add application APIs
-if settings.INSTALLED_APPS.count("projects2"):
+if settings.INSTALLED_APPS.count("ppt"):
     urlpatterns.append(
-        path('api/', include('projects2.api.urls')),
+        path('api/', include('ppt.api.urls')),
     )
 if settings.INSTALLED_APPS.count("travel"):
     urlpatterns.append(
@@ -143,10 +143,10 @@ if settings.INSTALLED_APPS.count("diets"):
 else:
     print("not connecting diets app")
 
-if settings.INSTALLED_APPS.count("projects2"):
-    urlpatterns += i18n_patterns(path('project-planning/', include('projects2.urls')), prefix_default_language=True)
+if settings.INSTALLED_APPS.count("ppt"):
+    urlpatterns += i18n_patterns(path('ppt/', include('ppt.urls')), prefix_default_language=True)
 else:
-    print("not connecting projects2 app")
+    print("not connecting ppt app")
 
 if settings.INSTALLED_APPS.count("ihub"):
     urlpatterns += i18n_patterns(path('ihub/', include('ihub.urls')), prefix_default_language=True)

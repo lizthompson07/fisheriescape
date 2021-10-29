@@ -1,0 +1,478 @@
+{% load i18n %}
+{% load bootstrap4 %}
+{% load custom_filters %}
+{% load project_filters %}
+{% load static %}
+<!-- template for the modal component -->
+<script type="text/x-template" id="modal-template">
+<transition name="modal">
+  <div class="modal-mask">
+    <div class="modal-wrapper">
+      <div class="modal-container">
+
+        <div class="modal-header">
+          <slot name="header">
+
+            <h3 v-else-if="mtype === 'activity'">
+              <span v-if="!my_activity">{% trans "New Activity" %}</span>
+              <span v-else>{% trans "Edit Activity" %}</span>
+            </h3>
+            <h3 v-else-if="mtype === 'collaboration'">
+              <span v-if="!my_collaboration">{% trans "New Collaboration" %}</span>
+              <span v-else>{% trans "Edit Collaboration" %}</span>
+            </h3>
+            <h3 v-else-if="mtype === 'status_report'">
+              <span v-if="!my_status_report">{% trans "New Status Report (Still under development)" %}</span>
+              <span v-else>{% trans "Edit Status Report (Still under development)" %}</span>
+            </h3>
+            <h3 v-else-if="mtype === 'file'">
+              <span v-if="!my_file">{% trans "New Supporting Resource" %}</span>
+              <span v-else>{% trans "Edit Supporting Resource" %}</span>
+            </h3>
+            <div v-if="errors" class="alert alert-danger" role="alert">
+              <h4 class="alert-heading">
+                {% trans "The form has a few errors:" %}
+              </h4>
+              <hr>
+              <span v-html="errors"></span>
+            </div>
+          </slot>
+        </div>
+
+        <form v-if="!showOTCalc" method="post" @submit.prevent="onSubmit" class="form" enctype="multipart/form-data">
+          <div class="modal-body">
+            <slot name="body">
+
+
+              {# ACTIVITY FORM             #}
+              <div v-else-if="mtype=='activity'">
+                {% for field in activity_form %}
+                  {% if field.name == "likelihood" %}
+                    <div v-if="isACRDP">
+                      {% bootstrap_field field size='small' placeholder="" %}
+                      {% include "ppt/project_detail/_risk_rating_diagram.html" %}
+                    </div>
+
+                  {% elif field.name == "impact" %}
+                    <div v-if="isACRDP">
+                      {% bootstrap_field field size='small' placeholder="" %}
+                    </div>
+
+                  {% elif field.name == "risk_description" %}
+                    <div v-if="isACRDP || isCSRF">
+                      <div v-if="isCSRF">
+                        <label>
+                          {% trans "Briefly identify and assess the risks for this activity's completion within the planned timeframe (e.g. COVID-19 restrictions, vessel availability, lab space, etc.)" %}
+                        </label>
+                        {% bootstrap_field activity_form.risk_description size='small' placeholder="" show_label=False %}
+                      </div>
+                      <div v-else>
+                        {% bootstrap_field activity_form.risk_description size='small' placeholder="" %}
+                      </div>
+                      {% bootstrap_field activity_form.mitigation_measures size='small' placeholder="" %}
+                    </div>
+                  {% elif field.name == "mitigation_measures" %}
+                    {#  nothing! #}
+
+                  {% elif field.name == "target_date" %}
+                    {% bootstrap_field field size='small' placeholder="" %}
+                    <div class="mb-3">
+                      {% trans "Shortcuts" %}: {% trans "End of " %} &rarr;
+                      <button type="button" @click="populateTargetDate('q1')">Q1</button>
+                      <button type="button" @click="populateTargetDate('q2')">Q2</button>
+                      <button type="button" @click="populateTargetDate('q3')">Q3</button>
+                      <button type="button" @click="populateTargetDate('q4')">Q4</button>
+                    </div>
+                  {% else %}
+                    {% bootstrap_field field size='small' placeholder="" %}
+                  {% endif %}
+                {% endfor %}
+              </div>
+              {# COLLABORATOR FORM             #}
+              <div v-else-if="mtype=='collaboration'">
+                {% bootstrap_form collaboration_form size='small' %}
+              </div>
+              {# STATUS REPORT FORM             #}
+              <div v-else-if="mtype=='status_report'">
+                {% for field in status_report_form %}
+                  {% if field.name|is_markdown_field %}
+
+                    <label for="id_priorities">{{ field.label }}</label>
+                    <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"
+                       title="{% trans "Markdown syntax is supported in this field" %}">
+                      <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
+                    </a>
+                    {% bootstrap_field field placeholder="" show_label=False size='small' %}
+
+                  {% else %}
+                    {% bootstrap_field field placeholder="" size='small' %}
+                  {% endif %}
+                {% endfor %}
+
+
+              </div>
+              {# FILE FORM             #}
+              <div v-else-if="mtype=='file'">
+                {% bootstrap_form file_form size='small' %}
+              </div>
+            </slot>
+          </div>
+
+          <div class="modal-footer">
+            <slot name="footer">
+              <button class="modal-default-button" id="closeBtn">{% trans "Save" %}</button>
+              <button class="modal-default-button" @click="$emit('close')" id="closeBtn" type="button">
+                {% trans "Close" %}
+              </button>
+            </slot>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</transition>
+</script>
+
+
+<script type="application/javascript">
+Vue.component("modal", {
+  template: "#modal-template",
+  delimiters: ["${", "}"],
+  props: {
+    mtype: {
+      type: String,
+      required: true,
+    },
+    year: {
+      type: Object,
+      required: true,
+    },
+    my_staff: {
+      type: Object,
+      required: false,
+    },
+    my_om_cost: {
+      type: Object,
+      required: false,
+    },
+    my_capital_cost: {
+      type: Object,
+      required: false,
+    },
+    my_activity: {
+      type: Object,
+      required: false,
+    },
+    my_collaboration: {
+      type: Object,
+      required: false,
+    },
+    my_status_report: {
+      type: Object,
+      required: false,
+    },
+    my_file: {
+      type: Object,
+      required: false,
+    },
+  },
+  data() {
+    return {
+      currentUser: null,
+      DmAppsUsers: [],
+      loadingDMAppsUsers: false,
+      isACRDP: false,
+      isCSRF: false,
+
+      original_user: null,
+      errors: null,
+
+      // activities
+      activity: {
+        name: "",
+        description: "",
+        target_date: null,
+      },
+
+      // collaborations
+      collaboration: {
+        type: "",
+        organization: "",
+        new_or_existing: 1,
+        people: "",
+        critical: "True",
+        notes: null,
+      },
+
+      // status reports
+      status_report: {
+        status: null,
+        major_accomplishments: null,
+        major_issues: null,
+        target_completion_date: null,
+        rationale_for_modified_completion_date: null,
+        general_comment: null,
+        section_head_comment: null,
+        section_head_reviewed: null,
+      },
+
+      // files
+      fileToUpload: null,
+      file: {
+        name: null,
+        external_url: null,
+      },
+    }
+  },
+  methods: {
+
+    onFileChange() {
+      this.fileToUpload = this.$refs.file.files[0];
+    },
+
+    onSubmit() {
+      this.errors = null
+
+      // capital cost
+      else if (this.mtype === "capital_cost") {
+
+      }
+
+
+      // activity
+      else if (this.mtype === "activity") {
+        if (this.activity.target_date === "") this.activity.target_date = null
+        if (this.my_activity) {
+          let endpoint = `/api/ppt/activities/${this.my_activity.id}/`;
+          apiService(endpoint, "PATCH", this.activity).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        } else {
+          let endpoint = `/api/ppt/project-years/${this.year.id}/activities/`;
+          apiService(endpoint, "POST", this.activity).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        }
+      }
+
+      // collaboration
+      else if (this.mtype === "collaboration") {
+        if (this.my_collaboration) {
+          let endpoint = `/api/ppt/collaborations/${this.my_collaboration.id}/`;
+          apiService(endpoint, "PATCH", this.collaboration).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        } else {
+          let endpoint = `/api/ppt/project-years/${this.year.id}/collaborations/`;
+          apiService(endpoint, "POST", this.collaboration).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        }
+      }
+
+
+      // status report
+      else if (this.mtype === "status_report") {
+        if (this.status_report.target_completion_date === "") this.status_report.target_completion_date = null
+        if (this.status_report.section_head_reviewed == null) this.status_report.section_head_reviewed = "False"
+        console.log(this.status_report.target_completion_date)
+
+        if (this.my_status_report) {
+          let endpoint = `/api/ppt/status-reports/${this.my_status_report.id}/`;
+          apiService(endpoint, "PATCH", this.status_report).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        } else {
+          let endpoint = `/api/ppt/project-years/${this.year.id}/status-reports/`;
+          apiService(endpoint, "POST", this.status_report).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        }
+      }
+
+
+      // file
+      else if (this.mtype === "file") {
+        if (this.my_file) {
+          // if there is a file attribute, delete it since we send back the file through a separate request
+          if (this.file.file) delete this.file.file
+
+          let endpoint = `/api/ppt/files/${this.my_file.id}/`;
+          apiService(endpoint, "PATCH", this.file).then(response => {
+            if (response.id) {
+              if (this.fileToUpload) {
+                fileApiService(endpoint, "PATCH", "file", this.fileToUpload)
+                this.fileToUpload = null
+              }
+              this.$emit('close')
+            } else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        } else {
+          let endpoint = `/api/ppt/project-years/${this.year.id}/files/`;
+          apiService(endpoint, "POST", this.file).then(response => {
+            if (response.id) {
+              // now we have to upload the file
+              if (this.fileToUpload) {
+                let endpoint = `/api/ppt/files/${response.id}/`;
+                fileApiService(endpoint, "PATCH", "file", this.fileToUpload)
+                this.fileToUpload = null
+              }
+              this.$emit('close')
+            } else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        }
+
+
+      }
+    },
+
+    getCurrentUser() {
+      let endpoint = `/api/ppt/user/`;
+      apiService(endpoint)
+          .then(response => {
+            this.currentUser = response;
+          })
+    },
+    populateTargetDate(quarter) {
+      sap_year = this.year.fiscal_year
+      if (quarter === "q1") {
+        this.activity.target_date = `${sap_year - 1}-06-30`
+      } else if (quarter === "q2") {
+        this.activity.target_date = `${sap_year - 1}-09-30`
+      } else if (quarter === "q3") {
+        this.activity.target_date = `${sap_year - 1}-12-31`
+      } else if (quarter === "q4") {
+        this.activity.target_date = `${sap_year}-03-31`
+      }
+
+    },
+  },
+  computed: {},
+  created() {
+
+    this.getCurrentUser();
+
+    if (this.year.project.default_funding_source && this.year.project.default_funding_source.toLowerCase().search("acrdp") > -1) {
+      this.isACRDP = true;
+    }
+    if (this.year.project.default_funding_source && this.year.project.default_funding_source.toLowerCase().search("csrf") > -1) {
+      this.isCSRF = true;
+    }
+    this.$nextTick(() => {
+
+      // capital costs
+      else if (this.mtype === "capital_cost") {
+        if (this.my_capital_cost && this.my_capital_cost.id) {
+          this.capital_cost = this.my_capital_cost
+        }
+      }
+
+      // activities
+      else if (this.mtype === "activity") {
+        if (this.my_activity && this.my_activity.id) {
+          this.activity = this.my_activity
+          // there is an annoying thing that has to happen to convert the html to js to pytonese...
+          if (this.activity.target_date) this.activity.target_date = this.activity.target_date.slice(0, 10)
+          else this.activity.target_date = null
+        }
+      }
+      // collaborations
+      else if (this.mtype === "collaboration") {
+        if (this.my_collaboration && this.my_collaboration.id) {
+          this.collaboration = this.my_collaboration
+          // there is an annoying thing that has to happen to convert the html to js to pytonese...
+          if (this.collaboration.critical) this.collaboration.critical = "True"
+          else this.collaboration.critical = "False"
+        }
+      }
+
+      // status reports
+      else if (this.mtype === "status_report") {
+        if (this.my_status_report && this.my_status_report.id) {
+          this.status_report = this.my_status_report
+          // there is an annoying thing that has to happen to convert the html to js to pytonese...
+          if (this.status_report.section_head_reviewed) this.status_report.section_head_reviewed = "True"
+          else this.status_report.section_head_reviewed = "False"
+          // there is an annoying thing that has to happen to convert the html to js to pytonese...
+          if (this.status_report.target_completion_date) this.status_report.target_completion_date = this.status_report.target_completion_date.slice(0, 10)
+          else this.status_report.target_completion_date = null
+        }
+      }
+
+      // files
+      else if (this.mtype === "file") {
+        if (this.my_file && this.my_file.id) {
+          this.file = this.my_file
+        }
+      }
+
+    })
+
+
+  },
+
+});
+</script>

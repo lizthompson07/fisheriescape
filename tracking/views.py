@@ -287,7 +287,7 @@ def generate_page_visit_report(app_list, user=None, app=None):
     else:
         # if the app list is too big, let's just take the apps of interest...
         app_list = [
-            "project-planning",
+            "ppt",
             "whalesdb",
             "csas-sccs",
             "grais",

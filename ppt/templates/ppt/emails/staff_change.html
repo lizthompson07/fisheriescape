@@ -1,0 +1,52 @@
+{% load verbose_names %}
+<em>
+  *** un message français suivra
+</em>
+<br><br>
+
+<p>
+  This is an automated message to inform you that you have been
+
+  {% if action == "add" %}
+    added {% if staff.is_lead %}as a PROJECT LEAD {% endif %} to
+  {% else %}
+    removed from
+  {% endif %}
+
+  the following project:
+  <b>{{ staff.project_year.project.title }} (id: {{ staff.project_year.project.id }}) - {{ staff.project_year }}</b>
+</p>
+
+<p>
+  The full detail page for this project-year can be viewed <a
+  href="{{ SITE_FULL_URL }}{% url 'ppt:project_detail' staff.project_year.project.id %}?project_year={{ staff.project_year.id }}">HERE</a>.
+</p>
+
+<p>
+  ********************************************************************
+</p>
+
+<p>
+  Ceci est un message automatisé pour vous informer que vous avez été
+
+  {% if action == "add" %}
+    ajouté {% if staff.is_lead %} en tant qu'un chef de projet {% endif %} au
+  {% else %}
+    retiré du
+  {% endif %}
+
+  projet suivant:
+  <b>{{ staff.project_year.project.title }} (no. {{ staff.project_year.project.id }}) - {{ staff.project_year }}</b>
+</p>
+
+<p>
+  La page de détail complète de cette projet peut être consultée <a
+  href="{{ SITE_FULL_URL }}{% url 'ppt:project_detail' staff.project_year.project.id %}?project_year={{ staff.project_year.id }}">ICI</a>.
+</p>
+
+
+<style media="screen">
+table, td {
+    border: solid 1px black;
+}
+</style>

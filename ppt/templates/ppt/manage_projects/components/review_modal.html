@@ -1,0 +1,358 @@
+{% load i18n %}
+{% load bootstrap4 %}
+{% load custom_filters %}
+{% load static %}
+<!-- template for the modal component -->
+<script type="text/x-template" id="review-modal-template">
+<transition name="modal">
+  <div class="modal-mask">
+    <div class="modal-wrapper">
+      <div class="modal-container">
+
+        <div class="modal-header">
+          <slot name="header">
+
+
+            <div v-if="!approval_form">
+              <h3 v-if="isOldReview">
+                <span>{% trans "Edit Review" %}</span>
+              </h3>
+              <h3 v-else>
+                <span>{% trans "Start a Review" %}</span>
+              </h3>
+              <span class="text-muted">{% trans "Title:" %}</span>
+              <p class="lead" v-html="project_year.project.title"></p>
+              <div v-if="isOldReview">
+                <span class="text-muted">{% trans "Review History:" %}</span>
+                <p class="" v-html="project_year.review.metadata"></p>
+              </div>
+            </div>
+            <div v-else>
+              <h3>
+                <span>{% trans "Approval Form" %}</span>
+              </h3>
+            </div>
+            <br>
+
+            <div v-if="errors" class="alert alert-danger" role="alert">
+              <h4 class="alert-heading">
+                {% trans "The form has a few errors:" %}
+              </h4>
+              <span v-html="errors"></span>
+            </div>
+          </slot>
+        </div>
+
+        <div v-if="loading" class="loading mb-3 mt-3 text-center mt-5">
+          <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </div>
+        <form v-else method="post" @submit.prevent="onSubmit" class="form">
+          <div class="modal-body">
+            <slot name="body">
+
+              <div v-if="!approval_form">
+
+                <p class="text-muted">{{ review_form.collaboration_score.label }}</p>
+                <div class="row mb-3">
+                  <div class="col">
+                    {% bootstrap_field review_form.collaboration_score size='small' show_label=False %}
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field review_form.collaboration_comment size='small' show_label=False %}
+                  </div>
+                </div>
+                <div v-if="project_year.review.collaboration_score" style="font-size: small" class="mb-3 mt-4">
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Score Criteria" %}</span> &rarr;
+                    <span v-html="rubric.collaboration[project_year.review.collaboration_score].criteria"></span>
+                  </div>
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Examples" %}</span> &rarr;
+                    <span v-html="rubric.collaboration[project_year.review.collaboration_score].examples"></span>
+                  </div>
+                </div>
+
+
+                <hr>
+
+                <p class="text-muted">{{ review_form.strategic_score.label }}</p>
+                <div class="row mb-3">
+                  <div class="col">
+                    {% bootstrap_field review_form.strategic_score size='small' show_label=False %}
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field review_form.strategic_comment size='small' show_label=False %}
+                  </div>
+                </div>
+                <div v-if="project_year.review.strategic_score" style="font-size: small" class="mb-3 mt-4">
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Score Criteria" %}</span> &rarr;
+                    <span v-html="rubric.strategic[project_year.review.strategic_score].criteria"></span>
+                  </div>
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Examples" %}</span> &rarr;
+                    <span v-html="rubric.strategic[project_year.review.strategic_score].examples"></span>
+                  </div>
+                </div>
+                <hr>
+
+                <p class="text-muted">{{ review_form.operational_score.label }}</p>
+                <div class="row mb-3">
+                  <div class="col">
+                    {% bootstrap_field review_form.operational_score size='small' show_label=False %}
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field review_form.operational_comment size='small' show_label=False %}
+                  </div>
+                </div>
+                <div v-if="project_year.review.operational_score" style="font-size: small" class="mb-3 mt-4">
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Score Criteria" %}</span> &rarr;
+                    <span v-html="rubric.operational[project_year.review.operational_score].criteria"></span>
+                  </div>
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Examples" %}</span> &rarr;
+                    <span v-html="rubric.operational[project_year.review.operational_score].examples"></span>
+                  </div>
+                </div>
+                <hr>
+
+                <p class="text-muted">{{ review_form.ecological_score.label }}</p>
+                <div class="row mb-3">
+                  <div class="col">
+                    {% bootstrap_field review_form.ecological_score size='small' show_label=False %}
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field review_form.ecological_comment size='small' show_label=False %}
+                  </div>
+                </div>
+                <div v-if="project_year.review.ecological_score" style="font-size: small" class="mb-3 mt-4">
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Score Criteria" %}</span> &rarr;
+                    <span v-html="rubric.ecological[project_year.review.ecological_score].criteria"></span>
+                  </div>
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Examples" %}</span> &rarr;
+                    <span v-html="rubric.ecological[project_year.review.ecological_score].examples"></span>
+                  </div>
+                </div>
+                <hr>
+
+                <p class="text-muted">{{ review_form.scale_score.label }}</p>
+                <div class="row mb-3">
+                  <div class="col">
+                    {% bootstrap_field review_form.scale_score size='small' show_label=False %}
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field review_form.scale_comment size='small' show_label=False %}
+                  </div>
+                </div>
+                <div v-if="project_year.review.scale_score" style="font-size: small" class="mb-3 mt-4">
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Score Criteria" %}</span> &rarr;
+                    <span v-html="rubric.scale[project_year.review.scale_score].criteria"></span>
+                  </div>
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Examples" %}</span> &rarr;
+                    <span v-html="rubric.scale[project_year.review.scale_score].examples"></span>
+                  </div>
+                </div>
+                <hr>
+
+                <p class="text-muted">{{ review_form.general_comment.label }}</p>
+                <div class="row mb-3">
+                  <div class="col">
+                    {% bootstrap_field review_form.general_comment size='small' show_label=False %}
+                  </div>
+                </div>
+
+                <p class="text-muted">{{ review_form.comments_for_staff.label }}</p>
+                <div class="row mb-3">
+                  <div class="col">
+                    {% bootstrap_field review_form.comments_for_staff size='small' show_label=False %}
+                  </div>
+                </div>
+
+                <hr>
+                <p class="text-muted">{% trans "Review Score:" %} <span v-html="total_score"></span> / 15 (<span
+                  v-html="total_score_percentage"></span>)</p>
+
+
+                <div class="row mb-3">
+                  <div class="col">
+                    {% bootstrap_field review_form.review_email_update size='small' %}
+                    <p class="text-muted" v-if="project_year.review.review_notification_email_sent">
+                      {% trans "NOTE: An email has already been send to the project leads on " %}
+                      <span v-html="project_year.review.review_notification_email_sent"></span>
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+
+              <div v-else>
+                {% bootstrap_form approval_form size='small' %}
+                <div class="mb-3">
+                  <p class="text-muted" v-if="project_year.review.approval_notification_email_sent">
+                    {% trans "NOTE: An email has already been send to the project leads on " %}
+                    <span v-html="project_year.review.approval_notification_email_sent"></span>
+                  </p>
+                </div>
+              </div>
+
+            </slot>
+          </div>
+          <div class="modal-footer">
+            <slot name="footer">
+              <button v-if="isOldReview && !approval_form" class="btn btn-danger" @click="deleteReview"
+                      type="button">{% trans "Delete" %}</button>
+              <button v-if="isOldReview" class="btn btn-primary">{% trans "Update" %}</button>
+              <button v-else class="btn btn-primary">{% trans "Add" %}</button>
+              <button class="btn btn-secondary" @click="closeModal" id="closeBtn" type="button">
+                {% trans "Close" %}
+              </button>
+            </slot>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</transition>
+</script>
+
+
+<script type="application/javascript">
+Vue.component("modal", {
+  template: "#review-modal-template",
+  delimiters: ["${", "}"],
+  props: {
+    project_year: {
+      type: Object,
+      required: true,
+    },
+    approval_form: {
+      type: Boolean,
+      required: false,
+    },
+  },
+  data() {
+    return {
+      errors: null,
+      loading: false,
+      rubric: reviewRubric,
+    }
+  },
+  methods: {
+    closeModal() {
+      // if the form was not saved...
+      if (!this.project_year.review.id) {
+        this.project_year.review.collaboration_score = ""
+        this.project_year.review.strategic_score = ""
+        this.project_year.review.operational_score = ""
+        this.project_year.review.ecological_score = ""
+        this.project_year.review.scale_score = ""
+      }
+      this.$emit('close')
+    },
+
+    deleteReview() {
+      msg = deleteReviewMsg
+      userInput = confirm(msg)
+      if (userInput) {
+        let endpoint = `/api/ppt/reviews/${this.project_year.review.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              this.project_year.review = null
+              this.$emit('close', this.project_year)
+            })
+      }
+
+    },
+    onSubmit() {
+      this.errors = null
+      this.loading = true
+
+      if (this.project_year.review.collaboration_score === "") this.project_year.review.collaboration_score = null
+      if (this.project_year.review.strategic_score === "") this.project_year.review.strategic_score = null
+      if (this.project_year.review.operational_score === "") this.project_year.review.operational_score = null
+      if (this.project_year.review.ecological_score === "") this.project_year.review.ecological_score = null
+      if (this.project_year.review.scale_score === "") this.project_year.review.scale_score = null
+      if (this.project_year.review.approval_status === "") this.project_year.review.approval_status = null
+      if (this.project_year.review.approval_level === "") this.project_year.review.approval_level = null
+
+      if (this.isOldReview) {
+        let endpoint = `/api/ppt/reviews/${this.project_year.review.id}/`;
+        apiService(endpoint, "PUT", this.project_year.review).then(response => {
+          if (response.id) this.$emit('close', this.project_year)
+          else {
+            var myString = "";
+            for (var i = 0; i < Object.keys(response).length; i++) {
+              key = Object.keys(response)[i]
+              myString += String(key) + ": " + response[key] + "<br>"
+            }
+            this.errors = myString
+            this.loading = false
+
+          }
+        })
+      } else {
+        let endpoint = `/api/ppt/reviews/`;
+        this.project_year.review.project_year=this.project_year.id;
+        apiService(endpoint, "POST", this.project_year.review).then(response => {
+          if (response.id) {
+            this.project_year.review = response
+            this.$emit('close', this.project_year)
+          } else {
+            var myString = "";
+            for (var i = 0; i < Object.keys(response).length; i++) {
+              key = Object.keys(response)[i]
+              myString += String(key) + ": " + response[key] + "<br>"
+            }
+            this.errors = myString
+            this.loading = false
+
+          }
+        })
+      }
+    },
+  },
+  computed: {
+    isOldReview() {
+      return this.project_year.review && this.project_year.review.id
+    },
+    total_score() {
+      collaboration_score = 0
+      strategic_score = 0
+      operational_score = 0
+      ecological_score = 0
+      scale_score = 0
+      if (this.project_year.review.collaboration_score) collaboration_score = Number(this.project_year.review.collaboration_score)
+      if (this.project_year.review.strategic_score) strategic_score = Number(this.project_year.review.strategic_score)
+      if (this.project_year.review.operational_score) operational_score = Number(this.project_year.review.operational_score)
+      if (this.project_year.review.ecological_score) ecological_score = Number(this.project_year.review.ecological_score)
+      if (this.project_year.review.scale_score) scale_score = Number(this.project_year.review.scale_score)
+      return scale_score + ecological_score + operational_score + strategic_score + collaboration_score
+    },
+    total_score_percentage() {
+      value = this.total_score / 15
+      if (!value) value = 0;
+      value = value * 100;
+      value = Math.round(value * Math.pow(10, 0)) / Math.pow(10, 0);
+      value = value + '%';
+      return value;
+    },
+  },
+  created() {
+    if (this.project_year.review.id) {
+      if (!this.project_year.review.collaboration_score) this.project_year.review.collaboration_score = ""
+      if (!this.project_year.review.strategic_score) this.project_year.review.strategic_score = ""
+      if (!this.project_year.review.operational_score) this.project_year.review.operational_score = ""
+      if (!this.project_year.review.ecological_score) this.project_year.review.ecological_score = ""
+      if (!this.project_year.review.scale_score) this.project_year.review.scale_score = ""
+    }
+
+  },
+});
+</script>

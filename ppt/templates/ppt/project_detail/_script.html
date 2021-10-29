@@ -1,0 +1,510 @@
+{% load i18n %}
+{% include "ppt/project_detail/components/staff_modal.html" %}
+{% include "ppt/project_detail/components/om_cost_modal.html" %}
+{% include "ppt/project_detail/components/capital_cost_modal.html" %}
+<script type="application/javascript">
+
+Vue.component('v-select', VueSelect.VueSelect);
+
+var app = new Vue({
+  el: '#app',
+  delimiters: ["${", "}"],
+  data: {
+    showSidebar: false,
+    showOverview: true,
+    collapseOverview: false,
+    collapseFinancials: true,
+    collapseSubmit: true,
+    currentUser: null,
+    canModify: false,
+    showSubmit: false,
+    isACRDP: false,
+    isCSRF: false,
+    isSARA: false,
+    project_loading: false,
+    project: {},
+
+    py_loading: false,
+    projectYear: {},
+    financials: [],
+    financials_loading: false,
+    project_financials: [],
+    project_financials_loading: false,
+
+    objectToEdit: {},
+    showModal: {
+      staff: false,
+      om_cost: false,
+      capital_cost: false,
+      activity: false,
+      collaboration: false,
+      status_report: false,
+      file: false,
+    },
+
+    // staff
+    staff_loading: false,
+    staff: [],
+
+    // om costs
+    om_cost_loading: false,
+    om_costs: [],
+    omCostToEdit: {},
+    showNewOMCostModal: false,
+    showOldOMCostModal: false,
+    omCostLabels: [],
+    omCategoryChoices: [],
+
+    // capital costs
+    capital_cost_loading: false,
+    capital_costs: [],
+    capitalCostToEdit: {},
+    showNewCapitalCostModal: false,
+    showOldCapitalCostModal: false,
+
+    // activities
+    activity_loading: false,
+    activities: [],
+    activityToEdit: {},
+    showNewActivityModal: false,
+    showOldActivityModal: false,
+    activityLabels: [],
+    activityTypeChoices: [],
+    likelihoodChoices: [],
+    impactChoices: [],
+    riskRatingChoices: [],
+
+    // collaborations
+    collaboration_loading: false,
+    collaborations: [],
+    collaborationToEdit: {},
+    showNewCollaborationModal: false,
+    showOldCollaborationModal: false,
+
+    // status reports
+    status_report_loading: false,
+    status_reports: [],
+    statusReportToEdit: {},
+    showNewStatusReportModal: false,
+    showOldStatusReportModal: false,
+
+    // files
+    file_loading: false,
+    files: [],
+    fileToEdit: {},
+    showNewFileModal: false,
+    showOldFileModal: false,
+
+  },
+  methods: {
+
+    deleteObject(object, type, list) {
+      userInput = confirm("{% trans "Are you sure you want to delete this item? " %}")
+      if (userInput) {
+        let endpoint = `/api/ppt/${type}/${object.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              if (!response.detail) this.$delete(list, list.indexOf(object));
+            })
+      }
+    },
+
+    displayOverview() {
+      this.collapseOverview = false;
+    },
+    displaySubmit() {
+      this.showSubmit = true
+      this.showOverview = false
+    },
+    displayProjectYear(yearId) {
+      window.location.hash = "#project-year"
+      window.location.search = `?project_year=${yearId}`
+    },
+    getProjectYear(yearId) {
+      this.py_loading = true;
+      let endpoint = `/api/ppt/project-years/${yearId}/`;
+      apiService(endpoint)
+          .then(response => {
+            this.py_loading = false;
+            this.projectYear = response;
+            // now let's get all the related data
+            this.getStaff(yearId)
+            this.getOMCosts(yearId)
+            this.getCapitalCosts(yearId)
+            this.getActivities(yearId)
+            this.getCollaborations(yearId)
+            this.getStatusReports(yearId)
+            this.getFiles(yearId)
+            this.getFinancials(yearId)
+          })
+    },
+    getProject() {
+      this.project_loading = true;
+      let endpoint = `/api/ppt/projects/${projectId}/`;
+      apiService(endpoint)
+          .then(response => {
+            this.project_loading = false;
+            this.project = response;
+            if (response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("acrdp") > -1) {
+              this.isACRDP = true;
+            } else if (response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("csrf") > -1) {
+              this.isCSRF = true;
+            } else if (response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("sara") > -1) {
+              this.isSARA = true;
+            }
+
+            // check to see if we are being asked to open the page to a specific year
+            // from https://stackoverflow.com/questions/35914069/how-can-i-get-query-parameters-from-a-url-in-vue-js
+            let uri = window.location.search.substring(1);
+            let params = new URLSearchParams(uri);
+            let projectYearParam = params.get("project_year");
+            if (projectYearParam) {
+              this.getProjectYear(projectYearParam)
+            } else if (!this.projectYear.id && this.project.years.length) {
+              this.getProjectYear(this.project.years[0].id)
+            }
+          })
+    },
+    submitProjectYear(projectYear, action) {
+      if (action === "submit" || action === "unsubmit") {
+        if (action === "submit") msg = submitMsg
+        else msg = unsubmitMsg
+        userInput = confirm(msg + projectYear.display_name)
+        if (userInput) {
+          this.project_loading = true;
+          let endpoint = `/api/ppt/project-years/${projectYear.id}/?${action}=true`;
+          apiService(endpoint, "POST")
+              .then(response => {
+                this.project_loading = false;
+                this.getProject()
+              })
+        }
+      }
+    },
+    getFinancials(yearId) {
+      this.financials_loading = true;
+      let endpoint = `/api/ppt/financials/?project_year=${yearId}`;
+      apiService(endpoint)
+          .then(response => {
+            this.financials_loading = false;
+            this.financials = response;
+          })
+    },
+    getProjectFinancials() {
+      this.project_financials_loading = true;
+      let endpoint = `/api/ppt/financials/?project=${projectId}`;
+      apiService(endpoint)
+          .then(response => {
+            this.project_financials_loading = false;
+            this.project_financials = response;
+          })
+    },
+    getCurrentUser(projectId) {
+      let endpoint = `/api/ppt/user/?project=${projectId}`;
+      apiService(endpoint)
+          .then(response => {
+            this.currentUser = response;
+            this.canModify = this.currentUser.can_modify
+          })
+    },
+    // Staff
+    getStaff(yearId) {
+      this.staff_loading = true;
+      let endpoint = `/api/ppt/staff/?project_year=${yearId}`;
+      apiService(endpoint)
+          .then(response => {
+            this.staff_loading = false;
+            this.staff = response;
+          })
+    },
+    openModal(obj, which) {
+      this.objectToEdit = obj;
+      this.showModal[which] = true;
+    },
+
+    // O&M
+    getOMCosts(yearId) {
+      this.om_cost_loading = true;
+      let endpoint = `/api/ppt/om-costs/?project_year=${yearId}&page_size=5000`;
+      apiService(endpoint)
+          .then(response => {
+            this.om_cost_loading = false;
+            this.om_costs = response.results;
+          })
+    },
+    addAllOMCosts() {
+      if (this.projectYear.id) {
+        this.om_cost_loading = true;
+        let endpoint = `/api/ppt/project-years/${this.projectYear.id}/?add-all-costs=true`;
+        apiService(endpoint, "POST")
+            .then(response => {
+              this.om_cost_loading = false;
+              this.om_costs = response;
+            })
+      }
+    },
+    clearEmptyOMCosts() {
+      if (this.projectYear.id) {
+        this.om_cost_loading = true;
+        let endpoint = `/api/ppt/project-years/${this.projectYear.id}/?remove-empty-costs=true`;
+        apiService(endpoint, "POST")
+            .then(response => {
+              this.om_cost_loading = false;
+              this.om_costs = response;
+            })
+      }
+    },
+    openOMCostModal(OMCost) {
+      if (!OMCost) {
+        this.showNewOMCostModal = true;
+      } else {
+        this.omCostToEdit = OMCost;
+        this.showOldOMCostModal = true;
+      }
+
+    },
+
+    // Capital
+    getCapitalCosts(yearId) {
+      this.capital_cost_loading = true;
+      let endpoint = `/api/ppt/capital-costs/?project_year=${yearId}&page_size=5000`;
+      apiService(endpoint)
+          .then(response => {
+            this.capital_cost_loading = false;
+            this.capital_costs = response.results;
+          })
+    },
+
+    openCapitalCostModal(capitalCost) {
+      if (!capitalCost) {
+        this.showNewCapitalCostModal = true;
+      } else {
+        this.capitalCostToEdit = capitalCost;
+        this.showOldCapitalCostModal = true;
+      }
+    },
+
+
+    // Activities
+    getActivities(yearId) {
+      this.activity_loading = true;
+      let endpoint = `/api/ppt/activities/?project_year=${yearId}`;
+      apiService(endpoint)
+          .then(response => {
+            this.activity_loading = false;
+            this.activities = response;
+          })
+    },
+    cloneActivity(activity) {
+      let endpoint = `/api/ppt/activities/${activity.id}/?clone=true`;
+      apiService(endpoint, "POST")
+          .then(response => {
+            if (!response.detail) this.getActivities(activity.project_year_id);
+          })
+    },
+
+    openActivityModal(activity) {
+      if (!activity) {
+        this.showNewActivityModal = true;
+      } else {
+        this.activityToEdit = activity;
+        this.showOldActivityModal = true;
+      }
+    },
+
+
+    // Collaboration
+    getCollaborations(yearId) {
+      this.collaboration_loading = true;
+      let endpoint = `/api/ppt/collaborations/?project_year=${yearId}`;
+      apiService(endpoint)
+          .then(response => {
+            this.collaboration_loading = false;
+            this.collaborations = response;
+          })
+    },
+
+    openCollaborationModal(collaboration) {
+      if (!collaboration) {
+        this.showNewCollaborationModal = true;
+      } else {
+        this.collaborationToEdit = collaboration;
+        this.showOldCollaborationModal = true;
+      }
+    },
+
+
+    // Status Report
+    getStatusReports(yearId) {
+      this.status_report_loading = true;
+      let endpoint = `/api/ppt/status-reports/?project_year=${yearId}`;
+      apiService(endpoint)
+          .then(response => {
+            this.status_report_loading = false;
+            this.status_reports = response;
+          })
+    },
+
+    openStatusReportModal(statusReport) {
+      if (!statusReport) {
+        this.showNewStatusReportModal = true;
+      } else {
+        this.statusReportToEdit = statusReport;
+        this.showOldStatusReportModal = true;
+      }
+    },
+
+    // File
+    getFiles(yearId) {
+      this.file_loading = true;
+      let endpoint = `/api/ppt/files/?project_year=${yearId}`;
+      apiService(endpoint)
+          .then(response => {
+            this.file_loading = false;
+            this.files = response;
+          })
+    },
+
+    openFileModal(file) {
+      if (!file) {
+        this.showNewFileModal = true;
+      } else {
+        this.fileToEdit = file;
+        this.showOldFileModal = true;
+      }
+    },
+
+    closeModals(projectYear) {
+      for (const showModalKey in this.showModal) {
+        this.showModal[showModalKey] = false;
+      }
+      this.objectToEdit = {}
+      if (projectYear) {
+        this.$nextTick(() => {
+          this.getProjectYear(projectYear.id)
+          this.getProjectFinancials(projectYear.project.id)
+          this.getCurrentUser(projectYear.project.id)
+
+        })
+      }
+    },
+    goProjectYearEdit(projectYearId) {
+      window.location.href = `/ppt/project-years/${projectYearId}/edit/`
+    },
+    goProjectEdit(projectId) {
+      window.location.href = `/ppt/projects/${projectId}/edit/`
+    },
+    goProjectYearDelete(projectYearId) {
+      window.location.href = `/ppt/project-years/${projectYearId}/delete/`
+    },
+    goProjectYearClone(projectYearId) {
+      window.location.href = `/ppt/project-years/${projectYearId}/clone/`
+    },
+    goStatusReportDetail(statusReportId) {
+      url = `/ppt/status-reports/${statusReportId}/view/`;
+      win = window.open(url, '_blank');
+    },
+    isABase(name) {
+      if (name && name.length) {
+        return name.toLowerCase().search("a-base") > -1
+      }
+    },
+    isBBase(name) {
+      if (name && name.length) {
+        return name.toLowerCase().search("b-base") > -1
+      }
+    },
+    isCBase(name) {
+      if (name && name.length) {
+        return name.toLowerCase().search("c-base") > -1
+      }
+    },
+    getModelMetadata() {
+      apiService(`/api/ppt/meta/models/om-cost/`).then(data => {
+        this.omCostLabels = data.labels;
+        this.omCategoryChoices = data.om_category_choices;
+      });
+      apiService(`/api/ppt/meta/models/activity/`).then(data => {
+        this.activityLabels = data.labels;
+        this.activityTypeChoices = data.type_choices;
+        this.likelihoodChoices = data.likelihood_choices;
+        this.impactChoices = data.impact_choices;
+        this.riskRatingChoices = data.risk_rating_choices;
+      });
+    },
+    markActivity(activity, action) {
+      if (action === "complete" || action === "incomplete") {
+        if (action === "complete") msg = markActivityAsComplete;
+        else msg = markActivityAsIncomplete;
+        let userInput = prompt(msg);
+        if (userInput !== null) {
+          this.project_loading = true;
+          let endpoint = `/api/ppt/activities/${activity.id}/?action=${action}`;
+          apiService(endpoint, "POST", userInput)
+              .then(response => {
+                this.project_loading = false;
+                this.getProjectYear(activity.project_year_id)
+              })
+        }
+      }
+
+    },
+
+  },
+  computed: {
+    financial_totals() {
+      myObj = {
+        salary: 0,
+        om: 0,
+        capital: 0,
+        total: 0,
+      }
+      if (this.financials) {
+        for (var i = 0; i < this.financials.length; i++) {
+          myObj.salary += this.financials[i].salary
+          myObj.om += this.financials[i].om
+          myObj.capital += this.financials[i].capital
+          myObj.total += this.financials[i].total
+        }
+      }
+      return myObj
+    },
+    project_financial_totals() {
+      myObj = {
+        salary: 0,
+        om: 0,
+        capital: 0,
+        total: 0,
+      }
+      if (this.project_financials) {
+        for (var i = 0; i < this.project_financials.length; i++) {
+          myObj.salary += this.project_financials[i].salary
+          myObj.om += this.project_financials[i].om
+          myObj.capital += this.project_financials[i].capital
+          myObj.total += this.project_financials[i].total
+        }
+      }
+      return myObj
+    }
+
+  },
+  created() {
+    this.getModelMetadata();
+    this.getProjectFinancials(projectId)
+    this.getCurrentUser(projectId)
+    this.getProject(projectId)
+  },
+  mounted() {
+  },
+  filters: {
+    yesNo: vueFiltersObject["yesNo"],
+    nz: vueFiltersObject["nz"],
+    floatformat: vueFiltersObject["floatformat"],
+    currencyFormat: vueFiltersObject["currencyFormat"],
+    zero2NullMark: vueFiltersObject["zero2NullMark"],
+  },
+
+});
+
+
+</script>

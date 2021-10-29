@@ -13,8 +13,8 @@ urlpatterns = [
     path('settings/invitee-roles/', views.InviteeRoleFormsetView.as_view(), name="manage_invitee_roles"),
     path('settings/invitee-role/<int:pk>/delete/', views.InviteeRoleHardDeleteView.as_view(), name="delete_invitee_role"),
     # permissions
-    path('settings/csas-admin-users/', views.CSASAdminUserFormsetView.as_view(), name="manage_csas_admin_users"),
-    path('settings/csas-admin-user/<int:pk>/delete/', views.CSASAdminUserHardDeleteView.as_view(), name="delete_csas_admin_user"),
+    path('settings/csas-admin-users/', views.CSASAdminUserFormsetView.as_view(), name="manage_ppt_admin_users"),
+    path('settings/csas-admin-user/<int:pk>/delete/', views.CSASAdminUserHardDeleteView.as_view(), name="delete_ppt_admin_user"),
     # tags
     path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
     path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
