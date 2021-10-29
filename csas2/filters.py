@@ -38,6 +38,7 @@ class CSASRequestFilter(django_filters.FilterSet):
     fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name="section__division__branch__sector__region", label=_("Region"), lookup_expr='exact')
     sector = django_filters.ChoiceFilter(field_name="section__division__branch__sector", label=_("Sector"), lookup_expr='exact')
+    section = django_filters.ChoiceFilter(field_name="section", label=_("Section"), lookup_expr='exact')
     has_process = django_filters.BooleanFilter(field_name='processes', lookup_expr='isnull', label=_("Has process?"), exclude=True)
     status = django_filters.MultipleChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"),
                                                  widget=forms.SelectMultiple(attrs=chosen_js), choices=request_status_choices)
