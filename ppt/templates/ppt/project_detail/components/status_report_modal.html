@@ -4,7 +4,7 @@
 {% load project_filters %}
 {% load static %}
 <!-- template for the modal component -->
-<script type="text/x-template" id="file-modal-template">
+<script type="text/x-template" id="status-report-modal-template">
 <transition name="modal">
   <div class="modal-mask">
     <div class="modal-wrapper">
@@ -27,7 +27,20 @@
         <form method="post" @submit.prevent="onSubmit" class="form" enctype="multipart/form-data">
           <div class="modal-body">
             <slot name="body">
-              {% bootstrap_form file_form size='small' %}
+              {% for field in status_report_form %}
+                {% if field.name|is_markdown_field %}
+
+                  <label for="id_priorities">{{ field.label }}</label>
+                  <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"
+                     title="{% trans "Markdown syntax is supported in this field" %}">
+                    <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
+                  </a>
+                  {% bootstrap_field field placeholder="" show_label=False size='small' %}
+
+                {% else %}
+                  {% bootstrap_field field placeholder="" size='small' %}
+                {% endif %}
+              {% endfor %}
             </slot>
           </div>
           <div class="modal-footer">
@@ -47,8 +60,8 @@
 
 
 <script type="application/javascript">
-Vue.component("file-modal", {
-  template: "#file-modal-template",
+Vue.component("status-report-modal", {
+  template: "#status-report-modal-template",
   delimiters: ["${", "}"],
   props: {
     year: {
@@ -69,56 +82,41 @@ Vue.component("file-modal", {
       isCSRF: false,
       original_user: null,
       errors: null,
-      // files
-      fileToUpload: null,
-      file: {
-        name: null,
-        external_url: null,
+      // status reports
+      status_report: {
+        status: null,
+        major_accomplishments: null,
+        major_issues: null,
+        target_completion_date: null,
+        rationale_for_modified_completion_date: null,
+        general_comment: null,
+        section_head_comment: null,
+        section_head_reviewed: null,
       },
     }
   },
   methods: {
-
-    onFileChange() {
-      this.fileToUpload = this.$refs.file.files[0];
-    },
     onSubmit() {
       this.errors = null
+      if (this.status_report.target_completion_date === "") this.status_report.target_completion_date = null
+      if (this.status_report.section_head_reviewed == null) this.status_report.section_head_reviewed = "False"
+
       if (this.my_object) {
-        // if there is a file attribute, delete it since we send back the file through a separate request
-        if (this.file.file) delete this.file.file
-        let endpoint = `/api/ppt/files/${this.my_object.id}/`;
-        apiService(endpoint, "PATCH", this.file).then(response => {
-          if (response.id) {
-            if (this.fileToUpload) {
-              this.fileToUpload.project_year = this.year.id;
-              fileApiService(endpoint, "PATCH", "file", this.fileToUpload).then((response)=>{
-                console.log(response)
-              })
-              this.fileToUpload = null
-            }
-            this.$emit('close')
-          } else {
-            this.errors = groomJSON(response)
+        let endpoint = `/api/ppt/status-reports/${this.my_object.id}/`;
+        apiService(endpoint, "PATCH", this.status_report).then(response => {
+          if (response.id) this.$emit('close')
+          else {
+            this.errors = groomJSON(response);
           }
         })
       } else {
-        let endpoint = `/api/ppt/files/`;
-        this.file.project_year = this.year.id;
-        apiService(endpoint, "POST", this.file).then(response => {
-          if (response.id) {
-            // now we have to upload the file
-            if (this.fileToUpload) {
-              this.fileToUpload.project_year = this.year.id;
-              let endpoint = `/api/ppt/files/${response.id}/`;
-              fileApiService(endpoint, "PATCH", "file", this.fileToUpload)
-              this.fileToUpload = null
-            }
-            this.$emit('close')
-          } else {
-                        this.errors = groomJSON(response);
-            console.log(this.errors)
-
+        let endpoint = `/api/ppt/status-reports/`;
+        this.status_report.project_year = this.year.id;
+        console.log(this.status_report)
+        apiService(endpoint, "POST", this.status_report).then(response => {
+          if (response.id) this.$emit('close')
+          else {
+            this.errors = groomJSON(response);
           }
         })
       }
@@ -142,7 +140,13 @@ Vue.component("file-modal", {
     }
     this.$nextTick(() => {
       if (this.my_object && this.my_object.id) {
-        this.file = this.my_object
+        this.status_report = this.my_object
+        // there is an annoying thing that has to happen to convert the html to js to pytonese...
+        if (this.status_report.section_head_reviewed) this.status_report.section_head_reviewed = "True"
+        else this.status_report.section_head_reviewed = "False"
+        // there is an annoying thing that has to happen to convert the html to js to pytonese...
+        if (this.status_report.target_completion_date) this.status_report.target_completion_date = this.status_report.target_completion_date.slice(0, 10)
+        else this.status_report.target_completion_date = null
       }
     })
   },

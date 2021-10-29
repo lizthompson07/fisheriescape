@@ -9,7 +9,7 @@
     <p class="lead">{% trans "Status Reports" %}</p>
   </div>
   <div v-if="!status_report_loading" class="mb-3 neighbours">
-    <button @click="openStatusReportModal()" class="{{ btn_class_1 }} no-print" v-if="canModify">
+    <button @click="openModal(null, 'status_report')" class="{{ btn_class_1 }} no-print" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Status Report" %}
     </button>
   </div>

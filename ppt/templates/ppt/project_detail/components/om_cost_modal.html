@@ -85,12 +85,7 @@ Vue.component("om-cost-modal", {
         apiService(endpoint, "PATCH", this.om_cost).then(response => {
           if (response.id) this.$emit('close')
           else {
-            var myString = "";
-            for (var i = 0; i < Object.keys(response).length; i++) {
-              key = Object.keys(response)[i]
-              myString += String(key) + ": " + response[key] + "<br>"
-            }
-            this.errors = myString
+                        this.errors = groomJSON(response);
           }
         })
       } else {
@@ -99,12 +94,7 @@ Vue.component("om-cost-modal", {
         apiService(endpoint, "POST", this.om_cost).then(response => {
           if (response.id) this.$emit('close')
           else {
-            var myString = "";
-            for (var i = 0; i < Object.keys(response).length; i++) {
-              key = Object.keys(response)[i]
-              myString += String(key) + ": " + response[key] + "<br>"
-            }
-            this.errors = myString
+                        this.errors = groomJSON(response);
           }
         })
       }

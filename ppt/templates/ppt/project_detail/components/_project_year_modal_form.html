@@ -12,15 +12,6 @@
 
         <div class="modal-header">
           <slot name="header">
-            <h3 v-else-if="mtype === 'status_report'">
-              <span v-if="!my_status_report">{% trans "New Status Report (Still under development)" %}</span>
-              <span v-else>{% trans "Edit Status Report (Still under development)" %}</span>
-            </h3>
-            <h3 v-else-if="mtype === 'file'">
-              <span v-if="!my_file">{% trans "New Supporting Resource" %}</span>
-              <span v-else>{% trans "Edit Supporting Resource" %}</span>
-            </h3>
-            <div v-if="errors" class="alert alert-danger" role="alert">
               <h4 class="alert-heading">
                 {% trans "The form has a few errors:" %}
               </h4>
@@ -33,32 +24,6 @@
         <form v-if="!showOTCalc" method="post" @submit.prevent="onSubmit" class="form" enctype="multipart/form-data">
           <div class="modal-body">
             <slot name="body">
-
-
-
-              {# STATUS REPORT FORM             #}
-              <div v-else-if="mtype=='status_report'">
-                {% for field in status_report_form %}
-                  {% if field.name|is_markdown_field %}
-
-                    <label for="id_priorities">{{ field.label }}</label>
-                    <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"
-                       title="{% trans "Markdown syntax is supported in this field" %}">
-                      <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
-                    </a>
-                    {% bootstrap_field field placeholder="" show_label=False size='small' %}
-
-                  {% else %}
-                    {% bootstrap_field field placeholder="" size='small' %}
-                  {% endif %}
-                {% endfor %}
-
-
-              </div>
-              {# FILE FORM             #}
-              <div v-else-if="mtype=='file'">
-                {% bootstrap_form file_form size='small' %}
-              </div>
             </slot>
           </div>
 
@@ -142,17 +107,7 @@ Vue.component("modal", {
         notes: null,
       },
 
-      // status reports
-      status_report: {
-        status: null,
-        major_accomplishments: null,
-        major_issues: null,
-        target_completion_date: null,
-        rationale_for_modified_completion_date: null,
-        general_comment: null,
-        section_head_comment: null,
-        section_head_reviewed: null,
-      },
+
 
       // files
       fileToUpload: null,
@@ -178,37 +133,7 @@ Vue.component("modal", {
 
       // status report
       else if (this.mtype === "status_report") {
-        if (this.status_report.target_completion_date === "") this.status_report.target_completion_date = null
-        if (this.status_report.section_head_reviewed == null) this.status_report.section_head_reviewed = "False"
-        console.log(this.status_report.target_completion_date)
 
-        if (this.my_status_report) {
-          let endpoint = `/api/ppt/status-reports/${this.my_status_report.id}/`;
-          apiService(endpoint, "PATCH", this.status_report).then(response => {
-            if (response.id) this.$emit('close')
-            else {
-              var myString = "";
-              for (var i = 0; i < Object.keys(response).length; i++) {
-                key = Object.keys(response)[i]
-                myString += String(key) + ": " + response[key] + "<br>"
-              }
-              this.errors = myString
-            }
-          })
-        } else {
-          let endpoint = `/api/ppt/project-years/${this.year.id}/status-reports/`;
-          apiService(endpoint, "POST", this.status_report).then(response => {
-            if (response.id) this.$emit('close')
-            else {
-              var myString = "";
-              for (var i = 0; i < Object.keys(response).length; i++) {
-                key = Object.keys(response)[i]
-                myString += String(key) + ": " + response[key] + "<br>"
-              }
-              this.errors = myString
-            }
-          })
-        }
       }
 
 

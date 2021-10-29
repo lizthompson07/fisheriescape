@@ -423,7 +423,6 @@ class StatusReportSerializer(serializers.ModelSerializer):
         model = models.StatusReport
         fields = "__all__"
 
-    project_year_id = serializers.SerializerMethodField()
     target_completion_date_display = serializers.SerializerMethodField()
     report_number = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
@@ -436,9 +435,6 @@ class StatusReportSerializer(serializers.ModelSerializer):
 
     def get_major_issues_html(self, instance):
         return instance.major_issues_html
-
-    def get_project_year_id(self, instance):
-        return instance.project_year_id
 
     def get_target_completion_date_display(self, instance):
         if instance.target_completion_date:

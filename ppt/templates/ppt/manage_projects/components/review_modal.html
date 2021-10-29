@@ -287,12 +287,7 @@ Vue.component("modal", {
         apiService(endpoint, "PUT", this.project_year.review).then(response => {
           if (response.id) this.$emit('close', this.project_year)
           else {
-            var myString = "";
-            for (var i = 0; i < Object.keys(response).length; i++) {
-              key = Object.keys(response)[i]
-              myString += String(key) + ": " + response[key] + "<br>"
-            }
-            this.errors = myString
+                        this.errors = groomJSON(response);
             this.loading = false
 
           }
@@ -305,12 +300,7 @@ Vue.component("modal", {
             this.project_year.review = response
             this.$emit('close', this.project_year)
           } else {
-            var myString = "";
-            for (var i = 0; i < Object.keys(response).length; i++) {
-              key = Object.keys(response)[i]
-              myString += String(key) + ": " + response[key] + "<br>"
-            }
-            this.errors = myString
+                        this.errors = groomJSON(response);
             this.loading = false
 
           }
