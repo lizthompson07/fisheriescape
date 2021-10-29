@@ -94,7 +94,8 @@ Vue.component("capital-cost-modal", {
           }
         })
       } else {
-        let endpoint = `/api/ppt/project-years/${this.year.id}/capital-costs/`;
+        let endpoint = `/api/ppt/capital-costs/`;
+        this.capital_cost.project_year = this.year.id
         apiService(endpoint, "POST", this.capital_cost).then(response => {
           if (response.id) this.$emit('close')
           else {
