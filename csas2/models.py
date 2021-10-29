@@ -757,6 +757,19 @@ class Attendance(models.Model):
 class DocumentType(SimpleLookup):
     days_due = models.IntegerField(null=True, blank=True, verbose_name=_("days due following meeting"))
     hide_from_list = models.BooleanField(default=False, verbose_name=_("hide from main search?"), choices=model_choices.yes_no_choices)
+    translation_tracking_only = models.BooleanField(default=False, verbose_name=_("for translation tracking only?"), choices=model_choices.yes_no_choices)
+
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            my_str = "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.name
+        if self.translation_tracking_only:
+            my_str += " ({})".format(gettext("use for translation tracking only"))
+        return my_str
 
 
 class Document(MetadataFields):

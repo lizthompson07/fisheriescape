@@ -54,12 +54,15 @@ class CSASRequestFilter(django_filters.FilterSet):
         client_choices = [(u.id, str(u)) for u in User.objects.filter(csas_client_requests__isnull=False).order_by("first_name", "last_name").distinct()]
 
         self.filters['fiscal_year'].field.choices = fy_choices
-        self.filters['fiscal_year'].field.widget = forms.SelectMultiple(attrs=chosen_js)
         self.filters['region'].field.choices = region_choices
         self.filters['sector'].field.choices = sector_choices
         self.filters['section'].field.choices = section_choices
         self.filters['client'].field.choices = client_choices
+
         self.filters['client'].field.widget.attrs = chosen_js
+        self.filters['section'].field.widget.attrs = chosen_js
+        self.filters['fiscal_year'].field.widget = forms.SelectMultiple(attrs=chosen_js)
+
         try:
             if self.data["region"] != "":
                 my_region_id = int(self.data["region"])
@@ -73,7 +76,6 @@ class CSASRequestFilter(django_filters.FilterSet):
                 section_choices = [my_set for my_set in utils.get_section_choices() if
                                    Section.objects.get(pk=my_set[0]).division.branch.sector_id == my_sector_id]
                 self.filters['section'].field.choices = section_choices
-
 
         except KeyError:
             print('no data in filter')

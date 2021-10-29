@@ -174,12 +174,15 @@ class CSASRequestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         section_choices = [(obj.id, obj.full_name) for obj in Section.objects.all()]
         section_choices.insert(0, (None, "------"))
-        coordinator_choices = [(u.id, u.get_full_name()) for u in User.objects.filter(groups__name__in=["csas_regional_admin", "csas_national_admin"])]
+        coordinator_choices = [(u.id, u.get_full_name()) for u in User.objects.filter(groups__name__in=["csas_regional_admin", "csas_national_admin"]).order_by("first_name", "last_name")]
         coordinator_choices.insert(0, (None, "------"))
+        client_choices = [(u.id, str(u)) for u in User.objects.all().order_by("first_name", "last_name")]
+        client_choices.insert(0, (None, "------"))
 
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = section_choices
         self.fields['coordinator'].choices = coordinator_choices
+        self.fields['client'].choices = client_choices
 
     def clean(self):
         cleaned_data = super().clean()
@@ -393,6 +396,31 @@ class MeetingForm(forms.ModelForm):
         model = models.Meeting
         exclude = ["start_date", "end_date"]
 
+    def clean(self):
+        cleaned_data = super().clean()
+        # make sure that the lead_region is not also listed in the other_regions field
+        lead_region = cleaned_data.get("lead_region")
+        other_regions = cleaned_data.get("other_regions")
+        coordinator = cleaned_data.get("coordinator")
+        lead_region = cleaned_data.get("lead_region")
+        name = cleaned_data.get("name")
+        nom = cleaned_data.get("nom")
+        if not name and not nom:
+            error_msg = gettext("Must have either an English title or a French title!")
+            self.add_error('name', error_msg)
+            self.add_error('nom', error_msg)
+            raise forms.ValidationError(error_msg)
+        if lead_region in other_regions:
+            error_msg = gettext("Your lead region cannot be listed in the 'Other Regions' field.")
+            self.add_error('other_regions', error_msg)
+        if not coordinator:
+            error_msg = gettext("Must enter a coordinator for this request!")
+            raise forms.ValidationError(error_msg)
+        if not lead_region:
+            error_msg = gettext("Must enter a lead region for this process!")
+            raise forms.ValidationError(error_msg)
+        return self.cleaned_data
+
 
 class DocumentForm(forms.ModelForm):
     class Meta:
@@ -400,7 +428,6 @@ class DocumentForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'meetings': forms.SelectMultiple(attrs=chosen_js),
-
         }
 
     def __init__(self, *args, **kwargs):
@@ -427,6 +454,12 @@ class DocumentForm(forms.ModelForm):
             del self.fields["ekme_gcdocs_fr"]
             del self.fields["lib_cat_en"]
             del self.fields["lib_cat_fr"]
+
+    def clean_meetings(self):
+        meetings = self.cleaned_data['meetings']
+        if not meetings:
+            raise forms.ValidationError("You must select at least one meeting!")
+        return meetings
 
 
 class DocumentTypeForm(forms.ModelForm):

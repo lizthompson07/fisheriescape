@@ -1048,9 +1048,9 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
     open_row_in_new_tab = True
 
     field_list = [
-        {"name": 'ttitle|{}'.format("title"), "class": "", "width": "300px"},
+        {"name": 'ttitle|{}'.format("title"), "class": "w-35"},
         {"name": 'document_type', "class": "", "width": ""},
-        {"name": 'process', "class": "", "width": "300px"},
+        {"name": 'process', "class": "w-25"},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'translation_status', "class": "", "width": ""},
     ]
