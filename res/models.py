@@ -342,7 +342,7 @@ class Achievement(MetadataFields):
                 mystr += "n/a"
 
             if self.review_type:
-                mystr += f"{nz(self.review_type.code, '')}"
+                mystr += f"<span class='helper text-primary' data-toggle='tooltip' title='{self.review_type.tname}'>{nz(self.review_type.code, '')}</span>"
 
             mystr += "."
         elif self.date:

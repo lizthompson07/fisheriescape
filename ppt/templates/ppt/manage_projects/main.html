@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block content %}
+
   <div id="app" @keydown.esc.prevent="closeModal()" v-cloak>
 
     <div id="mySidebar" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar}">

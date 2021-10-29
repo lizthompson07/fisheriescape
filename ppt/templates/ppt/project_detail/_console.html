@@ -2,10 +2,11 @@
 {% load static %}
 {% load custom_tags %}
 
-{% echo "btn btn-outline-dark btn-sm custom-btn" as btn_class_black %}
-{% echo "btn btn-outline-primary btn-sm custom-btn" as btn_class_blue %}
-{% echo "btn btn-outline-success btn-sm custom-btn" as btn_class_green %}
-{% echo "btn btn-outline-danger btn-sm custom-btn" as btn_class_red %}
+{% echo "btn btn-light btn-sm custom-btn" as btn_class_black %}
+{% echo "btn btn-primary btn-sm custom-btn" as btn_class_blue %}
+{% echo "btn btn-success btn-sm custom-btn" as btn_class_green %}
+{% echo "btn btn-danger btn-sm custom-btn" as btn_class_red %}
+
 <div v-if="!showSidebar">
   <button class="{{ btn_class_black }} ml-2" @click="showSidebar=true" data-toggle="tooltip" title="{% trans "Open sidebar" %}">
     <span class="mdi mdi-arrow-collapse-right"></span>
