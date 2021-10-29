@@ -40,7 +40,6 @@
                   {% if field == "date" %}
                     {{ upcoming_date.date|date }} {{ upcoming_date.date|time }}<br>
                     ({{ upcoming_date.date|timeuntil }})
-
                   {% else %}
                     {% get_field_value upcoming_date field %}
                   {% endif %}
@@ -120,11 +119,14 @@
               {{ obj.region|upper }} -
             {% endif %}
             {{ obj }}:
-            <span class="text-info">{% trans "English" %}</span> &rarr;
-            {{ obj.file_display_en }}
+            <a href='{{ obj.file_en.url }}'>
+              {% trans "English" %} <span class='mdi mdi-file'></span>
+            </a>
+
             {% if obj.file_fr %}
-              <span class="text-info">{% trans "French" %}</span> &rarr;
-              {{ obj.file_display_fr }}
+               / <a href='{{ obj.file_fr.url }}'>
+                {% trans "French" %} <span class='mdi mdi-file'></span>
+              </a>
             {% endif %}
 
             ({{ obj.updated_at|date }})

@@ -1152,18 +1152,12 @@ class ReferenceMaterial(SimpleLookup):
     def metadata(self):
         return get_metadata_string(self.created_at, None, self.updated_at)
 
-    @property
-    def file_display_en(self):
-        if self.file_en:
-            return mark_safe(
-                f"<a href='{self.file_en.url}'> <span class='mdi mdi-file'></span></a>"
-            )
 
     @property
     def file_display_fr(self):
         if self.file_fr:
             return mark_safe(
-                f"<a href='{self.file_fr.url}'> <span class='mdi mdi-file'></span></a>"
+                f"<a href='{self.file_fr.url}'> <span class='mdi mdi-file text-primary'></span></a>"
             )
 
     class Meta:
