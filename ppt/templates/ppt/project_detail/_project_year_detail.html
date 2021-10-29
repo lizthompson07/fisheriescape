@@ -6,7 +6,11 @@
 {% echo "btn btn-sm btn-outline-secondary py-0" as btn_class_1 %}
 {% echo "btn btn-sm btn-outline-secondary px-1 py-0" as btn_class_2 %}
 
-<div v-if="canModify" class="mb-3 float-right">
+
+<p class="lead">{% trans "Overview" %}</p>
+
+{# buttons #}
+<div v-if="canModify" class="mb-3 btn-group">
   <button class="btn btn-sm btn-warning no-print"
           @click="goProjectYearEdit(projectYear.id)">
     <span class="mdi mdi-pencil"></span>
@@ -23,12 +27,10 @@
     {% trans "Clone" %}
   </button>
 </div>
-<p class="lead">{% trans "Overview" %}</p>
-
 
 {# OVERVIEW #}
 <div class="mb-5">
-{#  <h2>Project Year: ${projectYear.display_name}</h2>#}
+  {#  <h2>Project Year: ${projectYear.display_name}</h2>#}
   <table class="table table-sm">
     {% for field in project_year_field_list %}
 
@@ -56,7 +58,7 @@
           {% include "ppt/project_detail/_project_year_field.html" %}
         </tr>
 
-      {% elif "priorities" in field  %}
+      {% elif "priorities" in field %}
         <tr>
           <th v-if="!isCSRF" class="narrow-col">{% get_verbose_label object.years.first field %}</th>
           <th v-else class="narrow-col">{% trans "Methods applied to achieve project objectives (CSRF)" %}</th>

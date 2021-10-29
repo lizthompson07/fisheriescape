@@ -21,79 +21,41 @@
 {% block subcontent %}
   <div id="app" @keydown.esc.prevent="closeModals()" v-cloak>
 
-  <div id="mySidebar" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar, 'no-print':true}">
-    {% include "ppt/project_detail/_console.html" %}
-  </div>
-
-  <div :class="{'main-opened':showSidebar, 'main-closed':!showSidebar}">
-    <div style="padding-left: 30px">
-      {% include "shared_models/_generic_breadcrumbs.html" %}
-
-      <div class="mb-3">
-        <h2 class="">{{ h1|safe }}</h2>
-        <p class="lead text-muted mt-1 mb-0">{% trans "Project ID:" %} {{ object.id }}</p>
-      </div>
-
-
-      {% bootstrap_messages %}
-      <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
-        <p class="mb-0">
-          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
-        </p>
-      </div>
+    <div id="mySidebar" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar, 'no-print':true}">
+      {% include "ppt/project_detail/_console.html" %}
     </div>
 
-    <div class="row container-fluid bg-light curvy">
-      <div class="col">
-        <div v-if="showOverview">
-          <div class="mb-3">
+    <div :class="{'main-opened':showSidebar, 'main-closed':!showSidebar}">
+      <div style="padding-left: 30px">
+        {% include "shared_models/_generic_breadcrumbs.html" %}
 
-            {% include "ppt/project_detail/_overview.html" %}
-            {% include "ppt/project_detail/_project_financials.html" %}
-            {% include "ppt/project_detail/_submit.html" %}
+        <div class="mb-3">
+          <h2 class="">{{ h1|safe }}</h2>
+          <p class="lead text-muted mt-1 mb-0">{% trans "Project ID:" %} {{ object.id }}</p>
+        </div>
 
-            <div class="mb-5" id="project-year">
+
+        {% bootstrap_messages %}
+        <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
+          <p class="mb-0">
+            <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="row container-fluid bg-light curvy">
+        <div class="col">
+          <div v-if="showOverview">
+            <div class="mb-3">
+
               <div class="section-card">
-
-                <div class="mb-2 neighbours">
-                  <h4>{% trans "Project Years" %}</h4>
-                </div>
-                <div class="mb-3">
-                  <ul class="nav nav-tabs">
-                    <li class="nav-item" v-for="(year, index) in project.years" :key="index">
-                      <a @click="displayProjectYear(year.id)" :class="{ 'nav-link': true, 'active': year.id == projectYear.id }" href="#project-year">
-                        <span v-if="year.submitted" class="text-primary lead"> ${ year.display_name }</span>
-                        <span v-else class="text-danger lead"> ${ year.display_name } ({% trans "draft" %})</span>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a v-if="canModify && project.years && project.years.length " href="#" class="nav-link" data-toggle="modal"
-                         data-target="#new-year-modal"
-                         title="{% trans "Add a new year to this project" %}">
-                        <span class="lead">{% trans "Add Project Year" %}</span>
-                      </a>
-                      <a v-else-if="canModify" href="{% url 'ppt:year_new' object.id %}" class="nav-link">
-                        <span class="lead">{% trans "Add Project Year" %}</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-
-
-                <div v-if="projectYear.id">
-                  {% include "ppt/project_detail/_project_year_detail.html" %}
-
-                  <staff-modal v-if="showModal.staff" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></staff-modal>
-                  <om-cost-modal v-if="showModal.om_cost" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></om-cost-modal>
-                  <capital-cost-modal v-if="showModal.capital_cost" @close="closeModals(projectYear)" :year="projectYear"
-                                      :my_object="objectToEdit"></capital-cost-modal>
-                  <activity-modal v-if="showModal.activity" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></activity-modal>
-                  <collaboration-modal v-if="showModal.collaboration" @close="closeModals(projectYear)" :year="projectYear"
-                                       :my_object="objectToEdit"></collaboration-modal>
-                  <status-report-modal v-if="showModal.status_report" @close="closeModals(projectYear)" :year="projectYear"
-                                       :my_object="objectToEdit"></status-report-modal>
-                  <file-modal v-if="showModal.file" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></file-modal>
-                </div>
+                {% include "ppt/project_detail/_overview.html" %}
+                <hr>
+                {% include "ppt/project_detail/_project_financials.html" %}
+                <hr>
+                {% include "ppt/project_detail/_submit.html" %}
+                <hr>
+                {% include "ppt/project_detail/_project_years.html" %}
 
 
               </div>
@@ -115,11 +77,11 @@
         </div>
       </div>
 
-
     </div>
 
-
   </div>
+
+
 
 
 
@@ -164,7 +126,7 @@
 {% block body_js %}
   {{ block.super }}
 
-{#  {% include "ppt/project_detail/components/_project_year_modal_form.html" %}#}
+  {#  {% include "ppt/project_detail/components/_project_year_modal_form.html" %}#}
 
 
   <script type="application/javascript">

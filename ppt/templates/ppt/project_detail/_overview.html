@@ -2,89 +2,85 @@
 {% load verbose_names %}
 {% load custom_filters %}
 
-<div class="section-card">
-  <div class="pointy" @click="collapseOverview = !collapseOverview">
-    <div v-if="canModify" class="mb-3 float-right">
-      <button class="btn btn-sm btn-warning no-print" @click="goProjectEdit(project.id)">
-        <span class="mdi mdi-pencil"></span> {% trans "Edit" %}
-      </button>
-    </div>
-    <h4 id="overview">
-      {% trans "Project Overview" %}
-      <span v-if="!collapseOverview" class="ml-1 mdi mdi-toggle-switch-off text-primary"></span>
-      <span v-else class="ml-1 mdi mdi-toggle-switch"></span>
-    </h4>
+<div class="pointy mb-5" @click="collapseOverview = !collapseOverview">
+  <h4 id="overview">
+    {% trans "Project Overview" %}
+    <span v-if="!collapseOverview" class="ml-1 mdi mdi-toggle-switch-off text-primary"></span>
+    <span v-else class="ml-1 mdi mdi-toggle-switch"></span>
+  </h4>
+</div>
+<div v-if="!collapseOverview">
+  <div v-if="canModify" class="mb-3">
+    <button class="btn btn-sm btn-warning no-print" @click="goProjectEdit(project.id)">
+      <span class="mdi mdi-pencil"></span> {% trans "Edit" %}
+    </button>
   </div>
-  <div v-if="!collapseOverview">
 
+  {% trans "<span class='red-font'>missing</span>" as nulltext %}
+  <table class="table table-sm mb-5">
+    {% for field in project_field_list %}
+      {% if "overview" in field %}
+        <tr>
+          <th>{% get_verbose_label object field %}</th>
+          <td>
+            {{ object.overview_html|nz:nulltext }}
+          </td>
+        </tr>
+      {% elif "references" in field %}
+        <tr>
+          <th>
+            {% get_verbose_label object field %}
+            (<a href="{% url 'ppt:project_references' object.id %}">{% trans "manage" %}</a>)
+          </th>
+          <td>
+            {% if object.references.exists %}
+              <ul>
+                {% for ref in object.references.all %}
+                  <li>{{ ref.short_citation_html|safe }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              ---
+            {% endif %}
+          </td>
+        </tr>
 
-    {% trans "<span class='red-font'>missing</span>" as nulltext %}
-    <table class="table table-sm mb-5">
-      {% for field in project_field_list %}
-        {% if "overview" in field %}
-          <tr>
-            <th>{% get_verbose_label object field %}</th>
-            <td>
-              {{ object.overview_html|nz:nulltext }}
-            </td>
-          </tr>
-        {% elif "references" in field %}
-          <tr>
-            <th>
-              {% get_verbose_label object field %}
-              (<a href="{% url 'ppt:project_references' object.id %}">{% trans "manage" %}</a>)
-            </th>
-            <td>
-              {% if object.references.exists %}
-                <ul>
-                  {% for ref in object.references.all %}
-                    <li>{{ ref.short_citation_html|safe }}</li>
-                  {% endfor %}
-                </ul>
-              {% else %}
-                ---
-              {% endif %}
-            </td>
-          </tr>
-
-        {% elif "csrf_theme" in field %}
-          <tr>
-            <th>{% get_verbose_label object field %}</th>
-            <td>
-              {% if object.client_information %}
-                {{ object.client_information.csrf_priority.csrf_sub_theme.csrf_theme }}
-              {% else %}
-                ---
-              {% endif %}
-            </td>
-          </tr>
-        {% elif "csrf_sub_theme" in field %}
-          <tr>
-            <th>{% get_verbose_label object field %}</th>
-            <td>
-              {% if object.client_information %}
-                {{ object.client_information.csrf_priority.csrf_sub_theme }}
-              {% else %}
-                ---
-              {% endif %}
-            </td>
-          </tr>
-        {% elif "csrf_priority" in field %}
-          <tr>
-            <th>{% get_verbose_label object field %}</th>
-            <td>
-              {% if object.client_information %}
-                {{ object.client_information.csrf_priority }} ({{ object.client_information.csrf_priority.code }})
-              {% else %}
-                ---
-              {% endif %}
-            </td>
-          </tr>
-        {% else %}
-          {% verbose_td_display object field th_width="30%" td_width="70%" nullmark=nulltext %}
-        {% endif %}
-      {% endfor %}
-    </table>
-
-  </div>
+      {% elif "csrf_theme" in field %}
+        <tr>
+          <th>{% get_verbose_label object field %}</th>
+          <td>
+            {% if object.client_information %}
+              {{ object.client_information.csrf_priority.csrf_sub_theme.csrf_theme }}
+            {% else %}
+              ---
+            {% endif %}
+          </td>
+        </tr>
+      {% elif "csrf_sub_theme" in field %}
+        <tr>
+          <th>{% get_verbose_label object field %}</th>
+          <td>
+            {% if object.client_information %}
+              {{ object.client_information.csrf_priority.csrf_sub_theme }}
+            {% else %}
+              ---
+            {% endif %}
+          </td>
+        </tr>
+      {% elif "csrf_priority" in field %}
+        <tr>
+          <th>{% get_verbose_label object field %}</th>
+          <td>
+            {% if object.client_information %}
+              {{ object.client_information.csrf_priority }} ({{ object.client_information.csrf_priority.code }})
+            {% else %}
+              ---
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        {% verbose_td_display object field th_width="30%" td_width="70%" nullmark=nulltext %}
+      {% endif %}
+    {% endfor %}
+  </table>
 </div>
