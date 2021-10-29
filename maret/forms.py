@@ -2,6 +2,7 @@
 from django import forms
 from maret import models
 from masterlist import models as ml_models
+from shared_models import models as shared_models
 from django.forms import modelformset_factory
 from django.utils.translation import gettext as _, gettext_lazy
 
@@ -34,6 +35,7 @@ class InteractionForm(forms.ModelForm):
 
 
 class OrganizationForm(forms.ModelForm):
+    asc_province = forms.MultipleChoiceField(required=False, label=_("Associated Province(s)"))
     category = forms.MultipleChoiceField(required=False, label=_("Categories"))
     area = forms.MultipleChoiceField(required=False, label=_("Area(s)"))
 
@@ -55,11 +57,12 @@ class OrganizationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.order_fields(['name_eng', 'category', 'name_ind', 'abbrev', 'address', 'mailing_address', 'city',
                            'postal_code', 'province', 'phone', 'fax', 'dfo_contact_instructions', 'notes',
-                           'key_species', 'grouping', 'area'])
+                           'key_species', 'grouping', 'area', 'regions', 'asc_province'])
 
         self.fields['area'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['category'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['orgs'].widget = forms.SelectMultiple(attrs=multi_select_js)
+        self.fields['asc_province'].widget = forms.SelectMultiple(attrs=multi_select_js)
 
         from ihub.views import get_ind_organizations
         org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
@@ -70,6 +73,9 @@ class OrganizationForm(forms.ModelForm):
 
         category_choices = [(c.id, c) for c in models.OrgCategory.objects.all()]
         self.fields['category'].choices = category_choices
+
+        province_choices = [(p.id, p) for p in shared_models.Province.objects.all()]
+        self.fields['asc_province'].choices = province_choices
 
 
 class MemberForm(forms.ModelForm):

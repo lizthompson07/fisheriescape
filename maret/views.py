@@ -403,6 +403,13 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateView):
             ext_org.category.set(fields['category'])
             ext_org.save()
 
+        if fields['asc_province']:
+            if not ext_org:
+                ext_org = models.OrganizationExtension(organization=object)
+                ext_org.save()
+            ext_org.associated_provinces.set(fields['asc_province'])
+            ext_org.save()
+
         return HttpResponseRedirect(reverse_lazy('maret:org_detail', kwargs={'pk': object.id}))
 
 
@@ -470,14 +477,14 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
             ext_org = models.OrganizationExtension.objects.get(organization=self.object)
             if ext_org:
                 areas = [a.pk for a in ext_org.area.all()]
-
-            if ext_org:
                 category = [c.pk for c in ext_org.category.all()]
+                asc_province = [p.pk for p in ext_org.associated_provinces.all()]
 
         return {
             'last_modified_by': self.request.user,
             'area': areas,
             'category': category,
+            'asc_province': asc_province,
         }
 
     def form_valid(self, form):
@@ -505,6 +512,13 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
                 ext_org = models.OrganizationExtension(organization=obj)
                 ext_org.save()
             ext_org.category.set(fields['category'])
+            ext_org.save()
+
+        if fields['asc_province']:
+            if not ext_org:
+                ext_org = models.OrganizationExtension(organization=object)
+                ext_org.save()
+            ext_org.associated_provinces.set(fields['asc_province'])
             ext_org.save()
 
         return super().form_valid(form)

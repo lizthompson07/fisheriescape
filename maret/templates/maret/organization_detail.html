@@ -87,6 +87,14 @@
                                     </td>
                                 </tr>
                                 {% verbose_td_display object field %}
+                               <tr>
+                                    <th class="w-25"> {%  trans "Associated Province(s)" %} </th>
+                                    <td>
+                                        {% for ext_org in object.ext_org.all %}
+                                            {{ ext_org.associated_provinces.all|join:", " }}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
                             {% else %}
                                 {% verbose_td_display object field %}
                             {% endif %}

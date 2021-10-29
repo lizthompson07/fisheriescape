@@ -142,5 +142,7 @@ class Interaction(models.Model):
 class OrganizationExtension(models.Model):
     organization = models.ForeignKey(ml_models.Organization, blank=False, null=False, default=1, related_name="ext_org",
                                      verbose_name="Organization", on_delete=models.CASCADE)
+    associated_provinces = models.ManyToManyField(shared_models.Province, related_name="ext_asc_province",
+                                                  verbose_name="Associated Provinces")
     category = models.ManyToManyField(OrgCategory, related_name="ext_org_category", verbose_name="Category")
     area = models.ManyToManyField(Area, related_name="ext_org_area", verbose_name="Area")

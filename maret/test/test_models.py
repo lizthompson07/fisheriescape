@@ -41,7 +41,7 @@ class TestOrganizationExtensionModel(CommonTest):
 
     @tag("fields", "org_ext_model_fields")
     def test_fields(self):
-        fields_to_check = ['organization', 'area', 'category']
+        fields_to_check = ['organization', 'area', 'category', 'associated_provinces']
         self.assert_has_fields(models.OrganizationExtension, fields_to_check)
 
 
