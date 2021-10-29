@@ -1,0 +1,143 @@
+{% load i18n %}
+{% load bootstrap4 %}
+{% load custom_filters %}
+{% load project_filters %}
+{% load static %}
+<!-- template for the modal component -->
+<script type="text/x-template" id="collaboration-modal-template">
+<transition name="modal">
+  <div class="modal-mask">
+    <div class="modal-wrapper">
+      <div class="modal-container">
+        <div class="modal-header">
+          <slot name="header">
+            <h3>
+              <span v-if="!my_object">{% trans "New Collaboration" %}</span>
+              <span v-else>{% trans "Edit Collaboration" %}</span>
+            </h3>
+            <div v-if="errors" class="alert alert-danger" role="alert">
+              <h4 class="alert-heading">
+                {% trans "The form has a few errors:" %}
+              </h4>
+              <hr>
+              <span v-html="errors"></span>
+            </div>
+          </slot>
+        </div>
+        <form method="post" @submit.prevent="onSubmit" class="form" enctype="multipart/form-data">
+          <div class="modal-body">
+            <slot name="body">
+              {% bootstrap_form collaboration_form size='small' %}
+            </slot>
+          </div>
+          <div class="modal-footer">
+            <slot name="footer">
+              <button class="btn btn-primary" id="closeBtn">{% trans "Save" %}</button>
+              <button class="btn btn-secondary" @click="$emit('close')" id="closeBtn" type="button">
+                {% trans "Close" %}
+              </button>
+            </slot>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</transition>
+</script>
+
+
+<script type="application/javascript">
+Vue.component("collaboration-modal", {
+  template: "#collaboration-modal-template",
+  delimiters: ["${", "}"],
+  props: {
+    year: {
+      type: Object,
+      required: true,
+    },
+    my_object: {
+      type: Object,
+      required: false,
+    },
+  },
+  data() {
+    return {
+      currentUser: null,
+      DmAppsUsers: [],
+      loadingDMAppsUsers: false,
+      isACRDP: false,
+      isCSRF: false,
+      original_user: null,
+      errors: null,
+      collaboration: {
+        type: "",
+        organization: "",
+        new_or_existing: 1,
+        people: "",
+        critical: "True",
+        notes: null,
+      },
+    }
+  },
+  methods: {
+    onSubmit() {
+      this.errors = null
+      if (this.my_object) {
+        let endpoint = `/api/ppt/collaborations/${this.my_object.id}/`;
+        apiService(endpoint, "PATCH", this.collaboration).then(response => {
+          if (response.id) this.$emit('close')
+          else {
+            var myString = "";
+            for (var i = 0; i < Object.keys(response).length; i++) {
+              key = Object.keys(response)[i]
+              myString += String(key) + ": " + response[key] + "<br>"
+            }
+            this.errors = myString
+          }
+        })
+      } else {
+        let endpoint = `/api/ppt/collaborations/`;
+        this.collaboration.project_year = this.year.id
+        apiService(endpoint, "POST", this.collaboration).then(response => {
+          if (response.id) this.$emit('close')
+          else {
+            var myString = "";
+            for (var i = 0; i < Object.keys(response).length; i++) {
+              key = Object.keys(response)[i]
+              myString += String(key) + ": " + response[key] + "<br>"
+            }
+            this.errors = myString
+          }
+        })
+      }
+    },
+    getCurrentUser() {
+      let endpoint = `/api/ppt/user/`;
+      apiService(endpoint)
+          .then(response => {
+            this.currentUser = response;
+          })
+    },
+  },
+  computed: {},
+  created() {
+    this.getCurrentUser();
+    if (this.year.project.default_funding_source && this.year.project.default_funding_source.toLowerCase().search("acrdp") > -1) {
+      this.isACRDP = true;
+    }
+    if (this.year.project.default_funding_source && this.year.project.default_funding_source.toLowerCase().search("csrf") > -1) {
+      this.isCSRF = true;
+    }
+    this.$nextTick(() => {
+      if (this.my_object && this.my_object.id) {
+        if (this.my_object && this.my_object.id) {
+          this.collaboration = this.my_object
+          // there is an annoying thing that has to happen to convert the html to js to pytonese...
+          if (this.collaboration.critical) this.collaboration.critical = "True"
+          else this.collaboration.critical = "False"
+        }
+      }
+    })
+  },
+});
+</script>

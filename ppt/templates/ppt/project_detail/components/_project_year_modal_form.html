@@ -12,15 +12,6 @@
 
         <div class="modal-header">
           <slot name="header">
-
-            <h3 v-else-if="mtype === 'activity'">
-              <span v-if="!my_activity">{% trans "New Activity" %}</span>
-              <span v-else>{% trans "Edit Activity" %}</span>
-            </h3>
-            <h3 v-else-if="mtype === 'collaboration'">
-              <span v-if="!my_collaboration">{% trans "New Collaboration" %}</span>
-              <span v-else>{% trans "Edit Collaboration" %}</span>
-            </h3>
             <h3 v-else-if="mtype === 'status_report'">
               <span v-if="!my_status_report">{% trans "New Status Report (Still under development)" %}</span>
               <span v-else>{% trans "Edit Status Report (Still under development)" %}</span>
@@ -45,10 +36,6 @@
 
 
 
-              {# COLLABORATOR FORM             #}
-              <div v-else-if="mtype=='collaboration'">
-                {% bootstrap_form collaboration_form size='small' %}
-              </div>
               {# STATUS REPORT FORM             #}
               <div v-else-if="mtype=='status_report'">
                 {% for field in status_report_form %}
@@ -186,40 +173,10 @@ Vue.component("modal", {
 
 
 
-      // activity
-      else if (this.mtype === "activity") {
-
-      }
 
       // collaboration
       else if (this.mtype === "collaboration") {
-        if (this.my_collaboration) {
-          let endpoint = `/api/ppt/collaborations/${this.my_collaboration.id}/`;
-          apiService(endpoint, "PATCH", this.collaboration).then(response => {
-            if (response.id) this.$emit('close')
-            else {
-              var myString = "";
-              for (var i = 0; i < Object.keys(response).length; i++) {
-                key = Object.keys(response)[i]
-                myString += String(key) + ": " + response[key] + "<br>"
-              }
-              this.errors = myString
-            }
-          })
-        } else {
-          let endpoint = `/api/ppt/project-years/${this.year.id}/collaborations/`;
-          apiService(endpoint, "POST", this.collaboration).then(response => {
-            if (response.id) this.$emit('close')
-            else {
-              var myString = "";
-              for (var i = 0; i < Object.keys(response).length; i++) {
-                key = Object.keys(response)[i]
-                myString += String(key) + ": " + response[key] + "<br>"
-              }
-              this.errors = myString
-            }
-          })
-        }
+
       }
 
 
@@ -315,19 +272,7 @@ Vue.component("modal", {
             this.currentUser = response;
           })
     },
-    populateTargetDate(quarter) {
-      sap_year = this.year.fiscal_year
-      if (quarter === "q1") {
-        this.activity.target_date = `${sap_year - 1}-06-30`
-      } else if (quarter === "q2") {
-        this.activity.target_date = `${sap_year - 1}-09-30`
-      } else if (quarter === "q3") {
-        this.activity.target_date = `${sap_year - 1}-12-31`
-      } else if (quarter === "q4") {
-        this.activity.target_date = `${sap_year}-03-31`
-      }
 
-    },
   },
   computed: {},
   created() {
@@ -342,15 +287,6 @@ Vue.component("modal", {
     }
     this.$nextTick(() => {
 
-      // collaborations
-      else if (this.mtype === "collaboration") {
-        if (this.my_collaboration && this.my_collaboration.id) {
-          this.collaboration = this.my_collaboration
-          // there is an annoying thing that has to happen to convert the html to js to pytonese...
-          if (this.collaboration.critical) this.collaboration.critical = "True"
-          else this.collaboration.critical = "False"
-        }
-      }
 
       // status reports
       else if (this.mtype === "status_report") {
