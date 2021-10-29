@@ -22,43 +22,46 @@
 
     <div class="mb-5"></div>
 
-    <div class="row mb-4 justify-content-center">
-      <div class="col text-center">
-        <a href="{% url 'ppt:project_new' %}" class="btn btn-primary w200">
-          <span class="mdi mdi-plus-thick mr-1 text-light"></span>
-          {% trans "Start a New Project" %}
-        </a>
-      </div>
-      <div class="col text-center">
-        <a href="{% url 'ppt:my_project_list' %}" class="btn btn-primary w200">
-          <span class="mdi mdi-heart mr-1 text-light"></span>
-          {% trans "Your Projects" %}
-          <span class="badge badge-dark pt-1 ml-1">{{ my_project_count }}</span>
-
-        </a>
-      </div>
-      <div class="col text-center">
-        <a href="{% url 'ppt:explore_projects' %}" class="btn btn-primary w200">
-          <span class="mdi mdi-telescope mr-1 text-light"></span>
-          {% trans "Explore Projects" %}
-        </a>
-      </div>
-
-
-      {% if is_management_or_admin %}
-        <div class="col text-center">
-          <div class="">
-            <a href="{% url 'ppt:manage_projects' %}" class="btn btn-primary w200">
-              <span class="mdi mdi-playlist-edit mr-1 text-light"></span>
-              {% trans "Manage Projects" %}
-            </a>
-            <small class="text-muted mb-0">{% trans "Management Only" %}</small>
-          </div>
+    <div class=" mb-4 row">
+      <div class="col-3">
+        <div class="mb-2">
+          <a href="{% url 'ppt:project_new' %}" class="btn btn-success w200">
+            <span class="mdi mdi-plus-thick mr-1 text-light"></span>
+            {% trans "Start a New Project" %}
+          </a>
         </div>
-      {% endif %}
-    </div>
+        <div class="mb-2">
+          <a href="{% url 'ppt:my_project_list' %}" class="btn btn-primary w200">
+            <span class="mdi mdi-heart mr-1 text-light"></span>
+            {% trans "Your Projects" %}
+            <span class="badge badge-dark pt-1 ml-1">{{ my_project_count }}</span>
 
-    {% include "ppt/_upcoming_dates.html" %}
+          </a>
+        </div>
+        <div class="mb-2">
+          <a href="{% url 'ppt:explore_projects' %}" class="btn btn-warning w200">
+            <span class="mdi mdi-telescope mr-1 text-dark"></span>
+            {% trans "Explore Projects" %}
+          </a>
+        </div>
+
+        {% if is_management_or_admin %}
+          <div class="">
+            <div class="mb-2">
+              <small class="text-muted mb-0">{% trans "Management Only" %}</small>
+              <br>
+              <a href="{% url 'ppt:manage_projects' %}" class="btn btn-dark w200">
+                <span class="mdi mdi-playlist-edit mr-1 text-light"></span>
+                {% trans "Manage Projects" %}
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+      <div class="col">
+        {% include "ppt/_upcoming_dates.html" %}
+      </div>
+    </div>
   </div>
 
 
