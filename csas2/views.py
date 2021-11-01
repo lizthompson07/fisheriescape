@@ -25,6 +25,10 @@ from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyR
     CsasNationalAdminRequiredMixin, SuperuserOrCsasNationalAdminRequiredMixin
 from .utils import in_csas_admin_group
 
+posted_meeting_msg = gettext_lazy(
+    "The process' meeting has already been posted therefore any changes to the ToR's "
+    "expected publications will trigger a notification to the national CSAS team."
+)
 
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     h1 = "home"
@@ -700,9 +704,7 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
 
     def get_h3(self):
         if self.get_process().is_posted:
-            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(
-                _("This process has already been posted therefore changes to the ToR "
-                  "will automatically trigger a notification to be sent to the national CSAS team."))
+            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
             return mark_safe(mystr)
 
     def get_initial(self):
@@ -742,9 +744,7 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
 
     def get_h3(self):
         if self.get_object().process.is_posted:
-            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(
-                _("This process has already been posted therefore changes to the ToR "
-                  "will automatically trigger a notification to be sent to the national CSAS team."))
+            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
             return mark_safe(mystr)
 
     def get_parent_crumb(self):
