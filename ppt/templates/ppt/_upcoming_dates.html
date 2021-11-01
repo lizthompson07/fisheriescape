@@ -13,11 +13,11 @@
 
   <div class="mb-5">
     <p class="lead">
-      {% trans "Upcoming Dates" %}
+      {% trans "Important Dates" %}
     </p>
     {% if upcoming_dates.count %}
 
-      <table class="table table-sm">
+      <table class="table table-sm table-bordered">
         <thead>
         {% for field in upcoming_dates_field_list %}
           {% if field == "date" %}
@@ -39,7 +39,7 @@
               <td>
                 {% if field == "date" %}
                   {{ upcoming_date.date|date }} {{ upcoming_date.date|time }}<br>
-                  ({{ upcoming_date.date|timeuntil }})
+                  <span class="small">({{ upcoming_date.date|timeuntil }})</span>
                 {% else %}
                   {% get_field_value upcoming_date field %}
                 {% endif %}
