@@ -540,6 +540,9 @@ var app = new Vue({
     isAdmin() {
       return this.currentUser && this.currentUser.is_admin;
     },
+    isNCRAdmin() {
+      return this.currentUser && this.currentUser.is_ncr_admin;
+    },
     isOwner() {
       return this.currentUser && this.currentUser.is_owner;
     },
