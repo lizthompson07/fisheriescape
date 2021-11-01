@@ -1050,8 +1050,8 @@ class TripReviewerListView(TravelAccessRequiredMixin, CommonTemplateView):
 
     def get_queryset(self):
         qp = self.request.GET
+        print(qp)
         if qp.get("ongoing"):
-            print(123)
             return models.TripReviewer.objects.filter(status=25)
         return utils.get_related_trip_reviewers(self.request.user)
 

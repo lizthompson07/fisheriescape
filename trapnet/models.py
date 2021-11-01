@@ -231,7 +231,8 @@ class Sample(MetadataFields):
     electrofisher = models.ForeignKey(Electrofisher, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("electrofisher"), blank=True,
                                       null=True)
     electrofisher_voltage = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher voltage (V)"))
-    electrofisher_output = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher output (amps)"))
+    electrofisher_output_low = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher output, low (amps)"))
+    electrofisher_output_high = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher output, high (amps)"))
     electrofisher_frequency = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher frequency (Hz)"))
 
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_created_by')
@@ -436,7 +437,7 @@ class Sample(MetadataFields):
     @property
     def electrofisher_params(self):
         return mark_safe(
-            f"voltage (V) &rarr; {nz(self.electrofisher_voltage, '---')} <br>output (amps) &rarr; {nz(self.electrofisher_output, '---')} <br>frequency (Hz) &rarr; {nz(self.electrofisher_frequency, '---')} ")
+            f"voltage (V) &rarr; {nz(self.electrofisher_voltage, '---')} <br>output, low (amps) &rarr; {nz(self.electrofisher_output_low, '---')}<br>output, high (amps) &rarr; {nz(self.electrofisher_output_high, '---')} <br>frequency (Hz) &rarr; {nz(self.electrofisher_frequency, '---')} ")
 
 
 class Sweep(MetadataFields):
