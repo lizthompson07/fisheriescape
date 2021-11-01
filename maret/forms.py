@@ -1,3 +1,4 @@
+import inspect
 
 from django import forms
 from maret import models
@@ -149,4 +150,23 @@ OrgCategoriesFormSet = modelformset_factory(
     model=models.OrgCategory,
     form=OrgCategoryForm,
     extra=3,
+)
+
+
+class HelpTextForm(forms.ModelForm):
+
+    model = None
+
+    class Meta:
+        fields = "__all__"
+        widgets = {
+            'eng_text': forms.Textarea(attrs={"rows": 2}),
+            'fra_text': forms.Textarea(attrs={"rows": 2}),
+        }
+
+
+HelpTextFormset = modelformset_factory(
+    model=models.HelpText,
+    form=HelpTextForm,
+    extra=1,
 )

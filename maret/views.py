@@ -2,7 +2,7 @@ import math
 
 from shared_models.views import CommonTemplateView, CommonFilterView, CommonCreateView, CommonFormsetView, \
     CommonDetailView, CommonDeleteView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
-    CommonPopoutDeleteView
+    CommonPopoutDeleteView, CommonHardDeleteView
 
 from django.contrib import messages
 from django.http import HttpResponseRedirect
@@ -17,11 +17,20 @@ from django.db.models.functions import Concat
 from django.urls import reverse_lazy, reverse
 
 from maret.utils import UserRequiredMixin, AuthorRequiredMixin, AdminRequiredMixin
-from maret import models, filters, forms
+from maret import models, filters, forms, utils
 
 from masterlist import models as ml_models
 
 from easy_pdf.views import PDFTemplateView
+
+
+class CommonCreateViewHelp(CommonCreateView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = utils.get_help_text_dict(self.model)
+
+        return context
 
 
 class IndexView(UserRequiredMixin, CommonTemplateView):
@@ -78,7 +87,7 @@ class PersonDetailView(UserRequiredMixin, CommonDetailView):
     parent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("maret:person_list")}
 
 
-class PersonCreateView(AuthorRequiredMixin, CommonCreateView):
+class PersonCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     model = ml_models.Person
     form_class = forms.PersonForm
     parent_crumb = {"title": gettext_lazy("Person"), "url": reverse_lazy("maret:person_list")}
@@ -212,7 +221,7 @@ class InteractionListView(UserRequiredMixin, CommonFilterView):
     home_url_name = "maret:index"
 
 
-class InteractionCreateView(AuthorRequiredMixin, CommonCreateView):
+class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     model = models.Interaction
     form_class = forms.InteractionForm
     parent_crumb = {"title": gettext_lazy("Interaction"), "url": reverse_lazy("maret:interaction_list")}
@@ -306,7 +315,7 @@ class CommitteeListView(UserRequiredMixin, CommonFilterView):
         return context
 
 
-class CommitteeCreateView(UserRequiredMixin, CommonCreateView):
+class CommitteeCreateView(UserRequiredMixin, CommonCreateViewHelp):
     model = models.Committee
     form_class = forms.CommitteeForm
     parent_crumb = {"title": gettext_lazy("Committees"), "url": reverse_lazy("maret:committee_list")}
@@ -416,7 +425,7 @@ class OrganizationListView(UserRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
 
-class OrganizationCreateView(AuthorRequiredMixin, CommonCreateView):
+class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     model = ml_models.Organization
     template_name = 'maret/form.html'
     form_class = forms.OrganizationForm
@@ -752,3 +761,19 @@ class OrgCategoriesFormsetView(CommonMaretFormset):
     queryset = models.OrgCategory.objects.all()
     formset_class = forms.OrgCategoriesFormSet
     success_url_name = "maret:manage_org_categories"
+
+
+class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'maret/formset.html'
+    title = _("MarET Help Text")
+    h1 = _("Manage Help Texts")
+    queryset = models.HelpText.objects.all()
+    formset_class = forms.HelpTextFormset
+    success_url_name = "maret:manage_help_texts"
+    home_url_name = "maret:index"
+    delete_url_name = "maret:delete_help_text"
+
+
+class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.HelpText
+    success_url = reverse_lazy("maret:manage_help_texts")
