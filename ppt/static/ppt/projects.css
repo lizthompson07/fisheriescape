@@ -180,6 +180,20 @@ label.filter {
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.95);
     }
 
+    .sidebar-opened-sm {
+        height: 100%; /* 100% Full-height */
+        width: 225px; /* 0 width - change this with JavaScript */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Stay on top */
+        top: 0;
+        left: 0;
+        /*background-color: #e2e2e2;*/
+        overflow-y: auto;
+        padding-top: 60px; /* Place content 60px from the top */
+        transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.95);
+    }
+
     .sidebar-closed {
         height: 100%; /* 100% Full-height */
         width: 50px; /* 0 width - change this with JavaScript */
@@ -199,6 +213,12 @@ label.filter {
     .main-opened {
         transition: margin-left .5s; /* If you want a transition effect */
         margin-left: 300px; /* If you want a transition effect */
+        padding: 20px;
+    }
+
+    .main-opened-sm {
+        transition: margin-left .5s; /* If you want a transition effect */
+        margin-left: 225px; /* If you want a transition effect */
         padding: 20px;
     }
 
