@@ -1,11 +1,16 @@
+import math
+
 from shared_models.views import CommonTemplateView, CommonFilterView, CommonCreateView, CommonFormsetView, \
     CommonDetailView, CommonDeleteView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
     CommonPopoutDeleteView
 
 from django.contrib import messages
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect
+
+from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
 from django.utils.safestring import mark_safe
+
 from django.db.models import TextField, Value
 from django.db.models.functions import Concat
 
@@ -15,6 +20,8 @@ from maret.utils import UserRequiredMixin, AuthorRequiredMixin, AdminRequiredMix
 from maret import models, filters, forms
 
 from masterlist import models as ml_models
+
+from easy_pdf.views import PDFTemplateView
 
 
 class IndexView(UserRequiredMixin, CommonTemplateView):
@@ -578,6 +585,84 @@ class OrganizationDeleteView(AdminRequiredMixin, CommonDeleteView):
             return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.pk, ]))
 
         return super().delete(request, *args, **kwargs)
+
+
+class OrganizationCueCard(PDFTemplateView):
+    template_name = "maret/report_cue_card.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org = ml_models.Organization.objects.get(pk=self.kwargs["org"])
+        context["org"] = org
+
+        context["org_field_list_1"] = [
+            'name_eng',
+            'name_ind',
+            'former_name',
+            'abbrev',
+            'nation',
+            'website',
+        ]
+        context["org_field_list_2"] = [
+            'address',
+            'mailing_address',
+            'city',
+            'postal_code',
+            'province',
+            'phone',
+            'fax',
+        ]
+        context["org_field_list_3"] = [
+            'next_election',
+            'election_term',
+            'new_coucil_effective_date',
+            'population_on_reserve',
+            'population_off_reserve',
+            'population_other_reserve',
+            'relationship_rating',
+        ]
+        context["org_field_list_4"] = [
+            'fin',
+            'processing_plant',
+            'wharf',
+            'dfo_contact_instructions',
+            'council_quorum',
+            'reserves',
+            'orgs',
+            'notes',
+        ]
+
+        # determine how many rows for the table
+        context["contact_table_rows"] = range(0, math.ceil(org.members.count() / 4))
+        context["one_to_four"] = range(0, 4)
+
+        context["entry_field_list_1"] = [
+            'fiscal_year',
+            'initial_date',
+            'anticipated_end_date',
+            'status',
+        ]
+        context["entry_field_list_2"] = [
+            'sectors',
+            'entry_type',
+            'regions',
+        ]
+        context["entry_field_list_3"] = [
+            'funding_program',
+            'funding_needed',
+            'funding_purpose',
+            'amount_requested',
+        ]
+        context["entry_field_list_4"] = [
+            'amount_approved',
+            'amount_transferred',
+            'amount_lapsed',
+        ]
+        context["entry_field_list_5"] = [
+            'amount_owing',
+        ]
+        context["now"] = timezone.now()
+        return context
 
 
 #######################################################

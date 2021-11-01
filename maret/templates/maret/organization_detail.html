@@ -16,7 +16,7 @@
                 <a class="btn btn-sm btn-danger " href="{% url 'maret:org_delete' object.id %}">
                     {% trans "Delete" %}
                 </a>
-                <a class="btn btn-sm btn-success" href="{# url 'maret:report_q' object.id #}">
+                <a class="btn btn-sm btn-success" href="{% url 'maret:report_q' object.id %}">
                     {% trans "Cue Card" %}
                 </a>
             {% else %}

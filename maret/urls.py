@@ -45,6 +45,11 @@ urlpatterns = [
     path('manage/org_categories/', views.OrgCategoriesFormsetView.as_view(), name="manage_org_categories"),
 
     path('ajax/get_divisions/', utils.ajax_get_divisions, name='ajax_get_divisions'),
+
+    # Reporting #
+    #############
+    path('reports/cue-card/org/<int:org>/', views.OrganizationCueCard.as_view(), name="report_q"),
+
 ]
 
 
