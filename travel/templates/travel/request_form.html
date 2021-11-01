@@ -36,7 +36,7 @@
         {% bootstrap_label field.label label_class="pr-1" %}
         {% if field.name in help_text_dict %}
           <span class="mdi mdi-help-circle-outline h6" data-toggle="popover"
-                data-trigger="hover" title="{{ field.label }}" data-content="{{ help_text_dict|lookup:field.name }}"></span>
+                data-trigger="click" title="{{ field.label }}" data-content="{{ help_text_dict|lookup:field.name }}"></span>
         {% endif %}
         {% bootstrap_field field placeholder="" show_label=False %}
 
@@ -64,7 +64,7 @@
             </div>
             <label class="h5 red-font px-2" for="id_late_justification">{% trans "Please provide your late justification here" %}</label>
             <span class="mdi mdi-help-circle-outline h6" data-toggle="popover"
-                  data-trigger="hover"
+                  data-trigger="click"
                   title="{{ form.late_justification.label }}"
                   data-content="{{ help_text_dict.late_justification }}"></span>
             {% bootstrap_field form.late_justification placeholder="" show_label=False %}

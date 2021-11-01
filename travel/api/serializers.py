@@ -290,7 +290,7 @@ class TravellerSerializer(serializers.ModelSerializer):
     def get_adm_travel_history(self, instance):
         if instance.user:
             qs = models.TripRequest.objects.filter(
-                travellers__user=instance.user, trip__is_adm_approval_required=True, status=11).order_by("trip__start_date").distinct()
+                travellers__user=instance.user, trip__is_adm_approval_required=True).order_by("status", "trip__start_date").distinct()
             return TripRequestSerializerLITE(qs, many=True, read_only=True).data
         return list()
 
