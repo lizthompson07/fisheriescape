@@ -15,7 +15,7 @@ var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
   data: {
-    showSidebar: false,
+    showSidebar: true,
     showOverview: true,
     collapseProjectYears: false,
     collapseOverview: false,
@@ -123,8 +123,8 @@ var app = new Vue({
       this.showOverview = false
     },
     displayProjectYear(yearId) {
-      window.location.hash = "#project-year"
-      window.location.search = `?project_year=${yearId}`
+      window.location.hash = "#project-year";
+      window.location.search = `?project_year=${yearId}`;
     },
     getProjectYear(yearId) {
       this.py_loading = true;
@@ -166,8 +166,9 @@ var app = new Vue({
             let projectYearParam = params.get("project_year");
             if (projectYearParam) {
               this.getProjectYear(projectYearParam)
+              this.collapseOverview = true;
             } else if (!this.projectYear.id && this.project.years.length) {
-              this.getProjectYear(this.project.years[0].id)
+              this.getProjectYear(this.project.years[0].id);
             }
           })
     },

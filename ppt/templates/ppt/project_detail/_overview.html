@@ -11,9 +11,7 @@
 </div>
 <div v-if="!collapseOverview">
   <div v-if="canModify" class="mb-3">
-    <button class="btn btn-sm btn-warning no-print" @click="goProjectEdit(project.id)">
-      <span class="mdi mdi-pencil"></span> {% trans "Edit" %}
-    </button>
+
   </div>
 
   {% trans "<span class='red-font'>missing</span>" as nulltext %}

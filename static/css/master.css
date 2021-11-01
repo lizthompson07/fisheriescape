@@ -388,3 +388,9 @@
     box-shadow: 3px 0 5px #888;
     z-index: 2;
 }
+
+
+.vertical {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+}

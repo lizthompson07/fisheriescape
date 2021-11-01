@@ -8,9 +8,18 @@
 {% echo "btn btn-danger btn-sm custom-btn" as btn_class_red %}
 
 <div v-if="!showSidebar">
-  <button class="{{ btn_class_black }} ml-2" @click="showSidebar=true" data-toggle="tooltip" title="{% trans "Open sidebar" %}">
-    <span class="mdi mdi-arrow-collapse-right"></span>
-  </button>
+  <div @click="showSidebar=true" class="pointy">
+    <button class="{{ btn_class_black }} ml-2" data-toggle="tooltip" title="{% trans "Open sidebar" %}">
+      <span class="mdi mdi-arrow-collapse-right"></span>
+    </button>
+    <div class="my-5">
+    </div>
+    <div class="vertical lead my-5 ml-2 text-primary">
+      {% trans "Project Console" %}
+    </div>
+  </div>
+
+
 </div>
 <div v-else class="container">
   <button class="{{ btn_class_black }} float-right mb-3" @click="showSidebar=false"><span class="mdi mdi-arrow-collapse-left"></span></button>
