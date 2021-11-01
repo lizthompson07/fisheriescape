@@ -53,7 +53,6 @@ class CSASRequestFilter(django_filters.FilterSet):
         fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
         client_choices = [(u.id, str(u)) for u in User.objects.filter(csas_client_requests__isnull=False).order_by("first_name", "last_name").distinct()]
 
-        self.filters['fiscal_year'].field.choices = fy_choices
         self.filters['region'].field.choices = region_choices
         self.filters['sector'].field.choices = sector_choices
         self.filters['section'].field.choices = section_choices
@@ -61,7 +60,7 @@ class CSASRequestFilter(django_filters.FilterSet):
 
         self.filters['client'].field.widget.attrs = chosen_js
         self.filters['section'].field.widget.attrs = chosen_js
-        self.filters['fiscal_year'].field.widget = forms.SelectMultiple(attrs=chosen_js)
+        self.filters['fiscal_year'].field.widget = forms.SelectMultiple(attrs=chosen_js, choices=fy_choices)
 
         try:
             if self.data["region"] != "":
