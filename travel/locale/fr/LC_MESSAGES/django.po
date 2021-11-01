@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-28 12:56-0300\n"
+"POT-Creation-Date: 2021-11-01 14:52-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -550,7 +550,7 @@ msgstr "Date d'admissibilité à l'examen du bureau du SMA"
 msgid "virtual"
 msgstr "virtuel"
 
-#: .\travel\models.py:313
+#: .\travel\models.py:313 .\travel\templates\travel\traf\group.html:239
 msgid "to"
 msgstr "à"
 
@@ -2467,8 +2467,9 @@ msgid "Trip Title:"
 msgstr "Titre du voyage:"
 
 #: .\travel\templates\travel\traf\group.html:236
-msgid "DETAILED COST BREAKDOWN PER TRAVELLER"
-msgstr "VENTILATION DÉTAILLÉE DES COÛTS PAR VOYAGEUR"
+#| msgid "DETAILED COST BREAKDOWN PER TRAVELLER"
+msgid "TRAVEL DATES AND DETAILED COST BREAKDOWN PER TRAVELLER"
+msgstr "LES DATES DE VOYAGE ET VENTILATION DÉTAILLÉE DES COÛTS PAR VOYAGEUR"
 
 #: .\travel\templates\travel\traf\group.html:252
 #: .\travel\templates\travel\traf\single.html:251

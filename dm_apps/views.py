@@ -135,7 +135,7 @@ def get_app_dict(request):
         app_dict["cruises"] = {
             "title": _("Cruises"),
             "description": _("Collection of regional cruise metadata and oceanographic data."),
-            "status": "dev",
+            "status": "beta",
             "access": "open",
             "url": reverse('cruises:index'),
             "icon_path": 'img/icons/boat.svg',
