@@ -37,7 +37,6 @@ class PPTAdminUser(models.Model):
         ordering = ["-is_national_admin", "user__first_name", ]
 
 
-
 class CSRFTheme(SimpleLookup):
     code = models.CharField(max_length=25)
 
@@ -1151,7 +1150,6 @@ class ReferenceMaterial(SimpleLookup):
     @property
     def metadata(self):
         return get_metadata_string(self.created_at, None, self.updated_at)
-
 
     @property
     def file_display_fr(self):
