@@ -98,24 +98,19 @@ class MemberForm(forms.ModelForm):
 
 
 class PersonForm(forms.ModelForm):
+    role = forms.CharField(required=True, label=_("Role"))
+
     class Meta:
         model = ml_models.Person
-        fields = [
-            "designation",
-            "first_name",
-            "last_name",
-            "phone_1",
-            "phone_2",
-            "email_1",
-            "email_2",
-            "cell",
-            "fax",
-            "language",
-            "notes",
-        ]
+        exclude = ["date_last_modified", "old_id", 'last_modified_by']
         widgets = {
             'notes': forms.Textarea(attrs={"rows": "3"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.order_fields(['designation', 'role', 'first_name', 'last_name', 'phone_1', 'phone_2', 'email_1', 'email_2',
+                           'cell', 'fax', 'language', 'notes'])
 
 
 class TopicForm(forms.ModelForm):

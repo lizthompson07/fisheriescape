@@ -45,6 +45,18 @@ class TestOrganizationExtensionModel(CommonTest):
         self.assert_has_fields(models.OrganizationExtension, fields_to_check)
 
 
+@tag("con_ext", "model", "con_ext_model")
+class TestOrganizationExtensionModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ContactExtensionFactory()
+
+    @tag("fields", "con_ext_model_fields")
+    def test_fields(self):
+        fields_to_check = ['contact', 'role']
+        self.assert_has_fields(models.ContactExtension, fields_to_check)
+
+
 @tag("species", "model", "species_model")
 class TestSpeciesModel(CommonTest):
     def setUp(self):

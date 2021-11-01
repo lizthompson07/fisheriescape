@@ -146,3 +146,9 @@ class OrganizationExtension(models.Model):
                                                   verbose_name="Associated Provinces")
     category = models.ManyToManyField(OrgCategory, related_name="ext_org_category", verbose_name="Category")
     area = models.ManyToManyField(Area, related_name="ext_org_area", verbose_name="Area")
+
+
+class ContactExtension(models.Model):
+    contact = models.ForeignKey(ml_models.Person, blank=False, null=False, default=1, related_name="ext_con",
+                                verbose_name="Contact", on_delete=models.CASCADE)
+    role = models.CharField(max_length=255, default="N/A", verbose_name="Role")

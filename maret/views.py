@@ -84,6 +84,22 @@ class PersonCreateView(AuthorRequiredMixin, CommonCreateView):
             'created_by': self.request.user
         }
 
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        super().form_valid(form)
+
+        ext_con = None
+        fields = form.cleaned_data
+        if fields['role']:
+            if not ext_con:
+                ext_con = models.ContactExtension(contact=object)
+                ext_con.save()
+            ext_con.role = fields['role']
+            ext_con.save()
+
+        return HttpResponseRedirect(reverse_lazy('maret:person_detail', kwargs={'pk': object.id}))
+
 
 class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
     model = ml_models.Person
@@ -93,8 +109,15 @@ class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
     h1 = gettext_lazy("Contact")
 
     def get_initial(self):
+        role = None
+        if models.ContactExtension.objects.filter(contact=self.object):
+            ext_cont = models.ContactExtension.objects.get(contact=self.object)
+            if ext_cont:
+                role = ext_cont.role
+
         return {
             'last_modified_by': self.request.user,
+            'role': role,
         }
 
     def form_valid(self, form):
@@ -104,6 +127,19 @@ class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
             return HttpResponseRedirect(reverse("maret:person_detail", args=[obj.pk, ]))
 
         obj.save()
+
+        ext_con = None
+        if models.ContactExtension.objects.filter(contact=obj):
+            ext_con = models.ContactExtension.objects.get(contact=obj)
+
+        fields = form.cleaned_data
+        if fields['role']:
+            if not ext_con:
+                ext_con = models.ContactExtension(organization=obj)
+                ext_con.save()
+            ext_con.role = fields['role']
+            ext_con.save()
+
         return super().form_valid(form)
 
 
@@ -473,6 +509,7 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
     def get_initial(self):
         areas = []
         category = []
+        asc_province = []
         if models.OrganizationExtension.objects.filter(organization=self.object):
             ext_org = models.OrganizationExtension.objects.get(organization=self.object)
             if ext_org:
