@@ -60,7 +60,7 @@ class CSASRequestFilter(django_filters.FilterSet):
 
         self.filters['client'].field.widget.attrs = chosen_js
         self.filters['section'].field.widget.attrs = chosen_js
-        self.filters['fiscal_year'].field.widget = forms.SelectMultiple(attrs=chosen_js, choices=fy_choices)
+        self.filters['fiscal_year'] = fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices)
 
         try:
             if self.data["region"] != "":
