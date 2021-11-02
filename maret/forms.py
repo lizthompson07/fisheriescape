@@ -31,7 +31,9 @@ class InteractionForm(forms.ModelForm):
             'date_created',
         ]
         widgets = {
-            'date_of_meeting': forms.DateInput(attrs=attr_fp_date)
+            'date_of_meeting': forms.DateInput(attrs=attr_fp_date),
+            'last_modified': forms.HiddenInput(),
+            'last_modified_by': forms.HiddenInput(),
         }
 
 
@@ -51,7 +53,9 @@ class OrganizationForm(forms.ModelForm):
             'reserves': forms.SelectMultiple(attrs=multi_select_js),
             # dates
             'next_election': forms.TextInput(attrs=attr_fp_date),
-            'new_coucil_effective_date': forms.TextInput(attrs=attr_fp_date)
+            'new_coucil_effective_date': forms.TextInput(attrs=attr_fp_date),
+            'last_modified': forms.HiddenInput(),
+            'last_modified_by': forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):

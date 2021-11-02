@@ -117,9 +117,9 @@ class Interaction(models.Model):
     committee = models.ForeignKey(Committee, blank=True, null=True, on_delete=models.DO_NOTHING,
                                   verbose_name="Committee / Working Group", related_name="committee_interactions")
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=None)
-    dfo_liaison = models.ManyToManyField(User, related_name="interaction_dfo_liaison",
+    dfo_liaison = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_liaison",
                                          verbose_name=_("DFO liaison/secretariat"))
-    other_dfo_participants = models.ManyToManyField(User, related_name="interaction_dfo_participants",
+    other_dfo_participants = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_participants",
                                                     verbose_name=_("Other DFO participants/contributors"))
     external_contact = models.ManyToManyField(ml_models.Person, verbose_name=_("External Contact(s)"),
                                               blank=True, related_name="interaction_ext_contact")
@@ -127,9 +127,9 @@ class Interaction(models.Model):
                                                    blank=True, related_name="interaction_ext_organization")
     date_of_meeting = models.DateTimeField(blank=True, null=True, default=timezone.now,
                                            verbose_name=_("Date of Meeting"))
-    main_topic = models.ManyToManyField(DiscussionTopic, related_name="main_topics",
+    main_topic = models.ManyToManyField(DiscussionTopic, blank=True, related_name="main_topics",
                                         verbose_name=_("Main Topic(s) of discussion"))
-    species = models.ManyToManyField(Species, related_name="species",
+    species = models.ManyToManyField(Species, blank=True, related_name="species",
                                      verbose_name=_("Main species of discussion"))
     action_items = models.TextField(default="-----", verbose_name=_("Main actions"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("Comments"))

@@ -240,6 +240,26 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
         return context
 
 
+class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
+    model = models.Interaction
+    form_class = forms.InteractionForm
+    home_url_name = "maret:index"
+    grandparent_crumb = {"title": gettext_lazy("Interaction"),
+                         "url": reverse_lazy("maret:interaction_list")}
+    template_name = "maret/form.html"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("maret:interaction_detail", args=[self.get_object().id])}
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scripts'] = ['maret/js/interactionForm.html']
+        return context
+
+
 class InteractionDetailView(UserRequiredMixin, CommonDetailView):
     model = models.Interaction
     home_url_name = "maret:index"
@@ -278,21 +298,6 @@ class InteractionDeleteView(AuthorRequiredMixin, CommonDeleteView):
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("maret:interaction_detail", args=[self.get_object().id])}
-
-
-class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
-    model = models.Interaction
-    form_class = forms.InteractionForm
-    home_url_name = "maret:index"
-    grandparent_crumb = {"title": gettext_lazy("Interaction"),
-                         "url": reverse_lazy("maret:interaction_list")}
-    template_name = "maret/form.html"
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse("maret:interaction_detail", args=[self.get_object().id])}
-
-    def get_initial(self):
-        return {'last_modified_by': self.request.user}
 
 
 #######################################################
