@@ -791,7 +791,7 @@ class TestTripReviewerAPIViewSet(CommonTest):
 
     @tag("api", 'tripreviewer')
     def test_url(self):
-        self.assert_correct_url("tripreviewer-list", test_url_args=None, expected_url_path=f"/api/travel/trip-reviewers/?personalized=true")
+        self.assert_correct_url("tripreviewer-list", test_url_args=None, expected_url_path=f"/api/travel/trip-reviewers/")
         self.assert_correct_url("tripreviewer-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/travel/trip-reviewers/{self.instance.pk}/")
 
     @tag("api", 'tripreviewer')
