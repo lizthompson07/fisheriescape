@@ -396,30 +396,30 @@ class MeetingForm(forms.ModelForm):
         model = models.Meeting
         exclude = ["start_date", "end_date"]
 
-    def clean(self):
-        cleaned_data = super().clean()
-        # make sure that the lead_region is not also listed in the other_regions field
-        lead_region = cleaned_data.get("lead_region")
-        other_regions = cleaned_data.get("other_regions")
-        coordinator = cleaned_data.get("coordinator")
-        lead_region = cleaned_data.get("lead_region")
-        name = cleaned_data.get("name")
-        nom = cleaned_data.get("nom")
-        if not name and not nom:
-            error_msg = gettext("Must have either an English title or a French title!")
-            self.add_error('name', error_msg)
-            self.add_error('nom', error_msg)
-            raise forms.ValidationError(error_msg)
-        if lead_region in other_regions:
-            error_msg = gettext("Your lead region cannot be listed in the 'Other Regions' field.")
-            self.add_error('other_regions', error_msg)
-        if not coordinator:
-            error_msg = gettext("Must enter a coordinator for this request!")
-            raise forms.ValidationError(error_msg)
-        if not lead_region:
-            error_msg = gettext("Must enter a lead region for this process!")
-            raise forms.ValidationError(error_msg)
-        return self.cleaned_data
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     # make sure that the lead_region is not also listed in the other_regions field
+    #     lead_region = cleaned_data.get("lead_region")
+    #     other_regions = cleaned_data.get("other_regions")
+    #     coordinator = cleaned_data.get("coordinator")
+    #     lead_region = cleaned_data.get("lead_region")
+    #     name = cleaned_data.get("name")
+    #     nom = cleaned_data.get("nom")
+    #     if not name and not nom:
+    #         error_msg = gettext("Must have either an English title or a French title!")
+    #         self.add_error('name', error_msg)
+    #         self.add_error('nom', error_msg)
+    #         raise forms.ValidationError(error_msg)
+    #     if other_regions and lead_region in other_regions:
+    #         error_msg = gettext("Your lead region cannot be listed in the 'Other Regions' field.")
+    #         self.add_error('other_regions', error_msg)
+    #     if not coordinator:
+    #         error_msg = gettext("Must enter a coordinator for this request!")
+    #         raise forms.ValidationError(error_msg)
+    #     if not lead_region:
+    #         error_msg = gettext("Must enter a lead region for this process!")
+    #         raise forms.ValidationError(error_msg)
+    #     return self.cleaned_data
 
 
 class DocumentForm(forms.ModelForm):

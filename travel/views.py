@@ -35,6 +35,13 @@ from .mixins import TravelAccessRequiredMixin, CanModifyMixin, TravelAdminRequir
 from .utils import in_travel_admin_group, in_adm_admin_group, can_modify_request, is_approver, is_trip_approver, is_manager_or_assistant_or_admin
 
 
+def get_common_context(request):
+    context = dict()
+    context["is_admin"] = in_travel_admin_group(request.user)
+    context["is_adm_admin"] = in_adm_admin_group(request.user)
+    return context
+
+
 def get_file(request, file):
     if request.GET.get("reference"):
         my_file = models.ReferenceMaterial.objects.get(pk=int(file))
@@ -140,6 +147,7 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonTemplateView):
         context = super().get_context_data(**kwargs)
         context["status_choices"] = [dict(label=item[1], value=item[0]) for item in
                                      models.TripRequest.status_choices]  # when there is time, this should be replaced by api call
+
         return context
 
     def get_new_object_url(self):
@@ -1228,7 +1236,6 @@ def export_upcoming_trips(request):
     raise Http404
 
 
-
 @login_required(login_url='/accounts/login/')
 @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def export_request_summary(request):
@@ -1572,7 +1579,7 @@ class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
             admin_group, created = Group.objects.get_or_create(name="travel_admin")
             adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
             cfo, created = Group.objects.get_or_create(name="travel_cfo_read_only")
-            queryset = queryset.filter(groups__in=[admin_group, adm_admin_group, cfo ]).distinct()
+            queryset = queryset.filter(groups__in=[admin_group, adm_admin_group, cfo]).distinct()
         return queryset
 
     def get_context_data(self, **kwargs):
