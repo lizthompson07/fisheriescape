@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.template.defaultfilters import date, pluralize, slugify
+from django.template.defaultfilters import date, pluralize
 from django.utils.translation import gettext
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
@@ -42,10 +42,14 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     risk_text_html = serializers.SerializerMethodField()
     is_complete = serializers.SerializerMethodField()
     region = serializers.SerializerMethodField()
+    has_process = serializers.SerializerMethodField()
+
+    def get_has_process(self, instance):
+        return instance.has_process
 
     def get_region(self, instance):
         return instance.region
-    
+
     def get_is_complete(self, instance):
         return instance.is_complete
 

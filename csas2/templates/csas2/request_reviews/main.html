@@ -45,7 +45,11 @@
       </div>
       <div v-else class="m-3 mt-4">
 
-
+        <div class="text-center">
+            <div class="text-center">
+              <p class="font-italic text-muted">${requests.length} {% trans "results loaded" %}</p>
+            </div>
+        </div>
         <table class="table table-sm">
           <thead>
           <tr>
@@ -137,8 +141,16 @@
                 <span class="mdi mdi-delete text-danger mr-1"></span>
                 <span class="text-danger pointy" @click="deleteReview(r)"> {% trans "delete this review" %} </span>
               </div>
-              <div v-if="errorMsg" class="alert alert-warning" role="alert">
+              <div v-if="errorMsg" class="alert alert-danger" role="alert">
                 ${errorMsg}
+              </div>
+              <div v-if="r.status === 11 && !r.has_process " class="alert alert-warning" role="alert">
+                {% trans "WARNING: This request does yet not have an associated csas process." %}
+                <a class="ml-3 btn btn-xs btn-primary" target="_blank"
+                   :href="`{% url 'csas2:process_new' %}?request=${ r.id }`">{% trans "Initiate a Process" %}</a>
+              </div>
+              <div v-else-if="r.has_process" class="alert alert-info" role="alert">
+                {% trans "This review has an associated process." %}
               </div>
             </td>
             <td v-else>
