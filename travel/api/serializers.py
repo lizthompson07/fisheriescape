@@ -492,6 +492,10 @@ class TripReviewerSerializer(serializers.ModelSerializer):
     status_display = serializers.SerializerMethodField()
     trip_obj = serializers.SerializerMethodField()
     user_display = serializers.SerializerMethodField()
+    status_date_annotation = serializers.SerializerMethodField()
+
+    def get_status_date_annotation(self, instance):
+        return naturaltime(instance.status_date)
 
     def get_comments_html(self, instance):
         return instance.comments_html

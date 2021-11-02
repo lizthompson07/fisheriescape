@@ -35,11 +35,10 @@
               <thead>
               <tr>
                 <th>{% trans "Trip title" %}</th>
-                <th>{% trans "Reviewer role" %}</th>
+                <th>{% trans "Reviewer (Role)" %}</th>
                 <th>{% trans "Review status date" %}</th>
-                <th class="text-center">{% trans "Number of travellers" %}</th>
-                <th>{% trans "Comments" %}</th>
                 <th>{% trans "ADM decision deadline" %}</th>
+                <th class="w-35">{% trans "Comments" %}</th>
               </tr>
               </thead>
               <tbody>
@@ -52,15 +51,14 @@
                     ${item.trip_obj.tname }
                   </a>
                 </td>
-                <td>${item.role_display }</td>
-                <td>${item.status_date_display }</td>
-                <td class="text-center">${item.trip_obj.traveller_count }</td>
-                <td>${item.comments }</td>
+                <td>${item.user_display } <br>(${item.role_display })</td>
+                <td>${item.status_date_display } <br>(${item.status_date_annotation})</td>
                 <td>
                   <span :class="getDeadlineClass(item.trip_obj.days_until_adm_review_deadline)">
                     ${item.trip_obj.adm_review_deadline |nz}
                   </span>
                 </td>
+                <td>${item.comments |nz }</td>
 
               </tr>
               </tbody>
