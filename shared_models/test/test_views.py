@@ -412,7 +412,7 @@ class TestSectionCreateView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('shared_models:section_new')
         self.expected_template = 'shared_models/org_form.html'
-        self.admin_user = self.get_and_login_user(in_group="travel_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("section_new", 'update', "view")
     def test_view_class(self):
@@ -436,7 +436,7 @@ class TestSectionDeleteView(CommonTest):
         self.instance = FactoryFloor.SectionFactory()
         self.test_url = reverse_lazy('shared_models:section_delete', kwargs={"pk": self.instance.pk})
         self.expected_template = 'shared_models/generic_confirm_delete.html'
-        self.admin_user = self.get_and_login_user(in_group="travel_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("section_delete", 'delete', "view")
     def test_view_class(self):
@@ -462,7 +462,7 @@ class TestSectionListView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('shared_models:section_list')
         self.expected_template = 'shared_models/org_list.html'
-        self.admin_user = self.get_and_login_user(in_group="travel_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("section_list", 'list', "view")
     def test_view_class(self):
@@ -491,7 +491,7 @@ class TestSectionUpdateView(CommonTest):
         self.instance = FactoryFloor.SectionFactory()
         self.test_url = reverse_lazy('shared_models:section_edit', kwargs={"pk": self.instance.pk})
         self.expected_template = 'shared_models/org_form.html'
-        self.admin_user = self.get_and_login_user(in_group="travel_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("section_edit", 'update', "view")
     def test_view_class(self):
@@ -514,7 +514,7 @@ class TestUserFormView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('shared_models:user_new')
         self.expected_template = 'shared_models/generic_popout_form.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("User", "user_new", "view")
     def test_view_class(self):

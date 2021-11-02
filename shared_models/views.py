@@ -37,10 +37,8 @@ def in_admin_group(user):
     if user.id:
         if user.groups.filter(name='travel_admin').exists() or \
                 user.groups.filter(name='travel_adm_admin').exists() or \
-                user.ppt_admin_user.filter(region__isnull=False).exists() or \
-                user.ppt_admin_user.filter(is_national_admin=True).exists() or \
-                user.csas_admin_user.filter(region__isnull=False).exists() or \
-                user.csas_admin_user.filter(is_national_admin=True).exists():
+                (hasattr(user, "ppt_admin_user") and (user.ppt_admin_user.filter(region__isnull=False).exists() or user.ppt_admin_user.filter(is_national_admin=True).exists())) or \
+                (hasattr(user, "csas_admin_user") and (user.csas_admin_user.filter(region__isnull=False).exists() or user.csas_admin_user.filter(is_national_admin=True).exists())):
             return True
 
 
