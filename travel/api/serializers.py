@@ -121,7 +121,7 @@ class RequestReviewerSerializerLITE(serializers.ModelSerializer):
     comments_html = serializers.SerializerMethodField()
     role_display = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
-    status_date = serializers.SerializerMethodField()
+    status_date_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     user_display = serializers.SerializerMethodField()
 
@@ -138,7 +138,7 @@ class RequestReviewerSerializerLITE(serializers.ModelSerializer):
         activate(lang)
         return mystr
 
-    def get_status_date(self, instance):
+    def get_status_date_display(self, instance):
         return date(instance.status_date)
 
     def get_status_display(self, instance):
@@ -226,7 +226,7 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
     request_obj = serializers.SerializerMethodField()
     role_display = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
-    status_date = serializers.SerializerMethodField()
+    status_date_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     user_display = serializers.SerializerMethodField()
 
@@ -247,7 +247,7 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
         activate(lang)
         return mystr
 
-    def get_status_date(self, instance):
+    def get_status_date_display(self, instance):
         return date(instance.status_date)
 
     def get_status_display(self, instance):
@@ -488,7 +488,7 @@ class TripReviewerSerializer(serializers.ModelSerializer):
     comments_html = serializers.SerializerMethodField()
     role_display = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
-    status_date = serializers.SerializerMethodField()
+    status_date_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     trip_obj = serializers.SerializerMethodField()
     user_display = serializers.SerializerMethodField()
@@ -506,7 +506,7 @@ class TripReviewerSerializer(serializers.ModelSerializer):
         activate(lang)
         return mystr
 
-    def get_status_date(self, instance):
+    def get_status_date_display(self, instance):
         return date(instance.status_date)
 
     def get_status_display(self, instance):

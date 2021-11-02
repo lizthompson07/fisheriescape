@@ -11,15 +11,15 @@
 {% block subcontent %}
   <div id="app" v-cloak>
 
-    <h1>{% trans "Trips Awaiting Your Review" %}</h1>
+    <h1>{% trans "Ongoing Trips Reviews" %}</h1>
 
     <div>
       <div class="row container-fluid bg-light curvy">
         <div class="col">
           <div v-if="!reviewers.length && !loading_reviewers">
             <div class="text-center">
-{#              <img src="{% static 'travel/you_are_done.png' %}" alt="">#}
-              <h3>{% trans "Way to go! You're all done here" %} :)</h3>
+              {#              <img src="{% static 'travel/you_are_done.png' %}" alt="">#}
+              <h3>{% trans "There are currently no reviews underway" %} :)</h3>
             </div>
           </div>
 
@@ -31,32 +31,31 @@
                 </p>
               </div>
             </div>
-            <table class="table table-sm table-hover">
+            <table class="table table-sm">
               <thead>
               <tr>
                 <th>{% trans "Trip title" %}</th>
-                <th>{% trans "Location" %}</th>
-                <th>{% trans "Dates" %}</th>
-                <th>{% trans "Your role" %}</th>
-                <th v-html="tripLabels.status"></th>
-                <th class="text-center">{% trans "Number of Travellers" %}</th>
+                <th>{% trans "Reviewer role" %}</th>
+                <th>{% trans "Review status date" %}</th>
+                <th class="text-center">{% trans "Number of travellers" %}</th>
+                <th>{% trans "Comments" %}</th>
                 <th>{% trans "ADM decision deadline" %}</th>
-
-
               </tr>
               </thead>
               <tbody>
               <tr
                 v-for="(item, index) in reviewers"
-                @click="goRow(item)"
-                class="pointy"
+                class=""
               >
-                <td>${item.trip_obj.tname }</td>
-                <td>${item.trip_obj.location }</td>
-                <td v-html="item.trip_obj.dates"></td>
+                <td>
+                  <a href="#" @click="goTripDetail(item.trip_obj)">
+                    ${item.trip_obj.tname }
+                  </a>
+                </td>
                 <td>${item.role_display }</td>
-                <td :class="item.trip_obj.status_class">${item.trip_obj.status_display }</td>
+                <td>${item.status_date_display }</td>
                 <td class="text-center">${item.trip_obj.traveller_count }</td>
+                <td>${item.comments }</td>
                 <td>
                   <span :class="getDeadlineClass(item.trip_obj.days_until_adm_review_deadline)">
                     ${item.trip_obj.adm_review_deadline |nz}
@@ -120,17 +119,17 @@
               this.currentUser = response;
             })
       },
-      goRow(reviewer) {
-        var url = `/travel-plans/trip-reviewers/${reviewer.id}/review/?${window.location.search.substring(1)}`;
+      goTripDetail(trip) {
+        let url = `/travel-plans/trips/${trip.id}/view/`;
         window.location.href = url;
       },
       getReviewers() {
         this.loading_reviewers = true;
-        endpoint = `/api/travel/trip-reviewers/?personalized=true`;
+        endpoint = `/api/travel/trip-reviewers/?page_size=1000&status=25`;
         apiService(endpoint)
             .then(response => {
               this.loading_reviewers = false;
-              this.reviewers = response;
+              this.reviewers = response.results;
               this.count = response.count;
             })
       },

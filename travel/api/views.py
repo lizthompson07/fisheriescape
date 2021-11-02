@@ -16,7 +16,7 @@ from lib.functions.custom_functions import truncate
 from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer
 from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView
 from shared_models.models import FiscalYear, Region, Division, Section, Organization
-from shared_models.utils import special_capitalize, get_labels
+from shared_models.utils import get_labels
 from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyOrReadOnly, TravelAdminOrReadOnly
@@ -139,7 +139,6 @@ class RequestViewSet(viewsets.ModelViewSet):
                 raise PermissionDenied(_("You do not have the permissions to reset the reviewer list"))
             return Response(None, status.HTTP_204_NO_CONTENT)
         raise ValidationError(_("This endpoint cannot be used without a query param"))
-
 
     def get_queryset(self):
         # if someone is looking for a specific object...
@@ -308,6 +307,8 @@ class TripReviewerViewSet(viewsets.ModelViewSet):
     permission_classes = [TravelAdminOrReadOnly]
     queryset = models.TripReviewer.objects.all()
     pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['status', ]
 
     def perform_create(self, serializer):
         serializer.save(updated_by=self.request.user)
@@ -349,9 +350,12 @@ class TripReviewerViewSet(viewsets.ModelViewSet):
             raise ValidationError("cannot delete this reviewer who has the status of " + instance.get_status_display())
 
     def list(self, request, *args, **kwargs):
-        qs = utils.get_related_trip_reviewers(request.user)
-        serializer = self.get_serializer(qs, many=True)
-        return Response(serializer.data)
+        qp = request.query_params
+        if qp.get("personalized"):
+            qs = utils.get_related_trip_reviewers(request.user)
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        return super().list(request, *args, **kwargs)
 
 
 class FileViewSet(viewsets.ModelViewSet):
@@ -536,7 +540,6 @@ class HelpTextAPIView(APIView):
         for obj in models.HelpText.objects.all():
             data[obj.field_name] = str(obj)
         return Response(data)
-
 
 
 class FAQListAPIView(ListAPIView):

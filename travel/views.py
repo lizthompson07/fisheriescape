@@ -1043,10 +1043,15 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
 
 class TripReviewerListView(TravelAccessRequiredMixin, CommonTemplateView):
     model = models.Reviewer
-    template_name = 'travel/trip_reviewer_list.html'
     home_url_name = "travel:index"
     h1 = " "
     active_page_name_crumb = gettext_lazy("Trip reviews")
+
+    def get_template_names(self):
+        qp = self.request.GET
+        if qp.get("ongoing"):
+            return 'travel/ongoing_trip_reviewer_list.html'
+        return 'travel/trip_reviewer_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
