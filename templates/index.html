@@ -6,10 +6,6 @@
 {% block bug_create %}{% url 'tickets:bug_create' 'general' %}{% endblock bug_create %}
 {% block header %}
   <style>
-  body {
-  {#background-image: url("{% static 'img/waves1.jpg' %}");#}{#background-color: rgb(224, 225, 255);#} background-size: cover;
-
-  }
 
   h1 {
       font-size: 4em;
@@ -25,9 +21,6 @@
       padding-bottom: 10px;
   }
 
-  .container-fluid {
-      padding-left: 55px;
-  }
 
   .card {
       cursor: pointer;
@@ -63,12 +56,6 @@
   }
 
   .sidebar {
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      z-index: 100; /* Behind the navbar */
-      padding: 48px 0 0; /* Height of navbar */
       box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
   }
 
@@ -94,9 +81,6 @@
       font-size: .875rem;
   }
 
-  [role="main"] {
-      padding-top: 48px; /* Space for fixed navbar */
-  }
 
   .my-title-font {
       font-family: 'Anton', sans-serif;
@@ -115,128 +99,114 @@
 {% endblock title %}
 
 {% block body %}
-  <div class="container-fluid">
-    <div class="row">
-      <nav class="col-md-3 d-none d-md-block bg-light sidebar">
-        <div class="sidebar-sticky">
-          <br>
-
-
-          {% for a in announcements %}
-            <div class="alert {{ a.alert_type }}" role="alert">
-              <h4 class="alert-heading">{{ a.tsubject|safe }}</h4>
-
-              <p style="font-size: small">{{ a.valid_from }}</p>
-              <p class="mb-0">{{ a.tmessage|safe }}</p>
+  <div class="row ">
+    <div class="col-3 sidebar">
+      {% for a in announcements %}
+        <div class="p-3 my-5 mx-3 alert {{ a.alert_type }}" role="alert">
+          <h4 class="alert-heading">{{ a.tsubject|safe }}</h4>
+          <p style="font-size: small">{{ a.valid_from }}</p>
+          <p class="mb-0">{{ a.tmessage|safe }}</p>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="col container">
+      <div class="">
+        {% load bootstrap4 %}
+        {% autoescape off %}
+          {% for message in messages %}
+            <div class="row justify-content-center">
+              <div style="width: 70%" class="{{ message|bootstrap_message_classes }} alert-dismissible fade show"
+                   role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="{% trans 'close' %}">&#215;
+                </button>
+                {{ message }}
+              </div>
             </div>
           {% endfor %}
-        </div>
+        {% endautoescape %}
 
-      </nav>
+        {% if not user.is_authenticated %}
+          <div class="mb-3 center-col">
 
-      <div role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 py-4">
-        <div class="">
-          <div class="container-fluid">
-            {% load bootstrap4 %}
-            {% autoescape off %}
-              {% for message in messages %}
-                <div class="row justify-content-center">
-                  <div style="width: 70%" class="{{ message|bootstrap_message_classes }} alert-dismissible fade show"
-                       role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="{% trans 'close' %}">&#215;
-                    </button>
-                    {{ message }}
+            {% url 'accounts:login' as sign_in_url %}
+            {% url 'accounts:signup' as sign_up_url %}
+
+            <h4 class="montserrat" style="font-size: 26px">
+              {% if not user.is_authenticated %}
+                {% if not AZURE_AD %}
+                  {% blocktrans %}
+                    Please <a href="{{ sign_in_url }}">sign in</a> or select an application below.
+                  {% endblocktrans %}
+                  <br>
+                  {% blocktrans %}
+                    If you do not have an account, you can register for one <a href="{{ sign_up_url }}">here.</a>
+                  {% endblocktrans %}
+                {% endif %}
+              {% endif %}
+            </h4>
+          </div>
+        {% endif %}
+        <br>
+        {% trans "Select" as btn_text %}
+        {% with app_dict as app_dict %}
+          <div class="row justify-content-center">
+            {% for app in app_dict %}
+              <div class="card{% if app_dict|lookup:app|lookup:"fake" %} fake{% endif %}" href="{{ app_dict|lookup:app|lookup:"url" }}">
+                <div class="card-body">
+                  <div class="row mb-4">
+                    <div class="col-3">
+                      <img class="card-img "
+                           src="{% static app_dict|lookup:app|lookup:"icon_path" %}">
+                    </div>
+                    <div class="col">
+                      <h4 class="card-title">
+                        {{ app_dict|lookup:app|lookup:"title" }}
+                      </h4>
+                    </div>
                   </div>
-                </div>
-              {% endfor %}
-            {% endautoescape %}
-
-            {% if not user.is_authenticated %}
-              <div class="mb-3 center-col">
-
-                {% url 'accounts:login' as sign_in_url %}
-                {% url 'accounts:signup' as sign_up_url %}
-
-                <h4 class="montserrat" style="font-size: 26px">
-                  {% if not user.is_authenticated %}
-                    {% if not AZURE_AD %}
-                      {% blocktrans %}
-                        Please <a href="{{ sign_in_url }}">sign in</a> or select an application below.
-                      {% endblocktrans %}
-                      <br>
-                      {% blocktrans %}
-                        If you do not have an account, you can register for one <a href="{{ sign_up_url }}">here.</a>
-                      {% endblocktrans %}
-                    {% endif %}
-                  {% endif %}
-                </h4>
-              </div>
-            {% endif %}
-            <br>
-            {% trans "Select" as btn_text %}
-            {% with app_dict as app_dict %}
-              <div class="row justify-content-center">
-                {% for app in app_dict %}
-                  <div class="card{% if app_dict|lookup:app|lookup:"fake" %} fake{% endif %}" href="{{ app_dict|lookup:app|lookup:"url" }}">
-                    <div class="card-body">
-                      <div class="row mb-4">
-                        <div class="col-3">
-                          <img class="card-img "
-                               src="{% static app_dict|lookup:app|lookup:"icon_path" %}">
-                        </div>
-                        <div class="col">
-                          <h4 class="card-title">
-                            {{ app_dict|lookup:app|lookup:"title" }}
-                          </h4>
-                        </div>
-                      </div>
-                      <p class="card-text">
-                        {{ app_dict|lookup:app|lookup:"description" }}
-                        {% trans "access to this app requires special permissions" as permissions_msg %}
-                        {% trans "access to this app requires you to be logged in" as login_msg %}
-                        {% trans "this app is opened to all users" as open_msg %}
-                        {% if app_dict|lookup:app|lookup:"status" == "beta" %}
-                          <span class="badge badge-pill badge-warning" style="font-size: x-small">
+                  <p class="card-text">
+                    {{ app_dict|lookup:app|lookup:"description" }}
+                    {% trans "access to this app requires special permissions" as permissions_msg %}
+                    {% trans "access to this app requires you to be logged in" as login_msg %}
+                    {% trans "this app is opened to all users" as open_msg %}
+                    {% if app_dict|lookup:app|lookup:"status" == "beta" %}
+                      <span class="badge badge-pill badge-warning" style="font-size: x-small">
                                                 {% trans "beta" %}
                                             </span>
-                        {% elif app_dict|lookup:app|lookup:"status" == "dev" %}
-                          <span class="badge badge-pill badge-danger" style="font-size: x-small">
+                    {% elif app_dict|lookup:app|lookup:"status" == "dev" %}
+                      <span class="badge badge-pill badge-danger" style="font-size: x-small">
                                                 {% trans "dev" %}
                                             </span>
-                        {% endif %}
-                      </p>
-                    </div>
+                    {% endif %}
+                  </p>
+                </div>
 
-                  </div>
-
-
-                {% endfor %}
               </div>
-            {% endwith %}
 
 
+            {% endfor %}
           </div>
+        {% endwith %}
 
-          <br><br>
 
-
-          <div class="mb-5 center-col">
-
-            {% if git_version_number %}
-              <div class="mb-3 mt-5">
-                <p style="font-size: small" class="text-muted my-1">
-                  <u>version</u>: {{ git_version_number|nz:"-----" }}
-                </p>
-              </div>
-            {% endif %}
-          </div>
-
-        </div>
       </div>
     </div>
-
-
   </div>
+
+  <br><br>
+
+
+  <div class="mb-5 center-col">
+
+    {% if git_version_number %}
+      <div class="mb-3 mt-5">
+        <p style="font-size: small" class="text-muted my-1">
+          <u>version</u>: {{ git_version_number|nz:"-----" }}
+        </p>
+      </div>
+    {% endif %}
+  </div>
+
 
 
   <script type="application/javascript">
