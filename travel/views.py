@@ -1048,13 +1048,6 @@ class TripReviewerListView(TravelAccessRequiredMixin, CommonTemplateView):
     h1 = " "
     active_page_name_crumb = gettext_lazy("Trip reviews")
 
-    def get_queryset(self):
-        qp = self.request.GET
-        print(qp)
-        if qp.get("ongoing"):
-            return models.TripReviewer.objects.filter(status=25)
-        return utils.get_related_trip_reviewers(self.request.user)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
