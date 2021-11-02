@@ -190,22 +190,23 @@
 
 
       </div>
+      <br><br>
+
+
+      <div class="mb-5 center-col">
+
+        {% if git_version_number %}
+          <div class="mb-3 mt-5">
+            <p style="font-size: small" class="text-muted my-1">
+              <u>version</u>: {{ git_version_number|nz:"-----" }}
+            </p>
+          </div>
+        {% endif %}
+      </div>
+
     </div>
   </div>
 
-  <br><br>
-
-
-  <div class="mb-5 center-col">
-
-    {% if git_version_number %}
-      <div class="mb-3 mt-5">
-        <p style="font-size: small" class="text-muted my-1">
-          <u>version</u>: {{ git_version_number|nz:"-----" }}
-        </p>
-      </div>
-    {% endif %}
-  </div>
 
 
 
