@@ -786,12 +786,12 @@ class TestTripReviewerAPIViewSet(CommonTest):
         tripreviewer.status = 25
         tripreviewer.save()
         self.instance = tripreviewer
-        self.test_list_url = reverse("tripreviewer-list", args=None)
+        self.test_list_url = reverse("tripreviewer-list", args=None)+"?personalized=true"
         self.test_detail_url = reverse("tripreviewer-detail", args=[self.instance.pk])
 
     @tag("api", 'tripreviewer')
     def test_url(self):
-        self.assert_correct_url("tripreviewer-list", test_url_args=None, expected_url_path=f"/api/travel/trip-reviewers/")
+        self.assert_correct_url("tripreviewer-list", test_url_args=None, expected_url_path=f"/api/travel/trip-reviewers/?personalized=true")
         self.assert_correct_url("tripreviewer-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/travel/trip-reviewers/{self.instance.pk}/")
 
     @tag("api", 'tripreviewer')
@@ -803,6 +803,7 @@ class TestTripReviewerAPIViewSet(CommonTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["id"], self.instance.id)
         response = self.client.get(self.test_list_url)
+        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)  # related requests tripreviewers
         self.get_and_login_user(user=self.instance.user)  # log in with tripreviewer user
