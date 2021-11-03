@@ -1,6 +1,7 @@
 {% extends 'scuba/base.html' %}
 {% load verbose_names %}
 {% load i18n %}
+{% load l10n %}
 
 {% block subcontent %}
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
@@ -90,36 +91,37 @@
     {% endif %}
   </div>
   {% if object.site.get_coordinates %}
+    {% localize off %}
+      <script type="application/javascript">
+      function initialize() {
 
-    <script type="application/javascript">
-    function initialize() {
+        map = new L.Map("map", {
+          zoom: 10,
+        });
 
-      map = new L.Map("map", {
-        zoom: 10,
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map)
+
+        var coords = [];
+        latLong = [{{object.site.get_coordinates.x}}, {{ object.site.get_coordinates.y }}];
+        L.marker(
+            latLong, {title: '{{object.site}}',}
+        ).addTo(map).bindPopup("<b>Site name:</b> {{object.site.name}}");
+        coords.push(latLong)
+
+        map.fitBounds(coords);
+        if (coords.length === 1) map.setZoom(12);
+
+      }
+
+      $(document).ready(function () {
+        // Stuff to do as soon as the DOM is ready
+        initialize()
+
       });
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(map)
-
-      var coords = [];
-      latLong = [{{object.site.get_coordinates.x}}, {{ object.site.get_coordinates.y }}];
-      L.marker(
-          latLong, {title: '{{object.site}}',}
-      ).addTo(map).bindPopup("<b>Site name:</b> {{object.site.name}}");
-      coords.push(latLong)
-
-      map.fitBounds(coords);
-      if (coords.length === 1) map.setZoom(12);
-
-    }
-
-    $(document).ready(function () {
-      // Stuff to do as soon as the DOM is ready
-      initialize()
-
-    });
-    </script>
+      </script>
+    {% endlocalize %}
   {% endif %}
 
 {% endblock %}
