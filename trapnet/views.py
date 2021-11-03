@@ -591,7 +591,6 @@ class SweepDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
             'status',
             'origin',
             'sex',
-            'tag_number',
             'scale_id_number',
         ]
         return context

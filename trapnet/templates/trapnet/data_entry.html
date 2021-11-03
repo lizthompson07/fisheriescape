@@ -94,7 +94,7 @@
                   <td><label for="">${labels.weight}</label></td>
                   <td><input type="number" step="any" v-model="observation.weight" class="table-input"/></td>
                 </tr>
-                <tr>
+                <tr v-if="!isElectro">
                   <td><label for="">${labels.tag_number}</label></td>
                   <td><input type="text" v-model="observation.tag_number" class="table-input"/></td>
                 </tr>
@@ -153,7 +153,7 @@
                     <th class="w75">${labels.fork_length}</th>
                     <th  v-if="!isElectro" class="w75">${labels.total_length}</th>
                     <th class="w75">${labels.weight}</th>
-                    <th class="w75">${labels.tag_number}</th>
+                    <th v-if="!isElectro" class="w75">${labels.tag_number}</th>
                     <th v-if="!isElectro" class="w75">${labels.location_tagged}</th>
                     <th v-if="!isElectro" class="w75">${labels.date_tagged}</th>
                     <th class="w75">${labels.scale_id_number}</th>
@@ -194,8 +194,8 @@
                     <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.weight|nz}</td>
                     <td v-else><input type="number" step="any" @keyup.enter="updateObservation" v-model="observation.weight" class="table-input p-0"/></td>
 
-                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.tag_number|nz}</td>
-                    <td v-else><input type="text" v-model="observation.tag_number" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o)">${o.tag_number|nz}</td>
+                    <td v-else-if="!isElectro"><input type="text" v-model="observation.tag_number" @keyup.enter="updateObservation" class="table-input p-0"/></td>
 
                     <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o)">${o.location_tagged|nz}</td>
                     <td v-else-if="!isElectro"><input type="text" v-model="observation.location_tagged" @keyup.enter="updateObservation" class="table-input p-0"/></td>
@@ -215,9 +215,12 @@
                     <td style="width: 100px;">
                       <div v-if="observation.id !== o.id">
                         <button class="btn btn-xs btn-warning" @click="editObservation(o)"><span class="mdi mdi-pencil"></span></button>
-                        <button class="btn btn-xs btn-success" @click="duplicateObservation(o)"><span class="mdi mdi-content-duplicate text-light"></span>
+                        <button class="btn btn-xs btn-success" @click="duplicateObservation(o)">
+                          <span class="mdi mdi-content-duplicate text-light"></span>
                         </button>
-                        <button class="btn btn-xs btn-danger" @click="deleteObservation(o)"><span class="mdi mdi-close text-light"></span></button>
+                        <button class="btn btn-xs btn-danger" @click="deleteObservation(o)">
+                          <span class="mdi mdi-close text-light"></span>
+                        </button>
                       </div>
 
                       <div v-else>
@@ -356,6 +359,8 @@
         this.successMsg = null;
         let endpoint;
         let method;
+        // set any empty strings to null
+        for (const observationKey in this.observation) if (this.observation[observationKey] === "") this.observation[observationKey] = null;
         if (this.observation.id) {
           endpoint = `/api/trapnet/observations/${this.observation.id}/`;
           method = "PUT";
