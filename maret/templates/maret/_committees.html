@@ -1,0 +1,32 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="card entry-card mb-3">
+    <div class="card-header">
+        <h5 class="card-title"> {% trans "Committee / Working Group Details" %}</h5>
+    </div>
+    <div class="card-body">
+        {% if object.committee_ext_organization.count == 0 %}
+            <em>
+                {% trans "No committees have been added to this organization" %}
+            </em><br>
+        {% else %}
+            <table class="table table-hover table-sm" style="width: auto">
+                <tr>
+                    <th class="w-25"> {% trans "Description" %} </th>
+                </tr>
+                <tbody>
+                {% for obj in object.committee_ext_organization.all %}
+                    <tr href="{% url 'maret:committee_detail' obj.id %}" >
+                        <td>
+                            {{ obj.name }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</div>

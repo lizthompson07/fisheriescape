@@ -1,0 +1,51 @@
+{% load i18n %}
+
+<li class="nav-item"><a class="nav-link" href="{% url 'res:index' %}">
+  {% trans "Home" %}
+</a></li>
+
+{#<li class="nav-item"><a class="nav-link" href="{% url 'res:reports' %}">#}
+<li class="nav-item"><a class="nav-link" href="#">
+  {% trans "Reports" %}
+</a></li>
+
+{% for group in user.groups.all %}
+  {% if group.name == "res_admin" %}
+
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+         aria-haspopup="true" aria-expanded="false">
+        {% trans "Settings" %}
+      </a>
+      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <a class="dropdown-item" href="{% url 'res:manage_site_sections' %}">
+          {% trans "Site Text" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'res:manage_group_levels' %}">
+          {% trans "RES Groups / Levels" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'res:manage_contexts' %}">
+          {% trans "Contexts" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'res:manage_outcomes' %}">
+          {% trans "Valued Outcomes" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'res:manage_achievement_categories' %}">
+          {% trans "Achievement Categories" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'res:manage_publication_types' %}">
+          {% trans "Publication Types" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'res:manage_review_types' %}">
+          {% trans "Review Types" %}
+        </a>
+      </div>
+    </li>
+
+  {% endif %}
+
+{% endfor %}
+
+
+
+

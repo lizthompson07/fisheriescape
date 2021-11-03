@@ -63,18 +63,39 @@ class RegionFactory(factory.django.DjangoModelFactory):
         }
 
 
-class BranchFactory(factory.django.DjangoModelFactory):
+class SectorFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = shared_models.Branch
+        model = shared_models.Sector
 
     region = factory.SubFactory(RegionFactory)
-    name = factory.LazyAttribute(lambda o: faker.word())
+    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    abbrev_en = factory.LazyAttribute(lambda o: faker.word())
+    abbrev_fr = factory.LazyAttribute(lambda o: faker.word())
     head = factory.SubFactory(UserFactory)
 
     @staticmethod
     def get_valid_data():
         return {
             'region': RegionFactory().id,
+            'head': UserFactory().id,
+            'name': faker.catch_phrase(),
+            'abbrev_en': faker.word()[:6],
+            'abbrev_fr': faker.word()[:6],
+        }
+
+
+class BranchFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = shared_models.Branch
+
+    sector = factory.SubFactory(SectorFactory)
+    name = factory.LazyAttribute(lambda o: faker.word())
+    head = factory.SubFactory(UserFactory)
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'sector': SectorFactory().id,
             'head': UserFactory().id,
             'name': faker.word(),
             'abbrev': faker.word()[:6],
@@ -183,7 +204,7 @@ class ProjectFactory(factory.django.DjangoModelFactory):
         model = shared_models.Project
 
     name = factory.lazy_attribute(lambda o: faker.catch_phrase())
-    code = factory.lazy_attribute(lambda o: faker.pyint(1,1000))
+    code = factory.lazy_attribute(lambda o: faker.pyint(1, 1000))
 
     @staticmethod
     def get_valid_data():

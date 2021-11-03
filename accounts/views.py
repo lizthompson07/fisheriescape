@@ -239,10 +239,12 @@ def signup(request):
             custom_send_mail(
                 html_message=message,
                 subject=mail_subject,
-                recipient_list=[to_email,],
+                recipient_list=[to_email, ],
                 from_email=from_email,
             )
-            return HttpResponse('Please confirm your email address to complete the registration')
+            return HttpResponse(_('A verification email was just send to {email_address}. In order to complete your registration, please follow the link'
+                                  ' in the message. <br><br>If the email does not appear within 1-2 minutes, please be sure to check your junk mail folder. '
+                                  '<br><br>The activation link will only remain valid for a limited period of time.').format(to_email))
     else:
         form = forms.SignupForm()
     return render(request, 'registration/signup.html', {'form': form})

@@ -1,0 +1,31 @@
+{% load i18n %}
+{% load custom_filters %}
+
+{% for context in contexts %}
+
+  <div class="mb-5" id="context{{ context.id }}">
+    <h6 class="float-right">
+      ({{ application.context_word_count_dict|lookup:context.id }} / {{ context.word_limit }} {% trans "words" %})
+    </h6>
+    <h6>
+      {{ context.tname }}
+    </h6>
+    {% for o in object.outcomes.all %}
+      {% if o.outcome.context.id == context.id %}
+        <div class="mb-4" id="outcome{{ o.id }}">
+          <hr>
+          <em class="font-weight-bold">{{ o.outcome.tname }}</em>
+          <div class="mt-2">
+          {{ o.text_html|safe }}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <div class="mb-3">
+    </div>
+
+
+  </div>
+{% endfor %}
+

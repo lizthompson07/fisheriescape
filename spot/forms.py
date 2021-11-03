@@ -56,7 +56,6 @@ class PersonForm(forms.ModelForm):
 
 
 class ProjectForm(forms.ModelForm):
-
     primary_river = forms.ModelChoiceField(queryset=models.River.objects.all(), widget=forms.Select(attrs=attr_chosen))
     agreement_history = forms.ModelMultipleChoiceField(queryset=models.Project.objects.all(), widget=forms.SelectMultiple(attrs=attr_chosen))
     secondary_river = forms.ModelMultipleChoiceField(queryset=models.River.objects.all(), widget=forms.SelectMultiple(attrs=attr_chosen))

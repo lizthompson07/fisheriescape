@@ -177,11 +177,10 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
         if self.h1:
             return self.h1
         else:
-            return gettext(
-                "Are you sure you want to delete the following {}? <br>  <span class='red-font'>{}</span>".format(
-                    self.model._meta.verbose_name,
-                    self.get_object(),
-                ))
+            return gettext("Are you sure you want to delete the following {item_name}? <br>  <span class='red-font'>{item}</span>").format(
+                    item_name=self.model._meta.verbose_name,
+                    item=self.get_object(),
+                )
 
     def get_submit_text(self):
         if self.submit_text:
@@ -753,6 +752,82 @@ class BranchDeleteView(AdminRequiredMixin, CommonDeleteView):
             "pk": self.get_object().id})}
 
 
+
+
+# SECTOR #
+##########
+
+class SectorListView(AdminRequiredMixin, CommonFilterView):
+    paginate_by = 25
+    filterset_class = filters.SectorFilter
+    queryset = models.Sector.objects.order_by("region", "name")
+    template_name = 'shared_models/org_list.html'
+    field_list = [
+        {"name": "region", },
+        {"name": "tname|{}".format(gettext_lazy("sector")), },
+        {"name": "abbrev", },
+        {"name": "head", },
+        {"name": "date_last_modified", },
+        {"name": "last_modified_by", },
+    ]
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
+    home_url_name = "shared_models:index"
+    row_object_url_name = "shared_models:sector_edit"
+    new_object_url_name = "shared_models:sector_new"
+    container_class = "container-fluid"
+    h1 = queryset.model._meta.verbose_name_plural
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["region"] = models.Region.objects.first()
+        context["sector"] = models.Sector.objects.first()
+        context["branch"] = models.Branch.objects.first()
+        context["division"] = models.Division.objects.first()
+        context["section"] = models.Section.objects.first()
+        return context
+
+
+class SectorUpdateView(AdminRequiredMixin, CommonUpdateView):
+    model = models.Sector
+    template_name = 'shared_models/org_form.html'
+    form_class = forms.SectorForm
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:sector_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["delete_url"] = reverse("shared_models:sector_delete", kwargs={"pk": self.get_object().id})
+        return context
+
+    def get_initial(self):
+        return {"last_modified_by": self.request.user, }
+
+
+class SectorCreateView(AdminRequiredMixin, CommonCreateView):
+    model = models.Sector
+    template_name = 'shared_models/org_form.html'
+    form_class = forms.SectorForm
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:sector_list")}
+
+    def get_initial(self):
+        return {"last_modified_by": self.request.user, }
+
+
+class SectorDeleteView(AdminRequiredMixin, CommonDeleteView):
+    model = models.Sector
+    success_url = reverse_lazy('shared_models:sector_list')
+    template_name = 'shared_models/generic_confirm_delete.html'
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
+    grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:sector_list")}
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:sector_edit", kwargs={
+            "pk": self.get_object().id})}
+
+
+
+
 # REGION #
 ###########
 
@@ -1131,6 +1206,11 @@ def export_org_report(request):
         'region nom',
         'region head email',
         'region admin email',
+        'sector uuid',
+        'sector name',
+        'sector nom',
+        'sector head email',
+        'sector admin email',
         'branch uuid',
         'branch name',
         'branch nom',
@@ -1151,11 +1231,16 @@ def export_org_report(request):
 
     for obj in models.Section.objects.all():
         data_row = [
-            obj.division.branch.region.uuid,
-            obj.division.branch.region.name,
-            obj.division.branch.region.nom,
-            obj.division.branch.region.head.email if obj.division.branch.region.head else None,
-            obj.division.branch.region.admin.email if obj.division.branch.region.admin else None,
+            obj.division.branch.sector.region.uuid,
+            obj.division.branch.sector.region.name,
+            obj.division.branch.sector.region.nom,
+            obj.division.branch.sector.region.head.email if obj.division.branch.sector.region.head else None,
+            obj.division.branch.sector.region.admin.email if obj.division.branch.sector.region.admin else None,
+            obj.division.branch.sector.uuid,
+            obj.division.branch.sector.name,
+            obj.division.branch.sector.nom,
+            obj.division.branch.sector.head.email if obj.division.branch.sector.head else None,
+            obj.division.branch.sector.admin.email if obj.division.branch.sector.admin else None,
             obj.division.branch.uuid,
             obj.division.branch.name,
             obj.division.branch.nom,

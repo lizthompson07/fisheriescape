@@ -21,6 +21,7 @@ class TaggingParser(DataParser):
     ufid_key = "Universal Fish ID"
     pit_key = "PIT Tag #"
     comment_key = "Comments"
+    lifestage_key = "Lifestage"
     len_key = "Length (cm)"
     len_key_mm = "Length (mm)"
     weight_key = "Weight (g)"
@@ -41,12 +42,7 @@ class TaggingParser(DataParser):
     grp_id = None
     anix_indv = None
 
-    vial_anidc_id = None
-    len_anidc_id = None
-    weight_anidc_id = None
     ani_health_anidc_id = None
-    prog_grp_anidc_id = None
-    mark_anidc_id = None
 
     def load_data(self):
         self.mandatory_keys.extend([self.to_tank_key, self.from_tank_key, self.group_key, self.pit_key, self.stok_key, self.coll_key])
@@ -61,12 +57,7 @@ class TaggingParser(DataParser):
 
         self.tagger_code = models.RoleCode.objects.filter(name__iexact="Tagger").get()
         self.salmon_id = models.SpeciesCode.objects.filter(name__iexact="Salmon").get()
-        self.vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
-        self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
-        self.weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
         self.ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
-        self.prog_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Program Group").get()
-        self.mark_anidc_id = models.AnimalDetCode.objects.filter(name="Mark").get()
 
         # set datetimes:
         self.data = utils.set_row_datetime(self.data)
@@ -122,21 +113,16 @@ class TaggingParser(DataParser):
         self.row_entered += anix_entered
         self.anix_indv = anix_indv
 
-        if utils.nan_to_none(row[self.group_key]):
-            if not len(indv.prog_group()):
-                self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.group_key],
-                                                      self.prog_grp_anidc_id.pk, adsc_str=row[self.group_key])
-        if utils.nan_to_none(row[self.mark_key]):
-            if not len(indv.prog_group()):
-                self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.mark_key],
-                                                      self.mark_anidc_id.pk, adsc_str=row[self.mark_key])
-
         utils.enter_bulk_indvd(anix_indv.pk, self.cleaned_data, row_date,
                                len_mm=row.get(self.len_key_mm),
-                               len=row.get(self.len_key),
+                               len_val=row.get(self.len_key),
                                weight=row.get(self.weight_key),
                                weight_kg=row.get(self.weight_key_kg),
                                vial=row.get(self.vial_key),
+                               mark=row.get(self.mark_key),
+                               prog_grp=row.get(self.group_key),
+                               lifestage=row.get(self.lifestage_key),
+                               comments=row.get(self.comment_key),
                                )
 
         if utils.nan_to_none(row.get(self.precocity_key)):
@@ -155,14 +141,6 @@ class TaggingParser(DataParser):
             for inits in inits_not_found:
                 self.log_data += "No valid personnel with initials ({}) for row with pit tag" \
                                  " {}\n".format(inits, row[self.pit_key])
-
-        if utils.nan_to_none(row.get(self.comment_key)):
-            comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix_indv,
-                                                                 det_date=row_datetime.date())
-            self.row_entered += data_entered
-            if not comments_parsed:
-                self.log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row[self.pit_key],
-                                                                                             row[self.comment_key])
 
     def data_cleaner(self):
         from_tanks = self.data[self.from_tank_key].value_counts()

@@ -1,0 +1,126 @@
+{% load i18n %}
+
+<div v-if="loadingAchievements" class="loading mb-3 mt-3 mt-5">
+  <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+    <span class="sr-only"></span>
+  </div>
+</div>
+
+<div v-else class="table table-sm">
+
+  <div v-if="achievements.length">
+    <div v-for="category in application.achievement_categories" :key="category.id" class="mb-5">
+      <h6 :id="`category${category.id}`" class="mb-3">
+        ${category.display}
+      </h6>
+      <div v-if="!category.is_publication">
+        <achievement
+          :id="`achievement${achievement.id}`"
+          v-for="achievement in achievements" :key="achievement.id"
+          v-if="achievement.category === category.id"
+          :object="achievement"
+          :editable="canModify" :dirty="unsavedChanges"
+          @keypress="unsavedChanges=true"
+          :category_choices="categoryChoices"
+          :publication_type_choices="publicationTypeChoices"
+          :review_type_choices="reviewTypeChoices"
+          :labels="achievementLabels"
+          @change="updateAchievement"
+          @clone="cloneAchievement"
+          @remove="deleteAchievement"
+        ></achievement>
+      </div>
+      <div v-else>
+
+        {# summary table #}
+        {##}
+        {#        <div v-if="loadingAchievementsSummary" class="loading mb-3 mt-3 mt-5">#}
+        {#          <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">#}
+        {#            <span class="sr-only"></span>#}
+        {#          </div>#}
+        {#        </div>#}
+        {#        <div v-else class="table table-sm">#}
+        {#          <p class="h6" id="summary_table">{% trans "Table of the cumulative NUMBER of publications prior to and since last promotion" %}</p>#}
+        {#          <table class="table table-sm w-auto">#}
+        {#            <thead>#}
+        {#            <tr>#}
+        {#              <th>{% trans "Publication Type" %}</th>#}
+        {#              <th class="text-center">{% trans "Before last promotion" %}</th>#}
+        {#              <th class="text-center">{% trans "Since last promotion" %}</th>#}
+        {#              <th class="text-center">{% trans "Career total" %}</th>#}
+        {#            </tr>#}
+        {#            </thead>#}
+        {#            <tbody>#}
+        {#            <tr v-for="row, index in achievementsSummary" :key="index">#}
+        {#              <td>${row.publication_type_code}. ${row.publication_type}</td>#}
+        {#              <td class="text-center">${row.before_last_promotion}</td>#}
+        {#              <td class="text-center">${row.since_last_promotion}</td>#}
+        {#              <td class="text-center">${row.total}</td>#}
+        {#            </tr>#}
+        {#            </tbody>#}
+        {##}
+        {#          </table>#}
+        {##}
+        {#        </div>#}
+
+        <div v-for="publication_type in application.achievement_publication_types" :key="publication_type.id" class="mb-5">
+          <u :id="`publication_type{publication_type.id}`" class="mb-3 font-italic">
+            ${publication_type.tname}
+          </u>
+          <achievement
+            :id="`achievement${achievement.id}`"
+            v-for="achievement in achievements" :key="achievement.id"
+            v-if="achievement.category === category.id && achievement.publication_type === publication_type.id"
+            :object="achievement"
+            :editable="canModify" :dirty="unsavedChanges"
+            @keypress="unsavedChanges=true"
+            :category_choices="categoryChoices"
+            :publication_type_choices="publicationTypeChoices"
+            :review_type_choices="reviewTypeChoices"
+            :labels="achievementLabels"
+            @change="updateAchievement"
+            @clone="cloneAchievement"
+            @remove="deleteAchievement"
+          ></achievement>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div v-else>
+    <em class="text-muted">
+      {% trans "No achievements have been added to this application." %}
+    </em>
+  </div>
+</div>
+
+{# summary table #}
+
+<div v-if="loadingAchievementsSummary" class="loading mb-3 mt-3 mt-5">
+  <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+    <span class="sr-only"></span>
+  </div>
+</div>
+<div v-else>
+  <p class="h6" id="summary_table">{% trans "Table of the cumulative NUMBER of publications prior to and since last promotion (E1 Summary Table)" %}</p>
+  <table class="table table-sm table-bordered w-auto">
+    <thead>
+    <tr>
+      <th>{% trans "Publication Type" %}</th>
+      <th class="text-center">{% trans "Before last promotion" %}</th>
+      <th class="text-center">{% trans "Since last promotion" %}</th>
+      <th class="text-center">{% trans "Career total" %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr v-for="row, index in achievementsSummary" :key="index">
+      <td>${row.publication_type}</td>
+      <td class="text-center">${row.before_last_promotion}</td>
+      <td class="text-center">${row.since_last_promotion}</td>
+      <td class="text-center">${row.total}</td>
+    </tr>
+    </tbody>
+
+  </table>
+
+</div>

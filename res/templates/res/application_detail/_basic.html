@@ -1,0 +1,122 @@
+{% load i18n %}
+
+{% include "res/application_detail/_error_alert.html" %}
+
+<div v-if="loadingApplication" class="loading mb-3 mt-3 mt-5">
+  <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+    <span class="sr-only"></span>
+  </div>
+</div>
+
+<div v-else class="table table-sm">
+  <editable-cell
+    :label="applicationLabels.fiscal_year" col_class="col-3"
+    :object="application"
+    field="fiscal_year_display"
+  ></editable-cell>
+  <editable-cell
+    :label="applicationLabels.status" col_class="col-3"
+    :object="application"
+    field="status_display_html"
+  ></editable-cell>
+  <editable-cell
+    :label="applicationLabels.applicant" col_class="col-3"
+    :object="application" field="applicant" display_field="applicant_display"
+     :editable="canModify" input_type="select" :options="applicantChoices"
+    @keypress="unsavedChanges=true" @change="updateApplication"
+  ></editable-cell>
+  <editable-cell
+    :label="applicationLabels.manager" col_class="col-3"
+    :object="application" field="manager" display_field="manager_display"
+     :editable="canModify" input_type="select" :options="applicantChoices"
+    @keypress="unsavedChanges=true" @change="updateApplication"
+  ></editable-cell>
+  <editable-cell
+    :label="applicationLabels.application_start_date" col_class="col-3"
+    :object="application" field="application_start_date" display_field="application_start_date_display"
+     :editable="canModify" input_type="date"
+    @keypress="unsavedChanges=true" @change="updateApplication"
+  ></editable-cell>
+  <editable-cell
+    :label="applicationLabels.application_end_date" col_class="col-3"
+    :object="application" field="application_end_date" display_field="application_end_date_display"
+     :editable="canModify" input_type="date"
+    @keypress="unsavedChanges=true" @change="updateApplication"
+  ></editable-cell>
+  <editable-cell
+    label="{% trans "Application period" %}" col_class="col-3"
+    :object="application"
+    field="application_range_description"
+  ></editable-cell>
+  <editable-cell
+    :label="applicationLabels.section" col_class="col-3"
+    :object="application" field="section" display_field="section_display"
+     :editable="canModify" input_type="select" :options="sectionChoices"
+    @keypress="unsavedChanges=true" @change="updateApplication"
+  ></editable-cell>
+  <editable-cell
+    :label="applicationLabels.current_group_level" col_class="col-3"
+    :object="application" field="current_group_level" display_field="current_group_level_display"
+     :editable="canModify" input_type="select" :options="groupLevelChoices"
+    @keypress="unsavedChanges=true" @change="updateApplication"
+  ></editable-cell>
+  <editable-cell
+    :label="applicationLabels.target_group_level" col_class="col-3"
+    :object="application" field="target_group_level" display_field="target_group_level_display"
+     :editable="canModify" input_type="select" :options="groupLevelChoices"
+    @keypress="unsavedChanges=true" @change="updateApplication"
+  ></editable-cell>
+
+  <editable-cell
+    :label="applicationLabels.current_position_title" col_class="col-3"
+    :object="application" field="current_position_title"
+    :editable="canModify" 
+    @change="updateApplication" @keypress="unsavedChanges=true"
+  ></editable-cell>
+
+  <editable-cell
+    :label="applicationLabels.work_location" col_class="col-3"
+    :object="application" field="work_location"
+    :editable="canModify"  :options="orgChoices"
+    @change="updateApplication" @keypress="unsavedChanges=true"
+  ></editable-cell>
+  <editable-cell
+    :label="applicationLabels.last_application" col_class="col-3"
+    :object="application" field="last_application" display_field="last_application_display"
+     :editable="canModify" input_type="date"
+    @keypress="unsavedChanges=true" @change="updateApplication"
+  ></editable-cell>
+  <editable-cell
+    :label="applicationLabels.last_promotion" col_class="col-3"
+    :object="application" field="last_promotion" display_field="last_promotion_display"
+     :editable="canModify" input_type="date"
+    @keypress="unsavedChanges=true" @change="updateApplication"
+  ></editable-cell>
+
+  <editable-cell
+    :label="applicationLabels.academic_background" :object="application" field="academic_background"
+    display_field="academic_background_html" col_class="col-3"
+    input_type="textarea" :markdown="true"
+    :editable="canModify" :dirty="unsavedChanges"
+    @change="updateApplication" @keypress="unsavedChanges=true"
+  ></editable-cell>
+  <editable-cell
+    input_type="textarea" col_class="col-3"
+    :label="applicationLabels.employment_history" :object="application"
+    field="employment_history" display_field="employment_history_html"
+    :markdown="true" :editable="canModify" :dirty="unsavedChanges"
+    @change="updateApplication" @keypress="unsavedChanges=true"
+  ></editable-cell>
+  <editable-cell
+    :label="applicationLabels.submission_date" col_class="col-3"
+    :object="application"
+    field="submission_date_display"
+    null_mark="-----"
+  ></editable-cell>
+  <editable-cell
+    label="{% trans "Metadata" %}" col_class="col-3"
+    :object="application"
+    field="metadata"
+  ></editable-cell>
+
+</div>

@@ -1,0 +1,71 @@
+{% load i18n %}
+
+<div class="table-bordered py-3 px-2 admin-panel mb-3">
+  <div class="float-right">
+    <br>
+    <button class="btn btn-sm btn-dark" @click="getRequests"><span class="mdi mdi-refresh text-light"></span></button>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <filter-control
+        :label="requestLabels.fiscal_year"
+        filter_param="fiscal_year"
+        input_type="select"
+        @filter="getRequests"
+        :choices="fyChoices" blank_option="-----"
+      ></filter-control>
+    </div>
+
+    <div class="col">
+      <filter-control
+        label="{% trans "Search term (ID, Title, ...)" %}"
+        filter_param="search"
+        @filter="getRequests"
+      ></filter-control>
+    </div>
+
+    <div class="col">
+      <filter-control
+        label="{% trans "Region" %}"
+        input_type="select"
+        filter_param="section__division__branch__sector__region"
+        @filter="getRequests"
+        :choices="regionChoices" blank_option="-----"
+      ></filter-control>
+    </div>
+    <div class="col">
+      <filter-control
+        label="{% trans "Sector" %}"
+        input_type="select"
+        filter_param="section__division__branch__sector"
+        @filter="getRequests"
+        :choices="sectorChoices" blank_option="-----"
+      ></filter-control>
+    </div>
+
+
+    <div class="col">
+      <filter-control
+        :label="requestLabels.status"
+        filter_param="status"
+        input_type="select"
+        :choices="statusChoices"
+        @filter="getRequests"
+      ></filter-control>
+    </div>
+
+    <div class="col">
+      <filter-control
+        label="{% trans "Review decision" %}"
+        filter_param="review__decision"
+        input_type="select"
+        :choices="decisionChoices"
+        @filter="getRequests"
+      ></filter-control>
+    </div>
+
+
+  </div>
+
+</div>

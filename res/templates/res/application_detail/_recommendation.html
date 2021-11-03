@@ -1,0 +1,111 @@
+{% load i18n %}
+
+<div v-if="loadingRecommendation" class="loading mb-3 mt-3 mt-5">
+  <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+    <span class="sr-only"></span>
+  </div>
+</div>
+
+<div v-else class="table table-sm">
+  <div v-if="canModifyRecommendation" class="alert alert-primary no-print" role="alert">
+    <p class="mb-0">
+      <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify_recommendation.reason}</span>
+    </p>
+  </div>
+
+  <editable-cell
+    key="r1" :word_limit="250" col_class="col-3"
+    :label="recommendationLabels.recommendation_text" :object="recommendation" field="recommendation_text"
+    display_field="recommendation_text_html"
+    input_type="textarea" :markdown="true"
+    :editable="canModifyRecommendation" :dirty="unsavedChanges"
+    @change="updateRecommendation" @keypress="unsavedChanges=true"
+  ></editable-cell>
+
+  <editable-cell
+    key="r2"
+    :label="recommendationLabels.decision" col_class="col-3"
+    :object="recommendation" field="decision" display_field="decision_display"
+    :editable="canModifyRecommendation" input_type="select" :options="decisionChoices"
+    @keypress="unsavedChanges=true" @change="updateRecommendation"
+  ></editable-cell>
+
+  <div class="row table-div">
+    <div class="col-3">
+      <label for="">
+        ${recommendationLabels.manager_signed}
+      </label>
+    </div>
+    <div class="col">
+      <div v-if="recommendation.manager_signed">
+        ${recommendation.manager_signed_display}
+      </div>
+      <div v-else-if="isManager && application.submission_date">
+        <div v-if="recommendation.decision === null || recommendation.recommendation_text === null">
+          <span data-toggle="tooltip" title="{% trans "Cannot sign until all required fields have been completed." %}">
+            <button class="btn btn-xs btn-danger helper" disabled>
+             <span class="mdi mdi-fountain-pen text-light mr-1"></span>{% trans "Sign Now!" %}
+            </button>
+          </span>
+        </div>
+        <div v-else>
+          <button @click="updateRecommendation(recommendation, 'sign-by-manager')" class="btn btn-xs btn-danger">
+            <span class="mdi mdi-fountain-pen text-light mr-1"></span>{% trans "Sign Now!" %}
+          </button>
+        </div>
+      </div>
+      <div v-else>
+        -----
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row table-div">
+    <div class="col-3">
+      <label for="">
+        ${recommendationLabels.applicant_signed}
+      </label>
+    </div>
+    <div class="col">
+      <div v-if="recommendation.applicant_signed">
+        ${recommendation.applicant_signed_display}
+      </div>
+      <div v-else-if="isApplicant && application.submission_date">
+        <div v-if="!recommendation.manager_signed">
+          <span data-toggle="tooltip" title="{% trans "Cannot sign until has been signed by manager." %}">
+            <button class="btn btn-xs btn-danger helper" disabled>
+             <span class="mdi mdi-fountain-pen text-light mr-1"></span>{% trans "Sign Now!" %}
+            </button>
+          </span>
+        </div>
+        <div v-else>
+          <button @click="updateRecommendation(recommendation, 'sign-by-applicant')" class="btn btn-xs btn-danger">
+            <span class="mdi mdi-fountain-pen text-light mr-1"></span>{% trans "Sign Now!" %}
+          </button>
+        </div>
+      </div>
+      <div v-else>
+        -----
+      </div>
+    </div>
+  </div>
+
+
+  <editable-cell
+    key="r3"  col_class="col-3"
+    :label="recommendationLabels.applicant_comment"
+    :object="recommendation"
+    field="applicant_comment_html"
+    null_mark="-----"
+  ></editable-cell>
+
+  <editable-cell
+    key="r4"  col_class="col-3"
+    label="{% trans "Metadata" %}"
+    :object="application"
+    field="metadata"
+  ></editable-cell>
+
+
+</div>

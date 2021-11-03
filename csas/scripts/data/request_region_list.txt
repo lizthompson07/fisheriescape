@@ -1,3 +1,0 @@
-    1, Maritimes
-    2, Maritimes Region
-    3, region

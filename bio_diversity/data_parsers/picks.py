@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+import pytz
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.models import Q
@@ -16,7 +17,6 @@ class EDInitParser(DataParser):
     cross_key = "Cross"
     tray_key = "Tray"
     fecu_key = "Fecundity"
-    crew_key = "Crew"
     comment_key = "Comments"
 
     header = 2
@@ -63,14 +63,8 @@ class EDInitParser(DataParser):
             cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fecu_key], contx_pk=contx.pk, cnt_code="Photo Count")
             self.row_entered += cnt_entered
 
-        self.team_parser(row.get(self.crew_key), row)
-
-        if utils.nan_to_none(row.get(self.comment_key)):
-            comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix_id, row_date)
-            self.row_entered += data_entered
-            if not comments_parsed:
-                self.log_data += "Unparsed comment on row with stock ({}), cross ({}): \n {}" \
-                                 " \n\n".format(row[self.stock_key], row[self.cross_key], row[self.comment_key])
+        self.row_entered += utils.enter_bulk_grpd(anix_id.pk, cleaned_data, row_date,
+                                                  comments=row.get(self.comment_key))
 
 
 # ED = egg development
@@ -80,12 +74,16 @@ class EDPickParser(DataParser):
     trof_key = "Trough"
     cross_key = "Cross"
     tray_key = "Tray"
-    crew_key = "Crew"
+    hu_key = "Heath Unit Location"
+    shocking_key = "Shocking (Y/N)"
     comment_key = "Comments"
 
     header = 2
     sheet_name = "Picking"
     converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
+    default_pickc_id = None
+
+    date_dict = {}
 
     def load_data(self):
         self.mandatory_keys.extend([self.stock_key, self.trof_key, self.cross_key, self.tray_key])
@@ -93,6 +91,7 @@ class EDPickParser(DataParser):
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
+        self.default_pickc_id = models.CountCode.objects.filter(name="Cleaning Loss").get()
 
         for pickc_id in cleaned_data["pickc_id"]:
             if pickc_id.name not in self.data.keys():
@@ -115,56 +114,58 @@ class EDPickParser(DataParser):
         row_date = utils.get_row_date(row)
         self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
         # find group from either cross or tray:
-        pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
-                                                indv_id__stok_id=row["stok_id"], start_date__year=row[self.year_key]).first()
-        tray_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True, name=row[self.tray_key]).get()
 
-        grp_id = utils.get_tray_group(pair_id, tray_id, row_date)
+        if utils.nan_to_none(row.get(self.hu_key)):
+            cont_id = utils.get_cont_from_dot(row[self.hu_key], cleaned_data, row_date)
+        elif utils.nan_to_none(row.get(self.tray_key)):
+            cont_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True, name=row[self.tray_key]).get()
+        else:
+            cont_id = row["trof_id"]
 
-        perc_list, inits_not_found = utils.team_list_splitter(row.get(self.crew_key))
-
-        for pickc_id in cleaned_data["pickc_id"]:
-            if utils.nan_to_none(row[pickc_id.name]):
-                self.row_entered += utils.create_picks_evnt(cleaned_data, tray_id, grp_id.pk, row[pickc_id.name],
-                                                            row_date, pickc_id.name, perc_list[0])
-        for inits in inits_not_found:
-            self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
-
-
-class EDShockingParser(EDPickParser):
-    sheet_name = "Shocking"
-
-    def row_parser(self, row):
-        cleaned_data = self.cleaned_data
-        row_date = utils.get_row_date(row)
-        self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
-        pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
-                                                indv_id__stok_id=row["stok_id"], start_date__year=row[self.year_key]).first()
-        tray_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True,
-                                             name=row[self.tray_key]).get()
-
-        grp_id = utils.get_tray_group(pair_id, tray_id, row_date)
-
-        perc_list, inits_not_found = utils.team_list_splitter(row.get(self.crew_key))
+        if utils.nan_to_none(row.get(self.cross_key)):
+            pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
+                                                    indv_id__stok_id=row["stok_id"], start_date__year=row[self.year_key]).first()
+            grp_id = utils.get_tray_group(pair_id, cont_id, row_date)
+        else:
+            grp_id = cont_id.fish_in_cont(row_date, get_grp=True)
 
         grp_anix = None
+        shock = False
         for pickc_id in cleaned_data["pickc_id"]:
             if utils.nan_to_none(row[pickc_id.name]):
-                grp_anix, evnt_entered = utils.create_picks_evnt(cleaned_data, tray_id, grp_id.pk, row[pickc_id.name],
-                                                                 row_date, pickc_id.name, perc_list[0], shocking=True,
-                                                                 return_anix=True)
+                shock = utils.y_n_to_bool(row.get(self.shocking_key))
+                grp_anix, evnt_entered = utils.create_picks_evnt(cleaned_data, cont_id, grp_id.pk, row[pickc_id.name],
+                                                                 row_date, pickc_id.name,
+                                                                 cleaned_data["evnt_id"].perc_id, shocking=shock,
+                                                                 return_anix=True,
+                                                                 pick_comments=row.get(self.comment_key))
                 self.row_entered += evnt_entered
-        for inits in inits_not_found:
-            self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
+
+        for col_name in row.keys():
+            col_date = utils.get_col_date(col_name)
+
+            if col_date:
+                col_date_str = datetime.strftime(col_date, "%Y-%b-%d")
+                self.date_dict[col_date_str] = True
+                if utils.nan_to_none(row.get(col_name)):
+                    self.row_entered += utils.create_picks_evnt(cleaned_data, cont_id, grp_id.pk, row[col_name],
+                                                                col_date, self.default_pickc_id,
+                                                                cleaned_data["evnt_id"].perc_id,
+                                                                pick_comments=row.get(self.comment_key))
 
         # record development
-        if grp_anix:
+        if grp_anix and shock:
             pick_evnt_cleaned_data = cleaned_data.copy()
             pick_evnt_cleaned_data["evnt_id"] = grp_anix.evnt_id
             dev_at_pick = grp_id.get_development(row_date)
             utils.enter_grpd(grp_anix.pk, pick_evnt_cleaned_data, row_date, dev_at_pick, None,
                              anidc_str="Development")
             self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
+
+    def data_cleaner(self):
+        self.log_data += "\nDate columns read from headers:"
+        for date_str in self.date_dict.keys():
+            self.log_data += "{}\n".format(date_str)
 
 
 # ED = egg development
@@ -181,7 +182,6 @@ class EDHUParser(DataParser):
     cont_key = "Destination"
     loss_key = "Transfer Loss"
     final_key = "Final (Y/N)"
-    crew_key = "Crew"
     comment_key = "Comments"
 
     end_trof_key = "End Trough"
@@ -190,7 +190,7 @@ class EDHUParser(DataParser):
     tank_key = "Tank"
 
     header = 2
-    sheet_name = "Transfer"
+    sheet_name = "Allocations"
     converters = {trof_key: str, cross_key: str, tray_key: str, cont_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     def load_data(self):
@@ -227,7 +227,7 @@ class EDHUParser(DataParser):
 
         # want to shift the hu move event, so that the counting math always works out.
         hu_move_date = row_date + timedelta(minutes=1)
-        hu_cleaned_data = utils.create_new_evnt(cleaned_data, "Heath Unit Transfer", hu_move_date)
+        hu_cleaned_data = utils.create_new_evnt(cleaned_data, "Allocation", hu_move_date)
         hu_anix, data_entered = utils.enter_anix(hu_cleaned_data, grp_pk=grp_id.pk)
         self.row_entered += data_entered
         hu_contx, data_entered = utils.enter_contx(tray_id, hu_cleaned_data, None, grp_pk=grp_id.pk,
@@ -283,17 +283,18 @@ class EDHUParser(DataParser):
                 final_grp = final_grp[0]
             final_grp_anix = utils.enter_anix(cleaned_data, grp_pk=final_grp.pk, return_anix=True)
             self.row_entered += utils.enter_anix(hu_cleaned_data, grp_pk=final_grp.pk, return_sucess=True)
-            self.row_entered += utils.enter_grpd(final_grp_anix.pk, cleaned_data, row_date, grp_id.__str__(), None,
-                                                 anidc_str="Parent Group", frm_grp_id=grp_id)
-            self.row_entered += utils.enter_grpd(final_grp_anix.pk, cleaned_data, row_date, None, None,
-                                                 anidc_str="Program Group", adsc_str=row[self.prog_key])
+            self.row_entered += utils.enter_bulk_grpd(final_grp_anix, cleaned_data, row_date,
+                                                      prnt_grp=grp_id,
+                                                      prog_grp=row.get(self.prog_key),
+                                                      comments=row.get(self.comment_key)
+                                                      )
             self.row_entered += utils.enter_grpd(final_grp_anix.pk, cleaned_data, row_date, dev_at_hu_transfer, None,
                                                  anidc_str="Development")
 
             # create movement for the new group, create 2 contx's and 3 anix's
             # cup contx is contx used to link the positive counts
             cont_contx = utils.create_egg_movement_evnt(tray_id, cont, cleaned_data, row_date, final_grp.pk,
-                                                       return_cup_contx=True)
+                                                        return_cup_contx=True)
 
             move_cleaned_data = cleaned_data.copy()
             move_cleaned_data["evnt_id"] = cont_contx.evnt_id
@@ -325,8 +326,3 @@ class EDHUParser(DataParser):
 
             # link cup to egg development event
             utils.enter_contx(cont, cleaned_data, None)
-
-        perc_list, inits_not_found = utils.team_list_splitter(row.get(self.crew_key))
-
-        for inits in inits_not_found:
-            self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)

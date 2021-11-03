@@ -6,13 +6,18 @@ urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
     # settings
+
+
     path('settings/document-types/', views.DocumentTypeFormsetView.as_view(), name="manage_document_types"),
     path('settings/document-types/<int:pk>/delete/', views.DocumentTypeHardDeleteView.as_view(), name="delete_document_type"),
     path('settings/invitee-roles/', views.InviteeRoleFormsetView.as_view(), name="manage_invitee_roles"),
     path('settings/invitee-role/<int:pk>/delete/', views.InviteeRoleHardDeleteView.as_view(), name="delete_invitee_role"),
     # permissions
-    path('settings/user-permissions/', views.UserListView.as_view(), name='user_list'),
-    path('settings/user-permissions/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
+    path('settings/csas-admin-users/', views.CSASAdminUserFormsetView.as_view(), name="manage_csas_admin_users"),
+    path('settings/csas-admin-user/<int:pk>/delete/', views.CSASAdminUserHardDeleteView.as_view(), name="delete_csas_admin_user"),
+    # tags
+    path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
+    path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
 
 
     # people #
@@ -31,6 +36,10 @@ urlpatterns = [
     path('requests/<int:pk>/clone/', views.CSASRequestCloneUpdateView.as_view(), name="request_clone"),
     path('requests/<int:pk>/delete/', views.CSASRequestDeleteView.as_view(), name="request_delete"),
     path('requests/<int:pk>/submit/', views.CSASRequestSubmitView.as_view(), name="request_submit"),
+    path('requests/print-requests/', views.CSASRequestPDFView.as_view(), name="request_pdf"),
+
+    # request reviews
+    path('request-reviews/', views.CSASRequestReviewTemplateView.as_view(), name="request_reviews"),
 
     # request files
     path('requests/<int:crequest>/new-file/', views.CSASRequestFileCreateView.as_view(), name='request_file_new'),
@@ -44,6 +53,9 @@ urlpatterns = [
     path('processes/<int:pk>/edit/', views.ProcessUpdateView.as_view(), name="process_edit"),
     path('processes/<int:pk>/delete/', views.ProcessDeleteView.as_view(), name="process_delete"),
     path('processes/manage-postings/', views.ProcessPostingsVueJSView.as_view(), name="process_postings"),
+
+    # request reviews
+    path('process-reviews/', views.ProcessReviewTemplateView.as_view(), name="process_reviews"),
 
     # ToR
     path('processes/<int:process>/new-tor/', views.TermsOfReferenceCreateView.as_view(), name="tor_new"),
@@ -72,9 +84,14 @@ urlpatterns = [
     path('documents/<int:pk>/edit/', views.DocumentUpdateView.as_view(), name="document_edit"),
     path('documents/<int:pk>/delete/', views.DocumentDeleteView.as_view(), name="document_delete"),
 
+    # to-do
+    path('my-todo-list/', views.ToDoListTemplateView.as_view(), name="todo_list"),
+
     # reports
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
     path('reports/meeting/', views.meeting_report, name="meeting_report"),
+    path('reports/requests/', views.request_list_report, name="request_list_report"),
+    path('reports/processes/', views.process_list_report, name="process_list_report"),
 
 ]
 

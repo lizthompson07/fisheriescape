@@ -31,9 +31,17 @@
             <div class="card-body">
               <h5 class="card-title"> {% trans "Requests" %} </h5>
               <p class="card-text">{% trans "Create, modify or view the status of a CSAS Request" %}</p>
-              <a href="{% url 'csas2:request_list' %}" class="btn btn-primary" data-toggle="tooltip" title="{% trans "All requests" %}"><span class="mdi mdi-format-list-bulleted text-light"></span></a>
-              <a href="{% url 'csas2:request_list' %}?personalized=true" class="btn btn-warning" data-toggle="tooltip" title="{% trans "Requests connected to you" %}"><span class="mdi mdi-heart"></span></a>
-              <a href="{% url 'csas2:request_new' %}" class="btn btn-success" data-toggle="tooltip" title="{% trans "New request" %}"><span class="mdi mdi-plus text-light"></span></a>
+              <a href="{% url 'csas2:request_list' %}" class="btn btn-primary" data-toggle="tooltip" title="{% trans "All requests" %}"><span
+                class="mdi mdi-format-list-bulleted text-light"></span></a>
+              <a href="{% url 'csas2:request_list' %}?personalized=true" class="btn btn-warning" data-toggle="tooltip"
+                 title="{% trans "Requests connected to you" %}"><span class="mdi mdi-heart"></span></a>
+              <a href="{% url 'csas2:request_new' %}" class="btn btn-success" data-toggle="tooltip" title="{% trans "New request" %}"><span
+                class="mdi mdi-plus text-light"></span></a>
+              {% if is_admin %}
+                <a href="{% url 'csas2:request_reviews' %}" class="btn btn-info" data-toggle="tooltip" title="{% trans "Review multiple requests " %}">
+                  <span class="mdi mdi-eye"></span>
+                </a>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -42,9 +50,17 @@
             <div class="card-body">
               <h5 class="card-title">{% trans "Processes" %}</h5>
               <p class="card-text">{% trans "Create, modify or view the status of a CSAS Processes" %}</p>
-              <a href="{% url 'csas2:process_list' %}" class="btn btn-primary" data-toggle="tooltip" title="{% trans "All CSAS processes" %}"><span class="mdi mdi-format-list-bulleted text-light"></span></a>
-              <a href="{% url 'csas2:process_list' %}?personalized=true" class="btn btn-warning" data-toggle="tooltip" title="{% trans "CSAS processes connected to you" %}"><span class="mdi mdi-heart"></span></a>
-              <a href="{% url 'csas2:process_new' %}" class="btn btn-success" data-toggle="tooltip" title="{% trans "New process" %}"><span class="mdi mdi-plus text-light"></span></a>
+              <a href="{% url 'csas2:process_list' %}" class="btn btn-primary" data-toggle="tooltip" title="{% trans "All CSAS processes" %}"><span
+                class="mdi mdi-format-list-bulleted text-light"></span></a>
+              <a href="{% url 'csas2:process_list' %}?personalized=true" class="btn btn-warning" data-toggle="tooltip"
+                 title="{% trans "CSAS processes connected to you" %}"><span class="mdi mdi-heart"></span></a>
+              <a href="{% url 'csas2:process_new' %}" class="btn btn-success" data-toggle="tooltip" title="{% trans "New process" %}"><span
+                class="mdi mdi-plus text-light"></span></a>
+              {% if is_admin %}
+                <a href="{% url 'csas2:process_reviews' %}" class="btn btn-info" data-toggle="tooltip" title="{% trans "Review multiple processes" %}">
+                  <span class="mdi mdi-eye"></span>
+                </a>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -53,8 +69,10 @@
             <div class="card-body">
               <h5 class="card-title">{% trans "Documents" %}</h5>
               <p class="card-text">{% trans "Find a CSAS Document" %}</p><br>
-              <a href="{% url 'csas2:document_list' %}" class="btn btn-primary" data-toggle="tooltip" title="{% trans "All docuemnts" %}"><span class="mdi mdi-format-list-bulleted text-light"></span></a>
-              <a href="{% url 'csas2:document_list' %}?personalized=true" class="btn btn-warning" data-toggle="tooltip" title="{% trans "CSAS documents connected to you" %}"><span class="mdi mdi-heart"></span></a>
+              <a href="{% url 'csas2:document_list' %}" class="btn btn-primary" data-toggle="tooltip" title="{% trans "All docuemnts" %}"><span
+                class="mdi mdi-format-list-bulleted text-light"></span></a>
+              <a href="{% url 'csas2:document_list' %}?personalized=true" class="btn btn-warning" data-toggle="tooltip"
+                 title="{% trans "CSAS documents connected to you" %}"><span class="mdi mdi-heart"></span></a>
             </div>
           </div>
         </div>
@@ -63,14 +81,19 @@
             <div class="card-body">
               <h5 class="card-title">{% trans "Meetings" %}</h5>
               <p class="card-text">{% trans "Find a CSAS Meeting" %}</p><br>
-              <a href="{% url 'csas2:meeting_list' %}" class="btn btn-primary" data-toggle="tooltip" title="{% trans "All meetings" %}"><span class="mdi mdi-format-list-bulleted text-light"></span></a>
-              <a href="{% url 'csas2:meeting_list' %}?personalized=true" class="btn btn-warning" data-toggle="tooltip" title="{% trans "CSAS meetings connected to you" %}"><span class="mdi mdi-heart"></span></a>
+              <a href="{% url 'csas2:meeting_list' %}" class="btn btn-primary" data-toggle="tooltip" title="{% trans "All meetings" %}"><span
+                class="mdi mdi-format-list-bulleted text-light"></span></a>
+              <a href="{% url 'csas2:meeting_list' %}?personalized=true" class="btn btn-warning" data-toggle="tooltip"
+                 title="{% trans "CSAS meetings connected to you" %}"><span class="mdi mdi-heart"></span></a>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
+      {% if has_todos %}
+        <p><a href="{% url 'csas2:todo_list' %}">{% trans "View Your To-do List" %}</a></p>
+      {% endif %}
+    </div>
 
   </div>
 

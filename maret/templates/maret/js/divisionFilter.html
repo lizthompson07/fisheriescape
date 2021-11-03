@@ -1,0 +1,51 @@
+<script type="application/javascript">
+    var interval = null;
+    function divisionChange() {
+        interval = setInterval(function() {
+            $.ajax({
+                type: 'GET',
+                url: "{% url 'maret:ajax_get_divisions' %}",
+                data: {
+                    'branch': $("#id_branch").val()
+                },
+                dataType: 'json',
+                success: function (data) {
+                    // This expects the data to be an array of string elements with the division id and its
+                    // name separated by a colon. i.e ['1:Test Division 1', '3:Test Division 4']
+
+                    // start by ending the interval loop so the page doesn't just constantly refresh.
+                    clearInterval(interval);
+
+                    // get the currently selected division id. The values Django assigns to
+                    // selection list is the items primary key
+                    var sel_div_pk = $("#id_division :selected").val();
+                    $("#id_division").empty(); // remove old options
+
+                    var sel_changed = true;
+
+                    // reload the options based on what the server sends back for the selected branch
+                    $.each(data['divisions'], function (key, value) {
+                        const val = value.split(":");
+                        var opt = $("<option></option>").attr("value", val[0]).text(val[1]);
+                        if( val[0] == sel_div_pk){
+                            sel_changed=false
+                            opt.attr("selected", "");
+                        }
+                        $("#id_division").append(opt);
+                    });
+
+                    //if the divisions selection changed then force a refresh to clear it from the GET/POST variables.
+                    if(sel_changed) {
+                        $("#id_division").change();
+                    }
+                },
+                error: function (response) {
+                    clearInterval(interval);
+                    console.log(response);
+                }
+            });
+        }, 250);
+    }
+
+    $("#id_branch :selected").change(divisionChange());
+</script>

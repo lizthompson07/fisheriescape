@@ -1,0 +1,42 @@
+<script type="application/javascript">
+
+    function updateFields() {
+        var int_type = $("#id_interaction_type :selected").val()
+
+        // Default hiden fields
+        $("#id_committee").parent().addClass("gone");
+        $("#id_date_of_meeting").parent().addClass("gone");
+
+        // Default not hidden fields
+        $("#id_dfo_liaison").parent().removeClass("gone");
+        $("#id_other_dfo_participants").parent().removeClass("gone");
+        $("#id_external_contact").parent().removeClass("gone");
+        $("#id_external_organization").parent().removeClass("gone");
+        $("#id_main_topic").parent().removeClass("gone");
+        $("#id_species").parent().removeClass("gone");
+
+        if(int_type==1 || int_type==2 || int_type==3 || int_type==4) {
+            $("#id_date_of_meeting").parent().removeClass("gone");
+        }
+
+        if(int_type==4) {
+            $("#id_committee").parent().removeClass("gone");
+            $("#id_dfo_liaison").parent().addClass("gone");
+            $("#id_other_dfo_participants").parent().addClass("gone");
+            $("#id_external_contact").parent().addClass("gone");
+            $("#id_external_organization").parent().addClass("gone");
+            $("#id_main_topic").parent().addClass("gone");
+            $("#id_species").parent().addClass("gone");
+        } else if(int_type==5){
+            $("#id_committee").parent().removeClass("gone");
+        }
+    }
+
+    $("#id_interaction_type").change(function() {
+        updateFields();
+    });
+
+    $(document).ready(function() {
+       updateFields();
+    });
+</script>
