@@ -168,11 +168,11 @@ class NewObservationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         klass = "form-control form-control-sm"
-        self.fields["sex"].widget.attrs = {"v-model": "new_observation.sex", "ref": "top_of_form1", "class": klass,
+        self.fields["sex"].widget.attrs = {"v-model": "new_observation.sex",  "class": klass,
                                            "@change": "updateEggStatus(new_observation)"}
         self.fields["egg_status"].widget.attrs = {"v-model": "new_observation.egg_status", "class": klass}
         self.fields["carapace_length_mm"].widget.attrs = {"v-model": "new_observation.carapace_length_mm", "class": klass,
-                                                          "@change": "updateLengthCertainty(new_observation)"}
+                                                          "@change": "updateLengthCertainty(new_observation)", "ref": "top_of_form1",}
         self.fields["certainty_rating"].widget.attrs = {"v-model": "new_observation.certainty_rating", "class": klass}
         self.fields["comment"].widget.attrs = {"v-model": "new_observation.comment", "row": 3, "class": klass}
 
