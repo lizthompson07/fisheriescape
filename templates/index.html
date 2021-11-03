@@ -108,6 +108,14 @@
           <p class="mb-0">{{ a.tmessage|safe }}</p>
         </div>
       {% endfor %}
+      <div class="p-3 my-5 mx-3 alert alert-secondary" role="alert">
+        <p class="small p-0 m-0">
+          {% blocktrans  with user.last_login|date as login and user.last_login|time as time %}
+          Your last login was recorded on {{ login }} at {{ time }}
+          {% endblocktrans  %}
+        </p>
+      </div>
+
     </div>
     <div class="col container">
       <div class="">

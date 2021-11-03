@@ -209,8 +209,8 @@ class Sample(MetadataFields):
                                    help_text=_("The measurement is to 1 decimal place in micro siemens (µS)"))
     overhanging_veg_left = models.IntegerField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Left"))
     overhanging_veg_right = models.IntegerField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Right"))
-    max_overhanging_veg_left = models.IntegerField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Left"))
-    max_overhanging_veg_right = models.IntegerField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Right"))
+    max_overhanging_veg_left = models.FloatField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Left"))
+    max_overhanging_veg_right = models.FloatField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Right"))
 
     # substrate
     percent_fine = models.FloatField(blank=True, null=True, verbose_name=_("fine silt or clay"), validators=(MinValueValidator(0), MaxValueValidator(1)))
