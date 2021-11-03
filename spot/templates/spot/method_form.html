@@ -16,12 +16,21 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'spot:meth_list' %}">Methods</a></li>
+                {% if object %}
+                    <li class="breadcrumb-item"><a href="{% url 'spot:meth_detail' object.id %}">{{ object }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                {% else %}
+                    <li class="breadcrumb-item active" aria-current="page">New</li>
+                {% endif %}
+        </ol>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'spot:project_list' %}">Project List</a></li>
             {% if object %}
-                <li class="breadcrumb-item"><a href="{% url 'spot:meth_detail' object.id %}">{{ object }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Edit</li>
-            {% else %}
-                <li class="breadcrumb-item active" aria-current="page">New</li>
+                <li class="breadcrumb-item"><a href="{% url 'spot:project_detail' object.project.id %}">{{ object.project }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
             {% endif %}
+
         </ol>
     </nav>
 

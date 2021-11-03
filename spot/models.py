@@ -10,10 +10,12 @@ from . import choices
 
 
 class LakeSystem(UnilingualSimpleLookup):
+    objects = models.Manager()
     pass
 
 
 class Watershed(UnilingualSimpleLookup):
+    objects = models.Manager()
     name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Name"))
     group_code = models.CharField(max_length=10, null=True, blank=True, verbose_name=_("Group Code"))
 
@@ -25,8 +27,8 @@ class Watershed(UnilingualSimpleLookup):
 
 
 class River(models.Model):
-
-    name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Name"))
+    objects = models.Manager()
+    name = models.CharField(max_length=100, unique=True, null=True, blank=True, verbose_name=_("Name"))
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("Latitude"))
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("Longitude"))
 
@@ -137,7 +139,7 @@ class Method(models.Model):
     field_work_method_type = models.CharField(max_length=255, default=None, blank=True, verbose_name=_("Field Work Methods Type"))
     planning_method_type = models.CharField(max_length=255, default=None, blank=True, verbose_name=_("Planning Method Type"))
     sample_processing_method_type = models.CharField(max_length=255, default=None, blank=True, verbose_name=_("Sample Processing Method Type"))
-    data_entry_method_type = models.CharField(max_length=255, default=None, blank=True, verbose_name="Data Entry Method Type")
+    knowledge_consideration = models.CharField(max_length=255, default=None, blank=True, verbose_name=_("Traditional Ecological Knowledge Consideration"))
 
     scale_processing_location = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='project_method_scale', verbose_name=_("Scale Processing Location"))
     otolith_processing_location = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='project_method_otolith', verbose_name=_("Otolith Processing Location"))
@@ -169,6 +171,7 @@ class Reports(models.Model):
     document_author = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Document Author"))
     document_reference_information = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Document Reference Information"))
     document_link = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Document Link"))
+    published = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("Was this report Published?"))
 
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -187,17 +190,18 @@ class Reports(models.Model):
 class Data(models.Model):
     objects = models.Manager()
     project = models.ForeignKey('Project', default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='project_data', verbose_name=_("Agreement Number"))
-    species_data = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Species Data"))
+    species = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Species"))
 
     # SAMPLES #
     samples_collected = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Samples Collected"))
     samples_collected_comment = models.TextField(max_length=1000, null=True, blank=True, verbose_name=_("Samples Collected Comment"))
-    samples_data_database = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Sample Data Database"))
+
+    samples_collected_database = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Sample Collected Database"))
     shared_drive = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("If you have chosen one of the shared drives please specify what drive otherwise leave blank"))
     sample_barrier = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Barriers to Sample Collection"))
-    sample_entered_database = models.BooleanField(default=False, null=True, blank=True, verbose_name=_("Was sample collection data entered into database(s)?"))
-    data_quality_check = models.BooleanField(default=False, null=True, blank=True, verbose_name=_("Was sample data quality check complete?"))
-    data_quality_person = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Person responsible for data quality check?"))
+    sample_entered_database = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Was sample collection data entered into database(s)?"))
+    data_quality_check = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Was sample data quality check complete?"))
+    data_quality_person = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Person/Group responsible for data quality check?"))
     barrier_data_check_entry = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Barriers to data checks/entry to database?"))
     sample_format = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Sample Format(s)"))
 
@@ -216,10 +220,10 @@ class Data(models.Model):
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return "{}".format(self.species_data)
+        return "{}".format(self.species)
 
     class Meta:
-        ordering = ['species_data']
+        ordering = ['species']
 
 
 class Feedback(models.Model):
@@ -248,16 +252,16 @@ class Objective(models.Model):
     element_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Element Title"))
     activity_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Activity Title"))
 
-    pst_requirement = models.BooleanField(default=False, verbose_name=_("PST Requirement Identified?"))
-    location = models.ForeignKey(River, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='project_objective', verbose_name=_("Location"))
+    pst_requirement = models.CharField(max_length=10, default=None, blank=True, null=True, verbose_name=_("PST Requirement Identified?"))
+    location = models.ManyToManyField(River, blank=True, default=None, verbose_name=_("Location"))
     objective_category = models.CharField(max_length=64, default=None, blank=True, null=True, verbose_name=_("Objective Category"))
     species = models.CharField(max_length=10, default=None, blank=True, null=True, verbose_name=_("Species"))
-    sil_requirement = models.BooleanField(default=False, verbose_name=_("SIL Requirement"))
+    sil_requirement = models.CharField(max_length=10, default=None, blank=True, null=True, verbose_name=_("SIL Requirement"))
 
     expected_results = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Expected Result(s)"))
     dfo_report = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Products/Reports to Provide DFO"))
 
-    outcome_met = models.BooleanField(default=False, verbose_name=_("Was the outcome met?"))
+    outcome_met = models.CharField(max_length=10, null=True, blank=True, default=None, verbose_name=_("Was the Sampling outcome met?"))
     outcomes_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_objective', verbose_name=_("Outcomes Contact"))
     outcomes_comment = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Outcome Comment"))
     outcome_barrier = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Barrier to Achieve Outcomes(?)"))
@@ -273,19 +277,19 @@ class Objective(models.Model):
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return "{}".format(self.location)
+        return "{}".format(self.task_description)
 
     class Meta:
-        ordering = ['location']
+        ordering = ['species']
 
 
 class Project(models.Model):
-
+    #ADD PROJECT NUMBER Umbrella number
     objects = models.Manager()
     agreement_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("Agreement Number"))
-    agreement_history = models.ManyToManyField('Project', default=None, null=True, blank=True, verbose_name=_("Agreement History"))
+    agreement_history = models.ManyToManyField('Project', default=None, blank=True, verbose_name=_("Agreement History"))
     name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Project Name"))
-    project_description = models.TextField(max_length=1000, null=True, blank=True, verbose_name=_("Project Description"))
+    project_description = models.TextField(max_length=5000, null=True, blank=True, verbose_name=_("Project Description"))
     start_date = models.DateField(blank=True, null=True, verbose_name=_("Starting Date"))
     end_date = models.DateField(blank=True, null=True, verbose_name=_("End Date"))
 
@@ -297,7 +301,7 @@ class Project(models.Model):
     management_area = models.PositiveIntegerField(null=True, blank=True, validators=[MinValueValidator(0), MaxValueValidator(142)], verbose_name=_("Management Area"))
     region = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Region"))
 
-    smu_name = models.CharField(max_length=64, default=None, blank=True, null=True, verbose_name=_("SMU Name"))
+    stock_management_unit = models.CharField(max_length=64, default=None, blank=True, null=True, verbose_name=_("Stock Management Unit"))
     cu_index = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("CU Index"))
     cu_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("CU Name"))
     species = models.CharField(max_length=255, default=None, blank=True, verbose_name=_("Target Species"))
@@ -315,10 +319,9 @@ class Project(models.Model):
     category_comments = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Category Comments"))
 
     # Project Links
-    DFO_link = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Other DFO Project Link"))
-    DFO_program_reference = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Other Non-DFO Project Link"))
-    government_organization = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Government Organization"))
-    government_reference = models.TextField(max_length=1000, null=True, blank=True, verbose_name=_("Government Reference"))
+    DFO_link = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Link to other DFO Programs"))
+    DFO_program_reference = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Linked DFO Program Project Reference"))
+    government_organization = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Link to other Government Departments"))
 
     # PEOPLE & ORGANIZATIONS
     DFO_project_authority = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='DFO_project_authority', verbose_name=_("DFO Project Authority"))
@@ -326,13 +329,13 @@ class Project(models.Model):
     DFO_aboriginal_AAA = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='DFO_aboriginal_AAA', verbose_name=_("DFO Aboriginal AAA"))
     DFO_resource_manager = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='DFO_resource_manager', verbose_name=_("DFO Resource Manager"))
     tribal_council = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='tribal_council', verbose_name=_("Tribal Council"))
-    primary_first_nations_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='primary_first_nations_contact', verbose_name=_("Primary First Nations Contact"))
-    primary_first_nations_contact_role = models.CharField(max_length=32, default=None, null=True, blank=True, verbose_name=_("Primary First Nations Contact Role"))
-    DFO_technicians = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='DFO_technicians', verbose_name=_("DFO Technicians"))
-    contractor = models.TextField(max_length=1000, null=True, blank=True, verbose_name=_("Contractors"))
-    primary_contact_contractor = models.TextField(max_length=1000, null=True, blank=True, verbose_name=_("Primary Contact Contractor"))
+    first_nations_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='first_nations_contact', verbose_name=_("First Nations Contact"))
+    first_nations_contact_role = models.CharField(max_length=32, default=None, null=True, blank=True, verbose_name=_("First Nations Contact Role"))
+    DFO_technicians = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='DFO_technicians', verbose_name=_("DFO Technicians/Biologists"))
+    contractor = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Contractors"))
+    contractor_contact = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Contractor Contact"))
     partner = models.ManyToManyField(Organization,  blank=True, related_name='partner', verbose_name=_("Partner"))
-    primary_contact_partner = models.ManyToManyField(Person, blank=True, related_name='primary_contact_partner', verbose_name=_("Primary Contact Partner"))
+    partner_contact = models.ManyToManyField(Person, blank=True, related_name='partner_contact', verbose_name=_("Partner Contact"))
 
     # Costing
     agreement_database = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Agreement Database"))
@@ -380,19 +383,19 @@ class Meetings(models.Model):
 class ObjectiveDataTypeQuality(models.Model):
     objective = models.ForeignKey(Objective, default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='objective_type_quality', verbose_name=_("Objective"))
     species = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Species"))
-    location = models.ForeignKey(River, on_delete=models.DO_NOTHING, default=None, null=True, blank=True, verbose_name=_("Location"))
-    sample_type = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Sample Type"))
-    outcome_delivered = models.BooleanField(default=False, verbose_name=_("Was the outcome/sample delivered?"))
-    outcome_report_delivered = models.BooleanField(default=False, verbose_name=_("Were outcome reports delivered?"))
+    location = models.ManyToManyField(River, default=None, blank=True, verbose_name=_("Location"))
+    sampling_outcome = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Sampling Outcome"))
+    outcome_delivered = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Was the Sampling Outcome Met?"))
+    outcome_report_delivered = models.CharField(max_length=10, default=None, blank=True, null=True, verbose_name=_("Were outcome reports delivered?"))
     outcome_quality = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Quality of Outcome"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
     def __str__(self):
-        return "{}".format(self.sample_type)
+        return "{}".format(self.species)
 
     class Meta:
-        ordering = ['sample_type', ]
+        ordering = ['sampling_outcome', ]
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -401,16 +404,18 @@ class ObjectiveDataTypeQuality(models.Model):
 
 class ObjectiveOutcome(models.Model):
     objective = models.ForeignKey(Objective, default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='objective_outcome', verbose_name=_("Objective"))
-    outcome_category = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("outcomes category"))
-    report_reference = models.ForeignKey(Reports, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='objective_outcome', verbose_name=_("report reference"))
+    reporting_outcome = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Reporting Outcome"))
+    outcome_delivered = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Was the outcome deliverable met?"))
+
+    report_link = models.ForeignKey(Reports, on_delete=models.DO_NOTHING, default=None, blank=True, null=True, verbose_name=_("Report Link"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
     def __str__(self):
-        return "{}".format(self.report_reference)
+        return "{}".format(self.report_link)
 
     class Meta:
-        ordering = ['report_reference', ]
+        ordering = ['report_link', ]
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -444,6 +449,7 @@ class MethodDocument(models.Model):
     title = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("title"))
     reference_number = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("reference number"))
     document_link = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document link"))
+
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 

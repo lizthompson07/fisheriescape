@@ -5,13 +5,13 @@
 
 <div class="">
     <h4>
-        {% trans "Select Project Method:" %}
+        {% trans "Select Method:" %}
     </h4>
 </div>
 
 {% if object.project_method.count == 0 %}
     <em>
-        {% trans "No Project Methods have been entered" %}
+        {% trans "No Methods have been entered" %}
 
     </em><br>
 {% else %}
@@ -26,12 +26,6 @@
              <th style="width: 120px">
                 {% trans "Sample Processing Method Type" %}
             </th>
-            <th style="width: 120px">
-                {% trans "Data Entry Method Type)" %}
-            </th>
-            <th class="width: 120px">
-                {% trans "Data Analysis Method Type" %}
-            </th>
         </tr>
         <tbody>
         {% for obj in object.project_method.all %}
@@ -45,18 +39,12 @@
                 <td>
                     {{ obj.sample_processing_method_type }}
                 </td>
-                <td>
-                    {{ obj.data_entry_method_type }}
-                </td>
-                <td>
-                    {{ obj.data_analysis_method_type }}
-                </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 {% endif %}
     <a class="" href="{% url 'spot:meth_new' object.id  %}">
-        {% trans "(Add Project Method)" %}
+        {% trans "(Add Method)" %}
     </a>
 <br><br>

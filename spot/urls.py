@@ -30,6 +30,7 @@ urlpatterns = [
     path('project/<int:pk>/view/', views.ProjectDetailView.as_view(), name="project_detail"),
     path('project/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),
     path('project/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),
+    path('projects/download-csv', views.export_project, name="export_project"),
 
     # Objectives #
     ##############

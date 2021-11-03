@@ -5,13 +5,13 @@
 
 <div class="">
     <h4>
-        {% trans "Select Project Data:" %}
+        {% trans "Select Data:" %}
     </h4>
 </div>
 
 {% if object.project_data.count == 0 %}
     <em>
-        {% trans "No Project Data has been entered" %}
+        {% trans "No Data has been entered" %}
 
     </em><br>
 {% else %}
@@ -57,6 +57,6 @@
     </table>
 {% endif %}
     <a class="" href="{% url 'spot:data_new' object.id  %}">
-        {% trans "(Add Project data)" %}
+        {% trans "(Add Data)" %}
     </a>
 <br><br>

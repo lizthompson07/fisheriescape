@@ -22,7 +22,15 @@
             {% else %}
                 <li class="breadcrumb-item active" aria-current="page">New</li>
             {% endif %}
-        </ol>
+            </ol>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'spot:project_list' %}">Project List</a></li>
+                {% if object %}
+                <li class="breadcrumb-item"><a href="{% url 'spot:project_detail' object.project.id %}">{{ object.project }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+                {% endif %}
+            </ol>
     </nav>
 
     <div class="container">
@@ -50,17 +58,10 @@
                     <button type="submit" class="btn btn-success">Add</button>
                     <a class="btn btn-secondary" href="{% url 'spot:reports_list' %}">Cancel</a>
                 {% endif %}
-
-
             {% endbuttons %}
         </form>
 
     </div>
-<script>
-    $(document).ready(function() {
-    $('.has-popover').popover({'trigger':'hover'});
-    });
-</script>
 {% endblock content %}
 
 

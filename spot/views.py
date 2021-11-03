@@ -240,7 +240,7 @@ class ProjectListView(SpotAccessRequiredMixin, FilterView):
     filterset_class = filters.ProjectFilter
     model = models.Project
     queryset = models.Project.objects.annotate(
-        search_term=Concat('id', 'agreement_number', 'name', output_field=TextField()))
+        search_term=Concat('id', 'agreement_number', 'name', 'project_description', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -276,7 +276,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'watershed',
             'management_area',
 
-            'smu_name',
+            'stock_management_unit',
             'cu_index',
             'cu_name',
             'species',
@@ -295,20 +295,19 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'DFO_link',
             'DFO_program_reference',
             'government_organization',
-            'government_reference',
 
             'DFO_project_authority',
             'DFO_area_chief',
             'DFO_aboriginal_AAA',
             'DFO_resource_manager',
             'tribal_council',
-            'primary_first_nations_contact',
-            'primary_first_nations_contact_role',
+            'first_nations_contact',
+            'first_nations_contact_role',
             'DFO_technicians',
             'contractor',
-            'primary_contact_contractor',
+            'contractor_contact',
             'partner',
-            'primary_contact_partner',
+            'partner_contact',
 
             'agreement_database',
             'agreement_comment',
@@ -477,7 +476,6 @@ class MethodListView(SpotAccessRequiredMixin, FilterView):
             'planning_method_type',
             'field_work_method_type',
             'sample_processing_method_type',
-            'data_entry_method_type',
         ]
         return context
 
@@ -493,8 +491,7 @@ class MethodDetailView(SpotAccessRequiredMixin, DetailView):
             'planning_method_type',
             'field_work_method_type',
             'sample_processing_method_type',
-            'data_entry_method_type',
-
+            'knowledge_consideration',
             'scale_processing_location',
             'otolith_processing_location',
             'DNA_processing_location',
@@ -562,10 +559,10 @@ class MethodDeleteView(SpotAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-# DATABASES#
+# DATA#
 ############
 class DataListView(SpotAccessRequiredMixin, FilterView):
-    template_name = 'spot/database_list.html'
+    template_name = 'spot/data_list.html'
     filterset_class = filters.DataFilter
     model = models.Data
     queryset = models.Data.objects.annotate()
@@ -576,7 +573,7 @@ class DataListView(SpotAccessRequiredMixin, FilterView):
         context["my_object"] = models.Data.objects.first()
         context["field_list"] = [
             'project',
-            'species_data',
+            'species',
             'samples_collected',
             'samples_collected_database',
             'sample_format',
@@ -589,16 +586,16 @@ class DataListView(SpotAccessRequiredMixin, FilterView):
 
 class DataDetailView(SpotAccessRequiredMixin, DetailView):
     model = models.Data
-    template_name = 'spot/database_detail.html'
+    template_name = 'spot/data_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'project',
-            'species_data',
+            'species',
             'samples_collected',
             'samples_collected_comment',
-            'samples_data_database',
+            'samples_collected_database',
             'shared_drive',
             'sample_barrier',
             'sample_entered_database',
@@ -611,7 +608,7 @@ class DataDetailView(SpotAccessRequiredMixin, DetailView):
             'data_products_database',
             'data_products_comment',
             'data_programs',
-            'data_communication_recipient',
+            'data_communication',
             'date_last_modified',
             'last_modified_by',
         ]
@@ -619,7 +616,7 @@ class DataDetailView(SpotAccessRequiredMixin, DetailView):
 
 
 class DataUpdateView(SpotAccessRequiredMixin, UpdateView):
-    template_name = 'spot/database_form.html'
+    template_name = 'spot/data_form.html'
     model = models.Data
     form_class = forms.DataForm
 
@@ -636,7 +633,7 @@ class DataUpdateView(SpotAccessRequiredMixin, UpdateView):
 
 
 class DataCreateView(SpotAccessRequiredMixin, CreateView):
-    template_name = 'spot/database_form.html'
+    template_name = 'spot/data_form.html'
     model = models.Data
     form_class = forms.DataForm
 
@@ -659,9 +656,9 @@ class DataCreateView(SpotAccessRequiredMixin, CreateView):
 
 
 class DataDeleteView(SpotAccessRequiredMixin, DeleteView):
-    template_name = 'spot/database_confirm_delete.html'
+    template_name = 'spot/data_confirm_delete.html'
     model = models.Data
-    success_message = 'The Database was deleted successfully!'
+    success_message = 'The Data was deleted successfully!'
 
     def get_success_url(self):
         my_project = models.Data.objects.get(pk=self.kwargs['pk']).project
@@ -841,6 +838,7 @@ class ReportsDetailView(SpotAccessRequiredMixin, DetailView):
             'document_author',
             'document_reference_information',
             'document_link',
+            'published',
             'date_last_modified',
             'last_modified_by',
         ]
@@ -1295,3 +1293,132 @@ class MethodDocumentDeleteView(SpotAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+def export_project(request):
+    project = models.Project.objects.all()
+    project_filter = filters.ProjectFilter(request.GET, queryset=project).qs
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=project' + str(date.today()) + '.csv'
+
+    writer = csv.writer(response, delimiter=',')
+    writer.writerow([
+        'agreement_number',
+        'agreement_history',
+        'name',
+        'project_description',
+        'start_date',
+        'end_date',
+        'region',
+        'ecosystem_type',
+        'primary_river',
+        'secondary_river',
+        'lake_system',
+        'watershed',
+        'management_area',
+
+        'smu_name',
+        'cu_index',
+        'cu_name',
+        'species',
+        'salmon_life_stage',
+
+        'project_stage',
+        'project_type',
+        'project_sub_type',
+        'monitoring_approach',
+        'project_theme',
+        'core_component',
+        'supportive_component',
+        'project_purpose',
+        'category_comments',
+
+        'DFO_link',
+        'DFO_program_reference',
+        'government_organization',
+        'government_reference',
+
+        'DFO_project_authority',
+        'DFO_area_chief',
+        'DFO_aboriginal_AAA',
+        'DFO_resource_manager',
+        'tribal_council',
+        'primary_first_nations_contact',
+        'primary_first_nations_contact_role',
+        'DFO_technicians',
+        'contractor',
+        'primary_contact_contractor',
+        'partner',
+        'primary_contact_partner',
+
+        'agreement_database',
+        'agreement_comment',
+        'funding_sources',
+        'other_funding_sources',
+        'agreement_type',
+        'project_lead_organization',
+
+        'date_last_modified',
+        'last_modified_by',
+    ])
+
+    for obj in project_filter:
+        writer.writerow([
+            obj.agreement_number,
+            obj.agreement_history,
+            obj.name,
+            obj.project_description,
+            obj.start_date,
+            obj.end_date,
+            obj.region,
+            obj.ecosystem_type,
+            obj.primary_river,
+            obj.secondary_river,
+            obj.lake_system,
+            obj.watershed,
+            obj.management_area,
+
+            obj.smu_name,
+            obj.cu_index,
+            obj.cu_name,
+            obj.species,
+            obj.salmon_life_stage,
+
+            obj.project_stage,
+            obj.project_type,
+            obj.project_sub_type,
+            obj.monitoring_approach,
+            obj.project_theme,
+            obj.core_component,
+            obj.supportive_component,
+            obj.project_purpose,
+            obj.category_comments,
+
+            obj.DFO_link,
+            obj.DFO_program_reference,
+            obj.government_organization,
+            obj.government_reference,
+
+            obj.DFO_project_authority.name,
+            obj.DFO_area_chief,
+            obj.DFO_aboriginal_AAA,
+            obj.DFO_resource_manager,
+            obj.tribal_council,
+            obj.primary_first_nations_contact,
+            obj.primary_first_nations_contact_role,
+            obj.DFO_technicians,
+            obj.contractor,
+            obj.primary_contact_contractor,
+            obj.partner,
+            obj.primary_contact_partner,
+
+            obj.agreement_database,
+            obj.agreement_comment,
+            obj.funding_sources,
+            obj.other_funding_sources,
+            obj.agreement_type,
+            obj.project_lead_organization,
+
+            obj.date_last_modified,
+            obj.last_modified_by,
+        ])
+
+    return response

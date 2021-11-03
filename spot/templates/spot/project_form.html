@@ -53,10 +53,20 @@
         <br><br>
 
         <form method="post" class="form">
+            <h2><u>Project Information</u></h2>
             {% bootstrap_form_errors form %}
             {% csrf_token %}
             {% for field in form %}
                 {% bootstrap_field field placeholder="" %}
+                {% if field.name == 'salmon_life_stage' %}
+                    <br><h2><u>Project Categorization</u></h2><br>
+                {% elif field.name == 'category_comments' %}
+                    <br><h2><u>Project Links</u></h2><br>
+                {% elif field.name == 'government_organization' %}
+                    <br><h2><u>Project Contacts</u></h2><br>
+                {% elif field.name == 'partner_contact' %}
+                    <br><h2><u>Costing</u></h2><br>
+                {% endif %}
             {% endfor %}
 
             {% buttons %}

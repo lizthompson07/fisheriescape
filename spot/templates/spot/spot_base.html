@@ -24,6 +24,7 @@
 {% endblock left_all %}
 
 {% block left_auth %}
+
     <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
@@ -35,7 +36,7 @@
                     <a class="dropdown-item" href="{% url 'spot:project_list' %}">Projects</a>
                     <a class="dropdown-item" href="{% url 'spot:obj_list' %}">Objectives</a>
                     <a class="dropdown-item" href="{% url 'spot:meth_list' %}">Methods</a>
-                    <a class="dropdown-item" href="{% url 'spot:data_list' %}">Databases</a>
+                    <a class="dropdown-item" href="{% url 'spot:data_list' %}">Data</a>
                     <a class="dropdown-item" href="{% url 'spot:meetings_list' %}">Meetings</a>
                     <a class="dropdown-item" href="{% url 'spot:reports_list' %}">Reports</a>
                 </div>
@@ -45,7 +46,6 @@
             {% trans "Feedback and Suggestions" %}
         </a>
     </li>
-    <!--
     <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
@@ -57,6 +57,6 @@
                     <a class="dropdown-item" href="{% url 'spot:lakesystem_list' %}">Lake Systems</a>
                 </div>
     </li>
-    --->
+
 {% endblock left_auth %}
 

@@ -5,8 +5,55 @@
 {% load el_pagination_tags %}
 {% load i18n %}
 {% block content %}
-
+<head>
     <style>
+        .sidebar {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #D4D4D4;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  padding-left: 20px;
+  padding-bottom: 60px;
+}
+
+.sidebar .closebtn {
+  position: absolute;
+  top: 60px;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+  colour: black;
+}
+
+.openbtn {
+  font-size: 20px;
+  cursor: pointer;
+  background-color: #FFF;
+  color: black;
+  padding: 10px 15px;
+  border: none;
+}
+
+.openbtn:hover {
+  background-color: #444;
+}
+
+#main {
+  transition: margin-left .5s;
+  padding: 10px;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+  .sidebar {padding-top: 15px;}
+  .sidebar a {font-size: 18px;}
+}
 
         table, td, th {
             font-size: small;
@@ -24,38 +71,28 @@
             font-weight: bold;
         }
     </style>
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Reports</li>
-        </ol>
-    </nav>
-
-    <div class="container-fluid">
-
-        <h1 class="big-header">Reports </h1>
-        <p>TOTAL: {{ object_list.count }}</p>
-
-        <form class="form" action="." method="get" id="filter-form">
-            <div class="row">
+</head>
+<body>
+<div id="mySidebar" class="sidebar">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+  <form class="form" action="." method="get" id="filter-form">
+                <h1>Filters</h1>
+                <br>
                 {% for field in filter.form %}
-                    <div class="col">
-                        {% bootstrap_field field placeholder="" size="small" %}
-                    </div>
+                        {% bootstrap_field field placeholder="" size="small" label="left" %}
                 {% endfor %}
-                <div class="col-1">
                     <br>
                     <input type="submit" value="Filter" class="btn btn-sm btn-warning">
-                </div>
-            </div>
-        </form>
+  </form>
+</div>
+<div id="main">
+    <button class="openbtn" onclick="openNav()">☰ Filters</button>
+    <div class="container-fluid">
 
+        <p class="h1 text-center">{% trans "Reports" %}</p>
+        <p>TOTAL: {{ object_list.count }}</p>
         <br>
-
-
         {% paginate 75 filter.qs as filter_list %}
-
-
         <div class="row">
             <div class="col">
                 {% trans "(click on a header to sort table)" %}
@@ -94,7 +131,19 @@
             </tbody>
         </table>
     </div>
+</div>
+<script>
+function openNav() {
+  document.getElementById("mySidebar").style.width = "250px";
+  document.getElementById("main").style.marginLeft = "250px";
+}
 
+function closeNav() {
+  document.getElementById("mySidebar").style.width = "0";
+  document.getElementById("main").style.marginLeft= "0";
+}
+</script>
+    </body>
 
 
 

@@ -5,51 +5,45 @@
 
 <div class="">
     <h4>
-        {% trans "Select Sample Type:" %}
+        {% trans "Select Sample Outcome:" %}
     </h4>
 </div>
 
 {% if object.objective_type_quality.count == 0 %}
     <em>
-        {% trans "No Sample Types have been entered" %}
+        {% trans "No Sample Outcomes have been entered" %}
 
     </em><br>
 {% else %}
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
             <th style="width: 120px">
+                {% trans "Species" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Location" %}
+            </th>
+             <th style="width: 120px">
                 {% trans "Sampling Outcome" %}
             </th>
             <th style="width: 120px">
-                {% trans "Outcome Delivered?" %}
-            </th>
-             <th style="width: 120px">
-                {% trans "Outcome reports delivered?" %}
-            </th>
-            <th style="width: 120px">
-                {% trans "Outcome Quality" %}
-            </th>
-            <th class="width: 120px">
-                {% trans "Report Sent to?" %}
+                {% trans "Was Sampling Outcome Met?" %}
             </th>
         </tr>
         <tbody>
         {% for obj in object.objective_type_quality.all %}
             <tr href="{% url 'spot:objectivedatatypequality_edit' obj.id  %}" pop data-toggle="tooltip" title="click to edit this sample type">
                 <td>
+                    {{ obj.species }}
+                </td>
+                <td>
+                    {{ obj.location }}
+                </td>
+                <td>
                     {{ obj.sampling_outcome }}
                 </td>
                 <td>
                     {{ obj.outcome_delivered }}
-                </td>
-                <td>
-                    {{ obj.outcome_report_delivered }}
-                </td>
-                <td>
-                    {{ obj.outcome_quality }}
-                </td>
-                <td>
-                    {{ obj.report_sent_to }}
                 </td>
             </tr>
         {% endfor %}

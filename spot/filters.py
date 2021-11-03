@@ -2,8 +2,6 @@
 from django import forms
 import django_filters
 from . import choices
-
-
 from . import models
 
 YES_NO_CHOICES = (
@@ -41,13 +39,12 @@ class PersonFilter(django_filters.FilterSet):
 
 class ProjectFilter(django_filters.FilterSet):
 
-    search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget=forms.TextInput())
+    search_term = django_filters.CharFilter(field_name='search_term', label="Search", lookup_expr='icontains', widget=forms.TextInput())
     species = django_filters.ChoiceFilter(choices=choices.SPECIES)
     region = django_filters.ChoiceFilter(choices=choices.REGION)
-    smu_name = django_filters.ChoiceFilter(choices=choices.SMU_NAME)
+    stock_management_unit = django_filters.ChoiceFilter(choices=choices.SMU_NAME)
     project_stage = django_filters.ChoiceFilter(choices=choices.PROJECT_STAGE)
     ecosystem_type = django_filters.ChoiceFilter(choices=choices.ECOSYSTEM_TYPE)
-    organization_type = django_filters.ChoiceFilter(choices=choices.ORGANIZATION_TYPE)
     project_type = django_filters.ChoiceFilter(choices=choices.PROJECT_TYPE)
     project_sub_type = django_filters.ChoiceFilter(choices=choices.PROJECT_SUB_TYPE)
     monitoring_approach = django_filters.ChoiceFilter(choices=choices.MONITORING_APPROACH)
@@ -59,7 +56,7 @@ class ProjectFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Project
-        fields = ['species', 'region', 'cu_name', 'smu_name', 'project_stage','ecosystem_type',
+        fields = ['search_term', 'species', 'region', 'cu_name', 'stock_management_unit', 'project_stage','ecosystem_type',
                   'project_type', 'project_sub_type', 'monitoring_approach',
                   'project_theme', 'core_component', 'supportive_component',
                   'government_organization', 'DFO_link',]
@@ -106,7 +103,7 @@ class DataFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Data
-        fields = ['species_data', 'samples_collected', 'data_products', 'samples_data_database', 'data_products_database', 'sample_format', 'data_programs',]
+        fields = ['species_data', 'samples_collected', 'data_products', 'samples_collected_database', 'data_products_database', 'sample_format', 'data_programs',]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
