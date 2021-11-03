@@ -66,3 +66,12 @@ class ObservationViewSet(ModelViewSet):
             data['sex_choices'] = sex_choices
             return Response(data)
         raise ValidationError(gettext("You need to specify a sample"))
+
+
+
+class SampleViewSet(ModelViewSet):
+    queryset = models.Sample.objects.all()
+    serializer_class = serializers.SampleSerializer
+    permission_classes = [TrapnetCRUDOrReadOnly]
+
+

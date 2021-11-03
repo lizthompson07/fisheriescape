@@ -8,6 +8,7 @@ from django.urls import reverse_lazy, reverse
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.functions.custom_functions import listrify
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.models import River
 from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonTemplateView, CommonFormView, CommonUpdateView, CommonCreateView, \
@@ -507,8 +508,14 @@ class DataEntryVueJSView(TrapNetAdminRequiredMixin, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["sample_id"] = self.kwargs.get("sample", "null")
-        context["sweep_id"] = self.kwargs.get("sweep", "null")
+        sample_id = self.kwargs.get("sample")
+        sweep_id = self.kwargs.get("sweep")
+        if not sample_id:
+            sample_id = get_object_or_404(models.Sweep, pk=sweep_id).sample_id
+
+        context["sample_id"] = nz(sample_id, "null")
+        context["sweep_id"] = nz(sweep_id, "null")
+
         return context
 
 
