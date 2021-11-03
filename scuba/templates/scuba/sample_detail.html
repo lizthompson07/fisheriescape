@@ -4,8 +4,10 @@
 {% load l10n %}
 
 {% block subcontent %}
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  {% localize off %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  {% endlocalize %}
   <style>
   .my-btn {
       font-size: small;
@@ -33,7 +35,9 @@
     </div>
     <div class="col">
       {% if object.site.get_coordinates %}
-        <div id="map"></div>
+        {% localize off %}
+          <div id="map"></div>
+        {% endlocalize %}
       {% else %}
         <div class="alert alert-danger lead mb-3" role="alert">
           {% url 'scuba:site_detail' object.site.id as site_url %}
