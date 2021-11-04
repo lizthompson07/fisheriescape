@@ -4,15 +4,14 @@ from shared_models.utils import remove_nulls
 
 
 def is_admin(user):
-    # make sure the following group exist:
     if user:
         return bool(hasattr(user, "trap_net_user") and user.trap_net_user.is_admin)
 
 
 def is_crud_user(user):
-    # make sure the following group exist:
+    # nested under admin
     if user:
-        return bool(hasattr(user, "trap_net_user") and user.trap_net_user.is_crud_user)
+        return is_admin(user) or bool(hasattr(user, "trap_net_user") and user.trap_net_user.is_crud_user)
 
 
 def can_access(user):

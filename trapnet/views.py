@@ -428,7 +428,7 @@ class SampleListView(TrapNetAccessRequiredMixin, CommonFilterView):
     ]
 
 
-class SampleUpdateView(TrapNetAdminRequiredMixin, CommonUpdateView):
+class SampleUpdateView(TrapNetAccessRequiredMixin, CommonUpdateView):
     model = models.Sample
     form_class = forms.SampleForm
     template_name = 'trapnet/sample_form.html'
@@ -444,7 +444,7 @@ class SampleUpdateView(TrapNetAdminRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class SampleCreateView(TrapNetAdminRequiredMixin, CommonCreateView):
+class SampleCreateView(TrapNetAccessRequiredMixin, CommonCreateView):
     model = models.Sample
     form_class = forms.SampleForm
     template_name = 'trapnet/sample_form.html'
@@ -488,7 +488,7 @@ class SampleDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
         return context
 
 
-class SampleDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
+class SampleDeleteView(TrapNetAccessRequiredMixin, CommonDeleteView):
     model = models.Sample
     template_name = 'trapnet/confirm_delete.html'
     home_url_name = "trapnet:index"
@@ -501,7 +501,7 @@ class SampleDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
         return self.get_grandparent_crumb()["url"]
 
 
-class DataEntryVueJSView(TrapNetAdminRequiredMixin, CommonTemplateView):
+class DataEntryVueJSView(TrapNetAccessRequiredMixin, CommonTemplateView):
     template_name = 'trapnet/data_entry.html'
     home_url_name = "trapnet:index"
     greatgrandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
@@ -538,7 +538,7 @@ class DataEntryVueJSView(TrapNetAdminRequiredMixin, CommonTemplateView):
 # SWEEPS #
 ##########
 
-class SweepCreateView(TrapNetAdminRequiredMixin, CommonCreateView):
+class SweepCreateView(TrapNetAccessRequiredMixin, CommonCreateView):
     model = models.Sweep
     template_name = 'trapnet/form.html'
     form_class = forms.SweepForm
@@ -567,7 +567,7 @@ class SweepCreateView(TrapNetAdminRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class SweepUpdateView(TrapNetAdminRequiredMixin, CommonUpdateView):
+class SweepUpdateView(TrapNetAccessRequiredMixin, CommonUpdateView):
     model = models.Sweep
     form_class = forms.SweepForm
     template_name = 'trapnet/form.html'
@@ -615,7 +615,7 @@ class SweepDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
         return {"title": self.get_object().sample, "url": reverse("trapnet:sample_detail", args=[self.get_object().sample.id])}
 
 
-class SweepDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
+class SweepDeleteView(TrapNetAccessRequiredMixin, CommonDeleteView):
     model = models.Sweep
     template_name = 'trapnet/confirm_delete.html'
     home_url_name = "trapnet:index"
@@ -655,7 +655,7 @@ class ObservationListView(TrapNetAccessRequiredMixin, CommonFilterView):
     ]
 
 
-class ObservationUpdateView(TrapNetAdminRequiredMixin, CommonUpdateView):
+class ObservationUpdateView(TrapNetAccessRequiredMixin, CommonUpdateView):
     model = models.Observation
     form_class = forms.ObservationForm
     template_name = 'trapnet/form.html'
@@ -721,7 +721,7 @@ class ObservationDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
             return {"title": sweep, "url": reverse("trapnet:sweep_detail", args=[sweep.id])}
 
 
-class ObservationDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
+class ObservationDeleteView(TrapNetAccessRequiredMixin, CommonDeleteView):
     model = models.Observation
     template_name = 'trapnet/confirm_delete.html'
     home_url_name = "trapnet:index"
@@ -749,7 +749,7 @@ class ObservationDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
 # FILES #
 #########
 
-class FileCreateView(TrapNetAdminRequiredMixin, CommonPopoutCreateView):
+class FileCreateView(TrapNetAccessRequiredMixin, CommonPopoutCreateView):
     model = models.File
     form_class = forms.FileForm
     is_multipart_form_data = True
@@ -762,7 +762,7 @@ class FileCreateView(TrapNetAdminRequiredMixin, CommonPopoutCreateView):
         return super().form_valid(form)
 
 
-class FileUpdateView(TrapNetAdminRequiredMixin, CommonPopoutUpdateView):
+class FileUpdateView(TrapNetAccessRequiredMixin, CommonPopoutUpdateView):
     model = models.File
     form_class = forms.FileForm
     is_multipart_form_data = True
@@ -773,7 +773,7 @@ class FileUpdateView(TrapNetAdminRequiredMixin, CommonPopoutUpdateView):
         return super().form_valid(form)
 
 
-class FileDeleteView(TrapNetAdminRequiredMixin, CommonPopoutDeleteView):
+class FileDeleteView(TrapNetAccessRequiredMixin, CommonPopoutDeleteView):
     model = models.File
 
 

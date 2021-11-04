@@ -24,7 +24,7 @@ YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
 class TrapNetUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="trap_net_user", verbose_name=_("DM Apps user"))
     is_admin = models.BooleanField(default=False, verbose_name=_("app administrator?"), choices=YES_NO_CHOICES)
-    is_crud_user = models.BooleanField(default=False, verbose_name=_("CRUD permissions?"), choices=YES_NO_CHOICES)
+    is_crud_user = models.BooleanField(default=False, verbose_name=_("CRUD only?"), choices=YES_NO_CHOICES)
 
     def __str__(self):
         return self.user.get_full_name()
