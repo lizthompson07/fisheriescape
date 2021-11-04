@@ -222,3 +222,20 @@ ElectrofisherFormset = modelformset_factory(
     form=ElectrofisherForm,
     extra=1,
 )
+
+
+
+class TrapNetUserForm(forms.ModelForm):
+    class Meta:
+        model = models.TrapNetUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+TrapNetUserFormset = modelformset_factory(
+    model=models.TrapNetUser,
+    form=TrapNetUserForm,
+    extra=1,
+)

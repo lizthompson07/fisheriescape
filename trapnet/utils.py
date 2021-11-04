@@ -4,13 +4,20 @@ from shared_models.utils import remove_nulls
 
 
 def is_admin(user):
+    # make sure the following group exist:
     if user:
-        return user.groups.filter(name='trapnet_admin').count() != 0
+        return bool(hasattr(user, "trap_net_user") and user.trap_net_user.is_admin)
+
+
+def is_crud_user(user):
+    # make sure the following group exist:
+    if user:
+        return bool(hasattr(user, "trap_net_user") and user.trap_net_user.is_crud_user)
 
 
 def can_access(user):
     if user:
-        return is_admin(user) or user.groups.filter(name='trapnet_access').exists()
+        return is_admin(user) or is_crud_user(user)
 
 
 def get_sample_field_list(sample=None):

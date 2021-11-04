@@ -17,7 +17,7 @@ from . import filters
 from . import forms
 from . import models
 from . import reports
-from .mixins import TrapNetAccessRequiredMixin, TrapNetAdminRequiredMixin
+from .mixins import TrapNetAccessRequiredMixin, TrapNetAdminRequiredMixin, SuperuserOrAdminRequiredMixin
 from .utils import get_sample_field_list
 
 
@@ -27,6 +27,22 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, CommonTemplateView):
 
 
 # Settings
+
+
+class TrapNetUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
+    template_name = 'trapnet/formset.html'
+    h1 = "Manage Trap Net Users"
+    queryset = models.TrapNetUser.objects.all()
+    formset_class = forms.TrapNetUserFormset
+    success_url_name = "trapnet:manage_trap_net_users"
+    home_url_name = "trapnet:index"
+    delete_url_name = "trapnet:delete_trap_net_user"
+    container_class = "container bg-light curvy"
+
+
+class TrapNetUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
+    model = models.TrapNetUser
+    success_url = reverse_lazy(":manage_trap_net_users")
 
 
 class StatusFormsetView(TrapNetAdminRequiredMixin, CommonFormsetView):
