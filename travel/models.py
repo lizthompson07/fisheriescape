@@ -32,7 +32,8 @@ NULL_YES_NO_CHOICES = (
 
 class TravelUser(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.CASCADE, related_name="travel_user", verbose_name=_("DM Apps user"))
-    region = models.ForeignKey(shared_models.Region, verbose_name=_("regional administrator?"), related_name="travel_users", on_delete=models.CASCADE, blank=True,
+    region = models.ForeignKey(shared_models.Region, verbose_name=_("regional administrator?"), related_name="travel_users", on_delete=models.CASCADE,
+                               blank=True,
                                null=True)
     is_national_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
     is_cfo = models.BooleanField(default=False, verbose_name=_("CFO Read Only?"), choices=YES_NO_CHOICES)
@@ -42,7 +43,6 @@ class TravelUser(models.Model):
 
     class Meta:
         ordering = ["-is_national_admin", "user__first_name", ]
-
 
 
 class HelpText(models.Model):
@@ -1045,7 +1045,12 @@ class TripReviewer(models.Model):
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'travel/trip_{0}/{1}'.format(instance.request.id, filename)
+    return 'travel/request_id_{0}/{1}'.format(instance.request.id, filename)
+
+
+def trip_file_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'travel/trip_id_{0}/{1}'.format(instance.trip.id, filename)
 
 
 class File(models.Model):
@@ -1056,6 +1061,21 @@ class File(models.Model):
 
     class Meta:
         ordering = ['request', 'date_created']
+        # Translators: This is a 'file' as in something you attach to an email
+        verbose_name = _("file")
+
+    def __str__(self):
+        return self.name
+
+
+class TripFile(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="files", blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("caption"))
+    file = models.FileField(upload_to=trip_file_directory_path, null=True, verbose_name=_("attachment"))
+    date_created = models.DateTimeField(auto_now=True, verbose_name=_("date created"), editable=False)
+
+    class Meta:
+        ordering = ['trip', 'date_created']
         # Translators: This is a 'file' as in something you attach to an email
         verbose_name = _("file")
 

@@ -5,10 +5,9 @@ from decouple import config
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.db import IntegrityError
-from django.db.models import Sum, Q, Value, TextField
-from django.db.models.functions import Concat
+from django.db.models import Sum, Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
@@ -23,17 +22,17 @@ from dm_apps.utils import compare_strings
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
-from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonUpdateView, CommonFilterView, CommonFormView, \
+from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonUpdateView, CommonFormView, \
     CommonPopoutFormView, CommonListView, CommonDetailView, CommonTemplateView, CommonCreateView, CommonDeleteView
 from . import emails
-from . import filters
 from . import forms
 from . import models
 from . import reports
 from . import utils
 from .mixins import TravelAccessRequiredMixin, CanModifyMixin, TravelAdminRequiredMixin, AdminOrApproverRequiredMixin, TravelADMAdminRequiredMixin, \
     SuperuserOrNationalAdminRequiredMixin
-from .utils import in_travel_regional_admin_group, in_travel_nat_admin_group, can_modify_request, is_approver, is_trip_approver, is_manager_or_assistant_or_admin
+from .utils import in_travel_regional_admin_group, in_travel_nat_admin_group, can_modify_request, is_approver, is_trip_approver, \
+    is_manager_or_assistant_or_admin
 
 
 def get_common_context(request):
@@ -53,6 +52,10 @@ def get_file(request, file):
         export_file_name = blob_name.split("/")[-1]
         if request.GET.get("export_file_name"):
             export_file_name = request.GET.get("export_file_name")
+    elif request.GET.get("trip_file"):
+        my_file = models.TripFile.objects.get(pk=int(file))
+        blob_name = my_file.file
+        export_file_name = blob_name
     else:
         my_file = models.File.objects.get(pk=int(file))
         blob_name = my_file.file
@@ -1560,6 +1563,8 @@ class DefaultReviewerDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
 #
 #
 # class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
@@ -1628,7 +1633,6 @@ class DefaultReviewerDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):
 #             my_user.groups.add(cfo_group)
 #
 #     return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
-
 
 
 class TravelUserFormsetView(SuperuserOrNationalAdminRequiredMixin, CommonFormsetView):

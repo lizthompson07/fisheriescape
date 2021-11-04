@@ -10,6 +10,7 @@ router.register(r'travellers', views.TravellerViewSet)  # tested
 router.register(r'request-reviewers', views.ReviewerViewSet)  # tested
 router.register(r'trip-reviewers', views.TripReviewerViewSet)  # tested
 router.register(r'request-files', views.FileViewSet)  # tested
+router.register(r'trip-files', views.TripFileViewSet)  # tested
 router.register(r'costs', views.CostViewSet)  # tested
 
 urlpatterns = [

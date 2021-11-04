@@ -115,6 +115,9 @@
       <div v-if="isNCRAdmin || (!trip.is_adm_approval_required && isAdmin)">
         {% include "travel/common/_travellers.html" %}
       </div>
+      <div v-if="isAdmin">
+        {% include "travel/common/_trip_files.html" %}
+      </div>
       <div v-if="trip.is_adm_approval_required && isNCRAdmin">
         {% include "travel/common/_reviewers.html" %}
       </div>

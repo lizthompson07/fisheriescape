@@ -217,6 +217,17 @@ class FileSerializer(serializers.ModelSerializer):
         return date(instance.date_created)
 
 
+class TripFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TripFile
+        fields = "__all__"
+
+    date_created = serializers.SerializerMethodField()
+
+    def get_date_created(self, instance):
+        return date(instance.date_created)
+
+
 class RequestReviewerSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Reviewer
@@ -529,6 +540,7 @@ class TripSerializer(serializers.ModelSerializer):
         model = models.Trip
         fields = "__all__"
 
+    files = TripFileSerializer(many=True, read_only=True)
     abstract_deadline = serializers.SerializerMethodField()
     adm_review_deadline = serializers.SerializerMethodField()
     admin_notes_html = serializers.SerializerMethodField()

@@ -388,6 +388,39 @@ class FileViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
+
+class TripFileViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.TripFileSerializer
+    permission_classes = [TravelAdminOrReadOnly]
+    queryset = models.TripFile.objects.all()
+    pagination_class = StandardResultsSetPagination
+
+    def perform_create(self, serializer):
+        if self.request.FILES.get("file"):
+            filename = self.request.FILES["file"].name
+            suffix = ""
+            if len(filename.split(".") > 1):
+                suffix = f'.{filename.split(".")[-1]}'
+                filename = filename.split(".")[0]
+            filename = truncate(slugify(filename), 20, False)
+            self.request.FILES["file"].name = f"{filename}{suffix}"
+        serializer.save()
+
+    def perform_update(self, serializer):
+        if self.request.FILES.get("file"):
+            filename = self.request.FILES["file"].name
+            suffix = ""
+            if len(filename.split(".")) > 1:
+                suffix = f'.{filename.split(".")[-1]}'
+                filename = filename.split(".")[0]
+            filename = truncate(slugify(filename), 20, False)
+            self.request.FILES["file"].name = f"{filename}{suffix}"
+            print(self.request.FILES["file"].name)
+        serializer.save(updated_by=self.request.user)
+
+
+
+
 class CostViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CostSerializer
     permission_classes = [CanModifyOrReadOnly]

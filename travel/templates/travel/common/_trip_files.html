@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load custom_filters %}
 
-<div class="card mb-4" v-if="!travellerToEdit">
+<div class="card mb-4">
   <h3 class="card-header bg-outline-dark">
     <div class="float-right" v-if="canModify && !isReview && !inFileEditMode">
       <button @click="addAttachment" class="btn btn-sm btn-primary">
@@ -22,14 +22,14 @@
       </div>
       <div v-else style="width: 65%">
 
-        <table class="table table-sm" v-if="request.files.length">
+        <table class="table table-sm" v-if="trip.files.length">
           <tr>
             <th>${fileLabels.name}</th>
             <th>${fileLabels.date_created}</th>
             <th class="center-col">${fileLabels.file}</th>
           </tr>
           <tbody>
-          <tr v-for="(file, index) in request.files" :key="file.id">
+          <tr v-for="(file, index) in trip.files" :key="file.id">
             <td v-if="!file.editMode">${ file.name }</td>
             <td v-else>
               <input type="text" v-model="file.name" class="form-control form-control-sm">
@@ -39,7 +39,7 @@
               <input type="file" v-on:change="onFileChange(`file${index}`)" :ref="`file${index}`" class="">
             </td>
             <td class="center-col" v-if="!file.editMode">
-              <a v-if="file.file" data-toggle="tooltip" title="{% trans "Open the file" %}" :href="`/travel-plans/download/file/${file.id}/`">
+              <a v-if="file.file" data-toggle="tooltip" title="{% trans "Open the file" %}" :href="`/travel-plans/download/file/${file.id}/?trip_file=true`">
                 <span class="h5 mdi mdi-attachment text-primary"></span>
               </a>
               <em v-else>{% trans "missing file" %}</em>
@@ -76,7 +76,7 @@
           </tbody>
         </table>
         <div v-else>
-          <em> {% trans "No files have been attached to this request" %}... </em>
+          <em> {% trans "No files have been attached to this trip" %}... </em>
         </div>
       </div>
     </div>
