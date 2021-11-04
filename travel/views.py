@@ -31,14 +31,15 @@ from . import forms
 from . import models
 from . import reports
 from . import utils
-from .mixins import TravelAccessRequiredMixin, CanModifyMixin, TravelAdminRequiredMixin, AdminOrApproverRequiredMixin, TravelADMAdminRequiredMixin
-from .utils import in_travel_admin_group, in_adm_admin_group, can_modify_request, is_approver, is_trip_approver, is_manager_or_assistant_or_admin
+from .mixins import TravelAccessRequiredMixin, CanModifyMixin, TravelAdminRequiredMixin, AdminOrApproverRequiredMixin, TravelADMAdminRequiredMixin, \
+    SuperuserOrNationalAdminRequiredMixin
+from .utils import in_travel_regional_admin_group, in_travel_nat_admin_group, can_modify_request, is_approver, is_trip_approver, is_manager_or_assistant_or_admin
 
 
 def get_common_context(request):
     context = dict()
-    context["is_admin"] = in_travel_admin_group(request.user)
-    context["is_adm_admin"] = in_adm_admin_group(request.user)
+    context["is_admin"] = in_travel_regional_admin_group(request.user)
+    context["is_adm_admin"] = in_travel_nat_admin_group(request.user)
     return context
 
 
@@ -109,8 +110,8 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         context["refs"] = models.ReferenceMaterial.objects.all()
         # context["region_tabs"] = [region.tname for region in shared_models.Region.objects.all()]
 
-        context["is_admin"] = in_travel_admin_group(self.request.user)
-        context["is_adm_admin"] = in_adm_admin_group(self.request.user)
+        context["is_admin"] = in_travel_regional_admin_group(self.request.user)
+        context["is_adm_admin"] = in_travel_nat_admin_group(self.request.user)
         context["can_see_all_requests"] = is_manager_or_assistant_or_admin(self.request.user)
         return context
 
@@ -368,7 +369,7 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
         # if submitted, then unsumbit but only if admin or owner
         if is_submitted:
             #  UNSUBMIT REQUEST
-            if in_travel_admin_group(self.request.user) or my_object.created_by == self.request.user:
+            if in_travel_regional_admin_group(self.request.user) or my_object.created_by == self.request.user:
                 my_object.unsubmit()
             else:
                 messages.error(self.request, "sorry, only admins or owners can un-submit requests")
@@ -503,7 +504,7 @@ class RequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
         my_user = self.request.user
         # if this is an rdg approval, then we make sure it is a travel admin
         if self.request.GET.get("rdg"):
-            return in_travel_admin_group(my_user) and reviewer.role == 7
+            return in_travel_regional_admin_group(my_user) and reviewer.role == 7
         # otherwise we make sure that this person is the current reviewer
         else:
             return is_approver(my_user, my_trip_request)
@@ -554,7 +555,7 @@ class RequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
 
 
 @login_required(login_url='/accounts/login/')
-# @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+# @user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/')
 def reset_request_reviewers(request, pk):
     """this function will reset the reviewers on either a trip request"""
     my_obj = models.TripRequest.objects.get(pk=pk)
@@ -630,7 +631,7 @@ class TripUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
         my_object = self.get_object()
         # this only user who should be able to modify an adm level trip is the travel_adm_admin
         if my_object.is_adm_approval_required:
-            return utils.in_adm_admin_group(self.request.user)
+            return utils.in_travel_nat_admin_group(self.request.user)
         return utils.is_admin(self.request.user)
 
     def get_parent_crumb(self):
@@ -732,7 +733,7 @@ class TripDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
         my_object = self.get_object()
         # this only user who should be able to modify an adm level trip is the travel_adm_admin
         if my_object.is_adm_approval_required:
-            return utils.in_adm_admin_group(self.request.user)
+            return utils.in_travel_nat_admin_group(self.request.user)
         return utils.is_admin(self.request.user)
 
     def get_success_url(self):
@@ -747,7 +748,7 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
 
     def test_func(self):
         # make sure that this page can only be accessed for active trips (exclude those already reviewed and those canceled)
-        return in_adm_admin_group(self.request.user) and not self.get_object().status in [43]
+        return in_travel_nat_admin_group(self.request.user) and not self.get_object().status in [43]
 
     def get_h1(self):
         if self.get_object().status in [30, 41]:
@@ -822,7 +823,7 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
         my_object = models.Trip.objects.get(pk=self.kwargs.get("pk"))
         # this only user who should be able to modify an adm level trip is the travel_adm_admin
         if my_object.is_adm_approval_required:
-            return utils.in_adm_admin_group(self.request.user)
+            return utils.in_travel_nat_admin_group(self.request.user)
         return utils.is_admin(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
@@ -879,7 +880,7 @@ class TripSelectFormView(TravelAdminRequiredMixin, CommonFormView):
         my_object = models.Trip.objects.get(pk=self.kwargs.get("pk"))
         # this only user who should be able to modify an adm level trip is the travel_adm_admin
         if my_object.is_adm_approval_required:
-            return utils.in_adm_admin_group(self.request.user)
+            return utils.in_travel_nat_admin_group(self.request.user)
         return utils.is_admin(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
@@ -919,7 +920,7 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, CommonPopoutFormView):
     def test_func(self):
         my_trip = models.Trip.objects.get(pk=self.kwargs.get("trip_a"))
         if my_trip.is_adm_approval_required:
-            return utils.in_adm_admin_group(self.request.user)
+            return utils.in_travel_nat_admin_group(self.request.user)
         else:
             return utils.is_admin(self.request.user)
 
@@ -990,7 +991,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
         my_object = self.get_object()
         # this only user who should be able to modify an adm level trip is the travel_adm_admin
         if my_object.is_adm_approval_required:
-            return utils.in_adm_admin_group(self.request.user)
+            return utils.in_travel_nat_admin_group(self.request.user)
         return utils.is_admin(self.request.user)
 
     def get_context_data(self, **kwargs):
@@ -1000,8 +1001,8 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
 
     def form_valid(self, form):
         my_trip = form.save()
-        can_cancel = (my_trip.is_adm_approval_required and in_adm_admin_group(self.request.user)) or \
-                     (not my_trip.is_adm_approval_required and in_travel_admin_group(self.request.user))
+        can_cancel = (my_trip.is_adm_approval_required and in_travel_nat_admin_group(self.request.user)) or \
+                     (not my_trip.is_adm_approval_required and in_travel_regional_admin_group(self.request.user))
 
         # if user is allowed to cancel this request, proceed to do so.
         if can_cancel:
@@ -1171,7 +1172,7 @@ class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/')
 def export_cfts_list(request):
     fy = request.GET.get("year")
     region = request.GET.get("region")
@@ -1195,7 +1196,7 @@ def export_cfts_list(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/')
 def export_trip_list(request):
     fy = request.GET.get("year")
     region = request.GET.get("region")
@@ -1219,7 +1220,7 @@ def export_trip_list(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/')
 def export_upcoming_trips(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_upcoming_trip_list(site_url)
@@ -1237,7 +1238,7 @@ def export_upcoming_trips(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/')
 def export_request_summary(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_request_summary(site_url)
@@ -1255,7 +1256,7 @@ def export_request_summary(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/')
 def export_request_cfts(request, trip=None, trip_request=None):
     file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
     export_file_name = f'CFTS export {timezone.now().strftime("%Y-%m-%d")}.xlsx'
@@ -1564,71 +1565,88 @@ class DefaultReviewerDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+#
+#
+# class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
+#     template_name = "travel/user_list.html"
+#     filterset_class = filters.UserFilter
+#     home_url_name = "travel:index"
+#     paginate_by = 25
+#     h1 = "Travel App User List"
+#     field_list = [
+#         {"name": 'first_name', "class": "", "width": ""},
+#         {"name": 'last_name', "class": "", "width": ""},
+#         {"name": 'email', "class": "", "width": ""},
+#         {"name": 'last_login|{}'.format(gettext_lazy("Last login to DM Apps")), "class": "", "width": ""},
+#     ]
+#     new_object_url = reverse_lazy("shared_models:user_new")
+#
+#     def get_queryset(self):
+#         queryset = User.objects.order_by("first_name", "last_name").annotate(
+#             search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
+#         )
+#         if self.request.GET.get("travel_only"):
+#             admin_group, created = Group.objects.get_or_create(name="travel_admin")
+#             adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
+#             cfo, created = Group.objects.get_or_create(name="travel_cfo_read_only")
+#             queryset = queryset.filter(groups__in=[admin_group, adm_admin_group, cfo]).distinct()
+#         return queryset
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         admin_group, created = Group.objects.get_or_create(name="travel_admin")
+#         adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
+#         cfo_group, created = Group.objects.get_or_create(name="travel_cfo_read_only")
+#         context["admin_group"] = admin_group
+#         context["adm_admin_group"] = adm_admin_group
+#         context["cfo_group"] = cfo_group
+#         return context
+#
+#
+# @login_required(login_url='/accounts/login/')
+# @user_passes_test(in_travel_nat_admin_group, login_url='/accounts/denied/')
+# def toggle_user(request, pk, type):
+#     my_user = get_object_or_404(User, pk=pk)
+#     admin_group, created = Group.objects.get_or_create(name="travel_admin")
+#     adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
+#     cfo_group, created = Group.objects.get_or_create(name="travel_cfo_read_only")
+#     if type == "admin":
+#         # if the user is in the admin group, remove them
+#         if admin_group in my_user.groups.all():
+#             my_user.groups.remove(admin_group)
+#         # otherwise add them
+#         else:
+#             my_user.groups.add(admin_group)
+#     elif type == "adm_admin":
+#         # if the user is in the edit group, remove them
+#         if adm_admin_group in my_user.groups.all():
+#             my_user.groups.remove(adm_admin_group)
+#         # otherwise add them
+#         else:
+#             my_user.groups.add(adm_admin_group)
+#     elif type == "cfo":
+#         # if the user is in the edit group, remove them
+#         if cfo_group in my_user.groups.all():
+#             my_user.groups.remove(cfo_group)
+#         # otherwise add them
+#         else:
+#             my_user.groups.add(cfo_group)
+#
+#     return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
 
 
-class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
-    template_name = "travel/user_list.html"
-    filterset_class = filters.UserFilter
+
+class TravelUserFormsetView(SuperuserOrNationalAdminRequiredMixin, CommonFormsetView):
+    template_name = 'travel/formset.html'
+    h1 = "Manage Travel Users"
+    queryset = models.TravelUser.objects.all()
+    formset_class = forms.TravelUserFormset
+    success_url_name = "travel:manage_travel_users"
     home_url_name = "travel:index"
-    paginate_by = 25
-    h1 = "Travel App User List"
-    field_list = [
-        {"name": 'first_name', "class": "", "width": ""},
-        {"name": 'last_name', "class": "", "width": ""},
-        {"name": 'email', "class": "", "width": ""},
-        {"name": 'last_login|{}'.format(gettext_lazy("Last login to DM Apps")), "class": "", "width": ""},
-    ]
-    new_object_url = reverse_lazy("shared_models:user_new")
-
-    def get_queryset(self):
-        queryset = User.objects.order_by("first_name", "last_name").annotate(
-            search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
-        )
-        if self.request.GET.get("travel_only"):
-            admin_group, created = Group.objects.get_or_create(name="travel_admin")
-            adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
-            cfo, created = Group.objects.get_or_create(name="travel_cfo_read_only")
-            queryset = queryset.filter(groups__in=[admin_group, adm_admin_group, cfo]).distinct()
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        admin_group, created = Group.objects.get_or_create(name="travel_admin")
-        adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
-        cfo_group, created = Group.objects.get_or_create(name="travel_cfo_read_only")
-        context["admin_group"] = admin_group
-        context["adm_admin_group"] = adm_admin_group
-        context["cfo_group"] = cfo_group
-        return context
+    delete_url_name = "travel:delete_travel_user"
+    container_class = "container bg-light curvy"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_adm_admin_group, login_url='/accounts/denied/')
-def toggle_user(request, pk, type):
-    my_user = get_object_or_404(User, pk=pk)
-    admin_group, created = Group.objects.get_or_create(name="travel_admin")
-    adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
-    cfo_group, created = Group.objects.get_or_create(name="travel_cfo_read_only")
-    if type == "admin":
-        # if the user is in the admin group, remove them
-        if admin_group in my_user.groups.all():
-            my_user.groups.remove(admin_group)
-        # otherwise add them
-        else:
-            my_user.groups.add(admin_group)
-    elif type == "adm_admin":
-        # if the user is in the edit group, remove them
-        if adm_admin_group in my_user.groups.all():
-            my_user.groups.remove(adm_admin_group)
-        # otherwise add them
-        else:
-            my_user.groups.add(adm_admin_group)
-    elif type == "cfo":
-        # if the user is in the edit group, remove them
-        if cfo_group in my_user.groups.all():
-            my_user.groups.remove(cfo_group)
-        # otherwise add them
-        else:
-            my_user.groups.add(cfo_group)
-
-    return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
+class TravelUserHardDeleteView(SuperuserOrNationalAdminRequiredMixin, CommonHardDeleteView):
+    model = models.TravelUser
+    success_url = reverse_lazy("travel:manage_travel_users")

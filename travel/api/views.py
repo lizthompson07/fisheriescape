@@ -26,8 +26,8 @@ from .. import models, utils, emails
 class CurrentTravelUserAPIView(CurrentUserAPIView):
     def get(self, request):
         data = super().get(request).data
-        data["is_regional_admin"] = utils.in_travel_admin_group(request.user)
-        data["is_ncr_admin"] = utils.in_adm_admin_group(request.user)
+        data["is_regional_admin"] = utils.in_travel_regional_admin_group(request.user)
+        data["is_ncr_admin"] = utils.in_travel_nat_admin_group(request.user)
         data["is_admin"] = utils.is_admin(request.user)
         requests = utils.get_related_requests(request.user)
         request_reviews = utils.get_related_request_reviewers(request.user)
@@ -66,7 +66,7 @@ class TripViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         obj = get_object_or_404(models.Trip, pk=pk)
         if qp.get("reset_reviewers"):
-            if utils.in_adm_admin_group(request.user):
+            if utils.in_travel_nat_admin_group(request.user):
                 # This function should only ever be run if the trip is unreviewed (30 = unverified, unreviewer; 41 = verified, reviewed)
                 if obj.status in [30, 41]:
                     # first remove any existing reviewers
@@ -86,9 +86,9 @@ class TripViewSet(viewsets.ModelViewSet):
         else:
             qs = models.Trip.objects.all()
             qp = self.request.query_params
-            if qp.get("adm-verification") and utils.in_adm_admin_group(self.request.user):
+            if qp.get("adm-verification") and utils.in_travel_nat_admin_group(self.request.user):
                 qs = qs.filter(is_adm_approval_required=True, status=30)
-            elif qp.get("adm-hit-list") and utils.in_adm_admin_group(self.request.user):
+            elif qp.get("adm-hit-list") and utils.in_travel_nat_admin_group(self.request.user):
                 qs = utils.get_adm_eligible_trips()
             elif qp.get("regional-verification") and utils.is_admin(self.request.user):
                 qs = qs.filter(is_adm_approval_required=False, status=30)
@@ -315,7 +315,7 @@ class TripReviewerViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         # the only type of user who should be interacting with this is an NCR admin
-        if not utils.in_adm_admin_group(self.request.user):
+        if not utils.in_travel_nat_admin_group(self.request.user):
             raise ValidationError(_("You do not have the necessary permission to modify this reviewer."))
 
         # first we must determine if this is a request to skip a reviewer. If it is, the user better be an admin
@@ -342,7 +342,7 @@ class TripReviewerViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         # can only change if is in draft or queued
-        if not utils.in_adm_admin_group(self.request.user):
+        if not utils.in_travel_nat_admin_group(self.request.user):
             raise PermissionDenied(_("You do not have the necessary permission to delete this reviewer."))
         if instance.status in [23, 24]:
             super().perform_destroy(instance)
@@ -575,7 +575,7 @@ class AdminWarningsAPIView(APIView):
                         unverified_trips=qs.count())) + btn
                 msgs.append(msg)
 
-        if utils.in_adm_admin_group(request.user):
+        if utils.in_travel_nat_admin_group(request.user):
             qs = models.Trip.objects.filter(status=30, is_adm_approval_required=True)
             if qs.exists():
                 btn = f' &rarr; <a href="{reverse("travel:trip_list")}?adm-verification=true">{anchor_txt}</a>'

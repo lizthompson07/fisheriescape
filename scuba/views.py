@@ -27,7 +27,6 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
 ####################
 
 
-
 class ScubaUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
     template_name = 'scuba/formset.html'
     h1 = "Manage Scuba Users"
@@ -42,6 +41,7 @@ class ScubaUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
 class ScubaUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
     model = models.ScubaUser
     success_url = reverse_lazy("scuba:manage_scuba_users")
+
 
 class DiverFormsetView(ScubaAdminRequiredMixin, CommonFormsetView):
     template_name = 'scuba/formset.html'
@@ -380,7 +380,7 @@ class DiveCreateView(ScubaCRUDAccessRequiredMixin, CommonCreateView):
         sample = self.get_sample()
         return dict(
             sample=sample.id,
-            start_descent=sample.datetime.strftime("%Y-%m-%dT")+"08:00",
+            start_descent=sample.datetime.strftime("%Y-%m-%dT") + "08:00",
         )
 
     def get_sample(self):
@@ -418,6 +418,7 @@ class DiveUpdateView(ScubaCRUDAccessRequiredMixin, CommonUpdateView):
         obj = form.save(commit=False)
         obj.updated_by = self.request.user
         return super().form_valid(form)
+
 
 class DiveDeleteView(ScubaCRUDAccessRequiredMixin, CommonDeleteView):
     model = models.Dive

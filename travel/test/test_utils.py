@@ -20,18 +20,18 @@ class UtilsTest(CommonTest):
         user = self.get_and_login_user()
         admin = self.get_and_login_user(in_group='travel_admin')
         adm_admin = self.get_and_login_user(in_group='travel_adm_admin')
-        self.assertFalse(utils.in_travel_admin_group(user))
-        self.assertFalse(utils.in_travel_admin_group(adm_admin))
-        self.assertTrue(utils.in_travel_admin_group(admin))
+        self.assertFalse(utils.in_travel_regional_admin_group(user))
+        self.assertFalse(utils.in_travel_regional_admin_group(adm_admin))
+        self.assertTrue(utils.in_travel_regional_admin_group(admin))
 
     @tag("utils", )
-    def test_in_adm_admin_group(self):
+    def test_in_travel_nat_admin_group(self):
         user = self.get_and_login_user()
         admin = self.get_and_login_user(in_group='travel_admin')
         adm_admin = self.get_and_login_user(in_group='travel_adm_admin')
-        self.assertFalse(utils.in_adm_admin_group(user))
-        self.assertFalse(utils.in_adm_admin_group(admin))
-        self.assertTrue(utils.in_adm_admin_group(adm_admin))
+        self.assertFalse(utils.in_travel_nat_admin_group(user))
+        self.assertFalse(utils.in_travel_nat_admin_group(admin))
+        self.assertTrue(utils.in_travel_nat_admin_group(adm_admin))
 
     @tag("utils", )
     def test_as_admin(self):

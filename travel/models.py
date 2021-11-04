@@ -30,6 +30,21 @@ NULL_YES_NO_CHOICES = (
 )
 
 
+class TravelUser(models.Model):
+    user = models.OneToOneField(AuthUser, on_delete=models.CASCADE, related_name="travel_user", verbose_name=_("DM Apps user"))
+    region = models.ForeignKey(shared_models.Region, verbose_name=_("regional administrator?"), related_name="travel_users", on_delete=models.CASCADE, blank=True,
+                               null=True)
+    is_national_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
+    is_cfo = models.BooleanField(default=False, verbose_name=_("CFO Read Only?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_national_admin", "user__first_name", ]
+
+
+
 class HelpText(models.Model):
     field_name = models.CharField(max_length=255)
     eng_text = models.TextField(verbose_name=_("English text"))

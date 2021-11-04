@@ -13,35 +13,28 @@ from django.utils.translation import gettext as _
 from msrestazure.azure_active_directory import MSIAuthentication
 
 from shared_models import models as shared_models
-from shared_models.models import Region, Branch, Division, Section
+from shared_models.models import Branch, Division, Section
 from . import emails
 from . import models
 
 
-def in_travel_admin_group(user):
-    # make sure the following group exist:
-    admin_group, created = Group.objects.get_or_create(name="travel_admin")
+def in_travel_regional_admin_group(user):
     if user:
-        return admin_group in user.groups.all()
+        return bool(hasattr(user, "csas_admin_user") and user.csas_admin_user.region)
 
 
-def in_adm_admin_group(user):
-    # make sure the following group exist:
-    admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
+def in_travel_nat_admin_group(user):
     if user:
-        return admin_group in user.groups.all()
-
+        return bool(hasattr(user, "travel_user") and user.travel_user.is_national_admin)
 
 
 def in_cfo_group(user):
-    # make sure the following group exist:
-    group, created = Group.objects.get_or_create(name="travel_cfo_read_only")
     if user:
-        return group in user.groups.all()
+        return bool(hasattr(user, "travel_user") and user.travel_user.is_cfo)
 
 
 def is_admin(user):
-    return in_adm_admin_group(user) or in_travel_admin_group(user)
+    return in_travel_nat_admin_group(user) or in_travel_regional_admin_group(user)
 
 
 def is_approver(user, trip_request):
@@ -108,11 +101,11 @@ def can_modify_request(user, trip_request_id, request_to_unsubmit=False, as_dict
             reason = _("You can edit this record because you are the Regional director / NCR Director General.")
 
         # check to see if a travel_admin or ADM admin
-        elif in_adm_admin_group(user):
+        elif in_travel_nat_admin_group(user):
             result = True
             reason = _("You can edit this record because you are in the NCR National Coordinator Group.")
 
-        elif in_travel_admin_group(user):
+        elif in_travel_regional_admin_group(user):
             result = True
             reason = _("You can edit this record because you are in the Regional Administrator Group.")
 
@@ -797,8 +790,10 @@ def get_all_admins(region, branch_only=False):
         section_admins = [obj.admin.email for obj in Section.objects.filter(division__branch__region=region, admin__isnull=False, admin__email__isnull=False)]
 
         # now we have to add special reviewers (but only in the reviewer role)
-        section_special_reviewers = [obj.user.email for obj in models.DefaultReviewer.objects.filter(sections__isnull=False, sections__division__branch__region=region)]
-        division_special_reviewers = [obj.user.email for obj in models.DefaultReviewer.objects.filter(divisions__isnull=False, divisions__branch__region=region)]
+        section_special_reviewers = [obj.user.email for obj in
+                                     models.DefaultReviewer.objects.filter(sections__isnull=False, sections__division__branch__region=region)]
+        division_special_reviewers = [obj.user.email for obj in
+                                      models.DefaultReviewer.objects.filter(divisions__isnull=False, divisions__branch__region=region)]
 
         to_list.extend(division_admins)
         to_list.extend(section_admins)
