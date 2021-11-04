@@ -92,6 +92,8 @@ class DefaultReviewer(MetadataFields):
     class Meta:
         ordering = ["user__first_name", ]
 
+    def get_absolute_url(self):
+        return reverse('travel:default_reviewer_list')
 
 class NJCRates(SimpleLookup):
     amount = models.FloatField()

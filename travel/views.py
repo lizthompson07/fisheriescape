@@ -1544,14 +1544,13 @@ class DefaultReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
 class DefaultReviewerCreateView(TravelADMAdminRequiredMixin, CommonCreateView):
     model = models.DefaultReviewer
     form_class = forms.DefaultReviewerForm
-    success_url = reverse_lazy('travel:default_reviewer_list')
     template_name = 'travel/default_reviewer/default_reviewer_form.html'
 
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.created_by = self.request.user
         obj.save()
-        return HttpResponseRedirect(self.get_success_url())
+        return HttpResponseRedirect(reverse_lazy('travel:default_reviewer_list'))
 
 
 class DefaultReviewerDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):

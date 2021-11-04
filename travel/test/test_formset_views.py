@@ -112,7 +112,10 @@ class TestAllHardDeleteViews(CommonTest):
     @tag('hard_delete', "view")
     def test_view_class(self):
         for d in self.test_dicts:
-            self.assert_inheritance(d["view"], views.TravelADMAdminRequiredMixin)
+            if d["view"] is views.TravelUserHardDeleteView:
+                self.assert_inheritance(d["view"], views.SuperuserOrNationalAdminRequiredMixin)
+            else:
+                self.assert_inheritance(d["view"], views.TravelADMAdminRequiredMixin)
             self.assert_inheritance(d["view"], CommonHardDeleteView)
 
     @tag('hard_delete', "access")

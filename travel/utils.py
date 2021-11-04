@@ -20,7 +20,7 @@ from . import models
 
 def in_travel_regional_admin_group(user):
     if user:
-        return bool(hasattr(user, "csas_admin_user") and user.csas_admin_user.region)
+        return bool(hasattr(user, "travel_user") and user.travel_user.region)
 
 
 def in_travel_nat_admin_group(user):
