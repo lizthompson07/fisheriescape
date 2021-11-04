@@ -106,12 +106,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
             models.ProcessStep.objects.filter(stage=2)
         ]
         context["information_sections"] = models.ProcessStep.objects.filter(stage=0, is_visible=True)
-        # context["faqs"] = models.FAQ.objects.all()
         context["refs"] = models.ReferenceMaterial.objects.all()
-        # context["region_tabs"] = [region.tname for region in shared_models.Region.objects.all()]
-
-        context["is_admin"] = in_travel_regional_admin_group(self.request.user)
-        context["is_adm_admin"] = in_travel_nat_admin_group(self.request.user)
         context["can_see_all_requests"] = is_manager_or_assistant_or_admin(self.request.user)
         return context
 

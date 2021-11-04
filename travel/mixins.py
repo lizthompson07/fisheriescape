@@ -18,6 +18,13 @@ class TravelBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = in_travel_regional_admin_group(self.request.user)
+        context["is_adm_admin"] = in_travel_nat_admin_group(self.request.user)
+        return context
+
+
 
 class TravelAdminRequiredMixin(TravelBasicMixin):
     def test_func(self):
@@ -52,3 +59,4 @@ class SuperuserOrNationalAdminRequiredMixin(TravelBasicMixin):
 
     def test_func(self):
         return self.request.user.is_superuser or in_travel_nat_admin_group(self.request.user)
+

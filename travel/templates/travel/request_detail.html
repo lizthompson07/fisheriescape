@@ -22,11 +22,11 @@
           </span>
       </h2>
     </div>
-  <div v-if="errorMsgRequest">
-    <div class="alert alert-danger" role="alert">
-      ${errorMsgRequest}
+    <div v-if="errorMsgRequest">
+      <div class="alert alert-danger" role="alert">
+        ${errorMsgRequest}
+      </div>
     </div>
-  </div>
     <div v-else>
       <div v-if="canModify" class="alert alert-primary no-print py-2" role="alert" style="width: 80%">
         <p class="mb-0">
@@ -148,11 +148,23 @@
           <p class="card-text" v-html="request.admin_notes_html"></p>
         </div>
       </div>
-
-      {% include "travel/common/_request_detail.html" %}
-      {% include "travel/common/_travellers.html" %}
-      {% include "travel/common/_files.html" %}
-      {% include "travel/common/_reviewers.html" %}
+      <div v-if="loading" class="loading mb-3 mt-3 mt-5 text-center text-primary">
+        <p>
+          {% trans "Loading trip request." %}
+        </p>
+        <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+        <p>
+          {% trans "Depending on the number of travellers, <br> this can take up to a minute." %}
+        </p>
+      </div>
+      <div v-else>
+        {% include "travel/common/_request_detail.html" %}
+        {% include "travel/common/_travellers.html" %}
+        {% include "travel/common/_files.html" %}
+        {% include "travel/common/_reviewers.html" %}
+      </div>
     </div>
   </div>
 {% endblock %}

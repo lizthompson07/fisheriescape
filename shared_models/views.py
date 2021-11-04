@@ -33,13 +33,22 @@ class CloserNoRefreshTemplateView(TemplateView):
 
 
 def in_admin_group(user):
-    """give a list of groups that would be allowed to access this form"""
     if user.id:
-        if user.groups.filter(name='travel_admin').exists() or \
-                user.groups.filter(name='travel_adm_admin').exists() or \
-                (hasattr(user, "ppt_admin_user") and (user.ppt_admin_user.region or user.ppt_admin_user.is_national_admin)) or \
-                (hasattr(user, "csas_admin_user") and (user.csas_admin_user.region or user.csas_admin_user.is_national_admin)):
-            return True
+
+        if settings.INSTALLED_APPS.count("travel"):
+            from travel.utils import in_travel_regional_admin_group
+            from travel.utils import in_travel_nat_admin_group
+            return in_travel_regional_admin_group(user) or in_travel_nat_admin_group(user)
+
+        if settings.INSTALLED_APPS.count("ppt"):
+            from ppt.utils import in_ppt_national_admin_group
+            return in_ppt_national_admin_group(user)
+
+        if settings.INSTALLED_APPS.count("csas2"):
+            from csas2.utils import in_csas_national_admin_group
+            return in_csas_national_admin_group(user)
+
+        return False
 
 
 class CommonTemplateView(TemplateView, CommonMixin):
