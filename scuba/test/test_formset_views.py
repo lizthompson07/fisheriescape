@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import activate
 
-from shared_models.test.common_tests import CommonTest
+from .common_tests import ScubaCommonTest as CommonTest
 from ..test import FactoryFloor
 from shared_models.views import CommonFormsetView, CommonHardDeleteView
 from .. import views
@@ -25,7 +25,7 @@ class TestAllFormsets(CommonTest):
             views.DiverFormsetView,
         ]
         self.expected_template = 'scuba/formset.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag('formsets', "view")
     def test_view_class(self):
@@ -54,7 +54,7 @@ class TestAllHardDeleteViews(CommonTest):
         ]
         self.test_dicts = list()
 
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
         for d in self.starter_dicts:
             new_d = d
             m = d["model"]

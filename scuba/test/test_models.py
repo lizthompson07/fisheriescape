@@ -197,41 +197,26 @@ class TestDiveModel(CommonTest):
     @tag('Dive', 'models', 'fields')
     def test_fields(self):
         fields_to_check = [
-            'sample',
-            'transect',
-            'diver',
-            'start_descent',
-            'bottom_time',
-            'max_depth_ft',
-            'psi_in',
-            'psi_out',
-            'start_latitude_d',
-            'start_latitude_mm',
-            'start_longitude_d',
-            'start_longitude_mm',
-            'end_latitude_d',
-            'end_latitude_mm',
-            'end_longitude_d',
-            'end_longitude_mm',
-            'heading',
-            'side',
-            'width_m',
-            'comment',
-            'start_latitude',
-            'start_longitude',
-            'end_latitude',
-            'end_longitude',
+            "sample",
+            "transect",
+            "diver",
+            "is_training",
+            "start_descent",
+            "bottom_time",
+            "max_depth_ft",
+            "psi_in",
+            "psi_out",
+            "heading",
+            "side",
+            "width_m",
+            "comment",
         ]
         self.assert_has_fields(models.Dive, fields_to_check)
 
     @tag('Dive', 'models', 'props')
     def test_props(self):
         self.assert_has_props(models.Dive, [
-            "starting_coordinates_ddmm",
-            "ending_coordinates_ddmm",
             "observation_count",
-            "get_starting_coordinates",
-            "get_ending_coordinates",
             "dive_distance",
         ])
 
@@ -291,9 +276,7 @@ class TestDiveModel(CommonTest):
     def test_mandatory_fields(self):
         fields_to_check = [
             'sample',
-            'transect',
             'diver',
-            'width_m',
         ]
         self.assert_mandatory_fields(models.Dive, fields_to_check)
 
@@ -308,7 +291,6 @@ class TestSectionModel(CommonTest):
         fields_to_check = [
             'dive',
             'interval',
-            'depth_ft',
             'percent_sand',
             'percent_mud',
             'percent_hard',

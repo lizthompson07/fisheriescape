@@ -236,8 +236,8 @@ class UtilsTest(CommonTest):
         trip_request = FactoryFloor.TripRequestFactory()
         traveller = FactoryFloor.TravellerFactory(request=trip_request)
         reg_user = self.get_and_login_user()
-        admin_user = self.get_and_login_user(in_group="travel_admin")
-        adm_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        admin_user = self.get_and_login_regional_admin()
+        adm_admin_user = self.get_and_login_admin()
 
         # RULE 1: travel admin = True
         self.assertEqual(can_modify_request(admin_user, trip_request.id), True)

@@ -25,7 +25,7 @@ class TestCFTSReportView(CommonTest):
         self.test_url1 = reverse_lazy('travel:export_cfts_list', args=[])
         self.test_url2 = reverse_lazy('travel:export_cfts_request', args=[self.trip_request.id])
         self.test_url3 = reverse_lazy('travel:export_cfts_trip', args=[self.trip.id])
-        self.user = self.get_and_login_user(in_group="travel_admin")
+        self.user = self.get_and_login_regional_admin()
 
     @tag("CFTSReport", "export_cfts_list", "access")
     def test_view(self):
@@ -41,7 +41,7 @@ class TestDefaultReviewerCreateView(CommonTest):
         self.instance = FactoryFloor.DefaultReviewerFactory()
         self.test_url = reverse_lazy('travel:default_reviewer_new')
         self.expected_template = 'travel/default_reviewer/default_reviewer_form.html'
-        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("DefaultReviewer", "default_reviewer_new", "view")
     def test_view_class(self):
@@ -69,7 +69,7 @@ class TestDefaultReviewerDeleteView(CommonTest):
         self.instance = FactoryFloor.DefaultReviewerFactory()
         self.test_url = reverse_lazy('travel:default_reviewer_delete', args=[self.instance.pk, ])
         self.expected_template = 'travel/default_reviewer/default_reviewer_confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("DefaultReviewer", "default_reviewer_delete", "view")
     def test_view_class(self):
@@ -100,7 +100,7 @@ class TestDefaultReviewerListView(CommonTest):
         self.instance = FactoryFloor.DefaultReviewerFactory()
         self.test_url = reverse_lazy('travel:default_reviewer_list')
         self.expected_template = 'travel/default_reviewer/default_reviewer_list.html'
-        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("DefaultReviewer", "default_reviewer_list", "view")
     def test_view_class(self):
@@ -123,7 +123,7 @@ class TestDefaultReviewerUpdateView(CommonTest):
         self.instance = FactoryFloor.DefaultReviewerFactory()
         self.test_url = reverse_lazy('travel:default_reviewer_edit', args=[self.instance.pk, ])
         self.expected_template = 'travel/default_reviewer/default_reviewer_form.html'
-        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("DefaultReviewer", "default_reviewer_edit", "view")
     def test_view_class(self):
@@ -187,7 +187,7 @@ class TestReferenceMaterialCreateView(CommonTest):
         self.instance = FactoryFloor.ReferenceMaterialFactory()
         self.test_url = reverse_lazy('travel:ref_mat_new')
         self.expected_template = 'travel/form.html'
-        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("ReferenceMaterial", "ref_mat_new", "view")
     def test_view_class(self):
@@ -215,7 +215,7 @@ class TestReferenceMaterialDeleteView(CommonTest):
         self.instance = FactoryFloor.ReferenceMaterialFactory()
         self.test_url = reverse_lazy('travel:ref_mat_delete', args=[self.instance.pk, ])
         self.expected_template = 'travel/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("ReferenceMaterial", "ref_mat_delete", "view")
     def test_view_class(self):
@@ -246,7 +246,7 @@ class TestReferenceMaterialListView(CommonTest):
         self.instance = FactoryFloor.ReferenceMaterialFactory()
         self.test_url = reverse_lazy('travel:ref_mat_list')
         self.expected_template = 'travel/list.html'
-        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("ReferenceMaterial", "ref_mat_list", "view")
     def test_view_class(self):
@@ -269,7 +269,7 @@ class TestReferenceMaterialUpdateView(CommonTest):
         self.instance = FactoryFloor.ReferenceMaterialFactory()
         self.test_url = reverse_lazy('travel:ref_mat_edit', args=[self.instance.pk, ])
         self.expected_template = 'travel/form.html'
-        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("ReferenceMaterial", "ref_mat_edit", "view")
     def test_view_class(self):
@@ -296,7 +296,7 @@ class TestReportFormView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('travel:reports', args=[])
         self.expected_template = 'travel/reports.html'
-        self.user = self.get_and_login_user(in_group="travel_admin")
+        self.user = self.get_and_login_regional_admin()
 
     @tag("Report", "reports", "view")
     def test_view_class(self):
@@ -318,48 +318,6 @@ class TestReportFormView(CommonTest):
         self.assert_correct_url("travel:reports", f"/en/travel-plans/reports/search/")
 
 
-class TestToggleUserView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = UserFactory()
-        self.type1 = "admin"
-        self.type2 = "adm_admin"
-        self.type3 = "cfo"
-        self.test_url1 = reverse_lazy('travel:toggle_user', args=[self.instance.pk, self.type1])
-        self.test_url2 = reverse_lazy('travel:toggle_user', args=[self.instance.pk, self.type2])
-        self.test_url3 = reverse_lazy('travel:toggle_user', args=[self.instance.pk, self.type3])
-        self.user = self.get_and_login_user(in_group="travel_adm_admin")
-
-    @tag("ToggleUser", "toggle_user", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url1)
-        self.assert_good_response(self.test_url2)
-        self.assert_non_public_view(test_url=self.test_url1, user=self.user, expected_code=302)
-        self.assert_non_public_view(test_url=self.test_url2, user=self.user, expected_code=302)
-
-    @tag("ToggleUser", "toggle_user", )
-    def test_toggle(self):
-        activate("en")
-        self.get_and_login_user(user=self.user)
-        # to start, user should not be in the admin group
-        self.assertFalse(utils.in_travel_regional_admin_group(self.instance))
-        self.client.get(self.test_url1)
-        self.assertTrue(utils.in_travel_regional_admin_group(self.instance))
-        self.assertFalse(utils.in_travel_nat_admin_group(self.instance))
-        self.client.get(self.test_url2)
-        self.assertTrue(utils.in_travel_nat_admin_group(self.instance))
-        self.assertFalse(utils.in_cfo_group(self.instance))
-        self.client.get(self.test_url3)
-        self.assertTrue(utils.in_cfo_group(self.instance))
-
-    @tag("ToggleUser", "toggle_user", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("travel:toggle_user", f"/en/travel-plans/settings/users/{self.instance.pk}/toggle/{self.type1}/",
-                                [self.instance.pk, self.type1])
-        self.assert_correct_url("travel:toggle_user", f"/en/travel-plans/settings/users/{self.instance.pk}/toggle/{self.type2}/",
-                                [self.instance.pk, self.type2])
-
 
 class TestTripCancelUpdateView(CommonTest):
     def setUp(self):
@@ -369,8 +327,8 @@ class TestTripCancelUpdateView(CommonTest):
         self.test_url1 = reverse_lazy('travel:trip_cancel', args=[self.instance1.pk])
         self.test_url2 = reverse_lazy('travel:trip_cancel', args=[self.instance2.pk])
         self.expected_template = 'travel/form.html'
-        self.regional_admin_user = self.get_and_login_user(in_group="travel_admin")
-        self.ncr_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.regional_admin_user = self.get_and_login_regional_admin()
+        self.ncr_admin_user = self.get_and_login_admin()
 
     @tag("Trip", "trip_cancel", "view")
     def test_view_class(self):
@@ -470,8 +428,8 @@ class TestTripDeleteView(CommonTest):
         self.test_url1 = reverse_lazy('travel:trip_delete', args=[self.instance1.pk])
         self.test_url2 = reverse_lazy('travel:trip_delete', args=[self.instance2.pk])
         self.expected_template = 'travel/confirm_delete.html'
-        self.regional_admin_user = self.get_and_login_user(in_group="travel_admin")
-        self.ncr_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.regional_admin_user = self.get_and_login_regional_admin()
+        self.ncr_admin_user = self.get_and_login_admin()
 
     @tag("Trip", "trip_delete", "view")
     def test_view_class(self):
@@ -536,7 +494,7 @@ class TestTripListReportView(CommonTest):
         for i in range(0, 10):
             FactoryFloor.TripFactory()
         self.test_url1 = reverse_lazy('travel:export_trip_list', args=[])
-        self.user = self.get_and_login_user(in_group="travel_admin")
+        self.user = self.get_and_login_regional_admin()
 
     @tag("TripListReport", "export_trip_list", "access")
     def test_view(self):
@@ -580,8 +538,8 @@ class TestTripRequestCancelUpdateView(CommonTest):
         self.instance = FactoryFloor.TripRequestFactory()
         self.test_url = reverse_lazy('travel:request_cancel', args=[self.instance.pk])
         self.expected_template = 'travel/form.html'
-        self.user1 = self.get_and_login_user(in_group="travel_adm_admin")
-        self.user2 = self.get_and_login_user(in_group="travel_adm_admin")
+        self.user1 = self.get_and_login_admin()
+        self.user2 = self.get_and_login_admin()
 
     @tag("TripRequest", "request_cancel", "view")
     def test_view_class(self):
@@ -814,7 +772,7 @@ class TestTripRequestSubmitUpdateView(CommonTest):
         # should be the first reviewer on the request
 
         ## create the ncr travel coordinator
-        ncr_user = self.get_and_login_user(in_group="travel_adm_admin")
+        ncr_user = self.get_and_login_admin()
         dr = models.DefaultReviewer.objects.create(user=ncr_user, special_role=3)
 
         ## configure trip to be past eligibility deadline
@@ -919,7 +877,7 @@ class TestTripReviewProcessUpdateView(CommonTest):
         self.instance1 = FactoryFloor.TripFactory(is_adm_approval_required=True)
         self.test_url1 = reverse_lazy('travel:trip_review_toggle', args=[self.instance1.pk])
         self.expected_template = 'travel/form.html'
-        self.ncr_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.ncr_admin_user = self.get_and_login_admin()
 
     @tag("Trip", "trip_review_toggle", "view")
     def test_view_class(self):
@@ -951,8 +909,8 @@ class TestTripUpdateView(CommonTest):
         self.test_url1 = reverse_lazy('travel:trip_edit', args=[self.instance1.pk])
         self.test_url2 = reverse_lazy('travel:trip_edit', args=[self.instance2.pk])
         self.expected_template = 'travel/trip_form.html'
-        self.regional_admin_user = self.get_and_login_user(in_group="travel_admin")
-        self.ncr_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.regional_admin_user = self.get_and_login_regional_admin()
+        self.ncr_admin_user = self.get_and_login_admin()
 
     @tag("Trip", "trip_edit", "view")
     def test_view_class(self):
@@ -986,8 +944,8 @@ class TestTripVerifyUpdateView(CommonTest):
         self.test_url1 = reverse_lazy('travel:trip_verify', args=[self.instance1.pk])
         self.test_url2 = reverse_lazy('travel:trip_verify', args=[self.instance2.pk])
         self.expected_template = 'travel/trip_verification_form.html'
-        self.regional_admin_user = self.get_and_login_user(in_group="travel_admin")
-        self.ncr_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.regional_admin_user = self.get_and_login_regional_admin()
+        self.ncr_admin_user = self.get_and_login_admin()
 
     @tag("Trip", "trip_verify", "view")
     def test_view_class(self):
@@ -1020,42 +978,10 @@ class TestUpcomingTripsReportView(CommonTest):
         for i in range(0, 10):
             FactoryFloor.TripFactory()
         self.test_url1 = reverse_lazy('travel:export_upcoming_trips', args=[])
-        self.user = self.get_and_login_user(in_group="travel_admin")
+        self.user = self.get_and_login_regional_admin()
 
     @tag("TripListReport", "export_upcoming_trips", "access")
     def test_view(self):
         self.assert_good_response(self.test_url1)
         self.assert_non_public_view(test_url=self.test_url1, user=self.user)
 
-
-class TestUserListView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.UserFactory()
-        self.test_url1 = reverse_lazy('travel:user_list')
-        self.test_url2 = reverse_lazy('travel:user_list') + "?travel_only=true"
-        self.expected_template = 'travel/user_list.html'
-        self.user = self.get_and_login_user(in_group="travel_adm_admin")
-
-    @tag("User", "user_list", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.UserListView, CommonFilterView)
-
-    @tag("User", "user_list", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url1)
-        self.assert_good_response(self.test_url2)
-        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template, user=self.user)
-
-    @tag("User", "user_list", "context")
-    def test_context(self):
-        context_vars = [
-            "admin_group",
-            "adm_admin_group",
-        ]
-        self.assert_presence_of_context_vars(self.test_url1, context_vars, user=self.user)
-
-    @tag("User", "user_list", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("travel:user_list", f"/en/travel-plans/settings/users/")

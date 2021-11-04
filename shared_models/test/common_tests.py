@@ -11,6 +11,7 @@ from html2text import html2text
 from csas2.models import CSASAdminUser
 from ppt.models import PPTAdminUser
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactory
+from travel.models import TravelUser
 
 faker = Faker()
 
@@ -60,8 +61,7 @@ class CommonTest(TestCase):
         if in_national_admin_group:
             case = faker.pyint(1, 3)
             if case == 1:  # travel
-                group = GroupFactory(name="travel_admin")
-                user.groups.add(group)
+                TravelUser.objects.create(user=user, is_national_admin=True)
             elif case == 2:  # csas
                 CSASAdminUser.objects.create(user=user, is_national_admin=True)
             elif case == 3:  # csas

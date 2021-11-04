@@ -22,8 +22,8 @@ class TestTripAPIViewSet(CommonTest):
     def setUp(self):
         super().setUp()
         self.user = self.get_and_login_user()
-        self.admin_user = self.get_and_login_user(in_group="travel_admin")
-        self.adm_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.admin_user = self.get_and_login_regional_admin()
+        self.adm_admin_user = self.get_and_login_admin()
         self.instance = FactoryFloor.TripFactory()
         self.test_list_url = reverse("trip-list", args=None)
         self.test_detail_url = reverse("trip-detail", args=[self.instance.pk])
@@ -192,8 +192,8 @@ class TestTripRequestAPIViewSet(CommonTest):
     def setUp(self):
         super().setUp()
         self.user = self.get_and_login_user()
-        self.admin_user = self.get_and_login_user(in_group="travel_admin")
-        self.adm_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.admin_user = self.get_and_login_regional_admin()
+        self.adm_admin_user = self.get_and_login_admin()
         self.instance = FactoryFloor.TripRequestFactory()
         self.test_list_url = reverse("triprequest-list", args=None)
         self.test_detail_url = reverse("triprequest-detail", args=[self.instance.pk])
@@ -251,7 +251,7 @@ class TestTripRequestAPIViewSet(CommonTest):
         self.assertEqual(len(response1.data["results"]), 0)  # related requests
         self.assertEqual(len(response2.data["results"]), 2)  # managerial access
 
-        self.get_and_login_user(in_group="travel_admin")
+        self.get_and_login_regional_admin()
         response1 = self.client.get(f'{self.test_list_url}')
         response2 = self.client.get(f'{self.test_list_url}?all=true')
         self.assertEqual(len(response1.data["results"]), 0)  # related requests
@@ -342,8 +342,8 @@ class TestTravellerAPIViewSet(CommonTest):
     def setUp(self):
         super().setUp()
         self.user = self.get_and_login_user()
-        self.admin_user = self.get_and_login_user(in_group="travel_admin")
-        self.adm_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.admin_user = self.get_and_login_regional_admin()
+        self.adm_admin_user = self.get_and_login_admin()
         self.instance = FactoryFloor.TravellerFactory()
         self.test_list_url = reverse("traveller-list", args=None)
         self.test_detail_url = reverse("traveller-detail", args=[self.instance.pk])
@@ -545,8 +545,8 @@ class TestReviewerAPIViewSet(CommonTest):
     def setUp(self):
         super().setUp()
         self.user = self.get_and_login_user()
-        self.admin_user = self.get_and_login_user(in_group="travel_admin")
-        self.adm_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.admin_user = self.get_and_login_regional_admin()
+        self.adm_admin_user = self.get_and_login_admin()
         reviewer = FactoryFloor.ReviewerFactory()
         request = reviewer.request
         request.status = 17
@@ -780,8 +780,8 @@ class TestTripReviewerAPIViewSet(CommonTest):
     def setUp(self):
         super().setUp()
         self.user = self.get_and_login_user()
-        self.admin_user = self.get_and_login_user(in_group="travel_admin")
-        self.adm_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.admin_user = self.get_and_login_regional_admin()
+        self.adm_admin_user = self.get_and_login_admin()
         tripreviewer = FactoryFloor.TripReviewerFactory()
         tripreviewer.status = 25
         tripreviewer.save()
@@ -975,8 +975,8 @@ class TestFileAPIViewSet(CommonTest):
     def setUp(self):
         super().setUp()
         self.user = self.get_and_login_user()
-        self.admin_user = self.get_and_login_user(in_group="travel_admin")
-        self.adm_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.admin_user = self.get_and_login_regional_admin()
+        self.adm_admin_user = self.get_and_login_admin()
         self.instance = FactoryFloor.FileFactory()
         self.test_list_url = reverse("file-list", args=None)
         self.test_detail_url = reverse("file-detail", args=[self.instance.pk])
@@ -1080,8 +1080,8 @@ class TestTravellerCostAPIViewSet(CommonTest):
     def setUp(self):
         super().setUp()
         self.user = self.get_and_login_user()
-        self.admin_user = self.get_and_login_user(in_group="travel_admin")
-        self.adm_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.admin_user = self.get_and_login_regional_admin()
+        self.adm_admin_user = self.get_and_login_admin()
         self.instance = FactoryFloor.TravellerCostFactory()
         self.test_list_url = reverse("travellercost-list", args=None)
         self.test_detail_url = reverse("travellercost-detail", args=[self.instance.pk])
