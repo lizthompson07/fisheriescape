@@ -11,11 +11,23 @@ from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, MetadataFields
 from shared_models.utils import decdeg2dm, dm2decdeg
 
-
 YES_NO_CHOICES = (
     (True, gettext("Yes")),
     (False, gettext("No")),
 )
+
+
+class ScubaUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="scuba_user", verbose_name=_("DM Apps user"))
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator?"), choices=YES_NO_CHOICES)
+    is_crud_user = models.BooleanField(default=False, verbose_name=_("CRUD permissions?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
+
 
 class Region(UnilingualLookup):
     abbreviation = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
