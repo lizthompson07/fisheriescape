@@ -117,6 +117,7 @@
       maxValue = Math.max(maxValue, $(this).val());
     });
     console.log("max val: " + maxValue);
+    console.log("url: {% url 'travel:conf_details' %}");
     if (update) $("#id_trip").val(maxValue).trigger("chosen:updated");
     $.ajax({
       url: '{% url 'travel:conf_details' %}',

@@ -6,6 +6,7 @@ var app = new Vue({
     currentUser: {},
     dmAppsUsers: [],
     errorMsgReviewer: null,
+    errorMsgFile: null,
     fileLabels: {},
     fileToUpload: null,
     inFileEditMode: false,
@@ -57,6 +58,7 @@ var app = new Vue({
       this.fileToUpload = this.$refs[fileRef][0].files[0];
     },
     updateFile(file) {
+      this.errorMsgFile = null;
       // if there is a file attribute, delete it since we send back the file through a separate request
       if (file.file) delete file.file
       let endpoint1;
@@ -77,6 +79,9 @@ var app = new Vue({
             this.fileToUpload = null
             this.getTrip();
             this.loadingFile = false;
+            if (!response.id) {
+              this.errorMsgFile = groomJSON(response);
+            }
           })
         } else console.log(response)
       })

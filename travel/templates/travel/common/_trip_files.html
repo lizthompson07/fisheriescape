@@ -78,6 +78,9 @@
         <div v-else>
           <em> {% trans "No files have been attached to this trip" %}... </em>
         </div>
+        <div v-if="errorMsgFile" class="alert alert-danger" role="alert">
+          ${errorMsgFile}
+        </div>
       </div>
     </div>
   </div>

@@ -23,6 +23,18 @@ from .permissions import CanModifyOrReadOnly, TravelAdminOrReadOnly
 from .. import models, utils, emails
 
 
+def validate_file_size(filesize, max_size=15 * 1000 * 1000):
+    """
+    @param filesize:   integer of actual filesize (bytes)
+    @param max_size:   integer of max filesize before ValidationError is thrown (bytes)
+    """
+    max_size_mb = round(max_size / 1000 / 1000)
+    filesize_mb = round(filesize / 1000 / 1000)
+    if filesize > max_size:
+        raise ValidationError(_("The maximum file size that can be uploaded is {max_size} MB. Your file is {file_size} MB.").format(
+            max_size=max_size_mb, file_size=filesize_mb))
+
+
 class CurrentTravelUserAPIView(CurrentUserAPIView):
     def get(self, request):
         data = super().get(request).data
@@ -367,6 +379,8 @@ class FileViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         if self.request.FILES.get("file"):
             filename = self.request.FILES["file"].name
+            filesize = self.request.FILES["file"].size
+            validate_file_size(filesize)
             suffix = ""
             if len(filename.split(".") > 1):
                 suffix = f'.{filename.split(".")[-1]}'
@@ -378,15 +392,15 @@ class FileViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         if self.request.FILES.get("file"):
             filename = self.request.FILES["file"].name
+            filesize = self.request.FILES["file"].size
+            validate_file_size(filesize)
             suffix = ""
             if len(filename.split(".")) > 1:
                 suffix = f'.{filename.split(".")[-1]}'
                 filename = filename.split(".")[0]
             filename = truncate(slugify(filename), 20, False)
             self.request.FILES["file"].name = f"{filename}{suffix}"
-            print(self.request.FILES["file"].name)
         serializer.save(updated_by=self.request.user)
-
 
 
 class TripFileViewSet(viewsets.ModelViewSet):
@@ -398,6 +412,8 @@ class TripFileViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         if self.request.FILES.get("file"):
             filename = self.request.FILES["file"].name
+            filesize = self.request.FILES["file"].size
+            validate_file_size(filesize)
             suffix = ""
             if len(filename.split(".") > 1):
                 suffix = f'.{filename.split(".")[-1]}'
@@ -409,16 +425,15 @@ class TripFileViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         if self.request.FILES.get("file"):
             filename = self.request.FILES["file"].name
+            filesize = self.request.FILES["file"].size
+            validate_file_size(filesize)
             suffix = ""
             if len(filename.split(".")) > 1:
                 suffix = f'.{filename.split(".")[-1]}'
                 filename = filename.split(".")[0]
             filename = truncate(slugify(filename), 20, False)
             self.request.FILES["file"].name = f"{filename}{suffix}"
-            print(self.request.FILES["file"].name)
         serializer.save(updated_by=self.request.user)
-
-
 
 
 class CostViewSet(viewsets.ModelViewSet):
