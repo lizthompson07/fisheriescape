@@ -1519,6 +1519,7 @@ class DefaultReviewerListView(TravelADMAdminRequiredMixin, CommonListView):
         {"name": 'branches', "class": "", "width": ""},
         {"name": 'expenditure_initiation_region', "class": "", "width": ""},
         {"name": 'special_role', "class": "", "width": ""},
+        {"name": 'metadata', "class": "", "width": ""},
     ]
 
 
@@ -1529,7 +1530,9 @@ class DefaultReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
     template_name = 'travel/default_reviewer/default_reviewer_form.html'
 
     def form_valid(self, form):
-        obj = form.save()
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        obj.save()
         if not obj.special_role and \
                 not obj.sections.exists() and \
                 not obj.divisions.exists() and \
@@ -1544,6 +1547,12 @@ class DefaultReviewerCreateView(TravelADMAdminRequiredMixin, CommonCreateView):
     form_class = forms.DefaultReviewerForm
     success_url = reverse_lazy('travel:default_reviewer_list')
     template_name = 'travel/default_reviewer/default_reviewer_form.html'
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.created_by = self.request.user
+        obj.save()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class DefaultReviewerDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):

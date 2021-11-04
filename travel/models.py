@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _, gettext
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import nz, currency
 from shared_models import models as shared_models
-from shared_models.models import Lookup, SimpleLookup
+from shared_models.models import Lookup, SimpleLookup, MetadataFields
 from shared_models.utils import get_metadata_string
 from travel import utils
 
@@ -47,7 +47,7 @@ class HelpText(models.Model):
         ordering = ['field_name', ]
 
 
-class DefaultReviewer(models.Model):
+class DefaultReviewer(MetadataFields):
     role_choices = (
         (3, _("NCR Travel Coordinators")),
         (4, _("ADM Recommender")),
