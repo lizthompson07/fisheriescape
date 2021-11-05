@@ -2,14 +2,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: App\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-01 14:52-0300\n"
+"POT-Creation-Date: 2021-11-05 08:22-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: POEditor.com\n"
 "Language: en\n"
 
-#: .\csas2\api\serializers.py:147 .\csas2\models.py:604 .\csas2\models.py:734
+#: .\csas2\api\serializers.py:151 .\csas2\models.py:604 .\csas2\models.py:734
 msgid "day"
 msgstr "Jour"
 
@@ -137,7 +137,7 @@ msgstr "Titre/numéro de référence"
 #: .\csas2\templates\csas2\process_reviews\main.html:53
 #: .\csas2\templates\csas2\request_pdf.html:188
 #: .\csas2\templates\csas2\request_reviews\_filter.html:30
-#: .\csas2\templates\csas2\request_reviews\main.html:53
+#: .\csas2\templates\csas2\request_reviews\main.html:59
 msgid "Region"
 msgstr "Région"
 
@@ -275,7 +275,7 @@ msgstr "Seulement non publié"
 msgid "Must enter a client for this request!"
 msgstr "Vous devez inscrire un client pour cette demande!"
 
-#: .\csas2\forms.py:197 .\csas2\forms.py:374 .\csas2\forms.py:417
+#: .\csas2\forms.py:197 .\csas2\forms.py:374
 msgid "Must enter a coordinator for this request!"
 msgstr "Vous devez inscrire un coordinateur pour cette demande!"
 
@@ -362,16 +362,16 @@ msgstr "Président(e)"
 msgid "name"
 msgstr "nom"
 
-#: .\csas2\forms.py:366 .\csas2\forms.py:409
+#: .\csas2\forms.py:366
 msgid "Must have either an English title or a French title!"
 msgstr "Doit avoir un titre anglais ou un titre français!"
 
-#: .\csas2\forms.py:371 .\csas2\forms.py:414
+#: .\csas2\forms.py:371
 msgid "Your lead region cannot be listed in the 'Other Regions' field."
 msgstr ""
 "Votre région principale ne peut pas figurer dans le champ \"Autres régions\"."
 
-#: .\csas2\forms.py:377 .\csas2\forms.py:420
+#: .\csas2\forms.py:377
 msgid "Must enter a lead region for this process!"
 msgstr "Vous devez entrer une région principale pour ce processus!"
 
@@ -1915,8 +1915,8 @@ msgstr "Participation des invités"
 #: .\csas2\templates\csas2\process_reviews\main.html:116
 #: .\csas2\templates\csas2\request_detail\_review.html:60
 #: .\csas2\templates\csas2\request_detail\_review.html:75
-#: .\csas2\templates\csas2\request_reviews\main.html:111
-#: .\csas2\templates\csas2\request_reviews\main.html:116
+#: .\csas2\templates\csas2\request_reviews\main.html:107
+#: .\csas2\templates\csas2\request_reviews\main.html:112
 msgid "Click to select dates"
 msgstr "Cliquer pour sélectionner les dates"
 
@@ -2358,21 +2358,12 @@ msgstr "Aucun résultat trouvé... :("
 #: .\csas2\templates\csas2\process_reviews\main.html:123
 #: .\csas2\templates\csas2\process_reviews\main.html:130
 #: .\csas2\templates\csas2\process_reviews\main.html:135
-#: .\csas2\templates\csas2\request_reviews\main.html:89
-#: .\csas2\templates\csas2\request_reviews\main.html:104
-#: .\csas2\templates\csas2\request_reviews\main.html:108
-#: .\csas2\templates\csas2\request_reviews\main.html:113
-#: .\csas2\templates\csas2\request_reviews\main.html:118
-#: .\csas2\templates\csas2\request_reviews\main.html:123
-#: .\csas2\templates\csas2\request_reviews\main.html:130
-#: .\csas2\templates\csas2\request_reviews\main.html:136
 #, fuzzy
 #| msgid "Under review"
 msgid "no review"
 msgstr "En cours de révision"
 
 #: .\csas2\templates\csas2\process_reviews\main.html:129
-#: .\csas2\templates\csas2\request_reviews\main.html:129
 #, fuzzy
 #| msgid "Deferred"
 msgid "not deffered"
@@ -2395,11 +2386,11 @@ msgid "Delete Review"
 msgstr "Supprimer la révision"
 
 #: .\csas2\templates\csas2\request_detail\main.html:43
-#: .\csas2\templates\csas2\request_reviews\main.html:138
 msgid "Start a Review"
 msgstr "Commencer un examen"
 
 #: .\csas2\templates\csas2\request_detail\main.html:45
+#: .\csas2\templates\csas2\request_reviews\main.html:150
 #, fuzzy
 #| msgid "Start a Process"
 msgid "Initiate a Process"
@@ -2464,7 +2455,7 @@ msgid "There are no processes attached to this request."
 msgstr "Il n'y a pas de processus attachés à cette demande."
 
 #: .\csas2\templates\csas2\request_detail\main.html:289
-#: .\csas2\templates\csas2\request_reviews\main.html:259
+#: .\csas2\templates\csas2\request_reviews\main.html:284
 msgid "Are you certain you want to delete this review?"
 msgstr "Êtes-vous certain de vouloir supprimer cet examen?"
 
@@ -2561,22 +2552,65 @@ msgstr "décision"
 msgid "No requests found..."
 msgstr "Aucun résultat trouvé... :("
 
-#: .\csas2\templates\csas2\request_reviews\main.html:58
-#: .\csas2\templates\csas2\request_reviews\main.html:62
-#, fuzzy
-#| msgid "National"
-msgid "Rationale"
-msgstr "National"
-
-#: .\csas2\templates\csas2\request_reviews\main.html:60
-msgid "Advice date"
+#: .\csas2\templates\csas2\request_reviews\main.html:50
+msgid "results loaded"
 msgstr ""
 
 #: .\csas2\templates\csas2\request_reviews\main.html:61
 #, fuzzy
+#| msgid "Review Panel"
+msgid "Review detail"
+msgstr "Panneau de révision"
+
+#: .\csas2\templates\csas2\request_reviews\main.html:111
+msgid "Advice date"
+msgstr ""
+
+#: .\csas2\templates\csas2\request_reviews\main.html:118
+#, fuzzy
+#| msgid "Decision explanation"
+msgid "Decision rationale"
+msgstr "Explication de la décision"
+
+#: .\csas2\templates\csas2\request_reviews\main.html:131
+#, fuzzy
 #| msgid "Deferred"
 msgid "Was deferred?"
 msgstr "Reporté"
+
+#: .\csas2\templates\csas2\request_reviews\main.html:134
+#, fuzzy
+#| msgid "Rationale for deadline?"
+msgid "Rationale for deferral"
+msgstr "Justification de la date limite?"
+
+#: .\csas2\templates\csas2\request_reviews\main.html:142
+#, fuzzy
+#| msgid "Delete Review"
+msgid "delete this review"
+msgstr "Supprimer la révision"
+
+#: .\csas2\templates\csas2\request_reviews\main.html:148
+msgid "WARNING: This request does yet not have an associated csas process."
+msgstr ""
+
+#: .\csas2\templates\csas2\request_reviews\main.html:153
+#, fuzzy
+#| msgid "This meeting has no associated resources."
+msgid "This review has an associated process."
+msgstr "Cette réunion n'a pas de ressources associées."
+
+#: .\csas2\templates\csas2\request_reviews\main.html:157
+msgid "This request does not have a review."
+msgstr ""
+
+#: .\csas2\templates\csas2\request_reviews\main.html:158
+msgid ""
+"\n"
+"                  Click <span class=\"text-primary pointy\" @click="
+"\"primeReview(r)\"> HERE </span> to start one.\n"
+"                "
+msgstr ""
 
 #: .\csas2\templates\csas2\request_submit.html:18
 msgid ""
@@ -3029,6 +3063,11 @@ msgstr "À faire"
 #: .\csas2\views.py:1178
 msgid "CSAS Reports"
 msgstr "Rapports du SCAS"
+
+#, fuzzy
+#~| msgid "National"
+#~ msgid "Rationale"
+#~ msgstr "National"
 
 #~ msgid "Last login to DM Apps"
 #~ msgstr "Dernier accès à DM Apps"

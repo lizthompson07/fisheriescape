@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-01 14:51-0300\n"
+"POT-Creation-Date: 2021-11-05 08:22-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -69,7 +69,7 @@ msgid "message_en"
 msgstr "message_fr"
 
 #: .\accounts\templates\accounts\accounts_base.html:7
-#: .\templates\index.html:114 .\templates\index_OLD.html:32
+#: .\templates\index.html:98 .\templates\index_OLD.html:32
 #: .\templates\index_OLD.html:41
 msgid "DM Apps"
 msgstr "Applis GD"
@@ -1568,7 +1568,7 @@ msgstr "Mettre à jour"
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:549
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:594
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:634
-#: .\shared_models\test\test_common_views.py:543 .\shared_models\views.py:189
+#: .\shared_models\test\test_common_views.py:543 .\shared_models\views.py:199
 #: .\shiny\templates\shiny\index.html:64
 msgid "Delete"
 msgstr "Supprimer"
@@ -1587,7 +1587,7 @@ msgstr ""
 #: .\publications\templates\publications\pub_form.html:32
 #: .\publications\templates\publications\pub_form.html:60
 #: .\shared_models\templates\shared_models\shared_filter.html:25
-#: .\shared_models\test\test_common_views.py:270 .\shared_models\views.py:74
+#: .\shared_models\test\test_common_views.py:270 .\shared_models\views.py:84
 #: .\staff\templates\staff\staffingplan_form.html:42
 #: .\staff\templates\staff\staffingplan_form.html:64
 msgid "Add"
@@ -1893,8 +1893,8 @@ msgstr "Nouveau"
 #: .\shared_models\models.py:721 .\shared_models\models.py:727
 #: .\shared_models\models.py:829 .\shared_models\models.py:830
 #: .\shared_models\models.py:1028 .\shared_models\models.py:1029
-#: .\shared_models\utils.py:22 .\shared_models\views.py:968
-#: .\shared_models\views.py:1019 .\shared_models\views.py:1123
+#: .\shared_models\utils.py:22 .\shared_models\views.py:975
+#: .\shared_models\views.py:1026 .\shared_models\views.py:1130
 #: .\shares\models.py:61 .\staff\views.py:34 .\staff\views.py:221
 #: .\staff\views.py:222
 msgid "name"
@@ -1971,8 +1971,8 @@ msgstr "Types de composantes des instruments"
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:548
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:593
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:633
-#: .\shared_models\test\test_common_views.py:400 .\shared_models\views.py:126
-#: .\shared_models\views.py:296 .\shiny\templates\shiny\index.html:62
+#: .\shared_models\test\test_common_views.py:400 .\shared_models\views.py:136
+#: .\shared_models\views.py:306 .\shiny\templates\shiny\index.html:62
 msgid "Edit"
 msgstr "Modifier"
 
@@ -2020,11 +2020,39 @@ msgstr "période de temps"
 msgid "Instruments"
 msgstr "Instruments"
 
-#: .\dm_apps\my_conf.py:396 .\dm_apps\settings.py:270
+#: .\diets\models.py:9 .\grais\models.py:23 .\maret\models.py:13
+#: .\shares\forms.py:11
+msgid "Yes"
+msgstr "Oui"
+
+#: .\diets\models.py:9 .\grais\models.py:24 .\maret\models.py:14
+#: .\shares\forms.py:12
+msgid "No"
+msgstr "Non"
+
+#: .\diets\models.py:13
+#, fuzzy
+#| msgid "DM Apps"
+msgid "DM Apps user"
+msgstr "Applis GD"
+
+#: .\diets\models.py:14
+msgid "app administrator?"
+msgstr ""
+
+#: .\diets\models.py:15
+msgid "CRUD permissions?"
+msgstr ""
+
+#: .\diets\templates\diets\diets_base.html:37
+msgid "User Permissions"
+msgstr ""
+
+#: .\dm_apps\my_conf.py:400 .\dm_apps\settings.py:273
 msgid "English"
 msgstr "Anglais"
 
-#: .\dm_apps\my_conf.py:397 .\dm_apps\settings.py:271
+#: .\dm_apps\my_conf.py:401 .\dm_apps\settings.py:274
 msgid "French"
 msgstr "Français"
 
@@ -2543,14 +2571,6 @@ msgstr ""
 msgid "---------"
 msgstr ""
 
-#: .\grais\models.py:23 .\maret\models.py:13 .\shares\forms.py:11
-msgid "Yes"
-msgstr "Oui"
-
-#: .\grais\models.py:24 .\maret\models.py:14 .\shares\forms.py:12
-msgid "No"
-msgstr "Non"
-
 #: .\grais\models.py:53
 msgid "depth (m)"
 msgstr ""
@@ -3019,7 +3039,7 @@ msgstr "Liens externes"
 #: .\inventory\templates\inventory\temp_formset.html:30
 #: .\inventory\templates\inventory\temp_formset.html:77
 #: .\shared_models\templates\shared_models\generic_formset.html:18
-#: .\shared_models\test\test_common_views.py:401 .\shared_models\views.py:132
+#: .\shared_models\test\test_common_views.py:401 .\shared_models\views.py:142
 #: .\staff\templates\staff\staffingplan_form.html:35
 #: .\staff\templates\staff\staffingplan_form.html:57
 msgid "Save"
@@ -4675,7 +4695,7 @@ msgstr ""
 msgid "abbrev_en"
 msgstr "abbrev_fr"
 
-#: .\shared_models\models.py:276 .\shared_models\views.py:767
+#: .\shared_models\models.py:276 .\shared_models\views.py:776
 msgid "sector"
 msgstr "secteur"
 
@@ -4687,7 +4707,7 @@ msgstr ""
 msgid "Branches - Directorates (NCR)"
 msgstr ""
 
-#: .\shared_models\models.py:313 .\shared_models\views.py:694
+#: .\shared_models\models.py:313 .\shared_models\views.py:705
 msgid "branch"
 msgstr "direction"
 
@@ -5085,8 +5105,8 @@ msgid "Financial Coding"
 msgstr "Résumé financier:"
 
 #: .\shared_models\templates\shared_models\org_index.html:47
-#: .\shared_models\views.py:1027 .\shared_models\views.py:1035
-#: .\shared_models\views.py:1048 .\shared_models\views.py:1057
+#: .\shared_models\views.py:1034 .\shared_models\views.py:1042
+#: .\shared_models\views.py:1055 .\shared_models\views.py:1064
 #, fuzzy
 #| msgid "Project"
 msgid "Project Codes"
@@ -5281,7 +5301,7 @@ msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
 msgid "Details"
 msgstr "Détails de la personne:"
 
-#: .\shared_models\test\test_common_views.py:269 .\shared_models\views.py:68
+#: .\shared_models\test\test_common_views.py:269 .\shared_models\views.py:78
 #, fuzzy
 msgid "New {}"
 msgstr "Nouveau"
@@ -5301,7 +5321,7 @@ msgstr "Date de création :"
 msgid "Last updated:"
 msgstr "Mis à jour :"
 
-#: .\shared_models\views.py:180
+#: .\shared_models\views.py:190
 msgid ""
 "Are you sure you want to delete the following {item_name}? <br>  <span "
 "class='red-font'>{item}</span>"
@@ -5309,89 +5329,89 @@ msgstr ""
 "Êtes-vous certain de vouloir supprimer l'objet suivant ? <br> <span "
 "class='red-font'>{item}</span>"
 
-#: .\shared_models\views.py:252
+#: .\shared_models\views.py:262
 msgid "Delete Confirmation"
 msgstr "Confirmation de suppression"
 
-#: .\shared_models\views.py:523
+#: .\shared_models\views.py:533
 msgid "Warning"
 msgstr "Avertissement"
 
-#: .\shared_models\views.py:525
+#: .\shared_models\views.py:535
 msgid "These are shared tables for all of DM Apps."
 msgstr "Ce sont des tables partagées pour toutes les Applis GD."
 
-#: .\shared_models\views.py:526 .\shared_models\views.py:533
+#: .\shared_models\views.py:536 .\shared_models\views.py:543
 msgid "Please be careful when editing."
 msgstr "S'il vous plaît soyez prudent lors de l'édition."
 
-#: .\shared_models\views.py:527
+#: .\shared_models\views.py:537
 msgid "DM Apps Shared Settings"
 msgstr "Paramètres partagés des Applis GD"
 
-#: .\shared_models\views.py:532 .\shared_models\views.py:534
+#: .\shared_models\views.py:542 .\shared_models\views.py:544
 #, fuzzy
 msgid "DFO Organization Spreadsheet"
 msgstr "Organisations"
 
-#: .\shared_models\views.py:549
+#: .\shared_models\views.py:560
 msgid "section"
 msgstr "section"
 
-#: .\shared_models\views.py:555 .\shared_models\views.py:575
-#: .\shared_models\views.py:591 .\shared_models\views.py:602
-#: .\shared_models\views.py:628 .\shared_models\views.py:648
-#: .\shared_models\views.py:664 .\shared_models\views.py:675
-#: .\shared_models\views.py:700 .\shared_models\views.py:720
-#: .\shared_models\views.py:736 .\shared_models\views.py:747
-#: .\shared_models\views.py:773 .\shared_models\views.py:794
-#: .\shared_models\views.py:810 .\shared_models\views.py:821
-#: .\shared_models\views.py:844 .\shared_models\views.py:860
-#: .\shared_models\views.py:876 .\shared_models\views.py:887
-#: .\shared_models\views.py:909 .\shared_models\views.py:925
-#: .\shared_models\views.py:941 .\shared_models\views.py:952
-#: .\shared_models\views.py:1158 .\shared_models\views.py:1170
+#: .\shared_models\views.py:566 .\shared_models\views.py:586
+#: .\shared_models\views.py:602 .\shared_models\views.py:613
+#: .\shared_models\views.py:639 .\shared_models\views.py:659
+#: .\shared_models\views.py:675 .\shared_models\views.py:686
+#: .\shared_models\views.py:711 .\shared_models\views.py:731
+#: .\shared_models\views.py:747 .\shared_models\views.py:758
+#: .\shared_models\views.py:782 .\shared_models\views.py:803
+#: .\shared_models\views.py:819 .\shared_models\views.py:830
+#: .\shared_models\views.py:851 .\shared_models\views.py:867
+#: .\shared_models\views.py:883 .\shared_models\views.py:894
+#: .\shared_models\views.py:916 .\shared_models\views.py:932
+#: .\shared_models\views.py:948 .\shared_models\views.py:959
+#: .\shared_models\views.py:1165 .\shared_models\views.py:1177
 #, fuzzy
 msgid "DFO Orgs"
 msgstr "Secteurs du MPO"
 
-#: .\shared_models\views.py:622
+#: .\shared_models\views.py:633
 msgid "division"
 msgstr "division"
 
-#: .\shared_models\views.py:838
+#: .\shared_models\views.py:845
 msgid "Regions - Sectors (NCR)"
 msgstr ""
 
-#: .\shared_models\views.py:902
+#: .\shared_models\views.py:909
 #, fuzzy
 msgid "Organizations - Sectors (NCR)"
 msgstr "Organisations"
 
-#: .\shared_models\views.py:975 .\shared_models\views.py:983
-#: .\shared_models\views.py:996 .\shared_models\views.py:1005
+#: .\shared_models\views.py:982 .\shared_models\views.py:990
+#: .\shared_models\views.py:1003 .\shared_models\views.py:1012
 msgid "Responsibility Center"
 msgstr ""
 
-#: .\shared_models\views.py:1069
+#: .\shared_models\views.py:1076
 msgid "Create a New DM Apps User"
 msgstr "Créer un nouveau utilisateur de Applis GD"
 
-#: .\shared_models\views.py:1071
+#: .\shared_models\views.py:1078
 msgid "Please use extreme vigilance with this form."
 msgstr ""
 
-#: .\shared_models\views.py:1072
+#: .\shared_models\views.py:1079
 msgid ""
 "After this form is submitted, the new user will receive a confirmation e-"
 "mail."
 msgstr ""
 
-#: .\shared_models\views.py:1107
+#: .\shared_models\views.py:1114
 msgid "The user '{}' was created and an email was sent"
 msgstr ""
 
-#: .\shared_models\views.py:1124 .\shiny\views.py:30
+#: .\shared_models\views.py:1131 .\shiny\views.py:30
 msgid "description"
 msgstr "description"
 
@@ -5609,61 +5629,79 @@ msgstr "Mon profil"
 msgid "Logout"
 msgstr "Déconnecter"
 
-#: .\templates\index.html:146
-msgid "close"
-msgstr "fermer"
-
-#: .\templates\index.html:163
+#: .\templates\index.html:113
 #, python-format
 msgid ""
 "\n"
-"                        Please <a href=\"%(sign_in_url)s\">sign in</a> or "
-"select an application below.\n"
-"                      "
+"          Your last login was recorded on %(login)s at %(time)s\n"
+"          "
+msgstr ""
+
+#: .\templates\index.html:128
+msgid "close"
+msgstr "fermer"
+
+#: .\templates\index.html:145
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                        Please <a href=\"%(sign_in_url)s\">sign in</a> or "
+#| "select an application below.\n"
+#| "                      "
+msgid ""
+"\n"
+"                    Please <a href=\"%(sign_in_url)s\">sign in</a> or select "
+"an application below.\n"
+"                  "
 msgstr ""
 "\n"
 "Veuillez <a href=\"%(sign_in_url)s\">vous connecter</a> ou sélectionner une "
 "application ci-dessous"
 
-#: .\templates\index.html:167
-#, python-format
+#: .\templates\index.html:149
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                        If you do not have an account, you can register "
+#| "for one <a href=\"%(sign_up_url)s\">here.</a>\n"
+#| "                      "
 msgid ""
 "\n"
-"                        If you do not have an account, you can register for "
-"one <a href=\"%(sign_up_url)s\">here.</a>\n"
-"                      "
+"                    If you do not have an account, you can register for one "
+"<a href=\"%(sign_up_url)s\">here.</a>\n"
+"                  "
 msgstr ""
 "\n"
 "                            Si vous n'avez pas de compte, vous pouvez en "
 "créer <a href=\"%(sign_up_url)s\">ici</a>.\n"
 "                        "
 
-#: .\templates\index.html:176 .\templates\index_OLD.html:74
+#: .\templates\index.html:158 .\templates\index_OLD.html:74
 #: .\templates\index_OLD.html:138
 msgid "Select"
 msgstr "Sélectionner"
 
-#: .\templates\index.html:195 .\templates\index_OLD.html:105
+#: .\templates\index.html:177 .\templates\index_OLD.html:105
 #: .\templates\index_OLD.html:169
 msgid "access to this app requires special permissions"
 msgstr "l'accès à cette application nécessite des autorisations spéciales"
 
-#: .\templates\index.html:196 .\templates\index_OLD.html:106
+#: .\templates\index.html:178 .\templates\index_OLD.html:106
 #: .\templates\index_OLD.html:170
 msgid "access to this app requires you to be logged in"
 msgstr "l'accès à cette application nécessite que vous soyez connecté"
 
-#: .\templates\index.html:197 .\templates\index_OLD.html:107
+#: .\templates\index.html:179 .\templates\index_OLD.html:107
 #: .\templates\index_OLD.html:171
 msgid "this app is opened to all users"
 msgstr "cette application est ouverte à tous les utilisateurs"
 
-#: .\templates\index.html:200 .\templates\index_OLD.html:91
+#: .\templates\index.html:182 .\templates\index_OLD.html:91
 #: .\templates\index_OLD.html:155
 msgid "beta"
 msgstr "bêta"
 
-#: .\templates\index.html:204
+#: .\templates\index.html:186
 msgid "dev"
 msgstr ""
 
