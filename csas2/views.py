@@ -37,7 +37,6 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_admin"] = in_csas_admin_group(self.request.user)
         context["has_todos"] = utils.has_todos(self.request.user)
         return context
 
@@ -1213,8 +1212,8 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
                                         f"section={section}&"
                                         f"csas_requests={csas_requests}&"
                                         )
-        elif report == 3:
-            return HttpResponseRedirect(f"{reverse('csas2:request_list_report')}?"
+        elif report == 4:
+            return HttpResponseRedirect(f"{reverse('csas2:process_list_report')}?"
                                         f"fiscal_year={fy}&"
                                         f"request_status={request_status}&"
                                         f"region={region}&"
