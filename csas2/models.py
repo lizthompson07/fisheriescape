@@ -12,6 +12,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext, get_language, activate
 from markdown import markdown
+from textile import textile
 
 from csas2 import model_choices
 from csas2.utils import get_quarter
@@ -457,6 +458,40 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         if self.other_regions.exists():
             mystr = f"<b><u>{mystr}</u></b>"
             mystr += f", {listrify(self.other_regions.all())}"
+        return mystr
+
+    @property
+    def formatted_notes(self):
+        mystr = ""
+        for note in self.notes.filter(type=1):
+            mystr += f"* {note.note}\n\n"
+        return mystr
+
+    @property
+    def key_meetings(self):
+        mystr = ""
+        for meeting in self.meetings.filter(is_planning=False):
+            mystr += f"{str(meeting)}\n({meeting.tor_display_dates})\n\n"
+        return mystr
+
+    @property
+    def doc_summary(self):
+        mystr = ""
+        for doc in self.documents.all():
+            mystr += f"Title: {doc.ttitle}\n" \
+                     f"Type: {doc.document_type}\n" \
+                     f"Status: {doc.get_status_display()}\n" \
+                     f"Translation Status: {doc.get_translation_status_display()}\n"
+
+            if hasattr(doc, "tracking"):
+                mystr += f"Due Date: {date(doc.tracking.due_date)}\n"\
+                     f"Date Posted: {date(doc.tracking.actual_posting_date)}\n"
+
+            if doc.tracking.due_date and doc.tracking.actual_posting_date:
+                mystr += f"Delta: {(doc.tracking.actual_posting_date - doc.tracking.due_date).days}\n"
+            elif doc.tracking.due_date:
+                mystr += f"Delta: {(timezone.now() - doc.tracking.due_date).days}\n"
+            mystr += "\n\n"
         return mystr
 
 
