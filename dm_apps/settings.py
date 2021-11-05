@@ -314,6 +314,7 @@ TRACK_SUPERUSERS = False
 
 if "win" in sys.platform.lower() and GEODJANGO:
     GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", cast=str, default="")
+    GEOS_LIBRARY_PATH = config("GEOS_LIBRARY_PATH", cast=str, default="")
 
 if USE_AZURE_APPLICATION_INSIGHT and AZURE_INSTRUMENTATION_KEY != "":
     LOGGING = {
