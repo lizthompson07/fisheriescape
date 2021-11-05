@@ -429,9 +429,9 @@ class Trip(models.Model):
 
     @property
     def non_res_total_cost(self):
-        # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
+        # exclude requests that are denied (id=10), cancelled (id=22)
         dfo = TravellerCost.objects.filter(traveller__request__trip=self, traveller__is_research_scientist=False).filter(
-            ~Q(traveller__request__status__in=[10, 22, 8])).aggregate(dsum=Sum("amount_cad"))["dsum"]
+            ~Q(traveller__request__status__in=[10, 22])).aggregate(dsum=Sum("amount_cad"))["dsum"]
         non_dfo = Traveller.objects.filter(request__trip=self, is_research_scientist=False).filter(
             ~Q(request__status__in=[10, 22, 8])).aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
         return nz(dfo, 0) - nz(non_dfo, 0)

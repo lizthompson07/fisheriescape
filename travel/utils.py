@@ -517,7 +517,6 @@ def manage_trip_warning(trip, request):
     except AttributeError:
         pass
     else:
-
         # If the trip cost is below 10k, make sure the warning field is null and an then do nothing more :)
         if trip.non_res_total_cost < 10000:
             if trip.cost_warning_sent:
