@@ -297,6 +297,7 @@ class SampleListView(ScubaCRUDAccessRequiredMixin, CommonFilterView):
         {"name": 'id|{}'.format("sample Id"), "class": "", "width": ""},
         {"name": 'datetime|{}'.format("date"), "class": "", "width": ""},
         {"name": 'site', "class": "", "width": ""},
+        {"name": 'is_upm', "class": "", "width": ""},
         {"name": 'site.region|{}'.format("region"), "class": "", "width": ""},
         {"name": 'dive_count|{}'.format(_("dive count")), "class": "", "width": ""},
     ]
@@ -333,6 +334,7 @@ class SampleDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
         'site_region|{}'.format(gettext_lazy("site")),
         'datetime',
         'weather_notes',
+        'is_upm',
         'comment',
     ]
 
@@ -345,6 +347,7 @@ class SampleDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
             'heading',
             'side',
             'width_m',
+            'was_seeded',
             'comment',
             'observation_count|{}'.format(_("lobster count")),
         ]

@@ -190,6 +190,7 @@ class Sample(models.Model):
     datetime = models.DateTimeField(verbose_name="date")
     weather_notes = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("weather notes"))
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
+    is_upm = models.BooleanField(default=False, verbose_name=_("was this a UPM sampling day?"))
 
     @property
     def site_region(self):
@@ -240,6 +241,8 @@ class Dive(MetadataFields):
     side = models.CharField(max_length=1, blank=True, null=True, verbose_name=_("side"), choices=side_choices)
     width_m = models.FloatField(verbose_name=_("width (m)"), blank=True, null=True)
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
+    # non-editable
+    was_seeded = models.BooleanField(default=False, verbose_name=_("was seeded (Martin Mallet)?"), editable=False)  # this is to capture historical data
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

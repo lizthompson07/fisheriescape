@@ -15,6 +15,11 @@ class ScubaBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = in_scuba_admin_group(self.request.user)
+        return context
+
 
 class LoginAccessRequiredMixin(ScubaBasicMixin):
     pass
