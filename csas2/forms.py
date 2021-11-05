@@ -174,7 +174,7 @@ class CSASRequestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         section_choices = [(obj.id, obj.full_name) for obj in Section.objects.all()]
         section_choices.insert(0, (None, "------"))
-        coordinator_choices = [(u.id, u.get_full_name()) for u in User.objects.filter(groups__name__in=["csas_regional_admin", "csas_national_admin"]).order_by("first_name", "last_name")]
+        coordinator_choices = [(u.id, u.get_full_name()) for u in models.CSASAdminUser.objects.all().order_by("first_name", "last_name")]
         coordinator_choices.insert(0, (None, "------"))
         client_choices = [(u.id, str(u)) for u in User.objects.all().order_by("first_name", "last_name")]
         client_choices.insert(0, (None, "------"))
