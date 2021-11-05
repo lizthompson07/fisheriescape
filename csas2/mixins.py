@@ -31,6 +31,17 @@ class CsasNationalAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 
+class SuperuserOrCsasNationalAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_superuser or in_csas_national_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
 class CsasAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         return in_csas_admin_group(self.request.user)

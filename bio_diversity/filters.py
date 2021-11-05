@@ -5,6 +5,8 @@ from . import models
 
 class AnidcFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.AnimalDetCode
         fields = ["name", "nom", ]
@@ -18,6 +20,8 @@ class AnixFilter(django_filters.FilterSet):
 
 
 class AdscFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.AniDetSubjCode
@@ -33,6 +37,8 @@ class CntFilter(django_filters.FilterSet):
 
 class CntcFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.CountCode
         fields = ["name", "nom", ]
@@ -47,12 +53,16 @@ class CntdFilter(django_filters.FilterSet):
 
 class CollFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.Collection
         fields = ["name", "nom", ]
 
 
 class ContdcFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.ContainerDetCode
@@ -67,6 +77,8 @@ class ContxFilter(django_filters.FilterSet):
 
 
 class CdscFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.ContDetSubjCode
@@ -107,6 +119,8 @@ class EnvFilter(django_filters.FilterSet):
 
 class EnvcFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.EnvCode
         fields = ["name", "nom", ]
@@ -120,6 +134,8 @@ class EnvcfFilter(django_filters.FilterSet):
 
 
 class EnvscFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.EnvSubjCode
@@ -135,6 +151,8 @@ class EnvtFilter(django_filters.FilterSet):
 
 class EnvtcFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.EnvTreatCode
         fields = ["name", "nom", "rec_dose", "manufacturer", ]
@@ -148,6 +166,8 @@ class EvntFilter(django_filters.FilterSet):
 
 
 class EvntcFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.EventCode
@@ -163,12 +183,16 @@ class EvntfFilter(django_filters.FilterSet):
 
 class EvntfcFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.EventFileCode
         fields = ["name", "nom", ]
 
 
 class FacicFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.FacilityCode
@@ -191,12 +215,16 @@ class FeedFilter(django_filters.FilterSet):
 
 class FeedcFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.FeedCode
         fields = ["name", "nom", "manufacturer", "description_en", "description_fr", ]
 
 
 class FeedmFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.FeedMethod
@@ -243,6 +271,8 @@ class ImgFilter(django_filters.FilterSet):
 
 class ImgcFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.ImageCode
         fields = ["name", "nom", ]
@@ -274,6 +304,8 @@ class IndvtFilter(django_filters.FilterSet):
 
 class IndvtcFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.IndTreatCode
         fields = ["name", "nom", "rec_dose", "manufacturer", ]
@@ -287,6 +319,8 @@ class InstFilter(django_filters.FilterSet):
 
 
 class InstcFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.InstrumentCode
@@ -302,6 +336,8 @@ class InstdFilter(django_filters.FilterSet):
 
 class InstdcFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.InstDetCode
         fields = ["name", "nom", ]
@@ -315,6 +351,8 @@ class LocFilter(django_filters.FilterSet):
 
 
 class LoccFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.LocCode
@@ -330,12 +368,16 @@ class LocdFilter(django_filters.FilterSet):
 
 class LocdcFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.LocationDetCode
         fields = ["name", "nom", ]
 
 
 class LdscFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.LocDetSubjCode
@@ -367,6 +409,8 @@ class PercFilter(django_filters.FilterSet):
 
 class PrioFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.PriorityCode
         fields = ["name", "nom", ]
@@ -397,6 +441,8 @@ class ProtFilter(django_filters.FilterSet):
 
 class ProtcFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.ProtoCode
         fields = ["name", "nom", ]
@@ -411,12 +457,16 @@ class ProtfFilter(django_filters.FilterSet):
 
 class QualFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.QualCode
         fields = ["name", "nom", ]
 
 
 class RelcFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.ReleaseSiteCode
@@ -425,12 +475,16 @@ class RelcFilter(django_filters.FilterSet):
 
 class RiveFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.RiverCode
         fields = ["name", "nom", ]
 
 
 class RoleFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.RoleCode
@@ -445,6 +499,8 @@ class SampFilter(django_filters.FilterSet):
 
 
 class SampcFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.SampleCode
@@ -474,12 +530,16 @@ class SpwndFilter(django_filters.FilterSet):
 
 class SpwndcFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.SpawnDetCode
         fields = ["name", "nom", ]
 
 
 class SpwnscFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.SpawnDetSubjCode
@@ -488,12 +548,16 @@ class SpwnscFilter(django_filters.FilterSet):
 
 class SpecFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.SpeciesCode
         fields = ["name", "species", "com_name", ]
 
 
 class StokFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.StockCode
@@ -575,6 +639,8 @@ class TrofdFilter(django_filters.FilterSet):
 
 
 class UnitFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.UnitCode

@@ -424,7 +424,7 @@ class Trip(models.Model):
         """
         this is a comprehensive list of the non-dfo funding sources for the trip
         """
-        qs = self.travellers.filter(non_dfo_org__isnull=False)
+        qs = self.travellers.filter(non_dfo_org__isnull=False).filter(~Q(non_dfo_org=""))
         if qs.exists():
             return listrify(set([item.non_dfo_org for item in qs]))
 
@@ -500,8 +500,9 @@ class TripRequest(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.DO_NOTHING, verbose_name=_("trip"), related_name="requests")
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True,
                                 verbose_name=_("under which section is this request being made?"), related_name="requests")
-    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("what is the objective of this activity (conference, meeting, fieldwork)?"))
-    benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("what are the benefits to DFO?"))
+    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("describe the objective(s) related to this activity. "
+                                                                                "(See help bubble for additional information.)"))
+    benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("describe the benefits to DFO. (See help bubble for additional information.)"))
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("other attendees covered under BTA"))
     late_justification = models.TextField(blank=True, null=True, verbose_name=_("justification for late submissions"))
     funding_source = models.TextField(blank=True, null=True, verbose_name=_("what is the DFO funding source?"))
@@ -684,7 +685,7 @@ class TripRequest(models.Model):
         """
         this is a comprehensive list of the non-dfo funding sources
         """
-        qs = self.travellers.filter(non_dfo_org__isnull=False)
+        qs = self.travellers.filter(non_dfo_org__isnull=False).filter(~Q(non_dfo_org=""))
         if qs.exists():
             return listrify(set([item.non_dfo_org for item in qs]))
 
@@ -703,7 +704,8 @@ class TripRequest(models.Model):
 
     @property
     def expenditure_initiation(self):
-        return self.reviewers.filter(role__in=[6, 7]).last()
+        qs = self.reviewers.filter(role__in=[6, 7]).order_by("order", "id")
+        return qs.last()
 
     @property
     def recommenders(self):
@@ -836,7 +838,7 @@ class Traveller(models.Model):
 
     @property
     def non_dfo_costs_html(self):
-        if self.non_dfo_costs:
+        if self.non_dfo_org or self.non_dfo_costs:
             return f"{currency(self.non_dfo_costs, True)} ({self.non_dfo_org})"
         return "---"
 

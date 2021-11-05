@@ -23,7 +23,7 @@
                 <div class="mb-2">
                   <em class="small mb-1" v-html="n.last_modified"></em><br><span>${n.note}</span>
                 </div>
-                <div class="btn-group">
+                <div v-if="is_admin || n.created_by === current_user.id" class="btn-group">
                   <button v-if="!n.is_complete" class="btn btn-xs px-0 py-0 mr-2" @click="openOverlay(n)">
                     <span class=" text-primary">{% trans "Edit" %}</span>
                   </button>
@@ -36,7 +36,7 @@
           </table>
         </div>
 
-        <div class="mb-3" v-if="toDoNotes.length">
+        <div class="mb-3" v-if="toDoNotes.length && is_admin">
           <hr v-if="generalNotes.length">
           <p class="card-title py-0 lead text-muted">{% trans "To Do" %}</p>
           <table>
@@ -145,6 +145,13 @@ Vue.component("note-pad", {
     notes: {
       type: Array,
       required: true
+    },
+    is_admin: {
+      type: Boolean,
+      default: true
+    },
+    current_user: {
+      type: Object,
     }
   },
   data() {
@@ -189,12 +196,16 @@ Vue.component("note-pad", {
         note: null,
         is_complete: false,
       };
-      this.noteToEdit[this.parent_name] = this.parent_id;
+      if(this.parent_name === "request") this.noteToEdit["csas_request"] = this.parent_id;
+      else this.noteToEdit[this.parent_name] = this.parent_id;
     },
     getNoteMetadata() {
       let endpoint = `/api/csas/meta/models/note/`;
       apiService(endpoint).then(data => {
         this.labels = data.labels;
+        if(!this.is_admin) {
+            data.type_choices = [data.type_choices[0]];
+        }
         this.typeChoices = data.type_choices;
       });
     },

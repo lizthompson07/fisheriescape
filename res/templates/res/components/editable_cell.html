@@ -1,0 +1,210 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="editable-cell-template">
+
+<div>
+  <div class="row table-div">
+    <div :class="col_class">
+      <label for="my-input">${label}</label>
+      <p v-if="word_limit">
+        <em>
+          (${wordCount} / ${word_limit} {% trans "words" %})
+        </em>
+      </p>
+    </div>
+    <div v-if="!editMode" class="col">
+      <div class="row">
+        <div class="col">
+          <div v-if="display_field">
+            <span v-if="object[display_field]" v-html="object[display_field]"></span>
+            <div v-else>
+              <span v-if="null_mark" v-html="null_mark"></span>
+              <em v-else class="red-font">{% trans "missing" %}</em>
+            </div>
+          </div>
+          <div v-else>
+            <span v-if="object[field]" v-html="object[field]"></span>
+            <div v-else>
+              <span v-if="null_mark" v-html="null_mark"></span>
+              <em v-else class="red-font">{% trans "missing" %}</em>
+            </div>
+          </div>
+        </div>
+        <div v-if="editable" class="col-1 text-right">
+          <button class="btn btn-sm btn-outline-dark" @click="toggleEditMode"><span class="mdi mdi-pencil"></span></button>
+        </div>
+      </div>
+    </div>
+    <div v-else class="col">
+      <div class="row">
+        <div class="col">
+          <select
+            class="form-control"
+            v-if="input_type==='select'"
+            v-model="input"
+            @change="update"
+            ref="input"
+            id="my-input"
+            @keypress="$emit('keypress')"
+          >
+            <option value="">${blankOption}</option>
+            <option v-for="(option, index) in options" :value="option.value">${option.text}</option>
+          </select>
+          <textarea
+            class="form-control"
+            v-else-if="input_type==='textarea'"
+            v-model="input"
+            @keypress="$emit('keypress')"
+            ref="input" id="my-input" :rows="rows"
+            @keydown.ctrl.83.prevent="update"
+          ></textarea>
+          <input
+            v-else-if="input_type==='date'"
+            :type="input_type" class="form-control" step="any"
+            v-model="input"
+            ref="input" id="my-input"
+            @keypress.enter.prevent="update"
+            @keydown.ctrl.83.prevent="update"
+          >
+          <div v-else>
+            <div v-if="options && options.length">
+              <input
+                :type="input_type" class="form-control" step="any"
+                v-model="input"
+                @keypress="$emit('keypress')"
+                ref="input" id="my-input"
+                list="mydatalist"
+                @keydown.ctrl.83.prevent="update"
+                @change="update"
+              >
+              <datalist id="mydatalist">
+                <option v-for="(obj, index) in options" :value="obj.value"></option>
+              </datalist>
+            </div>
+            <div v-else>
+              <input
+                :type="input_type" class="form-control" step="any"
+                v-model="input"
+                @keypress="$emit('keypress')"
+                ref="input" id="my-input"
+                @keydown.ctrl.83.prevent="update"
+                @change="update"
+              >
+            </div>
+          </div>
+          <a v-if="markdown" href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1" class="helper"
+             title="{% trans "Markdown syntax is supported in this field" %}">
+            <small>{% trans "You can use markdown syntax in this field" %}</small>
+            <span class="mdi mdi-language-markdown ml-1 py-0" style="color: blue"></span>
+          </a>
+          <div class="float-right" v-if="dirty">
+            <span class="badge badge-danger m-1">{% trans "Unsaved changes" %}</span>
+          </div>
+
+        </div>
+        <div class="col-2 text-right">
+          <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span></button>
+          <button class="btn btn-sm btn-success" @click="toggleEditMode"><span class="mdi mdi-check text-light"></span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+</script>
+<script type=" application/javascript">
+
+Vue.component("editable-cell", {
+  template: "#editable-cell-template",
+  delimiters: ["${", "}"],
+  name: "editable-cell",
+  props: {
+    editable: {
+      type: Boolean,
+      default: false
+    },
+    col_class: {
+      type: String,
+      default: "col-2"
+    },
+    field: {
+      type: String,
+      required: true
+    },
+    display_field: {
+      type: String,
+    },
+    markdown: {
+      type: Boolean,
+      default: false
+    },
+    dirty: {
+      type: Boolean,
+      default: false
+    },
+    object: {
+      type: Object,
+    },
+    input_type: {
+      type: String,
+      default: "text"
+    },
+    word_limit: {
+      type: Number,
+    },
+    label: {
+      type: String,
+    },
+    rows: {
+      default: "10"
+    },
+    options: {
+      type: Array,
+      required: false
+    },
+    null_mark: {
+      type: String,
+    },
+    blank_option: {
+      type: String,
+      required: false
+    },
+  },
+  data() {
+    return {
+      input: this.object[this.field],
+      editMode: false,
+    };
+  },
+  methods: {
+    toggleEditMode() {
+      if (this.editMode) this.update();
+      this.editMode = !this.editMode;
+    },
+    update() {
+      this.object[this.field] = this.input
+      this.$emit("change", this.object)
+    }
+  },
+  watch: {
+    object() {
+      this.input = this.object[this.field];
+    },
+    dirty() {
+      //do nothing
+    },
+  },
+  computed: {
+    blankOption() {
+      if (this.blank_option) return this.blank_option;
+      else return "-----";
+    },
+    wordCount() {
+      if (this.input) return this.input.split(" ").length;
+      return 0
+    }
+  }
+});
+</script>

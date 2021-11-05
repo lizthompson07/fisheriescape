@@ -101,12 +101,12 @@
     font-size: small;
 }
 
-.bad {
+.bad, .no {
     background-color: pink;
     color: black;
 }
 
-.good {
+.good, .yes {
     background-color: lightgreen;
     color: black;
 }
@@ -292,6 +292,17 @@
     .no-print, .no-print * {
         display: none !important;
     }
+
+    .new-page {
+        page-break-after: always;
+    }
+}
+
+
+@media screen {
+    .print-only, .print-only * {
+        display: none !important;
+    }
 }
 
 
@@ -345,6 +356,22 @@
     width: 40%;
 }
 
+.w-45 {
+    width: 45%;
+}
+
 .greyed {
     background-color: #dddcdc;
+}
+
+.pointy {
+    cursor: pointer;
+}
+
+.helper {
+    cursor: help;
+}
+
+.copy-me {
+    cursor: copy;
 }

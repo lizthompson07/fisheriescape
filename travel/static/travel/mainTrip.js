@@ -20,6 +20,7 @@ var app = new Vue({
     trip: {},
     tripLabels: {},
     yesNoChoices: yesNoChoices,
+    specialAction: null,
 
     // these are just being added for the sake of compatibility
     request: null,
@@ -269,7 +270,16 @@ var app = new Vue({
     reviewSubmit() {
       let userInput = false;
       if (!this.isADM) userInput = true;
-      else userInput = prompt(approveAllTravellersMsg);
+      else {
+        if (this.specialAction === "deny_all") {
+          msg = denyAllTravellersMsg;
+          $("#id_approved").val(false)
+        } else {
+          msg = approveAllTravellersMsg;
+          $("#id_approved").val(true)
+        }
+        userInput = prompt(msg);
+      }
 
       if (userInput === true || userInput.toLowerCase() === "yes" || userInput.toLowerCase() === "oui") {
         $("#my_form").submit()

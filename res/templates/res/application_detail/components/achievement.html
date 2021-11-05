@@ -1,0 +1,218 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="achievement-template">
+
+<div>
+  <div class="row" :id="`REF${object.id}`">
+
+    {# VIEW MODE #}
+    <div v-if="!editMode" class="col small">
+      <span v-html="object.achievement_display"></span>
+
+      [<span tabindex="1" class="text-primary helper"  {# @click="copyRef(object.id)" #}
+             @click="copyRef(object.id)"
+             data-toggle="tooltip"
+             :title="`{% trans "This reference can be cited in your text as: [ref${object.id}], [ref ${object.id}], [REF ${object.id}], etc.." %}`"
+             :ref="`ref${object.id}`"
+    >ref ${object.id}</span>]
+    </div>
+
+    {# EDIT MODE #}
+    <div v-else class="col">
+      <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">
+          {% trans "Achievement ID:" %} ${object.id}
+        </h4>
+        <div class="row">
+          <div class="col-4">
+            <div class="mb-3">
+              <label for="">${labels.category}</label>
+              <select
+                class="form-control"
+                v-model="achievement.category"
+                ref="category"
+                id="category"
+              >
+                <option value="">-----</option>
+                <option v-for="(option, index) in category_choices" :value="option.value">${option.text}</option>
+              </select>
+            </div>
+            <div v-if="achievement.is_publication" class="mb-3">
+              <label for="">${labels.publication_type}</label>
+              <select
+                class="form-control"
+                v-model="achievement.publication_type"
+                ref="category"
+                id="category"
+              >
+                <option value="">-----</option>
+                <option v-for="(option, index) in publication_type_choices" :value="option.value">${option.text}</option>
+              </select>
+            </div>
+            <div v-if="achievement.is_publication" class="mb-3">
+              <label for="">${labels.review_type}</label>
+              <select
+                class="form-control"
+                v-model="achievement.review_type"
+                @change="update"
+                ref="category"
+                id="category"
+              >
+                <option value="">-----</option>
+                <option v-for="(option, index) in review_type_choices" :value="option.value">${option.text}</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label v-if="achievement.is_publication" for="">{% trans "Date of publication" %}</label>
+              <label v-else for="">{% trans "Date of achievement" %}</label>
+              <input
+                type="date" class="form-control" step="any"
+                v-model="achievement.date"
+                ref="date" id="date"
+                @keypress.enter.prevent="update"
+                @keydown.ctrl.83.prevent="update"
+              >
+            </div>
+          </div>
+          <div class="col">
+            <div class="mb-3">
+              <label for="">${labels.detail}</label>
+              <textarea
+                class="form-control"
+                v-model="achievement.detail"
+                @keypress="$emit('keypress')"
+                ref="detail" id="detail" rows="10"
+                @keydown.ctrl.83.prevent="update"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="text-right">
+          <button class="btn btn-sm btn-success" @click="toggleEditMode"><span class="mdi mdi-check text-light"></span> {% trans "Save and Close" %}</button>
+          <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span> {% trans "Save" %}</button>
+        </div>
+      </div>
+
+
+    </div>
+
+    {# Buttons #}
+    <div v-if="editable && !editMode" class="col-2 text-right">
+      <button class="btn btn-sm btn-outline-dark" @click="toggleEditMode" data-toggle="tooltip" title="{% trans "Edit this achievement" %}">
+        <span class="mdi mdi-pencil helper"></span>
+      </button>
+      <button class="btn btn-sm btn-outline-dark" @click="clone" data-toggle="tooltip" title="{% trans "Clone this achievement" %}">
+        <span class="mdi mdi-content-copy helper"></span>
+      </button>
+      <button class="btn btn-sm btn-outline-dark" @click="remove" data-toggle="tooltip" title="{% trans "Delete this achievement" %}">
+        <span class="mdi mdi-delete helper"></span>
+      </button>
+    </div>
+  </div>
+  <hr class="m-1">
+
+</div>
+
+
+</script>
+<script type=" application/javascript">
+
+Vue.component("achievement", {
+  template: "#achievement-template",
+  delimiters: ["${", "}"],
+  name: "achievement",
+  props: {
+    editable: {
+      type: Boolean,
+      default: false
+    },
+    dirty: {
+      type: Boolean,
+      default: false
+    },
+    object: {
+      type: Object,
+    },
+    labels: {
+      type: Object,
+      required: true,
+    },
+    category_choices: {
+      type: Array,
+      required: true
+    },
+    publication_type_choices: {
+      type: Array,
+      required: true
+    },
+    review_type_choices: {
+      type: Array,
+      required: true
+    },
+  },
+  data() {
+    return {
+      achievement: this.object,
+      editMode: false,
+    };
+  },
+  methods: {
+    toggleEditMode() {
+      if (this.editMode) this.update();
+      this.editMode = !this.editMode;
+    },
+    update() {
+      this.$emit("change", this.achievement)
+    },
+    clone() {
+      this.$emit("clone", this.achievement)
+    },
+    remove() {
+      this.$emit("remove", this.achievement)
+    },
+    copyRef(id) {
+      this.copyToClipboard(`[ref${id}]`);
+      alert(`{% trans "Reference #${id} has been copied to the clipboard!" %}`);
+
+    },
+    copyToClipboard(textToCopy) {
+      // from https://stackoverflow.com/questions/51805395/navigator-clipboard-is-undefined
+      // navigator clipboard api needs a secure context (https)
+      if (navigator.clipboard && window.isSecureContext) {
+        // navigator clipboard api method'
+        return navigator.clipboard.writeText(textToCopy);
+      } else {
+        // text area method
+        let textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        // make the textarea out of viewport
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        return new Promise((res, rej) => {
+          // here the magic happens
+          document.execCommand('copy') ? res() : rej();
+          textArea.remove();
+        });
+      }
+    }
+  },
+  filters: {
+    yesNo: vueFiltersObject["yesNo"],
+    nz: vueFiltersObject["nz"],
+  },
+  watch: {
+    object() {
+      this.achievement = this.object;
+    },
+    dirty() {
+      //do nothing
+    },
+  },
+  computed: {}
+});
+</script>

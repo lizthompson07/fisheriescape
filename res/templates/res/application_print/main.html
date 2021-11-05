@@ -1,0 +1,97 @@
+{% extends "res/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% block crumbs %}
+{% endblock %}
+
+{% block messages %}{% endblock %}
+{% block title_area %}
+{% endblock %}
+
+{% block header %}
+  {{ block.super }}
+  <style>
+  @media print {
+      @page {
+          size: letter;   /* auto is the initial value */
+          /* this affects the margin in the printer settings */
+          margin: 25mm 25mm 25mm 25mm;
+      }
+  }
+  </style>
+{% endblock %}
+
+{% block subcontent %}
+  <div>
+
+    <div class="mb-3 print-only">
+      <h2 class="">{{ object.applicant }} ({{ object.target_group_level }})</h2>
+      <p class="lead text-muted mt-1 mb-0 small">{% trans "Application ID:" %} {{ object.id }}</p>
+    </div>
+
+    <div class="sidebar">
+      <p class="vertical lead p-3 my-5 p-0 mx-1">
+        {% trans "Table of Contents" %}
+      </p>
+      {% include "res/application_print/_toc.html" %}
+    </div>
+
+    <div class="new-page"></div>
+
+    <div id="main">
+      <div class="no-print float-right">
+        <a class="btn btn-primary" href="{% url 'res:application_detail' object.id %}">{% trans "Back" %}</a>
+      </div>
+
+      <div class="mb-3 no-print">
+        <h2 class="">{{ object.applicant }} ({{ object.target_group_level }})</h2>
+        <p class="lead text-muted mt-1 mb-0 small">{% trans "Application ID:" %} {{ object.id }}</p>
+      </div>
+
+      <div class="mb-5">
+        <p class="lead" id="section0">{% trans "BASIC INFORMATION" %}</p>
+        {% include "res/application_print/_basic.html" %}
+      </div>
+      <div class="new-page"></div>
+
+      <div class="mb-5">
+        <p class="lead" id="section1">{% trans "SECTION 1: Accountable Manager's Assessment and Recommendation" %}</p>
+        {% include "res/application_print/_recommendation.html" %}
+      </div>
+      <div class="new-page"></div>
+
+
+      <div class="mb-5">
+        <p class="lead" id="section2">{% trans "SECTION 2: Demonstrated Achievements and Contributions" %}</p>
+        {% include "res/application_print/_section_2.html" %}
+      </div>
+      <div class="new-page"></div>
+
+      <div class="mb-5" id="section3">
+        <p class="lead">{% trans "ANNEX A: CONTEXTS AND VALUED OUTCOMES" %}</p>
+        {% include "res/application_print/_outcomes.html" %}
+      </div>
+      <div class="new-page"></div>
+
+      <div class="mb-5" id="annex">
+        <p class="lead">{% trans "ANNEX B: Complete List of Achievements / Contributions" %}</p>
+        {% include "res/application_print/_achievements.html" %}
+      </div>
+
+
+    </div>
+  </div>
+
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+
+{% endblock %}

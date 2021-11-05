@@ -23,6 +23,9 @@
       {% if 'region' in field.name %}
         {{ region|model_verbose_name }}
 
+        {% elif 'sector' in field.name %}
+        {{ sector|model_verbose_name }}
+
       {% elif 'branch' in field.name %}
         {{ branch|model_verbose_name }}
 

@@ -1,0 +1,433 @@
+{% extends "res/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% block crumbs %}
+{% endblock %}
+
+{% block messages %}{% endblock %}
+{% block title_area %}
+{% endblock %}
+
+{% block header %}
+  {{ block.super }}
+
+{% endblock %}
+
+{% block subcontent %}
+  <div id="app" v-cloak>
+
+    <div class="sidebar">
+      <p class="vertical lead p-3 my-5 p-0 mx-1">
+        {% trans "Table of Contents" %}
+      </p>
+      {% include "res/application_detail/_toc.html" %}
+
+    </div>
+
+    <div id="main">
+      {% include "shared_models/_generic_breadcrumbs.html" %}
+      <div v-if="application.id" class="mb-3">
+        <h2 class="">${application.applicant_display} (${application.target_group_level_display})</h2>
+        <p class="lead text-muted mt-1 mb-0 small">{% trans "Application ID:" %} {{ object.id }}</p>
+      </div>
+      {% bootstrap_messages %}
+
+      <div v-if="canModify" class="alert alert-primary no-print" role="alert">
+        <p class="mb-0">
+          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
+        </p>
+      </div>
+
+      <div class="mb-3 float-right">
+      </div>
+      <div class="mb-3">
+
+        <span v-if="canModify">
+              <a v-if="application.submission_date" class="btn btn-sm btn-primary" href="{% url 'res:application_submit' object.id %}">
+                {% trans "Un-Submit" %}
+              </a>
+              <a v-else-if="application.is_complete" class="btn btn-sm btn-primary" href="{% url 'res:application_submit' object.id %}">
+                {% trans "Submit" %}
+              </a>
+              <span v-else class="helper" data-toggle="tooltip" title="{% trans "All fields are mandatory before approvals and submission" %}">
+                <a class="btn btn-sm btn-primary disabled" href="">
+                  {% trans "Submit" %}
+                </a>
+              </span>
+            </span>
+
+        <a v-if="canModify" class="btn btn-sm btn-danger" href="{% url 'res:application_delete' object.id %}">{% trans "Delete" %}</a>
+        <a class="btn btn-sm btn-secondary helper"
+           data-toggle="tooltip" title="{% trans "Click here to clone this application into a new application" %}"
+           href="#">{% trans "Clone Me" %}</a>
+
+        {% if object.status >= 2 %}
+          <a href="{% url 'res:application_detail' object.id %}?print=true" class="btn btn-outline-dark btn-sm ml-3">
+            <span class="mdi mdi-printer mr-1"></span>{% trans "Print View" %}
+          </a>
+        {% endif %}
+      </div>
+      <div class="mb-5">
+        <p class="lead" id="section0">{% trans "BASIC INFORMATION" %}</p>
+        {% include "res/application_detail/_basic.html" %}
+      </div>
+
+      {#    <div v-if="application.submission_date && recommendation.id" class="mb-5">#}
+      <div class="mb-5">
+        <p class="lead" id="section1">{% trans "SECTION 1: Accountable Manager's Assessment and Recommendation" %}</p>
+        {% include "res/application_detail/_recommendation.html" %}
+      </div>
+
+
+      <div class="mb-5">
+        <p class="lead" id="section2">{% trans "SECTION 2: Demonstrated Achievements and Contributions" %}</p>
+        {% include "res/application_detail/_section_2.html" %}
+      </div>
+
+      <div class="mb-5" id="section3">
+        <p class="lead">{% trans "ANNEX A: CONTEXTS AND VALUED OUTCOMES" %}</p>
+        <div class="alert alert-secondary">
+          {{ annex_a_text|safe }}
+        </div>
+
+        {% include "res/application_detail/_outcomes.html" %}
+      </div>
+
+      <div class="mb-5" id="annex">
+        <div v-if="canModify" class="float-right">
+          <ref-editor
+            :labels="achievementLabels"
+            :category_choices="categoryChoices"
+            :publication_type_choices="publicationTypeChoices"
+            :review_type_choices="reviewTypeChoices"
+            :categories="categories"
+            @new="newAchievement"
+          ></ref-editor>
+        </div>
+
+        <p class="lead">{% trans "ANNEX B: Complete List of Achievements / Contributions" %}</p>
+        <div class="alert alert-secondary">
+          {{ annex_b_text|safe }}
+        </div>
+        {% include "res/application_detail/_achievements.html" %}
+      </div>
+
+
+    </div>
+  </div>
+
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+  {% include "res/components/editable_cell.html" %}
+  {% include "res/application_detail/components/achievement.html" %}
+  {% include "res/application_detail/components/outcome.html" %}
+  {% include "res/application_detail/components/ref_editor.html" %}
+  {% include "res/application_detail/components/ref_insert.html" %}
+
+  <script type="application/javascript">
+  var applicationId = "{{ object.id }}"
+
+  // register vue-select
+  Vue.component('v-select', VueSelect.VueSelect);
+
+  // vuejs instance
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: {},
+      loadingApplication: false,
+      loadingRecommendation: false,
+      loadingOutcomes: false,
+      loadingAchievements: false,
+      loadingAchievementsSummary: false,
+      loadingContexts: false,
+      loadingCategories: false,
+      application: {},
+      recommendation: {},
+      outcomes: [],
+      contexts: [],
+      categories: [],
+      achievements: [],
+      achievementsSummary: [],
+      applicationLabels: {},
+      recommendationLabels: {},
+      achievementLabels: {},
+      errors: null,
+      unsavedChanges: false,
+      applicantChoices: [],
+      groupLevelChoices: [],
+      sectionChoices: [],
+      orgChoices: [],
+      decisionChoices: [],
+      publicationTypeChoices: [],
+      reviewTypeChoices: [],
+      categoryChoices: [],
+    },
+    methods: {
+      getCurrentUser() {
+        let endpoint = `/api/res/user/?application=${applicationId}`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+            })
+      },
+      getApplication(reload = false) {
+        if (reload) this.loadingApplication = true;
+        let endpoint = `/api/res/applications/${applicationId}/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            if (data.application_start_date) data.application_start_date = data.application_start_date.split("T")[0];
+            if (data.application_end_date) data.application_end_date = data.application_end_date.split("T")[0];
+            if (data.last_promotion) data.last_promotion = data.last_promotion.split("T")[0];
+            if (data.last_application) data.last_application = data.last_application.split("T")[0];
+            this.application = data;
+            if (reload) this.loadingApplication = false;
+            if (data.recommendation) this.getRecommendation(data.recommendation, reload);
+            this.getOutcomes(reload);
+            this.getAchievements(reload);
+            this.getAchievementsSummary();
+          }
+        });
+      },
+      getRecommendation(recommendationId, reload = false) {
+        if (reload) this.loadingRecommendation = true;
+        let endpoint = `/api/res/recommendations/${recommendationId}/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.recommendation = data;
+            if (reload) this.loadingRecommendation = false;
+          }
+        });
+      },
+      getOutcomes(reload = true) {
+        if (reload) this.loadingOutcomes = true;
+        let endpoint = `/api/res/application-outcomes/?application=${applicationId}`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.outcomes = data;
+            if (reload) this.loadingOutcomes = false;
+          }
+        });
+      },
+      getContexts() {
+        this.loadingContexts = true;
+        let endpoint = `/api/res/contexts/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.loadingContexts = false;
+            this.contexts = data;
+          }
+        });
+      },
+      getCategories() {
+        this.loadingCategories = true;
+        let endpoint = `/api/res/achievement-categories/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.loadingCategories = false;
+            this.categories = data;
+          }
+        });
+      },
+      getAchievements(reload = true) {
+        if (reload) this.loadingAchievements = true;
+        let endpoint = `/api/res/achievements/?user=${this.application.applicant}`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            for (const datum of data) {
+              if (datum.date) datum.date = datum.date.split("T")[0];
+            }
+            this.achievements = data;
+            if (reload) this.loadingAchievements = false;
+          }
+        });
+      },
+      getAchievementsSummary() {
+        this.loadingAchievementsSummary = true;
+        let endpoint = `/api/res/achievements/?user=${this.application.applicant}&summary-table=true`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.achievementsSummary = data;
+            this.loadingAchievementsSummary = false;
+          }
+        });
+      },
+      newAchievement(achievement) {
+        achievement.user = this.application.applicant;
+        achievement = this.cleanAchievement(achievement);
+        let endpoint = `/api/res/achievements/`;
+        apiService(endpoint, "POST", achievement).then(data => {
+          if (data.id) {
+            this.achievements.push(data)
+            this.getApplication(false);
+          } else {
+            this.errors = groomJSON(data);
+          }
+        });
+      },
+      deleteAchievement(achievement) {
+        userInput = confirm("{% trans "Are you certain you want to permanently delete this achievement?" %}")
+        if (userInput) {
+          let endpoint = `/api/res/achievements/${achievement.id}`;
+          apiService(endpoint, "DELETE").then(data => {
+            this.$delete(this.achievements, this.achievements.indexOf(achievement))
+          });
+        }
+      },
+      cloneAchievement(achievement) {
+        let endpoint = `/api/res/achievements/${achievement.id}/?clone=true`;
+        apiService(endpoint, "POST").then(data => {
+          if (data.date) data.date = data.date.split("T")[0];
+          this.achievements.push(data)
+        });
+      },
+      cleanApplication(application) {
+        for (const applicationKey in application) if (application[applicationKey] === "") application[applicationKey] = null;
+        if (application.application_start_date) application.application_start_date = application.application_start_date + "T12:00:00";
+        if (application.application_end_date) application.application_end_date = application.application_end_date + "T12:00:00";
+        if (application.last_application) application.last_application = application.last_application + "T12:00:00";
+        if (application.last_promotion) application.last_promotion = application.last_promotion + "T12:00:00";
+        return application;
+      },
+      cleanAchievement(achievement) {
+        for (const achievementKey in achievement) if (achievement[achievementKey] === "") achievement[achievementKey] = null;
+        if (achievement.date) achievement.date = achievement.date + "T12:00:00";
+        return achievement;
+      },
+      updateApplication(application) {
+        this.errors = null;
+        endpoint = `/api/res/applications/${application.id}/`;
+        application = this.cleanApplication(application);
+        apiService(endpoint, "PUT", application)
+            .then(response => {
+              if (!response.id) {
+                this.errors = groomJSON(response);
+                this.$nextTick(() => {
+                  this.$refs.errors.focus();
+                });
+              } else this.unsavedChanges = false;
+              this.getApplication(false)
+            })
+      },
+      updateOutcome(outcome) {
+        this.errors = null;
+        endpoint = `/api/res/application-outcomes/${outcome.id}/`;
+        apiService(endpoint, "PUT", outcome)
+            .then(response => {
+              if (!response.id) {
+                this.errors = groomJSON(response);
+                this.$nextTick(() => {
+                  this.$refs.errors.focus();
+                });
+              } else this.unsavedChanges = false;
+              this.getOutcomes(false)
+              this.getApplication(false)
+            })
+      },
+      updateAchievement(achievement) {
+        this.errors = null;
+        endpoint = `/api/res/achievements/${achievement.id}/`;
+        achievement = this.cleanAchievement(achievement);
+        apiService(endpoint, "PUT", achievement)
+            .then(response => {
+              if (!response.id) {
+                this.errors = groomJSON(response);
+                this.$nextTick(() => {
+                  this.$refs.errors.focus();
+                });
+              } else this.unsavedChanges = false;
+              this.getAchievements(false)
+              this.getOutcomes(false)
+            })
+      },
+      cleanRecommendation(recommendation) {
+        for (const recommendationKey in recommendation) if (recommendation[recommendationKey] === "") recommendation[recommendationKey] = null;
+        return recommendation;
+      },
+      updateRecommendation(recommendation, param) {
+        this.errors = null;
+        let endpoint = `/api/res/recommendations/${recommendation.id}/`;
+        let method = 'PUT'
+        let userConfirmation = true;
+        if (param) {
+          userConfirmation = confirm("{% trans "Are you sure you want to sign this record?" %}")
+          if (userConfirmation && param === "sign-by-applicant") recommendation.applicant_comment = prompt("{% trans "Comments (optional):" %}");
+          endpoint += `?${param}=true`
+          method = "POST"
+        }
+        if (userConfirmation) {
+          recommendation = this.cleanRecommendation(recommendation);
+          apiService(endpoint, method, recommendation)
+              .then(response => {
+                if (!response.id) {
+                  this.errors = groomJSON(response);
+                  this.$nextTick(() => {
+                    this.$refs.errors.focus();
+                  });
+                } else this.unsavedChanges = false;
+                this.getRecommendation(recommendation.id, false)
+                if (param) this.getCurrentUser(); // update the permissions
+              });
+        }
+      },
+      getModelMetadata() {
+        apiService(`/api/res/meta/models/application/`).then(data => {
+          this.applicationLabels = data.labels;
+          this.applicantChoices = data.applicant_choices;
+          this.groupLevelChoices = data.group_level_choices;
+          this.sectionChoices = data.section_choices;
+          this.orgChoices = data.org_choices;
+        });
+        apiService(`/api/res/meta/models/recommendation/`).then(data => {
+          this.recommendationLabels = data.labels;
+          this.decisionChoices = data.decision_choices;
+        });
+        apiService(`/api/res/meta/models/achievement/`).then(data => {
+          this.achievementLabels = data.labels;
+          this.categoryChoices = data.category_choices;
+          this.publicationTypeChoices = data.publication_type_choices;
+          this.reviewTypeChoices = data.review_type_choices;
+        });
+      },
+    },
+    computed: {
+      canModify() {
+        return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      },
+      canModifyRecommendation() {
+        return this.currentUser.can_modify_recommendation && this.currentUser.can_modify_recommendation.can_modify;
+      },
+      isManager() {
+        return this.currentUser.is_manager;
+      },
+      isApplicant() {
+        return this.currentUser.is_applicant;
+      }
+    },
+    filters: {
+      yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
+    },
+    created() {
+      this.getContexts();
+      this.getCategories();
+      this.getModelMetadata();
+      this.getCurrentUser();
+      this.getApplication(true);
+    },
+  });
+
+
+  </script>
+
+{% endblock %}

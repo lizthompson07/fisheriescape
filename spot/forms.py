@@ -133,6 +133,7 @@ class ProjectForm(forms.ModelForm):
             'date_completed',
             'summary',
             'last_modified_by',
+            'appendix_k',
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),

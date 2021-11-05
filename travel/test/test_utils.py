@@ -365,7 +365,11 @@ class UtilsTest(CommonTest):
         branch.admin = UserFactory()
         branch.head = UserFactory()
         branch.save()
-        region = branch.region
+        sector = branch.sector
+        sector.admin = UserFactory()
+        sector.head = UserFactory()
+        sector.save()
+        region = sector.region
         region.head = UserFactory()
         region.admin = UserFactory()
         region.save()
@@ -375,7 +379,7 @@ class UtilsTest(CommonTest):
         d = DivisionFactory(head=UserFactory(), admin=UserFactory(), branch=branch)
         section3 = SectionFactory(head=UserFactory(), admin=UserFactory(), division=d)
         # another section within region
-        b = BranchFactory(head=UserFactory(), admin=UserFactory(), region=region)
+        b = BranchFactory(head=UserFactory(), admin=UserFactory(), sector=sector)
         d = DivisionFactory(head=UserFactory(), admin=UserFactory(), branch=b)
         section4 = SectionFactory(head=UserFactory(), admin=UserFactory(), division=d)
 

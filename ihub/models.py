@@ -57,10 +57,10 @@ class FundingProgram(SimpleLookup):
 
 class Entry(models.Model):
     # basic
-    title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title"))
+    title = models.CharField(max_length=1000, blank=False, null=True, verbose_name=_("title"))
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
     proponent = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("proponent"))
-    organizations = models.ManyToManyField(ml_models.Organization, related_name="entries",
+    organizations = models.ManyToManyField(ml_models.Organization, related_name="entries", blank=True,
                                            limit_choices_to={'grouping__is_indigenous': True}, verbose_name=_("organizations"))
     initial_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
     response_requested_by = models.DateTimeField(verbose_name=_("response requested by"), blank=True, null=True)
@@ -68,7 +68,7 @@ class Entry(models.Model):
     is_faa_required = models.BooleanField(null=True, blank=True, verbose_name=_("is an FAA required?"))
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
                                related_name="entries")
-    sectors = models.ManyToManyField(ml_models.Sector, related_name="entries", verbose_name=_("DFO sectors"))
+    sectors = models.ManyToManyField(ml_models.Sector, blank=True, related_name="entries", verbose_name=_("DFO sectors"))
     entry_type = models.ForeignKey(EntryType, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries",
                                    verbose_name=_("Entry Type"))  # title case needed
     regions = models.ManyToManyField(shared_models.Region, related_name="entries", verbose_name=_("regions"))

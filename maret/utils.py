@@ -1,8 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 
 from django.utils.translation import gettext_lazy as _
+
+from shared_models import models as shared_models
 
 
 class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -57,3 +59,20 @@ def maret_author_authorized(user):
 # authorize for administrators
 def maret_admin_authorized(user):
     return user.is_authenticated and user.groups.filter(name='maret_admin').exists()
+
+
+def ajax_get_divisions(request):
+    branch_id = request.GET.get('branch', None)
+
+    if branch_id == '':
+        divisions = shared_models.Division.objects.all()
+    else:
+        divisions = shared_models.Division.objects.filter(branch__pk=branch_id)
+
+    fields = list(["{}:{}".format(d.pk, str(d)) for d in divisions])
+    fields.insert(0, ":---------")
+    data = {
+        'divisions': fields
+    }
+
+    return JsonResponse(data)

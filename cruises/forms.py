@@ -6,18 +6,17 @@ from . import models
 from django.utils.safestring import mark_safe
 from shared_models import models as shared_models
 
+chosen_js = {"class": "chosen-select-contains"}
 
 class CruiseForm(forms.ModelForm):
     class Meta:
         model = shared_models.Cruise
         exclude = ["season", ]
-        # labels={
-        #     'district':mark_safe("District (<a href='#' >search</a>)"),
-        #     'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
-        # }
+
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date'}),
             'end_date': forms.DateInput(attrs={'type': 'date'}),
+            'editors': forms.SelectMultiple(attrs=chosen_js),
         }
 
 

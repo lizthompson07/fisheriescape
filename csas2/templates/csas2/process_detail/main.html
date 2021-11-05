@@ -86,6 +86,14 @@
               <td class="text-left">${process.tname|nz}</td>
             </tr>
             <tr>
+              <th class="text-left" v-html="processLabels.advice_date"></th>
+              <td class="text-left">${process.advice_date_display}</td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Status" %}</th>
+              <td class="text-left" v-html="process.status_display_html"></td>
+            </tr>
+            <tr>
               <th class="text-left" v-html="processLabels.is_posted"></th>
               <td class="text-left">
                 <span class="mr-2">${process.is_posted|yesNo}</span>
@@ -215,7 +223,7 @@
 
       {% if object.meetings.exists %}
 
-        <table class="table table-bordered table-hover table-sm">
+        <table class="table table-hover table-sm">
           <thead>
           <tr>
             {% for field in meeting_field_list %}
@@ -253,7 +261,7 @@
 
       {% if object.documents.exists %}
 
-        <table class="table table-bordered table-hover table-sm">
+        <table class="table table-hover table-sm">
           <thead>
           <tr>
             <th rowspan="2" class="w400">{% trans "Title" %}</th>
@@ -284,7 +292,9 @@
         <em>{% trans "There are no documents associated with this process." %}</em>
       {% endif %}
     </div>
-
+    <div class="mb-5">
+      {% include "csas2/process_detail/_costs.html" %}
+    </div>
     {# end #}
   </div>
 
@@ -296,6 +306,8 @@
   {{ block.super }}
 
   {% include "csas2/components/note_pad.html" %}
+  {% include "csas2/process_detail/components/cost_editor.html" %}
+
   <script type="application/javascript">
   var processId = "{{ object.id }}"
 
@@ -315,6 +327,7 @@
       docs: [],
       meetings: [],
       notes: [],
+      costs: [],
       processLabels: {}
     },
     methods: {
@@ -325,6 +338,21 @@
           apiService(endpoint, "POST").then(data => {
             this.getProcess()
           });
+        }
+      },
+      getCosts() {
+        let endpoint = `/api/csas/process-costs/?process=${this.process.id}`;
+        apiService(endpoint).then(data => {
+          this.costs = data;
+        });
+      },
+      deleteCost(cost) {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this cost?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/process-costs/${cost.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.getCosts();
+          })
         }
       },
       getCurrentUser() {
@@ -344,6 +372,7 @@
             if (update_notes) this.getNotes();
             this.getDocuments();
             this.getMeetings();
+            this.getCosts();
           }
         });
       },
@@ -404,6 +433,7 @@
     filters: {
       nz: vueFiltersObject["nz"],
       yesNo: vueFiltersObject["yesNo"],
+      date: vueFiltersObject["date"],
     },
     computed: {
       canModify() {
@@ -417,6 +447,13 @@
           if (!m.is_planning) myArray.push(m);
         }
         return myArray;
+      },
+      totalCost() {
+        let total = 0;
+        for (var i = 0; i < this.costs.length; i++) {
+          total += Number(this.costs[i].amount)
+        }
+        return total
       }
     },
     created() {

@@ -301,13 +301,18 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                     attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["data_type"].required = True
                 data_types = ((-1, "---------"), (0, 'Temperature'), (1, 'Picks'),
-                              (2, 'Initial'), (3, 'Heath Unit Transfer'), (4, 'Shocking'))
+                              (2, 'Initial'), (3, 'Allocations'), (4, "Data Logger temperatures"))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
             elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing",
                                      "Bypass Collection", "Smolt Wheel Collection", "Adult Collection"]:
                 self.get_form_class().base_fields["data_type"].required = False
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
+            elif evntc.__str__() in ["Distribution"]:
+                self.get_form_class().base_fields["data_type"].required = True
+                data_types = ((None, "---------"), ('Individual', 'Individual'), ('Group', 'Group'))
+                self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
+                                                                                   label=_("Type of data entry"))
             else:
                 self.get_form_class().base_fields["data_type"].required = True
                 data_types = ((None, "---------"), ('Individual', 'Individual'), ('Untagged', 'Untagged'),
@@ -1122,7 +1127,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         pair_set = models.Pairing.objects.filter(animal_details__evnt_id=self.object
-                                                 ).distinct().select_related("indv_id")
+                                                 ).distinct().select_related("indv_id", "indv_id__stok_id", "indv_id__coll_id")
         pair_field_list = ["start_date", "indv_id", "cross", ]
         obj_mixin = mixins.PairMixin
         context["context_dict"]["pair"] = {"div_title": "{}s".format(obj_mixin.title),
@@ -3442,7 +3447,7 @@ class TemplFormView(mixins.TemplMixin, BioCommonFormView):
         if os.path.exists(file_url):
             with open(file_url, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-                response['Content-Disposition'] = f'inline; filename="{facility_code}_{evnt_code}_({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+                response['Content-Disposition'] = f'inline; filename="{facility_code}_{evnt_code.replace(" ", "_")}_({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
                 return response
         raise Http404
 

@@ -1,0 +1,68 @@
+{% load i18n %}
+{% load custom_filters %}
+
+
+{% for category in object.achievement_categories %}
+
+  <div class="mb-5" id="category{{ category.id }}">
+    <h6>
+      {{ category.tname }} ({{ category.code }})
+    </h6>
+    {% if not category.is_publication %}
+      {% for achievement in object.applicant.achievements.all %}
+        {% if achievement.category.id == category.id %}
+          <div class="" id="achievement{{ achievement.id }}">
+            {{ achievement.achievement_display|safe }}
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      {% for publication_type in object.achievement_publication_types %}
+        <div class="mb-5">
+          <u class="mb-3 font-italic" id="publication_type{{ publication_type.id }}">
+            {{ publication_type }}
+          </u>
+          {% for achievement in object.applicant.achievements.all %}
+            {% if achievement.category.id == category.id and achievement.publication_type.id == publication_type.id %}
+              <div class="" id="achievement{{ achievement.id }}">
+                {{ achievement.achievement_display|safe }}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endfor %}
+
+
+    {% endif %}
+    <hr>
+
+  </div>
+{% endfor %}
+
+
+
+{# summary table #}
+
+<p class="h6" id="summary_table">{% trans "Table of the cumulative NUMBER of publications prior to and since last promotion (E1 Summary Table)" %}</p>
+<table class="table table-sm table-bordered w-auto">
+  <thead>
+  <tr>
+    <th>{% trans "Publication Type" %}</th>
+    <th class="text-center">{% trans "Before last promotion" %}</th>
+    <th class="text-center">{% trans "Since last promotion" %}</th>
+    <th class="text-center">{% trans "Career total" %}</th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for row in object.achievement_summary_table %}
+    <tr v-for="row, index in achievementsSummary" :key="index">
+      <td>{{row.publication_type}}</td>
+      <td class="text-center">{{row.before_last_promotion}}</td>
+      <td class="text-center">{{row.since_last_promotion}}</td>
+      <td class="text-center">{{row.total}}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+
+</table>
+

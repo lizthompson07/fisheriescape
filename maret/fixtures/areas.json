@@ -1,0 +1,34 @@
+[
+    {
+        "model": "maret.area",
+        "pk": 1,
+        "fields": {
+            "name": "Eastern Nova Scotia",
+            "nom": null
+        }
+    },
+    {
+        "model": "maret.area",
+        "pk": 2,
+        "fields": {
+            "name": "Regional Headquarters",
+            "nom": null
+        }
+    },
+    {
+        "model": "maret.area",
+        "pk": 3,
+        "fields": {
+            "name": "Southwest New Brunswick",
+            "nom": null
+        }
+    },
+    {
+        "model": "maret.area",
+        "pk": 4,
+        "fields": {
+            "name": "Southwest Nova Scotia",
+            "nom": null
+        }
+    }
+]
