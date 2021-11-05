@@ -642,6 +642,9 @@ def is_manager_or_assistant_or_admin(user):
     if is_admin(user):
         return True
 
+    if in_cfo_group(user):
+        return True
+
     for attr in user_attr_list:
         if getattr(user, attr).exists():
             return True
@@ -649,7 +652,7 @@ def is_manager_or_assistant_or_admin(user):
 
 def get_requests_with_managerial_access(user):
     queryset = models.TripRequest.objects.all()
-    if is_admin(user):
+    if is_admin(user) or in_cfo_group(user):
         return queryset
     else:
         qs = queryset.filter(Q(section__admin=user) | Q(section__head=user)
@@ -802,7 +805,7 @@ def get_all_admins(region, branch_only=False):
 
     # just adding amelie to all emails for now.
     try:
-        to_list.append(User.objects.filter(groups__name="travel_adm_admin").email)
+        to_list.extend([u.user.email for u in models.TravelUser.objects.filter(is_national_admin=True)])
     except:
         pass
     return list(set(to_list))

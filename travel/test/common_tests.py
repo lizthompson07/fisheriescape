@@ -16,8 +16,8 @@ class CommonTravelTest(CommonTest):
 
     def setUp(self):
         super().setUp()
-        Group.objects.get_or_create(name="travel_admin")
-        Group.objects.get_or_create(name="travel_adm_admin")
+        # Group.objects.get_or_create(name="travel_admin")
+        # Group.objects.get_or_create(name="travel_adm_admin")
 
     def get_and_login_admin(self):
         user = self.get_and_login_user()

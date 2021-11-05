@@ -40,6 +40,7 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
         data = super().get(request).data
         data["is_regional_admin"] = utils.in_travel_regional_admin_group(request.user)
         data["is_ncr_admin"] = utils.in_travel_nat_admin_group(request.user)
+        data["is_cfo"] = utils.in_cfo_group(request.user)
         data["is_admin"] = utils.is_admin(request.user)
         requests = utils.get_related_requests(request.user)
         request_reviews = utils.get_related_request_reviewers(request.user)
@@ -606,12 +607,13 @@ class AdminWarningsAPIView(APIView):
             btn = f' &rarr; <a href="{reverse("travel:trip_list")}?regional-verification=true">{anchor_txt}</a>'
 
             for region in Region.objects.all():
-                qs = models.Trip.objects.filter(status=30, is_adm_approval_required=False, lead=region)
-                if qs.exists():
-                    msgs.append(
-                        # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
-                        _("<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralization} requiring attention!!").format(
-                            region=region, unverified_trips=qs.count(), pluralization=pluralize(qs.count())) + btn)
+                if utils.in_travel_regional_admin_group(request.user) and region == request.user.travel_user.region:
+                    qs = models.Trip.objects.filter(status=30, is_adm_approval_required=False, lead=region)
+                    if qs.exists():
+                        msgs.append(
+                            # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
+                            _("<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralization} requiring attention!!").format(
+                                region=region, unverified_trips=qs.count(), pluralization=pluralize(qs.count())) + btn)
 
             qs = models.Trip.objects.filter(status=30, is_adm_approval_required=False, lead__isnull=True)
             if qs.exists():
