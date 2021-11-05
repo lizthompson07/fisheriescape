@@ -10,10 +10,8 @@ from shared_models.models import Section, Division, Branch, Sector, Region
 
 
 def in_res_admin_group(user):
-    # make sure the following group exist:
-    admin_group, created = Group.objects.get_or_create(name="res_admin")
     if user:
-        return admin_group in user.groups.all()
+        return bool(hasattr(user, "res_sub_user") and user.res_sub_user.is_admin)
 
 
 def in_res_crud_group(user):
