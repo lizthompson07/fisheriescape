@@ -119,7 +119,8 @@ class ProcessViewSet(viewsets.ModelViewSet):
         'fiscal_year',
         'id',
         'lead_region',
-        "is_posted"
+        "is_posted",
+        "status",
     ]
 
     def perform_create(self, serializer):

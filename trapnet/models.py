@@ -562,7 +562,7 @@ class Observation(MetadataFields):
     maturity = models.ForeignKey(Maturity, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
 
     # downstream
-    age_type = models.IntegerField(blank=True, null=True, verbose_name=_("age type"), choices=fish_size_choices)
+    age_type = models.IntegerField(blank=True, null=True, verbose_name=_("age type"), choices=age_type_choices)
     river_age = models.IntegerField(blank=True, null=True, verbose_name=_("river age"))
     ocean_age = models.IntegerField(blank=True, null=True, verbose_name=_("ocean age"))
 

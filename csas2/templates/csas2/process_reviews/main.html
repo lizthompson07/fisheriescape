@@ -36,10 +36,10 @@
           </em>
         </div>
       </div>
-      <div v-else-if="!proceses.length">
+      <div v-else-if="!processes.length">
         <div class="mt-5">
           <em class="lead">
-            {% trans "No proceses found..." %}
+            {% trans "No processes found..." %}
           </em>
         </div>
       </div>
@@ -49,92 +49,84 @@
           <tr>
             <th class="w25">Id</th>
             <th>${processLabels.fiscal_year}</th>
-            <th class="w150">${processLabels.title}</th>
-            <th>{% trans "Region" %}</th>
-            {#            <th class="w150">{% trans "Section" %}</th>#}
+            <th class="w250">{% trans "Title" %}</th>
+            <th>{% trans "Regions" %}</th>
+            <th>${processLabels.advice_date}</th>
             <th>${processLabels.status}</th>
-            <th>${reviewLabels.prioritization}</th>
-            <th>${reviewLabels.decision}</th>
-            <th class="w250">${reviewLabels.decision_text}</th>
-            <th class="w150">${reviewLabels.decision_date}</th>
-            <th class="w150">${reviewLabels.advice_date}</th>
-            <th class="w150">${reviewLabels.is_deferred}</th>
-            <th class="w250">${reviewLabels.deferred_text}</th>
-            <th>${reviewLabels.notes}</th>
+            <th>${processLabels.is_posted}</th>
           </tr>
           </thead>
           <tbody>
-          <tr v-for="r in proceses" :key="r.id">
-            <td>${r.id}</td>
-            <td>${r.fiscal_year}</td>
+          <tr v-for="p in processes" :key="p.id">
+            <td>${p.id}</td>
+            <td>${p.fiscal_year}</td>
             <td>
-              <a :href="`/csas-sccs/proceses/${r.id}/view/`" target="_blank">${r.title}</a>
+              <a :href="`/csas-sccs/processes/${p.id}/view/`" target="_blank">${p.tname}</a>
             </td>
-            <td>${r.region}</td>
-            {#            <td>${r.section_display}</td>#}
-            <td>${r.status_display}</td>
+            <td v-html="p.regions"></td>
+            <td>
+              <input v-model="p.advice_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
+                     @change="updateProcess(p)">
+            </td>
+
             <td>
               <v-select
-                v-if="r.review"
-                style="width: 100%"
-                v-model="r.review.prioritization"
-                @input="updateReview(r)"
-                :options="prioritizationChoices"
+                v-model="p.status"
+                @input="updateProcess(p)"
+                :options="statusChoices"
                 :reduce="choice => choice.value"
                 label="text"
                 :clearable="false"
-                class="bg-light"
+                class="bg-light w-100"
               >
               </v-select>
-              <em v-else class="text-muted">{% trans "no review" %}</em>
             </td>
-            <td>
-              <v-select
-                v-if="r.review"
-                style="width: 100%"
-                v-model="r.review.decision"
-                @input="updateReview(r)"
-                :options="decisionChoices"
-                :reduce="choice => choice.value"
-                label="text"
-                :clearable="false"
-                class="bg-light"
-              >
-              </v-select>
-              <em v-else class="text-muted">{% trans "no review" %}</em>
-            </td>
-            <td>
-              <textarea v-if="r.review" rows="5" class="form-control" v-model="r.review.decision_text" @change="updateReview(r)"></textarea>
-              <em v-else class="text-muted">{% trans "no review" %}</em>
-            </td>
-            <td>
-              <input v-if="r.review" v-model="r.review.decision_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
-                     @change="updateReview(r)">
-              <em v-else class="text-muted">{% trans "no review" %}</em>
-            </td>
-            <td>
-              <input v-if="r.review" v-model="r.review.advice_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
-                     @change="updateReview(r)">
-              <em v-else class="text-muted">{% trans "no review" %}</em>
+            <td>${p.is_posted | yesNo}</td>
 
-            </td>
-            <td>
-              <input v-if="r.review" v-model="r.review.is_deferred" class="" type="checkbox" id="is_deferred" @change="updateReview(r)">
-              <em v-else class="text-muted">{% trans "no review" %}</em>
 
-            </td>
-            <td>
-              <textarea v-if="r.review && r.review.is_deferred" rows="5" class="form-control" v-model="r.review.deferred_text"
-                        @change="updateReview(r)"></textarea>
-              <em v-else-if="r.review" class="text-muted">{% trans "not deffered" %}</em>
-              <em v-else class="text-muted">{% trans "no review" %}</em>
-
-            </td>
-            <td>
-              <textarea v-if="r.review" rows="5" class="form-control" v-model="r.review.notes" @change="updateReview(r)"></textarea>
-              <em v-else class="text-muted">{% trans "no review" %}</em>
-
-            </td>
+            {#            <td>#}
+            {#              <v-select#}
+            {#                v-if="r.review"#}
+            {#                style="width: 100%"#}
+            {#                v-model="r.review.decision"#}
+            {#                @input="updateReview(r)"#}
+            {#                :options="decisionChoices"#}
+            {#                :reduce="choice => choice.value"#}
+            {#                label="text"#}
+            {#                :clearable="false"#}
+            {#                class="bg-light"#}
+            {#              >#}
+            {#              </v-select>#}
+            {#              <em v-else class="text-muted">{% trans "no review" %}</em>#}
+            {#            </td>#}
+            {#            <td>#}
+            {#              <textarea v-if="r.review" rows="5" class="form-control" v-model="r.review.decision_text" @change="updateReview(r)"></textarea>#}
+            {#              <em v-else class="text-muted">{% trans "no review" %}</em>#}
+            {#            </td>#}
+            {#
+            {#            <td>#}
+            {#              <input v-if="r.review" v-model="r.review.advice_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"#}
+            {#                     @change="updateReview(r)">#}
+            {#              <em v-else class="text-muted">{% trans "no review" %}</em>#}
+            {##}
+            {#            </td>#}
+            {#            <td>#}
+            {#              <input v-if="r.review" v-model="r.review.is_deferred" class="" type="checkbox" id="is_deferred" @change="updateReview(r)">#}
+            {#              <em v-else class="text-muted">{% trans "no review" %}</em>#}
+            {##}
+            {#            </td>#}
+            {#            <td>#}
+            {#              <textarea v-if="r.review && r.review.is_deferred" rows="5" class="form-control" v-model="r.review.deferred_text"#}
+            {#                        @change="updateReview(r)"></textarea>#}
+            {#              <em v-else-if="r.review" class="text-muted">{% trans "not deffered" %}</em>#}
+            {#              <em v-else class="text-muted">{% trans "no review" %}</em>#}
+            {##}
+            {#            </td>#}
+            {#            <td>#}
+            {#              <textarea v-if="r.review" rows="5" class="form-control" v-model="r.review.notes" @change="updateReview(r)"></textarea>#}
+            {#              <em v-else class="text-muted">{% trans "no review" %}</em>#}
+            {##}
+            {#            </td>#}
           </tr>
           </tbody>
         </table>
@@ -148,6 +140,7 @@
 
 {% block body_js %}
   {{ block.super }}
+
   {% include "csas2/components/filter_control.html" %}
 
   <script type="application/javascript">
@@ -173,7 +166,7 @@
       regionChoices: [],
       sectorChoices: [],
       fresh: true,
-      processesEndpoint: `/api/csas/processes/?`
+      processesEndpoint: `/api/csas/processes/?page_size=500&`
     },
     methods: {
       getCurrentUser() {
@@ -204,7 +197,7 @@
         this.fresh = false;
         apiService(this.processesEndpoint).then(data => {
           if (data) {
-            this.processes = data;
+            this.processes = data.results;
             for (const r of this.processes) {
               if (r.review && r.review.advice_date) r.review.advice_date = r.review.advice_date.split("T")[0];
               if (r.review && r.review.decision_date) r.review.decision_date = r.review.decision_date.split("T")[0];
@@ -213,8 +206,8 @@
           }
         });
       },
-      getProcess(proces) {
-        let endpoint = `/api/csas/processes/${proces.id}/`;
+      getProcess(process) {
+        let endpoint = `/api/csas/processes/${process.id}/`;
         apiService(endpoint).then(data => {
           if (data) {
             if (data.review && data.review.advice_date) data.review.advice_date = data.review.advice_date.split("T")[0];
@@ -230,11 +223,11 @@
         if (review.decision_date) review.decision_date = review.decision_date + "T12:00:00";
         return review;
       },
-      updateReview(process) {
+      updateProcess(process) {
         this.errorMsg = null;
-        review = this.cleanReview(process.review);
-        let endpoint = `/api/csas/process-reviews/${review.id}/`;
-        apiService(endpoint, "PUT", review).then(data => {
+        process = this.cleanProcess(process);
+        let endpoint = `/api/csas/processes/${process.id}/`;
+        apiService(endpoint, "PUT", process).then(data => {
           if (!data.id) this.errors = groomJSON(data);
           else this.getProcess(process);
         });

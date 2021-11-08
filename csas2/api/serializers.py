@@ -616,7 +616,7 @@ class ProcessSerializer(serializers.ModelSerializer):
     committee_members = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     status_display_html = serializers.SerializerMethodField()
-
+    regions = serializers.SerializerMethodField()
     advice_date_display = serializers.SerializerMethodField()
 
     def get_advice_date_display(self, instance):
@@ -671,3 +671,6 @@ class ProcessSerializer(serializers.ModelSerializer):
 
     def get_status_display_html(self, instance):
         return f'<span class=" px-1 py-1 {instance.status_class}">{instance.get_status_display()}</span>'
+
+    def get_regions(self, instance):
+        return str(instance.regions)
