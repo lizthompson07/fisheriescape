@@ -291,7 +291,7 @@ class Branch(SimpleLookupWithUUID):
     def __str__(self):
         mystr = f"{self.tname}"
         if self.sector:
-            mystr += f" ({self.sector.tabbrev})"
+            mystr += f" ({self.sector.region.tname}, {self.sector.tabbrev})"
         return mystr
 
     def save(self, *args, **kwargs):
