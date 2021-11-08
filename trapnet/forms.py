@@ -112,6 +112,7 @@ class ObservationForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'sample': forms.HiddenInput(),
+            'sweep': forms.HiddenInput(),
         }
 
 

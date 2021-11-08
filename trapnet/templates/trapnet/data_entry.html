@@ -22,12 +22,8 @@
 
   <div id="app" v-cloak>
     <div class="mb-3">
-      <div v-if="loading || loadingSample" class="loading mb-3 mt-3 text-center mt-5">
-        <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
-          <span class="sr-only"></span>
-        </div>
-      </div>
-      <div v-else>
+
+      <div>
         <div :class="{'sidebar':true, 'edit':!observation.id, 'mild-concern':observation.id}">
           <div v-if="observation.id" class="card-header lead concern"> {% trans "Edit" %} </div>
           <div v-else class="card-header lead good"> {% trans "New" %} </div>
@@ -142,7 +138,13 @@
             <div class="card" style="">
               <div class="card-header lead">{% trans "Observations" %}</div>
               <div class="card-body">
-                <table class="table table-sm table-small-10">
+
+                <div v-if="loading" class="loading mb-3 mt-3 text-center mt-5">
+                  <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+                    <span class="sr-only"></span>
+                  </div>
+                </div>
+                <table v-else class="table table-sm table-small-10">
                   <thead>
                   <tr>
                     <th class="w50">#</th>
@@ -151,7 +153,7 @@
                     <th class="w75">${labels.origin}</th>
                     <th class="w75">${labels.sex}</th>
                     <th class="w75">${labels.fork_length}</th>
-                    <th  v-if="!isElectro" class="w75">${labels.total_length}</th>
+                    <th v-if="!isElectro" class="w75">${labels.total_length}</th>
                     <th class="w75">${labels.weight}</th>
                     <th v-if="!isElectro" class="w75">${labels.tag_number}</th>
                     <th v-if="!isElectro" class="w75">${labels.location_tagged}</th>
@@ -195,19 +197,23 @@
                     <td v-else><input type="number" step="any" @keyup.enter="updateObservation" v-model="observation.weight" class="table-input p-0"/></td>
 
                     <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o)">${o.tag_number|nz}</td>
-                    <td v-else-if="!isElectro"><input type="text" v-model="observation.tag_number" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-else-if="!isElectro"><input type="text" v-model="observation.tag_number" @keyup.enter="updateObservation" class="table-input p-0"/>
+                    </td>
 
                     <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o)">${o.location_tagged|nz}</td>
-                    <td v-else-if="!isElectro"><input type="text" v-model="observation.location_tagged" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-else-if="!isElectro"><input type="text" v-model="observation.location_tagged" @keyup.enter="updateObservation"
+                                                      class="table-input p-0"/></td>
 
                     <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o)">${o.date_tagged_display|nz}</td>
-                    <td v-else-if="!isElectro"><input type="date" v-model="observation.date_tagged" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-else-if="!isElectro"><input type="date" v-model="observation.date_tagged" @keyup.enter="updateObservation" class="table-input p-0"/>
+                    </td>
 
                     <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.scale_id_number|nz}</td>
                     <td v-else><input type="text" v-model="observation.scale_id_number" @keyup.enter="updateObservation" class="table-input p-0"/></td>
 
                     <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o)">${o.tags_removed|nz}</td>
-                    <td v-else-if="!isElectro"><input type="text" v-model="observation.tags_removed" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-else-if="!isElectro"><input type="text" v-model="observation.tags_removed" @keyup.enter="updateObservation" class="table-input p-0"/>
+                    </td>
 
                     <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.notes|nz}</td>
                     <td v-else><input type="text" v-model="observation.notes" @keyup.enter="updateObservation" class="table-input p-0"/></td>
@@ -293,6 +299,11 @@
       sexChoices: [],
       originChoices: [],
       statusChoices: [],
+      lastOrigin: "2",
+      lastSpecies: null,
+      lastLocation: null,
+      lastStatus: null,
+
     },
     methods: {
       getCurrentUser() {
@@ -315,7 +326,10 @@
         this.observation = {
           sample: sampleId,
           sweep: sweepId,
-          origin: "2",
+          origin: this.lastOrigin,
+          species: this.lastSpecies,
+          location_tagged: this.lastLocation,
+          status: this.lastStatus,
         }
         this.$nextTick(() => {
           this.$refs.start.$refs.search.focus()
@@ -344,10 +358,11 @@
       },
       addMultiple(instructions) {
         const templateObservation = JSON.parse(JSON.stringify(this.observation));
+        console.log(instructions)
         for (var i = 0; i < instructions.totalObservations; i++) {
           this.observation = JSON.parse(JSON.stringify(templateObservation));
           this.observation.date_tagged = this.observation.date_tagged_display
-          if (instructions.shouldIncrement && instructions.tagPrefix && instructions.startTagNumber) {
+          if (instructions.shouldIncrement && instructions.tagPrefix !== null && instructions.startTagNumber) {
             this.observation.tag_number = instructions.tagPrefix + String(i + instructions.startTagNumber).padStart(instructions.padding, "0")
           }
           this.updateObservation();
@@ -379,6 +394,10 @@
                   this.successMsg = "{% trans "Success! The observation was updated." %}"
                 } else {
                   this.successMsg = "{% trans "Success! A new observation has been added." %}"
+                  this.lastSpecies = response.species
+                  this.lastStatus = response.status
+                  this.lastOrigin = response.origin
+                  this.lastLocation = response.location_tagged
                 }
                 this.getObservations()
               }
