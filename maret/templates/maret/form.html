@@ -1,0 +1,34 @@
+{% extends "shared_models/generic_form.html" %}
+
+{% block jquery_import %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+
+{% block bug_create %}
+    {% include "maret/base/_bug_url.html" %}
+{% endblock bug_create %}
+
+{% block title %}
+    {% include "maret/base/_app_title.html" %}
+    {% block subtitle %} - {{ subtitle }}{% endblock %}
+{% endblock title %}
+
+{% block header %}
+    {{ block.super }}
+    {% include "maret/base/_style.html" %}
+{% endblock %}
+
+{% block body %}
+    {{ block.super }}
+{% endblock body %}
+
+{% block left_auth %}
+    {% include "maret/base/_nav_left_auth.html" %}
+{% endblock left_auth %}
+
+{% block body_js %}
+    {{ block.super }}
+    {% for script in scripts %}
+        {% include script %}
+    {% endfor %}
+{% endblock %}

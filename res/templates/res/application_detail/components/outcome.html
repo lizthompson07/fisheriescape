@@ -1,0 +1,179 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="outcome-template">
+
+<div>
+  <div class="row" :id="`outcome${outcome.id}`">
+    {# VIEW MODE #}
+    <div v-if="!editMode" class="col">
+      <b @click="toggleCollapse" class="text-primary pointy">
+        ${outcome.tname}
+        <span v-if="collapse" class="mdi mdi-arrow-collapse-up text-primary" data-toggle="tooltip" title="{% trans "display text" %}"></span>
+        <span v-else class="mdi mdi-arrow-collapse-down text-primary" data-toggle="tooltip" title="{% trans "hide text" %}"></span>
+      </b>
+      <p class="text-muted small" v-html="outcome.description_html"></p>
+      <p v-if="!collapse">
+        <span v-html="object.text_html"></span>
+      </p>
+      <em>
+        (${object.word_count} words)
+      </em>
+
+    </div>
+
+    {# EDIT MODE #}
+    <div v-else class="col">
+      <div class="alert alert-info" role="alert">
+        <b>
+          ${outcome.tname}
+        </b>
+        <p class="text-muted small">${outcome.tdescription}</p>
+        <div class="mb-3">
+          <textarea
+            class="form-control"
+            v-model="valuedOutcome.text"
+            @keypress="$emit('keypress')"
+            ref="text" id="text" rows="20"
+            @keydown.ctrl.83.prevent="update"
+            @keydown.ctrl.82.prevent="openDialog"
+          ></textarea>
+          <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1" class="helper"
+             title="{% trans "Markdown syntax is supported in this field" %}">
+            <small>{% trans "You can use markdown syntax in this field" %}</small>
+            <span class="mdi mdi-language-markdown ml-1 py-0" style="color: blue"></span>
+          </a>
+        </div>
+
+        <div class="float-right mb-3">
+
+          <ref-inserter
+            ref="ref-inserter"
+            class="neighbours"
+            :labels="achievement_labels"
+            :category_choices="category_choices"
+            :publication_type_choices="publication_type_choices"
+            :review_type_choices="review_type_choices"
+            :categories="categories"
+            :applicant="applicant"
+            @insert="insert"
+          ></ref-inserter>
+          <button v-if="dirty" class="btn btn-sm btn-warning" @click="update"><span class="mdi mdi-content-save"></span> {% trans "Save (Ctrl-S)" %}</button>
+          <button class="btn btn-sm btn-success" @click="toggleEditMode"><span class="mdi mdi-check text-light"></span> {% trans "Save and Close" %}</button>
+        </div>
+        <div class="mb-3">
+          ${wordCount} {% trans "words" %}
+        </div>
+
+      </div>
+
+
+    </div>
+
+    {# Buttons #}
+    <div v-if="editable && !editMode" class="col-1 text-right">
+      <button class="btn btn-sm btn-outline-dark" @click="toggleEditMode" data-toggle="tooltip" title="{% trans "Edit this outcome" %}">
+        <span class="mdi mdi-pencil helper"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+</script>
+
+<script type=" application/javascript">
+
+Vue.component("outcome", {
+  template: "#outcome-template",
+  delimiters: ["${", "}"],
+  name: "outcome",
+  props: {
+    editable: {
+      type: Boolean,
+      default: false
+    },
+    dirty: {
+      type: Boolean,
+      default: false
+    },
+    object: {
+      type: Object,
+    },
+    applicant: {
+      type: Number,
+    },
+    outcome: {
+      type: Object,
+    },
+    achievement_labels: {
+      type: Object,
+    },
+    category_choices: {
+      type: Array,
+    },
+    publication_type_choices: {
+      type: Array,
+    },
+    review_type_choices: {
+      type: Array,
+    },
+    categories: {
+      type: Array,
+    },
+  },
+  data() {
+    return {
+      valuedOutcome: this.object,
+      editMode: false,
+      collapse: true,
+    };
+  },
+  methods: {
+    toggleEditMode() {
+      if (this.editMode) this.update();
+      else this.collapse = false;
+      this.editMode = !this.editMode;
+    },
+    toggleCollapse() {
+      this.collapse = !this.collapse;
+    },
+    update() {
+      this.$emit("change", this.valuedOutcome)
+    },
+    clone() {
+      this.$emit("clone", this.valuedOutcome)
+    },
+    remove() {
+      this.$emit("remove", this.valuedOutcome)
+    },
+    insert(achievement) {
+      this.valuedOutcome.text += ` [ref ${achievement.id}]`;
+      this.$nextTick(() => {
+        this.$refs.text.focus();
+      });
+    },
+    openDialog() {
+      this.$refs["ref-inserter"].openOverlay();
+    }
+  },
+  filters: {
+    yesNo: vueFiltersObject["yesNo"],
+    nz: vueFiltersObject["nz"],
+  },
+  watch: {
+    object() {
+      this.valuedOutcome = this.object;
+    },
+    dirty() {
+      //do nothing
+    },
+  },
+  computed: {
+    wordCount() {
+      if (this.valuedOutcome.text) return this.valuedOutcome.text.split(" ").length;
+      return 0
+    }
+  }
+});
+</script>

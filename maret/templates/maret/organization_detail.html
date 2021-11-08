@@ -1,0 +1,127 @@
+{% extends "maret/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block subcontent %}
+
+    <div class="row mb-5">
+        <div class="col">
+            {% if not object.locked_by_ihub %}
+                <div class="btns">
+                <a class="btn btn-sm btn-warning" href="{% url 'maret:org_edit' object.id %}">
+                    {% trans "Edit" %}
+                </a>
+                <a class="btn btn-sm btn-danger " href="{% url 'maret:org_delete' object.id %}">
+                    {% trans "Delete" %}
+                </a>
+                <a class="btn btn-sm btn-success" href="{# url 'maret:report_q' object.id #}">
+                    {% trans "Cue Card" %}
+                </a>
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    <span class="mdi mdi-information-outline mr-1 h3"></span>
+                    <em class="lead">
+                        {% blocktrans %}
+                            This record can only be modified through
+                        {% endblocktrans %}
+                        <a href="{% url 'ihub:org_detail' object.id %}">iHub</a>
+
+                    </em>
+                </div>
+            {% endif %}
+
+            </div>
+        </div>
+        <div class="col">
+            {% if object.audio_file %}
+                <audio controls>
+                    <source src="{{ object.audio_file.url }}" type="audio/ogg">
+                    Your browser does not support the audio element.
+                </audio>
+            {% endif %}
+        </div>
+    </div>
+
+
+
+    <div class="row mb-5">
+        <div class="col">
+
+            <div class="card entry-card">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Organization Detail:" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm ">
+                        {% for field in field_list %}
+
+                            {% if field == "orgs" %}
+                                <tr>
+                                    <th class="w-25"> {% get_verbose_label instance=object field_name=field %} </th>
+                                    <td>
+                                        {% for org in object.orgs.all %}
+                                            <a href="{% url 'maret:org_detail' org.id %}" target="_blank">{{ org }}</a>
+                                            <br>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% elif field == "regions" %}
+                               <tr>
+                                    <th class="w-25"> {%  trans "Area(s)" %} </th>
+                                    <td>
+                                        {% for ext_org in object.ext_org.all %}
+                                            {{ ext_org.area.all|join:", " }}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                {% verbose_td_display object field %}
+                            {% else %}
+                                {% verbose_td_display object field %}
+                            {% endif %}
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-5">
+            {% include "maret/_members.html" %}
+            {% include "maret/_interactions.html" %}
+            {% include "maret/_committees.html" %}
+        </div>
+    </div>
+
+    <div class="card entry-card mt-5 w-75">
+        <div class="card-header">
+            <h5 class="card-title"> {% trans "Notes" %}</h5>
+        </div>
+        <div class="card-body">
+            {% if object.notes %}
+                {{ object.notes_html }}
+            {% else %}
+                <em> {% trans "There are no notes on file." %} </em>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block body_js %}
+    <script type="application/javascript">
+
+
+        $(".person-delete-me").click(function () {
+            var objectId = $(this)[0].getAttribute("val");
+
+            var userInput = "";
+            userInput = confirm("{% trans "Are you sure you want to delete this person from the entry?" %}");
+
+            if (userInput === true) {
+                $("#person-secrect-delete-btn-" + objectId)[0].click();
+            }
+        })
+
+
+    </script>
+{% endblock %}

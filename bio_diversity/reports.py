@@ -11,6 +11,7 @@ from bokeh.plotting import figure
 from bokeh.resources import CDN
 from django.db.models.functions import Concat
 from openpyxl import load_workbook
+
 from bio_diversity import models, utils
 from bio_diversity.static.calculation_constants import in_out_dict
 from dm_apps import settings
@@ -21,7 +22,10 @@ class ExcelReport:
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_export.xlsx"
     target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    if hasattr(settings, "MEDIA_ROOT"):  # when this is loaded on Azure cloud, there is no attribute call MEDIA_ROOT and upload/download is handled differently
+        target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    else:
+        target_url = os.path.join('temp', target_file)  # basically just a dummy name. will be handled differently when using azure cloud
     template_file_path = None
     wb = None
 
@@ -90,7 +94,8 @@ def generate_facility_tank_report(facic_id):
     tray_qs = models.Tray.objects.filter(trof_id__facic_id=facic, end_date__isnull=True).order_by(Concat('trof_id__name', 'name'))
 
     draw_qs = models.Drawer.objects.filter(heat_id__facic_id=facic).order_by(Concat('heat_id__name', 'name'))
-    cup_qs = models.Cup.objects.filter(draw_id__heat_id__facic_id=facic, end_date__isnull=True).order_by(Concat('draw_id__heat_id__name', 'draw_id__name', 'name'))
+    cup_qs = models.Cup.objects.filter(draw_id__heat_id__facic_id=facic, end_date__isnull=True).order_by(
+        Concat('draw_id__heat_id__name', 'draw_id__name', 'name'))
 
     qs_list = [("Tank", tank_qs), ("Trough", tray_qs), ("Drawer", draw_qs), ("Cup", cup_qs)]
 
@@ -214,7 +219,8 @@ def generate_stock_code_report(stok_id, coll_id, year, start_date=datetime.min, 
     return report.target_url
 
 
-def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now())):
+def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, start_date=utils.naive_to_aware(datetime.min),
+                          end_date=utils.naive_to_aware(datetime.now())):
     # report is given some filter criteria, returns all dead fish details.
     report = ExcelReport()
     report.load_wb("mortality_report_template.xlsx")
@@ -300,13 +306,12 @@ def generate_detail_report(adsc_id, stok_id=None):
     indvd_set = models.IndividualDet.objects.all()
     if stok_id:
         indvd_set = indvd_set.filter(anix_id__indv_id__stok_id=stok_id)
-    indvd_set = indvd_set.filter(adsc_id=adsc_id, anix_id__indv_id__isnull=False).\
-        select_related("anix_id__indv_id", "anix_id__indv_id__stok_id", "anix_id__indv_id__coll_id",)
+    indvd_set = indvd_set.filter(adsc_id=adsc_id, anix_id__indv_id__isnull=False). \
+        select_related("anix_id__indv_id", "anix_id__indv_id__stok_id", "anix_id__indv_id__coll_id", )
     indv_list = list(dict.fromkeys([indvd.anix_id.indv_id for indvd in indvd_set]))
-    sampd_set = models.SampleDet.objects.filter(adsc_id=adsc_id, samp_id__anix_id__grp_id__isnull=False).\
-        select_related("samp_id__anix_id__grp_id", "samp_id__anix_id__grp_id__stok_id", "samp_id__anix_id__grp_id__coll_id",)
+    sampd_set = models.SampleDet.objects.filter(adsc_id=adsc_id, samp_id__anix_id__grp_id__isnull=False). \
+        select_related("samp_id__anix_id__grp_id", "samp_id__anix_id__grp_id__stok_id", "samp_id__anix_id__grp_id__coll_id", )
     grp_list = list(dict.fromkeys([sampd.samp_id.anix_id.grp_id for sampd in sampd_set]))
-
 
     # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
@@ -365,7 +370,7 @@ def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
              for anix_tup in
              site_location.animal_details.filter(indv_id__isnull=False).values_list("indv_id__stok_id__name",
                                                                                     "indv_id__indv_year",
-                                                                                    "indv_id__coll_id__name",).distinct()]
+                                                                                    "indv_id__coll_id__name", ).distinct()]
     if len(grps) >= 1:
         coll_str = grps[0][0]
         grp_str = grps[0][1]
@@ -438,7 +443,7 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
         ws['D' + str(row_count)].value = "No Events at location"
         row_count += 1
 
-    anix_indv_set = models.AniDetailXref.objects.filter(loc_id__in=locations_list, indv_id__isnull=False)\
+    anix_indv_set = models.AniDetailXref.objects.filter(loc_id__in=locations_list, indv_id__isnull=False) \
         .select_related("indv_id", "indv_id__coll_id", "indv_id__stok_id", "loc_id", "loc_id__locc_id", "loc_id__relc_id")
     indv_list = [(anix.indv_id, anix.loc_id) for anix in anix_indv_set]
     row_count = 4
@@ -462,7 +467,6 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
 
 
 def generate_individual_report(indv_id):
-
     report = ExcelReport()
     report.load_wb("individual_report_template.xlsx")
 
@@ -495,7 +499,7 @@ def generate_individual_report(indv_id):
 
     anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True, pair_id__isnull=True) \
         .order_by("-evnt_id__start_datetime").select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id',
-                                                            'evnt_id__prog_id', 'evnt_id__perc_id')
+                                                             'evnt_id__prog_id', 'evnt_id__perc_id')
     evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
 
     row_count = 6
@@ -524,8 +528,8 @@ def generate_individual_report(indv_id):
                 row_count += 1
 
     # -----------------Container Sheet------------------------
-    anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True, pair_id__isnull=True)\
-        .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
+    anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True, pair_id__isnull=True) \
+        .order_by("-evnt_id__start_datetime", "-final_contx_flag") \
         .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
     contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
     cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
@@ -541,7 +545,7 @@ def generate_individual_report(indv_id):
             treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, end_date=treat_end_date)[2]
 
     # -----------------Details Sheet------------------------
-    indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=indv_id).distinct().\
+    indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=indv_id).distinct(). \
         order_by("anidc_id__name", "adsc_id", "-detail_date").select_related("anidc_id", "adsc_id", )
     row_count = 5
     for indvd in indvd_set:
@@ -557,7 +561,7 @@ def generate_individual_report(indv_id):
         row_count += 1
 
     indvt_set = models.IndTreatment.objects.filter(anix_id__indv_id=indv_id).distinct().select_related("indvtc_id",
-                                                                                                           "unit_id")
+                                                                                                       "unit_id")
     row_count = 5
     for indvt in indvt_set:
         ws_dets['I' + str(row_count)].value = indvt.start_date
@@ -572,7 +576,6 @@ def generate_individual_report(indv_id):
 
 
 def generate_grp_report(grp_id):
-
     report = ExcelReport()
     report.load_wb("group_report_template.xlsx")
 
@@ -623,7 +626,7 @@ def generate_grp_report(grp_id):
             end_date = utils.naive_to_aware(grp_tuple[2])
             anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
                                                          pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
-                                                         evnt_id__start_datetime__gte=start_date)\
+                                                         evnt_id__start_datetime__gte=start_date) \
                 .order_by("-evnt_id__start_datetime").select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id',
                                                                      'evnt_id__prog_id', 'evnt_id__perc_id')
             evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
@@ -654,7 +657,6 @@ def generate_grp_report(grp_id):
 
 
 def generate_growth_chart(plot_fish):
-
     if type(plot_fish) == models.Individual:
         len_dets = models.IndividualDet.objects.filter(anidc_id__name="Length").filter(anix_id__indv_id=plot_fish)
         weight_dets = models.IndividualDet.objects.filter(anidc_id__name="Weight").filter(anix_id__indv_id=plot_fish)
@@ -678,7 +680,7 @@ def generate_growth_chart(plot_fish):
     for len_det in len_dets:
         x_len_data.append(datetime.combine(len_det.detail_date, datetime.min.time()))
         y_len_data.append(len_det.det_val)
-        
+
     x_weight_data = []
     y_weight_data = []
     for weight_det in weight_dets:
@@ -752,7 +754,8 @@ def generate_maturity_rate(cont):
     gender_list = []
     indv_list, grp_list = cont.fish_in_cont(select_fields=[])
 
-    indvd_set = models.IndividualDet.objects.filter(anidc_id__name="Gender", indvd_valid=True, anix_id__indv_id__in=indv_list).select_related("anix_id__indv_id")
+    indvd_set = models.IndividualDet.objects.filter(anidc_id__name="Gender", indvd_valid=True, anix_id__indv_id__in=indv_list).select_related(
+        "anix_id__indv_id")
 
     for indvd in indvd_set:
         pit_tag_list.append(indvd.anix_id.indv_id.pit_tag)

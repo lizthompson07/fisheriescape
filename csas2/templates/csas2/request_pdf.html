@@ -1,0 +1,344 @@
+{% load verbose_names %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+{% load static %}
+
+{% block extra_style %}
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+{% endblock %}
+
+<style>
+
+@page {
+    size: letter;
+    margin: 1cm;
+    @frame footer {
+    -pdf-frame-content: footerContent;
+    bottom: 0cm;
+    margin-left: 18cm;
+    margin-right: 0cm;
+    height: 1cm;
+}
+}
+
+td, th {
+    padding: 2px;
+    padding-top: 3px;
+}
+
+.thin {
+    padding: 0;
+    margin: 0;
+}
+
+th, .lead {
+    font-weight: bold;
+    text-align: left;
+    font-size: 12px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.wide-cell {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.very-wide-cell {
+    padding-top: 5px;
+    padding-bottom: 20px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.show-all-borders {
+    border: 1px solid darkgray;
+}
+
+.show-top-border {
+    border-top: 1px solid black;
+}
+
+.show-bottom-border {
+    border-bottom: 1px solid black;
+}
+
+.grey {
+    background-color: lightgray;
+}
+
+.data {
+    background-color: #edf1ff;
+}
+
+.top {
+    vertical-align: top;
+}
+
+.block {
+    margin-bottom: 25px;
+}
+
+h1 {
+    font-size: 18px;
+}
+
+
+.w10p {
+    width: 10%;
+}
+
+.w20p {
+    width: 20%;
+}
+
+.w40p {
+    width: 40%;
+}
+
+.w45p {
+    width: 45%;
+}
+
+.w60p {
+    width: 60%;
+}
+
+.w75p {
+    width: 75%;
+}
+
+
+.large-font {
+    font-size: 20px;
+}
+
+.med-font {
+    font-size: 14px;
+}
+
+.hyperlink {
+    color: blue;
+    text-decoration: underline;
+}
+
+.float-right {
+    float: right;
+}
+</style>
+
+
+<div id="footerContent">
+  {% block page_foot %}
+    <pdf:pagenumber/>
+  {% endblock %}
+</div>
+
+{% for object in object_list %}
+
+
+  <div class="block">
+    <img src="{% static 'csas2/canada_logo.png' %}" alt="" width="600px">
+  </div>
+
+  <div class="block text-center">
+    <h1>{% trans "REQUEST FOR PEER-REVIEWED <br> SCIENCE INFORMATION AND/OR ADVICE" %}</h1>
+  </div>
+
+  <div class="block">
+    <table class="show-all-borders">
+      <tr>
+        <th>{% trans "Title of Request:" %}</th>
+      </tr>
+      <tr>
+        <td>{{ object.title }} ({% trans "ID:" %} {{ object.id }})</td>
+      </tr>
+    </table>
+  </div>
+
+
+  <div class="block">
+    <p class="lead">{% trans "Client Sector Information:" %}</p>
+    <table class="show-all-borders">
+      <tr>
+        <th>{% trans "Requester Name/ Title" %}</th>
+        <th>{% trans "Email" %}</th>
+      </tr>
+      <tr>
+        <td>{{ object.client }}</td>
+        <td>{{ object.client.email }}</td>
+      </tr>
+      <tr>
+        <th colspan="2">{% trans "Manager Name" %}</th>
+      </tr>
+      <tr>
+        <td colspan="2"> &nbsp;</td>
+      </tr>
+      <tr>
+        <th>{% trans "Region" %}</th>
+        <th>{% trans "Sector" %}</th>
+      </tr>
+      <tr>
+        <td>{{ object.section.division.branch.sector.region.tname }}</td>
+        <td>{{ object.section.division.branch.sector.tname }}</td>
+      </tr>
+      <tr>
+        <th colspan="2">{% trans "Directorate/Branch" %}</th>
+      </tr>
+      <tr>
+        <td colspan="2"> {{ object.section.division.branch.tname }} </td>
+      </tr>
+    </table>
+  </div>
+
+
+  <div class="block">
+    <table class="show-all-borders">
+      <tr>
+        <th colspan="2">
+          {% get_verbose_label object "is_multiregional" %}
+        </th>
+      </tr>
+      <tr>
+        <td class="w10p">
+          {{ object.get_is_multiregional_display }}
+        </td>
+        <td>{{ object.multiregional_text|nz:" " }}</td>
+      </tr>
+    </table>
+
+  </div>
+
+
+  <div class="block">
+    <p class="lead">{% trans "Request Details:" %}</p>
+    <table class="show-all-borders">
+      <tr>
+        <th>{% get_verbose_label object "issue" %}</th>
+      </tr>
+      <tr>
+        <td>{{ object.issue_html|nz:" " }}</td>
+      </tr>
+    </table>
+  </div>
+
+
+  <div class="block">
+    <table class="show-all-borders">
+      <tr>
+        <th>{% get_verbose_label object "assistance_text" %}</th>
+      </tr>
+      <tr>
+        <td>{{ object.assistance_text|nz:" " }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="block">
+    <table class="show-all-borders">
+      <tr>
+        <th>{% get_verbose_label object "rationale" %}</th>
+      </tr>
+      <tr>
+        <td>{{ object.rationale_html|nz:" " }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="block">
+    <table class="show-all-borders">
+      <tr>
+        <th>{% get_verbose_label object "risk_text" %}</th>
+      </tr>
+      <tr>
+        <td>{{ object.risk_text_html|nz:" " }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="block">
+    <table class="show-all-borders">
+      <tr>
+        <th>{% get_verbose_label object "advice_needed_by" %}</th>
+      </tr>
+      <tr>
+        <td>{{ object.advice_needed_by|date|nz:" " }}</td>
+      </tr>
+    </table>
+  </div>
+
+
+  <div class="block">
+    <table class="show-all-borders">
+      <tr>
+        <th>{% get_verbose_label object "rationale_for_timeline" %}</th>
+      </tr>
+      <tr>
+        <td>{{ object.rationale_for_timeline|nz:" " }}</td>
+      </tr>
+    </table>
+  </div>
+
+
+  <div class="block">
+    <table class="show-all-borders">
+      <tr>
+        <th colspan="2">
+          {% blocktrans %}
+            Do you have funds to cover any extra costs associated with this request (i.e., special analysis, meeting costs, translation)? If yes, please
+            elaborate.
+          {% endblocktrans %}
+        </th>
+      </tr>
+      <tr>
+        <td class="w10p">
+          {% if object.has_funding %}
+            {% trans "Yes" %}
+          {% else %}
+            {% trans "No" %}
+          {% endif %}
+        </td>
+        <td>{{ object.funding_text|nz:" " }}</td>
+      </tr>
+    </table>
+  </div>
+
+
+  <div class="block">
+    <p class="lead">{% trans "Branch Approval:" %}</p>
+    <table class="show-all-borders">
+      <tr>
+        <th class="w20p"> {% trans "Approval Date" %} </th>
+        <th> {% trans "Name of Director (or Delegated Authority)" %} </th>
+        <th> {% trans "Submission Date" %} </th>
+      </tr>
+      <tr>
+        <td><br><br></td>
+        <td> &nbsp;</td>
+        <td> &nbsp;</td>
+      </tr>
+    </table>
+  </div>
+
+
+  <div class="block text-center">
+    {% blocktrans %}
+      This PDF was generated by DM Apps &mdash; CSAS Tracking Tool on {{ now }}
+    {% endblocktrans %}
+  </div>
+
+  <div>
+    <pdf:nextpage/>
+  </div>
+
+{% endfor %}

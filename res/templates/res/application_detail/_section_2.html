@@ -1,0 +1,26 @@
+{% load i18n %}
+
+<div v-if="loadingApplication" class="loading mb-3 mt-3 mt-5">
+  <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+    <span class="sr-only"></span>
+  </div>
+</div>
+
+<div v-else class="table table-sm">
+
+  <editable-cell
+    input_type="textarea" col_class="col-3" :word_limit="200"
+    :label="applicationLabels.objectives"
+    :object="application" :dirty="unsavedChanges"
+    field="objectives" display_field="objectives_html"
+    :markdown="true" :editable="canModify"  @change="updateApplication" @keypress="unsavedChanges=true"
+  ></editable-cell>
+  <editable-cell
+    input_type="textarea" col_class="col-3"  :word_limit="400"
+    :label="applicationLabels.relevant_factors"
+    :object="application" field="relevant_factors" display_field="relevant_factors_html"
+    :markdown="true" :editable="canModify" :dirty="unsavedChanges"
+     @change="updateApplication" @keypress="unsavedChanges=true"
+  ></editable-cell>
+
+</div>

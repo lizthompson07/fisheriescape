@@ -154,6 +154,16 @@ class RemovedTravellerEmail(Email):
     def get_recipient_list(self):
         return [self.instance.email, ]
 
+    def __init__(self, request, instance=None, trip_request=None):
+        super().__init__(request)
+        self.request = request
+        self.instance = instance
+        self.trip_request = trip_request
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context.update({'instance': self.instance, 'trip_request': self.trip_request})
+        return context
 
 class TripCostWarningEmail(Email):
     email_template_path = 'travel/emails/email_trip_cost_warning.html'
@@ -161,7 +171,7 @@ class TripCostWarningEmail(Email):
     subject_fr = "Avertissement de coût de voyage ***"
 
     def get_recipient_list(self):
-        travel_admin_list = [user.email for user in User.objects.filter(groups__name="travel_admin")]
+        travel_admin_list = [user.email for user in User.objects.filter(groups__name="travel_adm_admin")]
         travel_admin_list.append("DFO.ScienceTravel-VoyagesSciences.MPO@dfo-mpo.gc.ca")
         return travel_admin_list
 

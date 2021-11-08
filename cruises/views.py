@@ -1,21 +1,22 @@
-from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext_lazy, gettext
 import csv
-from django.conf import settings
+from copy import deepcopy
+
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponse, HttpResponseRedirect
-from django.views.generic import TemplateView, CreateView, UpdateView, DetailView, DeleteView
-from django.utils.text import slugify
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
+from django.utils.text import slugify
+from django.utils.translation import gettext_lazy
 
+from shared_models import models as shared_models
 from shared_models.views import CommonFilterView, CommonCreateView, CommonDetailView, CommonTemplateView, CommonUpdateView, \
     CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonHardDeleteView, CommonFormsetView, CommonDeleteView
-from . import models
 from . import filters
 from . import forms
-from shared_models import models as shared_models
+from . import models
 
 
 # open basic access up to anybody who is logged in
@@ -41,10 +42,52 @@ def in_cruises_admin_group(user):
         return user.groups.filter(name='oceanography_admin').count() != 0
 
 
+def can_modify(user, instance):
+    if user:
+        if in_cruises_admin_group(user):
+            return True
+        # are we dealing with a cruise:
+        cruise = None
+        if isinstance(instance, shared_models.Cruise):
+            cruise = instance
+        elif isinstance(instance, models.Instrument) or isinstance(instance, models.File):
+            cruise = instance.cruise
+        elif isinstance(instance, models.InstrumentComponent):
+            cruise = instance.instrument.cruise
+
+        if cruise:
+            if user in cruise.editors.all():
+                return True
+            if cruise.created_by == user:
+                return True
+        return False
+
+
 class OceanographyAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
     def test_func(self):
         return in_cruises_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class CanModifyRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        if self.kwargs.get("pk"):
+            return can_modify(self.request.user, self.get_object())
+        else:
+            if self.kwargs.get("cruise"):
+                cruise = get_object_or_404(shared_models.Cruise, pk = self.kwargs.get("cruise"))
+                return can_modify(self.request.user, cruise)
+
+            if self.kwargs.get("instrument"):
+                instrument = get_object_or_404(models.Instrument, pk = self.kwargs.get("instrument"))
+                return can_modify(self.request.user, instrument)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -89,7 +132,7 @@ class CruiseListView(OceanographyAccessRequiredMixin, CommonFilterView):
     home_url_name = "cruises:index"
 
 
-class CruiseCreateView(OceanographyAdminRequiredMixin, CommonCreateView):
+class CruiseCreateView(OceanographyAccessRequiredMixin, CommonCreateView):
     template_name = 'cruises/form.html'
     model = shared_models.Cruise
     form_class = forms.CruiseForm
@@ -127,12 +170,13 @@ class CruiseDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
         'funding_project_id',
         'research_projects_programs',
         'references',
+        'metadata',
     ]
     parent_crumb = {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
     home_url_name = "cruises:index"
 
 
-class CruiseUpdateView(OceanographyAdminRequiredMixin, CommonUpdateView):
+class CruiseUpdateView(CanModifyRequiredMixin, CommonUpdateView):
     model = shared_models.Cruise
     form_class = forms.CruiseForm
     template_name = 'cruises/form.html'
@@ -150,10 +194,46 @@ class CruiseUpdateView(OceanographyAdminRequiredMixin, CommonUpdateView):
         return context
 
 
-class CruiseDeleteView(OceanographyAdminRequiredMixin, CommonDeleteView):
+class CruiseCloneView(OceanographyAccessRequiredMixin, CruiseUpdateView):
+    h1 = gettext_lazy("Clone")
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = models.Cruise.objects.get(pk=new_obj.pk)
+
+        new_obj.pk = None
+        new_obj.created_by = self.request.user
+        new_obj.modified_by = self.request.user
+        new_obj.created_at = timezone.now()
+        new_obj.save()
+
+        # for each year of old project, clone into new project...
+        for old_instrument in old_obj.instruments.all():
+            new_instrument = deepcopy(old_instrument)
+            new_instrument.cruise = new_obj
+            new_instrument.pk = None
+            new_instrument.save()
+
+            for old_component in old_instrument.components.all():
+                new_component = deepcopy(old_component)
+                new_component.instrument = new_instrument
+                new_component.pk = None
+                new_component.save()
+
+        return HttpResponseRedirect(reverse_lazy("cruises:cruise_detail", kwargs={"pk": new_obj.id}))
+
+    def get_initial(self):
+        obj = self.get_object()
+        return dict(
+            mission_number=obj.mission_number + " CLONED"
+        )
+
+
+class CruiseDeleteView(CanModifyRequiredMixin, CommonDeleteView):
     model = shared_models.Cruise
     template_name = 'cruises/confirm_delete.html'
     home_url_name = "cruises:index"
+    success_url = reverse_lazy('cruises:cruise_list')
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("cruises:cruise_detail", args=[self.get_object().id])}
@@ -246,7 +326,7 @@ def export_mission_csv(request, pk):
 # FILES #
 #########
 
-class FileCreateView(OceanographyAccessRequiredMixin, CommonPopoutCreateView):
+class FileCreateView(CanModifyRequiredMixin, CommonPopoutCreateView):
     model = models.File
     form_class = forms.FileForm
     is_multipart_form_data = True
@@ -256,20 +336,20 @@ class FileCreateView(OceanographyAccessRequiredMixin, CommonPopoutCreateView):
         return {'cruise': cruise}
 
 
-class FileUpdateView(OceanographyAdminRequiredMixin, CommonPopoutUpdateView):
+class FileUpdateView(CanModifyRequiredMixin, CommonPopoutUpdateView):
     model = models.File
     form_class = forms.FileForm
     is_multipart_form_data = True
 
 
-class FileDeleteView(OceanographyAdminRequiredMixin, CommonPopoutDeleteView):
+class FileDeleteView(CanModifyRequiredMixin, CommonPopoutDeleteView):
     model = models.File
 
 
 # Instruments #
 ############
 
-class InstrumentCreateView(OceanographyAdminRequiredMixin, CommonCreateView):
+class InstrumentCreateView(CanModifyRequiredMixin, CommonCreateView):
     template_name = 'cruises/form.html'
     model = models.Instrument
     form_class = forms.InstrumentForm
@@ -289,7 +369,7 @@ class InstrumentCreateView(OceanographyAdminRequiredMixin, CommonCreateView):
         return {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
 
 
-class InstrumentDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
+class InstrumentDetailView(CanModifyRequiredMixin, CommonDetailView):
     template_name = "cruises/instrument_detail.html"
     model = models.Instrument
     field_list = [
@@ -320,7 +400,7 @@ class InstrumentDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
         return context
 
 
-class InstrumentUpdateView(OceanographyAdminRequiredMixin, CommonUpdateView):
+class InstrumentUpdateView(CanModifyRequiredMixin, CommonUpdateView):
     model = models.Instrument
     form_class = forms.InstrumentForm
     template_name = 'cruises/form.html'
@@ -339,7 +419,7 @@ class InstrumentUpdateView(OceanographyAdminRequiredMixin, CommonUpdateView):
         return {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
 
 
-class InstrumentDeleteView(OceanographyAdminRequiredMixin, CommonDeleteView):
+class InstrumentDeleteView(CanModifyRequiredMixin, CommonDeleteView):
     model = models.Instrument
     template_name = 'cruises/confirm_delete.html'
     home_url_name = "cruises:index"
@@ -364,7 +444,7 @@ class InstrumentDeleteView(OceanographyAdminRequiredMixin, CommonDeleteView):
 # Instrument component #
 ########################
 
-class InstrumentComponentCreateView(OceanographyAdminRequiredMixin, CommonCreateView):
+class InstrumentComponentCreateView(CanModifyRequiredMixin, CommonCreateView):
     model = models.InstrumentComponent
     template_name = 'cruises/form.html'
     form_class = forms.InstrumentComponentForm
@@ -387,7 +467,7 @@ class InstrumentComponentCreateView(OceanographyAdminRequiredMixin, CommonCreate
         return {"instrument": self.get_instrument(), }
 
 
-class InstrumentComponentUpdateView(OceanographyAdminRequiredMixin, CommonUpdateView):
+class InstrumentComponentUpdateView(CanModifyRequiredMixin, CommonUpdateView):
     model = models.InstrumentComponent
     template_name = 'cruises/form.html'
     form_class = forms.InstrumentComponentForm
@@ -411,7 +491,7 @@ class InstrumentComponentUpdateView(OceanographyAdminRequiredMixin, CommonUpdate
         return reverse("cruises:component_delete", args=[self.get_object().id])
 
 
-class InstrumentComponentDeleteView(OceanographyAdminRequiredMixin, CommonDeleteView):
+class InstrumentComponentDeleteView(CanModifyRequiredMixin, CommonDeleteView):
     model = models.InstrumentComponent
     template_name = 'cruises/confirm_delete.html'
     home_url_name = "index"

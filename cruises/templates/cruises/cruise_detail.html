@@ -10,6 +10,7 @@
   <div class="btns mb-5">
     <a href="{% url "cruises:cruise_edit" object.id %}" class="btn btn-warning">{% trans "Edit" %}</a>
     <a href="{% url "cruises:cruise_delete" object.id %}" class="btn btn-danger">{% trans "Delete" %}</a>
+    <a href="{% url "cruises:cruise_clone" object.id %}" class="btn btn-dark">{% trans "Clone" %}</a>
     <a href="{% url "cruises:instrument_new" object.id %}" class="btn btn-primary">Add an Instrument</a>
     <a href="#" pop-href="{% url "cruises:file_new" object.id %}" class="btn btn-primary">Add a File</a>
   </div>

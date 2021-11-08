@@ -28,7 +28,7 @@
           {% include "shared_models/_generic_breadcrumbs.html" %}
           <div class="mb-3">
             <h2 class="">{{ h1|safe }}</h2>
-            <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>
+            {#            <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>#}
           </div>
           {% bootstrap_messages %}
 
@@ -42,25 +42,43 @@
             {% if object.submission_date %}
               <button v-if="!request.review" class="btn btn-sm btn-dark" @click="primeReview">{% trans "Start a Review" %}</button>
               {% if not object.processes.exists %}
-                <a v-if="canModify" class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>
+                <a v-if="canModify" class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Initiate a Process" %}</a>
               {% endif %}
             {% endif %}
           </div>
           <div class="mb-3">
-            <a class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
-            <a class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
-              {% if object.submission_date %}{% trans "Un-Submit" %}{% else %}{% trans "Submit" %}{% endif %}
-            </a>
-            <a class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
-            <a class="btn btn-sm btn-secondary" href="{% url 'csas2:request_clone' object.id %}">{% trans "Clone Me" %}</a>
-            <button @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
+            <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
+
+            <span v-if="canModify">
+              <a v-if="request.submission_date" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
+                {% trans "Un-Submit" %}
+              </a>
+              <a v-else-if="request.is_complete" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
+                {% trans "Submit" %}
+              </a>
+              <span v-else  class="helper" data-toggle="tooltip" title="{% trans "All fields are mandatory before approvals and submission" %}">
+                <a  class="btn btn-sm btn-primary disabled" href="{% url 'csas2:request_submit' object.id %}">
+                  {% trans "Submit" %}
+                </a>
+              </span>
+            </span>
+
+            <a v-if="canModify" class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
+            <a class="btn btn-sm btn-secondary helper"
+               data-toggle="tooltip" title="{% trans "Click here to clone this request into a new request" %}"
+               href="{% url 'csas2:request_clone' object.id %}">{% trans "Clone Me" %}</a>
+            <button v-if="canModify" @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
               <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
             </button>
+            {% if object.status >= 2 %}
 
+              <a href="{% url 'csas2:request_pdf' %}?csas_requests={{ object.id }}" class="btn btn-outline-dark btn-sm ml-3">
+                <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
+              </a>
+            {% endif %}
           </div>
 
           <div class="row">
-
             <div class="col">
               <table class="table table-sm">
                 <tr>
@@ -69,7 +87,7 @@
                 </tr>
                 <tr>
                   <th class="text-left w250" v-html="requestLabels.status"></th>
-                  <td class="text-left" v-html="request.status_display"></td>
+                  <td class="text-left" v-html="request.status_display_html"></td>
                 </tr>
                 <tr>
                   <th class="text-left">{% trans "is carry over?" %}</th>
@@ -100,8 +118,8 @@
                   <td class="text-left" v-html="request.issue_html"></td>
                 </tr>
                 <tr>
-                  <th class="text-left">{% trans "Assistance from DFO Science?" %}</th>
-                  <td class="text-left" v-html="request.assistance_display"></td>
+                  <th class="text-left">{% trans "Assistance from DFO Science" %}</th>
+                  <td class="text-left" v-html="request.assistance_text"></td>
                 </tr>
                 <tr>
                   <th class="text-left" v-html="requestLabels.rationale"></th>
@@ -166,7 +184,7 @@
                     {% if object.processes.exists %}
                       {% for process in object.processes.all %}
                         <div>
-                          <a href="{% url 'csas2:process_detail' process.id %}">{{ process }} ({{ process.id }}) &rarr; {{ process.get_status_display }}</a>
+                          {{ process.status_display }} &rarr; <a href="{% url 'csas2:process_detail' process.id %}">{{ process }} ({{ process.id }})</a>
                         </div>
                       {% endfor %}
                     {% else %}
@@ -182,7 +200,7 @@
             </div>
             {# Notes #}
             <div class="col-4">
-              <note-pad v-if="request.id" parent_name="csas_request" :parent_id="request.id" :notes="notes" @update-notes="getNotes"></note-pad>
+              <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify" :current_user="currentUser"></note-pad>
             </div>
           </div>
         </div>
@@ -244,7 +262,7 @@
         });
       },
       getNotes() {
-        let endpoint = `/api/csas/csas_request-notes/?csas_request=${requestId}`;
+        let endpoint = `/api/csas/request-notes/?csas_request=${requestId}`;
         apiService(endpoint).then(data => {
           this.notes = data;
         });
@@ -300,10 +318,10 @@
       yesNo: vueFiltersObject["yesNo"],
     },
     created() {
-      this.getCurrentUser()
-      this.getRequest(true)
-      this.getReviewMetadata()
-      this.getRequestMetadata()
+      this.getCurrentUser();
+      this.getRequest(true);
+      this.getReviewMetadata();
+      this.getRequestMetadata();
     },
   });
 

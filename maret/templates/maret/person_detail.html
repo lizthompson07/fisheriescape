@@ -1,0 +1,97 @@
+{% extends "maret/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load i18n %}
+
+
+{% block subcontent %}
+
+
+    {% if not object.locked_by_ihub %}
+        <div class="btns">
+            <a class="btn btn-sm btn-warning" href="{% url 'maret:person_edit' object.id %}">
+                {% trans "Edit" %}
+            </a>
+            <a class="btn btn-sm btn-danger " href="{% url 'maret:person_delete' object.id %}">
+                {% trans "Delete" %}
+            </a>
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            <span class="mdi mdi-information-outline mr-1 h3"></span>
+            <em class="lead">
+                {% blocktrans %}
+                    This record can only be modified through
+                {% endblocktrans %}
+                <a href="{% url 'ihub:person_detail' object.id %}">iHub</a>
+
+            </em>
+        </div>
+    {% endif %}
+    <br><br>
+
+    <div class="row">
+        <div class="col-5">
+            <div class="card entry-card">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Person Detail:" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        {% for field in field_list %}
+                            {% verbose_td_display object field th_width="25%" %}
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-5">
+            <div class="card entry-card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Membership:" %}</h5>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        {% for member in object.memberships.all %}
+                            <li>
+                                <!-- This code is problematic since an org can have many groupings and only 1 might be
+                                indigenous -->
+                                {% if member.organization.is_indigenous %}
+                                    <a href="{% url 'maret:org_detail'  member.organization.id %}">{{ member.organization }}</a>
+                                    &rarr;
+                                    {% if member.role %}{{ member.role|nz:"(missing role)" }}{% else %}
+                                        {{ "<em>missing role</em>"|safe }}{% endif %}
+                                {% else %}
+                                    {{ member.organization }}
+                                    {% if member.role %}{{ member.role|nz:"(missing role)" }}{% else %}
+                                        {{ "<em>missing role</em>"|safe }}{% endif %}
+                                    - {% trans "(Will open in Master List in separate tab)" %}
+                                {% endif %}
+                            </li>
+                        {% empty %}
+                            <em>
+                                {% trans "This contact is not part of any organizations" %}
+                            </em>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="card entry-card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Committee / Working Group" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover table-sm ">
+                        {% for obj in object.committee_ext_contact.all %}
+                        <tr href="{% url 'maret:committee_detail' obj.id %}"><td>{{ obj.name }}</td></tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

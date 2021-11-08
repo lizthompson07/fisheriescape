@@ -1,0 +1,26 @@
+{% extends "shared_models/generic_form_with_help_text.html" %}
+{% load static %}
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block bug_create %}
+  {% include "res/base/_bug_url.html" %}
+{% endblock bug_create %}
+
+{% block title %}
+  {% include "res/base/_app_title.html" %}
+  {% block subtitle %} - {{ subtitle }}{% endblock %}
+{% endblock title %}
+
+{% block header %}
+  {{ block.super }}
+  {% include "res/base/_style.html" %}
+{% endblock %}
+
+{% block body %}
+  {{ block.super }}
+{% endblock body %}
+
+{% block left_auth %}
+  {% include "res/base/_nav_left_auth.html" %}
+{% endblock left_auth %}

@@ -1,0 +1,42 @@
+{% load i18n %}
+<ul>
+  <li class="m-3">
+    <a href="#section0">{% trans "BASIC INFORMATION" %}</a>
+  </li>
+  <li class="m-3">
+    <a href="#section1">{% trans "SECTION 1: Accountable Manager's Assessment and Recommendation" %}</a>
+  </li>
+  <li class="m-3">
+    <a href="#section2">{% trans "SECTION 2: Demonstrated Achievements and Contributions" %}</a>
+  </li>
+  <li class="m-3">
+    <a href="#section3">{% trans "ANNEX A: CONTEXTS AND VALUED OUTCOMES" %}</a>
+    <ul>
+      <li v-for="context in contexts">
+        <a :href="`#context${context.id}`"> ${context.tname} </a>
+        <ul>
+          <li v-for="outcome in context.outcomes">
+            <a :href="`#outcome${outcome.id}`"> ${outcome.tname} </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li class="m-3">
+    <a href="#annex">{% trans "ANNEX B: Complete List of Achievements / Contributions" %}</a>
+    <ul>
+      <li v-for="category in application.achievement_categories">
+        <a :href="`#category${category.id}`"> ${category.display} </a>
+        <ul v-if="category.is_publication">
+          <li v-for="publication_type in application.achievement_publication_types">
+            <a :href="`#publication_type{publication_type.id}`"> ${publication_type.tname} </a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a href="#summary_table"> {% trans "Table of the cumulative NUMBER of publications prior to and since last promotion" %} </a>
+      </li>
+    </ul>
+
+  </li>
+</ul>
