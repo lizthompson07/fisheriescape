@@ -811,8 +811,8 @@ class DocumentType(SimpleLookup):
         # if there is no translated term, just pull from the english field
         else:
             my_str = self.name
-        if self.translation_tracking_only:
-            my_str += " ({})".format(gettext("use for translation tracking only"))
+        # if self.translation_tracking_only:
+        #     my_str += " ({})".format(gettext("use for translation tracking only"))
         return my_str
 
 

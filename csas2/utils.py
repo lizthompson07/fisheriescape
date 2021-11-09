@@ -312,7 +312,7 @@ def get_related_docs(user):
      they are a process coordinator ||
      they are a process advisor
      """
-    qs = models.Document.objects.filter(document_type__hide_from_list=False).filter(
+    qs = models.Document.objects.all().filter(
         Q(process__coordinator=user) | Q(process__advisors=user) | Q(authors__person__dmapps_user=user)).distinct()
     return qs
 
