@@ -37,7 +37,9 @@
                                 <tr>
                                     <td>{% get_verbose_label object field %}</td>
                                     <td>
-                                        <a href="{% url 'maret:committee_detail' object.committee.id %}">{% get_field_value object field %}</a>
+                                        {% if object.committee.id %}
+                                            <a href="{% url 'maret:committee_detail' object.committee.id %}">{% get_field_value object field %}</a>
+                                        {% endif %}
                                     </td>
                                 </tr>
 
@@ -70,7 +72,7 @@
                     </table>
                 </div>
             </div>
-        <div>
+            <div>
                 <div class="card entry-card mb-3">
                     <div class="card-header">
                         <h5 class="card-title"> {% trans "External Contacts" %}</h5>

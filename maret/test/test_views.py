@@ -341,7 +341,7 @@ class TestPersonCreateView(CommonMaretTest):
 
     @tag("submit", "person_create_submit")
     def test_submit(self):
-        data = i_factory.PersonFactory.get_valid_data()
+        data = FactoryFloor.ContactExtensionFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
         self.assert_success_url(self.test_url1, data=data, user=self.user)
 
@@ -351,7 +351,7 @@ class TestPersonUpdateView(CommonMaretTest):
 
     def setUp(self):
         super().setUp()
-        self.instance = i_factory.PersonFactory()
+        self.instance = FactoryFloor.ContactExtensionFactory()
         self.test_url = reverse_lazy('maret:person_edit', args=[self.instance.pk, ])
         self.test_url1 = reverse_lazy('maret:person_edit_pop', args=[self.instance.pk, ])
         self.expected_template = 'maret/form.html'
@@ -374,16 +374,16 @@ class TestPersonUpdateView(CommonMaretTest):
 
     @tag("submit", "person_update_submit")
     def test_submit(self):
-        data = i_factory.PersonFactory.get_valid_data()
+        data = FactoryFloor.ContactExtensionFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
         self.assert_success_url(self.test_url1, data=data, user=self.user)
 
     @tag("locked", "person_update_locked")
     def test_locked_by_ihub(self):
-        self.instance.locked_by_ihub = True
-        self.instance.save()
+        self.instance.contact.locked_by_ihub = True
+        self.instance.contact.save()
 
-        update_data = i_factory.PersonFactory.get_valid_data()
+        update_data = FactoryFloor.ContactExtensionFactory.get_valid_data()
         self.assert_message_returned_url(self.test_url, data=update_data, user=self.user,
                                          expected_messages=["This record can only be modified through iHub",])
         self.assert_message_returned_url(self.test_url1, data=update_data, user=self.user,

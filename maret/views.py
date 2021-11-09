@@ -1,20 +1,36 @@
+import math
+
 from shared_models.views import CommonTemplateView, CommonFilterView, CommonCreateView, CommonFormsetView, \
     CommonDetailView, CommonDeleteView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
-    CommonPopoutDeleteView
+    CommonPopoutDeleteView, CommonHardDeleteView
 
 from django.contrib import messages
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect
+
+from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
 from django.utils.safestring import mark_safe
+
 from django.db.models import TextField, Value
 from django.db.models.functions import Concat
 
 from django.urls import reverse_lazy, reverse
 
 from maret.utils import UserRequiredMixin, AuthorRequiredMixin, AdminRequiredMixin
-from maret import models, filters, forms
+from maret import models, filters, forms, utils
 
 from masterlist import models as ml_models
+
+from easy_pdf.views import PDFTemplateView
+
+
+class CommonCreateViewHelp(CommonCreateView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = utils.get_help_text_dict(self.model)
+
+        return context
 
 
 class IndexView(UserRequiredMixin, CommonTemplateView):
@@ -71,7 +87,7 @@ class PersonDetailView(UserRequiredMixin, CommonDetailView):
     parent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("maret:person_list")}
 
 
-class PersonCreateView(AuthorRequiredMixin, CommonCreateView):
+class PersonCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     model = ml_models.Person
     form_class = forms.PersonForm
     parent_crumb = {"title": gettext_lazy("Person"), "url": reverse_lazy("maret:person_list")}
@@ -84,6 +100,22 @@ class PersonCreateView(AuthorRequiredMixin, CommonCreateView):
             'created_by': self.request.user
         }
 
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        super().form_valid(form)
+
+        ext_con = None
+        fields = form.cleaned_data
+        if fields['role']:
+            if not ext_con:
+                ext_con = models.ContactExtension(contact=object)
+                ext_con.save()
+            ext_con.role = fields['role']
+            ext_con.save()
+
+        return HttpResponseRedirect(reverse_lazy('maret:person_detail', kwargs={'pk': object.id}))
+
 
 class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
     model = ml_models.Person
@@ -93,8 +125,15 @@ class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
     h1 = gettext_lazy("Contact")
 
     def get_initial(self):
+        role = None
+        if models.ContactExtension.objects.filter(contact=self.object):
+            ext_cont = models.ContactExtension.objects.get(contact=self.object)
+            if ext_cont:
+                role = ext_cont.role
+
         return {
             'last_modified_by': self.request.user,
+            'role': role,
         }
 
     def form_valid(self, form):
@@ -104,6 +143,19 @@ class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
             return HttpResponseRedirect(reverse("maret:person_detail", args=[obj.pk, ]))
 
         obj.save()
+
+        ext_con = None
+        if models.ContactExtension.objects.filter(contact=obj):
+            ext_con = models.ContactExtension.objects.get(contact=obj)
+
+        fields = form.cleaned_data
+        if fields['role']:
+            if not ext_con:
+                ext_con = models.ContactExtension(organization=obj)
+                ext_con.save()
+            ext_con.role = fields['role']
+            ext_con.save()
+
         return super().form_valid(form)
 
 
@@ -169,7 +221,7 @@ class InteractionListView(UserRequiredMixin, CommonFilterView):
     home_url_name = "maret:index"
 
 
-class InteractionCreateView(AuthorRequiredMixin, CommonCreateView):
+class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     model = models.Interaction
     form_class = forms.InteractionForm
     parent_crumb = {"title": gettext_lazy("Interaction"), "url": reverse_lazy("maret:interaction_list")}
@@ -181,6 +233,26 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateView):
             'last_modified_by': self.request.user,
             'created_by': self.request.user
         }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scripts'] = ['maret/js/interactionForm.html']
+        return context
+
+
+class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
+    model = models.Interaction
+    form_class = forms.InteractionForm
+    home_url_name = "maret:index"
+    grandparent_crumb = {"title": gettext_lazy("Interaction"),
+                         "url": reverse_lazy("maret:interaction_list")}
+    template_name = "maret/form.html"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("maret:interaction_detail", args=[self.get_object().id])}
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -228,21 +300,6 @@ class InteractionDeleteView(AuthorRequiredMixin, CommonDeleteView):
         return {"title": self.get_object(), "url": reverse("maret:interaction_detail", args=[self.get_object().id])}
 
 
-class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
-    model = models.Interaction
-    form_class = forms.InteractionForm
-    home_url_name = "maret:index"
-    grandparent_crumb = {"title": gettext_lazy("Interaction"),
-                         "url": reverse_lazy("maret:interaction_list")}
-    template_name = "maret/form.html"
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse("maret:interaction_detail", args=[self.get_object().id])}
-
-    def get_initial(self):
-        return {'last_modified_by': self.request.user}
-
-
 #######################################################
 # Committee / Working Groups
 #######################################################
@@ -263,7 +320,7 @@ class CommitteeListView(UserRequiredMixin, CommonFilterView):
         return context
 
 
-class CommitteeCreateView(UserRequiredMixin, CommonCreateView):
+class CommitteeCreateView(UserRequiredMixin, CommonCreateViewHelp):
     model = models.Committee
     form_class = forms.CommitteeForm
     parent_crumb = {"title": gettext_lazy("Committees"), "url": reverse_lazy("maret:committee_list")}
@@ -275,6 +332,11 @@ class CommitteeCreateView(UserRequiredMixin, CommonCreateView):
             'last_modified_by': self.request.user,
             'created_by': self.request.user
         }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scripts'] = ['maret/js/divisionFilter.html']
+        return context
 
 
 class CommitteeDetailView(UserRequiredMixin, CommonDetailView):
@@ -330,6 +392,11 @@ class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateView):
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scripts'] = ['maret/js/divisionFilter.html']
+        return context
+
 
 #######################################################
 # Organization
@@ -363,7 +430,7 @@ class OrganizationListView(UserRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
 
-class OrganizationCreateView(AuthorRequiredMixin, CommonCreateView):
+class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     model = ml_models.Organization
     template_name = 'maret/form.html'
     form_class = forms.OrganizationForm
@@ -384,6 +451,20 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateView):
                 ext_org = models.OrganizationExtension(organization=object)
                 ext_org.save()
             ext_org.area.set(fields['area'])
+            ext_org.save()
+
+        if fields['category']:
+            if not ext_org:
+                ext_org = models.OrganizationExtension(organization=object)
+                ext_org.save()
+            ext_org.category.set(fields['category'])
+            ext_org.save()
+
+        if fields['asc_province']:
+            if not ext_org:
+                ext_org = models.OrganizationExtension(organization=object)
+                ext_org.save()
+            ext_org.associated_provinces.set(fields['asc_province'])
             ext_org.save()
 
         return HttpResponseRedirect(reverse_lazy('maret:org_detail', kwargs={'pk': object.id}))
@@ -448,14 +529,20 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
 
     def get_initial(self):
         areas = []
+        category = []
+        asc_province = []
         if models.OrganizationExtension.objects.filter(organization=self.object):
             ext_org = models.OrganizationExtension.objects.get(organization=self.object)
             if ext_org:
                 areas = [a.pk for a in ext_org.area.all()]
+                category = [c.pk for c in ext_org.category.all()]
+                asc_province = [p.pk for p in ext_org.associated_provinces.all()]
 
         return {
             'last_modified_by': self.request.user,
             'area': areas,
+            'category': category,
+            'asc_province': asc_province,
         }
 
     def form_valid(self, form):
@@ -476,6 +563,20 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
                 ext_org = models.OrganizationExtension(organization=obj)
                 ext_org.save()
             ext_org.area.set(fields['area'])
+            ext_org.save()
+
+        if fields['category']:
+            if not ext_org:
+                ext_org = models.OrganizationExtension(organization=obj)
+                ext_org.save()
+            ext_org.category.set(fields['category'])
+            ext_org.save()
+
+        if fields['asc_province']:
+            if not ext_org:
+                ext_org = models.OrganizationExtension(organization=object)
+                ext_org.save()
+            ext_org.associated_provinces.set(fields['asc_province'])
             ext_org.save()
 
         return super().form_valid(form)
@@ -499,6 +600,83 @@ class OrganizationDeleteView(AdminRequiredMixin, CommonDeleteView):
 
         return super().delete(request, *args, **kwargs)
 
+
+class OrganizationCueCard(PDFTemplateView):
+    template_name = "maret/report_cue_card.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        org = ml_models.Organization.objects.get(pk=self.kwargs["org"])
+        context["org"] = org
+
+        context["org_field_list_1"] = [
+            'name_eng',
+            'name_ind',
+            'former_name',
+            'abbrev',
+            'nation',
+            'website',
+        ]
+        context["org_field_list_2"] = [
+            'address',
+            'mailing_address',
+            'city',
+            'postal_code',
+            'province',
+            'phone',
+            'fax',
+        ]
+        context["org_field_list_3"] = [
+            'next_election',
+            'election_term',
+            'new_coucil_effective_date',
+            'population_on_reserve',
+            'population_off_reserve',
+            'population_other_reserve',
+            'relationship_rating',
+        ]
+        context["org_field_list_4"] = [
+            'fin',
+            'processing_plant',
+            'wharf',
+            'dfo_contact_instructions',
+            'council_quorum',
+            'reserves',
+            'orgs',
+            'notes',
+        ]
+
+        # determine how many rows for the table
+        context["contact_table_rows"] = range(0, math.ceil(org.members.count() / 4))
+        context["one_to_four"] = range(0, 4)
+
+        context["entry_field_list_1"] = [
+            'fiscal_year',
+            'initial_date',
+            'anticipated_end_date',
+            'status',
+        ]
+        context["entry_field_list_2"] = [
+            'sectors',
+            'entry_type',
+            'regions',
+        ]
+        context["entry_field_list_3"] = [
+            'funding_program',
+            'funding_needed',
+            'funding_purpose',
+            'amount_requested',
+        ]
+        context["entry_field_list_4"] = [
+            'amount_approved',
+            'amount_transferred',
+            'amount_lapsed',
+        ]
+        context["entry_field_list_5"] = [
+            'amount_owing',
+        ]
+        context["now"] = timezone.now()
+        return context
 
 
 #######################################################
@@ -583,8 +761,24 @@ class SpeciesFormsetView(CommonMaretFormset):
     success_url_name = "maret:manage_species"
 
 
-class AreaFormsetView(CommonMaretFormset):
-    h1 = _("Manage Areas")
-    queryset = models.Area.objects.all()
-    formset_class = forms.AreaFormSet
-    success_url_name = "maret:manage_areas"
+class OrgCategoriesFormsetView(CommonMaretFormset):
+    h1 = _("Manage Organization Categories")
+    queryset = models.OrgCategory.objects.all()
+    formset_class = forms.OrgCategoriesFormSet
+    success_url_name = "maret:manage_org_categories"
+
+
+class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'maret/formset.html'
+    title = _("MarET Help Text")
+    h1 = _("Manage Help Texts")
+    queryset = models.HelpText.objects.all()
+    formset_class = forms.HelpTextFormset
+    success_url_name = "maret:manage_help_texts"
+    home_url_name = "maret:index"
+    delete_url_name = "maret:delete_help_text"
+
+
+class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.HelpText
+    success_url = reverse_lazy("maret:manage_help_texts")

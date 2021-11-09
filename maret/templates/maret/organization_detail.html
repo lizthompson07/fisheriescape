@@ -16,7 +16,7 @@
                 <a class="btn btn-sm btn-danger " href="{% url 'maret:org_delete' object.id %}">
                     {% trans "Delete" %}
                 </a>
-                <a class="btn btn-sm btn-success" href="{# url 'maret:report_q' object.id #}">
+                <a class="btn btn-sm btn-success" href="{% url 'maret:report_q' object.id %}">
                     {% trans "Cue Card" %}
                 </a>
             {% else %}
@@ -57,7 +57,17 @@
                     <table class="table table-sm ">
                         {% for field in field_list %}
 
-                            {% if field == "orgs" %}
+                            {% if field == "name_ind" %}
+                               <tr>
+                                    <th class="w-25"> {%  trans "Categories" %} </th>
+                                    <td>
+                                        {% for ext_org in object.ext_org.all %}
+                                            {{ ext_org.category.all|join:", " }}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                {% verbose_td_display object field %}
+                            {% elif field == "orgs" %}
                                 <tr>
                                     <th class="w-25"> {% get_verbose_label instance=object field_name=field %} </th>
                                     <td>
@@ -77,6 +87,14 @@
                                     </td>
                                 </tr>
                                 {% verbose_td_display object field %}
+                               <tr>
+                                    <th class="w-25"> {%  trans "Associated Province(s)" %} </th>
+                                    <td>
+                                        {% for ext_org in object.ext_org.all %}
+                                            {{ ext_org.associated_provinces.all|join:", " }}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
                             {% else %}
                                 {% verbose_td_display object field %}
                             {% endif %}
