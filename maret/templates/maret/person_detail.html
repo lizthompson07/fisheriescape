@@ -42,7 +42,19 @@
                 <div class="card-body">
                     <table class="table table-sm">
                         {% for field in field_list %}
-                            {% verbose_td_display object field th_width="25%" %}
+                            {% if field == "phone_1" %}
+                                <tr>
+                                    <th class="w-25"> {% trans "Role" %} </th>
+                                    <td>
+                                        {% for ext_con in object.ext_con.all %}
+                                            {{ ext_con.role }}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                {% verbose_td_display object field th_width="25%" %}
+                            {% else %}
+                                {% verbose_td_display object field th_width="25%" %}
+                            {% endif %}
                         {% endfor %}
                     </table>
                 </div>
@@ -86,7 +98,9 @@
                 <div class="card-body">
                     <table class="table table-hover table-sm ">
                         {% for obj in object.committee_ext_contact.all %}
-                        <tr href="{% url 'maret:committee_detail' obj.id %}"><td>{{ obj.name }}</td></tr>
+                            <tr href="{% url 'maret:committee_detail' obj.id %}">
+                                <td>{{ obj.name }}</td>
+                            </tr>
                         {% endfor %}
                     </table>
                 </div>

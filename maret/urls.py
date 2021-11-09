@@ -42,9 +42,19 @@ urlpatterns = [
 
     path('manage/topics/', views.TopicFormsetView.as_view(), name="manage_topics"),
     path('manage/species/', views.SpeciesFormsetView.as_view(), name="manage_species"),
-    path('manage/areas/', views.AreaFormsetView.as_view(), name="manage_areas"),
+    path('manage/org_categories/', views.OrgCategoriesFormsetView.as_view(), name="manage_org_categories"),
 
     path('ajax/get_divisions/', utils.ajax_get_divisions, name='ajax_get_divisions'),
+
+    # Reporting #
+    #############
+    path('reports/cue-card/org/<int:org>/', views.OrganizationCueCard.as_view(), name="report_q"),
+
+    # HelpText #
+    #############
+    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_texts"),
+    path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
+
 ]
 
 
