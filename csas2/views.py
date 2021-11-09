@@ -1056,7 +1056,7 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
 
     def get_queryset(self):
         qp = self.request.GET
-        qs = models.Document.objects.all()
+        qs = models.Document.objects.filter(document_type__hide_from_list=False)
         if qp.get("personalized"):
             qs = utils.get_related_docs(self.request.user)
         qs = qs.annotate(search_term=Concat(

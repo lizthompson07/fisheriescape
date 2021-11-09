@@ -322,12 +322,15 @@ class CSASRequestReview(MetadataFields):
     notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     def save(self, *args, **kwargs):
+        if self.is_valid == 0 or self.is_feasible == 0:
+            self.decision = 2  # the decision MUST be to withdraw
+
         # if there is a decision, but no decision date, it should be populated
         if self.decision and not self.decision_date:
             self.decision_date = timezone.now()
 
-        if self.is_valid == 0 or self.is_feasible == 0:
-            self.decision = 2  # the decision MUST be to withdraw
+        elif not self.decision:
+            self.decision_date = None
 
         super().save(*args, **kwargs)
 
@@ -801,7 +804,6 @@ class Attendance(models.Model):
 class DocumentType(SimpleLookup):
     days_due = models.IntegerField(null=True, blank=True, verbose_name=_("days due following meeting"))
     hide_from_list = models.BooleanField(default=False, verbose_name=_("hide from main search?"), choices=model_choices.yes_no_choices)
-    translation_tracking_only = models.BooleanField(default=False, verbose_name=_("for translation tracking only?"), choices=model_choices.yes_no_choices)
 
     @property
     def tname(self):
@@ -811,8 +813,6 @@ class DocumentType(SimpleLookup):
         # if there is no translated term, just pull from the english field
         else:
             my_str = self.name
-        # if self.translation_tracking_only:
-        #     my_str += " ({})".format(gettext("use for translation tracking only"))
         return my_str
 
 

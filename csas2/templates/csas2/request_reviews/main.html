@@ -54,11 +54,6 @@
           <thead>
           <tr>
             <th class="">{% trans "Request" %}</th>
-            {#            <th class="w25">Id</th>#}
-            {#            <th class="w75">${requestLabels.fiscal_year}</th>#}
-            {#            <th class="w150">${requestLabels.title}</th>#}
-            {#            <th class="w100">{% trans "Region" %}</th>#}
-            {#            <th class="w100">${requestLabels.status}</th>#}
             <th>{% trans "Review detail" %}</th>
           </tr>
           </thead>
@@ -76,14 +71,14 @@
                 <span class="text-muted">{% trans "Region:" %}</span> ${r.region}
               </div>
               <div class="mb-3">
-                <span class="text-muted">{% trans "Status:" %}</span>
+                <span class="text-muted">{% trans "Status:" %}</span><br>
                 <span v-html="r.status_display_html"></span>
               </div>
               <div class="mb-3">
-                <span class="text-muted">{% trans "Original advice date:" %}</span> ${r.advice_needed_by_display}
+                <span class="text-muted">{% trans "Original advice date:" %}</span><br> ${r.advice_needed_by_display}
               </div>
               <div class="mb-3">
-                <span class="text-muted">{% trans "Fiscal year:" %}</span> ${r.fiscal_year}
+                <span class="text-muted">{% trans "Fiscal year:" %}</span> <br>${r.fiscal_year}
               </div>
 
             </td>
@@ -138,36 +133,37 @@
                     >
                     </v-select>
                   </div>
+{#                  <div class="mb-3">#}
+{#                    <span class="text-muted small">${reviewLabels.decision_date}</span>#}
+{#                    <input v-model="r.review.decision_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"#}
+{#                           @focusout="updateReview(r)">#}
+{#                  </div>#}
                   <div class="mb-3">
-                    <span class="text-muted small">${reviewLabels.decision_date}</span>
-                    <input v-model="r.review.decision_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
-                           @focusout="updateReview(r)">
+                    <span class="text-muted small">${reviewLabels.advice_date}</span>
+                    <input v-model="r.review.advice_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
+                           @focusout="updateReview(r)" :disabled="!r.is_valid_request">
                   </div>
 
                 </div>
                 <div class="col">
                   <div class="mb-3">
                     <span class="text-muted small">{% trans "Decision rationale" %}</span>
-                    <textarea rows="10" class="form-control" v-model="r.review.decision_text" @change="updateReview(r)"></textarea>
+                    <textarea rows="11" class="form-control" v-model="r.review.decision_text" @change="updateReview(r)"></textarea>
                   </div>
                 </div>
 
                 <div class="col">
-                  <div class="mb-3">
-                    <span class="text-muted small">${reviewLabels.advice_date}</span>
-                    <input v-model="r.review.advice_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
-                           @focusout="updateReview(r)" :disabled="!r.is_valid_request">
-                  </div>
+
                   <div class="mb-3">
                     <span class="text-muted small">${reviewLabels.deferred_text}</span>
-                    <textarea rows="6" class="form-control" v-model="r.review.deferred_text" @change="updateReview(r)"
+                    <textarea rows="11" class="form-control" v-model="r.review.deferred_text" @change="updateReview(r)"
                               :disabled="!r.is_rescheduled || !r.is_valid_request"></textarea>
                   </div>
                 </div>
                 <div class="col">
                   <div class="mb-3">
                     <span class="text-muted small">${reviewLabels.notes}</span>
-                    <textarea rows="10" class="form-control" v-model="r.review.notes" @change="updateReview(r)"></textarea>
+                    <textarea rows="11" class="form-control" v-model="r.review.notes" @change="updateReview(r)"></textarea>
                   </div>
                 </div>
               </div>
