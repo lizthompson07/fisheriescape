@@ -46,41 +46,60 @@
       <div v-else class="m-3 mt-4">
 
         <div class="text-center">
-            <div class="text-center">
-              <p class="font-italic text-muted">${requests.length} {% trans "results loaded" %}</p>
-            </div>
+          <div class="text-center">
+            <p class="font-italic text-muted">${requests.length} {% trans "results loaded" %}</p>
+          </div>
         </div>
-        <table class="table table-sm">
+        <table class="table table-sm table-bordered">
           <thead>
           <tr>
-            <th class="w25">Id</th>
-            <th class="w75">${requestLabels.fiscal_year}</th>
-            <th class="w150">${requestLabels.title}</th>
-            <th class="w100">{% trans "Region" %}</th>
-            <th class="w100">${requestLabels.status}</th>
+            <th class="">{% trans "Request" %}</th>
+            {#            <th class="w25">Id</th>#}
+            {#            <th class="w75">${requestLabels.fiscal_year}</th>#}
+            {#            <th class="w150">${requestLabels.title}</th>#}
+            {#            <th class="w100">{% trans "Region" %}</th>#}
+            {#            <th class="w100">${requestLabels.status}</th>#}
             <th>{% trans "Review detail" %}</th>
           </tr>
           </thead>
           <tbody>
           <tr v-for="r in requests" :key="r.id">
-            <td>${r.id}</td>
-            <td>${r.fiscal_year}</td>
-            <td>
-              <a :href="`/csas-sccs/requests/${r.id}/view/`" target="_blank">${r.title}</a>
+            <td class="w-25">
+              <div class="mb-3">
+                <span class="text-muted">{% trans "Id:" %}</span> ${r.id}
+              </div>
+              <div class="mb-3">
+                <span class="text-muted">{% trans "Title:" %}</span>
+                <a :href="`/csas-sccs/requests/${r.id}/view/`" target="_blank">${r.title}</a>
+              </div>
+              <div class="mb-3">
+                <span class="text-muted">{% trans "Region:" %}</span> ${r.region}
+              </div>
+              <div class="mb-3">
+                <span class="text-muted">{% trans "Status:" %}</span>
+                <span v-html="r.status_display_html"></span>
+              </div>
+              <div class="mb-3">
+                <span class="text-muted">{% trans "Original advice date:" %}</span> ${r.advice_needed_by_display}
+              </div>
+              <div class="mb-3">
+                <span class="text-muted">{% trans "Fiscal year:" %}</span> ${r.fiscal_year}
+              </div>
+
             </td>
-            <td>${r.region}</td>
-            <td>${r.status_display}</td>
+
             <td v-if="r.review">
 
               <div class="row">
                 <div class="col">
+
                   <div class="mb-3">
-                    <span class="text-muted small">${reviewLabels.prioritization}</span>
+                    <span class="text-muted small">${reviewLabels.is_valid}</span>
                     <v-select
                       style="width: 100%"
-                      v-model="r.review.prioritization"
+                      v-model="r.review.is_valid"
                       @input="updateReview(r)"
-                      :options="prioritizationChoices"
+                      :options="yesNoChoices"
                       :reduce="choice => choice.value"
                       label="text"
                       :clearable="false"
@@ -88,6 +107,22 @@
                     >
                     </v-select>
                   </div>
+
+                  <div class="mb-3">
+                    <span class="text-muted small">${reviewLabels.is_feasible}</span>
+                    <v-select
+                      style="width: 100%"
+                      v-model="r.review.is_feasible"
+                      @input="updateReview(r)"
+                      :options="yesNoChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      :clearable="false"
+                      class="bg-light"
+                    >
+                    </v-select>
+                  </div>
+
                   <div class="mb-3">
                     <span class="text-muted small">${reviewLabels.decision}</span>
                     <v-select
@@ -99,19 +134,16 @@
                       label="text"
                       :clearable="false"
                       class="bg-light"
+                      :disabled="!r.is_valid_request"
                     >
                     </v-select>
                   </div>
                   <div class="mb-3">
                     <span class="text-muted small">${reviewLabels.decision_date}</span>
                     <input v-model="r.review.decision_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
-                           @change="updateReview(r)">
+                           @focusout="updateReview(r)">
                   </div>
-                  <div class="mb-3">
-                    <span class="text-muted small">{% trans "Advice date" %}</span>
-                    <input v-model="r.review.advice_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
-                           @change="updateReview(r)">
-                  </div>
+
                 </div>
                 <div class="col">
                   <div class="mb-3">
@@ -119,21 +151,23 @@
                     <textarea rows="10" class="form-control" v-model="r.review.decision_text" @change="updateReview(r)"></textarea>
                   </div>
                 </div>
+
                 <div class="col">
                   <div class="mb-3">
-                    <span class="text-muted small">${reviewLabels.notes}</span>
-                    <textarea rows="10" class="form-control" v-model="r.review.notes" @change="updateReview(r)"></textarea>
+                    <span class="text-muted small">${reviewLabels.advice_date}</span>
+                    <input v-model="r.review.advice_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
+                           @focusout="updateReview(r)" :disabled="!r.is_valid_request">
+                  </div>
+                  <div class="mb-3">
+                    <span class="text-muted small">${reviewLabels.deferred_text}</span>
+                    <textarea rows="6" class="form-control" v-model="r.review.deferred_text" @change="updateReview(r)"
+                              :disabled="!r.is_rescheduled || !r.is_valid_request"></textarea>
                   </div>
                 </div>
                 <div class="col">
                   <div class="mb-3">
-                    <input v-model="r.review.is_deferred" class="mr-2" type="checkbox" :id="`is_deferred_${r.review.id}`" @change="updateReview(r)">
-                    <label class="text-muted small" :for="`is_deferred_${r.review.id}`">{% trans "Was deferred?" %}</label>
-                  </div>
-                  <div class="mb-3">
-                    <span class="text-muted small">{% trans "Rationale for deferral" %}</span>
-                    <textarea rows="6" class="form-control" v-model="r.review.deferred_text" @change="updateReview(r)"
-                              :disabled="!r.review.is_deferred"></textarea>
+                    <span class="text-muted small">${reviewLabels.notes}</span>
+                    <textarea rows="10" class="form-control" v-model="r.review.notes" @change="updateReview(r)"></textarea>
                   </div>
                 </div>
               </div>
@@ -144,13 +178,14 @@
               <div v-if="errorMsg" class="alert alert-danger" role="alert">
                 ${errorMsg}
               </div>
-              <div v-if="r.status === 11 && !r.has_process " class="alert alert-warning" role="alert">
-                {% trans "WARNING: This request does yet not have an associated csas process." %}
+              <div v-if="r.status === 11 && !r.has_process " class="alert alert-warning w-75" role="alert">
+                <span class="mdi mdi-exclamation-thick mr-1 text-danger"></span>
+                {% trans "WARNING: This request does yet not have an associated CSAS process." %}
                 <a class="ml-3 btn btn-xs btn-primary" target="_blank"
                    :href="`{% url 'csas2:process_new' %}?request=${ r.id }`">{% trans "Initiate a Process" %}</a>
               </div>
-              <div v-else-if="r.has_process" class="alert alert-info" role="alert">
-                {% trans "This review has an associated process." %}
+              <div v-else-if="r.has_process" class="alert alert-success w-75" role="alert">
+                <span class="mdi mdi-check-bold mr-1 text-success"></span>{% trans "This review has an associated process." %}
               </div>
             </td>
             <td v-else>
@@ -193,7 +228,7 @@
       reviewLabels: {},
       errorMsg: null,
       statusChoices: [],
-      prioritizationChoices: [],
+      yesNoChoices: [],
       decisionChoices: [],
       fyChoices: [],
       regionChoices: [],
@@ -300,7 +335,7 @@
         });
         apiService(`/api/csas/meta/models/request-review/`).then(data => {
           this.reviewLabels = data.labels;
-          this.prioritizationChoices = data.prioritization_choices;
+          this.yesNoChoices = data.yes_no_choices;
           this.decisionChoices = data.decision_choices;
         });
       },

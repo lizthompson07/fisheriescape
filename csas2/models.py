@@ -12,7 +12,6 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext, get_language, activate
 from markdown import markdown
-from textile import textile
 
 from csas2 import model_choices
 from csas2.utils import get_quarter
@@ -164,9 +163,10 @@ class CSASRequest(MetadataFields):
             self.ref_number = self.review.ref_number
             if self.review.advice_date:
                 self.fiscal_year_id = fiscal_year(self.review.advice_date, sap_style=True)
+            else:
+                self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
         else:
             self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
-
 
         # set the STATUS
         # if there is a process, the request the request MUST have been approved.
@@ -286,6 +286,22 @@ class CSASRequest(MetadataFields):
             return self.review.advice_date
         return self.advice_needed_by
 
+    @property
+    def is_rescheduled(self):
+        """
+        the request is considered rescheduled if the following two met:
+        1) there is a review
+        2) the review has an advice date
+        3) the advice date is different than the request advice date
+        """
+        return hasattr(self, "review") and self.review.advice_date and self.advice_needed_by != self.review.advice_date
+
+    @property
+    def is_valid_request(self):
+        if hasattr(self, "review") and (self.review.is_valid == 0 or self.review.is_feasible == 0):
+            return False
+        return True
+
 
 class CSASRequestNote(GenericNote):
     ''' a note pertaining to a csas request'''
@@ -295,17 +311,24 @@ class CSASRequestNote(GenericNote):
 class CSASRequestReview(MetadataFields):
     csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, related_name="review")
     ref_number = models.CharField(max_length=50, verbose_name=_("reference number (optional)"), blank=True, null=True)
-    prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("prioritization"), choices=model_choices.prioritization_choices)
-    prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("prioritization notes"))
+    is_valid = models.IntegerField(blank=True, null=True, verbose_name=_("is this a valid CSAS question?"), choices=model_choices.yes_no_choices_int)
+    is_feasible = models.IntegerField(blank=True, null=True, verbose_name=_("is this feasible from a Science perspective"),
+                                      choices=model_choices.yes_no_choices_int)
     decision = models.IntegerField(blank=True, null=True, verbose_name=_("decision"), choices=model_choices.request_decision_choices)
     decision_text = models.TextField(blank=True, null=True, verbose_name=_("Decision explanation"))
     decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("decision date"))
-    advice_date = models.DateTimeField(verbose_name=_("date to provide Science advice"), blank=True, null=True)
-    is_deferred = models.BooleanField(default=False, verbose_name=_("was the original request date deferred?"))
-    deferred_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide rationale for the deferred date"))
+    advice_date = models.DateTimeField(verbose_name=_("planned advice date"), blank=True, null=True)
+    deferred_text = models.TextField(null=True, blank=True, verbose_name=_("rationale for alternate scheduling"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     def save(self, *args, **kwargs):
+        # if there is a decision, but no decision date, it should be populated
+        if self.decision and not self.decision_date:
+            self.decision_date = timezone.now()
+
+        if self.is_valid == 0 or self.is_feasible == 0:
+            self.decision = 2  # the decision MUST be to withdraw
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -317,20 +340,6 @@ class CSASRequestReview(MetadataFields):
             text = self.decision_text if self.decision_text else gettext("no further detail provided.")
             return "{} - {} ({})".format(self.get_decision_display(), text, date(self.decision_date))
         return gettext("---")
-
-    @property
-    def prioritization_display(self):
-        if self.prioritization:
-            text = self.prioritization_text if self.prioritization_text else gettext("no further detail provided.")
-            return "{} - {}".format(self.get_prioritization_display(), text)
-        return gettext("---")
-
-    @property
-    def deferred_display(self):
-        if self.is_deferred:
-            text = self.deferred_text if self.deferred_text else gettext("no further details provided.")
-            return "{} - {}".format(gettext("Yes"), text)
-        return gettext("No")
 
 
 class CSASRequestFile(GenericFile):
@@ -484,8 +493,8 @@ class Process(SimpleLookupWithUUID, MetadataFields):
                      f"Translation Status: {doc.get_translation_status_display()}\n"
 
             if hasattr(doc, "tracking"):
-                mystr += f"Due Date: {date(doc.tracking.due_date)}\n"\
-                     f"Date Posted: {date(doc.tracking.actual_posting_date)}\n"
+                mystr += f"Due Date: {date(doc.tracking.due_date)}\n" \
+                         f"Date Posted: {date(doc.tracking.actual_posting_date)}\n"
 
             if doc.tracking.due_date and doc.tracking.actual_posting_date:
                 mystr += f"Delta: {(doc.tracking.actual_posting_date - doc.tracking.due_date).days}\n"

@@ -43,6 +43,14 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     is_complete = serializers.SerializerMethodField()
     region = serializers.SerializerMethodField()
     has_process = serializers.SerializerMethodField()
+    is_rescheduled = serializers.SerializerMethodField()
+    is_valid_request = serializers.SerializerMethodField()
+
+    def get_is_valid_request(self, instance):
+        return instance.is_valid_request
+
+    def get_is_rescheduled(self, instance):
+        return instance.is_rescheduled
 
     def get_has_process(self, instance):
         return instance.has_process
