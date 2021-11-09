@@ -237,7 +237,7 @@
       review: {},
       reviewLabels: {},
       errors: null,
-      prioritizationChoices: [],
+      yesNoChoices: [],
       decisionChoices: [],
       notes: [],
       showSidebar: false,
@@ -300,7 +300,7 @@
         let endpoint = `/api/csas/meta/models/request-review/`;
         apiService(endpoint).then(data => {
           this.reviewLabels = data.labels;
-          this.prioritizationChoices = data.prioritization_choices;
+          this.yesNoChoices = data.yes_no_choices;
           this.decisionChoices = data.decision_choices;
         });
       },
