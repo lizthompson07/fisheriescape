@@ -3567,7 +3567,7 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
         context["line_locations"] = location_qs.filter(end_lat__isnull=False, end_lon__isnull=False)
 
         # filter sites:
-        site_qs = models.ReleaseSiteCode.objects.filter(min_lat__isnull=False, max_lat__isnull=False, min_lon__isnull=False, max_lon__isnull=False).select_related("rive_id")
+        site_qs = models.ReleaseSiteCode.objects.filter(min_lat__isnull=False, min_lon__isnull=False).select_related("rive_id")
         if self.request.GET.get("rive_id"):
             site_qs = site_qs.filter(rive_id__name=self.request.GET.get("rive_id"))
 
@@ -3590,7 +3590,10 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
                     else:
                         new_loc_list.append(loc)
             for site in site_qs:
-                if sfa_poly.intersects(site.bbox):
+                if site.bbox:
+                    if sfa_poly.intersects(site.bbox):
+                        new_site_list.append(site)
+                elif sfa_poly.contains(site.point):
                     new_site_list.append(site)
             context["locations"] = new_loc_list
             context["line_locations"] = new_line_loc_list
@@ -3632,7 +3635,10 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
                         captured_locations_list.append(loc)
             for site in site_qs:
                 # check to see if the bbox overlaps with any record points
-                if bbox.intersects(site.bbox):
+                if site.bbox:
+                    if bbox.intersects(site.bbox):
+                        captured_site_list.append(site)
+                elif bbox.contains(site.point):
                     captured_site_list.append(site)
         else:
             captured_locations_list = []

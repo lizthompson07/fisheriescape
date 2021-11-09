@@ -1890,6 +1890,14 @@ class ReleaseSiteCode(BioLookup):
             return bbox
         else:
             return
+    @property
+    def point(self):
+        # lon = x, lat = y
+        if None not in [self.min_lat, self.min_lon]:
+            site_point = Point(float(self.min_lon), float(self.min_lat))
+            return site_point
+        else:
+            return Point()
 
     @property
     def area(self):
