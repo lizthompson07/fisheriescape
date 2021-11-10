@@ -28,7 +28,7 @@
           {% include "shared_models/_generic_breadcrumbs.html" %}
           <div class="mb-3">
             <h2 class="">{{ h1|safe }}</h2>
-            {#            <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>#}
+            <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>
           </div>
           {% bootstrap_messages %}
 
@@ -42,7 +42,8 @@
             {% if object.submission_date %}
               <button v-if="!request.review" class="btn btn-sm btn-dark" @click="primeReview">{% trans "Start a Review" %}</button>
               {% if not object.processes.exists %}
-                <a v-if="canModify" class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Initiate a Process" %}</a>
+                <a v-if="canModify" class="btn btn-sm btn-dark"
+                   href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Initiate a Process" %}</a>
               {% endif %}
             {% endif %}
           </div>
@@ -56,8 +57,8 @@
               <a v-else-if="request.is_complete" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
                 {% trans "Submit" %}
               </a>
-              <span v-else  class="helper" data-toggle="tooltip" title="{% trans "All fields are mandatory before approvals and submission" %}">
-                <a  class="btn btn-sm btn-primary disabled" href="{% url 'csas2:request_submit' object.id %}">
+              <span v-else class="helper" data-toggle="tooltip" title="{% trans "All fields are mandatory before approvals and submission" %}">
+                <a class="btn btn-sm btn-primary disabled" href="{% url 'csas2:request_submit' object.id %}">
                   {% trans "Submit" %}
                 </a>
               </span>
@@ -200,7 +201,8 @@
             </div>
             {# Notes #}
             <div class="col-4">
-              <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify" :current_user="currentUser"></note-pad>
+              <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify"
+                        :current_user="currentUser"></note-pad>
             </div>
           </div>
         </div>
@@ -235,7 +237,7 @@
       review: {},
       reviewLabels: {},
       errors: null,
-      prioritizationChoices: [],
+      yesNoChoices: [],
       decisionChoices: [],
       notes: [],
       showSidebar: false,
@@ -298,7 +300,7 @@
         let endpoint = `/api/csas/meta/models/request-review/`;
         apiService(endpoint).then(data => {
           this.reviewLabels = data.labels;
-          this.prioritizationChoices = data.prioritization_choices;
+          this.yesNoChoices = data.yes_no_choices;
           this.decisionChoices = data.decision_choices;
         });
       },

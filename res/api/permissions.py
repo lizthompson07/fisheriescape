@@ -18,10 +18,14 @@ class CanModifyApplicationOrReadOnly(permissions.BasePermission):
             return True
         else:
             application_id = None
-            if isinstance(obj, models.Application):
+            # if this achievement belongs to this user...
+            if isinstance(obj, models.Achievement) and obj.user == request.user:
+                return True
+            elif isinstance(obj, models.Application):
                 application_id = obj.id
-            elif isinstance(obj, models.ApplicationOutcome) or isinstance(obj, models.Achievement):
+            elif isinstance(obj, models.ApplicationOutcome):
                 application_id = obj.application.id
+
             return can_modify_application(request.user, application_id)
 
 

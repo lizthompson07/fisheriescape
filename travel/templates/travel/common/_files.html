@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load custom_filters %}
 
-<div class="card mb-2" v-if="!travellerToEdit">
+<div class="card mb-4" v-if="!travellerToEdit">
   <h3 class="card-header bg-outline-dark">
     <div class="float-right" v-if="canModify && !isReview && !inFileEditMode">
       <button @click="addAttachment" class="btn btn-sm btn-primary">
@@ -10,7 +10,7 @@
     </div>
     {% trans "File Attachments" %}
     <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
-          data-trigger="hover" title="{% trans "File Attachments" %}"
+          data-trigger="click" title="{% trans "File Attachments" %}"
           :data-content="helpText.files_header"></span>
   </h3>
   <div class="card-body">

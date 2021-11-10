@@ -375,3 +375,22 @@
 .copy-me {
     cursor: copy;
 }
+
+.nav-tabs > .nav-item {
+    z-index: 1;
+    cursor: pointer;
+    box-shadow: 0px -1px 1px #e3e3e3;
+    -webkit-box-shadow: 0px -1px 1px #e3e3e3;
+}
+
+.nav-tabs > .nav-item > .active {
+    -webkit-box-shadow: 3px 0 5px #888;
+    box-shadow: 3px 0 5px #888;
+    z-index: 2;
+}
+
+
+.vertical {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+}

@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 
 from dm_apps.utils import custom_send_mail
 from . import models
+
 chosen_js = {"class": "chosen-select-contains"}
 
 try:
@@ -42,9 +43,23 @@ class UserAccountForm(forms.ModelForm):
         # fields = ('username','first_name','last_name','email','password1','password2')
         model = get_user_model()
         fields = ('email', 'first_name', 'last_name')
-        labels = {
-            'email': "Username / Email address"
-        }
+
+    def clean_email(self):
+        new_email = self.cleaned_data['email']
+        if User.objects.filter(email__iexact=new_email).count() > 0:
+            url_redirect = reverse("accounts:password_reset")
+            raise forms.ValidationError(mark_safe(
+                "This email address already exists in the database. To reset your account credentials click <a href='{}'>HERE</a>".format(
+                    url_redirect)))
+            # raise forms.ValidationError(_(mark_safe('An account already exists for this email address. <a href="#" class="email_error">Log in instead?</a>')))
+
+        if new_email.lower().endswith("@dfo-mpo.gc.ca") == False:
+            raise forms.ValidationError(
+                _("Only DFO employees can register for an account. Please enter an email ending with '@DFO-MPO.GC.CA'"))
+
+        # Always return a value to use as the new cleaned data, even if
+        # this method didn't change it.
+        return new_email
 
 
 class AccountRequestForm(forms.Form):
@@ -57,10 +72,11 @@ class AccountRequestForm(forms.Form):
 class SignupForm(UserCreationForm):
     email = forms.EmailField(max_length=200, help_text=_(
         'Required - a verification email will be sent to you once this form is submitted'))
-
+    password1 = forms.HiddenInput()
+    password2 = forms.HiddenInput()
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'password1', 'password2')
+        fields = ('first_name', 'last_name', 'email')
 
     def clean_email(self):
         new_email = self.cleaned_data['email']
@@ -138,3 +154,53 @@ class DMAppsPasswordResetForm(PasswordResetForm):
             if u.has_usable_password() and
                _unicode_ci_compare(email, getattr(u, email_field_name))
         )
+
+
+class DMAppsEmailLoginForm(PasswordResetForm):
+    def send_mail(self, subject_template_name, email_template_name,
+                  context, from_email, to_email, html_email_template_name=None):
+        """
+        Send a django.core.mail.EmailMultiAlternatives to `to_email`.
+        """
+        subject = loader.render_to_string(subject_template_name, context)
+        # Email subject *must not* contain newlines
+        subject = ''.join(subject.splitlines())
+        body = loader.render_to_string(email_template_name, context)
+        custom_send_mail(
+            html_message=body,
+            subject=subject,
+            from_email=from_email,
+            recipient_list=[to_email]
+        )
+
+    def get_users(self, email):
+        """Given an email, return matching user(s) who should receive a reset.
+
+        This allows subclasses to more easily customize the default policies
+        that prevent inactive users and users with unusable passwords from
+        resetting their password.
+        """
+        email_field_name = UserModel.get_email_field_name()
+        active_users = UserModel._default_manager.filter(**{
+            '%s__iexact' % email_field_name: email,
+        })
+
+        return (
+            u for u in active_users
+            if u.has_usable_password() and
+               _unicode_ci_compare(email, getattr(u, email_field_name))
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # self.fields["email"].label = _("Please enter the DFO e-mail address associated with your account:")
+        self.fields["email"].widget = forms.EmailInput(attrs={'autocomplete': 'email', "placeholder": _("E-mail")})
+
+    def clean_email(self):
+        new_email = self.cleaned_data['email']
+        if new_email.lower().endswith("@dfo-mpo.gc.ca") == False:
+            raise forms.ValidationError(
+                _("Please enter an email ending with '@dfo-mpo.gc.ca'"))
+        if len([u for u in self.get_users(new_email)]) == 0:
+            raise forms.ValidationError(_("This email address is not in the system. Please check the spelling or register for an account "))
+        return new_email

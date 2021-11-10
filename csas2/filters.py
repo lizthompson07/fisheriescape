@@ -3,9 +3,9 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
-from shared_models.models import FiscalYear, Section, Branch, Region, Person
+from shared_models.models import FiscalYear, Section, Region, Person
 from . import models, utils
-from .model_choices import request_status_choices
+from .model_choices import request_status_choices, get_process_status_choices
 
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
 chosen_js = {"class": "chosen-select-contains"}
@@ -38,9 +38,9 @@ class CSASRequestFilter(django_filters.FilterSet):
     fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name="section__division__branch__sector__region", label=_("Region"), lookup_expr='exact')
     sector = django_filters.ChoiceFilter(field_name="section__division__branch__sector", label=_("Sector"), lookup_expr='exact')
+    section = django_filters.ChoiceFilter(field_name="section", label=_("Section"), lookup_expr='exact')
     has_process = django_filters.BooleanFilter(field_name='processes', lookup_expr='isnull', label=_("Has process?"), exclude=True)
-    status = django_filters.MultipleChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"),
-                                                 widget=forms.SelectMultiple(attrs=chosen_js), choices=request_status_choices)
+    status = django_filters.MultipleChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"), widget=forms.SelectMultiple(attrs=chosen_js))
     client = django_filters.ChoiceFilter(field_name="client", label=_("Client"), lookup_expr='exact')
 
     def __init__(self, *args, **kwargs):
@@ -48,26 +48,33 @@ class CSASRequestFilter(django_filters.FilterSet):
 
         region_choices = utils.get_region_choices()
         sector_choices = utils.get_sector_choices()
+        section_choices = utils.get_section_choices()
         fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
-        client_choices = [(u.id, str(u)) for u in User.objects.filter(csas_client_requests__isnull=False).order_by("first_name","last_name").distinct()]
+        client_choices = [(u.id, str(u)) for u in User.objects.filter(csas_client_requests__isnull=False).order_by("first_name", "last_name").distinct()]
 
-        self.filters['fiscal_year'] = django_filters.MultipleChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices,
-                                                                          label=_("Fiscal year"), widget=forms.SelectMultiple(attrs=chosen_js))
-        self.filters['region'] = django_filters.ChoiceFilter(field_name="section__division__branch__sector__region", label=_("Region"), lookup_expr='exact',
-                                                             choices=region_choices)
-        self.filters['sector'] = django_filters.ChoiceFilter(field_name="section__division__branch__sector", label=_("Sector"), lookup_expr='exact',
-                                                             choices=sector_choices)
-        self.filters['client'] = django_filters.ChoiceFilter(field_name="client", label=_("Client"), lookup_expr='exact', choices=client_choices)
+        self.filters['region'].field.choices = region_choices
+        self.filters['sector'].field.choices = sector_choices
+        self.filters['section'].field.choices = section_choices
+        self.filters['client'].field.choices = client_choices
+        self.filters['status'].field.choices = request_status_choices
+
         self.filters['client'].field.widget.attrs = chosen_js
+        self.filters['section'].field.widget.attrs = chosen_js
+        self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices)
+
         try:
             if self.data["region"] != "":
                 my_region_id = int(self.data["region"])
                 sector_choices = [my_set for my_set in utils.get_sector_choices(region_filter=my_region_id)]
-                self.filters['sector'] = django_filters.ChoiceFilter(field_name="section__division__branch__sector", label=_("Sector"), lookup_expr='exact',
-                                                                     choices=sector_choices)
-
                 section_choices = [my_set for my_set in utils.get_section_choices() if
                                    Section.objects.get(pk=my_set[0]).division.branch.region_id == my_region_id]
+                self.filters['sector'].field.choices = sector_choices
+                self.filters['section'].field.choices = section_choices
+            if self.data["sector"] != "":
+                my_sector_id = int(self.data["sector"])
+                section_choices = [my_set for my_set in utils.get_section_choices() if
+                                   Section.objects.get(pk=my_set[0]).division.branch.sector_id == my_sector_id]
+                self.filters['section'].field.choices = section_choices
 
         except KeyError:
             print('no data in filter')
@@ -75,6 +82,7 @@ class CSASRequestFilter(django_filters.FilterSet):
 
 class ProcessFilter(django_filters.FilterSet):
     id = django_filters.NumberFilter(field_name='id', lookup_expr='exact', label=_("Process ID"))
+    status = django_filters.MultipleChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"), widget=forms.SelectMultiple(attrs=chosen_js))
     fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title contains"))
     lead_region = django_filters.ChoiceFilter(field_name="lead_region", label=_("Lead Region"), lookup_expr='exact')
@@ -92,6 +100,7 @@ class ProcessFilter(django_filters.FilterSet):
         self.filters['lead_region'] = django_filters.ChoiceFilter(field_name="lead_region", label=_("Lead Region"), lookup_expr='exact', choices=region_choices)
         self.filters['csas_requests__client'] = django_filters.ChoiceFilter(field_name="csas_requests__client", label=_("Request client"), lookup_expr='exact',
                                                                             choices=client_choices)
+        self.filters['status'].field.choices = get_process_status_choices()
 
     class Meta:
         model = models.Process

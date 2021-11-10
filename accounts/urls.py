@@ -1,6 +1,6 @@
-from django.urls import path, re_path
+from django.urls import path
+
 from . import views
-from django.contrib.auth import views as auth_views
 
 app_name = 'accounts'
 
@@ -13,6 +13,7 @@ urlpatterns = [
 
     path('azure-login/', views.sign_in, name='azure_login'),
     path('callback/', views.callback, name='callback'),
+    path('regular-callback/<str:uidb64>/<str:token>/', views.CallBack.as_view(), name='regular_callback'),
     path('signup/', views.signup, name='signup'),
     path('activate/<str:uidb64>/<str:token>', views.activate, name='activate'),
     path('resend-verification-email/<str:email>', views.resend_verification_email, name='resend_verification_email'),
@@ -21,12 +22,12 @@ urlpatterns = [
     path('users/<int:pk>/edit/', views.UserUpdateView.as_view(), name='account'),
     path('profiles/<int:pk>/edit/', views.ProfileUpdateView.as_view(), name='profile'),
     path('users/change-password/', views.change_password, name='change_password'),
-    path('request-access/', views.RequestAccessFormView.as_view(), name='request_access')
+    path('request-access/', views.RequestAccessFormView.as_view(), name='request_access'),
 
     ### NOTE: Password reset views are mapped in the dm_apps urls.py file. Views are still in the Accounts app views.py
+    # Password reset views. Views are part of accounts app #
+    ########################################################
+    path('password-reset/', views.UserPassWordResetView.as_view(), name='password_reset'),
+    path('reset/<str:uidb64>/<str:token>/', views.UserPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 
 ]
-
-
-
-

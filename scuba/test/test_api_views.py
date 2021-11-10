@@ -6,7 +6,7 @@ from faker import Factory
 from rest_framework import status
 
 from shared_models.test.SharedModelsFactoryFloor import UserFactory
-from shared_models.test.common_tests import CommonTest
+from .common_tests import ScubaCommonTest as CommonTest
 from . import FactoryFloor
 from .FactoryFloor import ObservationFactory, DiveFactory, SectionFactory
 
@@ -16,7 +16,7 @@ faker = Factory.create()
 class TestCurrentUserAPIView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.user = self.get_and_login_user()
+        self.user = self.get_and_login_admin()
         self.instance = UserFactory()
         self.test_url = reverse("scuba-current-user", args=None)
 
@@ -93,7 +93,7 @@ class TestObservationListCreateAPIView(CommonTest):
     def test_post(self):
         # PERMISSIONS
         # authenticated users
-        self.get_and_login_user(in_group="scuba_admin")
+        self.get_and_login_admin()
         data = ObservationFactory.get_valid_data()
         response = self.client.post(self.test_url, data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -104,7 +104,7 @@ class TestObservationListCreateAPIView(CommonTest):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # RESPONSE DATA
-        self.get_and_login_user(in_group="scuba_admin")
+        self.get_and_login_admin()
         response = self.client.post(self.test_url, data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         keys = [
@@ -123,7 +123,7 @@ class TestObservationListCreateAPIView(CommonTest):
 class TestObservationRetrieveUpdateDestroyAPIView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
         self.instance = FactoryFloor.ObservationFactory()
         self.test_url = reverse("scuba-observation-detail", args=[self.instance.pk])
         # self.client = APIClient()
@@ -187,7 +187,7 @@ class TestObservationRetrieveUpdateDestroyAPIView(CommonTest):
 class TestSectionListCreateAPIView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
         self.dive = DiveFactory()
         self.section = SectionFactory(dive=self.dive)
         for i in range(0, 5):
@@ -253,7 +253,7 @@ class TestSectionListCreateAPIView(CommonTest):
 class TestSectionRetrieveUpdateDestroyAPIView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
         self.instance = FactoryFloor.SectionFactory()
         self.test_url = reverse("scuba-section-detail", args=[self.instance.pk])
 

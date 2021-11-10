@@ -105,7 +105,6 @@ class DiveForm(forms.ModelForm):
             self.add_error('width_m', msg)
 
 
-
 class SectionForm(forms.ModelForm):
     class Meta:
         model = models.Section
@@ -168,11 +167,11 @@ class NewObservationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         klass = "form-control form-control-sm"
-        self.fields["sex"].widget.attrs = {"v-model": "new_observation.sex", "ref": "top_of_form1", "class": klass,
+        self.fields["sex"].widget.attrs = {"v-model": "new_observation.sex", "class": klass,
                                            "@change": "updateEggStatus(new_observation)"}
         self.fields["egg_status"].widget.attrs = {"v-model": "new_observation.egg_status", "class": klass}
         self.fields["carapace_length_mm"].widget.attrs = {"v-model": "new_observation.carapace_length_mm", "class": klass,
-                                                          "@change": "updateLengthCertainty(new_observation)"}
+                                                          "@change": "updateLengthCertainty(new_observation)", "ref": "top_of_form1", }
         self.fields["certainty_rating"].widget.attrs = {"v-model": "new_observation.certainty_rating", "class": klass}
         self.fields["comment"].widget.attrs = {"v-model": "new_observation.comment", "row": 3, "class": klass}
 
@@ -184,3 +183,19 @@ class ReportSearchForm(forms.Form):
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.IntegerField(required=False, label=gettext_lazy('Year'), widget=forms.NumberInput(attrs={"placeholder": "Leave blank for all years"}))
+
+
+class ScubaUserForm(forms.ModelForm):
+    class Meta:
+        model = models.ScubaUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+ScubaUserFormset = modelformset_factory(
+    model=models.ScubaUser,
+    form=ScubaUserForm,
+    extra=1,
+)

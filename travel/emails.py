@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from dm_apps.emails import Email
 from travel import utils
+from . import models
 
 from_email = settings.SITE_FROM_EMAIL
 
@@ -36,10 +37,9 @@ class NewTripEmail(Email):
 
     def get_recipient_list(self):
         if self.instance.is_adm_approval_required:
-            return [user.email for user in User.objects.filter(groups__name="travel_adm_admin")]
+            return [u.user.email for u in models.TravelUser.objects.filter(is_national_admin=True)]
         else:
-            adm_admins = [user.id for user in User.objects.filter(groups__name="travel_adm_admin")]
-            return [user.email for user in User.objects.filter(groups__name="travel_admin").filter(~Q(id__in=adm_admins))]
+            return [u.user.email for u in models.TravelUser.objects.filter(region__isnull=False)]
 
     def get_context_data(self):
         context = super().get_context_data()
@@ -54,7 +54,7 @@ class RDGReviewAwaitingEmail(Email):
         return 'A trip request is awaiting {} approval'.format(self.reviewer.get_role_display())
 
     def get_recipient_list(self):
-        return [user.email for user in User.objects.filter(groups__name="travel_admin")]
+        return [u.user.email for u in models.TravelUser.objects.filter(region=self.instance.section.division.branch.region)]
 
     def get_context_data(self):
         context = super().get_context_data()
@@ -171,7 +171,7 @@ class TripCostWarningEmail(Email):
     subject_fr = "Avertissement de coût de voyage ***"
 
     def get_recipient_list(self):
-        travel_admin_list = [user.email for user in User.objects.filter(groups__name="travel_adm_admin")]
+        travel_admin_list = [u.user.email for u in models.TravelUser.objects.filter(is_national_admin=True)]
         travel_admin_list.append("DFO.ScienceTravel-VoyagesSciences.MPO@dfo-mpo.gc.ca")
         return travel_admin_list
 

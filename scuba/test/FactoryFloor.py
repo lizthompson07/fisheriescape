@@ -102,6 +102,7 @@ class DiveFactory(factory.django.DjangoModelFactory):
             'transect': transect.id,
             'diver': DiverFactory().id,
             'width_m': faker.pyint(1, 100),
+            'is_training': False,
         }
 
     @staticmethod
@@ -111,6 +112,7 @@ class DiveFactory(factory.django.DjangoModelFactory):
             'transect': TransectFactory().id,
             'diver': DiverFactory().id,
             'width_m': faker.pyint(1, 100),
+            'is_training': False,
         }
 
 class SectionFactory(factory.django.DjangoModelFactory):

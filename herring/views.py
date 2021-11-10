@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils.safestring import mark_safe
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView, ListView
@@ -884,12 +884,16 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
                 # we only want herring.. so if there is a species field, it should be clupea ...
                 species_name = row.get("species")
                 if not species_name or species_name.lower().startswith("clupea"):
+                    sample_qs = models.Sample.objects.filter(old_id=row.get("uuid"))
 
                     # let's get or create a sample based on the uuid
-                    my_sample, created = models.Sample.objects.get_or_create(
-                        old_id=row.get("uuid"),
-                        sample_date=datetime.strptime(row.get("sample_date"), "%Y-%m-%d %H:%M:%S%z"),
-                    )
+                    if sample_qs.exists():
+                        my_sample = get_object_or_404(models.Sample, old_id=row.get("uuid"))
+                    else:
+                        my_sample = models.Sample.objects.create(
+                            old_id=row.get("uuid"),
+                            sample_date=datetime.strptime(row.get("sample_date"), "%Y-%m-%d %H:%M:%S%z"),
+                        )
 
                     # let's do this easy stuff in one shot:
                     my_sample.type = row.get("type")

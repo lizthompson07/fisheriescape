@@ -121,7 +121,7 @@ class RequestReviewerSerializerLITE(serializers.ModelSerializer):
     comments_html = serializers.SerializerMethodField()
     role_display = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
-    status_date = serializers.SerializerMethodField()
+    status_date_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     user_display = serializers.SerializerMethodField()
 
@@ -138,7 +138,7 @@ class RequestReviewerSerializerLITE(serializers.ModelSerializer):
         activate(lang)
         return mystr
 
-    def get_status_date(self, instance):
+    def get_status_date_display(self, instance):
         return date(instance.status_date)
 
     def get_status_display(self, instance):
@@ -217,6 +217,17 @@ class FileSerializer(serializers.ModelSerializer):
         return date(instance.date_created)
 
 
+class TripFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TripFile
+        fields = "__all__"
+
+    date_created = serializers.SerializerMethodField()
+
+    def get_date_created(self, instance):
+        return date(instance.date_created)
+
+
 class RequestReviewerSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Reviewer
@@ -226,7 +237,7 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
     request_obj = serializers.SerializerMethodField()
     role_display = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
-    status_date = serializers.SerializerMethodField()
+    status_date_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     user_display = serializers.SerializerMethodField()
 
@@ -247,7 +258,7 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
         activate(lang)
         return mystr
 
-    def get_status_date(self, instance):
+    def get_status_date_display(self, instance):
         return date(instance.status_date)
 
     def get_status_display(self, instance):
@@ -290,7 +301,7 @@ class TravellerSerializer(serializers.ModelSerializer):
     def get_adm_travel_history(self, instance):
         if instance.user:
             qs = models.TripRequest.objects.filter(
-                travellers__user=instance.user, trip__is_adm_approval_required=True, status=11).order_by("trip__start_date").distinct()
+                travellers__user=instance.user, trip__is_adm_approval_required=True).order_by("status", "trip__start_date").distinct()
             return TripRequestSerializerLITE(qs, many=True, read_only=True).data
         return list()
 
@@ -488,10 +499,14 @@ class TripReviewerSerializer(serializers.ModelSerializer):
     comments_html = serializers.SerializerMethodField()
     role_display = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
-    status_date = serializers.SerializerMethodField()
+    status_date_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     trip_obj = serializers.SerializerMethodField()
     user_display = serializers.SerializerMethodField()
+    status_date_annotation = serializers.SerializerMethodField()
+
+    def get_status_date_annotation(self, instance):
+        return naturaltime(instance.status_date)
 
     def get_comments_html(self, instance):
         return instance.comments_html
@@ -506,7 +521,7 @@ class TripReviewerSerializer(serializers.ModelSerializer):
         activate(lang)
         return mystr
 
-    def get_status_date(self, instance):
+    def get_status_date_display(self, instance):
         return date(instance.status_date)
 
     def get_status_display(self, instance):
@@ -525,6 +540,7 @@ class TripSerializer(serializers.ModelSerializer):
         model = models.Trip
         fields = "__all__"
 
+    files = TripFileSerializer(many=True, read_only=True)
     abstract_deadline = serializers.SerializerMethodField()
     adm_review_deadline = serializers.SerializerMethodField()
     admin_notes_html = serializers.SerializerMethodField()

@@ -19,6 +19,17 @@ YES_NO_CHOICES = (
 )
 
 
+class ResSubUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="res_sub_user", verbose_name=_("DM Apps user"))
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
+
+
 class SiteSection(models.Model):
     section_choices = (
         (1, "ANNEX A"),
@@ -342,7 +353,7 @@ class Achievement(MetadataFields):
                 mystr += "n/a"
 
             if self.review_type:
-                mystr += f"{nz(self.review_type.code, '')}"
+                mystr += f"<span class='helper text-primary' data-toggle='tooltip' title='{self.review_type.tname}'>{nz(self.review_type.code, '')}</span>"
 
             mystr += "."
         elif self.date:

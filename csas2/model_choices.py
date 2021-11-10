@@ -5,6 +5,11 @@ yes_no_choices = (
     (False, "No"),
 )
 
+yes_no_choices_int = (
+    (1, "Yes"),
+    (0, "No"),
+)
+
 language_choices = (
     (1, _('English')),
     (2, _('French')),
@@ -79,7 +84,6 @@ def get_process_status_lookup():
         my_dict[item["value"]]["stage"] = item["stage"]
         my_dict[item["value"]]["text"] = item["text"]
     return my_dict
-
 
 
 # meeting_type_choices = (

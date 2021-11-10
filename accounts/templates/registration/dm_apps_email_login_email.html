@@ -1,0 +1,24 @@
+{% load i18n %}
+
+<p>
+    You're receiving this email because you requested a sign-in link for DM Apps. Please follow this link to complete your sign-in"
+</p>
+<p>
+    {{ protocol }}://{{ domain }}{% url 'accounts:regular_callback' uidb64=uid token=token %}
+</p>
+
+<p>
+    ***************************************************************************
+</p>
+
+
+<p>
+    Vous recevez cet e-mail, car vous avez demandé une réinitialisation du mot de passe pour votre compte d'utilisateur chez DM Apps. Pour
+    ce faire, veuillez
+         allez sur la page suivante et choisissez un nouveau mot de passe:
+</p>
+
+<p>
+    {{ protocol }}://{{ domain }}{% url 'accounts:regular_callback' uidb64=uid token=token %}
+</p>
+

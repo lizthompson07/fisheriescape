@@ -1,31 +1,34 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, update_session_auth_hash, login
+from django.contrib.auth.backends import UserModel
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
-from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetConfirmView
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.views import LogoutView, PasswordResetView, PasswordResetConfirmView, INTERNAL_RESET_SESSION_TOKEN
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
-from dm_apps.utils import custom_send_mail
-
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
-from django.views.generic import TemplateView, UpdateView, CreateView, \
-    FormView  # ,ListView, DetailView, CreateView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.translation import gettext as _, gettext_lazy
+from django.views.decorators.cache import never_cache
+from django.views.decorators.debug import sensitive_post_parameters
+from django.views.generic import TemplateView, UpdateView, FormView, RedirectView  # ,ListView, DetailView, CreateView, DeleteView
 
-from .tokens import account_activation_token
-from . import forms
+from dm_apps.utils import custom_send_mail
 from . import emails
+from . import forms
 from . import models
-from .auth_helper import get_sign_in_url, get_token_from_code, store_token, store_user, remove_user_and_token
+from .auth_helper import get_sign_in_url, get_token_from_code, remove_user_and_token
 from .graph_helper import get_user
+from .tokens import account_activation_token
 
 
 def sign_in(request):
@@ -108,21 +111,86 @@ class ProfileUpdateView(UpdateView):
         except models.Profile.DoesNotExist:
             print("Profile does not exist, creating Profile")
             profile = models.Profile(user=user)
-        
+
         return profile
-    
+
     def form_valid(self, form):
         messages.success(self.request, _("Successfully updated!"))
         return super().form_valid(form)
 
-class UserLoginView(LoginView):
+
+class UserLoginView(PasswordResetView):
     template_name = "registration/login.html"
+    form_class = forms.DMAppsEmailLoginForm
+    from_email = settings.SITE_FROM_EMAIL
+    subject_template_name = 'registration/dm_apps_email_login_subject.txt'
+    email_template_name = 'registration/dm_apps_email_login_email.html'
+    success_url = reverse_lazy('index')
 
     def dispatch(self, request, *args, **kwargs):
         if settings.AZURE_AD:
             return HttpResponseRedirect(reverse("accounts:azure_login"))
         else:
             return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self, **kwargs):
+        messages.success(self.request, f'<span class="mdi mdi-email-outline mr-3 lead"></span>' + _("An e-mail with a login link has been sent to you!"))
+        return reverse('index')
+
+
+class CallBack(RedirectView):
+    token_generator = default_token_generator
+    reset_url_token = 'cleared'
+    url = reverse_lazy("index")
+    invalid_token_msg = gettext_lazy("Sorry the link you used to sign in with is not valid!")
+
+    @method_decorator(sensitive_post_parameters())
+    @method_decorator(never_cache)
+    def dispatch(self, *args, **kwargs):
+        assert 'uidb64' in kwargs and 'token' in kwargs
+
+        self.validlink = False
+        # this gets the using based on the encrypted pk
+        self.user = self.get_user(kwargs['uidb64'])
+
+        if self.user is not None:
+            token = kwargs['token']
+
+            if token == self.reset_url_token:
+                session_token = self.request.session.get(INTERNAL_RESET_SESSION_TOKEN)
+                if self.token_generator.check_token(self.user, session_token):
+                    # If the token is valid, display the password reset form.
+                    self.validlink = True
+                    self.user.is_active = True
+                    self.user.save()
+                    login(self.request, self.user)
+                else:
+                    messages.error(self.request, self.invalid_token_msg)
+
+            else:
+                if self.token_generator.check_token(self.user, token):
+                    # Store the token in the session and redirect to the
+                    # password reset form at a URL without the token. That
+                    # avoids the possibility of leaking the token in the
+                    # HTTP Referer header.
+                    self.request.session[INTERNAL_RESET_SESSION_TOKEN] = token
+                    redirect_url = self.request.path.replace(token, self.reset_url_token)
+                    return HttpResponseRedirect(redirect_url)
+                else:
+                    messages.error(self.request, self.invalid_token_msg)
+            return super().dispatch(*args, **kwargs)
+        else:
+            messages.error(self.request, self.invalid_token_msg)
+        return super().dispatch(*args, **kwargs)
+
+    def get_user(self, uidb64):
+        try:
+            # urlsafe_base64_decode() decodes to bytestring
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = UserModel._default_manager.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, UserModel.DoesNotExist, ValidationError):
+            user = None
+        return user
 
 
 class UserLogoutView(LogoutView):
@@ -220,7 +288,7 @@ def resend_verification_email(request, email):
 
 def signup(request):
     if request.method == 'POST':
-        form = forms.SignupForm(request.POST)
+        form = forms.UserAccountForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             user.username = user.email
@@ -235,6 +303,7 @@ def signup(request):
                 'token': account_activation_token.make_token(user),
             })
             to_email = form.cleaned_data.get('email')
+            print(to_email)
             from_email = settings.SITE_FROM_EMAIL
             custom_send_mail(
                 html_message=message,
@@ -242,11 +311,12 @@ def signup(request):
                 recipient_list=[to_email, ],
                 from_email=from_email,
             )
-            return HttpResponse(_('A verification email was just send to {email_address}. In order to complete your registration, please follow the link'
+            messages.success(request, _('A verification email was just send to {email_address}. In order to complete your registration, please follow the link'
                                   ' in the message. <br><br>If the email does not appear within 1-2 minutes, please be sure to check your junk mail folder. '
-                                  '<br><br>The activation link will only remain valid for a limited period of time.').format(to_email))
+                                  '<br><br>The activation link will only remain valid for a limited period of time.').format(email_address=to_email))
+            return HttpResponseRedirect(reverse('index'))
     else:
-        form = forms.SignupForm()
+        form = forms.UserAccountForm()
     return render(request, 'registration/signup.html', {'form': form})
 
 
@@ -274,6 +344,7 @@ class UserPassWordResetView(PasswordResetView):
     from_email = settings.SITE_FROM_EMAIL
     subject_template_name = 'registration/dm_apps_password_reset_subject.txt'
     email_template_name = 'registration/dm_apps_password_reset_email.html'
+    success_url = reverse_lazy('index')
 
     def get_success_url(self, **kwargs):
         messages.success(self.request, self.success_message)
@@ -310,7 +381,6 @@ class RequestAccessFormView(LoginRequiredMixin, FormView):
         }
 
     def form_valid(self, form):
-
         context = {
             "first_name": form.cleaned_data["first_name"],
             "last_name": form.cleaned_data["last_name"],
