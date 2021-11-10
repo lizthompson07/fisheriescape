@@ -90,12 +90,6 @@ urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
     path('accounts/', include('accounts.urls')),
     path('shared/', include('shared_models.urls')),
-
-    # Password reset views. Views are part of accounts app #
-    ########################################################
-    path('password-reset/', acc_views.UserPassWordResetView.as_view(), name='password_reset'),
-    path('reset/<str:uidb64>/<str:token>/', acc_views.UserPasswordResetConfirmView.as_view(),
-         name='password_reset_confirm'),
     prefix_default_language=True)
 
 if settings.INSTALLED_APPS.count("inventory"):
@@ -228,7 +222,6 @@ if settings.INSTALLED_APPS.count("csas2"):
 else:
     print("not connecting csas2 app")
 
-
 if settings.INSTALLED_APPS.count("bio_diversity"):
     urlpatterns += i18n_patterns(path('bio_diversity/', include('bio_diversity.urls')), prefix_default_language=True)
 else:
@@ -244,7 +237,6 @@ if settings.INSTALLED_APPS.count("fisheriescape"):
                                  prefix_default_language=True)
 else:
     print("not connecting fisheriescape app")
-
 
 if settings.INSTALLED_APPS.count("res"):
     urlpatterns += i18n_patterns(path('res-sub/', include('res.urls')),
