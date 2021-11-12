@@ -82,7 +82,7 @@ var app = new Vue({
       apiService(`/api/ppt/tags/${query}`).then(response => this.tags = response)
       apiService(`/api/ppt/funding-sources/${query}`).then(response => this.fundingSources = response)
       apiService(`/api/ppt/regions/${query}`).then(response => this.regions = response)
-      if (this.filter.region && this.filter.region !== "") query += `&region=${this.filter.region}`
+      if (this.filter.region && this.filter.region !== "") query += `&branch__sector__region=${this.filter.region}`
       apiService(`/api/ppt/divisions/${query}`).then(response => this.divisions = response)
       if (this.filter.division && this.filter.division !== "") query += `&division=${this.filter.division}`
       apiService(`/api/ppt/sections/${query}`).then(response => this.sections = response)
