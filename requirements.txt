@@ -66,6 +66,7 @@ pyasn1==0.4.8
 pycparser==2.20
 PyGithub==1.53
 PyJWT==1.7.1
+pyotp==2.6.0
 pyparsing==2.4.7
 PyPDF2==1.26.0
 Pyphen==0.9.5
