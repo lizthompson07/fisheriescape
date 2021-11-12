@@ -57,7 +57,7 @@
                   {% get_verbose_label random_section field %}
                 </th>
               {% endfor %}
-              <th class="text-center" colspan="6">{% trans "Observations" %}</th>
+              <th class="text-center" colspan="7">{% trans "Observations" %}</th>
               <th rowspan="2"></th>
             </tr>
             <tr>
@@ -82,6 +82,7 @@
               <td v-html="obs.sex_display"></td>
               <td v-html="obs.egg_status_display"></td>
               <td v-html="obs.carapace_length_mm"></td>
+              <td v-html="obs.species_display"></td>
               <td v-html="obs.certainty_rating_display"></td>
               <td v-html="obs.comment"></td>
               <td v-if="index1==0" :rowspan="section.observations.length" style="width: 120px" class="text-center">
@@ -99,7 +100,7 @@
               <td v-html="section.substrate_profile" style="width: 100px"></td>
               <td v-html="section.observations.length" style="width: 120px"></td>
               <td v-html="section.comment" style="width: 120px"></td>
-              <td colspan="6"><em>{% trans "No observations" %}</em></td>
+              <td colspan="7"><em>{% trans "No observations" %}</em></td>
               <td class="text-center">
                 <button class="btn btn-sm btn-warning" @click="editSection(section)">
                   <span class="mdi mdi-pencil h6"></span>

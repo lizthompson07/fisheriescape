@@ -380,7 +380,7 @@ class Observation(MetadataFields):
     carapace_length_mm = models.FloatField(verbose_name=_("carapace length (mm)"), blank=True, null=True)
     sex = models.CharField(max_length=2, verbose_name=_("sex"), choices=sex_choices)
     egg_status = models.CharField(max_length=2, blank=True, null=True, verbose_name=_("egg status"), choices=egg_status_choices)
-    species = models.ForeignKey(Species, related_name='observations', on_delete=models.CASCADE, verbose_name=_("species"), blank=False, null=True)
+    species = models.ForeignKey(Species, related_name='observations', on_delete=models.CASCADE, verbose_name=_("species"))
     certainty_rating = models.IntegerField(verbose_name=_("length certainty"), default=1, choices=certainty_rating_choices)
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 
