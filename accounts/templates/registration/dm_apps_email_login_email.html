@@ -1,24 +1,45 @@
 {% load i18n %}
 
 <p>
-    You're receiving this email because you requested a sign-in link for DM Apps. Please follow this link to complete your sign-in"
-</p>
-<p>
-    {{ protocol }}://{{ domain }}{% url 'accounts:regular_callback' uidb64=uid token=token %}
+  You're receiving this email because you requested a sign-in link for DM Apps.
 </p>
 
 <p>
-    ***************************************************************************
-</p>
-
-
-<p>
-    Vous recevez cet e-mail, car vous avez demandé une réinitialisation du mot de passe pour votre compte d'utilisateur chez DM Apps. Pour
-    ce faire, veuillez
-         allez sur la page suivante et choisissez un nouveau mot de passe:
+  Your one-time validation code is: {{ token }}
 </p>
 
 <p>
-    {{ protocol }}://{{ domain }}{% url 'accounts:regular_callback' uidb64=uid token=token %}
+  This code is only valid for 1 day.
+  <b>
+    <a href="{{ protocol }}://{{ domain }}{% url 'accounts:regular_callback' uidb64=uid token=token %}">Complete your sign-in here.</a>
+  </b>
 </p>
 
+<p>
+  If instead you prefer to enter the above code manually, you may do so
+  <a href="{{ protocol }}://{{ domain }}{% url 'accounts:regular_callback' uidb64=uid token='manual' %}"> here.</a>
+</p>
+
+<p>
+  ***************************************************************************
+</p>
+
+<p>
+  Vous recevez ce courriel, car vous avez demandé un lien de connexion pour Applis GD.
+</p>
+
+<p>
+  Votre code de validation unique est : {{ token }}
+</p>
+
+<p>
+  Ce code n'est valable que 1 jour.
+  <b>
+    <a href="{{ protocol }}://{{ domain }}{% url 'accounts:regular_callback' uidb64=uid token=token %}">Complétez votre connexion ici.</a>
+  </b>
+</p>
+
+<p>
+  Si vous préférez saisir le code ci-dessus manuellement, vous pouvez le faire
+  <a href="{{ protocol }}://{{ domain }}{% url 'accounts:regular_callback' uidb64=uid token='manual' %}">ici.</a>
+</p>
