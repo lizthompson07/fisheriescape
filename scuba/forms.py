@@ -159,6 +159,7 @@ class ObservationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         klass = "form-control form-control-sm"
         self.fields["sex"].widget.attrs = {"v-model": "obs.sex", "@change": "updateObservation(obs)", "class": klass}
         self.fields["egg_status"].widget.attrs = {"v-model": "obs.egg_status", "@change": "updateObservation(obs)", "class": klass, ":disabled": "obs.sex!='f'"}
@@ -188,6 +189,10 @@ class NewObservationForm(forms.ModelForm):
         self.fields["certainty_rating"].widget.attrs = {"v-model": "new_observation.certainty_rating", "class": klass}
         self.fields["species"].widget.attrs = {"v-model": "new_observation.species", "class": klass}
         self.fields["comment"].widget.attrs = {"v-model": "new_observation.comment", "row": 3, "class": klass}
+
+        species_choices = [(obj.id, obj.code_name) for obj in models.Species.objects.all()]
+        species_choices.insert(0, tuple((None, "---")))
+        self.fields["species"].choices = species_choices
 
 
 class ReportSearchForm(forms.Form):

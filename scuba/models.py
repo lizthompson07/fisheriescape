@@ -206,6 +206,9 @@ class Species(SimpleLookup):
                 s.is_default = False
                 s.save()
 
+    @property
+    def code_name(self):
+        return f'{self.code} - {self.tname}'
 
 class Sample(models.Model):
     site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("site"))
