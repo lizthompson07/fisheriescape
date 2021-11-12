@@ -34,7 +34,6 @@
     <br>
     <div class="jumbotron">
 
-
       {% if user.is_authenticated %}
         <h3>{% trans "You are already signed in." %}</h3>
       {% else %}
@@ -44,7 +43,7 @@
         </h1>
 
         <h4 class="mb-3">
-          {% trans "Please enter your DFO e-mail address to sign In" %}
+          {% trans "Please enter the one-time password sent to your email." %}
         </h4>
 
       {% endif %}
@@ -52,23 +51,24 @@
       {% if user.is_authenticated %}
         {# do not show the form #}
       {% else %}
-        <form action="{% url 'accounts:login' %}" method="POST" class='form'>
+        <form method="POST" class='form'>
 
           {% csrf_token %}
-          <div class="mb-3">
-            {% bootstrap_field form.email show_label=False %}
-          </div>
-          <div class="mb-3">
-            {% url 'accounts:signup' as sign_up_url %}
-            {% blocktrans %}
-              If you do not have an account, you can create one <a tabindex="-1" href="{{ sign_up_url }}">here</a>.
-            {% endblocktrans %}
+          <div class="mb-3 w-25">
+            {% bootstrap_field form.otp show_label=False %}
           </div>
 
+          <h6 class="text-muted mb-3">
+            {% url 'accounts:login' as login_url %}
+            {% blocktrans  with login_url as login_url %}
+              If you did not receive it, please be sure to check your junk mail or you can try
+              <a href="{{ login_url }}?email={{ user_email }}"> re-sending it </a> now.
+            {% endblocktrans %}
+          </h6>
 
           {% buttons %}
             <button type="submit" class="btn btn-primary">
-              {% trans "Send Verification Email" %}
+              {% trans "Verify" %}
             </button>
           {% endbuttons %}
           {# <input type="submit" class="btn btn-primary" value="Login"> #}
