@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
 from res.mixins import LoginAccessRequiredMixin, ResAdminRequiredMixin, CanModifyApplicationRequiredMixin, CanViewApplicationRequiredMixin, \
-    CanViewAchievementRequiredMixin, CanModifyAchievementRequiredMixin
+    CanViewAchievementRequiredMixin, CanModifyAchievementRequiredMixin, SuperuserOrAdminRequiredMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonCreateView, CommonFilterView, CommonDetailView, \
     CommonUpdateView, CommonDeleteView
 from . import models, forms, filters, utils, emails
@@ -17,11 +17,6 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     h1 = "home"
     active_page_name_crumb = "home"
     template_name = 'res/index.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["is_admin"] = in_res_admin_group(self.request.user)
-        return context
 
 
 # REFERENCE TABLES /  FORMSETS
@@ -130,6 +125,22 @@ class ReviewTypeFormsetView(ResAdminRequiredMixin, CommonFormsetView):
 class ReviewTypeHardDeleteView(ResAdminRequiredMixin, CommonHardDeleteView):
     model = models.ReviewType
     success_url = reverse_lazy("res:manage_review_types")
+
+
+class ResSubUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
+    template_name = 'res/formset.html'
+    h1 = "Manage Res Sub Users"
+    queryset = models.ResSubUser.objects.all()
+    formset_class = forms.ResSubUserFormset
+    success_url_name = "res:manage_res_sub_users"
+    home_url_name = "res:index"
+    delete_url_name = "res:delete_res_sub_user"
+    container_class = "container bg-light curvy"
+
+
+class ResSubUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
+    model = models.ResSubUser
+    success_url = reverse_lazy("res:manage_res_sub_users")
 
 
 # APPLICATIONS
@@ -371,6 +382,7 @@ class AchievementListView(LoginAccessRequiredMixin, CommonFilterView):
     def get_field_list(self):
         field_list = [
             {"name": 'id', "class": "", "width": "50px"},
+            {"name": 'detail', "class": "w-50"},
             {"name": 'category', "class": ""},
             {"name": 'publication_type', "class": ""},
             {"name": 'review_type', "class": ""},
@@ -462,7 +474,6 @@ class AchievementDeleteView(CanModifyAchievementRequiredMixin, CommonDeleteView)
         return {"title": self.get_object(), "url": reverse_lazy("res:achievement_detail", args=[self.get_object().id])}
 
 
-
 class AchievementCloneUpdateView(AchievementUpdateView):
     h1 = gettext_lazy("Clone an Achievement")
 
@@ -488,4 +499,3 @@ class AchievementCloneUpdateView(AchievementUpdateView):
         new_obj.created_by = self.request.user
         new_obj.save()
         return HttpResponseRedirect(reverse_lazy("res:achievement_detail", args=[new_obj.id]))
-

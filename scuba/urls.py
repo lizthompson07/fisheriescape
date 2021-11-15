@@ -9,6 +9,10 @@ urlpatterns = [
     path('settings/divers/', views.DiverFormsetView.as_view(), name="manage_divers"),  # tested
     path('settings/diver/<int:pk>/delete/', views.DiverHardDeleteView.as_view(), name="delete_diver"),  # tested
 
+    # user permissions
+    path('settings/users/', views.ScubaUserFormsetView.as_view(), name="manage_scuba_users"),
+    path('settings/users/<int:pk>/delete/', views.ScubaUserHardDeleteView.as_view(), name="delete_scuba_user"),
+
     # regions
     path('regions/', views.RegionListView.as_view(), name="region_list"),  # tested
     path('regions/new/', views.RegionCreateView.as_view(), name="region_new"),  # tested
@@ -42,8 +46,8 @@ urlpatterns = [
     path('dives/<int:pk>/data-entry/', views.DiveDataEntryDetailView.as_view(), name="dive_data_entry"),  # tested
 
     # reports
-    path('reports/', views.ReportSearchFormView.as_view(), name="reports"),# tested
-    path('reports/dive-log/', views.dive_log_report, name="dive_log_report"),# tested
+    path('reports/', views.ReportSearchFormView.as_view(), name="reports"),  # tested
+    path('reports/dive-log/', views.dive_log_report, name="dive_log_report"),  # tested
 
 ]
 

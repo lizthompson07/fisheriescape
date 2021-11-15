@@ -126,7 +126,7 @@
       },
       getReviewers() {
         this.loading_reviewers = true;
-        endpoint = `/api/travel/trip-reviewers/`;
+        endpoint = `/api/travel/trip-reviewers/?personalized=true`;
         apiService(endpoint)
             .then(response => {
               this.loading_reviewers = false;

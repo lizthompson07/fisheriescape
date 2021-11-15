@@ -6,6 +6,11 @@ var app = new Vue({
     currentUser: {},
     dmAppsUsers: [],
     errorMsgReviewer: null,
+    errorMsgFile: null,
+    fileLabels: {},
+    fileToUpload: null,
+    inFileEditMode: false,
+    loadingFile: false,
     helpText: {},
     isReview: isReview,  // declared in template SCRIPT tag
     loading: true,
@@ -39,6 +44,67 @@ var app = new Vue({
         role: null,
         status: 23,  // this will be updated by the model save method. setting status == 4 just allows to show in list
       })
+    },
+    addAttachment() {
+      this.inFileEditMode = true;
+      this.trip.files.push({
+        trip: this.trip.id,
+        name: null,
+        file: null,
+        editMode: true,
+      })
+    },
+    onFileChange(fileRef) {
+      this.fileToUpload = this.$refs[fileRef][0].files[0];
+    },
+    updateFile(file) {
+      this.errorMsgFile = null;
+      // if there is a file attribute, delete it since we send back the file through a separate request
+      if (file.file) delete file.file
+      let endpoint1;
+      let method1;
+      if (!file.id) {
+        endpoint1 = `/api/travel/trip-files/`;
+        method1 = "POST";
+      } else {
+        endpoint1 = `/api/travel/trip-files/${file.id}/`;
+        method1 = "PATCH";
+      }
+      apiService(endpoint1, method1, file).then(response => {
+        if (response.id) {
+          this.inFileEditMode = false;
+          this.loadingFile = true;
+          let endpoint2 = `/api/travel/trip-files/${response.id}/`;
+          fileApiService(endpoint2, "PATCH", "file", this.fileToUpload).then(response => {
+            this.fileToUpload = null
+            this.getTrip();
+            this.loadingFile = false;
+            if (!response.id) {
+              this.errorMsgFile = groomJSON(response);
+            }
+          })
+        } else console.log(response)
+      })
+    },
+    fileCloseEditMode(file) {
+      this.inFileEditMode = false;
+      if (!file.id) {
+        // remove from array
+        this.$delete(this.request.files, this.request.files.indexOf(file))
+      } else {
+        file.editMode = false;
+        this.$forceUpdate()
+      }
+    },
+    deleteFile(file) {
+      userInput = confirm(deleteFileMsg);
+      if (userInput) {
+        let endpoint = `/api/travel/trip-files/${file.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              this.$delete(this.trip.files, this.trip.files.indexOf(file))
+            })
+      }
     },
     addTraveller() {
     }, // being added for the sake of compatibility,
@@ -307,7 +373,7 @@ var app = new Vue({
       return myArray
     },
     isAdmin() {
-      return this.isNCRAdmin; // being adding in for compatibility with reviewer form
+      return this.isNCRAdmin; // being added in for compatibility with reviewer form
     },
     isNCRAdmin() {
       return this.currentUser && this.currentUser.is_ncr_admin;

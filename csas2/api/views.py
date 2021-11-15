@@ -24,6 +24,8 @@ from .. import models, emails, model_choices, utils
 
 # USER
 #######
+
+
 class CurrentUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -119,7 +121,8 @@ class ProcessViewSet(viewsets.ModelViewSet):
         'fiscal_year',
         'id',
         'lead_region',
-        "is_posted"
+        "is_posted",
+        "status",
     ]
 
     def perform_create(self, serializer):
@@ -663,11 +666,11 @@ class RequestReviewModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = _get_labels(self.model)
 
-        prioritization_choices = [dict(text=c[1], value=c[0]) for c in model_choices.prioritization_choices]
-        prioritization_choices.insert(0, dict(text="-----", value=None))
         decision_choices = [dict(text=c[1], value=c[0]) for c in model_choices.request_decision_choices]
         decision_choices.insert(0, dict(text="-----", value=None))
-        data['prioritization_choices'] = prioritization_choices
+        yes_no_choices = [dict(text=c[1], value=c[0]) for c in model_choices.yes_no_choices_int]
+        yes_no_choices.insert(0, dict(text="-----", value=None))
+        data['yes_no_choices'] = yes_no_choices
         data['decision_choices'] = decision_choices
         return Response(data)
 

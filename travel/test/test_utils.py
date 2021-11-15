@@ -18,26 +18,26 @@ class UtilsTest(CommonTest):
     @tag("utils", )
     def test_in_admin_group(self):
         user = self.get_and_login_user()
-        admin = self.get_and_login_user(in_group='travel_admin')
-        adm_admin = self.get_and_login_user(in_group='travel_adm_admin')
-        self.assertFalse(utils.in_travel_admin_group(user))
-        self.assertFalse(utils.in_travel_admin_group(adm_admin))
-        self.assertTrue(utils.in_travel_admin_group(admin))
+        admin = self.get_and_login_regional_admin()
+        adm_admin = self.get_and_login_admin()
+        self.assertFalse(utils.in_travel_regional_admin_group(user))
+        self.assertFalse(utils.in_travel_regional_admin_group(adm_admin))
+        self.assertTrue(utils.in_travel_regional_admin_group(admin))
 
     @tag("utils", )
-    def test_in_adm_admin_group(self):
+    def test_in_travel_nat_admin_group(self):
         user = self.get_and_login_user()
-        admin = self.get_and_login_user(in_group='travel_admin')
-        adm_admin = self.get_and_login_user(in_group='travel_adm_admin')
-        self.assertFalse(utils.in_adm_admin_group(user))
-        self.assertFalse(utils.in_adm_admin_group(admin))
-        self.assertTrue(utils.in_adm_admin_group(adm_admin))
+        admin = self.get_and_login_regional_admin()
+        adm_admin = self.get_and_login_admin()
+        self.assertFalse(utils.in_travel_nat_admin_group(user))
+        self.assertFalse(utils.in_travel_nat_admin_group(admin))
+        self.assertTrue(utils.in_travel_nat_admin_group(adm_admin))
 
     @tag("utils", )
     def test_as_admin(self):
         user = self.get_and_login_user()
-        admin = self.get_and_login_user(in_group='travel_admin')
-        adm_admin = self.get_and_login_user(in_group='travel_adm_admin')
+        admin = self.get_and_login_regional_admin()
+        adm_admin = self.get_and_login_admin()
         self.assertFalse(utils.is_admin(user))
         self.assertTrue(utils.is_admin(admin))
         self.assertTrue(utils.is_admin(adm_admin))
@@ -236,8 +236,8 @@ class UtilsTest(CommonTest):
         trip_request = FactoryFloor.TripRequestFactory()
         traveller = FactoryFloor.TravellerFactory(request=trip_request)
         reg_user = self.get_and_login_user()
-        admin_user = self.get_and_login_user(in_group="travel_admin")
-        adm_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        admin_user = self.get_and_login_regional_admin()
+        adm_admin_user = self.get_and_login_admin()
 
         # RULE 1: travel admin = True
         self.assertEqual(can_modify_request(admin_user, trip_request.id), True)

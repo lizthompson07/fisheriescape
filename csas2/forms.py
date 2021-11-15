@@ -78,6 +78,7 @@ class ReportSearchForm(forms.Form):
     request_status = forms.ChoiceField(required=False, label=gettext_lazy('Request Status'))
     process_status = forms.ChoiceField(required=False, label=gettext_lazy('Process Status'))
     process_type = forms.ChoiceField(required=False, label=gettext_lazy('Process Type'))
+    lead_region = forms.ChoiceField(required=False, label=gettext_lazy('Lead Region'))
 
     region = forms.ChoiceField(required=False, label=gettext_lazy('DFO Region'))
     sector = forms.ChoiceField(required=False, label=gettext_lazy('DFO Sector'))
@@ -117,6 +118,15 @@ class ReportSearchForm(forms.Form):
         section_choices = utils.get_section_choices(with_requests=True)
         section_choices.insert(0, (None, "All"))
 
+        process_status_choices = [obj for obj in model_choices.get_process_status_choices()]
+        process_status_choices.insert(0, (None, "All"))
+        
+        process_type_choices = [obj for obj in model_choices.process_type_choices]
+        process_type_choices.insert(0, (None, "All"))
+
+        lead_region_choices = utils.get_region_choices(with_requests=False)
+        lead_region_choices.insert(0, (None, "All"))
+
         self.fields["fiscal_year"].choices = fy_choices
         self.fields["is_posted"].choices = posted_choices
         self.fields["request_status"].choices = request_status_choices
@@ -127,6 +137,10 @@ class ReportSearchForm(forms.Form):
         self.fields['branch'].choices = branch_choices
         self.fields['division'].choices = division_choices
         self.fields['section'].choices = section_choices
+
+        self.fields['process_status'].choices = process_status_choices
+        self.fields['process_type'].choices = process_type_choices
+        self.fields['lead_region'].choices = lead_region_choices
 
 
 class CSASRequestForm(forms.ModelForm):
@@ -174,12 +188,16 @@ class CSASRequestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         section_choices = [(obj.id, obj.full_name) for obj in Section.objects.all()]
         section_choices.insert(0, (None, "------"))
-        coordinator_choices = [(u.id, u.get_full_name()) for u in User.objects.filter(groups__name__in=["csas_regional_admin", "csas_national_admin"])]
+        coordinator_choices = [(u.user.id, u.user.get_full_name()) for u in
+                               models.CSASAdminUser.objects.filter(region__isnull=False).order_by("user__first_name", "user__last_name")]
         coordinator_choices.insert(0, (None, "------"))
+        client_choices = [(u.id, str(u)) for u in User.objects.all().order_by("first_name", "last_name")]
+        client_choices.insert(0, (None, "------"))
 
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = section_choices
         self.fields['coordinator'].choices = coordinator_choices
+        self.fields['client'].choices = client_choices
 
     def clean(self):
         cleaned_data = super().clean()
@@ -400,7 +418,6 @@ class DocumentForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'meetings': forms.SelectMultiple(attrs=chosen_js),
-
         }
 
     def __init__(self, *args, **kwargs):
@@ -427,6 +444,12 @@ class DocumentForm(forms.ModelForm):
             del self.fields["ekme_gcdocs_fr"]
             del self.fields["lib_cat_en"]
             del self.fields["lib_cat_fr"]
+
+    def clean_meetings(self):
+        meetings = self.cleaned_data['meetings']
+        if not meetings:
+            raise forms.ValidationError("You must select at least one meeting!")
+        return meetings
 
 
 class DocumentTypeForm(forms.ModelForm):

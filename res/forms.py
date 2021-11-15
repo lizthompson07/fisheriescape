@@ -167,3 +167,20 @@ class AchievementForm(forms.ModelForm):
     class Meta:
         model = models.Achievement
         exclude = ("user",)
+
+
+
+class ResSubUserForm(forms.ModelForm):
+    class Meta:
+        model = models.ResSubUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+ResSubUserFormset = modelformset_factory(
+    model=models.ResSubUser,
+    form=ResSubUserForm,
+    extra=1,
+)

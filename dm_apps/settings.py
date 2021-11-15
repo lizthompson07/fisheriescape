@@ -31,8 +31,10 @@ LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 
 # some simple settings that we import from the .env file or the environmental variables
 ####################################################
-# Django security keye
+# Django security key
 SECRET_KEY = config('SECRET_KEY', cast=str, default="fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD")
+# session cookie expiration
+SESSION_COOKIE_AGE = config('SESSION_COOKIE_AGE', cast=int, default=86400)  # # 1 day in seconds
 # should debug mode be turned on or off? default = False
 DEBUG = config("DEBUG", cast=bool, default=True)
 # should vuejs be vued in debug mode?
@@ -140,6 +142,7 @@ INSTALLED_APPS = [
                      'django.contrib.messages',
                      'django.contrib.staticfiles',
                      'django.contrib.gis',
+                     'preventconcurrentlogins',
                      'rest_framework',
                      'django_filters',
                      'storages',
@@ -154,7 +157,6 @@ INSTALLED_APPS = [
                      'lib',
                      'shared_models',
                      'tickets',
-                     'phonenumber_field',
                  ] + local_conf.MY_INSTALLED_APPS
 
 # # If the GEODJANGO setting is set to False, turn off any apps that require it
@@ -185,6 +187,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'preventconcurrentlogins.middleware.PreventConcurrentLoginsMiddleware',
 ]
 
 if USE_AZURE_APPLICATION_INSIGHT and AZURE_INSTRUMENTATION_KEY != "":

@@ -52,7 +52,7 @@ def chunk_pageviews():
         if my_user and app_name and app_name not in app_ignore_list:
             # here are special operations...
             if app_name == "projects":
-                app_name = "project-planning"
+                app_name = "ppt"
 
             # what is the date?
             my_date = timezone.datetime(view.view_time.year, view.view_time.month, view.view_time.day)

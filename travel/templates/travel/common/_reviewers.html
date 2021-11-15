@@ -11,7 +11,7 @@
     </div>
     {% trans "Approval Queue" %}
     <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
-          data-trigger="hover" title="{% trans "Approval Queue" %}"
+          data-trigger="click" title="{% trans "Approval Queue" %}"
           :data-content="helpText.reviewers_header"></span>
   </h3>
   <div class="card-body">
@@ -42,7 +42,7 @@
             <td>${item.user_display }</td>
             <td>${item.role_display }</td>
             <td><span :class="item.status_class + ' px-1 py-1'">${item.status_display }</span></td>
-            <td>${item.status_date |nz }</td>
+            <td>${item.status_date_display |nz }</td>
             <td v-html="item.comments_html"></td>
             <td v-if="!isReview && isAdmin && item.status === 1" style="width: 75px">
               <button

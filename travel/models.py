@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _, gettext
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import nz, currency
 from shared_models import models as shared_models
-from shared_models.models import Lookup, SimpleLookup
+from shared_models.models import Lookup, SimpleLookup, MetadataFields
 from shared_models.utils import get_metadata_string
 from travel import utils
 
@@ -28,6 +28,21 @@ NULL_YES_NO_CHOICES = (
     (1, _("Yes")),
     (0, _("No")),
 )
+
+
+class TravelUser(models.Model):
+    user = models.OneToOneField(AuthUser, on_delete=models.CASCADE, related_name="travel_user", verbose_name=_("DM Apps user"))
+    region = models.ForeignKey(shared_models.Region, verbose_name=_("regional administrator?"), related_name="travel_users", on_delete=models.CASCADE,
+                               blank=True,
+                               null=True)
+    is_national_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
+    is_cfo = models.BooleanField(default=False, verbose_name=_("CFO Read Only?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_national_admin", "user__first_name", ]
 
 
 class HelpText(models.Model):
@@ -47,7 +62,7 @@ class HelpText(models.Model):
         ordering = ['field_name', ]
 
 
-class DefaultReviewer(models.Model):
+class DefaultReviewer(MetadataFields):
     role_choices = (
         (3, _("NCR Travel Coordinators")),
         (4, _("ADM Recommender")),
@@ -77,6 +92,8 @@ class DefaultReviewer(models.Model):
     class Meta:
         ordering = ["user__first_name", ]
 
+    def get_absolute_url(self):
+        return reverse('travel:default_reviewer_list')
 
 class NJCRates(SimpleLookup):
     amount = models.FloatField()
@@ -412,9 +429,9 @@ class Trip(models.Model):
 
     @property
     def non_res_total_cost(self):
-        # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
+        # exclude requests that are denied (id=10), cancelled (id=22)
         dfo = TravellerCost.objects.filter(traveller__request__trip=self, traveller__is_research_scientist=False).filter(
-            ~Q(traveller__request__status__in=[10, 22, 8])).aggregate(dsum=Sum("amount_cad"))["dsum"]
+            ~Q(traveller__request__status__in=[10, 22])).aggregate(dsum=Sum("amount_cad"))["dsum"]
         non_dfo = Traveller.objects.filter(request__trip=self, is_research_scientist=False).filter(
             ~Q(request__status__in=[10, 22, 8])).aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
         return nz(dfo, 0) - nz(non_dfo, 0)
@@ -1030,7 +1047,12 @@ class TripReviewer(models.Model):
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'travel/trip_{0}/{1}'.format(instance.request.id, filename)
+    return 'travel/request_id_{0}/{1}'.format(instance.request.id, filename)
+
+
+def trip_file_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'travel/trip_id_{0}/{1}'.format(instance.trip.id, filename)
 
 
 class File(models.Model):
@@ -1041,6 +1063,21 @@ class File(models.Model):
 
     class Meta:
         ordering = ['request', 'date_created']
+        # Translators: This is a 'file' as in something you attach to an email
+        verbose_name = _("file")
+
+    def __str__(self):
+        return self.name
+
+
+class TripFile(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="files", blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("caption"))
+    file = models.FileField(upload_to=trip_file_directory_path, null=True, verbose_name=_("attachment"))
+    date_created = models.DateTimeField(auto_now=True, verbose_name=_("date created"), editable=False)
+
+    class Meta:
+        ordering = ['trip', 'date_created']
         # Translators: This is a 'file' as in something you attach to an email
         verbose_name = _("file")
 

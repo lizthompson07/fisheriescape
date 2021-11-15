@@ -80,40 +80,14 @@ def get_app_dict(request):
             pass
 
     try:
-        app_dict["projects2"] = {
-            "title": _("Project Planning (Version 2)"),
+        app_dict["ppt"] = {
+            "title": _("Science Project Planning Tool (PPT)"),
             "description": _("Tool for the tracking, development and coordination of science project workplans."),
-            "status": "dev",
+            "status": "prod",
             "access": "login-required",
-            "url": reverse('projects2:index'),
+            "url": reverse('ppt:index'),
             "icon_path": 'img/icons/scope.svg',
             "region": "all",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
-        app_dict["grais"] = {
-            "title": _("grAIS"),
-            "description": _("Gulf Region Aquatic Invasive Species data entry and archiving tool."),
-            "status": "production",
-            "access": "permission-required",
-            "url": reverse('grais:index'),
-            "icon_path": 'img/icons/starfish.svg',
-            "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
-        app_dict["herring"] = {
-            "title": _("HERMAN"),
-            "description": _("The Herring Program for Data Entry."),
-            "status": "production",
-            "access": "permission-required",
-            "url": reverse('herring:index'),
-            "icon_path": 'img/icons/fish.svg',
-            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -145,6 +119,58 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["res"] = {
+            "title": _("SE-RES Career Progression Dossier App"),
+            "description": _("Research Scientist Dossier Tracking Application"),
+            "status": "beta",
+            "access": "login-required",
+            "url": reverse('res:index'),
+            "icon_path": 'img/icons/success.png',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["cruises"] = {
+            "title": _("Cruises"),
+            "description": _("Collection of regional cruise metadata and oceanographic data."),
+            "status": "beta",
+            "access": "open",
+            "url": reverse('cruises:index'),
+            "icon_path": 'img/icons/boat.svg',
+            "region": "national",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["grais"] = {
+            "title": _("grAIS"),
+            "description": _("Gulf Region Aquatic Invasive Species data entry and archiving tool."),
+            "status": "production",
+            "access": "permission-required",
+            "url": reverse('grais:index'),
+            "icon_path": 'img/icons/starfish.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["herring"] = {
+            "title": _("HERMAN"),
+            "description": _("The Herring Program for Data Entry."),
+            "status": "production",
+            "access": "permission-required",
+            "url": reverse('herring:index'),
+            "icon_path": 'img/icons/fish.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
         app_dict["scuba"] = {
             "title": _("SCUBA"),
             "description": _("Lobster SCUBA survey data entry and archiving tool."),
@@ -166,19 +192,6 @@ def get_app_dict(request):
             "url": reverse('edna:index'),
             "icon_path": 'img/icons/dna.png',
             "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
-        app_dict["cruises"] = {
-            "title": _("Cruises"),
-            "description": _("Collection of regional cruise metadata and oceanographic data."),
-            "status": "dev",
-            "access": "open",
-            "url": reverse('cruises:index'),
-            "icon_path": 'img/icons/boat.svg',
-            "region": "national",
         }
     except NoReverseMatch:
         pass
@@ -438,19 +451,6 @@ def get_app_dict(request):
             "access": "login-required",
             "url": reverse('maret:index'),
             "icon_path": 'img/icons/plug.svg',
-            "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
-        app_dict["res"] = {
-            "title": _("SE-RES Career Progression Dossier App"),
-            "description": _("Research Scientist Dossier Tracking Application"),
-            "status": "dev",
-            "access": "login-required",
-            "url": reverse('res:index'),
-            "icon_path": 'img/icons/success.png',
             "region": "regional",
         }
     except NoReverseMatch:
