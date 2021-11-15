@@ -121,6 +121,25 @@ def get_metadata_string(created_at=None, created_by=None, updated_at=None, last_
 
     return mark_safe(my_str)
 
+def get_last_modified_string(updated_at=None, last_modified_by=None, with_tz=False, with_time=True):
+    format_str = '%Y-%m-%d'
+    if with_time:
+        format_str += " %H:%M:%S"
+    if with_tz:
+        format_str += " %Z"
+    my_str = None
+    str_by = _("by")
+    str_updated = _("Last updated:")
+    if updated_at:
+        if not my_str:
+            my_str = f"<u>{str_updated}</u> {updated_at.strftime(format_str)}"
+        else:
+            my_str += f"<br><u>{str_updated}</u> {updated_at.strftime(format_str)}"
+        if last_modified_by:
+            my_str += f" {str_by} {last_modified_by}"
+
+    return mark_safe(my_str)
+
 
 # https://stackoverflow.com/questions/2579535/convert-dd-decimal-degrees-to-dms-degrees-minutes-seconds-in-python (thanks)
 def decdeg2dm(dd):
