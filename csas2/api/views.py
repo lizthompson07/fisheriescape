@@ -109,6 +109,11 @@ class CSASRequestReviewViewSet(viewsets.ModelViewSet):
         instance.delete()
         csas_request.save()
 
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
 
 class ProcessViewSet(viewsets.ModelViewSet):
     queryset = models.Process.objects.all().order_by("-created_at")

@@ -133,11 +133,11 @@
                     >
                     </v-select>
                   </div>
-{#                  <div class="mb-3">#}
-{#                    <span class="text-muted small">${reviewLabels.decision_date}</span>#}
-{#                    <input v-model="r.review.decision_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"#}
-{#                           @focusout="updateReview(r)">#}
-{#                  </div>#}
+                  {#                  <div class="mb-3">#}
+                  {#                    <span class="text-muted small">${reviewLabels.decision_date}</span>#}
+                  {#                    <input v-model="r.review.decision_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"#}
+                  {#                           @focusout="updateReview(r)">#}
+                  {#                  </div>#}
                   <div class="mb-3">
                     <span class="text-muted small">${reviewLabels.advice_date}</span>
                     <input v-model="r.review.advice_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
@@ -183,6 +183,9 @@
               <div v-else-if="r.has_process" class="alert alert-success w-75" role="alert">
                 <span class="mdi mdi-check-bold mr-1 text-success"></span>{% trans "This review has an associated process." %}
               </div>
+
+              <p class="text-muted small font-italic" v-html="r.review.last_modified_string"></p>
+
             </td>
             <td v-else>
               <p class="lead text-muted font-italic">{% trans "This request does not have a review." %}
@@ -193,6 +196,7 @@
             </td>
 
           </tr>
+
           </tbody>
         </table>
       </div>

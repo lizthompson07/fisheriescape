@@ -112,6 +112,10 @@ class CSASRequestReviewSerializer(serializers.ModelSerializer):
 
     advice_date_display = serializers.SerializerMethodField()
     decision_date_display = serializers.SerializerMethodField()
+    last_modified_string = serializers.SerializerMethodField()
+
+    def get_last_modified_string(self, instance):
+        return instance.last_modified_string
 
     def get_advice_date_display(self, instance):
         if instance.advice_date:
