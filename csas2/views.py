@@ -25,6 +25,10 @@ from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyR
     CsasNationalAdminRequiredMixin, SuperuserOrCsasNationalAdminRequiredMixin
 from .utils import in_csas_admin_group
 
+posted_meeting_msg = gettext_lazy(
+    "The process' meeting has already been posted therefore any changes to the ToR's "
+    "expected publications will trigger a notification to the national CSAS team."
+)
 
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     h1 = "home"
@@ -33,7 +37,6 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_admin"] = in_csas_admin_group(self.request.user)
         context["has_todos"] = utils.has_todos(self.request.user)
         return context
 
@@ -700,9 +703,7 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
 
     def get_h3(self):
         if self.get_process().is_posted:
-            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(
-                _("This process has already been posted therefore changes to the ToR "
-                  "will automatically trigger a notification to be sent to the national CSAS team."))
+            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
             return mark_safe(mystr)
 
     def get_initial(self):
@@ -742,9 +743,7 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
 
     def get_h3(self):
         if self.get_object().process.is_posted:
-            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(
-                _("This process has already been posted therefore changes to the ToR "
-                  "will automatically trigger a notification to be sent to the national CSAS team."))
+            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
             return mark_safe(mystr)
 
     def get_parent_crumb(self):
@@ -1048,9 +1047,9 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
     open_row_in_new_tab = True
 
     field_list = [
-        {"name": 'ttitle|{}'.format("title"), "class": "", "width": "300px"},
+        {"name": 'ttitle|{}'.format("title"), "class": "w-35"},
         {"name": 'document_type', "class": "", "width": ""},
-        {"name": 'process', "class": "", "width": "300px"},
+        {"name": 'process', "class": "w-25"},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'translation_status', "class": "", "width": ""},
     ]
@@ -1187,6 +1186,9 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
         division = form.cleaned_data["division"] if form.cleaned_data["division"] else "None"
         section = form.cleaned_data["section"] if form.cleaned_data["section"] else "None"
         csas_requests = listrify(form.cleaned_data["csas_requests"], ",") if form.cleaned_data["csas_requests"] else "None"
+        process_status = form.cleaned_data["process_status"] if form.cleaned_data["process_status"] else "None"
+        process_type = form.cleaned_data["process_type"] if form.cleaned_data["process_type"] else "None"
+        lead_region = form.cleaned_data["lead_region"] if form.cleaned_data["lead_region"] else "None"
 
         is_posted = form.cleaned_data["is_posted"] if form.cleaned_data["is_posted"] != "" else "None"
         if report == 1:
@@ -1213,16 +1215,12 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
                                         f"section={section}&"
                                         f"csas_requests={csas_requests}&"
                                         )
-        elif report == 3:
-            return HttpResponseRedirect(f"{reverse('csas2:request_list_report')}?"
+        elif report == 4:
+            return HttpResponseRedirect(f"{reverse('csas2:process_list_report')}?"
                                         f"fiscal_year={fy}&"
-                                        f"request_status={request_status}&"
-                                        f"region={region}&"
-                                        f"sector={sector}&"
-                                        f"branch={branch}&"
-                                        f"division={division}&"
-                                        f"section={section}&"
-                                        f"csas_requests={csas_requests}&"
+                                        f"process_status={process_status}&"
+                                        f"process_type={process_type}&"
+                                        f"lead_region={lead_region}&"
                                         )
 
         messages.error(self.request, "Report is not available. Please select another report.")
@@ -1302,16 +1300,16 @@ def process_list_report(request):
     if process_status:
         qs = qs.filter(status=process_status)
     if process_type:
-        qs = qs.filter(status=process_type)
+        qs = qs.filter(type=process_type)
     if lead_region:
-        qs = qs.filter(section__division__branch__sector__region_id=lead_region)
+        qs = qs.filter(lead_region_id=lead_region)
 
-    file_url = reports.generate_request_list(qs)
+    file_url = reports.generate_process_list(qs)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             fy = get_object_or_404(FiscalYear, pk=fiscal_year) if fiscal_year else "all years"
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="CSAS requests ({fy}).xlsx"'
+            response['Content-Disposition'] = f'inline; filename="CSAS processes ({fy}).xlsx"'
             return response
     raise Http404

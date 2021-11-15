@@ -9,6 +9,7 @@ var app = new Vue({
     costLabels: {},
     currentUser: {},
     dmAppsUsers: [],
+    errorMsgRequest: null,
     errorMsgCost: null,
     errorMsgReviewer: null,
     errorMsgTraveller: null,
@@ -255,33 +256,38 @@ var app = new Vue({
       let endpoint = `/api/travel/requests/${tripRequestId}/`;
       apiService(endpoint)
           .then(response => {
-            this.loading = false;
-            this.request = response;
-            // if there is one traveller, we should have that traveller on display
-            if (this.request.travellers.length === 1) {
-              this.request.travellers[0].show_me = true;
-            } else if (this.request.status === 8) {
-              for (var i = 0; i < this.request.travellers.length; i++) {
-                this.request.travellers[i].show_me = true;
+            if (!response.id) {
+              this.errorMsgRequest = noPermissionsMsg;
+            } else {
+
+              this.loading = false;
+              this.request = response;
+              // if there is one traveller, we should have that traveller on display
+              if (this.request.travellers.length === 1) {
+                this.request.travellers[0].show_me = true;
+              } else if (this.request.status === 8) {
+                for (var i = 0; i < this.request.travellers.length; i++) {
+                  this.request.travellers[i].show_me = true;
+                }
               }
-            }
-            this.getCurrentUser(response);
+              this.getCurrentUser(response);
 
-            // if this is being opened from the create form, AND there is a SINGLE traveller, we should be helpful and open up in edit mode
-            // this will be singaled by there being a hash in the window location called "travellers_head"
-            if (this.clean && window.location.hash === "#travellers_head" && this.request.travellers.length === 1) {
-              this.travellerToEdit = this.request.travellers[0];
-              this.firstTravellerMsg = firstTravellerMsg;
-              this.clean = false;
+              // if this is being opened from the create form, AND there is a SINGLE traveller, we should be helpful and open up in edit mode
+              // this will be singaled by there being a hash in the window location called "travellers_head"
+              if (this.clean && window.location.hash === "#travellers_head" && this.request.travellers.length === 1) {
+                this.travellerToEdit = this.request.travellers[0];
+                this.firstTravellerMsg = firstTravellerMsg;
+                this.clean = false;
+                this.$nextTick(() => {
+                  this.$refs["travellers_head"].focus()
+                })
+              } else this.clean = false;
+
               this.$nextTick(() => {
-                this.$refs["travellers_head"].focus()
+                // enable popovers everywhere
+                $('[data-toggle="popover"]').popover({html: true});
               })
-            } else this.clean = false;
-
-            this.$nextTick(() => {
-              // enable popovers everywhere
-              $('[data-toggle="popover"]').popover({html: true});
-            })
+            }
           })
     },
     getRequestMetadata() {
@@ -539,6 +545,9 @@ var app = new Vue({
     },
     isAdmin() {
       return this.currentUser && this.currentUser.is_admin;
+    },
+    isNCRAdmin() {
+      return this.currentUser && this.currentUser.is_ncr_admin;
     },
     isOwner() {
       return this.currentUser && this.currentUser.is_owner;

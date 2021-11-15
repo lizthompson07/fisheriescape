@@ -7,18 +7,21 @@ from .models import Person
 
 @receiver(models.signals.post_save, sender=User)
 def save_person_on_user_save(sender, instance, created, **kwargs):
-    qs = Person.objects.filter(email__iexact=instance.email)
-    person = None
-    if not qs.exists():
-        person = Person.objects.create(email=instance.email)
-    elif qs.count() == 1:
-        person = Person.objects.get(email__iexact=instance.email)
+    if hasattr(instance, "contact"):
+        instance.contact.save()
     else:
-        print("warning! duplicate email in system:", instance.email, instance.username)
+        qs = Person.objects.filter(email__iexact=instance.email)
+        person = None
+        if not qs.exists():
+            person = Person.objects.create(email=instance.email)
+        elif qs.count() == 1:
+            person = qs.first()
+        else:
+            print("warning! duplicate email in system:", instance.email, instance.username)
 
-    if person:
-        person.dmapps_user = instance
-        person.save()
+        if person:
+            person.dmapps_user = instance
+            person.save()
 
 
 @receiver(models.signals.pre_delete, sender=User)

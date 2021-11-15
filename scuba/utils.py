@@ -1,22 +1,15 @@
 import math
 
-from django.contrib.auth.models import Group
 
-
-# open basic access up to anybody who is logged in
 def in_scuba_admin_group(user):
-    # make sure the following group exist:
-    admin_group, created = Group.objects.get_or_create(name="scuba_admin")
     if user:
-        return admin_group in user.groups.all()
+        return bool(hasattr(user, "scuba_user") and user.scuba_user.is_admin)
 
 
 def in_scuba_crud_group(user):
-    # make sure the following group exist:
-    crud_group, created = Group.objects.get_or_create(name="scuba_crud")
+    # nested under admin
     if user:
-        return in_scuba_admin_group(user) or crud_group in user.groups.all()
-
+        return in_scuba_admin_group(user) or bool(hasattr(user, "scuba_user") and user.scuba_user.is_crud_user)
 
 
 def calc_nautical_dist(p0, p1):

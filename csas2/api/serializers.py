@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.template.defaultfilters import date, pluralize, slugify
+from django.template.defaultfilters import date, pluralize
 from django.utils.translation import gettext
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
@@ -42,10 +42,22 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     risk_text_html = serializers.SerializerMethodField()
     is_complete = serializers.SerializerMethodField()
     region = serializers.SerializerMethodField()
+    has_process = serializers.SerializerMethodField()
+    is_rescheduled = serializers.SerializerMethodField()
+    is_valid_request = serializers.SerializerMethodField()
+
+    def get_is_valid_request(self, instance):
+        return instance.is_valid_request
+
+    def get_is_rescheduled(self, instance):
+        return instance.is_rescheduled
+
+    def get_has_process(self, instance):
+        return instance.has_process
 
     def get_region(self, instance):
         return instance.region
-    
+
     def get_is_complete(self, instance):
         return instance.is_complete
 
@@ -612,7 +624,7 @@ class ProcessSerializer(serializers.ModelSerializer):
     committee_members = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     status_display_html = serializers.SerializerMethodField()
-
+    regions = serializers.SerializerMethodField()
     advice_date_display = serializers.SerializerMethodField()
 
     def get_advice_date_display(self, instance):
@@ -667,3 +679,6 @@ class ProcessSerializer(serializers.ModelSerializer):
 
     def get_status_display_html(self, instance):
         return f'<span class=" px-1 py-1 {instance.status_class}">{instance.get_status_display()}</span>'
+
+    def get_regions(self, instance):
+        return str(instance.regions)

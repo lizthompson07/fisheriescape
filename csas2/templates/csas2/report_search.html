@@ -49,6 +49,9 @@
     $(".division_div").addClass("gone");
     $(".section_div").addClass("gone");
     $(".csas_requests_div").addClass("gone");
+    $(".process_status_div").addClass("gone");
+    $(".process_type_div").addClass("gone");
+    $(".lead_region_div").addClass("gone");
 
     $("#id_fiscal_year").prop("required", false);
     $("#id_is_posted").prop("required", false);
@@ -59,6 +62,10 @@
     $("#id_division").prop("required", false);
     $("#id_section").prop("required", false);
     $("#id_csas_requests").prop("required", false);
+    $("#process_status").prop("required", false);
+    $("#process_type").prop("required", false);
+    $("#lead_region").prop("required", false);
+
   }
 
   function configureForm() {
@@ -78,6 +85,11 @@
       $(".division_div").removeClass("gone");
       $(".section_div").removeClass("gone");
       $(".csas_requests_div").removeClass("gone");
+    } else if (reportChoice === "4") {
+      $(".fiscal_year_div").removeClass("gone");
+      $(".process_status_div").removeClass("gone");
+      $(".process_type_div").removeClass("gone");
+      $(".lead_region_div").removeClass("gone");
     }
   }
 

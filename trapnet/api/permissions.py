@@ -1,9 +1,6 @@
 from rest_framework import permissions
-from rest_framework.generics import get_object_or_404
 
-from ..utils import is_admin
-from .. import models
-
+from ..utils import is_crud_user
 
 
 class TrapnetCRUDOrReadOnly(permissions.BasePermission):
@@ -13,7 +10,7 @@ class TrapnetCRUDOrReadOnly(permissions.BasePermission):
             return False
         if request.method in permissions.SAFE_METHODS:
             return True
-        elif is_admin(request.user):
+        elif is_crud_user(request.user):
             return True
 
     def has_object_permission(self, request, view, obj):
@@ -21,7 +18,5 @@ class TrapnetCRUDOrReadOnly(permissions.BasePermission):
             return False
         if request.method in permissions.SAFE_METHODS:
             return True
-        elif is_admin(request.user):
+        elif is_crud_user(request.user):
             return True
-
-

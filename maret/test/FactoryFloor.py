@@ -7,6 +7,7 @@ from django.utils import timezone
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, BranchFactory, DivisionFactory
 
 from maret import models
+from shared_models import models as shared_models
 from masterlist import models as ml_models
 from ihub.test import FactoryFloor as i_factory
 
@@ -116,6 +117,24 @@ class CommitteeFactory(factory.django.DjangoModelFactory):
         }
 
 
+class ContactExtensionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.ContactExtension
+
+    contact = factory.SubFactory(i_factory.PersonFactory)
+    role = factory.lazy_attribute(lambda o: faker.text())
+
+    @staticmethod
+    def get_valid_data():
+        con_ext = ContactExtensionFactory.build()
+
+        return {
+            "first_name": con_ext.contact.first_name,
+            "last_name": con_ext.contact.last_name,
+            "role": con_ext.role,
+        }
+
+
 class OrganizationExtensionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.OrganizationExtension
@@ -125,8 +144,23 @@ class OrganizationExtensionFactory(factory.django.DjangoModelFactory):
     @factory.post_generation
     def area(self, create, extracted, **kwargs):
         if create:
-            area = faker.pyint(1, 4)
+            areas = models.Area.objects.all()
+            area = faker.pyint(1, len(areas))
             self.area.set((area,))
+
+    @factory.post_generation
+    def category(self, create, extracted, **kwargs):
+        if create:
+            categories = models.OrgCategory.objects.all()
+            category = faker.pyint(1, len(categories))
+            self.area.set((category,))
+
+    @factory.post_generation
+    def associated_provinces(self, create, extracted, **kwargs):
+        if create:
+            provinces = shared_models.Province.objects.all()
+            asc_province = faker.pyint(1, len(provinces))
+            self.area.set((asc_province,))
 
     @staticmethod
     def get_valid_data():
@@ -134,8 +168,11 @@ class OrganizationExtensionFactory(factory.django.DjangoModelFactory):
 
         return {
             "organziation": org_ext.organization.pk,
-            "area": org_ext.area
+            "area": org_ext.area,
+            "category": org_ext.category,
+            "associated_provinces": org_ext.associated_provinces
         }
+
 
 class GroupingFactory(factory.django.DjangoModelFactory):
     class Meta:

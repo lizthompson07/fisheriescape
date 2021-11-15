@@ -27,6 +27,9 @@ urlpatterns = [
     path('settings/review-types/', views.ReviewTypeFormsetView.as_view(), name="manage_review_types"),
     path('settings/review-type/<int:pk>/delete/', views.ReviewTypeHardDeleteView.as_view(), name="delete_review_type"),
 
+    # user permissions
+    path('settings/users/', views.ResSubUserFormsetView.as_view(), name="manage_res_sub_users"),
+    path('settings/users/<int:pk>/delete/', views.ResSubUserHardDeleteView.as_view(), name="delete_res_sub_user"),
 
     # APPLICATIONS
     path('applications/', views.ApplicationListView.as_view(), name="application_list"),

@@ -2,7 +2,23 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+
 from shared_models import models as shared_models
+
+YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
+
+
+class DietsUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="diets_user", verbose_name=_("DM Apps user"))
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator?"), choices=YES_NO_CHOICES)
+    is_crud_user = models.BooleanField(default=False, verbose_name=_("CRUD permissions?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
 
 
 class Species(models.Model):
@@ -119,4 +135,3 @@ class Prey(models.Model):
     old_id = models.IntegerField(blank=True, null=True)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now)
-

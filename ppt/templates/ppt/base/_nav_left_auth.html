@@ -1,0 +1,91 @@
+{% load i18n %}
+
+<li class="nav-item"><a class="nav-link" href="{% url 'ppt:index' %}">
+  {% trans "Home" %}
+</a></li>
+
+<li class="nav-item"><a class="nav-link" href="{% url 'ppt:reports' %}">
+  {% trans "Reports" %}
+</a></li>
+
+
+{% if is_admin %}
+
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+      {% trans "Settings" %}
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <a class="dropdown-item" href="{% url 'ppt:manage_funding_sources' %}">
+        {% trans "Manage Funding Sources" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'ppt:manage_om_cats' %}">
+        {% trans "Manage O & M Categories" %}
+      </a>
+      {##}
+      <a class="dropdown-item" href="{% url 'ppt:manage_employee_types' %}">
+        {% trans "Manage Employee Types" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'ppt:manage_tags' %}">
+        {% trans "Manage Tags" %}
+      </a>
+      {#        <a class="dropdown-item" href="{% url 'ppt:manage_statuses' %}">#}
+      {#          {% trans "Manage Statuses" %}#}
+      {#        </a>#}
+      <a class="dropdown-item" href="{% url 'ppt:manage_help_text' %}">
+        {% trans "Manage Help Text" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'ppt:manage_levels' %}">
+        {% trans "Manage Staff Levels" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'ppt:manage_activity_types' %}">
+        {% trans "Manage Activity Types" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'ppt:manage_themes' %}">
+        {% trans "Manage Themes" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'ppt:manage-upcoming-dates' %}">
+        {% trans "Manage Upcoming Dates" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'ppt:ref_mat_list' %}">
+        {% trans "Manage Reference Materials" %}
+      </a>
+
+      <a class="dropdown-item" href="{% url 'ppt:manage_csrf_themes' %}">
+        {% trans "Manage CSRF Theme" %}
+      </a>
+
+      <a class="dropdown-item" href="{% url 'ppt:manage_csrf_sub_themes' %}">
+        {% trans "Manage CSRF Sub-Theme" %}
+      </a>
+
+      <a class="dropdown-item" href="{% url 'ppt:manage_csrf_priorities' %}">
+        {% trans "Manage CSRF Priority" %}
+
+      </a><a class="dropdown-item" href="{% url 'ppt:manage_csrf_client_information' %}">
+      {% trans "Manage CSRF Client Information" %}
+    </a>
+
+      <a class="dropdown-item" href="{% url 'ppt:group_list' %}">
+        {% trans "Manage Functional Groups" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'shared_models:index' %}" target="_blank">
+        {% trans "ADMIN: Manage DFO Organizations" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'ppt:admin_staff_list' %}">
+        {% trans "ADMIN: Non-DMApps Staff List" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'ppt:manage_ppt_admin_users' %}">
+        {% trans "ADMIN: User Permissions" %}
+      </a>
+
+    </div>
+  </li>
+
+{% endif %}
+
+
+
+
+

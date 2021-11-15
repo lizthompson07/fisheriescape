@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.templatetags.custom_filters import nz
-from scuba.mixins import LoginAccessRequiredMixin, ScubaAdminRequiredMixin, ScubaCRUDAccessRequiredMixin
+from scuba.mixins import LoginAccessRequiredMixin, ScubaAdminRequiredMixin, ScubaCRUDAccessRequiredMixin, SuperuserOrAdminRequiredMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonUpdateView, CommonCreateView, \
     CommonDeleteView, CommonDetailView, CommonFormView
 from . import models, forms, filters, reports
@@ -25,6 +25,23 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
 
 # REFERENCE TABLES #
 ####################
+
+
+class ScubaUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
+    template_name = 'scuba/formset.html'
+    h1 = "Manage Scuba Users"
+    queryset = models.ScubaUser.objects.all()
+    formset_class = forms.ScubaUserFormset
+    success_url_name = "scuba:manage_scuba_users"
+    home_url_name = "scuba:index"
+    delete_url_name = "scuba:delete_scuba_user"
+    container_class = "container bg-light curvy"
+
+
+class ScubaUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
+    model = models.ScubaUser
+    success_url = reverse_lazy("scuba:manage_scuba_users")
+
 
 class DiverFormsetView(ScubaAdminRequiredMixin, CommonFormsetView):
     template_name = 'scuba/formset.html'
@@ -280,6 +297,7 @@ class SampleListView(ScubaCRUDAccessRequiredMixin, CommonFilterView):
         {"name": 'id|{}'.format("sample Id"), "class": "", "width": ""},
         {"name": 'datetime|{}'.format("date"), "class": "", "width": ""},
         {"name": 'site', "class": "", "width": ""},
+        {"name": 'is_upm', "class": "", "width": ""},
         {"name": 'site.region|{}'.format("region"), "class": "", "width": ""},
         {"name": 'dive_count|{}'.format(_("dive count")), "class": "", "width": ""},
     ]
@@ -316,6 +334,7 @@ class SampleDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
         'site_region|{}'.format(gettext_lazy("site")),
         'datetime',
         'weather_notes',
+        'is_upm',
         'comment',
     ]
 
@@ -328,6 +347,7 @@ class SampleDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
             'heading',
             'side',
             'width_m',
+            'was_seeded',
             'comment',
             'observation_count|{}'.format(_("lobster count")),
         ]
@@ -363,7 +383,7 @@ class DiveCreateView(ScubaCRUDAccessRequiredMixin, CommonCreateView):
         sample = self.get_sample()
         return dict(
             sample=sample.id,
-            start_descent=sample.datetime.strftime("%Y-%m-%dT")+"08:00",
+            start_descent=sample.datetime.strftime("%Y-%m-%dT") + "08:00",
         )
 
     def get_sample(self):
@@ -401,6 +421,7 @@ class DiveUpdateView(ScubaCRUDAccessRequiredMixin, CommonUpdateView):
         obj = form.save(commit=False)
         obj.updated_by = self.request.user
         return super().form_valid(form)
+
 
 class DiveDeleteView(ScubaCRUDAccessRequiredMixin, CommonDeleteView):
     model = models.Dive

@@ -12,7 +12,8 @@
   .v-select {
       background-color: white;
   }
-  .table-input{
+
+  .table-input {
       width: 100%;
       height: 25px;
   }
@@ -21,12 +22,8 @@
 
   <div id="app" v-cloak>
     <div class="mb-3">
-      <div v-if="loading" class="loading mb-3 mt-3 text-center mt-5">
-        <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
-          <span class="sr-only"></span>
-        </div>
-      </div>
-      <div v-else>
+
+      <div>
         <div :class="{'sidebar':true, 'edit':!observation.id, 'mild-concern':observation.id}">
           <div v-if="observation.id" class="card-header lead concern"> {% trans "Edit" %} </div>
           <div v-else class="card-header lead good"> {% trans "New" %} </div>
@@ -85,7 +82,7 @@
                   <td><label for="">${labels.fork_length}</label></td>
                   <td><input type="number" step="any" v-model="observation.fork_length" class="table-input"/></td>
                 </tr>
-                <tr>
+                <tr v-if="!isElectro">
                   <td><label for="">${labels.total_length}</label></td>
                   <td><input type="number" step="any" v-model="observation.total_length" class="table-input"/></td>
                 </tr>
@@ -93,15 +90,15 @@
                   <td><label for="">${labels.weight}</label></td>
                   <td><input type="number" step="any" v-model="observation.weight" class="table-input"/></td>
                 </tr>
-                <tr>
+                <tr v-if="!isElectro">
                   <td><label for="">${labels.tag_number}</label></td>
                   <td><input type="text" v-model="observation.tag_number" class="table-input"/></td>
                 </tr>
-                <tr>
+                <tr v-if="!isElectro">
                   <td><label for="">${labels.location_tagged}</label></td>
                   <td><input type="text" v-model="observation.location_tagged" class="table-input"/></td>
                 </tr>
-                <tr>
+                <tr v-if="!isElectro">
                   <td><label for="">${labels.date_tagged}</label></td>
                   <td><input type="date" v-model="observation.date_tagged" class="table-input"/></td>
                 </tr>
@@ -109,7 +106,7 @@
                   <td><label for="">${labels.scale_id_number}</label></td>
                   <td><input type="text" v-model="observation.scale_id_number" class="table-input"/></td>
                 </tr>
-                <tr>
+                <tr v-if="!isElectro">
                   <td><label for="">${labels.tags_removed}</label></td>
                   <td><input type="text" v-model="observation.tags_removed" class="table-input"/></td>
                 </tr>
@@ -141,7 +138,13 @@
             <div class="card" style="">
               <div class="card-header lead">{% trans "Observations" %}</div>
               <div class="card-body">
-                <table class="table table-sm table-small-10">
+
+                <div v-if="loading" class="loading mb-3 mt-3 text-center mt-5">
+                  <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+                    <span class="sr-only"></span>
+                  </div>
+                </div>
+                <table v-else class="table table-sm table-small-10">
                   <thead>
                   <tr>
                     <th class="w50">#</th>
@@ -150,13 +153,13 @@
                     <th class="w75">${labels.origin}</th>
                     <th class="w75">${labels.sex}</th>
                     <th class="w75">${labels.fork_length}</th>
-                    <th class="w75">${labels.total_length}</th>
+                    <th v-if="!isElectro" class="w75">${labels.total_length}</th>
                     <th class="w75">${labels.weight}</th>
-                    <th class="w75">${labels.tag_number}</th>
-                    <th class="w75">${labels.location_tagged}</th>
-                    <th class="w75">${labels.date_tagged}</th>
+                    <th v-if="!isElectro" class="w75">${labels.tag_number}</th>
+                    <th v-if="!isElectro" class="w75">${labels.location_tagged}</th>
+                    <th v-if="!isElectro" class="w75">${labels.date_tagged}</th>
                     <th class="w75">${labels.scale_id_number}</th>
-                    <th class="w75">${labels.tags_removed}</th>
+                    <th v-if="!isElectro" class="w75">${labels.tags_removed}</th>
                     <th class="w75">${labels.notes}</th>
                   </tr>
                   </thead>
@@ -184,28 +187,46 @@
                     </td>
                     <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.fork_length|nz}</td>
                     <td v-else><input type="number" step="any" @keyup.enter="updateObservation" v-model="observation.fork_length" class="table-input"/></td>
-                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.total_length|nz}</td>
-                    <td v-else><input type="number" step="any" @keyup.enter="updateObservation" v-model="observation.total_length" class="table-input p-0"/></td>
+
+                    <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o)">${o.total_length|nz}</td>
+                    <td v-else-if="!isElectro">
+                      <input type="number" step="any" @keyup.enter="updateObservation" v-model="observation.total_length" class="table-input p-0"/>
+                    </td>
+
                     <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.weight|nz}</td>
                     <td v-else><input type="number" step="any" @keyup.enter="updateObservation" v-model="observation.weight" class="table-input p-0"/></td>
-                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.tag_number|nz}</td>
-                    <td v-else><input type="text" v-model="observation.tag_number" @keyup.enter="updateObservation" class="table-input p-0"/></td>
-                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.location_tagged|nz}</td>
-                    <td v-else><input type="text" v-model="observation.location_tagged" @keyup.enter="updateObservation" class="table-input p-0"/></td>
-                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.date_tagged_display|nz}</td>
-                    <td v-else><input type="date" v-model="observation.date_tagged" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+
+                    <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o)">${o.tag_number|nz}</td>
+                    <td v-else-if="!isElectro"><input type="text" v-model="observation.tag_number" @keyup.enter="updateObservation" class="table-input p-0"/>
+                    </td>
+
+                    <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o)">${o.location_tagged|nz}</td>
+                    <td v-else-if="!isElectro"><input type="text" v-model="observation.location_tagged" @keyup.enter="updateObservation"
+                                                      class="table-input p-0"/></td>
+
+                    <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o)">${o.date_tagged_display|nz}</td>
+                    <td v-else-if="!isElectro"><input type="date" v-model="observation.date_tagged" @keyup.enter="updateObservation" class="table-input p-0"/>
+                    </td>
+
                     <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.scale_id_number|nz}</td>
                     <td v-else><input type="text" v-model="observation.scale_id_number" @keyup.enter="updateObservation" class="table-input p-0"/></td>
-                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.tags_removed|nz}</td>
-                    <td v-else><input type="text" v-model="observation.tags_removed" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+
+                    <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o)">${o.tags_removed|nz}</td>
+                    <td v-else-if="!isElectro"><input type="text" v-model="observation.tags_removed" @keyup.enter="updateObservation" class="table-input p-0"/>
+                    </td>
+
                     <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.notes|nz}</td>
                     <td v-else><input type="text" v-model="observation.notes" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+
                     <td style="width: 100px;">
                       <div v-if="observation.id !== o.id">
                         <button class="btn btn-xs btn-warning" @click="editObservation(o)"><span class="mdi mdi-pencil"></span></button>
-                        <button class="btn btn-xs btn-success" @click="duplicateObservation(o)"><span class="mdi mdi-content-duplicate text-light"></span>
+                        <button class="btn btn-xs btn-success" @click="duplicateObservation(o)">
+                          <span class="mdi mdi-content-duplicate text-light"></span>
                         </button>
-                        <button class="btn btn-xs btn-danger" @click="deleteObservation(o)"><span class="mdi mdi-close text-light"></span></button>
+                        <button class="btn btn-xs btn-danger" @click="deleteObservation(o)">
+                          <span class="mdi mdi-close text-light"></span>
+                        </button>
                       </div>
 
                       <div v-else>
@@ -265,7 +286,9 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: {},
+      sample: {},
       loading: false,
+      loadingSample: false,
       errorMsg: null,
       succesMsg: null,
       successMsg: null,
@@ -276,6 +299,11 @@
       sexChoices: [],
       originChoices: [],
       statusChoices: [],
+      lastOrigin: "2",
+      lastSpecies: null,
+      lastLocation: null,
+      lastStatus: null,
+
     },
     methods: {
       getCurrentUser() {
@@ -285,11 +313,23 @@
               this.currentUser = response;
             })
       },
+      getSample() {
+        this.loadingSample = true;
+        let endpoint = `/api/trapnet/samples/${sampleId}/`;
+        apiService(endpoint)
+            .then(response => {
+              this.sample = response;
+              this.loadingSample = false;
+            })
+      },
       primeObservation() {
         this.observation = {
           sample: sampleId,
           sweep: sweepId,
-          origin: "2",
+          origin: this.lastOrigin,
+          species: this.lastSpecies,
+          location_tagged: this.lastLocation,
+          status: this.lastStatus,
         }
         this.$nextTick(() => {
           this.$refs.start.$refs.search.focus()
@@ -298,8 +338,8 @@
       getObservations() {
         this.loading = true;
         let endpoint;
-        if (sampleId) endpoint = `/api/trapnet/observations/?sample=${sampleId}`;
         if (sweepId) endpoint = `/api/trapnet/observations/?sweep=${sweepId}`;
+        else if (sampleId) endpoint = `/api/trapnet/observations/?sample=${sampleId}`;
         apiService(endpoint).then(data => {
           this.observations = data;
           this.loading = false;
@@ -318,10 +358,11 @@
       },
       addMultiple(instructions) {
         const templateObservation = JSON.parse(JSON.stringify(this.observation));
+        console.log(instructions)
         for (var i = 0; i < instructions.totalObservations; i++) {
           this.observation = JSON.parse(JSON.stringify(templateObservation));
           this.observation.date_tagged = this.observation.date_tagged_display
-          if (instructions.shouldIncrement && instructions.tagPrefix && instructions.startTagNumber) {
+          if (instructions.shouldIncrement && instructions.tagPrefix !== null && instructions.startTagNumber) {
             this.observation.tag_number = instructions.tagPrefix + String(i + instructions.startTagNumber).padStart(instructions.padding, "0")
           }
           this.updateObservation();
@@ -333,6 +374,8 @@
         this.successMsg = null;
         let endpoint;
         let method;
+        // set any empty strings to null
+        for (const observationKey in this.observation) if (this.observation[observationKey] === "") this.observation[observationKey] = null;
         if (this.observation.id) {
           endpoint = `/api/trapnet/observations/${this.observation.id}/`;
           method = "PUT";
@@ -351,6 +394,10 @@
                   this.successMsg = "{% trans "Success! The observation was updated." %}"
                 } else {
                   this.successMsg = "{% trans "Success! A new observation has been added." %}"
+                  this.lastSpecies = response.species
+                  this.lastStatus = response.status
+                  this.lastOrigin = response.origin
+                  this.lastLocation = response.location_tagged
                 }
                 this.getObservations()
               }
@@ -381,6 +428,10 @@
       canModify() {
         return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
       },
+      isElectro() {
+        if (this.sample && this.sample.sample_type === 2) return true
+        return false
+      }
     },
     filters: {
       floatformat: vueFiltersObject["floatformat"],
@@ -389,6 +440,7 @@
     created() {
       this.getCurrentUser();
       this.getObservations();
+      this.getSample();
       this.getObservationMetadata();
     },
   });

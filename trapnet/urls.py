@@ -7,6 +7,10 @@ urlpatterns = [
 
     # SETTINGS #
     ############
+    # user permissions
+    path('settings/users/', views.TrapNetUserFormsetView.as_view(), name="manage_trap_net_users"),
+    path('settings/users/<int:pk>/delete/', views.TrapNetUserHardDeleteView.as_view(), name="delete_trap_net_user"),
+
     path('settings/statuses/', views.StatusFormsetView.as_view(), name="manage_statuses"),
     path('settings/status/<int:pk>/delete/', views.StatusHardDeleteView.as_view(), name="delete_status"),
     path('settings/sexes/', views.SexFormsetView.as_view(), name="manage_sexes"),

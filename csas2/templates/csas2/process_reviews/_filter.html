@@ -45,6 +45,16 @@
       ></filter-control>
     </div>
 
+    <div class="col">
+      <filter-control
+        :label="processLabels.is_posted"
+        filter_param="is_posted"
+        input_type="select"
+        :useBooleanChoices="true"
+        @filter="getProcesses"
+      ></filter-control>
+    </div>
+
   </div>
 
 </div>

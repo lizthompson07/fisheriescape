@@ -233,10 +233,10 @@
                 <span>{{ text|upper }}</span>
                 {{ parent.funding_source }}
               </p>
-              {% trans "DETAILED COST BREAKDOWN PER TRAVELLER" %}:
+              <u>{% trans "TRAVEL DATES AND DETAILED COST BREAKDOWN PER TRAVELLER" %}:</u>
               <br>
               {% for object in parent.travellers.all %}
-                {{ object.first_name }} {{ object.last_name }} &rarr; {{ object.cost_breakdown }}<br><br>
+                {{ object.first_name }} {{ object.last_name }} ({{  object.start_date|date }} {% trans "to" %} {{  object.end_date|date }}) &rarr; {{ object.cost_breakdown }}<br><br>
               {% endfor %}
 
             </td>

@@ -12,51 +12,52 @@ from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django_filters.views import FilterView
+
+from shared_models.views import CommonFormsetView, CommonHardDeleteView
 from . import models
 from . import forms
 from . import filters
 from . import reports
+from .mixins import SuperuserOrAdminRequiredMixin, DietsAccessRequiredMixin, DietsAdminRequiredMixin, DietsCRUDRequiredMixin
+from .utils import can_read
 
-
-class CloserTemplateView(TemplateView):
-    template_name = 'diets/close_me.html'
-
-
-def in_diets_group(user):
-    if user:
-        return user.groups.filter(name='diets_access').count() != 0
-
-
-class DietsAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
-
-
-    def test_func(self):
-        return in_diets_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_diets_group, login_url='/accounts/denied/')
+@user_passes_test(can_read, login_url='/accounts/denied/')
 def index(request):
     return render(request, 'diets/index.html')
+
+
+
+class DietsUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
+    template_name = 'shared_models/generic_formset.html'
+    h1 = "Manage Diets Users"
+    queryset = models.DietsUser.objects.all()
+    formset_class = forms.DietsUserFormset
+    success_url_name = "diets:manage_diets_users"
+    home_url_name = "diets:index"
+    delete_url_name = "diets:delete_diets_user"
+    container_class = "container bg-light curvy"
+
+
+class DietsUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
+    model = models.DietsUser
+    success_url = reverse_lazy("diets:manage_diets_users")
+
 
 
 # SPECIES #
 ###########
 
-class SpeciesListView(DietsAccessRequired, FilterView):
+class SpeciesListView(DietsAccessRequiredMixin, FilterView):
     template_name = "diets/species_list.html"
     filterset_class = filters.SpeciesFilter
     queryset = models.Species.objects.annotate(
         search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'id', output_field=TextField()))
 
 
-class SpeciesDetailView(DietsAccessRequired, DetailView):
+class SpeciesDetailView(DietsAccessRequiredMixin, DetailView):
     model = models.Species
 
     def get_context_data(self, **kwargs):
@@ -72,17 +73,17 @@ class SpeciesDetailView(DietsAccessRequired, DetailView):
         return context
 
 
-class SpeciesUpdateView(DietsAccessRequired, UpdateView):
+class SpeciesUpdateView(DietsAdminRequiredMixin, UpdateView):
     model = models.Species
     form_class = forms.SpeciesForm
 
 
-class SpeciesCreateView(DietsAccessRequired, CreateView):
+class SpeciesCreateView(DietsAdminRequiredMixin, CreateView):
     model = models.Species
     form_class = forms.SpeciesForm
 
 
-class SpeciesDeleteView(DietsAccessRequired, DeleteView):
+class SpeciesDeleteView(DietsAdminRequiredMixin, DeleteView):
     model = models.Species
     permission_required = "__all__"
     success_url = reverse_lazy('diets:species_list')
@@ -97,7 +98,7 @@ class SpeciesDeleteView(DietsAccessRequired, DeleteView):
 ############
 
 
-class PredatorFilterView(DietsAccessRequired, FilterView):
+class PredatorFilterView(DietsAccessRequiredMixin, FilterView):
     template_name = "diets/predator_filter.html"
     filterset_class = filters.PredatorFilter
     queryset = models.Predator.objects.annotate(
@@ -118,7 +119,7 @@ class PredatorFilterView(DietsAccessRequired, FilterView):
         return context
 
 
-class PredatorDetailView(DietsAccessRequired, DetailView):
+class PredatorDetailView(DietsAccessRequiredMixin, DetailView):
     model = models.Predator
 
     def get_context_data(self, **kwargs):
@@ -157,7 +158,7 @@ class PredatorDetailView(DietsAccessRequired, DetailView):
         return context
 
 
-class PredatorUpdateView(DietsAccessRequired, UpdateView):
+class PredatorUpdateView(DietsCRUDRequiredMixin, UpdateView):
     model = models.Predator
     form_class = forms.PredatorForm
 
@@ -173,7 +174,7 @@ class PredatorUpdateView(DietsAccessRequired, UpdateView):
         return context
 
 
-class PredatorCreateView(DietsAccessRequired, CreateView):
+class PredatorCreateView(DietsCRUDRequiredMixin, CreateView):
     model = models.Predator
     form_class = forms.PredatorForm
 
@@ -197,7 +198,7 @@ class PredatorCreateView(DietsAccessRequired, CreateView):
         return context
 
 
-class PredatorDeleteView(DietsAccessRequired, DeleteView):
+class PredatorDeleteView(DietsCRUDRequiredMixin, DeleteView):
     model = models.Predator
     permission_required = "__all__"
     success_url = reverse_lazy('diets:predator_filter')
@@ -212,7 +213,7 @@ class PredatorDeleteView(DietsAccessRequired, DeleteView):
 ########
 
 
-class PreyCreateView(DietsAccessRequired, CreateView):
+class PreyCreateView(DietsCRUDRequiredMixin, CreateView):
     model = models.Prey
     template_name = 'diets/prey_form_popout.html'
     form_class = forms.PreyForm
@@ -236,17 +237,17 @@ class PreyCreateView(DietsAccessRequired, CreateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        return HttpResponseRedirect(reverse('diets:close_me'))
+        return HttpResponseRedirect(reverse('shared_models:close_me'))
 
 
-class PreyUpdateView(DietsAccessRequired, UpdateView):
+class PreyUpdateView(DietsCRUDRequiredMixin, UpdateView):
     model = models.Prey
     template_name = 'diets/prey_form_popout.html'
     form_class = forms.PreyForm
 
     def form_valid(self, form):
         self.object = form.save()
-        return HttpResponseRedirect(reverse('diets:close_me'))
+        return HttpResponseRedirect(reverse('shared_models:close_me'))
 
     def get_initial(self):
         return {
@@ -264,7 +265,7 @@ def prey_delete(request, pk):
 # CRUISE #
 ##########
 
-class CruiseListView(DietsAccessRequired, ListView):
+class CruiseListView(DietsAccessRequiredMixin, ListView):
     queryset = shared_models.Cruise.objects.all().order_by("-season", "mission_number")
     template_name = 'diets/cruise_list.html'
 
@@ -284,7 +285,7 @@ class CruiseListView(DietsAccessRequired, ListView):
         return context
 
 
-class CruiseDetailView(DietsAccessRequired, DetailView):
+class CruiseDetailView(DietsAccessRequiredMixin, DetailView):
     model = shared_models.Cruise
     template_name = 'diets/cruise_detail.html'
 
@@ -305,7 +306,7 @@ class CruiseDetailView(DietsAccessRequired, DetailView):
         return context
 
 
-class CruiseUpdateView(DietsAccessRequired, UpdateView):
+class CruiseUpdateView(DietsAdminRequiredMixin, UpdateView):
     model = shared_models.Cruise
     form_class = forms.CruiseForm
     template_name = 'diets/cruise_form.html'
@@ -315,7 +316,7 @@ class CruiseUpdateView(DietsAccessRequired, UpdateView):
         return HttpResponseRedirect(reverse_lazy('diets:cruise_detail', kwargs={"pk": object.id}))
 
 
-class CruiseCreateView(DietsAccessRequired, CreateView):
+class CruiseCreateView(DietsAdminRequiredMixin, CreateView):
     model = shared_models.Cruise
     form_class = forms.CruiseForm
     success_url = reverse_lazy('diets:cruise_list')
@@ -326,7 +327,7 @@ class CruiseCreateView(DietsAccessRequired, CreateView):
         return HttpResponseRedirect(reverse_lazy('diets:cruise_detail', kwargs={"pk": object.id}))
 
 
-class CruiseDeleteView(DietsAccessRequired, DeleteView):
+class CruiseDeleteView(DietsAdminRequiredMixin, DeleteView):
     model = shared_models.Cruise
     success_url = reverse_lazy('diets:cruise_list')
     success_message = 'The cruise was successfully deleted!'
@@ -340,23 +341,23 @@ class CruiseDeleteView(DietsAccessRequired, DeleteView):
 # DIGESTION #
 #############
 
-class DigestionListView(DietsAccessRequired, ListView):
+class DigestionListView(DietsAccessRequiredMixin, ListView):
     model = models.DigestionLevel
 
 
-class DigestionUpdateView(DietsAccessRequired, UpdateView):
-    model = models.DigestionLevel
-    form_class = forms.DigestionForm
-    success_url = reverse_lazy('diets:digestion_list')
-
-
-class DigestionCreateView(DietsAccessRequired, CreateView):
+class DigestionUpdateView(DietsAdminRequiredMixin, UpdateView):
     model = models.DigestionLevel
     form_class = forms.DigestionForm
     success_url = reverse_lazy('diets:digestion_list')
 
 
-class DigestionDeleteView(DietsAccessRequired, DeleteView):
+class DigestionCreateView(DietsAdminRequiredMixin, CreateView):
+    model = models.DigestionLevel
+    form_class = forms.DigestionForm
+    success_url = reverse_lazy('diets:digestion_list')
+
+
+class DigestionDeleteView(DietsAdminRequiredMixin, DeleteView):
     model = models.DigestionLevel
     success_url = reverse_lazy('diets:digestion_list')
     success_message = 'The digestion level was successfully deleted!'
@@ -369,23 +370,23 @@ class DigestionDeleteView(DietsAccessRequired, DeleteView):
 # SAMPLER #
 ###########
 
-class SamplerListView(DietsAccessRequired, ListView):
+class SamplerListView(DietsAccessRequiredMixin, ListView):
     model = models.Sampler
 
 
-class SamplerUpdateView(DietsAccessRequired, UpdateView):
-    model = models.Sampler
-    form_class = forms.SamplerForm
-    success_url = reverse_lazy('diets:sampler_list')
-
-
-class SamplerCreateView(DietsAccessRequired, CreateView):
+class SamplerUpdateView(DietsAdminRequiredMixin, UpdateView):
     model = models.Sampler
     form_class = forms.SamplerForm
     success_url = reverse_lazy('diets:sampler_list')
 
 
-class SamplerDeleteView(DietsAccessRequired, DeleteView):
+class SamplerCreateView(DietsAdminRequiredMixin, CreateView):
+    model = models.Sampler
+    form_class = forms.SamplerForm
+    success_url = reverse_lazy('diets:sampler_list')
+
+
+class SamplerDeleteView(DietsAdminRequiredMixin, DeleteView):
     model = models.Sampler
     success_url = reverse_lazy('diets:sampler_list')
     success_message = 'The samplers was successfully deleted!'
@@ -399,7 +400,7 @@ class SamplerDeleteView(DietsAccessRequired, DeleteView):
 ###########
 
 
-class ReportSearchFormView(DietsAccessRequired, FormView):
+class ReportSearchFormView(DietsAccessRequiredMixin, FormView):
     template_name = 'diets/report_search.html'
     form_class = forms.ReportSearchForm
 
@@ -436,7 +437,7 @@ def export_data_report(request, year, cruise, spp):
 
 
 
-class PreySummaryListView(DietsAccessRequired, TemplateView):
+class PreySummaryListView(DietsAccessRequiredMixin, TemplateView):
     template_name = 'diets/prey_summary_list.html'
 
     def get_context_data(self, **kwargs):

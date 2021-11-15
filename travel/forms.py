@@ -516,3 +516,20 @@ class OrganizationForm1(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['orgs'].choices = org_choices
         self.fields['orgs'].widget.attrs["id"] = "predefined-addresses"
+
+
+
+class TravelUserForm(forms.ModelForm):
+    class Meta:
+        model = models.TravelUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+TravelUserFormset = modelformset_factory(
+    model=models.TravelUser,
+    form=TravelUserForm,
+    extra=1,
+)

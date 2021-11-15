@@ -1,7 +1,9 @@
+import inspect
 
 from django import forms
 from maret import models
 from masterlist import models as ml_models
+from shared_models import models as shared_models
 from django.forms import modelformset_factory
 from django.utils.translation import gettext as _, gettext_lazy
 
@@ -29,11 +31,15 @@ class InteractionForm(forms.ModelForm):
             'date_created',
         ]
         widgets = {
-            'date_of_meeting': forms.DateInput(attrs=attr_fp_date)
+            'date_of_meeting': forms.DateInput(attrs=attr_fp_date),
+            'last_modified': forms.HiddenInput(),
+            'last_modified_by': forms.HiddenInput(),
         }
 
 
 class OrganizationForm(forms.ModelForm):
+    asc_province = forms.MultipleChoiceField(required=False, label=_("Associated Province(s)"))
+    category = forms.MultipleChoiceField(required=False, label=_("Categories"))
     area = forms.MultipleChoiceField(required=False, label=_("Area(s)"))
 
     class Meta:
@@ -45,24 +51,36 @@ class OrganizationForm(forms.ModelForm):
             'regions': forms.SelectMultiple(attrs=multi_select_js),
             'sectors': forms.SelectMultiple(attrs=multi_select_js),
             'reserves': forms.SelectMultiple(attrs=multi_select_js),
-            'orgs': forms.SelectMultiple(attrs=multi_select_js),
-            'area': forms.SelectMultiple(attrs=multi_select_js),
             # dates
             'next_election': forms.TextInput(attrs=attr_fp_date),
-            'new_coucil_effective_date': forms.TextInput(attrs=attr_fp_date)
+            'new_coucil_effective_date': forms.TextInput(attrs=attr_fp_date),
+            'last_modified': forms.HiddenInput(),
+            'last_modified_by': forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['name_eng', 'name_ind', 'abbrev', 'address', 'mailing_address', 'city', 'postal_code',
-                           'province', 'phone', 'fax', 'dfo_contact_instructions', 'notes', 'key_species', 'grouping',
-                           'area'])
+        self.order_fields(['name_eng', 'category', 'name_ind', 'abbrev', 'address', 'mailing_address', 'city',
+                           'postal_code', 'province', 'phone', 'fax', 'dfo_contact_instructions', 'notes',
+                           'key_species', 'grouping', 'area', 'regions', 'asc_province'])
+
+        self.fields['area'].widget = forms.SelectMultiple(attrs=multi_select_js)
+        self.fields['category'].widget = forms.SelectMultiple(attrs=multi_select_js)
+        self.fields['orgs'].widget = forms.SelectMultiple(attrs=multi_select_js)
+        self.fields['asc_province'].widget = forms.SelectMultiple(attrs=multi_select_js)
+
         from ihub.views import get_ind_organizations
         org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
         self.fields["orgs"].choices = org_choices_all
 
-        area_choices = [(y.pk, y.tname,) for idx, y in enumerate(models.Area.objects.all())]
+        area_choices = [(a.id, a) for a in models.Area.objects.all()]
         self.fields['area'].choices = area_choices
+
+        category_choices = [(c.id, c) for c in models.OrgCategory.objects.all()]
+        self.fields['category'].choices = category_choices
+
+        province_choices = [(p.id, p) for p in shared_models.Province.objects.all()]
+        self.fields['asc_province'].choices = province_choices
 
 
 class MemberForm(forms.ModelForm):
@@ -85,24 +103,19 @@ class MemberForm(forms.ModelForm):
 
 
 class PersonForm(forms.ModelForm):
+    role = forms.CharField(required=True, label=_("Role"))
+
     class Meta:
         model = ml_models.Person
-        fields = [
-            "designation",
-            "first_name",
-            "last_name",
-            "phone_1",
-            "phone_2",
-            "email_1",
-            "email_2",
-            "cell",
-            "fax",
-            "language",
-            "notes",
-        ]
+        exclude = ["date_last_modified", "old_id", 'last_modified_by']
         widgets = {
             'notes': forms.Textarea(attrs={"rows": "3"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.order_fields(['designation', 'role', 'first_name', 'last_name', 'phone_1', 'phone_2', 'email_1', 'email_2',
+                           'cell', 'fax', 'language', 'notes'])
 
 
 class TopicForm(forms.ModelForm):
@@ -114,7 +127,7 @@ class TopicForm(forms.ModelForm):
 TopicFormSet = modelformset_factory(
     model=models.DiscussionTopic,
     form=TopicForm,
-    extra=1,
+    extra=3,
 )
 
 
@@ -127,18 +140,37 @@ class SpeciesForm(forms.ModelForm):
 SpeciesFormSet = modelformset_factory(
     model=models.Species,
     form=SpeciesForm,
-    extra=1,
+    extra=3,
 )
 
 
-class AreaForm(forms.ModelForm):
+class OrgCategoryForm(forms.ModelForm):
     class Meta:
-        model = models.Area
+        model = models.OrgCategory
         fields = "__all__"
 
 
-AreaFormSet = modelformset_factory(
-    model=models.Area,
-    form=AreaForm,
+OrgCategoriesFormSet = modelformset_factory(
+    model=models.OrgCategory,
+    form=OrgCategoryForm,
+    extra=3,
+)
+
+
+class HelpTextForm(forms.ModelForm):
+
+    model = None
+
+    class Meta:
+        fields = "__all__"
+        widgets = {
+            'eng_text': forms.Textarea(attrs={"rows": 2}),
+            'fra_text': forms.Textarea(attrs={"rows": 2}),
+        }
+
+
+HelpTextFormset = modelformset_factory(
+    model=models.HelpText,
+    form=HelpTextForm,
     extra=1,
 )

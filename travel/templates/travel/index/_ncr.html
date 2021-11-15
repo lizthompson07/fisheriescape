@@ -18,6 +18,10 @@
       (<span :class="{'red-font blink-me':admHitCount>0}">${  admHitCount }</span>)
     </a>
 
+    <a href="{% url 'travel:trip_reviewer_list' %}?ongoing=true"
+       class="btn btn-lg btn-outline-primary mx-3">
+      {% trans "View Ongoing Trip Reviews" %}
+    </a>
 
   </div>
 </div>

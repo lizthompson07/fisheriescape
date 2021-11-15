@@ -12,14 +12,18 @@
         {% trans "Settings" %}
       </a>
       <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-        <a class="dropdown-item" href="{% url 'maret:manage_areas' %}">
-          {% trans "Manage Areas" %}
+        <a class="dropdown-item" href="{% url 'maret:manage_org_categories' %}">
+          {% trans "Manage Organization Categories" %}
         </a>
         <a class="dropdown-item" href="{% url 'maret:manage_species' %}">
           {% trans "Manage Species" %}
         </a>
         <a class="dropdown-item" href="{% url 'maret:manage_topics' %}">
           {% trans "Manage Topics" %}
+        </a>
+          <hr />
+        <a class="dropdown-item" href="{% url 'maret:manage_help_texts' %}">
+          {% trans "Manage Help Text" %}
         </a>
       </div>
     </li>

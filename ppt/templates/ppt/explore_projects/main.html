@@ -1,0 +1,294 @@
+{% extends 'ppt/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+{% load custom_filters %}
+{% load static %}
+
+{% block title_area %}
+{% endblock %}
+
+{% block crumbs %}
+{% endblock %}
+
+
+{% block content %}
+  <div id="app" v-cloak>
+
+    <div id="mySidebar" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar}">
+      {% include "ppt/explore_projects/_console.html" %}
+    </div>
+    <div :class="{'main-opened':showSidebar, 'main-closed':!showSidebar}">
+
+      <div class="row container-fluid bg-light curvy">
+        <div class="col">
+          <div>
+            <p class="h1 text-center">{% trans "Explore Science Projects" %}</p>
+
+            <div>
+              <div class="text-center">
+                <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
+              </div>
+            </div>
+            <table class="table table-sm">
+              <thead>
+              <tr>
+                {% for field in field_list %}
+                  {% if "title" in field %}
+                    <th style="width: 400px" @click="sort('{{ field }}')" class="clickable">
+                      {% get_verbose_label random_project field %}
+                    </th>
+                  {% elif "funding" in field %}
+                    <th style="width: 150px" @click="sort('{{ field }}')" class="clickable">
+                      {% get_verbose_label random_project field %}
+                    </th>
+                  {% elif "fiscal" in field or "funding" in field %}
+                    <th style="width: 100px" @click="sort('{{ field }}')" class="clickable">
+                      {% get_verbose_label random_project field %}
+                    </th>
+                  {% else %}
+                    <th @click="sort('{{ field }}')" class="clickable">
+                      {% get_verbose_label random_project field %}
+                    </th>
+                  {% endif %}
+
+                {% endfor %}
+                <th v-if="isAdminOrMgmt">{% trans "Hidden?" %}</th>
+
+              </tr>
+              </thead>
+              <tbody>
+              <tr
+                v-for="(p, index) in sortedProjectYears"
+                @mouseover="hover = true"
+                @mouseleave="hover = false"
+                {#            :class="{'clickable': hover}"#}
+                {#            @click="goProjectDetail(p)"#}
+              >
+                <td>${p.project.id}</td>
+                <td>
+                  <a class="text-primary pointy" @click="goProjectDetail(p)">
+                    ${p.project.title}
+                  </a>
+                </td>
+                <td>${p.display_name}</td>
+                <td :class="p.status_class">${p.status_display}</td>
+                {#            <td>${p.project.section}</td>#}
+                <td>${p.project.default_funding_source}</td>
+                <td>${p.project.functional_group}</td>
+                <td>${p.project.lead_staff}</td>
+                <td v-if="isAdminOrMgmt">
+                  <span v-if="p.project.is_hidden" class="highlight">{% trans "Yes" %}</span>
+                  <span v-else>{% trans "No" %}</span>
+                </td>
+                {#                <td>#}
+                {#                  <button @click="goProjectDetail(p)" data-toggle="tooltip" title="{% trans "Open in separate window" %}">#}
+                {#                    <span class="mdi mdi-arrow-top-right"></span>#}
+                {#                  </button>#}
+                {#                </td>#}
+              </tr>
+              </tbody>
+            </table>
+
+            <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
+              <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+                <span class="sr-only"></span>
+              </div>
+            </div>
+            <div v-else>
+              <div class="text-center">
+                <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
+                <button v-if="next" @click="loadMoreResults" class="btn btn-primary btn-sm">
+                  {% trans "Load more results..." %}
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+
+
+  <script type="application/javascript">
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      showSidebar: true,
+      currentUser: {},
+      isAdminOrMgmt: false,
+      hover: false,
+
+      currentSort: 'name',
+      currentSortDir: 'asc',
+
+      projects_loading: true,
+      projectYears: [],
+      next: null,
+      previous: null,
+      count: 0,
+
+      // filters
+      filter: {
+        is_hidden: "",
+      },
+
+
+      fiscalYears: [],
+      tags: [],
+      themes: [],
+      functionalGroups: [],
+      fundingSources: [],
+      regions: [],
+      divisions: [],
+      sections: [],
+
+    },
+    methods: {
+      getCurrentUser() {
+        let endpoint = `/api/ppt/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+              this.isAdminOrMgmt = this.currentUser.is_admin || this.currentUser.is_management
+            })
+      },
+      goProjectDetail(projectYear) {
+        url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
+        var win = window.open(url, '_blank');
+      },
+      getFilterData() {
+        apiService(`/api/ppt/fiscal-years/`).then(response => this.fiscalYears = response)
+        apiService(`/api/ppt/tags/`).then(response => this.tags = response)
+        apiService(`/api/ppt/themes/`).then(response => this.themes = response)
+        apiService(`/api/ppt/funding-sources/`).then(response => this.fundingSources = response)
+        apiService(`/api/ppt/regions/`).then(response => this.regions = response)
+
+        var query = "";
+        if (this.filter.region && this.filter.region !== "") query = `?region=${this.filter.region}`
+        apiService(`/api/ppt/divisions/${query}`).then(response => this.divisions = response)
+
+        if (this.filter.division && this.filter.division !== "") query = `?division=${this.filter.division}`
+        apiService(`/api/ppt/sections/${query}`).then(response => this.sections = response)
+
+        if (this.filter.section && this.filter.section !== "") query = `?section=${this.filter.section}`
+        apiService(`/api/ppt/functional-groups/${query}`).then(response => this.functionalGroups = response)
+
+      },
+      getProjectYears(endpoint) {
+        this.projects_loading = true;
+        if (!endpoint) {
+          endpoint = `/api/ppt/project-years/?`;
+          // apply filters
+          if (this.filter.is_hidden) endpoint += `is_hidden=1&`
+          if (this.filter.id) endpoint += `id=${this.filter.id}&`
+          if (this.filter.title) endpoint += `title=${this.filter.title}&`
+          if (this.filter.staff) endpoint += `staff=${this.filter.staff}&`
+          if (this.filter.fiscal_year) endpoint += `fiscal_year=${this.filter.fiscal_year}&`
+          if (this.filter.tag) endpoint += `tag=${this.filter.tag}&`
+          if (this.filter.theme) endpoint += `theme=${this.filter.theme}&`
+          if (this.filter.functional_group) endpoint += `functional_group=${this.filter.functional_group}&`
+          if (this.filter.funding_source) endpoint += `funding_source=${this.filter.funding_source}&`
+          if (this.filter.region) endpoint += `region=${this.filter.region}&`
+          if (this.filter.division) endpoint += `division=${this.filter.division}&`
+          if (this.filter.section) endpoint += `section=${this.filter.section}&`
+          if (this.filter.status) endpoint += `status=${this.filter.status}&`
+          if (this.filter.id) endpoint += `id=${this.filter.id}&`
+        }
+
+        apiService(endpoint)
+            .then(response => {
+              if (response.results) {
+                this.projects_loading = false;
+                this.projectYears.push(...response.results);
+                this.next = response.next;
+                this.previous = response.previous;
+                this.count = response.count;
+              }
+            })
+      },
+      clearProjectYears() {
+        this.projectYears = []
+        this.next = null
+        this.count = 0
+      },
+      loadMoreResults() {
+        if (this.next) {
+          this.getProjectYears(this.next)
+        }
+      },
+      clearFilters() {
+        this.filter = {};
+        this.updateResults()
+      },
+      updateResults() {
+        this.clearProjectYears();
+        this.getProjectYears();
+        this.getFilterData();
+      },
+      sort(s) {
+        // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
+        //if s == current sort, reverse
+        if (s === this.currentSort) {
+          this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
+        }
+        this.currentSort = s;
+      },
+    },
+    filters: {
+      yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
+      floatformat: vueFiltersObject["floatformat"],
+      currencyFormat: vueFiltersObject["currencyFormat"],
+      zero2NullMark: vueFiltersObject["zero2NullMark"],
+      percentage: vueFiltersObject["percentage"],
+    },
+    computed: {
+
+      sortedProjectYears() {
+        return this.projectYears.sort((a, b) => {
+          let modifier = 1;
+          if (this.currentSortDir === 'desc') modifier = -1;
+
+          if (this.currentSort && this.currentSort.search("fiscal") > -1) {
+            if (a["fiscal_year"] < b["fiscal_year"]) return -1 * modifier;
+            if (a["fiscal_year"] > b["fiscal_year"]) return 1 * modifier;
+          } else if (this.currentSort === "id") {
+            if (a["project"]["id"] < b["project"]["id"]) return -1 * modifier;
+            if (a["project"]["id"] > b["project"]["id"]) return 1 * modifier;
+          } else if (this.projectYears[0][this.currentSort] == null) {
+            if (a["project"][this.currentSort] < b["project"][this.currentSort]) return -1 * modifier;
+            if (a["project"][this.currentSort] > b["project"][this.currentSort]) return 1 * modifier;
+          } else {
+            if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+            if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+          }
+          return 0;
+        });
+      },
+    },
+    created() {
+      this.getCurrentUser()
+      this.getProjectYears()
+      this.getFilterData()
+    },
+    mounted() {
+    },
+  });
+
+  </script>
+
+  <script type="text/javascript" src="{% static "js/clickableTableRows.js" %}?version=1.1.7"></script>
+  <script type=" text/javascript" src="{% static "js/popItOut.js" %}?version=1.2.2"></script>
+  <script type=" text/javascript" src="{% static "js/underDevelopment.js" %}?version=1.2.4"></script>
+
+{% endblock %}

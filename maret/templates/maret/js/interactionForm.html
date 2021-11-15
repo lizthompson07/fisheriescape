@@ -1,42 +1,74 @@
 <script type="application/javascript">
 
     function updateFields() {
-        var int_type = $("#id_interaction_type :selected").val()
+        let int_type = parseInt($("#id_interaction_type :selected").val(), 10);
+
+        let committee = $("#id_committee");
+        let date_of_meeting = $("#id_date_of_meeting");
+        let dfo_liaison = $("#id_dfo_liaison");
+        let other_dfo_participants = $("#id_other_dfo_participants");
+        let external_contact = $("#id_external_contact");
+        let external_organization = $("#id_external_organization");
+        let main_topic = $("#id_main_topic");
+        let species = $("#id_species");
 
         // Default hiden fields
-        $("#id_committee").parent().addClass("gone");
-        $("#id_date_of_meeting").parent().addClass("gone");
+        committee.parent().addClass("gone");
+        committee.prop("required", false);
+
+        date_of_meeting.parent().addClass("gone");
+        date_of_meeting.prop("required", false);
 
         // Default not hidden fields
-        $("#id_dfo_liaison").parent().removeClass("gone");
-        $("#id_other_dfo_participants").parent().removeClass("gone");
-        $("#id_external_contact").parent().removeClass("gone");
-        $("#id_external_organization").parent().removeClass("gone");
-        $("#id_main_topic").parent().removeClass("gone");
-        $("#id_species").parent().removeClass("gone");
+        dfo_liaison.parent().removeClass("gone");
+        dfo_liaison.prop("required", false);
+        other_dfo_participants.parent().removeClass("gone");
+        other_dfo_participants.prop("required", false);
+        external_contact.parent().removeClass("gone");
+        external_contact.prop("required", false);
+        external_organization.parent().removeClass("gone");
+        external_organization.prop("required", false);
+        main_topic.parent().removeClass("gone");
+        main_topic.prop("required", false);
+        species.parent().removeClass("gone");
+        species.prop("required", false);
 
-        if(int_type==1 || int_type==2 || int_type==3 || int_type==4) {
-            $("#id_date_of_meeting").parent().removeClass("gone");
+        if (int_type === 1 || int_type === 2 || int_type === 3 || int_type === 4) {
+            date_of_meeting.parent().removeClass("gone");
         }
 
-        if(int_type==4) {
-            $("#id_committee").parent().removeClass("gone");
-            $("#id_dfo_liaison").parent().addClass("gone");
-            $("#id_other_dfo_participants").parent().addClass("gone");
-            $("#id_external_contact").parent().addClass("gone");
-            $("#id_external_organization").parent().addClass("gone");
-            $("#id_main_topic").parent().addClass("gone");
-            $("#id_species").parent().addClass("gone");
-        } else if(int_type==5){
-            $("#id_committee").parent().removeClass("gone");
+        if (int_type === 4) {
+            committee.parent().removeClass("gone");
+            committee.prop("required", true);
+
+            dfo_liaison.parent().addClass("gone");
+            dfo_liaison.prop("required", false);
+
+            other_dfo_participants.parent().addClass("gone");
+            other_dfo_participants.prop("required", false);
+
+            external_contact.parent().addClass("gone");
+            external_contact.prop("required", false);
+
+            external_organization.parent().addClass("gone");
+            external_organization.prop("required", false);
+
+            main_topic.parent().addClass("gone");
+            main_topic.prop("required", false);
+
+            species.parent().addClass("gone");
+            species.prop("required", false);
+        } else if (int_type === 5) {
+            committee.parent().removeClass("gone");
+            committee.prop("required", true);
         }
     }
 
-    $("#id_interaction_type").change(function() {
+    $("#id_interaction_type").change(function () {
         updateFields();
     });
 
-    $(document).ready(function() {
-       updateFields();
+    $(document).ready(function () {
+        updateFields();
     });
 </script>

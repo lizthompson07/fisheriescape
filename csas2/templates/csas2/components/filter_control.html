@@ -15,7 +15,7 @@
         id="my-input"
       >
         <option v-if="blank_option" value="">${blank_option}</option>
-        <option v-for="(choice, index) in choices" :value="choice.value">${choice.text}</option>
+        <option v-for="(choice, index) in realChoices" :value="choice.value">${choice.text}</option>
       </select>
     </div>
     <div v-else>
@@ -59,6 +59,10 @@ Vue.component("filter-control", {
       type: Array,
       required: false
     },
+    useBooleanChoices: {
+      type: Boolean,
+      required: false
+    },
   },
   data() {
     return {
@@ -69,7 +73,20 @@ Vue.component("filter-control", {
   methods: {
     filter() {
       this.$emit("filter", this.filter_param, this.input)
-    }
+    },
   },
+  computed: {
+    boolChoices() {
+      return [
+        {text: "-----", value: null},
+        {text: "{% trans "yes" %}", value: true},
+        {text: "{% trans "no" %}", value: false}
+      ];
+    },
+    realChoices() {
+      if (!this.choices) return this.boolChoices;
+      return this.choices;
+    }
+  }
 });
 </script>
