@@ -2349,6 +2349,7 @@ class LdscList(mixins.LdscMixin, GenericList):
     field_list = [
         {"name": 'name', "class": "", "width": ""},
         {"name": 'nom', "class": "", "width": ""},
+        {"name": 'locdc_id', "class": "", "width": ""},
     ]
     filterset_class = filters.LdscFilter
 

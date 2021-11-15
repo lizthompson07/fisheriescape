@@ -332,10 +332,13 @@ def parse_extra_cols(row, cleaned_data, anix, indv=False, grp=False, samp=False)
     return row_entered
 
 
-def parse_cont_strs(cont_str, facic_id, at_date, exclude_str=""):
+def parse_cont_strs(cont_str, facic_id, at_date, exclude_str):
     cont_str = cont_str.replace(" ", "")
-    exclude_str = exclude_str.replace(" ", "")
-    exclude_list = exclude_str.split("")
+    if nan_to_none(exclude_str):
+        exclude_str = exclude_str.replace(" ", "")
+        exclude_list = exclude_str.split("")
+    else:
+        exclude_list = []
     cont_ids = []
     if "," in cont_str:
         cont_list = cont_str.split(",")
