@@ -77,14 +77,23 @@ class DistributionParser(DataParser):
 
         # set location:
         relc_id = models.ReleaseSiteCode.objects.filter(name__iexact=row[self.site_key]).get()
+
+        if utils.nan_to_none(self.lat_key):
+            loc_lat = utils.round_no_nan(row[self.lat_key], 6)
+        else:
+            loc_lat = relc_id.min_lat
+        if utils.nan_to_none(self.lon_key):
+            loc_lon = utils.round_no_nan(row[self.lon_key], 6)
+        else:
+            loc_lon = relc_id.min_lon
         rive_id = relc_id.rive_id
 
         loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
                               locc_id=self.locc_id,
                               rive_id=rive_id,
                               relc_id=relc_id,
-                              loc_lat=utils.round_no_nan(row[self.lat_key], 6),
-                              loc_lon=utils.round_no_nan(row[self.lon_key], 6),
+                              loc_lat=loc_lat,
+                              loc_lon=loc_lon,
                               loc_date=row_date,
                               comments=utils.nan_to_none(row[self.comment_key]),
                               created_by=cleaned_data["created_by"],
