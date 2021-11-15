@@ -35,7 +35,7 @@ class PersonFilter(django_filters.FilterSet):
 class CSASRequestFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title / ref number"))
     request_id = django_filters.NumberFilter(field_name='id', lookup_expr='exact')
-    fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
+    fiscal_year = django_filters.MultipleChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name="section__division__branch__sector__region", label=_("Region"), lookup_expr='exact')
     sector = django_filters.ChoiceFilter(field_name="section__division__branch__sector", label=_("Sector"), lookup_expr='exact')
     section = django_filters.ChoiceFilter(field_name="section", label=_("Section"), lookup_expr='exact')
@@ -57,10 +57,11 @@ class CSASRequestFilter(django_filters.FilterSet):
         self.filters['section'].field.choices = section_choices
         self.filters['client'].field.choices = client_choices
         self.filters['status'].field.choices = request_status_choices
+        self.filters['fiscal_year'].field.choices = fy_choices
 
         self.filters['client'].field.widget.attrs = chosen_js
         self.filters['section'].field.widget.attrs = chosen_js
-        self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices)
+        self.filters['fiscal_year'].field.widget.attrs = chosen_js
 
         try:
             if self.data["region"] != "":

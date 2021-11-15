@@ -657,8 +657,9 @@ class RequestModelMetaAPIView(APIView):
         status_choices = [dict(text=c[1], value=c[0]) for c in model_choices.request_status_choices]
         status_choices.insert(0, dict(text="-----", value=None))
         data['status_choices'] = status_choices
-        data['region_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_region_choices()]
-        data['sector_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_sector_choices()]
+        data['region_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_region_choices(with_requests=True)]
+        data['sector_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_sector_choices(with_requests=True)]
+        data['section_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_section_choices(with_requests=True)]
         data['fy_choices'] = [dict(text=str(c), value=c.id) for c in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
         return Response(data)
 

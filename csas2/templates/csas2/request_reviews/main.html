@@ -54,7 +54,7 @@
           <thead>
           <tr>
             <th class="">{% trans "Request" %}</th>
-            <th>{% trans "Review detail" %}</th>
+            <th>{% trans "Review" %}</th>
           </tr>
           </thead>
           <tbody>
@@ -64,8 +64,16 @@
                 <span class="text-muted">{% trans "Id:" %}</span> ${r.id}
               </div>
               <div class="mb-3">
+                <span class="text-muted">{% trans "Client prioritization:" %}</span>
+                <span v-html="r.prioritization_display"></span>
+              </div>
+              <div class="mb-3">
                 <span class="text-muted">{% trans "Title:" %}</span>
                 <a :href="`/csas-sccs/requests/${r.id}/view/`" target="_blank">${r.title}</a>
+              </div>
+              <div class="mb-3">
+                <span class="text-muted">${requestLabels.issue}:</span>
+                <span v-html="r.issue_html"></span>
               </div>
               <div class="mb-3">
                 <span class="text-muted">{% trans "Region:" %}</span> ${r.region}
@@ -75,7 +83,7 @@
                 <span v-html="r.status_display_html"></span>
               </div>
               <div class="mb-3">
-                <span class="text-muted">{% trans "Original advice date:" %}</span><br> ${r.advice_needed_by_display}
+                <span class="text-muted">{% trans "Advice required by (original):" %}</span><br> ${r.advice_needed_by_display}
               </div>
               <div class="mb-3">
                 <span class="text-muted">{% trans "Fiscal year:" %}</span> <br>${r.fiscal_year}
@@ -233,6 +241,7 @@
       fyChoices: [],
       regionChoices: [],
       sectorChoices: [],
+      sectionChoices: [],
       fresh: true,
       requestsEndpoint: `/api/csas/requests/?`
     },
@@ -331,6 +340,7 @@
           this.statusChoices = data.status_choices;
           this.regionChoices = data.region_choices;
           this.sectorChoices = data.sector_choices;
+          this.sectionChoices = data.section_choices;
           this.fyChoices = data.fy_choices;
         });
         apiService(`/api/csas/meta/models/request-review/`).then(data => {

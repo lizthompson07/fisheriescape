@@ -311,13 +311,13 @@ class CSASRequestNote(GenericNote):
 class CSASRequestReview(MetadataFields):
     csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, related_name="review")
     ref_number = models.CharField(max_length=50, verbose_name=_("reference number (optional)"), blank=True, null=True)
-    is_valid = models.IntegerField(blank=True, null=True, verbose_name=_("is this a valid CSAS question?"), choices=model_choices.yes_no_choices_int)
+    is_valid = models.IntegerField(blank=True, null=True, verbose_name=_("Is this within the scope of CSAS?"), choices=model_choices.yes_no_choices_int)
     is_feasible = models.IntegerField(blank=True, null=True, verbose_name=_("is this feasible from a Science perspective"),
                                       choices=model_choices.yes_no_choices_int)
     decision = models.IntegerField(blank=True, null=True, verbose_name=_("decision"), choices=model_choices.request_decision_choices)
     decision_text = models.TextField(blank=True, null=True, verbose_name=_("Decision explanation"))
     decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("decision date"))
-    advice_date = models.DateTimeField(verbose_name=_("planned advice date"), blank=True, null=True)
+    advice_date = models.DateTimeField(verbose_name=_("advice required by (final)"), blank=True, null=True)
     deferred_text = models.TextField(null=True, blank=True, verbose_name=_("rationale for alternate scheduling"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 

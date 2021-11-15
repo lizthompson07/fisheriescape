@@ -43,6 +43,15 @@
         :choices="sectorChoices" blank_option="-----"
       ></filter-control>
     </div>
+    <div class="col">
+      <filter-control
+        label="{% trans "Section" %}"
+        input_type="select"
+        filter_param="section"
+        @filter="getRequests"
+        :choices="sectionChoices" blank_option="-----"
+      ></filter-control>
+    </div>
 
 
     <div class="col">
