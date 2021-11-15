@@ -87,10 +87,10 @@
               <td v-html="obs.comment"></td>
               <td v-if="index1==0" :rowspan="section.observations.length" style="width: 120px" class="text-center">
                 <button @click="editSection(section)" class="btn btn-sm btn-warning">
-                  <span class="mdi mdi-pencil h5"></span>
+                  <span class="mdi mdi-pencil"></span>
                 </button>
                 <button @click="deleteSection(section)" class="btn btn-sm btn-danger">
-                  <span class="mdi mdi-delete text-light h5"></span>
+                  <span class="mdi mdi-delete text-light"></span>
                 </button>
               </td>
             </tr>
@@ -103,10 +103,10 @@
               <td colspan="7"><em>{% trans "No observations" %}</em></td>
               <td class="text-center">
                 <button class="btn btn-sm btn-warning" @click="editSection(section)">
-                  <span class="mdi mdi-pencil h6"></span>
+                  <span class="mdi mdi-pencil"></span>
                 </button>
                 <button class="btn btn-sm btn-danger" @click="deleteSection(section)">
-                  <span class="mdi mdi-delete h6 text-light"></span>
+                  <span class="mdi mdi-delete text-light"></span>
                 </button>
               </td>
             </tr>
