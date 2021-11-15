@@ -155,6 +155,7 @@ class ObservationForm(forms.ModelForm):
         exclude = ["section"]
         widgets = {
             "comment": forms.TextInput(),
+            "carapace_length_mm": forms.TextInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -175,7 +176,7 @@ class NewObservationForm(forms.ModelForm):
         fields = "__all__"
         exclude = ["section"]
         widgets = {
-            # "comment": forms.TextInput(),
+            "carapace_length_mm": forms.TextInput(),
         }
 
     def __init__(self, *args, **kwargs):

@@ -506,7 +506,7 @@ class DiveDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
 class DiveDataEntryDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
     model = models.Dive
     template_name = 'scuba/dive_data_entry/main.html'
-    container_class = "container-fluid bg-light-green curvy"
+    container_class = "container-fluid"
     field_list = [
         'id|{}'.format(_("dive Id")),
         'transect',
@@ -516,6 +516,14 @@ class DiveDataEntryDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
         'width_m',
         'comment',
     ]
+    home_url_name = "scuba:index"
+    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse("scuba:sample_detail", args=[self.get_object().sample.id])}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("scuba:dive_detail", args=[self.get_object().id])}
 
     def get_h1(self):
         return _("Data Entry Mode")
