@@ -3,6 +3,7 @@ import datetime
 import os
 from random import randint
 
+from django.conf import settings
 from django.db import IntegrityError
 from django.utils import timezone
 
@@ -11,9 +12,11 @@ from shared_models import models as shared_models
 from . import models
 
 
-def delete_observations():
-    models.Observation.objects.all().delete()
-
+def delete_rst_data():
+    models.Observation.objects.filter(sample__sample_type=1).delete()
+    models.Entry.objects.filter(sample__sample_type=1).delete()
+    models.Sweep.objects.filter(sample__sample_type=1).delete()
+    models.Sample.objects.filter(sample_type=1).delete()
 
 """
 
@@ -301,3 +304,81 @@ def import_smolt_2():
                             except Exception as e:
                                 print(e)
                                 print(my_obs.species_id)
+
+
+
+def import_trap_data():
+    # open the csv we want to read
+    my_target_data_file = os.path.join(settings.BASE_DIR, 'trapnet','misc', 'smolts_trapdata_master.csv')
+    with open(os.path.join(my_target_data_file), 'r') as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        for row in my_csv:
+            site = models.RiverSite.objects.get(pk=row["River"])
+                    #
+                    # # check to see if there is a direct hit using only year, month, day
+                    # my_samples = models.Sample.objects.filter(
+                    #     site=site,
+                    #     arrival_date__year=int(row["Year"]),
+                    #     arrival_date__month=int(row["Month"]),
+                    #     arrival_date__day=int(row["Day"]),
+                    # )
+                    # if my_samples.count() == 0:
+                    #     print("big problem for obs id={}. no sample found for site={}, date={}/{}/{}".format(
+                    #         row["id"],
+                    #         site,
+                    #         row["Year"],
+                    #         row["Month"],
+                    #         row["Day"],
+                    #     ))
+                    #
+                    # elif my_samples.count() > 1:
+                    #     print("small problem for obs id={}. multiple samples found for site={}, date={}/{}/{}".format(
+                    #         row["id"],
+                    #         site,
+                    #         row["Year"],
+                    #         row["Month"],
+                    #         row["Day"],
+                    #     ))
+                    #     # try:
+                    #     #     my_time = datetime.datetime.strptime(row["TimeStart"], "%H:%M") if row["TimeStart"] else None
+                    #     # except ValueError:
+                    #     #     print("bad start time given for observation {}".format(row["id"]))
+                    #     # else:
+                    #     #     if my_time:
+                    #
+                    # else:
+                    #     # there has been only 1 hit and we can create the observation in the db
+                    #     my_obs, created = models.Entry.objects.get_or_create(
+                    #         id=int(row["id"]),
+                    #     )
+                    #     if created:
+                    #
+                    #         species = models.Species.objects.get(code=row["Species"]) if row["Species"] else None
+                    #         status = models.Status.objects.get(code=row["Status"]) if row["Status"] else None
+                    #         origin = models.Origin.objects.get(code=row["Origin"]) if row["Origin"] else None
+                    #         sex = models.Sex.objects.get(code=row["Sex"]) if row["Sex"] else None
+                    #         my_date = datetime.datetime.strptime(row["DateTagged"], "%m/%d/%Y") if row["DateTagged"] else None
+                    #
+                    #         my_obs.species = species
+                    #         my_obs.sample = my_samples.first()
+                    #         my_obs.first_tag = nz(row["FirstTag"].strip(), None)
+                    #         my_obs.last_tag = nz(row["LastTag"].strip(), None)
+                    #         my_obs.status = status
+                    #         my_obs.origin = origin
+                    #         my_obs.frequency = nz(row["Freq"].strip(), None)
+                    #         my_obs.fork_length = nz(row["ForkLength"].strip(), None)
+                    #         my_obs.total_length = nz(row["TotalLength"].strip(), None)
+                    #         my_obs.weight = nz(row["Weight"].strip(), None)
+                    #         my_obs.sex = sex
+                    #         my_obs.smolt_age = nz(row["SmoltAge"].strip(), None)
+                    #         my_obs.location_tagged = nz(row["LocationTagged"].strip(), None)
+                    #         my_obs.date_tagged = my_date
+                    #         my_obs.scale_id_number = nz(row["Scale ID Number"].strip(), None)
+                    #         my_obs.tags_removed = nz(row["tags removed"].strip(), None)
+                    #         my_obs.notes = nz(row["Comments"].strip(), None)
+                    #
+                    #         try:
+                    #             my_obs.save()
+                    #         except Exception as e:
+                    #             print(e)
+                    #             print(my_obs.species_id)
