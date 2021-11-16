@@ -156,7 +156,7 @@
                 </div>
                 <div class="col">
                   <div class="mb-3">
-                    <span class="text-muted small">{% trans "Decision rationale" %}</span>
+                    <span class="text-muted small">{% trans "Decision rationale" %} (<span class="text-success font-weight-bold">{% trans "VISIBLE TO CLIENT" %}</span>)</span>
                     <textarea rows="11" class="form-control" v-model="r.review.decision_text" @change="updateReview(r)"></textarea>
                   </div>
                 </div>
@@ -164,14 +164,14 @@
                 <div class="col">
 
                   <div class="mb-3">
-                    <span class="text-muted small">${reviewLabels.deferred_text}</span>
+                    <span class="text-muted small">${reviewLabels.deferred_text} (<span class="text-success font-weight-bold">{% trans "VISIBLE TO CLIENT" %}</span>)</span>
                     <textarea rows="11" class="form-control" v-model="r.review.deferred_text" @change="updateReview(r)"
                               :disabled="!r.is_rescheduled || !r.is_valid_request"></textarea>
                   </div>
                 </div>
                 <div class="col">
                   <div class="mb-3">
-                    <span class="text-muted small">${reviewLabels.notes} &mdash; <span class="text-danger font-weight-bold">{% trans "INTERNAL / NOT VISIBLE TO CLIENT" %}</span></span>
+                    <span class="text-muted small">${reviewLabels.notes} (<span class="text-danger font-weight-bold">{% trans "INTERNAL / CSAS ONLY" %}</span>)</span>
                     <textarea rows="11" class="form-control" v-model="r.review.notes" @change="updateReview(r)"></textarea>
                   </div>
                 </div>
