@@ -371,12 +371,17 @@ def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
              site_location.animal_details.filter(indv_id__isnull=False).values_list("indv_id__stok_id__name",
                                                                                     "indv_id__indv_year",
                                                                                     "indv_id__coll_id__name", ).distinct()]
+    loc_cnt_qs = models.Count.objects.filter(loc_id_id=site_location.pk).select_related("cntc_id", "coll_id")
+
     if len(grps) >= 1:
         coll_str = grps[0][0]
         grp_str = grps[0][1]
     elif len(indvs) >= 1:
         coll_str = indvs[0]
         grp_str = ""
+    elif len(loc_cnt_qs) >= 1:
+        coll_str = loc_cnt_qs.first().coll_str
+        grp_str = loc_cnt_qs.first().prog_group(get_string=True)
     else:
         coll_str = ""
         grp_str = ""
@@ -387,38 +392,48 @@ def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
     ws['D' + str(row_count)].value = site_location.locc_id.name
     ws['E' + str(row_count)].value = coll_str
     ws['F' + str(row_count)].value = grp_str
-    ws['H' + str(row_count)].value = site_location.comments
+    ws['G' + str(row_count)].value = site_location.comments
     cnt_col = 0
     for cnt in loc_cnt_qs:
         ws[cnt_slots[cnt_col] + str(row_count)].value = cnt.cntc_id.name
         ws[cnt_slots[cnt_col + 1] + str(row_count)].value = cnt.cnt
-        cnt_col += 2
+        ws[cnt_slots[cnt_col + 2] + str(row_count)].value = cnt.cnt_detail()
+        ws[cnt_slots[cnt_col + 3] + str(row_count)].value = cnt.cnt_detail("Weight")
+        cnt_col += 4
     row_count += 1
     return row_count
 
 
 def generate_sites_report(sites_list, locations_list, start_date=None, end_date=None):
-    if not start_date:
-        start_date = "Not Picked"
-    if not end_date:
-        end_date = datetime.now().replace(tzinfo=pytz.UTC)
-
     report = ExcelReport()
     report.load_wb("site_report_template.xlsx")
 
     ws = report.get_sheet("Sites")
     ws_indv = report.get_sheet("Individuals")
 
-    # put in start and end dates
-    ws['B1'].value = start_date
+    if not start_date:
+        start_date = "Not Picked"
+        ws['B1'].value = start_date
+        ws_indv['B1'].value = start_date
+        start_date = datetime.min
+    else:
+        ws['B1'].value = start_date
+        ws_indv['B1'].value = start_date
+
+    if not end_date:
+        end_date = datetime.now().replace(tzinfo=pytz.UTC)
     ws['B2'].value = end_date
-    ws_indv['B1'].value = start_date
     ws_indv['B2'].value = end_date
+
     # start writing data at row 4 in the sheet
     row_count = 4
     # split off locations with no sites
     no_sites_list = [location for location in locations_list if not location.relc_id]
-    locations_list = [location for location in locations_list if location.relc_id]
+
+    site_locations = models.Location.objects.filter(relc_id__in=sites_list, loc_date__lte=end_date,
+                                                    loc_date__gte=start_date)
+
+    locations_list = [location for location in site_locations]
     no_locs_list = []
     for site in sites_list:
         site_name = site.name

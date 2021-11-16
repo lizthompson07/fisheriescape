@@ -478,6 +478,33 @@ class Count(BioModel):
         else:
             return None
 
+    @property
+    def coll_str(self):
+        return "{} {}".format(self.cnt_year, self.coll_id.__str__())
+
+    def prog_group(self, get_string=False):
+        # gets program groups this group may be a part of.
+        cntd_set = CountDet.objects.filter(cnt_id=self,
+                                           anidc_id__name="Program Group",
+                                           adsc_id__isnull=False,
+                                           ).select_related("adsc_id")
+        prog_grp_list = [cntd.adsc_id for cntd in cntd_set]
+        if get_string:
+            prog_str = ""
+            for prog_grp in prog_grp_list:
+                prog_str += "{}, ".format(prog_grp.name)
+
+            return prog_str
+        else:
+            return prog_grp_list
+
+    def cnt_detail(self, anidc_name="Length"):
+        cntd_id = CountDet.objects.filter(anidc_id__name__icontains=anidc_name, cnt_id=self).first()
+        if cntd_id:
+            return cntd_id.det_val
+        else:
+            return None
+
 
 class CountCode(BioLookup):
     # cntc tag

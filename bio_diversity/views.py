@@ -3581,8 +3581,8 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
         site_qs = models.ReleaseSiteCode.objects.filter(min_lat__isnull=False, min_lon__isnull=False).select_related("rive_id")
         if self.request.GET.get("rive_id"):
             site_qs = site_qs.filter(rive_id__name=self.request.GET.get("rive_id"))
-
         context["sites"] = site_qs
+
         sfa_poly = None
         if self.request.GET.get("sfa"):
             # combine all selected sfas into single shapely object:
