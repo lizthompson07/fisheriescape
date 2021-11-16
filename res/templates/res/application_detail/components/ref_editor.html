@@ -1,0 +1,94 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="ref-editor-template">
+<div class="">
+  <button @click="openOverlay" class="btn btn-primary">
+    <span class="h5 mdi mdi-plus text-light"></span>
+  </button>
+  <transition v-if="overlay" name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container" style="width: 850px">
+          <div class="modal-header">
+            <h4> {% trans "Add Achievement / Publication" %}</h4>
+          </div>
+          <div class="modal-body">
+            {% include 'res/application_detail/components/_ref_form.html' %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+
+</script>
+<script type="application/javascript">
+
+Vue.component("ref-editor", {
+  template: "#ref-editor-template",
+  delimiters: ["${", "}"],
+  name: "ref-editor",
+  props: {
+    labels: {
+      type: Object,
+      required: true,
+    },
+    categories: {
+      type: Array,
+      required: true
+    },
+    category_choices: {
+      type: Array,
+      required: true
+    },
+    publication_type_choices: {
+      type: Array,
+      required: true
+    },
+    review_type_choices: {
+      type: Array,
+      required: true
+    },
+
+  },
+  data() {
+    return {
+      reference: {},
+      overlay: false,
+    };
+  },
+  methods: {
+    closeOverlay() {
+      this.error = null;
+      this.reference = {};
+      this.overlay = false;
+    },
+    openOverlay() {
+      this.error = null;
+      this.overlay = true;
+    },
+
+    onSubmit() {
+      this.$emit("new", this.reference);
+      this.closeOverlay();
+    }
+
+  },
+  created() {
+  },
+  computed: {
+    currentCategoryObj() {
+      if (this.reference.category) {
+        for (const category of this.categories) {
+          if (category.id === this.reference.category) {
+            return category;
+          }
+        }
+      }
+      return {};
+    }
+
+  }
+});
+</script>

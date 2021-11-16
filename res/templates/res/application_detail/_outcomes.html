@@ -1,0 +1,51 @@
+{% load i18n %}
+
+<div v-if="loadingOutcomes" class="loading mb-3 mt-3 mt-5">
+  <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+    <span class="sr-only"></span>
+  </div>
+</div>
+
+<div v-else class="table table-sm">
+  <div v-if="loadingContexts" class="loading mb-3 mt-3 mt-5">
+    <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+      <span class="sr-only"></span>
+    </div>
+  </div>
+  <div v-else>
+
+    <div v-if="application.id" v-for="context in contexts" :key="context.id" class="mb-5">
+      <h6 v-if="application.context_word_count_dict[context.id]<=context.word_limit" class="float-right">${application.context_word_count_dict[context.id]} /
+        ${context.word_limit} {% trans "words" %}</h6>
+      <h6 v-else class="float-right red-font">${application.context_word_count_dict[context.id]} / ${context.word_limit} {% trans "words" %}</h6>
+      <h6 :id="`context${context.id}`">
+        ${context.tname}
+      </h6>
+
+      <p class="font-italic text-muted mb-4">
+        ${context.tdescription}
+      </p>
+
+      <div v-for="outcome in context.outcomes" :key="outcome.id" class="mb-3">
+
+        <outcome
+          v-for="o in outcomes"
+          v-if="o.outcome === outcome.id"
+          :key="o.id"
+          :object="o"
+          :outcome="outcome"
+          :editable="canModify" :dirty="unsavedChanges"
+          @change="updateOutcome" @keypress="unsavedChanges=true"
+          :achievement_labels="achievementLabels"
+          :category_choices="categoryChoices"
+          :publication_type_choices="publicationTypeChoices"
+          :review_type_choices="reviewTypeChoices"
+          :categories="categories"
+          :applicant="application.applicant"
+        ></outcome>
+        <hr>
+      </div>
+    </div>
+
+  </div>
+</div>

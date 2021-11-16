@@ -33,15 +33,25 @@ class CloserNoRefreshTemplateView(TemplateView):
 
 
 def in_admin_group(user):
-    """give a list of groups that would be allowed to access this form"""
     if user.id:
-        if user.groups.filter(name='travel_admin').count() != 0 or \
-                user.groups.filter(name='projects_admin').count() or \
-                user.groups.filter(name='scifi_admin').count() or \
-                user.groups.filter(name='travel_adm_admin').count() or \
-                user.groups.filter(name='csas_regional_admin').count() or \
-                user.groups.filter(name='csas_national_admin').count():
-            return True
+
+        if settings.INSTALLED_APPS.count("travel"):
+            from travel.utils import in_travel_regional_admin_group
+            from travel.utils import in_travel_nat_admin_group
+            if in_travel_regional_admin_group(user) or in_travel_nat_admin_group(user):
+                return True
+
+        if settings.INSTALLED_APPS.count("ppt"):
+            from ppt.utils import in_ppt_national_admin_group
+            if in_ppt_national_admin_group(user):
+                return True
+
+        if settings.INSTALLED_APPS.count("csas2"):
+            from csas2.utils import in_csas_national_admin_group
+            if in_csas_national_admin_group(user):
+                return True
+
+        return False
 
 
 class CommonTemplateView(TemplateView, CommonMixin):
@@ -177,11 +187,10 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
         if self.h1:
             return self.h1
         else:
-            return gettext(
-                "Are you sure you want to delete the following {}? <br>  <span class='red-font'>{}</span>".format(
-                    self.model._meta.verbose_name,
-                    self.get_object(),
-                ))
+            return gettext("Are you sure you want to delete the following {item_name}? <br>  <span class='red-font'>{item}</span>").format(
+                item_name=self.model._meta.verbose_name,
+                item=self.get_object(),
+            )
 
     def get_submit_text(self):
         if self.submit_text:
@@ -535,6 +544,7 @@ class OrgSpreadsheetTemplateView(AdminRequiredMixin, CommonTemplateView):
     active_page_name_crumb = gettext_lazy("DFO Organization Spreadsheet")
     container_class = "container-fluid"
 
+
 # SECTION #
 ###########
 
@@ -753,8 +763,6 @@ class BranchDeleteView(AdminRequiredMixin, CommonDeleteView):
             "pk": self.get_object().id})}
 
 
-
-
 # SECTOR #
 ##########
 
@@ -825,8 +833,6 @@ class SectorDeleteView(AdminRequiredMixin, CommonDeleteView):
     def get_parent_crumb(self):
         return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:sector_edit", kwargs={
             "pk": self.get_object().id})}
-
-
 
 
 # REGION #

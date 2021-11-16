@@ -9,7 +9,7 @@
   <h3 class="card-header bg-outline-dark">
     <span>{% trans "Other Travellers from ${request.region} Region" %}</span>
     <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
-          data-trigger="hover" title="{% trans "Travellers" %}"
+          data-trigger="click" title="{% trans "Travellers" %}"
           :data-content="helpText.other_travellers_header"></span>
   </h3>
   <div class="card-body">

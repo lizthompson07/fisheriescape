@@ -4,6 +4,7 @@ from django.utils.translation import activate
 from django.views.generic import TemplateView
 
 from shared_models.models import Organization
+from shared_models.test.SharedModelsFactoryFloor import UserFactory
 from travel.test import FactoryFloor
 from travel.test.common_tests import CommonTravelTest as CommonTest
 from shared_models.views import CommonFormsetView, CommonHardDeleteView
@@ -28,6 +29,7 @@ class TestAllFormsets(CommonTest):
             "manage_process_steps",
             "manage_faqs",
             "manage_organizations",
+            "manage_travel_users",
         ]
 
         self.test_urls = [reverse_lazy("travel:" + name) for name in self.test_url_names]
@@ -42,14 +44,18 @@ class TestAllFormsets(CommonTest):
             views.ProcessStepFormsetView,
             views.FAQFormsetView,
             views.OrganizationFormsetView,
+            views.TravelUserFormsetView,
         ]
         self.expected_template = 'travel/formset.html'
-        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.user = self.get_and_login_admin()
 
     @tag('formsets', "view")
     def test_view_class(self):
         for v in self.test_views:
-            self.assert_inheritance(v, views.TravelADMAdminRequiredMixin)
+            if v is views.TravelUserFormsetView:
+                self.assert_inheritance(v, views.SuperuserOrNationalAdminRequiredMixin)
+            else:
+                self.assert_inheritance(v, views.TravelADMAdminRequiredMixin)
             self.assert_inheritance(v, CommonFormsetView)
 
     @tag('formsets', "access")
@@ -77,10 +83,11 @@ class TestAllHardDeleteViews(CommonTest):
             {"model": models.ProcessStep, "url_name": "delete_process_step", "view": views.ProcessStepHardDeleteView},
             {"model": models.FAQ, "url_name": "delete_faq", "view": views.FAQHardDeleteView},
             {"model": Organization, "url_name": "delete_organization", "view": views.OrganizationHardDeleteView},
+            {"model": models.TravelUser, "url_name": "delete_travel_user", "view": views.TravelUserHardDeleteView},
         ]
         self.test_dicts = list()
 
-        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.user = self.get_and_login_admin()
         for d in self.starter_dicts:
             new_d = d
             m = d["model"]
@@ -94,6 +101,8 @@ class TestAllHardDeleteViews(CommonTest):
                 obj = m.objects.create(name=faker.word(), trip_category=tc)
             elif m == models.FAQ:
                 obj = m.objects.create(question_en=faker.catch_phrase())
+            elif m == models.TravelUser:
+                obj = m.objects.create(user=UserFactory())
             else:
                 obj = m.objects.create(name=faker.word())
             new_d["obj"] = obj
@@ -103,7 +112,10 @@ class TestAllHardDeleteViews(CommonTest):
     @tag('hard_delete', "view")
     def test_view_class(self):
         for d in self.test_dicts:
-            self.assert_inheritance(d["view"], views.TravelADMAdminRequiredMixin)
+            if d["view"] is views.TravelUserHardDeleteView:
+                self.assert_inheritance(d["view"], views.SuperuserOrNationalAdminRequiredMixin)
+            else:
+                self.assert_inheritance(d["view"], views.TravelADMAdminRequiredMixin)
             self.assert_inheritance(d["view"], CommonHardDeleteView)
 
     @tag('hard_delete', "access")

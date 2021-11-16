@@ -9,14 +9,37 @@ from django.utils.timezone import make_aware
 from pytz import utc
 
 from csas2 import models
-from csas2.models import CSASRequest
+from csas2.models import CSASRequest, CSASRequestReview, Process
 from lib.templatetags.custom_filters import nz
-from shared_models.models import Section, Region, Branch, Division
+from shared_models.models import Section
 
 
 def resave_requests():
     for r in CSASRequest.objects.all():
         r.save()
+
+
+def resave_processes():
+    for p in Process.objects.all():
+        p.save()
+
+
+def clean_up_reviews():
+    for review in CSASRequestReview.objects.filter(decision__in=[2, 3, 4]):
+        if review.decision == 3:
+            review.decision = 2
+        elif review.decision == 2:
+            if review.notes:
+                review.notes += "; Review was originally set to 'off'"
+            else:
+                review.notes = "Review was originally set to 'off'"
+        elif review.decision == 4:
+            review.decision = None
+            if review.notes:
+                review.notes += "; Review was originally set to 'deferred'"
+            else:
+                review.notes = "Review was originally set to 'deferred'"
+        review.save()
 
 
 def digest_csv():
@@ -69,7 +92,7 @@ def digest_csv():
                     timeline_text = row['RationaleForDeadlineText']
                     funds = True if row['Funds'] and row['Funds'].lower() == "yes" else False
                     funds_text = row['FundsText']
-                    date = datetime.datetime.strptime(row['date']+ " 12:00", "%m/%d/%Y %H:%M")
+                    date = datetime.datetime.strptime(row['date'] + " 12:00", "%m/%d/%Y %H:%M")
                     date = make_aware(date, utc)
 
                     # first determine if a request exists with the same title

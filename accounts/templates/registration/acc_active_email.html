@@ -1,7 +1,7 @@
 {% autoescape off %}
   {{ user.first_name }} {{ user.last_name }},
   <p>
-    Please click on the following link to confirm your registration on the DM Apps website.
+    Please click on the following link to complete your registration on the DM Apps website.
     <br>
     http://{{ domain }}{% url 'accounts:activate' uidb64=uid token=token %}
   </p>
@@ -15,7 +15,7 @@
   </p>
 
   <p>
-    Veuillez cliquer sur le lien suivant pour confirmer votre inscription sur le site Web de DM Apps.
+    Veuillez cliquer sur le lien suivant pour completer votre inscription sur le site Web de DM Apps.
     <br>
     http://{{ domain }}{% url 'accounts:activate' uidb64=uid token=token %}
   </p>

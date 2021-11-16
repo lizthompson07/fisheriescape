@@ -15,6 +15,7 @@
     <div>
       {% include "travel/common/_trip_detail.html" %}
       {% include "travel/common/_travellers.html" %}
+      {% include "travel/common/_trip_files.html" %}
       {% include "travel/common/_reviewers.html" %}
 
       <div v-if="trip.id">
@@ -74,22 +75,40 @@
           </a>
 
           <span v-if="trip.id">
-          <button v-if="isADM" type="submit"
-                  :class="{'btn btn-danger':true, 'disabled':!trip.trip_review_ready.can_proceed}"
-                  :disabled="!trip.trip_review_ready.can_proceed">
-            {% trans "Complete the review and approve all travel" %}
-          </button>
-          <button v-else type="submit"
-                  :class="{'btn btn-danger':true, 'disabled':!trip.trip_review_ready.can_proceed}"
-                  :disabled="!trip.trip_review_ready.can_proceed">
-            {% trans "Submit your review" %}
-          </button>
+
+              {% if object.trip.current_reviewer.role == 5 %}
+                <span v-if="isADM">
+                  <button type="submit" @click="specialAction='approve_all'"
+                          :class="{'btn btn-success':true, 'disabled':!trip.trip_review_ready.can_proceed}"
+                          :disabled="!trip.trip_review_ready.can_proceed">
+                    {% trans "Complete the review and APPROVE all travel" %}
+                  </button>
+                  <button type="submit" @click="specialAction='deny_all'"
+                          :class="{'btn btn-danger':true, 'disabled':!trip.trip_review_ready.can_proceed}"
+                          :disabled="!trip.trip_review_ready.can_proceed">
+                    {% trans "Complete the review and DENY all travel" %}
+                  </button>
+                </span>
+                <button v-else type="submit"
+                        :class="{'btn btn-danger':true, 'disabled':!trip.trip_review_ready.can_proceed}"
+                        :disabled="!trip.trip_review_ready.can_proceed">
+                {% trans "Submit your review" %}
+                </button>
+
+              {% else %}
+                <button type="submit"
+                        :class="{'btn btn-danger':true, 'disabled':!trip.trip_review_ready.can_proceed}"
+                        :disabled="!trip.trip_review_ready.can_proceed">
+                {% trans "Submit your review" %}
+                </button>
+              {% endif %}
+
           </span>
 
           {#          <input type="submit" class="btn btn-danger {% if not object.trip.trip_review_ready.can_proceed %}disabled{% endif %}"#}
           {#                 {% if not object.trip.trip_review_ready.can_proceed %}disabled{% endif %} value="{{ submit_text }}">#}
 
-          {% if object.trip.current_reviewer != object.trip.reviewers.first %}
+          {% if object.trip.current_reviewer.user != object.trip.reviewers.first.user %}
             <button type="button" class="btn btn-warning" id="reset">
               {% trans "Modifications Required" %}
             </button>

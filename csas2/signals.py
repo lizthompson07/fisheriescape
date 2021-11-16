@@ -3,8 +3,7 @@ import os
 from django.db import models
 from django.dispatch import receiver
 
-from csas2.models import CSASRequestReview, CSASRequestFile, CSASRequest, Process, MeetingFile, Document, DocumentTracking
-from lib.functions.custom_functions import fiscal_year
+from csas2.models import CSASRequestReview, CSASRequestFile, Process, MeetingFile, Document, DocumentTracking, Meeting, TermsOfReference
 
 
 @receiver(models.signals.post_save, sender=CSASRequestReview)
@@ -18,9 +17,10 @@ def save_request_on_file_save(sender, instance, created, **kwargs):
 
 
 @receiver(models.signals.post_save, sender=Process)
-def update_fiscal_year_on_process_save(sender, instance, created, **kwargs):
+def save_requests_on_process_save(sender, instance, created, **kwargs):
     for r in instance.csas_requests.all():
         r.save()
+
 
 # @receiver(models.signals.m2m_changed, sender=Process.csas_requests.through)
 # def csas_request_change(sender, action, pk_set, instance=None, **kwargs):
@@ -45,6 +45,25 @@ def update_fiscal_year_on_process_save(sender, instance, created, **kwargs):
 #     for r in instance.csas_requests.all():
 #         r.save()
 
+
+@receiver(models.signals.post_save, sender=Meeting)
+def save_process_on_meeting_save(sender, instance, created, **kwargs):
+    instance.process.save()
+
+
+@receiver(models.signals.post_save, sender=Document)
+def save_process_on_doc_save(sender, instance, created, **kwargs):
+    instance.process.save()
+
+
+@receiver(models.signals.post_save, sender=DocumentTracking)
+def save_process_on_doc_tracking_save(sender, instance, created, **kwargs):
+    instance.document.process.save()
+
+
+@receiver(models.signals.post_save, sender=TermsOfReference)
+def save_process_on_tor_save(sender, instance, created, **kwargs):
+    instance.process.save()
 
 
 @receiver(models.signals.post_delete, sender=CSASRequestFile)
@@ -80,7 +99,6 @@ def auto_delete_csas2_request_file_on_change(sender, instance, **kwargs):
             os.remove(old_file.path)
 
 
-
 @receiver(models.signals.post_delete, sender=MeetingFile)
 def auto_delete_csas2_meeting_file_on_delete(sender, instance, **kwargs):
     """
@@ -111,7 +129,6 @@ def auto_delete_csas2_meeting_file_on_change(sender, instance, **kwargs):
     if not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
-
 
 
 @receiver(models.signals.post_save, sender=DocumentTracking)
@@ -151,6 +168,3 @@ def auto_delete_csas2_meeting_file_on_change(sender, instance, **kwargs):
     if old_file.name and not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
-
-
-

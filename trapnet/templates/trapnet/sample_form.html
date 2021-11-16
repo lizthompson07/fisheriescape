@@ -133,8 +133,9 @@
       </div>
       <div class="card-body">
 
+        {% bootstrap_field form.site_type placeholder="" %}
 
-        <label for="">{% trans "Site characterization (0-1)" %}</label>
+        <label for="">{% trans "Site characterization % (0-100)" %}</label>
         <table class="table table-bordered w-75">
           <tr>
             <td>{{ form.percent_riffle.label }}</td>
@@ -183,9 +184,9 @@
             <td colspan="3" class="text-center">{% trans "Depth (cm)" %}</td>
           </tr>
           <tr>
-            <td>{% trans "#1" %}</td>
-            <td>{% trans "#2" %}</td>
-            <td>{% trans "#3" %}</td>
+            <td class="text-center">{% trans "25%" %}</td>
+            <td class="text-center">{% trans "50%" %}</td>
+            <td class="text-center">{% trans "75%" %}</td>
           </tr>
           <tr>
             <td>{% trans "Lower" %}</td>
@@ -212,7 +213,7 @@
 
         {% bootstrap_field form.water_cond placeholder="" %}
 
-        <label for="">{% trans "Substrate characterization (0-1)" %}</label>
+        <label for="">{% trans "Substrate characterization % (0-100)" %}</label>
         <table class="table table-bordered">
           <tr>
             <td>{{ form.percent_fine.label }}</td>
@@ -242,7 +243,10 @@
             {% bootstrap_field form.electrofisher_voltage placeholder="" %}
           </div>
           <div class="col">
-            {% bootstrap_field form.electrofisher_output placeholder="" %}
+            {% bootstrap_field form.electrofisher_output_low placeholder="" %}
+          </div>
+          <div class="col">
+            {% bootstrap_field form.electrofisher_output_high placeholder="" %}
           </div>
           <div class="col">
             {% bootstrap_field form.electrofisher_frequency placeholder="" %}

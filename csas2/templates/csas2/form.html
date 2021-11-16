@@ -32,7 +32,7 @@
     {% if field.name|is_markdown_field %}
 
       <label for="id_{{ field.name }}">{{ field.label }}</label>
-      <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"
+      <a href="{% static 'markdown-cheatsheet-online.pdf' %}" data-toggle="tooltip" target="_blank" tabindex="-1"
          title="{% trans "Markdown syntax is supported in this field" %}">
         <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
       </a>
@@ -43,8 +43,8 @@
 
     {% elif field.widget_type !=  "checkbox" %}
       {% if not field.is_hidden %}
-        <div class="">
-          {% bootstrap_label field.label %}
+        <div class="{% if field.name in form.Meta.required_fields %}red-font{% endif %}">
+          {% bootstrap_label field.label %} {% if field.name in form.Meta.required_fields %}(*){% endif %}
         </div>
         <div class="">
           <span class="m-0 p-0 form-text text-muted">{{ field.help_text }}</span>

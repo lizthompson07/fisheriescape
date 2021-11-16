@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from . import models
-from .utils import can_modify_project, is_project_lead, in_projects_admin_group, is_management_or_admin
+from .utils import can_modify_project, is_project_lead, in_ppt_admin_group, is_management_or_admin
 
 #
 # class ProjectLeadRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -34,7 +34,7 @@ from .utils import can_modify_project, is_project_lead, in_projects_admin_group,
 # class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 #
 #     def test_func(self):
-#         return in_projects_admin_group(self.request.user)
+#         return in_ppt_admin_group(self.request.user)
 #
 #     def dispatch(self, request, *args, **kwargs):
 #         user_test_result = self.get_test_func()()

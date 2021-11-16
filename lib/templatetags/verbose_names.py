@@ -12,7 +12,7 @@ register = template.Library()
 
 
 @register.simple_tag
-def get_verbose_label(instance, field_name):
+def get_verbose_label(instance, field_name, crop_html=False):
     """
     :param instance: an instance of a model
     :param field_name: string of a field name, property name etc.
@@ -38,6 +38,9 @@ def get_verbose_label(instance, field_name):
         str_list[0] = first_letter
         raw_string = "".join(str_list)
         return raw_string
+
+    if crop_html and field_name.endswith("_html"):
+        field_name = field_name.replace("_html", "")
 
     # 2019/04/03 - P. Upson
     # Added a test to see if the instance is 'null'. I was getting an issue on the diets/cruises page
@@ -211,12 +214,12 @@ def verbose_field_display(instance, field_name, format=None, display_time=False,
 
 @register.simple_tag
 def verbose_td_display(instance, field_name, format=None, display_time=False, url=None, date_format=None, nullmark="---", th_width=None,
-                       td_width=None, to_html=False):
+                       td_width=None, to_html=False, crop_html=False):
     """
     returns a table row <tr> with a <td> for the label and a <td> for the value. Call this from within a <table>
     """
     # call on the get_verbose_label func to handle label prep
-    verbose_name = get_verbose_label(instance, field_name)
+    verbose_name = get_verbose_label(instance, field_name, crop_html=crop_html)
 
     # call on the get_field_value func to handle field value prep
     field_value = get_field_value(instance, field_name, format=format, display_time=display_time, date_format=date_format,

@@ -54,6 +54,7 @@ class ReviewerApprovalForm(forms.ModelForm):
 class TripReviewerApprovalForm(forms.ModelForm):
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     reset = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = models.TripReviewer
@@ -274,6 +275,7 @@ class ReportSearchForm(forms.Form):
         (None, "------"),
         (1, gettext_lazy("CFTS export (xlsx)")),
         (2, gettext_lazy("Export trip list (xlsx)")),
+        (3, gettext_lazy("Trip request summary (xlsx)")),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES, label=gettext_lazy("Report"))
     # report #1
@@ -514,3 +516,20 @@ class OrganizationForm1(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['orgs'].choices = org_choices
         self.fields['orgs'].widget.attrs["id"] = "predefined-addresses"
+
+
+
+class TravelUserForm(forms.ModelForm):
+    class Meta:
+        model = models.TravelUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+TravelUserFormset = modelformset_factory(
+    model=models.TravelUser,
+    form=TravelUserForm,
+    extra=1,
+)

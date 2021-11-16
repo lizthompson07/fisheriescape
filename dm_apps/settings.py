@@ -31,8 +31,10 @@ LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 
 # some simple settings that we import from the .env file or the environmental variables
 ####################################################
-# Django security keye
+# Django security key
 SECRET_KEY = config('SECRET_KEY', cast=str, default="fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD")
+# session cookie expiration
+SESSION_COOKIE_AGE = config('SESSION_COOKIE_AGE', cast=int, default=86400)  # # 1 day in seconds
 # should debug mode be turned on or off? default = False
 DEBUG = config("DEBUG", cast=bool, default=True)
 # should vuejs be vued in debug mode?
@@ -57,6 +59,7 @@ try:
 except Exception as E:
     print(E)
     GIT_VERSION = "n/a"
+print("DM Apps version: ", GIT_VERSION)
 # Azure Instrumentation KEy for application insights
 USE_AZURE_APPLICATION_INSIGHT = config("USE_AZURE_APPLICATION_INSIGHT", cast=bool, default=False)
 AZURE_INSTRUMENTATION_KEY = config("AZURE_INSTRUMENTATION_KEY", cast=str, default="")
@@ -110,15 +113,7 @@ else:
 # Allowed Hosts
 # the user can provide a one-off host to allow (i.e., if they do not wish to add it to the settings file)
 ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    'dmapps',
-    'dmapps.ent.dfo-mpo.ca',
-    'dmapps-dev-docker.azurewebsites.net',
-    'dmapps-test-docker.azurewebsites.net',
-    'https://dmapps-web.dfo-prod-ase01.appserviceenvironment.net',
-    'sci-zone.azure.cloud.dfo-mpo.gc.ca',
-    'sci-zone.dfo-mpo.gc.ca',
+    '*',
 ]
 ALLOWED_HOST_TO_ADD = config("ALLOWED_HOST_TO_ADD", cast=str, default="")
 if ALLOWED_HOST_TO_ADD != "":
@@ -147,6 +142,7 @@ INSTALLED_APPS = [
                      'django.contrib.messages',
                      'django.contrib.staticfiles',
                      'django.contrib.gis',
+                     'preventconcurrentlogins',
                      'rest_framework',
                      'django_filters',
                      'storages',
@@ -161,7 +157,6 @@ INSTALLED_APPS = [
                      'lib',
                      'shared_models',
                      'tickets',
-                     'phonenumber_field',
                  ] + local_conf.MY_INSTALLED_APPS
 
 # # If the GEODJANGO setting is set to False, turn off any apps that require it
@@ -192,6 +187,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'preventconcurrentlogins.middleware.PreventConcurrentLoginsMiddleware',
 ]
 
 if USE_AZURE_APPLICATION_INSIGHT and AZURE_INSTRUMENTATION_KEY != "":
@@ -314,6 +310,7 @@ TRACK_SUPERUSERS = False
 
 if "win" in sys.platform.lower() and GEODJANGO:
     GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", cast=str, default="")
+    GEOS_LIBRARY_PATH = config("GEOS_LIBRARY_PATH", cast=str, default="")
 
 if USE_AZURE_APPLICATION_INSIGHT and AZURE_INSTRUMENTATION_KEY != "":
     LOGGING = {

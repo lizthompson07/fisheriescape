@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.template.defaultfilters import date, pluralize, slugify
+from django.template.defaultfilters import date, pluralize
 from django.utils.translation import gettext
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
@@ -28,6 +28,7 @@ class CSASRequestSerializer(serializers.ModelSerializer):
 
     review = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
+    status_display_html = serializers.SerializerMethodField()
     multiregional_display = serializers.SerializerMethodField()
     issue_html = serializers.SerializerMethodField()
     rationale_html = serializers.SerializerMethodField()
@@ -40,6 +41,22 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     funding_display = serializers.SerializerMethodField()
     risk_text_html = serializers.SerializerMethodField()
     is_complete = serializers.SerializerMethodField()
+    region = serializers.SerializerMethodField()
+    has_process = serializers.SerializerMethodField()
+    is_rescheduled = serializers.SerializerMethodField()
+    is_valid_request = serializers.SerializerMethodField()
+
+    def get_is_valid_request(self, instance):
+        return instance.is_valid_request
+
+    def get_is_rescheduled(self, instance):
+        return instance.is_rescheduled
+
+    def get_has_process(self, instance):
+        return instance.has_process
+
+    def get_region(self, instance):
+        return instance.region
 
     def get_is_complete(self, instance):
         return instance.is_complete
@@ -77,8 +94,11 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     def get_multiregional_display(self, instance):
         return instance.multiregional_display
 
-    def get_status_display(self, instance):
+    def get_status_display_html(self, instance):
         return f'<span class=" px-1 py-1 {instance.status_class}">{instance.get_status_display()}</span>'
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
 
     def get_review(self, instance):
         if hasattr(instance, "review"):
@@ -147,7 +167,6 @@ class DocumentSerializer(serializers.ModelSerializer):
     status_display = serializers.SerializerMethodField()
     process = serializers.StringRelatedField()
     metadata = serializers.SerializerMethodField()
-    total_cost = serializers.SerializerMethodField()
     tracking = serializers.SerializerMethodField()
     file_en_size = serializers.SerializerMethodField()
     tstatus_display = serializers.SerializerMethodField()
@@ -184,9 +203,6 @@ class DocumentSerializer(serializers.ModelSerializer):
     def get_tracking(self, instance):
         if hasattr(instance, "tracking"):
             return DocumentTrackingSerializer(instance.tracking).data
-
-    def get_total_cost(self, instance):
-        return instance.total_cost
 
     def get_metadata(self, instance):
         return instance.metadata
@@ -359,7 +375,6 @@ class MeetingSerializer(serializers.ModelSerializer):
     attendees = serializers.SerializerMethodField()
     length_days = serializers.SerializerMethodField()
     process = serializers.StringRelatedField()
-    total_cost = serializers.SerializerMethodField()
     display = serializers.SerializerMethodField()
     somp_notification_date = serializers.SerializerMethodField()
     is_posted = serializers.SerializerMethodField()
@@ -380,9 +395,6 @@ class MeetingSerializer(serializers.ModelSerializer):
 
     def get_display(self, instance):
         return instance.display
-
-    def get_total_cost(self, instance):
-        return instance.total_cost
 
     def get_length_days(self, instance):
         return instance.length_days
@@ -420,10 +432,15 @@ class MeetingSerializer(serializers.ModelSerializer):
 class MeetingNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.MeetingNote
-        exclude = ["updated_at", "created_at"]  # "slug", 'author'
+        fields = "__all__"
 
     type_display = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
+
+    meeting_display = serializers.SerializerMethodField()
+
+    def get_meeting_display(self, instance):
+        return str(instance.meeting)
 
     def get_last_modified(self, instance):
         return instance.last_modified
@@ -435,10 +452,15 @@ class MeetingNoteSerializer(serializers.ModelSerializer):
 class ProcessNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ProcessNote
-        exclude = ["updated_at", "created_at"]  # "slug", 'author'
+        fields = "__all__"
 
     type_display = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
+
+    process_display = serializers.SerializerMethodField()
+
+    def get_process_display(self, instance):
+        return str(instance.process)
 
     def get_last_modified(self, instance):
         return instance.last_modified
@@ -450,10 +472,14 @@ class ProcessNoteSerializer(serializers.ModelSerializer):
 class DocumentNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.DocumentNote
-        exclude = ["updated_at", "created_at"]  # "slug", 'author'
+        fields = "__all__"
 
     type_display = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
+    document_display = serializers.SerializerMethodField()
+
+    def get_document_display(self, instance):
+        return str(instance.document)
 
     def get_last_modified(self, instance):
         return instance.last_modified
@@ -465,7 +491,12 @@ class DocumentNoteSerializer(serializers.ModelSerializer):
 class CSASRequestNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CSASRequestNote
-        exclude = ["updated_at", "created_at"]  # "slug", 'author'
+        fields = "__all__"
+
+    request_display = serializers.SerializerMethodField()
+
+    def get_request_display(self, instance):
+        return str(instance.csas_request)
 
     type_display = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
@@ -477,20 +508,9 @@ class CSASRequestNoteSerializer(serializers.ModelSerializer):
         return instance.get_type_display()
 
 
-class DocumentCostSerializer(serializers.ModelSerializer):
+class ProcessCostSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.DocumentCost
-        fields = "__all__"
-
-    cost_category_display = serializers.SerializerMethodField()
-
-    def get_cost_category_display(self, instance):
-        return instance.get_cost_category_display()
-
-
-class MeetingCostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.MeetingCost
+        model = models.ProcessCost
         fields = "__all__"
 
     cost_category_display = serializers.SerializerMethodField()
@@ -602,6 +622,13 @@ class ProcessSerializer(serializers.ModelSerializer):
     science_leads = serializers.SerializerMethodField()
     client_leads = serializers.SerializerMethodField()
     committee_members = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    status_display_html = serializers.SerializerMethodField()
+    regions = serializers.SerializerMethodField()
+    advice_date_display = serializers.SerializerMethodField()
+
+    def get_advice_date_display(self, instance):
+        return date(instance.advice_date)
 
     def get_committee_members(self, instance):
         return instance.committee_members
@@ -646,3 +673,12 @@ class ProcessSerializer(serializers.ModelSerializer):
 
     def get_tname(self, instance):
         return instance.tname
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_status_display_html(self, instance):
+        return f'<span class=" px-1 py-1 {instance.status_class}">{instance.get_status_display()}</span>'
+
+    def get_regions(self, instance):
+        return str(instance.regions)

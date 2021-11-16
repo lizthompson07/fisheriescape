@@ -6,21 +6,19 @@ from django.utils.translation import gettext as _
 
 from csas2 import models
 from lib.templatetags.verbose_names import get_verbose_label
-from shared_models.models import Section, Division, Region, Branch
+from shared_models.models import Section, Division, Region, Branch, Sector
 
 
 def in_csas_regional_admin_group(user):
     # make sure the following group exist:
-    admin_group, created = Group.objects.get_or_create(name="csas_regional_admin")
     if user:
-        return admin_group in user.groups.all()
+        return bool(hasattr(user, "csas_admin_user") and user.csas_admin_user.region)
 
 
 def in_csas_national_admin_group(user):
     # make sure the following group exist:
-    admin_group, created = Group.objects.get_or_create(name="csas_national_admin")
     if user:
-        return admin_group in user.groups.all()
+        return bool(hasattr(user, "csas_admin_user") and user.csas_admin_user.is_national_admin)
 
 
 def in_csas_admin_group(user):
@@ -30,46 +28,29 @@ def in_csas_admin_group(user):
 
 
 def get_section_choices(with_requests=False, full_name=True, region_filter=None, division_filter=None):
+    my_attr = _("name")
     if full_name:
         my_attr = "full_name"
-    else:
-        my_attr = _("name")
 
+    reg_kwargs = dict(division__branch__region_id__isnull=False)
     if region_filter:
-        reg_kwargs = {
-            "division__branch__region_id": region_filter
-        }
-    else:
-        reg_kwargs = {
-            "division__branch__region_id__isnull": False
-        }
+        reg_kwargs = dict(division__branch__region_id=region_filter)
 
+    div_kwargs = dict(division_id__isnull=False)
     if division_filter:
-        div_kwargs = {
-            "division_id": division_filter
-        }
-    else:
-        div_kwargs = {
-            "division_id__isnull": False
-        }
+        div_kwargs = dict(division_id=division_filter)
 
-    if not with_requests:
-        my_choice_list = [(s.id, getattr(s, my_attr)) for s in
-                          Section.objects.all().order_by(
-                              "division__branch__region",
-                              "division__branch",
-                              "division",
-                              "name",
-                          ).filter(**div_kwargs).filter(**reg_kwargs).filter(csas_requests__isnull=False)]
-    else:
-        my_choice_list = [(s.id, getattr(s, my_attr)) for s in
-                          Section.objects.filter(
-                              division__branch__name__icontains="science").order_by(
-                              "division__branch__region",
-                              "division__branch",
-                              "division",
-                              "name"
-                          ).filter(**div_kwargs).filter(**reg_kwargs)]
+    request_kwargs = dict()
+    if with_requests:
+        div_kwargs = dict(csas_requests__isnull=False)
+
+    my_choice_list = [(s.id, getattr(s, my_attr)) for s in
+                      Section.objects.all().order_by(
+                          "division__branch__region",
+                          "division__branch",
+                          "division",
+                          "name"
+                      ).filter(**div_kwargs).filter(**reg_kwargs).filter(**request_kwargs).distinct()]
     return my_choice_list
 
 
@@ -84,12 +65,18 @@ def get_branch_choices(with_requests=False, region_filter=None):
     branch_list = set(
         [Division.objects.get(pk=d[0]).branch_id for d in get_division_choices(with_requests=with_requests, region_filter=region_filter)])
     return [(b.id, str(b)) for b in
-            Branch.objects.filter(id__in=branch_list).order_by("region", "name")]
+            Branch.objects.filter(id__in=branch_list).order_by("sector__region", "sector", "name")]
+
+
+def get_sector_choices(with_requests=False, region_filter=None):
+    sector_list = set(
+        [Branch.objects.get(pk=b[0]).sector_id for b in get_branch_choices(with_requests=with_requests, region_filter=region_filter)])
+    return [(s.id, str(s)) for s in
+            Sector.objects.filter(id__in=sector_list).order_by("region", "name")]
 
 
 def get_region_choices(with_requests=False):
-    region_list = set(
-        [Division.objects.get(pk=d[0]).branch.region_id for d in get_division_choices(with_requests=with_requests)])
+    region_list = set([Sector.objects.get(pk=s[0]).region_id for s in get_sector_choices(with_requests=with_requests)])
     return [(r.id, str(r)) for r in
             Region.objects.filter(id__in=region_list).order_by("name", )]
 
@@ -142,27 +129,27 @@ def can_modify_request(user, request_id, return_as_dict=False):
     my_dict = dict(can_modify=False, reason=_("You are not logged in"))
 
     if user.id:
-        my_dict["reason"] = "You do not have the permissions to modify this request"
+        my_dict["reason"] = _("You do not have the permissions to modify this request")
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
         # check to see if they are the client
         if is_client(user, request_id=csas_request.id) and not csas_request.submission_date:
-            my_dict["reason"] = "You can modify this record because you are the request client"
+            my_dict["reason"] = _("You can modify this record because you are the request client")
             my_dict["can_modify"] = True
         # check to see if they are the client
         elif is_creator(user, request_id=csas_request.id) and not csas_request.submission_date:
-            my_dict["reason"] = "You can modify this record because you are the record creator"
+            my_dict["reason"] = _("You can modify this record because you are the record creator")
             my_dict["can_modify"] = True
         # check to see if they are the coordinator
         elif is_request_coordinator(user, request_id=csas_request.id):
-            my_dict["reason"] = "You can modify this record because you are the CSAS coordinator"
+            my_dict["reason"] = _("You can modify this record because you are the CSAS coordinator")
             my_dict["can_modify"] = True
         # are they a national administrator?
         elif in_csas_national_admin_group(user):
-            my_dict["reason"] = "You can modify this record because you are a national CSAS administrator"
+            my_dict["reason"] = _("You can modify this record because you are a national CSAS administrator")
             my_dict["can_modify"] = True
         # are they a regional administrator?
-        elif in_csas_regional_admin_group(user):
-            my_dict["reason"] = "You can modify this record because you are a regional CSAS administrator"
+        elif in_csas_regional_admin_group(user) and user.csas_admin_user.region == csas_request.section.division.branch.sector.region:
+            my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
             my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]
 
@@ -175,28 +162,28 @@ def can_modify_process(user, process_id, return_as_dict=False):
     my_dict = dict(can_modify=False, reason=_("You are not logged in"))
 
     if user.id:
-        my_dict["reason"] = "You do not have the permissions to modify this process"
+        my_dict["reason"] = _("You do not have the permissions to modify this process")
         process = get_object_or_404(models.Process, pk=process_id)
         # check to see if they are the client
         # are they an editor?
         if is_editor(user, process.id):
-            my_dict["reason"] = "You can modify this record because you have been tagged as a process editor"
+            my_dict["reason"] = _("You can modify this record because you have been tagged as a process editor")
             my_dict["can_modify"] = True
         # are they an advisor?
         if is_advisor(user, process.id):
-            my_dict["reason"] = "You can modify this record because you are a science advisor for this process"
+            my_dict["reason"] = _("You can modify this record because you are a science advisor for this process")
             my_dict["can_modify"] = True
         # are they a coordinator?
         elif is_process_coordinator(user, process.id):
-            my_dict["reason"] = "You can modify this record because you are the coordinator for this process"
+            my_dict["reason"] = _("You can modify this record because you are the coordinator for this process")
             my_dict["can_modify"] = True
         # are they a national administrator?
         elif in_csas_national_admin_group(user):
-            my_dict["reason"] = "You can modify this record because you are a national CSAS administrator"
+            my_dict["reason"] = _("You can modify this record because you are a national CSAS administrator")
             my_dict["can_modify"] = True
         # are they a regional administrator?
-        elif in_csas_regional_admin_group(user):
-            my_dict["reason"] = "You can modify this record because you are a regional CSAS administrator"
+        elif in_csas_regional_admin_group(user) and (user.csas_admin_user.region == process.lead_region or process.other_regions.filter(id=user.csas_admin_user.region.id).exists()):
+            my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
             my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]
 
@@ -234,7 +221,7 @@ def get_review_field_list():
         'prioritization_display|{}'.format(_("prioritization")),
         'decision_display|{}'.format(_("decision")),
         'advice_date',
-        'deferred_display|{}'.format(_("What the original request date deferred?")),
+        'deferred_display|{}'.format(_("Was the original request date deferred?")),
         'notes',
         'metadata|{}'.format(_("metadata")),
     ]
@@ -367,3 +354,10 @@ def get_quarter(date, as_int=False):
         quarter = 3 if as_int else _("Fall")
     return quarter
 
+
+def has_todos(user):
+    kwargs = dict(type=2, is_complete=False)
+    return user.csasrequestnote_created_by.filter(**kwargs).exists() or \
+           user.processnote_created_by.filter(**kwargs).exists() or \
+           user.meetingnote_created_by.filter(**kwargs).exists() or \
+           user.documentnote_created_by.filter(**kwargs).exists()

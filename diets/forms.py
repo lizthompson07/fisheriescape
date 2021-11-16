@@ -1,7 +1,10 @@
 from django import forms
+from django.forms import modelformset_factory
+
 from . import models
 from shared_models import models as shared_models
 
+chosen_js = {"class": "chosen-select-contains"}
 
 class CruiseForm(forms.ModelForm):
     class Meta:
@@ -93,3 +96,20 @@ class ReportSearchForm(forms.Form):
 
         spp_choices = [(obj.id, str(obj)) for obj in models.Species.objects.all() if obj.predators.count() > 0]
         self.fields['spp'].choices = spp_choices
+
+
+
+class DietsUserForm(forms.ModelForm):
+    class Meta:
+        model = models.DietsUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+DietsUserFormset = modelformset_factory(
+    model=models.DietsUser,
+    form=DietsUserForm,
+    extra=1,
+)

@@ -33,7 +33,7 @@ steps:
     displayName: 'Tests for shared models'
 
   - script: |
-      python manage.py test -b projects2.test
+      python manage.py test -b ppt.test
     condition: succeededOrFailed()
     displayName: 'Tests for projects (v2)'
 

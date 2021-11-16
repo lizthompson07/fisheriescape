@@ -21,6 +21,7 @@ class SampleFilter(django_filters.FilterSet):
     class Meta:
         model = models.Sample
         fields = {
+            'id': ['exact'],
             'season': ['exact'],
             'site': ['exact'],
             'sample_type': ['exact'],

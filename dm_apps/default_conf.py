@@ -29,8 +29,7 @@ APP_DICT = {
     'scuba': dict(name='SCUBA survey', staff_ids=[50, ]),
     'edna': dict(name='eDNA Krabappel', staff_ids=[50, ]),
     'diets': dict(name='Marine diets', staff_ids=[50, ]),
-    # 'projects': dict(name='Science project planning', staff_ids=[50, 382]),
-    'projects2': dict(name='Science project planning v2.0', staff_ids=[50, 382]),
+    'ppt': dict(name='Science project planning tool', staff_ids=[50, 382]),
     'ihub': dict(name='iHub', staff_ids=[50, ]),  # dependency on masterlist
     'scifi': dict(name='SciFi', staff_ids=[50, ]),
     'masterlist': dict(name='Masterlist', staff_ids=[50, ]),
@@ -43,7 +42,6 @@ APP_DICT = {
     'publications': dict(name="Project Publications Inventory", staff_ids=[382, ]),
     'trapnet': dict(name="TrapNet", staff_ids=[50, ]),
     'whalesdb': dict(name="Whale Equipment Deployment Inventory", staff_ids=[382, ]),
-    # 'csas': dict(name="Canadian Science Advisory Secretariat", staff_ids=[382, 581]),
     'csas2': dict(name="Canadian Science Advisory Secretariat v2.0", staff_ids=[382, 581, 50, 1337]),
     'vault': dict(name="Marine Megafauna Media Vault", staff_ids=[452, ]),
     'whalebrary': dict(name="Whalebrary Marine Mammal Tools", staff_ids=[452, ]),
@@ -53,6 +51,7 @@ APP_DICT = {
     'maret': dict(name="Maret", staff_ids=[382, 581]),
     # 'events': dict(name="Events Planner", staff_ids=[50, ]),
     'fisheriescape': dict(name="Fisheries Landscape Tool", staff_ids=[452, ]),
+    'res': dict(name="SE-RES Career Progression Dossier App", staff_ids=[50, ]),
 }
 
 # Deal with fake apps...

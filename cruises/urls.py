@@ -16,6 +16,7 @@ urlpatterns = [
     path('<int:pk>/view/', views.CruiseDetailView.as_view(), name='cruise_detail'),  # TESTED
     path('<int:pk>/edit/', views.CruiseUpdateView.as_view(), name='cruise_edit'),  # TESTED
     path('<int:pk>/delete/', views.CruiseDeleteView.as_view(), name='cruise_delete'),  # TESTED
+    path('<int:pk>/clone/', views.CruiseCloneView.as_view(), name='cruise_clone'),  # TESTED
     # path('cruise/<int:pk>/export-csv/', views.export_cruise_csv, name='cruise_export_csv'),
 
     # FILES #

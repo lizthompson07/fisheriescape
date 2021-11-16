@@ -1,0 +1,109 @@
+{% extends "accounts/accounts_base.html" %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load static %}
+{% block content %}
+  <style>
+  .popover-header {
+      background-color: rgba(239, 255, 59, 0.75);
+  }
+
+  .popover-body {
+      background-color: #feffeb;
+  }
+
+  body {
+      background-image: url("{% static 'img/waves1.jpg' %}");
+      background-size: cover;
+  }
+
+  .jumbotron {
+      background-color: white;
+      padding-top: 20px;
+      padding-bottom: 20px;
+      border: grey solid 1px;
+  {#background-color: rgba(71, 71, 71, 0.6);#}{#color: white;#}
+  }
+  </style>
+
+  {% if message %}
+    <h3>{% bootstrap_alert message alert_type='danger' %}</h3>
+  {% endif %}
+  <div class="container">
+    <br>
+    <br>
+    <div class="jumbotron">
+
+      {% if user.is_authenticated %}
+        <h3>{% trans "You are already signed in." %}</h3>
+      {% else %}
+        <h1 class="mb-3">
+          <span class="mdi mdi-account"></span>
+          {% trans "Sign In" %}
+        </h1>
+
+        <h4 class="mb-3">
+          {% trans "Please enter the one-time password sent to your email." %}
+        </h4>
+
+      {% endif %}
+
+      {% if user.is_authenticated %}
+        {# do not show the form #}
+      {% else %}
+        <form method="POST" class='form'>
+
+          {% csrf_token %}
+          <div class="mb-3 w-25">
+            {% bootstrap_field form.otp show_label=False %}
+          </div>
+
+          <h6 class="text-muted mb-3">
+            {% url 'accounts:login' as login_url %}
+            {% blocktrans  with login_url as login_url %}
+              If you did not receive it, please be sure to check your junk mail or you can try
+              <a href="{{ login_url }}?email={{ user_email }}"> re-sending it </a> now.
+            {% endblocktrans %}
+          </h6>
+
+          {% buttons %}
+            <button type="submit" class="btn btn-primary">
+              {% trans "Verify" %}
+            </button>
+          {% endbuttons %}
+          {# <input type="submit" class="btn btn-primary" value="Login"> #}
+          <input type="hidden" name="next" value="{{ next }}">
+        </form>
+
+
+      {% endif %}
+
+    </div>
+  </div>
+
+
+{% endblock %}
+{% block body_js %}
+  <script type="application/javascript">
+  $("#id_email").change(function () {
+    username = $(this).val()
+    if (username.match(/dfo-mpo.gc.ca/gi) == null && username.match(/@/gi) == null) {
+      newUsername = username + "@dfo-mpo.gc.ca"
+      $(this).val(newUsername)
+    }
+
+    username = $(this).val()
+    // if the new username is not a dfo username, use red font
+    if (username.match(/@dfo-mpo.gc.ca/gi) == null) {
+      $(this).addClass("red-font")
+    } else {
+      $(this).removeClass("red-font")
+    }
+  });
+  $(document).ready(function () {
+    // Stuff to do as soon as the DOM is ready
+    $("#pop").popover('show')
+  });
+  </script>
+
+{% endblock %}

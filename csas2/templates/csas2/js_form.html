@@ -16,6 +16,18 @@
       <div class="mb-4">
         <a href="{% url 'shared_models:section_new' %}" target="_blank" class="badge badge-pill badge-primary py-2 px-3">{% trans "Add New Section" %}</a>
       </div>
+    {% elif field.name == "advice_needed_by" %}
+      <div id="fiscal-year-annotation">
+        <div class="alert alert-warning" role="alert">
+          <p class="lead my-0">
+            <span class="mdi mdi-information-outline mr-1"></span>
+            {% blocktrans %}
+              Based on the dated selected above, this request will fall into the <u id="fy"></u> fiscal year
+            {% endblocktrans %}
+          </p>
+        </div>
+      </div>
+
     {% endif %}
   {% endif %}
 {% endblock %}
@@ -25,6 +37,7 @@
 
   <script type="application/javascript">
   var $is_multiregional = $("#id_is_multiregional");
+  var $advice_needed_by = $("#id_advice_needed_by");
   var $has_funding = $("#id_has_funding");
   var $is_deferred = $("#id_is_deferred");
   var $is_virtual = $("#id_is_virtual");
@@ -39,6 +52,7 @@
     refreshVirtualSection();
     refreshCommitteeMeetingSection();
     refreshKeystoneMeetingSection();
+    refreshFiscalYearAnnotation();
   });
 
   function refreshMultiregionalSection() {
@@ -95,6 +109,16 @@
   }
 
 
+  function refreshFiscalYearAnnotation() {
+    if (!$advice_needed_by.val()) $("#fiscal-year-annotation").hide();
+    else {
+      $("#fiscal-year-annotation").show();
+      let d = new Date(`${$advice_needed_by.val()} 12:00:00`);
+      let fy = fiscalYear(d);
+      $("#fy").html(fy)
+    }
+  }
+
   $is_multiregional.change(function () {
     refreshMultiregionalSection();
   })
@@ -116,6 +140,21 @@
   $keystone_meeting.change(function () {
     refreshKeystoneMeetingSection();
   })
+
+
+  $advice_needed_by.change(function () {
+    refreshFiscalYearAnnotation();
+  })
+
+  function fiscalYear(d) {
+    let month = d.getMonth() + 1;
+    let year = d.getFullYear();
+    if (month && year) {
+      if (month >= 4) return `${year}-${year + 1}`;
+      return `${year - 1}-${year}`;
+    } else return "???";
+  }
+
 
   </script>
 {% endblock %}

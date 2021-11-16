@@ -1,0 +1,3 @@
+{% load i18n %}{% autoescape off %}
+{% blocktrans %}Your DM Apps Sign-in Link / Votre lien de connexion à Appli GD  {% endblocktrans %}
+{% endautoescape %}

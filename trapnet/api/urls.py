@@ -5,6 +5,7 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'observations', views.ObservationViewSet)
+router.register(r'samples', views.SampleViewSet)
 
 urlpatterns = [
     path("trapnet/user/", views.CurrentUserAPIView.as_view(), name="trapnet-current-user"),
