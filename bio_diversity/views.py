@@ -1051,7 +1051,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
-        loc_set = self.object.location.all()
+        loc_set = self.object.location.all().select_related("locc_id", "rive_id", "subr_id", "relc_id")
         loc_field_list = ["locc_id", "rive_id", "subr_id", "relc_id", "start_date|Start Date"]
         obj_mixin = mixins.LocMixin
         context["context_dict"]["loc"] = {"div_title": "{}s".format(obj_mixin.title),
@@ -1136,7 +1136,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         obj_set = models.TeamXRef.objects.filter(evnt_id=self.object
-                                                 ).distinct().select_related("perc_id", "loc_id", "role_id")
+                                                 ).distinct().select_related("perc_id", "loc_id", "loc_id__locc_id", "role_id")
         obj_field_list = ["perc_id", "role_id", "loc_id"]
         obj_mixin = mixins.TeamMixin
         context["context_dict"]["team"] = {"div_title": "{} Members".format(obj_mixin.title),
@@ -1554,7 +1554,7 @@ class LocDetails(mixins.LocMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
-        context["table_list"].extend(["env", "team", "locd", "samp", "grp", "indv", "cnt"])
+        context["table_list"].extend(["env", "team", "locd", "samp", "grp", "indv", "cnt", "cont"])
 
         env_set = self.object.env_condition.all()
         env_field_list = ["envc_id", "env_val", "start_datetime|Date", ]
@@ -1565,8 +1565,8 @@ class LocDetails(mixins.LocMixin, CommonDetails):
                                           "field_list": env_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
 
-        cnt_set = self.object.counts.all()
-        cnt_field_list = ["cntc_id", "spec_id", "cnt", "est"]
+        cnt_set = self.object.counts.all().select_related("cntc_id", "stok_id", "coll_id")
+        cnt_field_list = ["cntc_id", "stok_id", "coll_id", "cnt_year", "cnt", "est"]
         obj_mixin = mixins.CntMixin
         context["context_dict"]["cnt"] = {"div_title": "{}s".format(obj_mixin.title),
                                           "sub_model_key": obj_mixin.key,
@@ -1577,10 +1577,10 @@ class LocDetails(mixins.LocMixin, CommonDetails):
         samp_field_list = ["samp_num", "sampc_id", "comments"]
         obj_mixin = mixins.SampMixin
         context["context_dict"]["samp"] = {"div_title": "{}s".format(obj_mixin.title),
-                                          "sub_model_key": obj_mixin.key,
-                                          "objects_list": samp_set,
-                                          "field_list": samp_field_list,
-                                          "single_object": obj_mixin.model.objects.first()}
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": samp_set,
+                                           "field_list": samp_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
 
         anix_set = self.object.animal_details.filter(grp_id__isnull=False).select_related("grp_id", "grp_id__stok_id",
                                                                                           "grp_id__coll_id")
@@ -1623,6 +1623,16 @@ class LocDetails(mixins.LocMixin, CommonDetails):
                                            "objects_list": obj_set,
                                            "field_list": obj_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
+        cont_list = self.object.get_cont_history(get_str=True)
+
+        context["cont_evnt_list"] = cont_list
+        context["cont_evnt_field_list"] = [
+            "Event",
+            "Date",
+            "Direction",
+            "Container",
+        ]
+
         return context
 
 

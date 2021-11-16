@@ -78,11 +78,11 @@ class DistributionParser(DataParser):
         # set location:
         relc_id = models.ReleaseSiteCode.objects.filter(name__iexact=row[self.site_key]).get()
 
-        if utils.nan_to_none(self.lat_key):
+        if utils.nan_to_none(row[self.lat_key]):
             loc_lat = utils.round_no_nan(row[self.lat_key], 6)
         else:
             loc_lat = relc_id.min_lat
-        if utils.nan_to_none(self.lon_key):
+        if utils.nan_to_none(row[self.lon_key]):
             loc_lon = utils.round_no_nan(row[self.lon_key], 6)
         else:
             loc_lon = relc_id.min_lon
@@ -175,6 +175,7 @@ class DistributionParser(DataParser):
 
         for cont_id in cont_list:
             contx, data_entered = utils.enter_contx(cont_id, cleaned_data, return_contx=True)
+            self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=contx.pk, return_sucess=True)
             self.row_entered += data_entered
             grp_list = utils.get_grp(utils.nan_to_none(row[self.stok_key]), cnt_year, coll, cont_id, row_date,
                                      prog_str=utils.nan_to_none(row.get(self.prog_key)),
@@ -182,7 +183,6 @@ class DistributionParser(DataParser):
             if grp_list:
                 grp_id = grp_list[0]
                 self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
-                self.row_entered += utils.enter_contx(cont_id, cleaned_data)
                 self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk, return_sucess=True)
 
 

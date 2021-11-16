@@ -1628,6 +1628,19 @@ class Location(BioModel):
         #    raise ValidationError("Location must have either lat-long specified or site chosen")
         super(Location, self).clean(*args, **kwargs)
 
+    def get_cont_history(self, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now()), get_str=False):
+        anix_evnt_set = AniDetailXref.objects.filter(loc_id=self, contx_id__isnull=False, grp_id__isnull=True,
+                                                     pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
+                                                     evnt_id__start_datetime__gte=start_date).select_related("contx_id")
+
+        contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
+        if get_str:
+            out_list = [utils.get_view_cont_list(contx) for contx in contx_tuple_set]
+        else:
+            out_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+
+        return out_list
+
 
 class LocCode(BioLookup):
     # locc tag
