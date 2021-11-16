@@ -52,6 +52,7 @@ class CSASAdminUser(models.Model):
     region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="csas_admin_user", on_delete=models.CASCADE, blank=True,
                                null=True)
     is_national_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
+    is_web_pub_user = models.BooleanField(default=False, verbose_name=_("NCR web & pub staff?"), choices=YES_NO_CHOICES)
 
     def __str__(self):
         return self.user.get_full_name()

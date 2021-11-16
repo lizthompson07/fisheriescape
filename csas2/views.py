@@ -22,7 +22,7 @@ from shared_models.views import CommonTemplateView, CommonFormView, CommonDelete
     CommonHardDeleteView
 from . import models, forms, filters, utils, reports, emails
 from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin, \
-    CsasNationalAdminRequiredMixin, SuperuserOrCsasNationalAdminRequiredMixin
+    CsasNationalAdminRequiredMixin, SuperuserOrCsasNationalAdminRequiredMixin, CsasNCRStaffRequiredMixin
 from .utils import in_csas_admin_group
 
 posted_meeting_msg = gettext_lazy(
@@ -680,7 +680,7 @@ class ProcessDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
         return {"title": "{} {}".format(_("Process"), self.get_object().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().id])}
 
 
-class ProcessPostingsVueJSView(CsasNationalAdminRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
+class ProcessPostingsVueJSView(CsasNCRStaffRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
     template_name = 'csas2/process_postings.html'
     home_url_name = "csas2:index"
     container_class = "container-fluid"

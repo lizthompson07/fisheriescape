@@ -3,7 +3,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 
 from . import models
-from .utils import in_csas_admin_group, can_modify_request, can_modify_process, in_csas_national_admin_group
+from .utils import in_csas_admin_group, can_modify_request, can_modify_process, in_csas_national_admin_group, in_csas_web_pub_group, \
+    in_csas_regional_admin_group
 
 
 class CsasBasicRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -41,7 +42,12 @@ class SuperuserOrCsasNationalAdminRequiredMixin(CsasBasicRequiredMixin):
 
 class CsasAdminRequiredMixin(CsasBasicRequiredMixin):
     def test_func(self):
-        return in_csas_admin_group(self.request.user)
+        return in_csas_admin_group(self.request.user) or in_csas_web_pub_group(self.request.user) or in_csas_regional_admin_group(self.request.user)
+
+
+class CsasNCRStaffRequiredMixin(CsasBasicRequiredMixin):
+    def test_func(self):
+        return in_csas_admin_group(self.request.user) or in_csas_web_pub_group(self.request.user)
 
 
 class CanModifyRequestRequiredMixin(CsasBasicRequiredMixin):
