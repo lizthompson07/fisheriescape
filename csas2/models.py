@@ -16,7 +16,7 @@ from markdown import markdown
 from csas2 import model_choices
 from csas2.utils import get_quarter
 from lib.functions.custom_functions import fiscal_year, listrify
-from lib.templatetags.custom_filters import percentage
+from lib.templatetags.custom_filters import percentage, nz
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
     SimpleLookupWithUUID
 
@@ -590,6 +590,22 @@ class TermsOfReference(MetadataFields):
         if self.references_fr:
             return mark_safe(markdown(self.references_fr))
 
+    @property
+    def expected_publications_en(self):
+        lang = get_language()
+        activate("en")
+        mystr = listrify(self.expected_document_types.all())
+        activate(lang)
+        return mystr
+
+    @property
+    def expected_publications_fr(self):
+        lang = get_language()
+        activate("fr")
+        mystr = listrify(self.expected_document_types.all())
+        activate(lang)
+        return mystr
+
 
 class ProcessNote(GenericNote):
     ''' a note pertaining to a process'''
@@ -701,21 +717,13 @@ class Meeting(SimpleLookup, MetadataFields):
     def expected_publications_en(self):
         """ this is mainly for the email that gets sent to NCR when there is a change on a posted meeting """
         if hasattr(self.process, "tor"):
-            lang = get_language()
-            activate("en")
-            mystr = listrify(self.process.tor.expected_document_types.all())
-            activate(lang)
-            return mystr
+            return self.process.tor.expected_publications_en
 
     @property
     def expected_publications_fr(self):
         """ this is mainly for the email that gets sent to NCR when there is a change on a posted meeting """
         if hasattr(self.process, "tor"):
-            lang = get_language()
-            activate("fr")
-            mystr = listrify(self.process.tor.expected_document_types.all())
-            activate(lang)
-            return mystr
+            return self.process.tor.expected_publications_fr
 
     @property
     def total_cost(self):

@@ -604,6 +604,27 @@ class MeetingResourceSerializer(serializers.ModelSerializer):
         return date(instance.created_at)
 
 
+class ToRSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TermsOfReference
+        fields = "__all__"
+
+    meeting_obj = serializers.SerializerMethodField()
+    expected_publications_en = serializers.SerializerMethodField()
+    expected_publications_fr = serializers.SerializerMethodField()
+
+    def get_expected_publications_fr(self, instance):
+        return instance.expected_publications_fr
+
+    def get_expected_publications_en(self, instance):
+        return instance.expected_publications_en
+
+    def get_meeting_obj(self, instance):
+        if instance.meeting:
+            return MeetingSerializer(instance.meeting).data
+        return {}
+
+
 class ProcessSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Process
@@ -631,6 +652,15 @@ class ProcessSerializer(serializers.ModelSerializer):
     regions = serializers.SerializerMethodField()
     advice_date_display = serializers.SerializerMethodField()
     can_post_meeting = serializers.SerializerMethodField()
+    key_meetings = serializers.SerializerMethodField()
+    tor = serializers.SerializerMethodField()
+
+    def get_tor(self, instance):
+        if hasattr(instance, "tor"):
+            return ToRSerializer(instance.tor).data
+
+    def get_key_meetings(self, instance):
+        return MeetingSerializerLITE(instance.meetings.filter(is_planning=False), many=True, read_only=True).data
 
     def get_can_post_meeting(self, instance):
         return instance.can_post_meeting

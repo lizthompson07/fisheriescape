@@ -55,8 +55,7 @@
           <thead>
           <tr>
             <th>${processLabels.id}</th>
-            <th>{% trans "Title" %}</th>
-            <th>${processLabels.lead_region}</th>
+            <th>{% trans "Process" %}</th>
             <th>${processLabels.is_posted}</th>
             <th>{% trans "Notification Email Sent?" %}</th>
           </tr>
@@ -65,9 +64,75 @@
           <tr v-for="p, index in processes" :key="p.id">
             <td>${p.id}</td>
             <td>
-              <button class="btn btn-sm btn-link py-0 my-0 px-0" @click="goProcessDetail(p)">${p.tname}</button>
+              <p>
+                <span class="font-italic text-muted">{% trans "Process name" %}</span><br>
+                <button class="btn btn-sm btn-link py-0 my-0 px-0" @click="goProcessDetail(p)">${p.tname}</button>
+              </p>
+              <p>
+                <span class="font-italic text-muted">{% trans "Region(s)" %}</span><br>
+                <span v-html="p.regions"></span>
+              </p>
+              <div v-if="p.tor">
+                <div class="row">
+                  <div class="col">
+                    <p>
+                      <span class="font-italic text-muted">{% trans "Chair(s)" %}</span><br>
+                      ${p.chair|nz}
+                    </p>
+                  </div>
+                  <div class="col">
+                    <p>
+                      <span class="font-italic text-muted">{% trans "CSAS coordinator" %}</span><br>
+                      ${p.coordinator|nz}
+                    </p>
+                  </div>
+                </div>
+                <div v-if="p.tor.meeting_obj" class="row">
+                  <div class="col">
+                    <p>
+                      <span class="font-italic text-muted">{% trans "Meeting title (EN)" %}</span><br>
+                      ${p.tor.meeting_obj.name|nz}
+                    </p>
+                  </div>
+                  <div class="col">
+                    <p>
+                      <span class="font-italic text-muted">{% trans "Meeting title (FR)" %}</span><br>
+                      ${p.tor.meeting_obj.nom|nz}
+                    </p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <p>
+                      <span class="font-italic text-muted">{% trans "Expected publications (EN)" %}</span><br>
+                      ${p.tor.expected_publications_en}
+                    </p>
+                  </div>
+                  <div class="col">
+                    <p>
+                      <span class="font-italic text-muted">{% trans "Expected publications (FR)" %}</span><br>
+                      ${p.tor.expected_publications_fr}
+                    </p>
+                  </div>
+                </div>
+                <div v-if="p.tor.meeting_obj" class="row">
+                  <div class="col">
+                    <p>
+                      <span class="font-italic text-muted">{% trans "Meeting dates" %}</span><br>
+                      ${p.tor.meeting_obj.display_dates|nz}
+                    </p>
+                  </div>
+                  <div class="col">
+                    <p>
+                      <span class="font-italic text-muted">{% trans "Meeting location" %}</span><br>
+                      ${p.tor.meeting_obj.location|nz}
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+
             </td>
-            <td>${p.lead_region}</td>
             <td>
               <button v-if="p.is_posted" class="btn btn-xs btn-success" @click="toggle(p)">{% trans "Posted" %}</button>
               <span v-else>
