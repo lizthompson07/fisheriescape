@@ -112,7 +112,7 @@
               <td class="text-left">
                 <span class="">${process.is_posted|yesNo}</span>
                 <em v-if="!process.is_posted && process.posting_request_date" class=" text-muted">
-                  &mdash; {% trans "Posting request made on" %} ${process.posting_request_date}
+                  &mdash; {% trans "Posting request made on" %} ${process.posting_request_date_display}
                 </em>
                 <em v-else-if="!process.is_posted && process.can_post_meeting.can_post" class=" text-muted">
                   &mdash; {% trans "eligible for posting" %}

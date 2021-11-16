@@ -642,7 +642,7 @@ class ProcessSerializer(serializers.ModelSerializer):
     other_regions = serializers.SerializerMethodField()
     scope_type = serializers.SerializerMethodField()
     tname = serializers.SerializerMethodField()
-    posting_request_date = serializers.SerializerMethodField()
+    posting_request_date_display = serializers.SerializerMethodField()
     client_sectors = serializers.SerializerMethodField()
     science_leads = serializers.SerializerMethodField()
     client_leads = serializers.SerializerMethodField()
@@ -680,7 +680,7 @@ class ProcessSerializer(serializers.ModelSerializer):
     def get_client_sectors(self, instance):
         return instance.client_sectors
 
-    def get_posting_request_date(self, instance):
+    def get_posting_request_date_display(self, instance):
         if instance.posting_request_date:
             return f"{date(instance.posting_request_date)} ({naturaltime(instance.posting_request_date)})"
 
