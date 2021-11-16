@@ -506,6 +506,28 @@ class Process(SimpleLookupWithUUID, MetadataFields):
             mystr += "\n\n"
         return mystr
 
+    @property
+    def can_post_meeting(self):
+        """ stores the business rules for whether the meeting can be posted to the csas website"""
+        can_post = True  # start off optimistic
+        reasons = []
+        if not hasattr(self, "tor"):  # there is no TOR
+            reasons.append(gettext("ToR has not been initiated"))
+            if can_post:
+                can_post = False
+        else:
+            if not self.tor.meeting:  # there is no meeting linked to ToR
+                reasons.append(gettext("ToR has not been linked to a meeting"))
+                if can_post:
+                    can_post = False
+
+            if not self.tor.expected_document_types.exists():  # there is no TOR - expected publications
+                reasons.append(gettext("ToR does not list expected publications"))
+                if can_post:
+                    can_post = False
+
+        return dict(can_post=can_post, reasons=reasons)
+
 
 class ProcessCost(GenericCost):
     process = models.ForeignKey(Process, related_name='costs', on_delete=models.CASCADE, verbose_name=_("process"))

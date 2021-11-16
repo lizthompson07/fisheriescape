@@ -77,7 +77,7 @@ def get_file(request, file):
     else:
         response = HttpResponse(blob_name.read(), content_type='application/zip')
         response['Content-Disposition'] = f'attachment; filename="{export_file_name}"'
-
+        blob_name.close()
     return response
 
 

@@ -887,6 +887,10 @@ class MeetingCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
     h1 = gettext_lazy("New Meeting")
 
+    def get_initial(self):
+        process = self.get_process()
+        return dict(name=process.name, nom=process.nom)
+
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_process().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_process().id])}
 

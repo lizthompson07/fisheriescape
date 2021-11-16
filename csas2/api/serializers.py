@@ -630,6 +630,10 @@ class ProcessSerializer(serializers.ModelSerializer):
     status_display_html = serializers.SerializerMethodField()
     regions = serializers.SerializerMethodField()
     advice_date_display = serializers.SerializerMethodField()
+    can_post_meeting = serializers.SerializerMethodField()
+
+    def get_can_post_meeting(self, instance):
+        return instance.can_post_meeting
 
     def get_advice_date_display(self, instance):
         return date(instance.advice_date)
