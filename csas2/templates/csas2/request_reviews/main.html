@@ -171,7 +171,7 @@
                 </div>
                 <div class="col">
                   <div class="mb-3">
-                    <span class="text-muted small">${reviewLabels.notes}</span>
+                    <span class="text-muted small">${reviewLabels.notes} &mdash; <span class="text-danger font-weight-bold">{% trans "INTERNAL / NOT VISIBLE TO CLIENT" %}</span></span>
                     <textarea rows="11" class="form-control" v-model="r.review.notes" @change="updateReview(r)"></textarea>
                   </div>
                 </div>
