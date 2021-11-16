@@ -14,15 +14,16 @@
 
 
 {% block subcontent %}
+  {% include "shared_models/_generic_breadcrumbs.html" %}
+  <div class="mb-3">
+    <h2 class="">{{ h1|safe }}</h2>
+  </div>
+
+  {% include "csas2/request_reviews/_filter.html" %}
   <div id="app" v-cloak>
 
-    {% include "shared_models/_generic_breadcrumbs.html" %}
-    <div class="mb-3">
-      <h2 class="">{{ h1|safe }}</h2>
-    </div>
     {% bootstrap_messages %}
 
-    {% include "csas2/request_reviews/_filter.html" %}
     <div v-if="loadingRequests" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
         <span class="sr-only"></span>
@@ -243,9 +244,11 @@
       sectorChoices: [],
       sectionChoices: [],
       fresh: true,
-      requestsEndpoint: `/api/csas/requests/?`
     },
     methods: {
+      submitForm() {
+        $("#filter-form").submit()
+      },
       getCurrentUser() {
         let endpoint = `/api/csas/user/`;
         apiService(endpoint)
@@ -256,33 +259,30 @@
       openPopout(url) {
         popitup(url, 'popoutWindow' + Date.now());
       },
-      appliedFilter(p, v) {
-        if (!v) v = "";
-        root = this.requestsEndpoint.split("?")[0]
-        params = this.requestsEndpoint.split("?")[1]
-        let found = false;
-        let newParamArray = [];
-        for (const param of params.split("&")) {
-          if (!param.includes(p)) newParamArray.push(param);
-        }
-        this.requestsEndpoint = `${root}?${newParamArray.join("&")}`
-        this.requestsEndpoint += `${p}=${v}&`
-      },
-      getRequests(param, val) {
+      getRequests() {
         this.errorMsg = null;
-        this.appliedFilter(param, val);
         this.loadingRequests = true;
         this.fresh = false;
-        apiService(this.requestsEndpoint).then(data => {
-          if (data) {
-            this.requests = data;
-            for (const r of this.requests) {
-              if (r.review && r.review.advice_date) r.review.advice_date = r.review.advice_date.split("T")[0];
-              if (r.review && r.review.decision_date) r.review.decision_date = r.review.decision_date.split("T")[0];
-            }
-            this.loadingRequests = false;
-          }
-        });
+        let params = window.location.search.substring(1);
+
+        if (!params) page_size = 25;
+        else page_size = 50000;
+
+        let endpoint = `/api/csas/requests/?${params}&page_size=${page_size}`;
+        apiService(endpoint)
+            .then(response => {
+              if (response.results) {
+                for (const r of response.results) {
+                  r.collapse = true;
+                }
+                this.requests = response.results;
+                for (const r of this.requests) {
+                  if (r.review && r.review.advice_date) r.review.advice_date = r.review.advice_date.split("T")[0];
+                  if (r.review && r.review.decision_date) r.review.decision_date = r.review.decision_date.split("T")[0];
+                }
+              }
+              this.loadingRequests = false;
+            })
       },
       getRequest(request) {
         let endpoint = `/api/csas/requests/${request.id}/`;
@@ -361,6 +361,7 @@
     created() {
       this.getCurrentUser();
       this.getMetadata();
+      this.getRequests();
     },
   });
 

@@ -33,7 +33,7 @@ class PersonFilter(django_filters.FilterSet):
 
 
 class CSASRequestFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title / ref number"))
+    search = django_filters.CharFilter(field_name='search', lookup_expr='icontains', label=_("Title / ref number"))
     request_id = django_filters.NumberFilter(field_name='id', lookup_expr='exact')
     fiscal_year = django_filters.MultipleChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name="section__division__branch__sector__region", label=_("Region"), lookup_expr='exact')
@@ -42,6 +42,7 @@ class CSASRequestFilter(django_filters.FilterSet):
     has_process = django_filters.BooleanFilter(field_name='processes', lookup_expr='isnull', label=_("Has process?"), exclude=True)
     status = django_filters.MultipleChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"), widget=forms.SelectMultiple(attrs=chosen_js))
     client = django_filters.ChoiceFilter(field_name="client", label=_("Client"), lookup_expr='exact')
+    decision = django_filters.ChoiceFilter(field_name="review__decision", label=_("Review decision"), lookup_expr='exact')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

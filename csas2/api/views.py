@@ -19,7 +19,7 @@ from shared_models.models import Person, Language, Region, FiscalYear
 from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission
-from .. import models, emails, model_choices, utils
+from .. import models, emails, model_choices, utils, filters
 
 
 # USER
@@ -58,18 +58,20 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CSASRequestSerializer
     permission_classes = [CanModifyRequestOrReadOnly]
     queryset = models.CSASRequest.objects.all()
+    pagination_class = StandardResultsSetPagination
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['id', 'title', 'translated_title']
-    filterset_fields = [
-        'section__division__branch__sector__region',
-        "section__division__branch__sector",
-        "section__division__branch",
-        "section__division",
-        "section",
-        "fiscal_year",
-        "status",
-        "review__decision",
-    ]
+    # filterset_fields = [
+    #     'section__division__branch__sector__region',
+    #     "section__division__branch__sector",
+    #     "section__division__branch",
+    #     "section__division",
+    #     "section",
+    #     "fiscal_year",
+    #     "status",
+    #     "review__decision",
+    # ]
+    filterset_class= filters.CSASRequestFilter
 
 
 class CSASRequestNoteViewSet(viewsets.ModelViewSet):

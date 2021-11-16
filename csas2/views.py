@@ -30,6 +30,7 @@ posted_meeting_msg = gettext_lazy(
     "expected publications will trigger a notification to the national CSAS team."
 )
 
+
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     h1 = "home"
     active_page_name_crumb = "home"
@@ -228,7 +229,7 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
         qs = models.CSASRequest.objects.all()
         if qp.get("personalized"):
             qs = utils.get_related_requests(self.request.user)
-        qs = qs.annotate(search_term=Concat('title', Value(" "), 'translated_title', Value(" "), 'ref_number', output_field=TextField()))
+        qs = qs.annotate(search=Concat('title', Value(" "), 'translated_title', Value(" "), 'ref_number', output_field=TextField()))
         return qs
 
     def get_h1(self):
@@ -297,11 +298,13 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
         return context
 
 
-class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonTemplateView):
+class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
     template_name = 'csas2/request_reviews/main.html'
     container_class = "container-fluid"
     home_url_name = "csas2:index"
     h1 = gettext_lazy("CSAS Request Review Console")
+    filterset_class = filters.CSASRequestFilter
+    model = models.CSASRequest
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -317,7 +320,6 @@ class ProcessReviewTemplateView(CsasAdminRequiredMixin, CommonTemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
-
 
 
 class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
