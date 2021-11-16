@@ -166,7 +166,6 @@
       regionChoices: [],
       sectorChoices: [],
       fresh: true,
-      processesEndpoint: `/api/csas/processes/?page_size=500&`
     },
     methods: {
       getCurrentUser() {
@@ -179,33 +178,33 @@
       openPopout(url) {
         popitup(url, 'popoutWindow' + Date.now());
       },
-      appliedFilter(p, v) {
-        if (!v) v = "";
-        root = this.processesEndpoint.split("?")[0]
-        params = this.processesEndpoint.split("?")[1]
-        let found = false;
-        let newParamArray = [];
-        for (const param of params.split("&")) {
-          if (!param.includes(p)) newParamArray.push(param);
-        }
-        this.processesEndpoint = `${root}?${newParamArray.join("&")}`
-        this.processesEndpoint += `${p}=${v}&`
+
+      submitForm() {
+        $("#filter-form").submit()
       },
-      getProcesses(param, val) {
-        this.appliedFilter(param, val);
+
+      getProcesses() {
+        this.errorMsg = null;
         this.loadingProcesses = true;
         this.fresh = false;
-        apiService(this.processesEndpoint).then(data => {
-          if (data) {
-            this.processes = data.results;
-            for (const r of this.processes) {
-              if (r.review && r.review.advice_date) r.review.advice_date = r.review.advice_date.split("T")[0];
-              if (r.review && r.review.decision_date) r.review.decision_date = r.review.decision_date.split("T")[0];
-            }
-            this.loadingProcesses = false;
-          }
-        });
+        let params = window.location.search.substring(1);
+
+        if (!params) page_size = 25;
+        else page_size = 50000;
+
+        let endpoint = `/api/csas/processes/?${params}&page_size=${page_size}`;
+        apiService(endpoint)
+            .then(response => {
+              if (response.results) {
+                for (const r of response.results) {
+                  r.collapse = true;
+                }
+                this.processes = response.results;
+              }
+              this.loadingProcesses = false;
+            })
       },
+
       getProcess(process) {
         let endpoint = `/api/csas/processes/${process.id}/`;
         apiService(endpoint).then(data => {
@@ -252,7 +251,7 @@
     },
     created() {
       this.getCurrentUser();
-      {#this.getProcess(true);#}
+      this.getProcesses();
       {#this.getReviewMetadata();#}
       this.getMetadata();
     },

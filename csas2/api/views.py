@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from django.contrib.auth.models import User
+from django.db.models import Value, TextField
+from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
@@ -55,9 +57,9 @@ class CurrentUserAPIView(APIView):
 
 
 class CSASRequestViewSet(viewsets.ModelViewSet):
+    queryset = models.CSASRequest.objects.all()
     serializer_class = serializers.CSASRequestSerializer
     permission_classes = [CanModifyRequestOrReadOnly]
-    queryset = models.CSASRequest.objects.all()
     pagination_class = StandardResultsSetPagination
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['id', 'title', 'translated_title']
@@ -71,7 +73,12 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
     #     "status",
     #     "review__decision",
     # ]
-    filterset_class= filters.CSASRequestFilter
+    filterset_class = filters.CSASRequestFilter
+
+    def get_queryset(self):
+        qs = models.CSASRequest.objects.all()
+        qs = qs.annotate(search=Concat('title', Value(" "), 'translated_title', Value(" "), 'id', output_field=TextField()))
+        return qs
 
 
 class CSASRequestNoteViewSet(viewsets.ModelViewSet):
@@ -117,20 +124,20 @@ class CSASRequestReviewViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
 
+
 class ProcessViewSet(viewsets.ModelViewSet):
-    queryset = models.Process.objects.all().order_by("-created_at")
+    queryset = models.Process.objects.all()
     serializer_class = serializers.ProcessSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ['id', 'name', 'nom']
-    filterset_fields = [
-        'fiscal_year',
-        'id',
-        'lead_region',
-        "is_posted",
-        "status",
-    ]
+    filterset_class = filters.ProcessFilter
+
+    def get_queryset(self):
+        qs = models.Process.objects.all().order_by("-created_at")
+        qs = qs.annotate(search=Concat('name', Value(" "), 'nom', Value(" "), 'id', output_field=TextField()))
+        return qs
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)

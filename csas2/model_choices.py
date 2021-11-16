@@ -22,7 +22,7 @@ request_status_choices = (
     (4, _("Under review")),  # review is created by coordinator
     (5, _("Fulfilled")),
     # all status below here should correspond to review decision choice + 10
-    (11, _("Accepted")),  # coordinator approves
+    (11, _("Reviewed")),  # coordinator approves
     (12, _("Withdrawn")),  # client (coordinator) withdraws
 )
 

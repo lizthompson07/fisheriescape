@@ -86,7 +86,7 @@ class ProcessFilter(django_filters.FilterSet):
     id = django_filters.NumberFilter(field_name='id', lookup_expr='exact', label=_("Process ID"))
     status = django_filters.MultipleChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"), widget=forms.SelectMultiple(attrs=chosen_js))
     fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
-    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title contains"))
+    search = django_filters.CharFilter(field_name='search', lookup_expr='icontains', label=_("Title contains"))
     lead_region = django_filters.ChoiceFilter(field_name="lead_region", label=_("Lead Region"), lookup_expr='exact')
     is_posted = django_filters.ChoiceFilter(field_name="is_posted", label=_("Is Posted?"), lookup_expr='exact', empty_label=_("All"), choices=YES_NO_CHOICES)
     csas_requests__client = django_filters.ChoiceFilter(field_name="csas_requests__client", label=_("Request client"), lookup_expr='exact')

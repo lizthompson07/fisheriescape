@@ -113,6 +113,14 @@ class CSASRequestReviewSerializer(serializers.ModelSerializer):
     advice_date_display = serializers.SerializerMethodField()
     decision_date_display = serializers.SerializerMethodField()
     last_modified_string = serializers.SerializerMethodField()
+    decision_display = serializers.SerializerMethodField()
+    metadata = serializers.SerializerMethodField()
+
+    def get_metadata(self, instance):
+        return instance.metadata
+
+    def get_decision_display(self, instance):
+        return instance.decision_display
 
     def get_last_modified_string(self, instance):
         return instance.last_modified_string

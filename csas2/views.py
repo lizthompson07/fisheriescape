@@ -310,16 +310,28 @@ class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):  
         context = super().get_context_data(**kwargs)
         return context
 
+    def get_queryset(self):
+        qs = models.CSASRequest.objects.all()
+        qs = qs.annotate(search=Concat('title', Value(" "), 'translated_title', Value(" "), 'id', output_field=TextField()))
+        return qs
 
-class ProcessReviewTemplateView(CsasAdminRequiredMixin, CommonTemplateView):
+
+class ProcessReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):
     template_name = 'csas2/process_reviews/main.html'
     container_class = "container-fluid"
     home_url_name = "csas2:index"
     h1 = gettext_lazy("CSAS Process Review Console")
+    filterset_class = filters.ProcessFilter
+    model = models.Process
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+    def get_queryset(self):
+        qs = models.Process.objects.all().order_by("-created_at")
+        qs = qs.annotate(search=Concat('name', Value(" "), 'nom', Value(" "), 'id', output_field=TextField()))
+        return qs
 
 
 class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
@@ -507,7 +519,7 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
         qs = models.Process.objects.all()
         if qp.get("personalized"):
             qs = utils.get_related_processes(self.request.user)
-        qs = qs.annotate(search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+        qs = qs.annotate(search=Concat('name', Value(" "), 'nom', output_field=TextField()))
         return qs
 
     def get_h1(self):
