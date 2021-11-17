@@ -63,16 +63,6 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['id', 'title', 'translated_title']
-    # filterset_fields = [
-    #     'section__division__branch__sector__region',
-    #     "section__division__branch__sector",
-    #     "section__division__branch",
-    #     "section__division",
-    #     "section",
-    #     "fiscal_year",
-    #     "status",
-    #     "review__decision",
-    # ]
     filterset_class = filters.CSASRequestFilter
 
     def get_queryset(self):

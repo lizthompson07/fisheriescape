@@ -54,7 +54,7 @@
         <table class="table table-sm table-bordered">
           <thead>
           <tr>
-            <th class="w-35">{% trans "Request" %}</th>
+            <th class="w-35">{% trans "Request Information" %}</th>
             <th>{% trans "Review" %}</th>
           </tr>
           </thead>
@@ -73,27 +73,25 @@
                 </div>
                 <div class="col">
                   <div class="mb-3">
-                    <span class="text-muted font-italic">{% trans "Client prioritization:" %}</span>
-                    <br><span v-html="">${r.prioritization_display_short | nz}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col">
-                  <div class="mb-3">
                     <span class="text-muted font-italic">{% trans "Region:" %}</span>
                     <br>${r.region}
                   </div>
                 </div>
                 <div class="col">
                   <div class="mb-3">
-                    <span class="text-muted font-italic">{% trans "Status:" %}</span>
-                    <br><span v-html="r.status_display_html"></span>
+                    <span class="text-muted font-italic">{% trans "Client prioritization:" %}</span>
+                    <br><span v-html="">${r.prioritization_display_short | nz}</span>
                   </div>
                 </div>
               </div>
 
               <div class="row">
+                <div class="col">
+                  <div class="mb-3">
+                    <span class="text-muted font-italic">{% trans "Status:" %}</span>
+                    <br><span v-html="r.status_display_html"></span>
+                  </div>
+                </div>
                 <div class="col">
                   <div class="mb-3">
                     <span class="text-muted font-italic">{% trans "Advice required by (original):" %}</span>
@@ -342,7 +340,6 @@
                 this.requests = response.results;
                 for (const r of this.requests) {
                   if (r.review && r.review.advice_date) r.review.advice_date = r.review.advice_date.split("T")[0];
-                  if (r.review && r.review.decision_date) r.review.decision_date = r.review.decision_date.split("T")[0];
                 }
               }
               this.loadingRequests = false;
@@ -352,8 +349,10 @@
         let endpoint = `/api/csas/requests/${request.id}/`;
         apiService(endpoint).then(data => {
           if (data) {
+            data.issueCollapse = true;
+            data.rationaleCollapse = true;
+            data.prioritizationCollapse = true;
             if (data.review && data.review.advice_date) data.review.advice_date = data.review.advice_date.split("T")[0];
-            if (data.review && data.review.decision_date) data.review.decision_date = data.review.decision_date.split("T")[0];
             this.$set(this.requests, this.requests.indexOf(request), data)
           }
         });
@@ -378,7 +377,6 @@
       cleanReview(review) {
         for (const reviewKey in review) if (review[reviewKey] === "") review[reviewKey] = null;
         if (review.advice_date) review.advice_date = review.advice_date + "T12:00:00";
-        if (review.decision_date) review.decision_date = review.decision_date + "T12:00:00";
         return review;
       },
       updateReview(request) {
