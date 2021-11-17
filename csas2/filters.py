@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 from shared_models.models import FiscalYear, Section, Region, Person
-from . import models, utils
+from . import models, utils, model_choices
 from .model_choices import request_status_choices, get_process_status_choices
 
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
@@ -43,6 +43,7 @@ class CSASRequestFilter(django_filters.FilterSet):
     status = django_filters.MultipleChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"), widget=forms.SelectMultiple(attrs=chosen_js))
     client = django_filters.ChoiceFilter(field_name="client", label=_("Client"), lookup_expr='exact')
     decision = django_filters.ChoiceFilter(field_name="review__decision", label=_("Review decision"), lookup_expr='exact')
+    prioritization = django_filters.ChoiceFilter(field_name="prioritization", label=_("Client prioritization"), lookup_expr='exact')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -52,6 +53,8 @@ class CSASRequestFilter(django_filters.FilterSet):
         section_choices = utils.get_section_choices()
         fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
         client_choices = [(u.id, str(u)) for u in User.objects.filter(csas_client_requests__isnull=False).order_by("first_name", "last_name").distinct()]
+        decision_choices = model_choices.request_decision_choices
+        prioritization_choices = model_choices.prioritization_choices
 
         self.filters['region'].field.choices = region_choices
         self.filters['sector'].field.choices = sector_choices
@@ -59,6 +62,8 @@ class CSASRequestFilter(django_filters.FilterSet):
         self.filters['client'].field.choices = client_choices
         self.filters['status'].field.choices = request_status_choices
         self.filters['fiscal_year'].field.choices = fy_choices
+        self.filters['decision'].field.choices = decision_choices
+        self.filters['prioritization'].field.choices = prioritization_choices
 
         self.filters['client'].field.widget.attrs = chosen_js
         self.filters['section'].field.widget.attrs = chosen_js
