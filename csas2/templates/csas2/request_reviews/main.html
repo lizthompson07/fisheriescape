@@ -54,40 +54,95 @@
         <table class="table table-sm table-bordered">
           <thead>
           <tr>
-            <th class="w-35">{% trans "Request" %}</th>
+            <th class="w-25">{% trans "Request" %}</th>
             <th>{% trans "Review" %}</th>
           </tr>
           </thead>
           <tbody>
           <tr v-for="r in requests" :key="r.id">
-            <td class="w-35">
+            <td>
               <div class="mb-3">
-                <span class="text-muted">{% trans "Id:" %}</span> ${r.id}
+                <a :href="`/csas-sccs/requests/${r.id}/view/`" target="_blank">${r.title} (${r.id})</a>
               </div>
               <div class="mb-3">
-                <span class="text-muted">{% trans "Client prioritization:" %}</span>
-                <span v-html="r.prioritization_display"></span>
+                <span class="text-muted font-italic">{% trans "Client prioritization:" %}</span>
+                <br><span v-html="">${r.prioritization_display_short | nz}</span>
               </div>
-              <div class="mb-3">
-                <span class="text-muted">{% trans "Title:" %}</span>
-                <a :href="`/csas-sccs/requests/${r.id}/view/`" target="_blank">${r.title}</a>
+              <div class="row">
+                <div class="col">
+                  <div class="mb-3">
+                    <span class="text-muted font-italic">{% trans "Region:" %}</span>
+                    <br>${r.region}
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="mb-3">
+                    <span class="text-muted font-italic">{% trans "Status:" %}</span>
+                    <br><span v-html="r.status_display_html"></span>
+                  </div>
+                </div>
               </div>
-              <div class="mb-3">
-                <span class="text-muted">${requestLabels.issue}:</span>
-                <span v-html="r.issue_html"></span>
+
+              <div class="row">
+                <div class="col">
+                  <div class="mb-3">
+                    <span class="text-muted font-italic">{% trans "Advice required by (original):" %}</span>
+                    <br>${r.advice_needed_by_display}
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="mb-3">
+                    <span class="text-muted font-italic">{% trans "Fiscal year:" %}</span>
+                    <br>${r.fiscal_year}
+                  </div>
+                </div>
               </div>
-              <div class="mb-3">
-                <span class="text-muted">{% trans "Region:" %}</span> ${r.region}
+
+
+              <div class="">
+                <div class="neighbours">
+                  <span class="text-muted font-italic">{% trans "Client prioritization description:" %}</span>
+                </div>
+                <div class="neighbours">
+                  <span class="pointy" @click="toggleRequestCollapse(r, 'prioritization')">
+                    <span v-if="r.prioritizationCollapse" class="mdi mdi-toggle-switch-off lead"></span>
+                    <span v-else class="mdi mdi-toggle-switch lead text-primary"></span>
+                  </span>
+                </div>
+                <div v-if="!r.prioritizationCollapse" class="mb-3">
+                  <span v-html="r.prioritization_display"></span>
+                </div>
               </div>
-              <div class="mb-3">
-                <span class="text-muted">{% trans "Status:" %}</span><br>
-                <span v-html="r.status_display_html"></span>
+
+              <div class="">
+                <div class="neighbours">
+                  <span class="text-muted font-italic">${requestLabels.issue}</span>
+                </div>
+                <div class="neighbours">
+                  <span class="pointy" @click="toggleRequestCollapse(r, 'issue')">
+                    <span v-if="r.issueCollapse" class="mdi mdi-toggle-switch-off lead"></span>
+                    <span v-else class="mdi mdi-toggle-switch lead text-primary"></span>
+                  </span>
+                </div>
+                <div v-if="!r.issueCollapse" class="mb-3">
+                  <span v-html="r.issue_html"></span>
+                </div>
               </div>
-              <div class="mb-3">
-                <span class="text-muted">{% trans "Advice required by (original):" %}</span><br> ${r.advice_needed_by_display}
-              </div>
-              <div class="mb-3">
-                <span class="text-muted">{% trans "Fiscal year:" %}</span> <br>${r.fiscal_year}
+
+
+              <div class="">
+                <div class="neighbours">
+                  <span class="text-muted font-italic">${requestLabels.rationale}</span>
+                </div>
+                <div class="neighbours">
+                  <span class="pointy" @click="toggleRequestCollapse(r, 'rationale')">
+                    <span v-if="r.rationaleCollapse" class="mdi mdi-toggle-switch-off lead"></span>
+                    <span v-else class="mdi mdi-toggle-switch lead text-primary"></span>
+                  </span>
+                </div>
+                <div v-if="!r.rationaleCollapse" class="mb-3">
+                  <span v-html="r.rationale_html"></span>
+                </div>
               </div>
 
             </td>
@@ -95,7 +150,7 @@
             <td v-if="r.review">
 
               <div class="row">
-                <div class="col">
+                <div class="col-2">
 
                   <div class="mb-3">
                     <span class="text-muted small">${reviewLabels.is_valid}</span>
@@ -142,11 +197,6 @@
                     >
                     </v-select>
                   </div>
-                  {#                  <div class="mb-3">#}
-                  {#                    <span class="text-muted small">${reviewLabels.decision_date}</span>#}
-                  {#                    <input v-model="r.review.decision_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"#}
-                  {#                           @focusout="updateReview(r)">#}
-                  {#                  </div>#}
                   <div class="mb-3">
                     <span class="text-muted small">${reviewLabels.advice_date}</span>
                     <input v-model="r.review.advice_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
@@ -156,7 +206,8 @@
                 </div>
                 <div class="col">
                   <div class="mb-3">
-                    <span class="text-muted small">{% trans "Decision rationale" %} (<span class="text-success font-weight-bold">{% trans "VISIBLE TO CLIENT" %}</span>)</span>
+                    <span class="text-muted small">{% trans "Decision rationale" %} (<span
+                      class="text-success font-weight-bold">{% trans "VISIBLE TO CLIENT" %}</span>)</span>
                     <textarea rows="11" class="form-control" v-model="r.review.decision_text" @change="updateReview(r)"></textarea>
                   </div>
                 </div>
@@ -164,7 +215,8 @@
                 <div class="col">
 
                   <div class="mb-3">
-                    <span class="text-muted small">${reviewLabels.deferred_text} (<span class="text-success font-weight-bold">{% trans "VISIBLE TO CLIENT" %}</span>)</span>
+                    <span class="text-muted small">${reviewLabels.deferred_text} (<span
+                      class="text-success font-weight-bold">{% trans "VISIBLE TO CLIENT" %}</span>)</span>
                     <textarea rows="11" class="form-control" v-model="r.review.deferred_text" @change="updateReview(r)"
                               :disabled="!r.is_rescheduled || !r.is_valid_request"></textarea>
                   </div>
@@ -273,7 +325,9 @@
             .then(response => {
               if (response.results) {
                 for (const r of response.results) {
-                  r.collapse = true;
+                  r.issueCollapse = true;
+                  r.rationaleCollapse = true;
+                  r.prioritizationCollapse = true;
                 }
                 this.requests = response.results;
                 for (const r of this.requests) {
@@ -293,6 +347,9 @@
             this.$set(this.requests, this.requests.indexOf(request), data)
           }
         });
+      },
+      toggleRequestCollapse(request, field) {
+        request[`${field}Collapse`] = !request[`${field}Collapse`]
       },
       getNotes() {
         let endpoint = `/api/csas/request-notes/?csas_request=${requestId}`;
@@ -357,6 +414,7 @@
     },
     filters: {
       yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
     },
     created() {
       this.getCurrentUser();

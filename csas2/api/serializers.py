@@ -45,6 +45,10 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     has_process = serializers.SerializerMethodField()
     is_rescheduled = serializers.SerializerMethodField()
     is_valid_request = serializers.SerializerMethodField()
+    prioritization_display_short = serializers.SerializerMethodField()
+
+    def get_prioritization_display_short(self, instance):
+        return instance.get_prioritization_display()
 
     def get_is_valid_request(self, instance):
         return instance.is_valid_request

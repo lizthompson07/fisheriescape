@@ -63,10 +63,12 @@
           <tr v-for="p, index in processes" :key="p.id">
             <td>${p.id}</td>
             <td>
-              <p class="mb-0">
-                <button class="text-left btn btn-sm btn-link py-0 my-0 px-0" @click="goProcessDetail(p)">${p.tname}</button>
-              </p>
-              <div class="">
+              <div class="neighbours">
+                <p class="mb-0">
+                  <button class="text-left btn btn-sm btn-link py-0 my-0 px-0" @click="goProcessDetail(p)">${p.tname}</button>
+                </p>
+              </div>
+              <div class="neighbours">
                 <span class="pointy" @click="toggleProcessCollapse(p)">
                   <span v-if="p.collapse" class="mdi mdi-toggle-switch-off lead"></span>
                   <span v-else class="mdi mdi-toggle-switch lead text-primary"></span>
@@ -124,7 +126,7 @@
                     <div class="col">
                       <p>
                         <span class="font-italic text-muted">{% trans "Meeting dates" %}</span><br>
-                        ${p.tor.meeting_obj.display_dates|nz}
+                        <span v-html="p.tor.meeting_obj.display_dates"></span>
                       </p>
                     </div>
                     <div class="col">
