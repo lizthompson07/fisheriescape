@@ -11,14 +11,16 @@
   <p class="lead">
     <a href="{% static 'markdown-cheatsheet-online.pdf' %}" data-toggle="tooltip" target="_blank" tabindex="-1"
        title="{% trans "Markdown syntax is supported in this field" %}">
-      <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
-      {% trans "Please note, Markdown syntax is supported in the textbox fields" %}
+      {% trans "Markdown syntax is supported in the textbox fields" %}
     </a>
   </p>
 {% endblock %}
 
 {% block form_fields %}
-  <h5>{% trans "Context" %}</h5>
+  <h5>
+    {% trans "Context" %}
+    {% include "csas2/_md.html" %}
+  </h5>
   <div class="row mb-3">
     <div class="col">
       {% bootstrap_field form.context_en show_label=False placeholder=None %}
@@ -28,7 +30,7 @@
     </div>
   </div>
 
-  <h5>{% trans "Objectives" %}</h5>
+  <h5>{% trans "Objectives" %}  {% include "csas2/_md.html" %}</h5>
   <div class="row mb-3">
     <div class="col">
       {% bootstrap_field form.objectives_en show_label=False placeholder=None %}
@@ -45,7 +47,8 @@
     </div>
   </div>
 
-  <h5>{% trans "Expected Participations" %}</h5>
+  <h5>{% trans "Expected Participations" %}  {% include "csas2/_md.html" %}</h5>
+  <h6 class="text-muted">{% trans "Please enter organizations in list format" %}</h6>
   <div class="row mb-3">
     <div class="col">
       {% bootstrap_field form.participation_en show_label=False placeholder=None %}
@@ -55,7 +58,7 @@
     </div>
   </div>
 
-  <h5>{% trans "References (Optional)" %}</h5>
+  <h5>{% trans "References (Optional)" %}  {% include "csas2/_md.html" %}</h5>
   <div class="row mb-3">
     <div class="col">
       {% bootstrap_field form.references_en show_label=False placeholder=None %}
