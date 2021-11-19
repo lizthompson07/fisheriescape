@@ -16,7 +16,7 @@ from markdown import markdown
 from csas2 import model_choices
 from csas2.utils import get_quarter
 from lib.functions.custom_functions import fiscal_year, listrify
-from lib.templatetags.custom_filters import percentage, nz
+from lib.templatetags.custom_filters import percentage
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
     SimpleLookupWithUUID
 
@@ -101,6 +101,18 @@ class GenericNote(MetadataFields):
     def last_modified(self):
         by = self.updated_by if self.updated_by else self.created_by
         return mark_safe(f"{date(self.updated_at)} &mdash; {by}")
+
+
+class CSASOffice(SimpleLookup):
+    region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions", verbose_name=_("region"))
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("coordinator / CSA"),
+                                    blank=True)
+    advisors = models.ManyToManyField(User, blank=True, verbose_name=_("science advisors"))
+    administrators = models.ManyToManyField(User, blank=True, verbose_name=_("administrators"))
+
+    class Meta:
+        abstract = True
+        ordering = ["region"]
 
 
 class CSASRequest(MetadataFields):
