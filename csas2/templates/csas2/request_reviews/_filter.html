@@ -1,11 +1,14 @@
 {% load i18n %}
 {% load bootstrap4 %}
 
-<div class="table-bordered py-3 px-2 admin-panel mb-3">
+<div class="table-bordered py-3 px-2 admin-panel mb-3 small">
   <form class="form " action="." method="get" id="filter-form" @change="submitForm">
     <div class="row">
       <div class="col">
         {% bootstrap_field filter.form.fiscal_year placeholder="" size="small" %}
+      </div>
+       <div class="col">
+        {% bootstrap_field filter.form.advice_fiscal_year placeholder="" size="small" %}
       </div>
       <div class="col">
         {% bootstrap_field filter.form.search placeholder="" size="small" %}

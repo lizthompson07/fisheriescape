@@ -23,6 +23,7 @@ class CSASRequestSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     fiscal_year = serializers.StringRelatedField()
+    advice_fiscal_year = serializers.StringRelatedField()
     client = serializers.StringRelatedField()
     coordinator = serializers.StringRelatedField()
 
@@ -119,6 +120,14 @@ class CSASRequestReviewSerializer(serializers.ModelSerializer):
     last_modified_string = serializers.SerializerMethodField()
     decision_display = serializers.SerializerMethodField()
     metadata = serializers.SerializerMethodField()
+    is_valid_display = serializers.SerializerMethodField()
+    is_feasible_display = serializers.SerializerMethodField()
+
+    def get_is_valid_display(self, instance):
+        return instance.get_is_valid_display()
+
+    def get_is_feasible_display(self, instance):
+        return instance.get_is_feasible_display()
 
     def get_metadata(self, instance):
         return instance.metadata

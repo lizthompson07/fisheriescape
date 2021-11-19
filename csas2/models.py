@@ -103,7 +103,7 @@ class GenericNote(MetadataFields):
         return mark_safe(f"{date(self.updated_at)} &mdash; {by}")
 
 
-class CSASOffice(SimpleLookup):
+class CSASOffice(models.Model):
     region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="regions", verbose_name=_("region"))
     coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator", verbose_name=_("coordinator / CSA"))
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("science advisors"), related_name="csas_advisors")
@@ -157,8 +157,10 @@ class CSASRequest(MetadataFields):
     uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid4, verbose_name=_("unique identifier"))
 
     # calculated
+    advice_fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_request_advice",
+                                    verbose_name=_("advice FY"), editable=False)
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_requests",
-                                    verbose_name=_("fiscal year"), editable=False)
+                                    verbose_name=_("request FY"), editable=False)
     ref_number = models.CharField(blank=True, null=True, editable=False, verbose_name=_("reference number"), max_length=255)
 
     class Meta:
@@ -171,16 +173,17 @@ class CSASRequest(MetadataFields):
 
     def save(self, *args, **kwargs):
 
-        # DJF - business rule change. Instead of FY being determined by advice date,
-        # it should be determined by creation or submission date.
-        # if hasattr(self, "review"):
-        #     self.ref_number = self.review.ref_number
-        #     if self.review.advice_date:
-        #         self.fiscal_year_id = fiscal_year(self.review.advice_date, sap_style=True)
-        #     else:
-        #         self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
-        # else:
-        #     self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
+        # request fiscal year
+        if hasattr(self, "review"):
+            self.ref_number = self.review.ref_number
+            if self.review.advice_date:
+                self.advice_fiscal_year_id = fiscal_year(self.review.advice_date, sap_style=True)
+            else:
+                self.advice_fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
+        else:
+            self.advice_fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
+
+        # submission fiscal year
         if self.submission_date:
             self.fiscal_year_id = fiscal_year(self.submission_date, sap_style=True)
         else:

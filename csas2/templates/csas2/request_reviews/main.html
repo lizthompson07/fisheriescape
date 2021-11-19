@@ -116,8 +116,8 @@
                   </div>
                   <div class="col">
                     <div class="mb-3">
-                      <span class="text-muted font-italic">{% trans "Fiscal year:" %}</span>
-                      <br>${r.fiscal_year}
+                      <span class="text-muted font-italic">{% trans "Advice FY:" %}</span>
+                      <br>${r.advice_fiscal_year}
                     </div>
                   </div>
                 </div>
@@ -358,7 +358,7 @@
                   r.issueCollapse = true;
                   r.rationaleCollapse = true;
                   r.prioritizationCollapse = true;
-                  r.reviewCollapse = false;
+                  r.reviewCollapse = true;
                 }
                 this.requests = response.results;
                 for (const r of this.requests) {

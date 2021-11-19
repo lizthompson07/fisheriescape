@@ -88,6 +88,10 @@
             <td class="text-left" v-html="request.fiscal_year"></td>
           </tr>
           <tr>
+            <th class="text-left w250" v-html="requestLabels.advice_fiscal_year"></th>
+            <td class="text-left" v-html="request.advice_fiscal_year"></td>
+          </tr>
+          <tr>
             <th class="text-left w250" v-html="requestLabels.status"></th>
             <td class="text-left" v-html="request.status_display_html"></td>
           </tr>
@@ -215,12 +219,12 @@
       <table class="table table-sm">
         <tr>
           <th class="text-left w-25" v-html="reviewLabels.is_valid"></th>
-          <td class="text-left">${request.review.is_valid | yesNo}</td>
+          <td class="text-left">${request.review.is_valid_display }</td>
         </tr>
 
         <tr>
           <th class="text-left" v-html="reviewLabels.is_feasible"></th>
-          <td class="text-left">${request.review.is_feasible | yesNo}</td>
+          <td class="text-left">${request.review.is_feasible_display }</td>
         </tr>
 
         <tr>

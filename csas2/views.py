@@ -114,7 +114,6 @@ class CSASOfficeListView(CsasAdminRequiredMixin, CommonListView):
     template_name = 'csas2/list.html'
     model = models.CSASOffice
     field_list = [
-        {"name": 'tname|{}'.format(gettext_lazy("name")), "class": "", "width": ""},
         {"name": 'region', "class": "", "width": ""},
         {"name": 'coordinator', "class": "", "width": ""},
         {"name": 'advisors', "class": "", "width": ""},
