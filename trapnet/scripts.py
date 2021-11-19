@@ -619,29 +619,34 @@ def import_smolt_data():
                 )
                 if created:
 
+                    # if there is either a date or location tagged, we will put this in the notes. We discussed this with guillaume to drop this field
+                    location_tagged = nz(row["Location.Tagged"].strip(), None)
+                    if location_tagged:
+                        add_comment(comment, f"location tagged: {location_tagged}")
+                    date_tagged = datetime.datetime.strptime(row["Date.Tagged"], "%m/%d/%Y") if row["Date.Tagged"] else None
+                    if date_tagged:
+                        add_comment(comment, f"date tagged: {date_tagged}")
+
                     species = models.Species.objects.get(code__iexact=row["Species"]) if row["Species"] else None
                     status = models.Status.objects.get(code__iexact=row["Status"]) if row["Status"] else None
                     origin = models.Origin.objects.get(code__iexact=row["Origin"]) if row["Origin"] else None
                     sex = models.Sex.objects.get(code__iexact=row["Sex"]) if row["Sex"] else None
-                    my_date = datetime.datetime.strptime(row["DateTagged"], "%m/%d/%Y") if row["DateTagged"] else None
 
                     my_obs.species = species
                     my_obs.sample = samples.first()
-                    my_obs.first_tag = nz(row["FirstTag"].strip(), None)
-                    my_obs.last_tag = nz(row["LastTag"].strip(), None)
+                    my_obs.first_tag = row["First.Tag"].strip() if row["First.Tag"] else None
+                    my_obs.last_tag = row["Last.Tag"].strip() if row["Last.Tag"] else None
                     my_obs.status = status
                     my_obs.origin = origin
-                    my_obs.frequency = nz(row["Freq"].strip(), None)
-                    my_obs.fork_length = nz(row["ForkLength"].strip(), None)
-                    my_obs.total_length = nz(row["TotalLength"].strip(), None)
-                    my_obs.weight = nz(row["Weight"].strip(), None)
+                    my_obs.frequency = row["Freq"].strip() if row["Freq"] else None
+                    my_obs.fork_length = row["ForkLength"].strip() if row["ForkLength"] else None
+                    my_obs.total_length = row["Total.Length"].strip() if row["Total.Length"] else None
+                    my_obs.weight = row["Weight"].strip() if row["Weight"] else None
                     my_obs.sex = sex
-                    my_obs.smolt_age = nz(row["SmoltAge"].strip(), None)
-                    my_obs.location_tagged = nz(row["LocationTagged"].strip(), None)
-                    my_obs.date_tagged = my_date
-                    my_obs.scale_id_number = nz(row["Scale ID Number"].strip(), None)
-                    my_obs.tags_removed = nz(row["tags removed"].strip(), None)
-                    my_obs.notes = nz(row["Comments"].strip(), None)
+                    my_obs.smolt_age = row["Smolt.Age"].strip() if row["Smolt.Age"] else None
+                    my_obs.scale_id_number = row["Scale ID Number"].strip() if row["Scale ID Number"] else None
+                    my_obs.tags_removed = row["tags removed"].strip() if row["tags removed"] else None
+                    my_obs.notes = row["Comments"].strip() if row["Comments"] else None
 
                     try:
                         my_obs.save()

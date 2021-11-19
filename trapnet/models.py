@@ -510,7 +510,7 @@ class Maturity(CodeModel):
 class Entry(MetadataFields):
     first_tag = models.CharField(max_length=50, blank=True, null=True)
     last_tag = models.CharField(max_length=50, blank=True, null=True)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="entries")
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
     frequency = models.IntegerField(blank=True, null=True, verbose_name=_("frequency"))
     fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))

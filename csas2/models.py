@@ -160,14 +160,21 @@ class CSASRequest(MetadataFields):
         return self.title
 
     def save(self, *args, **kwargs):
-        if hasattr(self, "review"):
-            self.ref_number = self.review.ref_number
-            if self.review.advice_date:
-                self.fiscal_year_id = fiscal_year(self.review.advice_date, sap_style=True)
-            else:
-                self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
+
+        # DJF - business rule change. Instead of FY being determined by advice date,
+        # it should be determined by creation or submission date.
+        # if hasattr(self, "review"):
+        #     self.ref_number = self.review.ref_number
+        #     if self.review.advice_date:
+        #         self.fiscal_year_id = fiscal_year(self.review.advice_date, sap_style=True)
+        #     else:
+        #         self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
+        # else:
+        #     self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
+        if self.submission_date:
+            self.fiscal_year_id = fiscal_year(self.submission_date, sap_style=True)
         else:
-            self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
+            self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
 
         # set the STATUS
         # if there is a process, the request the request MUST have been approved.
