@@ -203,7 +203,7 @@
                         style="width: 100%"
                         v-model="r.review.is_feasible"
                         @input="updateReview(r)"
-                        :options="yesNoChoices"
+                        :options="yesNoUnsureChoices"
                         :reduce="choice => choice.value"
                         label="text"
                         :clearable="false"
@@ -236,7 +236,7 @@
                   </div>
                   <div class="col">
                     <div class="mb-3">
-                    <span class="text-muted small">{% trans "Decision rationale" %} (<span
+                    <span class="text-muted small">{% trans "Recommendation rationale" %} (<span
                       class="text-success font-weight-bold">{% trans "VISIBLE TO CLIENT" %}</span>)</span>
                       <textarea rows="13" class="form-control" v-model="r.review.decision_text" @change="updateReview(r)"></textarea>
                     </div>
@@ -435,6 +435,7 @@
         apiService(`/api/csas/meta/models/request-review/`).then(data => {
           this.reviewLabels = data.labels;
           this.yesNoChoices = data.yes_no_choices;
+          this.yesNoUnsureChoices = data.yes_no_unsure_choices;
           this.decisionChoices = data.decision_choices;
         });
       },
