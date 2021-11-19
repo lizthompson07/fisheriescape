@@ -525,8 +525,8 @@ class Entry(MetadataFields):
     notes = models.TextField(blank=True, null=True)
 
     # non-editable
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries", editable=False)
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="entries", editable=False)
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries", editable=False, blank=True, null=True)
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="entries", editable=False, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         return super().save(*args, **kwargs)
