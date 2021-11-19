@@ -7,6 +7,16 @@
 {% load csas_filters %}
 
 
+{% block pre_form_div %}
+  <p class="lead">
+    <a href="{% static 'markdown-cheatsheet-online.pdf' %}" data-toggle="tooltip" target="_blank" tabindex="-1"
+       title="{% trans "Markdown syntax is supported in this field" %}">
+      <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
+      {% trans "Please note, Markdown syntax is supported in the textbox fields" %}
+    </a>
+  </p>
+{% endblock %}
+
 {% block form_fields %}
   <h5>{% trans "Context" %}</h5>
   <div class="row mb-3">
