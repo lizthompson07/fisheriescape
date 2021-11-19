@@ -104,14 +104,12 @@ class GenericNote(MetadataFields):
 
 
 class CSASOffice(SimpleLookup):
-    region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions", verbose_name=_("region"))
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("coordinator / CSA"),
-                                    blank=True)
-    advisors = models.ManyToManyField(User, blank=True, verbose_name=_("science advisors"))
-    administrators = models.ManyToManyField(User, blank=True, verbose_name=_("administrators"))
+    region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="regions", verbose_name=_("region"))
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator", verbose_name=_("coordinator / CSA"))
+    advisors = models.ManyToManyField(User, blank=True, verbose_name=_("science advisors"), related_name="csas_advisors")
+    administrators = models.ManyToManyField(User, blank=True, verbose_name=_("administrators"), related_name="csas_administrators")
 
     class Meta:
-        abstract = True
         ordering = ["region"]
 
 

@@ -19,7 +19,7 @@ from lib.functions.custom_functions import fiscal_year, truncate, listrify
 from shared_models.models import Person, FiscalYear, SubjectMatter
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
-    CommonHardDeleteView
+    CommonHardDeleteView, CommonListView
 from . import models, forms, filters, utils, reports, emails
 from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin, \
     CsasNationalAdminRequiredMixin, SuperuserOrCsasNationalAdminRequiredMixin, CsasNCRStaffRequiredMixin
@@ -105,6 +105,62 @@ class CSASAdminUserFormsetView(SuperuserOrCsasNationalAdminRequiredMixin, Common
 class CSASAdminUserHardDeleteView(SuperuserOrCsasNationalAdminRequiredMixin, CommonHardDeleteView):
     model = models.CSASAdminUser
     success_url = reverse_lazy("csas2:manage_csas_admin_users")
+
+
+# csas office #
+##########
+
+class CSASOfficeListView(CsasAdminRequiredMixin, CommonListView):
+    template_name = 'csas2/list.html'
+    model = models.CSASOffice
+    field_list = [
+        {"name": 'tname|{}'.format(gettext_lazy("name")), "class": "", "width": ""},
+        {"name": 'region', "class": "", "width": ""},
+        {"name": 'coordinator', "class": "", "width": ""},
+        {"name": 'advisors', "class": "", "width": ""},
+        {"name": 'administrators', "class": "", "width": ""},
+    ]
+    new_object_url_name = "csas2:office_new"
+    row_object_url_name = "csas2:office_edit"
+    home_url_name = "csas2:index"
+    h1 = gettext_lazy("CSAS Offices")
+
+
+class CSASOfficeUpdateView(CsasAdminRequiredMixin, CommonUpdateView):
+    model = models.CSASOffice
+    template_name = 'csas2/form.html'
+    form_class = forms.CSASOfficeForm
+    home_url_name = "csas2:index"
+    grandparent_crumb = {"title": gettext_lazy("CSAS Offices"), "url": reverse_lazy("csas2:office_list")}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.upated_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
+
+
+class CSASOfficeCreateView(CsasAdminRequiredMixin, CommonCreateView):
+    model = models.CSASOffice
+    template_name = 'csas2/form.html'
+    form_class = forms.CSASOfficeForm
+    home_url_name = "csas2:index"
+    parent_crumb = {"title": gettext_lazy("CSAS Offices"), "url": reverse_lazy("csas2:office_list")}
+    h1 = gettext_lazy("New Contact")
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.created_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
+
+
+class CSASOfficeDeleteView(CsasAdminRequiredMixin, CommonDeleteView):
+    model = models.CSASOffice
+    template_name = 'csas2/confirm_delete.html'
+    success_url = reverse_lazy('csas2:office_list')
+    home_url_name = "csas2:index"
+    grandparent_crumb = {"title": gettext_lazy("CSAS Offices"), "url": reverse_lazy("csas2:office_list")}
 
 
 # people #
