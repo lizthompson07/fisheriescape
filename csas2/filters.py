@@ -82,7 +82,6 @@ class CSASRequestFilter(django_filters.FilterSet):
         sectors = None
         if hasattr(self.data, "getlist"):
             sectors = self.data.getlist("sector")
-        print(sectors, regions)
         try:
             if regions and len(regions) > 0 and "" not in regions:
                 sector_choices = []

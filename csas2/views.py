@@ -110,7 +110,7 @@ class CSASAdminUserHardDeleteView(SuperuserOrCsasNationalAdminRequiredMixin, Com
 # csas office #
 ##########
 
-class CSASOfficeListView(CsasAdminRequiredMixin, CommonListView):
+class CSASOfficeListView(SuperuserOrCsasNationalAdminRequiredMixin, CommonListView):
     template_name = 'csas2/list.html'
     model = models.CSASOffice
     field_list = [
@@ -118,6 +118,8 @@ class CSASOfficeListView(CsasAdminRequiredMixin, CommonListView):
         {"name": 'coordinator', "class": "", "width": ""},
         {"name": 'advisors', "class": "", "width": ""},
         {"name": 'administrators', "class": "", "width": ""},
+        {"name": 'generic_email', "class": "", "width": ""},
+        {"name": 'disable_request_notifications', "class": "", "width": ""},
     ]
     new_object_url_name = "csas2:office_new"
     row_object_url_name = "csas2:office_edit"
@@ -125,12 +127,13 @@ class CSASOfficeListView(CsasAdminRequiredMixin, CommonListView):
     h1 = gettext_lazy("CSAS Offices")
 
 
-class CSASOfficeUpdateView(CsasAdminRequiredMixin, CommonUpdateView):
+class CSASOfficeUpdateView(SuperuserOrCsasNationalAdminRequiredMixin, CommonUpdateView):
     model = models.CSASOffice
     template_name = 'csas2/form.html'
     form_class = forms.CSASOfficeForm
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("CSAS Offices"), "url": reverse_lazy("csas2:office_list")}
+    success_url = reverse_lazy("csas2:office_list")
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -139,7 +142,7 @@ class CSASOfficeUpdateView(CsasAdminRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class CSASOfficeCreateView(CsasAdminRequiredMixin, CommonCreateView):
+class CSASOfficeCreateView(SuperuserOrCsasNationalAdminRequiredMixin, CommonCreateView):
     model = models.CSASOffice
     template_name = 'csas2/form.html'
     form_class = forms.CSASOfficeForm
@@ -154,7 +157,7 @@ class CSASOfficeCreateView(CsasAdminRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class CSASOfficeDeleteView(CsasAdminRequiredMixin, CommonDeleteView):
+class CSASOfficeDeleteView(SuperuserOrCsasNationalAdminRequiredMixin, CommonDeleteView):
     model = models.CSASOffice
     template_name = 'csas2/confirm_delete.html'
     success_url = reverse_lazy('csas2:office_list')
@@ -263,11 +266,11 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'title|{}'.format(gettext_lazy("title")), "class": "w-35"},
         {"name": 'status', "class": "", "width": "100px"},
         {"name": 'has_process|{}'.format(gettext_lazy("has process?")), "class": "text-center", "width": "120px"},
-        {"name": 'coordinator', "class": "", "width": "150px"},
+        {"name": 'office', "class": "", "width": "150px"},
         {"name": 'client', "class": "", "width": "150px"},
-        {"name": 'region|{}'.format(gettext_lazy("region")), "class": "", "width": "75px"},
-        {"name": 'sector|{}'.format(gettext_lazy("sector")), "class": ""},
-        {"name": 'section|{}'.format(gettext_lazy("section")), "class": ""},
+        {"name": 'region|{}'.format(gettext_lazy("client region")), "class": "", "width": "125px"},
+        {"name": 'sector|{}'.format(gettext_lazy("client sector")), "class": ""},
+        {"name": 'section|{}'.format(gettext_lazy("client section")), "class": ""},
     ]
 
     def get_extra_button_dict1(self):

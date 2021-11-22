@@ -10,7 +10,7 @@ from shared_models.models import Section, Division, Region, Branch, Sector
 
 def in_csas_regional_admin_group(user):
     if user:
-        return bool(hasattr(user, "csas_admin_user") and user.csas_admin_user.region)
+        return user.csas_offices.exists()
 
 
 def in_csas_national_admin_group(user):
@@ -86,13 +86,13 @@ def get_region_choices(with_requests=False):
 def is_request_coordinator(user, request_id):
     if user.id:
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
-        return csas_request.coordinator == user
+        return csas_request.office.coordinator == user
 
 
 def is_process_coordinator(user, process_id):
     if user.id:
         process = get_object_or_404(models.Process, pk=process_id)
-        return process.coordinator == user
+        return process.lead_office.coordinator == user
 
 
 def is_advisor(user, process_id):
@@ -143,7 +143,7 @@ def can_modify_request(user, request_id, return_as_dict=False):
             my_dict["can_modify"] = True
         # check to see if they are the coordinator
         elif is_request_coordinator(user, request_id=csas_request.id):
-            my_dict["reason"] = _("You can modify this record because you are the CSAS coordinator")
+            my_dict["reason"] = _("You can modify this record because you are the CSAS coordinator for this region")
             my_dict["can_modify"] = True
         # are they a national administrator?
         elif in_csas_national_admin_group(user):

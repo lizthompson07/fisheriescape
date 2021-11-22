@@ -80,7 +80,13 @@
       {% endif %}
     </div>
 
-    <div class="row">
+
+    <div v-if="loadingRequest" class="loading mb-3 mt-3 mt-5">
+      <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+        <span class="sr-only"></span>
+      </div>
+    </div>
+    <div v-else class="row">
       <div class="col">
         <table class="table table-sm">
           <tr>
@@ -297,11 +303,13 @@
       },
 
       getRequest(update_notes) {
+        this.loadingRequest = true;
         let endpoint = `/api/csas/requests/${requestId}/`;
         apiService(endpoint).then(data => {
           if (data) {
             this.request = data;
             if (update_notes) this.getNotes();
+            this.loadingRequest = false;
           }
         });
       },

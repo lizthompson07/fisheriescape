@@ -121,7 +121,6 @@ class UpdatedMeetingEmail(Email):
         old_meeting = self.old_meeting
         if not old_meeting:
             old_meeting = self.meeting
-        print(self.meeting)
         context.update({
             'old_meeting': old_meeting,
             'meeting': self.meeting,
