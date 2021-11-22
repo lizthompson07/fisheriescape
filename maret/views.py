@@ -283,6 +283,8 @@ class InteractionDetailView(UserRequiredMixin, CommonDetailView):
             'action_items',
             'comments',
             'external_organization',
+            'last_modified',
+            'last_modified_by',
         ]
 
         return context
