@@ -404,12 +404,34 @@ def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
     return row_count
 
 
+def write_dist_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
+    row_count = write_location_to_sheet(ws, site_location, row_count, rive_name, site_name)
+    row_count -= 1
+    relm = models.LocationDet.objects.filter(loc_id_id=site_location.pk, locdc_id__name="Release Method").first()
+    if relm:
+        ws['L' + str(row_count)].value = relm.lsdc_id.name
+    row_count += 1
+    return row_count
+
+
+def write_coll_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
+    row_count = write_location_to_sheet(ws, site_location, row_count, rive_name, site_name)
+    row_count -= 1
+    relm = models.LocationDet.objects.filter(loc_id_id=site_location.pk, locdc_id__name="Release Method").first()
+    if relm:
+        ws['L' + str(row_count)].value = relm.lsdc_id.name
+    row_count += 1
+    return row_count
+
+
 def generate_sites_report(sites_list, locations_list, start_date=None, end_date=None):
     report = ExcelReport()
     report.load_wb("site_report_template.xlsx")
 
     ws = report.get_sheet("Sites")
     ws_indv = report.get_sheet("Individuals")
+    ws_dist = report.get_sheet("Distributions")
+    ws_coll = report.get_sheet("Collections")
 
     if not start_date:
         start_date = "Not Picked"
@@ -427,6 +449,8 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
 
     # start writing data at row 4 in the sheet
     row_count = 4
+    dist_row_count = 4
+    coll_row_count = 4
     # split off locations with no sites
     no_sites_list = [location for location in locations_list if not location.relc_id]
 
@@ -444,6 +468,10 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
 
         for site_location in site_locations:
             row_count = write_location_to_sheet(ws, site_location, row_count, rive_name, site_name)
+            if site_location.locc_id.name == "Distribution Site":
+                dist_row_count = write_dist_location_to_sheet(ws_dist, site_location, dist_row_count, rive_name, None)
+            elif site_location.locc_id.name == ["Electrofishing Site", "Bypass Site", "Smolt Wheel Site", "Adult Collection Site"]:
+                coll_row_count = write_coll_location_to_sheet(ws_coll, site_location, coll_row_count, rive_name, None)
 
     for location in no_sites_list:
         if location.rive_id:
@@ -451,6 +479,8 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
         else:
             rive_name = None
         row_count = write_location_to_sheet(ws, location, row_count, rive_name, None)
+        if location.locc_id.name == "Distribution Site":
+            dist_row_count = write_location_to_sheet(ws, location, dist_row_count, rive_name, None)
 
     for site in no_locs_list:
         ws['A' + str(row_count)].value = site.rive_id.name
