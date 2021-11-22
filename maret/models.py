@@ -106,7 +106,7 @@ class Interaction(models.Model):
         (2, "Deputy Minister meeting"),
         (3, "Maritimes Region ad hoc meeting"),
         (4, "Committee / Working Group meeting"),
-        (5, "Committee / Working Group correspondence"),
+        # (5, "Committee / Working Group correspondence"), # Removed 2021-11-16
         (6, "Ministerial correspondence"),
         (7, "Deputy Minister correspondence"),
         (8, "Maritimes Region correspondence "),
