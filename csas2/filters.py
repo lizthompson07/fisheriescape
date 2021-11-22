@@ -37,8 +37,8 @@ class CSASRequestFilter(django_filters.FilterSet):
     request_id = django_filters.NumberFilter(field_name='id', lookup_expr='exact')
     fiscal_year = django_filters.MultipleChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     advice_fiscal_year = django_filters.MultipleChoiceFilter(field_name='advice_fiscal_year', lookup_expr='exact')
-    region = django_filters.ChoiceFilter(field_name="section__division__branch__sector__region", label=_("Region"), lookup_expr='exact')
-    sector = django_filters.ChoiceFilter(field_name="section__division__branch__sector", label=_("Sector"), lookup_expr='exact')
+    region = django_filters.MultipleChoiceFilter(field_name="section__division__branch__sector__region", label=_("Region"), lookup_expr='exact')
+    sector = django_filters.MultipleChoiceFilter(field_name="section__division__branch__sector", label=_("Sector"), lookup_expr='exact')
     section = django_filters.ChoiceFilter(field_name="section", label=_("Section"), lookup_expr='exact')
     has_process = django_filters.BooleanFilter(field_name='processes', lookup_expr='isnull', label=_("Has process?"), exclude=True)
     status = django_filters.MultipleChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"), widget=forms.SelectMultiple(attrs=chosen_js))
@@ -72,19 +72,34 @@ class CSASRequestFilter(django_filters.FilterSet):
         self.filters['section'].field.widget.attrs = chosen_js
         self.filters['fiscal_year'].field.widget.attrs = chosen_js
         self.filters['advice_fiscal_year'].field.widget.attrs = chosen_js
+        self.filters['region'].field.widget.attrs = chosen_js
+        self.filters['sector'].field.widget.attrs = chosen_js
 
+        regions = None
+        if hasattr(self.data, "getlist"):
+            regions = self.data.getlist("region")
+
+        sectors = None
+        if hasattr(self.data, "getlist"):
+            sectors = self.data.getlist("sector")
+        print(sectors, regions)
         try:
-            if self.data["region"] != "":
-                my_region_id = int(self.data["region"])
-                sector_choices = [my_set for my_set in utils.get_sector_choices(region_filter=my_region_id)]
-                section_choices = [my_set for my_set in utils.get_section_choices() if
-                                   Section.objects.get(pk=my_set[0]).division.branch.region_id == my_region_id]
+            if regions and len(regions) > 0 and "" not in regions:
+                sector_choices = []
+                section_choices = []
+                for r in regions:
+                    my_region_id = int(r)
+                    sector_choices.extend([my_set for my_set in utils.get_sector_choices(region_filter=my_region_id)])
+                    section_choices.extend([my_set for my_set in utils.get_section_choices() if
+                                            Section.objects.get(pk=my_set[0]).division.branch.region_id == my_region_id])
                 self.filters['sector'].field.choices = sector_choices
                 self.filters['section'].field.choices = section_choices
-            if self.data["sector"] != "":
-                my_sector_id = int(self.data["sector"])
-                section_choices = [my_set for my_set in utils.get_section_choices() if
-                                   Section.objects.get(pk=my_set[0]).division.branch.sector_id == my_sector_id]
+            if sectors and len(sectors) > 0 and "" not in sectors:
+                section_choices = []
+                for s in sectors:
+                    my_sector_id = int(s)
+                    section_choices.extend([my_set for my_set in utils.get_section_choices() if
+                                       Section.objects.get(pk=my_set[0]).division.branch.sector_id == my_sector_id])
                 self.filters['section'].field.choices = section_choices
 
         except KeyError:
