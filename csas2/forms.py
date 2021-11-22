@@ -51,6 +51,17 @@ class PersonForm(forms.ModelForm):
             del self.fields["dmapps_user"]
 
 
+class CSASOfficeForm(forms.ModelForm):
+    class Meta:
+        model = models.CSASOffice
+        fields = "__all__"
+        widgets = {
+            'coordinator': forms.Select(attrs=chosen_js),
+            'advisors': forms.SelectMultiple(attrs=chosen_js),
+            'administrators': forms.SelectMultiple(attrs=chosen_js),
+        }
+
+
 class TripRequestTimestampUpdateForm(forms.ModelForm):
     class Meta:
         model = models.CSASRequest
@@ -120,7 +131,7 @@ class ReportSearchForm(forms.Form):
 
         process_status_choices = [obj for obj in model_choices.get_process_status_choices()]
         process_status_choices.insert(0, (None, "All"))
-        
+
         process_type_choices = [obj for obj in model_choices.process_type_choices]
         process_type_choices.insert(0, (None, "All"))
 

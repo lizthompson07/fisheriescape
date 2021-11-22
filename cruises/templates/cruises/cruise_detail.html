@@ -3,9 +3,21 @@
 {% load verbose_names %}
 {% load static %}
 {% load i18n %}
-
+{% load l10n %}
 
 {% block subcontent %}
+
+  {% localize off %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  {% endlocalize %}
+  <style>
+  #map {
+      height: 400px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
+
 
   <div class="btns mb-5">
     <a href="{% url "cruises:cruise_edit" object.id %}" class="btn btn-warning">{% trans "Edit" %}</a>
@@ -14,7 +26,10 @@
     <a href="{% url "cruises:instrument_new" object.id %}" class="btn btn-primary">Add an Instrument</a>
     <a href="#" pop-href="{% url "cruises:file_new" object.id %}" class="btn btn-primary">Add a File</a>
   </div>
-
+  {% localize off %}
+    <div id="map">
+    </div>
+  {% endlocalize %}
   <table class="table table-sm table-striped">
     {% for field in field_list %}
 
@@ -76,53 +91,47 @@
   </table>
 
 
+{% endblock %}
 
 
-  {#        <br><br>#}
-  {##}
-  {#        <div class="row">#}
-  {#            <div class="col">#}
-  {#                <div class="mb-4">#}
-  {#                    <h3>Mission Detail</h3>#}
-  {##}
-  {#                    <table class="table table-striped table-sm">#}
-  {#                        {% for field in field_list %}#}
-  {#                            {% if not filed == "vessel" %}#}
-  {#                                {% verbose_td_display object field %}#}
-  {#                            {% else %}#}
-  {#                                <tr>#}
-  {#                                    <td>field.name</td>#}
-  {#                                    <td></td>#}
-  {#                                </tr>#}
-  {#                            {% endif %}#}
-  {#                        {% endfor %}#}
-  {#                    </table>#}
-  {#                </div>#}
-  {##}
+{% block body_js %}
 
-  {##}
-  {#                <div class="mb-4">#}
-  {#                    <div class="mb-2">#}
-  {#                        <div class="neighbours">#}
-  {#                            <h3>Map of Bottles</h3>#}
-  {#                        </div>#}
-  {#                        {% if object.bottles.count %}#}
-  {#                            <div class="neighbours btn-group">#}
-  {#                                <a href="{% url "cruises:bottle_list" object.id %}" class="btn btn-primary">View Bottles</a>#}
-  {#                                <a href="{% url "cruises:mission_export_csv" object.id %}" class="btn btn-success">Export Bottle#}
-  {#                                    CSV</a>#}
-  {#                            </div>#}
-  {#                        {% endif %}#}
-  {#                    </div>#}
-  {#                    {% if object.bottles.count %}#}
-  {#                        <div id="map"></div>#}
-  {#                        <div id="lineMap"></div>#}
-  {#                    {% else %}#}
-  {#                        <em>There are no water samples to display</em>#}
-  {#                    {% endif %}#}
-  {#                </div>#}
-  {#            </div>#}
-  {#        </div>#}
-  {#    </div>#}
+
+  {% localize off %}
+    {{ block.super }}
+    <script type="application/javascript">
+    let points = {{ track_list | safe }};
+    </script>
+
+    <script type="application/javascript">
+
+    function initialize() {
+      map = new L.Map("map", {
+        center: new L.LatLng(46, -64),
+        zoom: 8,
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map)
+
+      L.marker(points[0], {icon: greenIcon}).addTo(map).bindPopup("<b>{% trans "Start" %}</b>");
+      L.marker(points[points.length - 1], {icon: redIcon}).addTo(map).bindPopup("<b>{% trans "End" %}</b>");
+      L.polyline([points], {
+        color: 'black',
+        dashArray: '3',
+        weight: 1,
+      }).addTo(map);
+
+      map.fitBounds(points);
+    }
+
+    $(document).ready(function () {
+      // Stuff to do as soon as the DOM is ready
+      initialize()
+
+    });
+    </script>
+  {% endlocalize %}
 
 {% endblock %}

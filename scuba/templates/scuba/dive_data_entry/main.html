@@ -3,20 +3,19 @@
 {% load i18n %}
 {% load static %}
 {% load l10n %}
-{% block crumbs %}{% endblock %}
+
+{% block title_area %}
+{% endblock %}
+
+{% block crumbs %}
+{% endblock %}
 
 {% block subcontent %}
   <style>
-  table, td, th {
-      border: #0f0f0f solid 1px;
-      padding: 2px;
-  }
+
   </style>
 
-  <div id="app"
-    {#       @keypress.78.ctrl.prevent="editSection()"#}
-  >
-
+  <div id="app">
 
     <div class="mb-3">
 
@@ -28,26 +27,33 @@
       <div v-else>
         {#  this is display mode!!  #}
         <div v-if="!editMode">
-          <div class="btns mb-3">
-            <a tabindex="0" ref="done_button" href="{% url 'scuba:dive_detail' object.id %}" class="btn btn-primary btn-sm">{% trans "All Done!" %}</a>
-          </div>
-          <h3>{% trans "Observations" %}</h3>
-          <div class="mb-3">
-            <table class="" style="width: 50%">
-              {% for field in field_list %}
-                {% verbose_td_display object field %}
-              {% endfor %}
-            </table>
-          </div>
+          {% include "shared_models/_generic_breadcrumbs.html" %}
           <div class="row">
+            <div class="col">
 
-            <div class="col" style="text-align: right; padding-bottom: 10px">
-              <button
-                @click="editSection()"
-                class="btn btn-sm btn-success">{% trans 'New Section' %}</button>
+              <div class="mb-3">
+                <h2 class="mt-2"><span class="concern p-1">{{ h1 }}</span></h2>
+              </div>
             </div>
+{#            <div class="col-3 text-right">#}
+{#              <div class="mb-5">#}
+{#                <table class="table table-sm text-muted">#}
+{#                  {% for field in field_list %}#}
+{#                    {% verbose_td_display object field %}#}
+{#                  {% endfor %}#}
+{#                </table>#}
+{#              </div>#}
+{#            </div>#}
           </div>
-          <table v-if="sections.length" class="w-100">
+
+          <div class="mb-3">
+            <button
+              @click="editSection()"
+              class="btn btn-sm btn-success float-right">{% trans 'New Section' %}
+            </button>
+            <p class="lead">{% trans "Sections and Observations" %}</p>
+          </div>
+          <table v-if="sections.length" class="w-100 table table-sm table-bordered table-small-font">
             <thead>
             <tr>
               {% for field in section_field_list %}
@@ -55,7 +61,7 @@
                   {% get_verbose_label random_section field %}
                 </th>
               {% endfor %}
-              <th class="text-center" colspan="6">{% trans "Observations" %}</th>
+              <th class="text-center" colspan="7">{% trans "Observations" %}</th>
               <th rowspan="2"></th>
             </tr>
             <tr>
@@ -75,20 +81,21 @@
               <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.depth_ft"></td>
               <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.substrate_profile" style="width: 100px"></td>
               <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.observations.length" style="width: 120px"></td>
-              <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.comment" style="width: 120px"></td>
+              <td v-if="index1==0" :rowspan="section.observations.length" style="width: 200px">${section.comment|nz}</td>
               <td v-html="obs.id"></td>
               <td v-html="obs.sex_display"></td>
-              <td v-html="obs.egg_status_display"></td>
+              <td>${obs.egg_status_display|nz}</td>
               <td v-html="obs.carapace_length_mm"></td>
+              <td v-html="obs.species_display"></td>
               <td v-html="obs.certainty_rating_display"></td>
-              <td v-html="obs.comment"></td>
+              <td>${obs.comment|nz}</td>
               <td v-if="index1==0" :rowspan="section.observations.length" style="width: 120px" class="text-center">
-                <button
-                  @click="editSection(section)"
-                  class="mdi mdi-pencil h4"></button>
-                <button
-                  @click="deleteSection(section)"
-                  class="mdi mdi-delete h4"></button>
+                <button @click="editSection(section)" class="btn btn-sm btn-warning">
+                  <span class="mdi mdi-pencil"></span>
+                </button>
+                <button @click="deleteSection(section)" class="btn btn-sm btn-danger">
+                  <span class="mdi mdi-delete text-light"></span>
+                </button>
               </td>
             </tr>
             <tr v-if="!section.observations.length">
@@ -97,13 +104,13 @@
               <td v-html="section.substrate_profile" style="width: 100px"></td>
               <td v-html="section.observations.length" style="width: 120px"></td>
               <td v-html="section.comment" style="width: 120px"></td>
-              <td colspan="6"><em>{% trans "No observations" %}</em></td>
+              <td colspan="7" class=""><em class="text-muted">{% trans "None" %}</em></td>
               <td class="text-center">
                 <button class="btn btn-sm btn-warning" @click="editSection(section)">
-                  <span class="mdi mdi-pencil h6"></span>
+                  <span class="mdi mdi-pencil"></span>
                 </button>
                 <button class="btn btn-sm btn-danger" @click="deleteSection(section)">
-                  <span class="mdi mdi-delete h6 text-light"></span>
+                  <span class="mdi mdi-delete text-light"></span>
                 </button>
               </td>
             </tr>
@@ -114,12 +121,17 @@
 
         {# if edit mode!! #}
         <div v-else>
-          <p class="h3">
-            <span v-if="sectionToEdit.id" class="h2 py-1 px-1 mb-3"> Section ${sectionToEdit.interval} </span>
-            <span v-else class="h2 py-1 px-1 mb-3"> {% trans "New Section" %} </span>
-          </p>
-          <div class="row">
-            <div class="col-4">
+
+          <div class="mb-3">
+            <button @click="closeEditMode" class="btn btn-link">{% trans "Back" %}            </button>
+          </div>
+
+          <div class="row table-bordered">
+            <div class="col table-bordered">
+              <p class="h3">
+                <span v-if="sectionToEdit.id" class="h2 py-1 px-1 mb-3"> Section ${sectionToEdit.interval} </span>
+                <span v-else class="h2 py-1 px-1 mb-3"> {% trans "New Section" %} </span>
+              </p>
               <form @submit.prevent="submitSectionForm">
                 <div
                   v-if="sectionFormErrors"
@@ -127,7 +139,7 @@
                   <p class="alert-heading h5">${sectionFormErrors} </p>
                 </div>
 
-                <table>
+                <table class="table table-sm table-bordered table-small-font">
                   {{ section_form.as_table }}
                 </table>
                 <div class="mt-2">
@@ -143,57 +155,49 @@
                   type="submit"
                   value="{% trans "Save Section" %}"
                   class="btn btn-primary">
-
-
               </form>
-
             </div>
-            <div v-if="sectionToEdit.id && !unsavedSectionWork" class="col">
-              <p class="h3 mb-3">{% trans "Observations" %}</p>
-
-              <div class="jumbotron px-2 py-2">
-                <div class="container">
-                  <div class="alert alert-info w-50" role="alert">
-                    <ul>
-                      <li>Use Tab / Shift-Tab to navigate up and down</li>
-                      <li>Use Enter to submit the form</li>
-                    </ul>
-                  </div>
-                  <div
-                    v-if="observationFormErrors"
-                    class="alert alert-danger mb-3 w-50" role="alert">
-                    <p>${observationFormErrors} </p>
-                  </div>
-                  <form
-                    @submit.prevent="submitObservationForm()"
-                    @keydown.enter.prevent='submitObservationForm()'
-                  >
-                    <table>
-                      <tbody>
-                      {% for field in new_obs_form %}
-                        {% if field.name == "egg_status" %}
-                          <tr v-if="new_observation.sex=='f'">
-                            <th><label for="">{{ field.label }}</label></th>
-                            <td>{{ field }}</td>
-                          </tr>
-                        {% else %}
-                          <tr>
-                            <th><label for="">{{ field.label }}</label></th>
-                            <td>{{ field }}</td>
-                          </tr>
-                        {% endif %}
-                      {% endfor %}
-
-                      </tbody>
-
-                      {#                                            {{ new_obs_form.as_table }}#}
-                    </table>
-                    <input class="btn btn-sm btn-success mt-3" type="submit" value="{% trans "Add (Enter)" %}">
-                  </form>
-                </div>
+            <div v-if="sectionToEdit.id && !unsavedSectionWork" class="col table-bordered">
+              <p class="h3 mb-3">{% trans "New Observation" %}</p>
+              <ul class="ml-1">
+                <li>Use Tab / Shift-Tab to navigate up and down</li>
+                <li>Use Enter to submit the form</li>
+              </ul>
+              <div
+                v-if="observationFormErrors"
+                class="alert alert-danger mb-3 w-50" role="alert">
+                <p>${observationFormErrors} </p>
               </div>
+              <form
+                @submit.prevent="submitObservationForm()"
+                @keydown.enter.prevent='submitObservationForm()'
+              >
+                <table class="table table-sm table-bordered table-small-font">
+                  <tbody>
+                  {% for field in new_obs_form %}
+                    {% if field.name == "egg_status" %}
+                      <tr v-if="new_observation.sex=='f'">
+                        <th><label for="">{{ field.label }}</label></th>
+                        <td>{{ field }}</td>
+                      </tr>
+                    {% else %}
+                      <tr>
+                        <th><label for="">{{ field.label }}</label></th>
+                        <td>{{ field }}</td>
+                      </tr>
+                    {% endif %}
+                  {% endfor %}
 
-              <table v-if="sectionToEdit.observations.length">
+                  </tbody>
+
+                  {#                                            {{ new_obs_form.as_table }}#}
+                </table>
+                <input class="btn btn-sm btn-success mt-3" type="submit" value="{% trans "Add (Enter)" %}">
+              </form>
+            </div>
+            <div class="col-7 table-bordered">
+              <p class="h3 mb-3">{% trans "Existing Observations" %}</p>
+              <table v-if="sectionToEdit.observations.length" class="table table-sm table-bordered table-small-font">
                 <thead>
                 <tr>
                   {% for field in observation_field_list %}
@@ -210,11 +214,11 @@
                   <td>{{ obs_form.egg_status }}</td>
                   <td>{{ obs_form.carapace_length_mm }}</td>
                   <td>{{ obs_form.certainty_rating }}</td>
+                  <td>{{ obs_form.species }}</td>
                   <td>{{ obs_form.comment }}</td>
                   <td>
-                    <button @click="deleteObservation(obs)"><span class="mdi mdi-delete"></span></button>
+                    <button @click="deleteObservation(obs)" class="btn btn-xs btn-danger"><span class="mdi mdi-delete text-light"></span></button>
                   </td>
-
                 </tr>
                 </tbody>
               </table>
@@ -223,18 +227,7 @@
               </p>
 
               <p v-else><em>{% trans "This section has no observations" %}</em></p>
-
             </div>
-          </div>
-
-          <div class="mt-4">
-            <button
-              @click="closeEditMode"
-              class="btn btn-secondary">{% trans "Back" %}</button>
-            {#            <button#}
-            {#              v-if="sectionToEdit.id"#}
-            {#              @click="deleteSection(sectionToEdit)"#}
-            {#              class="btn btn-danger">{% trans "Delete" %}</button>#}
           </div>
         </div>
 
@@ -251,7 +244,8 @@
 
     {{ block.super }}
     <script type="application/javascript">
-    diveId = {{ object.id }};
+    let diveId = {{ object.id }};
+    let defaultSpeciesId = {{ default_species_id }};
 
     var app = new Vue({
       el: '#app',
@@ -270,6 +264,7 @@
           sex: "",
           egg_status: "",
           carapace_length_mm: null,
+          species: defaultSpeciesId,
           certainty_rating: 1,
           comment: null,
         },
@@ -447,6 +442,7 @@
                     sex: "",
                     egg_status: "",
                     carapace_length_mm: null,
+                    species: defaultSpeciesId,
                     certainty_rating: 1,
                     comment: null,
                   }

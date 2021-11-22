@@ -27,7 +27,7 @@
   {% include "csas2/base/_nav_left_auth.html" %}
 {% endblock left_auth %}
 
-{% block extra_filter_classes %} table-bordered py-3 px-2 admin-panel mb-3{% endblock %}
+{% block extra_filter_classes %} table-bordered py-3 px-2 admin-panel mb-3 small{% endblock %}
 
 {% block table_tr %}
   {% url row_object_url_name object.id as my_url %}

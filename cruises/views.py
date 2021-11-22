@@ -1,5 +1,7 @@
 import csv
 from copy import deepcopy
+from io import StringIO
+from urllib.request import urlretrieve, urlopen
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import TextField
@@ -175,6 +177,28 @@ class CruiseDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
     parent_crumb = {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
     home_url_name = "cruises:index"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cruise = self.get_object()
+        track_list = list()
+
+        # check for any track files
+        for file in cruise.files.filter(caption__icontains="track"):
+            csv_reader = csv.DictReader(StringIO(file.file.read().decode('utf-8')))
+            for row in csv_reader:
+                latitude = None
+                longitude = None
+                for key in row:
+                    if "lat" in key:
+                        latitude = row[key]
+                    if "lng" in key or "long" in key:
+                        longitude = row[key]
+                if latitude and longitude:
+                    track_list.append([latitude, longitude])
+            file.file.close()
+        context["track_list"] = track_list
+        return context
+
 
 class CruiseUpdateView(CanModifyRequiredMixin, CommonUpdateView):
     model = shared_models.Cruise
@@ -330,6 +354,8 @@ class FileCreateView(CanModifyRequiredMixin, CommonPopoutCreateView):
     model = models.File
     form_class = forms.FileForm
     is_multipart_form_data = True
+    h3 = gettext_lazy("To add a cruise track, make sure to include the term 'track' in the caption. "
+                      "It should be in CSV format with columns for 'latitude' and 'longitude'.")
 
     def get_initial(self):
         cruise = shared_models.Cruise.objects.get(pk=self.kwargs['cruise'])
@@ -340,6 +366,8 @@ class FileUpdateView(CanModifyRequiredMixin, CommonPopoutUpdateView):
     model = models.File
     form_class = forms.FileForm
     is_multipart_form_data = True
+    h3 = gettext_lazy("To add a cruise track, make sure to include the term 'track' in the caption. "
+                      "It should be in CSV format with columns for 'latitude' and 'longitude'.")
 
 
 class FileDeleteView(CanModifyRequiredMixin, CommonPopoutDeleteView):
