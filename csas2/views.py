@@ -493,8 +493,9 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
 
         # if the request was just submitted, send an email
         if obj.submission_date:
-            email = emails.NewRequestEmail(self.request, obj)
-            email.send()
+            if not obj.disable_request_notifications:
+                email = emails.NewRequestEmail(self.request, obj)
+                email.send()
         return HttpResponseRedirect(self.get_success_url())
 
 
