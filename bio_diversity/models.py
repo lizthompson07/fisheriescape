@@ -488,14 +488,12 @@ class Count(BioModel):
                                            anidc_id__name="Program Group",
                                            adsc_id__isnull=False,
                                            ).select_related("adsc_id")
-        prog_grp_list = [cntd.adsc_id for cntd in cntd_set]
         if get_string:
-            prog_str = ""
-            for prog_grp in prog_grp_list:
-                prog_str += "{}, ".format(prog_grp.name)
-
+            prog_grp_list = [cntd.adsc_id.name for cntd in cntd_set]
+            prog_str = ", ".join(prog_grp_list)
             return prog_str
         else:
+            prog_grp_list = [cntd.adsc_id for cntd in cntd_set]
             return prog_grp_list
 
     def cnt_detail(self, anidc_name="Length"):
@@ -988,9 +986,8 @@ class Group(BioModel):
         for cont_type in cont_type_list:
             current_cont_list += self.current_cont_by_key(cont_type, at_date)
         if get_string:
-            cont_str = ""
-            for cont in current_cont_list:
-                cont_str += "{}, ".format(cont.__str__())
+            cont_str_list = [cont.__str__() for cont in current_cont_list]
+            cont_str = ", ".join(cont_str_list)
             return cont_str
         return current_cont_list
 
@@ -1111,14 +1108,13 @@ class Group(BioModel):
                                            anidc_id__name="Program Group",
                                            adsc_id__isnull=False,
                                            ).select_related("adsc_id")
-        prog_grp_list = [grpd.adsc_id for grpd in grpd_set]
         if get_string:
-            prog_str = ""
-            for prog_grp in prog_grp_list:
-                prog_str += "{}, ".format(prog_grp.name)
-
+            prog_grp_list = [grpd.adsc_id.name for grpd in grpd_set]
+            prog_str = ", ".join(prog_grp_list)
             return prog_str
         else:
+            prog_grp_list = [grpd.adsc_id for grpd in grpd_set]
+
             return prog_grp_list
 
     def group_mark(self, get_string=False):
@@ -1127,14 +1123,11 @@ class Group(BioModel):
                                            anidc_id__name="Mark",
                                            adsc_id__isnull=False,
                                            ).select_related("adsc_id")
-        grp_mark_list = [grpd.adsc_id for grpd in grpd_set]
         if get_string:
-            mark_str = ""
-            for mark in grp_mark_list:
-                mark_str += "{}, ".format(mark.name)
-
-            return mark_str
+            grp_mark_list = [grpd.adsc_id.name for grpd in grpd_set]
+            return ", ".join(grp_mark_list)
         else:
+            grp_mark_list = [grpd.adsc_id for grpd in grpd_set]
             return grp_mark_list
 
     def start_date(self):
@@ -1397,9 +1390,8 @@ class Individual(BioModel):
         for cont_type in cont_type_list:
             current_cont_list += self.current_cont_by_key(cont_type, at_date)
         if get_string:
-            cont_str = ""
-            for cont in current_cont_list:
-                cont_str += "{} ".format(cont.__str__())
+            cont_str_list = [cont.__str__() for cont in current_cont_list]
+            cont_str = ", ".join(cont_str_list)
             return cont_str
         return current_cont_list
 
@@ -1447,14 +1439,13 @@ class Individual(BioModel):
                                                  adsc_id__isnull=False,
                                                  ).select_related("adsc_id")
 
-        prog_grp_list = [indvd.adsc_id for indvd in indvd_set]
-        if get_string:
-            prog_str = ""
-            for prog_grp in prog_grp_list:
-                prog_str += "{}, ".format(prog_grp.name)
 
+        if get_string:
+            prog_grp_list = [indvd.adsc_id.name for indvd in indvd_set]
+            prog_str = ", ".join(prog_grp_list)
             return prog_str
         else:
+            prog_grp_list = [indvd.adsc_id for indvd in indvd_set]
             return prog_grp_list
 
 
@@ -1754,14 +1745,13 @@ class Pairing(BioDateModel):
         spwnd_set = self.spawning_details.filter(spwndc_id__name="Program Group",
                                                  spwnsc_id__isnull=False,
                                                  ).select_related("spwnsc_id")
-        prog_pair_list = [spwnd.spwnsc_id for spwnd in spwnd_set]
         if get_string:
-            prog_str = ""
-            for prog_grp in prog_pair_list:
-                prog_str += "{}, ".format(prog_grp.name)
-
+            prog_pair_list = [spwnd.spwnsc_id.name for spwnd in spwnd_set]
+            prog_str = ", ".join(prog_pair_list)
             return prog_str
         else:
+            prog_pair_list = [spwnd.spwnsc_id for spwnd in spwnd_set]
+
             return prog_pair_list
 
 
