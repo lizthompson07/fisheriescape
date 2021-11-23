@@ -110,7 +110,7 @@ class CSASAdminUserHardDeleteView(SuperuserOrCsasNationalAdminRequiredMixin, Com
 # csas office #
 ##########
 
-class CSASOfficeListView(SuperuserOrCsasNationalAdminRequiredMixin, CommonListView):
+class CSASOfficeListView(CsasAdminRequiredMixin, CommonListView):
     template_name = 'csas2/list.html'
     model = models.CSASOffice
     field_list = [
@@ -134,6 +134,17 @@ class CSASOfficeUpdateView(SuperuserOrCsasNationalAdminRequiredMixin, CommonUpda
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("CSAS Offices"), "url": reverse_lazy("csas2:office_list")}
     success_url = reverse_lazy("csas2:office_list")
+
+    def get_delete_url(self):
+        delete_url = reverse("csas2:office_delete", args=[self.get_object().id])
+        return delete_url
+
+    def test_func(self):
+        passes = super().test_func()
+        # and also if the user is coordinator
+        if not passes:
+            passes = self.request.user == self.get_object().coordinator
+        return passes
 
     def form_valid(self, form):
         obj = form.save(commit=False)
