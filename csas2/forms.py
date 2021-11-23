@@ -199,15 +199,15 @@ class CSASRequestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         section_choices = [(obj.id, obj.full_name) for obj in Section.objects.all()]
         section_choices.insert(0, (None, "------"))
-        coordinator_choices = [(u.user.id, u.user.get_full_name()) for u in
-                               models.CSASAdminUser.objects.filter(region__isnull=False).order_by("user__first_name", "user__last_name")]
-        coordinator_choices.insert(0, (None, "------"))
+        # coordinator_choices = [(o.coordinator.id, o.coordinator.get_full_name()) for o in
+        #                        models.CSASOffice.objects.all().order_by("user__first_name", "user__last_name")]
+        # coordinator_choices.insert(0, (None, "------"))
         client_choices = [(u.id, str(u)) for u in User.objects.all().order_by("first_name", "last_name")]
         client_choices.insert(0, (None, "------"))
 
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = section_choices
-        self.fields['coordinator'].choices = coordinator_choices
+        # self.fields['coordinator'].choices = coordinator_choices
         self.fields['client'].choices = client_choices
 
     def clean(self):
@@ -339,9 +339,9 @@ class ProcessForm(forms.ModelForm):
             'status',
             'scope',
             'type',
-            'lead_region',
-            'other_regions',
-            'coordinator',
+            # 'lead_region',
+            # 'other_regions',
+            # 'coordinator',
             'advisors',
             'editors',
         ]
