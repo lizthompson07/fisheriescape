@@ -10,7 +10,8 @@ from shared_models.models import Section, Division, Region, Branch, Sector
 
 def in_csas_regional_admin_group(user):
     if user:
-        return user.csas_offices.exists()
+        # this will find if the user is a coordinator for any csas offices OR if they are an advisor or administrator
+        return user.csas_offices.exists() or user.csas_offices_advisors.exists() or user.csas_offices_administrators.exists()
 
 
 def in_csas_national_admin_group(user):
@@ -89,16 +90,34 @@ def is_request_coordinator(user, request_id):
         return csas_request.office.coordinator == user
 
 
+def is_request_advisor(user, request_id):
+    if user.id:
+        csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
+        return csas_request.office.advisors.filter(id=user.id).exists()
+
+
+def is_request_administrator(user, request_id):
+    if user.id:
+        csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
+        return csas_request.office.administrators.filter(id=user.id).exists()
+
+
 def is_process_coordinator(user, process_id):
     if user.id:
         process = get_object_or_404(models.Process, pk=process_id)
         return process.lead_office.coordinator == user
 
 
-def is_advisor(user, process_id):
+def is_process_advisor(user, process_id):
     if user.id:
         process = get_object_or_404(models.Process, pk=process_id)
-        return process.advisors.filter(id=user.id).exists()
+        return process.lead_office.advisors.filter(id=user.id).exists()
+
+
+def is_process_administrator(user, process_id):
+    if user.id:
+        process = get_object_or_404(models.Process, pk=process_id)
+        return process.lead_office.administrators.filter(id=user.id).exists()
 
 
 def is_editor(user, process_id):
@@ -145,6 +164,14 @@ def can_modify_request(user, request_id, return_as_dict=False):
         elif is_request_coordinator(user, request_id=csas_request.id):
             my_dict["reason"] = _("You can modify this record because you are the CSAS coordinator for this region")
             my_dict["can_modify"] = True
+        # check to see if they are an advisor
+        elif is_request_advisor(user, request_id=csas_request.id):
+            my_dict["reason"] = _("You can modify this record because you a CSAS Science advisor in this region")
+            my_dict["can_modify"] = True
+        # check to see if they are an administrator
+        elif is_request_administrator(user, request_id=csas_request.id):
+            my_dict["reason"] = _("You can modify this record because you a CSAS Science administrator in this region")
+            my_dict["can_modify"] = True
         # are they a national administrator?
         elif in_csas_national_admin_group(user):
             my_dict["reason"] = _("You can modify this record because you are a national CSAS administrator")
@@ -175,8 +202,12 @@ def can_modify_process(user, process_id, return_as_dict=False):
         if is_editor(user, process.id):
             my_dict["reason"] = _("You can modify this record because you have been tagged as a process editor")
             my_dict["can_modify"] = True
+        # are they an administrator?
+        if is_process_administrator(user, process.id):
+            my_dict["reason"] = _("You can modify this record because you are a science administrator for this process")
+            my_dict["can_modify"] = True
         # are they an advisor?
-        if is_advisor(user, process.id):
+        if is_process_advisor(user, process.id):
             my_dict["reason"] = _("You can modify this record because you are a science advisor for this process")
             my_dict["can_modify"] = True
         # are they a coordinator?

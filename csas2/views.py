@@ -119,7 +119,7 @@ class CSASOfficeListView(SuperuserOrCsasNationalAdminRequiredMixin, CommonListVi
         {"name": 'advisors', "class": "", "width": ""},
         {"name": 'administrators', "class": "", "width": ""},
         {"name": 'generic_email', "class": "", "width": ""},
-        {"name": 'disable_request_notifications', "class": "", "width": ""},
+        {"name": 'all_emails_display|{}'.format(_("send emails to")), "class": "", "width": ""},
     ]
     new_object_url_name = "csas2:office_new"
     row_object_url_name = "csas2:office_edit"
@@ -263,11 +263,11 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'id', "class": "", "width": "50px"},
         {"name": 'fiscal_year', "class": "", "width": "100px"},
-        {"name": 'title|{}'.format(gettext_lazy("title")), "class": "w-35"},
+        {"name": 'title|{}'.format(gettext_lazy("title")), "class": "w-25"},
         {"name": 'status', "class": "", "width": "100px"},
         {"name": 'has_process|{}'.format(gettext_lazy("has process?")), "class": "text-center", "width": "120px"},
-        {"name": 'office', "class": "", "width": "150px"},
-        {"name": 'client', "class": "", "width": "150px"},
+        {"name": 'office', "class": "", "width": "125px"},
+        {"name": 'client', "class": "", "width": "125px"},
         {"name": 'region|{}'.format(gettext_lazy("client region")), "class": "", "width": "125px"},
         {"name": 'sector|{}'.format(gettext_lazy("client sector")), "class": ""},
         {"name": 'section|{}'.format(gettext_lazy("client section")), "class": ""},
@@ -563,12 +563,11 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'id', "class": "", "width": ""},
         {"name": 'fiscal_year', "class": "", "width": ""},
-        {"name": 'tname|{}'.format("title"), "class": "", "width": "300px"},
+        {"name": 'tname|{}'.format("title"), "class": "w-25", "width": ""},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
         {"name": 'regions|{}'.format(_("regions")), "class": "", "width": ""},
-        {"name": 'coordinator', "class": "", "width": ""},
-        {"name": 'advisors|{}'.format(_("science advisors")), "class": "", "width": ""},
+        {"name": 'chair|{}'.format(_("chair")), "class": "w-25", "width": ""},
         {"name": 'science_leads|{}'.format(_("science lead(s)")), "class": "", "width": ""},
     ]
 

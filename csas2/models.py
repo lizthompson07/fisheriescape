@@ -107,7 +107,8 @@ class CSASOffice(models.Model):
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("science advisors"), related_name="csas_offices_advisors")
     administrators = models.ManyToManyField(User, blank=True, verbose_name=_("administrators"), related_name="csas_offices_administrators")
     generic_email = models.EmailField(verbose_name=_("generic email address"), blank=True, null=True)
-    disable_request_notifications = models.BooleanField(default=False, verbose_name=_("disable notifications (request only)?"), choices=YES_NO_CHOICES)
+    disable_request_notifications = models.BooleanField(default=False, verbose_name=_("disable notifications of new requests?"), choices=YES_NO_CHOICES)
+    no_staff_emails = models.BooleanField(default=False, verbose_name=_("do not send emails directly to office staff?"), choices=YES_NO_CHOICES)
 
     class Meta:
         ordering = ["region"]
@@ -117,6 +118,28 @@ class CSASOffice(models.Model):
 
     def get_absolute_url(self):
         return reverse("csas2:office_list")
+
+    @property
+    def all_emails(self):
+        payload = list()
+        if not self.no_staff_emails:
+            payload.append(self.coordinator.email)
+            payload.extend([u.email for u in self.advisors.all()])
+            payload.extend([u.email for u in self.administrators.all()])
+        if self.generic_email:
+            payload.append(self.generic_email)
+        return list(set(payload))
+
+    @property
+    def all_emails_display(self):
+        payload = listrify(self.all_emails, "<br>")
+        if not payload:
+            payload = str()
+        else:
+            payload += f'<br><br>'
+        if self.disable_request_notifications:
+            payload += f'<span class="text-danger">* request notification emails disabled</span>'
+        return payload
 
 
 class CSASRequest(MetadataFields):
@@ -390,17 +413,18 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     scope = models.IntegerField(verbose_name=_("scope"), choices=model_choices.process_scope_choices)
     type = models.IntegerField(verbose_name=_("type"), choices=model_choices.process_type_choices)
 
-    lead_office = models.ForeignKey(CSASOffice, on_delete=models.DO_NOTHING, related_name="csas_lead_offices", verbose_name=_("CSAS office"),
+    lead_office = models.ForeignKey(CSASOffice, on_delete=models.DO_NOTHING, related_name="csas_lead_offices", verbose_name=_("lead CSAS office"),
                                     blank=True, null=False)
     other_offices = models.ManyToManyField(CSASOffice, blank=True, verbose_name=_("other CSAS offices"))
 
     # delete me
-    lead_region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions", verbose_name=_("lead region"))
+    lead_region = models.ForeignKey(Region, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions",
+                                    verbose_name=_("lead region"), editable=False)
     # delete me
-    other_regions = models.ManyToManyField(Region, blank=True, verbose_name=_("other regions"))
+    other_regions = models.ManyToManyField(Region, blank=True, verbose_name=_("other regions"), editable=False)
     # delete me
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"),
-                                    blank=True)
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"), null=True,
+                                    blank=True, editable=False)
     # delete me
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
 
@@ -509,10 +533,10 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     @property
     def regions(self):
-        mystr = self.lead_region
-        if self.other_regions.exists():
+        mystr = self.lead_office.region
+        if self.other_offices.exists():
             mystr = f"<b><u>{mystr}</u></b>"
-            mystr += f", {listrify(self.other_regions.all())}"
+            mystr += f", {listrify([o for o in self.other_offices.all()])}"
         return mystr
 
     @property

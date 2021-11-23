@@ -339,9 +339,8 @@ class ProcessForm(forms.ModelForm):
             'status',
             'scope',
             'type',
-            # 'lead_region',
-            # 'other_regions',
-            # 'coordinator',
+            'lead_office',
+            'other_offices',
             'advisors',
             'editors',
         ]
@@ -350,16 +349,14 @@ class ProcessForm(forms.ModelForm):
             gettext_lazy('name'),
             'scope',
             'type',
-            'coordinator',
-            'lead_region',
+            'lead_office',
         ]
         widgets = {
             'csas_requests': forms.SelectMultiple(attrs=chosen_js),
             'advisors': forms.SelectMultiple(attrs=chosen_js),
             'editors': forms.SelectMultiple(attrs=chosen_js),
-            'coordinator': forms.Select(attrs=chosen_js),
-            'lead_region': forms.Select(attrs=chosen_js),
-            'other_regions': forms.SelectMultiple(attrs=chosen_js),
+            'lead_office': forms.Select(attrs=chosen_js),
+            'other_offices': forms.SelectMultiple(attrs=chosen_js),
             'advice_date': forms.DateInput(attrs=dict(type="date"), format="%Y-%m-%d"),
         }
 
@@ -382,10 +379,8 @@ class ProcessForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         # make sure that the lead_region is not also listed in the other_regions field
-        lead_region = cleaned_data.get("lead_region")
-        other_regions = cleaned_data.get("other_regions")
-        coordinator = cleaned_data.get("coordinator")
-        lead_region = cleaned_data.get("lead_region")
+        lead_office = cleaned_data.get("lead_office")
+        other_offices = cleaned_data.get("other_offices")
         name = cleaned_data.get("name")
         nom = cleaned_data.get("nom")
         if not name and not nom:
@@ -393,14 +388,11 @@ class ProcessForm(forms.ModelForm):
             self.add_error('name', error_msg)
             self.add_error('nom', error_msg)
             raise forms.ValidationError(error_msg)
-        if lead_region in other_regions:
-            error_msg = gettext("Your lead region cannot be listed in the 'Other Regions' field.")
-            self.add_error('other_regions', error_msg)
-        if not coordinator:
-            error_msg = gettext("Must enter a coordinator for this request!")
-            raise forms.ValidationError(error_msg)
-        if not lead_region:
-            error_msg = gettext("Must enter a lead region for this process!")
+        if lead_office in other_offices:
+            error_msg = gettext("The lead office cannot be listed in the 'Other offices' field.")
+            self.add_error('other_offices', error_msg)
+        if not lead_office:
+            error_msg = gettext("Must enter a lead office for this process!")
             raise forms.ValidationError(error_msg)
         return self.cleaned_data
 

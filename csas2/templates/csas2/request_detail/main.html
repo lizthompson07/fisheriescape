@@ -114,8 +114,10 @@
             <td class="text-left" v-html="request.section_display"></td>
           </tr>
           <tr>
-            <th class="text-left" v-html="requestLabels.coordinator"></th>
-            <td class="text-left" v-html="request.coordinator"></td>
+            <th class="text-left" v-html="requestLabels.office"></th>
+            <td class="text-left">
+              <span>${request.office} {% trans "Center for Science Advice" %} (${request.coordinator})</span>
+            </td>
           </tr>
           <tr>
             <th class="text-left" v-html="requestLabels.client"></th>
