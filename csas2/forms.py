@@ -160,7 +160,7 @@ class CSASRequestForm(forms.ModelForm):
         fields = [
             'client',
             'section',
-            'coordinator',
+            'office',
             'language',
             'title',
             'is_multiregional',
@@ -180,12 +180,12 @@ class CSASRequestForm(forms.ModelForm):
             'client',
             'title',
             'section',
-            'coordinator',
+            'office',
             'advice_needed_by',
         ]
         widgets = {
             'client': forms.Select(attrs=chosen_js),
-            'coordinator': forms.Select(attrs=chosen_js),
+            'office': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
             'advice_needed_by': forms.DateInput(attrs=dict(type="date"), format="%Y-%m-%d"),
             'multiregional_text': forms.Textarea(attrs=rows3),
@@ -214,13 +214,13 @@ class CSASRequestForm(forms.ModelForm):
         cleaned_data = super().clean()
         # make sure there is at least an english or french title
         client = cleaned_data.get("client")
-        coordinator = cleaned_data.get("coordinator")
+        office = cleaned_data.get("office")
         section = cleaned_data.get("section")
         if not client:
             error_msg = gettext("Must enter a client for this request!")
             raise forms.ValidationError(error_msg)
-        if not coordinator:
-            error_msg = gettext("Must enter a coordinator for this request!")
+        if not office:
+            error_msg = gettext("Must enter a CSAS office for this request!")
             raise forms.ValidationError(error_msg)
         if not section:
             error_msg = gettext("Must enter a section for this request!")

@@ -129,7 +129,7 @@ class CSASRequest(MetadataFields):
 
     # DELETE ME
     coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("CSAS coordinator"),
-                                    blank=True, null=False)
+                                    blank=True, null=True, editable=False)
     client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=False)
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"), blank=True, null=False)
     is_multiregional = models.IntegerField(default=False, choices=NULL_YES_NO_CHOICES, blank=True, null=True,
@@ -196,9 +196,10 @@ class CSASRequest(MetadataFields):
         # submission fiscal year
         if self.submission_date:
             self.fiscal_year_id = fiscal_year(self.submission_date, sap_style=True)
-        else:
+        elif self.created_at:
             self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
-
+        else:
+            self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
         # set the STATUS
         # if there is a process, the request the request MUST have been approved.
         if self.id and self.processes.exists():
