@@ -251,7 +251,7 @@ class PersonDeleteView(CsasAdminRequiredMixin, CommonDeleteView):
 #################
 
 class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
-    template_name = 'csas2/list.html'
+    template_name = 'csas2/request_list.html'
     filterset_class = filters.CSASRequestFilter
     paginate_by = 25
     home_url_name = "csas2:index"
