@@ -3671,7 +3671,7 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             captured_locations_list = new_loc_list
             captured_site_list = new_site_list
 
-        report_file_url = reports.generate_sites_report(captured_site_list, captured_locations_list, start_date, end_date)
+        report_file_url = reports.generate_sites_report(captured_site_list, captured_locations_list, start_date, end_date, self.request)
 
         context["sites_url"] = reverse("bio_diversity:site_report_file") + f"?file_url={report_file_url}"
 
@@ -3724,5 +3724,5 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             args_str += f"rive_id={form.cleaned_data.get('rive_id').name}&"
         if form.cleaned_data.get("sfa"):
             args_str += f"sfa={', '.join(form.cleaned_data.get('sfa'))}&"
-        return HttpResponseRedirect(reverse("bio_diversity:loc_map", kwargs=kwarg_dict)+ args_str)
+        return HttpResponseRedirect(reverse("bio_diversity:loc_map", kwargs=kwarg_dict) + args_str)
 

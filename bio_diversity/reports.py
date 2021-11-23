@@ -10,10 +10,11 @@ from bokeh.models import Title
 from bokeh.plotting import figure
 from bokeh.resources import CDN
 from django.db.models.functions import Concat
+from django.urls import reverse
 from openpyxl import load_workbook
 
 from bio_diversity import models, utils
-from bio_diversity.static.calculation_constants import in_out_dict
+from bio_diversity.static.calculation_constants import in_out_dict, distribution_locc_list, collection_locc_list
 from dm_apps import settings
 
 
@@ -361,8 +362,7 @@ def generate_detail_report(adsc_id, stok_id=None):
     return report.target_url
 
 
-def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
-    cnt_slots = "HIJKLMNOPQRSTUV"
+def write_location_to_sheets(ws, site_location, row_count, rive_name, site_name, request, dist_ws, dist_row_count):
     grps = [(anix.grp_id.__str__(), anix.grp_id.prog_group(get_string=True)) for anix in
             site_location.animal_details.filter(grp_id__isnull=False).select_related("grp_id__stok_id",
                                                                                      "grp_id__coll_id")]
@@ -372,6 +372,7 @@ def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
                                                                                     "indv_id__indv_year",
                                                                                     "indv_id__coll_id__name", ).distinct()]
     loc_cnt_qs = models.Count.objects.filter(loc_id_id=site_location.pk).select_related("cntc_id", "coll_id")
+    locd_qs = models.LocationDet.objects.filter(loc_id_id=site_location.pk).select_related("locdc_id", "ldsc_id")
 
     if len(grps) >= 1:
         coll_str = grps[0][0]
@@ -385,7 +386,7 @@ def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
     else:
         coll_str = ""
         grp_str = ""
-    loc_cnt_qs = models.Count.objects.filter(loc_id_id=site_location.pk).select_related("cntc_id")
+
     ws['A' + str(row_count)].value = rive_name
     ws['B' + str(row_count)].value = site_name
     ws['C' + str(row_count)].value = site_location.start_date
@@ -393,38 +394,64 @@ def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
     ws['E' + str(row_count)].value = coll_str
     ws['F' + str(row_count)].value = grp_str
     ws['G' + str(row_count)].value = site_location.comments
-    cnt_col = 0
-    for cnt in loc_cnt_qs:
-        ws[cnt_slots[cnt_col] + str(row_count)].value = cnt.cntc_id.name
-        ws[cnt_slots[cnt_col + 1] + str(row_count)].value = cnt.cnt
-        ws[cnt_slots[cnt_col + 2] + str(row_count)].value = cnt.cnt_detail()
-        ws[cnt_slots[cnt_col + 3] + str(row_count)].value = cnt.cnt_detail("Weight")
-        cnt_col += 4
+    ws['H' + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_loc", args=[site_location.id]))
+
+    if site_location.locc_id.name in distribution_locc_list:
+        relm = ", ".join(locd_qs.filter(locdc_id__name="Release Method").values_list('ldsc_id__name', flat=True))
+        truck_list = locd_qs.filter(locdc_id__name="Truck").values_list('det_val', flat=True)
+        if len(truck_list) == 1:
+            truck = truck_list[0]
+        else:
+            truck = ", ".join(truck_list)
+
+        acclimation_qs = locd_qs.filter(locdc_id__name="Acclimation Time").values_list('det_val', flat=True)
+        if len(acclimation_qs) == 1:
+            acclimation_time = acclimation_qs[0]
+        else:
+            acclimation_time = ", ".join(acclimation_qs)
+
+        for cnt in loc_cnt_qs:
+            dist_ws['A' + str(dist_row_count)].value = rive_name
+            dist_ws['B' + str(dist_row_count)].value = site_name
+            dist_ws['C' + str(dist_row_count)].value = site_location.start_date
+            dist_ws['D' + str(dist_row_count)].value = site_location.locc_id.name
+            dist_ws['E' + str(dist_row_count)].value = coll_str
+            dist_ws['F' + str(dist_row_count)].value = grp_str
+            dist_ws['G' + str(dist_row_count)].value = site_location.comments
+            dist_ws['H' + str(dist_row_count)].value = request.build_absolute_uri(
+                reverse("bio_diversity:details_loc", args=[site_location.id]))
+            dist_ws['I' + str(dist_row_count)].value = relm
+            dist_ws['J' + str(dist_row_count)].value = cnt.cntc_id.name
+            dist_ws['K' + str(dist_row_count)].value = cnt.cnt
+            dist_ws['L' + str(dist_row_count)].value = cnt.cnt_detail()
+            dist_ws['M' + str(dist_row_count)].value = cnt.cnt_detail("Weight")
+            dist_ws['N' + str(dist_row_count)].value = cnt.cnt_detail("Lifestage")
+            dist_ws['N' + str(dist_row_count)].value = cnt.cnt_detail("Lifestage")
+            dist_ws['O' + str(dist_row_count)].value = truck
+            dist_ws['Q' + str(dist_row_count)].value = acclimation_time
+
+            dist_row_count += 1
+
+    if site_location.locc_id.name in collection_locc_list:
+        pass
+
     row_count += 1
-    return row_count
+    return row_count, dist_row_count
+
+#
+# def write_dist_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
+#
+#
+#
+# def write_coll_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
+#     relm = models.LocationDet.objects.filter(loc_id_id=site_location.pk, locdc_id__name="Release Method").first()
+#     if relm:
+#         ws['L' + str(row_count)].value = relm.ldsc_id.name
+#     row_count = write_location_to_sheet(ws, site_location, row_count, rive_name, site_name)
+#     return row_count
 
 
-def write_dist_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
-    row_count = write_location_to_sheet(ws, site_location, row_count, rive_name, site_name)
-    row_count -= 1
-    relm = models.LocationDet.objects.filter(loc_id_id=site_location.pk, locdc_id__name="Release Method").first()
-    if relm:
-        ws['L' + str(row_count)].value = relm.lsdc_id.name
-    row_count += 1
-    return row_count
-
-
-def write_coll_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
-    row_count = write_location_to_sheet(ws, site_location, row_count, rive_name, site_name)
-    row_count -= 1
-    relm = models.LocationDet.objects.filter(loc_id_id=site_location.pk, locdc_id__name="Release Method").first()
-    if relm:
-        ws['L' + str(row_count)].value = relm.lsdc_id.name
-    row_count += 1
-    return row_count
-
-
-def generate_sites_report(sites_list, locations_list, start_date=None, end_date=None):
+def generate_sites_report(sites_list, locations_list, start_date=None, end_date=None, request=None):
     report = ExcelReport()
     report.load_wb("site_report_template.xlsx")
 
@@ -467,20 +494,15 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
             no_locs_list.append(site)
 
         for site_location in site_locations:
-            row_count = write_location_to_sheet(ws, site_location, row_count, rive_name, site_name)
-            if site_location.locc_id.name == "Distribution Site":
-                dist_row_count = write_dist_location_to_sheet(ws_dist, site_location, dist_row_count, rive_name, None)
-            elif site_location.locc_id.name == ["Electrofishing Site", "Bypass Site", "Smolt Wheel Site", "Adult Collection Site"]:
-                coll_row_count = write_coll_location_to_sheet(ws_coll, site_location, coll_row_count, rive_name, None)
+            row_count, dist_row_count = write_location_to_sheets(ws, site_location, row_count, rive_name, site_name, request, ws_dist, dist_row_count)
 
     for location in no_sites_list:
         if location.rive_id:
             rive_name = location.rive_id.name
         else:
             rive_name = None
-        row_count = write_location_to_sheet(ws, location, row_count, rive_name, None)
-        if location.locc_id.name == "Distribution Site":
-            dist_row_count = write_location_to_sheet(ws, location, dist_row_count, rive_name, None)
+        row_count, dist_row_count = write_location_to_sheets(ws, location, row_count, rive_name, None, request, ws_dist, dist_row_count)
+
 
     for site in no_locs_list:
         ws['A' + str(row_count)].value = site.rive_id.name
