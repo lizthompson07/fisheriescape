@@ -1,6 +1,7 @@
 import os
 from io import BytesIO
 import xlsxwriter
+from django.template.defaultfilters import date
 from django.utils import timezone
 from django.utils.translation import activate, deactivate, gettext as _
 from docx import Document
@@ -178,19 +179,21 @@ def generate_request_list(requests):
     total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
     currency_format = workbook.add_format({'num_format': '#,##0.00'})
-    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+    date_format = workbook.add_format({'num_format': "mm/dd/yyyy", "align": 'left', })
 
     field_list = [
         'id',
         'fiscal_year',
         'title|{}'.format(_("title")),
+        'advice_fiscal_year',
+        'target_advice_date|{}'.format(_("advice date")),
         'status',
         'has_process|{}'.format(_("has process?")),
         'coordinator',
         'client',
-        'region|{}'.format(_("region")),
-        'sector|{}'.format(_("sector")),
-        'section|{}'.format(_("section")),
+        'region|{}'.format(_("client region")),
+        'sector|{}'.format(_("client sector")),
+        'section|{}'.format(_("client section")),
     ]
 
     # define the header
@@ -216,6 +219,9 @@ def generate_request_list(requests):
             elif "advisors" in field:
                 my_val = listrify(obj.process.advisors.all())
                 my_ws.write(i, j, my_val, normal_format)
+            elif "date" in field:
+                my_val = obj.target_advice_date.strftime("%m/%d/%Y") if obj.target_advice_date else ""
+                my_ws.write(i, j, my_val, date_format)
             elif "expected publications" in field:
                 if hasattr(obj.process, "tor"):
                     my_val = listrify(obj.process.tor.expected_document_types.all())
@@ -273,8 +279,8 @@ def generate_process_list(processes):
         'chair|{}'.format(_("chair")),
         'coordinator',
         'advisors',
-        'lead_region',
-        'other_regions',
+        'lead_office',
+        'other_offices',
         'expected_publications|{}'.format(_("expected publications")),
         'key_meetings|{}'.format(_("key meetings")),
         'doc_summary|{}'.format(_("document summary")),
@@ -299,8 +305,12 @@ def generate_process_list(processes):
         for field in field_list:
 
             if "other_regions" in field:
-                my_val = listrify(obj.other_regions.all())
+                my_val = listrify(obj.other_offices.all())
                 my_ws.write(i, j, my_val, normal_format)
+            elif "advisors" in field:
+                my_val = listrify(obj.advisors.all())
+                my_ws.write(i, j, my_val, normal_format)
+
             elif "expected publications" in field:
                 if hasattr(obj, "tor"):
                     my_val = listrify(obj.tor.expected_document_types.all())

@@ -341,7 +341,6 @@ class ProcessForm(forms.ModelForm):
             'type',
             'lead_office',
             'other_offices',
-            'advisors',
             'editors',
         ]
         required_fields = [
@@ -353,7 +352,6 @@ class ProcessForm(forms.ModelForm):
         ]
         widgets = {
             'csas_requests': forms.SelectMultiple(attrs=chosen_js),
-            'advisors': forms.SelectMultiple(attrs=chosen_js),
             'editors': forms.SelectMultiple(attrs=chosen_js),
             'lead_office': forms.Select(attrs=chosen_js),
             'other_offices': forms.SelectMultiple(attrs=chosen_js),
