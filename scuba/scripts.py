@@ -4,10 +4,17 @@ import os
 import pytz
 from django.conf import settings
 from django.db import IntegrityError
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.timezone import make_aware
 
 from scuba import models
+
+def populate_default():
+    default_spp = get_object_or_404(models.Species, is_default=True)
+    for o in models.Observation.objects.filter(species__isnull=True):
+        o.species = default_spp
+        o.save()
 
 
 def is_number_tryexcept(s):

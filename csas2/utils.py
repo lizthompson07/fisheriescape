@@ -1,4 +1,3 @@
-from django.contrib.auth.models import Group
 # open basic access up to anybody who is logged in
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -10,21 +9,24 @@ from shared_models.models import Section, Division, Region, Branch, Sector
 
 
 def in_csas_regional_admin_group(user):
-    # make sure the following group exist:
     if user:
         return bool(hasattr(user, "csas_admin_user") and user.csas_admin_user.region)
 
 
 def in_csas_national_admin_group(user):
-    # make sure the following group exist:
     if user:
         return bool(hasattr(user, "csas_admin_user") and user.csas_admin_user.is_national_admin)
+
+
+def in_csas_web_pub_group(user):
+    if user:
+        return bool(hasattr(user, "csas_admin_user") and user.csas_admin_user.is_web_pub_user)
 
 
 def in_csas_admin_group(user):
     # make sure the following group exist:
     if user:
-        return in_csas_regional_admin_group(user) or in_csas_national_admin_group(user)
+        return in_csas_regional_admin_group(user) or in_csas_national_admin_group(user) or in_csas_web_pub_group(user)
 
 
 def get_section_choices(with_requests=False, full_name=True, region_filter=None, division_filter=None):
@@ -147,6 +149,10 @@ def can_modify_request(user, request_id, return_as_dict=False):
         elif in_csas_national_admin_group(user):
             my_dict["reason"] = _("You can modify this record because you are a national CSAS administrator")
             my_dict["can_modify"] = True
+        # are they a web and pub staff user?
+        elif in_csas_web_pub_group(user):
+            my_dict["reason"] = _("You can modify this record because you are a NCR web & pub staff member")
+            my_dict["can_modify"] = True
         # are they a regional administrator?
         elif in_csas_regional_admin_group(user) and user.csas_admin_user.region == csas_request.section.division.branch.sector.region:
             my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
@@ -181,8 +187,13 @@ def can_modify_process(user, process_id, return_as_dict=False):
         elif in_csas_national_admin_group(user):
             my_dict["reason"] = _("You can modify this record because you are a national CSAS administrator")
             my_dict["can_modify"] = True
+        # are they a web and pub staff user?
+        elif in_csas_web_pub_group(user):
+            my_dict["reason"] = _("You can modify this record because you are a NCR web & pub staff member")
+            my_dict["can_modify"] = True
         # are they a regional administrator?
-        elif in_csas_regional_admin_group(user) and (user.csas_admin_user.region == process.lead_region or process.other_regions.filter(id=user.csas_admin_user.region.id).exists()):
+        elif in_csas_regional_admin_group(user) and (
+                user.csas_admin_user.region == process.lead_region or process.other_regions.filter(id=user.csas_admin_user.region.id).exists()):
             my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
             my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]

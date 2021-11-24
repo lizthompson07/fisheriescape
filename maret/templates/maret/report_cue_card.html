@@ -65,6 +65,47 @@
     </td>
 </table>
 <hr>
+<h2>
+    {% trans "Extended Organization Information" %}
+</h2>
+<table>
+    {% for field in org.ext_org.all %}
+        <td>
+            <h4>{% trans "Associated Provinces" %}</h4>
+            {% if field.associated_provinces.all %}
+                {% for prov in field.associated_provinces.all %}
+                    {{ prov }}
+                {% endfor %}
+            {% else %}
+                ---
+            {% endif %}
+            <br>
+        </td>
+        <td>
+            <h4>{% trans "Category" %}</h4>
+            {% if field.category.all %}
+                {% for cat in field.category.all %}
+                    {{ cat }}
+                {% endfor %}
+            {% else %}
+                ---
+            {% endif %}
+            <br>
+        </td>
+        <td>
+            <h4>{% trans "Area" %}</h4>
+            {% if field.area.all %}
+                {% for area in field.area.all %}
+                    {{ area }}
+                {% endfor %}
+            {% else %}
+                ---
+            {% endif %}
+            <br>
+        </td>
+    {% endfor %}
+</table>
+<hr>
 
 <h2>
     {% trans "List of Contacts" %}

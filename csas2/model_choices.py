@@ -10,6 +10,12 @@ yes_no_choices_int = (
     (0, "No"),
 )
 
+yes_no_unsure_choices_int = (
+    (1, "Yes"),
+    (0, "No"),
+    (9, "Unsure"),
+)
+
 language_choices = (
     (1, _('English')),
     (2, _('French')),
@@ -22,13 +28,14 @@ request_status_choices = (
     (4, _("Under review")),  # review is created by coordinator
     (5, _("Fulfilled")),
     # all status below here should correspond to review decision choice + 10
-    (11, _("Accepted")),  # coordinator approves
+    (11, _("Reviewed")),  # coordinator approves
     (12, _("Withdrawn")),  # client (coordinator) withdraws
 )
 
 request_decision_choices = (
-    (1, _("Accepted")),
-    (2, _("Withdrawn")),
+    (1, _("Screen in")),
+    (2, _("Return to client")),
+    # (3, _("Involve other region(s)")),
 )
 
 prioritization_choices = (

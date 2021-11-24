@@ -207,7 +207,7 @@
     apiService(endpoint).then(data => {
       var $el = $("#id_csas_requests");
       $el.empty(); // remove old options
-      for (const item of data) {
+      for (const item of data.results) {
         $el.append($("<option></option>")
             .attr("value", item.id).text(`${item.id} - ${item.title} (${item.status_display})`));
       }
