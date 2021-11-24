@@ -1,0 +1,722 @@
+[
+  {
+    "model": "maret.area",
+    "pk": 1,
+    "fields": {
+      "name": "Eastern Nova Scotia",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.area",
+    "pk": 2,
+    "fields": {
+      "name": "Regional Headquarters",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.area",
+    "pk": 3,
+    "fields": {
+      "name": "Southwest New Brunswick",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.area",
+    "pk": 4,
+    "fields": {
+      "name": "Southwest Nova Scotia",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 1,
+    "fields": {
+      "name": "Aquaculture industry association",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 2,
+    "fields": {
+      "name": "Aquaculture license holder",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 3,
+    "fields": {
+      "name": "Biotechnology",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 4,
+    "fields": {
+      "name": "Buyer",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 5,
+    "fields": {
+      "name": "Charter association",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 6,
+    "fields": {
+      "name": "ENGO",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 7,
+    "fields": {
+      "name": "Fish harvester",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 8,
+    "fields": {
+      "name": "Fish harvesters association",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 9,
+    "fields": {
+      "name": "Fish harvesters & processors association",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 10,
+    "fields": {
+      "name": "Fish processors association",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 11,
+    "fields": {
+      "name": "Fishing industry umbrella organization",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 12,
+    "fields": {
+      "name": "Harbour authority",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 13,
+    "fields": {
+      "name": "Harvesting & processing",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 14,
+    "fields": {
+      "name": "Hatchery",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 15,
+    "fields": {
+      "name": "Indigenous ENGO",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 16,
+    "fields": {
+      "name": "Industry association √ submarine cables",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 17,
+    "fields": {
+      "name": "NGO",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 18,
+    "fields": {
+      "name": "Other federal department",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 19,
+    "fields": {
+      "name": "Port authority",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 20,
+    "fields": {
+      "name": "Processing organization",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 21,
+    "fields": {
+      "name": "Ship brokers",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 22,
+    "fields": {
+      "name": "Trucking",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 23,
+    "fields": {
+      "name": "United States First Nation",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 24,
+    "fields": {
+      "name": "United States Government",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 25,
+    "fields": {
+      "name": "Utility",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.orgcategory",
+    "pk": 26,
+    "fields": {
+      "name": "Whale disentanglement",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 1,
+    "fields": {
+      "name": "Atlantic salmon",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 2,
+    "fields": {
+      "name": "Atlantic whitefish",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 3,
+    "fields": {
+      "name": "Bluefin tuna",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 4,
+    "fields": {
+      "name": "Clam",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 5,
+    "fields": {
+      "name": "Cod",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 6,
+    "fields": {
+      "name": "Eel",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 7,
+    "fields": {
+      "name": "Elver",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 8,
+    "fields": {
+      "name": "Gaspereau",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 9,
+    "fields": {
+      "name": "Groundfish",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 10,
+    "fields": {
+      "name": "Haddock",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 11,
+    "fields": {
+      "name": "Hagfish",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 12,
+    "fields": {
+      "name": "Herring",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 13,
+    "fields": {
+      "name": "Irish moss",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 14,
+    "fields": {
+      "name": "Lobster",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 15,
+    "fields": {
+      "name": "Mackerel",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 16,
+    "fields": {
+      "name": "Marine mammals",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 17,
+    "fields": {
+      "name": "Marine plants",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 18,
+    "fields": {
+      "name": "Marine worm",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 19,
+    "fields": {
+      "name": "North Atlantic Right Whale",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 20,
+    "fields": {
+      "name": "Oyster",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 21,
+    "fields": {
+      "name": "Quahog",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 22,
+    "fields": {
+      "name": "Redfish",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 23,
+    "fields": {
+      "name": "Rock crab",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 24,
+    "fields": {
+      "name": "Rockweed",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 25,
+    "fields": {
+      "name": "Salmon",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 26,
+    "fields": {
+      "name": "Scallop",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 27,
+    "fields": {
+      "name": "Sea cucumber",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 28,
+    "fields": {
+      "name": "Sea urchin",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 29,
+    "fields": {
+      "name": "Seal",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 30,
+    "fields": {
+      "name": "Shark",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 31,
+    "fields": {
+      "name": "Shellfish",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 32,
+    "fields": {
+      "name": "Shrimp",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 33,
+    "fields": {
+      "name": "Small pelagics",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 34,
+    "fields": {
+      "name": "Snow crab",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 35,
+    "fields": {
+      "name": "Swordfish",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 36,
+    "fields": {
+      "name": "Tuna",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 37,
+    "fields": {
+      "name": "Whelk",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.species",
+    "pk": 38,
+    "fields": {
+      "name": "Yellowtail flounder",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 1,
+    "fields": {
+      "name": "Aquaculture",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 2,
+    "fields": {
+      "name": "Conservation",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 3,
+    "fields": {
+      "name": "Consultation",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 4,
+    "fields": {
+      "name": "Dams",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 5,
+    "fields": {
+      "name": "Energy",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 6,
+    "fields": {
+      "name": "Enforcement",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 7,
+    "fields": {
+      "name": "Environment",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 8,
+    "fields": {
+      "name": "Fish passage",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 9,
+    "fields": {
+      "name": "Fixed gear",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 10,
+    "fields": {
+      "name": "Georges Bank",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 11,
+    "fields": {
+      "name": "Gulf of Maine",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 12,
+    "fields": {
+      "name": "Industry",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 13,
+    "fields": {
+      "name": "Marine conservation",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 14,
+    "fields": {
+      "name": "Marine debris",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 15,
+    "fields": {
+      "name": "Offshore petroleum",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 16,
+    "fields": {
+      "name": "Processing",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 17,
+    "fields": {
+      "name": "Public safety",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 18,
+    "fields": {
+      "name": "River",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 19,
+    "fields": {
+      "name": "River restoration",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 20,
+    "fields": {
+      "name": "Species",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 21,
+    "fields": {
+      "name": "Sustainability",
+      "nom": null
+    }
+  },
+  {
+    "model": "maret.discussiontopic",
+    "pk": 22,
+    "fields": {
+      "name": "United States",
+      "nom": null
+    }
+  }
+]

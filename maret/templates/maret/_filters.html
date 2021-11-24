@@ -1,0 +1,31 @@
+{% load i18n %}
+{% load static %}
+{% load custom_tags %}
+{% load bootstrap4 %}
+<div class="filters container">
+  <h5>
+    {% trans "Filters" %}
+  </h5>
+  <hr>
+  <div class="">
+    {# Regular filters #}
+
+    <div class="mb-5">
+
+      {% block filter %}
+        <form class="form" action="." method="get" id="filter-form">
+            {% for field in filter.form %}
+                {% bootstrap_field field placeholder="" size="small" %}
+            {% endfor %}
+            <div class="col">
+              <br>
+              <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+              <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+            </div>
+        </form>
+      {% endblock %}
+
+    </div>
+  </div>
+
+</div>

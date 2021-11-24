@@ -29,12 +29,12 @@
       <table class="table table-sm table-hover">
         <thead>
         <tr>
-          <th>{% get_verbose_label object.meeting_invites.first.meeting 'fiscal_year' %}</th>
-          <th>{% get_verbose_label object.meeting_invites.first.meeting 'process' %}</th>
-          <th>{% get_verbose_label object.meeting_invites.first.meeting 'type' %}</th>
-          <th>{% get_verbose_label object.meeting_invites.first.meeting 'location' %}</th>
-          <th>{% get_verbose_label object.meeting_invites.first 'role' %}</th>
-          <th>{% trans "Attendance" %}</th>
+          <th style="width: 100px">{% get_verbose_label object.meeting_invites.first.meeting 'fiscal_year' %}</th>
+          <th style="width: 40%">{% get_verbose_label object.meeting_invites.first.meeting 'process' %}</th>
+          <th>{% get_verbose_label object.meeting_invites.first.meeting.process 'type' %}</th>
+          <th style="width: 200px">{% get_verbose_label object.meeting_invites.first.meeting 'location' %}</th>
+          <th>{% get_verbose_label object.meeting_invites.first 'roles' %}</th>
+          <th style="width: 100px">{% trans "Attendance" %}</th>
         </tr>
         </thead>
         <tbody>
@@ -42,9 +42,9 @@
           <tr newtab href="{% url 'csas2:meeting_detail'  invitation.meeting.id %}">
             <td>{% get_field_value invitation.meeting 'fiscal_year' %}</td>
             <td>{% get_field_value invitation.meeting 'process' %}</td>
-            <td>{% get_field_value invitation.meeting 'type' %}</td>
+            <td>{% get_field_value invitation.meeting.process 'type' %}</td>
             <td>{% get_field_value invitation.meeting 'location' %}</td>
-            <td>{% get_field_value invitation 'role' %}</td>
+            <td>{% get_field_value invitation 'roles' %}</td>
             <td>{% get_field_value invitation 'attendance_display' %}</td>
           </tr>
         {% endfor %}

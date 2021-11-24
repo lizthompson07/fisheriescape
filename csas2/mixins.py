@@ -1,13 +1,13 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
 
 from . import models
-from .utils import in_csas_admin_group, can_modify_request, can_modify_process, in_csas_national_admin_group
+from .utils import in_csas_admin_group, can_modify_request, can_modify_process, in_csas_national_admin_group, in_csas_web_pub_group, \
+    in_csas_regional_admin_group
 
 
-class LoginAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class CsasBasicRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         if self.request.user.id:
             return True
@@ -18,32 +18,39 @@ class LoginAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = in_csas_admin_group(self.request.user)
+        return context
 
-class CsasNationalAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+class LoginAccessRequiredMixin(CsasBasicRequiredMixin):
+    def test_func(self):
+        if self.request.user.id:
+            return True
+
+
+class CsasNationalAdminRequiredMixin(CsasBasicRequiredMixin):
     def test_func(self):
         return in_csas_national_admin_group(self.request.user)
 
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
 
-
-
-class CsasAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class SuperuserOrCsasNationalAdminRequiredMixin(CsasBasicRequiredMixin):
     def test_func(self):
-        return in_csas_admin_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
+        return self.request.user.is_superuser or in_csas_national_admin_group(self.request.user)
 
 
+class CsasAdminRequiredMixin(CsasBasicRequiredMixin):
+    def test_func(self):
+        return in_csas_admin_group(self.request.user) or in_csas_web_pub_group(self.request.user) or in_csas_regional_admin_group(self.request.user)
 
-class CanModifyRequestRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+class CsasNCRStaffRequiredMixin(CsasBasicRequiredMixin):
+    def test_func(self):
+        return in_csas_admin_group(self.request.user) or in_csas_web_pub_group(self.request.user)
+
+
+class CanModifyRequestRequiredMixin(CsasBasicRequiredMixin):
     def test_func(self):
         # the assumption is that either we are passing in a Project object or an object that has a project as an attribute
         request_id = None
@@ -66,14 +73,8 @@ class CanModifyRequestRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             if request_id:
                 return can_modify_request(self.request.user, request_id)
 
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:denied_access'))
-        return super().dispatch(request, *args, **kwargs)
 
-
-class CanModifyProcessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class CanModifyProcessRequiredMixin(CsasBasicRequiredMixin):
     def test_func(self):
         # the assumption is that either we are passing in a Project object or an object that has a project as an attribute
         process_id = None
@@ -94,10 +95,3 @@ class CanModifyProcessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         finally:
             if process_id:
                 return can_modify_process(self.request.user, process_id)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:denied_access'))
-        return super().dispatch(request, *args, **kwargs)
-

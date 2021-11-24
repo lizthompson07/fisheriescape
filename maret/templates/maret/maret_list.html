@@ -1,0 +1,27 @@
+{% extends "maret/list.html" %}
+{% load static %}
+{% load custom_filters %}
+{% load verbose_names %}
+
+{% block jquery_import %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div id="mySidebar" class="sidebar">
+        {% include "maret/_filters.html" %}
+    </div>
+    <div id="main">
+        {{ block.super }}
+    </div>
+{% endblock %}
+{% block filter %}{% endblock %}
+{% block table_td %}
+    {% get_field_value object field.name safe=True %}
+{% endblock %}
+{% block body_js %}
+    {{ block.super }}
+    {% for script in scripts %}
+        {% include script %}
+    {% endfor %}
+{% endblock %}

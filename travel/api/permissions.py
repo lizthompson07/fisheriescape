@@ -11,7 +11,7 @@ from rest_framework import permissions
 #         return request.user.profile.oceanography
 #
 from travel.models import Trip
-from travel.utils import can_modify_request, is_admin, in_adm_admin_group
+from travel.utils import can_modify_request, is_admin, in_travel_nat_admin_group
 
 
 # from ..utils import can_modify_project
@@ -47,4 +47,4 @@ class TravelAdminOrReadOnly(permissions.BasePermission):
             if isinstance(obj, Trip) and not obj.is_adm_approval_required:
                 return is_admin(request.user)
             else:
-                return in_adm_admin_group(request.user)
+                return in_travel_nat_admin_group(request.user)

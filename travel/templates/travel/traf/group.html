@@ -168,7 +168,7 @@
         <td class="data">&nbsp;</td>
         <td class="data">{{ forloop.counter }}</td>
         <td class="data">{{ child.first_name }} {{ child.last_name }}</td>
-        <td class="data">{{ child.departure_location }} to {{ parent.destination }}</td>
+        <td class="data">{{ child.departure_location }} to {{ parent.trip.location }}</td>
         <td class="data">{{ child.is_public_servant|yesno }}</td>
 
         {% for key in my_dict|lookup:child %}
@@ -233,10 +233,10 @@
                 <span>{{ text|upper }}</span>
                 {{ parent.funding_source }}
               </p>
-              {% trans "DETAILED COST BREAKDOWN PER TRAVELLER" %}:
+              <u>{% trans "TRAVEL DATES AND DETAILED COST BREAKDOWN PER TRAVELLER" %}:</u>
               <br>
               {% for object in parent.travellers.all %}
-                {{ object.first_name }} {{ object.last_name }} &rarr; {{ object.cost_breakdown }}<br><br>
+                {{ object.first_name }} {{ object.last_name }} ({{  object.start_date|date }} {% trans "to" %} {{  object.end_date|date }}) &rarr; {{ object.cost_breakdown }}<br><br>
               {% endfor %}
 
             </td>

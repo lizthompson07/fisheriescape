@@ -30,6 +30,18 @@ class EntryCreateForm(forms.ModelForm):
             'sectors': forms.SelectMultiple(attrs=chosen_js),
         }
 
+    def clean_organizations(self):
+        organizations = self.cleaned_data['organizations']
+        if not organizations:
+            raise forms.ValidationError("You must select an organization!")
+        return organizations
+
+    def clean_sectors(self):
+        sector = self.cleaned_data['sectors']
+        if not sector:
+            raise forms.ValidationError("You must select a sector!")
+        return sector
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from ihub.views import get_ind_organizations
@@ -37,6 +49,18 @@ class EntryCreateForm(forms.ModelForm):
         self.fields["organizations"].choices = org_choices_all
         sector_choices = [(obj.id, f"{obj.region} - {obj.tname}") for obj in ml_models.Sector.objects.all()]
         self.fields["sectors"].choices = sector_choices
+
+    def clean_organizations(self):
+        organizations = self.cleaned_data['organizations']
+        if not organizations:
+            raise forms.ValidationError("You must select at least one organization!")
+        return organizations
+
+    def clean_sectors(self):
+        sectors = self.cleaned_data['sectors']
+        if not sectors:
+            raise forms.ValidationError("You must select at least one sector!")
+        return sectors
 
 
 class EntryForm(forms.ModelForm):
@@ -57,6 +81,18 @@ class EntryForm(forms.ModelForm):
             'sectors': forms.SelectMultiple(attrs=chosen_js),
         }
 
+    def clean_organizations(self):
+        organizations = self.cleaned_data['organizations']
+        if not organizations:
+            raise forms.ValidationError("You must select an organization!")
+        return organizations
+
+    def clean_sectors(self):
+        sector = self.cleaned_data['sectors']
+        if not sector:
+            raise forms.ValidationError("You must select a sector!")
+        return sector
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from ihub.views import get_ind_organizations
@@ -67,6 +103,18 @@ class EntryForm(forms.ModelForm):
         self.fields['initial_date'].widget.format = '%Y-%m-%d'
         self.fields['anticipated_end_date'].widget.format = '%Y-%m-%d'
         self.fields['response_requested_by'].widget.format = '%Y-%m-%d'
+
+    def clean_organizations(self):
+        organizations = self.cleaned_data['organizations']
+        if not organizations:
+            raise forms.ValidationError("You must select at least one organization!")
+        return organizations
+
+    def clean_sectors(self):
+        sectors = self.cleaned_data['sectors']
+        if not sectors:
+            raise forms.ValidationError("You must select at least one sector!")
+        return sectors
 
 class NoteForm(forms.ModelForm):
     class Meta:

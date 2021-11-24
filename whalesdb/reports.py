@@ -4,7 +4,7 @@ from django.http import HttpResponse
 
 
 def report_deployment_summary(query_params):
-    qs = models.EdaEquipmentAttachment.objects.all()
+    qs = models.DepDeployment.objects.all()
 
     filter_list = [
         "start_date",
@@ -24,18 +24,18 @@ def report_deployment_summary(query_params):
         if input:
             if filter == "start_date":
                 date = input.split("-")
-                qs = qs.exclude(dep__dep_year__lt=date[0])
-                qs = qs.exclude(dep__dep_year=date[0], dep__dep_month__lt=date[1])
+                qs = qs.exclude(dep_year__lt=date[0])
+                qs = qs.exclude(dep_year=date[0], dep_month__lt=date[1])
             elif filter == "end_date":
                 date = input.split("-")
-                qs = qs.exclude(dep__dep_year__gt=date[0])
-                qs = qs.exclude(dep__dep_year=date[0], dep__dep_month__gt=date[1])
+                qs = qs.exclude(dep_year__gt=date[0])
+                qs = qs.exclude(dep_year=date[0], dep_month__gt=date[1])
             elif filter == "station":
                 lst = query_params.getlist('station')
-                qs = qs.filter(dep__stn__in=lst)
+                qs = qs.filter(stn__in=lst)
             elif filter == "project":
                 lst = query_params.getlist('project')
-                qs = qs.filter(dep__prj__in=lst)
+                qs = qs.filter(prj__in=lst)
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -46,10 +46,14 @@ def report_deployment_summary(query_params):
                      'Equipment make_model_serial', 'Hydrophone make_model_serial', 'Dataset timezone',
                      'Recording schedule', 'In-water_start', 'In-water_end', 'Dataset notes'])
 
-    qs = qs.order_by("dep__stn__stn_name").order_by("-dep__dep_month").order_by("-dep__dep_year")
+    qs = qs.order_by("stn__stn_name").order_by("-dep_month").order_by("-dep_year")
     for q in qs:
-        deployment = q.dep
-        eqp = q.eqp
+        deployment = q
+        # this assumes a deployment is only ever going to have one EDA.
+        eda = q.attachments.first()
+        eqp = None
+        if eda:
+            eqp = eda.eqp
 
         year = deployment.dep_year
         month = deployment.dep_month
@@ -60,17 +64,18 @@ def report_deployment_summary(query_params):
             lon = dep_evt.ste_lon_mcal if dep_evt.ste_lon_mcal else dep_evt.ste_lon_ship
             depth = dep_evt.ste_depth_mcal if dep_evt.ste_depth_mcal else dep_evt.ste_depth_ship
 
-            hydro = q.eqp.hydrophones.all()
-
-            hydro = hydro.filter(ehe_date__lte=dep_evt.ste_date)
-
-            hydro = hydro.order_by("ehe_date").last()
+            if eqp:
+                hydro = eqp.hydrophones.all()
+                hydro = hydro.filter(ehe_date__lte=dep_evt.ste_date)
+                hydro = hydro.order_by("ehe_date").last()
+            else:
+                eqp = 'NA'
 
             hyd = "----"
             if hydro:
                 hyd = hydro.hyd
 
-            datasets = q.dataset.all()
+            datasets = eda.dataset.all() if eda else []
             if len(datasets) > 0:
                 for dataset in datasets:
                     in_start = "NA"

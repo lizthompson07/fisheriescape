@@ -644,8 +644,8 @@ class TestIndexTemplateView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('shared_models:index')
         self.expected_template = 'shared_models/org_index.html'
-        self.admin_user = self.get_and_login_user(in_group="travel_admin")
-        self.admin_user1 = self.get_and_login_user(in_group="travel_adm_admin")
+        self.admin_user = self.get_and_login_user(in_national_admin_group=True)
+        self.admin_user1 = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("index", "view")
     def test_view_class(self):

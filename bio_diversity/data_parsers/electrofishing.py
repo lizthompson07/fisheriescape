@@ -391,37 +391,17 @@ class AdultCollectionParser(DataParser):
         if not indv_id:
             return
 
-        if utils.nan_to_none(row.get(self.grp_key)):
-            self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, None,
-                                                  self.prog_grp_anidc_id.pk, adsc_str=row[self.grp_key])
-
-        if utils.nan_to_none(row.get(self.len_key)):
-            self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, row[self.len_key],
-                                                  self.len_anidc_id.pk, None)
-
-        if utils.nan_to_none(row.get(self.len_key_mm)):
-            self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, 0.1 * row[self.len_key_mm],
-                                                  self.len_anidc_id.pk, None)
-
-        if utils.nan_to_none(row.get(self.weight_key_kg)):
-            self.row_entered += utils.enter_indvd(anix_loc_indv.pk, self.cleaned_data, row_datetime, 1000 * row[self.weight_key_kg],
-                                                  self.weight_anidc_id.pk, None)
-
-        if utils.nan_to_none(row.get(self.weight_key)):
-            self.row_entered += utils.enter_indvd(anix_loc_indv.pk, self.cleaned_data, row_datetime, row[self.weight_key],
-                                                  self.weight_anidc_id.pk, None)
-
-        if utils.nan_to_none(row.get(self.sex_key)):
-            self.row_entered += utils.enter_indvd(anix_loc_indv.pk, self.cleaned_data, row_datetime,
-                                                  self.sex_dict[row[self.sex_key].upper()], self.sex_anidc_id.pk, None)
-
-        if utils.nan_to_none(row.get(self.vial_key)):
-            self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, row[self.vial_key],
-                                                  self.vial_anidc_id.pk, None)
-
-        if utils.nan_to_none(row.get(self.scale_key)):
-            self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, row[self.scale_key],
-                                                  self.envelope_anidc_id.pk, None)
+        self.row_entered += utils.enter_bulk_indvd(anix_loc_indv.pk, self.cleaned_data, row_datetime,
+                                                   gender=row.get(self.sex_key),
+                                                   len_mm=row.get(self.len_key_mm),
+                                                   len_val=row.get(self.len_key),
+                                                   weight=row.get(self.weight_key),
+                                                   weight_kg=row.get(self.weight_key_kg),
+                                                   vial=row.get(self.vial_key),
+                                                   scale_envelope=row.get(self.scale_key),
+                                                   prog_grp=row.get(self.grp_key),
+                                                   comments=row.get(self.comment_key)
+                                                   )
 
         if utils.nan_to_none(row.get(self.mort_key)):
             if utils.y_n_to_bool(row[self.mort_key]):
@@ -436,7 +416,7 @@ class AdultCollectionParser(DataParser):
         if utils.nan_to_none(row.get(self.aquaculture_key)):
             if utils.y_n_to_bool(row[self.aquaculture_key]):
                 self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, None,
-                                                  self.ani_health_anidc_id.pk, adsc_str="Aquaculture")
+                                                      self.ani_health_anidc_id.pk, adsc_str="Aquaculture")
 
         if utils.nan_to_none(row[self.tank_key]):
             self.row_entered += utils.enter_contx(self.tank_dict[row[self.tank_key]], cleaned_data, True, indv_id.pk)

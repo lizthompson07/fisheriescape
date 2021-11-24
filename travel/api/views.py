@@ -16,18 +16,31 @@ from lib.functions.custom_functions import truncate
 from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer
 from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView
 from shared_models.models import FiscalYear, Region, Division, Section, Organization
-from shared_models.utils import special_capitalize, get_labels
+from shared_models.utils import get_labels
 from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyOrReadOnly, TravelAdminOrReadOnly
 from .. import models, utils, emails
 
 
+def validate_file_size(filesize, max_size=15 * 1000 * 1000):
+    """
+    @param filesize:   integer of actual filesize (bytes)
+    @param max_size:   integer of max filesize before ValidationError is thrown (bytes)
+    """
+    max_size_mb = round(max_size / 1000 / 1000)
+    filesize_mb = round(filesize / 1000 / 1000)
+    if filesize > max_size:
+        raise ValidationError(_("The maximum file size that can be uploaded is {max_size} MB. Your file is {file_size} MB.").format(
+            max_size=max_size_mb, file_size=filesize_mb))
+
+
 class CurrentTravelUserAPIView(CurrentUserAPIView):
     def get(self, request):
         data = super().get(request).data
-        data["is_regional_admin"] = utils.in_travel_admin_group(request.user)
-        data["is_ncr_admin"] = utils.in_adm_admin_group(request.user)
+        data["is_regional_admin"] = utils.in_travel_regional_admin_group(request.user)
+        data["is_ncr_admin"] = utils.in_travel_nat_admin_group(request.user)
+        data["is_cfo"] = utils.in_cfo_group(request.user)
         data["is_admin"] = utils.is_admin(request.user)
         requests = utils.get_related_requests(request.user)
         request_reviews = utils.get_related_request_reviewers(request.user)
@@ -66,7 +79,7 @@ class TripViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         obj = get_object_or_404(models.Trip, pk=pk)
         if qp.get("reset_reviewers"):
-            if utils.in_adm_admin_group(request.user):
+            if utils.in_travel_nat_admin_group(request.user):
                 # This function should only ever be run if the trip is unreviewed (30 = unverified, unreviewer; 41 = verified, reviewed)
                 if obj.status in [30, 41]:
                     # first remove any existing reviewers
@@ -86,9 +99,9 @@ class TripViewSet(viewsets.ModelViewSet):
         else:
             qs = models.Trip.objects.all()
             qp = self.request.query_params
-            if qp.get("adm-verification") and utils.in_adm_admin_group(self.request.user):
+            if qp.get("adm-verification") and utils.in_travel_nat_admin_group(self.request.user):
                 qs = qs.filter(is_adm_approval_required=True, status=30)
-            elif qp.get("adm-hit-list") and utils.in_adm_admin_group(self.request.user):
+            elif qp.get("adm-hit-list") and utils.in_travel_nat_admin_group(self.request.user):
                 qs = utils.get_adm_eligible_trips()
             elif qp.get("regional-verification") and utils.is_admin(self.request.user):
                 qs = qs.filter(is_adm_approval_required=False, status=30)
@@ -139,7 +152,6 @@ class RequestViewSet(viewsets.ModelViewSet):
                 raise PermissionDenied(_("You do not have the permissions to reset the reviewer list"))
             return Response(None, status.HTTP_204_NO_CONTENT)
         raise ValidationError(_("This endpoint cannot be used without a query param"))
-
 
     def get_queryset(self):
         # if someone is looking for a specific object...
@@ -226,7 +238,7 @@ class TravellerViewSet(viewsets.ModelViewSet):
         # if the trip is NOT in draft mode, need to provide annotation in the admin notes.
         if my_request.status != 8:
             my_request.add_admin_note(f"{date(timezone.now())}: {instance.smart_name} was removed from this request by {self.request.user.get_full_name()}")
-            email = emails.RemovedTravellerEmail(self.request, instance)
+            email = emails.RemovedTravellerEmail(self.request, instance, my_request)
             email.send()
 
         # if after deleting this traveller, there are no more travellers, we should unsubmit this trip.
@@ -308,13 +320,15 @@ class TripReviewerViewSet(viewsets.ModelViewSet):
     permission_classes = [TravelAdminOrReadOnly]
     queryset = models.TripReviewer.objects.all()
     pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['status', ]
 
     def perform_create(self, serializer):
         serializer.save(updated_by=self.request.user)
 
     def perform_update(self, serializer):
         # the only type of user who should be interacting with this is an NCR admin
-        if not utils.in_adm_admin_group(self.request.user):
+        if not utils.in_travel_nat_admin_group(self.request.user):
             raise ValidationError(_("You do not have the necessary permission to modify this reviewer."))
 
         # first we must determine if this is a request to skip a reviewer. If it is, the user better be an admin
@@ -341,7 +355,7 @@ class TripReviewerViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         # can only change if is in draft or queued
-        if not utils.in_adm_admin_group(self.request.user):
+        if not utils.in_travel_nat_admin_group(self.request.user):
             raise PermissionDenied(_("You do not have the necessary permission to delete this reviewer."))
         if instance.status in [23, 24]:
             super().perform_destroy(instance)
@@ -349,9 +363,12 @@ class TripReviewerViewSet(viewsets.ModelViewSet):
             raise ValidationError("cannot delete this reviewer who has the status of " + instance.get_status_display())
 
     def list(self, request, *args, **kwargs):
-        qs = utils.get_related_trip_reviewers(request.user)
-        serializer = self.get_serializer(qs, many=True)
-        return Response(serializer.data)
+        qp = request.query_params
+        if qp.get("personalized"):
+            qs = utils.get_related_trip_reviewers(request.user)
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        return super().list(request, *args, **kwargs)
 
 
 class FileViewSet(viewsets.ModelViewSet):
@@ -363,6 +380,8 @@ class FileViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         if self.request.FILES.get("file"):
             filename = self.request.FILES["file"].name
+            filesize = self.request.FILES["file"].size
+            validate_file_size(filesize)
             suffix = ""
             if len(filename.split(".") > 1):
                 suffix = f'.{filename.split(".")[-1]}'
@@ -374,13 +393,47 @@ class FileViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         if self.request.FILES.get("file"):
             filename = self.request.FILES["file"].name
+            filesize = self.request.FILES["file"].size
+            validate_file_size(filesize)
             suffix = ""
             if len(filename.split(".")) > 1:
                 suffix = f'.{filename.split(".")[-1]}'
                 filename = filename.split(".")[0]
             filename = truncate(slugify(filename), 20, False)
             self.request.FILES["file"].name = f"{filename}{suffix}"
-            print(self.request.FILES["file"].name)
+        serializer.save(updated_by=self.request.user)
+
+
+class TripFileViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.TripFileSerializer
+    permission_classes = [TravelAdminOrReadOnly]
+    queryset = models.TripFile.objects.all()
+    pagination_class = StandardResultsSetPagination
+
+    def perform_create(self, serializer):
+        if self.request.FILES.get("file"):
+            filename = self.request.FILES["file"].name
+            filesize = self.request.FILES["file"].size
+            validate_file_size(filesize)
+            suffix = ""
+            if len(filename.split(".") > 1):
+                suffix = f'.{filename.split(".")[-1]}'
+                filename = filename.split(".")[0]
+            filename = truncate(slugify(filename), 20, False)
+            self.request.FILES["file"].name = f"{filename}{suffix}"
+        serializer.save()
+
+    def perform_update(self, serializer):
+        if self.request.FILES.get("file"):
+            filename = self.request.FILES["file"].name
+            filesize = self.request.FILES["file"].size
+            validate_file_size(filesize)
+            suffix = ""
+            if len(filename.split(".")) > 1:
+                suffix = f'.{filename.split(".")[-1]}'
+                filename = filename.split(".")[0]
+            filename = truncate(slugify(filename), 20, False)
+            self.request.FILES["file"].name = f"{filename}{suffix}"
         serializer.save(updated_by=self.request.user)
 
 
@@ -400,10 +453,12 @@ class CostViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
-        serializer.save()
+        obj = serializer.save()
+        utils.manage_trip_warning(obj.traveller.request.trip, self.request)
 
     def perform_update(self, serializer):
-        serializer.save()
+        obj = serializer.save()
+        utils.manage_trip_warning(obj.traveller.request.trip, self.request)
 
 
 # LOOKUPS
@@ -500,7 +555,7 @@ class TravellerModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         data['role_choices'] = [dict(text=item.tname, value=item.id) for item in models.Role.objects.all()]
-        data['org_choices'] = [dict(text=item.full_name_and_address, value=item.full_name_and_address) for item in Organization.objects.filter(is_dfo=True)]
+        data['org_choices'] = [dict(text=item.tfull, value=item.tfull) for item in Organization.objects.filter(is_dfo=True)]
         return Response(data)
 
 
@@ -536,7 +591,6 @@ class HelpTextAPIView(APIView):
         return Response(data)
 
 
-
 class FAQListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated]
     queryset = models.FAQ.objects.all()
@@ -553,12 +607,13 @@ class AdminWarningsAPIView(APIView):
             btn = f' &rarr; <a href="{reverse("travel:trip_list")}?regional-verification=true">{anchor_txt}</a>'
 
             for region in Region.objects.all():
-                qs = models.Trip.objects.filter(status=30, is_adm_approval_required=False, lead=region)
-                if qs.exists():
-                    msgs.append(
-                        # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
-                        _("<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralization} requiring attention!!").format(
-                            region=region, unverified_trips=qs.count(), pluralization=pluralize(qs.count())) + btn)
+                if utils.in_travel_regional_admin_group(request.user) and region == request.user.travel_user.region:
+                    qs = models.Trip.objects.filter(status=30, is_adm_approval_required=False, lead=region)
+                    if qs.exists():
+                        msgs.append(
+                            # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
+                            _("<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralization} requiring attention!!").format(
+                                region=region, unverified_trips=qs.count(), pluralization=pluralize(qs.count())) + btn)
 
             qs = models.Trip.objects.filter(status=30, is_adm_approval_required=False, lead__isnull=True)
             if qs.exists():
@@ -570,7 +625,7 @@ class AdminWarningsAPIView(APIView):
                         unverified_trips=qs.count())) + btn
                 msgs.append(msg)
 
-        if utils.in_adm_admin_group(request.user):
+        if utils.in_travel_nat_admin_group(request.user):
             qs = models.Trip.objects.filter(status=30, is_adm_approval_required=True)
             if qs.exists():
                 btn = f' &rarr; <a href="{reverse("travel:trip_list")}?adm-verification=true">{anchor_txt}</a>'

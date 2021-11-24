@@ -1,10 +1,14 @@
 from datetime import datetime
 
+from django.contrib.auth.models import User
+from django.db.models import Value, TextField
+from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,15 +17,17 @@ from unidecode import unidecode
 
 from shared_models.api.serializers import PersonSerializer
 from shared_models.api.views import _get_labels
-from shared_models.models import Person, Language, Region
+from shared_models.models import Person, Language, Region, FiscalYear
 from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission
-from .. import models, emails, model_choices, utils
+from .. import models, emails, model_choices, utils, filters
 
 
 # USER
 #######
+
+
 class CurrentUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -30,6 +36,13 @@ class CurrentUserAPIView(APIView):
         data = serializer.data
         qp = request.GET
         data["is_csas_national_admin"] = utils.in_csas_national_admin_group(request.user)
+        data["is_admin"] = utils.in_csas_admin_group(request.user)
+
+        # provide the region for which that use is an admin for, if applicable
+        data["regional_admin"] = None
+        if hasattr(request.user, "csas_admin_user"):
+            data["regional_admin"] = request.user.csas_admin_user.region_id
+
         if qp.get("request"):
             data["can_modify"] = utils.can_modify_request(request.user, qp.get("request"), return_as_dict=True)
         elif qp.get("process"):
@@ -44,9 +57,18 @@ class CurrentUserAPIView(APIView):
 
 
 class CSASRequestViewSet(viewsets.ModelViewSet):
+    queryset = models.CSASRequest.objects.all()
     serializer_class = serializers.CSASRequestSerializer
     permission_classes = [CanModifyRequestOrReadOnly]
-    queryset = models.CSASRequest.objects.all()
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['id', 'title', 'translated_title']
+    filterset_class = filters.CSASRequestFilter
+
+    def get_queryset(self):
+        qs = models.CSASRequest.objects.all()
+        qs = qs.annotate(search=Concat('title', Value(" "), 'translated_title', Value(" "), 'id', output_field=TextField()))
+        return qs
 
 
 class CSASRequestNoteViewSet(viewsets.ModelViewSet):
@@ -61,7 +83,12 @@ class CSASRequestNoteViewSet(viewsets.ModelViewSet):
             qs = csas_request.notes.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
-        raise ValidationError(_("You need to specify a csas request"))
+        elif qp.get("user"):
+            user = get_object_or_404(User, pk=qp.get("user"))
+            qs = user.csasrequestnote_created_by.filter(type=2, is_complete=False)
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify at least one query param."))
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -81,14 +108,26 @@ class CSASRequestReviewViewSet(viewsets.ModelViewSet):
         instance.delete()
         csas_request.save()
 
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
 
 class ProcessViewSet(viewsets.ModelViewSet):
-    queryset = models.Process.objects.all().order_by("-created_at")
+    queryset = models.Process.objects.all()
     serializer_class = serializers.ProcessSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
     pagination_class = StandardResultsSetPagination
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['fiscal_year', 'id', 'lead_region', "is_posted"]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ['id', 'name', 'nom']
+    filterset_class = filters.ProcessFilter
+
+    def get_queryset(self):
+        qs = models.Process.objects.all().order_by("-created_at")
+        qs = qs.annotate(search=Concat('name', Value(" "), 'nom', Value(" "), 'id', output_field=TextField()))
+        return qs
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -179,6 +218,11 @@ class MeetingNoteViewSet(viewsets.ModelViewSet):
             qs = meeting.notes.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
+        elif qp.get("user"):
+            user = get_object_or_404(User, pk=qp.get("user"))
+            qs = user.meetingnote_created_by.filter(type=2, is_complete=False)
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
         raise ValidationError(_("You need to specify a meeting"))
 
     def perform_create(self, serializer):
@@ -200,6 +244,11 @@ class ProcessNoteViewSet(viewsets.ModelViewSet):
             qs = process.notes.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
+        elif qp.get("user"):
+            user = get_object_or_404(User, pk=qp.get("user"))
+            qs = user.processnote_created_by.filter(type=2, is_complete=False)
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
         raise ValidationError(_("You need to specify a process"))
 
     def perform_create(self, serializer):
@@ -209,19 +258,19 @@ class ProcessNoteViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
-class MeetingCostViewSet(viewsets.ModelViewSet):
-    queryset = models.MeetingCost.objects.all()
-    serializer_class = serializers.MeetingCostSerializer
+class ProcessCostViewSet(viewsets.ModelViewSet):
+    queryset = models.ProcessCost.objects.all()
+    serializer_class = serializers.ProcessCostSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params
-        if qp.get("meeting"):
-            meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
-            qs = meeting.costs.all()
+        if qp.get("process"):
+            process = get_object_or_404(models.Process, pk=qp.get("process"))
+            qs = process.costs.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
-        raise ValidationError(_("You need to specify a meeting"))
+        raise ValidationError(_("You need to specify a process"))
 
     def perform_create(self, serializer):
         serializer.save()
@@ -446,6 +495,11 @@ class DocumentNoteViewSet(viewsets.ModelViewSet):
             qs = document.notes.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
+        elif qp.get("user"):
+            user = get_object_or_404(User, pk=qp.get("user"))
+            qs = user.documentnote_created_by.filter(type=2, is_complete=False)
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
         raise ValidationError(_("You need to specify a document"))
 
     def perform_create(self, serializer):
@@ -453,27 +507,6 @@ class DocumentNoteViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
-
-
-class DocumentCostViewSet(viewsets.ModelViewSet):
-    queryset = models.DocumentCost.objects.all()
-    serializer_class = serializers.DocumentCostSerializer
-    permission_classes = [CanModifyProcessOrReadOnly]
-
-    def list(self, request, *args, **kwargs):
-        qp = request.query_params
-        if qp.get("document"):
-            document = get_object_or_404(models.Document, pk=qp.get("document"))
-            qs = document.costs.all()
-            serializer = self.get_serializer(qs, many=True)
-            return Response(serializer.data)
-        raise ValidationError(_("You need to specify a document"))
-
-    def perform_create(self, serializer):
-        serializer.save()
-
-    def perform_update(self, serializer):
-        serializer.save()
 
 
 class PersonViewSet(viewsets.ModelViewSet):
@@ -620,6 +653,13 @@ class RequestModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
+        status_choices = [dict(text=c[1], value=c[0]) for c in model_choices.request_status_choices]
+        status_choices.insert(0, dict(text="-----", value=None))
+        data['status_choices'] = status_choices
+        data['region_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_region_choices(with_requests=True)]
+        data['sector_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_sector_choices(with_requests=True)]
+        data['section_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_section_choices(with_requests=True)]
+        data['fy_choices'] = [dict(text=str(c), value=c.id) for c in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
         return Response(data)
 
 
@@ -631,11 +671,14 @@ class RequestReviewModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = _get_labels(self.model)
 
-        prioritization_choices = [dict(text=c[1], value=c[0]) for c in model_choices.prioritization_choices]
         decision_choices = [dict(text=c[1], value=c[0]) for c in model_choices.request_decision_choices]
-        prioritization_choices.insert(0, dict(text="-----", value=None))
         decision_choices.insert(0, dict(text="-----", value=None))
-        data['prioritization_choices'] = prioritization_choices
+        yes_no_choices = [dict(text=c[1], value=c[0]) for c in model_choices.yes_no_choices_int]
+        yes_no_choices.insert(0, dict(text="-----", value=None))
+        yes_no_unsure_choices = [dict(text=c[1], value=c[0]) for c in model_choices.yes_no_unsure_choices_int]
+        yes_no_unsure_choices.insert(0, dict(text="-----", value=None))
+        data['yes_no_choices'] = yes_no_choices
+        data['yes_no_unsure_choices'] = yes_no_unsure_choices
         data['decision_choices'] = decision_choices
         return Response(data)
 
@@ -647,4 +690,8 @@ class ProcessModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
+        data['status_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.get_process_status_choices()]
+        data['region_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_region_choices()]
+        data['fy_choices'] = [dict(text=str(c), value=c.id) for c in FiscalYear.objects.filter(processes__isnull=False).distinct()]
+
         return Response(data)

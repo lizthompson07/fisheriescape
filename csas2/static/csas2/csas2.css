@@ -62,15 +62,16 @@ h1 {
 }
 
 
-.draft, .preparation {
+.draft, .preparation, .initiation {
     background-color: #ffff9d;
 }
 
-.submitted, .complete {
-    background-color: #84c6ff;
+.submitted, .on {
+    background-color: #009fdb;
+    color: white;
 }
 
-.finalization, .tentative {
+.finalization, .tentative, .ready-for-review {
     background-color: #e3aefa;
 }
 
@@ -79,17 +80,27 @@ h1 {
     background-color: #4c6fc6;
 }
 
-.off, .deferred, .delayed {
+.unapproved, .deferred, .delayed {
     color: white;
     background-color: #e94a65;
 }
 
-.on, .posted, .ok, .complete, .final {
+
+.reviewed {
+    background-color: #63ceff;
+    color: #000000;
+}
+
+.accepted, .approved, .posted, .ok, .complete, .final {
     background-color: #d5faae;
 }
 
 .withdrawn {
     background-color: #cacaca;
+}
+
+.fulfilled {
+    background-color: #87ff76;
 }
 
 .deferred {
@@ -100,6 +111,10 @@ h1 {
 .to-the-right {
     width: 125px;
 
+}
+
+.w25 {
+    width: 50px;
 }
 
 .w50 {
@@ -122,6 +137,9 @@ h1 {
     width: 100px;
 }
 
+.w125 {
+    width: 150px;
+}
 .w150 {
     width: 150px;
 }

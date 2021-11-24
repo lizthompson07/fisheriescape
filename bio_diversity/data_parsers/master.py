@@ -17,6 +17,7 @@ class MasterIndvParser(DataParser):
     ufid_key = "UFID"
     comment_key = "Comments"
     sex_key = "Sex"
+    lifestage_key = "Lifestage"
 
     header = 2
     sheet_name = "Individual"
@@ -67,17 +68,11 @@ class MasterIndvParser(DataParser):
 
         anix, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
         self.row_entered += anix_entered
-        if utils.nan_to_none(row.get(self.sex_key)):
-            indv_sex = self.sex_dict[row[self.sex_key].upper()]
-            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, indv_sex, self.sex_anidc_id.pk,
-                                                  None, adsc_str=indv_sex)
-        if utils.nan_to_none(row.get(self.comment_key)):
-            comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix,
-                                                                 det_date=row_datetime.date())
-            self.row_entered += data_entered
-            if not comments_parsed:
-                self.log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row[self.pit_key],
-                                                                                             row[self.comment_key])
+
+        self.row_entered += utils.enter_bulk_indvd(anix.pk, cleaned_data, row_date,
+                                                   gender=row.get(self.sex_key),
+                                                   lifestage=row.get(self.lifestage_key),
+                                                   comments=row.get(self.comment_key))
 
 
 class MasterGrpParser(DataParser):
@@ -87,6 +82,7 @@ class MasterGrpParser(DataParser):
     stok_key = "Stock"
     year_coll_key = "Collection"
     cnt_key = "Number of Fish"
+    lifestage_key = "Lifestage"
     comment_key = "Comments"
 
     header = 2
@@ -94,7 +90,7 @@ class MasterGrpParser(DataParser):
     converters = {tank_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     salmon_id = None
-    prog_grp_anidc = None
+    prog_grp_anidc_id = None
     mark_anidc_id = None
 
     def load_data(self):
@@ -104,7 +100,7 @@ class MasterGrpParser(DataParser):
 
     def data_preper(self):
         self.salmon_id = models.SpeciesCode.objects.filter(name__iexact="Salmon").get()
-        self.prog_grp_anidc = models.AnimalDetCode.objects.filter(name__iexact="Program Group").get()
+        self.prog_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Program Group").get()
         self.mark_anidc_id = models.AnimalDetCode.objects.filter(name="Mark").get()
 
     def row_parser(self, row):
@@ -118,7 +114,7 @@ class MasterGrpParser(DataParser):
         tank_id = models.Tank.objects.filter(name=row[self.tank_key]).get()
         prog_grp_id = None
         if utils.nan_to_none(row[self.group_key]):
-            prog_grp_id = models.AniDetSubjCode.objects.filter(anidc_id=self.prog_grp_anidc,
+            prog_grp_id = models.AniDetSubjCode.objects.filter(anidc_id=self.prog_grp_anidc_id,
                                                                name__icontains=row[self.group_key]).get()
         mark_id = None
         if utils.nan_to_none(row[self.mark_key]):
@@ -149,13 +145,11 @@ class MasterGrpParser(DataParser):
         anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
         self.row_entered += anix_entered
 
-        if utils.nan_to_none(row.get(self.group_key)):
-            self.row_entered += utils.enter_grpd(anix.pk, cleaned_data, row_datetime, row[self.group_key],
-                                                 self.prog_grp_anidc.pk, adsc_str=row[self.group_key])
-
-        if utils.nan_to_none(row.get(self.mark_key)):
-            self.row_entered += utils.enter_grpd(anix.pk, cleaned_data, row_datetime, row[self.mark_key],
-                                                 self.mark_anidc_id.pk, adsc_str=row[self.mark_key])
+        self.row_entered = utils.enter_bulk_grpd(anix.pk, cleaned_data, row_datetime,
+                                                 prog_grp=row.get(self.group_key),
+                                                 mark=row.get(self.mark_key),
+                                                 lifestage=row.get(self.lifestage_key),
+                                                 comments=row.get(self.comment_key))
 
         contx, contx_entered = utils.enter_contx(tank_id, cleaned_data, True, grp_pk=grp_id.pk, return_contx=True)
         self.row_entered += contx_entered

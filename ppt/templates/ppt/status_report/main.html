@@ -1,0 +1,203 @@
+{% extends "ppt/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+{% load project_tags %}
+
+
+
+{% block subcontent %}
+  <div v-cloak id="app">
+
+    <div class="btns mb-5">
+      <a v-if="canModify" href="{% url 'ppt:report_edit' object.id %}" class="btn btn-warning ">{% trans "Edit Report" %}</a>
+      <a v-if="canModify" href="{% url 'ppt:report_delete' object.id %}" class="btn btn-danger ">{% trans "Delete" %}</a>
+      <a v-if="isSectionHead || isAdmin" href="{% url 'ppt:report_review' object.id %}" class="btn btn-dark ">{% trans "Review the Report" %}</a>
+      <a href="{% url 'ppt:report_pdf' object.id %}" class="btn btn-secondary " target="_blank">{% trans "Print" %}</a>
+    </div>
+
+    <div class="mb-5">
+      <h4>
+        {% trans "Detail:" %}
+      </h4>
+      <table class="table table-sm">
+        {% for field in field_list %}
+          <tr>
+            {% verbose_td_display object field %}
+          </tr>
+
+        {% endfor %}
+
+
+      </table>
+    </div>
+
+    {% include "ppt/status_report/_updates.html" %}
+    {% include "ppt/status_report/_files.html" %}
+
+    <modal v-if="showNewFileModal" @close="closeModals()" mtype="file"></modal>
+    <modal v-if="showOldFileModal" @close="closeModals()" :my_file="fileToEdit" :mtype="'file'"></modal>
+    <modal v-if="showOldUpdateModal" @close="closeModals()" :my_update="updateToEdit" :mtype="'update'"></modal>
+
+    <br><br>
+  </div>
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+
+  {% include "ppt/status_report/components/modal_form.html" %}
+  <script type="application/javascript">
+  let statusReportId = '{{ object.id }}';
+  let projectId = '{{ object.project_year.project.id }}';
+  let projectYearId = '{{ object.project_year.id }}';
+  let deleteMsg = "{% trans "Are you sure you want to delete this item: " %} \n\n";
+
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: {},
+      isAdmin: false,
+      isSectionHead: false,
+      canModify: false,
+
+      // files
+      file_loading: false,
+      files: [],
+      fileToEdit: {},
+      showNewFileModal: false,
+      showOldFileModal: false,
+
+      // updates
+      update_loading: false,
+      updates: [],
+      updateToEdit: {},
+      showNewUpdateModal: false,
+      showOldUpdateModal: false,
+
+    },
+    methods: {
+      getCurrentUser() {
+        let endpoint = `/api/ppt/user/?status_report=${statusReportId}`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+              this.isAdmin = this.currentUser.is_admin
+              this.isSectionHead = this.currentUser.is_section_head
+              this.canModify = this.currentUser.can_modify
+            })
+      },
+
+
+      getProjectYear(yearId) {
+        this.py_loading = true;
+        let endpoint = `/api/ppt/project-years/${yearId}/`;
+        apiService(endpoint)
+            .then(response => {
+              this.py_loading = false;
+              this.projectYear = response;
+              // now let's get all the related data
+            })
+      },
+      getProject(projectId) {
+        this.project_loading = true;
+        let endpoint = `/api/ppt/projects/${projectId}/`;
+        apiService(endpoint)
+            .then(response => {
+              this.project_loading = false;
+              this.project = response;
+            })
+      },
+
+
+      // File
+      getFiles() {
+        this.file_loading = true;
+        let endpoint = `/api/ppt/files/?status_report=${statusReportId}`;
+        apiService(endpoint)
+            .then(response => {
+              this.file_loading = false;
+              this.files = response;
+            })
+      },
+      deleteFile(file) {
+        userInput = confirm(deleteMsg + file.name)
+        if (userInput) {
+          let endpoint = `/api/ppt/files/${file.id}/`;
+          apiService(endpoint, "DELETE")
+              .then(response => {
+                if (!response.detail) this.$delete(this.files, this.files.indexOf(file));
+              })
+        }
+      },
+
+      openFileModal(file) {
+        if (!file) {
+          this.showNewFileModal = true;
+        } else {
+          this.fileToEdit = file;
+          this.showOldFileModal = true;
+        }
+      },
+
+
+      // update
+      getUpdates() {
+        this.update_loading = true;
+        let endpoint = `/api/ppt/activity-updates/?status_report=${statusReportId}`;
+        apiService(endpoint)
+            .then(response => {
+              this.update_loading = false;
+              this.updates = response;
+            })
+      },
+
+      openUpdateModal(update) {
+        if (!update) {
+          this.showNewUpdateModal = true;
+        } else {
+          this.updateToEdit = update;
+          this.showOldUpdateModal = true;
+        }
+      },
+
+      closeModals() {
+        this.showNewFileModal = false;
+        this.showOldFileModal = false;
+
+        this.showNewUpdateModal = false;
+        this.showOldUpdateModal = false;
+
+        this.$nextTick(() => {
+          this.getFiles()
+          this.getUpdates()
+          this.getCurrentUser()
+        })
+      },
+    },
+    filters: {
+      yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
+      floatformat: vueFiltersObject["floatformat"],
+      currencyFormat: vueFiltersObject["currencyFormat"],
+      zero2NullMark: vueFiltersObject["zero2NullMark"],
+      percentage: vueFiltersObject["percentage"],
+    },
+    computed: {},
+    created() {
+      this.getCurrentUser()
+      this.getFiles()
+      this.getUpdates()
+    },
+    mounted() {
+    },
+  });
+
+  </script>
+
+{% endblock %}

@@ -1,0 +1,462 @@
+{% extends "csas2/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% block crumbs %}
+{% endblock %}
+
+{% block messages %}{% endblock %}
+{% block title_area %}
+{% endblock %}
+
+
+{% block subcontent %}
+  {% include "shared_models/_generic_breadcrumbs.html" %}
+  <div class="mb-3">
+    <h2 class="">{{ h1|safe }}</h2>
+  </div>
+
+  {% include "csas2/request_reviews/_filter.html" %}
+  <div id="app" v-cloak>
+
+    {% bootstrap_messages %}
+
+    <div v-if="loadingRequests" class="loading mb-3 mt-3 mt-5">
+      <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+        <span class="sr-only"></span>
+      </div>
+    </div>
+    <div v-else>
+      <div v-if="fresh">
+        <div class="mt-5">
+          <em class="lead">
+            {% trans "Please use the filters to get started..." %}
+          </em>
+        </div>
+      </div>
+      <div v-else-if="!requests.length">
+        <div class="mt-5">
+          <em class="lead">
+            {% trans "No requests found..." %}
+          </em>
+        </div>
+      </div>
+      <div v-else class="m-3 mt-4">
+
+        <div class="text-center">
+          <div class="text-center">
+            <p class="font-italic text-muted">${requests.length} {% trans "results loaded" %}</p>
+          </div>
+        </div>
+        <table class="table table-sm table-bordered">
+          <thead>
+          <tr>
+            <th class="w-35">{% trans "Request Information" %}</th>
+            <th>{% trans "Review" %}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="r in requests" :key="r.id">
+            <td>
+              <div v-if="r.reviewCollapse" class="mb-3">
+                <div class="row">
+                  <div class="col">
+                    <a :href="`/csas-sccs/requests/${r.id}/view/`" target="_blank">
+                      ${r.title}
+                    </a>
+                  </div>
+                  <div class="col-3">
+                    <span v-html="r.status_display_html"></span>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="mb-3">
+                <a :href="`/csas-sccs/requests/${r.id}/view/`" target="_blank">
+                  ${r.title}
+                </a>
+              </div>
+
+              <div v-if="!r.reviewCollapse">
+                <div class="row">
+                  <div class="col">
+                    <div class="mb-3">
+                      <span class="text-muted font-italic">{% trans "Request Id:" %}</span>
+                      <br><span v-html="">${r.id}</span>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="mb-3">
+                      <span class="text-muted font-italic">{% trans "Region:" %}</span>
+                      <br>${r.region}
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="mb-3">
+                      <span class="text-muted font-italic">{% trans "Client prioritization:" %}</span>
+                      <br><span v-html="">${r.prioritization_display_short | nz}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col">
+                    <div class="mb-3">
+                      <span class="text-muted font-italic">{% trans "Status:" %}</span>
+                      <br><span v-html="r.status_display_html"></span>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="mb-3">
+                      <span class="text-muted font-italic">{% trans "Advice required by (original):" %}</span>
+                      <br>${r.advice_needed_by_display}
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="mb-3">
+                      <span class="text-muted font-italic">{% trans "Advice FY:" %}</span>
+                      <br>${r.advice_fiscal_year}
+                    </div>
+                  </div>
+                </div>
+
+
+                <div class="">
+                  <div class="neighbours">
+                  <span class="pointy" @click="toggleRequestCollapse(r, 'prioritization')">
+                    <span v-if="r.prioritizationCollapse" class="mdi mdi-toggle-switch-off lead"></span>
+                    <span v-else class="mdi mdi-toggle-switch lead text-primary"></span>
+                  </span>
+                  </div>
+                  <div class="neighbours">
+                    <span class="text-muted font-italic">{% trans "Client prioritization description:" %}</span>
+                  </div>
+                  <div v-if="!r.prioritizationCollapse" class="mb-3">
+                    <span v-html="r.prioritization_display"></span>
+                  </div>
+                </div>
+
+                <div class="">
+                  <div class="neighbours">
+                  <span class="pointy" @click="toggleRequestCollapse(r, 'issue')">
+                    <span v-if="r.issueCollapse" class="mdi mdi-toggle-switch-off lead"></span>
+                    <span v-else class="mdi mdi-toggle-switch lead text-primary"></span>
+                  </span>
+                  </div>
+                  <div class="neighbours">
+                    <span class="text-muted font-italic">${requestLabels.issue}</span>
+                  </div>
+                  <div v-if="!r.issueCollapse" class="mb-3">
+                    <span v-html="r.issue_html"></span>
+                  </div>
+                </div>
+
+
+                <div class="">
+                  <div class="neighbours">
+                  <span class="pointy" @click="toggleRequestCollapse(r, 'rationale')">
+                    <span v-if="r.rationaleCollapse" class="mdi mdi-toggle-switch-off lead"></span>
+                    <span v-else class="mdi mdi-toggle-switch lead text-primary"></span>
+                  </span>
+                  </div>
+                  <div class="neighbours">
+                    <span class="text-muted font-italic">${requestLabels.rationale}</span>
+                  </div>
+                  <div v-if="!r.rationaleCollapse" class="mb-3">
+                    <span v-html="r.rationale_html"></span>
+                  </div>
+                </div>
+              </div>
+
+            </td>
+
+            <td v-if="r.review">
+
+              <span class="pointy" @click="toggleRequestCollapse(r, 'review')">
+                    <span v-if="r.reviewCollapse" class="mdi mdi-toggle-switch-off lead"></span>
+                    <span v-else class="mdi mdi-toggle-switch lead text-primary"></span>
+              </span>
+              <div v-if="!r.reviewCollapse">
+                <div class="row">
+                  <div class="col-3">
+
+                    <div class="mb-3">
+                      <span class="text-muted small">${reviewLabels.is_valid}</span>
+                      <v-select
+                        style="width: 100%"
+                        v-model="r.review.is_valid"
+                        @input="updateReview(r)"
+                        :options="yesNoChoices"
+                        :reduce="choice => choice.value"
+                        label="text"
+                        :clearable="false"
+                        class="bg-light"
+                      >
+                      </v-select>
+                    </div>
+
+                    <div class="mb-3">
+                      <span class="text-muted small">${reviewLabels.is_feasible}</span>
+                      <v-select
+                        style="width: 100%"
+                        v-model="r.review.is_feasible"
+                        @input="updateReview(r)"
+                        :options="yesNoUnsureChoices"
+                        :reduce="choice => choice.value"
+                        label="text"
+                        :clearable="false"
+                        class="bg-light"
+                      >
+                      </v-select>
+                    </div>
+
+                    <div class="mb-3">
+                      <span class="text-muted small">${reviewLabels.decision}</span>
+                      <v-select
+                        style="width: 100%"
+                        v-model="r.review.decision"
+                        @input="updateReview(r)"
+                        :options="decisionChoices"
+                        :reduce="choice => choice.value"
+                        label="text"
+                        :clearable="false"
+                        class="bg-light"
+                        :disabled="!r.is_valid_request"
+                      >
+                      </v-select>
+                    </div>
+                    <div class="mb-3">
+                      <span class="text-muted small">${reviewLabels.advice_date}</span>
+                      <input v-model="r.review.advice_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
+                             @focusout="updateReview(r)" :disabled="!r.is_valid_request">
+                    </div>
+
+                  </div>
+                  <div class="col">
+                    <div class="mb-3">
+                    <span class="text-muted small">{% trans "Recommendation rationale" %} (<span
+                      class="text-success font-weight-bold">{% trans "VISIBLE TO CLIENT" %}</span>)</span>
+                      <textarea rows="13" class="form-control" v-model="r.review.decision_text" @change="updateReview(r)"></textarea>
+                    </div>
+                  </div>
+
+                  <div class="col">
+
+                    <div class="mb-3">
+                    <span class="text-muted small">${reviewLabels.deferred_text} (<span
+                      class="text-success font-weight-bold">{% trans "VISIBLE TO CLIENT" %}</span>)</span>
+                      <textarea rows="13" class="form-control" v-model="r.review.deferred_text" @change="updateReview(r)"
+                                :disabled="!r.is_rescheduled || !r.is_valid_request"></textarea>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="mb-3">
+                      <span class="text-muted small">${reviewLabels.notes} (<span class="text-danger font-weight-bold">{% trans "INTERNAL / CSAS ONLY" %}</span>)</span>
+                      <textarea rows="13" class="form-control" v-model="r.review.notes" @change="updateReview(r)"></textarea>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3 float-right">
+                  <span class="mdi mdi-delete text-danger mr-1"></span>
+                  <span class="text-danger pointy" @click="deleteReview(r)"> {% trans "delete this review" %} </span>
+                </div>
+                <div v-if="errorMsg" class="alert alert-danger" role="alert">
+                  ${errorMsg}
+                </div>
+                <div v-if="r.status === 11 && !r.has_process " class="alert alert-warning w-75" role="alert">
+                  <span class="mdi mdi-exclamation-thick mr-1 text-danger"></span>
+                  {% trans "WARNING: This request does yet not have an associated CSAS process." %}
+                  <a class="ml-3 btn btn-xs btn-primary" target="_blank"
+                     :href="`{% url 'csas2:process_new' %}?request=${ r.id }`">{% trans "Initiate a Process" %}</a>
+                </div>
+                <div v-else-if="r.has_process" class="alert alert-success w-75" role="alert">
+                  <span class="mdi mdi-check-bold mr-1 text-success"></span>{% trans "This review has an associated process." %}
+                </div>
+
+                <p class="text-muted small font-italic" v-html="r.review.last_modified_string"></p>
+              </div>
+            </td>
+            <td v-else>
+              <p class="lead text-muted font-italic">{% trans "This request does not have a review." %}
+                {% blocktrans %}
+                  Click <span class="text-primary pointy" @click="primeReview(r)"> HERE </span> to start one.
+                {% endblocktrans %}
+              </p>
+            </td>
+
+          </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+  {% include "csas2/components/filter_control.html" %}
+
+  <script type="application/javascript">
+
+  // register vue-select
+  Vue.component('v-select', VueSelect.VueSelect);
+
+  // vuejs instance
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: {},
+      loadingRequests: false,
+      requests: [],
+      requestLabels: {},
+      reviewLabels: {},
+      errorMsg: null,
+      statusChoices: [],
+      yesNoChoices: [],
+      decisionChoices: [],
+      fyChoices: [],
+      regionChoices: [],
+      sectorChoices: [],
+      sectionChoices: [],
+      fresh: true,
+    },
+    methods: {
+      submitForm() {
+        $("#filter-form").submit()
+      },
+      getCurrentUser() {
+        let endpoint = `/api/csas/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+            })
+      },
+      openPopout(url) {
+        popitup(url, 'popoutWindow' + Date.now());
+      },
+      getRequests() {
+        this.errorMsg = null;
+        this.loadingRequests = true;
+        this.fresh = false;
+        let params = window.location.search.substring(1);
+
+        if (!params) page_size = 25;
+        else page_size = 50000;
+
+        let endpoint = `/api/csas/requests/?${params}&page_size=${page_size}`;
+        apiService(endpoint)
+            .then(response => {
+              if (response.results) {
+                for (const r of response.results) {
+                  r.issueCollapse = true;
+                  r.rationaleCollapse = true;
+                  r.prioritizationCollapse = true;
+                  r.reviewCollapse = true;
+                }
+                this.requests = response.results;
+                for (const r of this.requests) {
+                  if (r.review && r.review.advice_date) r.review.advice_date = r.review.advice_date.split("T")[0];
+                }
+              }
+              this.loadingRequests = false;
+            })
+      },
+      getRequest(request) {
+        let endpoint = `/api/csas/requests/${request.id}/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            data.issueCollapse = request.issueCollapse;
+            data.rationaleCollapse = request.rationaleCollapse;
+            data.prioritizationCollapse = request.prioritizationCollapse;
+            data.reviewCollapse = request.reviewCollapse;
+            if (data.review && data.review.advice_date) data.review.advice_date = data.review.advice_date.split("T")[0];
+            this.$set(this.requests, this.requests.indexOf(request), data)
+          }
+        });
+      },
+      toggleRequestCollapse(request, field) {
+        request[`${field}Collapse`] = !request[`${field}Collapse`]
+      },
+      getNotes() {
+        let endpoint = `/api/csas/request-notes/?csas_request=${requestId}`;
+        apiService(endpoint).then(data => {
+          this.notes = data;
+        });
+      },
+      primeReview(request) {
+        this.errorMsg = null;
+        let endpoint = `/api/csas/request-reviews/`;
+        apiService(endpoint, "POST", {csas_request: request.id}).then((data) => {
+          if (!data.id) this.errorMsg = groomJSON(data);
+          else this.getRequest(request);
+        })
+      },
+      cleanReview(review) {
+        for (const reviewKey in review) if (review[reviewKey] === "") review[reviewKey] = null;
+        if (review.advice_date) review.advice_date = review.advice_date + "T12:00:00";
+        return review;
+      },
+      updateReview(request) {
+        this.errorMsg = null;
+        review = this.cleanReview(request.review);
+        let endpoint = `/api/csas/request-reviews/${review.id}/`;
+        apiService(endpoint, "PUT", review).then(data => {
+          if (!data.id) this.errorMsg = groomJSON(data);
+          this.getRequest(request);
+        });
+      },
+      deleteReview(request) {
+        this.errorMsg = null;
+        let userInput = confirm("{% trans 'Are you certain you want to delete this review?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/request-reviews/${request.review.id}/`;
+          apiService(endpoint, "DELETE").then((data) => {
+            if (!data.id) this.errorMsg = groomJSON(data);
+            this.getRequest(request);
+          })
+        }
+      },
+      getMetadata() {
+        apiService(`/api/csas/meta/models/request/`).then(data => {
+          this.requestLabels = data.labels;
+          this.statusChoices = data.status_choices;
+          this.regionChoices = data.region_choices;
+          this.sectorChoices = data.sector_choices;
+          this.sectionChoices = data.section_choices;
+          this.fyChoices = data.fy_choices;
+        });
+        apiService(`/api/csas/meta/models/request-review/`).then(data => {
+          this.reviewLabels = data.labels;
+          this.yesNoChoices = data.yes_no_choices;
+          this.yesNoUnsureChoices = data.yes_no_unsure_choices;
+          this.decisionChoices = data.decision_choices;
+        });
+      },
+    },
+    computed: {
+      canModify() {
+        return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      }
+    },
+    filters: {
+      yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
+    },
+    created() {
+      this.getCurrentUser();
+      this.getMetadata();
+      this.getRequests();
+    },
+  });
+
+
+  </script>
+
+{% endblock %}

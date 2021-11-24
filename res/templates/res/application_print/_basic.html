@@ -1,0 +1,11 @@
+{% load i18n %}
+{% load verbose_names %}
+
+<table class="table table-sm w-auto">
+  <tbody>
+  {% for field in basic_fields %}
+    {% verbose_td_display object field crop_html=True th_width="200px" %}
+  {% endfor %}
+
+  </tbody>
+</table>

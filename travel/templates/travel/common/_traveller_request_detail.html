@@ -40,7 +40,7 @@
     <tr v-for="(reviewer, index) in t.request_obj.reviewer_history">
       <td>${reviewer.user_display} (${reviewer.role_display})</td>
       <td :class="reviewer.status_class">${reviewer.status_display}</td>
-      <td>${reviewer.status_date}</td>
+      <td>${reviewer.status_date_display}</td>
       <td v-html="reviewer.comments_html"></td>
     </tr>
     </tbody>

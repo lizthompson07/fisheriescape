@@ -5,6 +5,7 @@ from . import views
 router = DefaultRouter()
 
 router.register(r'regions', views.RegionViewSet)
+router.register(r'sectors', views.SectorViewSet)
 router.register(r'branches', views.BranchViewSet)
 router.register(r'divisions', views.DivisionViewSet)
 router.register(r'sections', views.SectionViewSet)

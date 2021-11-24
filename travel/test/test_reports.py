@@ -21,7 +21,7 @@ faker = Faker()
 #         super().setUp()
 #         self.test_url = reverse_lazy('travel:reports')
 #         self.expected_template = 'travel/reports.html'
-#         self.admin_user = self.get_and_login_user(in_group="travel_admin")
+#         self.admin_user = self.get_and_login_regional_admin()
 #
 #     @tag("travel", 'report', "view")
 #     def test_view_class(self):

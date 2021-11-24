@@ -17,8 +17,8 @@ class ResourceFilter(django_filters.FilterSet):
                                           widget=forms.Select(attrs=chosen_js))
     person = django_filters.ModelChoiceFilter(field_name="people", label=_("Person"), lookup_expr='exact',
                                               queryset=models.Person.objects.all(),
-                                              widget=forms.Select(attrs=chosen_js))
-    # status = django_filters.ChoiceFilter(field_name="status", label=_("Status"), lookup_expr='exact')
+                                              widget=forms.Select(attrs=chosen_js),)
+    resource_type = django_filters.ModelChoiceFilter(field_name="resource_type", label=_("Resource type"), lookup_expr='exact', queryset=models.ResourceType.objects.all())
     # percent_complete = django_filters.NumberFilter(field_name="completedness_rating", label=_("Percent complete"), lookup_expr='gte',
     #                                                widget=forms.NumberInput(attrs={"placeholder": "between 0 and 1"}))
     fgp_publication_date = django_filters.BooleanFilter(field_name="fgp_publication_date",

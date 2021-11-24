@@ -72,9 +72,9 @@ class SampleForm(forms.ModelForm):
         percent_flat = cleaned_data.get("percent_flat")
         percent_pool = cleaned_data.get("percent_pool")
         if (percent_riffle or percent_run or percent_flat or percent_pool) and (
-                nz(percent_riffle, 0) + nz(percent_run, 0) + nz(percent_flat, 0) + nz(percent_pool, 0) != 1):
+                nz(percent_riffle, 0) + nz(percent_run, 0) + nz(percent_flat, 0) + nz(percent_pool, 0) != 100):
             raise forms.ValidationError(
-                gettext("Either site characterization must be left null or must equal to 1")
+                gettext("Either site characterization must be left null or must equal to 100")
             )
 
         # make sure substrate characterization is null or 1
@@ -88,9 +88,9 @@ class SampleForm(forms.ModelForm):
         percent_bedrock = cleaned_data.get("percent_bedrock")
         if (percent_fine or percent_sand or percent_gravel or percent_pebble or percent_cobble or percent_rocks or percent_boulder or percent_bedrock) and (
                 nz(percent_fine, 0) + nz(percent_sand, 0) + nz(percent_gravel, 0) + nz(percent_pebble, 0) + nz(percent_cobble, 0) + nz(percent_rocks, 0) + nz(
-                percent_boulder, 0) + nz(percent_bedrock, 0) != 1):
+                percent_boulder, 0) + nz(percent_bedrock, 0) != 100):
             raise forms.ValidationError(
-                gettext("Either substrate characterization must be left null or must equal to 1")
+                gettext("Either substrate characterization must be left null or must equal to 100")
             )
 
 
@@ -112,6 +112,7 @@ class ObservationForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'sample': forms.HiddenInput(),
+            'sweep': forms.HiddenInput(),
         }
 
 
@@ -220,5 +221,22 @@ class ElectrofisherForm(forms.ModelForm):
 ElectrofisherFormset = modelformset_factory(
     model=models.Electrofisher,
     form=ElectrofisherForm,
+    extra=1,
+)
+
+
+
+class TrapNetUserForm(forms.ModelForm):
+    class Meta:
+        model = models.TrapNetUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+TrapNetUserFormset = modelformset_factory(
+    model=models.TrapNetUser,
+    form=TrapNetUserForm,
     extra=1,
 )

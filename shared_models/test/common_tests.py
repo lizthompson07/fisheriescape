@@ -1,12 +1,19 @@
 import os
 
 from django.conf import settings
+from django.contrib.messages import get_messages
 from django.test import TestCase
 from django.urls import resolve, reverse
 from django.utils.translation import activate
+from faker import Faker
 from html2text import html2text
 
+from csas2.models import CSASAdminUser
+from ppt.models import PPTAdminUser
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactory
+from travel.models import TravelUser
+
+faker = Faker()
 
 fixtures_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fixtures')
 standard_fixtures = [file for file in os.listdir(fixtures_dir)]
@@ -32,12 +39,13 @@ class CommonTest(TestCase):
     expected_form = None
 
     # use when a user needs to be logged in.
-    def get_and_login_user(self, user=None, in_group=None, is_superuser=False):
+    def get_and_login_user(self, user=None, in_group=None, is_superuser=False, in_national_admin_group=False):
         """
         this function is a handy way to log in a user to the testing client.
         :param user: optional user to be logged in
         :param in_group: optional group to have the user assigned to
         :param is_superuser: is the user a superuser?
+        :param in_national_admin_group: supplying True will put the user as either a travel, csas or project admin; with access to shared models org structure
         """
         if not user:
             user = UserFactory()
@@ -49,6 +57,15 @@ class CommonTest(TestCase):
         if is_superuser:
             user.is_superuser = True
             user.save()
+
+        if in_national_admin_group:
+            case = faker.pyint(1, 3)
+            if case == 1:  # travel
+                TravelUser.objects.create(user=user, is_national_admin=True)
+            elif case == 2:  # csas
+                CSASAdminUser.objects.create(user=user, is_national_admin=True)
+            elif case == 3:  # csas
+                PPTAdminUser.objects.create(user=user, is_national_admin=True)
         return user
 
     def assert_user_access_denied(self, test_url, user, locales=('en', 'fr'), expected_code=302,
@@ -314,6 +331,30 @@ class CommonTest(TestCase):
         if expected_success_url:
             self.assertRedirects(response=response, expected_url=expected_success_url)
 
+    def assert_message_returned_url(self, test_url, data=None, user=None, expected_messages=None,
+                                    use_anonymous_user=False):
+        """
+        test that upon a successful form the view redirects to the expected success url
+        :param test_url: URL being tested
+        :param data: optional data to use when submitting the form
+        :param user: an optional user that can be used to generate the response
+        :param expected_url_name: the name of the url to which a successful submission should be redirected
+        :param use_anonymous_user: should this function be run without logging in a uer? if so, set this optional arg
+        :param expected_messages: List of messages expected to be returned from the form_valid method
+        data will be stored in
+        """
+        # arbitrarily activate the english locale
+        activate('en')
+
+        # if a user is provided in the arg, log in with that user
+        if not use_anonymous_user:
+            self.get_and_login_user(user)
+
+        response = self.client.post(test_url, data=data)
+        messages = list(get_messages(response.wsgi_request))
+        for m in expected_messages:
+            self.assertIn(m, [m.message for m in messages])
+
     def assert_form_valid(self, form_class, data, instance=None, initial=None):
         """
         assert that upon submission a form is valid.
@@ -410,7 +451,8 @@ class CommonTest(TestCase):
         :param model: the model class to test
         :param fields: list of  field names to check
         """
-        model_field_list = [field.name for field in model._meta.fields]
+        model_field_list = [field.name for field in model._meta.fields] + \
+                           [field.name for field in model._meta.many_to_many]
         for field in fields:
             self.assertIn(field, model_field_list)
 

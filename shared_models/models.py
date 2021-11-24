@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from shapely.geometry import Point
 
-from shared_models.utils import get_metadata_string, format_coordinates
+from shared_models.utils import get_metadata_string, format_coordinates, get_last_modified_string
 
 
 class UnilingualSimpleLookup(models.Model):
@@ -129,6 +129,10 @@ class MetadataFields(models.Model):
             self.updated_by,
         )
 
+    @property
+    def last_modified_string(self):
+        return get_last_modified_string(self.updated_at, self.updated_by)
+
     def save(self, *args, **kwargs):
         if self.updated_by and not self.created_by:
             self.created_by = self.updated_by
@@ -203,6 +207,8 @@ class Region(SimpleLookupWithUUID):
                              related_name="shared_models_regions")
     admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
                               related_name="shared_models_admin_regions")
+    uuid = models.UUIDField(editable=True, unique=True, blank=True, null=True, default=uuid.uuid4, verbose_name=_("unique identifier"))
+
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -218,19 +224,22 @@ class Region(SimpleLookupWithUUID):
 
     class Meta:
         ordering = ['name', ]
-        verbose_name = _("Region - Sector (NCR)")
-        verbose_name_plural = _("Regions - Sectors (NCR)")
+        verbose_name = _("Region - National (NCR)")
+        verbose_name_plural = _("Regions - National (NCR)")
 
 
-class Branch(SimpleLookupWithUUID):
+class Sector(SimpleLookupWithUUID):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
-    abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
-    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("region"), related_name="branches")
+    abbrev_en = models.CharField(max_length=10, verbose_name=_("abbreviation (English)"))
+    abbrev_fr = models.CharField(max_length=10, verbose_name=_("abbreviation (French)"))
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("region"), related_name="sectors")
     head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                             verbose_name=_("regional director / NCR director general"),
-                             related_name="shared_models_branches")
+                             verbose_name=_("Director General / Associate Deputy Minister"),
+                             related_name="shared_models_sectors")
     admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
-                              related_name="shared_models_admin_branches")
+                              related_name="shared_models_admin_sectors")
+    uuid = models.UUIDField(editable=True, unique=True, blank=True, null=True, default=uuid.uuid4, verbose_name=_("unique identifier"))
+
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -244,6 +253,54 @@ class Branch(SimpleLookupWithUUID):
         return f"{self.tname} ({self.region})"
 
     def save(self, *args, **kwargs):
+        for obj in self.branches.all():
+            obj.save()
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['name', ]
+        verbose_name = _("Sector")
+
+    @property
+    def tabbrev(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("abbrev_en"))):
+            my_str = "{}".format(getattr(self, str(_("abbrev_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.abbrev_en
+        return my_str
+
+
+class Branch(SimpleLookupWithUUID):
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
+    abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("region"), related_name="branches", editable=False, blank=True,
+                               null=True)  # TODO: this needs to be removed eventually.
+    sector = models.ForeignKey(Sector, on_delete=models.DO_NOTHING, verbose_name=_("sector"), related_name="branches", blank=False, null=True)
+    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                             verbose_name=_("regional director / NCR director general"),
+                             related_name="shared_models_branches")
+    admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
+                              related_name="shared_models_admin_branches")
+    uuid = models.UUIDField(editable=True, unique=True, blank=True, null=True, default=uuid.uuid4, verbose_name=_("unique identifier"))
+    # meta
+    date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    @property
+    def metadata(self):
+        return get_metadata_string(None, None, self.date_last_modified, self.last_modified_by)
+
+    def __str__(self):
+        mystr = f"{self.tname}"
+        if self.sector:
+            mystr += f" ({self.sector.region.tname}, {self.sector.tabbrev})"
+        return mystr
+
+    def save(self, *args, **kwargs):
+        if self.sector:
+            self.region = self.sector.region
         for obj in self.divisions.all():
             obj.save()
         super().save(*args, **kwargs)
@@ -262,6 +319,7 @@ class Division(SimpleLookupWithUUID):
                              related_name="shared_models_divisions")
     admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
                               related_name="shared_models_admin_divisions")
+    uuid = models.UUIDField(editable=True, unique=True, blank=True, null=True, default=uuid.uuid4, verbose_name=_("unique identifier"))
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -294,6 +352,7 @@ class Section(SimpleLookupWithUUID):
     admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
                               related_name="shared_models_admin_sections")
     abbrev = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("abbreviation"))
+    uuid = models.UUIDField(editable=True, unique=True, blank=True, null=True, default=uuid.uuid4, verbose_name=_("unique identifier"))
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -548,7 +607,7 @@ class Vessel(models.Model):
 # oceanography
 # diets
 # snowcrab
-class Cruise(models.Model):
+class Cruise(MetadataFields):
     institute = models.ForeignKey(Institute, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="cruises")
     mission_number = models.CharField(max_length=255, verbose_name=_("Mission Number"), unique=True)
     mission_name = models.CharField(max_length=255, verbose_name=_("Mission Name"))
@@ -558,11 +617,10 @@ class Cruise(models.Model):
     samplers = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Samplers"))
     start_date = models.DateTimeField(null=True, blank=True, verbose_name=_("Start Date"))
     end_date = models.DateTimeField(null=True, blank=True, verbose_name=_("End Date"))
-    probe = models.ForeignKey(Probe, null=True, blank=True, on_delete=models.DO_NOTHING)
+    probe = models.ForeignKey(Probe, null=True, blank=True, on_delete=models.DO_NOTHING, editable=False)
     area_of_operation = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Area of Operation"))
     number_of_profiles = models.IntegerField(blank=True, null=True, verbose_name=_("Number of Profiles"))
     meds_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("MEDS ID"))
-    notes = models.CharField(max_length=255, null=True, blank=True)
     season = models.IntegerField(null=True, blank=True)
     vessel = models.ForeignKey(Vessel, on_delete=models.DO_NOTHING, related_name="cruises", blank=True, null=True)
     west_bound_longitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_(
@@ -583,6 +641,9 @@ class Cruise(models.Model):
         "research projects programs"))  # , verbose_name="The collaborative research or programs which the cruise is part of, separate them with comma")
     references = models.TextField(null=True, blank=True, verbose_name=_(
         "references"))  # , verbose_name="Provide the bibliographic citations for publications describing the data set. Example: cruise report, scientific paper")
+    notes = models.TextField(null=True, blank=True)
+    editors = models.ManyToManyField(User, blank=True, verbose_name=_("editors"), related_name="cruise_editors",
+                                     help_text=_("A list of dmapps user who can edit this cruise"))
 
     class Meta:
         ordering = ['mission_number', ]
@@ -824,7 +885,7 @@ class Location(models.Model):
         ordering = ["country", "location_en"]
 
 
-class Organization(SimpleLookup):
+class Organization(SimpleLookupWithUUID):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     abbrev = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
     address = models.TextField(blank=True, null=True, verbose_name=_("address"))
@@ -835,15 +896,17 @@ class Organization(SimpleLookup):
 
     # calc
     full_address = models.CharField(max_length=1000, blank=True, null=True, editable=False)
-    full_name_and_address = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_and_address_en = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_and_address_fr = models.CharField(max_length=1000, blank=True, null=True, editable=False)
 
     def save(self, *args, **kwargs):
         self.full_address = self.get_full_address()
-        self.full_name_and_address = self.get_full_name_and_address()
+        self.full_name_and_address_en = self.get_full_name_and_address_en()
+        self.full_name_and_address_fr = self.get_full_name_and_address_fr()
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.full_name_and_address
+        return self.tfull
 
     def get_full_address(self):
         # initial my_str with either address or None
@@ -871,8 +934,27 @@ class Organization(SimpleLookup):
             my_str += self.postal_code
         return my_str
 
-    def get_full_name_and_address(self):
-        return self.tname + f", {self.full_address}"
+    def get_full_name_and_address_en(self):
+        return self.name + f", {self.full_address}"
+
+    def get_full_name_and_address_fr(self):
+        if self.nom:
+            return self.nom + f", {self.full_address}"
+        return self.name + f", {self.full_address}"
+
+    @property
+    def tfull(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("full_name_and_address_en"))):
+            my_str = "{}".format(getattr(self, str(_("full_name_and_address_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.full_name_and_address_en
+        return my_str
+
+
+class SubjectMatter(SimpleLookupWithUUID):
+    pass
 
 
 class Person(MetadataFields):
@@ -888,6 +970,7 @@ class Person(MetadataFields):
     dmapps_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("linkage to DM Apps User"),
                                        related_name="contact")
     old_id = models.IntegerField(blank=True, null=True, editable=False)
+    expertise = models.ManyToManyField(SubjectMatter, blank=True, verbose_name=_("expertise"))
 
     def __str__(self):
         return self.full_name

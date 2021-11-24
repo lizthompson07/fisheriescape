@@ -1,29 +1,35 @@
 import os
 from datetime import datetime
+from datetime import timedelta
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.decorators import login_required
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden, HttpResponseNotFound
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.timezone import make_aware, utc
 from django.utils.translation import gettext_lazy, gettext as _
+from easy_pdf.views import PDFTemplateView
 
-from lib.functions.custom_functions import fiscal_year, truncate
-from shared_models.models import Person, FiscalYear
+from lib.functions.custom_functions import fiscal_year, truncate, listrify
+from shared_models.models import Person, FiscalYear, SubjectMatter
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
-    CommonHardDeleteView
+    CommonHardDeleteView, CommonListView
 from . import models, forms, filters, utils, reports, emails
 from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin, \
-    CsasNationalAdminRequiredMixin
-from .utils import in_csas_admin_group, get_quarter
-from datetime import timedelta
+    CsasNationalAdminRequiredMixin, SuperuserOrCsasNationalAdminRequiredMixin, CsasNCRStaffRequiredMixin
+from .utils import in_csas_admin_group
+
+posted_meeting_msg = gettext_lazy(
+    "The process' meeting has already been posted therefore any changes to the ToR's "
+    "expected publications will trigger a notification to the national CSAS team."
+)
+
 
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     h1 = "home"
@@ -32,12 +38,29 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_admin"] = in_csas_admin_group(self.request.user)
+        context["has_todos"] = utils.has_todos(self.request.user)
         return context
 
 
 # settings
 ##########
+
+
+class TagHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView):
+    model = SubjectMatter
+    success_url = reverse_lazy("csas2:manage_tags")
+
+
+class TagFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
+    template_name = 'csas2/formset.html'
+    h1 = "Manage Tags"
+    queryset = SubjectMatter.objects.all()
+    formset_class = forms.TagFormset
+    success_url = reverse_lazy("csas2:manage_tags")
+    home_url_name = "csas2:index"
+    delete_url_name = "csas2:delete_tag"
+    container_class = "container bg-light curvy"
+
 
 class DocumentTypeFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
     template_name = 'csas2/formset.html'
@@ -69,60 +92,74 @@ class InviteeRoleHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDelete
     success_url = reverse_lazy("csas2:manage_invitee_roles")
 
 
-# user permissions
-class UserListView(CsasNationalAdminRequiredMixin, CommonFilterView):
-    template_name = "csas2/user_list.html"
-    filterset_class = filters.UserFilter
-    home_url_name = "index"
-    paginate_by = 25
-    h1 = "CSAS Tracking Tool User Permissions"
+class CSASAdminUserFormsetView(SuperuserOrCsasNationalAdminRequiredMixin, CommonFormsetView):
+    template_name = 'csas2/formset.html'
+    h1 = "Manage CSAS Administrative Users"
+    queryset = models.CSASAdminUser.objects.all()
+    formset_class = forms.CSASAdminUserFormset
+    success_url_name = "csas2:manage_csas_admin_users"
+    home_url_name = "csas2:index"
+    delete_url_name = "csas2:delete_csas_admin_user"
+
+
+class CSASAdminUserHardDeleteView(SuperuserOrCsasNationalAdminRequiredMixin, CommonHardDeleteView):
+    model = models.CSASAdminUser
+    success_url = reverse_lazy("csas2:manage_csas_admin_users")
+
+
+# csas office #
+##########
+
+class CSASOfficeListView(CsasAdminRequiredMixin, CommonListView):
+    template_name = 'csas2/list.html'
+    model = models.CSASOffice
     field_list = [
-        {"name": 'first_name', "class": "", "width": ""},
-        {"name": 'last_name', "class": "", "width": ""},
-        {"name": 'email', "class": "", "width": ""},
-        {"name": 'last_login|{}'.format(gettext_lazy("Last login to DM Apps")), "class": "", "width": ""},
+        {"name": 'region', "class": "", "width": ""},
+        {"name": 'coordinator', "class": "", "width": ""},
+        {"name": 'advisors', "class": "", "width": ""},
+        {"name": 'administrators', "class": "", "width": ""},
     ]
-    new_object_url = reverse_lazy("shared_models:user_new")
-
-    def get_queryset(self):
-        queryset = User.objects.order_by("first_name", "last_name").annotate(
-            search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
-        )
-        if self.request.GET.get("csas_only"):
-            nat_group, created = Group.objects.get_or_create(name="csas_national_admin")
-            reg_group, created = Group.objects.get_or_create(name="csas_regional_admin")
-            queryset = queryset.filter(groups__in=[nat_group, reg_group]).distinct()
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        nat_group, created = Group.objects.get_or_create(name="csas_national_admin")
-        reg_group, created = Group.objects.get_or_create(name="csas_regional_admin")
-        context["nat_group"] = nat_group
-        context["reg_group"] = reg_group
-        return context
+    new_object_url_name = "csas2:office_new"
+    row_object_url_name = "csas2:office_edit"
+    home_url_name = "csas2:index"
+    h1 = gettext_lazy("CSAS Offices")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(utils.in_csas_national_admin_group, login_url='/accounts/denied/')
-def toggle_user(request, pk, type):
-    if utils.in_csas_national_admin_group(request.user):
-        my_user = User.objects.get(pk=pk)
-        nat_group, created = Group.objects.get_or_create(name="csas_national_admin")
-        reg_group, created = Group.objects.get_or_create(name="csas_regional_admin")
-        group = None
-        if type == "nat":
-            group = nat_group
-        elif type == "reg":
-            group = reg_group
-        if group:
-            my_user.groups.remove(group) if group in my_user.groups.all() else my_user.groups.add(group)
-            return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
-        else:
-            return HttpResponseNotFound("Sorry, group type not recognized")
+class CSASOfficeUpdateView(CsasAdminRequiredMixin, CommonUpdateView):
+    model = models.CSASOffice
+    template_name = 'csas2/form.html'
+    form_class = forms.CSASOfficeForm
+    home_url_name = "csas2:index"
+    grandparent_crumb = {"title": gettext_lazy("CSAS Offices"), "url": reverse_lazy("csas2:office_list")}
 
-    else:
-        return HttpResponseForbidden("sorry, not authorized")
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.upated_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
+
+
+class CSASOfficeCreateView(CsasAdminRequiredMixin, CommonCreateView):
+    model = models.CSASOffice
+    template_name = 'csas2/form.html'
+    form_class = forms.CSASOfficeForm
+    home_url_name = "csas2:index"
+    parent_crumb = {"title": gettext_lazy("CSAS Offices"), "url": reverse_lazy("csas2:office_list")}
+    h1 = gettext_lazy("New Contact")
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.created_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
+
+
+class CSASOfficeDeleteView(CsasAdminRequiredMixin, CommonDeleteView):
+    model = models.CSASOffice
+    template_name = 'csas2/confirm_delete.html'
+    success_url = reverse_lazy('csas2:office_list')
+    home_url_name = "csas2:index"
+    grandparent_crumb = {"title": gettext_lazy("CSAS Offices"), "url": reverse_lazy("csas2:office_list")}
 
 
 # people #
@@ -166,6 +203,10 @@ class PersonUpdateView(CsasAdminRequiredMixin, CommonUpdateView):
     form_class = forms.PersonForm
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("csas2:person_list")}
+
+    def get_h3(self):
+        if self.get_object().dmapps_user:
+            return _("Some details of this contact cannot be modified since they are connected to a DM Apps account.")
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("csas2:person_detail", args=[self.get_object().id])}
@@ -219,21 +260,31 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'id', "class": "", "width": "50px"},
         {"name": 'fiscal_year', "class": "", "width": "100px"},
-        {"name": 'ref_number', "class": "", "width": "150px"},
-        {"name": 'title|{}'.format("title"), "class": "", "width": "400px"},
+        {"name": 'title|{}'.format(gettext_lazy("title")), "class": "w-35"},
         {"name": 'status', "class": "", "width": "100px"},
+        {"name": 'has_process|{}'.format(gettext_lazy("has process?")), "class": "text-center", "width": "120px"},
         {"name": 'coordinator', "class": "", "width": "150px"},
         {"name": 'client', "class": "", "width": "150px"},
-        {"name": 'region|{}'.format(_("region")), "class": "", "width": "75px"},
-        {"name": 'section|{}'.format(_("section")), "class": "", "width": ""},
+        {"name": 'region|{}'.format(gettext_lazy("region")), "class": "", "width": "75px"},
+        {"name": 'sector|{}'.format(gettext_lazy("sector")), "class": ""},
+        {"name": 'section|{}'.format(gettext_lazy("section")), "class": ""},
     ]
+
+    def get_extra_button_dict1(self):
+        qs = self.filterset.qs
+        ids = listrify([obj.id for obj in qs])
+        return {
+            "name": _("<span class=' mr-1 mdi mdi-file-excel'></span> {name}").format(name=_("Export")),
+            "url": reverse("csas2:request_list_report") + f"?csas_requests={ids}",
+            "class": "btn-outline-dark",
+        }
 
     def get_queryset(self):
         qp = self.request.GET
         qs = models.CSASRequest.objects.all()
         if qp.get("personalized"):
             qs = utils.get_related_requests(self.request.user)
-        qs = qs.annotate(search_term=Concat('title', Value(" "), 'translated_title', Value(" "), 'ref_number', output_field=TextField()))
+        qs = qs.annotate(search=Concat('title', Value(" "), 'translated_title', Value(" "), 'ref_number', output_field=TextField()))
         return qs
 
     def get_h1(self):
@@ -250,7 +301,7 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
     def get_active_page_name_crumb(self):
-        return "{} {}".format(_("Request"), self.get_object().id)
+        return truncate(self.get_object().title, 50)
 
     def get_context_data(self, **kwargs):
         obj = self.get_object()
@@ -260,6 +311,84 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
         return context
 
 
+class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
+    template_name = 'csas2/request_pdf.html'
+
+    def get_object_list(self):
+        qp = self.request.GET
+        csas_requests = qp.get("csas_requests") if qp.get("csas_requests") and qp.get("csas_requests") != "None" else None
+        fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
+        request_status = qp.get("request_status") if qp.get("request_status") and qp.get("request_status") != "None" else None
+        region = qp.get("region") if qp.get("region") and qp.get("region") != "None" else None
+        sector = qp.get("sector") if qp.get("sector") and qp.get("sector") != "None" else None
+        branch = qp.get("branch") if qp.get("branch") and qp.get("branch") != "None" else None
+        division = qp.get("division") if qp.get("division") and qp.get("division") != "None" else None
+        section = qp.get("section") if qp.get("section") and qp.get("section") != "None" else None
+
+        qs = models.CSASRequest.objects.all()
+        if csas_requests:
+            csas_requests = qp.get("csas_requests").split(",")
+            qs = qs.filter(id__in=csas_requests)
+        else:
+            if fiscal_year:
+                qs = qs.filter(fiscal_year_id=fiscal_year)
+            if request_status:
+                qs = qs.filter(status=request_status)
+            if region:
+                qs = qs.filter(section__division__branch__sector__region_id=region)
+            if sector:
+                qs = qs.filter(section__division__branch__sector_id=sector)
+            if branch:
+                qs = qs.filter(section__division__branch_id=branch)
+            if division:
+                qs = qs.filter(section__division_id=division)
+            if section:
+                qs = qs.filter(section_id=section)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object_list"] = self.get_object_list()
+        context["now"] = timezone.now()
+        return context
+
+
+class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
+    template_name = 'csas2/request_reviews/main.html'
+    container_class = "container-fluid"
+    home_url_name = "csas2:index"
+    h1 = gettext_lazy("CSAS Request Review Console")
+    filterset_class = filters.CSASRequestFilter
+    model = models.CSASRequest
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_queryset(self):
+        qs = models.CSASRequest.objects.all()
+        qs = qs.annotate(search=Concat('title', Value(" "), 'translated_title', Value(" "), 'id', output_field=TextField()))
+        return qs
+
+
+class ProcessReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):
+    template_name = 'csas2/process_reviews/main.html'
+    container_class = "container-fluid"
+    home_url_name = "csas2:index"
+    h1 = gettext_lazy("CSAS Process Review Console")
+    filterset_class = filters.ProcessFilter
+    model = models.Process
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_queryset(self):
+        qs = models.Process.objects.all().order_by("-created_at")
+        qs = qs.annotate(search=Concat('name', Value(" "), 'nom', Value(" "), 'id', output_field=TextField()))
+        return qs
+
+
 class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     model = models.CSASRequest
     form_class = forms.CSASRequestForm
@@ -267,6 +396,10 @@ class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
     submit_text = gettext_lazy("Save")
+    h1 = gettext_lazy("New CSAS Request")
+    h2 = gettext_lazy(
+        "All fields are mandatory before approvals and submission. The fields in <span class='red-font'>red</span> are mandatory before saving."
+    )
 
     def get_initial(self):
         return dict(
@@ -290,6 +423,9 @@ class CSASRequestUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
     template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+    h2 = gettext_lazy(
+        "All fields are mandatory before approvals and submission. The fields in <span class='red-font'>red</span> are mandatory before saving."
+    )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -297,7 +433,7 @@ class CSASRequestUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
         return context
 
     def get_parent_crumb(self):
-        return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+        return {"title": truncate(self.get_object().title, 50), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -313,13 +449,14 @@ class CSASRequestDeleteView(CanModifyRequestRequiredMixin, CommonDeleteView):
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
     def get_parent_crumb(self):
-        return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+        return {"title": truncate(self.get_object().title, 50), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
 
 class CSASRequestSubmitView(CSASRequestUpdateView):
     template_name = 'csas2/request_submit.html'
     form_class = forms.TripRequestTimestampUpdateForm
     submit_text = gettext_lazy("Proceed")
+    h2 = None
 
     def get_h1(self):
         my_object = self.get_object()
@@ -328,13 +465,8 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
         else:
             return _("Do you wish to submit the following request?")
 
-    def get_h3(self):
-        my_object = self.get_object()
-        if not my_object.submission_date:
-            return _("Please ensure the following items have been completed:")
-
     def get_parent_crumb(self):
-        return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+        return {"title": truncate(self.get_object().title, 50), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -378,7 +510,6 @@ class CSASRequestCloneUpdateView(CSASRequestUpdateView):
         new_obj.uuid = None
         new_obj.ref_number = None
         new_obj.created_by = self.request.user
-        new_obj.notes = None
         new_obj.save()
         return HttpResponseRedirect(reverse_lazy("csas2:request_detail", args=[new_obj.id]))
 
@@ -390,6 +521,10 @@ class CSASRequestFileCreateView(CanModifyRequestRequiredMixin, CommonPopoutCreat
     model = models.CSASRequestFile
     form_class = forms.CSASRequestFileForm
     is_multipart_form_data = True
+    h1 = gettext_lazy("New CSAS Request File")
+
+    def get_initial(self):
+        return dict(csas_request=self.kwargs.get("crequest"))
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -420,6 +555,7 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
     row_object_url_name = row_ = "csas2:process_detail"
     container_class = "container-fluid"
     open_row_in_new_tab = True
+    h1 = gettext_lazy("CSAS Processes")
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
@@ -438,7 +574,7 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
         qs = models.Process.objects.all()
         if qp.get("personalized"):
             qs = utils.get_related_processes(self.request.user)
-        qs = qs.annotate(search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+        qs = qs.annotate(search=Concat('name', Value(" "), 'nom', output_field=TextField()))
         return qs
 
     def get_h1(self):
@@ -481,6 +617,7 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
     submit_text = gettext_lazy("Save")
+    h1 = gettext_lazy("New CSAS Process")
 
     def get_initial(self):
         data = dict(
@@ -492,6 +629,7 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
             data["name"] = csas_request.title
             data["csas_requests"] = [csas_request.id, ]
             data["coordinator"] = csas_request.coordinator
+            data["advice_date"] = csas_request.target_advice_date
         return data
 
     def form_valid(self, form):
@@ -611,7 +749,7 @@ class ProcessDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
         return {"title": "{} {}".format(_("Process"), self.get_object().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().id])}
 
 
-class ProcessPostingsVueJSView(CsasNationalAdminRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
+class ProcessPostingsVueJSView(CsasNCRStaffRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
     template_name = 'csas2/process_postings.html'
     home_url_name = "csas2:index"
     container_class = "container-fluid"
@@ -630,12 +768,11 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
     home_url_name = "csas2:index"
     submit_text = gettext_lazy("Initiate ToR")
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+    h1 = gettext_lazy("New Terms of Reference")
 
     def get_h3(self):
         if self.get_process().is_posted:
-            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(
-                _("This process has already been posted therefore changes to the ToR "
-                  "will automatically trigger a notification to be sent to the national CSAS team."))
+            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
             return mark_safe(mystr)
 
     def get_initial(self):
@@ -675,9 +812,7 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
 
     def get_h3(self):
         if self.get_object().process.is_posted:
-            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(
-                _("This process has already been posted therefore changes to the ToR "
-                  "will automatically trigger a notification to be sent to the national CSAS team."))
+            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
             return mark_safe(mystr)
 
     def get_parent_crumb(self):
@@ -769,6 +904,7 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
     home_url_name = "csas2:index"
     row_object_url_name = row_ = "csas2:meeting_detail"
     container_class = "container-fluid"
+    h1 = gettext_lazy("Meetings")
 
     field_list = [
         {"name": 'process', "class": "", "width": "400px"},
@@ -818,6 +954,11 @@ class MeetingCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
     template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+    h1 = gettext_lazy("New Meeting")
+
+    def get_initial(self):
+        process = self.get_process()
+        return dict(name=process.name, nom=process.nom)
 
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_process().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_process().id])}
@@ -979,9 +1120,9 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
     open_row_in_new_tab = True
 
     field_list = [
-        {"name": 'ttitle|{}'.format("title"), "class": "", "width": "300px"},
+        {"name": 'ttitle|{}'.format("title"), "class": "w-35"},
         {"name": 'document_type', "class": "", "width": ""},
-        {"name": 'process', "class": "", "width": "300px"},
+        {"name": 'process', "class": "w-25"},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'translation_status', "class": "", "width": ""},
     ]
@@ -1033,6 +1174,7 @@ class DocumentCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
     is_multipart_form_data = True
+    h1 = gettext_lazy("New Document")
 
     def get_initial(self):
         """ For the benefit of the form class"""
@@ -1089,6 +1231,16 @@ class DocumentDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
         return {"title": truncate(str(self.get_object()), 50), "url": reverse_lazy("csas2:document_detail", args=[self.get_object().id])}
 
 
+# To Do List #
+##############
+
+
+class ToDoListTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
+    template_name = 'csas2/todo_list.html'
+    home_url_name = "csas2:index"
+    h1 = gettext_lazy("To Do List")
+
+
 # reports #
 ###########
 
@@ -1100,9 +1252,50 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
         fy = form.cleaned_data["fiscal_year"] if form.cleaned_data["fiscal_year"] else "None"
+        request_status = form.cleaned_data["request_status"] if form.cleaned_data["request_status"] else "None"
+        region = form.cleaned_data["region"] if form.cleaned_data["region"] else "None"
+        sector = form.cleaned_data["sector"] if form.cleaned_data["sector"] else "None"
+        branch = form.cleaned_data["branch"] if form.cleaned_data["branch"] else "None"
+        division = form.cleaned_data["division"] if form.cleaned_data["division"] else "None"
+        section = form.cleaned_data["section"] if form.cleaned_data["section"] else "None"
+        csas_requests = listrify(form.cleaned_data["csas_requests"], ",") if form.cleaned_data["csas_requests"] else "None"
+        process_status = form.cleaned_data["process_status"] if form.cleaned_data["process_status"] else "None"
+        process_type = form.cleaned_data["process_type"] if form.cleaned_data["process_type"] else "None"
+        lead_region = form.cleaned_data["lead_region"] if form.cleaned_data["lead_region"] else "None"
+
         is_posted = form.cleaned_data["is_posted"] if form.cleaned_data["is_posted"] != "" else "None"
         if report == 1:
             return HttpResponseRedirect(f"{reverse('csas2:meeting_report')}?fiscal_year={fy}&is_posted={is_posted}")
+        elif report == 2:
+            return HttpResponseRedirect(f"{reverse('csas2:request_pdf')}?"
+                                        f"fiscal_year={fy}&"
+                                        f"request_status={request_status}&"
+                                        f"region={region}&"
+                                        f"sector={sector}&"
+                                        f"branch={branch}&"
+                                        f"division={division}&"
+                                        f"section={section}&"
+                                        f"csas_requests={csas_requests}&"
+                                        )
+        elif report == 3:
+            return HttpResponseRedirect(f"{reverse('csas2:request_list_report')}?"
+                                        f"fiscal_year={fy}&"
+                                        f"request_status={request_status}&"
+                                        f"region={region}&"
+                                        f"sector={sector}&"
+                                        f"branch={branch}&"
+                                        f"division={division}&"
+                                        f"section={section}&"
+                                        f"csas_requests={csas_requests}&"
+                                        )
+        elif report == 4:
+            return HttpResponseRedirect(f"{reverse('csas2:process_list_report')}?"
+                                        f"fiscal_year={fy}&"
+                                        f"process_status={process_status}&"
+                                        f"process_type={process_type}&"
+                                        f"lead_region={lead_region}&"
+                                        )
+
         messages.error(self.request, "Report is not available. Please select another report.")
         return HttpResponseRedirect(reverse("csas2:reports"))
 
@@ -1119,5 +1312,77 @@ def meeting_report(request):
             fy = get_object_or_404(FiscalYear, pk=year) if year else "all years"
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="CSAS meetings ({fy}).xlsx"'
+            return response
+    raise Http404
+
+
+@login_required()
+def request_list_report(request):
+    qp = request.GET
+    csas_requests = qp.get("csas_requests") if qp.get("csas_requests") and qp.get("csas_requests") != "None" else None
+    fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
+    request_status = qp.get("request_status") if qp.get("request_status") and qp.get("request_status") != "None" else None
+    region = qp.get("region") if qp.get("region") and qp.get("region") != "None" else None
+    sector = qp.get("sector") if qp.get("sector") and qp.get("sector") != "None" else None
+    branch = qp.get("branch") if qp.get("branch") and qp.get("branch") != "None" else None
+    division = qp.get("division") if qp.get("division") and qp.get("division") != "None" else None
+    section = qp.get("section") if qp.get("section") and qp.get("section") != "None" else None
+
+    qs = models.CSASRequest.objects.all()
+    if csas_requests:
+        csas_requests = qp.get("csas_requests").split(",")
+        qs = qs.filter(id__in=csas_requests)
+    else:
+        if fiscal_year:
+            qs = qs.filter(fiscal_year_id=fiscal_year)
+        if request_status:
+            qs = qs.filter(status=request_status)
+        if region:
+            qs = qs.filter(section__division__branch__sector__region_id=region)
+        if sector:
+            qs = qs.filter(section__division__branch__sector_id=sector)
+        if branch:
+            qs = qs.filter(section__division__branch_id=branch)
+        if division:
+            qs = qs.filter(section__division_id=division)
+        if section:
+            qs = qs.filter(section_id=section)
+
+    file_url = reports.generate_request_list(qs)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            fy = get_object_or_404(FiscalYear, pk=fiscal_year) if fiscal_year else "all years"
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="CSAS requests ({fy}).xlsx"'
+            return response
+    raise Http404
+
+
+@login_required()
+def process_list_report(request):
+    qp = request.GET
+    fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
+    process_status = qp.get("process_status") if qp.get("process_status") and qp.get("process_status") != "None" else None
+    process_type = qp.get("process_type") if qp.get("process_type") and qp.get("process_type") != "None" else None
+    lead_region = qp.get("lead_region") if qp.get("lead_region") and qp.get("lead_region") != "None" else None
+
+    qs = models.Process.objects.all()
+    if fiscal_year:
+        qs = qs.filter(fiscal_year_id=fiscal_year)
+    if process_status:
+        qs = qs.filter(status=process_status)
+    if process_type:
+        qs = qs.filter(type=process_type)
+    if lead_region:
+        qs = qs.filter(lead_region_id=lead_region)
+
+    file_url = reports.generate_process_list(qs)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            fy = get_object_or_404(FiscalYear, pk=fiscal_year) if fiscal_year else "all years"
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="CSAS processes ({fy}).xlsx"'
             return response
     raise Http404

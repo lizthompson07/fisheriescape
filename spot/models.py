@@ -211,6 +211,8 @@ class Project(models.Model):
     summary = models.TextField(blank=True, null=True, verbose_name=_("summary"))
     old_id = models.IntegerField(blank=True, null=True)
     eccc_id = models.CharField(max_length=50, blank=True, null=True)
+    appendix_k = models.CharField(max_length=100, blank=True, null=True)
+
 
     ## Initiation
     language = models.ForeignKey(shared_models.Language, on_delete=models.DO_NOTHING, related_name="projects",

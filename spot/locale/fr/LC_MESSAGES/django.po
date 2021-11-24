@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-05 12:06-0300\n"
+"POT-Creation-Date: 2021-11-05 08:22-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,17 +19,17 @@ msgstr "Non"
 
 #: .\spot\models.py:20 .\spot\models.py:39 .\spot\models.py:66
 #: .\spot\models.py:82 .\spot\models.py:107 .\spot\models.py:143
-#: .\spot\models.py:166 .\spot\models.py:182 .\spot\models.py:367
-#: .\spot\models.py:541 .\spot\models.py:664 .\spot\models.py:681
-#: .\spot\models.py:697 .\spot\models.py:821
+#: .\spot\models.py:166 .\spot\models.py:182 .\spot\models.py:369
+#: .\spot\models.py:543 .\spot\models.py:666 .\spot\models.py:683
+#: .\spot\models.py:699 .\spot\models.py:823
 msgid "name (English)"
 msgstr "nom (anglais)"
 
 #: .\spot\models.py:21 .\spot\models.py:40 .\spot\models.py:67
 #: .\spot\models.py:83 .\spot\models.py:108 .\spot\models.py:144
-#: .\spot\models.py:167 .\spot\models.py:183 .\spot\models.py:542
-#: .\spot\models.py:665 .\spot\models.py:682 .\spot\models.py:698
-#: .\spot\models.py:822
+#: .\spot\models.py:167 .\spot\models.py:183 .\spot\models.py:544
+#: .\spot\models.py:667 .\spot\models.py:684 .\spot\models.py:700
+#: .\spot\models.py:824
 msgid "name (French)"
 msgstr "nom (français)"
 
@@ -40,13 +40,13 @@ msgstr "nom (français)"
 #: .\spot\models.py:123 .\spot\models.py:158 .\spot\models.py:162
 #: .\spot\models.py:171 .\spot\models.py:172 .\spot\models.py:178
 #: .\spot\models.py:190 .\spot\models.py:191 .\spot\models.py:197
-#: .\spot\models.py:373 .\spot\models.py:374 .\spot\models.py:546
-#: .\spot\models.py:547 .\spot\models.py:553 .\spot\models.py:669
-#: .\spot\models.py:670 .\spot\models.py:676 .\spot\models.py:686
-#: .\spot\models.py:687 .\spot\models.py:693 .\spot\models.py:702
-#: .\spot\models.py:703 .\spot\models.py:709 .\spot\models.py:728
-#: .\spot\models.py:729 .\spot\models.py:735 .\spot\models.py:826
-#: .\spot\models.py:827 .\spot\models.py:833
+#: .\spot\models.py:375 .\spot\models.py:376 .\spot\models.py:548
+#: .\spot\models.py:549 .\spot\models.py:555 .\spot\models.py:671
+#: .\spot\models.py:672 .\spot\models.py:678 .\spot\models.py:688
+#: .\spot\models.py:689 .\spot\models.py:695 .\spot\models.py:704
+#: .\spot\models.py:705 .\spot\models.py:711 .\spot\models.py:730
+#: .\spot\models.py:731 .\spot\models.py:737 .\spot\models.py:828
+#: .\spot\models.py:829 .\spot\models.py:835
 msgid "name"
 msgstr "nom"
 
@@ -113,331 +113,331 @@ msgstr "Secteurs du MPO"
 msgid "summary"
 msgstr ""
 
-#: .\spot\models.py:217 .\spot\models.py:506
+#: .\spot\models.py:219 .\spot\models.py:508
 #, fuzzy
 msgid "project language"
 msgstr "Chef de projet"
 
-#: .\spot\models.py:219
+#: .\spot\models.py:221
 msgid "title abbreviation"
 msgstr ""
 
-#: .\spot\models.py:222
+#: .\spot\models.py:224
 #, fuzzy
 msgid "type of initiation"
 msgstr "Organisation"
 
-#: .\spot\models.py:224
+#: .\spot\models.py:226
 msgid "priority areas or threats"
 msgstr ""
 
-#: .\spot\models.py:225
+#: .\spot\models.py:227
 msgid "acknowledgement email sent"
 msgstr ""
 
-#: .\spot\models.py:226
+#: .\spot\models.py:228
 msgid "requested funding (year 1)"
 msgstr ""
 
-#: .\spot\models.py:227
+#: .\spot\models.py:229
 msgid "requested funding (year 2)"
 msgstr ""
 
-#: .\spot\models.py:228
+#: .\spot\models.py:230
 msgid "requested funding (year 3)"
 msgstr ""
 
-#: .\spot\models.py:229
+#: .\spot\models.py:231
 msgid "requested funding (year 4)"
 msgstr ""
 
-#: .\spot\models.py:230
+#: .\spot\models.py:232
 msgid "requested funding (year 5)"
 msgstr ""
 
-#: .\spot\models.py:231
+#: .\spot\models.py:233
 #, fuzzy
 msgid "project overview"
 msgstr "titre du projet"
 
-#: .\spot\models.py:234
+#: .\spot\models.py:236
 msgid "regional score"
 msgstr ""
 
-#: .\spot\models.py:235
+#: .\spot\models.py:237
 #, fuzzy
 msgid "project rank"
 msgstr "Chef de projet"
 
-#: .\spot\models.py:236
+#: .\spot\models.py:238
 msgid "Date/time of application submission"
 msgstr ""
 
-#: .\spot\models.py:237
+#: .\spot\models.py:239
 msgid "was the submission accepted?"
 msgstr ""
 
-#: .\spot\models.py:238
+#: .\spot\models.py:240
 #, fuzzy
 msgid "project notes"
 msgstr "L'état du projet"
 
-#: .\spot\models.py:239
+#: .\spot\models.py:241
 msgid "recommended funding amount - Year 1"
 msgstr ""
 
-#: .\spot\models.py:240
+#: .\spot\models.py:242
 msgid "recommended funding amount - Year 2"
 msgstr ""
 
-#: .\spot\models.py:241
+#: .\spot\models.py:243
 msgid "recommended funding amount - Year 3"
 msgstr ""
 
-#: .\spot\models.py:242
+#: .\spot\models.py:244
 msgid "recommended funding amount - Year 4"
 msgstr ""
 
-#: .\spot\models.py:243
+#: .\spot\models.py:245
 msgid "recommended funding amount - Year 5"
 msgstr ""
 
-#: .\spot\models.py:244
+#: .\spot\models.py:246
 msgid "recommended amount for over-programming"
 msgstr ""
 
-#: .\spot\models.py:246
+#: .\spot\models.py:248
 msgid "client notification sent (OP or Regrets only)"
 msgstr ""
 
-#: .\spot\models.py:251
+#: .\spot\models.py:253
 msgid "negotiation workplan complete"
 msgstr ""
 
-#: .\spot\models.py:252
+#: .\spot\models.py:254
 msgid "negotiation financials complete"
 msgstr ""
 
-#: .\spot\models.py:253
+#: .\spot\models.py:255
 msgid "negotiation letter sent to client"
 msgstr ""
 
-#: .\spot\models.py:256
+#: .\spot\models.py:258
 msgid "schedule 5 is complete"
 msgstr ""
 
-#: .\spot\models.py:257
+#: .\spot\models.py:259
 msgid "will this project receive an advance payment?"
 msgstr ""
 
-#: .\spot\models.py:258
+#: .\spot\models.py:260
 msgid "draft CA sent to client"
 msgstr ""
 
-#: .\spot\models.py:259
+#: .\spot\models.py:261
 msgid "draft CA approved by client"
 msgstr ""
 
-#: .\spot\models.py:260
+#: .\spot\models.py:262
 msgid "draft CA ready"
 msgstr ""
 
-#: .\spot\models.py:262
+#: .\spot\models.py:264
 msgid "draft CA sent to manager"
 msgstr ""
 
-#: .\spot\models.py:263
+#: .\spot\models.py:265
 msgid "draft CA approved by manager"
 msgstr ""
 
-#: .\spot\models.py:264
+#: .\spot\models.py:266
 msgid "draft CA sent to NHQ"
 msgstr ""
 
-#: .\spot\models.py:265
+#: .\spot\models.py:267
 msgid "approve-in-principal (AIP) received"
 msgstr ""
 
-#: .\spot\models.py:266
+#: .\spot\models.py:268
 msgid "final CA received from NHQ"
 msgstr ""
 
-#: .\spot\models.py:267
+#: .\spot\models.py:269
 msgid "final CA sent to client"
 msgstr ""
 
-#: .\spot\models.py:268
+#: .\spot\models.py:270
 msgid "final CA signed by client"
 msgstr ""
 
-#: .\spot\models.py:269
+#: .\spot\models.py:271
 msgid "final CA sent to HNQ"
 msgstr ""
 
-#: .\spot\models.py:270
+#: .\spot\models.py:272
 msgid "advance payment sent to NHQ"
 msgstr ""
 
-#: .\spot\models.py:271
+#: .\spot\models.py:273
 msgid "final CA signed by NHQ"
 msgstr ""
 
-#: .\spot\models.py:274 .\spot\models.py:389 .\spot\models.py:470
-#: .\spot\models.py:489 .\spot\models.py:521 .\spot\models.py:567
-#: .\spot\models.py:654 .\spot\models.py:792 .\spot\models.py:873
+#: .\spot\models.py:276 .\spot\models.py:391 .\spot\models.py:472
+#: .\spot\models.py:491 .\spot\models.py:523 .\spot\models.py:569
+#: .\spot\models.py:656 .\spot\models.py:794 .\spot\models.py:875
 msgid "date last modified"
 msgstr "date de dernière modification"
 
-#: .\spot\models.py:275 .\spot\models.py:390 .\spot\models.py:471
-#: .\spot\models.py:490 .\spot\models.py:522 .\spot\models.py:568
-#: .\spot\models.py:655 .\spot\models.py:793 .\spot\models.py:874
+#: .\spot\models.py:277 .\spot\models.py:392 .\spot\models.py:473
+#: .\spot\models.py:492 .\spot\models.py:524 .\spot\models.py:570
+#: .\spot\models.py:657 .\spot\models.py:795 .\spot\models.py:876
 msgid "last modified by"
 msgstr "dernièrement modifié par"
 
-#: .\spot\models.py:278
+#: .\spot\models.py:280
 msgid "activities"
 msgstr ""
 
-#: .\spot\models.py:279
+#: .\spot\models.py:281
 msgid "species"
 msgstr ""
 
-#: .\spot\models.py:280
+#: .\spot\models.py:282
 msgid "watersheds"
 msgstr ""
 
-#: .\spot\models.py:368
+#: .\spot\models.py:370
 msgid "Name (French)"
 msgstr "Nom (français)"
 
-#: .\spot\models.py:380
+#: .\spot\models.py:382
 msgid "order"
 msgstr ""
 
-#: .\spot\models.py:405
+#: .\spot\models.py:407
 msgid "The risk assessment has been completed/approved and posted to PATH"
 msgstr ""
 
-#: .\spot\models.py:408
+#: .\spot\models.py:410
 msgid ""
 "The clauses selected in the CA reflect the risk level and contribution amount"
 msgstr ""
 
-#: .\spot\models.py:409
+#: .\spot\models.py:411
 msgid "There are no hanging/orphan lines/titles"
 msgstr ""
 
-#: .\spot\models.py:411
+#: .\spot\models.py:413
 msgid ""
 "The annual contribution amount(s) (3.1) match(es) the budget in Schedule 5 "
 "and do(es) not exceed the amount(s) approved by the Minister"
 msgstr ""
 
-#: .\spot\models.py:414
+#: .\spot\models.py:416
 msgid ""
 "Schedule 5: Language is clear, concise and can be generally understood by "
 "someone who is not a specialist"
 msgstr ""
 
-#: .\spot\models.py:415
+#: .\spot\models.py:417
 msgid "Schedule 5: Acronyms are defined upon first use"
 msgstr ""
 
-#: .\spot\models.py:416
+#: .\spot\models.py:418
 msgid "Schedule 5: All Activities/tasks are eligible"
 msgstr ""
 
-#: .\spot\models.py:419
+#: .\spot\models.py:421
 msgid ""
 "Schedule 5: The level of detail for each Activity (i.e., task description) "
 "is commensurate with its budget"
 msgstr ""
 
-#: .\spot\models.py:422
+#: .\spot\models.py:424
 msgid ""
 "Schedule 5: Each Activity can be reasonably expected to be completed within "
 "its accorded timeframe"
 msgstr ""
 
-#: .\spot\models.py:425
+#: .\spot\models.py:427
 msgid ""
 "Schedule 5: All key tasks required to be undertaken for each Activity to be "
 "achieved are outlined"
 msgstr ""
 
-#: .\spot\models.py:427
+#: .\spot\models.py:429
 msgid ""
 "Schedule 5: All Activities/tasks have associated deliverables that will "
 "demonstrate that the former were completed as planned and as budgeted"
 msgstr ""
 
-#: .\spot\models.py:430
+#: .\spot\models.py:432
 msgid ""
 "Schedule 5: The sum of all individual project Activity budgets adds up to "
 "the agreement total"
 msgstr ""
 
-#: .\spot\models.py:433
+#: .\spot\models.py:435
 msgid ""
 "Schedule 5: Sufficient budget details have been provided to confirm that the "
 "costs are eligible and reasonable"
 msgstr ""
 
-#: .\spot\models.py:434
+#: .\spot\models.py:436
 msgid "Schedule 5: All expenses are eligible"
 msgstr ""
 
-#: .\spot\models.py:435
+#: .\spot\models.py:437
 msgid "Schedule 5: All costs are reasonable"
 msgstr ""
 
-#: .\spot\models.py:436
+#: .\spot\models.py:438
 msgid "Schedule 5: The budget adds up correctly."
 msgstr ""
 
-#: .\spot\models.py:438
+#: .\spot\models.py:440
 msgid ""
 "Schedule 5: If applicable, maximum amounts for expense categories have been "
 "set (i.e., identified with an asterisk (*))."
 msgstr ""
 
-#: .\spot\models.py:440
+#: .\spot\models.py:442
 msgid "Schedule 5: The budget reflects the nature of the Activity(ies)."
 msgstr ""
 
-#: .\spot\models.py:443
+#: .\spot\models.py:445
 msgid ""
 "Schedule 5: The federal and stacking limit have been respected, based on "
 "confirmed funding."
 msgstr ""
 
-#: .\spot\models.py:445
+#: .\spot\models.py:447
 msgid ""
 "Schedule 5: The activities and budget items have been cross-checked against "
 "DFO Aboriginal program CAs (e.g., SPI-FHRI, AAROM, AFSAR) to ensure no "
 "funding redundancy."
 msgstr ""
 
-#: .\spot\models.py:447
+#: .\spot\models.py:449
 msgid ""
 "Schedule 5: Funding directly related to the RFCPP project coming from DFO "
 "Aboriginal programs has been included in the federal and stacking support."
 msgstr ""
 
-#: .\spot\models.py:449
+#: .\spot\models.py:451
 msgid ""
 "Schedule 5: Confirmation letters for all confirmed cash support have been "
 "posted to PATH.  Confirmation letters for large amount/potentially inflated "
 "in-kind support have also been posted to PATH."
 msgstr ""
 
-#: .\spot\models.py:452
+#: .\spot\models.py:454
 msgid ""
 "Schedule 5: Financial information has been updated/entered in PATH as per "
 "Data Entry Procedures"
 msgstr ""
 
-#: .\spot\models.py:454
+#: .\spot\models.py:456
 msgid ""
 "Schedule 5: If a current or former federal public servant is involved in the "
 "project, a conflict of interest assessment has been completed (conflict of "
@@ -445,110 +445,110 @@ msgid ""
 "folder) and conflicts, if any, have been addressed, as appropriate."
 msgstr ""
 
-#: .\spot\models.py:458
+#: .\spot\models.py:460
 msgid ""
 "Schedule 6: The cash flow adds up correctly and reflects the timing of "
 "Activities."
 msgstr ""
 
-#: .\spot\models.py:460
+#: .\spot\models.py:462
 msgid "Schedule 7: is pre-filled and mirrors Schedule 5"
 msgstr ""
 
-#: .\spot\models.py:462
+#: .\spot\models.py:464
 msgid ""
 "Schedule 7: Performance measures are updated in the ‘Planned’ column of the "
 "performance tab in PATH as per Data Entry Procedures"
 msgstr ""
 
-#: .\spot\models.py:464
+#: .\spot\models.py:466
 msgid "The Team Leader has reviewed and approves the CA"
 msgstr ""
 
-#: .\spot\models.py:465
+#: .\spot\models.py:467
 msgid "Comments for NHQ"
 msgstr ""
 
-#: .\spot\models.py:481
+#: .\spot\models.py:483
 #, fuzzy
 msgid "date received"
 msgstr "Date de création"
 
-#: .\spot\models.py:482
+#: .\spot\models.py:484
 msgid "description"
 msgstr "description"
 
-#: .\spot\models.py:483
+#: .\spot\models.py:485
 #, fuzzy
 msgid "coordinator was notified"
 msgstr "Date de dernière modification"
 
-#: .\spot\models.py:484
+#: .\spot\models.py:486
 #, fuzzy
 msgid "is the project eligible?"
 msgstr "Critique à la livraison du projet"
 
-#: .\spot\models.py:485
+#: .\spot\models.py:487
 #, fuzzy
 msgid "Feedback to client"
 msgstr "Commentaires / Bugs"
 
-#: .\spot\models.py:486
+#: .\spot\models.py:488
 msgid "feedback sent to client"
 msgstr ""
 
-#: .\spot\models.py:577
+#: .\spot\models.py:579
 msgid "Recommended Payment Amount"
 msgstr ""
 
-#: .\spot\models.py:581
+#: .\spot\models.py:583
 msgid ""
 "Schedule 7 matches the one in the signed CA and all sections have been duly "
 "filled in."
 msgstr ""
 
-#: .\spot\models.py:583
+#: .\spot\models.py:585
 msgid ""
 "Reporting period: Where this is the first report submitted by a recipient "
 "under the CA, the reporting period commences on the day that RFCPP-funded "
 "activities first started taking place."
 msgstr ""
 
-#: .\spot\models.py:585
+#: .\spot\models.py:587
 msgid ""
 "Reporting period: Where a previous report has been submitted by the "
 "recipient under the CA, the reporting period for this report commences the "
 "day after the end of the previous reporting period."
 msgstr ""
 
-#: .\spot\models.py:589
+#: .\spot\models.py:591
 msgid ""
 "The “RFCPP funds received year to date” matches the amount in RFCPP records."
 msgstr ""
 
-#: .\spot\models.py:590
+#: .\spot\models.py:592
 msgid "Amounts in Table 1.1 are summed correctly."
 msgstr ""
 
-#: .\spot\models.py:593
+#: .\spot\models.py:595
 msgid ""
 "Claimed expenses for expense categories tagged with an asterisk (*) do not "
 "exceed the budgeted amount."
 msgstr ""
 
-#: .\spot\models.py:595
+#: .\spot\models.py:597
 msgid ""
 "The amounts reported in Table 1.1 raise no issues and align with the timing "
 "of Activities in Schedule 5 and the reporting period."
 msgstr ""
 
-#: .\spot\models.py:598
+#: .\spot\models.py:600
 msgid ""
 "Reimbursable taxes have not been claimed (see application form for "
 "percentages reimbursable)."
 msgstr ""
 
-#: .\spot\models.py:600
+#: .\spot\models.py:602
 msgid ""
 "Table 1.2 has been filled in where budgeted amounts exceed the allowed "
 "deviation: a) If the deviation was previously approved by DFO: no action "
@@ -561,45 +561,45 @@ msgid ""
 "to deviating from planned expenditures."
 msgstr ""
 
-#: .\spot\models.py:602
+#: .\spot\models.py:604
 msgid ""
 "Confirmation letters for all previously unconfirmed cash support and large "
 "in-kind support have been received and posted to PATH (applies to multi-year "
 "agreements with supplemental conditions for unconfirmed support)."
 msgstr ""
 
-#: .\spot\models.py:604
+#: .\spot\models.py:606
 msgid ""
 "Support received matches what was detailed in the CA. If different, then no "
 "effect on federal and stacking limits has been confirmed."
 msgstr ""
 
-#: .\spot\models.py:607
+#: .\spot\models.py:609
 msgid ""
 "All financial information has been entered in the ‘Actual’ section of the "
 "financial tab in PATH."
 msgstr ""
 
-#: .\spot\models.py:612
+#: .\spot\models.py:614
 msgid ""
 "The status of deliverables matches the claimed expenses and timing of "
 "Activities in Schedule 5."
 msgstr ""
 
-#: .\spot\models.py:614
+#: .\spot\models.py:616
 msgid ""
 "Where invoices were provided as deliverables, the total(s) of the invoices "
 "match what is reported/claimed in Section 1, Table 1.1."
 msgstr ""
 
-#: .\spot\models.py:616
+#: .\spot\models.py:618
 msgid ""
 "The quality/level of detail of the deliverables provided is sufficient to "
 "recommend payment under s. 34 of the Financial Administration Act (i.e., "
 "sufficient information has been provided to justify payment)."
 msgstr ""
 
-#: .\spot\models.py:618
+#: .\spot\models.py:620
 msgid ""
 "Where Table 2.2 has been filled in: a) Determine whether the explanation may "
 "impact the payment amount being requested by the recipient - address with "
@@ -612,232 +612,232 @@ msgid ""
 "must be reduced accordingly to ensure that the staking limit is met."
 msgstr ""
 
-#: .\spot\models.py:619
+#: .\spot\models.py:621
 msgid "RFCPP signage follows the RFCPP-FIP Guidelines"
 msgstr ""
 
-#: .\spot\models.py:623
+#: .\spot\models.py:625
 msgid "The “actuals” in Table 3.1 align with the activities and budget table."
 msgstr ""
 
-#: .\spot\models.py:625
+#: .\spot\models.py:627
 msgid ""
 "All capital acquisitions purchased have been included in Table 3.2 (and "
 "align with the costs identified in the budget table)."
 msgstr ""
 
-#: .\spot\models.py:628
+#: .\spot\models.py:630
 msgid ""
 "All information provided in Section 3 has been recorded in PATH (for final/"
 "annual reports only)."
 msgstr ""
 
-#: .\spot\models.py:632
+#: .\spot\models.py:634
 msgid ""
 "Section 4 has been signed by an authorised representative of the Recipient "
 "(does not need to be the CA signatory)."
 msgstr ""
 
-#: .\spot\models.py:637
+#: .\spot\models.py:639
 msgid ""
 "Schedule 7 and all supporting documents (e.g., deliverables) have been "
 "posted to PATH."
 msgstr ""
 
-#: .\spot\models.py:640
+#: .\spot\models.py:642
 msgid ""
 "If a multi-year agreement, Schedule 6 for next year has been received and "
 "posted to PATH."
 msgstr ""
 
-#: .\spot\models.py:643
+#: .\spot\models.py:645
 msgid ""
 "If a site visit was completed for the CA, a summary thereof is provided in "
 "the comments section below."
 msgstr ""
 
-#: .\spot\models.py:646
+#: .\spot\models.py:648
 msgid ""
 "The Team Leader has reviewed and approved the recipient report and "
 "recommends payment."
 msgstr ""
 
-#: .\spot\models.py:649
+#: .\spot\models.py:651
 msgid "calculations for recommended payment"
 msgstr ""
 
-#: .\spot\models.py:714
+#: .\spot\models.py:716
 msgid "site name"
 msgstr "nom de site"
 
-#: .\spot\models.py:715
+#: .\spot\models.py:717
 #, fuzzy
 msgid "site type"
 msgstr "nom de famille"
 
-#: .\spot\models.py:716
+#: .\spot\models.py:718
 msgid "latitude (DD.dddddd)"
 msgstr ""
 
-#: .\spot\models.py:717
+#: .\spot\models.py:719
 msgid "longitude (DD.dddddd)"
 msgstr ""
 
-#: .\spot\models.py:720
+#: .\spot\models.py:722
 msgid "restoration type (optional)"
 msgstr ""
 
-#: .\spot\models.py:721
+#: .\spot\models.py:723
 msgid "width (optional)"
 msgstr ""
 
-#: .\spot\models.py:722
+#: .\spot\models.py:724
 msgid "depth (optional)"
 msgstr ""
 
-#: .\spot\models.py:723
+#: .\spot\models.py:725
 msgid "substrate (optional)"
 msgstr ""
 
-#: .\spot\models.py:724
+#: .\spot\models.py:726
 msgid "comments"
 msgstr ""
 
-#: .\spot\models.py:746
+#: .\spot\models.py:748
 msgid ""
 "C.1 Was the work completed as proposed in the CA (activities/tasks, timing "
 "and budget)? If not, is an amendment or note-to-file required? Provide "
 "details."
 msgstr ""
 
-#: .\spot\models.py:747
+#: .\spot\models.py:749
 msgid "C.1 comments"
 msgstr ""
 
-#: .\spot\models.py:750
+#: .\spot\models.py:752
 msgid ""
 "C.2 Are there any challenges affecting delivery of the project (e.g., "
 "contractors/personnel issues, required permits, site conditions)? If so, "
 "provide details."
 msgstr ""
 
-#: .\spot\models.py:751
+#: .\spot\models.py:753
 msgid "C.2 comments"
 msgstr ""
 
-#: .\spot\models.py:753
+#: .\spot\models.py:755
 msgid "C.3 Was the sign installed?  If not, provide details."
 msgstr ""
 
-#: .\spot\models.py:754
+#: .\spot\models.py:756
 msgid "C.3 comments"
 msgstr ""
 
-#: .\spot\models.py:756
+#: .\spot\models.py:758
 msgid "C.4 Were photos taken? If so, ensure that photos are posted to PATH."
 msgstr ""
 
-#: .\spot\models.py:757
+#: .\spot\models.py:759
 msgid "C.4 comments"
 msgstr ""
 
-#: .\spot\models.py:760
+#: .\spot\models.py:762
 msgid ""
 "C.5 Is a follow up site visit (or other follow-up) required? If yes, "
 "describe reasons for requiring follow-up, the type of follow-up, and when it "
 "is to occur."
 msgstr ""
 
-#: .\spot\models.py:761
+#: .\spot\models.py:763
 msgid "C.5 comments"
 msgstr ""
 
-#: .\spot\models.py:765
+#: .\spot\models.py:767
 msgid ""
 "C.6 Does the group have any feedback on the Program (positive feedback or "
 "suggested improvements)?  Provide details."
 msgstr ""
 
-#: .\spot\models.py:766
+#: .\spot\models.py:768
 msgid "C.6 comments"
 msgstr ""
 
-#: .\spot\models.py:770
+#: .\spot\models.py:772
 msgid ""
 "C.7 Were the structure(s)/works designed/installed properly?  If not, "
 "provide details."
 msgstr ""
 
-#: .\spot\models.py:771
+#: .\spot\models.py:773
 msgid "C.7 comments"
 msgstr ""
 
-#: .\spot\models.py:775
+#: .\spot\models.py:777
 msgid ""
 "C.8 Did the work address the key issues at the site / is it functioning as "
 "intended? If not, provide details."
 msgstr ""
 
-#: .\spot\models.py:776
+#: .\spot\models.py:778
 msgid "C.8 comments"
 msgstr ""
 
-#: .\spot\models.py:778
+#: .\spot\models.py:780
 msgid "C.9 Are recreational fish using the site/have access to the site?"
 msgstr ""
 
-#: .\spot\models.py:779
+#: .\spot\models.py:781
 msgid "C.9 comments"
 msgstr ""
 
-#: .\spot\models.py:782
+#: .\spot\models.py:784
 msgid ""
 "C.10 Are there concerns with any aspect of the work? If yes, provide details."
 msgstr ""
 
-#: .\spot\models.py:783
+#: .\spot\models.py:785
 msgid "C.10 comments"
 msgstr ""
 
-#: .\spot\models.py:785
+#: .\spot\models.py:787
 msgid ""
 "C.11 Were any suggestions made for future projects? If yes, provide details."
 msgstr ""
 
-#: .\spot\models.py:786
+#: .\spot\models.py:788
 msgid "C.11 comments"
 msgstr ""
 
-#: .\spot\models.py:789
+#: .\spot\models.py:791
 msgid "Summary of Findings and/or Follow-up Actions (if applicable)"
 msgstr ""
 
-#: .\spot\models.py:811
+#: .\spot\models.py:813
 msgid "uploaded"
 msgstr "ajoutée"
 
-#: .\spot\models.py:838
+#: .\spot\models.py:840
 msgid "file caption (optional)"
 msgstr ""
 
-#: .\spot\models.py:843
+#: .\spot\models.py:845
 #, fuzzy
 msgid "uploaded by"
 msgstr "ajoutée"
 
-#: .\spot\models.py:866
+#: .\spot\models.py:868
 msgid "Is this a final payment (project-year)?"
 msgstr ""
 
-#: .\spot\models.py:867
+#: .\spot\models.py:869
 msgid "were all necessary materials submitted?"
 msgstr ""
 
-#: .\spot\models.py:868
+#: .\spot\models.py:870
 msgid "NHQ notified"
 msgstr ""
 
-#: .\spot\models.py:869
+#: .\spot\models.py:871
 msgid "has the payment been confirmed?"
 msgstr ""
 

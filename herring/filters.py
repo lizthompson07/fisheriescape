@@ -4,10 +4,6 @@ from django import forms
 
 
 class SampleFilter(django_filters.FilterSet):
-    # SeasonSince = django_filters.NumberFilter(field_name='season', label="Since year", lookup_expr='gte', widget= forms.NumberInput())
-    # SeasonExact = django_filters.NumberFilter(field_name='season', label="From year", lookup_expr='exact', widget= forms.NumberInput())
-    # SampleDate = django_filters.DateFilter(field_name='sample_date', label="Sample date", lookup_expr='startswith',
-    #                                        widget=forms.DateInput(attrs={'type': 'date', }))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -17,6 +13,8 @@ class SampleFilter(django_filters.FilterSet):
         self.filters['season'].label = 'Year'
         self.filters['sampler_ref_number'].label = "Sampler ref. no."
         self.filters['experimental_net_used'].label = "Experimental?"
+        print(self.filters)
+        self.filters['survey_id__icontains'].label = "Survey identifier (any part)"
 
     class Meta:
         model = models.Sample
@@ -27,7 +25,7 @@ class SampleFilter(django_filters.FilterSet):
             'experimental_net_used': ['exact'],
             'type': ['exact'],
             'sampler': ['exact'],
-            # 'sample_date': ['exact'],
+            'survey_id': ['icontains'],
         }
 
 

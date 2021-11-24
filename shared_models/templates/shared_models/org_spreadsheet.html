@@ -14,16 +14,18 @@
 
 {% block subcontent %}
   <div id="app" v-cloak="">
-    <div v-if="loadingSections || loadingDivisions || loadingBranches || loadingRegions || loadingDMAppsUsers" class="loading mb-3 mt-3 mt-5">
+    <div v-if="loadingSections || loadingDivisions || loadingBranches || loadingSectors || loadingRegions || loadingDMAppsUsers" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
         <span class="sr-only"></span>
       </div>
     </div>
     <div v-else>
-
-      <div class="btns mb-5" v-if="!sectionToEdit && !divisionToEdit && !branchToEdit">
+      <div class="btns mb-5" v-if="!sectionToEdit && !divisionToEdit && !branchToEdit && !sectorToEdit">
         <button @click="changeTab('regions')" :class="{'btn btn-lg':true, 'btn-success':showRegions, 'btn-primary':!showRegions}">
           {% trans "Regions" %}
+        </button>
+        <button @click="changeTab('sectors')" :class="{'btn btn-lg':true, 'btn-success':showSectors, 'btn-primary':!showSectors}">
+          {% trans "Sectors" %}
         </button>
         <button @click="changeTab('branches')" :class="{'btn btn-lg':true, 'btn-success':showBranches, 'btn-primary':!showBranches}">
           {% trans "Branches" %}
@@ -37,16 +39,30 @@
       </div>
 
       {# fitlers #}
-      <div v-if="(showSections || showDivisions || showBranches) && (!sectionToEdit && !divisionToEdit && !branchToEdit)" class="row mb-3 table-bordered py-3">
+      <div v-if="(showSections || showDivisions || showBranches || showSectors) && (!sectionToEdit && !divisionToEdit && !branchToEdit && !sectorToEdit)"
+           class="row mb-3 table-bordered py-3">
         <div class="col-2">
           <label for="">{% trans "Region" %}</label>
-          <select v-model="regionFilter" style="font-size: small" class="form-control form-control-sm" @change="branchFilter=null;divisionFilter=null;">
+          <select v-model="regionFilter" style="font-size: small" class="form-control form-control-sm"
+                  @change="sectorFilter=null;branchFilter=null;divisionFilter=null;">
             <option :value="null" label="----"></option>
             <option
               v-for="r, index in regions"
               :key=r.id
               :label="r.name"
               :value="r.id"></option>
+          </select>
+        </div>
+
+        <div class="col-2" v-if="showBranches ||showDivisions || showSections">
+          <label for="">{% trans "Sector" %}</label>
+          <select v-model="sectorFilter" style="font-size: small" class="form-control form-control-sm" @change="branchFilter=null;divisionFilter=null;">
+            <option :value="null" label="----"></option>
+            <option
+              v-for="s, index in filteredSectors"
+              :key=s.id
+              :label="`${s.region_obj.name} - ${s.name}`"
+              :value="s.id"></option>
           </select>
         </div>
         <div class="col-2" v-if="showDivisions || showSections">
@@ -56,7 +72,7 @@
             <option
               v-for="b, index in filteredBranches"
               :key=b.id
-              :label="`${b.region_obj.name} - ${b.name}`"
+              :label="`${b.sector_obj.region_obj.name} - ${b.sector_obj.name} - ${b.name}`"
               :value="b.id"></option>
           </select>
         </div>
@@ -67,7 +83,7 @@
             <option
               v-for="d, index in filteredDivisions"
               :key=d.id
-              :label="`${d.branch_obj.region_obj.name} - ${d.branch_obj.name} - ${d.name}`"
+              :label="`${d.branch_obj.sector_obj.region_obj.name} - ${d.branch_obj.sector_obj.name} - ${d.branch_obj.name} - ${d.name}`"
               :value="d.id"></option>
           </select>
         </div>
@@ -88,7 +104,7 @@
         </div>
         <div class="form-group">
           <label for="">{% trans "Abbreviation" %}</label>
-          <textarea v-model="sectionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+          <input type="text" v-model="sectionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"/>
         </div>
         <div class="form-group">
           <label for="">{% trans "Name" %}</label>
@@ -153,7 +169,7 @@
         </div>
         <div class="form-group">
           <label for="">{% trans "Abbreviation" %}</label>
-          <textarea v-model="divisionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+          <input type="text" v-model="divisionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"/>
         </div>
         <div class="form-group">
           <label for="">{% trans "Name" %}</label>
@@ -206,19 +222,19 @@
       </form>
       <form v-else-if="branchToEdit" @submit.prevent="updateBranch">
         <div class="form-group">
-          <label for="">{% trans "Region" %}</label>
-          <select required v-model="branchToEdit.region" style="font-size: small" class="form-control form-control-sm" ref="form_start">
+          <label for="">{% trans "Sector" %}</label>
+          <select required v-model="branchToEdit.sector" style="font-size: small" class="form-control form-control-sm" ref="form_start">
             <option
-              v-for="r, index in regions"
-              :key=r.id
-              :label="`${r.name}`"
-              :value="r.id">
+              v-for="s, index in filteredSectors"
+              :key=s.id
+              :label="`${s.display}`"
+              :value="s.id">
             </option>
           </select>
         </div>
         <div class="form-group">
           <label for="">{% trans "Abbreviation" %}</label>
-          <textarea v-model="branchToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+          <input type="text" v-model="branchToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"/>
         </div>
         <div class="form-group">
           <label for="">{% trans "Name" %}</label>
@@ -269,10 +285,82 @@
         </div>
 
       </form>
+
+      <form v-else-if="sectorToEdit" @submit.prevent="updateSector">
+        <div class="form-group">
+          <label for="">{% trans "Region" %}</label>
+          <select required v-model="sectorToEdit.region" style="font-size: small" class="form-control form-control-sm" ref="form_start">
+            <option
+              v-for="r, index in regions"
+              :key=r.id
+              :label="`${r.name}`"
+              :value="r.id">
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Abbreviation (English)" %}</label>
+          <input type="text" v-model="sectorToEdit.abbrev_en" class="form-control form-control-sm" style="font-size: small"/>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Abbreviation (French)" %}</label>
+          <input type="text" v-model="sectorToEdit.abbrev_fr" class="form-control form-control-sm" style="font-size: small"/>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Name" %}</label>
+          <textarea v-model="sectorToEdit.name" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Nom" %}</label>
+          <textarea v-model="sectorToEdit.nom" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Head" %}</label>
+          <v-select
+            style="width: 100%; font-size: small"
+            v-model="sectorToEdit.head"
+            :options="dmAppsUsers"
+            label='full_name'
+            :reduce="full_name => full_name.id"
+            :clearable="false"
+          >
+          </v-select>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Admin" %}</label>
+          <v-select
+            style="width: 100%; font-size: small"
+            v-model="sectorToEdit.admin"
+            :options="dmAppsUsers"
+            label='full_name'
+            :reduce="full_name => full_name.id"
+            :clearable="false"
+          >
+          </v-select>
+        </div>
+        {% url 'shared_models:user_new' as new_user_url %}
+        <div class="mb-3">
+          {% blocktrans %}
+            If the user is not in the above list, you can add a new DM Apps User using
+            <a href="#" pop-href="{{ new_user_url }}">this form</a>.
+          {% endblocktrans %}
+        </div>
+        <input type="submit" value="Submit" class="btn btn-warning">
+        <button @click="sectorToEdit=null" class="btn btn-secondary">{% trans "Cancel" %}</button>
+
+        <div v-if="errors" class="alert alert-danger" role="alert">
+          <h4 class="alert-heading">
+            ${errors}
+          </h4>
+        </div>
+
+      </form>
+
+
       <form v-else-if="regionToEdit" @submit.prevent="updateRegion">
         <div class="form-group">
           <label for="">{% trans "Abbreviation" %}</label>
-          <textarea v-model="regionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+          <input type="text" v-model="regionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"/>
         </div>
         <div class="form-group">
           <label for="">{% trans "Name" %}</label>
@@ -337,6 +425,7 @@
             <thead>
             <tr>
               <th style="width: 100px">{% trans "Region" %}</th>
+              <th style="width: 200px">{% trans "Sector" %}</th>
               <th style="width: 200px">{% trans "Branch" %}</th>
               <th style="width: 250px">{% trans "Division" %}</th>
               <th>{% trans "Name" %}</th>
@@ -349,7 +438,9 @@
             </thead>
             <tbody>
             <tr v-for="obj, index in filteredSections" :key="obj.id" :ref="`section_${obj.id}`">
-              <td v-if="obj.division_obj.branch_obj">${obj.division_obj.branch_obj.region_obj.name}</td>
+              <td v-if="obj.division_obj.branch_obj.sector_obj">${obj.division_obj.branch_obj.sector_obj.region_obj.name}</td>
+              <td v-else>---</td>
+              <td v-if="obj.division_obj.branch_obj">${obj.division_obj.branch_obj.sector_obj.name}</td>
               <td v-else>---</td>
               <td v-if="obj.division_obj.branch_obj">${obj.division_obj.branch_obj.name}</td>
               <td v-else>---</td>
@@ -384,6 +475,7 @@
             <thead>
             <tr>
               <th style="width: 100px">{% trans "Region" %}</th>
+              <th style="width: 100px">{% trans "Sector" %}</th>
               <th style="width: 200px">{% trans "Branch" %}</th>
               <th>{% trans "Name" %}</th>
               <th>{% trans "Nom" %}</th>
@@ -395,7 +487,9 @@
             </thead>
             <tbody>
             <tr v-for="obj, index in filteredDivisions" :key="obj.id" :ref="`division_${obj.id}`">
-              <td v-if="obj.branch_obj.region_obj">${obj.branch_obj.region_obj.name}</td>
+              <td v-if="obj.branch_obj.sector_obj.region_obj">${obj.branch_obj.sector_obj.region_obj.name}</td>
+              <td v-else>---</td>
+              <td v-if="obj.branch_obj.sector_obj">${obj.branch_obj.sector_obj.name}</td>
               <td v-else>---</td>
               <td v-if="obj.branch_obj">${obj.branch_obj.name}</td>
               <td v-else>---</td>
@@ -428,6 +522,7 @@
             <thead>
             <tr>
               <th style="width: 100px">{% trans "Region" %}</th>
+              <th style="width: 100px">{% trans "Sector" %}</th>
               <th>{% trans "Name" %}</th>
               <th>{% trans "Nom" %}</th>
               <th>{% trans "Abbreviation" %}</th>
@@ -438,9 +533,11 @@
             </thead>
             <tbody>
             <tr v-for="obj, index in filteredBranches" :key="obj.id" :ref="`branch_${obj.id}`">
-              <td v-if="obj.region_obj">${obj.region_obj.name}</td>
+              <td v-if="obj.sector_obj.region_obj">${obj.sector_obj.region_obj.name}</td>
               <td v-else>---</td>
-              <td>${obj.name}</td>
+              <td v-if="obj.sector_obj">${obj.sector_obj.name}</td>
+              <td v-else>---</td>
+              <td>${obj.name} <span v-if="obj.region_obj">[${obj.region_obj.name}]</span></td> {# TODO: This should be deleted eventually #}
               <td>${obj.nom}</td>
               <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
@@ -458,6 +555,52 @@
         </div>
 
       </div>
+
+    <div v-else-if="showSectors">
+        <div v-if="!sectorToEdit">
+          <div class="mb-3">
+            <h3>{% trans "Sectors" %}</h3>
+          </div>
+          <div class="mb-3">
+            <button @click="editSector(null)" class="btn btn-warning">{% trans "New" %}</button>
+          </div>
+          <table class="table table-sm table-bordered">
+            <thead>
+            <tr>
+              <th style="width: 100px">{% trans "Region" %}</th>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Nom" %}</th>
+              <th>{% trans "Abbreviation (English)" %}</th>
+              <th>{% trans "Abbreviation (French)" %}</th>
+              <th>{% trans "Head" %}</th>
+              <th>{% trans "Admin" %}</th>
+              <th style="width: 170px">{% trans "Metadata" %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="obj, index in filteredSectors" :key="obj.id" :ref="`branch_${obj.id}`">
+              <td v-if="obj.region_obj">${obj.region_obj.name}</td>
+              <td v-else>---</td>
+              <td>${obj.name}</td>
+              <td>${obj.nom}</td>
+              <td>${obj.abbrev_en}</td>
+              <td>${obj.abbrev_fr}</td>
+              <td>${obj.head_display}</td>
+              <td>${obj.admin_display}</td>
+              <td v-html="obj.metadata"></td>
+              <td>
+                <div class="btn-group">
+                  <button @click="editSector(obj)" class="btn btn-sm btn-primary">{% trans "Edit" %}</button>
+                  <button @click="deleteSector(obj)" class="btn btn-sm btn-danger">{% trans "Delete" %}</button>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
       <div v-else-if="showRegions">
         <div v-if="!divisionToEdit">
           <div class="mb-3">
@@ -518,18 +661,22 @@
       sections: {},
       divisions: {},
       branches: {},
+      sectors: {},
       regions: {},
       loadingSections: true,
       loadingDivisions: true,
       loadingBranches: true,
+      loadingSectors: true,
       loadingRegions: true,
 
       showSections: false,
       showDivisions: false,
       showBranches: false,
+      showSectors: false,
       showRegions: false,
 
       regionFilter: null,
+      sectorFilter: null,
       branchFilter: null,
       divisionFilter: null,
 
@@ -540,6 +687,7 @@
       sectionToEdit: null,
       divisionToEdit: null,
       branchToEdit: null,
+      sectorToEdit: null,
       regionToEdit: null,
     },
     methods: {
@@ -550,10 +698,12 @@
         this.showSections = false;
         this.showDivisions = false;
         this.showBranches = false;
+        this.showSectors = false;
         this.showRegions = false;
         if (sectionName === 'sections') this.showSections = true;
         else if (sectionName === 'divisions') this.showDivisions = true;
         else if (sectionName === 'branches') this.showBranches = true;
+        else if (sectionName === 'sectors') this.showSectors = true;
         else if (sectionName === 'regions') this.showRegions = true;
       },
       getDMAppsUsers(value) {
@@ -660,7 +810,7 @@
       },
       editBranch(branch) {
         this.errors = null;
-        if (!branch) this.branchToEdit = {region: this.regionFilter};
+        if (!branch) this.branchToEdit = {sector: this.sectorFilter};
         else this.branchToEdit = branch;
         this.$nextTick(() => {
           this.$refs.form_start.focus()
@@ -698,6 +848,49 @@
               }
             })
       },
+
+      editSector(sector) {
+        this.errors = null;
+        if (!sector) this.sectorToEdit = {region: this.regionFilter};
+        else this.sectorToEdit = sector;
+        this.$nextTick(() => {
+          this.$refs.form_start.focus()
+        })
+      },
+      deleteSector(sector) {
+        userInput = confirm("{% trans 'Are you sure you want to delete this sector?' %}");
+        if (userInput) {
+          let endpoint = `/api/shared/viewsets/sectors/${sector.id}/`;
+          apiService(endpoint, "DELETE")
+              .then(response => {
+                this.$delete(this.sectors, this.sectors.indexOf(sector));
+              })
+        }
+      },
+      updateSector() {
+        this.loading = true;
+        this.errors = null;
+        let endpoint;
+        let method;
+        if (this.sectorToEdit.id) {
+          endpoint = `/api/shared/viewsets/sectors/${this.sectorToEdit.id}/`;
+          method = "PATCH";
+        } else {
+          endpoint = `/api/shared/viewsets/sectors/`;
+          method = "POST";
+        }
+        apiService(endpoint, method, this.sectorToEdit)
+            .then(response => {
+              if (response.id) {
+                this.getSectors();
+                this.sectorToEdit = null;
+              } else {
+                this.errors = groomJSON(response);
+              }
+            })
+      },
+
+
 
       editRegion(region) {
         this.errors = null;
@@ -758,6 +951,15 @@
               this.branches = response;
             })
       },
+      getSectors() {
+        this.loadingSectors = true;
+        let endpoint = `/api/shared/viewsets/sectors/`;
+        apiService(endpoint)
+            .then(response => {
+              this.loadingSectors = false;
+              this.sectors = response;
+            })
+      },
       getRegions() {
         this.loadingRegions = true;
         let endpoint = `/api/shared/regions/`;
@@ -776,8 +978,10 @@
             if (this.sections[i].division === this.divisionFilter) myarray.push(this.sections[i])
           } else if (this.branchFilter) {
             if (this.sections[i].division_obj.branch === this.branchFilter) myarray.push(this.sections[i])
+          } else if (this.sectorFilter) {
+            if (this.sections[i].division_obj.branch_obj.sector === this.sectorFilter) myarray.push(this.sections[i])
           } else if (this.regionFilter) {
-            if (this.sections[i].division_obj.branch_obj.region === this.regionFilter) myarray.push(this.sections[i])
+            if (this.sections[i].division_obj.branch_obj.sector_obj.region === this.regionFilter) myarray.push(this.sections[i])
           } else myarray.push(this.sections[i])
         }
         return myarray
@@ -787,6 +991,8 @@
         for (var i = 0; i < this.divisions.length; i++) {
           if (this.branchFilter) {
             if (this.divisions[i].branch === this.branchFilter) myarray.push(this.divisions[i])
+          } else if (this.sectorFilter) {
+            if (this.divisions[i].branch_obj.sector === this.sectorFilter) myarray.push(this.divisions[i])
           } else if (this.regionFilter) {
             if (this.divisions[i].branch_obj.region === this.regionFilter) myarray.push(this.divisions[i])
           } else myarray.push(this.divisions[i])
@@ -796,9 +1002,20 @@
       filteredBranches() {
         myarray = []
         for (var i = 0; i < this.branches.length; i++) {
+          if (this.sectorFilter) {
+            if (this.branches[i].sector === this.sectorFilter) myarray.push(this.branches[i])
+          } else if (this.regionFilter) {
+            if (this.branches[i].sector_obj.region === this.regionFilter) myarray.push(this.branches[i])
+          }  else myarray.push(this.branches[i])
+        }
+        return myarray
+      },
+      filteredSectors() {
+        myarray = []
+        for (var i = 0; i < this.sectors.length; i++) {
           if (this.regionFilter) {
-            if (this.branches[i].region === this.regionFilter) myarray.push(this.branches[i])
-          } else myarray.push(this.branches[i])
+            if (this.sectors[i].region === this.regionFilter) myarray.push(this.sectors[i])
+          } else myarray.push(this.sectors[i])
         }
         return myarray
       }
@@ -807,6 +1024,7 @@
       this.getSections();
       this.getDivisions();
       this.getBranches();
+      this.getSectors();
       this.getRegions();
       this.getDMAppsUsers();
     }

@@ -18,7 +18,7 @@ table, th, td {
     This is an automated message to inform you that you have been removed from the following trip request over the course of its review:
   <p>
   <p>
-    <a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' instance.request.id %}">{{ instance.request }}</a>
+    <a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' trip_request.id %}">{{ trip_request }}</a>
   </p>
 {% endlanguage %}
 
@@ -33,7 +33,7 @@ table, th, td {
     Ceci est un message automatisé pour vous informer que vous avez été retiré de la demande de voyage suivante au cours de son examen:
   <p>
   <p>
-    <a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' instance.request.id %}">{{ instance.request }}</a>
+    <a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' trip_request.id %}">{{ trip_request }}</a>
   </p>
 {% endlanguage %}
 

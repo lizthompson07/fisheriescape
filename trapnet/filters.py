@@ -15,12 +15,14 @@ class SpeciesFilter(django_filters.FilterSet):
 class RiverFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="River (any part of name...)", lookup_expr='icontains',
                                             widget=forms.TextInput())
-
+    site = django_filters.CharFilter(field_name='sites__name', label="Site (any part of name...)", lookup_expr='icontains',
+                                            widget=forms.TextInput(), distinct=True)
 
 class SampleFilter(django_filters.FilterSet):
     class Meta:
         model = models.Sample
         fields = {
+            'id': ['exact'],
             'season': ['exact'],
             'site': ['exact'],
             'sample_type': ['exact'],

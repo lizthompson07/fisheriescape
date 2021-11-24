@@ -18,6 +18,20 @@ from shared_models import models as shared_models
 from shared_models.models import MetadataFields, SimpleLookup
 from shared_models.utils import remove_nulls
 
+YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
+
+
+class TrapNetUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="trap_net_user", verbose_name=_("DM Apps user"))
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator?"), choices=YES_NO_CHOICES)
+    is_crud_user = models.BooleanField(default=False, verbose_name=_("CRUD only?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
+
 
 class CodeModel(SimpleLookup):
     code = models.CharField(max_length=5, blank=True, null=True, unique=True)
@@ -153,6 +167,10 @@ class Sample(MetadataFields):
         (1, _("Rotary Screw Trap")),
         (2, _("Electrofishing")),
     )
+    site_type_choices = (
+        (1, _("Open")),
+        (2, _("Closed")),
+    )
 
     site = models.ForeignKey(RiverSite, related_name='samples', on_delete=models.DO_NOTHING)
     sample_type = models.IntegerField(choices=sample_type_choices)
@@ -169,10 +187,10 @@ class Sample(MetadataFields):
     crew_extras = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (extras)"))
 
     # site description
-    percent_riffle = models.FloatField(blank=True, null=True, verbose_name=_("riffle"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_run = models.FloatField(blank=True, null=True, verbose_name=_("run"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_flat = models.FloatField(blank=True, null=True, verbose_name=_("flat"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_pool = models.FloatField(blank=True, null=True, verbose_name=_("pool"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_riffle = models.IntegerField(blank=True, null=True, verbose_name=_("riffle"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_run = models.IntegerField(blank=True, null=True, verbose_name=_("run"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_flat = models.IntegerField(blank=True, null=True, verbose_name=_("flat"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_pool = models.IntegerField(blank=True, null=True, verbose_name=_("pool"), validators=(MinValueValidator(0), MaxValueValidator(100)))
 
     bank_length_left = models.FloatField(null=True, blank=True, verbose_name=_("bank length - left (m)"))
     bank_length_right = models.FloatField(null=True, blank=True, verbose_name=_("bank length - right (m)"))
@@ -209,18 +227,18 @@ class Sample(MetadataFields):
                                    help_text=_("The measurement is to 1 decimal place in micro siemens (µS)"))
     overhanging_veg_left = models.IntegerField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Left"))
     overhanging_veg_right = models.IntegerField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Right"))
-    max_overhanging_veg_left = models.IntegerField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Left"))
-    max_overhanging_veg_right = models.IntegerField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Right"))
+    max_overhanging_veg_left = models.FloatField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Left"))
+    max_overhanging_veg_right = models.FloatField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Right"))
 
     # substrate
-    percent_fine = models.FloatField(blank=True, null=True, verbose_name=_("fine silt or clay"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_sand = models.FloatField(blank=True, null=True, verbose_name=_("sand"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_gravel = models.FloatField(blank=True, null=True, verbose_name=_("gravel"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_pebble = models.FloatField(blank=True, null=True, verbose_name=_("pebble"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_cobble = models.FloatField(blank=True, null=True, verbose_name=_("cobble"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_rocks = models.FloatField(blank=True, null=True, verbose_name=_("rocks"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_boulder = models.FloatField(blank=True, null=True, verbose_name=_("boulder"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_bedrock = models.FloatField(blank=True, null=True, verbose_name=_("bedrock"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_fine = models.IntegerField(blank=True, null=True, verbose_name=_("fine silt or clay"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_sand = models.IntegerField(blank=True, null=True, verbose_name=_("sand"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_gravel = models.IntegerField(blank=True, null=True, verbose_name=_("gravel"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_pebble = models.IntegerField(blank=True, null=True, verbose_name=_("pebble"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_cobble = models.IntegerField(blank=True, null=True, verbose_name=_("cobble"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_rocks = models.IntegerField(blank=True, null=True, verbose_name=_("rocks"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_boulder = models.IntegerField(blank=True, null=True, verbose_name=_("boulder"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_bedrock = models.IntegerField(blank=True, null=True, verbose_name=_("bedrock"), validators=(MinValueValidator(0), MaxValueValidator(100)))
 
     # rst
     rpm_arrival = models.FloatField(null=True, blank=True, verbose_name="RPM at start")
@@ -228,10 +246,13 @@ class Sample(MetadataFields):
     operating_condition = models.IntegerField(blank=True, null=True, choices=operating_condition_choices)
     operating_condition_comment = models.CharField(max_length=255, blank=True, null=True)
 
+    # ef
+    site_type = models.IntegerField(blank=True, null=True, choices=site_type_choices, verbose_name=_("type of site"))
     electrofisher = models.ForeignKey(Electrofisher, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("electrofisher"), blank=True,
                                       null=True)
     electrofisher_voltage = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher voltage (V)"))
-    electrofisher_output = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher output (amps)"))
+    electrofisher_output_low = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher output, low (amps)"))
+    electrofisher_output_high = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher output, high (amps)"))
     electrofisher_frequency = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher frequency (Hz)"))
 
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_created_by')
@@ -287,7 +308,7 @@ class Sample(MetadataFields):
             attr = getattr(self, f"percent_{substrate}")
             substrate = gettext(substrate)
             if attr and attr > 0:
-                my_str += f"{int(attr * 100)}% {substrate}<br> "
+                my_str += f"{attr}% {substrate}<br> "
         return mark_safe(my_str)
 
     def get_avg_depth(self, which_depth):
@@ -318,7 +339,7 @@ class Sample(MetadataFields):
             attr = getattr(self, f"percent_{substrate}")
             substrate = gettext(substrate)
             if attr and attr > 0:
-                my_str += f"{int(attr * 100)}% {substrate}<br> "
+                my_str += f"{attr}% {substrate}<br> "
         return mark_safe(my_str)
 
     @property
@@ -436,7 +457,7 @@ class Sample(MetadataFields):
     @property
     def electrofisher_params(self):
         return mark_safe(
-            f"voltage (V) &rarr; {nz(self.electrofisher_voltage, '---')} <br>output (amps) &rarr; {nz(self.electrofisher_output, '---')} <br>frequency (Hz) &rarr; {nz(self.electrofisher_frequency, '---')} ")
+            f"voltage (V) &rarr; {nz(self.electrofisher_voltage, '---')} <br>output, low (amps) &rarr; {nz(self.electrofisher_output_low, '---')}<br>output, high (amps) &rarr; {nz(self.electrofisher_output_high, '---')} <br>frequency (Hz) &rarr; {nz(self.electrofisher_frequency, '---')} ")
 
 
 class Sweep(MetadataFields):
@@ -489,7 +510,7 @@ class Maturity(CodeModel):
 class Entry(MetadataFields):
     first_tag = models.CharField(max_length=50, blank=True, null=True)
     last_tag = models.CharField(max_length=50, blank=True, null=True)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="entries")
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
     frequency = models.IntegerField(blank=True, null=True, verbose_name=_("frequency"))
     fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
@@ -504,8 +525,8 @@ class Entry(MetadataFields):
     notes = models.TextField(blank=True, null=True)
 
     # non-editable
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries", editable=False)
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="entries", editable=False)
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries", editable=False, blank=True, null=True)
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="entries", editable=False, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         return super().save(*args, **kwargs)
@@ -541,7 +562,7 @@ class Observation(MetadataFields):
     maturity = models.ForeignKey(Maturity, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
 
     # downstream
-    age_type = models.IntegerField(blank=True, null=True, verbose_name=_("age type"), choices=fish_size_choices)
+    age_type = models.IntegerField(blank=True, null=True, verbose_name=_("age type"), choices=age_type_choices)
     river_age = models.IntegerField(blank=True, null=True, verbose_name=_("river age"))
     ocean_age = models.IntegerField(blank=True, null=True, verbose_name=_("ocean age"))
 

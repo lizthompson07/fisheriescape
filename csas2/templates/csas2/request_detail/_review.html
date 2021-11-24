@@ -24,12 +24,12 @@
     <input type="text" class="form-control" v-model="request.review.ref_number" @change="updateReview">
   </div>
   <div class="form-group">
-    <label for="">${reviewLabels.prioritization}</label>
+    <label for="">${reviewLabels.is_valid}</label>
     <v-select
       style="width: 100%"
-      v-model="request.review.prioritization"
+      v-model="request.review.is_valid"
       @input="updateReview"
-      :options="prioritizationChoices"
+      :options="yesNoChoices"
       :reduce="choice => choice.value"
       label="text"
       :clearable="false"
@@ -37,10 +37,21 @@
     >
     </v-select>
   </div>
-  <div v-if="request.review.prioritization" class="form-group">
-    <label for="">${reviewLabels.prioritization_text}</label>
-    <textarea rows="3" class="form-control" v-model="request.review.prioritization_text" @change="updateReview"></textarea>
+  <div class="form-group">
+    <label for="">${reviewLabels.is_feasible}</label>
+    <v-select
+      style="width: 100%"
+      v-model="request.review.is_feasible"
+      @input="updateReview"
+      :options="yesNoChoices"
+      :reduce="choice => choice.value"
+      label="text"
+      :clearable="false"
+      class="bg-light"
+    >
+    </v-select>
   </div>
+
   <div class="form-group">
     <label for="">${reviewLabels.decision}</label>
     <v-select
@@ -52,28 +63,29 @@
       label="text"
       :clearable="false"
       class="bg-light"
+      :disabled="!request.is_valid_request"
     >
     </v-select>
   </div>
-  <div v-if="request.review.decision" class="form-group">
+{#  <div class="form-group">#}
+{#    <label for="">${reviewLabels.decision_date}</label>#}
+{#    <input v-model="request.review.decision_date_display" type="date" class="mydate form-control" placeholder="{% trans "Click to select dates" %}"#}
+{#           @focusout="updateReview">#}
+{#    <div class="mt-1" v-if="!request.review.decision">#}
+{#      <button class="badge badge-pill btn-primary" v-if="request.review.decision_date"#}
+{#              @click="request.review.decision_date_display=null;request.review.decision_date=null; updateReview()">#}
+{#        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}#}
+{#      </button>#}
+{#    </div>#}
+{#  </div>#}
+  <div class="form-group">
     <label for="">${reviewLabels.decision_text}</label>
-    <textarea rows="3" class="form-control" v-model="request.review.decision_text" @change="updateReview"></textarea>
-  </div>
-  <div v-if="request.review.decision" class="form-group">
-    <label for="">${reviewLabels.decision_date}</label>
-    <input v-model="request.review.decision_date_display" type="date" class="mydate form-control" placeholder="{% trans "Click to select dates" %}"
-           @change="updateReview">
-    <div class="mt-1">
-      <button class="badge badge-pill btn-primary" v-if="request.review.decision_date"
-              @click="request.review.decision_date_display=null;request.review.decision_date=null; updateReview()">
-        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
-      </button>
-    </div>
+    <textarea rows="8" class="form-control" v-model="request.review.decision_text" @change="updateReview"></textarea>
   </div>
   <div class="form-group">
     <label for="">${reviewLabels.advice_date}</label>
     <input v-model="request.review.advice_date_display" type="date" class="mydate form-control" placeholder="{% trans "Click to select dates" %}"
-           @change="updateReview">
+           @focusout="updateReview" :disabled="!request.is_valid_request">
     <div class="mt-1">
       <button class="badge badge-pill btn-primary" v-if="request.review.advice_date"
               @click="request.review.advice_date_display=null;request.review.advice_date=null; updateReview()">
@@ -82,16 +94,12 @@
     </div>
   </div>
   <div class="form-group">
-    <input v-model="request.review.is_deferred" class="" type="checkbox" id="is_deferred" @change="updateReview">
-    <label class="form-check-label" for="is_deferred"> ${reviewLabels.is_deferred} </label>
-  </div>
-  <div v-if="request.review.is_deferred" class="form-group">
     <label for="">${reviewLabels.deferred_text}</label>
-    <textarea rows="3" class="form-control" v-model="request.review.deferred_text" @change="updateReview"></textarea>
+    <textarea rows="3" class="form-control" v-model="request.review.deferred_text" @change="updateReview" :disabled="!request.is_rescheduled || !request.is_valid_request"></textarea>
   </div>
   <div class="form-group">
     <label for="">${reviewLabels.notes}</label>
-    <textarea rows="3" class="form-control" v-model="request.review.notes" @change="updateReview"></textarea>
+    <textarea rows="8" class="form-control" v-model="request.review.notes" @change="updateReview"></textarea>
   </div>
 
 
