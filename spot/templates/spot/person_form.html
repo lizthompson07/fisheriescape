@@ -42,12 +42,11 @@
 
             {% for field in form %}
                 {% if field.help_text %}
-                    <a data-toggle="tooltip" data-placement="bottom" title="{{ field.help_text|safe }}">{% bootstrap_field field show_help=False %}</a>
+                    <a data-toggle="popover" data-placement="bottom" data-trigger="hover" data-content="{{ field.help_text }}">{% bootstrap_field field show_help=False %}</a>
                 {% else %}
                     {% bootstrap_field field placeholder="" %}
                 {% endif %}
             {% endfor %}
-
 
 
             {% buttons %}
@@ -64,8 +63,8 @@
         </form>
     </div>
 <script>
-    $(document).ready(function(){
-        $('[data-toggle="tooltip"]').tooltip();
+    $(document).ready(function() {
+    $('.has-popover').popover({'trigger':'hover'});
     });
 </script>
 {% endblock content %}

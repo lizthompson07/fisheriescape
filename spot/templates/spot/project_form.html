@@ -57,7 +57,15 @@
             {% bootstrap_form_errors form %}
             {% csrf_token %}
             {% for field in form %}
-                {% bootstrap_field field placeholder="" %}
+                {% if field.help_text %}
+                        <a data-toggle="popover" data-placement="bottom" data-trigger="hover" data-content="{{ field.help_text }}">{% bootstrap_field field show_help=False %}</a>
+                        {% if field.name == 'management_area' %}
+                            <a href="https://www.pac.dfo-mpo.gc.ca/fm-gp/maps-cartes/areas-secteurs/index-eng.html" target="_blank"> Map of Area 1-142</a>
+                            <br>
+                        {% endif %}
+                {% else %}
+                    {% bootstrap_field field placeholder="" %}
+                {% endif %}
                 {% if field.name == 'salmon_life_stage' %}
                     <br><h2><u>Project Categorization</u></h2><br>
                 {% elif field.name == 'category_comments' %}

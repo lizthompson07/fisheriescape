@@ -37,12 +37,13 @@
             <a class="btn btn-danger " href="{% url 'spot:project_delete' object.id %}">
                 {% trans "Delete" %}
             </a>
-{#            <a class="btn btn-success" href="{% url 'spot:report_q' object.id %}">#}
-{#                {% trans "Cue Card" %}#}
-{#            </a>#}
+            <a class="btn btn-success " pop-href="{% url 'spot:projectcertified_new' object.id  %}">
+                {% trans "Certify" %}
+            </a>
 
         </div>
-        <br><br>
+        <br>
+        {% include "spot/_project_certified.html" %}
         <div id="accordion">
               <div class="card">
                 <div class="card-header" id="headingOne">

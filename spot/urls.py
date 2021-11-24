@@ -126,5 +126,11 @@ urlpatterns = [
     path('meth/<int:meth>/methoddocument/new/', views.MethodDocumentCreateView.as_view(), name="methoddocument_new"),
     path('methoddocument/<int:pk>/edit/', views.MethodDocumentUpdateView.as_view(), name="methoddocument_edit"),
     path('methoddocument/<int:pk>/delete/', views.MethodDocumentDeleteView.as_view(), name="methoddocument_delete"),
+
+    # Project Certified #
+    #####################
+    path('project/<int:project>/projectcertified/new/', views.ProjectCertifiedCreateView.as_view(), name="projectcertified_new"),
+    path('projectcertified/<int:pk>/edit/', views.ProjectCertifiedUpdateView.as_view(), name="projectcertified_edit"),
+    path('projectcertified/<int:pk>/delete/', views.ProjectCertifiedDeleteView.as_view(), name="projectcertified_delete"),
 ]
 

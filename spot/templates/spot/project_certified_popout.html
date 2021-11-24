@@ -32,10 +32,10 @@
 
         <h3>
             {% if object %}
-                {% trans "Funding Details" %}
+                {% trans "Certification Details" %}
 
             {% else %}
-                {% trans "New Funding Year" %}
+                {% trans "New Certification" %}
             {% endif %}
         </h3>
         <br>
@@ -44,18 +44,14 @@
             {% csrf_token %}
 
             {% for field in form %}
-                {% if field.help_text %}
-                    <a data-toggle="popover" data-placement="bottom" data-trigger="hover" data-content="{{ field.help_text }}">{% bootstrap_field field show_help=False %}</a>
-                {% else %}
-                    {% bootstrap_field field placeholder="" %}
-                {% endif %}
+                {% bootstrap_field field size='small' layout='horizontal' placeholder="" %}
             {% endfor %}
             <div class="btn-group">
                 <button type="submit" class="btn btn-primary" onclick="refreshParent()">
                     {% trans "Submit" %}
                 </button>
                 {% if object %}
-                    <a class="btn btn-danger" href="{% url 'spot:fundingyear_delete' object.id %}">
+                    <a class="btn btn-danger" href="{% url 'spot:projectcertified_delete' object.id %}">
                         {% trans "Delete" %}
                     </a>
                 {% endif %}

@@ -327,9 +327,11 @@ PROVINCE_STATE_CHOICES = (
 )
 
 ORGANIZATION_TYPE = (
-    ('First Nations', 'First Nations'),
+    ('First Nation', 'First Nation'),
     ('Company', 'Company'),
-    ('Government Organization', 'Government Organization'),
+    ('Government', 'Government'),
+    ('Non-Profit Organization', 'Non-Profit Organization'),
+    ('University', 'University'),
 )
 
 PLANNING_METHOD = (

@@ -40,19 +40,19 @@ class PersonFilter(django_filters.FilterSet):
 class ProjectFilter(django_filters.FilterSet):
 
     search_term = django_filters.CharFilter(field_name='search_term', label="Search", lookup_expr='icontains', widget=forms.TextInput())
-    species = django_filters.ChoiceFilter(choices=choices.SPECIES)
-    region = django_filters.ChoiceFilter(choices=choices.REGION)
-    stock_management_unit = django_filters.ChoiceFilter(choices=choices.SMU_NAME)
-    project_stage = django_filters.ChoiceFilter(choices=choices.PROJECT_STAGE)
-    ecosystem_type = django_filters.ChoiceFilter(choices=choices.ECOSYSTEM_TYPE)
-    project_type = django_filters.ChoiceFilter(choices=choices.PROJECT_TYPE)
-    project_sub_type = django_filters.ChoiceFilter(choices=choices.PROJECT_SUB_TYPE)
-    monitoring_approach = django_filters.ChoiceFilter(choices=choices.MONITORING_APPROACH)
-    project_theme = django_filters.ChoiceFilter(choices=choices.PROJECT_THEME)
-    core_component = django_filters.ChoiceFilter(choices=choices.PROJECT_CORE_ELEMENT)
-    supportive_component = django_filters.ChoiceFilter(choices=choices.SUPPORTIVE_COMPONENT)
-    government_organization = django_filters.ChoiceFilter(choices=choices.GOVERNMENT_LINK)
-    DFO_link = django_filters.ChoiceFilter(choices=choices.DFO_LINK)
+    species = django_filters.ChoiceFilter(choices=choices.SPECIES, lookup_expr='icontains')
+    region = django_filters.ChoiceFilter(choices=choices.REGION, lookup_expr='icontains')
+    stock_management_unit = django_filters.ChoiceFilter(choices=choices.SMU_NAME, lookup_expr='icontains')
+    project_stage = django_filters.ChoiceFilter(choices=choices.PROJECT_STAGE, lookup_expr='icontains')
+    ecosystem_type = django_filters.ChoiceFilter(choices=choices.ECOSYSTEM_TYPE, lookup_expr='icontains')
+    project_type = django_filters.ChoiceFilter(choices=choices.PROJECT_TYPE, lookup_expr='icontains')
+    project_sub_type = django_filters.ChoiceFilter(choices=choices.PROJECT_SUB_TYPE, lookup_expr='icontains')
+    monitoring_approach = django_filters.ChoiceFilter(choices=choices.MONITORING_APPROACH, lookup_expr='icontains')
+    project_theme = django_filters.ChoiceFilter(choices=choices.PROJECT_THEME, lookup_expr='icontains')
+    core_component = django_filters.ChoiceFilter(choices=choices.PROJECT_CORE_ELEMENT, lookup_expr='icontains')
+    supportive_component = django_filters.ChoiceFilter(choices=choices.SUPPORTIVE_COMPONENT, lookup_expr='icontains')
+    government_organization = django_filters.ChoiceFilter(choices=choices.GOVERNMENT_LINK, lookup_expr='icontains')
+    DFO_link = django_filters.ChoiceFilter(choices=choices.DFO_LINK, lookup_expr='icontains')
 
     class Meta:
         model = models.Project

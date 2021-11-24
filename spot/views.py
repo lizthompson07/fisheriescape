@@ -99,7 +99,7 @@ class OrganizationDetailView(SpotAccessRequiredMixin, DetailView):
             'organization_type',
             'section',
             'address',
-            'province',
+            'province_state',
             'country',
             'city',
             'phone',
@@ -183,7 +183,8 @@ class PersonDetailView(SpotAccessRequiredMixin, DetailView):
             'phone',
             'email',
             'city',
-            'province',
+            'province_state',
+            'country,'
             'address',
             'organizations',
             'role',
@@ -262,6 +263,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
+            'project_number',
             'agreement_number',
             'agreement_history',
             'name',
@@ -295,12 +297,13 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'DFO_link',
             'DFO_program_reference',
             'government_organization',
+            'policy_program_connection',
 
             'DFO_project_authority',
             'DFO_area_chief',
             'DFO_aboriginal_AAA',
             'DFO_resource_manager',
-            'tribal_council',
+            'first_nation',
             'first_nations_contact',
             'first_nations_contact_role',
             'DFO_technicians',
@@ -314,7 +317,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'funding_sources',
             'other_funding_sources',
             'agreement_type',
-            'project_lead_organization',
+            'lead_organization',
 
             'date_last_modified',
             'last_modified_by',
@@ -1293,6 +1296,62 @@ class MethodDocumentDeleteView(SpotAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+### PROJECT CERTIFICATION ###
+class ProjectCertifiedCreateView(SpotAccessRequiredMixin, CreateView):
+    model = models.ProjectCertified
+    template_name = 'spot/project_certified_popout.html'
+    form_class = forms.ProjectCertifiedForm
+
+    def get_initial(self):
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': my_project,
+            'certified_by': self.request.user
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        context['project'] = my_project
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
+
+class ProjectCertifiedUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.ProjectCertified
+    template_name = 'spot/project_certified_popout.html'
+    form_class = forms.ProjectCertifiedForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
+    def get_initial(self):
+        return {
+            'certified_by': self.request.user
+        }
+
+
+class ProjectCertifiedDeleteView(SpotAccessRequiredMixin, DeleteView):
+    model = models.ProjectCertified
+    success_message = 'The Project Certification was successfully removed!'
+    template_name = 'spot/project_certified_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('spot:close_me')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+
+
+
+### EXPORT ##
 def export_project(request):
     project = models.Project.objects.all()
     project_filter = filters.ProjectFilter(request.GET, queryset=project).qs

@@ -1,0 +1,38 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+
+{% if object.project_certification.count == 0 %}
+    <br>
+{% else %}
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th style="width: 120px">
+                {% trans "Project Certified" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Certified By" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Certification Date" %}
+            </th>
+        </tr>
+        <tbody>
+        {% for obj in object.project_certification.all %}
+            <tr href="{% url 'spot:projectcertified_edit' obj.id  %}" pop data-toggle="tooltip" title="click to edit this outcome">
+                <td>
+                    {{ obj.certified }}
+                </td>
+                <td>
+                    {{ obj.certified_by }}
+                </td>
+                <td>
+                    {{ obj.certified_date }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
