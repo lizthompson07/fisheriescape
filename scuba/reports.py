@@ -155,7 +155,9 @@ def dive_transect_export(year):
                 my_val = f"{dive.sample.site.region.name}"
                 my_ws.write(i, j, my_val, normal_format)
             elif "distance" in field:
-                my_val = f"{dive.transect.transect_distance}"
+                my_val = "---"
+                if dive.transect.transect_distance:
+                    my_val = f"{dive.transect.transect_distance}"
                 my_ws.write(i, j, my_val, normal_format)
             else:
                 my_val = str(get_field_value(dive, field))
