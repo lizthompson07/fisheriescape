@@ -47,3 +47,11 @@ class FisheryAreaForm2(forms.ModelForm):
         fields = "__all__"
         widgets = {
         }
+
+
+class AnalysesForm(forms.ModelForm):
+    class Meta:
+        model = models.Analyses
+        fields = "__all__"
+        widgets = {
+        }

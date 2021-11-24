@@ -58,6 +58,16 @@ class FisheryFilter(django_filters.FilterSet):
                                                                             widget=forms.TextInput())
 
 
+class AnalysesFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Analyses
+        fields = {
+            'species': ['exact'],
+            'week': ['exact'],
+            'type': ['exact'],
+
+        }
+
 #TODO Something like what I want a custom filter to do:
 # from datetime import datetime
 # my_date= request.POST.get('my_date','') # for eg. 2019-10-26

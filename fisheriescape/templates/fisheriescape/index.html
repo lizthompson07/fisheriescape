@@ -23,7 +23,8 @@
             cursor: pointer;
         {#background-color: #eeeeee;#} box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
             transition: 0.3s;
-            margin: 10px
+            margin: 10px;
+            height: 95%;
         }
 
         .card:hover {
@@ -147,6 +148,29 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-sm">
+            <div class="card border border-dark">
+                <div class="card-header">
+                    <h2>{% trans 'Fishery Analyses' %}</h2>
+                </div>
+                <div class="card-img">
+                    <img class="mh-80" src="{% static 'img/fisheriescape/analyses.png' %}" alt="Card image" style="width: 80%; height: 120%">
+                </div>
+                <div class="card-body">
+                    <div class="btns">
+                        <a href="{% url 'fisheriescape:analyses_filter' %}" class="btn my-btn btn btn-primary">Analysis Search</a>
+
+                    </div>
+                    <br>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm">
+{#            eventual 3rd card space#}
+        </div>
+
     </div>
 </div>
 

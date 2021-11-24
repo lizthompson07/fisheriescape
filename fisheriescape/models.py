@@ -1,9 +1,13 @@
+import os
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.gis.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 REGION_CHOICES = (
     ("Gulf", "Gulf"),
@@ -133,3 +137,76 @@ class Fishery(models.Model):
 
     def get_absolute_url(self):
         return reverse("fisheriescape:fishery_detail", kwargs={"pk": self.id})
+
+
+class Week(models.Model):
+    week_number = models.IntegerField(validators=[MaxValueValidator(53), MinValueValidator(1)], verbose_name="week")
+
+    def __str__(self):
+        my_str = "Week {}".format(self.week_number)
+        return my_str
+
+
+def image_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/speciesname_type/<filename>
+    return f'fisheriescape/{instance.species.english_name}/{instance.type}/{filename}'
+
+
+class Analyses(models.Model):
+    TYPE_CHOICES = (
+        (1, _("Common Unit Effort")),
+        (2, _("Site Score")),
+        (3, _("Fisheriescape Index")),
+    )
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="analysess",
+                                verbose_name=_("species"))
+    type = models.IntegerField(blank=True, null=True, choices=TYPE_CHOICES, verbose_name="type")
+    week = models.ForeignKey(Week, on_delete=models.DO_NOTHING, related_name="weeks",
+                                verbose_name=_("week"))
+    image = models.FileField(upload_to=image_directory_path, default='/fisheriescape/default_image.png', verbose_name=_("image"))
+    ref_text = models.TextField(blank=True, null=True, verbose_name="reference text")
+
+    def __str__(self):
+        my_str = "{}".format(self.species.english_name)
+
+        if self.type:
+            my_str += f' ({self.get_type_display()} - {self.week})'
+        return my_str
+
+    class Meta:
+        ordering = ['week', 'species', ]
+
+    def get_absolute_url(self):
+        return reverse("fisheriescape:analyses_detail", kwargs={"pk": self.id})
+
+
+@receiver(models.signals.post_delete, sender=Analyses)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)
+
+
+@receiver(models.signals.pre_save, sender=Analyses)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = Analyses.objects.get(pk=instance.pk).image
+    except Analyses.DoesNotExist:
+        return False
+
+    new_file = instance.image
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
