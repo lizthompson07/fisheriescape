@@ -111,7 +111,7 @@ def dive_transect_export(year):
     date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
 
     # get the dive list
-    dives = models.Dive.objects.all()
+    dives = models.Dive.objects.filter(transect__isnull=False)
     if year:
         dives = dives.filter(sample__datetime__year=year)
 
