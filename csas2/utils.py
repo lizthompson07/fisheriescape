@@ -328,7 +328,7 @@ def get_document_field_list():
 def get_related_requests(user):
     """give me a user and I'll send back a queryset with all related requests, i.e.
      they are a client || they are a coordinator || they are the request.created_by"""
-    qs = models.CSASRequest.objects.filter(Q(created_by=user) | Q(coordinator=user)).distinct()
+    qs = models.CSASRequest.objects.filter(Q(created_by=user) | Q(office__coordinator=user) | Q(office__advisors=user)).distinct()
     return qs
 
 
@@ -339,8 +339,8 @@ def get_related_processes(user):
      they are an advisor
      """
     qs = models.Process.objects.filter(
-        Q(coordinator=user) |
-        Q(advisors=user) |
+        Q(lead_office__coordinator=user) |
+        Q(lead_office__advisors=user) |
         Q(editors=user) |
         Q(csas_requests__client=user) |
         Q(meetings__invitees__roles__category__isnull=False, meetings__invitees__person__dmapps_user=user)
@@ -355,7 +355,10 @@ def get_related_docs(user):
      they are a process advisor
      """
     qs = models.Document.objects.filter(document_type__hide_from_list=False).filter(
-        Q(process__coordinator=user) | Q(process__advisors=user) | Q(authors__person__dmapps_user=user)).distinct()
+        Q(process__lead_office__coordinator=user) |
+        Q(process__lead_office__advisors=user) |
+        Q(process__lead_office__administrators=user) |
+        Q(authors__person__dmapps_user=user)).distinct()
     return qs
 
 
