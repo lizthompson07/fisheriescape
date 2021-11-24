@@ -4,34 +4,35 @@
 
 
 {% block content %}
-    <div class="container">
-        <br>
-        <h2>
-            {% trans "Sign up" %}
-        </h2>
+  <div class="container">
+    <br>
+    <h2>
+      {% trans "Sign up" %}
+    </h2>
+    <h5 class="text-muted mb-3">{% trans "Please enter the following information" %}</h5>
 
-        <form method="POST" class='form'>
-            {% csrf_token %}
-            {# {% bootstrap_form_errors form %} #}
+    <form method="POST" class='form w-50'>
+      {% csrf_token %}
+      {# {% bootstrap_form_errors form %} #}
+      <div class="row">
+          <div class="col">
 
-            {% for field in form %}
-                {% if field.name == 'email' %}
-                    <p>
-                        {% trans "Email address" %}
-                    </p>
-                    {% bootstrap_field field show_label=False placeholder="" %}
-                {% else %}
-                    {% bootstrap_field field %}
-                {% endif %}
+        {% bootstrap_field form.first_name show_label=False %}
+          </div>
+          <div class="col">
+        {% bootstrap_field form.last_name show_label=False %}
+          </div>
+      </div>
 
-            {% endfor %}
-            <br>
-            {% buttons %}
-                <input type="submit" class="btn btn-primary" value="{% trans "Sign Up" %}">
-            {% endbuttons %}
-            {# <input type="hidden" name="next" value="{{next}}"> #}
-        </form>
+        {% bootstrap_field form.email show_label=False %}
+
+      <br>
+      {% buttons %}
+        <input type="submit" class="btn btn-primary" value="{% trans "Sign Up" %}">
+      {% endbuttons %}
+      {# <input type="hidden" name="next" value="{{next}}"> #}
+    </form>
 
 
-    </div>
+  </div>
 {% endblock %}

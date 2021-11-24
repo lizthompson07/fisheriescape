@@ -21,7 +21,7 @@ var app = new Vue({
   },
   methods: {
     getCurrentUser() {
-      let endpoint = `/api/project-planning/user/`;
+      let endpoint = `/api/ppt/user/`;
       apiService(endpoint)
           .then(response => {
             this.currentUser = response;

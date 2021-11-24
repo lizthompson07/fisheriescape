@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
@@ -11,11 +12,23 @@ from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, MetadataFields
 from shared_models.utils import decdeg2dm, dm2decdeg
 
-
 YES_NO_CHOICES = (
     (True, gettext("Yes")),
     (False, gettext("No")),
 )
+
+
+class ScubaUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="scuba_user", verbose_name=_("DM Apps user"))
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator?"), choices=YES_NO_CHOICES)
+    is_crud_user = models.BooleanField(default=False, verbose_name=_("CRUD permissions?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
+
 
 class Region(UnilingualLookup):
     abbreviation = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
@@ -173,11 +186,36 @@ class Diver(models.Model):
         return self.dives.count()
 
 
+class Species(SimpleLookup):
+    scientific_name = models.CharField(max_length=255, blank=True, null=True)
+    code = models.CharField(max_length=255, unique=True)
+    aphia_id = models.IntegerField(verbose_name="WoRMS AphiaID")
+    is_default = models.BooleanField(default=False, choices=YES_NO_CHOICES)
+
+    class Meta:
+        ordering = ['code']
+        verbose_name_plural = _("species")
+
+    def get_absolute_url(self):
+        return reverse("scuba:species_detail", args=[self.id])
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.is_default:
+            for s in Species.objects.filter(~Q(id=self.id)).filter(is_default=True):
+                s.is_default = False
+                s.save()
+
+    @property
+    def code_name(self):
+        return f'{self.code} - {self.tname}'
+
 class Sample(models.Model):
     site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("site"))
     datetime = models.DateTimeField(verbose_name="date")
     weather_notes = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("weather notes"))
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
+    is_upm = models.BooleanField(default=False, verbose_name=_("was this a UPM sampling day?"))
 
     @property
     def site_region(self):
@@ -228,6 +266,8 @@ class Dive(MetadataFields):
     side = models.CharField(max_length=1, blank=True, null=True, verbose_name=_("side"), choices=side_choices)
     width_m = models.FloatField(verbose_name=_("width (m)"), blank=True, null=True)
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
+    # non-editable
+    was_seeded = models.BooleanField(default=False, verbose_name=_("was seeded (Martin Mallet)?"), editable=False)  # this is to capture historical data
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -340,6 +380,7 @@ class Observation(MetadataFields):
     carapace_length_mm = models.FloatField(verbose_name=_("carapace length (mm)"), blank=True, null=True)
     sex = models.CharField(max_length=2, verbose_name=_("sex"), choices=sex_choices)
     egg_status = models.CharField(max_length=2, blank=True, null=True, verbose_name=_("egg status"), choices=egg_status_choices)
+    species = models.ForeignKey(Species, related_name='observations', on_delete=models.CASCADE, verbose_name=_("species"))
     certainty_rating = models.IntegerField(verbose_name=_("length certainty"), default=1, choices=certainty_rating_choices)
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 

@@ -1,13 +1,19 @@
 import os
 
 from django.conf import settings
-from django.test import TestCase
 from django.contrib.messages import get_messages
+from django.test import TestCase
 from django.urls import resolve, reverse
 from django.utils.translation import activate
+from faker import Faker
 from html2text import html2text
 
+from csas2.models import CSASAdminUser
+from ppt.models import PPTAdminUser
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactory
+from travel.models import TravelUser
+
+faker = Faker()
 
 fixtures_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fixtures')
 standard_fixtures = [file for file in os.listdir(fixtures_dir)]
@@ -33,12 +39,13 @@ class CommonTest(TestCase):
     expected_form = None
 
     # use when a user needs to be logged in.
-    def get_and_login_user(self, user=None, in_group=None, is_superuser=False):
+    def get_and_login_user(self, user=None, in_group=None, is_superuser=False, in_national_admin_group=False):
         """
         this function is a handy way to log in a user to the testing client.
         :param user: optional user to be logged in
         :param in_group: optional group to have the user assigned to
         :param is_superuser: is the user a superuser?
+        :param in_national_admin_group: supplying True will put the user as either a travel, csas or project admin; with access to shared models org structure
         """
         if not user:
             user = UserFactory()
@@ -50,6 +57,15 @@ class CommonTest(TestCase):
         if is_superuser:
             user.is_superuser = True
             user.save()
+
+        if in_national_admin_group:
+            case = faker.pyint(1, 3)
+            if case == 1:  # travel
+                TravelUser.objects.create(user=user, is_national_admin=True)
+            elif case == 2:  # csas
+                CSASAdminUser.objects.create(user=user, is_national_admin=True)
+            elif case == 3:  # csas
+                PPTAdminUser.objects.create(user=user, is_national_admin=True)
         return user
 
     def assert_user_access_denied(self, test_url, user, locales=('en', 'fr'), expected_code=302,

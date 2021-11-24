@@ -19,6 +19,14 @@ urlpatterns = [
     path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
     path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
 
+    # csas office #
+    ##########
+    path('csas-offices/', views.CSASOfficeListView.as_view(), name="office_list"),
+    path('csas-offices/new/', views.CSASOfficeCreateView.as_view(), name="office_new"),
+    path('csas-offices/<int:pk>/edit/', views.CSASOfficeUpdateView.as_view(), name="office_edit"),
+    path('csas-offices/<int:pk>/delete/', views.CSASOfficeDeleteView.as_view(), name="office_delete"),
+    # path('people/<int:pk>/view/', views.PersonDetailView.as_view(), name="person_detail"),
+
 
     # people #
     ##########

@@ -1,10 +1,13 @@
 {% extends 'scuba/base.html' %}
 {% load verbose_names %}
 {% load i18n %}
-
+{% load l10n %}
 {% block subcontent %}
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  {% localize off %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  {% endlocalize %}
+
   <style>
   #map {
       height: 200px; /* The height is 400 pixels */
@@ -26,7 +29,9 @@
       </table>
     </div>
     <div class="col">
-      <div id="map">
+      {% localize off %}
+        <div id="map">
+      {% endlocalize %}
       </div>
     </div>
   </div>
@@ -74,38 +79,39 @@
 
     {% endif %}
   </div>
+  {% localize off %}
+    <script type="application/javascript">
+    function initialize() {
+      map = new L.Map("map", {
+        zoom: 10,
+      });
 
-  <script type="application/javascript">
-  function initialize() {
-    map = new L.Map("map", {
-      zoom: 10,
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map)
+
+      var coords = [];
+      {% for site in object.sites.all %}
+        {% if site.get_coordinates %}
+          latLong = [{{site.get_coordinates.x}}, {{ site.get_coordinates.y }}];
+          L.marker(
+              latLong, {title: '{{site}}',}
+          ).addTo(map).bindPopup("<b>Site name:</b> {{site.name}}");
+          coords.push(latLong)
+        {% endif %}
+      {% endfor %}
+
+      map.fitBounds(coords);
+      if (coords.length === 1) map.setZoom(12);
+
+    }
+
+    $(document).ready(function () {
+      // Stuff to do as soon as the DOM is ready
+      initialize()
+
     });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map)
-
-    var coords = [];
-    {% for site in object.sites.all %}
-      {% if site.get_coordinates %}
-        latLong = [{{site.get_coordinates.x}}, {{ site.get_coordinates.y }}];
-        L.marker(
-            latLong, {title: '{{site}}',}
-        ).addTo(map).bindPopup("<b>Site name:</b> {{site.name}}");
-        coords.push(latLong)
-      {% endif %}
-    {% endfor %}
-
-    map.fitBounds(coords);
-    if(coords.length === 1) map.setZoom(12);
-
-  }
-
-  $(document).ready(function () {
-    // Stuff to do as soon as the DOM is ready
-    initialize()
-
-  });
-  </script>
+    </script>
+  {% endlocalize %}
 
 {% endblock %}

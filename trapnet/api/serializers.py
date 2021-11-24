@@ -60,3 +60,9 @@ class ObservationSerializer(serializers.ModelSerializer):
             msg = _('You must supply either a sample or a sweep!')
             raise ValidationError(msg)
         return attrs
+
+
+class SampleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Sample
+        fields = "__all__"

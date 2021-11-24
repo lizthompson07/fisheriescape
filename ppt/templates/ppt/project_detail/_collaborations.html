@@ -1,0 +1,69 @@
+{% load i18n %}
+{% load project_tags %}
+{% load verbose_names %}
+{% load static %}
+{% load bootstrap4 %}
+
+<div class="mb-5">
+  <div class="mb-2 neighbours">
+    <p class="lead">{% trans "Collaborations" %}</p>
+  </div>
+  <div v-if="!collaboration_loading" class="mb-2 neighbours">
+    <button @click="openModal(null, 'collaboration')" class="{{ btn_class_1 }} no-print" v-if="canModify">
+      <span class="mdi mdi-plus"></span> {% trans "Add Collaboration" %}
+    </button>
+  </div>
+
+  <div v-if="collaboration_loading">
+    <button class="btn btn-primary no-print" type="button" disabled>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span class="sr-only">Loading...</span>
+    </button>
+  </div>
+
+
+  <div v-else>
+
+    <div
+      v-if="!collaborations.length"
+      class="font-italic"
+    >
+      {% trans "No collaborations have been added to this year of the project" %}
+    </div>
+
+    <table
+      v-else
+      class="table table-sm w-75"
+    >
+      <thead>
+      {% get_collaboration_field_list as collaboration_field_list %}
+      {% for field in collaboration_field_list %}
+        <th>
+          {% get_verbose_label random_collaboration field %}
+        </th>
+      {% endfor %}
+      </thead>
+      <tbody>
+      <tr v-for="(item, index) in collaborations">
+        {% for field in collaboration_field_list %}
+          {% if "critical" in field %}
+            <td>${item.critical | yesNo }</td>
+          {% elif "type" in field %}
+            <td>${item.type_display }</td>
+          {% elif "new_" in field %}
+            <td>${item.new_or_existing_display }</td>
+          {% else %}
+            <td>${ item.{{ field }} | nz}</td>
+          {% endif %}
+        {% endfor %}
+        <td class="to-the-right" v-if="canModify">
+          <button @click="openModal(item, 'collaboration')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
+          <button @click="deleteObject(item, 'collaborations', collaborations)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+</div>

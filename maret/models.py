@@ -41,6 +41,10 @@ class Area(shared_models.SimpleLookup):
     pass
 
 
+class OrgCategory(shared_models.SimpleLookup):
+    pass
+
+
 class Committee(models.Model):
     meeting_frequency_choices = (
         (0, "Monthly"),
@@ -102,7 +106,7 @@ class Interaction(models.Model):
         (2, "Deputy Minister meeting"),
         (3, "Maritimes Region ad hoc meeting"),
         (4, "Committee / Working Group meeting"),
-        (5, "Committee / Working Group correspondence"),
+        # (5, "Committee / Working Group correspondence"), # Removed 2021-11-16
         (6, "Ministerial correspondence"),
         (7, "Deputy Minister correspondence"),
         (8, "Maritimes Region correspondence "),
@@ -113,9 +117,9 @@ class Interaction(models.Model):
     committee = models.ForeignKey(Committee, blank=True, null=True, on_delete=models.DO_NOTHING,
                                   verbose_name="Committee / Working Group", related_name="committee_interactions")
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=None)
-    dfo_liaison = models.ManyToManyField(User, related_name="interaction_dfo_liaison",
+    dfo_liaison = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_liaison",
                                          verbose_name=_("DFO liaison/secretariat"))
-    other_dfo_participants = models.ManyToManyField(User, related_name="interaction_dfo_participants",
+    other_dfo_participants = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_participants",
                                                     verbose_name=_("Other DFO participants/contributors"))
     external_contact = models.ManyToManyField(ml_models.Person, verbose_name=_("External Contact(s)"),
                                               blank=True, related_name="interaction_ext_contact")
@@ -123,9 +127,9 @@ class Interaction(models.Model):
                                                    blank=True, related_name="interaction_ext_organization")
     date_of_meeting = models.DateTimeField(blank=True, null=True, default=timezone.now,
                                            verbose_name=_("Date of Meeting"))
-    main_topic = models.ManyToManyField(DiscussionTopic, related_name="main_topics",
+    main_topic = models.ManyToManyField(DiscussionTopic, blank=True, related_name="main_topics",
                                         verbose_name=_("Main Topic(s) of discussion"))
-    species = models.ManyToManyField(Species, related_name="species",
+    species = models.ManyToManyField(Species, blank=True, related_name="species",
                                      verbose_name=_("Main species of discussion"))
     action_items = models.TextField(default="-----", verbose_name=_("Main actions"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("Comments"))
@@ -138,4 +142,32 @@ class Interaction(models.Model):
 class OrganizationExtension(models.Model):
     organization = models.ForeignKey(ml_models.Organization, blank=False, null=False, default=1, related_name="ext_org",
                                      verbose_name="Organization", on_delete=models.CASCADE)
+    associated_provinces = models.ManyToManyField(shared_models.Province, related_name="ext_asc_province",
+                                                  verbose_name="Associated Provinces")
+    category = models.ManyToManyField(OrgCategory, related_name="ext_org_category", verbose_name="Category")
     area = models.ManyToManyField(Area, related_name="ext_org_area", verbose_name="Area")
+
+
+class ContactExtension(models.Model):
+    contact = models.ForeignKey(ml_models.Person, blank=False, null=False, default=1, related_name="ext_con",
+                                verbose_name="Contact", on_delete=models.CASCADE)
+    role = models.CharField(max_length=255, default="N/A", verbose_name="Role")
+
+
+# This is a special table used to house application help text
+class HelpText(models.Model):
+    model = models.CharField(max_length=255, blank=True, null=True)
+    field_name = models.CharField(max_length=255)
+    eng_text = models.TextField(verbose_name=_("English text"))
+    fra_text = models.TextField(blank=True, null=True, verbose_name=_("French text"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("eng_text"))):
+            return "{}".format(getattr(self, str(_("eng_text"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.eng_text)
+
+    class Meta:
+        ordering = ['field_name', ]

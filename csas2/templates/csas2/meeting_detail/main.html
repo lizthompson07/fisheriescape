@@ -72,8 +72,12 @@
               </td>
             </tr>
             <tr>
-              <th class="text-left">{% trans "Title" %}</th>
-              <td class="text-left" v-html="meeting.display"></td>
+              <th class="text-left" v-html="meetingLabels.name"></th>
+              <td class="text-left" v-html="meeting.name"></td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="meetingLabels.nom"></th>
+              <td class="text-left">${meeting.nom|nz}</td>
             </tr>
             <tr>
               <th class="text-left" v-html="meetingLabels.location"></th>

@@ -10,7 +10,7 @@
   <h3 class="card-header bg-outline-dark">
     {% trans "Trip Summary" %}
     <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
-          data-trigger="hover" title="{% trans "Trip Summary" %}"
+          data-trigger="click" title="{% trans "Trip Summary" %}"
           :data-content="helpText.trip_header"></span>
   </h3>
   <div class="card-body">
@@ -138,7 +138,7 @@
         <div v-if="(isNCRAdmin || isReview) && trip.travellers.length" class="mb-5">
           <p class="h5" style="width: 40%">{% trans "Comparison of Traveller Costs:" %}
           <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
-                  data-trigger="hover" title="{% trans "Active Travellers Only" %}"
+                  data-trigger="click" title="{% trans "Active Travellers Only" %}"
                   data-content="{% trans "Travellers on 'Draft' or 'Cancelled' trips will not be shown below." %}"></span></p>
           <table class="table table-sm table-bordered">
             <tr v-for="(row, i) in trip.cost_comparison" :key="i">

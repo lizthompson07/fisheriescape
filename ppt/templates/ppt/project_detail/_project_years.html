@@ -1,0 +1,56 @@
+{% load i18n %}
+{% load project_tags %}
+{% load verbose_names %}
+{% load static %}
+{% load bootstrap4 %}
+
+
+<div class="mb-5 pointy" @click="collapseProjectYears = !collapseProjectYears">
+  <h4>
+    {% trans "Project Years" %}
+    <span v-if="!collapseProjectYears" class="ml-1 mdi mdi-toggle-switch-off text-primary"></span>
+    <span v-else class="ml-1 mdi mdi-toggle-switch"></span>
+  </h4>
+</div>
+<div v-if="!collapseProjectYears">
+  <div class="mb-3">
+    <ul class="nav nav-tabs">
+      <li class="nav-item" v-for="(year, index) in project.years" :key="index">
+        <a @click="displayProjectYear(year.id)" :class="{ 'nav-link': true, 'active': year.id == projectYear.id }" href="#project-year">
+          <span v-if="year.submitted" class="text-primary "> ${ year.display_name }</span>
+          <span v-else class="text-danger "> ${ year.display_name } ({% trans "draft" %})</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a v-if="canModify && project.years && project.years.length " href="#" class="nav-link" data-toggle="modal"
+           data-target="#new-year-modal"
+           title="{% trans "Add a new year to this project" %}">
+          <span class="">{% trans "Add Project Year" %}</span>
+        </a>
+        <a v-else-if="canModify" href="{% url 'ppt:year_new' object.id %}" class="nav-link">
+          <span class="">{% trans "Add Project Year" %}</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+
+  <div v-if="projectYear.id">
+    {% include "ppt/project_detail/_project_year_detail.html" %}
+
+    <staff-modal v-if="showModal.staff" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></staff-modal>
+    <om-cost-modal v-if="showModal.om_cost" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></om-cost-modal>
+    <capital-cost-modal v-if="showModal.capital_cost" @close="closeModals(projectYear)" :year="projectYear"
+                        :my_object="objectToEdit"></capital-cost-modal>
+    <activity-modal v-if="showModal.activity" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></activity-modal>
+    <collaboration-modal v-if="showModal.collaboration" @close="closeModals(projectYear)" :year="projectYear"
+                         :my_object="objectToEdit"></collaboration-modal>
+    <status-report-modal v-if="showModal.status_report" @close="closeModals(projectYear)" :year="projectYear"
+                         :my_object="objectToEdit"></status-report-modal>
+    <file-modal v-if="showModal.file" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></file-modal>
+  </div>
+
+
+</div>
+
+

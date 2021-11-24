@@ -85,6 +85,12 @@ h1 {
     background-color: #e94a65;
 }
 
+
+.reviewed {
+    background-color: #63ceff;
+    color: #000000;
+}
+
 .accepted, .approved, .posted, .ok, .complete, .final {
     background-color: #d5faae;
 }

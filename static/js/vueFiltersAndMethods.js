@@ -50,4 +50,18 @@ vueFiltersObject = {
     value = accounting.formatNumber(value, precision);
     return value
   },
+  listrify: function (value, sep= ", ") {
+    if (!value.length) return '';
+    let myStr = "";
+    for (const valueElement of value) {
+      myStr += `${valueElement}${sep}`
+    }
+
+    // remove the trailing "sep"
+    sepLength = sep.length
+    myStrLength = myStr.length
+    myStr = myStr.slice(0,myStrLength-sepLength)
+
+    return myStr
+  },
 }

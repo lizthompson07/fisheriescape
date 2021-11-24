@@ -25,6 +25,18 @@ DiverFormset = modelformset_factory(
     extra=1,
 )
 
+class SpeciesForm(forms.ModelForm):
+    class Meta:
+        model = models.Species
+        fields = "__all__"
+
+
+SpeciesFormset = modelformset_factory(
+    model=models.Species,
+    form=SpeciesForm,
+    extra=1,
+)
+
 
 class RegionForm(forms.ModelForm):
     class Meta:
@@ -105,7 +117,6 @@ class DiveForm(forms.ModelForm):
             self.add_error('width_m', msg)
 
 
-
 class SectionForm(forms.ModelForm):
     class Meta:
         model = models.Section
@@ -144,14 +155,17 @@ class ObservationForm(forms.ModelForm):
         exclude = ["section"]
         widgets = {
             "comment": forms.TextInput(),
+            "carapace_length_mm": forms.TextInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         klass = "form-control form-control-sm"
         self.fields["sex"].widget.attrs = {"v-model": "obs.sex", "@change": "updateObservation(obs)", "class": klass}
         self.fields["egg_status"].widget.attrs = {"v-model": "obs.egg_status", "@change": "updateObservation(obs)", "class": klass, ":disabled": "obs.sex!='f'"}
         self.fields["carapace_length_mm"].widget.attrs = {"v-model": "obs.carapace_length_mm", "@change": "updateObservation(obs)", "class": klass}
+        self.fields["species"].widget.attrs = {"v-model": "obs.species", "@change": "updateObservation(obs)", "class": klass}
         self.fields["certainty_rating"].widget.attrs = {"v-model": "obs.certainty_rating", "@change": "updateObservation(obs)", "class": klass}
         self.fields["comment"].widget.attrs = {"v-model": "obs.comment", "@change": "updateObservation(obs)", "class": klass}
 
@@ -162,19 +176,24 @@ class NewObservationForm(forms.ModelForm):
         fields = "__all__"
         exclude = ["section"]
         widgets = {
-            # "comment": forms.TextInput(),
+            "carapace_length_mm": forms.TextInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         klass = "form-control form-control-sm"
-        self.fields["sex"].widget.attrs = {"v-model": "new_observation.sex", "ref": "top_of_form1", "class": klass,
+        self.fields["sex"].widget.attrs = {"v-model": "new_observation.sex", "class": klass,
                                            "@change": "updateEggStatus(new_observation)"}
         self.fields["egg_status"].widget.attrs = {"v-model": "new_observation.egg_status", "class": klass}
         self.fields["carapace_length_mm"].widget.attrs = {"v-model": "new_observation.carapace_length_mm", "class": klass,
-                                                          "@change": "updateLengthCertainty(new_observation)"}
+                                                          "@change": "updateLengthCertainty(new_observation)", "ref": "top_of_form1", }
         self.fields["certainty_rating"].widget.attrs = {"v-model": "new_observation.certainty_rating", "class": klass}
+        self.fields["species"].widget.attrs = {"v-model": "new_observation.species", "class": klass}
         self.fields["comment"].widget.attrs = {"v-model": "new_observation.comment", "row": 3, "class": klass}
+
+        species_choices = [(obj.id, obj.code_name) for obj in models.Species.objects.all()]
+        species_choices.insert(0, tuple((None, "---")))
+        self.fields["species"].choices = species_choices
 
 
 class ReportSearchForm(forms.Form):
@@ -184,3 +203,19 @@ class ReportSearchForm(forms.Form):
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.IntegerField(required=False, label=gettext_lazy('Year'), widget=forms.NumberInput(attrs={"placeholder": "Leave blank for all years"}))
+
+
+class ScubaUserForm(forms.ModelForm):
+    class Meta:
+        model = models.ScubaUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+ScubaUserFormset = modelformset_factory(
+    model=models.ScubaUser,
+    form=ScubaUserForm,
+    extra=1,
+)

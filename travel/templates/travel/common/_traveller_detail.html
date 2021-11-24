@@ -54,9 +54,10 @@
   </div>
   <div class="col">
     <div v-if="trip && t.is_public_servant" class="mb-5">
-      <p class="mb-3 h6"><b>{% trans "Travel History (ADM approved only):" %}</b></p>
+      <p class="mb-3 h6"><b>{% trans "Travel History (for trips requiring ADM approval):" %}</b></p>
       <ul class="">
         <li v-for="(r,i) in t.adm_travel_history" :key="r.id">
+          <span :class="`${r.status_class} px-1`">${r.status_display}</span>
           <a :href="`/travel-plans/requests/${r.id}/view/`" target="_blank" data-toggle="tooltip" title="{% trans "open in new window" %}">
             <span class="mdi mdi-arrow-top-right text-primary table-bordered"></span> ${r.display}
           </a>  (${r.fiscal_year})

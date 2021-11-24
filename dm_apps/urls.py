@@ -35,9 +35,9 @@ urlpatterns = [
 ]
 
 # Add application APIs
-if settings.INSTALLED_APPS.count("projects2"):
+if settings.INSTALLED_APPS.count("ppt"):
     urlpatterns.append(
-        path('api/', include('projects2.api.urls')),
+        path('api/', include('ppt.api.urls')),
     )
 if settings.INSTALLED_APPS.count("travel"):
     urlpatterns.append(
@@ -91,12 +91,6 @@ urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
     path('accounts/', include('accounts.urls')),
     path('shared/', include('shared_models.urls')),
-
-    # Password reset views. Views are part of accounts app #
-    ########################################################
-    path('password-reset/', acc_views.UserPassWordResetView.as_view(), name='password_reset'),
-    path('reset/<str:uidb64>/<str:token>/', acc_views.UserPasswordResetConfirmView.as_view(),
-         name='password_reset_confirm'),
     prefix_default_language=True)
 
 if settings.INSTALLED_APPS.count("inventory"):
@@ -144,10 +138,10 @@ if settings.INSTALLED_APPS.count("diets"):
 else:
     print("not connecting diets app")
 
-if settings.INSTALLED_APPS.count("projects2"):
-    urlpatterns += i18n_patterns(path('project-planning/', include('projects2.urls')), prefix_default_language=True)
+if settings.INSTALLED_APPS.count("ppt"):
+    urlpatterns += i18n_patterns(path('ppt/', include('ppt.urls')), prefix_default_language=True)
 else:
-    print("not connecting projects2 app")
+    print("not connecting ppt app")
 
 if settings.INSTALLED_APPS.count("ihub"):
     urlpatterns += i18n_patterns(path('ihub/', include('ihub.urls')), prefix_default_language=True)
@@ -229,7 +223,6 @@ if settings.INSTALLED_APPS.count("csas2"):
 else:
     print("not connecting csas2 app")
 
-
 if settings.INSTALLED_APPS.count("bio_diversity"):
     urlpatterns += i18n_patterns(path('bio_diversity/', include('bio_diversity.urls')), prefix_default_language=True)
 else:
@@ -245,7 +238,6 @@ if settings.INSTALLED_APPS.count("fisheriescape"):
                                  prefix_default_language=True)
 else:
     print("not connecting fisheriescape app")
-
 
 if settings.INSTALLED_APPS.count("res"):
     urlpatterns += i18n_patterns(path('res-sub/', include('res.urls')),

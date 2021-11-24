@@ -1,9 +1,13 @@
 from django.urls import path
+
 from . import views
 
 urlpatterns = [
-    path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.index, name="index"),
+
+    # user permissions
+    path('settings/users/', views.DietsUserFormsetView.as_view(), name="manage_diets_users"),
+    path('settings/users/<int:pk>/delete/', views.DietsUserHardDeleteView.as_view(), name="delete_diets_user"),
 
     # SPECIES #
     ###########
@@ -30,18 +34,18 @@ urlpatterns = [
 
     # CRUISES #
     ###########
-    path('cruises/', views.CruiseListView.as_view(), name ="cruise_list" ),
-    path('cruise/new/', views.CruiseCreateView.as_view(), name ="cruise_new" ),
-    path('cruise/<int:pk>/view/', views.CruiseDetailView.as_view(), name ="cruise_detail" ),
-    path('cruise/<int:pk>/edit/', views.CruiseUpdateView.as_view(), name ="cruise_edit" ),
-    path('cruise/<int:pk>/delete/', views.CruiseDeleteView.as_view(), name ="cruise_delete" ),
+    path('cruises/', views.CruiseListView.as_view(), name="cruise_list"),
+    path('cruise/new/', views.CruiseCreateView.as_view(), name="cruise_new"),
+    path('cruise/<int:pk>/view/', views.CruiseDetailView.as_view(), name="cruise_detail"),
+    path('cruise/<int:pk>/edit/', views.CruiseUpdateView.as_view(), name="cruise_edit"),
+    path('cruise/<int:pk>/delete/', views.CruiseDeleteView.as_view(), name="cruise_delete"),
 
     # DIGESTION LEVELS #
     ####################
-    path('digestion-levels/', views.DigestionListView.as_view(), name ="digestion_list" ),
-    path('digestion-level/new/', views.DigestionCreateView.as_view(), name ="digestion_new" ),
-    path('digestion-level/<int:pk>/edit/', views.DigestionUpdateView.as_view(), name ="digestion_edit" ),
-    path('digestion-level/<int:pk>/delete/', views.DigestionDeleteView.as_view(), name ="digestion_delete" ),
+    path('digestion-levels/', views.DigestionListView.as_view(), name="digestion_list"),
+    path('digestion-level/new/', views.DigestionCreateView.as_view(), name="digestion_new"),
+    path('digestion-level/<int:pk>/edit/', views.DigestionUpdateView.as_view(), name="digestion_edit"),
+    path('digestion-level/<int:pk>/delete/', views.DigestionDeleteView.as_view(), name="digestion_delete"),
 
     # SAMPLERS #
     ############

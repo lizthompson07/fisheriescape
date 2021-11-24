@@ -1,12 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
-from django.urls import reverse
 
 from . import models
-from .utils import in_res_crud_group, in_res_admin_group, can_modify_application, can_view_application, can_modify_achievement, can_view_achievement
+from .utils import in_res_admin_group, can_modify_application, can_view_application, can_modify_achievement, can_view_achievement
 
 
-class LoginAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class ResSubBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         if self.request.user.id:
             return True
@@ -17,30 +16,22 @@ class LoginAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
 
-
-class ResCRUDAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    def test_func(self):
-        return in_res_crud_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = in_res_admin_group(self.request.user)
+        return context
 
 
-class ResAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class LoginAccessRequiredMixin(ResSubBasicMixin):
+    pass
+
+
+class ResAdminRequiredMixin(ResSubBasicMixin):
     def test_func(self):
         return in_res_admin_group(self.request.user)
 
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
 
-
-class CanModifyApplicationRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class CanModifyApplicationRequiredMixin(ResSubBasicMixin):
     def test_func(self):
         # the assumption is that either we are passing in a Project object or an object that has a project as an attribute
         application_id = None
@@ -60,14 +51,8 @@ class CanModifyApplicationRequiredMixin(LoginRequiredMixin, UserPassesTestMixin)
             if application_id:
                 return can_modify_application(self.request.user, application_id)
 
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:denied_access'))
-        return super().dispatch(request, *args, **kwargs)
 
-
-class CanViewApplicationRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class CanViewApplicationRequiredMixin(ResSubBasicMixin):
     def test_func(self):
         # the assumption is that either we are passing in a Project object or an object that has a project as an attribute
         application_id = None
@@ -87,15 +72,8 @@ class CanViewApplicationRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             if application_id:
                 return can_view_application(self.request.user, application_id)
 
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:denied_access'))
-        return super().dispatch(request, *args, **kwargs)
 
-
-
-class CanModifyAchievementRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class CanModifyAchievementRequiredMixin(ResSubBasicMixin):
     def test_func(self):
         # the assumption is that either we are passing in a Project object or an object that has a project as an attribute
         achievement_id = None
@@ -115,15 +93,8 @@ class CanModifyAchievementRequiredMixin(LoginRequiredMixin, UserPassesTestMixin)
             if achievement_id:
                 return can_modify_achievement(self.request.user, achievement_id)
 
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:denied_access'))
-        return super().dispatch(request, *args, **kwargs)
 
-
-
-class CanViewAchievementRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class CanViewAchievementRequiredMixin(ResSubBasicMixin):
     def test_func(self):
         # the assumption is that either we are passing in a Project object or an object that has a project as an attribute
         achievement_id = None
@@ -143,9 +114,8 @@ class CanViewAchievementRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             if achievement_id:
                 return can_view_achievement(self.request.user, achievement_id)
 
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:denied_access'))
-        return super().dispatch(request, *args, **kwargs)
 
+class SuperuserOrAdminRequiredMixin(ResSubBasicMixin):
+
+    def test_func(self):
+        return self.request.user.is_superuser or in_res_admin_group(self.request.user)

@@ -3,7 +3,7 @@ from django.test import tag
 from django.urls import reverse_lazy
 from faker import Factory
 
-from shared_models.test.common_tests import CommonTest
+from .common_tests import ScubaCommonTest as CommonTest
 from shared_models.utils import dm2decdeg
 from shared_models.views import CommonCreateView, CommonFilterView, CommonUpdateView, CommonDeleteView, CommonDetailView, CommonFormView
 from . import FactoryFloor
@@ -19,7 +19,7 @@ class TestDiveCreateView(CommonTest):
         self.instance = FactoryFloor.SampleFactory()
         self.test_url = reverse_lazy('scuba:dive_new', args=[self.instance.id])
         self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Dive", "dive_new", "view")
     def test_view_class(self):
@@ -47,7 +47,7 @@ class TestDiveDataEntryDetailView(CommonTest):
         self.instance = FactoryFloor.DiveFactory()
         self.test_url = reverse_lazy('scuba:dive_data_entry', args=[self.instance.pk, ])
         self.expected_template = 'scuba/dive_data_entry/main.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Dive", "dive_data_entry", "view")
     def test_view_class(self):
@@ -83,7 +83,7 @@ class TestDiveDeleteView(CommonTest):
         self.instance = FactoryFloor.DiveFactory()
         self.test_url = reverse_lazy('scuba:dive_delete', args=[self.instance.pk, ])
         self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Dive", "dive_delete", "view")
     def test_view_class(self):
@@ -114,7 +114,7 @@ class TestDiveDetailView(CommonTest):
         self.instance = FactoryFloor.DiveFactory()
         self.test_url = reverse_lazy('scuba:dive_detail', args=[self.instance.pk, ])
         self.expected_template = 'scuba/dive_detail.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Dive", "dive_detail", "view")
     def test_view_class(self):
@@ -148,7 +148,7 @@ class TestDiveLogReportView(CommonTest):
         DiveFactory()
         DiveFactory()
         self.test_url = reverse_lazy('scuba:dive_log_report')
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("DiveLog", "dive_log_report", "access")
     def test_view(self):
@@ -167,7 +167,7 @@ class TestDiveUpdateView(CommonTest):
         self.instance = FactoryFloor.DiveFactory()
         self.test_url = reverse_lazy('scuba:dive_edit', args=[self.instance.pk, ])
         self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Dive", "dive_edit", "view")
     def test_view_class(self):
@@ -183,24 +183,6 @@ class TestDiveUpdateView(CommonTest):
         data = FactoryFloor.DiveFactory.get_valid_data(self.instance.sample)
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
-        # let's test out the save method
-        data = FactoryFloor.DiveFactory.get_valid_data(self.instance.sample)
-        data['start_latitude_d'] = 48
-        data['start_latitude_mm'] = 12.34
-        data['start_longitude_d'] = -64
-        data['start_longitude_mm'] = 56.78
-        data['end_latitude_d'] = 49
-        data['end_latitude_mm'] = 13.34
-        data['end_longitude_d'] = -65
-        data['end_longitude_mm'] = 57.78
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-        obj = get_object_or_404(models.Dive, pk=self.instance.pk)
-        self.assertEqual(dm2decdeg(data['start_latitude_d'], data['start_latitude_mm']), obj.start_latitude)
-        self.assertEqual(dm2decdeg(data['start_longitude_d'], data['start_longitude_mm']), obj.start_longitude)
-        self.assertEqual(dm2decdeg(data['end_latitude_d'], data['end_latitude_mm']), obj.end_latitude)
-        self.assertEqual(dm2decdeg(data['end_longitude_d'], data['end_longitude_mm']), obj.end_longitude)
-
 
     @tag("Dive", "dive_edit", "correct_url")
     def test_correct_url(self):
@@ -213,7 +195,7 @@ class TestRegionCreateView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('scuba:region_new')
         self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Region", "region_new", "view")
     def test_view_class(self):
@@ -241,7 +223,7 @@ class TestRegionDeleteView(CommonTest):
         self.instance = FactoryFloor.RegionFactory()
         self.test_url = reverse_lazy('scuba:region_delete', args=[self.instance.pk, ])
         self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Region", "region_delete", "view")
     def test_view_class(self):
@@ -272,7 +254,7 @@ class TestRegionDetailView(CommonTest):
         self.instance = FactoryFloor.RegionFactory()
         self.test_url = reverse_lazy('scuba:region_detail', args=[self.instance.pk, ])
         self.expected_template = 'scuba/region_detail.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Region", "region_detail", "view")
     def test_view_class(self):
@@ -301,7 +283,7 @@ class TestRegionListView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('scuba:region_list')
         self.expected_template = 'scuba/list.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Region", "region_list", "view")
     def test_view_class(self):
@@ -331,7 +313,7 @@ class TestRegionUpdateView(CommonTest):
         self.instance = FactoryFloor.RegionFactory()
         self.test_url = reverse_lazy('scuba:region_edit', args=[self.instance.pk, ])
         self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Region", "region_edit", "view")
     def test_view_class(self):
@@ -358,7 +340,7 @@ class TestReportSearchFormView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('scuba:reports')
         self.expected_template = 'scuba/report_search.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("ReportSearch", "reports", "view")
     def test_view_class(self):
@@ -385,7 +367,7 @@ class TestSampleCreateView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('scuba:sample_new')
         self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Sample", "sample_new", "view")
     def test_view_class(self):
@@ -413,7 +395,7 @@ class TestSampleDeleteView(CommonTest):
         self.instance = FactoryFloor.SampleFactory()
         self.test_url = reverse_lazy('scuba:sample_delete', args=[self.instance.pk, ])
         self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Sample", "sample_delete", "view")
     def test_view_class(self):
@@ -444,7 +426,7 @@ class TestSampleDetailView(CommonTest):
         self.instance = FactoryFloor.SampleFactory()
         self.test_url = reverse_lazy('scuba:sample_detail', args=[self.instance.pk, ])
         self.expected_template = 'scuba/sample_detail.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Sample", "sample_detail", "view")
     def test_view_class(self):
@@ -473,7 +455,7 @@ class TestSampleListView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('scuba:sample_list')
         self.expected_template = 'scuba/list.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Sample", "sample_list", "view")
     def test_view_class(self):
@@ -503,7 +485,7 @@ class TestSampleUpdateView(CommonTest):
         self.instance = FactoryFloor.SampleFactory()
         self.test_url = reverse_lazy('scuba:sample_edit', args=[self.instance.pk, ])
         self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Sample", "sample_edit", "view")
     def test_view_class(self):
@@ -531,7 +513,7 @@ class TestSiteCreateView(CommonTest):
         self.instance = FactoryFloor.RegionFactory()
         self.test_url = reverse_lazy('scuba:site_new', args=[self.instance.id])
         self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Site", "site_new", "view")
     def test_view_class(self):
@@ -559,7 +541,7 @@ class TestSiteDeleteView(CommonTest):
         self.instance = FactoryFloor.SiteFactory()
         self.test_url = reverse_lazy('scuba:site_delete', args=[self.instance.pk, ])
         self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Site", "site_delete", "view")
     def test_view_class(self):
@@ -590,7 +572,7 @@ class TestSiteDetailView(CommonTest):
         self.instance = FactoryFloor.SiteFactory()
         self.test_url = reverse_lazy('scuba:site_detail', args=[self.instance.pk, ])
         self.expected_template = 'scuba/site_detail.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Site", "site_detail", "view")
     def test_view_class(self):
@@ -620,7 +602,7 @@ class TestSiteUpdateView(CommonTest):
         self.instance = FactoryFloor.SiteFactory()
         self.test_url = reverse_lazy('scuba:site_edit', args=[self.instance.pk, ])
         self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Site", "site_edit", "view")
     def test_view_class(self):
@@ -659,8 +641,8 @@ class TestTransectCreateView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.SiteFactory()
         self.test_url = reverse_lazy('scuba:transect_new', args=[self.instance.id])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.expected_template = 'scuba/transect_form.html'
+        self.user = self.get_and_login_admin()
 
     @tag("Transect", "transect_new", "view")
     def test_view_class(self):
@@ -688,7 +670,7 @@ class TestTransectDeleteView(CommonTest):
         self.instance = FactoryFloor.TransectFactory()
         self.test_url = reverse_lazy('scuba:transect_delete', args=[self.instance.pk, ])
         self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Transect", "transect_delete", "view")
     def test_view_class(self):
@@ -719,7 +701,7 @@ class TestTransectUpdateView(CommonTest):
         self.instance = FactoryFloor.TransectFactory()
         self.test_url = reverse_lazy('scuba:transect_edit', args=[self.instance.pk, ])
         self.expected_template = 'scuba/transect_form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_admin()
 
     @tag("Transect", "transect_edit", "view")
     def test_view_class(self):

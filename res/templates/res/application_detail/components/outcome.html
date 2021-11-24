@@ -1,5 +1,5 @@
 {% load i18n %}
-
+{% load static %}
 <!-- template for the modal component -->
 <script type="text/x-template" id="outcome-template">
 
@@ -38,7 +38,7 @@
             @keydown.ctrl.83.prevent="update"
             @keydown.ctrl.82.prevent="openDialog"
           ></textarea>
-          <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1" class="helper"
+          <a href="{% static 'markdown-cheatsheet-online.pdf' %}" data-toggle="tooltip" target="_blank" tabindex="-1" class="helper"
              title="{% trans "Markdown syntax is supported in this field" %}">
             <small>{% trans "You can use markdown syntax in this field" %}</small>
             <span class="mdi mdi-language-markdown ml-1 py-0" style="color: blue"></span>
