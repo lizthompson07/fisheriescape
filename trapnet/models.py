@@ -545,7 +545,7 @@ class Observation(MetadataFields):
         (2, _("length-frequency")),
     )
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observations")
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="observations")
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="observations", blank=False, null=True)
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
     fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
