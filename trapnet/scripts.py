@@ -406,7 +406,7 @@ def import_smolt_data():
             if i % 1000 == 0:
                 print("starting row", i)
             for key in row:
-                if row[key].lower() in ["na", "n/a", ""]:
+                if row[key].lower().strip() in ["na", "n/a", ""]:
                     row[key] = None
 
             comment = ""
