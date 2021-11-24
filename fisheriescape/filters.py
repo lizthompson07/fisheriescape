@@ -59,11 +59,12 @@ class FisheryFilter(django_filters.FilterSet):
 
 
 class AnalysesFilter(django_filters.FilterSet):
+    week = django_filters.ModelMultipleChoiceFilter(queryset=models.Week.objects.all(), widget=forms.SelectMultiple(attrs={"class": "chosen-select-contains"}), label="Week")
+
     class Meta:
         model = models.Analyses
         fields = {
             'species': ['exact'],
-            'week': ['exact'],
             'type': ['exact'],
 
         }
