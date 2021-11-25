@@ -96,6 +96,7 @@ def entries_2_obs():
 
             # determine if this is a single observation
             if not entry.last_tag and (entry.frequency == 1 or entry.frequency is None):
+                # this means we are dealing with a single observation
                 create_obs(kwargs)
             else:
                 start_tag_prefix = get_prefix(entry.first_tag)
