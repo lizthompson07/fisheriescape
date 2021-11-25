@@ -24,7 +24,7 @@ urlpatterns = [
     path('settings/electrofishers/', views.ElectrofisherFormsetView.as_view(), name="manage_electrofishers"),
     path('settings/electrofisher/<int:pk>/delete/', views.ElectrofisherHardDeleteView.as_view(), name="delete_electrofisher"),
     path('settings/reproductive-statuses/', views.ReproductiveStatusFormsetView.as_view(), name="manage_reproductive_statuses"),
-    path('settings/reproductive-statuses/<int:pk>/delete/', views.ReproductiveStatusHardDeleteView.as_view(), name="delete_reproductive_statuses"),
+    path('settings/reproductive-statuses/<int:pk>/delete/', views.ReproductiveStatusHardDeleteView.as_view(), name="delete_reproductive_status"),
     
     
     # SPECIES #

@@ -77,11 +77,11 @@ class RiverSite(MetadataFields):
         ordering = ['river', 'name']
 
 
-class LifeStage(SimpleLookup):
+class LifeStage(CodeModel):
     pass
 
 
-class ReproductiveStatus(SimpleLookup):
+class ReproductiveStatus(CodeModel):
     pass
 
 
@@ -163,6 +163,7 @@ class Sample(MetadataFields):
     depth_1_upper = models.IntegerField(null=True, blank=True, verbose_name=_("depth #1 - upper (cm)"))
     depth_2_upper = models.IntegerField(null=True, blank=True, verbose_name=_("depth #2 - upper (cm)"))
     depth_3_upper = models.IntegerField(null=True, blank=True, verbose_name=_("depth #3 - upper (cm)"))
+    max_depth = models.IntegerField(null=True, blank=True, verbose_name=_("max depth (cm)"), help_text=_("max depth found within the whole site"))
 
     # temp/climate data
     air_temp_arrival = models.FloatField(null=True, blank=True, verbose_name="air temperature on arrival(°C)")
@@ -219,12 +220,10 @@ class Sample(MetadataFields):
 
     @property
     def full_wetted_width(self):
-        print(123)
-
-        # """
-        # Full wetted width:
-        # (average of the left and right bank lengths)    X    (average of the lower, middle, and upper stream widths)
-        # """
+        """
+        Full wetted width:
+        (average of the left and right bank lengths)    X    (average of the lower, middle, and upper stream widths)
+        """
         errors = list()
         if not self.bank_length_left:
             errors.append("missing left bank length")
@@ -431,7 +430,7 @@ class Sweep(MetadataFields):
     sample = models.ForeignKey(Sample, related_name='sweeps', on_delete=models.DO_NOTHING, editable=False)
     sweep_number = models.FloatField(verbose_name=_("sweep number"), help_text=_(
         "open sites are always 0.5. Closed sites begin at 0.5, but then are depleted starting at 1, and counting up until depletion is achieved (e.g., 2, 3,...)"))
-    sweep_time = models.IntegerField(verbose_name=_("sweep time (seconds)"), help_text=_("in seconds"), default=500)
+    sweep_time = models.IntegerField(verbose_name=_("sweep time (seconds)"), help_text=_("in seconds"))
     notes = models.TextField(blank=True, null=True)
 
     @property

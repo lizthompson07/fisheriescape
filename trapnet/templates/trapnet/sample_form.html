@@ -211,7 +211,14 @@
           </tr>
         </table>
 
-        {% bootstrap_field form.water_cond placeholder="" %}
+        <div class="row">
+          <div class="col">
+            {% bootstrap_field form.max_depth placeholder="" %}
+          </div>
+          <div class="col">
+            {% bootstrap_field form.water_cond placeholder="" %}
+          </div>
+        </div>
 
         <label for="">{% trans "Substrate characterization % (0-100)" %}</label>
         <table class="table table-bordered">
