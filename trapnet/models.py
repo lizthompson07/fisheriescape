@@ -88,11 +88,9 @@ class ReproductiveStatus(CodeModel):
 class Species(MetadataFields):
     common_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="english name")
     common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
-    life_stage = models.ForeignKey(LifeStage, related_name='species', on_delete=models.DO_NOTHING, blank=True, null=True)
-    # abbrev = models.CharField(max_length=10, verbose_name="abbreviation", unique=True)
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=255, blank=True, null=True, unique=True)
-    tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
+    tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN", help_text=_("Integrated Taxonomic Information System (https://www.itis.gov/)"))
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
     notes = models.TextField(max_length=255, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_spp_created_by')
@@ -100,8 +98,6 @@ class Species(MetadataFields):
 
     def __str__(self):
         my_str = getattr(self, str(_("common_name_eng")))
-        if self.life_stage:
-            my_str += " ({})".format(self.life_stage)
         return my_str
 
     @property
@@ -110,7 +106,7 @@ class Species(MetadataFields):
 
     @property
     def search_name(self):
-        return f"{self.full_name} / {self.scientific_name} ({self.code})"
+        return f"({self.code}) - {self.full_name}"
 
     class Meta:
         ordering = ['common_name_eng']
@@ -119,6 +115,9 @@ class Species(MetadataFields):
     def get_absolute_url(self):
         return reverse("trapnet:species_detail", kwargs={"pk": self.id})
 
+    @property
+    def observation_count(self):
+        return self.observations.count()
 
 class Electrofisher(SimpleLookup):
     model_number = models.CharField(max_length=255, blank=True, null=True)

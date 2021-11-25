@@ -6,6 +6,7 @@ from random import randint
 import pytz
 from django.conf import settings
 from django.db import IntegrityError
+from django.db.models import Q, Count
 from django.utils import timezone
 from django.utils.timezone import make_aware
 
@@ -510,3 +511,34 @@ def transfer_life_stage():
     for obs in models.Observation.objects.filter(species__life_stage__isnull=False):
         obs.life_stage_id = obs.species.life_stage_id
         obs.save()
+
+
+
+def clean_up_species_table():
+    # first let's get a list of duplicate TSNs
+    duplicate_tsns = list()
+
+    qs = models.Species.objects.values("tsn").distinct().annotate(dcount=Count("tsn"))
+    for obj in qs:
+        if obj["dcount"] > 1:
+            duplicate_tsns.append(obj["tsn"])
+
+    # for each TSN, we want to keep the one with the most observations as the authoritative
+    for tsn in duplicate_tsns:
+        qs = models.Species.objects.filter(tsn=tsn)
+        keeper = qs.first() # arbitrarily set to the first in line
+        max_observations = 0
+        for sp in qs:
+            print(sp.id, sp, sp.observations.count())
+            if sp.observations.count() > max_observations:
+                keeper = sp
+        # now that we have a keeper, transfer over the other observations to that sp and delete bad spp
+        qs = qs.filter(~Q(id=keeper.id))
+        for sp in qs:
+            for obs in sp.observations.all():
+                obs.species_id = keeper.id
+                obs.save()
+            print(sp.observations.count())
+            sp.delete()
+
+

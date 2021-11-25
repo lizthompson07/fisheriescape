@@ -166,9 +166,8 @@ class SpeciesListView(TrapNetAccessRequiredMixin, CommonFilterView):
         {"name": 'code', "class": "", "width": ""},
         {"name": 'full_name|{}'.format(_("Species")), "class": "", "width": ""},
         {"name": 'scientific_name', "class": "", "width": ""},
-        {"name": 'abbrev', "class": "", "width": ""},
-        {"name": 'tsn', "class": "", "width": ""},
-        {"name": 'aphia_id', "class": "", "width": ""},
+        {"name": 'tsn|{}'.format(_("Taxonomic serial number")), "class": "", "width": ""},
+        {"name": 'observation_count|{}'.format(_("Observations in DB")), "class": "", "width": ""},
     ]
 
 
@@ -705,6 +704,8 @@ class ObservationDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
     field_list = [
         'id',
         'species',
+        'life_stage',
+        'reproductive_status',
         'status',
         'origin',
         'sex',
