@@ -27,27 +27,15 @@
             <span class="sr-only">Loading...</span>
         </div>
         <form method="post">
-
             {% csrf_token %}
             {% for field in form %}
 
-                {% if field.name == "sites" %}
-                    <div class="sites_div">
+                    <div class="{{ field.name }}_div">
                         {% bootstrap_field field placeholder="" %}
 
                     </div>
-                {% elif field.name == "year" %}
-                    <div class="year_div">
-                        {% bootstrap_field field placeholder="" %}
-                    </div>
-
-                {% else %}
-                    {% bootstrap_field field placeholder="" %}
-                {% endif %}
             {% endfor %}
             <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Generate"><br><br>
-
-
         </form>
         <br>
         <p>
@@ -61,8 +49,9 @@
     <script type="application/javascript">
 
         function hideAll() {
-            $(".sites_div").addClass("gone");
-            $(".year_div").addClass("gone");
+            $(".sites_div").hide();
+            $(".rivers_div").hide();
+            $(".year_div").hide();
 
             $("#id_report").prop('required', true);
 
@@ -71,23 +60,22 @@
         function configureForm() {
             var reportChoice = $("#id_report").val();
             // masterlist count report
-            if (reportChoice == 1) {
-                $(".sites_div").removeClass("gone");
-                $(".year_div").removeClass("gone");
+            if (reportChoice === '1'  ) {
+                $(".sites_div").show();
+                $(".year_div").show();
                 $("#id_sites").multiSelect();
 
             }
-            else if (reportChoice == 2) {
-                $(".sites_div").removeClass("gone");
-                $(".year_div").removeClass("gone");
+            else if (reportChoice === '2' || reportChoice === '3') {
+                $(".sites_div").show();
+                $(".year_div").show();
                 $("#id_sites").multiSelect();
                 alert("Please note that running this report for all sites/years will take several minutes to complete. The resulting fileis approximately 10 MB in size.")
             }
-            else if (reportChoice == 3) {
-                $(".sites_div").removeClass("gone");
-                $(".year_div").removeClass("gone");
-                $("#id_sites").multiSelect();
-                alert("Please note that running this report for all sites/years will take several minutes to complete. The resulting fileis approximately 10 MB in size.")
+            else if (reportChoice == 10) {
+                $(".rivers_div").show();
+                $(".year_div").show();
+                $("#id_rivers").multiSelect();
             }
         }
 

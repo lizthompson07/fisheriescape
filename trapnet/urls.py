@@ -94,6 +94,9 @@ urlpatterns = [
     path('reports/opendata1/species-list/', views.export_spp_list, name="od_spp_list"),
     path('reports/opendata/wms/lang/<int:lang>/', views.export_open_data_ver1_wms, name="od1_wms"),
 
+    #electro
+    path('reports/electrofishing/juv_salmon_report/', views.electro_juv_salmon_report, name="electro_juv_salmon_report"),
+
 ]
 
 app_name = 'trapnet'

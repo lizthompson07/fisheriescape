@@ -167,7 +167,7 @@ class SpeciesListView(TrapNetAccessRequiredMixin, CommonFilterView):
         {"name": 'full_name|{}'.format(_("Species")), "class": "", "width": ""},
         {"name": 'scientific_name', "class": "", "width": ""},
         {"name": 'tsn|{}'.format(_("Taxonomic serial number")), "class": "", "width": ""},
-        {"name": 'observation_count|{}'.format(_("Observations in DB")), "class": "", "width": ""},
+        {"name": 'observation_count|{}'.format(_("Observations in Db")), "class": "", "width": ""},
     ]
 
 
@@ -809,22 +809,29 @@ class ReportSearchFormView(TrapNetAccessRequiredMixin, CommonFormView):
         # ais_species_list = str(form.cleaned_data["ais_species"]).replace("[", "").replace("]", "").replace(" ", "").replace("'","").replace('"',"")
 
         report = int(form.cleaned_data["report"])
-        my_year = form.cleaned_data["year"] if form.cleaned_data["year"] else "None"
-        my_sites = listrify(form.cleaned_data["sites"]) if len(form.cleaned_data["sites"]) > 0 else "None"
+        year = form.cleaned_data["year"] if form.cleaned_data["year"] else ""
+        sites = listrify(form.cleaned_data["sites"]) if len(form.cleaned_data["sites"]) > 0 else ""
+        rivers = listrify(form.cleaned_data["rivers"]) if len(form.cleaned_data["rivers"]) > 0 else ""
 
-        if report == 1:
-            return HttpResponseRedirect(reverse("trapnet:sample_report") + f"?year={my_year}&sites={my_sites}")
-        elif report == 2:
-            return HttpResponseRedirect(reverse("trapnet:obs_report") + f"?year={my_year}&sites={my_sites}")
-        elif report == 3:
-            return HttpResponseRedirect(reverse("trapnet:od1_report", kwargs={"year": my_year, "sites": my_sites}))
-        elif report == 4:
+        if report == 100:
+            return HttpResponseRedirect(reverse("trapnet:sample_report") + f"?year={year}&sites={sites}")
+        elif report == 200:
+            return HttpResponseRedirect(reverse("trapnet:obs_report") + f"?year={year}&sites={sites}")
+
+        # Electrofishing
+        elif report == 10:
+            return HttpResponseRedirect(reverse("trapnet:electro_juv_salmon_report") + f"?year={year}&rivers={rivers}")
+
+        # Open data
+        elif report == 91:
+            return HttpResponseRedirect(reverse("trapnet:od1_report", kwargs={"year": year, "sites": sites}))
+        elif report == 92:
             return HttpResponseRedirect(reverse("trapnet:od1_dictionary"))
-        elif report == 7:
+        elif report == 93:
             return HttpResponseRedirect(reverse("trapnet:od_spp_list"))
-        elif report == 5:
+        elif report == 94:
             return HttpResponseRedirect(reverse("trapnet:od1_wms", kwargs={"lang": 1}))
-        elif report == 6:
+        elif report == 95:
             return HttpResponseRedirect(reverse("trapnet:od1_wms", kwargs={"lang": 2}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -862,4 +869,11 @@ def export_spp_list(request):
 
 def export_open_data_ver1_wms(request, lang):
     response = reports.generate_open_data_ver_1_wms_report(lang)
+    return response
+
+
+def electro_juv_salmon_report(request):
+    year = request.GET.get("year")
+    rivers = request.GET.get("rivers")
+    response = reports.generate_electro_juv_salmon_report(year, rivers)
     return response

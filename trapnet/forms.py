@@ -4,6 +4,7 @@ from django.utils.translation import gettext
 
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
+from shared_models.models import River
 from . import models
 
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
@@ -88,7 +89,7 @@ class SampleForm(forms.ModelForm):
         percent_bedrock = cleaned_data.get("percent_bedrock")
         if (percent_fine or percent_sand or percent_gravel or percent_pebble or percent_cobble or percent_rocks or percent_boulder or percent_bedrock) and (
                 nz(percent_fine, 0) + nz(percent_sand, 0) + nz(percent_gravel, 0) + nz(percent_pebble, 0) + nz(percent_cobble, 0) + nz(percent_rocks, 0) + nz(
-                percent_boulder, 0) + nz(percent_bedrock, 0) != 100):
+            percent_boulder, 0) + nz(percent_bedrock, 0) != 100):
             raise forms.ValidationError(
                 gettext("Either substrate characterization must be left null or must equal to 100")
             )
@@ -124,27 +125,42 @@ class FileForm(forms.ModelForm):
 
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
-        (None, "---"),
-        (1, "List of samples (trap data) (CSV)"),
-        (2, "List of entries (fish data) (CSV)"),
-        (3, "OPEN DATA - summary by site by year (CSV)"),
-        (4, "OPEN DATA - data dictionary (CSV)"),
-        (7, "OPEN DATA - species list (CSV)"),
-        (5, "OPEN DATA - web mapping service (WMS) report ENGLISH (CSV)"),
-        (6, "OPEN DATA - web mapping service (WMS) report FRENCH (CSV)"),
+        # (1, "List of samples (trap data) (CSV)"),
+        # (2, "List of entries (fish data) (CSV)"),
+
+        (None, ""),
+        (None, "RAW DATA"),
+        (None, "------------"),
+        (1, "sample data export (CSV)"),
+        (2, "observation data export (CSV)"),
+
+        (None, ""),
+        (None, "ELECTROFISHING"),
+        (None, "------------"),
+        (10, "Juvenile salmon CSAS report (CSV)"),
+
+        (None, ""),
+        (None, "OPEN DATA"),
+        (None, "------------"),
+        (91, "summary by site by year (CSV)"),
+        (92, "data dictionary (CSV)"),
+        (93, "species list (CSV)"),
+        (94, "web mapping service (WMS) report ENGLISH (CSV)"),
+        (95, "web mapping service (WMS) report FRENCH (CSV)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year (optional)")
-    sites = forms.MultipleChoiceField(required=False, label="Sites (optional)")
-
-    # site = forms.ChoiceField(required=False)
-    # ais_species = forms.MultipleChoiceField(required=False, label="AIS species")
+    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year (blank for all)")
+    sites = forms.MultipleChoiceField(required=False, label="Sites (blank for all)")
+    rivers = forms.MultipleChoiceField(required=False, label="Rivers (blank for all)")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        site_choices = [(obj.id, str(obj)) for obj in models.RiverSite.objects.all() if obj.samples.count() > 0]
+        site_choices = [(obj.id, str(obj)) for obj in models.RiverSite.objects.filter(samples__isnull=False).distinct()]
         self.fields['sites'].choices = site_choices
+
+        river_choices = [(obj.id, str(obj)) for obj in River.objects.filter(sites__samples__isnull=False).distinct()]
+        self.fields['rivers'].choices = river_choices
 
 
 class StatusForm(forms.ModelForm):
@@ -236,7 +252,6 @@ ReproductiveStatusFormset = modelformset_factory(
     form=ReproductiveStatusForm,
     extra=1,
 )
-
 
 
 class TrapNetUserForm(forms.ModelForm):

@@ -90,7 +90,7 @@ class Species(MetadataFields):
     common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=255, blank=True, null=True, unique=True)
-    tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN", help_text=_("Integrated Taxonomic Information System (https://www.itis.gov/)"))
+    tsn = models.IntegerField(blank=False, null=True, verbose_name="ITIS TSN", help_text=_("Integrated Taxonomic Information System (https://www.itis.gov/)"), unique=True)
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
     notes = models.TextField(max_length=255, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_spp_created_by')
@@ -219,6 +219,9 @@ class Sample(MetadataFields):
 
     @property
     def full_wetted_width(self):
+        return self.get_full_wetted_width()
+
+    def get_full_wetted_width(self, show_errors=True):
         """
         Full wetted width:
         (average of the left and right bank lengths)    X    (average of the lower, middle, and upper stream widths)
@@ -235,10 +238,12 @@ class Sample(MetadataFields):
         if not self.width_upper:
             errors.append("missing upper stream width")
         if len(errors):
-            return mark_safe(f"<em class='text-muted'>{listrify(errors)}</em>")
+            if show_errors:
+                return mark_safe(f"<em class='text-muted'>{listrify(errors)}</em>")
         else:
             return statistics.mean([self.bank_length_left, self.bank_length_right]) * statistics.mean(
                 [self.width_lower, self.width_middle, self.width_upper])
+
 
     @property
     def substrate_profile(self):

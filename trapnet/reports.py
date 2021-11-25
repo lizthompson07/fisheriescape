@@ -321,7 +321,6 @@ def generate_open_data_ver_1_data_dictionary():
             descr_fra[i],
         ])
 
-
     return response
 
 
@@ -503,10 +502,10 @@ def generate_open_data_ver_1_wms_report(lang):
 
         if lang == 1:
             spp_list = listrify([models.Species.objects.get(pk=obj["species"]).common_name_eng for obj in
-                                     qs.filter(sample__site=site).order_by("species").values("species").distinct()])
+                                 qs.filter(sample__site=site).order_by("species").values("species").distinct()])
         else:
             spp_list = listrify([models.Species.objects.get(pk=obj["species"]).common_name_fre for obj in
-                                     qs.filter(sample__site=site).order_by("species").values("species").distinct()])
+                                 qs.filter(sample__site=site).order_by("species").values("species").distinct()])
         total_freq = qs.filter(sample__site=site, ).values("frequency").order_by("frequency").aggregate(
             dsum=Sum("frequency"))["dsum"]
         avg_freq = floatformat(int(total_freq) / len(seasons.split(",")), 2)
@@ -534,6 +533,65 @@ def generate_open_data_ver_1_wms_report(lang):
                 freq_avg,
             ])
 
+        writer.writerow(data_row)
+
+    return response
+
+
+def generate_electro_juv_salmon_report(year, rivers):
+    filter_kwargs = {
+        "sample__sample_type": 2
+    }
+
+    if year != "":
+        filter_kwargs["sample__season"] = year
+
+    if rivers != "":
+        filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
+
+    qs = models.Sweep.objects.filter(**filter_kwargs)
+    filename = "juv_salmon_csas_report.csv"
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+
+    headers = [
+        'Year',
+        'Month',
+        'Day',
+        'River',
+        'Site',
+        'Site type',
+        'Full wetted width',
+        'Sweep #',
+        'Total seconds swept',
+    ]
+
+    # get a comprehensive list of life stages
+    life_stages = models.LifeStage.objects.filter(observations__sweep__in=qs, observations__species__tsn=161996).distinct().order_by("id")
+    for ls in life_stages:
+        headers.append(f"# of {ls}")
+
+    # headers are based on csv provided by GD
+    writer.writerow(headers)
+
+    for sweep in qs:
+        data_row = [
+            sweep.sample.arrival_date.year,
+            sweep.sample.arrival_date.month,
+            sweep.sample.arrival_date.day,
+            sweep.sample.site.river,
+            sweep.sample.site.name,
+            sweep.sample.get_site_type_display(),
+            sweep.sample.get_full_wetted_width(False),
+            sweep.sweep_number,
+            sweep.sweep_time,
+        ]
+        for ls in life_stages:
+            data_row.append(sweep.observations.filter(life_stage=ls).count())
         writer.writerow(data_row)
 
     return response
