@@ -135,6 +135,21 @@ class ElectrofisherHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteVie
     success_url = reverse_lazy("trapnet:manage_electrofishers")
 
 
+class ReproductiveStatusFormsetView(TrapNetAdminRequiredMixin, CommonFormsetView):
+    template_name = 'trapnet/formset.html'
+    h1 = "Manage Reproductive Statuses"
+    queryset = models.ReproductiveStatus.objects.all()
+    formset_class = forms.ReproductiveStatusFormset
+    success_url_name = "trapnet:manage_reproductive_statuses"
+    home_url_name = "trapnet:index"
+    delete_url_name = "trapnet:delete_reproductive_status"
+
+
+class ReproductiveStatusHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteView):
+    model = models.ReproductiveStatus
+    success_url = reverse_lazy("trapnet:manage_reproductive_statuses")
+
+
 # SPECIES #
 ###########
 
@@ -142,7 +157,7 @@ class SpeciesListView(TrapNetAccessRequiredMixin, CommonFilterView):
     template_name = "trapnet/list.html"
     filterset_class = filters.SpeciesFilter
     queryset = models.Species.objects.annotate(
-        search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code', 'abbrev', output_field=TextField()))
+        search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code', output_field=TextField()))
     new_object_url_name = "trapnet:species_new"
     row_object_url_name = "trapnet:species_detail"
     home_url_name = "trapnet:index"
@@ -797,9 +812,9 @@ class ReportSearchFormView(TrapNetAccessRequiredMixin, CommonFormView):
         my_sites = listrify(form.cleaned_data["sites"]) if len(form.cleaned_data["sites"]) > 0 else "None"
 
         if report == 1:
-            return HttpResponseRedirect(reverse("trapnet:sample_report", kwargs={"year": my_year, "sites": my_sites}))
+            return HttpResponseRedirect(reverse("trapnet:sample_report") + f"?year={my_year}&sites={my_sites}")
         elif report == 2:
-            return HttpResponseRedirect(reverse("trapnet:entry_report", kwargs={"year": my_year, "sites": my_sites}))
+            return HttpResponseRedirect(reverse("trapnet:obs_report") + f"?year={my_year}&sites={my_sites}")
         elif report == 3:
             return HttpResponseRedirect(reverse("trapnet:od1_report", kwargs={"year": my_year, "sites": my_sites}))
         elif report == 4:
@@ -815,12 +830,16 @@ class ReportSearchFormView(TrapNetAccessRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("trapnet:reports"))
 
 
-def export_sample_data(request, year, sites):
+def export_sample_data(request):
+    year = request.GET.get("year")
+    sites = request.GET.get("sites")
     response = reports.generate_sample_report(year, sites)
     return response
 
 
-def export_entry_data(request, year, sites):
+def export_obs_data(request):
+    year = request.GET.get("year")
+    sites = request.GET.get("sites")
     response = reports.generate_entry_report(year, sites)
     return response
 

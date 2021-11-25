@@ -24,6 +24,10 @@ def generate_sample_report(year, sites):
     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
 
+    fields = [
+
+    ]
+
     # headers are based on csv provided by GD
     writer.writerow([
         # 'River',

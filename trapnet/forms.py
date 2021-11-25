@@ -225,6 +225,19 @@ ElectrofisherFormset = modelformset_factory(
 )
 
 
+class ReproductiveStatusForm(forms.ModelForm):
+    class Meta:
+        model = models.ReproductiveStatus
+        fields = "__all__"
+
+
+ReproductiveStatusFormset = modelformset_factory(
+    model=models.ReproductiveStatus,
+    form=ReproductiveStatusForm,
+    extra=1,
+)
+
+
 
 class TrapNetUserForm(forms.ModelForm):
     class Meta:

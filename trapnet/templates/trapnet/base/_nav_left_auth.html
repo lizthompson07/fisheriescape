@@ -27,6 +27,9 @@
       <a class="dropdown-item" href="{% url 'trapnet:manage_life_stages' %}">
         {% trans "Life Stages" %}
       </a>
+      <a class="dropdown-item" href="{% url 'trapnet:manage_reproductive_statuses' %}">
+        {% trans "Reproductive Statuses" %}
+      </a>
       <a class="dropdown-item" href="{% url 'trapnet:manage_origins' %}">
         {% trans "Origins" %}
       </a>
@@ -36,7 +39,6 @@
       <a class="dropdown-item" href="{% url 'trapnet:manage_electrofishers' %}">
         {% trans "Electrofishers" %}
       </a>
-
       <a class="dropdown-item" href="{% url 'trapnet:manage_trap_net_users' %}" target="_blank">
         {% trans "User Permissions" %}
       </a>
