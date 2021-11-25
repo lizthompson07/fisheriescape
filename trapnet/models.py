@@ -471,34 +471,34 @@ class Sex(CodeModel):
 
 class Maturity(CodeModel):
     pass
-
-
-class Entry(MetadataFields):
-    first_tag = models.CharField(max_length=50, blank=True, null=True)
-    last_tag = models.CharField(max_length=50, blank=True, null=True)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
-    origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
-    frequency = models.IntegerField(blank=True, null=True, verbose_name=_("frequency"))
-    fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
-    total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
-    weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
-    sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
-    smolt_age = models.IntegerField(blank=True, null=True)
-    location_tagged = models.CharField(max_length=500, blank=True, null=True)
-    date_tagged = models.DateTimeField(blank=True, null=True, verbose_name="date tagged")
-    scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"))
-    tags_removed = models.CharField(max_length=250, blank=True, null=True)
-    notes = models.TextField(blank=True, null=True)
-
-    # non-editable
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries", editable=False, blank=True, null=True)
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="entries", editable=False, blank=True, null=True)
-
-    def save(self, *args, **kwargs):
-        return super().save(*args, **kwargs)
-
-    class Meta:
-        verbose_name_plural = "entries"
+#
+#
+# class Entry(MetadataFields):
+#     first_tag = models.CharField(max_length=50, blank=True, null=True)
+#     last_tag = models.CharField(max_length=50, blank=True, null=True)
+#     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
+#     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
+#     frequency = models.IntegerField(blank=True, null=True, verbose_name=_("frequency"))
+#     fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
+#     total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
+#     weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
+#     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
+#     smolt_age = models.IntegerField(blank=True, null=True)
+#     location_tagged = models.CharField(max_length=500, blank=True, null=True)
+#     date_tagged = models.DateTimeField(blank=True, null=True, verbose_name="date tagged")
+#     scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"))
+#     tags_removed = models.CharField(max_length=250, blank=True, null=True)
+#     notes = models.TextField(blank=True, null=True)
+#
+#     # non-editable
+#     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries", editable=False, blank=True, null=True)
+#     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="entries", editable=False, blank=True, null=True)
+#
+#     def save(self, *args, **kwargs):
+#         return super().save(*args, **kwargs)
+#
+#     class Meta:
+#         verbose_name_plural = "entries"
 
 
 class Observation(MetadataFields):

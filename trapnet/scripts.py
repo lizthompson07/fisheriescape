@@ -25,7 +25,6 @@ def delete_rst_entries():
     models.Entry.objects.all().delete()
 
 
-
 def get_prefix(mystr):
     if mystr:
         result = ""
@@ -147,7 +146,6 @@ def comment_samples_from_matapedia():
         else:
             sample.notes = "Data collected and owned by the Gespe'gewaq Mi'gmaq Resource Council (GMRC)."
         sample.save()
-
 
 
 def add_comment(comment, addition):
@@ -506,3 +504,9 @@ def import_smolt_data():
                         print(my_obs.id)
 
             i += 1
+
+
+def transfer_life_stage():
+    for obs in models.Observation.objects.filter(species__life_stage__isnull=False):
+        obs.life_stage_id = obs.species.life_stage_id
+        obs.save()
