@@ -3,15 +3,10 @@ from django.db.models import Sum, Avg
 from django.http import HttpResponse
 from django.template.defaultfilters import floatformat
 
+from dm_apps.utils import Echo
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from . import models
-
-
-class Echo(object):
-    def write(self, value):
-        return value
-
 
 def generate_sample_csv(year, fishing_areas, rivers, sites):
     """Returns a generator for an HTTP Streaming Response"""

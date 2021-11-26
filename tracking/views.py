@@ -12,13 +12,14 @@ from django import forms
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User
 from django.db.models import Sum
+from django.http import StreamingHttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.timezone import now
 
+from tracking import reports
 from tracking.models import Visitor, Pageview, VisitSummary
 from tracking.settings import TRACK_PAGEVIEWS
-from . import utils
 
 log = logging.getLogger(__file__)
 
@@ -302,9 +303,11 @@ def generate_page_visit_report(app_list, user=None, app=None):
 
     # get a list of days
     if not user and not app:
-        date_list = [datetime.datetime(date["date"].year, date["date"].month, date["date"].day, 0, 0) for date in VisitSummary.objects.all().values("date").order_by("date").distinct()]
+        date_list = [datetime.datetime(date["date"].year, date["date"].month, date["date"].day, 0, 0) for date in
+                     VisitSummary.objects.all().values("date").order_by("date").distinct()]
     elif user:
-        date_list = [datetime.datetime(date["date"].year, date["date"].month, date["date"].day, 0, 0) for date in VisitSummary.objects.filter(user=user).values("date").order_by("date").distinct()]
+        date_list = [datetime.datetime(date["date"].year, date["date"].month, date["date"].day, 0, 0) for date in
+                     VisitSummary.objects.filter(user=user).values("date").order_by("date").distinct()]
     elif app:
         date_list = [datetime.datetime(date["date"].year, date["date"].month, date["date"].day, 0, 0) for date in
                      VisitSummary.objects.filter(application_name=app).values("date").order_by("date").distinct()]
@@ -357,3 +360,14 @@ def generate_page_visit_report(app_list, user=None, app=None):
     #     p.legend.location = "top_left"
 
     save(p)
+
+
+@permission_required('tracking.visitor_log')
+def user_report(request):
+    filename = "user report ({}).csv".format(now().strftime("%Y-%m-%d"))
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_user_report()),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
