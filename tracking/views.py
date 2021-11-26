@@ -377,7 +377,7 @@ def user_report(request):
 def page_visit_summary_report(request):
     filename = "page visit summary.csv"
     response = StreamingHttpResponse(
-        streaming_content=(reports.generate_user_report()),
+        streaming_content=(reports.generate_page_visit_summary_report()),
         content_type='text/csv',
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'

@@ -1,4 +1,5 @@
 rm(list = ls())
+library(tidyverse)
 
 # Import file from local dir
 setwd("C:/Users/fishmand/Downloads")
@@ -24,13 +25,16 @@ title("DM Apps Users Over Time")
 ######################################
 
 rm(list = ls())
-data = read.csv("user report.csv", header=T)
-data$date_joined <- as.Date(data$date_joined, format = "%Y-%m-%d %H:%M")
-class(data$date_joined)
-head(data$date_joined)
+data = read.csv("page visit summary.csv", header=T)
+data$date <- as.Date(data$date, format = "%Y-%m-%d")
+data$application_name <- factor(data$application_name)
 
-# Import file from local dir
-plot(data$date_joined,data$cumulative_users,type = 'l',xlab = "Date joined", ylab = "Cumulative users")
+ggplot(data = data, aes(x = date, y = page_visits, color = application_name)) + geom_line()
+ggplot(data = data, aes(x = date, y = page_visits)) +
+    geom_line() +
+    facet_wrap(facets = vars(application_name))
+
+
 text(locator(1),paste("Total users =", length(data$cumulative_users)))
 title("DM Apps Users Over Time")
 

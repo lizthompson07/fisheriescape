@@ -1,10 +1,12 @@
 import csv
 
 from django.contrib.auth.models import User
+from django.db.models import Sum
 
 from dm_apps.utils import Echo
 from lib.functions.custom_functions import listrify
 from lib.templatetags.verbose_names import get_field_value
+from tracking.models import VisitSummary
 
 
 def generate_user_report():
@@ -45,3 +47,41 @@ def generate_user_report():
                 )
         yield writer.writerow(data_row)
         i += 1
+
+
+def generate_page_visit_summary_report():
+    """Returns a generator for an HTTP Streaming Response"""
+
+    # write the header
+    fields = [
+        "date",
+        "application_name",
+        "page_visits",
+    ]
+    qs = VisitSummary.objects.all().values(
+        "date", "application_name", "page_visits"
+    ).order_by("date", "application_name").distinct().annotate(
+        dsum=Sum("page_visits")
+    )
+
+    pseudo_buffer = Echo()
+    pseudo_buffer.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(fields)
+
+    for obj in qs:
+        print(obj)
+        data_row = []  # starter
+        for field in fields:
+            data_row.append(
+                obj[field]
+            )
+        yield writer.writerow(data_row)
+
+    for obj in qs:
+        data_row = []  # starter
+        for field in fields:
+            data_row.append(
+                obj[field]
+            )
+        yield writer.writerow(data_row)
