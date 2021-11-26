@@ -674,6 +674,7 @@ class ObservationListView(TrapNetAccessRequiredMixin, CommonFilterView):
     paginate_by = 25
     container_class = "container"
     field_list = [
+        {"name": 'id', "class": "", "width": ""},
         {"name": 'sample', "class": "", "width": ""},
         {"name": 'sample.site|{}'.format(_("site")), "class": "", "width": ""},
         {"name": 'species', "class": "", "width": ""},

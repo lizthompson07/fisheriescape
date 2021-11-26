@@ -52,6 +52,7 @@ class ObservationFilter(django_filters.FilterSet):
     class Meta:
         model = models.Observation
         fields = {
+            'id': ['exact'],
             'species': ['exact'],
             'tag_number': ['icontains'],
             'scale_id_number': ['iexact'],
