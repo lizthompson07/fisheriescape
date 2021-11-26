@@ -2,9 +2,10 @@ from django.conf import settings
 from django.contrib import messages
 from django.db.models import TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.functions.custom_functions import listrify
@@ -861,7 +862,12 @@ def export_sample_data(request):
     fishing_areas = request.GET.get("fishing_areas")
     rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
-    response = reports.generate_sample_csv(year, fishing_areas, rivers, sites)
+    filename = "sample data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_sample_csv(year, fishing_areas, rivers, sites)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
     return response
 
 
@@ -870,7 +876,12 @@ def export_sweep_data(request):
     fishing_areas = request.GET.get("fishing_areas")
     rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
-    response = reports.generate_sweep_csv(year, fishing_areas, rivers, sites)
+    filename = "sweep data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_sweep_csv(year, fishing_areas, rivers, sites)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
     return response
 
 
@@ -879,7 +890,13 @@ def export_obs_data(request):
     fishing_areas = request.GET.get("fishing_areas")
     rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
-    response = reports.generate_obs_csv(year, fishing_areas, rivers, sites)
+    filename = "observation data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_obs_csv(year, fishing_areas, rivers, sites)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
     return response
 
 
@@ -907,5 +924,10 @@ def electro_juv_salmon_report(request):
     year = request.GET.get("year")
     fishing_areas = request.GET.get("fishing_areas")
     rivers = request.GET.get("rivers")
-    response = reports.generate_electro_juv_salmon_report(year, fishing_areas, rivers)
+    filename = "juv_salmon_csas_report.csv"
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_electro_juv_salmon_report(year, fishing_areas, rivers)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
     return response
