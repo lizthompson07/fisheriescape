@@ -667,9 +667,9 @@ class SweepDeleteView(TrapNetAccessRequiredMixin, CommonDeleteView):
 class ObservationListView(TrapNetAccessRequiredMixin, CommonFilterView):
     model = models.Observation
     filterset_class = filters.ObservationFilter
-    template_name = 'trapnet/list.html'
-    # new_object_url_name = "trapnet:sample_new"
-    row_object_url_name = "trapnet:obs_detail"
+    template_name = 'trapnet/obs_list.html'
+    # open_row_in_new_tab = True
+    # row_object_url_name = "trapnet:obs_detail"
     home_url_name = "trapnet:index"
     paginate_by = 25
     container_class = "container"

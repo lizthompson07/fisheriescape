@@ -4,8 +4,24 @@ rm(list = ls())
 setwd("C:/Users/fishmand/Downloads")
 
 ######################################
-# graph new users over time ###########
+# cumulative users over time ###########
 ###################################
+
+rm(list = ls())
+data = read.csv("user report.csv", header=T)
+data$date_joined <- as.Date(data$date_joined, format = "%Y-%m-%d %H:%M")
+class(data$date_joined)
+head(data$date_joined)
+
+# Import file from local dir
+plot(data$date_joined,data$cumulative_users,type = 'l',xlab = "Date joined", ylab = "Cumulative users")
+text(locator(1),paste("Total users =", length(data$cumulative_users)))
+title("DM Apps Users Over Time")
+
+
+######################################
+# Site usage (pageviews / month) and (users / month)     #
+######################################
 
 rm(list = ls())
 data = read.csv("user report.csv", header=T)

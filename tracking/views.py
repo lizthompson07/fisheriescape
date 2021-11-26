@@ -364,7 +364,18 @@ def generate_page_visit_report(app_list, user=None, app=None):
 
 @permission_required('tracking.visitor_log')
 def user_report(request):
-    filename = "user report ({}).csv".format(now().strftime("%Y-%m-%d"))
+    filename = "user report.csv"
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_user_report()),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+@permission_required('tracking.visitor_log')
+def page_visit_summary_report(request):
+    filename = "page visit summary.csv"
     response = StreamingHttpResponse(
         streaming_content=(reports.generate_user_report()),
         content_type='text/csv',
