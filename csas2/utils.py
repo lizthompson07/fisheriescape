@@ -181,9 +181,9 @@ def can_modify_request(user, request_id, return_as_dict=False):
             my_dict["reason"] = _("You can modify this record because you are a NCR web & pub staff member")
             my_dict["can_modify"] = True
         # are they a regional administrator?
-        elif in_csas_regional_admin_group(user) and user.csas_admin_user.region == csas_request.section.division.branch.sector.region:
-            my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
-            my_dict["can_modify"] = True
+        # elif in_csas_regional_admin_group(user) and user.csas_admin_user.region == csas_request.section.division.branch.sector.region:
+        #     my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
+        #     my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]
 
 
