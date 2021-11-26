@@ -6,7 +6,7 @@ from random import randint
 import pytz
 from django.conf import settings
 from django.db import IntegrityError
-from django.db.models import Q, Count
+from django.db.models import Count
 from django.utils import timezone
 from django.utils.timezone import make_aware
 
@@ -513,12 +513,11 @@ def transfer_life_stage():
         obs.save()
 
 
-
 def clean_up_species_table():
     # first let's get a list of duplicate TSNs
     duplicate_tsns = list()
 
-    qs = models.Species.objects.values("tsn").distinct().annotate(dcount=Count("tsn"))
+    qs = models.Species.objects.values("tsn").order_by("tsn").distinct().annotate(dcount=Count("tsn"))
     for obj in qs:
         if obj["dcount"] > 1:
             duplicate_tsns.append(obj["tsn"])
@@ -526,19 +525,38 @@ def clean_up_species_table():
     # for each TSN, we want to keep the one with the most observations as the authoritative
     for tsn in duplicate_tsns:
         qs = models.Species.objects.filter(tsn=tsn)
-        keeper = qs.first() # arbitrarily set to the first in line
+        keeper = qs.first()  # arbitrarily set to the first in line
         max_observations = 0
         for sp in qs:
             print(sp.id, sp, sp.observations.count())
             if sp.observations.count() > max_observations:
                 keeper = sp
         # now that we have a keeper, transfer over the other observations to that sp and delete bad spp
-        qs = qs.filter(~Q(id=keeper.id))
-        for sp in qs:
-            for obs in sp.observations.all():
-                obs.species_id = keeper.id
-                obs.save()
-            print(sp.observations.count())
-            sp.delete()
+        # qs = qs.filter(~Q(id=keeper.id))
+        # for sp in qs:
+        #     for obs in sp.observations.all():
+        #         obs.species_id = keeper.id
+        #         obs.save()
+        #     print(sp.observations.count())
+        # sp.delete()
 
 
+def clean_up_lamprey():
+    s150 = models.Species.objects.get(code=150)  # good one
+    s151 = models.Species.objects.get(code=151)  # ammocoete
+    s152 = models.Species.objects.get(code=152)  # silver
+    life_stage_ammocoete, created = models.LifeStage.objects.get_or_create(name="ammocoete")
+    life_stage_silver, created = models.LifeStage.objects.get_or_create(name="silver")
+
+    for obs in s151.observations.all():
+        obs.species_id = s150.id
+        obs.life_stage_id = life_stage_ammocoete.id
+        obs.save()
+
+    for obs in s152.observations.all():
+        obs.species_id = s150.id
+        obs.life_stage_id = life_stage_silver.id
+        obs.save()
+
+    s151.delete()
+    s152.delete()
