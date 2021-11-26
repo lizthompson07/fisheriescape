@@ -131,28 +131,29 @@ class ReportSearchForm(forms.Form):
         (None, ""),
         (None, "RAW DATA"),
         (None, "------------"),
-        (1, "sample data export (CSV)"),
-        (2, "observation data export (CSV)"),
+        (1, "sample data export (csv)"),
+        (2, "sweep data export (csv)"),
+        (3, "observation data export (csv)"),
 
         (None, ""),
         (None, "ELECTROFISHING"),
         (None, "------------"),
-        (10, "Juvenile salmon CSAS report (CSV)"),
+        (10, "juvenile salmon CSAS report (csv)"),
 
         (None, ""),
         (None, "OPEN DATA"),
         (None, "------------"),
-        (91, "summary by site by year (CSV)"),
-        (92, "data dictionary (CSV)"),
-        (93, "species list (CSV)"),
-        (94, "web mapping service (WMS) report ENGLISH (CSV)"),
-        (95, "web mapping service (WMS) report FRENCH (CSV)"),
+        (91, "summary by site by year (csv)"),
+        (92, "data dictionary (csv)"),
+        (93, "species list (csv)"),
+        (94, "web mapping service (WMS) report ENGLISH (csv)"),
+        (95, "web mapping service (WMS) report FRENCH (csv)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year (blank for all)")
-    sites = forms.MultipleChoiceField(required=False, label="Sites (blank for all)")
     rivers = forms.MultipleChoiceField(required=False, label="Rivers (blank for all)")
+    sites = forms.MultipleChoiceField(required=False, label="Sites (blank for all)")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

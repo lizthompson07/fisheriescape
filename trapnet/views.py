@@ -813,10 +813,13 @@ class ReportSearchFormView(TrapNetAccessRequiredMixin, CommonFormView):
         sites = listrify(form.cleaned_data["sites"]) if len(form.cleaned_data["sites"]) > 0 else ""
         rivers = listrify(form.cleaned_data["rivers"]) if len(form.cleaned_data["rivers"]) > 0 else ""
 
-        if report == 100:
-            return HttpResponseRedirect(reverse("trapnet:sample_report") + f"?year={year}&sites={sites}")
-        elif report == 200:
-            return HttpResponseRedirect(reverse("trapnet:obs_report") + f"?year={year}&sites={sites}")
+        # raw reports
+        if report == 1:
+            return HttpResponseRedirect(reverse("trapnet:sample_report") + f"?year={year}&rivers={rivers}&sites={sites}")
+        elif report == 2:
+            return HttpResponseRedirect(reverse("trapnet:sweep_report") + f"?year={year}&rivers={rivers}&sites={sites}")
+        elif report == 3:
+            return HttpResponseRedirect(reverse("trapnet:obs_report") + f"?year={year}&rivers={rivers}&sites={sites}")
 
         # Electrofishing
         elif report == 10:
@@ -840,15 +843,25 @@ class ReportSearchFormView(TrapNetAccessRequiredMixin, CommonFormView):
 
 def export_sample_data(request):
     year = request.GET.get("year")
+    rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
-    response = reports.generate_sample_report(year, sites)
+    response = reports.generate_sample_csv(year, rivers, sites)
+    return response
+
+
+def export_sweep_data(request):
+    year = request.GET.get("year")
+    rivers = request.GET.get("rivers")
+    sites = request.GET.get("sites")
+    response = reports.generate_sweep_csv(year, rivers, sites)
     return response
 
 
 def export_obs_data(request):
     year = request.GET.get("year")
+    rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
-    response = reports.generate_entry_report(year, sites)
+    response = reports.generate_obs_csv(year, rivers, sites)
     return response
 
 

@@ -88,6 +88,7 @@ urlpatterns = [
     ###########
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
     path('reports/samples/', views.export_sample_data, name="sample_report"),
+    path('reports/sweeps/', views.export_sweep_data, name="sweep_report"),
     path('reports/observations/', views.export_obs_data, name="obs_report"),
     path('reports/opendata1/<str:year>/<str:sites>/', views.export_open_data_ver1, name="od1_report"),
     path('reports/opendata1/dictionary/', views.export_open_data_ver1_dictionary, name="od1_dictionary"),
