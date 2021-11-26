@@ -12,6 +12,7 @@ from django.utils.timezone import make_aware
 
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
+from shared_models.models import River, FishingArea
 from . import models
 
 
@@ -560,3 +561,11 @@ def clean_up_lamprey():
 
     s151.delete()
     s152.delete()
+
+
+def create_river_areas():
+    for r in River.objects.all():
+        if r.fishing_area_code:
+            fa, created = FishingArea.objects.get_or_create(name=r.fishing_area_code.upper())
+            r.fishing_area = fa
+            r.save()

@@ -18,6 +18,12 @@ class RiverFilter(django_filters.FilterSet):
     site = django_filters.CharFilter(field_name='sites__name', label="Site (any part of name...)", lookup_expr='icontains',
                                             widget=forms.TextInput(), distinct=True)
 
+    class Meta:
+        model = shared_models.River
+        fields = {
+            'fishing_area': ['exact'],
+        }
+
 class SampleFilter(django_filters.FilterSet):
     class Meta:
         model = models.Sample

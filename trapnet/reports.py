@@ -25,8 +25,7 @@ def generate_sample_csv(year, rivers, sites):
         filter_kwargs["site_id__in"] = sites.split(",")
 
     qs = models.Sample.objects.filter(**filter_kwargs)
-
-    random_obj = qs.first()
+    random_obj = models.Sample.objects.first()
     fields = random_obj._meta.fields
     field_names = [field.name for field in fields]
 
@@ -61,8 +60,7 @@ def generate_sweep_csv(year, rivers, sites):
         filter_kwargs["sample__site_id__in"] = sites.split(",")
 
     qs = models.Sweep.objects.filter(**filter_kwargs)
-
-    random_obj = qs.first()
+    random_obj = models.Sweep.objects.first()
     fields = random_obj._meta.fields
     field_names = [field.name for field in fields]
 
@@ -97,8 +95,7 @@ def generate_obs_csv(year, rivers, sites):
         filter_kwargs["sample__site_id__in"] = sites.split(",")
 
     qs = models.Observation.objects.filter(**filter_kwargs)
-
-    random_obj = qs.first()
+    random_obj = models.Observation.objects.first()
     fields = random_obj._meta.fields
     field_names = [field.name for field in fields]
 

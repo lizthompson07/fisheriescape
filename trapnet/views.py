@@ -150,6 +150,21 @@ class ReproductiveStatusHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDele
     success_url = reverse_lazy("trapnet:manage_reproductive_statuses")
 
 
+class FishingAreaFormsetView(TrapNetAdminRequiredMixin, CommonFormsetView):
+    template_name = 'trapnet/formset.html'
+    h1 = "Manage Fishing Areas"
+    queryset = shared_models.FishingArea.objects.all()
+    formset_class = forms.FishingAreaFormset
+    success_url_name = "trapnet:manage_fishing_areas"
+    home_url_name = "trapnet:index"
+    delete_url_name = "trapnet:delete_fishing_area"
+
+
+class FishingAreaHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteView):
+    model = shared_models.FishingArea
+    success_url = reverse_lazy("trapnet:manage_fishing_areas")
+
+
 # SPECIES #
 ###########
 
@@ -250,6 +265,7 @@ class RiverListView(TrapNetAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
     field_list = [
         {"name": 'name', "class": "", "width": ""},
+        {"name": 'fishing_area', "class": "", "width": ""},
         {"name": 'fishing_area_code', "class": "", "width": ""},
         {"name": 'maritime_river_code', "class": "", "width": ""},
         {"name": 'old_maritime_river_code', "class": "", "width": ""},

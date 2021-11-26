@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import modelformset_factory
-from django.utils.translation import gettext
+from django.utils.translation import gettext, gettext_lazy
 
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
@@ -150,10 +150,11 @@ class ReportSearchForm(forms.Form):
         (95, "web mapping service (WMS) report FRENCH (csv)"),
     )
 
+    leave_blank_text = gettext_lazy("leave blank for all")
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year (blank for all)")
-    rivers = forms.MultipleChoiceField(required=False, label="Rivers (blank for all)")
-    sites = forms.MultipleChoiceField(required=False, label="Sites (blank for all)")
+    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year", help_text=leave_blank_text)
+    rivers = forms.MultipleChoiceField(required=False, label="Rivers", help_text=leave_blank_text)
+    sites = forms.MultipleChoiceField(required=False, label="Sites", help_text=leave_blank_text)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -251,6 +252,19 @@ class ReproductiveStatusForm(forms.ModelForm):
 ReproductiveStatusFormset = modelformset_factory(
     model=models.ReproductiveStatus,
     form=ReproductiveStatusForm,
+    extra=1,
+)
+
+
+class FishingAreaForm(forms.ModelForm):
+    class Meta:
+        model = shared_models.FishingArea
+        fields = "__all__"
+
+
+FishingAreaFormset = modelformset_factory(
+    model=shared_models.FishingArea,
+    form=FishingAreaForm,
     extra=1,
 )
 

@@ -18,6 +18,9 @@
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
       <a class="dropdown-item" href="{% url 'trapnet:species_list' %}">{% trans "Species" %}</a>
       <a class="dropdown-item" href="{% url 'trapnet:river_list' %}">{% trans "Rivers" %}</a>
+      <a class="dropdown-item" href="{% url 'trapnet:manage_fishing_areas' %}">
+        {% trans "Fishing Areas" %}
+      </a>
       <a class="dropdown-item" href="{% url 'trapnet:manage_statuses' %}">
         {% trans "Statuses" %}
       </a>
