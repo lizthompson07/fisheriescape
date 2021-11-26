@@ -260,13 +260,12 @@ class RiverListView(TrapNetAccessRequiredMixin, CommonFilterView):
     row_object_url_name = "trapnet:river_detail"
     home_url_name = "trapnet:index"
     queryset = River.objects.annotate(
-        search_term=Concat('name', 'fishing_area_code', 'maritime_river_code', 'cgndb', output_field=TextField()))
+        search_term=Concat('name', 'maritime_river_code', 'cgndb', output_field=TextField()))
     paginate_by = 25
     container_class = "container-fluid"
     field_list = [
         {"name": 'name', "class": "", "width": ""},
         {"name": 'fishing_area', "class": "", "width": ""},
-        {"name": 'fishing_area_code', "class": "", "width": ""},
         {"name": 'maritime_river_code', "class": "", "width": ""},
         {"name": 'old_maritime_river_code', "class": "", "width": ""},
         {"name": 'cgndb', "class": "", "width": ""},
@@ -347,7 +346,6 @@ class RiverDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
 
 # SITE #
 ########
-
 
 class RiverSiteCreateView(TrapNetAdminRequiredMixin, CommonCreateView):
     model = models.RiverSite
@@ -826,20 +824,21 @@ class ReportSearchFormView(TrapNetAccessRequiredMixin, CommonFormView):
 
         report = int(form.cleaned_data["report"])
         year = form.cleaned_data["year"] if form.cleaned_data["year"] else ""
-        sites = listrify(form.cleaned_data["sites"]) if len(form.cleaned_data["sites"]) > 0 else ""
+        fishing_areas = listrify(form.cleaned_data["fishing_areas"]) if len(form.cleaned_data["fishing_areas"]) > 0 else ""
         rivers = listrify(form.cleaned_data["rivers"]) if len(form.cleaned_data["rivers"]) > 0 else ""
+        sites = listrify(form.cleaned_data["sites"]) if len(form.cleaned_data["sites"]) > 0 else ""
 
         # raw reports
         if report == 1:
-            return HttpResponseRedirect(reverse("trapnet:sample_report") + f"?year={year}&rivers={rivers}&sites={sites}")
+            return HttpResponseRedirect(reverse("trapnet:sample_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
         elif report == 2:
-            return HttpResponseRedirect(reverse("trapnet:sweep_report") + f"?year={year}&rivers={rivers}&sites={sites}")
+            return HttpResponseRedirect(reverse("trapnet:sweep_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
         elif report == 3:
-            return HttpResponseRedirect(reverse("trapnet:obs_report") + f"?year={year}&rivers={rivers}&sites={sites}")
+            return HttpResponseRedirect(reverse("trapnet:obs_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
 
-        # Electrofishing
+        # electrofishing
         elif report == 10:
-            return HttpResponseRedirect(reverse("trapnet:electro_juv_salmon_report") + f"?year={year}&rivers={rivers}")
+            return HttpResponseRedirect(reverse("trapnet:electro_juv_salmon_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}")
 
         # Open data
         elif report == 91:
@@ -859,25 +858,28 @@ class ReportSearchFormView(TrapNetAccessRequiredMixin, CommonFormView):
 
 def export_sample_data(request):
     year = request.GET.get("year")
+    fishing_areas = request.GET.get("fishing_areas")
     rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
-    response = reports.generate_sample_csv(year, rivers, sites)
+    response = reports.generate_sample_csv(year, fishing_areas, rivers, sites)
     return response
 
 
 def export_sweep_data(request):
     year = request.GET.get("year")
+    fishing_areas = request.GET.get("fishing_areas")
     rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
-    response = reports.generate_sweep_csv(year, rivers, sites)
+    response = reports.generate_sweep_csv(year, fishing_areas, rivers, sites)
     return response
 
 
 def export_obs_data(request):
     year = request.GET.get("year")
+    fishing_areas = request.GET.get("fishing_areas")
     rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
-    response = reports.generate_obs_csv(year, rivers, sites)
+    response = reports.generate_obs_csv(year, fishing_areas, rivers, sites)
     return response
 
 
@@ -903,6 +905,7 @@ def export_open_data_ver1_wms(request, lang):
 
 def electro_juv_salmon_report(request):
     year = request.GET.get("year")
+    fishing_areas = request.GET.get("fishing_areas")
     rivers = request.GET.get("rivers")
-    response = reports.generate_electro_juv_salmon_report(year, rivers)
+    response = reports.generate_electro_juv_salmon_report(year, fishing_areas, rivers)
     return response

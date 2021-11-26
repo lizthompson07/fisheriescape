@@ -9,7 +9,7 @@ from lib.templatetags.custom_filters import nz
 from . import models
 
 
-def generate_sample_csv(year, rivers, sites):
+def generate_sample_csv(year, fishing_areas, rivers, sites):
     filename = "sample data export ({}).csv".format(now().strftime("%Y-%m-%d"))
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
@@ -19,6 +19,8 @@ def generate_sample_csv(year, rivers, sites):
     filter_kwargs = {}
     if year != "":
         filter_kwargs["season"] = year
+    if fishing_areas != "":
+        filter_kwargs["site__river__fishing_area_id__in"] = fishing_areas.split(",")
     if rivers != "":
         filter_kwargs["site__river_id__in"] = rivers.split(",")
     if sites != "":
@@ -44,7 +46,7 @@ def generate_sample_csv(year, rivers, sites):
     return response
 
 
-def generate_sweep_csv(year, rivers, sites):
+def generate_sweep_csv(year, fishing_areas, rivers, sites):
     filename = "sweep data export ({}).csv".format(now().strftime("%Y-%m-%d"))
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
@@ -54,6 +56,8 @@ def generate_sweep_csv(year, rivers, sites):
     filter_kwargs = {}
     if year != "":
         filter_kwargs["sample__season"] = year
+    if fishing_areas != "":
+        filter_kwargs["sample__site__river__fishing_area_id__in"] = fishing_areas.split(",")
     if rivers != "":
         filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
     if sites != "":
@@ -79,7 +83,7 @@ def generate_sweep_csv(year, rivers, sites):
     return response
 
 
-def generate_obs_csv(year, rivers, sites):
+def generate_obs_csv(year, fishing_areas, rivers, sites):
     filename = "observation data export ({}).csv".format(now().strftime("%Y-%m-%d"))
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
@@ -89,6 +93,8 @@ def generate_obs_csv(year, rivers, sites):
     filter_kwargs = {}
     if year != "":
         filter_kwargs["sample__season"] = year
+    if fishing_areas != "":
+        filter_kwargs["sample__site__river__fishing_area_id__in"] = fishing_areas.split(",")
     if rivers != "":
         filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
     if sites != "":
@@ -646,14 +652,15 @@ def generate_open_data_ver_1_wms_report(lang):
     return response
 
 
-def generate_electro_juv_salmon_report(year, rivers):
+def generate_electro_juv_salmon_report(year, fishing_areas, rivers):
     filter_kwargs = {
         "sample__sample_type": 2
     }
 
     if year != "":
         filter_kwargs["sample__season"] = year
-
+    if fishing_areas != "":
+        filter_kwargs["sample__site__river__fishing_area_id__in"] = fishing_areas.split(",")
     if rivers != "":
         filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
 

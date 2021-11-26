@@ -4,7 +4,7 @@ from django.utils.translation import gettext, gettext_lazy
 
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
-from shared_models.models import River
+from shared_models.models import River, FishingArea
 from . import models
 
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
@@ -153,6 +153,7 @@ class ReportSearchForm(forms.Form):
     leave_blank_text = gettext_lazy("leave blank for all")
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year", help_text=leave_blank_text)
+    fishing_areas = forms.MultipleChoiceField(required=False, label="Fishing areas", help_text=leave_blank_text)
     rivers = forms.MultipleChoiceField(required=False, label="Rivers", help_text=leave_blank_text)
     sites = forms.MultipleChoiceField(required=False, label="Sites", help_text=leave_blank_text)
 
@@ -163,6 +164,10 @@ class ReportSearchForm(forms.Form):
 
         river_choices = [(obj.id, str(obj)) for obj in River.objects.filter(sites__samples__isnull=False).distinct()]
         self.fields['rivers'].choices = river_choices
+
+        fa_choices = [(obj.id, str(obj)) for obj in FishingArea.objects.all()]
+        self.fields['fishing_areas'].choices = fa_choices
+        self.fields['fishing_areas'].widget.attrs = chosen_js
 
 
 class StatusForm(forms.ModelForm):

@@ -736,7 +736,6 @@ class FishingArea(UnilingualSimpleLookup):
 
 class River(MetadataFields):
     name = models.CharField(max_length=255)
-    fishing_area_code = models.CharField(max_length=255, blank=True, null=True)
     fishing_area = models.ForeignKey(FishingArea, on_delete=models.DO_NOTHING, related_name="rivers", blank=True, null=True)
     maritime_river_code = models.IntegerField(blank=True, null=True)
     old_maritime_river_code = models.IntegerField(blank=True, null=True)
