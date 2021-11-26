@@ -382,3 +382,14 @@ def page_visit_summary_report(request):
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'
     return response
+
+
+@permission_required('tracking.visitor_log')
+def user_summary_report(request):
+    filename = "user summary.csv"
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_user_summary_report()),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response

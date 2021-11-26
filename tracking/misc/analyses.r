@@ -26,16 +26,20 @@ title("DM Apps Users Over Time")
 
 rm(list = ls())
 data = read.csv("page visit summary.csv", header=T)
-data$date <- as.Date(data$date, format = "%Y-%m-%d")
+data$date <- as.Date(data$date, format = "%Y/%m/%d")
 data$application_name <- factor(data$application_name)
 
-ggplot(data = data, aes(x = date, y = page_visits, color = application_name)) + geom_line()
-ggplot(data = data, aes(x = date, y = page_visits)) +
-    geom_line() +
-    facet_wrap(facets = vars(application_name))
+plot(data$date,data$page_visits,type = 'l',xlab = "Date joined", ylab = "Cumulative users")
 
+# ggplot(data = data, aes(x = date, y = page_visits, color = application_name)) + geom_line()
+# ggplot(data = data, aes(x = date, y = page_visits)) +
+#     geom_line() +
+#     facet_wrap(facets = vars(application_name))
+ggplot(data = data,
+       mapping = aes(x = date, y = page_visits)) +
+  geom_line() +
+  facet_grid(rows = vars(application_name))
 
-text(locator(1),paste("Total users =", length(data$cumulative_users)))
 title("DM Apps Users Over Time")
 
 
