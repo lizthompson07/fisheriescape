@@ -105,9 +105,8 @@ msgstr "subject_fr"
 msgid "message_en"
 msgstr "message_fr"
 
-#: .\accounts\templates\accounts\accounts_base.html:7
-#: .\templates\index.html:98 .\templates\index_OLD.html:32
-#: .\templates\index_OLD.html:41
+#: .\accounts\templates\accounts\accounts_base.html:7 .\templates\index.html:98
+#: .\templates\index_OLD.html:32 .\templates\index_OLD.html:41
 msgid "DM Apps"
 msgstr "Applis GD"
 
@@ -176,15 +175,10 @@ msgstr "Se connecter"
 
 #: .\accounts\templates\registration\login.html:47
 msgid "Please enter your DFO e-mail address to sign In"
-msgstr ""
+msgstr "Veuillez entrer votre adresse courriel du MPO pour vous connecter"
 
 #: .\accounts\templates\registration\login.html:63
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                        If you do not have an account, you can create one "
-#| "<a href=\"%(sign_up_url)s\">here</a>.\n"
-#| "                    "
+#, python-format
 msgid ""
 "\n"
 "              If you do not have an account, you can create one <a tabindex="
@@ -193,13 +187,13 @@ msgid ""
 msgstr ""
 "\n"
 "                            Si vous n'avez pas de compte, vous pouvez en "
-"créer un <a href=\"%(sign_up_url)s\">ici</a>.\n"
+"créer un <a tabindex=\"-1\" href=\"%(sign_up_url)s\">ici</a>.\n"
 "                        "
 
 #: .\accounts\templates\registration\login.html:71
 #: .\accounts\templates\registration\resend_verification_email.html:19
 msgid "Send Verification Email"
-msgstr ""
+msgstr "Envoyer email de vérification"
 
 #: .\accounts\templates\registration\resend_verification_email.html:11
 msgid "Activate Your Account"
@@ -225,7 +219,7 @@ msgstr "S'inscrire"
 
 #: .\accounts\templates\registration\signup.html:12
 msgid "Please enter the following information"
-msgstr ""
+msgstr "Veuillez saisir les informations suivantes"
 
 #: .\accounts\templates\registration\signup.html:31
 msgid "Sign Up"
@@ -234,6 +228,7 @@ msgstr "S'inscrire"
 #: .\accounts\templates\registration\token_form.html:46
 msgid "Please enter the one-time password sent to your email."
 msgstr ""
+"Veuillez saisir le mot de passe à usage unique envoyé à votre adresse e-mail."
 
 #: .\accounts\templates\registration\token_form.html:63
 #, python-format
@@ -245,6 +240,11 @@ msgid ""
 "</a> now.\n"
 "            "
 msgstr ""
+"\n"
+"Si vous ne l'avez pas reçu, assurez-vous de vérifier votre courrier "
+"indésirable ou vous pouvez essayer\n"
+"               <a href=\"%(login_url)s?email=%(user_email)s\"> le renvoyer </"
+"a> maintenant."
 
 #: .\accounts\templates\registration\token_form.html:71
 msgid "Verify"
@@ -281,6 +281,11 @@ msgid ""
 "mail folder. <br><br>The activation link will only remain valid for a "
 "limited period of time."
 msgstr ""
+"Un courriel de vérification vient d'être envoyé à {email_address}. Afin de "
+"compléter votre inscription, veuillez suivre le lien dans le message. "
+"<br><br>Si l'e-mail n'apparaît pas dans les 1-2 minutes, assurez-vous de "
+"vérifier votre dossier de courrier indésirable. <br><br>Le lien d'activation "
+"ne restera valable que pour une durée limitée."
 
 #: .\accounts\views.py:91
 msgid "Request access"
@@ -302,11 +307,11 @@ msgstr ""
 
 #: .\accounts\views.py:159
 msgid "An e-mail with a login link has been sent to you! "
-msgstr ""
+msgstr "Un e-mail avec un lien de connexion vous a été envoyé !"
 
 #: .\accounts\views.py:160
 msgid "To enter a code manually, click "
-msgstr ""
+msgstr "Pour saisir un code manuellement, cliquez "
 
 #: .\accounts\views.py:164
 #, fuzzy
@@ -833,8 +838,7 @@ msgstr "Détails de l'entrée"
 #: .\bio_diversity\models.py:1221 .\bio_diversity\models.py:1621
 #: .\bio_diversity\models.py:1885 .\bio_diversity\models.py:2078
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:70
-#: .\ios2\models.py:58
-#: .\publications\templates\publications\pub_detail.html:54
+#: .\ios2\models.py:58 .\publications\templates\publications\pub_detail.html:54
 msgid "Location"
 msgstr "Location"
 
@@ -1322,13 +1326,13 @@ msgstr ""
 msgid "From Parent Group"
 msgstr ""
 
-#: .\bio_diversity\models.py:1196 .\cruises\models.py:101
-#: .\maret\models.py:161 .\shared_models\models.py:97
+#: .\bio_diversity\models.py:1196 .\cruises\models.py:101 .\maret\models.py:161
+#: .\shared_models\models.py:97
 msgid "English text"
 msgstr "Texte en anglais"
 
-#: .\bio_diversity\models.py:1197 .\cruises\models.py:102
-#: .\maret\models.py:162 .\shared_models\models.py:98
+#: .\bio_diversity\models.py:1197 .\cruises\models.py:102 .\maret\models.py:162
+#: .\shared_models\models.py:98
 msgid "French text"
 msgstr "Texte en français"
 
@@ -3429,8 +3433,8 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"                Êtes-vous sûr de vouloir supprimer l'entrée suivante : <em>%"
-"(o)s</em>\n"
+"                Êtes-vous sûr de vouloir supprimer l'entrée suivante : <em>"
+"%(o)s</em>\n"
 "            "
 
 #: .\ios2\templates\ios2\instrument_base.html:12
@@ -3460,8 +3464,8 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"                Êtes-vous sûr de vouloir supprimer l'entrée suivante : <em>%"
-"(o)s</em>\n"
+"                Êtes-vous sûr de vouloir supprimer l'entrée suivante : <em>"
+"%(o)s</em>\n"
 "            "
 
 #: .\ios2\templates\ios2\instrument_detail.html:43
@@ -3558,8 +3562,8 @@ msgstr ""
 #, fuzzy, python-format
 msgid ""
 "\n"
-"                  %(object)s  Adding %(ct)s to %(instrument)s %(object."
-"instruments)s\n"
+"                  %(object)s  Adding %(ct)s to %(instrument)s "
+"%(object.instruments)s\n"
 "                "
 msgstr ""
 "\n"
@@ -3732,8 +3736,8 @@ msgstr "Soumis"
 #, fuzzy, python-format
 msgid ""
 "\n"
-"                    %(object)s  Adding %(ct)s to %(instrument)s %(object."
-"instruments)s\n"
+"                    %(object)s  Adding %(ct)s to %(instrument)s "
+"%(object.instruments)s\n"
 "                "
 msgstr ""
 "\n"
@@ -4464,13 +4468,13 @@ msgstr "Détails du projet"
 #, python-format
 msgid ""
 "\n"
-"                Are you sure you want to delete the project entitled: <em>%"
-"(o)s</em> from the database?\n"
+"                Are you sure you want to delete the project entitled: <em>"
+"%(o)s</em> from the database?\n"
 "            "
 msgstr ""
 "\n"
-"                Êtes-vous sûr de vouloir supprimer le projet suivant : <em>%"
-"(o)s</em>\n"
+"                Êtes-vous sûr de vouloir supprimer le projet suivant : <em>"
+"%(o)s</em>\n"
 "            "
 
 #: .\publications\templates\publications\pub_detail.html:24
@@ -5829,12 +5833,7 @@ msgid "close"
 msgstr "fermer"
 
 #: .\templates\index.html:146
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                        Please <a href=\"%(sign_in_url)s\">sign in</a> or "
-#| "select an application below.\n"
-#| "                      "
+#, python-format
 msgid ""
 "\n"
 "                    Please <a href=\"%(sign_in_url)s\">sign in</a> or select "
@@ -5846,12 +5845,7 @@ msgstr ""
 "application ci-dessous"
 
 #: .\templates\index.html:150
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                        If you do not have an account, you can register "
-#| "for one <a href=\"%(sign_up_url)s\">here.</a>\n"
-#| "                      "
+#, python-format
 msgid ""
 "\n"
 "                    If you do not have an account, you can register for one "
@@ -5920,7 +5914,7 @@ msgid ""
 "                    "
 msgstr ""
 "\n"
-"                        Bienvenue!! Veuillez vous <a href=\"%(sign_in_url)s"
+"                        Bienvenue! Veuillez vous <a href=\"%(sign_in_url)s"
 "\">connecter</a> ou sélectionner une application ci-dessous. Si vous n'avez "
 "pas de\n"
 "                        compte, vous pouvez en créer un\n"
