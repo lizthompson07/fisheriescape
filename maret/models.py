@@ -116,7 +116,8 @@ class Interaction(models.Model):
     interaction_type = models.IntegerField(choices=interaction_type_choices, default=None)
     committee = models.ForeignKey(Committee, blank=True, null=True, on_delete=models.DO_NOTHING,
                                   verbose_name="Committee / Working Group", related_name="committee_interactions")
-    dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=None)
+    dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=None,
+                                   verbose_name="Role of highest level DFO participant")
     dfo_liaison = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_liaison",
                                          verbose_name=_("DFO liaison/secretariat"))
     other_dfo_participants = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_participants",

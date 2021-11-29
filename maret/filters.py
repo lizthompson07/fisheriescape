@@ -15,7 +15,8 @@ chosen_js = {"class": "chosen-select-contains"}
 class InteractionFilter(django_filters.FilterSet):
     class Meta:
         model = models.Interaction
-        fields = ["interaction_type", "dfo_liaison", "main_topic", "external_organization", "external_contact"]
+        fields = ["interaction_type", "dfo_liaison", "main_topic", "external_organization", "external_contact",
+                  "committee", "other_dfo_participants"]
 
 
 class CommitteeFilter(django_filters.FilterSet):
