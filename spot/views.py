@@ -368,8 +368,8 @@ class ObjectiveListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/objective_list.html'
     filterset_class = filters.ObjectiveFilter
     model = models.Objective
-    queryset = models.Objective.objects.annotate()
-    search_term = Concat('number', 'id', output_field=TextField())
+    queryset = models.Objective.objects.annotate(
+        search_term=Concat('project', 'id', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -468,8 +468,8 @@ class MethodListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/method_list.html'
     filterset_class = filters.MethodFilter
     model = models.Method
-    queryset = models.Method.objects.annotate()
-    search_term = Concat('doc_num', 'id', output_field=TextField())
+    queryset = models.Method.objects.annotate(
+    search_term = Concat('project', 'knowledge_consideration', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -568,8 +568,8 @@ class DataListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/data_list.html'
     filterset_class = filters.DataFilter
     model = models.Data
-    queryset = models.Data.objects.annotate()
-    search_term = Concat('database', 'id', output_field=TextField())
+    queryset = models.Data.objects.annotate(
+    search_term = Concat('project', 'data_products_comment', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -808,8 +808,8 @@ class ReportsListView(SpotAccessRequiredMixin,FilterView):
     template_name = 'spot/reports_list.html'
     filterset_class = filters.ReportsFilter
     model = models.Reports
-    queryset = models.Reports.objects.annotate()
-    search_term = Concat('report_topic', 'id', output_field=TextField())
+    queryset = models.Reports.objects.annotate(
+    search_term = Concat('project', 'document_name', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

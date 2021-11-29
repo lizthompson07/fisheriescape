@@ -52,7 +52,7 @@
 
                 {% for field in field_list %}
                     {% verbose_field_display object field %}
-                    {% if field == 'data_entry_method_type' %}
+                    {% if field == 'knowledge_consideration' %}
                         <br>{% include "spot/_method_document.html" %}<br>
                     {% endif %}
                 {% endfor %}

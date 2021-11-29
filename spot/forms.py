@@ -236,9 +236,9 @@ class DataForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'project': forms.HiddenInput(),
-            'species': forms.Select(choices=choices.SPECIES, attrs=attr_chosen),
+            'species': forms.SelectMultiple(attrs=attr_chosen),
             'samples_collected': forms.SelectMultiple(attrs=multi_select_js),
-            'samples_entered_database': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
+            'sample_entered_database': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
             'samples_collected_database': forms.SelectMultiple(attrs=multi_select_js),
             'sample_barrier': forms.SelectMultiple(attrs=multi_select_js),
             'barrier_data_check_entry': forms.SelectMultiple(attrs=multi_select_js),
@@ -247,7 +247,7 @@ class DataForm(forms.ModelForm):
             'data_products_database': forms.SelectMultiple(attrs=multi_select_js),
             'data_programs': forms.SelectMultiple(attrs=multi_select_js),
             'data_communication': forms.SelectMultiple(attrs=multi_select_js),
-            #'data_quality_check': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
+            'data_quality_check': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }

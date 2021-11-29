@@ -342,7 +342,7 @@ class Data(models.Model):
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return "{}".format(self.species)
+        return "{}".format(self.project)
 
     class Meta:
         ordering = ['project']
@@ -370,6 +370,7 @@ class Feedback(models.Model):
 class Objective(models.Model):
     objects = models.Manager()
     project = models.ForeignKey('Project', default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='project_objective', verbose_name=_("Agreement Number"))
+    objective_id = models.IntegerField(blank=True, null=True)
     task_description = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Task Description"))
     element_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Element Title"))
     activity_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Activity Title"))

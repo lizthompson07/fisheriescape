@@ -502,8 +502,9 @@ def import_objective():
     path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'objective.csv')
     with open(path) as f:
         reader = csv.DictReader(f)
+        tmp_obj_id=0
         for row in reader:
-
+            tmp_obj_id=tmp_obj_id+1
             if row['Outcome contact'].__contains__(' '):
                 tmp_whole_name = row['Outcome contact'].split(' ')
                 tmp_first_name = tmp_whole_name[0]
@@ -528,6 +529,7 @@ def import_objective():
                 outcomes_comment=row['Comment on outcomes'],
                 key_lesson=row['Key Lessons learned'],
                 missed_opportunities=row['Missed opportunities?'],
+                objective_id=tmp_obj_id,
             )
 
             if row['River(s)'].__contains__(','):
@@ -574,6 +576,7 @@ def import_objective():
             else:
                 tmp_obj, _ = models.CapacityBuilding.objects.get_or_create(name=row['What capacity building did this project provide? (1-AH)'])
                 created.capacity_building.add(int(tmp_obj.id))
+
 
 def import_report():
     path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'projects2.csv')
