@@ -205,8 +205,9 @@ class ElectrofishingParser(DataParser):
             self.log_data += "\nNo site found in db for Lat-Long ({}, {}) given on row: \n{}\n\n"\
                 .format(self.loc.loc_lat, self.loc.loc_lon, row)
 
-        self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=row["contx_id"].pk,
-                                             return_sucess=True)
+        if utils.nan_to_none(row["contx_id"]):
+            self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=row["contx_id"].pk,
+                                                 return_sucess=True)
 
         self.team_parser(row[self.crew_key], row, loc_id=loc)
 
