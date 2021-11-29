@@ -576,6 +576,8 @@ class ReportSearchFormView(ScubaCRUDAccessRequiredMixin, CommonFormView):
         year = nz(form.cleaned_data["year"], "None")
         if report == 1:
             return HttpResponseRedirect(reverse("scuba:dive_log_report") + f"?year={year}")
+        elif report == 2:
+            return HttpResponseRedirect(reverse("scuba:dive_transect_report") + f"?year={year}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("scuba:reports"))
@@ -591,5 +593,18 @@ def dive_log_report(request):
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="dive log ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
 
+            return response
+    raise Http404
+
+
+@login_required()
+def dive_transect_report(request):
+    year = None if not request.GET.get("year") or request.GET.get("year") == "None" else int(request.GET.get("year"))
+    file_url = reports.dive_transect_export(year=year)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="dive-transect report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
             return response
     raise Http404

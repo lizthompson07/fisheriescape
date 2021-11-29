@@ -12,6 +12,13 @@ from sendgrid.helpers.mail import Mail, Email, Personalization
 from lib.templatetags.custom_filters import nz
 
 
+class Echo(object):
+    '''Used for file streaming'''
+    def write(self, value):
+        return value
+
+
+
 def get_azure_connection_dict():
     key_list = [
         'AAD_APP_ID',  # needed
