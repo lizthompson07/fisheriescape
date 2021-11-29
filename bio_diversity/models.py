@@ -1439,7 +1439,6 @@ class Individual(BioModel):
                                                  adsc_id__isnull=False,
                                                  ).select_related("adsc_id")
 
-
         if get_string:
             prog_grp_list = [indvd.adsc_id.name for indvd in indvd_set]
             prog_str = ", ".join(prog_grp_list)
