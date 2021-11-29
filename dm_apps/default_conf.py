@@ -86,7 +86,7 @@ MY_INSTALLED_APPS = [app for app in APP_DICT]
 # DATABASES #
 #############
 
-# By default, the application will use the setting from the environment variables (or .env file).
+# By default, the application will use the setting from the environment variables (or .env_sample file).
 # If those variables are not set, the local db will be created. If you would like to use a local db
 # disrespective of the environment variables, set it to True
 USE_LOCAL_DB = False

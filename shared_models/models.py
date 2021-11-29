@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from shapely.geometry import Point
+
 from shared_models.utils import get_metadata_string, format_coordinates, get_last_modified_string
 
 
@@ -184,7 +185,7 @@ class Province(SimpleLookupWithUUID):
     country = models.CharField(max_length=25, choices=COUNTRY_CHOICES, verbose_name=_("country"))
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User , on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
     @property
     def tabbrev(self):

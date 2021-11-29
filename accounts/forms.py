@@ -16,7 +16,7 @@ chosen_js = {"class": "chosen-select-contains"}
 try:
     from dm_apps import my_conf as local_conf
 except (ModuleNotFoundError, ImportError):
-    from dm_apps import my_conf as local_conf
+    from dm_apps import default_conf as local_conf
 
 
 # from django.contrib.auth.forms import UserCreationForm

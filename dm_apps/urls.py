@@ -24,7 +24,6 @@ from django.urls import path, include
 from accounts import views as acc_views
 from . import views as views
 
-
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('admin/', admin.site.urls),
