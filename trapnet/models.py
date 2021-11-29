@@ -510,7 +510,7 @@ class Maturity(CodeModel):
 class Entry(MetadataFields):
     first_tag = models.CharField(max_length=50, blank=True, null=True)
     last_tag = models.CharField(max_length=50, blank=True, null=True)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="entries")
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
     frequency = models.IntegerField(blank=True, null=True, verbose_name=_("frequency"))
     fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
@@ -525,8 +525,8 @@ class Entry(MetadataFields):
     notes = models.TextField(blank=True, null=True)
 
     # non-editable
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries", editable=False)
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="entries", editable=False)
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries", editable=False, blank=True, null=True)
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="entries", editable=False, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         return super().save(*args, **kwargs)

@@ -373,8 +373,8 @@ class RiverSiteDetailView(TrapNetAdminRequiredMixin, CommonDetailView):
         'stream_order',
         'elevation_m',
         'province.abbrev_eng',
-        'latitude_n',
-        'longitude_w',
+        'latitude',
+        'longitude',
         'directions',
         'exclude_data_from_site',
         'metadata',
@@ -422,8 +422,8 @@ class SampleListView(TrapNetAccessRequiredMixin, CommonFilterView):
         {"name": 'season', "class": "", "width": ""},
         {"name": 'sample_type', "class": "", "width": ""},
         {"name": 'site', "class": "", "width": ""},
-        {"name": 'arrival_date', "class": "", "width": ""},
-        {"name": 'departure_date', "class": "", "width": ""},
+        {"name": 'arrival_date|arrival', "class": "", "width": ""},
+        {"name": 'duration|duration', "class": "", "width": ""},
         {"name": 'observations', "class": "", "width": ""},
     ]
 

@@ -180,8 +180,22 @@
         if (this.filter.division && this.filter.division !== "") query = `?division=${this.filter.division}`
         apiService(`/api/ppt/sections/${query}`).then(response => this.sections = response)
 
-        if (this.filter.section && this.filter.section !== "") query = `?section=${this.filter.section}`
-        apiService(`/api/ppt/functional-groups/${query}`).then(response => this.functionalGroups = response)
+        // Functional Group
+
+        query = ""; // reset
+        let section = "";
+        let region = "";
+        let division = "";
+
+        if(this.filter.section && this.filter.section !== "") section = this.filter.section;
+        if(this.filter.division && this.filter.division !== "") division = this.filter.division;
+        if(this.filter.region && this.filter.region !== "") region = this.filter.region;
+
+        query = '?'
+        if(section !== "") query += `sections=${section}&`
+        if(division !== "") query += `sections__division=${division}&`
+        if(region !== "") query += `sections__division__branch__sector__region=${region}&`
+        apiService(`/api/ppt/functional-groups/${query}`).then(response => this.functionalGroups = response);
 
       },
       getProjectYears(endpoint) {

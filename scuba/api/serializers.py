@@ -30,6 +30,10 @@ class ObservationSerializer(serializers.ModelSerializer):
     sex_display = serializers.SerializerMethodField()
     egg_status_display = serializers.SerializerMethodField()
     certainty_rating_display = serializers.SerializerMethodField()
+    species_display = serializers.SerializerMethodField()
+
+    def get_species_display(self, instance):
+        return str(instance.species)
 
     def get_certainty_rating_display(self, instance):
         return instance.certainty_rating_special_display
