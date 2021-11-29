@@ -84,7 +84,7 @@ my_dev.cnf
 prod.cnf
 
 # Ignore all files dealing with enviornment variables except the sample file
-.env_sample
+.env*
 !.env_sample
 
 # Google API key #

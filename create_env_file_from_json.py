@@ -11,7 +11,7 @@ def nz(value, arg):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--environment-name', help='"dev", "test" or "prod"')
-parser.add_argument('--output-file-name', help='name of output file', default=".env_sample")
+parser.add_argument('--output-file-name', help='name of output file', default=".env")
 
 args = parser.parse_args()
 
