@@ -31,13 +31,13 @@
         {% for obj in object.project_method.all %}
             <tr href="{% url 'spot:meth_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this method">
                 <td>
-                    {{ obj.planning_method_type }}
+                    {% for planning_method_type in obj.planning_method_type.all %}{{ planning_method_type }}<br/>{% endfor %}
                 </td>
                 <td>
-                    {{ obj.field_work_method_type }}
+                    {% for field_work_method_type in obj.field_work_method_type.all %}{{ field_work_method_type }}<br/>{% endfor %}
                 </td>
                 <td>
-                    {{ obj.sample_processing_method_type }}
+                    {% for sample_processing_method_type in obj.sample_processing_method_type.all %}{{ sample_processing_method_type }}<br/>{% endfor %}
                 </td>
             </tr>
         {% endfor %}

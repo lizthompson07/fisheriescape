@@ -1,3 +1,6 @@
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 
 YES_NO_UNKNOWN = (
     ('Yes', 'Yes'),
@@ -55,12 +58,12 @@ LEAD_ORGANIZATION = (
     ('Other', 'Other')
 )
 
-REGION = (
-    ('YUKON', 'Yukon/Transboundary'),
-    ('NCA', 'North Coast'),
-    ('SCA', 'South Coast'),
-    ('FIA', 'Fraser'),
-)
+REGION= (
+    ("Yukon", "Yukon/Transboundary"),
+    ("NCA", "North Coast"),
+    ("SCA", "South Coast"),
+    ("FIA", "Fraser"),)
+
 
 ECOSYSTEM_TYPE = (
     ('Freshwater', 'Freshwater'),

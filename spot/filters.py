@@ -13,12 +13,12 @@ YES_NO_CHOICES = (
 class OrganizationFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search name", lookup_expr='icontains', widget=forms.TextInput())
     organization_type = django_filters.ChoiceFilter(choices=choices.ORGANIZATION_TYPE)
-    province = django_filters.ChoiceFilter(choices=choices.PROVINCE_STATE_CHOICES)
+    province_state = django_filters.ChoiceFilter(choices=choices.PROVINCE_STATE_CHOICES)
     country = django_filters.ChoiceFilter(choices=choices.COUNTRY_CHOICES)
 
     class Meta:
         model = models.Organization
-        fields = ['organization_type', 'province', 'country']
+        fields = ['organization_type', 'province_state', 'country']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,17 +40,12 @@ class PersonFilter(django_filters.FilterSet):
 class ProjectFilter(django_filters.FilterSet):
 
     search_term = django_filters.CharFilter(field_name='search_term', label="Search", lookup_expr='icontains', widget=forms.TextInput())
-    species = django_filters.ChoiceFilter(choices=choices.SPECIES, lookup_expr='icontains')
     region = django_filters.ChoiceFilter(choices=choices.REGION, lookup_expr='icontains')
     stock_management_unit = django_filters.ChoiceFilter(choices=choices.SMU_NAME, lookup_expr='icontains')
     project_stage = django_filters.ChoiceFilter(choices=choices.PROJECT_STAGE, lookup_expr='icontains')
     ecosystem_type = django_filters.ChoiceFilter(choices=choices.ECOSYSTEM_TYPE, lookup_expr='icontains')
     project_type = django_filters.ChoiceFilter(choices=choices.PROJECT_TYPE, lookup_expr='icontains')
-    project_sub_type = django_filters.ChoiceFilter(choices=choices.PROJECT_SUB_TYPE, lookup_expr='icontains')
     monitoring_approach = django_filters.ChoiceFilter(choices=choices.MONITORING_APPROACH, lookup_expr='icontains')
-    project_theme = django_filters.ChoiceFilter(choices=choices.PROJECT_THEME, lookup_expr='icontains')
-    core_component = django_filters.ChoiceFilter(choices=choices.PROJECT_CORE_ELEMENT, lookup_expr='icontains')
-    supportive_component = django_filters.ChoiceFilter(choices=choices.SUPPORTIVE_COMPONENT, lookup_expr='icontains')
     government_organization = django_filters.ChoiceFilter(choices=choices.GOVERNMENT_LINK, lookup_expr='icontains')
     DFO_link = django_filters.ChoiceFilter(choices=choices.DFO_LINK, lookup_expr='icontains')
 
@@ -71,7 +66,7 @@ class ObjectiveFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Objective
-        fields = ['species', 'objective_category',]
+        fields = ['species', 'objective_category', 'location',]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -79,14 +74,10 @@ class ObjectiveFilter(django_filters.FilterSet):
 
 class MethodFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget=forms.TextInput())
-    planning_method_type = django_filters.ChoiceFilter(choices=choices.PLANNING_METHOD)
-    field_work_method_type = django_filters.ChoiceFilter(choices=choices.FIELD_WORK)
-    sample_processing_method_type = django_filters.ChoiceFilter(choices=choices.SAMPLE_PROCESSING)
-    data_entry_method_type = django_filters.ChoiceFilter(choices=choices.DATA_ENTRY)
 
     class Meta:
         model = models.Method
-        fields = ['planning_method_type', 'field_work_method_type', 'sample_processing_method_type', 'data_entry_method_type',]
+        fields = ['planning_method_type', 'field_work_method_type', 'sample_processing_method_type',]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -94,16 +85,10 @@ class MethodFilter(django_filters.FilterSet):
 
 class DataFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget=forms.TextInput())
-    species_data = django_filters.ChoiceFilter(choices=choices.SPECIES)
-    samples_collected = django_filters.ChoiceFilter(choices=choices.ORGANIZATION_TYPE)
-    data_products = django_filters.ChoiceFilter(choices=choices.DATA_PRODUCTS)
-    sample_data_database = django_filters.ChoiceFilter(choices=choices.DATABASE)
-    sample_format = django_filters.ChoiceFilter(choices=choices.SAMPLE_FORMAT)
-    data_programs = django_filters.ChoiceFilter(choices=choices.DATA_PROGRAMS)
 
     class Meta:
         model = models.Data
-        fields = ['species_data', 'samples_collected', 'data_products', 'samples_collected_database', 'data_products_database', 'sample_format', 'data_programs',]
+        fields = ['species', 'samples_collected', 'data_products', 'samples_collected_database', 'data_products_database', 'sample_format', 'data_programs',]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

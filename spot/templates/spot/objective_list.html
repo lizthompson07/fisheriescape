@@ -83,6 +83,7 @@ label {
                 {% endfor %}
                     <br>
                     <input type="submit" value="Filter" class="btn btn-sm btn-warning">
+                    <a href="{% url 'spot:obj_list' %}" class="btn btn-sm btn-primary">Clear Filters</a>
   </form>
 </div>
 <div id="main">
@@ -102,6 +103,9 @@ label {
             <div class="col" style="text-align: center">
                 {% show_pages %}
                 <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
+            </div>
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href=" " class="btn btn-sm btn-success">Export to .csv</a>
             </div>
         </div>
 

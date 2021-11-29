@@ -37,19 +37,19 @@
         {% for obj in object.project_data.all %}
             <tr href="{% url 'spot:data_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this data">
                 <td>
-                    {{ obj.species_data }}
+                    {% for species in obj.species.all %}{{ species }}<br/>{% endfor %}
                 </td>
                 <td>
-                    {{ obj.samples_collected }}
+                    {% for samples in obj.samples_collected.all %}{{ samples }}<br/>{% endfor %}
                 </td>
                 <td>
-                    {{ obj.samples_collected_database }}
+                    {% for samples_database in obj.samples_collected_database.all %}{{ samples_database }}<br/>{% endfor %}
                 </td>
                 <td>
-                    {{ obj.data_products }}
+                    {% for data_products in obj.data_products.all %}{{ data_products }}<br/>{% endfor %}
                 </td>
                 <td>
-                    {{ obj.data_products_database }}
+                    {% for data_products_database in obj.data_products_database.all %}{{ data_products_database }}<br/>{% endfor %}
                 </td>
             </tr>
         {% endfor %}

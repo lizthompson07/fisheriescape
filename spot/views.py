@@ -819,7 +819,6 @@ class ReportsListView(SpotAccessRequiredMixin,FilterView):
             'report_type',
             'document_name',
             'document_author',
-            'document_location',
             'document_reference_information',
             'document_link',
         ]
