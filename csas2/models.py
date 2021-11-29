@@ -49,8 +49,6 @@ def doc_directory_path(instance, filename):
 
 class CSASAdminUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="csas_admin_user", verbose_name=_("DM Apps user"))
-    region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="csas_admin_user", on_delete=models.CASCADE, blank=True,
-                               null=True)
     is_national_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
     is_web_pub_user = models.BooleanField(default=False, verbose_name=_("NCR web & pub staff?"), choices=YES_NO_CHOICES)
 
@@ -104,13 +102,44 @@ class GenericNote(MetadataFields):
 
 
 class CSASOffice(models.Model):
-    region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="regions", verbose_name=_("region"))
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator", verbose_name=_("coordinator / CSA"))
-    advisors = models.ManyToManyField(User, blank=True, verbose_name=_("science advisors"), related_name="csas_advisors")
-    administrators = models.ManyToManyField(User, blank=True, verbose_name=_("administrators"), related_name="csas_administrators")
+    region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="csas_offices", verbose_name=_("region"))
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_offices", verbose_name=_("coordinator / CSA"))
+    advisors = models.ManyToManyField(User, blank=True, verbose_name=_("science advisors"), related_name="csas_offices_advisors")
+    administrators = models.ManyToManyField(User, blank=True, verbose_name=_("administrators"), related_name="csas_offices_administrators")
+    generic_email = models.EmailField(verbose_name=_("generic email address"), blank=True, null=True)
+    disable_request_notifications = models.BooleanField(default=False, verbose_name=_("disable notifications of new requests?"), choices=YES_NO_CHOICES)
+    no_staff_emails = models.BooleanField(default=False, verbose_name=_("do not send emails directly to office staff?"), choices=YES_NO_CHOICES)
 
     class Meta:
         ordering = ["region"]
+
+    def __str__(self):
+        return str(self.region)
+
+    def get_absolute_url(self):
+        return reverse("csas2:office_list")
+
+    @property
+    def all_emails(self):
+        payload = list()
+        if not self.no_staff_emails:
+            payload.append(self.coordinator.email)
+            payload.extend([u.email for u in self.advisors.all()])
+            payload.extend([u.email for u in self.administrators.all()])
+        if self.generic_email:
+            payload.append(self.generic_email)
+        return list(set(payload))
+
+    @property
+    def all_emails_display(self):
+        payload = listrify(self.all_emails, "<br>")
+        if not payload:
+            payload = str()
+        else:
+            payload += f'<br><br>'
+        if self.disable_request_notifications:
+            payload += f'<span class="text-danger">* request notification emails disabled</span>'
+        return payload
 
 
 class CSASRequest(MetadataFields):
@@ -118,10 +147,13 @@ class CSASRequest(MetadataFields):
     language = models.IntegerField(default=1, verbose_name=_("language of request"), choices=model_choices.language_choices)
     title = models.CharField(max_length=1000, verbose_name=_("title"))
     translated_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("translated title"))
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("CSAS coordinator"),
-                                    blank=True, null=False)
+    office = models.ForeignKey(CSASOffice, on_delete=models.DO_NOTHING, related_name="csas_offices", verbose_name=_("CSAS office"),
+                               blank=True, null=False)
+
+    # coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("CSAS coordinator"),
+    #                                 blank=True, null=True, editable=False)
     client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=False)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"), blank=True, null=False)
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("client section"), blank=True, null=False)
     is_multiregional = models.IntegerField(default=False, choices=NULL_YES_NO_CHOICES, blank=True, null=True,
                                            verbose_name=_("Could the advice provided potentially be applicable to other regions and/or sectors?"),
                                            help_text=_(
@@ -158,7 +190,7 @@ class CSASRequest(MetadataFields):
 
     # calculated
     advice_fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_request_advice",
-                                    verbose_name=_("advice FY"), editable=False)
+                                           verbose_name=_("advice FY"), editable=False)
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_requests",
                                     verbose_name=_("request FY"), editable=False)
     ref_number = models.CharField(blank=True, null=True, editable=False, verbose_name=_("reference number"), max_length=255)
@@ -186,9 +218,10 @@ class CSASRequest(MetadataFields):
         # submission fiscal year
         if self.submission_date:
             self.fiscal_year_id = fiscal_year(self.submission_date, sap_style=True)
-        else:
+        elif self.created_at:
             self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
-
+        else:
+            self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
         # set the STATUS
         # if there is a process, the request the request MUST have been approved.
         if self.id and self.processes.exists():
@@ -285,7 +318,7 @@ class CSASRequest(MetadataFields):
         required_fields = [
             'language',
             'title',
-            'coordinator',
+            'office',
             'client',
             'section',
             'issue',
@@ -322,6 +355,10 @@ class CSASRequest(MetadataFields):
         if hasattr(self, "review") and (self.review.is_valid == 0 or self.review.is_feasible == 0):
             return False
         return True
+
+    @property
+    def coordinator(self):
+        return self.office.coordinator
 
 
 class CSASRequestNote(GenericNote):
@@ -378,14 +415,22 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     status = models.IntegerField(choices=model_choices.get_process_status_choices(), verbose_name=_("status"), default=1)
     scope = models.IntegerField(verbose_name=_("scope"), choices=model_choices.process_scope_choices)
     type = models.IntegerField(verbose_name=_("type"), choices=model_choices.process_type_choices)
-    lead_region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions", verbose_name=_("lead region"))
-    other_regions = models.ManyToManyField(Region, blank=True, verbose_name=_("other regions"))
-    csas_requests = models.ManyToManyField(CSASRequest, blank=True, related_name="processes", verbose_name=_("Connected CSAS requests"))
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"),
-                                    blank=True)
-    advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
+
+    lead_office = models.ForeignKey(CSASOffice, on_delete=models.DO_NOTHING, related_name="csas_lead_offices", verbose_name=_("lead CSAS office"),
+                                    blank=True, null=False)
+    other_offices = models.ManyToManyField(CSASOffice, blank=True, verbose_name=_("other CSAS offices"))
+
+    # lead_region = models.ForeignKey(Region, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions",
+    #                                 verbose_name=_("lead region"), editable=False)
+    # other_regions = models.ManyToManyField(Region, blank=True, verbose_name=_("other regions"), editable=False)
+    # coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"), null=True,
+    #                                 blank=True, editable=False)
+    # advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
+
     editors = models.ManyToManyField(User, blank=True, verbose_name=_("process editors"), related_name="process_editors",
                                      help_text=_("A list of non-CSAS staff with permissions to edit the process, meetings and documents"))
+
+    csas_requests = models.ManyToManyField(CSASRequest, blank=True, related_name="processes", verbose_name=_("Connected CSAS requests"))
     advice_date = models.DateTimeField(verbose_name=_("Target date for to provide Science advice"), blank=True, null=True)
 
     # non-editable
@@ -487,10 +532,10 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     @property
     def regions(self):
-        mystr = self.lead_region
-        if self.other_regions.exists():
+        mystr = self.lead_office.region
+        if self.other_offices.exists():
             mystr = f"<b><u>{mystr}</u></b>"
-            mystr += f", {listrify(self.other_regions.all())}"
+            mystr += f", {listrify([o for o in self.other_offices.all()])}"
         return mystr
 
     @property
@@ -548,6 +593,14 @@ class Process(SimpleLookupWithUUID, MetadataFields):
                     can_post = False
 
         return dict(can_post=can_post, reasons=reasons)
+
+    @property
+    def coordinator(self):
+        return self.lead_office.coordinator
+
+    @property
+    def advisors(self):
+        return self.lead_office.advisors.all()
 
 
 class ProcessCost(GenericCost):

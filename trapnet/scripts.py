@@ -6,43 +6,25 @@ from random import randint
 import pytz
 from django.conf import settings
 from django.db import IntegrityError
+from django.db.models import Count
 from django.utils import timezone
 from django.utils.timezone import make_aware
 
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
+from shared_models.models import River, FishingArea
 from . import models
 
 
 def delete_rst_data():
     models.Observation.objects.filter(sample__sample_type=1).delete()
-    models.Entry.objects.filter(sample__sample_type=1).delete()
+    models.Entry.objects.all().delete()
     models.Sweep.objects.filter(sample__sample_type=1).delete()
     models.Sample.objects.filter(sample_type=1).delete()
 
 
-"""
-
-  function extractNumber(numberStr) {
-    result = ""
-    for (var i = 0; i < numberStr.length; i++) {
-      if (Number(numberStr[i]) || Number(numberStr[i]) === 0) {
-        result += numberStr[i]
-      }
-    }
-    return Number(result)
-  }
-
-  function extractPrefix(numberStr) {
-    result = ""
-    for (var i = 0; i < numberStr.length; i++) {
-      if (!Number(numberStr[i])) {
-        result += numberStr[i]
-      }
-    }
-    return result
-  }
-"""
+def delete_rst_entries():
+    models.Entry.objects.all().delete()
 
 
 def get_prefix(mystr):
@@ -75,20 +57,6 @@ def check_entries_2_obs():
             print(entry.first_tag, entry.frequency)
 
 
-#     # remove all previous observations
-# from trapnet.models import Entry
-# print(Entry.objects.filter(
-#     first_tag__isnull=False,
-#     last_tag__isnull=False,
-#     frequency__isnull=True
-# ).count())
-# for e in Entry.objects.filter(
-#     first_tag__isnull=False,
-#     last_tag__isnull=False,
-#     frequency__isnull=True
-# ):
-#     print(e, e.first_tag, e.last_tag)
-
 def create_obs(kwargs):
     try:
         models.Observation.objects.create(**kwargs)
@@ -103,53 +71,56 @@ def create_obs(kwargs):
 
 
 def entries_2_obs():
-    # remove all previous observations
-    delete_observations()
+    # remove all previous observations from rst
+    models.Observation.objects.filter(sample__sample_type=1).delete()
     now = timezone.now()
+    j = 1
     for entry in models.Entry.objects.all():
-        kwargs = {
-            "sample": entry.sample,
-            "species": entry.species,
-            "status": entry.status,
-            "origin": entry.origin,
-            "sex": entry.sex,
-            "fork_length": entry.fork_length,
-            "total_length": entry.total_length,
-            "weight": entry.weight,
-            "age": entry.smolt_age,
-            "location_tagged": entry.location_tagged,
-            "date_tagged": entry.date_tagged,
-            "tag_number": entry.first_tag,
-            "scale_id_number": entry.scale_id_number,
-            "tags_removed": entry.tags_removed,
-            "notes": entry.notes,
-            "created_at": now,
-        }
+        if j % 1000 == 0:
+            print("starting row", j)
+        if entry.species:
+            kwargs = {
+                "sample": entry.sample,
+                "species": entry.species,
+                "status": entry.status,
+                "origin": entry.origin,
+                "sex": entry.sex,
+                "fork_length": entry.fork_length,
+                "total_length": entry.total_length,
+                "weight": entry.weight,
+                "tag_number": entry.first_tag,
+                "scale_id_number": entry.scale_id_number,
+                "tags_removed": entry.tags_removed,
+                "notes": entry.notes,
+                "created_at": now,
+            }
 
-        # determine if this is a single observation
-        if not entry.last_tag and (entry.frequency == 1 or entry.frequency is None):
-            create_obs(kwargs)
-        else:
-            start_tag_prefix = get_prefix(entry.first_tag)
-            start_tag = get_number_suffix(entry.first_tag)
-            end_tag = get_number_suffix(entry.last_tag)
-
-            if start_tag and end_tag:
-                diff = end_tag - start_tag
-                for i in range(0, diff):
-                    tag = f"{start_tag_prefix}{start_tag + i}"
-                    kwargs["tag_number"] = tag
-                    create_obs(kwargs)
-            elif start_tag and entry.frequency:
-                for i in range(0, entry.frequency):
-                    tag = f"{start_tag_prefix}{start_tag + i}"
-                    kwargs["tag_number"] = tag
-                    create_obs(kwargs)
-            elif entry.frequency:
-                for i in range(0, entry.frequency):
-                    create_obs(kwargs)
-            else:
+            # determine if this is a single observation
+            if not entry.last_tag and (entry.frequency == 1 or entry.frequency is None):
+                # this means we are dealing with a single observation
                 create_obs(kwargs)
+            else:
+                start_tag_prefix = get_prefix(entry.first_tag)
+                start_tag = get_number_suffix(entry.first_tag)
+                end_tag = get_number_suffix(entry.last_tag)
+
+                if start_tag and end_tag:
+                    diff = end_tag - start_tag
+                    for i in range(0, diff):
+                        tag = f"{start_tag_prefix}{start_tag + i}"
+                        kwargs["tag_number"] = tag
+                        create_obs(kwargs)
+                elif start_tag and entry.frequency:
+                    for i in range(0, entry.frequency):
+                        tag = f"{start_tag_prefix}{start_tag + i}"
+                        kwargs["tag_number"] = tag
+                        create_obs(kwargs)
+                elif entry.frequency:
+                    for i in range(0, entry.frequency):
+                        create_obs(kwargs)
+                else:
+                    create_obs(kwargs)
+        j += 1
 
 
 def population_parents():
@@ -177,136 +148,6 @@ def comment_samples_from_matapedia():
         else:
             sample.notes = "Data collected and owned by the Gespe'gewaq Mi'gmaq Resource Council (GMRC)."
         sample.save()
-
-
-def import_smolt_1():
-    # open the csv we want to read
-    rootdir = "C:\\Users\\fishmand\\Desktop\\dump"
-    with open(os.path.join(rootdir, "smolt_import.csv"), 'r') as csv_read_file:
-        my_csv = csv.DictReader(csv_read_file)
-        # count = 0
-        for row in my_csv:
-            # count += 1
-            # if count <= 30:
-            #     print(row)
-
-            # if there is a sample id, the major lifting is already done
-            if row["sample_id"]:
-                if int(row["id"]) >= 18558:
-                    # just import the data
-                    my_obs, created = models.Observation.objects.get_or_create(
-                        id=int(row["id"]),
-                    )
-                    # print(row["Species"])
-                    species = models.Species.objects.get(code=row["Species"]) if row["Species"] else None
-                    status = models.Status.objects.get(code=row["Status"]) if row["Status"] else None
-                    origin = models.Origin.objects.get(code=row["Origin"]) if row["Origin"] else None
-                    sex = models.Sex.objects.get(code=row["Sex"]) if row["Sex"] else None
-                    my_date = datetime.datetime.strptime(row["DateTagged"], "%m/%d/%Y") if row["DateTagged"] else None
-
-                    my_obs.species = species
-                    my_obs.sample_id = nz(row["sample_id"].strip(), None)
-                    my_obs.first_tag = nz(row["FirstTag"].strip(), None)
-                    my_obs.last_tag = nz(row["LastTag"].strip(), None)
-                    my_obs.status = status
-                    my_obs.origin = origin
-                    my_obs.count = nz(row["Freq"].strip(), None)
-                    my_obs.fork_length = nz(row["ForkLength"].strip(), None)
-                    my_obs.total_length = nz(row["TotalLength"].strip(), None)
-                    my_obs.weight = nz(row["Weight"].strip(), None)
-                    my_obs.sex = sex
-                    my_obs.smolt_age = nz(row["SmoltAge"].strip(), None)
-                    my_obs.location_tagged = nz(row["LocationTagged"].strip(), None)
-                    my_obs.date_tagged = my_date
-                    my_obs.scale_id_number = nz(row["Scale ID Number"].strip(), None)
-                    my_obs.tags_removed = nz(row["tags removed"].strip(), None)
-                    my_obs.notes = nz(row["Comments"].strip(), None)
-                    try:
-                        my_obs.save()
-                    except Exception as e:
-                        print(e)
-                        print(my_obs.species_id)
-
-
-def import_smolt_2():
-    # open the csv we want to read
-    rootdir = "C:\\Users\\fishmand\\Desktop\\dump"
-    with open(os.path.join(rootdir, "smolt_import.csv"), 'r') as csv_read_file:
-        my_csv = csv.DictReader(csv_read_file)
-        for row in my_csv:
-            # if there is no sample id, we have to assign one before creating the new observation
-            if not row["sample_id"]:
-                if int(row["id"]) > 0:
-                    # find the sample
-                    site = models.RiverSite.objects.get(pk=row["River"])
-
-                    # check to see if there is a direct hit using only year, month, day
-                    my_samples = models.Sample.objects.filter(
-                        site=site,
-                        arrival_date__year=int(row["Year"]),
-                        arrival_date__month=int(row["Month"]),
-                        arrival_date__day=int(row["Day"]),
-                    )
-                    if my_samples.count() == 0:
-                        print("big problem for obs id={}. no sample found for site={}, date={}/{}/{}".format(
-                            row["id"],
-                            site,
-                            row["Year"],
-                            row["Month"],
-                            row["Day"],
-                        ))
-
-                    elif my_samples.count() > 1:
-                        print("small problem for obs id={}. multiple samples found for site={}, date={}/{}/{}".format(
-                            row["id"],
-                            site,
-                            row["Year"],
-                            row["Month"],
-                            row["Day"],
-                        ))
-                        # try:
-                        #     my_time = datetime.datetime.strptime(row["TimeStart"], "%H:%M") if row["TimeStart"] else None
-                        # except ValueError:
-                        #     print("bad start time given for observation {}".format(row["id"]))
-                        # else:
-                        #     if my_time:
-
-                    else:
-                        # there has been only 1 hit and we can create the observation in the db
-                        my_obs, created = models.Entry.objects.get_or_create(
-                            id=int(row["id"]),
-                        )
-                        if created:
-
-                            species = models.Species.objects.get(code=row["Species"]) if row["Species"] else None
-                            status = models.Status.objects.get(code=row["Status"]) if row["Status"] else None
-                            origin = models.Origin.objects.get(code=row["Origin"]) if row["Origin"] else None
-                            sex = models.Sex.objects.get(code=row["Sex"]) if row["Sex"] else None
-                            my_date = datetime.datetime.strptime(row["DateTagged"], "%m/%d/%Y") if row["DateTagged"] else None
-
-                            my_obs.species = species
-                            my_obs.sample = my_samples.first()
-                            my_obs.first_tag = nz(row["FirstTag"].strip(), None)
-                            my_obs.last_tag = nz(row["LastTag"].strip(), None)
-                            my_obs.status = status
-                            my_obs.origin = origin
-                            my_obs.frequency = nz(row["Freq"].strip(), None)
-                            my_obs.fork_length = nz(row["ForkLength"].strip(), None)
-                            my_obs.total_length = nz(row["TotalLength"].strip(), None)
-                            my_obs.weight = nz(row["Weight"].strip(), None)
-                            my_obs.sex = sex
-                            my_obs.smolt_age = nz(row["SmoltAge"].strip(), None)
-                            my_obs.location_tagged = nz(row["LocationTagged"].strip(), None)
-                            my_obs.date_tagged = my_date
-                            my_obs.scale_id_number = nz(row["Scale ID Number"].strip(), None)
-                            my_obs.tags_removed = nz(row["tags removed"].strip(), None)
-                            my_obs.notes = nz(row["Comments"].strip(), None)
-
-                            try:
-                                my_obs.save()
-                            except Exception as e:
-                                print(e)
-                                print(my_obs.species_id)
 
 
 def add_comment(comment, addition):
@@ -555,14 +396,18 @@ def import_trap_data():
             except Exception as E:
                 print(row["id"], E)
 
+
 def import_smolt_data():
     # open the csv we want to read
     my_target_data_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'master_smolt_data_GD_Jul_2021.csv')
     with open(os.path.join(my_target_data_file), 'r') as csv_read_file:
         my_csv = csv.DictReader(csv_read_file)
+        i = 1
         for row in my_csv:
+            if i % 1000 == 0:
+                print("starting row", i)
             for key in row:
-                if row[key].lower() in ["na", "n/a", ""]:
+                if row[key].lower().strip() in ["na", "n/a", ""]:
                     row[key] = None
 
             comment = ""
@@ -611,27 +456,33 @@ def import_smolt_data():
                 ))
                 for s in samples:
                     print(s.arrival_date, row["Time.Start"])
-
-            if samples.exists() and samples.count() == 1:
-                # there has been only 1 hit and we can create the observation in the db
+                print("going to put all observations in the first sample")
+            if samples.exists():
+                # there has been  1 or more hits and we can create the observation in the db
                 my_obs, created = models.Entry.objects.get_or_create(
                     id=int(row["id"]),
                 )
                 if created:
-
                     # if there is either a date or location tagged, we will put this in the notes. We discussed this with guillaume to drop this field
-                    location_tagged = nz(row["Location.Tagged"].strip(), None)
+                    location_tagged = nz(row["Location.Tagged"].strip(), None) if row["Location.Tagged"] else None
                     if location_tagged:
                         add_comment(comment, f"location tagged: {location_tagged}")
-                    date_tagged = datetime.datetime.strptime(row["Date.Tagged"], "%m/%d/%Y") if row["Date.Tagged"] else None
+
+                    date_tagged = nz(row["Date.Tagged"].strip(), None) if row["Date.Tagged"] else None
                     if date_tagged:
                         add_comment(comment, f"date tagged: {date_tagged}")
 
-                    species = models.Species.objects.get(code__iexact=row["Species"]) if row["Species"] else None
-                    status = models.Status.objects.get(code__iexact=row["Status"]) if row["Status"] else None
-                    origin = models.Origin.objects.get(code__iexact=row["Origin"]) if row["Origin"] else None
-                    sex = models.Sex.objects.get(code__iexact=row["Sex"]) if row["Sex"] else None
-
+                    try:
+                        species = models.Species.objects.get(code__iexact=row["Species"]) if row["Species"] else None
+                        status = models.Status.objects.get(code__iexact=row["Status"]) if row["Status"] else None
+                        origin = models.Origin.objects.get(code__iexact=row["Origin"]) if row["Origin"] else None
+                        sex = models.Sex.objects.get(code__iexact=row["Sex"]) if row["Sex"] else None
+                    except Exception as E:
+                        print(E)
+                        print(
+                            f'Species={row["Species"]} Status={row["Status"]} '
+                            f'Origin={row["Origin"]} Sex={row["Sex"]}'
+                        )
                     my_obs.species = species
                     my_obs.sample = samples.first()
                     my_obs.first_tag = row["First.Tag"].strip() if row["First.Tag"] else None
@@ -652,4 +503,69 @@ def import_smolt_data():
                         my_obs.save()
                     except Exception as e:
                         print(e)
-                        print(my_obs.species_id)
+                        print(my_obs.id)
+
+            i += 1
+
+
+def transfer_life_stage():
+    for obs in models.Observation.objects.filter(species__life_stage__isnull=False):
+        obs.life_stage_id = obs.species.life_stage_id
+        obs.save()
+
+
+def clean_up_species_table():
+    # first let's get a list of duplicate TSNs
+    duplicate_tsns = list()
+
+    qs = models.Species.objects.values("tsn").order_by("tsn").distinct().annotate(dcount=Count("tsn"))
+    for obj in qs:
+        if obj["dcount"] > 1:
+            duplicate_tsns.append(obj["tsn"])
+
+    # for each TSN, we want to keep the one with the most observations as the authoritative
+    for tsn in duplicate_tsns:
+        qs = models.Species.objects.filter(tsn=tsn)
+        keeper = qs.first()  # arbitrarily set to the first in line
+        max_observations = 0
+        for sp in qs:
+            print(sp.id, sp, sp.observations.count())
+            if sp.observations.count() > max_observations:
+                keeper = sp
+        # now that we have a keeper, transfer over the other observations to that sp and delete bad spp
+        # qs = qs.filter(~Q(id=keeper.id))
+        # for sp in qs:
+        #     for obs in sp.observations.all():
+        #         obs.species_id = keeper.id
+        #         obs.save()
+        #     print(sp.observations.count())
+        # sp.delete()
+
+
+def clean_up_lamprey():
+    s150 = models.Species.objects.get(code=150)  # good one
+    s151 = models.Species.objects.get(code=151)  # ammocoete
+    s152 = models.Species.objects.get(code=152)  # silver
+    life_stage_ammocoete, created = models.LifeStage.objects.get_or_create(name="ammocoete")
+    life_stage_silver, created = models.LifeStage.objects.get_or_create(name="silver")
+
+    for obs in s151.observations.all():
+        obs.species_id = s150.id
+        obs.life_stage_id = life_stage_ammocoete.id
+        obs.save()
+
+    for obs in s152.observations.all():
+        obs.species_id = s150.id
+        obs.life_stage_id = life_stage_silver.id
+        obs.save()
+
+    s151.delete()
+    s152.delete()
+
+
+def create_river_areas():
+    for r in River.objects.all():
+        if r.fishing_area_code:
+            fa, created = FishingArea.objects.get_or_create(name=r.fishing_area_code.upper())
+            r.fishing_area = fa
+            r.save()

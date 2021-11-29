@@ -210,6 +210,7 @@ class Species(SimpleLookup):
     def code_name(self):
         return f'{self.code} - {self.tname}'
 
+
 class Sample(models.Model):
     site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("site"))
     datetime = models.DateTimeField(verbose_name="date")

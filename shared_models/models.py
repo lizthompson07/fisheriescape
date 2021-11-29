@@ -729,9 +729,13 @@ class Language(models.Model):
         ordering = [_('name'), ]
 
 
+class FishingArea(UnilingualSimpleLookup):
+    pass
+
+
 class River(MetadataFields):
     name = models.CharField(max_length=255)
-    fishing_area_code = models.CharField(max_length=255, blank=True, null=True)
+    fishing_area = models.ForeignKey(FishingArea, on_delete=models.DO_NOTHING, related_name="rivers", blank=True, null=True)
     maritime_river_code = models.IntegerField(blank=True, null=True)
     old_maritime_river_code = models.IntegerField(blank=True, null=True)
     cgndb = models.CharField(max_length=255, blank=True, null=True, unique=True, verbose_name=_("GCNDB key"))
@@ -815,7 +819,10 @@ class River(MetadataFields):
         return mark_safe(my_str)
 
     def __str__(self):
-        return "{} ({})".format(self.name, self.fishing_area_code)
+        mystr = self.name
+        if self.fishing_area:
+            mystr += f" ({self.fishing_area.name})"
+        return mystr
 
     class Meta:
         ordering = ['name']

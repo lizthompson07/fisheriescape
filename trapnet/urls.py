@@ -23,7 +23,14 @@ urlpatterns = [
     path('settings/maturities/<int:pk>/delete/', views.MaturityHardDeleteView.as_view(), name="delete_maturity"),
     path('settings/electrofishers/', views.ElectrofisherFormsetView.as_view(), name="manage_electrofishers"),
     path('settings/electrofisher/<int:pk>/delete/', views.ElectrofisherHardDeleteView.as_view(), name="delete_electrofisher"),
+    path('settings/reproductive-statuses/', views.ReproductiveStatusFormsetView.as_view(), name="manage_reproductive_statuses"),
+    path('settings/reproductive-statuses/<int:pk>/delete/', views.ReproductiveStatusHardDeleteView.as_view(), name="delete_reproductive_status"),
 
+    path('settings/fishing-areas/', views.FishingAreaFormsetView.as_view(), name="manage_fishing_areas"),
+    path('settings/fishing-area/<int:pk>/delete/', views.FishingAreaHardDeleteView.as_view(), name="delete_fishing_area"),
+
+
+    
     # SPECIES #
     ###########
     path('species/', views.SpeciesListView.as_view(), name="species_list"),
@@ -84,12 +91,16 @@ urlpatterns = [
     # Reports #
     ###########
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
-    path('reports/samples/<str:year>/<str:sites>/', views.export_sample_data, name="sample_report"),
-    path('reports/entries/<str:year>/<str:sites>/', views.export_entry_data, name="entry_report"),
+    path('reports/samples/', views.export_sample_data, name="sample_report"),
+    path('reports/sweeps/', views.export_sweep_data, name="sweep_report"),
+    path('reports/observations/', views.export_obs_data, name="obs_report"),
     path('reports/opendata1/<str:year>/<str:sites>/', views.export_open_data_ver1, name="od1_report"),
     path('reports/opendata1/dictionary/', views.export_open_data_ver1_dictionary, name="od1_dictionary"),
     path('reports/opendata1/species-list/', views.export_spp_list, name="od_spp_list"),
     path('reports/opendata/wms/lang/<int:lang>/', views.export_open_data_ver1_wms, name="od1_wms"),
+
+    #electro
+    path('reports/electrofishing/juv_salmon_report/', views.electro_juv_salmon_report, name="electro_juv_salmon_report"),
 
 ]
 

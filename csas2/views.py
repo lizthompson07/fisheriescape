@@ -118,6 +118,8 @@ class CSASOfficeListView(CsasAdminRequiredMixin, CommonListView):
         {"name": 'coordinator', "class": "", "width": ""},
         {"name": 'advisors', "class": "", "width": ""},
         {"name": 'administrators', "class": "", "width": ""},
+        {"name": 'generic_email', "class": "", "width": ""},
+        {"name": 'all_emails_display|{}'.format(_("send emails to")), "class": "", "width": ""},
     ]
     new_object_url_name = "csas2:office_new"
     row_object_url_name = "csas2:office_edit"
@@ -125,12 +127,24 @@ class CSASOfficeListView(CsasAdminRequiredMixin, CommonListView):
     h1 = gettext_lazy("CSAS Offices")
 
 
-class CSASOfficeUpdateView(CsasAdminRequiredMixin, CommonUpdateView):
+class CSASOfficeUpdateView(SuperuserOrCsasNationalAdminRequiredMixin, CommonUpdateView):
     model = models.CSASOffice
     template_name = 'csas2/form.html'
     form_class = forms.CSASOfficeForm
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("CSAS Offices"), "url": reverse_lazy("csas2:office_list")}
+    success_url = reverse_lazy("csas2:office_list")
+
+    def get_delete_url(self):
+        delete_url = reverse("csas2:office_delete", args=[self.get_object().id])
+        return delete_url
+
+    def test_func(self):
+        passes = super().test_func()
+        # and also if the user is coordinator
+        if not passes:
+            passes = self.request.user == self.get_object().coordinator
+        return passes
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -139,7 +153,7 @@ class CSASOfficeUpdateView(CsasAdminRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class CSASOfficeCreateView(CsasAdminRequiredMixin, CommonCreateView):
+class CSASOfficeCreateView(SuperuserOrCsasNationalAdminRequiredMixin, CommonCreateView):
     model = models.CSASOffice
     template_name = 'csas2/form.html'
     form_class = forms.CSASOfficeForm
@@ -154,7 +168,7 @@ class CSASOfficeCreateView(CsasAdminRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class CSASOfficeDeleteView(CsasAdminRequiredMixin, CommonDeleteView):
+class CSASOfficeDeleteView(SuperuserOrCsasNationalAdminRequiredMixin, CommonDeleteView):
     model = models.CSASOffice
     template_name = 'csas2/confirm_delete.html'
     success_url = reverse_lazy('csas2:office_list')
@@ -248,7 +262,7 @@ class PersonDeleteView(CsasAdminRequiredMixin, CommonDeleteView):
 #################
 
 class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
-    template_name = 'csas2/list.html'
+    template_name = 'csas2/request_list.html'
     filterset_class = filters.CSASRequestFilter
     paginate_by = 25
     home_url_name = "csas2:index"
@@ -260,14 +274,14 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'id', "class": "", "width": "50px"},
         {"name": 'fiscal_year', "class": "", "width": "100px"},
-        {"name": 'title|{}'.format(gettext_lazy("title")), "class": "w-35"},
+        {"name": 'title|{}'.format(gettext_lazy("title")), "class": "w-25"},
         {"name": 'status', "class": "", "width": "100px"},
         {"name": 'has_process|{}'.format(gettext_lazy("has process?")), "class": "text-center", "width": "120px"},
-        {"name": 'coordinator', "class": "", "width": "150px"},
-        {"name": 'client', "class": "", "width": "150px"},
-        {"name": 'region|{}'.format(gettext_lazy("region")), "class": "", "width": "75px"},
-        {"name": 'sector|{}'.format(gettext_lazy("sector")), "class": ""},
-        {"name": 'section|{}'.format(gettext_lazy("section")), "class": ""},
+        {"name": 'office', "class": "", "width": "125px"},
+        {"name": 'client', "class": "", "width": "125px"},
+        {"name": 'region|{}'.format(gettext_lazy("client region")), "class": "", "width": "125px"},
+        {"name": 'sector|{}'.format(gettext_lazy("client sector")), "class": ""},
+        {"name": 'section|{}'.format(gettext_lazy("client section")), "class": ""},
     ]
 
     def get_extra_button_dict1(self):
@@ -479,8 +493,9 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
 
         # if the request was just submitted, send an email
         if obj.submission_date:
-            email = emails.NewRequestEmail(self.request, obj)
-            email.send()
+            if not obj.office.disable_request_notifications:
+                email = emails.NewRequestEmail(self.request, obj)
+                email.send()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -560,12 +575,11 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'id', "class": "", "width": ""},
         {"name": 'fiscal_year', "class": "", "width": ""},
-        {"name": 'tname|{}'.format("title"), "class": "", "width": "300px"},
+        {"name": 'tname|{}'.format("title"), "class": "w-25", "width": ""},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
         {"name": 'regions|{}'.format(_("regions")), "class": "", "width": ""},
-        {"name": 'coordinator', "class": "", "width": ""},
-        {"name": 'advisors|{}'.format(_("science advisors")), "class": "", "width": ""},
+        {"name": 'chair|{}'.format(_("chair")), "class": "w-25", "width": ""},
         {"name": 'science_leads|{}'.format(_("science lead(s)")), "class": "", "width": ""},
     ]
 

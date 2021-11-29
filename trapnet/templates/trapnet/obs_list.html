@@ -1,0 +1,12 @@
+{% extends "trapnet/list.html" %}
+
+
+{% block table_td %}
+  {% if field.name == "id" %}
+    <a href="{% url 'trapnet:obs_detail' object.id %}" target="_blank">{{ object.id }} <span class="mdi mdi-arrow-top-right"></span></a>
+    {{ object.sites.count }}
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+
+{% endblock %}
