@@ -1,18 +1,22 @@
 import os
 
 import xlsxwriter
+from bs4 import BeautifulSoup
 from django.conf import settings
 from django.template import loader
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from docx import Document
 from html2text import html2text
+from htmldocx import HtmlToDocx
+from textile import textile
 
+from dm_apps.context_processor import my_envr
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
 from res import models
 
 
-def get_application_context(application):
+def get_application_context(application, request):
     context = dict(object=application)
     qs1 = models.SiteSection.objects.filter(section=1)
     if qs1.exists():
@@ -35,36 +39,36 @@ def get_application_context(application):
         "work_location",
         "last_application",
         "last_promotion",
-        "academic_background",
-        "employment_history",
+        "academic_background_html",
+        "employment_history_html",
     ]
     context["recommendation_fields"] = [
-        "recommendation_text",
+        "recommendation_text_html",
         "decision",
         "manager_signature|{}".format(_("manager signature")),
         "applicant_signature|{}".format(_("applicant signature")),
         "applicant_comment",
     ]
     context["section_2_fields"] = [
-        "objectives",
+        "objectives_html",
         "relevant_factors_html",
     ]
+    context.update(my_envr(request))
     return context
 
 
-def generate_word_application(application):
+def generate_word_application(application, request):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_export.docx"
     target_file_path = os.path.join(target_dir, target_file)
     target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
     document = Document()
-    document.add_heading(str(application))
-
     t = loader.get_template('res/application_print/main_word.html')
-    context = get_application_context(application)
-    rendered = html2text(t.render(context))
-    document.add_paragraph(rendered)
+    context = get_application_context(application, request)
+    rendered = t.render(context)
+    new_parser = HtmlToDocx()
+    new_parser.add_html_to_document(rendered, document)
 
     document.save(target_file_path)
     return target_url

@@ -195,11 +195,11 @@ class ApplicationDetailView(CanViewApplicationRequiredMixin, CommonDetailView):
 
         # if has "export" param, then the user is trying to get a word doc
         if self.request.GET.get("export"):
-            file_url = reports.generate_word_application(obj)
+            file_url = reports.generate_word_application(obj, request)
             if os.path.exists(file_url):
                 with open(file_url, 'rb') as fh:
                     response = HttpResponse(fh.read(), content_type="application/vnd.ms-word")
-                    response['Content-Disposition'] = f'inline; filename="application_{obj.applicant.last_name.lower()}.docx"'
+                    response['Content-Disposition'] = f'inline; filename="application_{obj.applicant.last_name.lower()}_id_{obj.id}.docx"'
                     return response
             raise Http404
         return super().dispatch(request, *args, **kwargs)
