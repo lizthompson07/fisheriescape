@@ -86,8 +86,6 @@ urlpatterns = [
 
     path('create/data/measuring/<int:evnt>/<str:pop>/', views.DataMeasuringCreate.as_view(), name="create_measuring_data"),
 
-
-
     path('log/data/', views.DataLog.as_view(), name="data_log"),
 
     path('create/draw/', views.DrawCreate.as_view(), name="create_draw"),

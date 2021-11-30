@@ -1144,7 +1144,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                            "field_list": trof_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        samp_set = models.Sample.objects.filter(anix_id__evnt_id=self.object).distinct()
+        samp_set = models.Sample.objects.filter(anix_id__evnt_id=self.object).distinct().select_related("sampc_id", "anix_id", "anix_id__evnt_id")
         samp_field_list = ["samp_num", "sampc_id", "samp_date|Sample Date"]
         obj_mixin = mixins.SampMixin
         context["context_dict"]["samp"] = {"div_title": "{}s".format(obj_mixin.title),
@@ -1172,8 +1172,11 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         pair_set = models.Pairing.objects.filter(animal_details__evnt_id=self.object
-                                                 ).distinct().select_related("indv_id", "indv_id__stok_id", "indv_id__coll_id")
-        pair_field_list = ["start_date", "indv_id", "cross", ]
+                                                 ).distinct().select_related("indv_id", "indv_id__stok_id",
+                                                                             "indv_id__coll_id", "samp_id",
+                                                                             "samp_id__anix_id__grp_id__stok_id",
+                                                                             "samp_id__anix_id__grp_id__coll_id")
+        pair_field_list = ["start_date", "dam_id", "cross", ]
         obj_mixin = mixins.PairMixin
         context["context_dict"]["pair"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1705,7 +1708,7 @@ class OrgaDetails(mixins.OrgaMixin, CommonDetails):
 
 
 class PairDetails(mixins.PairMixin, CommonDetails):
-    fields = ["indv_id", "start_date", "end_date", "prio_id", "pair_prio_id", "cross", "valid", "comments",
+    fields = ["indv_id", "samp_id", "start_date", "end_date", "prio_id", "pair_prio_id", "cross", "valid", "comments",
               "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
@@ -2540,7 +2543,7 @@ class SampList(mixins.SampMixin, GenericList):
         {"name": 'samp_num', "class": "", "width": ""},
         {"name": 'spec_id', "class": "", "width": ""},
     ]
-    queryset = models.Sample.objects.all().select_related("loc_id", "spec_id")
+    queryset = models.Sample.objects.all().select_related("loc_id", "loc_id__locc_id", "spec_id")
     filterset_class = filters.SampFilter
 
 

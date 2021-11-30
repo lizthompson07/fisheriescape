@@ -1965,7 +1965,7 @@ class Sample(BioModel):
                                db_column="LOCATION_ID", related_name="samples")
     anix_id = models.ForeignKey('AniDetailXref', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Animal Detail X Ref"),
                                 db_column="ANI_DET_X_REF_ID")
-    samp_num = models.IntegerField(verbose_name=_("Sample Fish Number"), db_column="SAMPLE_FISHNO")
+    samp_num = models.CharField(max_length=50, verbose_name=_("Sample Fish Number"), db_column="SAMPLE_FISHNO")
     spec_id = models.ForeignKey('SpeciesCode', on_delete=models.CASCADE, verbose_name=_("Species"), db_column="SPEC_ID")
     sampc_id = models.ForeignKey('SampleCode', on_delete=models.CASCADE, verbose_name=_("Sample Code"),
                                  db_column="SAMP_ID")

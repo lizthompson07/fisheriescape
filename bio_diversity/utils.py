@@ -612,6 +612,30 @@ def get_tray_group(pair_id, tray_id, row_date):
     return grp_id
 
 
+def get_indv_or_samp(row, pit_key, samp_key, evnt_id):
+    log_data = ""
+    indv = None
+    samp = None
+    if nan_to_none(row[pit_key]):
+        indv_qs = models.Individual.objects.filter(pit_tag=row[pit_key])
+        if len(indv_qs) == 1:
+            indv = indv_qs.get()
+        else:
+            log_data += "Error parsing row: \n"
+            log_data += str(row)
+            log_data += "\nFish with PIT {} not found in db\n".format(row[pit_key])
+    elif nan_to_none(row[samp_key]):
+        samp_qs = models.Sample.objects.filter(samp_num=row[samp_key], anix_id__evnt_id=evnt_id)
+        if len(samp_qs) == 1:
+            samp = samp_qs.get()
+        else:
+            log_data += "Error parsing row: \n"
+            log_data += str(row)
+            log_data += "\nSample associated with event and with ID {} not found in db\n".format(row[samp_key])
+
+    return indv, samp, log_data
+
+
 def get_pair(cross_str, stok_id, pair_year, end_date_isnull=True, prog_grp=None, prog_str=None,
              fail_on_not_found=False):
 
@@ -1404,6 +1428,65 @@ def enter_bulk_grpd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None, 
     return data_entered
 
 
+def enter_bulk_sampd(samp_pk, cleaned_data, det_date, len_val=None, len_mm=None, weight=None, weight_kg=None, vial=None,
+                     scale_envelope=None, gender=None, tissue_yn=None, status=None, mark=None, prog_grp=None,
+                     vaccinated=None, lifestage=None, comments=None):
+    data_entered = 0
+    if nan_to_none(len_val):
+        len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, len_val, len_anidc_id.pk, None)
+    if nan_to_none(len_mm):
+        len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, 0.1 * len_mm, len_anidc_id.pk, None)
+    if nan_to_none(weight):
+        weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, weight, weight_anidc_id.pk, None)
+    if nan_to_none(weight_kg):
+        weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, weight_kg * 1000, weight_anidc_id.pk, None)
+    if nan_to_none(vial):
+        vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, vial, vial_anidc_id.pk, None)
+    if nan_to_none(scale_envelope):
+        envelope_anidc_id = models.AnimalDetCode.objects.filter(name="Scale Envelope").get()
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, scale_envelope, envelope_anidc_id.pk, None)
+    if nan_to_none(gender):
+        sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
+        func_sex_dict = calculation_constants.sex_dict
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, func_sex_dict[gender.upper()], sex_anidc_id.pk,
+                                    adsc_str=func_sex_dict[gender.upper()])
+    if nan_to_none(status):
+        status_anidc_pk = models.AnimalDetCode.objects.filter(name="Status").get().pk
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, status,
+                                    status_anidc_pk, adsc_str=status)
+    if nan_to_none(mark):
+        mark_anidc_pk = models.AnimalDetCode.objects.filter(name="Mark").get().pk
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, mark,
+                                    mark_anidc_pk, adsc_str=mark)
+    if nan_to_none(lifestage):
+        lifestage_anidc_pk = models.AnimalDetCode.objects.filter(name="Lifestage").get().pk
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, lifestage,
+                                    lifestage_anidc_pk, adsc_str=lifestage)
+    if nan_to_none(prog_grp):
+        prog_anidc_pk = models.AnimalDetCode.objects.filter(name="Program Group").get().pk
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, prog_grp,
+                                    prog_anidc_pk, adsc_str=prog_grp)
+    if nan_to_none(vaccinated):
+        vax_anidc_pk = models.AnimalDetCode.objects.filter(name="Vaccination").get().pk
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, vaccinated,
+                                    vax_anidc_pk, adsc_str=vaccinated)
+    if nan_to_none(tissue_yn):
+        if y_n_to_bool(tissue_yn):
+            health_anidc_pk = models.AnimalDetCode.objects.filter(name="Animal Health").get().pk
+            data_entered += enter_sampd(samp_pk, cleaned_data, det_date, None, health_anidc_pk, "Tissue Sample")
+
+    if nan_to_none(comments):
+        comment_anidc_pk = models.AnimalDetCode.objects.filter(name="Comment").get().pk
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, None, comment_anidc_pk, comments=comments)
+
+    return data_entered
+
+
 def enter_indvt(anix_pk, cleaned_data, treat_datetime, dose, indvtc_pk, treat_endtime=None, lot_num=None, unit_id=None):
     row_entered = False
     if isinstance(dose, float):
@@ -1508,7 +1591,6 @@ def enter_mortality(indv, cleaned_data, mort_date):
 
 def enter_grp_mortality(grp, samp_num, cleaned_data, mort_date, cont=None):
     # -create a mortality event, link to group with anix
-    # -create mortality samp
     # -record counts
     data_entered = False
     mort_date = naive_to_aware(mort_date)
