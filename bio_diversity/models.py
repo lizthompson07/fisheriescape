@@ -16,6 +16,7 @@ from django.utils import timezone
 from shapely.geometry import Point, box, LineString
 
 from bio_diversity import utils
+from bio_diversity.static import calculation_constants
 from bio_diversity.utils import naive_to_aware
 from shared_models import models as shared_models
 from django.db import models
@@ -1013,17 +1014,12 @@ class Group(BioModel):
                                        Q(loc_id__animal_details__grp_id=self, loc_id__loc_date__lte=at_date))\
             .select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
 
-        absolute_codes = ["Egg Count", "Fish Count", "Counter Count", "Fecundity Estimate"]
-        add_codes = ["Fish in Container", "Photo Count", "Eggs Added", "Fish Caught"]
-        subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "Eggs Removed",
-                          "Fish Removed from Container", "Fish Distributed"]
-
         for cnt in cnt_set:
-            if cnt.cntc_id.name in add_codes:
+            if cnt.cntc_id.name in calculation_constants.add_codes:
                 fish_count += cnt.cnt
-            elif cnt.cntc_id.name in subtract_codes:
+            elif cnt.cntc_id.name in calculation_constants.subtract_codes:
                 fish_count -= cnt.cnt
-            elif cnt.cntc_id.name in absolute_codes:
+            elif cnt.cntc_id.name in calculation_constants.absolute_codes:
                 fish_count = cnt.cnt
         return fish_count
 
@@ -1723,8 +1719,12 @@ class Organization(BioLookup):
 
 class Pairing(BioDateModel):
     # pair tag
-    indv_id = models.ForeignKey('Individual',  on_delete=models.CASCADE, verbose_name=_("Dam"), db_column="DAM",
-                                limit_choices_to={'pit_tag__isnull': False, 'indv_valid': True}, related_name="pairings")
+    indv_id = models.ForeignKey('Individual',  on_delete=models.CASCADE, verbose_name=_("Dam"), db_column="INDIVIDUAL",
+                                limit_choices_to={'pit_tag__isnull': False, 'indv_valid': True}, related_name="pairings",
+                                null=True, blank=True)
+    samp_id = models.ForeignKey('Sample',  on_delete=models.CASCADE, verbose_name=_("sample"), db_column="SAMPLE",
+                                limit_choices_to={'anix_id__isnull': False}, related_name="pairings", null=True,
+                                blank=True)
     prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority of Female"),
                                 related_name="female_priorities", db_column="PRIORITY_ID")
     pair_prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority of Pair"),
@@ -1735,9 +1735,16 @@ class Pairing(BioDateModel):
         return "{}".format(self.indv_id.__str__())
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['indv_id', 'start_date'], name='Pairing_Uniqueness')
-        ]
+        unique_together = (('indv_id', 'samp_id', 'start_date'),)
+
+    @property
+    def dam_id(self):
+        if self.indv_id:
+            return self.indv_id
+        elif self.samp_id:
+            return self.samp_id
+        else:
+            return None
 
     def prog_group(self, get_string=False):
         # gets program groups this group may be a part of.
@@ -1968,10 +1975,28 @@ class Sample(BioModel):
         return "{} - {}".format(self.sampc_id.__str__(), self.samp_num)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['loc_id', 'anix_id', 'samp_num', 'spec_id', 'sampc_id'],
-                                    name='Sample_Uniqueness')
-        ]
+        unique_together = (('loc_id', 'anix_id', 'samp_num', 'spec_id', 'sampc_id'),)
+
+    @property
+    def coll_id(self):
+        if self.anix_id.grp_id:
+            return self.anix_id.grp_id.coll_id
+        else:
+            return None
+
+    @property
+    def stok_id(self):
+        if self.anix_id.grp_id:
+            return self.anix_id.grp_id.stok_id
+        else:
+            return None
+
+    @property
+    def indv_year(self):
+        if self.anix_id.grp_id:
+            return self.anix_id.grp_id.grp_year
+        else:
+            return None
 
     @property
     def samp_date(self):
@@ -2013,18 +2038,34 @@ class Sire(BioModel):
                                 db_column="PRIORITY_ID")
     pair_id = models.ForeignKey('Pairing', on_delete=models.CASCADE, verbose_name=_("Pairing"), related_name="sires",
                                 limit_choices_to={'valid': True}, db_column="PAIR_ID")
-    indv_id = models.ForeignKey('Individual', on_delete=models.CASCADE, verbose_name=_("Sire"), db_column="UFID",
-                                limit_choices_to={'pit_tag__isnull':  False, 'indv_valid': True}, related_name="sires")
+    indv_id = models.ForeignKey('Individual', on_delete=models.CASCADE, verbose_name=_("Individual"), db_column="UFID",
+                                limit_choices_to={'pit_tag__isnull':  False, 'indv_valid': True}, related_name="sires",
+                                null=True, blank=True)
+    samp_id = models.ForeignKey('Sample', on_delete=models.CASCADE, verbose_name=_("Sample"), db_column="SAMPLE",
+                                limit_choices_to={'anix_id__isnull':  False}, related_name="sires", null=True,
+                                blank=True)
     choice = models.IntegerField(verbose_name=_("Choice"), db_column="CHOICE")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     def __str__(self):
-        return "Sire {}".format(self.indv_id.__str__())
+        if self.indv_id:
+            return "Sire {}".format(self.indv_id.__str__())
+        elif self.samp_id:
+            return "Sire {}".format(self.samp_id.__str__())
+        else:
+            return "Unknown Sire"
+
+    @property
+    def sire_id(self):
+        if self.indv_id:
+            return self.indv_id
+        elif self.samp_id:
+            return self.samp_id
+        else:
+            return None
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['indv_id', 'pair_id'], name='Sire_Uniqueness')
-        ]
+        unique_together = (('indv_id', 'samp_id', 'pair_id'),)
 
 
 class SpawnDet(BioModel):

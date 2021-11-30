@@ -71,6 +71,9 @@
                     <span class="px-1">
                         <a class="btn btn-primary" name="add-data-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_data' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Data' %}</a>
                     </span>
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-measuring-data-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_measuring_data' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Measuring Data' %}</a>
+                    </span>
                 </h5>
             </div>
         {% endif %}

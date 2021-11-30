@@ -388,12 +388,12 @@ class GenericGrpParser(DataParser):
         self.row_entered += contx_entered
 
         whole_grp = utils.y_n_to_bool(row[self.abs_key])
-        det_anix = None
+        det_anix = start_anix
         row["start_contx_pk"] = None
         if not whole_grp:
             row["start_contx_pk"] = start_contx.pk
 
-        if row["end_tank_id"]:
+        if utils.nan_to_none(row["end_tank_id"]):
             # 4 possible cases here: group in tank or not and whole group move or not:
             row_end_grp_list = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["end_tank_id"],
                                              row_date, prog_str=row[self.prio_key], mark_str=row[self.grp_mark_key])
@@ -411,6 +411,7 @@ class GenericGrpParser(DataParser):
                                                           prog_grp=row.get(self.prio_key),
                                                           mark=row.get(self.mark_key))
             elif not whole_grp:
+                # splitting fish group, merging to exsisting end group
                 row_end_grp = row_end_grp_list[0]
 
             if row_end_grp:
@@ -423,20 +424,21 @@ class GenericGrpParser(DataParser):
                 cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], move_contx.pk)
                 self.row_entered = cnt_entered
 
+                # record details on end tank group
                 det_anix = end_grp_anix
 
             else:
-                det_anix = start_anix
+                # move all the fish (whole group, merge to fish at destination if needed)
                 move_contx = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
                                                         row_date, grp_pk=row_start_grp.pk, return_end_contx=True)
                 cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], move_contx.pk,
                                                    cnt_code="Fish Count")
                 self.row_entered = cnt_entered
-
-        elif whole_grp:
-            cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], start_contx.pk,
-                                               cnt_code="Fish Count")
-            self.row_entered = cnt_entered
+        else:
+            if utils.nan_to_none(row[self.nfish_key]):
+                cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], start_contx.pk,
+                                                   cnt_code="Fish Count")
+                self.row_entered = cnt_entered
 
         # add details to det_anix:
         self.row_entered += utils.enter_bulk_grpd(det_anix.pk, cleaned_data, row_date,

@@ -29,3 +29,9 @@ distribution_locc_list = ["Distribution Site"]
 egg_dev_evntc_list = ["egg development", "heath unit transfer", "picking", "shocking"]
 
 in_out_dict = {None: "", False: "Origin", True: "Destination"}
+
+absolute_codes = ["Egg Count", "Fish Count", "Counter Count", "Fecundity Estimate"]
+add_codes = ["Fish in Container", "Photo Count", "Eggs Added", "Fish Caught"]
+subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss",
+                  "Eggs Removed",
+                  "Fish Removed from Container", "Fish Distributed"]

@@ -356,6 +356,74 @@ class DataCreate(mixins.DataMixin, CommonCreate):
         return success_url
 
 
+class DataMeasuringCreate(mixins.DataMixin, CommonCreate):
+    template_name = 'bio_diversity/data_entry_form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def get_initial(self):
+        init = super().get_initial()
+        self.get_form_class().base_fields["data_csv"].required = True
+        self.get_form_class().base_fields["trof_id"].required = False
+        self.get_form_class().base_fields["pickc_id"].required = False
+        self.get_form_class().base_fields["adsc_id"].required = False
+        self.get_form_class().base_fields["anidc_id"].required = False
+        self.get_form_class().base_fields["anidc_subj_id"].required = False
+        self.get_form_class().base_fields["facic_id"].required = False
+
+        self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["adsc_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["anidc_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["anidc_subj_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["pickc_id"].widget = forms.HiddenInput()
+
+        evnt = models.Event.objects.filter(pk=self.kwargs["evnt"]).select_related("evntc_id", "facic_id").get()
+        init['evnt_id'] = self.kwargs['evnt']
+        evntc = evnt.evntc_id
+        init['evntc_id'] = models.EventCode.objects.filter(name="Measuring").get()
+
+        init['facic_id'] = evnt.facic_id
+
+        self.get_form_class().base_fields["data_type"].required = True
+        data_types = ((None, "---------"), ('Individual', 'Individual'), ('Untagged', 'Untagged'),
+                      ('Group', 'Group'))
+        self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
+                                                                           label=_("Type of data entry"))
+        self.get_form_class().base_fields["adsc_id"].widget = forms.SelectMultiple(
+            attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["anidc_subj_id"].widget = forms.SelectMultiple(
+            attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["anidc_id"].widget = forms.SelectMultiple(
+            attrs={"class": "chosen-select-contains"})
+        return init
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['java_script'] = 'bio_diversity/_entry_data_js.html'
+        allow_entry = True
+
+        evnt_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id.__str__().lower()
+        facility_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id.__str__().lower()
+        context["title"] = "Add measuring data to {} event".format(evnt_code)
+        context["egg_development"] = 0
+        template_url = 'data_templates/measuring.xlsx'
+        template_name = "{}-{}-measuring".format(facility_code, evnt_code)
+        context["template_url"] = template_url
+        context["allow_entry"] = allow_entry
+        context["template_name"] = template_name
+        return context
+
+    def get_success_url(self):
+        success_url = reverse_lazy("bio_diversity:data_log")
+        return success_url
+
+
 class DrawCreate(mixins.DrawMixin, CommonCreate):
     pass
 
@@ -1279,9 +1347,9 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
         anix_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
                                                      pair_id__isnull=False).select_related('pair_id', 'pair_id__prio_id',
-                                                                                           'pair_id__indv_id')
+                                                                                           'pair_id__indv_id', 'pair_id__samp_id')
         pair_list = [anix.pair_id for anix in anix_set]
-        pair_field_list = ["start_date", "indv_id", "cross", "prio_id"]
+        pair_field_list = ["start_date", "dam_id", "cross", "prio_id"]
         obj_mixin = mixins.PairMixin
         context["context_dict"]["pair"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1409,10 +1477,10 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
                                           "single_object": obj_mixin.model.objects.first()}
 
         anix_set = self.object.animal_details.filter(pair_id__isnull=False)\
-            .select_related('pair_id', 'pair_id__prio_id', 'pair_id__indv_id')
+            .select_related('pair_id', 'pair_id__prio_id', 'pair_id__indv_id', 'pair_id__samp_id')
         pair_list = list(dict.fromkeys([anix.pair_id for anix in anix_set]))
         pair_list.extend([pair for pair in self.object.pairings.all().select_related('prio_id', 'indv_id')])
-        pair_field_list = ["start_date", "indv_id", "prio_id"]
+        pair_field_list = ["start_date", "dam_id", "prio_id"]
         obj_mixin = mixins.PairMixin
         context["context_dict"]["pair"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1437,7 +1505,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
                                            "field_list": obj_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        sire_set = self.object.sires.all().select_related('prio_id', 'indv_id')
+        sire_set = self.object.sires.all().select_related('prio_id', 'indv_id', "samp_id")
         sire_field_list = ["prio_id", "pair_id", "choice"]
         obj_mixin = mixins.SireMixin
         context["context_dict"]["sire"] = {"div_title": "{}s".format(obj_mixin.title),
@@ -1646,7 +1714,7 @@ class PairDetails(mixins.PairMixin, CommonDetails):
         context["table_list"].extend(["sire", "spwnd"])
 
         sire_set = self.object.sires.all()
-        sire_field_list = ["indv_id", "prio_id", "choice"]
+        sire_field_list = ["sire_id", "prio_id", "choice"]
         obj_mixin = mixins.SireMixin
         context["context_dict"]["sire"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1817,7 +1885,7 @@ class SampdDetails(mixins.SampdMixin, CommonDetails):
 
 
 class SireDetails(mixins.SireMixin, CommonDetails):
-    fields = ["prio_id", "pair_id",  "indv_id", "choice", "comments", "created_by", "created_date", ]
+    fields = ["prio_id", "pair_id",  "indv_id", "samp_id", "choice", "comments", "created_by", "created_date", ]
 
 
 class SpwndDetails(mixins.SpwndMixin, CommonDetails):
