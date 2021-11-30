@@ -44,7 +44,15 @@
                     <div class="col-sm">
                     {% for key, value in calculated_properties.items %}
                         {% if value %}
-                            <div class="container"><span class="font-weight-bold">{{key}} : </span><span>{{value}}</span></div>
+                            {% if calculated_links %}
+                                {% if key in calculated_links %}
+                                    <div class="container"><span class="font-weight-bold">{{key}} : </span><span><a href="{{ calculated_links|get_item:key }}">{{value}}</a></span></div>
+                                {% else %}
+                                    <div class="container"><span class="font-weight-bold">{{key}} : </span><span>{{value}}</span></div>
+                                {% endif %}
+                            {% else %}
+                                <div class="container"><span class="font-weight-bold">{{key}} : </span><span>{{value}}</span></div>
+                            {% endif %}
                         {% endif %}
                     {% endfor %}
                     </div>

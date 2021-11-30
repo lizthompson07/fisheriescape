@@ -1794,7 +1794,17 @@ class SampDetails(mixins.SampMixin, CommonDetails):
                                             "objects_list": obj_set,
                                             "field_list": obj_field_list,
                                             "single_object": obj_mixin.model.objects.first()}
-
+        context["calculated_properties"] = {}
+        context["calculated_links"] = {}
+        samp_grp = self.object.anix_id.grp_id
+        samp_loc = self.object.loc_id
+        if samp_grp:
+            context["calculated_properties"]["Group"] = samp_grp.__str__()
+            context["calculated_links"]["Group"] = reverse_lazy("bio_diversity:details_grp", kwargs={'pk': samp_grp.pk})
+        if samp_loc:
+            context["calculated_properties"]["Location"] = samp_loc.__str__()
+            context["calculated_links"]["Location"] = reverse_lazy("bio_diversity:details_loc",
+                                                                   kwargs={'pk': samp_loc.pk})
         return context
 
 

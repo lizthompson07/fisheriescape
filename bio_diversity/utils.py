@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError, MultipleObjectsReturned, Obj
 from django.db import IntegrityError
 from django.http import JsonResponse
 from decimal import Decimal
+from django.template.defaulttags import register
 
 from shapely.geometry import GeometryCollection, shape, Polygon
 
@@ -2035,3 +2036,8 @@ def parse_trof_str(trof_str, facic_id):
             trof_id = models.Trough.objects.filter(name__iexact=cont, facic_id=facic_id).get()
             cont_ids.append(trof_id)
     return cont_ids
+
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
