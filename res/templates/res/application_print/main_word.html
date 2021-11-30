@@ -109,13 +109,15 @@
   <h4>
     {% trans "SECTION 1: Accountable Manager's Assessment and Recommendation" %}
   </h4>
-  {% for field in recommendation_fields %}
-    {% get_field_value object.recommendation field as val %}
-    <p>
-      <b>{% get_verbose_label object.recommendation field crop_html=True %}</b><br>
-      {{ val|safe }}
-    </p>
-  {% endfor %}
+  {% if object.recommendation %}
+    {% for field in recommendation_fields %}
+      {% get_field_value object.recommendation field as val %}
+      <p>
+        <b>{% get_verbose_label object.recommendation field crop_html=True %}</b><br>
+        {{ val|safe }}
+      </p>
+    {% endfor %}
+  {% endif %}
 </div>
 
 
