@@ -167,7 +167,9 @@ class AchievementForm(forms.ModelForm):
     class Meta:
         model = models.Achievement
         exclude = ("user",)
-
+        widgets = {
+            'date': forms.DateTimeInput(attrs=dict(type="date")),
+        }
 
 
 class ResSubUserForm(forms.ModelForm):
