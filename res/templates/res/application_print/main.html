@@ -44,8 +44,13 @@
 
     <div id="main">
       <div class="no-print float-right">
-        <a class="btn btn-primary" href="{% url 'res:application_detail' object.id %}">{% trans "Back" %}</a>
+        <a class="btn btn-dark" href="{% url 'res:application_detail' object.id %}">{% trans "Back" %}</a>
+        <button class="btn btn-dark mx-1" onclick="print()"><span class="mdi mdi-printer text-light mr-1"></span> {% trans "Print" %}</button>
+        <a class="btn btn-dark" href="{% url 'res:application_detail' object.id %}?export=true">
+          <span class="mdi mdi-file-word text-light mr-1"></span> {% trans "Export" %}
+        </a>
       </div>
+
 
       <div class="mb-3 no-print">
         <h2 class="">{{ object.applicant }} ({{ object.target_group_level }})</h2>

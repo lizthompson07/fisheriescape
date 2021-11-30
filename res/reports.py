@@ -2,10 +2,72 @@ import os
 
 import xlsxwriter
 from django.conf import settings
+from django.template import loader
 from django.utils import timezone
+from django.utils.translation import gettext as _
+from docx import Document
+from html2text import html2text
 
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
 from res import models
+
+
+def get_application_context(application):
+    context = dict(object=application)
+    qs1 = models.SiteSection.objects.filter(section=1)
+    if qs1.exists():
+        context["annex_a_text"] = qs1.first().description_html
+    qs2 = models.SiteSection.objects.filter(section=2)
+    if qs2.exists():
+        context["annex_b_text"] = qs2.first().description_html
+
+    context["contexts"] = models.Context.objects.all()
+    context["basic_fields"] = [
+        "fiscal_year",
+        "status",
+        "applicant",
+        "manager",
+        "dates|{}".format(_("dates")),
+        "section",
+        "current_group_level",
+        "target_group_level",
+        "current_position_title",
+        "work_location",
+        "last_application",
+        "last_promotion",
+        "academic_background",
+        "employment_history",
+    ]
+    context["recommendation_fields"] = [
+        "recommendation_text",
+        "decision",
+        "manager_signature|{}".format(_("manager signature")),
+        "applicant_signature|{}".format(_("applicant signature")),
+        "applicant_comment",
+    ]
+    context["section_2_fields"] = [
+        "objectives",
+        "relevant_factors_html",
+    ]
+    return context
+
+
+def generate_word_application(application):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.docx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    document = Document()
+    document.add_heading(str(application))
+
+    t = loader.get_template('res/application_print/main_word.html')
+    context = get_application_context(application)
+    rendered = html2text(t.render(context))
+    document.add_paragraph(rendered)
+
+    document.save(target_file_path)
+    return target_url
 
 
 def generate_dive_log(year):
@@ -22,10 +84,9 @@ def generate_dive_log(year):
     header_format = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
     total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True,'border': 1, 'border_color': 'black', })
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
     currency_format = workbook.add_format({'num_format': '#,##0.00'})
     date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
-
 
     # get the dive list
     dives = models.Dive.objects.all()
