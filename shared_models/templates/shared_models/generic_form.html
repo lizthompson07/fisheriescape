@@ -18,7 +18,9 @@
       {% block form_fields %}
         {% for field in form %}
           {% block form_field %}
-            {% bootstrap_field field placeholder="" %}
+            <div id="{{ field.name }}_div">
+              {% bootstrap_field field placeholder="" %}
+            </div>
           {% endblock %}
         {% endfor %}
       {% endblock %}

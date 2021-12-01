@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 
@@ -11,7 +12,7 @@ from res.mixins import LoginAccessRequiredMixin, ResAdminRequiredMixin, CanModif
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonCreateView, CommonFilterView, CommonDetailView, \
     CommonUpdateView, CommonDeleteView
 from . import models, forms, filters, utils, emails, reports
-from .utils import in_res_admin_group
+from .utils import in_res_admin_group, get_category_publication_type_dict, get_achievement_field_list
 
 
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
@@ -425,23 +426,14 @@ class AchievementDetailView(CanViewAchievementRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            "id",
-            "user",
-            "category",
-            "publication_type",
-            "review_type",
-            "date",
-            "detail",
-            "metadata|{}".format(_("metadata")),
-        ]
+        context["field_list"] = get_achievement_field_list(self.get_object())
         return context
 
 
 class AchievementCreateView(LoginAccessRequiredMixin, CommonCreateView):
     model = models.Achievement
     form_class = forms.AchievementForm
-    template_name = 'res/form.html'
+    template_name = 'res/js_form.html'
     home_url_name = "res:index"
     parent_crumb = {"title": gettext_lazy("Achievements"), "url": reverse_lazy("res:achievement_list")}
     submit_text = gettext_lazy("Save")
@@ -453,17 +445,22 @@ class AchievementCreateView(LoginAccessRequiredMixin, CommonCreateView):
         super().form_valid(form)
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cat_pubtype_dict"] = json.dumps(get_category_publication_type_dict())
+        return context
+
 
 class AchievementUpdateView(CanModifyAchievementRequiredMixin, CommonUpdateView):
     model = models.Achievement
     form_class = forms.AchievementForm
-    template_name = 'res/form.html'
+    template_name = 'res/js_form.html'
     home_url_name = "res:index"
     grandparent_crumb = {"title": gettext_lazy("Achievements"), "url": reverse_lazy("res:achievement_list")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_admin"] = in_res_admin_group(self.request.user)
+        context["cat_pubtype_dict"] = json.dumps(get_category_publication_type_dict())
         return context
 
     def get_parent_crumb(self):
