@@ -66,6 +66,15 @@
           <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Initiate ToR" %}
         </a>
       {% endif %}
+
+      <button
+        v-if="!process.posting_request_date && !process.is_posted"
+        class="btn btn-sm btn-purple" :disabled="!process.can_post_meeting.can_post" @click="requestPosting"
+        data-toggle="tooltip" :title="process.can_post_meeting.reasons"
+      >
+        {% trans "Request to Post Meeting" %}
+      </button>
+
     </div>
 
     <div class="row">
@@ -82,8 +91,12 @@
               <td class="text-left">${process.fiscal_year|nz}</td>
             </tr>
             <tr>
-              <th class="text-left">{% trans "Name" %}</th>
-              <td class="text-left">${process.tname|nz}</td>
+              <th class="text-left">${processLabels.name}</th>
+              <td class="text-left">${process.name|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left">${processLabels.nom}</th>
+              <td class="text-left">${process.nom|nz}</td>
             </tr>
             <tr>
               <th class="text-left" v-html="processLabels.advice_date"></th>
@@ -93,16 +106,21 @@
               <th class="text-left">{% trans "Status" %}</th>
               <td class="text-left" v-html="process.status_display_html"></td>
             </tr>
+
             <tr>
               <th class="text-left" v-html="processLabels.is_posted"></th>
               <td class="text-left">
-                <span class="mr-2">${process.is_posted|yesNo}</span>
-                <button v-if="!process.posting_request_date && !process.is_posted" class="badge badge-pill btn-purple" @click="requestPosting">
-                  {% trans "Request to Post" %}
-                </button>
-                <em v-else-if="!process.is_posted" class=" text-muted">
-                  &mdash; {% trans "Posting request made on" %} ${process.posting_request_date}
+                <span class="">${process.is_posted|yesNo}</span>
+                <em v-if="!process.is_posted && process.posting_request_date" class=" text-muted">
+                  &mdash; {% trans "Posting request made on" %} ${process.posting_request_date_display}
                 </em>
+                <em v-else-if="!process.is_posted && process.can_post_meeting.can_post" class=" text-muted">
+                  &mdash; {% trans "eligible for posting" %}
+                </em>
+                <em v-else-if="!process.is_posted && !process.can_post_meeting.can_post" class=" text-muted">
+                  &mdash; {% trans "not eligible for posting because:" %}  ${process.can_post_meeting.reasons | listrify}
+                </em>
+
               </td>
             </tr>
 
@@ -157,26 +175,17 @@
 
 
             <tr>
-              <th class="text-left" v-html="processLabels.coordinator"></th>
-              <td class="text-left">${process.coordinator|nz}</td>
-            </tr>
-
-            <tr>
-              <th class="text-left" v-html="processLabels.advisors"></th>
-              <td class="text-left">${process.advisors|nz}</td>
-            </tr>
-            <tr>
               <th class="text-left" v-html="processLabels.editors"></th>
               <td class="text-left">${process.editors|nz}</td>
             </tr>
 
             <tr>
-              <th class="text-left" v-html="processLabels.lead_region"></th>
-              <td class="text-left">${process.lead_region|nz}</td>
+              <th class="text-left" v-html="processLabels.lead_office"></th>
+              <td class="text-left">${process.lead_office|nz}</td>
             </tr>
             <tr>
-              <th class="text-left" v-html="processLabels.other_regions"></th>
-              <td class="text-left">${process.other_regions|nz}</td>
+              <th class="text-left" v-html="processLabels.other_offices"></th>
+              <td class="text-left">${process.other_offices|nz}</td>
             </tr>
             <tr>
               <th>
@@ -434,6 +443,7 @@
       nz: vueFiltersObject["nz"],
       yesNo: vueFiltersObject["yesNo"],
       date: vueFiltersObject["date"],
+      listrify: vueFiltersObject["listrify"],
     },
     computed: {
       canModify() {
@@ -457,9 +467,9 @@
       }
     },
     created() {
+      this.getProcessMetadata();
       this.getCurrentUser();
       this.getProcess(true);
-      this.getProcessMetadata();
     },
   });
 

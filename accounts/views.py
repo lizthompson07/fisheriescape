@@ -154,7 +154,6 @@ class UserLoginView(PasswordResetView):
     def form_valid(self, form):
         super().form_valid(form)
         user = get_object_or_404(User, email__iexact=form.cleaned_data["email"])
-
         messages.success(
             self.request, f'<span class="mdi mdi-email-outline mr-3 lead"></span>' +
                           _("An e-mail with a login link has been sent to you! ") +
@@ -164,7 +163,7 @@ class UserLoginView(PasswordResetView):
                               "manual"
                           ]), _("here"))
         )
-        return super().form_valid(form)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class CallBack(FormView):

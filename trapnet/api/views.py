@@ -64,6 +64,12 @@ class ObservationViewSet(ModelViewSet):
             sex_choices = [dict(text=obj.choice, value=obj.id) for obj in models.Sex.objects.all()]
             sex_choices.insert(0, dict(text="-----", value=None))
             data['sex_choices'] = sex_choices
+            life_stage_choices = [dict(text=obj.choice, value=obj.id) for obj in models.LifeStage.objects.all()]
+            life_stage_choices.insert(0, dict(text="-----", value=None))
+            data['life_stage_choices'] = life_stage_choices
+            reproductive_status_choices = [dict(text=obj.choice, value=obj.id) for obj in models.ReproductiveStatus.objects.all()]
+            reproductive_status_choices.insert(0, dict(text="-----", value=None))
+            data['reproductive_status_choices'] = reproductive_status_choices
             return Response(data)
         raise ValidationError(gettext("You need to specify a sample"))
 

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
@@ -185,6 +186,31 @@ class Diver(models.Model):
         return self.dives.count()
 
 
+class Species(SimpleLookup):
+    scientific_name = models.CharField(max_length=255, blank=True, null=True)
+    code = models.CharField(max_length=255, unique=True)
+    aphia_id = models.IntegerField(verbose_name="WoRMS AphiaID")
+    is_default = models.BooleanField(default=False, choices=YES_NO_CHOICES)
+
+    class Meta:
+        ordering = ['code']
+        verbose_name_plural = _("species")
+
+    def get_absolute_url(self):
+        return reverse("scuba:species_detail", args=[self.id])
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.is_default:
+            for s in Species.objects.filter(~Q(id=self.id)).filter(is_default=True):
+                s.is_default = False
+                s.save()
+
+    @property
+    def code_name(self):
+        return f'{self.code} - {self.tname}'
+
+
 class Sample(models.Model):
     site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("site"))
     datetime = models.DateTimeField(verbose_name="date")
@@ -355,6 +381,7 @@ class Observation(MetadataFields):
     carapace_length_mm = models.FloatField(verbose_name=_("carapace length (mm)"), blank=True, null=True)
     sex = models.CharField(max_length=2, verbose_name=_("sex"), choices=sex_choices)
     egg_status = models.CharField(max_length=2, blank=True, null=True, verbose_name=_("egg status"), choices=egg_status_choices)
+    species = models.ForeignKey(Species, related_name='observations', on_delete=models.CASCADE, verbose_name=_("species"))
     certainty_rating = models.IntegerField(verbose_name=_("length certainty"), default=1, choices=certainty_rating_choices)
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 

@@ -2,9 +2,10 @@ from django.conf import settings
 from django.contrib import messages
 from django.db.models import TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.functions.custom_functions import listrify
@@ -135,6 +136,36 @@ class ElectrofisherHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteVie
     success_url = reverse_lazy("trapnet:manage_electrofishers")
 
 
+class ReproductiveStatusFormsetView(TrapNetAdminRequiredMixin, CommonFormsetView):
+    template_name = 'trapnet/formset.html'
+    h1 = "Manage Reproductive Statuses"
+    queryset = models.ReproductiveStatus.objects.all()
+    formset_class = forms.ReproductiveStatusFormset
+    success_url_name = "trapnet:manage_reproductive_statuses"
+    home_url_name = "trapnet:index"
+    delete_url_name = "trapnet:delete_reproductive_status"
+
+
+class ReproductiveStatusHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteView):
+    model = models.ReproductiveStatus
+    success_url = reverse_lazy("trapnet:manage_reproductive_statuses")
+
+
+class FishingAreaFormsetView(TrapNetAdminRequiredMixin, CommonFormsetView):
+    template_name = 'trapnet/formset.html'
+    h1 = "Manage Fishing Areas"
+    queryset = shared_models.FishingArea.objects.all()
+    formset_class = forms.FishingAreaFormset
+    success_url_name = "trapnet:manage_fishing_areas"
+    home_url_name = "trapnet:index"
+    delete_url_name = "trapnet:delete_fishing_area"
+
+
+class FishingAreaHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteView):
+    model = shared_models.FishingArea
+    success_url = reverse_lazy("trapnet:manage_fishing_areas")
+
+
 # SPECIES #
 ###########
 
@@ -142,7 +173,7 @@ class SpeciesListView(TrapNetAccessRequiredMixin, CommonFilterView):
     template_name = "trapnet/list.html"
     filterset_class = filters.SpeciesFilter
     queryset = models.Species.objects.annotate(
-        search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code', 'abbrev', output_field=TextField()))
+        search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code', output_field=TextField()))
     new_object_url_name = "trapnet:species_new"
     row_object_url_name = "trapnet:species_detail"
     home_url_name = "trapnet:index"
@@ -151,9 +182,8 @@ class SpeciesListView(TrapNetAccessRequiredMixin, CommonFilterView):
         {"name": 'code', "class": "", "width": ""},
         {"name": 'full_name|{}'.format(_("Species")), "class": "", "width": ""},
         {"name": 'scientific_name', "class": "", "width": ""},
-        {"name": 'abbrev', "class": "", "width": ""},
-        {"name": 'tsn', "class": "", "width": ""},
-        {"name": 'aphia_id', "class": "", "width": ""},
+        {"name": 'tsn|{}'.format(_("Taxonomic serial number")), "class": "", "width": ""},
+        {"name": 'observation_count|{}'.format(_("Observations in Db")), "class": "", "width": ""},
     ]
 
 
@@ -231,12 +261,12 @@ class RiverListView(TrapNetAccessRequiredMixin, CommonFilterView):
     row_object_url_name = "trapnet:river_detail"
     home_url_name = "trapnet:index"
     queryset = River.objects.annotate(
-        search_term=Concat('name', 'fishing_area_code', 'maritime_river_code', 'cgndb', output_field=TextField()))
+        search_term=Concat('name', 'maritime_river_code', 'cgndb', output_field=TextField()))
     paginate_by = 25
     container_class = "container-fluid"
     field_list = [
         {"name": 'name', "class": "", "width": ""},
-        {"name": 'fishing_area_code', "class": "", "width": ""},
+        {"name": 'fishing_area', "class": "", "width": ""},
         {"name": 'maritime_river_code', "class": "", "width": ""},
         {"name": 'old_maritime_river_code', "class": "", "width": ""},
         {"name": 'cgndb', "class": "", "width": ""},
@@ -318,7 +348,6 @@ class RiverDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
 # SITE #
 ########
 
-
 class RiverSiteCreateView(TrapNetAdminRequiredMixin, CommonCreateView):
     model = models.RiverSite
     template_name = 'trapnet/form.html'
@@ -373,8 +402,8 @@ class RiverSiteDetailView(TrapNetAdminRequiredMixin, CommonDetailView):
         'stream_order',
         'elevation_m',
         'province.abbrev_eng',
-        'latitude_n',
-        'longitude_w',
+        'latitude',
+        'longitude',
         'directions',
         'exclude_data_from_site',
         'metadata',
@@ -422,8 +451,8 @@ class SampleListView(TrapNetAccessRequiredMixin, CommonFilterView):
         {"name": 'season', "class": "", "width": ""},
         {"name": 'sample_type', "class": "", "width": ""},
         {"name": 'site', "class": "", "width": ""},
-        {"name": 'arrival_date', "class": "", "width": ""},
-        {"name": 'departure_date', "class": "", "width": ""},
+        {"name": 'arrival_date|arrival', "class": "", "width": ""},
+        {"name": 'duration|duration', "class": "", "width": ""},
         {"name": 'observations', "class": "", "width": ""},
     ]
 
@@ -638,13 +667,14 @@ class SweepDeleteView(TrapNetAccessRequiredMixin, CommonDeleteView):
 class ObservationListView(TrapNetAccessRequiredMixin, CommonFilterView):
     model = models.Observation
     filterset_class = filters.ObservationFilter
-    template_name = 'trapnet/list.html'
-    # new_object_url_name = "trapnet:sample_new"
-    row_object_url_name = "trapnet:obs_detail"
+    template_name = 'trapnet/obs_list.html'
+    # open_row_in_new_tab = True
+    # row_object_url_name = "trapnet:obs_detail"
     home_url_name = "trapnet:index"
     paginate_by = 25
     container_class = "container"
     field_list = [
+        {"name": 'id', "class": "", "width": ""},
         {"name": 'sample', "class": "", "width": ""},
         {"name": 'sample.site|{}'.format(_("site")), "class": "", "width": ""},
         {"name": 'species', "class": "", "width": ""},
@@ -690,6 +720,8 @@ class ObservationDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
     field_list = [
         'id',
         'species',
+        'life_stage',
+        'reproductive_status',
         'status',
         'origin',
         'sex',
@@ -793,35 +825,79 @@ class ReportSearchFormView(TrapNetAccessRequiredMixin, CommonFormView):
         # ais_species_list = str(form.cleaned_data["ais_species"]).replace("[", "").replace("]", "").replace(" ", "").replace("'","").replace('"',"")
 
         report = int(form.cleaned_data["report"])
-        my_year = form.cleaned_data["year"] if form.cleaned_data["year"] else "None"
-        my_sites = listrify(form.cleaned_data["sites"]) if len(form.cleaned_data["sites"]) > 0 else "None"
+        year = form.cleaned_data["year"] if form.cleaned_data["year"] else ""
+        fishing_areas = listrify(form.cleaned_data["fishing_areas"]) if len(form.cleaned_data["fishing_areas"]) > 0 else ""
+        rivers = listrify(form.cleaned_data["rivers"]) if len(form.cleaned_data["rivers"]) > 0 else ""
+        sites = listrify(form.cleaned_data["sites"]) if len(form.cleaned_data["sites"]) > 0 else ""
 
+        # raw reports
         if report == 1:
-            return HttpResponseRedirect(reverse("trapnet:sample_report", kwargs={"year": my_year, "sites": my_sites}))
+            return HttpResponseRedirect(reverse("trapnet:sample_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
         elif report == 2:
-            return HttpResponseRedirect(reverse("trapnet:entry_report", kwargs={"year": my_year, "sites": my_sites}))
+            return HttpResponseRedirect(reverse("trapnet:sweep_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
         elif report == 3:
-            return HttpResponseRedirect(reverse("trapnet:od1_report", kwargs={"year": my_year, "sites": my_sites}))
-        elif report == 4:
+            return HttpResponseRedirect(reverse("trapnet:obs_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
+
+        # electrofishing
+        elif report == 10:
+            return HttpResponseRedirect(reverse("trapnet:electro_juv_salmon_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}")
+
+        # Open data
+        elif report == 91:
+            return HttpResponseRedirect(reverse("trapnet:od1_report", kwargs={"year": year, "sites": sites}))
+        elif report == 92:
             return HttpResponseRedirect(reverse("trapnet:od1_dictionary"))
-        elif report == 7:
+        elif report == 93:
             return HttpResponseRedirect(reverse("trapnet:od_spp_list"))
-        elif report == 5:
+        elif report == 94:
             return HttpResponseRedirect(reverse("trapnet:od1_wms", kwargs={"lang": 1}))
-        elif report == 6:
+        elif report == 95:
             return HttpResponseRedirect(reverse("trapnet:od1_wms", kwargs={"lang": 2}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("trapnet:reports"))
 
 
-def export_sample_data(request, year, sites):
-    response = reports.generate_sample_report(year, sites)
+def export_sample_data(request):
+    year = request.GET.get("year")
+    fishing_areas = request.GET.get("fishing_areas")
+    rivers = request.GET.get("rivers")
+    sites = request.GET.get("sites")
+    filename = "sample data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_sample_csv(year, fishing_areas, rivers, sites)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
     return response
 
 
-def export_entry_data(request, year, sites):
-    response = reports.generate_entry_report(year, sites)
+def export_sweep_data(request):
+    year = request.GET.get("year")
+    fishing_areas = request.GET.get("fishing_areas")
+    rivers = request.GET.get("rivers")
+    sites = request.GET.get("sites")
+    filename = "sweep data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_sweep_csv(year, fishing_areas, rivers, sites)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+def export_obs_data(request):
+    year = request.GET.get("year")
+    fishing_areas = request.GET.get("fishing_areas")
+    rivers = request.GET.get("rivers")
+    sites = request.GET.get("sites")
+    filename = "observation data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_obs_csv(year, fishing_areas, rivers, sites)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
     return response
 
 
@@ -842,4 +918,17 @@ def export_spp_list(request):
 
 def export_open_data_ver1_wms(request, lang):
     response = reports.generate_open_data_ver_1_wms_report(lang)
+    return response
+
+
+def electro_juv_salmon_report(request):
+    year = request.GET.get("year")
+    fishing_areas = request.GET.get("fishing_areas")
+    rivers = request.GET.get("rivers")
+    filename = "juv_salmon_csas_report.csv"
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_electro_juv_salmon_report(year, fishing_areas, rivers)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
     return response

@@ -19,38 +19,39 @@
 
 {% block subcontent %}
   <div id="app" v-cloak>
-    <div v-if="canModify && request.review && request.review.id" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar}">
-      {% include "csas2/request_detail/_review.html" %}
+
+  <div v-if="canModify && request.review && request.review.id" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar}">
+    {% include "csas2/request_detail/_review.html" %}
+  </div>
+
+  <div>
+    {% include "shared_models/_generic_breadcrumbs.html" %}
+    <div class="mb-3">
+      <h2 class="">{{ h1|safe }}</h2>
+      <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>
     </div>
-    <div class="row">
-      <div>
-        <div>
-          {% include "shared_models/_generic_breadcrumbs.html" %}
-          <div class="mb-3">
-            <h2 class="">{{ h1|safe }}</h2>
-            <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>
-          </div>
-          {% bootstrap_messages %}
+    {% bootstrap_messages %}
 
-          <div v-if="canModify" class="alert alert-primary no-print" role="alert">
-            <p class="mb-0">
-              <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
-            </p>
-          </div>
+    <div v-if="canModify" class="alert alert-primary no-print" role="alert">
+      <p class="mb-0">
+        <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
+      </p>
+    </div>
 
-          <div class="mb-3 float-right">
-            {% if object.submission_date %}
-              <button v-if="!request.review" class="btn btn-sm btn-dark" @click="primeReview">{% trans "Start a Review" %}</button>
-              {% if not object.processes.exists %}
-                <a v-if="canModify" class="btn btn-sm btn-dark"
-                   href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Initiate a Process" %}</a>
-              {% endif %}
-            {% endif %}
-          </div>
-          <div class="mb-3">
-            <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
+    <div class="mb-3 float-right">
+      {% if object.submission_date %}
+        <button v-if="!request.review" class="btn btn-sm btn-dark" @click="primeReview">{% trans "Start a Review" %}</button>
+        {% if not object.processes.exists %}
+          <a v-if="canModify" class="btn btn-sm btn-dark"
+             href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Initiate a Process" %}</a>
+        {% endif %}
+      {% endif %}
+    </div>
 
-            <span v-if="canModify">
+    <div class="mb-3">
+      <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
+
+      <span v-if="canModify">
               <a v-if="request.submission_date" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
                 {% trans "Un-Submit" %}
               </a>
@@ -64,149 +65,198 @@
               </span>
             </span>
 
-            <a v-if="canModify" class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
-            <a class="btn btn-sm btn-secondary helper"
-               data-toggle="tooltip" title="{% trans "Click here to clone this request into a new request" %}"
-               href="{% url 'csas2:request_clone' object.id %}">{% trans "Clone Me" %}</a>
-            <button v-if="canModify" @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
-              <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
-            </button>
-            {% if object.status >= 2 %}
+      <a v-if="canModify" class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
+      <a class="btn btn-sm btn-secondary helper"
+         data-toggle="tooltip" title="{% trans "Click here to clone this request into a new request" %}"
+         href="{% url 'csas2:request_clone' object.id %}">{% trans "Clone Me" %}</a>
+      <button v-if="canModify" @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
+        <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
+      </button>
+      {% if object.status >= 2 %}
 
-              <a href="{% url 'csas2:request_pdf' %}?csas_requests={{ object.id }}" class="btn btn-outline-dark btn-sm ml-3">
-                <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
-              </a>
-            {% endif %}
-          </div>
+        <a href="{% url 'csas2:request_pdf' %}?csas_requests={{ object.id }}" class="btn btn-outline-dark btn-sm ml-3">
+          <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
+        </a>
+      {% endif %}
+    </div>
 
-          <div class="row">
-            <div class="col">
-              <table class="table table-sm">
-                <tr>
-                  <th class="text-left w250" v-html="requestLabels.fiscal_year"></th>
-                  <td class="text-left" v-html="request.fiscal_year"></td>
-                </tr>
-                <tr>
-                  <th class="text-left w250" v-html="requestLabels.status"></th>
-                  <td class="text-left" v-html="request.status_display_html"></td>
-                </tr>
-                <tr>
-                  <th class="text-left">{% trans "is carry over?" %}</th>
-                  <td class="text-left">${request.is_carry_over|yesNo}</td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.language"></th>
-                  <td class="text-left" v-html="request.language_display"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.section"></th>
-                  <td class="text-left" v-html="request.section_display"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.coordinator"></th>
-                  <td class="text-left" v-html="request.coordinator"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.client"></th>
-                  <td class="text-left" v-html="request.client"></td>
-                </tr>
-                <tr>
-                  <th class="text-left">{% trans "Multiregional / multisector?" %}</th>
-                  <td class="text-left" v-html="request.multiregional_display"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.issue"></th>
-                  <td class="text-left" v-html="request.issue_html"></td>
-                </tr>
-                <tr>
-                  <th class="text-left">{% trans "Assistance from DFO Science" %}</th>
-                  <td class="text-left" v-html="request.assistance_text"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.rationale"></th>
-                  <td class="text-left" v-html="request.rationale_html"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.risk_text"></th>
-                  <td class="text-left" v-html="request.risk_text_html"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.advice_needed_by"></th>
-                  <td class="text-left" v-html="request.advice_needed_by_display"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.rationale_for_timeline"></th>
-                  <td class="text-left" v-html="request.rationale_for_timeline"></td>
-                </tr>
-                <tr>
-                  <th class="text-left">{% trans "Client funding?" %}</th>
-                  <td class="text-left" v-html="request.funding_display"></td>
-                </tr>
-                <tr>
-                  <th class="text-left">{% trans "Client prioritization?" %}</th>
-                  <td class="text-left" v-html="request.prioritization_display"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.submission_date"></th>
-                  <td class="text-left" v-html="request.submission_date_display"></td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-html="requestLabels.uuid"></th>
-                  <td class="text-left" v-html="request.uuid"></td>
-                </tr>
-                <tr>
-                  <th>
-                    {% trans "Files" %}
-                  </th>
-                  <td>
-                    {% if object.files.exists %}
-                      {% for file in object.files.all %}
-                        <div>
-                          <a href="{{ file.file.url }}">{{ file.caption }}</a> (uploaded on: {{ file.date_created|date:"F d Y" }})
-                          <button class="btn" @click="openPopout('{% url 'csas2:request_file_edit' file.id %}')" class="ml-3">
-                            <span class="mdi mdi-pencil" style="font-size: large"></span>
-                          </button>
-                          <button class="btn" @click="openPopout('{% url 'csas2:request_file_delete' file.id %}')">
-                            <span class="mdi mdi-delete" style="font-size: large"></span>
-                          </button>
-                        </div>
-                      {% endfor %}
-                    {% else %}
-                      <em>{% trans "There are no files attached to this request." %}</em>
-                    {% endif %}
-                  </td>
-                </tr>
-                {# files #}
-                <tr>
-                  <th>
-                    {% trans "Connected processes" %}
-                  </th>
-                  <td>
-                    {% if object.processes.exists %}
-                      {% for process in object.processes.all %}
-                        <div>
-                          {{ process.status_display }} &rarr; <a href="{% url 'csas2:process_detail' process.id %}">{{ process }} ({{ process.id }})</a>
-                        </div>
-                      {% endfor %}
-                    {% else %}
-                      <em>{% trans "There are no processes attached to this request." %}</em>
-                    {% endif %}
-                  </td>
-                </tr>
-                <tr>
-                  <th class="text-left">{% trans "Metadata" %}</th>
-                  <td class="text-left" v-html="request.metadata"></td>
-                </tr>
-              </table>
-            </div>
-            {# Notes #}
-            <div class="col-4">
-              <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify"
-                        :current_user="currentUser"></note-pad>
-            </div>
-          </div>
-        </div>
+
+    <div v-if="loadingRequest" class="loading mb-3 mt-3 mt-5">
+      <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+        <span class="sr-only"></span>
       </div>
+    </div>
+    <div v-else class="row">
+      <div class="col">
+        <table class="table table-sm">
+          <tr>
+            <th class="text-left w250" v-html="requestLabels.fiscal_year"></th>
+            <td class="text-left" v-html="request.fiscal_year"></td>
+          </tr>
+          <tr>
+            <th class="text-left w250" v-html="requestLabels.advice_fiscal_year"></th>
+            <td class="text-left" v-html="request.advice_fiscal_year"></td>
+          </tr>
+          <tr>
+            <th class="text-left w250" v-html="requestLabels.status"></th>
+            <td class="text-left" v-html="request.status_display_html"></td>
+          </tr>
+          <tr>
+            <th class="text-left">{% trans "is carry over?" %}</th>
+            <td class="text-left">${request.is_carry_over|yesNo}</td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.language"></th>
+            <td class="text-left" v-html="request.language_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.section"></th>
+            <td class="text-left" v-html="request.section_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.office"></th>
+            <td class="text-left">
+              <span>${request.office} {% trans "Center for Science Advice" %} (${request.coordinator})</span>
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.client"></th>
+            <td class="text-left" v-html="request.client"></td>
+          </tr>
+          <tr>
+            <th class="text-left">{% trans "Multiregional / multisector?" %}</th>
+            <td class="text-left" v-html="request.multiregional_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.issue"></th>
+            <td class="text-left" v-html="request.issue_html"></td>
+          </tr>
+          <tr>
+            <th class="text-left">{% trans "Assistance from DFO Science" %}</th>
+            <td class="text-left" v-html="request.assistance_text"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.rationale"></th>
+            <td class="text-left" v-html="request.rationale_html"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.risk_text"></th>
+            <td class="text-left" v-html="request.risk_text_html"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.advice_needed_by"></th>
+            <td class="text-left" v-html="request.advice_needed_by_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.rationale_for_timeline"></th>
+            <td class="text-left" v-html="request.rationale_for_timeline"></td>
+          </tr>
+          <tr>
+            <th class="text-left">{% trans "Client funding?" %}</th>
+            <td class="text-left" v-html="request.funding_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left">{% trans "Client prioritization?" %}</th>
+            <td class="text-left" v-html="request.prioritization_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.submission_date"></th>
+            <td class="text-left" v-html="request.submission_date_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.uuid"></th>
+            <td class="text-left" v-html="request.uuid"></td>
+          </tr>
+          <tr>
+            <th>
+              {% trans "Files" %}
+            </th>
+            <td>
+              {% if object.files.exists %}
+                {% for file in object.files.all %}
+                  <div>
+                    <a href="{{ file.file.url }}">{{ file.caption }}</a> (uploaded on: {{ file.date_created|date:"F d Y" }})
+                    <button class="btn" @click="openPopout('{% url 'csas2:request_file_edit' file.id %}')" class="ml-3">
+                      <span class="mdi mdi-pencil" style="font-size: large"></span>
+                    </button>
+                    <button class="btn" @click="openPopout('{% url 'csas2:request_file_delete' file.id %}')">
+                      <span class="mdi mdi-delete" style="font-size: large"></span>
+                    </button>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <em>{% trans "There are no files attached to this request." %}</em>
+              {% endif %}
+            </td>
+          </tr>
+          {# files #}
+          <tr>
+            <th>
+              {% trans "Connected processes" %}
+            </th>
+            <td>
+              {% if object.processes.exists %}
+                {% for process in object.processes.all %}
+                  <div>
+                    {{ process.status_display }} &rarr; <a href="{% url 'csas2:process_detail' process.id %}">{{ process }} ({{ process.id }})</a>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <em>{% trans "There are no processes attached to this request." %}</em>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left">{% trans "Metadata" %}</th>
+            <td class="text-left" v-html="request.metadata"></td>
+          </tr>
+        </table>
+      </div>
+      {# Notes #}
+      <div class="col-4">
+        <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify"
+                  :current_user="currentUser"></note-pad>
+      </div>
+    </div>
+
+    <div class="mt-5" v-if="request.review && reviewLabels.is_valid">
+      <div>
+        <p class="lead">{% trans "Review" %}</p>
+      </div>
+
+      <table class="table table-sm">
+        <tr>
+          <th class="text-left w-25" v-html="reviewLabels.is_valid"></th>
+          <td class="text-left">${request.review.is_valid_display }</td>
+        </tr>
+
+        <tr>
+          <th class="text-left" v-html="reviewLabels.is_feasible"></th>
+          <td class="text-left">${request.review.is_feasible_display }</td>
+        </tr>
+
+        <tr>
+          <th class="text-left" v-html="reviewLabels.decision"></th>
+          <td class="text-left">${request.review.decision_display}</td>
+        </tr>
+
+        <tr>
+          <th class="text-left" v-html="reviewLabels.advice_date"></th>
+          <td class="text-left">${request.review.advice_date_display}</td>
+        </tr>
+
+        <tr>
+          <th class="text-left" v-html="reviewLabels.deferred_text"></th>
+          <td class="text-left">${request.review.deferred_text|nz}</td>
+        </tr>
+
+        <tr>
+          <th class="text-left">{% trans "Metadata" %}</th>
+          <td class="text-left" v-html="request.review.metadata"></td>
+        </tr>
+
+      </table>
+
 
     </div>
   </div>
@@ -255,11 +305,13 @@
       },
 
       getRequest(update_notes) {
+        this.loadingRequest = true;
         let endpoint = `/api/csas/requests/${requestId}/`;
         apiService(endpoint).then(data => {
           if (data) {
             this.request = data;
             if (update_notes) this.getNotes();
+            this.loadingRequest = false;
           }
         });
       },
@@ -296,17 +348,13 @@
           })
         }
       },
-      getReviewMetadata() {
-        let endpoint = `/api/csas/meta/models/request-review/`;
-        apiService(endpoint).then(data => {
+      getMetadata() {
+        apiService(`/api/csas/meta/models/request-review/`).then(data => {
           this.reviewLabels = data.labels;
           this.yesNoChoices = data.yes_no_choices;
           this.decisionChoices = data.decision_choices;
         });
-      },
-      getRequestMetadata() {
-        let endpoint = `/api/csas/meta/models/request/`;
-        apiService(endpoint).then(data => {
+        apiService(`/api/csas/meta/models/request/`).then(data => {
           this.requestLabels = data.labels;
         });
       },
@@ -318,12 +366,12 @@
     },
     filters: {
       yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
     },
     created() {
+      this.getMetadata();
       this.getCurrentUser();
       this.getRequest(true);
-      this.getReviewMetadata();
-      this.getRequestMetadata();
     },
   });
 

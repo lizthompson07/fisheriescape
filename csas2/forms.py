@@ -51,6 +51,17 @@ class PersonForm(forms.ModelForm):
             del self.fields["dmapps_user"]
 
 
+class CSASOfficeForm(forms.ModelForm):
+    class Meta:
+        model = models.CSASOffice
+        fields = "__all__"
+        widgets = {
+            'coordinator': forms.Select(attrs=chosen_js),
+            'advisors': forms.SelectMultiple(attrs=chosen_js),
+            'administrators': forms.SelectMultiple(attrs=chosen_js),
+        }
+
+
 class TripRequestTimestampUpdateForm(forms.ModelForm):
     class Meta:
         model = models.CSASRequest
@@ -120,7 +131,7 @@ class ReportSearchForm(forms.Form):
 
         process_status_choices = [obj for obj in model_choices.get_process_status_choices()]
         process_status_choices.insert(0, (None, "All"))
-        
+
         process_type_choices = [obj for obj in model_choices.process_type_choices]
         process_type_choices.insert(0, (None, "All"))
 
@@ -149,7 +160,7 @@ class CSASRequestForm(forms.ModelForm):
         fields = [
             'client',
             'section',
-            'coordinator',
+            'office',
             'language',
             'title',
             'is_multiregional',
@@ -169,12 +180,12 @@ class CSASRequestForm(forms.ModelForm):
             'client',
             'title',
             'section',
-            'coordinator',
+            'office',
             'advice_needed_by',
         ]
         widgets = {
             'client': forms.Select(attrs=chosen_js),
-            'coordinator': forms.Select(attrs=chosen_js),
+            'office': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
             'advice_needed_by': forms.DateInput(attrs=dict(type="date"), format="%Y-%m-%d"),
             'multiregional_text': forms.Textarea(attrs=rows3),
@@ -188,28 +199,28 @@ class CSASRequestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         section_choices = [(obj.id, obj.full_name) for obj in Section.objects.all()]
         section_choices.insert(0, (None, "------"))
-        coordinator_choices = [(u.user.id, u.user.get_full_name()) for u in
-                               models.CSASAdminUser.objects.filter(region__isnull=False).order_by("user__first_name", "user__last_name")]
-        coordinator_choices.insert(0, (None, "------"))
+        # coordinator_choices = [(o.coordinator.id, o.coordinator.get_full_name()) for o in
+        #                        models.CSASOffice.objects.all().order_by("user__first_name", "user__last_name")]
+        # coordinator_choices.insert(0, (None, "------"))
         client_choices = [(u.id, str(u)) for u in User.objects.all().order_by("first_name", "last_name")]
         client_choices.insert(0, (None, "------"))
 
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = section_choices
-        self.fields['coordinator'].choices = coordinator_choices
+        # self.fields['coordinator'].choices = coordinator_choices
         self.fields['client'].choices = client_choices
 
     def clean(self):
         cleaned_data = super().clean()
         # make sure there is at least an english or french title
         client = cleaned_data.get("client")
-        coordinator = cleaned_data.get("coordinator")
+        office = cleaned_data.get("office")
         section = cleaned_data.get("section")
         if not client:
             error_msg = gettext("Must enter a client for this request!")
             raise forms.ValidationError(error_msg)
-        if not coordinator:
-            error_msg = gettext("Must enter a coordinator for this request!")
+        if not office:
+            error_msg = gettext("Must enter a CSAS office for this request!")
             raise forms.ValidationError(error_msg)
         if not section:
             error_msg = gettext("Must enter a section for this request!")
@@ -328,10 +339,8 @@ class ProcessForm(forms.ModelForm):
             'status',
             'scope',
             'type',
-            'lead_region',
-            'other_regions',
-            'coordinator',
-            'advisors',
+            'lead_office',
+            'other_offices',
             'editors',
         ]
         required_fields = [
@@ -339,16 +348,13 @@ class ProcessForm(forms.ModelForm):
             gettext_lazy('name'),
             'scope',
             'type',
-            'coordinator',
-            'lead_region',
+            'lead_office',
         ]
         widgets = {
             'csas_requests': forms.SelectMultiple(attrs=chosen_js),
-            'advisors': forms.SelectMultiple(attrs=chosen_js),
             'editors': forms.SelectMultiple(attrs=chosen_js),
-            'coordinator': forms.Select(attrs=chosen_js),
-            'lead_region': forms.Select(attrs=chosen_js),
-            'other_regions': forms.SelectMultiple(attrs=chosen_js),
+            'lead_office': forms.Select(attrs=chosen_js),
+            'other_offices': forms.SelectMultiple(attrs=chosen_js),
             'advice_date': forms.DateInput(attrs=dict(type="date"), format="%Y-%m-%d"),
         }
 
@@ -371,10 +377,8 @@ class ProcessForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         # make sure that the lead_region is not also listed in the other_regions field
-        lead_region = cleaned_data.get("lead_region")
-        other_regions = cleaned_data.get("other_regions")
-        coordinator = cleaned_data.get("coordinator")
-        lead_region = cleaned_data.get("lead_region")
+        lead_office = cleaned_data.get("lead_office")
+        other_offices = cleaned_data.get("other_offices")
         name = cleaned_data.get("name")
         nom = cleaned_data.get("nom")
         if not name and not nom:
@@ -382,14 +386,11 @@ class ProcessForm(forms.ModelForm):
             self.add_error('name', error_msg)
             self.add_error('nom', error_msg)
             raise forms.ValidationError(error_msg)
-        if lead_region in other_regions:
-            error_msg = gettext("Your lead region cannot be listed in the 'Other Regions' field.")
-            self.add_error('other_regions', error_msg)
-        if not coordinator:
-            error_msg = gettext("Must enter a coordinator for this request!")
-            raise forms.ValidationError(error_msg)
-        if not lead_region:
-            error_msg = gettext("Must enter a lead region for this process!")
+        if lead_office in other_offices:
+            error_msg = gettext("The lead office cannot be listed in the 'Other offices' field.")
+            self.add_error('other_offices', error_msg)
+        if not lead_office:
+            error_msg = gettext("Must enter a lead office for this process!")
             raise forms.ValidationError(error_msg)
         return self.cleaned_data
 

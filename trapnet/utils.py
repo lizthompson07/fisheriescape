@@ -48,7 +48,7 @@ def get_sample_field_list(sample=None):
         'substrate_profile|{}'.format(_("substrate profile")) if is_electro else None,
         'crew_display|{}'.format(_("crew")) if is_electro else None,
         "water_cond" if is_electro else None,
-        'full_wetted_width|{}'.format(_("full wetted width (sq. meters)")) if is_electro else None,
+        'full_wetted_width|{}'.format(_("full wetted width (sq meters)")) if is_electro else None,
         'avg_depth_lower|{}'.format(_("mean lower depth (cm)")) if is_electro else None,
         'avg_depth_middle|{}'.format(_("mean middle depth (cm)")) if is_electro else None,
         'avg_depth_upper|{}'.format(_("mean upper depth (cm)")) if is_electro else None,

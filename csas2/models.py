@@ -49,9 +49,8 @@ def doc_directory_path(instance, filename):
 
 class CSASAdminUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="csas_admin_user", verbose_name=_("DM Apps user"))
-    region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="csas_admin_user", on_delete=models.CASCADE, blank=True,
-                               null=True)
     is_national_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
+    is_web_pub_user = models.BooleanField(default=False, verbose_name=_("NCR web & pub staff?"), choices=YES_NO_CHOICES)
 
     def __str__(self):
         return self.user.get_full_name()
@@ -102,15 +101,59 @@ class GenericNote(MetadataFields):
         return mark_safe(f"{date(self.updated_at)} &mdash; {by}")
 
 
+class CSASOffice(models.Model):
+    region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="csas_offices", verbose_name=_("region"))
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_offices", verbose_name=_("coordinator / CSA"))
+    advisors = models.ManyToManyField(User, blank=True, verbose_name=_("science advisors"), related_name="csas_offices_advisors")
+    administrators = models.ManyToManyField(User, blank=True, verbose_name=_("administrators"), related_name="csas_offices_administrators")
+    generic_email = models.EmailField(verbose_name=_("generic email address"), blank=True, null=True)
+    disable_request_notifications = models.BooleanField(default=False, verbose_name=_("disable notifications of new requests?"), choices=YES_NO_CHOICES)
+    no_staff_emails = models.BooleanField(default=False, verbose_name=_("do not send emails directly to office staff?"), choices=YES_NO_CHOICES)
+
+    class Meta:
+        ordering = ["region"]
+
+    def __str__(self):
+        return str(self.region)
+
+    def get_absolute_url(self):
+        return reverse("csas2:office_list")
+
+    @property
+    def all_emails(self):
+        payload = list()
+        if not self.no_staff_emails:
+            payload.append(self.coordinator.email)
+            payload.extend([u.email for u in self.advisors.all()])
+            payload.extend([u.email for u in self.administrators.all()])
+        if self.generic_email:
+            payload.append(self.generic_email)
+        return list(set(payload))
+
+    @property
+    def all_emails_display(self):
+        payload = listrify(self.all_emails, "<br>")
+        if not payload:
+            payload = str()
+        else:
+            payload += f'<br><br>'
+        if self.disable_request_notifications:
+            payload += f'<span class="text-danger">* request notification emails disabled</span>'
+        return payload
+
+
 class CSASRequest(MetadataFields):
     ''' csas request '''
     language = models.IntegerField(default=1, verbose_name=_("language of request"), choices=model_choices.language_choices)
     title = models.CharField(max_length=1000, verbose_name=_("title"))
     translated_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("translated title"))
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("CSAS coordinator"),
-                                    blank=True, null=False)
+    office = models.ForeignKey(CSASOffice, on_delete=models.DO_NOTHING, related_name="csas_offices", verbose_name=_("CSAS office"),
+                               blank=True, null=False)
+
+    # coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("CSAS coordinator"),
+    #                                 blank=True, null=True, editable=False)
     client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=False)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"), blank=True, null=False)
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("client section"), blank=True, null=False)
     is_multiregional = models.IntegerField(default=False, choices=NULL_YES_NO_CHOICES, blank=True, null=True,
                                            verbose_name=_("Could the advice provided potentially be applicable to other regions and/or sectors?"),
                                            help_text=_(
@@ -146,8 +189,10 @@ class CSASRequest(MetadataFields):
     uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid4, verbose_name=_("unique identifier"))
 
     # calculated
+    advice_fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_request_advice",
+                                           verbose_name=_("advice FY"), editable=False)
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_requests",
-                                    verbose_name=_("fiscal year"), editable=False)
+                                    verbose_name=_("request FY"), editable=False)
     ref_number = models.CharField(blank=True, null=True, editable=False, verbose_name=_("reference number"), max_length=255)
 
     class Meta:
@@ -159,15 +204,24 @@ class CSASRequest(MetadataFields):
         return self.title
 
     def save(self, *args, **kwargs):
+
+        # request fiscal year
         if hasattr(self, "review"):
             self.ref_number = self.review.ref_number
             if self.review.advice_date:
-                self.fiscal_year_id = fiscal_year(self.review.advice_date, sap_style=True)
+                self.advice_fiscal_year_id = fiscal_year(self.review.advice_date, sap_style=True)
             else:
-                self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
+                self.advice_fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
         else:
-            self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
+            self.advice_fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
 
+        # submission fiscal year
+        if self.submission_date:
+            self.fiscal_year_id = fiscal_year(self.submission_date, sap_style=True)
+        elif self.created_at:
+            self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
+        else:
+            self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
         # set the STATUS
         # if there is a process, the request the request MUST have been approved.
         if self.id and self.processes.exists():
@@ -264,7 +318,7 @@ class CSASRequest(MetadataFields):
         required_fields = [
             'language',
             'title',
-            'coordinator',
+            'office',
             'client',
             'section',
             'issue',
@@ -302,6 +356,10 @@ class CSASRequest(MetadataFields):
             return False
         return True
 
+    @property
+    def coordinator(self):
+        return self.office.coordinator
+
 
 class CSASRequestNote(GenericNote):
     ''' a note pertaining to a csas request'''
@@ -311,13 +369,13 @@ class CSASRequestNote(GenericNote):
 class CSASRequestReview(MetadataFields):
     csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, related_name="review")
     ref_number = models.CharField(max_length=50, verbose_name=_("reference number (optional)"), blank=True, null=True)
-    is_valid = models.IntegerField(blank=True, null=True, verbose_name=_("is this a valid CSAS question?"), choices=model_choices.yes_no_choices_int)
+    is_valid = models.IntegerField(blank=True, null=True, verbose_name=_("Is this within the scope of CSAS?"), choices=model_choices.yes_no_choices_int)
     is_feasible = models.IntegerField(blank=True, null=True, verbose_name=_("is this feasible from a Science perspective"),
-                                      choices=model_choices.yes_no_choices_int)
-    decision = models.IntegerField(blank=True, null=True, verbose_name=_("decision"), choices=model_choices.request_decision_choices)
-    decision_text = models.TextField(blank=True, null=True, verbose_name=_("Decision explanation"))
-    decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("decision date"))
-    advice_date = models.DateTimeField(verbose_name=_("planned advice date"), blank=True, null=True)
+                                      choices=model_choices.yes_no_unsure_choices_int)
+    decision = models.IntegerField(blank=True, null=True, verbose_name=_("recommendation"), choices=model_choices.request_decision_choices)
+    decision_text = models.TextField(blank=True, null=True, verbose_name=_("recommendation explanation"))
+    decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("recommendation date"))
+    advice_date = models.DateTimeField(verbose_name=_("advice required by (final)"), blank=True, null=True)
     deferred_text = models.TextField(null=True, blank=True, verbose_name=_("rationale for alternate scheduling"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
@@ -357,19 +415,27 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     status = models.IntegerField(choices=model_choices.get_process_status_choices(), verbose_name=_("status"), default=1)
     scope = models.IntegerField(verbose_name=_("scope"), choices=model_choices.process_scope_choices)
     type = models.IntegerField(verbose_name=_("type"), choices=model_choices.process_type_choices)
-    lead_region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions", verbose_name=_("lead region"))
-    other_regions = models.ManyToManyField(Region, blank=True, verbose_name=_("other regions"))
-    csas_requests = models.ManyToManyField(CSASRequest, blank=True, related_name="processes", verbose_name=_("Connected CSAS requests"))
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"),
-                                    blank=True)
-    advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
+
+    lead_office = models.ForeignKey(CSASOffice, on_delete=models.DO_NOTHING, related_name="csas_lead_offices", verbose_name=_("lead CSAS office"),
+                                    blank=True, null=False)
+    other_offices = models.ManyToManyField(CSASOffice, blank=True, verbose_name=_("other CSAS offices"))
+
+    # lead_region = models.ForeignKey(Region, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions",
+    #                                 verbose_name=_("lead region"), editable=False)
+    # other_regions = models.ManyToManyField(Region, blank=True, verbose_name=_("other regions"), editable=False)
+    # coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"), null=True,
+    #                                 blank=True, editable=False)
+    # advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
+
     editors = models.ManyToManyField(User, blank=True, verbose_name=_("process editors"), related_name="process_editors",
                                      help_text=_("A list of non-CSAS staff with permissions to edit the process, meetings and documents"))
+
+    csas_requests = models.ManyToManyField(CSASRequest, blank=True, related_name="processes", verbose_name=_("Connected CSAS requests"))
     advice_date = models.DateTimeField(verbose_name=_("Target date for to provide Science advice"), blank=True, null=True)
 
     # non-editable
     is_posted = models.BooleanField(default=False, verbose_name=_("is posted on CSAS website?"))
-    posting_request_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Date of posting request"))
+    posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"))
     posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="processes", verbose_name=_("fiscal year"), editable=False)
 
@@ -466,10 +532,10 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     @property
     def regions(self):
-        mystr = self.lead_region
-        if self.other_regions.exists():
+        mystr = self.lead_office.region
+        if self.other_offices.exists():
             mystr = f"<b><u>{mystr}</u></b>"
-            mystr += f", {listrify(self.other_regions.all())}"
+            mystr += f", {listrify([o for o in self.other_offices.all()])}"
         return mystr
 
     @property
@@ -505,6 +571,36 @@ class Process(SimpleLookupWithUUID, MetadataFields):
                 mystr += f"Delta: {(timezone.now() - doc.tracking.due_date).days}\n"
             mystr += "\n\n"
         return mystr
+
+    @property
+    def can_post_meeting(self):
+        """ stores the business rules for whether the meeting can be posted to the csas website"""
+        can_post = True  # start off optimistic
+        reasons = []
+        if not hasattr(self, "tor"):  # there is no TOR
+            reasons.append(gettext("ToR has not been initiated"))
+            if can_post:
+                can_post = False
+        else:
+            if not self.tor.meeting:  # there is no meeting linked to ToR
+                reasons.append(gettext("ToR has not been linked to a meeting"))
+                if can_post:
+                    can_post = False
+
+            if not self.tor.expected_document_types.exists():  # there is no TOR - expected publications
+                reasons.append(gettext("ToR does not list expected publications"))
+                if can_post:
+                    can_post = False
+
+        return dict(can_post=can_post, reasons=reasons)
+
+    @property
+    def coordinator(self):
+        return self.lead_office.coordinator
+
+    @property
+    def advisors(self):
+        return self.lead_office.advisors.all()
 
 
 class ProcessCost(GenericCost):
@@ -567,6 +663,22 @@ class TermsOfReference(MetadataFields):
     def references_fr_html(self):
         if self.references_fr:
             return mark_safe(markdown(self.references_fr))
+
+    @property
+    def expected_publications_en(self):
+        lang = get_language()
+        activate("en")
+        mystr = listrify(self.expected_document_types.all())
+        activate(lang)
+        return mystr
+
+    @property
+    def expected_publications_fr(self):
+        lang = get_language()
+        activate("fr")
+        mystr = listrify(self.expected_document_types.all())
+        activate(lang)
+        return mystr
 
 
 class ProcessNote(GenericNote):
@@ -679,21 +791,13 @@ class Meeting(SimpleLookup, MetadataFields):
     def expected_publications_en(self):
         """ this is mainly for the email that gets sent to NCR when there is a change on a posted meeting """
         if hasattr(self.process, "tor"):
-            lang = get_language()
-            activate("en")
-            mystr = listrify(self.process.tor.expected_document_types.all())
-            activate(lang)
-            return mystr
+            return self.process.tor.expected_publications_en
 
     @property
     def expected_publications_fr(self):
         """ this is mainly for the email that gets sent to NCR when there is a change on a posted meeting """
         if hasattr(self.process, "tor"):
-            lang = get_language()
-            activate("fr")
-            mystr = listrify(self.process.tor.expected_document_types.all())
-            activate(lang)
-            return mystr
+            return self.process.tor.expected_publications_fr
 
     @property
     def total_cost(self):

@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from django.contrib.auth.models import User
+from django.db.models import Value, TextField
+from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
@@ -19,7 +21,7 @@ from shared_models.models import Person, Language, Region, FiscalYear
 from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission
-from .. import models, emails, model_choices, utils
+from .. import models, emails, model_choices, utils, filters
 
 
 # USER
@@ -38,8 +40,8 @@ class CurrentUserAPIView(APIView):
 
         # provide the region for which that use is an admin for, if applicable
         data["regional_admin"] = None
-        if hasattr(request.user, "csas_admin_user"):
-            data["regional_admin"] = request.user.csas_admin_user.region_id
+        if request.user.csas_offices.exists():
+            data["regional_admin"] = [office.region_id for office in request.user.csas_offices.all()]
 
         if qp.get("request"):
             data["can_modify"] = utils.can_modify_request(request.user, qp.get("request"), return_as_dict=True)
@@ -55,21 +57,18 @@ class CurrentUserAPIView(APIView):
 
 
 class CSASRequestViewSet(viewsets.ModelViewSet):
+    queryset = models.CSASRequest.objects.all()
     serializer_class = serializers.CSASRequestSerializer
     permission_classes = [CanModifyRequestOrReadOnly]
-    queryset = models.CSASRequest.objects.all()
+    pagination_class = StandardResultsSetPagination
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['id', 'title', 'translated_title']
-    filterset_fields = [
-        'section__division__branch__sector__region',
-        "section__division__branch__sector",
-        "section__division__branch",
-        "section__division",
-        "section",
-        "fiscal_year",
-        "status",
-        "review__decision",
-    ]
+    filterset_class = filters.CSASRequestFilter
+
+    def get_queryset(self):
+        qs = models.CSASRequest.objects.all()
+        qs = qs.annotate(search=Concat('title', Value(" "), 'translated_title', Value(" "), 'id', output_field=TextField()))
+        return qs
 
 
 class CSASRequestNoteViewSet(viewsets.ModelViewSet):
@@ -109,21 +108,26 @@ class CSASRequestReviewViewSet(viewsets.ModelViewSet):
         instance.delete()
         csas_request.save()
 
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
 
 class ProcessViewSet(viewsets.ModelViewSet):
-    queryset = models.Process.objects.all().order_by("-created_at")
+    queryset = models.Process.objects.all()
     serializer_class = serializers.ProcessSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ['id', 'name', 'nom']
-    filterset_fields = [
-        'fiscal_year',
-        'id',
-        'lead_region',
-        "is_posted",
-        "status",
-    ]
+    filterset_class = filters.ProcessFilter
+
+    def get_queryset(self):
+        qs = models.Process.objects.all().order_by("-created_at")
+        qs = qs.annotate(search=Concat('name', Value(" "), 'nom', Value(" "), 'id', output_field=TextField()))
+        return qs
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -652,8 +656,9 @@ class RequestModelMetaAPIView(APIView):
         status_choices = [dict(text=c[1], value=c[0]) for c in model_choices.request_status_choices]
         status_choices.insert(0, dict(text="-----", value=None))
         data['status_choices'] = status_choices
-        data['region_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_region_choices()]
-        data['sector_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_sector_choices()]
+        data['region_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_region_choices(with_requests=True)]
+        data['sector_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_sector_choices(with_requests=True)]
+        data['section_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_section_choices(with_requests=True)]
         data['fy_choices'] = [dict(text=str(c), value=c.id) for c in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
         return Response(data)
 
@@ -670,7 +675,10 @@ class RequestReviewModelMetaAPIView(APIView):
         decision_choices.insert(0, dict(text="-----", value=None))
         yes_no_choices = [dict(text=c[1], value=c[0]) for c in model_choices.yes_no_choices_int]
         yes_no_choices.insert(0, dict(text="-----", value=None))
+        yes_no_unsure_choices = [dict(text=c[1], value=c[0]) for c in model_choices.yes_no_unsure_choices_int]
+        yes_no_unsure_choices.insert(0, dict(text="-----", value=None))
         data['yes_no_choices'] = yes_no_choices
+        data['yes_no_unsure_choices'] = yes_no_unsure_choices
         data['decision_choices'] = decision_choices
         return Response(data)
 

@@ -15,7 +15,14 @@ class SpeciesFilter(django_filters.FilterSet):
 class RiverFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="River (any part of name...)", lookup_expr='icontains',
                                             widget=forms.TextInput())
+    site = django_filters.CharFilter(field_name='sites__name', label="Site (any part of name...)", lookup_expr='icontains',
+                                            widget=forms.TextInput(), distinct=True)
 
+    class Meta:
+        model = shared_models.River
+        fields = {
+            'fishing_area': ['exact'],
+        }
 
 class SampleFilter(django_filters.FilterSet):
     class Meta:
@@ -45,8 +52,9 @@ class ObservationFilter(django_filters.FilterSet):
     class Meta:
         model = models.Observation
         fields = {
+            'id': ['exact'],
             'species': ['exact'],
-            'tag_number': ['iexact'],
+            'tag_number': ['icontains'],
             'scale_id_number': ['iexact'],
             'sample__site': ['exact'],
             'sample_id': ['exact'],

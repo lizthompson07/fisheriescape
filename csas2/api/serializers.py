@@ -23,8 +23,9 @@ class CSASRequestSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     fiscal_year = serializers.StringRelatedField()
+    advice_fiscal_year = serializers.StringRelatedField()
     client = serializers.StringRelatedField()
-    coordinator = serializers.StringRelatedField()
+    office = serializers.StringRelatedField()
 
     review = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
@@ -45,6 +46,14 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     has_process = serializers.SerializerMethodField()
     is_rescheduled = serializers.SerializerMethodField()
     is_valid_request = serializers.SerializerMethodField()
+    prioritization_display_short = serializers.SerializerMethodField()
+    coordinator = serializers.SerializerMethodField()
+
+    def get_coordinator(self, instance):
+        return str(instance.office.coordinator)
+
+    def get_prioritization_display_short(self, instance):
+        return instance.get_prioritization_display()
 
     def get_is_valid_request(self, instance):
         return instance.is_valid_request
@@ -112,6 +121,26 @@ class CSASRequestReviewSerializer(serializers.ModelSerializer):
 
     advice_date_display = serializers.SerializerMethodField()
     decision_date_display = serializers.SerializerMethodField()
+    last_modified_string = serializers.SerializerMethodField()
+    decision_display = serializers.SerializerMethodField()
+    metadata = serializers.SerializerMethodField()
+    is_valid_display = serializers.SerializerMethodField()
+    is_feasible_display = serializers.SerializerMethodField()
+
+    def get_is_valid_display(self, instance):
+        return instance.get_is_valid_display()
+
+    def get_is_feasible_display(self, instance):
+        return instance.get_is_feasible_display()
+
+    def get_metadata(self, instance):
+        return instance.metadata
+
+    def get_decision_display(self, instance):
+        return instance.decision_display
+
+    def get_last_modified_string(self, instance):
+        return instance.last_modified_string
 
     def get_advice_date_display(self, instance):
         if instance.advice_date:
@@ -600,24 +629,43 @@ class MeetingResourceSerializer(serializers.ModelSerializer):
         return date(instance.created_at)
 
 
+class ToRSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TermsOfReference
+        fields = "__all__"
+
+    meeting_obj = serializers.SerializerMethodField()
+    expected_publications_en = serializers.SerializerMethodField()
+    expected_publications_fr = serializers.SerializerMethodField()
+
+    def get_expected_publications_fr(self, instance):
+        return instance.expected_publications_fr
+
+    def get_expected_publications_en(self, instance):
+        return instance.expected_publications_en
+
+    def get_meeting_obj(self, instance):
+        if instance.meeting:
+            return MeetingSerializer(instance.meeting).data
+        return {}
+
+
 class ProcessSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Process
         fields = "__all__"
 
-    advisors = serializers.SerializerMethodField()
     editors = serializers.SerializerMethodField()
     chair = serializers.SerializerMethodField()
-    coordinator = serializers.StringRelatedField()
+    lead_office = serializers.StringRelatedField()
     fiscal_year = serializers.StringRelatedField()
     has_tor = serializers.SerializerMethodField()
     has_tor_meeting = serializers.SerializerMethodField()
-    lead_region = serializers.StringRelatedField()
     metadata = serializers.SerializerMethodField()
-    other_regions = serializers.SerializerMethodField()
+    other_offices = serializers.SerializerMethodField()
     scope_type = serializers.SerializerMethodField()
     tname = serializers.SerializerMethodField()
-    posting_request_date = serializers.SerializerMethodField()
+    posting_request_date_display = serializers.SerializerMethodField()
     client_sectors = serializers.SerializerMethodField()
     science_leads = serializers.SerializerMethodField()
     client_leads = serializers.SerializerMethodField()
@@ -626,6 +674,19 @@ class ProcessSerializer(serializers.ModelSerializer):
     status_display_html = serializers.SerializerMethodField()
     regions = serializers.SerializerMethodField()
     advice_date_display = serializers.SerializerMethodField()
+    can_post_meeting = serializers.SerializerMethodField()
+    key_meetings = serializers.SerializerMethodField()
+    tor = serializers.SerializerMethodField()
+
+    def get_tor(self, instance):
+        if hasattr(instance, "tor"):
+            return ToRSerializer(instance.tor).data
+
+    def get_key_meetings(self, instance):
+        return MeetingSerializerLITE(instance.meetings.filter(is_planning=False), many=True, read_only=True).data
+
+    def get_can_post_meeting(self, instance):
+        return instance.can_post_meeting
 
     def get_advice_date_display(self, instance):
         return date(instance.advice_date)
@@ -642,12 +703,9 @@ class ProcessSerializer(serializers.ModelSerializer):
     def get_client_sectors(self, instance):
         return instance.client_sectors
 
-    def get_posting_request_date(self, instance):
+    def get_posting_request_date_display(self, instance):
         if instance.posting_request_date:
             return f"{date(instance.posting_request_date)} ({naturaltime(instance.posting_request_date)})"
-
-    def get_advisors(self, instance):
-        return listrify(instance.advisors.all())
 
     def get_editors(self, instance):
         return listrify(instance.editors.all())
@@ -665,8 +723,8 @@ class ProcessSerializer(serializers.ModelSerializer):
     def get_metadata(self, instance):
         return instance.metadata
 
-    def get_other_regions(self, instance):
-        return listrify(instance.other_regions.all())
+    def get_other_offices(self, instance):
+        return listrify(instance.other_offices.all())
 
     def get_scope_type(self, instance):
         return instance.scope_type

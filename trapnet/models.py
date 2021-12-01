@@ -17,6 +17,7 @@ from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.models import MetadataFields, SimpleLookup
 from shared_models.utils import remove_nulls
+from trapnet import model_choices
 
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
 
@@ -76,25 +77,20 @@ class RiverSite(MetadataFields):
         ordering = ['river', 'name']
 
 
-class LifeStage(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+class LifeStage(CodeModel):
+    pass
 
-    def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
 
-    class Meta:
-        ordering = ['name', ]
+class ReproductiveStatus(CodeModel):
+    pass
 
 
 class Species(MetadataFields):
     common_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="english name")
     common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
-    life_stage = models.ForeignKey(LifeStage, related_name='species', on_delete=models.DO_NOTHING, blank=True, null=True)
-    abbrev = models.CharField(max_length=10, verbose_name="abbreviation", unique=True)
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=255, blank=True, null=True, unique=True)
-    tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
+    tsn = models.IntegerField(blank=False, null=True, verbose_name="ITIS TSN", help_text=_("Integrated Taxonomic Information System (https://www.itis.gov/)"), unique=True)
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
     notes = models.TextField(max_length=255, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_spp_created_by')
@@ -102,8 +98,6 @@ class Species(MetadataFields):
 
     def __str__(self):
         my_str = getattr(self, str(_("common_name_eng")))
-        if self.life_stage:
-            my_str += " ({})".format(self.life_stage)
         return my_str
 
     @property
@@ -112,7 +106,7 @@ class Species(MetadataFields):
 
     @property
     def search_name(self):
-        return f"{self.full_name} / {self.scientific_name} ({self.code})"
+        return f"({self.code}) - {self.full_name}"
 
     class Meta:
         ordering = ['common_name_eng']
@@ -121,6 +115,9 @@ class Species(MetadataFields):
     def get_absolute_url(self):
         return reverse("trapnet:species_detail", kwargs={"pk": self.id})
 
+    @property
+    def observation_count(self):
+        return self.observations.count()
 
 class Electrofisher(SimpleLookup):
     model_number = models.CharField(max_length=255, blank=True, null=True)
@@ -131,49 +128,8 @@ class Electrofisher(SimpleLookup):
 
 
 class Sample(MetadataFields):
-    wind_speed_choices = (
-        (1, _("no wind")),
-        (2, _("calm / slight wind")),
-        (3, _("light wind")),
-        (4, _("moderate wind")),
-        (5, _("heavy wind")),
-        (6, _("variable")),
-    )
-    wind_direction_choices = (
-        (1, _("north")),
-        (2, _("northeast")),
-        (3, _("east")),
-        (4, _("southeast")),
-        (5, _("south")),
-        (6, _("southwest")),
-        (7, _("west")),
-        (8, _("northwest")),
-    )
-    precipitation_category_choices = (
-        (1, _("no precipitation")),
-        (2, _("mist")),
-        (3, _("light rain")),
-        (4, _("moderate rain")),
-        (5, _("heavy rain")),
-        (6, _("intermittent")),
-        (7, _("flurries")),
-    )
-    operating_condition_choices = (
-        (1, _("fully operational")),
-        (2, _("partially operational")),
-        (3, _("not operational")),
-    )
-    sample_type_choices = (
-        (1, _("Rotary Screw Trap")),
-        (2, _("Electrofishing")),
-    )
-    site_type_choices = (
-        (1, _("Open")),
-        (2, _("Closed")),
-    )
-
     site = models.ForeignKey(RiverSite, related_name='samples', on_delete=models.DO_NOTHING)
-    sample_type = models.IntegerField(choices=sample_type_choices)
+    sample_type = models.IntegerField(choices=model_choices.sample_type_choices)
 
     arrival_date = models.DateTimeField(verbose_name="arrival date/time")
     departure_date = models.DateTimeField(verbose_name="departure date/time")
@@ -206,16 +162,17 @@ class Sample(MetadataFields):
     depth_1_upper = models.IntegerField(null=True, blank=True, verbose_name=_("depth #1 - upper (cm)"))
     depth_2_upper = models.IntegerField(null=True, blank=True, verbose_name=_("depth #2 - upper (cm)"))
     depth_3_upper = models.IntegerField(null=True, blank=True, verbose_name=_("depth #3 - upper (cm)"))
+    max_depth = models.IntegerField(null=True, blank=True, verbose_name=_("max depth (cm)"), help_text=_("max depth found within the whole site"))
 
     # temp/climate data
     air_temp_arrival = models.FloatField(null=True, blank=True, verbose_name="air temperature on arrival(°C)")
     min_air_temp = models.FloatField(null=True, blank=True, verbose_name="minimum air temperature (°C)")
     max_air_temp = models.FloatField(null=True, blank=True, verbose_name="maximum air temperature (°C)")
     percent_cloud_cover = models.FloatField(null=True, blank=True, verbose_name="cloud cover (0-1)", validators=[MinValueValidator(0), MaxValueValidator(1)])
-    precipitation_category = models.IntegerField(blank=True, null=True, choices=precipitation_category_choices)
+    precipitation_category = models.IntegerField(blank=True, null=True, choices=model_choices.precipitation_category_choices)
     precipitation_comment = models.CharField(max_length=255, blank=True, null=True)
-    wind_speed = models.IntegerField(blank=True, null=True, choices=wind_speed_choices)
-    wind_direction = models.IntegerField(blank=True, null=True, choices=wind_direction_choices)
+    wind_speed = models.IntegerField(blank=True, null=True, choices=model_choices.wind_speed_choices)
+    wind_direction = models.IntegerField(blank=True, null=True, choices=model_choices.wind_direction_choices)
 
     # water data
     water_depth_m = models.FloatField(null=True, blank=True, verbose_name="water depth (m)")
@@ -243,23 +200,28 @@ class Sample(MetadataFields):
     # rst
     rpm_arrival = models.FloatField(null=True, blank=True, verbose_name="RPM at start")
     rpm_departure = models.FloatField(null=True, blank=True, verbose_name="RPM at end")
-    operating_condition = models.IntegerField(blank=True, null=True, choices=operating_condition_choices)
+    operating_condition = models.IntegerField(blank=True, null=True, choices=model_choices.operating_condition_choices)
     operating_condition_comment = models.CharField(max_length=255, blank=True, null=True)
 
     # ef
-    site_type = models.IntegerField(blank=True, null=True, choices=site_type_choices, verbose_name=_("type of site"))
+    site_type = models.IntegerField(blank=True, null=True, choices=model_choices.site_type_choices, verbose_name=_("type of site"))
     electrofisher = models.ForeignKey(Electrofisher, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("electrofisher"), blank=True,
                                       null=True)
     electrofisher_voltage = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher voltage (V)"))
     electrofisher_output_low = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher output, low (amps)"))
     electrofisher_output_high = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher output, high (amps)"))
     electrofisher_frequency = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher frequency (Hz)"))
+    electrofisher_pulse_type = models.IntegerField(blank=True, null=True, choices=model_choices.pulse_type_choices, verbose_name=_("type of pulse"))
+    duty_cycle = models.IntegerField(blank=True, null=True, verbose_name=_("duty cycle (%)"), validators=(MinValueValidator(0), MaxValueValidator(100)))
 
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_created_by')
     updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_updated_by')
 
     @property
     def full_wetted_width(self):
+        return self.get_full_wetted_width()
+
+    def get_full_wetted_width(self, show_errors=True):
         """
         Full wetted width:
         (average of the left and right bank lengths)    X    (average of the lower, middle, and upper stream widths)
@@ -276,10 +238,12 @@ class Sample(MetadataFields):
         if not self.width_upper:
             errors.append("missing upper stream width")
         if len(errors):
-            return mark_safe(f"<em class='text-muted'>{listrify(errors)}</em>")
+            if show_errors:
+                return mark_safe(f"<em class='text-muted'>{listrify(errors)}</em>")
         else:
             return statistics.mean([self.bank_length_left, self.bank_length_right]) * statistics.mean(
                 [self.width_lower, self.width_middle, self.width_upper])
+
 
     @property
     def substrate_profile(self):
@@ -457,14 +421,20 @@ class Sample(MetadataFields):
     @property
     def electrofisher_params(self):
         return mark_safe(
-            f"voltage (V) &rarr; {nz(self.electrofisher_voltage, '---')} <br>output, low (amps) &rarr; {nz(self.electrofisher_output_low, '---')}<br>output, high (amps) &rarr; {nz(self.electrofisher_output_high, '---')} <br>frequency (Hz) &rarr; {nz(self.electrofisher_frequency, '---')} ")
+            f"voltage (V): {nz(self.electrofisher_voltage, '---')} "
+            f"<br>output, low (amps): {nz(self.electrofisher_output_low, '---')}"
+            f"<br>output, high (amps): {nz(self.electrofisher_output_high, '---')} "
+            f"<br>frequency (Hz): {nz(self.electrofisher_frequency, '---')} "
+            f"<br>type of pulse: {nz(self.get_electrofisher_pulse_type_display(), '---')} "
+            f"<br>duty cycle (%): {nz(self.duty_cycle, '---')} "
+        )
 
 
 class Sweep(MetadataFields):
     sample = models.ForeignKey(Sample, related_name='sweeps', on_delete=models.DO_NOTHING, editable=False)
     sweep_number = models.FloatField(verbose_name=_("sweep number"), help_text=_(
         "open sites are always 0.5. Closed sites begin at 0.5, but then are depleted starting at 1, and counting up until depletion is achieved (e.g., 2, 3,...)"))
-    sweep_time = models.IntegerField(verbose_name=_("sweep time (seconds)"), help_text=_("in seconds"), default=500)
+    sweep_time = models.IntegerField(verbose_name=_("sweep time (seconds)"), help_text=_("in seconds"))
     notes = models.TextField(blank=True, null=True)
 
     @property
@@ -505,64 +475,60 @@ class Sex(CodeModel):
 
 class Maturity(CodeModel):
     pass
-
-
-class Entry(MetadataFields):
-    first_tag = models.CharField(max_length=50, blank=True, null=True)
-    last_tag = models.CharField(max_length=50, blank=True, null=True)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="entries")
-    origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
-    frequency = models.IntegerField(blank=True, null=True, verbose_name=_("frequency"))
-    fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
-    total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
-    weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
-    sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
-    smolt_age = models.IntegerField(blank=True, null=True)
-    location_tagged = models.CharField(max_length=500, blank=True, null=True)
-    date_tagged = models.DateTimeField(blank=True, null=True, verbose_name="date tagged")
-    scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"))
-    tags_removed = models.CharField(max_length=250, blank=True, null=True)
-    notes = models.TextField(blank=True, null=True)
-
-    # non-editable
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries", editable=False)
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="entries", editable=False)
-
-    def save(self, *args, **kwargs):
-        return super().save(*args, **kwargs)
-
-    class Meta:
-        verbose_name_plural = "entries"
+#
+#
+# class Entry(MetadataFields):
+#     first_tag = models.CharField(max_length=50, blank=True, null=True)
+#     last_tag = models.CharField(max_length=50, blank=True, null=True)
+#     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
+#     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
+#     frequency = models.IntegerField(blank=True, null=True, verbose_name=_("frequency"))
+#     fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
+#     total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
+#     weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
+#     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
+#     smolt_age = models.IntegerField(blank=True, null=True)
+#     location_tagged = models.CharField(max_length=500, blank=True, null=True)
+#     date_tagged = models.DateTimeField(blank=True, null=True, verbose_name="date tagged")
+#     scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"))
+#     tags_removed = models.CharField(max_length=250, blank=True, null=True)
+#     notes = models.TextField(blank=True, null=True)
+#
+#     # non-editable
+#     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries", editable=False, blank=True, null=True)
+#     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="entries", editable=False, blank=True, null=True)
+#
+#     def save(self, *args, **kwargs):
+#         return super().save(*args, **kwargs)
+#
+#     class Meta:
+#         verbose_name_plural = "entries"
 
 
 class Observation(MetadataFields):
-    fish_size_choices = (
-        (1, _("Fry")),
-        (2, _("Parr")),
-    )
-    age_type_choices = (
-        (1, _("scale")),
-        (2, _("length-frequency")),
-    )
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observations")
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="observations")
+    life_stage = models.ForeignKey(LifeStage, related_name='observations', on_delete=models.DO_NOTHING, blank=True, null=True)
+    reproductive_status = models.ForeignKey(ReproductiveStatus, related_name='observations', on_delete=models.DO_NOTHING, blank=True, null=True)
+
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="observations", blank=False, null=True)
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
+
     fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
     total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
     weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
     location_tagged = models.CharField(max_length=500, blank=True, null=True)
-    tag_number = models.CharField(max_length=12, blank=True, null=True, verbose_name=_("tag number"), unique=True)
+    tag_number = models.CharField(max_length=12, blank=True, null=True, verbose_name=_("tag number"))
     scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"))
     date_tagged = models.DateTimeField(blank=True, null=True, verbose_name="original date tagged")
     tags_removed = models.CharField(max_length=250, blank=True, null=True)
 
     # electrofishing only
-    fish_size = models.IntegerField(blank=True, null=True, verbose_name=_("fish size"), choices=fish_size_choices)
+    fish_size = models.IntegerField(blank=True, null=True, verbose_name=_("fish size"), choices=model_choices.fish_size_choices)
     maturity = models.ForeignKey(Maturity, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
 
     # downstream
-    age_type = models.IntegerField(blank=True, null=True, verbose_name=_("age type"), choices=age_type_choices)
+    age_type = models.IntegerField(blank=True, null=True, verbose_name=_("age type"), choices=model_choices.age_type_choices)
     river_age = models.IntegerField(blank=True, null=True, verbose_name=_("river age"))
     ocean_age = models.IntegerField(blank=True, null=True, verbose_name=_("ocean age"))
 

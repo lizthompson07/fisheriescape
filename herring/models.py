@@ -1,14 +1,14 @@
 import os
 
+from django.contrib import auth
+from django.contrib.auth.models import User
 from django.db import models
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-from django.contrib import auth
 from django.utils.translation import gettext_lazy as _
 
 from shared_models import models as shared_models
-
 
 # Choices for YesNo
 YESNO_CHOICES = (
@@ -34,6 +34,7 @@ class Sampler(models.Model):
     @property
     def full_name(self):
         return str(self)
+
 
 class District(models.Model):
     # Choices for province
@@ -145,6 +146,11 @@ class Sample(models.Model):
         (SEA, 'Sea sample'),
     )
 
+    season_type_choices = (
+        (1, "spring"),
+        (2, "fall"),
+    )
+
     type = models.IntegerField(blank=True, null=True, choices=SAMPLE_TYPE_CHOICES)
     sample_date = models.DateTimeField()
     sampler_ref_number = models.IntegerField(verbose_name="Sampler's reference number / set number", blank=True, null=True)
@@ -165,15 +171,16 @@ class Sample(models.Model):
     total_fish_preserved = models.IntegerField(null=True, blank=True)
     remarks = models.TextField(null=True, blank=True)
     old_id = models.CharField(max_length=100, null=True, blank=True)
-    season = models.IntegerField(null=True, blank=True)
+    season = models.IntegerField(null=True, blank=True, verbose_name=_("year"))
+    season_type = models.IntegerField(null=True, blank=True, choices=season_type_choices, editable=False, verbose_name=_("season"))
     length_frequencies = models.ManyToManyField(to=LengthBin, through='LengthFrequency')
     lab_processing_complete = models.BooleanField(default=False)
     otolith_processing_complete = models.BooleanField(default=False)
     creation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                    related_name="created_by_samples")
     last_modified_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          related_name="last_modified_by_samples")
 
     # uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID")
@@ -191,6 +198,11 @@ class Sample(models.Model):
     def save(self, *args, **kwargs):
         if self.sample_date:
             self.season = self.sample_date.year
+            if self.sample_date.month < 7:
+                self.season_type = 1  # spring
+            else:
+                self.season_type = 2  # fall
+
         self.last_modified_date = timezone.now()
 
         # set lab_processing_complete

@@ -59,6 +59,21 @@ class DiverHardDeleteView(ScubaAdminRequiredMixin, CommonHardDeleteView):
     success_url = reverse_lazy("scuba:manage_divers")
 
 
+class SpeciesFormsetView(ScubaAdminRequiredMixin, CommonFormsetView):
+    template_name = 'scuba/formset.html'
+    h1 = "Manage Species"
+    queryset = models.Species.objects.all()
+    formset_class = forms.SpeciesFormset
+    success_url_name = "scuba:manage_species"
+    home_url_name = "scuba:index"
+    delete_url_name = "scuba:delete_species"
+
+
+class SpeciesHardDeleteView(ScubaAdminRequiredMixin, CommonHardDeleteView):
+    model = models.Species
+    success_url = reverse_lazy("scuba:manage_species")
+
+
 # REGIONS #
 ###########
 
@@ -293,6 +308,7 @@ class SampleListView(ScubaCRUDAccessRequiredMixin, CommonFilterView):
     new_object_url = reverse_lazy("scuba:sample_new")
     new_btn_text = gettext_lazy("Add a New Sample")
     container_class = "container curvy"
+    paginate_by = 25
     field_list = [
         {"name": 'id|{}'.format("sample Id"), "class": "", "width": ""},
         {"name": 'datetime|{}'.format("date"), "class": "", "width": ""},
@@ -349,7 +365,7 @@ class SampleDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
             'width_m',
             'was_seeded',
             'comment',
-            'observation_count|{}'.format(_("lobster count")),
+            'observation_count|{}'.format(_("observation count")),
         ]
         context["dive_field_list"] = dive_field_list
         return context
@@ -475,6 +491,7 @@ class DiveDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
         context["section_field_list"] = section_field_list
         observation_field_list = [
             'id',
+            'species',
             'sex_special_display|{}'.format("sex"),
             'egg_status_special_display|{}'.format("egg status"),
             'carapace_length_mm',
@@ -489,7 +506,7 @@ class DiveDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
 class DiveDataEntryDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
     model = models.Dive
     template_name = 'scuba/dive_data_entry/main.html'
-    container_class = "container bg-light-green curvy"
+    container_class = "container-fluid"
     field_list = [
         'id|{}'.format(_("dive Id")),
         'transect',
@@ -499,6 +516,14 @@ class DiveDataEntryDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
         'width_m',
         'comment',
     ]
+    home_url_name = "scuba:index"
+    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse("scuba:sample_detail", args=[self.get_object().sample.id])}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("scuba:dive_detail", args=[self.get_object().id])}
 
     def get_h1(self):
         return _("Data Entry Mode")
@@ -518,6 +543,7 @@ class DiveDataEntryDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
             'sex',
             'egg_status',
             'carapace_length_mm',
+            'species',
             'certainty_rating',
             'comment',
         ]
@@ -527,6 +553,9 @@ class DiveDataEntryDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
         context["section_form"] = forms.SectionForm
         context["obs_form"] = forms.ObservationForm
         context["new_obs_form"] = forms.NewObservationForm
+        qs = models.Species.objects.filter(is_default=True)
+        if qs.exists():
+            context["default_species_id"] = qs.first().id
         return context
 
 
@@ -547,6 +576,8 @@ class ReportSearchFormView(ScubaCRUDAccessRequiredMixin, CommonFormView):
         year = nz(form.cleaned_data["year"], "None")
         if report == 1:
             return HttpResponseRedirect(reverse("scuba:dive_log_report") + f"?year={year}")
+        elif report == 2:
+            return HttpResponseRedirect(reverse("scuba:dive_transect_report") + f"?year={year}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("scuba:reports"))
@@ -562,5 +593,18 @@ def dive_log_report(request):
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="dive log ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
 
+            return response
+    raise Http404
+
+
+@login_required()
+def dive_transect_report(request):
+    year = None if not request.GET.get("year") or request.GET.get("year") == "None" else int(request.GET.get("year"))
+    file_url = reports.dive_transect_export(year=year)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="dive-transect report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
             return response
     raise Http404
