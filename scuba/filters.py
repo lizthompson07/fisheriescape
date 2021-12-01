@@ -32,15 +32,13 @@ class SampleFilter(django_filters.FilterSet):
     class Meta:
         model = models.Sample
         fields = {
-            'site__region': ['exact'],
-            'site': ['exact'],
+            'region': ['exact'],
             'is_upm': ['exact'],
             'dives__was_seeded': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.filters.get("site__region").label = gettext("Region")
         self.filters.get("dives__was_seeded").label = gettext("Martin Mallet?")
         self.filters.get("dives__was_seeded").distinct = True
         self.filters.get("is_upm").label = gettext("UPM?")

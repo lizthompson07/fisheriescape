@@ -23,13 +23,13 @@ urlpatterns = [
     path('regions/<int:pk>/view/', views.RegionDetailView.as_view(), name="region_detail"),  # tested
 
     # sites
-    path('regions/<int:region>/new-site/', views.SiteCreateView.as_view(), name="site_new"),  # tested
-    path('sites/<int:pk>/edit/', views.SiteUpdateView.as_view(), name="site_edit"),  # tested
-    path('sites/<int:pk>/delete/', views.SiteDeleteView.as_view(), name="site_delete"),  # tested
-    path('sites/<int:pk>/view/', views.SiteDetailView.as_view(), name="site_detail"),  # tested
+    # path('regions/<int:region>/new-site/', views.SiteCreateView.as_view(), name="site_new"),  # tested
+    # path('sites/<int:pk>/edit/', views.SiteUpdateView.as_view(), name="site_edit"),  # tested
+    # path('sites/<int:pk>/delete/', views.SiteDeleteView.as_view(), name="site_delete"),  # tested
+    # path('sites/<int:pk>/view/', views.SiteDetailView.as_view(), name="site_detail"),  # tested
 
     # transects
-    path('sites/<int:site>/new-transect/', views.TransectCreateView.as_view(), name="transect_new"),  # tested
+    path('regions/<int:region>/new-transect/', views.TransectCreateView.as_view(), name="transect_new"),  # tested
     path('transects/<int:pk>/edit/', views.TransectUpdateView.as_view(), name="transect_edit"),  # tested
     path('transects/<int:pk>/delete/', views.TransectDeleteView.as_view(), name="transect_delete"),  # tested
 

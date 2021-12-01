@@ -44,14 +44,6 @@ class RegionForm(forms.ModelForm):
         fields = "__all__"
 
 
-class SiteForm(forms.ModelForm):
-    field_order = ["name"]
-
-    class Meta:
-        model = models.Site
-        fields = "__all__"
-
-
 class TransectForm(forms.ModelForm):
     field_order = ["name"]
 
@@ -70,10 +62,6 @@ class SampleForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        site_choices = [(site.id, f"{site.region} - {site}") for site in models.Site.objects.order_by("region", "name")]
-        site_choices.insert(0, (None, "---------"))
-
-        self.fields["site"].choices = site_choices
 
 
 class DiveForm(forms.ModelForm):
@@ -88,9 +76,9 @@ class DiveForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if kwargs.get("instance"):
-            self.fields["transect"].queryset = kwargs.get("instance").sample.site.transects.all()
+            self.fields["transect"].queryset = kwargs.get("instance").sample.region.transects.all()
         elif kwargs.get("initial"):
-            self.fields["transect"].queryset = models.Sample.objects.get(pk=kwargs.get("initial").get("sample")).site.transects.all()
+            self.fields["transect"].queryset = models.Sample.objects.get(pk=kwargs.get("initial").get("sample")).region.transects.all()
 
         # self.fields["start_descent"].label += " (yyyy-mm-dd HH:MM:SS)"
 

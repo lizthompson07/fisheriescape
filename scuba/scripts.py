@@ -10,6 +10,78 @@ from django.utils.timezone import make_aware
 
 from scuba import models
 
+
+
+
+def revamp_transects():
+    # open the csv we want to read
+    my_target_data_file = os.path.join(settings.BASE_DIR, 'scuba', 'data', 'scuba revamp.csv')
+    with open(my_target_data_file, 'r') as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        for row in my_csv:
+            # clean the dict:
+            for key in row:
+                if row[key] == "---":
+                    row[key] = None
+
+            # see if we can match the region
+            region_name = row["region"]
+            region_qs = models.Region.objects.filter(name__iexact=region_name)
+            if not region_qs.exists():
+                print(region_name, "region not found.")
+            elif region_qs.count() > 1:
+                print(region_name, "has too many matches.")
+            else:
+                region = region_qs.first()
+
+                # populate the new region name in the new_name field
+                if not region.new_name or region.new_name != row["region_New"]:
+                    region.new_name = row["region_New"]
+                    try:
+                        region.save()
+                    except Exception as E:
+                        print(E, row["line_id"], row["region"], row["region_New"])
+
+
+    # NOTHING TO DO WITH SPREADSHEET
+    # let's attach the region directly to the transect; also, give the transect a new name based on site + transect name
+    for t in models.Transect.objects.all():
+        if not t.region:
+            t.region = t.site.region
+        if not t.old_site_name:
+            t.old_site_name = t.site.name
+
+        t.new_name = f"{t.site.name}-{t.name}"
+
+        t.save()
+
+    # let's attach the region directly to the sample;
+    for s in models.Sample.objects.all():
+        if not s.region:
+            s.region = s.site.region
+            s.save()
+
+
+    # actually, a sample should have only a single transect associated with it.
+    for s in models.Sample.objects.all():
+        dive_transects = set([d.transect for d in s.dives.all()])
+        if len(dive_transects) > 1:
+            print(dive_transects)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def populate_default():
     default_spp = get_object_or_404(models.Species, is_default=True)
     for o in models.Observation.objects.filter(species__isnull=True):
