@@ -1,6 +1,7 @@
 import django_filters
-from . import models
 from django import forms
+
+from . import models
 
 
 class SampleFilter(django_filters.FilterSet):
@@ -20,7 +21,8 @@ class SampleFilter(django_filters.FilterSet):
         model = models.Sample
         fields = {
             'id': ['exact'],
-            'season':['exact'],
+            'season': ['exact'],
+            'season_type': ['exact'],
             'sampler_ref_number': ['exact'],
             'experimental_net_used': ['exact'],
             'type': ['exact'],

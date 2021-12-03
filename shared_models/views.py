@@ -47,8 +47,8 @@ def in_admin_group(user):
                 return True
 
         if settings.INSTALLED_APPS.count("csas2"):
-            from csas2.utils import in_csas_national_admin_group
-            if in_csas_national_admin_group(user):
+            from csas2.utils import in_csas_national_admin_group, in_csas_regional_admin_group
+            if in_csas_national_admin_group(user) or in_csas_regional_admin_group(user):
                 return True
 
         return False

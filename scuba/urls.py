@@ -11,7 +11,6 @@ urlpatterns = [
     path('settings/species/', views.SpeciesFormsetView.as_view(), name="manage_species"),
     path('settings/species/<int:pk>/delete/', views.SpeciesHardDeleteView.as_view(), name="delete_species"),
 
-
     # user permissions
     path('settings/users/', views.ScubaUserFormsetView.as_view(), name="manage_scuba_users"),
     path('settings/users/<int:pk>/delete/', views.ScubaUserHardDeleteView.as_view(), name="delete_scuba_user"),
@@ -51,6 +50,7 @@ urlpatterns = [
     # reports
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),  # tested
     path('reports/dive-log/', views.dive_log_report, name="dive_log_report"),  # tested
+    path('reports/dive-transect/', views.dive_transect_report, name="dive_transect_report"),  # TODO: TESTME
 
 ]
 

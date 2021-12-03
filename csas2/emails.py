@@ -67,7 +67,6 @@ class PostingRequestEmail(Email):
         return [csas_generic_email]
 
 
-
 class SoMPEmail(Email):
     email_template_path = 'csas2/emails/somp.html'
     subject_en = 'The SoMP for a meeting has been posted'
@@ -82,7 +81,8 @@ class NewRequestEmail(Email):
     subject_fr = "Une nouvelle demande de SCCS a été soumise"
 
     def get_recipient_list(self):
-        return [self.instance.coordinator.email]
+        # should go to all emails associated with csas office
+        return self.instance.office.all_emails
 
 
 class PostedProcessEmail(Email):
@@ -91,9 +91,9 @@ class PostedProcessEmail(Email):
     subject_fr = "Votre processus a été publié sur le site Web du SCCS"
 
     def get_recipient_list(self):
-        mylist = [a.email for a in self.instance.advisors.all()]
-        mylist.append(self.instance.coordinator.email)
-        return list(set(mylist))
+        # should go to all emails associated with csas office
+        return self.instance.lead_office.all_emails
+
 
 
 class UpdatedMeetingEmail(Email):
@@ -121,7 +121,6 @@ class UpdatedMeetingEmail(Email):
         old_meeting = self.old_meeting
         if not old_meeting:
             old_meeting = self.meeting
-        print(self.meeting)
         context.update({
             'old_meeting': old_meeting,
             'meeting': self.meeting,

@@ -27,7 +27,6 @@ from . import views as views
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('admin/', admin.site.urls),
-    path('tracking/', include('tracking.urls')),
     path('__debug__/', include(debug_toolbar.urls)),
     path('api/shared/', include('shared_models.api.urls')),
     path('api/tracking/', include('tracking.api.urls')),
@@ -90,6 +89,7 @@ urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
     path('accounts/', include('accounts.urls')),
     path('shared/', include('shared_models.urls')),
+    path('tracking/', include('tracking.urls')),
     prefix_default_language=True)
 
 if settings.INSTALLED_APPS.count("inventory"):

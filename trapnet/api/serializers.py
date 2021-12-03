@@ -25,6 +25,14 @@ class ObservationSerializer(serializers.ModelSerializer):
     status_display = serializers.SerializerMethodField()
     origin_display = serializers.SerializerMethodField()
     date_tagged_display = serializers.SerializerMethodField()
+    life_stage_display = serializers.SerializerMethodField()
+    reproductive_status_display = serializers.SerializerMethodField()
+
+    def get_reproductive_status_display(self, instance):
+        return str(instance.reproductive_status) if instance.reproductive_status else None
+
+    def get_life_stage_display(self, instance):
+        return str(instance.life_stage) if instance.life_stage else None
 
     def get_date_tagged_display(self, instance):
         if instance.date_tagged:
