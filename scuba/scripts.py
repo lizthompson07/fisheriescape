@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.timezone import make_aware
 
+from lib.functions.custom_functions import listrify
 from scuba import models
 
 
@@ -118,7 +119,7 @@ def revamp_transects():
             try:
                 dup_qs = transects.filter(name=t0.name)
                 if dup_qs.count() > 1:
-                    print([t.old_name for t in dup_qs], "to be combined into one transect.")
+                    print(listrify([t.old_name for t in dup_qs]), f"to be combined into one transect called '{dup_qs.first().name}'")
 
             #         keeper = None
             #         # keep the one that has coordinates
