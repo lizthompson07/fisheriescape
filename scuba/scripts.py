@@ -5,6 +5,7 @@ from copy import deepcopy
 import pytz
 from django.conf import settings
 from django.db import IntegrityError
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.timezone import make_aware
@@ -79,36 +80,74 @@ def revamp_transects():
 
     # open the csv we want to read
 
-    my_target_data_file = os.path.join(settings.BASE_DIR, 'scuba', 'data', 'scuba revamp1.csv')
-    with open(my_target_data_file, 'r') as csv_read_file:
-        my_csv = csv.DictReader(csv_read_file)
-        for row in my_csv:
-            # clean the dict:
-            for key in row:
-                if row[key] == "---":
-                    row[key] = None
+    # my_target_data_file = os.path.join(settings.BASE_DIR, 'scuba', 'data', 'scuba revamp1.csv')
+    # with open(my_target_data_file, 'r') as csv_read_file:
+    #     my_csv = csv.DictReader(csv_read_file)
+    #     for row in my_csv:
+    #         # clean the dict:
+    #         for key in row:
+    #             if row[key] == "---":
+    #                 row[key] = None
+    #
+    #         # see if we can match the region
+    #         region_name = row["region"]
+    #         region_qs = models.Region.objects.filter(name__iexact=region_name)
+    #         region = None
+    #         if not region_qs.exists():
+    #             print(region_name, "region not found.")
+    #         elif region_qs.count() > 1:
+    #             print(region_name, "has too many matches.")
+    #         else:
+    #             region = region_qs.first()
+    #
+    #         if region:
+    #             transect_qs = region.transects.filter(old_name=row["old_name"])
+    #             if not transect_qs.exists():
+    #                 print(row["old_name"], "not found in", region)
+    #             elif transect_qs.count() > 1:
+    #                 print(row["old_name"], "found multiple times in", region)
+    #             else:
+    #                 t = transect_qs.first()
+    #                 t.name = row["transect_New"]
+    #                 t.save()
 
-            # see if we can match the region
-            region_name = row["region"]
-            region_qs = models.Region.objects.filter(name__iexact=region_name)
-            region = None
-            if not region_qs.exists():
-                print(region_name, "region not found.")
-            elif region_qs.count() > 1:
-                print(region_name, "has too many matches.")
-            else:
-                region = region_qs.first()
+    # go through each region and move over all the samples from duplicate transects
+    for r in models.Region.objects.all():
+        transects = r.transects.all()
+        for t0 in transects:
+            try:
+                dup_qs = transects.filter(name=t0.name)
+                if dup_qs.count() > 1:
+                    print([t.old_name for t in dup_qs], "to be combined into one transect.")
 
-            if region:
-                transect_qs = region.transects.filter(old_name=row["old_name"])
-                if not transect_qs.exists():
-                    print(row["old_name"], "not found in", region)
-                elif transect_qs.count() > 1:
-                    print(row["old_name"], "found multiple times in", region)
-                else:
-                    t = transect_qs.first()
-                    t.name = row["transect_New"]
-                    t.save()
+            #         keeper = None
+            #         # keep the one that has coordinates
+            #         for t1 in dup_qs:
+            #             if t1.has_coordinates:
+            #                 keeper = t1
+            #                 break
+            #             keeper = t1
+            #
+            #         # go through the other transects that will not be kept and move over samples.
+            #         deletables = dup_qs.filter(~Q(id=keeper.id))
+            #         for t1 in deletables:
+            #             for s in t1.samples.all():
+            #                 s.transect = keeper
+            #                 s.save()
+            #             if not t1.old_name in keeper.old_name:
+            #                 keeper.old_name += f", {t1.old_name}"
+            #                 keeper.save()
+            #             t1.delete()
+            except Exception as E:
+                print(E, t0)
+
+
+
+
+
+
+
+
 
 def populate_default():
     default_spp = get_object_or_404(models.Species, is_default=True)

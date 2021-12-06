@@ -1,9 +1,12 @@
+import csv
 import os
 
 import xlsxwriter
 from django.conf import settings
 from django.utils import timezone
 
+from dm_apps.utils import Echo
+from lib.templatetags.custom_filters import nz
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
 from scuba import models
 
@@ -181,3 +184,34 @@ def dive_transect_export(year):
 
     workbook.close()
     return target_url
+
+
+
+
+def generate_obs_csv(year):
+    """Returns a generator for an HTTP Streaming Response"""
+
+    filter_kwargs = {}
+    if year != "":
+        filter_kwargs["section__dive__sample__datetime__year"] = year
+
+    qs = models.Observation.objects.filter(**filter_kwargs).iterator()
+    random_obj = models.Observation.objects.first()
+    fields = random_obj._meta.fields
+    field_names = [field.name for field in fields]
+
+    # add any FKs
+    for field in fields:
+        if field.attname not in field_names:
+            field_names.append(field.attname)
+    header_row = [field for field in field_names]  # starter
+    header_row.extend(["site", "site_id"])
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
+
+    for obj in qs:
+        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
+        data_row.extend([obj.sample.site, obj.sample.site_id ])
+        yield writer.writerow(data_row)

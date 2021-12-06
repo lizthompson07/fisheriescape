@@ -195,18 +195,18 @@ class Site(UnilingualLookup):
 
 
 class Transect(UnilingualLookup, CoordinatesModel):
-    name = models.CharField(max_length=255, verbose_name=_("name"))
+    name = models.IntegerField(verbose_name=_("name"))
     region = models.ForeignKey(Region, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("region"), blank=False, null=True,
                                )  # to replace site
 
     # not editable
-    old_name = models.CharField(max_length=255, verbose_name=_("old name"), blank=True, null=True, editable=False)
+    old_name = models.CharField(max_length=255, verbose_name=_("old name"), blank=True, null=True)
 
     # to delete
     site = models.ForeignKey(Site, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("site"), editable=False, blank=True, null=True)
 
     class Meta:
-        unique_together = (("name", "region"),)
+        # unique_together = (("name", "region"), )
         ordering = ["name", ]
 
     def __str__(self):
@@ -317,15 +317,13 @@ class Dive(MetadataFields):
     was_seeded = models.BooleanField(default=False, verbose_name=_("was seeded (Martin Mallet)?"), editable=False)  # this is to capture historical data
 
     # to delete
-    transect = models.ForeignKey(Transect, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("transect"), blank=True, null=True,
-                                 help_text=_("Leave blank if training"), editable=False)
     is_training = models.BooleanField(default=False, verbose_name=_("Was this a training dive?"), choices=YES_NO_CHOICES)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ["sample", "transect", "diver"]
+        ordering = ["sample", "diver"]
 
     def __str__(self):
         return f"Dive #{self.id}"

@@ -4,10 +4,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.http import HttpResponse, Http404, HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.templatetags.custom_filters import nz
@@ -599,3 +600,27 @@ def dive_transect_report(request):
             response['Content-Disposition'] = f'inline; filename="dive-transect report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
             return response
     raise Http404
+
+
+def export_obs_data(request):
+    year = request.GET.get("year")
+    filename = "observation data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_obs_csv(year)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+def export_section_data(request):
+    year = request.GET.get("year")
+    filename = "observation data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_obs_csv(year)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response

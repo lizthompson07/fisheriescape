@@ -59,7 +59,7 @@
               {% get_verbose_label object.transects.first field %}
             </th>
           {% endfor %}
-          <th>{% trans "No. of dives" %}</th>
+          <th>{% trans "No. of outings" %}</th>
         </tr>
         </thead>
         <tbody>
@@ -70,7 +70,7 @@
                 {% get_field_value transect field %}
               </td>
             {% endfor %}
-            <td>{{ transect.dives.count }}</td>
+            <td>{{ transect.samples.count }}</td>
             <td>
               <a href="{% url 'scuba:transect_edit' transect.id %}">
                 {% trans "Edit" %} <span class="mdi mdi-pencil"></span>
