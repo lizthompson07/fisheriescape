@@ -51,6 +51,11 @@ class TransectForm(forms.ModelForm):
         model = models.Transect
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not kwargs.get("instance"):
+            del self.fields["region"]
+
 
 class SampleForm(forms.ModelForm):
     class Meta:

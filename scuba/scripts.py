@@ -86,32 +86,26 @@ def revamp_transects():
 
     # open the csv we want to read
 
-    # my_target_data_file = os.path.join(settings.BASE_DIR, 'scuba', 'data', 'scuba revamp.csv')
-    # with open(my_target_data_file, 'r') as csv_read_file:
-    #     my_csv = csv.DictReader(csv_read_file)
-    #     for row in my_csv:
-    #         # clean the dict:
-    #         for key in row:
-    #             if row[key] == "---":
-    #                 row[key] = None
-    #
-    #         # see if we can match the region
-    #         region_name = row["region"]
-    #         region_qs = models.Region.objects.filter(name__iexact=region_name)
-    #         if not region_qs.exists():
-    #             print(region_name, "region not found.")
-    #         elif region_qs.count() > 1:
-    #             print(region_name, "has too many matches.")
-    #         else:
-    #             region = region_qs.first()
-    #
-    #             # populate the new region name in the new_name field
-    #             if not region.new_name or region.new_name != row["region_New"]:
-    #                 region.new_name = row["region_New"]
-    #                 try:
-    #                     region.save()
-    #                 except Exception as E:
-    #                     print(E, row["line_id"], row["region"], row["region_New"])
+    my_target_data_file = os.path.join(settings.BASE_DIR, 'scuba', 'data', 'scuba revamp.csv')
+    with open(my_target_data_file, 'r') as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        for row in my_csv:
+            # clean the dict:
+            for key in row:
+                if row[key] == "---":
+                    row[key] = None
+
+            # see if we can match the region
+            region_name = row["region"]
+            region_qs = models.Region.objects.filter(name__iexact=region_name)
+            region = None
+            if not region_qs.exists():
+                print(region_name, "region not found.")
+            elif region_qs.count() > 1:
+                print(region_name, "has too many matches.")
+            else:
+                region = region_qs.first()
+
 
 
 def populate_default():

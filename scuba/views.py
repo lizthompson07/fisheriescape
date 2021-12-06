@@ -136,6 +136,7 @@ class RegionDetailView(ScubaAdminRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         transect_field_list = [
+            'name',
             'new_name',
             'old_name',
             'starting_coordinates_ddmm|{}'.format(_("starting coordinates (0m)")),
@@ -338,7 +339,6 @@ class SampleDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
     parent_crumb = {"title": gettext_lazy("Outings"), "url": reverse_lazy("scuba:sample_list")}
     container_class = "container curvy"
     field_list = [
-        'transect.region|region',
         'transect',
         'datetime',
         'weather_notes',
@@ -350,7 +350,7 @@ class SampleDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         dive_field_list = [
             'is_training|{}'.format(_("Training?")),
-            'transect',
+            # 'transect',
             'diver',
             'heading',
             'side',
@@ -454,7 +454,6 @@ class DiveDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
     container_class = "container curvy"
     field_list = [
         'is_training',
-        'transect',
         'diver',
         'dive_distance|{}'.format(_("dive distance (m)")),
         'start_descent',

@@ -34,13 +34,12 @@
       </table>
     </div>
     <div class="col">
-      {% if object.site.get_coordinates %}
+      {% if object.sample.get_coordinates %}
         {% localize off %}
           <div id="map"></div>
         {% endlocalize %}
       {% else %}
         <div class="alert alert-danger lead mb-3" role="alert">
-          {% url 'scuba:site_detail' object.site.id as site_url %}
           <span class="mdi mdi-emoticon-confused-outline h3 mr-2"></span>
           {% blocktrans with transect_url=transect_url %}
             The site associated with this sample is missing coordinates. Please add some <a href="{{ site_url }}" target="_blank">here</a>.
