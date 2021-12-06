@@ -14,6 +14,8 @@
         console.log(reportType)
         $("#id_stok_id").parent().hide();
         $("#id_on_date").parent().hide();
+        $("#id_start_date").parent().hide();
+        $("#id_end_date").parent().hide();
         $("#id_facic_id").parent().hide();
         $("#id_coll_id").parent().hide();
         $("#id_year").parent().hide();
@@ -27,7 +29,8 @@
             $("#id_stok_id").parent().show();
             $("#id_coll_id").parent().show();
             $("#id_year").parent().show();
-            $("#id_on_date").parent().show();
+            $("#id_start_date").parent().show();
+            $("#id_end_date").parent().show();
         }
         else if (reportType==3) {
             $("#id_stok_id").parent().show();

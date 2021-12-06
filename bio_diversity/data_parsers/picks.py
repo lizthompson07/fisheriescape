@@ -13,6 +13,7 @@ from bio_diversity.utils import DataParser
 # ED = egg development
 class EDInitParser(DataParser):
     stock_key = "Stock"
+    prog_key = "Program"
     trof_key = "Trough"
     cross_key = "Cross"
     tray_key = "Tray"
@@ -47,8 +48,11 @@ class EDInitParser(DataParser):
         # need to: find the pair's group, link it to it's pairing, create a tray, and add the count.
         cleaned_data = self.cleaned_data
         row_date = utils.get_row_date(row)
-        pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
-                                                indv_id__stok_id=row["stok_id"], start_date__year=row[self.year_key]).get()
+        pair_list = utils.get_pair(row[self.cross_key], row["stok_id"], row[self.year_key], prog_grp=utils.nan_to_none(row.get(self.prog_key)), fail_on_not_found=True)
+        if len(pair_list) == 1:
+            pair_id = pair_list[0]
+        else:
+            raise Exception("Too many pairs found for row \n{}".format(row))
 
         anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
                                                       grp_id__isnull=False).select_related('grp_id').first()
@@ -76,6 +80,8 @@ class EDPickParser(DataParser):
     tray_key = "Tray"
     hu_key = "Heath Unit Location"
     shocking_key = "Shocking (Y/N)"
+    first_key = "First Hatch Observed (Y/N)"
+    all_hatch_key = "100% Hatch Observed (Y/N)"
     comment_key = "Comments"
 
     header = 2
