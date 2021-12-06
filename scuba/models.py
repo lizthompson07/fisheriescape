@@ -195,6 +195,7 @@ class Site(UnilingualLookup):
 
 
 class Transect(UnilingualLookup, CoordinatesModel):
+    # new_name = models.IntegerField(verbose_name=_("new_name"), blank=True, null=True)
     name = models.IntegerField(verbose_name=_("name"))
     region = models.ForeignKey(Region, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("region"), blank=False, null=True,
                                )  # to replace site
@@ -206,7 +207,7 @@ class Transect(UnilingualLookup, CoordinatesModel):
     site = models.ForeignKey(Site, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("site"), editable=False, blank=True, null=True)
 
     class Meta:
-        # unique_together = (("name", "region"), )
+        unique_together = (("name", "region"), )
         ordering = ["name", ]
 
     def __str__(self):
