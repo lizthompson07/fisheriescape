@@ -121,24 +121,24 @@ def revamp_transects():
                 if dup_qs.count() > 1:
                     print(listrify([t.old_name for t in dup_qs]), f"to be combined into one transect called '{dup_qs.first().name}'")
 
-            #         keeper = None
-            #         # keep the one that has coordinates
-            #         for t1 in dup_qs:
-            #             if t1.has_coordinates:
-            #                 keeper = t1
-            #                 break
-            #             keeper = t1
-            #
-            #         # go through the other transects that will not be kept and move over samples.
-            #         deletables = dup_qs.filter(~Q(id=keeper.id))
-            #         for t1 in deletables:
-            #             for s in t1.samples.all():
-            #                 s.transect = keeper
-            #                 s.save()
-            #             if not t1.old_name in keeper.old_name:
-            #                 keeper.old_name += f", {t1.old_name}"
-            #                 keeper.save()
-            #             t1.delete()
+                    keeper = None
+                    # keep the one that has coordinates
+                    for t1 in dup_qs:
+                        if t1.has_coordinates:
+                            keeper = t1
+                            break
+                        keeper = t1
+
+                    # go through the other transects that will not be kept and move over samples.
+                    deletables = dup_qs.filter(~Q(id=keeper.id))
+                    for t1 in deletables:
+                        for s in t1.samples.all():
+                            s.transect = keeper
+                            s.save()
+                        if not t1.old_name in keeper.old_name:
+                            keeper.old_name += f", {t1.old_name}"
+                            keeper.save()
+                        t1.delete()
             except Exception as E:
                 print(E, t0)
 
