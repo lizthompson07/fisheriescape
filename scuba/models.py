@@ -206,7 +206,7 @@ class Transect(UnilingualLookup, CoordinatesModel):
     site = models.ForeignKey(Site, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("site"), editable=False, blank=True, null=True)
 
     class Meta:
-        # unique_together = (("name", "region"),)
+        unique_together = (("name", "region"),)
         ordering = ["name", ]
 
     def __str__(self):
