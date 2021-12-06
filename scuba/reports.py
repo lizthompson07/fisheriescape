@@ -138,7 +138,7 @@ def generate_obs_csv(year):
         if field.attname not in field_names:
             field_names.append(field.attname)
     header_row = [field for field in field_names]  # starter
-    header_row.extend(["sample", "sample_id", "transect", "transect_id"])
+    header_row.extend(["sample", "sample_id", "date", "region", "transect", "side_display", "interval", "interval_display"])
 
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
@@ -146,7 +146,16 @@ def generate_obs_csv(year):
 
     for obj in qs:
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
-        data_row.extend([obj.section.dive.sample, obj.section.dive.sample_id, obj.section.dive.sample.transect, obj.section.dive.sample.transect_id])
+        data_row.extend([
+            obj.section.dive.sample,
+            obj.section.dive.sample_id,
+            obj.section.dive.sample.datetime.strftime("%Y-%m-%d"),
+            obj.section.dive.sample.transect.region,
+            obj.section.dive.sample.transect.name,
+            obj.section.dive.get_side_display(),
+            obj.section.interval,
+            obj.section.get_interval_display(),
+        ])
         yield writer.writerow(data_row)
 
 
@@ -201,11 +210,18 @@ def generate_section_csv(year):
     yield writer.writerow(header_row)
 
     for obj in qs:
-        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
-        data_row.extend(
-            [obj.dive.sample, obj.dive.sample_id, obj.dive.sample.datetime.strftime("%Y-%m-%d"), obj.dive.sample.transect.region, obj.dive.sample.transect.name,
-             obj.dive.diver,
-             obj.dive.get_side_display(), obj.dive.width_m, obj.get_interval_display()])
+        data_row = [str(nz(getattr(obj, field), "")) for field in field_names]  # starter
+        data_row.extend([
+            obj.dive.sample,
+            obj.dive.sample_id,
+            obj.dive.sample.datetime.strftime("%Y-%m-%d"),
+            obj.dive.sample.transect.region,
+            obj.dive.sample.transect.name,
+            obj.dive.diver,
+            obj.dive.get_side_display(),
+            obj.dive.width_m,
+            obj.get_interval_display()
+        ])
         yield writer.writerow(data_row)
 
 
