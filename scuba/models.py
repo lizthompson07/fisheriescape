@@ -152,7 +152,7 @@ class Transect(UnilingualLookup, CoordinatesModel):
         ordering = ["region", "name", ]
 
     def __str__(self):
-        return f"T{self.name} ({self.region.name})"
+        return f"T-{self.name} ({self.region.name})"
 
 
 class Diver(models.Model):
