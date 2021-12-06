@@ -218,7 +218,7 @@ def generate_section_csv(year):
             obj.dive.sample.datetime.strftime("%Y-%m-%d"),
             obj.dive.sample.transect.region,
             obj.dive.sample.transect.name,
-            obj.dive.diver,
+            unidecode.unidecode(str(obj.dive.diver)),
             obj.dive.get_side_display(),
             obj.dive.width_m,
             obj.get_interval_display()
