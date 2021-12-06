@@ -77,6 +77,7 @@ class Lookup(SimpleLookup):
 class UnilingualLookup(UnilingualSimpleLookup):
     class Meta:
         abstract = True
+        ordering = ["name", ]
 
     description_en = models.TextField(blank=True, null=True, verbose_name=_("Description (en)"))
     description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description (fr)"))
