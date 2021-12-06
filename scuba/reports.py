@@ -95,97 +95,31 @@ def generate_dive_log(year):
     return target_url
 
 
-def dive_transect_export(year):
-    # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
-    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
-    target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
-    # create workbook and worksheets
-    workbook = xlsxwriter.Workbook(target_file_path)
 
-    # create formatting variables
-    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
-    header_format = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
-    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
-    currency_format = workbook.add_format({'num_format': '#,##0.00'})
-    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+def generate_transect_csv():
+    """Returns a generator for an HTTP Streaming Response"""
 
-    # get the dive list
-    dives = models.Dive.objects.filter(transect__isnull=False)
-    if year:
-        dives = dives.filter(sample__datetime__year=year)
+    filter_kwargs = {}
+    qs = models.Transect.objects.filter(**filter_kwargs).iterator()
+    random_obj = models.Transect.objects.first()
+    fields = random_obj._meta.fields
+    field_names = [field.name for field in fields]
 
-    field_list = [
-        "datetime|Date",
-        "region",
-        "site",
-        "transect",
-        "transect.start_latitude|start_latitude",
-        "transect.start_longitude|start_longitude",
-        "transect.end_latitude|end_latitude",
-        "transect.end_longitude|end_longitude",
-        "transect_distance_m",
-    ]
+    # add any FKs
+    for field in fields:
+        if field.attname not in field_names:
+            field_names.append(field.attname)
+    header_row = [field for field in field_names]  # starter
+    # header_row.extend(["sample", "sample_id", "transect", "transect_id"])
 
-    # define the header
-    header = [get_verbose_label(dives.first(), field).lower() for field in field_list]
-    # header.append('Number of projects tagged')
-    title = "Dive-Transect Report"
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
 
-    # define a worksheet
-    my_ws = workbook.add_worksheet(name="dives")
-    my_ws.write(0, 0, title, title_format)
-    my_ws.write_row(2, 0, header, header_format)
-
-    i = 3
-    for dive in dives.order_by("sample__datetime"):
-        # create the col_max column to store the length of each header
-        # should be a maximum column width to 100
-        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-        j = 0
-        for field in field_list:
-
-            if "datetime" in field:
-                my_val = dive.sample.datetime.strftime("%Y-%m-%d")
-                my_ws.write(i, j, my_val, date_format)
-            elif "site" in field:
-                my_val = f"{dive.sample.site.name}"
-                my_ws.write(i, j, my_val, normal_format)
-            elif "region" in field:
-                my_val = f"{dive.sample.site.region.name}"
-                my_ws.write(i, j, my_val, normal_format)
-            elif "distance" in field:
-                my_val = "---"
-                if dive.transect.distance:
-                    my_val = f"{dive.transect.distance}"
-                my_ws.write(i, j, my_val, normal_format)
-            else:
-                my_val = str(get_field_value(dive, field))
-                my_ws.write(i, j, my_val, normal_format)
-
-            # adjust the width of the columns based on the max string length in each col
-            ## replace col_max[j] if str length j is bigger than stored value
-
-            # if new value > stored value... replace stored value
-            if len(str(my_val)) > col_max[j]:
-                if len(str(my_val)) < 75:
-                    col_max[j] = len(str(my_val))
-                else:
-                    col_max[j] = 75
-            j += 1
-        i += 1
-
-        # set column widths
-        for j in range(0, len(col_max)):
-            my_ws.set_column(j, j, width=col_max[j] * 1.1)
-
-    workbook.close()
-    return target_url
-
-
+    for obj in qs:
+        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
+        # data_row.extend([obj.section.dive.sample, obj.section.dive.sample_id, obj.section.dive.sample.transect, obj.section.dive.sample.transect_id])
+        yield writer.writerow(data_row)
 
 
 def generate_obs_csv(year):
@@ -205,7 +139,7 @@ def generate_obs_csv(year):
         if field.attname not in field_names:
             field_names.append(field.attname)
     header_row = [field for field in field_names]  # starter
-    header_row.extend(["site", "site_id"])
+    header_row.extend(["sample", "sample_id", "transect", "transect_id"])
 
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
@@ -213,5 +147,64 @@ def generate_obs_csv(year):
 
     for obj in qs:
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
-        data_row.extend([obj.sample.site, obj.sample.site_id ])
+        data_row.extend([obj.section.dive.sample, obj.section.dive.sample_id, obj.section.dive.sample.transect, obj.section.dive.sample.transect_id])
+        yield writer.writerow(data_row)
+
+
+def generate_section_csv(year):
+    """Returns a generator for an HTTP Streaming Response"""
+
+    filter_kwargs = {}
+    if year != "":
+        filter_kwargs["dive__sample__datetime__year"] = year
+
+    qs = models.Section.objects.filter(**filter_kwargs).iterator()
+    random_obj = models.Section.objects.first()
+    fields = random_obj._meta.fields
+    field_names = [field.name for field in fields]
+
+    # add any FKs
+    for field in fields:
+        if field.attname not in field_names:
+            field_names.append(field.attname)
+    header_row = [field for field in field_names]  # starter
+    header_row.extend(["sample", "sample_id", "transect", "transect_id"])
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
+
+    for obj in qs:
+        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
+        data_row.extend([obj.dive.sample, obj.dive.sample_id, obj.dive.sample.transect, obj.dive.sample.transect_id])
+        yield writer.writerow(data_row)
+
+
+
+def generate_dive_csv(year):
+    """Returns a generator for an HTTP Streaming Response"""
+
+    filter_kwargs = {}
+    if year != "":
+        filter_kwargs["sample__datetime__year"] = year
+
+    qs = models.Dive.objects.filter(**filter_kwargs).iterator()
+    random_obj = models.Dive.objects.first()
+    fields = random_obj._meta.fields
+    field_names = [field.name for field in fields]
+
+    # add any FKs
+    for field in fields:
+        if field.attname not in field_names:
+            field_names.append(field.attname)
+    header_row = [field for field in field_names]  # starter
+    header_row.extend(["transect", "transect_id"])
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
+
+    for obj in qs:
+        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
+        data_row.extend([obj.sample.transect, obj.sample.transect_id])
         yield writer.writerow(data_row)

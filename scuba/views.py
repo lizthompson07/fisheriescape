@@ -11,7 +11,6 @@ from django.utils import timezone
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy, gettext as _
 
-from lib.templatetags.custom_filters import nz
 from scuba.mixins import LoginAccessRequiredMixin, ScubaAdminRequiredMixin, ScubaCRUDAccessRequiredMixin, SuperuserOrAdminRequiredMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonUpdateView, CommonCreateView, \
     CommonDeleteView, CommonDetailView, CommonFormView
@@ -147,6 +146,7 @@ class RegionDetailView(ScubaAdminRequiredMixin, CommonDetailView):
         ]
         context["transect_field_list"] = transect_field_list
         return context
+
 
 class RegionDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
     model = models.Region
@@ -565,11 +565,17 @@ class ReportSearchFormView(ScubaCRUDAccessRequiredMixin, CommonFormView):
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        year = nz(form.cleaned_data["year"], "None")
+        year = form.cleaned_data["year"] if form.cleaned_data["year"] else ""
         if report == 1:
             return HttpResponseRedirect(reverse("scuba:dive_log_report") + f"?year={year}")
         elif report == 2:
-            return HttpResponseRedirect(reverse("scuba:dive_transect_report") + f"?year={year}")
+            return HttpResponseRedirect(reverse("scuba:export_transect_data"))
+        elif report == 3:
+            return HttpResponseRedirect(reverse("scuba:export_section_data") + f"?year={year}")
+        elif report == 4:
+            return HttpResponseRedirect(reverse("scuba:export_obs_data") + f"?year={year}")
+        elif report == 5:
+            return HttpResponseRedirect(reverse("scuba:export_dive_data") + f"?year={year}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("scuba:reports"))
@@ -577,7 +583,7 @@ class ReportSearchFormView(ScubaCRUDAccessRequiredMixin, CommonFormView):
 
 @login_required()
 def dive_log_report(request):
-    year = None if not request.GET.get("year") or request.GET.get("year") == "None" else int(request.GET.get("year"))
+    year = None if not request.GET.get("year") or request.GET.get("year") == "" else int(request.GET.get("year"))
     file_url = reports.generate_dive_log(year=year)
 
     if os.path.exists(file_url):
@@ -589,25 +595,13 @@ def dive_log_report(request):
     raise Http404
 
 
-@login_required()
-def dive_transect_report(request):
-    year = None if not request.GET.get("year") or request.GET.get("year") == "None" else int(request.GET.get("year"))
-    file_url = reports.dive_transect_export(year=year)
 
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="dive-transect report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
-            return response
-    raise Http404
-
-
-def export_obs_data(request):
+def export_transect_data(request):
     year = request.GET.get("year")
-    filename = "observation data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+    filename = "scuba transect export ({}).csv".format(now().strftime("%Y-%m-%d"))
 
     response = StreamingHttpResponse(
-        streaming_content=(reports.generate_obs_csv(year)),
+        streaming_content=(reports.generate_transect_csv()),
         content_type='text/csv',
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'
@@ -615,6 +609,30 @@ def export_obs_data(request):
 
 
 def export_section_data(request):
+    year = request.GET.get("year")
+    filename = "section data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_section_csv(year)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+def export_dive_data(request):
+    year = request.GET.get("year")
+    filename = "dive data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_dive_csv(year)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+def export_obs_data(request):
     year = request.GET.get("year")
     filename = "observation data export ({}).csv".format(now().strftime("%Y-%m-%d"))
 
