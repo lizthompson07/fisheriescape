@@ -50,7 +50,7 @@ def revamp_transects():
                 s.transect = dive_transects[0]
                 s.save()
             # otherwise, we will have to duplicate the samples
-            else:
+            elif len(dive_transects) > 1:
                 # take the first transect and use for the current sample
                 s.transect = dive_transects[0]
                 s.save()
