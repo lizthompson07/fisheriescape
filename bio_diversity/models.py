@@ -1732,7 +1732,12 @@ class Pairing(BioDateModel):
     cross = models.IntegerField(verbose_name=_("Cross"), db_column="CROSS")
 
     def __str__(self):
-        return "{}".format(self.indv_id.__str__())
+        if self.indv_id:
+            return "{}".format(self.indv_id.__str__())
+        elif self.samp_id:
+            return "{}".format(self.samp_id.__str__())
+        else:
+            return None
 
     class Meta:
         unique_together = (('indv_id', 'samp_id', 'start_date'),)

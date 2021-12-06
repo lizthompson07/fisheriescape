@@ -162,7 +162,7 @@ class SpawningParser(DataParser):
                            pair_id=pair,
                            indv_id=indv_male,
                            samp_id=samp_male,
-                           choice=[self.choice_key],
+                           choice=row[self.choice_key],
                            comments=utils.nan_to_none(row[self.comment_key_m]),
                            created_by=cleaned_data["created_by"],
                            created_date=cleaned_data["created_date"],
@@ -171,7 +171,7 @@ class SpawningParser(DataParser):
             sire.clean()
             sire.save()
             self.row_entered = True
-        except (ValidationError, IntegrityError):
+        except (IntegrityError):
             # don't use sire again anywhere
             pass
 
