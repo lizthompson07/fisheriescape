@@ -138,7 +138,6 @@ class RegionDetailView(ScubaAdminRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         transect_field_list = [
             'name',
-            'new_name',
             'old_name',
             'starting_coordinates_ddmm|{}'.format(_("starting coordinates (0m)")),
             'ending_coordinates_ddmm|{}'.format(_("ending coordinates (100m)")),
