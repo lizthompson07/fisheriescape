@@ -1,6 +1,7 @@
 import csv
 import os
 
+import unidecode
 import xlsxwriter
 from django.conf import settings
 from django.utils import timezone
@@ -116,7 +117,7 @@ def generate_transect_csv():
     yield writer.writerow(header_row)
 
     for obj in qs:
-        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
+        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), ""))) for field in field_names]  # starter
         # data_row.extend([obj.section.dive.sample, obj.section.dive.sample_id, obj.section.dive.sample.transect, obj.section.dive.sample.transect_id])
         yield writer.writerow(data_row)
 
@@ -145,7 +146,7 @@ def generate_obs_csv(year):
     yield writer.writerow(header_row)
 
     for obj in qs:
-        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
+        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), ""))) for field in field_names]  # starter
         data_row.extend([
             obj.section.dive.sample,
             obj.section.dive.sample_id,
@@ -182,7 +183,7 @@ def generate_outing_csv(year):
     yield writer.writerow(header_row)
 
     for obj in qs:
-        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
+        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), ""))) for field in field_names]  # starter
         yield writer.writerow(data_row)
 
 
@@ -210,7 +211,7 @@ def generate_section_csv(year):
     yield writer.writerow(header_row)
 
     for obj in qs:
-        data_row = [str(nz(getattr(obj, field), "")) for field in field_names]  # starter
+        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), ""))) for field in field_names]  # starter
         data_row.extend([
             obj.dive.sample,
             obj.dive.sample_id,
@@ -249,6 +250,6 @@ def generate_dive_csv(year):
     yield writer.writerow(header_row)
 
     for obj in qs:
-        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
+        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), ""))) for field in field_names]  # starter
         data_row.extend([obj.sample.transect, obj.sample.transect_id])
         yield writer.writerow(data_row)
