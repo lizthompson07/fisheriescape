@@ -27,66 +27,59 @@ def check_samples():
 def revamp_transects():
     # NOTHING TO DO WITH SPREADSHEET
     # let's attach the region directly to the transect; also, give the transect a new name based on site + transect name
-    for t in models.Transect.objects.all():
-        if not t.region:
-            t.region = t.site.region
-        if not t.old_name:
-            t.old_name = f"{t.site.name}-{t.name}"
-        t.new_name = f"{t.site.name}-{t.name}"
-        t.save()
-
-    # let's attach the region directly to the sample as well; this is just temporarily while we figure out the whole transect thing.
-    for s in models.Sample.objects.all():
-        if not s.region:
-            s.region = s.site.region
-            s.save()
-
-    # actually, a sample should have only a single transect associated with it.
-    for s in models.Sample.objects.all():
-        dive_transects = list(set([d.transect for d in s.dives.all()]))
-        if not s.transect:
-            # let's start with the easy one. If there is only one transect across all the dives, we only have to populate the sample's transect field and then we are done.
-            if len(dive_transects) == 1:
-                s.transect = dive_transects[0]
-                s.save()
-            # otherwise, we will have to duplicate the samples
-            elif len(dive_transects) > 1:
-                # take the first transect and use for the current sample
-                s.transect = dive_transects[0]
-                s.save()
-
-                # next, go through the unique list of transects. make sure a sample exists for each.
-                for t in dive_transects:
-                    sample_qs = models.Sample.objects.filter(datetime=s.datetime, transect=t)
-                    # if this sample does not exist, clone from the original
-                    if not sample_qs.exists():
-                        new_sample = deepcopy(s)
-                        new_sample.pk = None
-                        new_sample.transect = t
-                        new_sample.save()
-                    else:
-                        new_sample = sample_qs.first()
-
-                    # go though the dives of the original sample and move over any that need to be moved
-                    if not s == new_sample:
-                        for d in s.dives.all():
-                            if new_sample.transect == d.transect:
-                                d.sample = new_sample
-                                d.save()
-
-    # # move the tabusintac transects to neguac region and then delete the tabusintac region
-    # neguac_region = models.Region.objects.get(name="Neguac")
-    # tabusintac_region = models.Region.objects.get(name="Tabusintac")
-    # tabusintac_transects = models.Transect.objects.filter(site__region=tabusintac_region)
-    # for t in tabusintac_transects:
-    #     t.region = neguac_region
-    #     t.name = t.name.replace("TB", "NG")
+    # for t in models.Transect.objects.all():
+    #     if not t.region:
+    #         t.region = t.site.region
+    #     # if not t.old_name:
+    #     try:
+    #         t.old_name = f"{t.site.name}-{t.name}"
+    #         t.new_name = f"{t.site.name}-{t.name}"
+    #     except Exception as E:
+    #         print(E, t)
     #     t.save()
-    # tabusintac_region.delete()
+    #
+    # # let's attach the region directly to the sample as well; this is just temporarily while we figure out the whole transect thing.
+    # for s in models.Sample.objects.all():
+    #     if not s.region:
+    #         s.region = s.site.region
+    #         s.save()
+    #
+    # # actually, a sample should have only a single transect associated with it.
+    # for s in models.Sample.objects.all():
+    #     dive_transects = list(set([d.transect for d in s.dives.all()]))
+    #     if not s.transect:
+    #         # let's start with the easy one. If there is only one transect across all the dives, we only have to populate the sample's transect field and then we are done.
+    #         if len(dive_transects) == 1:
+    #             s.transect = dive_transects[0]
+    #             s.save()
+    #         # otherwise, we will have to duplicate the samples
+    #         elif len(dive_transects) > 1:
+    #             # take the first transect and use for the current sample
+    #             s.transect = dive_transects[0]
+    #             s.save()
+    #
+    #             # next, go through the unique list of transects. make sure a sample exists for each.
+    #             for t in dive_transects:
+    #                 sample_qs = models.Sample.objects.filter(datetime=s.datetime, transect=t)
+    #                 # if this sample does not exist, clone from the original
+    #                 if not sample_qs.exists():
+    #                     new_sample = deepcopy(s)
+    #                     new_sample.pk = None
+    #                     new_sample.transect = t
+    #                     new_sample.save()
+    #                 else:
+    #                     new_sample = sample_qs.first()
+    #
+    #                 # go though the dives of the original sample and move over any that need to be moved
+    #                 if not s == new_sample:
+    #                     for d in s.dives.all():
+    #                         if new_sample.transect == d.transect:
+    #                             d.sample = new_sample
+    #                             d.save()
 
     # open the csv we want to read
 
-    my_target_data_file = os.path.join(settings.BASE_DIR, 'scuba', 'data', 'scuba revamp.csv')
+    my_target_data_file = os.path.join(settings.BASE_DIR, 'scuba', 'data', 'scuba revamp1.csv')
     with open(my_target_data_file, 'r') as csv_read_file:
         my_csv = csv.DictReader(csv_read_file)
         for row in my_csv:
@@ -106,6 +99,10 @@ def revamp_transects():
             else:
                 region = region_qs.first()
 
+            if region:
+                transect_qs = region.transects.filter(old_name=row["old_name"])
+                if not transect_qs.exists():
+                    print(row["old_name"], "not found in", region)
 
 
 def populate_default():

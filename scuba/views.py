@@ -90,6 +90,7 @@ class RegionListView(ScubaAdminRequiredMixin, CommonFilterView):
         {"name": 'abbreviation', "class": "", "width": ""},
         {"name": 'tdescription|{}'.format("description"), "class": "", "width": ""},
         {"name": 'province', "class": "", "width": ""},
+        {"name": 'transect_count|{}'.format(_("# transect")), "class": "", "width": ""},
         {"name": 'sample_count|{}'.format(_("# outings")), "class": "", "width": ""},
     ]
 
