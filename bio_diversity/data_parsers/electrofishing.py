@@ -413,7 +413,7 @@ class AdultCollectionParser(DataParser):
 
         if utils.nan_to_none(row.get(self.mort_key)):
             if utils.y_n_to_bool(row[self.mort_key]):
-                mort_evnt, mort_anix, mort_entered = utils.enter_mortality(indv_id, self.cleaned_data, row_datetime)
+                mort_anix, mort_entered = utils.enter_mortality(indv_id, self.cleaned_data, row_datetime)
                 self.row_entered += mort_entered
 
         if utils.nan_to_none(row.get(self.wr_key)):

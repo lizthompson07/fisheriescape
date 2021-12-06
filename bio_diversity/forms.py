@@ -885,6 +885,7 @@ class MortForm(forms.Form):
     indv_gender = forms.ChoiceField(required=False, choices=gender_choices,  label=_("Individual Gender"))
     observations = forms.ModelMultipleChoiceField(required=False, queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Mortality Observation") | models.AniDetSubjCode.objects.filter(anidc_id__name="Animal Health"),  label=_("Observations"))
     indv_mort = forms.IntegerField(required=False, max_value=10000000)
+    samp_num = forms.CharField(required=False, max_length=8,  label=_("Sample Number"))
     grp_mort = forms.IntegerField(required=False, max_value=10000000)
 
     def __init__(self, *args, **kwargs):
@@ -903,17 +904,45 @@ class MortForm(forms.Form):
         if not self.is_valid():
             return cleaned_data
 
+        # grab an event for facility info, etc.
+        if cleaned_data["indv_mort"]:
+            cleaned_data["evnt_id"] = models.AniDetailXref.objects.filter(
+                indv_id_id=cleaned_data["indv_mort"]).last().evnt_id
+            mort_evntc = models.EventCode.objects.filter(name="Mortality").get()
+        else:
+            cleaned_data["evnt_id"] = models.AniDetailXref.objects.filter(
+                grp_id_id=cleaned_data["grp_mort"]).last().evnt_id
+            mort_evntc = models.EventCode.objects.filter(name="Mortality").get()
+
+        mortality_evnt = models.Event(evntc_id=mort_evntc,
+                                      facic_id=cleaned_data["evnt_id"].facic_id,
+                                      prog_id=cleaned_data["evnt_id"].prog_id,
+                                      perc_id=cleaned_data["evnt_id"].perc_id,
+                                      start_datetime=cleaned_data["mort_date"],
+                                      end_datetime=cleaned_data["mort_date"],
+                                      created_by=cleaned_data["created_by"],
+                                      created_date=cleaned_data["created_date"],
+                                      )
+        try:
+            mortality_evnt.clean()
+            mortality_evnt.save()
+        except (ValidationError, IntegrityError):
+            mortality_evnt = models.Event.objects.filter(evntc_id=mortality_evnt.evntc_id,
+                                                         facic_id=mortality_evnt.facic_id,
+                                                         prog_id=mortality_evnt.prog_id,
+                                                         start_datetime=mortality_evnt.start_datetime,
+                                                         end_datetime=mortality_evnt.end_datetime,
+                                                         ).get()
+
+        cleaned_data["evnt_id"] = mortality_evnt
+        cleaned_data["facic_id"] = mortality_evnt.facic_id
+
         if cleaned_data["indv_mort"]:
             indv = models.Individual.objects.filter(pk=cleaned_data["indv_mort"]).get()
             indv.indv_valid = False
             indv.save()
-            # grab an event for facility info, etc.
-            cleaned_data["evnt_id"] = models.AniDetailXref.objects.filter(indv_id_id=cleaned_data["indv_mort"]).last().evnt_id
 
-            mortality_evnt, anix, mort_entered = utils.enter_mortality(indv, cleaned_data, cleaned_data["mort_date"])
-
-            cleaned_data["evnt_id"] = mortality_evnt
-            cleaned_data["facic_id"] = mortality_evnt.facic_id
+            anix, mort_entered = utils.enter_mortality(indv, cleaned_data, cleaned_data["mort_date"])
 
             utils.enter_bulk_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"],
                                    len_val=cleaned_data["indv_length"],
@@ -923,16 +952,33 @@ class MortForm(forms.Form):
                                    gender=cleaned_data["indv_gender"],
                                    )
 
-        if cleaned_data["observations"].count() != 0:
-            for adsc in cleaned_data["observations"]:
-                utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], None, adsc.anidc_id.pk, adsc.name,
-                                  None)
-
+            if cleaned_data["observations"].count() != 0:
+                for adsc in cleaned_data["observations"]:
+                    utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], None, adsc.anidc_id.pk, adsc.name,
+                                      None)
         if cleaned_data["grp_mort"]:
             grp = models.Group.objects.filter(pk=cleaned_data["grp_mort"]).get()
-            cleaned_data["evnt_id"] = models.AniDetailXref.objects.filter(grp_id=grp).last().evnt_id
-            cleaned_data["facic_id"] = cleaned_data["evnt_id"].facic_id
-            utils.enter_grp_mortality(grp, 0, cleaned_data, cleaned_data["mort_date"])
+            salmon_pk = models.SpeciesCode.objects.filter(name__icontains="Salmon").get().pk
+            mort_sampc = models.SampleCode.objects.filter(name="Mortality Sample").get().pk
+
+            cont = grp.current_cont(at_date=cleaned_data["mort_date"])[0]
+
+            # create contx, link to grp and samp:
+            contx, contx_entered = utils.enter_contx(cont, cleaned_data, None, return_contx=True)
+
+            samp_anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp.pk, contx_pk=contx.pk)
+
+            samp_id, samp_entered = utils.enter_samp(cleaned_data, cleaned_data["samp_num"], salmon_pk, mort_sampc, anix_pk=samp_anix.pk)
+
+            mort_entered = utils.enter_samp_mortality(samp_id, cleaned_data, cleaned_data["mort_date"])
+
+            utils.enter_bulk_sampd(samp_id.pk, cleaned_data, cleaned_data["mort_date"],
+                                   len_val=cleaned_data["indv_length"],
+                                   weight=cleaned_data["indv_mass"],
+                                   vial=cleaned_data["indv_vial"],
+                                   scale_envelope=cleaned_data["scale_envelope"],
+                                   gender=cleaned_data["indv_gender"],
+                                   )
 
 
 class OrgaForm(CreatePrams):

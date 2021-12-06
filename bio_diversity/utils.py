@@ -1283,6 +1283,7 @@ def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=N
 
 def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=None, adsc_str=None, comments=None):
     row_entered = False
+    det_date = naive_to_aware(det_date)
     if isinstance(det_value, float):
         if math.isnan(det_value):
             return False
@@ -1548,108 +1549,85 @@ def enter_locd(loc_pk, cleaned_data, det_date, det_value, locdc_pk, ldsc_str=Non
 
 
 def enter_mortality(indv, cleaned_data, mort_date):
-    # Get/creat a mortality event
-    # link to indv
+    # enter indvd
     # record indvd on indv
     # remove indv from container
     data_entered = False
-    mort_evntc = models.EventCode.objects.filter(name="Mortality").get()
+    mort_date = naive_to_aware(mort_date)
+
     mort_anidc = models.AnimalDetCode.objects.filter(name="Mortality Observation").get()
-    mortality_evnt = models.Event(evntc_id=mort_evntc,
-                                  facic_id=cleaned_data["evnt_id"].facic_id,
-                                  prog_id=cleaned_data["evnt_id"].prog_id,
-                                  perc_id=cleaned_data["evnt_id"].perc_id,
-                                  start_datetime=mort_date,
-                                  end_datetime=mort_date,
-                                  created_by=cleaned_data["created_by"],
-                                  created_date=cleaned_data["created_date"],
-                                  )
-    try:
-        mortality_evnt.clean()
-        mortality_evnt.save()
-        data_entered = True
-    except (ValidationError, IntegrityError):
-        mortality_evnt = models.Event.objects.filter(evntc_id=mortality_evnt.evntc_id,
-                                                     facic_id=mortality_evnt.facic_id,
-                                                     prog_id=mortality_evnt.prog_id,
-                                                     start_datetime=mortality_evnt.start_datetime,
-                                                     end_datetime=mortality_evnt.end_datetime,
-                                                     ).get()
-    new_cleaned_data = cleaned_data.copy()
-    new_cleaned_data["evnt_id"] = mortality_evnt
-    anix, anix_entered = enter_anix(new_cleaned_data, indv_pk=indv.pk)
-    data_entered += enter_indvd(anix.pk, new_cleaned_data, mort_date, None, mort_anidc.pk)
+
+    anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv.pk)
+    data_entered += enter_indvd(anix.pk, cleaned_data, mort_date, None, mort_anidc.pk)
     data_entered += anix_entered
     for cont in indv.current_cont(at_date=mort_date):
-        data_entered += enter_contx(cont, new_cleaned_data, False, indv.pk)
+        data_entered += enter_contx(cont, cleaned_data, False, indv.pk)
 
     indv.indv_valid = False
     indv.save()
 
-    return mortality_evnt, anix, data_entered
+    return anix, data_entered
 
 
-def enter_grp_mortality(grp, samp_num, cleaned_data, mort_date, cont=None):
-    # -create a mortality event, link to group with anix
-    # -record counts
+def enter_samp_mortality(samp_id, cleaned_data, mort_date):
+    # add sampd
+    # record counts on group
     data_entered = False
     mort_date = naive_to_aware(mort_date)
-    salmon_pk = models.SpeciesCode.objects.filter(name__icontains="Salmon").get().pk
-    mort_evntc = models.EventCode.objects.filter(name="Mortality").get()
-    mort_sampc = models.SampleCode.objects.filter(name="Mortality Sample").get().pk
     mort_anidc = models.AnimalDetCode.objects.filter(name="Mortality Observation").get()
+    data_entered += enter_sampd(samp_id.pk, cleaned_data, mort_date, None, mort_anidc.pk)
+    samp_contx_id = samp_id.anix_id.contx_id
+    # one count per cont per mortality event, count up similar sample details:
+    cnt_val = models.SampleDet.objects.filter(anidc_id=mort_anidc,
+                                              samp_id__anix_id__evnt_id=cleaned_data["evnt_id"],
+                                              samp_id__anix_id__grp_id=samp_id.anix_id.grp_id,
+                                              samp_id__anix_id__contx_id=samp_contx_id
+                                              ).distinct().count()
 
-    mortality_evnt = models.Event(evntc_id=mort_evntc,
-                                  facic_id=cleaned_data["evnt_id"].facic_id,
-                                  prog_id=cleaned_data["evnt_id"].prog_id,
-                                  perc_id=cleaned_data["evnt_id"].perc_id,
-                                  start_datetime=mort_date,
-                                  end_datetime=mort_date,
-                                  created_by=cleaned_data["created_by"],
-                                  created_date=cleaned_data["created_date"],
-                                  )
-    try:
-        mortality_evnt.clean()
-        mortality_evnt.save()
-        data_entered = True
-    except (ValidationError, IntegrityError):
-        mortality_evnt = models.Event.objects.filter(evntc_id=mortality_evnt.evntc_id,
-                                                     facic_id=mortality_evnt.facic_id,
-                                                     prog_id=mortality_evnt.prog_id,
-                                                     start_datetime=mortality_evnt.start_datetime,
-                                                     end_datetime=mortality_evnt.end_datetime,
-                                                     ).get()
-    new_cleaned_data = cleaned_data.copy()
-    new_cleaned_data["evnt_id"] = mortality_evnt
-
-    anix, anix_entered = enter_anix(new_cleaned_data, grp_pk=grp.pk)
-    data_entered += anix_entered
-
-    if not nan_to_none(cont):
-        cont = grp.current_cont(at_date=mort_date)[0]
-
-    # create contx, link to grp and samp:
-    contx, contx_entered = enter_contx(cont, new_cleaned_data, None, return_contx=True)
-    data_entered += contx_entered
-
-    samp_anix, anix_entered = enter_anix(new_cleaned_data, grp_pk=grp.pk, contx_pk=contx.pk)
-    data_entered += anix_entered
-
-    samp, samp_entered = enter_samp(new_cleaned_data, samp_num, salmon_pk, mort_sampc, anix_pk=samp_anix.pk)
-    data_entered += samp_entered
-
-    data_entered += enter_sampd(samp.pk, new_cleaned_data, mort_date, None, mort_anidc.pk)
-    # one count per cont per mortality event, count up similar samples:
-    cnt_val = models.Sample.objects.filter(anix_id__evnt_id=mortality_evnt,
-                                           anix_id__grp_id=grp,
-                                           anix_id__contx_id=contx).distinct().count()
-
-    cnt, cnt_entered = enter_cnt(cleaned_data, 0, contx.pk, cnt_code="Mortality")
+    cnt, cnt_entered = enter_cnt(cleaned_data, 0, samp_contx_id.pk, cnt_code="Mortality")
     data_entered += cnt_entered
     cnt.cnt = cnt_val
     cnt.save()
+    return data_entered
 
-    return samp, mortality_evnt, anix, data_entered
+
+def enter_grp_mortality(grp, cleaned_data, mort_date, mort_cnt, cont=None):
+    # add grdp
+    # link to cont
+    # record counts on group
+    data_entered = False
+    mort_date = naive_to_aware(mort_date)
+    mort_anidc = models.AnimalDetCode.objects.filter(name="Mortality Observation").get()
+
+    if not cont:
+        cont = grp.current_cont(at_date=cleaned_data["mort_date"])[0]
+
+    contx_id, contx_entered = enter_contx(cont, cleaned_data, None, grp_pk=grp.pk, return_contx=True)
+    data_entered += contx_entered
+
+    anix = contx_id.animal_details.filter(grp_id=grp,
+                                          evnt_id=cleaned_data["evnt_id"],
+                                          indv_id__isnull=True,
+                                          loc_id__isnull=True,
+                                          pair_id__isnull=True,
+                                          final_contx_flag=None).get()
+
+    data_entered += enter_grpd(anix.pk, cleaned_data, mort_date, mort_cnt, mort_anidc.pk)
+
+    # one count per cont per day, per group, per event, count up similar details:
+    mort_cnt = sum(models.GroupDet.objects.filter(anidc_id=mort_anidc,
+                                                  anix_id__evnt_id=cleaned_data["evnt_id"],
+                                                  anix_id__grp_id=grp,
+                                                  anix_id__contx_id=contx_id,
+                                                  detail_date=mort_date,
+                                                  ).distinct().values_list('det_val', flat=True))
+
+    cnt, cnt_entered = enter_cnt(cleaned_data, 0, contx_id.pk, cnt_code="Mortality")
+    data_entered += cnt_entered
+    cnt.cnt = mort_cnt
+    cnt.save()
+
+    return data_entered
 
 
 def enter_samp(cleaned_data, samp_num, spec_pk, sampc_pk, anix_pk=None, loc_pk=None, comments=None):
@@ -1659,7 +1637,7 @@ def enter_samp(cleaned_data, samp_num, spec_pk, sampc_pk, anix_pk=None, loc_pk=N
                          spec_id_id=spec_pk,
                          samp_num=samp_num,
                          sampc_id_id=sampc_pk,
-                         comments = comments,
+                         comments=comments,
                          created_by=cleaned_data["created_by"],
                          created_date=cleaned_data["created_date"],
                          )

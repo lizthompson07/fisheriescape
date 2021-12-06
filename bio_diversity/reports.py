@@ -228,26 +228,38 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
     start_date = utils.naive_to_aware(start_date)
     end_date = utils.naive_to_aware(end_date)
 
+    mort_anidc = models.AnimalDetCode.objects.filter(name="Mortality Observation").get()
+
     # select all individuals
-    mort_evnts = models.Event.objects.filter(start_datetime__gte=start_date, end_datetime__lte=end_date, evntc_id__name="Mortality")
+    indv_mortd_qs = models.IndividualDet.objects.filter(anidc_id=mort_anidc,
+                                                        anix_id__evnt_id__start_datetime__gte=start_date,
+                                                        anix_id__evnt_id__end_datetime__lte=end_date)
+    grp_mortd_qs = models.Group.objects.filter(anidc_id=mort_anidc,
+                                               anix_id__evnt_id__start_datetime__gte=start_date,
+                                               anix_id__evnt_id__end_datetime__lte=end_date)
+    samp_mortd_qs = models.SampleDet.objects.filter(anidc_id=mort_anidc,
+                                                    anix_id__evnt_id__start_datetime__gte=start_date,
+                                                    anix_id__evnt_id__end_datetime__lte=end_date)
     if facic_id:
-        mort_evnts = mort_evnts.filter(facic_id=facic_id)
-
-    anix_indv_qs = models.AniDetailXref.objects.filter(evnt_id__in=mort_evnts, indv_id__isnull=False, contx_id__isnull=True, grp_id__isnull=True)
-    samp_qs = models.Sample.objects.filter(anix_id__evnt_id__in=mort_evnts)
-
+        indv_mortd_qs = indv_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
+        grp_mortd_qs = grp_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
+        samp_mortd_qs = samp_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
     if stok_id:
-        anix_indv_qs = anix_indv_qs.filter(indv_id__stok_id=stok_id)
-        samp_qs = samp_qs.filter(anix_id__grp_id__stok_id=stok_id)
+        indv_mortd_qs = indv_mortd_qs.filter(anix_id__indv_id__stok_id=stok_id)
+        grp_mortd_qs = grp_mortd_qs.filter(anix_id__grp_id__stok_id=stok_id)
+        samp_mortd_qs = samp_mortd_qs.filter(anix_id__grp_id__stok_id=stok_id)
     if year:
-        anix_indv_qs = anix_indv_qs.filter(indv_id__indv_year=year)
-        samp_qs = samp_qs.filter(anix_id__grp_id__grp_year=year)
+        indv_mortd_qs = indv_mortd_qs.filter(anix_id__indv_id__indv_year=year)
+        grp_mortd_qs = grp_mortd_qs.filter(anix_id__grp_id__grp_year=year)
+        samp_mortd_qs = samp_mortd_qs.filter(anix_id__grp_id__indv_year=year)
     if coll_id:
-        anix_indv_qs = anix_indv_qs.filter(grp_id__coll_id=coll_id)
-        samp_qs = samp_qs.filter(anix_id__grp_id__coll_id=coll_id)
+        indv_mortd_qs = indv_mortd_qs.filter(anix_id__indv_id__coll_id=coll_id)
+        grp_mortd_qs = grp_mortd_qs.filter(anix_id__grp_id__coll_id=coll_id)
+        samp_mortd_qs = samp_mortd_qs.filter(anix_id__grp_id__coll_id=coll_id)
 
-    anix_indv_qs.select_related("indv_id", "indv_id__coll_id", "indv_id__stok_id", "evnt_id")
-    samp_qs.select_related("anix_id__grp_id", "anix_id__grp_id__coll_id", "anix_id__grp_id__stok_id", "anix_id__evnt_id")
+    indv_mortd_qs.select_related("anix_id", "anix_id__indv_id", "anix__id__indv_id__coll_id", "anix_id__indv_id__stok_id", "anix_id__evnt_id")
+    grp_mortd_qs.select_related("anix_id", "anix_id__grp_id", "anix__id__grp_id__coll_id", "anix_id__grp_id__stok_id", "anix_id__evnt_id")
+    samp_mortd_qs.select_related("anix_id", "anix_id__grp_id", "anix__id__grp_id__coll_id", "anix_id__grp_id__stok_id", "anix_id__evnt_id")
 
     # to order worksheets so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
@@ -256,9 +268,9 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
 
     # start writing data at row 3 in the sheet
     row_count = 3
-    for item in anix_indv_qs:
-        indv_id = item.indv_id
-        mort_date = utils.naive_to_aware(item.evnt_id.start_date)
+    for indvd in indv_mortd_qs:
+        indv_id = indvd.anix_id.indv_id
+        mort_date = utils.naive_to_aware(indvd.anix_id.evnt_id.start_date)
         ws_indv['A' + str(row_count)].value = indv_id.pit_tag
         ws_indv['B' + str(row_count)].value = indv_id.stok_id.name
         ws_indv['C' + str(row_count)].value = indv_id.indv_year
@@ -270,23 +282,23 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
         ws_indv['I' + str(row_count)].value = indv_id.individual_detail("Length", before_date=mort_date)
         ws_indv['J' + str(row_count)].value = indv_id.individual_detail("Weight", before_date=mort_date)
 
-        ws_indv['K' + str(row_count)].value = indv_id.individual_evnt_details(item.evnt_id)
+        ws_indv['K' + str(row_count)].value = indv_id.individual_evnt_details(indvd.anix_id.evnt_id)
 
         row_count += 1
 
     row_count = 3
-    for item in samp_qs:
-        grp_id = item.anix_id.grp_id
-        mort_date = utils.naive_to_aware(item.anix_id.evnt_id.start_date)
+    for grpd in grp_mortd_qs:
+        grp_id = grpd.anix_id.anix_id.grp_id
+        mort_date = utils.naive_to_aware(grpd.anix_id.anix_id.evnt_id.start_date)
         ws_grp['A' + str(row_count)].value = grp_id.stok_id.name
         ws_grp['B' + str(row_count)].value = grp_id.grp_year
         ws_grp['C' + str(row_count)].value = grp_id.coll_id.name
         ws_grp['D' + str(row_count)].value = grp_id.prog_group(get_string=True)
         ws_grp['E' + str(row_count)].value = grp_id.current_cont(at_date=mort_date, valid_only=False, get_string=True)
-        ws_grp['F' + str(row_count)].value = item.samp_detail("Gender")
+        ws_grp['F' + str(row_count)].value = grpd.anix_id.samp_detail("Gender")
         ws_grp['G' + str(row_count)].value = mort_date
-        ws_grp['H' + str(row_count)].value = item.samp_detail("Length")
-        ws_grp['I' + str(row_count)].value = item.samp_detail("Weight")
+        ws_grp['H' + str(row_count)].value = grpd.anix_id.samp_detail("Length")
+        ws_grp['I' + str(row_count)].value = grpd.anix_id.samp_detail("Weight")
 
         row_count += 1
 

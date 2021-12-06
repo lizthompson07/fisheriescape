@@ -3276,6 +3276,7 @@ class MortFormView(mixins.MortMixin, BioCommonFormView):
     def get_initial(self):
         init = super().get_initial()
         init["mort_date"] = date.today
+        init["samp_num"] = "0"
         if self.kwargs.get("iorg") == "indv":
             init["indv_mort"] = self.kwargs.get("pk")
         elif self.kwargs.get("iorg") == "grp":

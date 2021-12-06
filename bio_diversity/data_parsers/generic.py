@@ -91,7 +91,7 @@ class GenericIndvParser(DataParser):
                                                       self.ani_health_anidc_id.pk, "Precocity")
         if utils.nan_to_none(row.get(self.mort_key)):
             if utils.y_n_to_bool(row[self.mort_key]):
-                mort_evnt, mort_anix, mort_entered = utils.enter_mortality(indv, self.cleaned_data, row_datetime)
+                mort_anix, mort_entered = utils.enter_mortality(indv, self.cleaned_data, row_datetime)
                 self.row_entered += mort_entered
 
         in_tank = None
@@ -260,17 +260,25 @@ class GenericUntaggedParser(DataParser):
             row_grp = row_end_grp
         row_anix, data_entered = utils.enter_anix(cleaned_data, grp_pk=row_grp.pk)
         self.row_entered += data_entered
-        row_samp = None
+
+        row_contx, data_entered = utils.enter_contx(row.get("start_tank_id"), cleaned_data, None, grp_pk=row_grp.pk, return_contx=True)
+        self.row_entered += data_entered
+
+        samp_anix = row_contx.animal_details.filter(grp_id=row_grp,
+                                                    evnt_id=cleaned_data["evnt_id"],
+                                                    indv_id__isnull=True,
+                                                    loc_id__isnull=True,
+                                                    pair_id__isnull=True,
+                                                    final_contx_flag=None).get()
+
+        row_samp, data_entered = utils.enter_samp(cleaned_data, row[self.samp_key], row_grp.spec_id.pk,
+                                                  self.sampc_id.pk,
+                                                  anix_pk=samp_anix.pk)
+        self.row_entered += data_entered
+
         if utils.nan_to_none(row.get(self.mort_key)):
             if utils.y_n_to_bool(row[self.mort_key]):
-                mort_out = utils.enter_grp_mortality(row_grp, row[self.samp_key], cleaned_data, row_date, cont=row.get("start_tank_id"))
-                self.row_entered += mort_out[3]
-
-        if not row_samp:
-            row_samp, data_entered = utils.enter_samp(cleaned_data, row[self.samp_key], row_grp.spec_id.pk,
-                                                      self.sampc_id.pk,
-                                                      anix_pk=row_anix.pk)
-            self.row_entered += data_entered
+                self.row_entered += utils.enter_samp_mortality(row_samp, cleaned_data, row_date)
 
         if row_samp:
             self.row_entered += utils.enter_bulk_sampd(row_samp.pk, self.cleaned_data, row_date,
