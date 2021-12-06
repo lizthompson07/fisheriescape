@@ -54,6 +54,7 @@ class CSRFPriority(SimpleLookup):
     code = models.CharField(verbose_name=_("Priority identification number"), max_length=25, unique=True)
     name = models.CharField(max_length=1000, verbose_name=_("priority for research (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("priority for research (fr)"))
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year"))
 
     class Meta:
         ordering = ['code', "name"]
@@ -64,10 +65,17 @@ class CSRFPriority(SimpleLookup):
 
 class CSRFClientInformation(Lookup):
     csrf_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, related_name="client_information", verbose_name=_("CSRF priority"))
-    name = models.CharField(max_length=1000, verbose_name=_("name (en)"))
+    name = models.CharField(max_length=1000, verbose_name=_("name (en)"), blank=True, null=True)
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("name (fr)"))
     description_en = models.TextField(verbose_name=_("additional client information (en)"))
     description_fr = models.TextField(blank=True, null=True, verbose_name=_("additional client information (fr)"))
+
+    def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = self.quickname_en
+        if not self.nom and self.description_fr:
+            self.nom = self.quickname_fr
+        super().save(*args, **kwargs)
 
     @property
     def quickname_en(self):
