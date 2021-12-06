@@ -95,7 +95,6 @@ def generate_dive_log(year):
     return target_url
 
 
-
 def generate_transect_csv():
     """Returns a generator for an HTTP Streaming Response"""
 
@@ -151,6 +150,33 @@ def generate_obs_csv(year):
         yield writer.writerow(data_row)
 
 
+def generate_outing_csv(year):
+    """Returns a generator for an HTTP Streaming Response"""
+
+    filter_kwargs = {}
+    if year != "":
+        filter_kwargs["datetime__year"] = year
+
+    qs = models.Sample.objects.filter(**filter_kwargs).iterator()
+    random_obj = models.Sample.objects.first()
+    fields = random_obj._meta.fields
+    field_names = [field.name for field in fields]
+
+    # add any FKs
+    for field in fields:
+        if field.attname not in field_names:
+            field_names.append(field.attname)
+    header_row = [field for field in field_names]  # starter
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
+
+    for obj in qs:
+        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
+        yield writer.writerow(data_row)
+
+
 def generate_section_csv(year):
     """Returns a generator for an HTTP Streaming Response"""
 
@@ -178,7 +204,6 @@ def generate_section_csv(year):
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
         data_row.extend([obj.dive.sample, obj.dive.sample_id, obj.dive.sample.transect, obj.dive.sample.transect_id])
         yield writer.writerow(data_row)
-
 
 
 def generate_dive_csv(year):

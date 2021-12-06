@@ -92,8 +92,6 @@ class ScubaUser(models.Model):
 
 
 class Region(UnilingualLookup):
-    new_name = models.CharField(unique=True, max_length=255, verbose_name=_("new name"), blank=True, null=True)
-
     abbreviation = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='scuba_regions', blank=True, null=True)
 
@@ -141,77 +139,20 @@ class Region(UnilingualLookup):
         return Sample.objects.filter(transect__region=self).count()
 
 
-###################### DELETE ME!!!! ##########################
-class Site(UnilingualLookup):
-    abbreviation = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
-    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name='sites', verbose_name=_("region"), editable=False)
-    latitude_d = models.IntegerField(blank=True, null=True, verbose_name=_("latitude (degrees)"))
-    latitude_mm = models.FloatField(blank=True, null=True, verbose_name=_("latitude (minutes)"))
-    longitude_d = models.IntegerField(blank=True, null=True, verbose_name=_("longitude (degrees)"))
-    longitude_mm = models.FloatField(blank=True, null=True, verbose_name=_("longitude (minutes)"))
-
-    # calculated
-    latitude = models.FloatField(blank=True, null=True, verbose_name=_("latitude (decimal degrees)"), editable=False)
-    longitude = models.FloatField(blank=True, null=True, verbose_name=_("longitude (decimal degrees)"), editable=False)
-
-    def save(self, *args, **kwargs):
-        self.latitude = dm2decdeg(self.latitude_d, self.latitude_mm)
-        self.longitude = dm2decdeg(self.longitude_d, self.longitude_mm)
-
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"Site {self.name}"
-
-    @property
-    def transect_count(self):
-        return self.transects.count()
-
-    def get_coordinates(self):
-        # should be the centroid of all transect coords
-        points = list()
-        for t in self.transects.all():
-            if t.has_coordinates:
-                points.extend([
-                    Point(t.start_latitude, t.start_longitude),
-                    Point(t.end_latitude, t.end_longitude),
-                ])
-            if len(points):
-                return MultiPoint(points).centroid
-
-    @property
-    def coordinates(self):
-        my_str = "---"
-        if self.get_coordinates():
-            my_str = self.get_coordinates_ddmm()
-        return mark_safe(my_str)
-
-    def get_coordinates_ddmm(self):
-        coords = self.get_coordinates()
-        if coords:
-            dmx = decdeg2dm(coords.x)
-            dmy = decdeg2dm(coords.y)
-            return mark_safe(f"lat: {int(dmx[0])}° {format(dmx[1], '4f')}'<br>lng: {int(dmy[0])}° {format(dmy[1], '4f')}'")
-
-
 class Transect(UnilingualLookup, CoordinatesModel):
-    # new_name = models.IntegerField(verbose_name=_("new_name"), blank=True, null=True)
     name = models.IntegerField(verbose_name=_("name"))
-    region = models.ForeignKey(Region, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("region"), blank=False, null=True,
-                               )  # to replace site
+    region = models.ForeignKey(Region, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("region"), blank=False,
+                               null=True)  # to replace site
 
     # not editable
-    old_name = models.CharField(max_length=255, verbose_name=_("old name"), blank=True, null=True)
-
-    # to delete
-    site = models.ForeignKey(Site, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("site"), editable=False, blank=True, null=True)
+    old_name = models.CharField(max_length=255, verbose_name=_("old name"), blank=True, null=True, editable=False)
 
     class Meta:
-        unique_together = (("name", "region"), )
+        unique_together = (("name", "region"),)
         ordering = ["region", "name", ]
 
     def __str__(self):
-        return f"t{self.name} ({self.region.name})"
+        return f"T{self.name} ({self.region.name})"
 
 
 class Diver(models.Model):
@@ -266,10 +207,6 @@ class Sample(CoordinatesModel):
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
     is_upm = models.BooleanField(default=False, verbose_name=_("was this a UPM sampling day?"))
     is_training = models.BooleanField(default=False, verbose_name=_("Was this outing for training purposes?"), choices=YES_NO_CHOICES)
-
-    # to delete
-    site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("site"), editable=False, blank=True, null=True)
-    region = models.ForeignKey(Region, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("region"), blank=False, null=True)  # to replace site
 
     def __str__(self):
         return _("Outing") + f" {self.id}"

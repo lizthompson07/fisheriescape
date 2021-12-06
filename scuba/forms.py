@@ -194,6 +194,7 @@ class ReportSearchForm(forms.Form):
         (None, "------"),
         (1, "dive log (xlsx)"),
         (2, "scuba transect export (csv)"),
+        (6, "outing export (csv)"),
         (5, "dive export (csv)"),
         (3, "section export (csv)"),
         (4, "observation export (csv)"),

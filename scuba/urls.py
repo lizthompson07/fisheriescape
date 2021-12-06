@@ -51,6 +51,7 @@ urlpatterns = [
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),  # tested
     path('reports/dive-log/', views.dive_log_report, name="dive_log_report"),  # tested
     path('reports/transects/', views.export_transect_data, name="export_transect_data"),  # TODO: TESTME
+    path('reports/outing/', views.export_outing_data, name="export_outing_data"),  # TODO: TESTME
     path('reports/dive/', views.export_dive_data, name="export_dive_data"),  # TODO: TESTME
     path('reports/section/', views.export_section_data, name="export_section_data"),  # TODO: TESTME
     path('reports/observations/', views.export_obs_data, name="export_obs_data"),  # TODO: TESTME

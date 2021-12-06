@@ -576,6 +576,8 @@ class ReportSearchFormView(ScubaCRUDAccessRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("scuba:export_obs_data") + f"?year={year}")
         elif report == 5:
             return HttpResponseRedirect(reverse("scuba:export_dive_data") + f"?year={year}")
+        elif report == 6:
+            return HttpResponseRedirect(reverse("scuba:export_outing_data") + f"?year={year}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("scuba:reports"))
@@ -602,6 +604,18 @@ def export_transect_data(request):
 
     response = StreamingHttpResponse(
         streaming_content=(reports.generate_transect_csv()),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+def export_outing_data(request):
+    year = request.GET.get("year")
+    filename = "outing data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_outing_csv(year)),
         content_type='text/csv',
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'
