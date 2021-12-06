@@ -237,6 +237,11 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['scripts'] = ['maret/js/interactionForm.html']
+
+        if models.UserMode.objects.filter(user=self.request.user) and models.UserMode.objects.get(user=self.request.user).mode==2:
+            context['manage_url'] = "maret:manage_help_text"
+            context['model_name'] = self.model.__name__
+
         return context
 
 
@@ -306,6 +311,7 @@ class InteractionDeleteView(AuthorRequiredMixin, CommonDeleteView):
 # Committee / Working Groups
 #######################################################
 class CommitteeListView(UserRequiredMixin, CommonFilterView):
+    h1 = gettext_lazy("Committees / Working Groups")
     template_name = 'maret/maret_list.html'
     filterset_class = filters.CommitteeFilter
     model = models.Committee
@@ -325,9 +331,9 @@ class CommitteeListView(UserRequiredMixin, CommonFilterView):
 class CommitteeCreateView(UserRequiredMixin, CommonCreateViewHelp):
     model = models.Committee
     form_class = forms.CommitteeForm
-    parent_crumb = {"title": gettext_lazy("Committees"), "url": reverse_lazy("maret:committee_list")}
+    parent_crumb = {"title": gettext_lazy("Committees / Working Groups"), "url": reverse_lazy("maret:committee_list")}
     template_name = "maret/form.html"
-    h1 = gettext_lazy("New Committee")
+    h1 = gettext_lazy("Committees / Working Groups")
 
     def get_initial(self):
         return {
@@ -344,7 +350,7 @@ class CommitteeCreateView(UserRequiredMixin, CommonCreateViewHelp):
 class CommitteeDetailView(UserRequiredMixin, CommonDetailView):
     model = models.Committee
     home_url_name = "maret:index"
-    parent_crumb = {"title": gettext_lazy("Committee / Working Group"), "url": reverse_lazy("maret:committee_list")}
+    parent_crumb = {"title": gettext_lazy("Committees / Working Groups"), "url": reverse_lazy("maret:committee_list")}
     container_class = "container-fluid"
 
     def get_context_data(self, **kwargs):
@@ -372,7 +378,7 @@ class CommitteeDeleteView(AuthorRequiredMixin, CommonDeleteView):
     model = models.Committee
     success_url = reverse_lazy('maret:committee_list')
     home_url_name = "maret:index"
-    grandparent_crumb = {"title": gettext_lazy("Committee"), "url": reverse_lazy("maret:committee_list")}
+    grandparent_crumb = {"title": gettext_lazy("Committees / Working Groups"), "url": reverse_lazy("maret:committee_list")}
     template_name = "maret/confirm_delete.html"
     delete_protection = False
 
@@ -386,6 +392,7 @@ class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateView):
     home_url_name = "maret:index"
     grandparent_crumb = {"title": gettext_lazy("Committees / Working Groups"),
                          "url": reverse_lazy("maret:committee_list")}
+    h1 = gettext_lazy("Committees / Working Groups")
     template_name = "maret/form.html"
 
     def get_parent_crumb(self):
@@ -768,6 +775,38 @@ class OrgCategoriesFormsetView(CommonMaretFormset):
     queryset = models.OrgCategory.objects.all()
     formset_class = forms.OrgCategoriesFormSet
     success_url_name = "maret:manage_org_categories"
+
+
+class HelpTextPopView(AdminRequiredMixin, CommonCreateView):
+    model = models.HelpText
+    form_class = forms.HelpTextPopForm
+    success_url = reverse_lazy("shared_models:close_me")
+
+    def get_initial(self):
+        if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
+            obj = self.model.objects.get(model=self.kwargs['model_name'], field_name=self.kwargs['field_name'])
+            return {
+                'model': self.kwargs['model_name'],
+                'field_name': self.kwargs['field_name'],
+                'eng_text': obj.eng_text,
+                'fra_text': obj.fra_text
+            }
+
+        return {
+            'model': self.kwargs['model_name'],
+            'field_name': self.kwargs['field_name'],
+        }
+
+    def form_valid(self, form):
+        if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
+            data = form.cleaned_data
+            obj = self.model.objects.get(model=self.kwargs['model_name'], field_name=self.kwargs['field_name'])
+            obj.eng_text = data['eng_text']
+            obj.fra_text = data['fra_text']
+            obj.save()
+            return HttpResponseRedirect(reverse_lazy("shared_models:close_me"))
+        else:
+            return super().form_valid(form)
 
 
 class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):

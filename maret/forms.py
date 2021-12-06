@@ -20,6 +20,10 @@ class CommitteeForm(forms.ModelForm):
             'date_created',
         ]
         widgets = {
+            'external_chair': forms.Select(attrs=chosen_js),
+            'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
+            'external_organization': forms.SelectMultiple(attrs=chosen_js),
+            'external_contact': forms.SelectMultiple(attrs=chosen_js),
         }
 
 
@@ -34,6 +38,12 @@ class InteractionForm(forms.ModelForm):
             'date_of_meeting': forms.DateInput(attrs=attr_fp_date),
             'last_modified': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
+
+            'committee': forms.Select(attrs=chosen_js),
+            'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
+            'other_dfo_participants': forms.SelectMultiple(attrs=chosen_js),
+            'external_organization': forms.SelectMultiple(attrs=chosen_js),
+            'external_contact': forms.SelectMultiple(attrs=chosen_js),
         }
 
 
@@ -155,6 +165,19 @@ OrgCategoriesFormSet = modelformset_factory(
     form=OrgCategoryForm,
     extra=3,
 )
+
+
+class HelpTextPopForm(forms.ModelForm):
+
+    class Meta:
+        model = models.HelpText
+        fields = "__all__"
+        widgets = {
+            'model': forms.HiddenInput(),
+            'field_name': forms.HiddenInput(),
+            'eng_text': forms.Textarea(attrs={"rows": 2}),
+            'fra_text': forms.Textarea(attrs={"rows": 2}),
+        }
 
 
 class HelpTextForm(forms.ModelForm):

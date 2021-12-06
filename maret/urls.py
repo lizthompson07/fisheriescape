@@ -53,6 +53,9 @@ urlpatterns = [
     # HelpText #
     #############
     path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_texts"),
+    path('settings/toggle-help-texts/<int:user_id>', utils.toggle_help_text_edit, name="toggle_edit_help_texts"),
+    path('settings/help-texts/<str:model_name>/<str:field_name>/', views.HelpTextPopView.as_view(),
+         name="manage_help_text"),
     path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
 
 ]

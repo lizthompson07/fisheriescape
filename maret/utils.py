@@ -1,4 +1,6 @@
+import requests
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 
@@ -60,6 +62,28 @@ def maret_author_authorized(user):
 # authorize for administrators
 def maret_admin_authorized(user):
     return user.is_authenticated and user.groups.filter(name='maret_admin').exists()
+
+
+def toggle_help_text_edit(request, user_id):
+    usr = User.objects.get(pk=user_id)
+
+    user_mode = None
+    # mode 1 is read only
+    mode = 1
+    if models.UserMode.objects.filter(user=usr):
+        user_mode = models.UserMode.objects.get(user=usr)
+        mode = user_mode.mode
+
+    # fancy math way of toggling between 1 and 2
+    mode = (mode % 2) + 1
+
+    if not user_mode:
+        user_mode = models.UserMode(user=usr)
+
+    user_mode.mode = mode
+    user_mode.save()
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 def get_help_text_dict(model=None, title=''):

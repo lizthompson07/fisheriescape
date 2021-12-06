@@ -45,6 +45,9 @@
                 <a class="dropdown-item" href="{% url 'maret:manage_help_texts' %}">
                     {% trans "Manage Help Text" %}
                 </a>
+                <a class="dropdown-item" href="{% url 'maret:toggle_edit_help_texts' user.pk %}">
+                    {% trans "Toggle Help Text Editing" %}{% if manage_url %} <span class="mdi mdi-check"></span> {% endif %}
+                </a>
             </div>
         </li>
     {% endif %}

@@ -15,6 +15,7 @@ NULL_YES_NO_CHOICES = (
 )
 
 ROLE_DFO_CHOICES = (
+    (None, _("---------")),
     (1, "Programs"),
     (2, "Manager"),
     (3, "Director"),
@@ -26,6 +27,7 @@ ROLE_DFO_CHOICES = (
     (9, "Senior Assistant Deputy Minister"),
     (10, "Deputy Minister"),
     (11, "Minister"),
+    (12, "Unknown"),
 )
 
 
@@ -60,8 +62,12 @@ class Committee(models.Model):
     )
 
     name = models.CharField(max_length=255, verbose_name=_("Name of committee/Working Group"))
+    main_topic = models.ManyToManyField(DiscussionTopic, blank=True, related_name="committee_main_topics",
+                                        verbose_name=_("Main Topic(s) of discussion"))
+    species = models.ManyToManyField(Species, blank=True, related_name="committee_species",
+                                     verbose_name=_("Main species of discussion"))
     branch = models.ForeignKey(shared_models.Branch, default=1, on_delete=models.DO_NOTHING,
-                               related_name="committee_branch", verbose_name=_("Lead DFO Branch"))
+                               related_name="committee_branch", verbose_name=_("Lead DFO branch / area office"))
     division = models.ForeignKey(shared_models.Division, default=1, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Division"))
 
@@ -77,6 +83,8 @@ class Committee(models.Model):
     other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="committee_dfo_branch",
                                               verbose_name=_("Other participating DFO branches/regions/area offices")
                                               )
+    dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=12,
+                                   verbose_name="Role of highest level DFO participant")
     first_nation_participation = models.BooleanField(default=False,
                                                      verbose_name=_("First Nations/Indigenous group participation?"))
     provincial_participation = models.BooleanField(default=False,
@@ -139,6 +147,9 @@ class Interaction(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          verbose_name=_("last modified by"))
 
+    def __str__(self):
+        return "{}: {}".format(self.pk, self.description)
+
 
 class OrganizationExtension(models.Model):
     organization = models.ForeignKey(ml_models.Organization, blank=False, null=False, default=1, related_name="ext_org",
@@ -153,6 +164,16 @@ class ContactExtension(models.Model):
     contact = models.ForeignKey(ml_models.Person, blank=False, null=False, default=1, related_name="ext_con",
                                 verbose_name="Contact", on_delete=models.CASCADE)
     role = models.CharField(max_length=255, default="N/A", verbose_name="Role")
+
+
+# This allowes users to toggle helptext editing on forms on and off
+class UserMode(models.Model):
+    mode_choices = (
+        (1, "read"),
+        (2, "edit"),
+    )
+    user = models.ForeignKey(User, blank=True, null=True, on_delete=models.DO_NOTHING)
+    mode = models.IntegerField(choices=mode_choices, default=1)
 
 
 # This is a special table used to house application help text

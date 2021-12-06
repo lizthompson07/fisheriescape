@@ -4,17 +4,20 @@
 {% load custom_filters %}
 
 
-
 {% block form_field %}
 
-  {% if field.name in help_text_dict %}
-    {% bootstrap_label field.label %}
-    <span class="mdi mdi-help-circle-outline h6" data-toggle="popover" title="{{ field.label }}"
-          data-content="{{ help_text_dict|lookup:field.name }}" data-trigger="hover"></span>
-    {% bootstrap_field field placeholder="" show_label=False %}
-  {% else %}
     {% bootstrap_field field placeholder="" %}
-  {% endif %}
+    {% if manage_url %}
+        <script>
+            $("label[for='id_{{ field.name }}'").after("<a class='mdi mdi-plus-box h6' pop-href='{% url manage_url model_name field.name %}'></a>");
+            {% if field.name in help_text_dict %}
+                $("label[for='id_{{ field.name }}'").after("<span class='mdi mdi-help-circle-outline h6' data-toggle='popover' title='{{ field.label }}' data-content='{{ help_text_dict|lookup:field.name }}' data-trigger='hover'><span>");
+            {% endif %}
+        </script>
+    {% elif field.name in help_text_dict %}
+        <script>$("label[for='id_{{ field.name }}'").after("<span class='mdi mdi-help-circle-outline h6' data-toggle='popover' title='{{ field.label }}' data-content='{{ help_text_dict|lookup:field.name }}' data-trigger='hover'><span>");
+        </script>
+    {% endif %}
 
 {% endblock %}
 
