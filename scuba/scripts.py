@@ -103,7 +103,12 @@ def revamp_transects():
                 transect_qs = region.transects.filter(old_name=row["old_name"])
                 if not transect_qs.exists():
                     print(row["old_name"], "not found in", region)
-
+                elif transect_qs.count() > 1:
+                    print(row["old_name"], "found multiple times in", region)
+                else:
+                    t = transect_qs.first()
+                    t.name = row["transect_New"]
+                    t.save()
 
 def populate_default():
     default_spp = get_object_or_404(models.Species, is_default=True)
