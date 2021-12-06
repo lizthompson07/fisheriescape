@@ -57,7 +57,7 @@ class SampleForm(forms.ModelForm):
         model = models.Sample
         fields = "__all__"
         widgets = {
-            "datetime": forms.DateInput(attrs=dict(type="date")),
+            "datetime": forms.DateInput(attrs=dict(type="datetime-local"), format="%Y-%m-%dT%H:%M:%S"),
         }
 
     def __init__(self, *args, **kwargs):

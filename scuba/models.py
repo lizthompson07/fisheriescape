@@ -201,7 +201,7 @@ class Transect(UnilingualLookup, CoordinatesModel):
                                editable=False)  # to replace site
 
     # not editable
-    old_site_name = models.CharField(max_length=255, verbose_name=_("old site name"), blank=True, null=True, editable=False)
+    old_name = models.CharField(max_length=255, verbose_name=_("old name"), blank=True, null=True, editable=False)
 
     # to delete
     site = models.ForeignKey(Site, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("site"), editable=False)
@@ -267,11 +267,11 @@ class Sample(CoordinatesModel):
     is_training = models.BooleanField(default=False, verbose_name=_("Was this outing for training purposes?"), choices=YES_NO_CHOICES)
 
     # to delete
-    site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("site"), editable=False)
+    site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("site"), editable=False, blank=True, null=True)
     region = models.ForeignKey(Region, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("region"), blank=False, null=True)  # to replace site
 
     def __str__(self):
-        return _("Outing") + f" {self.id} - {self.region}"
+        return _("Outing") + f" {self.id}"
 
     class Meta:
         ordering = ["-datetime", "transect"]
@@ -318,7 +318,7 @@ class Dive(MetadataFields):
 
     # to delete
     transect = models.ForeignKey(Transect, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("transect"), blank=True, null=True,
-                                 help_text=_("Leave blank if training"))
+                                 help_text=_("Leave blank if training"), editable=False)
     is_training = models.BooleanField(default=False, verbose_name=_("Was this a training dive?"), choices=YES_NO_CHOICES)
 
     def save(self, *args, **kwargs):

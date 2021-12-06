@@ -29,7 +29,7 @@
     <div class="col">
       <table class="table table-sm w-75">
         {% for field in field_list %}
-          {% verbose_td_display object field %}
+          {% verbose_td_display object field display_time=True %}
         {% endfor %}
       </table>
     </div>

@@ -137,6 +137,7 @@ class RegionDetailView(ScubaAdminRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         transect_field_list = [
             'new_name',
+            'old_name',
             'starting_coordinates_ddmm|{}'.format(_("starting coordinates (0m)")),
             'ending_coordinates_ddmm|{}'.format(_("ending coordinates (100m)")),
             'distance|{}'.format(_("transect distance (m)")),
@@ -302,7 +303,8 @@ class SampleListView(ScubaCRUDAccessRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'id|{}'.format("sample Id"), "class": "", "width": ""},
         {"name": 'datetime|{}'.format("date"), "class": "", "width": ""},
-        {"name": 'region', "class": "", "width": ""},
+        {"name": 'transect.region|region', "class": "", "width": ""},
+        {"name": 'transect', "class": "", "width": ""},
         {"name": 'is_upm', "class": "", "width": ""},
         {"name": 'dive_count|{}'.format(_("dive count")), "class": "", "width": ""},
     ]
@@ -336,7 +338,8 @@ class SampleDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
     parent_crumb = {"title": gettext_lazy("Outings"), "url": reverse_lazy("scuba:sample_list")}
     container_class = "container curvy"
     field_list = [
-        'region',
+        'transect.region|region',
+        'transect',
         'datetime',
         'weather_notes',
         'is_upm',
