@@ -15,8 +15,8 @@ class TestGrpModel(CommonTest):
     def setUp(self):
         super().setUp()  # used to import fixtures
         self.grp = BioFactoryFloor.GrpFactory()
-        self.trof = BioFactoryFloor.TrofFactory(name='1')
-        self.trof_two = BioFactoryFloor.TrofFactory(name='2', facic_id=self.trof.facic_id)
+        self.trof = BioFactoryFloor.TrofFactory(name='-1')
+        self.trof_two = BioFactoryFloor.TrofFactory(name='-2', facic_id=self.trof.facic_id)
         self.evnt_date = utils.naive_to_aware(datetime.today() - timedelta(days=100))
         self.evnt = BioFactoryFloor.EvntFactory(start_datetime=self.evnt_date, facic_id=self.trof.facic_id)
         self.cleaned_data = {

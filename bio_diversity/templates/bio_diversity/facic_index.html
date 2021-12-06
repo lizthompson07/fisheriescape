@@ -8,25 +8,24 @@
 {% block body %}
     <div class="container pt-5 text-center">
         <div class="jumbotron border border-dark">
-            <h1>{% trans "Biodiversity Tool" %}</h1>
+            <h1>{% trans "Facility Data" %}</h1>
             <div class="row">
                 <div class="col">
+                    <hr>
+                        <div class="container pt-3">
+                            <h2>Site and Container Entry</h2>
+                        </div>
                     <hr>
                     <div class="container pt-3">
                         <a class="btn btn-secondary btn-lg" name="add-data-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_data' 'pop' %}')" title="{% trans 'Bulk Entry' %}">{% trans 'Bulk Entry' %}</a>
                     </div>
-                    <div class="container pt-3">
-                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_prot'%}">{% trans "Protocol " %}</a>
-                    </div>
-                    <div class="container pt-3">
-                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_protf'%}">{% trans "Protocol File" %}</a>
-                    </div>
-                    <div class="container pt-3">
-                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_inst'%}">{% trans "Instrument" %}</a>
-                    </div>
                 </div>
 
                 <div class="col">
+                    <hr>
+                        <div class="container pt-3">
+                            <h2>Containers</h2>
+                        </div>
                     <hr>
                     <div class="container pt-3">
                         <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_cup'%}">{% trans "Cup" %}</a>
@@ -35,6 +34,7 @@
                     <div class="container pt-3">
                         <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_draw'%}">{% trans "Drawer" %}</a>
                     </div>
+
                     <div class="container pt-3">
                         <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_heat'%}">{% trans "Heath Unit" %}</a>
                     </div>
@@ -49,6 +49,31 @@
 
                     <div class="container pt-3">
                         <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_trof'%}">{% trans "Trough" %}</a>
+                    </div>
+
+                </div>
+
+                <div class="col">
+                    <hr>
+                        <div class="container pt-3">
+                            <h2>Programs</h2>
+                        </div>
+                    <hr>
+
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_relc'%}">{% trans "Site Codes" %}</a>
+                    </div>
+
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_prog'%}">{% trans "Program " %}</a>
+                    </div>
+
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_prot'%}">{% trans "Protocol " %}</a>
+                    </div>
+
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_perc'%}">{% trans "Personnel Code" %}</a>
                     </div>
 
                 </div>

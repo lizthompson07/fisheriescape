@@ -10,9 +10,11 @@ from bokeh.models import Title
 from bokeh.plotting import figure
 from bokeh.resources import CDN
 from django.db.models.functions import Concat
+from django.urls import reverse
 from openpyxl import load_workbook
 
 from bio_diversity import models, utils
+from bio_diversity.static.calculation_constants import in_out_dict, distribution_locc_list, collection_locc_list
 from dm_apps import settings
 
 
@@ -58,18 +60,19 @@ class ExcelReport:
 
 def cont_treat_writer(ws, cont_evnt_list, row_count, treat_row_count, end_date=utils.naive_to_aware(datetime.now())):
     treat_list = []
-    for cont_evnt in cont_evnt_list:
+    for contx_dict in cont_evnt_list:
+        evnt_id = contx_dict["evnt_id"]
         # cont_evnt = [evntc, date, direction, container]
-        ws['A' + str(row_count)].value = cont_evnt[1]
-        ws['B' + str(row_count)].value = cont_evnt[0]
-        ws['C' + str(row_count)].value = cont_evnt[3].name
-        ws['D' + str(row_count)].value = cont_evnt[2]
+        ws['A' + str(row_count)].value = evnt_id.start_datetime.date()
+        ws['B' + str(row_count)].value = evnt_id.evntc_id.name
+        ws['C' + str(row_count)].value = contx_dict["cont_id"].name
+        ws['D' + str(row_count)].value = in_out_dict[contx_dict["destination"]]
         row_count += 1
-        if cont_evnt[2] == "Destination":
-            start_date = cont_evnt[1]
-            treat_list.extend(cont_evnt[3].cont_treatments(start_date, end_date))
-        if cont_evnt[2] == "Origin":
-            end_date = cont_evnt[1]
+        if contx_dict["destination"]:
+            start_date = evnt_id.start_datetime
+            treat_list.extend(contx_dict["cont"].cont_treatments(start_date, end_date))
+        if not contx_dict["destination"] and contx_dict is not None:
+            end_date = evnt_id.start_datetime
 
     for treat in treat_list:
         ws['G' + str(treat_row_count)].value = treat.envtc_id.name
@@ -138,10 +141,13 @@ def generate_facility_tank_report(facic_id):
     return report.target_url
 
 
-def generate_stock_code_report(stok_id, coll_id, year, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+def generate_stock_code_report(stok_id, coll_id, year, start_date=datetime.min, end_date=datetime.now()):
     # report is given a stock code and returns location of all associated fish
     report = ExcelReport()
     report.load_wb("stock_code_report_template.xlsx")
+
+    start_date = utils.naive_to_aware(start_date)
+    end_date = utils.naive_to_aware(end_date)
 
     indv_qs = models.Individual.objects.all()
     grp_qs = models.Group.objects.filter(grp_valid=True)
@@ -159,17 +165,11 @@ def generate_stock_code_report(stok_id, coll_id, year, at_date=datetime.now().re
     indv_qs = indv_qs.select_related("stok_id", "coll_id")
     grp_qs = grp_qs.select_related("stok_id", "coll_id")
 
-    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
-    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
-    ws_indv = report.copy_template("Individuals")
-    ws_grp = report.copy_template("Groups")
+    ws_indv = report.get_sheet("Individuals")
+    ws_grp = report.get_sheet("Groups")
 
     ws_indv['A1'].value = "Stock: {}".format(stok_id.name)
-    ws_indv["I2"].style = 'Normal'
-    ws_indv["I2"].value = ''
     ws_grp['A1'].value = "Stock: {}".format(stok_id.name)
-    ws_grp["A2"].style = 'Normal'
-    ws_grp["A2"].value = ''
     # start writing data at row 3 in the sheet
     row_count = 3
     for item in indv_qs:
@@ -177,13 +177,13 @@ def generate_stock_code_report(stok_id, coll_id, year, at_date=datetime.now().re
         ws_indv['B' + str(row_count)].value = item.indv_year
         ws_indv['C' + str(row_count)].value = item.coll_id.name
         ws_indv['D' + str(row_count)].value = item.prog_group(get_string=True)
-        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank(at_date)])
+        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank(end_date)])
 
         item_indvd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Animal Health",
                                                          adsc_id__isnull=False, anix_id__indv_id=item).select_related("adsc_id")
-        indvd_str = ""
-        for indvd in item_indvd:
-            indvd_str += "{}, ".format(indvd.adsc_id.name)
+
+        indvd_str_list = [indvd.adsc_id.name for indvd in item_indvd]
+        indvd_str = ", ".join(indvd_str_list)
         ws_indv['F' + str(row_count)].value = indvd_str
 
         item_sexd = item.individual_detail("Gender")
@@ -195,11 +195,23 @@ def generate_stock_code_report(stok_id, coll_id, year, at_date=datetime.now().re
 
     row_count = 3
     for item in grp_qs:
+        current_cont_str = ', '.join([cont.__str__() for cont in item.current_cont(end_date)])
+        ws_grp['A' + str(row_count)].value = item.pk
         ws_grp['B' + str(row_count)].value = item.grp_year
         ws_grp['C' + str(row_count)].value = item.coll_id.name
         ws_grp['D' + str(row_count)].value = item.prog_group(get_string=True)
-        ws_grp['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont(at_date)])
-        ws_grp['H' + str(row_count)].value = item.count_fish_in_group(at_date)
+        ws_grp['E' + str(row_count)].value = current_cont_str
+        ws_grp['G' + str(row_count)].value = item.avg_len(at_date=end_date)
+        ws_grp['H' + str(row_count)].value = item.avg_weight(at_date=end_date)
+        ws_grp['I' + str(row_count)].value = item.count_fish_in_group(end_date)
+        grp_history = item.get_cont_history(start_date=start_date, end_date=end_date)
+        cont_str = ""
+        for contx_dict in grp_history:
+            if contx_dict["destination"] is not None:
+                cont_str += contx_dict["cont_id"].name + ", "
+        if not cont_str:
+            cont_str = current_cont_str
+        ws_grp['J' + str(row_count)].value = cont_str
 
         row_count += 1
 
@@ -216,26 +228,38 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
     start_date = utils.naive_to_aware(start_date)
     end_date = utils.naive_to_aware(end_date)
 
+    mort_anidc = models.AnimalDetCode.objects.filter(name="Mortality Observation").get()
+
     # select all individuals
-    mort_evnts = models.Event.objects.filter(start_datetime__gte=start_date, end_datetime__lte=end_date, evntc_id__name="Mortality")
+    indv_mortd_qs = models.IndividualDet.objects.filter(anidc_id=mort_anidc,
+                                                        anix_id__evnt_id__start_datetime__gte=start_date,
+                                                        anix_id__evnt_id__end_datetime__lte=end_date)
+    grp_mortd_qs = models.Group.objects.filter(anidc_id=mort_anidc,
+                                               anix_id__evnt_id__start_datetime__gte=start_date,
+                                               anix_id__evnt_id__end_datetime__lte=end_date)
+    samp_mortd_qs = models.SampleDet.objects.filter(anidc_id=mort_anidc,
+                                                    anix_id__evnt_id__start_datetime__gte=start_date,
+                                                    anix_id__evnt_id__end_datetime__lte=end_date)
     if facic_id:
-        mort_evnts = mort_evnts.filter(facic_id=facic_id)
-
-    anix_indv_qs = models.AniDetailXref.objects.filter(evnt_id__in=mort_evnts, indv_id__isnull=False, contx_id__isnull=True, grp_id__isnull=True)
-    samp_qs = models.Sample.objects.filter(anix_id__evnt_id__in=mort_evnts)
-
+        indv_mortd_qs = indv_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
+        grp_mortd_qs = grp_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
+        samp_mortd_qs = samp_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
     if stok_id:
-        anix_indv_qs = anix_indv_qs.filter(indv_id__stok_id=stok_id)
-        samp_qs = samp_qs.filter(anix_id__grp_id__stok_id=stok_id)
+        indv_mortd_qs = indv_mortd_qs.filter(anix_id__indv_id__stok_id=stok_id)
+        grp_mortd_qs = grp_mortd_qs.filter(anix_id__grp_id__stok_id=stok_id)
+        samp_mortd_qs = samp_mortd_qs.filter(anix_id__grp_id__stok_id=stok_id)
     if year:
-        anix_indv_qs = anix_indv_qs.filter(indv_id__indv_year=year)
-        samp_qs = samp_qs.filter(anix_id__grp_id__grp_year=year)
+        indv_mortd_qs = indv_mortd_qs.filter(anix_id__indv_id__indv_year=year)
+        grp_mortd_qs = grp_mortd_qs.filter(anix_id__grp_id__grp_year=year)
+        samp_mortd_qs = samp_mortd_qs.filter(anix_id__grp_id__indv_year=year)
     if coll_id:
-        anix_indv_qs = anix_indv_qs.filter(grp_id__coll_id=coll_id)
-        samp_qs = samp_qs.filter(anix_id__grp_id__coll_id=coll_id)
+        indv_mortd_qs = indv_mortd_qs.filter(anix_id__indv_id__coll_id=coll_id)
+        grp_mortd_qs = grp_mortd_qs.filter(anix_id__grp_id__coll_id=coll_id)
+        samp_mortd_qs = samp_mortd_qs.filter(anix_id__grp_id__coll_id=coll_id)
 
-    anix_indv_qs.select_related("indv_id", "indv_id__coll_id", "indv_id__stok_id", "evnt_id")
-    samp_qs.select_related("anix_id__grp_id", "anix_id__grp_id__coll_id", "anix_id__grp_id__stok_id", "anix_id__evnt_id")
+    indv_mortd_qs.select_related("anix_id", "anix_id__indv_id", "anix__id__indv_id__coll_id", "anix_id__indv_id__stok_id", "anix_id__evnt_id")
+    grp_mortd_qs.select_related("anix_id", "anix_id__grp_id", "anix__id__grp_id__coll_id", "anix_id__grp_id__stok_id", "anix_id__evnt_id")
+    samp_mortd_qs.select_related("anix_id", "anix_id__grp_id", "anix__id__grp_id__coll_id", "anix_id__grp_id__stok_id", "anix_id__evnt_id")
 
     # to order worksheets so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
@@ -244,9 +268,9 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
 
     # start writing data at row 3 in the sheet
     row_count = 3
-    for item in anix_indv_qs:
-        indv_id = item.indv_id
-        mort_date = utils.naive_to_aware(item.evnt_id.start_date)
+    for indvd in indv_mortd_qs:
+        indv_id = indvd.anix_id.indv_id
+        mort_date = utils.naive_to_aware(indvd.anix_id.evnt_id.start_date)
         ws_indv['A' + str(row_count)].value = indv_id.pit_tag
         ws_indv['B' + str(row_count)].value = indv_id.stok_id.name
         ws_indv['C' + str(row_count)].value = indv_id.indv_year
@@ -258,23 +282,23 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
         ws_indv['I' + str(row_count)].value = indv_id.individual_detail("Length", before_date=mort_date)
         ws_indv['J' + str(row_count)].value = indv_id.individual_detail("Weight", before_date=mort_date)
 
-        ws_indv['K' + str(row_count)].value = indv_id.individual_evnt_details(item.evnt_id)
+        ws_indv['K' + str(row_count)].value = indv_id.individual_evnt_details(indvd.anix_id.evnt_id)
 
         row_count += 1
 
     row_count = 3
-    for item in samp_qs:
-        grp_id = item.anix_id.grp_id
-        mort_date = utils.naive_to_aware(item.anix_id.evnt_id.start_date)
+    for grpd in grp_mortd_qs:
+        grp_id = grpd.anix_id.anix_id.grp_id
+        mort_date = utils.naive_to_aware(grpd.anix_id.anix_id.evnt_id.start_date)
         ws_grp['A' + str(row_count)].value = grp_id.stok_id.name
         ws_grp['B' + str(row_count)].value = grp_id.grp_year
         ws_grp['C' + str(row_count)].value = grp_id.coll_id.name
         ws_grp['D' + str(row_count)].value = grp_id.prog_group(get_string=True)
         ws_grp['E' + str(row_count)].value = grp_id.current_cont(at_date=mort_date, valid_only=False, get_string=True)
-        ws_grp['F' + str(row_count)].value = item.samp_detail("Gender")
+        ws_grp['F' + str(row_count)].value = grpd.anix_id.samp_detail("Gender")
         ws_grp['G' + str(row_count)].value = mort_date
-        ws_grp['H' + str(row_count)].value = item.samp_detail("Length")
-        ws_grp['I' + str(row_count)].value = item.samp_detail("Weight")
+        ws_grp['H' + str(row_count)].value = grpd.anix_id.samp_detail("Length")
+        ws_grp['I' + str(row_count)].value = grpd.anix_id.samp_detail("Weight")
 
         row_count += 1
 
@@ -350,8 +374,19 @@ def generate_detail_report(adsc_id, stok_id=None):
     return report.target_url
 
 
-def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
-    cnt_slots = "HIJKLMNOPQRSTUV"
+def write_location_header(ws, row_count, rive_name, site_name, site_location, coll_str, grp_str, request):
+    ws['A' + str(row_count)].value = rive_name
+    ws['B' + str(row_count)].value = site_name
+    ws['C' + str(row_count)].value = site_location.start_date
+    ws['D' + str(row_count)].value = site_location.locc_id.name
+    ws['E' + str(row_count)].value = coll_str
+    ws['F' + str(row_count)].value = grp_str
+    ws['G' + str(row_count)].value = site_location.comments
+    ws['H' + str(row_count)].value = request.build_absolute_uri(
+        reverse("bio_diversity:details_loc", args=[site_location.id]))
+
+
+def write_location_to_sheets(ws, site_location, row_count, rive_name, site_name, request, dist_ws, dist_row_count, coll_ws, coll_row_count):
     grps = [(anix.grp_id.__str__(), anix.grp_id.prog_group(get_string=True)) for anix in
             site_location.animal_details.filter(grp_id__isnull=False).select_related("grp_id__stok_id",
                                                                                      "grp_id__coll_id")]
@@ -360,54 +395,101 @@ def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
              site_location.animal_details.filter(indv_id__isnull=False).values_list("indv_id__stok_id__name",
                                                                                     "indv_id__indv_year",
                                                                                     "indv_id__coll_id__name", ).distinct()]
+    loc_cnt_qs = models.Count.objects.filter(loc_id_id=site_location.pk).select_related("cntc_id", "coll_id")
+    locd_qs = models.LocationDet.objects.filter(loc_id_id=site_location.pk).select_related("locdc_id", "ldsc_id")
+
     if len(grps) >= 1:
         coll_str = grps[0][0]
         grp_str = grps[0][1]
     elif len(indvs) >= 1:
         coll_str = indvs[0]
         grp_str = ""
+    elif len(loc_cnt_qs) >= 1:
+        coll_str = loc_cnt_qs.first().coll_str
+        grp_str = loc_cnt_qs.first().prog_group(get_string=True)
     else:
         coll_str = ""
         grp_str = ""
-    loc_cnt_qs = models.Count.objects.filter(loc_id_id=site_location.pk).select_related("cntc_id")
-    ws['A' + str(row_count)].value = rive_name
-    ws['B' + str(row_count)].value = site_name
-    ws['C' + str(row_count)].value = site_location.start_date
-    ws['D' + str(row_count)].value = site_location.locc_id.name
-    ws['E' + str(row_count)].value = coll_str
-    ws['F' + str(row_count)].value = grp_str
-    ws['H' + str(row_count)].value = site_location.comments
-    cnt_col = 0
-    for cnt in loc_cnt_qs:
-        ws[cnt_slots[cnt_col] + str(row_count)].value = cnt.cntc_id.name
-        ws[cnt_slots[cnt_col + 1] + str(row_count)].value = cnt.cnt
-        cnt_col += 2
+
+    write_location_header(ws, row_count, rive_name, site_name, site_location, coll_str, grp_str, request)
+
+    if site_location.locc_id.name in distribution_locc_list:
+        relm = ", ".join(locd_qs.filter(locdc_id__name="Release Method").values_list('ldsc_id__name', flat=True))
+        truck_list = locd_qs.filter(locdc_id__name="Truck").values_list('det_val', flat=True)
+        if len(truck_list) == 1:
+            truck = truck_list[0]
+        else:
+            truck = ", ".join(truck_list)
+
+        acclimation_qs = locd_qs.filter(locdc_id__name="Acclimation Time").values_list('det_val', flat=True)
+        if len(acclimation_qs) == 1:
+            acclimation_time = acclimation_qs[0]
+        else:
+            acclimation_time = ", ".join(acclimation_qs)
+
+        for cnt in loc_cnt_qs:
+            write_location_header(dist_ws, dist_row_count, rive_name, site_name, site_location, coll_str, grp_str, request)
+            dist_ws['I' + str(dist_row_count)].value = relm
+            dist_ws['J' + str(dist_row_count)].value = cnt.cntc_id.name
+            dist_ws['K' + str(dist_row_count)].value = cnt.cnt
+            dist_ws['L' + str(dist_row_count)].value = cnt.cnt_detail()
+            dist_ws['M' + str(dist_row_count)].value = cnt.cnt_detail("Weight")
+            dist_ws['N' + str(dist_row_count)].value = cnt.cnt_detail("Lifestage")
+            dist_ws['O' + str(dist_row_count)].value = truck
+            dist_ws['Q' + str(dist_row_count)].value = acclimation_time
+
+            dist_row_count += 1
+
+    if site_location.locc_id.name in collection_locc_list:
+        for cnt in loc_cnt_qs:
+            write_location_header(coll_ws, coll_row_count, rive_name, site_name, site_location, coll_str, grp_str,
+                                  request)
+            coll_ws['I' + str(coll_row_count)].value = cnt.cntc_id.name
+            coll_ws['J' + str(coll_row_count)].value = cnt.cnt
+            coll_ws['K' + str(coll_row_count)].value = cnt.cnt_detail()
+            coll_ws['L' + str(coll_row_count)].value = cnt.cnt_detail("Weight")
+            coll_ws['M' + str(coll_row_count)].value = cnt.cnt_detail("Lifestage")
+
+            coll_row_count += 1
+
     row_count += 1
-    return row_count
+    return row_count, dist_row_count, coll_row_count
 
 
-def generate_sites_report(sites_list, locations_list, start_date=None, end_date=None):
-    if not start_date:
-        start_date = "Not Picked"
-    if not end_date:
-        end_date = datetime.now().replace(tzinfo=pytz.UTC)
-
+def generate_sites_report(sites_list, locations_list, start_date=None, end_date=None, request=None):
     report = ExcelReport()
     report.load_wb("site_report_template.xlsx")
 
     ws = report.get_sheet("Sites")
     ws_indv = report.get_sheet("Individuals")
+    ws_dist = report.get_sheet("Distributions")
+    ws_coll = report.get_sheet("Collections")
 
-    # put in start and end dates
-    ws['B1'].value = start_date
+    if not start_date:
+        start_date = "Not Picked"
+        ws['B1'].value = start_date
+        ws_indv['B1'].value = start_date
+        start_date = datetime.min
+    else:
+        ws['B1'].value = start_date
+        ws_indv['B1'].value = start_date
+
+    if not end_date:
+        end_date = datetime.now().replace(tzinfo=pytz.UTC)
     ws['B2'].value = end_date
-    ws_indv['B1'].value = start_date
     ws_indv['B2'].value = end_date
+
     # start writing data at row 4 in the sheet
     row_count = 4
+    dist_row_count = 4
+    coll_row_count = 4
     # split off locations with no sites
     no_sites_list = [location for location in locations_list if not location.relc_id]
-    locations_list = [location for location in locations_list if location.relc_id]
+
+    site_locations = models.Location.objects.filter(relc_id__in=sites_list, loc_date__lte=end_date,
+                                                    loc_date__gte=start_date)
+
+    locations_list = [location for location in site_locations]
     no_locs_list = []
     for site in sites_list:
         site_name = site.name
@@ -417,14 +499,19 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
             no_locs_list.append(site)
 
         for site_location in site_locations:
-            row_count = write_location_to_sheet(ws, site_location, row_count, rive_name, site_name)
+            row_count, dist_row_count, coll_row_count = write_location_to_sheets(ws, site_location, row_count,
+                                                                                 rive_name, site_name, request,
+                                                                                 ws_dist, dist_row_count, ws_coll,
+                                                                                 coll_row_count)
 
     for location in no_sites_list:
         if location.rive_id:
             rive_name = location.rive_id.name
         else:
             rive_name = None
-        row_count = write_location_to_sheet(ws, location, row_count, rive_name, None)
+        row_count, dist_row_count, coll_row_count = write_location_to_sheets(ws, location, row_count, rive_name,
+                                                                             None, request, ws_dist, dist_row_count,
+                                                                             ws_coll, coll_row_count)
 
     for site in no_locs_list:
         ws['A' + str(row_count)].value = site.rive_id.name
@@ -506,13 +593,9 @@ def generate_individual_report(indv_id):
         if grp_id:
             start_date = utils.naive_to_aware(grp_id.start_date())
             end_date = utils.naive_to_aware(grp_tuple[2])
-            anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                         pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
-                                                         evnt_id__start_datetime__gte=start_date) \
-                .order_by("-evnt_id__start_datetime").select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id',
-                                                                     'evnt_id__prog_id', 'evnt_id__perc_id')
-            evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
-            for evnt in evnt_list:
+            cont_evnt_list = grp_id.get_cont_history(start_date=start_date, end_date=end_date)
+            for contx_dict in cont_evnt_list:
+                evnt = contx_dict["evnt_id"]
                 ws_evnt['A' + str(row_count)].value = evnt.start_date
                 ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
                 ws_evnt['C' + str(row_count)].value = grp_id.__str__()
@@ -534,13 +617,7 @@ def generate_individual_report(indv_id):
         if grp_id:
             start_date = utils.naive_to_aware(grp_id.start_date())
             end_date = utils.naive_to_aware(grp_tuple[2])
-            anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                         pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
-                                                         evnt_id__start_datetime__gte=start_date) \
-                .order_by("-evnt_id__start_datetime", "-final_contx_flag") \
-                .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
-            contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
-            cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+            cont_evnt_list = grp_id.get_cont_history(start_date=start_date, end_date=end_date)
             treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, end_date=treat_end_date)[2]
 
     # -----------------Details Sheet------------------------
@@ -638,11 +715,7 @@ def generate_grp_report(grp_id):
                 row_count += 1
 
     # -----------------Container Sheet------------------------
-    anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True, pair_id__isnull=True) \
-        .order_by("-evnt_id__start_datetime", "-final_contx_flag") \
-        .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
-    contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
-    cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+    cont_evnt_list = grp_id.get_cont_history()
     row_count = 5
     row_count, treat_row_count, treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, row_count)
 
@@ -651,13 +724,7 @@ def generate_grp_report(grp_id):
         if grp_id:
             start_date = utils.naive_to_aware(grp_id.start_date())
             end_date = utils.naive_to_aware(grp_tuple[2])
-            anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                         pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
-                                                         evnt_id__start_datetime__gte=start_date) \
-                .order_by("-evnt_id__start_datetime", "-final_contx_flag") \
-                .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
-            contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
-            cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+            cont_evnt_list = grp_id.get_cont_history(end_date=end_date, start_date=start_date)
             treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count)[2]
 
     report.save_wb()
