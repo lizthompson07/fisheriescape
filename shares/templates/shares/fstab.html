@@ -1,0 +1,37 @@
+{% load custom_filters %}
+
+<br>
+<br>
+<br>
+
+# make directories for each server and share
+<br>
+<br>
+{% for server in server_list %}
+sudo mkdir /mnt/{{ server.hostname }}  <br>
+{% endfor %}
+{% for share in share_list %}
+sudo mkdir /mnt/{{ share.server.hostname }}/{{ share.name }}  <br>
+{% endfor %}
+
+<br>
+<br>
+<br>
+
+<div class="">
+  #####################################
+</div>
+
+<br>
+<br>
+<br>
+# This is to be pasted in the /etc/fstab
+<br>
+<br>
+
+{% for share in share_list %}
+//{{ share.server.ip_address}}/{{ share.name }}/ /mnt/{{ share.server.hostname }}/{{ share.name }} cifs credentials=/root/.smbcredentials,rw,nounix,iocharset=utf8,file_mode=0777,dir_mode=0777,vers=2.0 0 0
+  <br>
+{% endfor %}
+
+

@@ -82,6 +82,15 @@ class SmbConfTemplateView(SharesAdminRequiredMixin, TemplateView):
         context["share_list"] = models.Share.objects.all()
         return context
 
+class FstabTemplateView(SharesAdminRequiredMixin, TemplateView):
+    template_name = 'shares/fstab.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["server_list"] = models.Server.objects.all()
+        context["share_list"] = models.Share.objects.all()
+        return context
+
 
 # SERVER #
 ##########

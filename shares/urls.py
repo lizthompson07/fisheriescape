@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
     path('email-list/', views.EmailListTemplateView.as_view(), name="email_list"),
     path('smbconf/', views.SmbConfTemplateView.as_view(), name="smb_conf"),
+    path('fstab/', views.FstabTemplateView.as_view(), name="fstab"),
 
     # SERVER #
     ##########
