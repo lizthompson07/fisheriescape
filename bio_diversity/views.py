@@ -1867,7 +1867,10 @@ class SampDetails(mixins.SampMixin, CommonDetails):
                                             "single_object": obj_mixin.model.objects.first()}
         context["calculated_properties"] = {}
         context["calculated_links"] = {}
-        samp_grp = self.object.anix_id.grp_id
+        if self.object.anix_id:
+            samp_grp = self.object.anix_id.grp_id
+        else:
+            samp_grp = None
         samp_loc = self.object.loc_id
         if samp_grp:
             context["calculated_properties"]["Group"] = samp_grp.__str__()

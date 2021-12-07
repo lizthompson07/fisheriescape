@@ -234,28 +234,28 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
     indv_mortd_qs = models.IndividualDet.objects.filter(anidc_id=mort_anidc,
                                                         anix_id__evnt_id__start_datetime__gte=start_date,
                                                         anix_id__evnt_id__end_datetime__lte=end_date)
-    grp_mortd_qs = models.Group.objects.filter(anidc_id=mort_anidc,
-                                               anix_id__evnt_id__start_datetime__gte=start_date,
-                                               anix_id__evnt_id__end_datetime__lte=end_date)
+    grp_mortd_qs = models.GroupDet.objects.filter(anidc_id=mort_anidc,
+                                                  anix_id__evnt_id__start_datetime__gte=start_date,
+                                                  anix_id__evnt_id__end_datetime__lte=end_date)
     samp_mortd_qs = models.SampleDet.objects.filter(anidc_id=mort_anidc,
-                                                    anix_id__evnt_id__start_datetime__gte=start_date,
-                                                    anix_id__evnt_id__end_datetime__lte=end_date)
+                                                    samp_id__anix_id__evnt_id__start_datetime__gte=start_date,
+                                                    samp_id__anix_id__evnt_id__end_datetime__lte=end_date)
     if facic_id:
         indv_mortd_qs = indv_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
         grp_mortd_qs = grp_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
-        samp_mortd_qs = samp_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
+        samp_mortd_qs = samp_mortd_qs.filter(samp_id__anix_id__evnt_id__facic_id=facic_id)
     if stok_id:
         indv_mortd_qs = indv_mortd_qs.filter(anix_id__indv_id__stok_id=stok_id)
         grp_mortd_qs = grp_mortd_qs.filter(anix_id__grp_id__stok_id=stok_id)
-        samp_mortd_qs = samp_mortd_qs.filter(anix_id__grp_id__stok_id=stok_id)
+        samp_mortd_qs = samp_mortd_qs.filter(samp_id__anix_id__grp_id__stok_id=stok_id)
     if year:
         indv_mortd_qs = indv_mortd_qs.filter(anix_id__indv_id__indv_year=year)
         grp_mortd_qs = grp_mortd_qs.filter(anix_id__grp_id__grp_year=year)
-        samp_mortd_qs = samp_mortd_qs.filter(anix_id__grp_id__indv_year=year)
+        samp_mortd_qs = samp_mortd_qs.filter(samp_id__anix_id__grp_id__indv_year=year)
     if coll_id:
         indv_mortd_qs = indv_mortd_qs.filter(anix_id__indv_id__coll_id=coll_id)
         grp_mortd_qs = grp_mortd_qs.filter(anix_id__grp_id__coll_id=coll_id)
-        samp_mortd_qs = samp_mortd_qs.filter(anix_id__grp_id__coll_id=coll_id)
+        samp_mortd_qs = samp_mortd_qs.filter(samp_id__anix_id__grp_id__coll_id=coll_id)
 
     indv_mortd_qs.select_related("anix_id", "anix_id__indv_id", "anix__id__indv_id__coll_id", "anix_id__indv_id__stok_id", "anix_id__evnt_id")
     grp_mortd_qs.select_related("anix_id", "anix_id__grp_id", "anix__id__grp_id__coll_id", "anix_id__grp_id__stok_id", "anix_id__evnt_id")

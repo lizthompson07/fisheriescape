@@ -171,7 +171,7 @@ class SpawningParser(DataParser):
             sire.clean()
             sire.save()
             self.row_entered = True
-        except (IntegrityError):
+        except (ValidationError, IntegrityError):
             # don't use sire again anywhere
             pass
 
