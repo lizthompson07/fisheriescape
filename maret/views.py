@@ -54,7 +54,7 @@ class HelpTextPopView(AdminRequiredMixin, CommonCreateView):
     model = models.HelpText
     form_class = forms.HelpTextPopForm
     success_url = reverse_lazy("shared_models:close_me")
-    h1 = gettext_lazy("Update Help Text")
+    title = gettext_lazy("Update Help Text")
 
     def get_initial(self):
         if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
