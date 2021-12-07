@@ -5,18 +5,20 @@
 
 
 {% block form_field %}
+    <div id="{{ field.name }}_div">
     {% bootstrap_field field placeholder="" %}
-    {% if manage_url %}
+    {% if manage_help_url %}
         <script>
-            $("label[for='id_{{ field.name }}'").after("<a class='mdi mdi-plus-box h6' pop-href='{% url manage_url model_name field.name %}'></a>");
-            {% if field.name in help_text_dict %}
-                $("label[for='id_{{ field.name }}'").after("<span class='mdi mdi-help-circle-outline h6' data-toggle='popover' title='{{ field.label }}' data-content='{{ help_text_dict|lookup:field.name }}' data-trigger='hover'><span>");
-            {% endif %}
-        </script>
-    {% elif field.name in help_text_dict %}
-        <script>$("label[for='id_{{ field.name }}'").after("<span class='mdi mdi-help-circle-outline h6' data-toggle='popover' title='{{ field.label }}' data-content='{{ help_text_dict|lookup:field.name }}' data-trigger='hover'><span>");
+            {# This will place a plus symbole for editing help text after the field label  #}
+            $("label[for='id_{{ field.name }}'").after("<a class='mdi mdi-plus-box h6 ml-1' pop-href='{% url manage_help_url model_name field.name %}'></a>");
         </script>
     {% endif %}
+
+    {% if field.name in help_text_dict %}
+        <script>$("label[for='id_{{ field.name }}'").after("<span class='mdi mdi-help-circle-outline h6 ml-1' data-toggle='popover' title='{{ field.label }}' data-content='{{ help_text_dict|lookup:field.name }}' data-trigger='hover'><span>");
+        </script>
+    {% endif %}
+    </div>
 {% endblock %}
 
 {% block body_js %}

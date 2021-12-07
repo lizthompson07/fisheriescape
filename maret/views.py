@@ -24,15 +24,85 @@ from masterlist import models as ml_models
 from easy_pdf.views import PDFTemplateView
 
 
+#######################################################
+# Application Help text controls
+#######################################################
 class CommonCreateViewHelp(CommonCreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_text_dict'] = utils.get_help_text_dict(self.model)
 
+        # if the UserMode table has this user in "edit" mode provide the
+        # link to the dialog to manage help text via the manage_help_url
+        # and provide the model name the help text will be assigned to.
+        # The generic_form_with_help_text.html from the shared_models app
+        # will provide the field name and together you have the required
+        # model and field needed to make an entry in the Help Text table.
+        if models.UserMode.objects.filter(user=self.request.user) and models.UserMode.objects.get(user=self.request.user).mode == 2:
+            context['manage_help_url'] = "maret:manage_help_text"
+            context['model_name'] = self.model.__name__
+
         return context
 
 
+# This is the dialog presented to the user to enter help text for a given model/field
+# it uses the Create View to both create entries and update them. Accessed via the manage_help_url.
+#
+# A point of failure may be if the (model, field_name) pair is not unique in the help text table.
+class HelpTextPopView(AdminRequiredMixin, CommonCreateView):
+    model = models.HelpText
+    form_class = forms.HelpTextPopForm
+    success_url = reverse_lazy("shared_models:close_me")
+    h1 = gettext_lazy("Update Help Text")
+
+    def get_initial(self):
+        if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
+            obj = self.model.objects.get(model=self.kwargs['model_name'], field_name=self.kwargs['field_name'])
+            return {
+                'model': self.kwargs['model_name'],
+                'field_name': self.kwargs['field_name'],
+                'eng_text': obj.eng_text,
+                'fra_text': obj.fra_text
+            }
+
+        return {
+            'model': self.kwargs['model_name'],
+            'field_name': self.kwargs['field_name'],
+        }
+
+    def form_valid(self, form):
+        if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
+            data = form.cleaned_data
+            obj = self.model.objects.get(model=self.kwargs['model_name'], field_name=self.kwargs['field_name'])
+            obj.eng_text = data['eng_text']
+            obj.fra_text = data['fra_text']
+            obj.save()
+            return HttpResponseRedirect(reverse_lazy("shared_models:close_me"))
+        else:
+            return super().form_valid(form)
+
+
+# Controls the administrative helptext page that allows all entries to be viewed, modified and deleted
+class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'maret/formset.html'
+    title = _("MarET Help Text")
+    h1 = _("Manage Help Texts")
+    queryset = models.HelpText.objects.all()
+    formset_class = forms.HelpTextFormset
+    success_url_name = "maret:manage_help_texts"
+    home_url_name = "maret:index"
+    delete_url_name = "maret:delete_help_text"
+
+
+class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.HelpText
+    success_url = reverse_lazy("maret:manage_help_texts")
+
+
+#######################################################
+# Home page view
+#######################################################
 class IndexView(UserRequiredMixin, CommonTemplateView):
     h1 = "home"
     template_name = 'maret/index.html'
@@ -237,10 +307,6 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['scripts'] = ['maret/js/interactionForm.html']
-
-        if models.UserMode.objects.filter(user=self.request.user) and models.UserMode.objects.get(user=self.request.user).mode==2:
-            context['manage_url'] = "maret:manage_help_text"
-            context['model_name'] = self.model.__name__
 
         return context
 
@@ -775,51 +841,3 @@ class OrgCategoriesFormsetView(CommonMaretFormset):
     queryset = models.OrgCategory.objects.all()
     formset_class = forms.OrgCategoriesFormSet
     success_url_name = "maret:manage_org_categories"
-
-
-class HelpTextPopView(AdminRequiredMixin, CommonCreateView):
-    model = models.HelpText
-    form_class = forms.HelpTextPopForm
-    success_url = reverse_lazy("shared_models:close_me")
-
-    def get_initial(self):
-        if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
-            obj = self.model.objects.get(model=self.kwargs['model_name'], field_name=self.kwargs['field_name'])
-            return {
-                'model': self.kwargs['model_name'],
-                'field_name': self.kwargs['field_name'],
-                'eng_text': obj.eng_text,
-                'fra_text': obj.fra_text
-            }
-
-        return {
-            'model': self.kwargs['model_name'],
-            'field_name': self.kwargs['field_name'],
-        }
-
-    def form_valid(self, form):
-        if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
-            data = form.cleaned_data
-            obj = self.model.objects.get(model=self.kwargs['model_name'], field_name=self.kwargs['field_name'])
-            obj.eng_text = data['eng_text']
-            obj.fra_text = data['fra_text']
-            obj.save()
-            return HttpResponseRedirect(reverse_lazy("shared_models:close_me"))
-        else:
-            return super().form_valid(form)
-
-
-class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'maret/formset.html'
-    title = _("MarET Help Text")
-    h1 = _("Manage Help Texts")
-    queryset = models.HelpText.objects.all()
-    formset_class = forms.HelpTextFormset
-    success_url_name = "maret:manage_help_texts"
-    home_url_name = "maret:index"
-    delete_url_name = "maret:delete_help_text"
-
-
-class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-    model = models.HelpText
-    success_url = reverse_lazy("maret:manage_help_texts")
