@@ -24,7 +24,7 @@ def in_res_crud_group(user):
 def get_related_applications(user):
     """give me a user and I'll send back a queryset with all related requests, i.e.
      they are a client || they are a coordinator || they are the request.created_by"""
-    qs = models.Application.objects.filter(Q(created_by=user) | Q(applicant=user) | Q(manager=user)).distinct()
+    qs = models.Application.objects.filter(Q(applicant=user) | Q(manager=user)).distinct()
     return qs
 
 
@@ -134,7 +134,6 @@ def can_modify_recommendation(user, application_id, return_as_dict=False):
         return my_dict if return_as_dict else my_dict["can_modify"]
 
 
-
 def can_modify_achievement(user, achievement_id, return_as_dict=False):
     """
     returns True if user has permissions to delete or modify an achievement
@@ -170,7 +169,6 @@ def can_view_achievement(user, achievement_id):
     if user.id:
         achievement = get_object_or_404(models.Achievement, pk=achievement_id)
         return user == achievement.user or in_res_admin_group(user)
-
 
 
 def get_section_choices(with_application=False, full_name=True, region_filter=None, division_filter=None):
@@ -282,11 +280,33 @@ def achievements_summary_table(user):
         before_last_promotion = qs.filter(date__lt=last_promotion).count()
         since_last_promotion = qs.filter(date__gte=last_promotion).count()
     payload.append(
-            dict(
-                publication_type=_("TOTAL"),
-                before_last_promotion=before_last_promotion,
-                since_last_promotion=since_last_promotion,
-                total=qs.count(),
-            )
+        dict(
+            publication_type=_("TOTAL"),
+            before_last_promotion=before_last_promotion,
+            since_last_promotion=since_last_promotion,
+            total=qs.count(),
         )
+    )
     return payload
+
+
+def get_category_publication_type_dict():
+    cat_pubtype_dict = dict()
+    for c in models.AchievementCategory.objects.all():
+        cat_pubtype_dict[str(c.id)] = c.is_publication
+    return cat_pubtype_dict
+
+
+def get_achievement_field_list(achievement):
+    my_list = [
+        "id",
+        "user",
+        "category",
+        "publication_type" if achievement.is_publication else None,
+        "review_type" if achievement.is_publication else None,
+        "date",
+        "detail",
+        "metadata|{}".format(_("metadata")),
+    ]
+    while None in my_list: my_list.remove(None)
+    return my_list

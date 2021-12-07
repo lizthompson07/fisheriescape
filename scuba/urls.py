@@ -23,13 +23,13 @@ urlpatterns = [
     path('regions/<int:pk>/view/', views.RegionDetailView.as_view(), name="region_detail"),  # tested
 
     # sites
-    path('regions/<int:region>/new-site/', views.SiteCreateView.as_view(), name="site_new"),  # tested
-    path('sites/<int:pk>/edit/', views.SiteUpdateView.as_view(), name="site_edit"),  # tested
-    path('sites/<int:pk>/delete/', views.SiteDeleteView.as_view(), name="site_delete"),  # tested
-    path('sites/<int:pk>/view/', views.SiteDetailView.as_view(), name="site_detail"),  # tested
+    # path('regions/<int:region>/new-site/', views.SiteCreateView.as_view(), name="site_new"),  # tested
+    # path('sites/<int:pk>/edit/', views.SiteUpdateView.as_view(), name="site_edit"),  # tested
+    # path('sites/<int:pk>/delete/', views.SiteDeleteView.as_view(), name="site_delete"),  # tested
+    # path('sites/<int:pk>/view/', views.SiteDetailView.as_view(), name="site_detail"),  # tested
 
     # transects
-    path('sites/<int:site>/new-transect/', views.TransectCreateView.as_view(), name="transect_new"),  # tested
+    path('regions/<int:region>/new-transect/', views.TransectCreateView.as_view(), name="transect_new"),  # tested
     path('transects/<int:pk>/edit/', views.TransectUpdateView.as_view(), name="transect_edit"),  # tested
     path('transects/<int:pk>/delete/', views.TransectDeleteView.as_view(), name="transect_delete"),  # tested
 
@@ -50,7 +50,11 @@ urlpatterns = [
     # reports
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),  # tested
     path('reports/dive-log/', views.dive_log_report, name="dive_log_report"),  # tested
-    path('reports/dive-transect/', views.dive_transect_report, name="dive_transect_report"),  # TODO: TESTME
+    path('reports/transects/', views.export_transect_data, name="export_transect_data"),  # TODO: TESTME
+    path('reports/outing/', views.export_outing_data, name="export_outing_data"),  # TODO: TESTME
+    path('reports/dive/', views.export_dive_data, name="export_dive_data"),  # TODO: TESTME
+    path('reports/section/', views.export_section_data, name="export_section_data"),  # TODO: TESTME
+    path('reports/observations/', views.export_obs_data, name="export_obs_data"),  # TODO: TESTME
 
 ]
 

@@ -32,15 +32,6 @@
               <th>{% get_verbose_label object field %}</th>
               <td>{{ object.start_descent|time }}</td>
             </tr>
-          {% elif "transect" in field %}
-            <tr>
-              <th>{% get_verbose_label object field %}</th>
-              {% if object.transect %}
-                <td><a href="{% url 'scuba:site_detail' object.transect.site.id %}">{% trans "Transect" %} {{ object.transect }}</a></td>
-              {% else %}
-                <td>n/a</td>
-              {% endif %}
-            </tr>
           {% else %}
             {% verbose_td_display object field %}
           {% endif %}

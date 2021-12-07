@@ -51,7 +51,7 @@ APP_DICT = {
     'maret': dict(name="Maret", staff_ids=[382, 581]),
     # 'events': dict(name="Events Planner", staff_ids=[50, ]),
     'fisheriescape': dict(name="Fisheries Landscape Tool", staff_ids=[452, ]),
-    'res': dict(name="SE-RES Career Progression Dossier App", staff_ids=[50, ]),
+    'res': dict(name="SE-RES Career Progression Dossier App", staff_ids=[50, 2039]),
 }
 
 # Deal with fake apps...

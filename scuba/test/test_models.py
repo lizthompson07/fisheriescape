@@ -103,7 +103,7 @@ class TestTransectModel(CommonTest):
         self.assert_has_props(models.Transect, [
             "get_starting_coordinates",
             "get_ending_coordinates",
-            "transect_distance",
+            "distance",
             "starting_coordinates_ddmm",
             "ending_coordinates_ddmm",
             "has_coordinates",

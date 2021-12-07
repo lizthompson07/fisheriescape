@@ -328,7 +328,7 @@ def get_document_field_list():
 def get_related_requests(user):
     """give me a user and I'll send back a queryset with all related requests, i.e.
      they are a client || they are a coordinator || they are the request.created_by"""
-    qs = models.CSASRequest.objects.filter(Q(created_by=user) | Q(office__coordinator=user) | Q(office__advisors=user)).distinct()
+    qs = models.CSASRequest.objects.filter(Q(client=user) | Q(office__coordinator=user) | Q(office__advisors=user)).distinct()
     return qs
 
 
