@@ -44,7 +44,15 @@
                     <div class="col-sm">
                     {% for key, value in calculated_properties.items %}
                         {% if value %}
-                            <div class="container"><span class="font-weight-bold">{{key}} : </span><span>{{value}}</span></div>
+                            {% if calculated_links %}
+                                {% if key in calculated_links %}
+                                    <div class="container"><span class="font-weight-bold">{{key}} : </span><span><a href="{{ calculated_links|get_item:key }}">{{value}}</a></span></div>
+                                {% else %}
+                                    <div class="container"><span class="font-weight-bold">{{key}} : </span><span>{{value}}</span></div>
+                                {% endif %}
+                            {% else %}
+                                <div class="container"><span class="font-weight-bold">{{key}} : </span><span>{{value}}</span></div>
+                            {% endif %}
                         {% endif %}
                     {% endfor %}
                     </div>
@@ -62,6 +70,9 @@
                 <h5 class="card-header">{% trans "Add program event data" %}
                     <span class="px-1">
                         <a class="btn btn-primary" name="add-data-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_data' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Data' %}</a>
+                    </span>
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-measuring-data-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_measuring_data' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Measuring Data' %}</a>
                     </span>
                 </h5>
             </div>

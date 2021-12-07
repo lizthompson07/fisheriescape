@@ -16,6 +16,7 @@ from django.utils import timezone
 from shapely.geometry import Point, box, LineString
 
 from bio_diversity import utils
+from bio_diversity.static import calculation_constants
 from bio_diversity.utils import naive_to_aware
 from shared_models import models as shared_models
 from django.db import models
@@ -257,9 +258,12 @@ class BioCont(BioLookup):
     # Make name not unique, is unique together with facility code.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"), db_column="NAME")
 
-    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=[], get_grp=False):
+    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=None, get_grp=False):
         indv_list = []
         grp_list = []
+
+        if not select_fields:
+            select_fields = []
 
         filter_arg = "contx_id__{}_id".format(self.key)
 
@@ -472,6 +476,31 @@ class Count(BioModel):
             return self.contx_id.evnt_id.start_date
         if self.loc_id:
             return self.loc_id.loc_date.date()
+        else:
+            return None
+
+    @property
+    def coll_str(self):
+        return "{} {}".format(self.cnt_year, self.coll_id.__str__())
+
+    def prog_group(self, get_string=False):
+        # gets program groups this group may be a part of.
+        cntd_set = CountDet.objects.filter(cnt_id=self,
+                                           anidc_id__name="Program Group",
+                                           adsc_id__isnull=False,
+                                           ).select_related("adsc_id")
+        if get_string:
+            prog_grp_list = [cntd.adsc_id.name for cntd in cntd_set]
+            prog_str = ", ".join(prog_grp_list)
+            return prog_str
+        else:
+            prog_grp_list = [cntd.adsc_id for cntd in cntd_set]
+            return prog_grp_list
+
+    def cnt_detail(self, anidc_name="Length"):
+        cntd_id = CountDet.objects.filter(anidc_id__name__icontains=anidc_name, cnt_id=self).first()
+        if cntd_id:
+            return cntd_id.det_val
         else:
             return None
 
@@ -921,7 +950,7 @@ class Group(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTTS")
 
     def __str__(self):
-        return "{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
+        return "{}-{}-{}-{}".format(self.pk, self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
 
     def current_tank(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
         return self.current_cont_by_key('tank', at_date)
@@ -958,11 +987,23 @@ class Group(BioModel):
         for cont_type in cont_type_list:
             current_cont_list += self.current_cont_by_key(cont_type, at_date)
         if get_string:
-            cont_str = ""
-            for cont in current_cont_list:
-                cont_str += "{}, ".format(cont.__str__())
+            cont_str_list = [cont.__str__() for cont in current_cont_list]
+            cont_str = ", ".join(cont_str_list)
             return cont_str
         return current_cont_list
+
+    def get_cont_history(self, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now()), get_str=False):
+        anix_evnt_set = AniDetailXref.objects.filter(grp_id=self, contx_id__isnull=False, loc_id__isnull=True,
+                                                     pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
+                                                     evnt_id__start_datetime__gte=start_date).select_related("contx_id")
+
+        contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
+        if get_str:
+            out_list = [utils.get_view_cont_list(contx) for contx in contx_tuple_set]
+        else:
+            out_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+
+        return out_list
 
     def count_fish_in_group(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
         fish_count = 0
@@ -973,17 +1014,12 @@ class Group(BioModel):
                                        Q(loc_id__animal_details__grp_id=self, loc_id__loc_date__lte=at_date))\
             .select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
 
-        absolute_codes = ["Egg Count", "Fish Count", "Counter Count", "Fecundity Estimate"]
-        add_codes = ["Fish in Container", "Photo Count", "Eggs Added", "Fish Caught"]
-        subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "Eggs Removed",
-                          "Fish Removed from Container", "Fish Distributed"]
-
         for cnt in cnt_set:
-            if cnt.cntc_id.name in add_codes:
+            if cnt.cntc_id.name in calculation_constants.add_codes:
                 fish_count += cnt.cnt
-            elif cnt.cntc_id.name in subtract_codes:
+            elif cnt.cntc_id.name in calculation_constants.subtract_codes:
                 fish_count -= cnt.cnt
-            elif cnt.cntc_id.name in absolute_codes:
+            elif cnt.cntc_id.name in calculation_constants.absolute_codes:
                 fish_count = cnt.cnt
         return fish_count
 
@@ -1068,14 +1104,13 @@ class Group(BioModel):
                                            anidc_id__name="Program Group",
                                            adsc_id__isnull=False,
                                            ).select_related("adsc_id")
-        prog_grp_list = [grpd.adsc_id for grpd in grpd_set]
         if get_string:
-            prog_str = ""
-            for prog_grp in prog_grp_list:
-                prog_str += "{}, ".format(prog_grp.name)
-
+            prog_grp_list = [grpd.adsc_id.name for grpd in grpd_set]
+            prog_str = ", ".join(prog_grp_list)
             return prog_str
         else:
+            prog_grp_list = [grpd.adsc_id for grpd in grpd_set]
+
             return prog_grp_list
 
     def group_mark(self, get_string=False):
@@ -1084,16 +1119,12 @@ class Group(BioModel):
                                            anidc_id__name="Mark",
                                            adsc_id__isnull=False,
                                            ).select_related("adsc_id")
-        grp_mark_list = [grpd.adsc_id for grpd in grpd_set]
         if get_string:
-            mark_str = ""
-            for mark in grp_mark_list:
-                mark_str += "{}, ".format(mark.name)
-
-            return mark_str
+            grp_mark_list = [grpd.adsc_id.name for grpd in grpd_set]
+            return ", ".join(grp_mark_list)
         else:
+            grp_mark_list = [grpd.adsc_id for grpd in grpd_set]
             return grp_mark_list
-
 
     def start_date(self):
         first_evnt = self.animal_details.order_by("-evnt_id__start_date").first()
@@ -1102,20 +1133,25 @@ class Group(BioModel):
         else:
             return None
 
-    def avg_weight(self):
-
+    def avg_weight(self, at_date=utils.naive_to_aware(datetime.now())):
         # INCORPORATE SAMPLE DETS!
-        weight_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Weight").order_by(-"detail_date")
+        weight_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Weight", detail_date__lte=at_date)
+        if not weight_deps:
+            return ""
+        weight_deps =weight_deps.order_by("-detail_date")
         last_obs_date = weight_deps.first().detail_date
         last_obs_set = weight_deps.filter(detail_date__gte=last_obs_date)
-        avg_weight = last_obs_set.aggregate(Avg('det_val'))["det_val"]
+        avg_weight = last_obs_set.aggregate(Avg('det_val'))["det_val__avg"]
         return avg_weight
 
-    def avg_len(self):
-        weight_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Length").order_by(-"detail_date")
-        last_obs_date = weight_deps.first().detail_date
-        last_obs_set = weight_deps.filter(detail_date__gte=last_obs_date)
-        avg_len = last_obs_set.aggregate(Avg('det_val'))["det_val"]
+    def avg_len(self, at_date=utils.naive_to_aware(datetime.now())):
+        len_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Length", detail_date__lte=at_date)
+        if not len_deps:
+            return ""
+        len_deps = len_deps.order_by("-detail_date")
+        last_obs_date = len_deps.first().detail_date
+        last_obs_set = len_deps.filter(detail_date__gte=last_obs_date)
+        avg_len = last_obs_set.aggregate(Avg('det_val'))["det_val__avg"]
         return avg_len
 
 
@@ -1350,9 +1386,8 @@ class Individual(BioModel):
         for cont_type in cont_type_list:
             current_cont_list += self.current_cont_by_key(cont_type, at_date)
         if get_string:
-            cont_str = ""
-            for cont in current_cont_list:
-                cont_str += "{} ".format(cont.__str__())
+            cont_str_list = [cont.__str__() for cont in current_cont_list]
+            cont_str = ", ".join(cont_str_list)
             return cont_str
         return current_cont_list
 
@@ -1400,14 +1435,12 @@ class Individual(BioModel):
                                                  adsc_id__isnull=False,
                                                  ).select_related("adsc_id")
 
-        prog_grp_list = [indvd.adsc_id for indvd in indvd_set]
         if get_string:
-            prog_str = ""
-            for prog_grp in prog_grp_list:
-                prog_str += "{}, ".format(prog_grp.name)
-
+            prog_grp_list = [indvd.adsc_id.name for indvd in indvd_set]
+            prog_str = ", ".join(prog_grp_list)
             return prog_str
         else:
+            prog_grp_list = [indvd.adsc_id for indvd in indvd_set]
             return prog_grp_list
 
 
@@ -1608,6 +1641,19 @@ class Location(BioModel):
         #    raise ValidationError("Location must have either lat-long specified or site chosen")
         super(Location, self).clean(*args, **kwargs)
 
+    def get_cont_history(self, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now()), get_str=False):
+        anix_evnt_set = AniDetailXref.objects.filter(loc_id=self, contx_id__isnull=False, grp_id__isnull=True,
+                                                     pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
+                                                     evnt_id__start_datetime__gte=start_date).select_related("contx_id")
+
+        contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
+        if get_str:
+            out_list = [utils.get_view_cont_list(contx) for contx in contx_tuple_set]
+        else:
+            out_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+
+        return out_list
+
 
 class LocCode(BioLookup):
     # locc tag
@@ -1673,8 +1719,12 @@ class Organization(BioLookup):
 
 class Pairing(BioDateModel):
     # pair tag
-    indv_id = models.ForeignKey('Individual',  on_delete=models.CASCADE, verbose_name=_("Dam"), db_column="DAM",
-                                limit_choices_to={'pit_tag__isnull': False, 'indv_valid': True}, related_name="pairings")
+    indv_id = models.ForeignKey('Individual',  on_delete=models.CASCADE, verbose_name=_("Dam"), db_column="INDIVIDUAL",
+                                limit_choices_to={'pit_tag__isnull': False, 'indv_valid': True}, related_name="pairings",
+                                null=True, blank=True)
+    samp_id = models.ForeignKey('Sample',  on_delete=models.CASCADE, verbose_name=_("sample"), db_column="SAMPLE",
+                                limit_choices_to={'anix_id__isnull': False}, related_name="pairings", null=True,
+                                blank=True)
     prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority of Female"),
                                 related_name="female_priorities", db_column="PRIORITY_ID")
     pair_prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority of Pair"),
@@ -1682,12 +1732,38 @@ class Pairing(BioDateModel):
     cross = models.IntegerField(verbose_name=_("Cross"), db_column="CROSS")
 
     def __str__(self):
-        return "{}".format(self.indv_id.__str__())
+        if self.indv_id:
+            return "{}".format(self.indv_id.__str__())
+        elif self.samp_id:
+            return "{}".format(self.samp_id.__str__())
+        else:
+            return None
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['indv_id', 'start_date'], name='Pairing_Uniqueness')
-        ]
+        unique_together = (('indv_id', 'samp_id', 'start_date'),)
+
+    @property
+    def dam_id(self):
+        if self.indv_id:
+            return self.indv_id
+        elif self.samp_id:
+            return self.samp_id
+        else:
+            return None
+
+    def prog_group(self, get_string=False):
+        # gets program groups this group may be a part of.
+        spwnd_set = self.spawning_details.filter(spwndc_id__name="Program Group",
+                                                 spwnsc_id__isnull=False,
+                                                 ).select_related("spwnsc_id")
+        if get_string:
+            prog_pair_list = [spwnd.spwnsc_id.name for spwnd in spwnd_set]
+            prog_str = ", ".join(prog_pair_list)
+            return prog_str
+        else:
+            prog_pair_list = [spwnd.spwnsc_id for spwnd in spwnd_set]
+
+            return prog_pair_list
 
 
 class PersonnelCode(BioModel):
@@ -1855,6 +1931,14 @@ class ReleaseSiteCode(BioLookup):
             return bbox
         else:
             return
+    @property
+    def point(self):
+        # lon = x, lat = y
+        if None not in [self.min_lat, self.min_lon]:
+            site_point = Point(float(self.min_lon), float(self.min_lat))
+            return site_point
+        else:
+            return Point()
 
     @property
     def area(self):
@@ -1886,7 +1970,7 @@ class Sample(BioModel):
                                db_column="LOCATION_ID", related_name="samples")
     anix_id = models.ForeignKey('AniDetailXref', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Animal Detail X Ref"),
                                 db_column="ANI_DET_X_REF_ID")
-    samp_num = models.IntegerField(verbose_name=_("Sample Fish Number"), db_column="SAMPLE_FISHNO")
+    samp_num = models.CharField(max_length=50, verbose_name=_("Sample Fish Number"), db_column="SAMPLE_FISHNO")
     spec_id = models.ForeignKey('SpeciesCode', on_delete=models.CASCADE, verbose_name=_("Species"), db_column="SPEC_ID")
     sampc_id = models.ForeignKey('SampleCode', on_delete=models.CASCADE, verbose_name=_("Sample Code"),
                                  db_column="SAMP_ID")
@@ -1896,10 +1980,28 @@ class Sample(BioModel):
         return "{} - {}".format(self.sampc_id.__str__(), self.samp_num)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['loc_id', 'anix_id', 'samp_num', 'spec_id', 'sampc_id'],
-                                    name='Sample_Uniqueness')
-        ]
+        unique_together = (('loc_id', 'anix_id', 'samp_num', 'spec_id', 'sampc_id'),)
+
+    @property
+    def coll_id(self):
+        if self.anix_id.grp_id:
+            return self.anix_id.grp_id.coll_id
+        else:
+            return None
+
+    @property
+    def stok_id(self):
+        if self.anix_id.grp_id:
+            return self.anix_id.grp_id.stok_id
+        else:
+            return None
+
+    @property
+    def indv_year(self):
+        if self.anix_id.grp_id:
+            return self.anix_id.grp_id.grp_year
+        else:
+            return None
 
     @property
     def samp_date(self):
@@ -1941,18 +2043,34 @@ class Sire(BioModel):
                                 db_column="PRIORITY_ID")
     pair_id = models.ForeignKey('Pairing', on_delete=models.CASCADE, verbose_name=_("Pairing"), related_name="sires",
                                 limit_choices_to={'valid': True}, db_column="PAIR_ID")
-    indv_id = models.ForeignKey('Individual', on_delete=models.CASCADE, verbose_name=_("Sire"), db_column="UFID",
-                                limit_choices_to={'pit_tag__isnull':  False, 'indv_valid': True}, related_name="sires")
+    indv_id = models.ForeignKey('Individual', on_delete=models.CASCADE, verbose_name=_("Individual"), db_column="UFID",
+                                limit_choices_to={'pit_tag__isnull':  False, 'indv_valid': True}, related_name="sires",
+                                null=True, blank=True)
+    samp_id = models.ForeignKey('Sample', on_delete=models.CASCADE, verbose_name=_("Sample"), db_column="SAMPLE",
+                                limit_choices_to={'anix_id__isnull':  False}, related_name="sires", null=True,
+                                blank=True)
     choice = models.IntegerField(verbose_name=_("Choice"), db_column="CHOICE")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     def __str__(self):
-        return "Sire {}".format(self.indv_id.__str__())
+        if self.indv_id:
+            return "Sire {}".format(self.indv_id.__str__())
+        elif self.samp_id:
+            return "Sire {}".format(self.samp_id.__str__())
+        else:
+            return "Unknown Sire"
+
+    @property
+    def sire_id(self):
+        if self.indv_id:
+            return self.indv_id
+        elif self.samp_id:
+            return self.samp_id
+        else:
+            return None
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['indv_id', 'pair_id'], name='Sire_Uniqueness')
-        ]
+        unique_together = (('indv_id', 'samp_id', 'pair_id'),)
 
 
 class SpawnDet(BioModel):
