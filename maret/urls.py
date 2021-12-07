@@ -40,6 +40,7 @@ urlpatterns = [
     path('committee/<int:pk>/edit/', views.CommitteeUpdateView.as_view(), name="committee_edit"),
     path('committee/<int:pk>/delete/', views.CommitteeDeleteView.as_view(), name="committee_delete"),
 
+    path('manage/areas/', views.AreaOfficesFormsetView.as_view(), name="manage_area_offices"),
     path('manage/topics/', views.TopicFormsetView.as_view(), name="manage_topics"),
     path('manage/species/', views.SpeciesFormsetView.as_view(), name="manage_species"),
     path('manage/org_categories/', views.OrgCategoriesFormsetView.as_view(), name="manage_org_categories"),

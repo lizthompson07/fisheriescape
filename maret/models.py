@@ -47,6 +47,10 @@ class OrgCategory(shared_models.SimpleLookup):
     pass
 
 
+class AreaOffice(shared_models.SimpleLookup):
+    pass
+
+
 class Committee(models.Model):
     meeting_frequency_choices = (
         (0, "Monthly"),
@@ -67,8 +71,10 @@ class Committee(models.Model):
     species = models.ManyToManyField(Species, blank=True, related_name="committee_species",
                                      verbose_name=_("Main species of discussion"))
     branch = models.ForeignKey(shared_models.Branch, default=1, on_delete=models.DO_NOTHING,
-                               related_name="committee_branch", verbose_name=_("Lead DFO branch / area office"))
-    division = models.ForeignKey(shared_models.Division, default=1, on_delete=models.DO_NOTHING,
+                               related_name="committee_branch", verbose_name=_("Lead DFO branch"))
+    area_office = models.ManyToManyField(AreaOffice, blank=True, related_name="committee_area_office",
+                                         verbose_name=_("Area Office"))
+    division = models.ForeignKey(shared_models.Division, default=1, blank=True, null=True, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Division"))
 
     # leaving this out for now because it may be a redundant filed included in the interactions model

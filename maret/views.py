@@ -841,3 +841,10 @@ class OrgCategoriesFormsetView(CommonMaretFormset):
     queryset = models.OrgCategory.objects.all()
     formset_class = forms.OrgCategoriesFormSet
     success_url_name = "maret:manage_org_categories"
+
+
+class AreaOfficesFormsetView(CommonMaretFormset):
+    h1 = _("Manage Area Offices")
+    queryset = models.AreaOffice.objects.all()
+    formset_class = forms.AreaOfficesFormSet
+    success_url_name = "maret:manage_area_offices"

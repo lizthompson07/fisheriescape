@@ -32,6 +32,9 @@
                 {% trans "Settings" %}
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="{% url 'maret:manage_area_offices' %}">
+                    {% trans "Manage Area Offices" %}
+                </a>
                 <a class="dropdown-item" href="{% url 'maret:manage_org_categories' %}">
                     {% trans "Manage Organization Categories" %}
                 </a>
