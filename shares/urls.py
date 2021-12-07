@@ -7,6 +7,7 @@ urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.IndexTemplateView.as_view(), name="index"),
     path('email-list/', views.EmailListTemplateView.as_view(), name="email_list"),
+    path('smbconf/', views.SmbConfTemplateView.as_view(), name="smb_conf"),
 
     # SERVER #
     ##########

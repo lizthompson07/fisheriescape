@@ -74,6 +74,15 @@ class EmailListTemplateView(SharesAdminRequiredMixin, TemplateView):
         return context
 
 
+class SmbConfTemplateView(SharesAdminRequiredMixin, TemplateView):
+    template_name = 'shares/smb_list.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["share_list"] = models.Share.objects.all()
+        return context
+
+
 # SERVER #
 ##########
 class ServerListView(SharesAdminRequiredMixin, ListView):
