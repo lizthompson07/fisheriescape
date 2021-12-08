@@ -31,23 +31,36 @@ class MaretBasicRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 def in_maret_admin_group(user):
     if user:
-        return bool(hasattr(user, "maret_admin_user") and user.maret_admin_user.is_admin)
+        return bool(hasattr(user, "maret_user") and user.maret_user.is_admin)
 
 
 def in_maret_author_group(user):
     if user:
-        return bool(hasattr(user, "maret_admin_user") and user.maret_admin_user.is_author)
+        return bool(hasattr(user, "maret_user") and user.maret_user.is_author)
 
 
 def in_maret_user_group(user):
     if user:
-        return bool(hasattr(user, "maret_admin_user") and user.maret_admin_user.is_user)
+        return bool(hasattr(user, "maret_user") and user.maret_user.is_user)
+
+
+class AdminOrSuperuserRequiredMixin(MaretBasicRequiredMixin):
+
+    def test_func(self):
+        return self.request.user.is_superuser or in_maret_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:denied_access', kwargs={
+                "message": _("Sorry, you need to be a MarET admin in order to access this page.")}))
+        return super().dispatch(request, *args, **kwargs)
 
 
 class AdminRequiredMixin(MaretBasicRequiredMixin):
 
     def test_func(self):
-        return self.request.user.is_superuser or in_maret_admin_group(self.request.user)
+        return in_maret_admin_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -89,15 +102,15 @@ def toggle_help_text_edit(request, user_id):
     user_mode = None
     # mode 1 is read only
     mode = 1
-    if models.MaretAdminUser.objects.filter(user=usr):
-        user_mode = models.MaretAdminUser.objects.get(user=usr)
+    if models.MaretUser.objects.filter(user=usr):
+        user_mode = models.MaretUser.objects.get(user=usr)
         mode = user_mode.mode
 
     # fancy math way of toggling between 1 and 2
     mode = (mode % 2) + 1
 
     if not user_mode:
-        user_mode = models.MaretAdminUser(user=usr)
+        user_mode = models.MaretUser(user=usr)
 
     user_mode.mode = mode
     user_mode.save()

@@ -33,13 +33,13 @@ ROLE_DFO_CHOICES = (
 )
 
 
-class MaretAdminUser(models.Model):
+class MaretUser(models.Model):
     mode_choices = (
         (1, "read"),
         (2, "edit"),
     )
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="maret_admin_user", verbose_name=_("DM Apps user"))
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="maret_user", verbose_name=_("DM Apps user"))
     # admins can modify helptext and other app settings
     is_admin = models.BooleanField(default=False, verbose_name=_("app administrator"), choices=YES_NO_CHOICES)
     # authors can create/modify/delete records

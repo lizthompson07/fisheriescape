@@ -16,7 +16,8 @@ from django.db.models.functions import Concat
 
 from django.urls import reverse_lazy, reverse
 
-from maret.utils import MaretBasicRequiredMixin, UserRequiredMixin, AuthorRequiredMixin, AdminRequiredMixin
+from maret.utils import MaretBasicRequiredMixin, UserRequiredMixin, AuthorRequiredMixin, AdminRequiredMixin, \
+    AdminOrSuperuserRequiredMixin
 from maret import models, filters, forms, utils
 
 from masterlist import models as ml_models
@@ -24,19 +25,19 @@ from masterlist import models as ml_models
 from easy_pdf.views import PDFTemplateView
 
 
-class MaretAdminUserFormsetView(AdminRequiredMixin, CommonFormsetView):
+class MaretUserFormsetView(AdminOrSuperuserRequiredMixin, CommonFormsetView):
     template_name = 'maret/formset.html'
     h1 = "Manage Maret Administrative Users"
-    queryset = models.MaretAdminUser.objects.all()
-    formset_class = forms.MaretAdminUserFormset
-    success_url_name = "maret:manage_maret_admin_users"
+    queryset = models.MaretUser.objects.all()
+    formset_class = forms.MaretUserFormset
+    success_url_name = "maret:manage_maret_users"
     home_url_name = "maret:index"
-    delete_url_name = "maret:delete_maret_admin_user"
+    delete_url_name = "maret:delete_maret_user"
 
 
-class MaretAdminUserHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-    model = models.MaretAdminUser
-    success_url = reverse_lazy("maret:manage_maret_admin_users")
+class MaretUserHardDeleteView(AdminOrSuperuserRequiredMixin, CommonHardDeleteView):
+    model = models.MaretUser
+    success_url = reverse_lazy("maret:manage_maret_users")
 
 
 #######################################################
@@ -54,7 +55,7 @@ class CommonCreateViewHelp(CommonCreateView):
         # The generic_form_with_help_text.html from the shared_models app
         # will provide the field name and together you have the required
         # model and field needed to make an entry in the Help Text table.
-        if self.request.user.maret_admin_user.mode == 2:
+        if self.request.user.maret_user.mode == 2:
             context['manage_help_url'] = "maret:manage_help_text"
             context['model_name'] = self.model.__name__
 
@@ -123,7 +124,8 @@ class IndexView(MaretBasicRequiredMixin, CommonTemplateView):
     template_name = 'maret/index.html'
 
     def dispatch(self, request, *args, **kwargs):
-        messages.info(request, mark_safe(_("Please note that only <b>unclassified information</b> may be entered into this application.")))
+        messages.info(request, mark_safe(
+            _("Please note that only <b>unclassified information</b> may be entered into this application.")))
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -459,7 +461,8 @@ class CommitteeDeleteView(AuthorRequiredMixin, CommonDeleteView):
     model = models.Committee
     success_url = reverse_lazy('maret:committee_list')
     home_url_name = "maret:index"
-    grandparent_crumb = {"title": gettext_lazy("Committees / Working Groups"), "url": reverse_lazy("maret:committee_list")}
+    grandparent_crumb = {"title": gettext_lazy("Committees / Working Groups"),
+                         "url": reverse_lazy("maret:committee_list")}
     template_name = "maret/confirm_delete.html"
     delete_protection = False
 
