@@ -80,7 +80,7 @@ python-Levenshtein==0.12.2
 pytz==2020.1
 PyYAML==5.4
 regex==2020.10.28
-reportlab==3.5.54
+reportlab==3.5.55
 requests-oauthlib==1.3.0
 requests==2.25.1
 rsa==4.7
