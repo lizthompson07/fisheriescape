@@ -34,6 +34,7 @@ class SampleFilter(django_filters.FilterSet):
         model = models.Sample
         fields = {
             'transect': ['exact'],
+            'dives__diver': ['exact'],
             'is_upm': ['exact'],
             'dives__was_seeded': ['exact'],
         }
@@ -42,5 +43,6 @@ class SampleFilter(django_filters.FilterSet):
         super().__init__(*args, **kwargs)
         self.filters.get("dives__was_seeded").label = gettext("Martin Mallet?")
         self.filters.get("dives__was_seeded").distinct = True
+        self.filters.get("dives__diver").distinct = True
         self.filters.get("is_upm").label = gettext("UPM?")
         self.filters["transect"].field.widget = forms.Select(attrs=chosen_js)

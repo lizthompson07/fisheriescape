@@ -11,6 +11,7 @@ class SpeciesFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Species
 
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
     scientific_name = factory.lazy_attribute(lambda o: faker.word())
     code = factory.lazy_attribute(lambda o: faker.pyint(1, 10000))
     aphia_id = factory.lazy_attribute(lambda o: faker.pyint(1, 10000))
@@ -19,6 +20,7 @@ class SpeciesFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def get_valid_data():
         return {
+            'name': faker.catch_phrase(),
             'scientific_name': faker.word(),
             'code': faker.pyint(1, 100),
             'aphia_id': faker.pyint(1, 100),
