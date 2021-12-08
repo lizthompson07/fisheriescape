@@ -74,7 +74,23 @@
           </select>
         </div>
       </div>
+      {# Starting Year #}
+      <div class="row">
+        <div class="col-5">
 
+          <label class="filter" for="filter.starting_fy">{% trans "Starting Year" %}</label>
+        </div>
+        <div class="col">
+          <select
+            v-model="filter.starting_fy"
+            @change="updateResults"
+            class="w90 filter" id="filter.starting_fy"
+          >
+            <option value="">{% trans "all" %}</option>
+            <option v-for="(obj, index) in fiscalYears" :value="obj.id">${obj.full}</option>
+          </select>
+        </div>
+      </div>
       {# Fiscal Year #}
       <div class="row">
         <div class="col-5">
@@ -236,7 +252,8 @@
         <button @click="clearFilters" class="btn btn-sm btn-warning">{% trans "Clear filters" %}</button>
       </div>
       <div class="mb-0">
-        <button @click="generateReports('{% url 'ppt:management_reports' 'pop' %}', 'all');" href="#" class="btn btn-sm btn-primary">{% trans 'Reports' %}</button>
+        <button @click="generateReports('{% url 'ppt:management_reports' 'pop' %}', 'all');" href="#"
+                class="btn btn-sm btn-primary">{% trans 'Reports' %}</button>
       </div>
 
     </div>

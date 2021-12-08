@@ -109,6 +109,7 @@ var app = new Vue({
       if (this.filter.title) endpoint += `title=${this.filter.title}&`;
       if (this.filter.staff) endpoint += `staff=${this.filter.staff}&`;
       if (this.filter.fiscal_year) endpoint += `fiscal_year=${this.filter.fiscal_year}&`;
+      if (this.filter.starting_fy) endpoint += `starting_fy=${this.filter.starting_fy}&`
       if (this.filter.tag) endpoint += `tag=${this.filter.tag}&`;
       if (this.filter.theme) endpoint += `theme=${this.filter.theme}&`;
       if (this.filter.functional_group) endpoint += `functional_group=${this.filter.functional_group}&`;

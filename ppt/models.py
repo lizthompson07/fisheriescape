@@ -224,7 +224,8 @@ class Project(models.Model):
     staff_search_field = models.CharField(editable=False, max_length=5000, blank=True, null=True)
     lead_staff = models.ManyToManyField("Staff", editable=False, verbose_name=_("project leads"))
     fiscal_years = models.ManyToManyField(shared_models.FiscalYear, editable=False, verbose_name=_("fiscal years"))
-
+    starting_fy = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, editable=False, blank=True, null=True,
+                                    verbose_name=_("starting fiscal year"), related_name="project_starting_years")
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
@@ -232,6 +233,9 @@ class Project(models.Model):
 
     def save(self, *args, **kwargs):
         project_years = self.years.order_by("fiscal_year")  # being explicit about ordering here is impnt
+
+        if project_years.exists():
+            self.starting_fy = project_years.first().fiscal_year
 
         # list of things to do if there are project years
         if project_years.exists():
