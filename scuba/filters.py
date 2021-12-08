@@ -43,6 +43,7 @@ class SampleFilter(django_filters.FilterSet):
         super().__init__(*args, **kwargs)
         self.filters.get("dives__was_seeded").label = gettext("Martin Mallet?")
         self.filters.get("dives__was_seeded").distinct = True
+        self.filters.get("dives__diver").label = gettext("Diver")
         self.filters.get("dives__diver").distinct = True
         self.filters.get("is_upm").label = gettext("UPM?")
         self.filters["transect"].field.widget = forms.Select(attrs=chosen_js)
