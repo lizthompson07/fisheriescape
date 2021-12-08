@@ -268,7 +268,7 @@ class TestRegionDetailView(CommonTest):
     @tag("Region", "region_detail", "context")
     def test_context(self):
         context_vars = [
-            "site_field_list",
+            "transect_field_list",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
@@ -366,7 +366,7 @@ class TestSampleCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('scuba:sample_new')
-        self.expected_template = 'scuba/form.html'
+        self.expected_template = 'scuba/coord_form.html'
         self.user = self.get_and_login_admin()
 
     @tag("Sample", "sample_new", "view")
@@ -484,7 +484,7 @@ class TestSampleUpdateView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.SampleFactory()
         self.test_url = reverse_lazy('scuba:sample_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/form.html'
+        self.expected_template = 'scuba/coord_form.html'
         self.user = self.get_and_login_admin()
 
     @tag("Sample", "sample_edit", "view")
@@ -700,7 +700,7 @@ class TestTransectUpdateView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.TransectFactory()
         self.test_url = reverse_lazy('scuba:transect_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/transect_form.html'
+        self.expected_template = 'scuba/coord_form.html'
         self.user = self.get_and_login_admin()
 
     @tag("Transect", "transect_edit", "view")

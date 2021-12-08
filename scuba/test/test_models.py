@@ -19,58 +19,12 @@ class TestRegionModel(CommonTest):
 
     @tag('Region', 'models', 'props')
     def test_props(self):
-        self.assert_has_props(models.Region, ["samples"])
+        self.assert_has_props(models.Region, ["transects"])
 
     @tag('Region', 'models', 'inheritance')
     def test_inheritance(self):
         self.assert_inheritance(type(self.instance), shared_models.UnilingualLookup)
 
-
-class TestSiteModel(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.SiteFactory()
-
-    @tag('Site', 'models', 'fields')
-    def test_fields(self):
-        fields_to_check = [
-            'abbreviation',
-            'region',
-            'latitude',
-            'latitude_d',
-            'latitude_mm',
-            'longitude',
-            'longitude_d',
-            'longitude_mm',
-        ]
-        self.assert_has_fields(models.Site, fields_to_check)
-
-    @tag('Site', 'models', 'props')
-    def test_props(self):
-        self.assert_has_props(models.Site, [
-            "transect_count",
-            "coordinates",
-            "get_coordinates_ddmm",
-            "get_coordinates",
-        ])
-
-    @tag('Site', 'models', 'inheritance')
-    def test_inheritance(self):
-        self.assert_inheritance(type(self.instance), shared_models.UnilingualLookup)
-
-    @tag('Site', 'models', '12m')
-    def test_12m_region(self):
-        # a `site` that is attached to a given `region` should be accessible by the reverse name `sites`
-        region = FactoryFloor.RegionFactory()
-        my_instance = self.instance
-        my_instance.region = region
-        my_instance.save()
-        self.assertIn(my_instance, region.sites.all())
-
-    @tag('Site', 'models', 'mandatory_fields')
-    def test_mandatory_fields(self):
-        fields_to_check = ['region', ]
-        self.assert_mandatory_fields(models.Site, fields_to_check)
 
 
 class TestTransectModel(CommonTest):
@@ -82,7 +36,7 @@ class TestTransectModel(CommonTest):
     def test_fields(self):
         fields_to_check = [
             'name',
-            'site',
+            'region',
             'start_latitude_d',
             'start_latitude_mm',
             'start_longitude_d',
@@ -114,17 +68,17 @@ class TestTransectModel(CommonTest):
         self.assert_inheritance(type(self.instance), shared_models.UnilingualLookup)
 
     @tag('Transect', 'models', '12m')
-    def test_12m_site(self):
+    def test_12m_region(self):
         # a `transect` that is attached to a given `site` should be accessible by the reverse name `transects`
-        site = FactoryFloor.SiteFactory()
+        region = FactoryFloor.RegionFactory()
         my_instance = self.instance
-        my_instance.site = site
+        my_instance.region = region
         my_instance.save()
-        self.assertIn(my_instance, site.transects.all())
+        self.assertIn(my_instance, region.transects.all())
 
     @tag('Transect', 'models', 'unique_together')
     def test_unique_together(self):
-        expected_unique_together = (('name', 'site'),)
+        expected_unique_together = (('name', 'region'),)
         actual_unique_together = models.Transect._meta.unique_together
         self.assertEqual(expected_unique_together, actual_unique_together)
 
@@ -163,7 +117,7 @@ class TestSampleModel(CommonTest):
     @tag('Sample', 'models', 'fields')
     def test_fields(self):
         fields_to_check = [
-            "site",
+            "transect",
             "datetime",
             "weather_notes",
             "comment",
@@ -172,16 +126,16 @@ class TestSampleModel(CommonTest):
 
     @tag('Sample', 'models', 'props')
     def test_props(self):
-        self.assert_has_props(models.Sample, ["site_region", 'dive_count'])
+        self.assert_has_props(models.Sample, ['dive_count'])
 
     @tag('Sample', 'models', '12m')
     def test_12m_site(self):
         # a `sample` that is attached to a given `site` should be accessible by the reverse name `samples`
-        site = FactoryFloor.SiteFactory()
+        region = FactoryFloor.RegionFactory()
         my_instance = self.instance
-        my_instance.site = site
+        my_instance.site = region
         my_instance.save()
-        self.assertIn(my_instance, site.samples.all())
+        self.assertIn(my_instance, region.samples.all())
 
     @tag('Sample', 'models', 'mandatory_fields')
     def test_mandatory_fields(self):
