@@ -22,8 +22,8 @@ class SpeciesFactory(factory.django.DjangoModelFactory):
         return {
             'name': faker.catch_phrase(),
             'scientific_name': faker.word(),
-            'code': faker.pyint(1, 100),
-            'aphia_id': faker.pyint(1, 100),
+            'code': faker.pyint(1, 10000),
+            'aphia_id': faker.pyint(1, 10000),
             'is_default': faker.pybool(),
         }
 

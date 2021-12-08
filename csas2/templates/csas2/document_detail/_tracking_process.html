@@ -41,6 +41,9 @@
     @update-tracking="updateTracking"
   ></select-group>
 
+  <div class="lead">
+    {% trans "APPROVALS" %}
+  </div>
 
   <div class="card tracking-card">
     <div class="card-header lead">
@@ -68,6 +71,14 @@
                         label="{% trans "Approved" %}"
                         @update-tracking="updateTracking"
       ></date-field-group>
+      <textarea-group
+        v-if="document.tracking.chair"
+        key="chair_comments"
+        field_name="chair_comments"
+        :val="document.tracking.chair_comments"
+        :label="trackingLabels.chair_comments"
+        @update-tracking="updateTracking"
+      ></textarea-group>
     </div>
   </div>
 
@@ -91,6 +102,13 @@
         label="{% trans "Approved" %}"
         @update-tracking="updateTracking"
       ></date-field-group>
+       <textarea-group
+        key="coordinator_comments"
+        field_name="coordinator_comments"
+        :val="document.tracking.coordinator_comments"
+        :label="trackingLabels.coordinator_comments"
+        @update-tracking="updateTracking"
+      ></textarea-group>
     </div>
   </div>
 
@@ -121,6 +139,14 @@
                         label="{% trans "Approved" %}"
                         @update-tracking="updateTracking"
       ></date-field-group>
+      <textarea-group
+        v-if="document.tracking.section_head"
+        key="section_head_comments"
+        field_name="section_head_comments"
+        :val="document.tracking.section_head_comments"
+        :label="trackingLabels.section_head_comments"
+        @update-tracking="updateTracking"
+      ></textarea-group>
     </div>
   </div>
 
@@ -151,6 +177,14 @@
                         label="{% trans "Approved" %}"
                         @update-tracking="updateTracking"
       ></date-field-group>
+      <textarea-group
+        v-if="document.tracking.division_manager"
+        key="division_manager_comments"
+        field_name="division_manager_comments"
+        :val="document.tracking.division_manager_comments"
+        :label="trackingLabels.division_manager_comments"
+        @update-tracking="updateTracking"
+      ></textarea-group>
     </div>
   </div>
 
@@ -181,6 +215,14 @@
                         label="{% trans "Approved" %}"
                         @update-tracking="updateTracking"
       ></date-field-group>
+      <textarea-group
+        v-if="document.tracking.director"
+        key="director_comments"
+        field_name="director_comments"
+        :val="document.tracking.director_comments"
+        :label="trackingLabels.director_comments"
+        @update-tracking="updateTracking"
+      ></textarea-group>
     </div>
   </div>
 
