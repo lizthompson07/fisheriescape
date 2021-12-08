@@ -6,6 +6,9 @@ app_name = 'maret'
 urlpatterns = [
     path('', views.IndexView.as_view(), name="index"),
 
+    path('settings/users/', views.MaretUserFormsetView.as_view(), name="manage_maret_users"),
+    path('settings/users/<int:pk>/delete/', views.MaretUserHardDeleteView.as_view(), name="delete_maret_user"),
+
     path('organization/', views.OrganizationListView.as_view(), name="org_list"),
     path('organization/new/', views.OrganizationCreateView.as_view(), name="org_new"),
     path('organization/<int:pk>/view/', views.OrganizationDetailView.as_view(), name="org_detail"),
@@ -40,6 +43,8 @@ urlpatterns = [
     path('committee/<int:pk>/edit/', views.CommitteeUpdateView.as_view(), name="committee_edit"),
     path('committee/<int:pk>/delete/', views.CommitteeDeleteView.as_view(), name="committee_delete"),
 
+    path('manage/area_offices/', views.AreaOfficesFormsetView.as_view(), name="manage_area_offices"),
+    path('manage/areas/', views.AreaFormsetView.as_view(), name="manage_areas"),
     path('manage/topics/', views.TopicFormsetView.as_view(), name="manage_topics"),
     path('manage/species/', views.SpeciesFormsetView.as_view(), name="manage_species"),
     path('manage/org_categories/', views.OrgCategoriesFormsetView.as_view(), name="manage_org_categories"),
@@ -53,6 +58,9 @@ urlpatterns = [
     # HelpText #
     #############
     path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_texts"),
+    path('settings/toggle-help-texts/<int:user_id>', utils.toggle_help_text_edit, name="toggle_edit_help_texts"),
+    path('settings/help-texts/<str:model_name>/<str:field_name>/', views.HelpTextPopView.as_view(),
+         name="manage_help_text"),
     path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
 
 ]

@@ -8,7 +8,7 @@
 
     <div class="row mb-5">
         <div class="col">
-            {% if not object.locked_by_ihub %}
+            {% if is_author and not object.locked_by_ihub %}
                 <div class="btns">
                 <a class="btn btn-sm btn-warning" href="{% url 'maret:org_edit' object.id %}">
                     {% trans "Edit" %}
