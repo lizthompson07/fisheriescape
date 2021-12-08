@@ -317,7 +317,7 @@ class Achievement(MetadataFields):
     review_type = models.ForeignKey(ReviewType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
                                     verbose_name=_("peer review type"))
     date = models.DateTimeField(verbose_name=_("date of publication / achievement"), blank=True, null=True)
-    detail = models.CharField(verbose_name=_("detail"), max_length=2000)
+    detail = models.TextField(verbose_name=_("detail"))
 
     class Meta:
         ordering = ["category", "publication_type", "-date", "id"]

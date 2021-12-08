@@ -1,6 +1,8 @@
+import json
+import os
 from datetime import datetime
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
@@ -9,8 +11,8 @@ from res.mixins import LoginAccessRequiredMixin, ResAdminRequiredMixin, CanModif
     CanViewAchievementRequiredMixin, CanModifyAchievementRequiredMixin, SuperuserOrAdminRequiredMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonCreateView, CommonFilterView, CommonDetailView, \
     CommonUpdateView, CommonDeleteView
-from . import models, forms, filters, utils, emails
-from .utils import in_res_admin_group
+from . import models, forms, filters, utils, emails, reports
+from .utils import in_res_admin_group, get_category_publication_type_dict, get_achievement_field_list
 
 
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
@@ -160,6 +162,7 @@ class ApplicationListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'id', "class": "", "width": "50px"},
         {"name": 'fiscal_year', "class": ""},
         {"name": 'applicant', "class": ""},
+        {"name": 'manager', "class": ""},
         {"name": 'target_group_level', "class": ""},
         {"name": 'status', "class": ""},
         {"name": 'region|{}'.format(gettext_lazy("region")), "class": ""},
@@ -190,6 +193,16 @@ class ApplicationDetailView(CanViewApplicationRequiredMixin, CommonDetailView):
         # attach all possible outcomes
         for o in models.Outcome.objects.all():
             models.ApplicationOutcome.objects.get_or_create(application=obj, outcome=o)
+
+        # if has "export" param, then the user is trying to get a word doc
+        if self.request.GET.get("export"):
+            file_url = reports.generate_word_application(obj, request)
+            if os.path.exists(file_url):
+                with open(file_url, 'rb') as fh:
+                    response = HttpResponse(fh.read(), content_type="application/vnd.ms-word")
+                    response['Content-Disposition'] = f'inline; filename="application_{obj.applicant.last_name.lower()}_id_{obj.id}.docx"'
+                    return response
+            raise Http404
         return super().dispatch(request, *args, **kwargs)
 
     def get_template_names(self):
@@ -413,23 +426,14 @@ class AchievementDetailView(CanViewAchievementRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            "id",
-            "user",
-            "category",
-            "publication_type",
-            "review_type",
-            "date",
-            "detail",
-            "metadata|{}".format(_("metadata")),
-        ]
+        context["field_list"] = get_achievement_field_list(self.get_object())
         return context
 
 
 class AchievementCreateView(LoginAccessRequiredMixin, CommonCreateView):
     model = models.Achievement
     form_class = forms.AchievementForm
-    template_name = 'res/form.html'
+    template_name = 'res/js_form.html'
     home_url_name = "res:index"
     parent_crumb = {"title": gettext_lazy("Achievements"), "url": reverse_lazy("res:achievement_list")}
     submit_text = gettext_lazy("Save")
@@ -441,17 +445,22 @@ class AchievementCreateView(LoginAccessRequiredMixin, CommonCreateView):
         super().form_valid(form)
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cat_pubtype_dict"] = json.dumps(get_category_publication_type_dict())
+        return context
+
 
 class AchievementUpdateView(CanModifyAchievementRequiredMixin, CommonUpdateView):
     model = models.Achievement
     form_class = forms.AchievementForm
-    template_name = 'res/form.html'
+    template_name = 'res/js_form.html'
     home_url_name = "res:index"
     grandparent_crumb = {"title": gettext_lazy("Achievements"), "url": reverse_lazy("res:achievement_list")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_admin"] = in_res_admin_group(self.request.user)
+        context["cat_pubtype_dict"] = json.dumps(get_category_publication_type_dict())
         return context
 
     def get_parent_crumb(self):

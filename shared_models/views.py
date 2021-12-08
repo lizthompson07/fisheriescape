@@ -36,9 +36,8 @@ def in_admin_group(user):
     if user.id:
 
         if settings.INSTALLED_APPS.count("travel"):
-            from travel.utils import in_travel_regional_admin_group
             from travel.utils import in_travel_nat_admin_group
-            if in_travel_regional_admin_group(user) or in_travel_nat_admin_group(user):
+            if in_travel_nat_admin_group(user):
                 return True
 
         if settings.INSTALLED_APPS.count("ppt"):
@@ -47,10 +46,27 @@ def in_admin_group(user):
                 return True
 
         if settings.INSTALLED_APPS.count("csas2"):
-            from csas2.utils import in_csas_national_admin_group, in_csas_regional_admin_group
-            if in_csas_national_admin_group(user) or in_csas_regional_admin_group(user):
+            from csas2.utils import in_csas_national_admin_group
+            if in_csas_national_admin_group(user):
                 return True
 
+        return False
+
+
+def in_extended_admin_group(user):
+    if user.id:
+        if in_admin_group(user):
+            return True
+
+        if settings.INSTALLED_APPS.count("travel"):
+            from travel.utils import in_travel_regional_admin_group
+            if in_travel_regional_admin_group(user):
+                return True
+
+        if settings.INSTALLED_APPS.count("csas2"):
+            from csas2.utils import in_csas_regional_admin_group
+            if in_csas_regional_admin_group(user):
+                return True
         return False
 
 
@@ -514,6 +530,12 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
+
+
+class ExtendedAdminRequiredMixin(AdminRequiredMixin):
+
+    def test_func(self):
+        return in_extended_admin_group(self.request.user)
 
 
 class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -1071,7 +1093,7 @@ class ProjectCodeDeleteView(AdminRequiredMixin, CommonDeleteView):
 ########
 
 # this is a complicated cookie. Therefore we will not use a model view or model form and handle the clean data manually.
-class UserCreateView(AdminRequiredMixin, CommonPopoutFormView):
+class UserCreateView(ExtendedAdminRequiredMixin, CommonPopoutFormView):
     form_class = forms.UserCreateForm
     h1 = gettext_lazy("Create a New DM Apps User")
     h3 = "<span class='red-font'>{}</span> <br><br> <span class='text-muted'>{}</span> <br><br>".format(

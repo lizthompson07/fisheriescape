@@ -11,18 +11,21 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveConstraint(
-            model_name='pairing',
-            name='Pairing_Uniqueness',
-        ),
-        migrations.RemoveConstraint(
-            model_name='sample',
-            name='Sample_Uniqueness',
-        ),
-        migrations.RemoveConstraint(
-            model_name='sire',
-            name='Sire_Uniqueness',
-        ),
+        # migrations.RemoveConstraint(
+        #     model_name='pairing',
+        #     name='Pairing_Uniqueness',
+        # ),
+        # migrations.RemoveConstraint(
+        #     model_name='sample',
+        #     name='Sample_Uniqueness',
+        # ),
+        # migrations.RemoveConstraint(
+        #     model_name='sire',
+        #     name='Sire_Uniqueness',
+        # ),
+
+        # the above migrations were executed manually
+
         migrations.AddField(
             model_name='pairing',
             name='samp_id',

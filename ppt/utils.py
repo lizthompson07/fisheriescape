@@ -391,9 +391,9 @@ def get_project_field_list(project):
 
         # csrf fields
         'overview' if is_csrf else None,
-        'csrf_theme|{}'.format(_("CSRF theme")) if is_csrf else None,
-        'csrf_sub_theme|{}'.format(_("CSRF sub-theme")) if is_csrf else None,
-        'csrf_priority|{}'.format(_("CSRF priority")) if is_csrf else None,
+        'csrf_theme|{}'.format(_("CSRF Research Area")) if is_csrf else None,
+        'csrf_sub_theme|{}'.format(_("CSRF Research Field")) if is_csrf else None,
+        'csrf_priority|{}'.format(_("CSRF Research priority")) if is_csrf else None,
         'client_information_html|{}'.format(_("Additional info supplied by client")) if is_csrf else None,
         'second_priority' if is_csrf else None,
         'objectives_html|{}'.format(_("project objectives (CSRF)")) if is_csrf else None,

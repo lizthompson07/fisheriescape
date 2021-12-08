@@ -1,0 +1,53 @@
+{% extends "res/form.html" %}
+
+{% load static %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+{% load csas_filters %}
+
+
+{% block body_js %}
+  {{ block.super }}
+
+  <script type="application/javascript">
+  var $category = $("#id_category");
+  var $publication_type = $("#id_publication_type");
+  var $review_type = $("#id_review_type");
+  var $date = $("#id_date");
+  var $publication_type_div = $("#publication_type_div");
+  var $review_type_div = $("#review_type_div");
+
+
+  $(document).ready(function () {
+    // Stuff to do as soon as the DOM is ready
+    refreshCategory();
+  });
+
+  function refreshCategory() {
+    let catPubtypeObj = {{cat_pubtype_dict|safe}};
+    catValue = $category.val();
+    console.log(catValue);
+    if (catPubtypeObj[catValue]) {
+      $publication_type_div.show()
+      $review_type_div.show()
+      $publication_type.prop("required", true)
+      $review_type.prop("required", true)
+      $date.prop("required", true)
+    } else {
+      $publication_type_div.hide()
+      $review_type_div.hide()
+      $publication_type.prop("required", false)
+      $review_type.prop("required", false)
+      $date.prop("required", false)
+    }
+  }
+
+  $category.change(function () {
+    refreshCategory();
+  })
+
+
+  </script>
+{% endblock %}
+

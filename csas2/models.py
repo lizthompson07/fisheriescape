@@ -18,7 +18,7 @@ from csas2.utils import get_quarter
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import percentage
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
-    SimpleLookupWithUUID
+    SimpleLookupWithUUID, SubjectMatter
 
 NULL_YES_NO_CHOICES = (
     (None, _("Unsure")),
@@ -181,6 +181,7 @@ class CSASRequest(MetadataFields):
     prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("How would you classify the prioritization of this request?"),
                                          choices=model_choices.prioritization_choices)
     prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("What is the rationale behind the prioritization?"))
+    tags = models.ManyToManyField(SubjectMatter, blank=True, verbose_name=_("keyword tags"))
 
     # non-editable fields
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
@@ -1026,29 +1027,34 @@ class DocumentTracking(MetadataFields):
     document = models.OneToOneField(Document, on_delete=models.CASCADE, related_name="tracking")
 
     due_date = models.DateTimeField(null=True, blank=True, verbose_name=_("product due date"))
-    submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("date submitted for review"), )
+    submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("date submitted by author"), )
     submitted_by = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("submitted by"), related_name="doc_submissions")
 
     chair = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("chairperson"), related_name="doc_chair_positions")
     date_chair_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to chair"))
     date_chair_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by chair"))
+    chair_comments = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 
     date_coordinator_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to CSAS coordinator"))
     date_coordinator_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by CSAS coordinator"))
+    coordinator_comments = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 
     section_head = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("section head"),
                                      related_name="doc_section_heads")
     date_section_head_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to section head"))
     date_section_head_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by section head"))
+    section_head_comments = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 
     division_manager = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("division manager"),
                                          related_name="doc_division_managers")
     date_division_manager_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to division manager"))
     date_division_manager_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by division manager"))
+    division_manager_comments = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 
     director = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("director"), related_name="doc_directors")
     date_director_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to director"))
     date_director_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by director"))
+    director_comments = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 
     pub_number = models.CharField(max_length=25, verbose_name=_("publication number"), blank=True, null=True)
     date_doc_submitted = models.DateTimeField(null=True, blank=True, verbose_name=_("date document submitted to CSAS office"))

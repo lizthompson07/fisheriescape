@@ -1,10 +1,11 @@
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, ListAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import permissions
 from . import serializers
+from .pagination import StandardResultsSetPagination
 from .. import models
 
 
@@ -25,9 +26,10 @@ class CurrentUserAPIView(APIView):
 class ObservationListCreateAPIView(ListCreateAPIView):
     serializer_class = serializers.ObservationSerializer
     permission_classes = [permissions.ScubaCRUDOrReadOnly]
+    pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
-        serializer.save(section_id=self.request.data["section_id"], created_by=self.request.user)
+        serializer.save(section_id=self.request.data.get("section_id"), created_by=self.request.user)
 
     def get_queryset(self):
         qs = models.Observation.objects.order_by("section", "id")
