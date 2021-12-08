@@ -16,12 +16,27 @@ from django.db.models.functions import Concat
 
 from django.urls import reverse_lazy, reverse
 
-from maret.utils import UserRequiredMixin, AuthorRequiredMixin, AdminRequiredMixin
+from maret.utils import MaretBasicRequiredMixin, UserRequiredMixin, AuthorRequiredMixin, AdminRequiredMixin
 from maret import models, filters, forms, utils
 
 from masterlist import models as ml_models
 
 from easy_pdf.views import PDFTemplateView
+
+
+class MaretAdminUserFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'maret/formset.html'
+    h1 = "Manage Maret Administrative Users"
+    queryset = models.MaretAdminUser.objects.all()
+    formset_class = forms.MaretAdminUserFormset
+    success_url_name = "maret:manage_maret_admin_users"
+    home_url_name = "maret:index"
+    delete_url_name = "maret:delete_maret_admin_user"
+
+
+class MaretAdminUserHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.MaretAdminUser
+    success_url = reverse_lazy("maret:manage_maret_admin_users")
 
 
 #######################################################
@@ -39,7 +54,7 @@ class CommonCreateViewHelp(CommonCreateView):
         # The generic_form_with_help_text.html from the shared_models app
         # will provide the field name and together you have the required
         # model and field needed to make an entry in the Help Text table.
-        if models.UserMode.objects.filter(user=self.request.user) and models.UserMode.objects.get(user=self.request.user).mode == 2:
+        if self.request.user.maret_admin_user.mode == 2:
             context['manage_help_url'] = "maret:manage_help_text"
             context['model_name'] = self.model.__name__
 
@@ -103,7 +118,7 @@ class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 #######################################################
 # Home page view
 #######################################################
-class IndexView(UserRequiredMixin, CommonTemplateView):
+class IndexView(MaretBasicRequiredMixin, CommonTemplateView):
     h1 = "home"
     template_name = 'maret/index.html'
 

@@ -1,7 +1,8 @@
 {% load i18n %}
 
-<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="navbarMainDropdown" role="button" data-toggle="dropdown"
-               aria-haspopup="true" aria-expanded="false">
+<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="navbarMainDropdown" role="button"
+                                 data-toggle="dropdown"
+                                 aria-haspopup="true" aria-expanded="false">
     {% trans "Main" %}
 </a>
     <div class="dropdown-menu" aria-labelledby="navbarMainDropdown">
@@ -24,34 +25,38 @@
     </div>
 </li>
 
-{% for group in user.groups.all %}
-    {% if group.name == "maret_admin" %}
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-               aria-haspopup="true" aria-expanded="false">
-                {% trans "Settings" %}
+{% if is_author %}
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+           aria-haspopup="true" aria-expanded="false">
+            {% trans "Settings" %}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url 'maret:manage_area_offices' %}">
+                {% trans "Manage Area Offices" %}
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="{% url 'maret:manage_area_offices' %}">
-                    {% trans "Manage Area Offices" %}
-                </a>
-                <a class="dropdown-item" href="{% url 'maret:manage_org_categories' %}">
-                    {% trans "Manage Organization Categories" %}
-                </a>
-                <a class="dropdown-item" href="{% url 'maret:manage_species' %}">
-                    {% trans "Manage Species" %}
-                </a>
-                <a class="dropdown-item" href="{% url 'maret:manage_topics' %}">
-                    {% trans "Manage Topics" %}
-                </a>
+            <a class="dropdown-item" href="{% url 'maret:manage_org_categories' %}">
+                {% trans "Manage Organization Categories" %}
+            </a>
+            <a class="dropdown-item" href="{% url 'maret:manage_species' %}">
+                {% trans "Manage Species" %}
+            </a>
+            <a class="dropdown-item" href="{% url 'maret:manage_topics' %}">
+                {% trans "Manage Topics" %}
+            </a>
+            {% if is_admin %}
                 <hr/>
+                <a class="dropdown-item" href="{% url 'maret:manage_maret_admin_users' %}">
+                    {% trans "Admin Settings" %}
+                </a>
                 <a class="dropdown-item" href="{% url 'maret:manage_help_texts' %}">
                     {% trans "Manage Help Text" %}
                 </a>
                 <a class="dropdown-item" href="{% url 'maret:toggle_edit_help_texts' user.pk %}">
-                    {% trans "Toggle Help Text Editing" %}{% if manage_help_url %} <span class="mdi mdi-check"></span> {% endif %}
+                    {% trans "Toggle Help Text Editing" %}{% if user.maret_admin_user.mode == 2 %}
+                        <span class="mdi mdi-check"></span> {% endif %}
                 </a>
-            </div>
-        </li>
-    {% endif %}
-{% endfor %}
+            {% endif %}
+        </div>
+    </li>
+{% endif %}

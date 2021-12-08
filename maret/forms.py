@@ -210,3 +210,19 @@ HelpTextFormset = modelformset_factory(
     form=HelpTextForm,
     extra=1,
 )
+
+
+class MaretAdminUserForm(forms.ModelForm):
+    class Meta:
+        model = models.MaretAdminUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+MaretAdminUserFormset = modelformset_factory(
+    model=models.MaretAdminUser,
+    form=MaretAdminUserForm,
+    extra=1,
+)

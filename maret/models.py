@@ -8,6 +8,8 @@ from shared_models import models as shared_models
 from masterlist import models as ml_models
 
 
+YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
+
 NULL_YES_NO_CHOICES = (
     (None, _("---------")),
     (1, _("Yes")),
@@ -29,6 +31,30 @@ ROLE_DFO_CHOICES = (
     (11, "Minister"),
     (12, "Unknown"),
 )
+
+
+class MaretAdminUser(models.Model):
+    mode_choices = (
+        (1, "read"),
+        (2, "edit"),
+    )
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="maret_admin_user", verbose_name=_("DM Apps user"))
+    # admins can modify helptext and other app settings
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator"), choices=YES_NO_CHOICES)
+    # authors can create/modify/delete records
+    is_author = models.BooleanField(default=False, verbose_name=_("app author"), choices=YES_NO_CHOICES)
+    # users can view, but not modify records
+    is_user = models.BooleanField(default=False, verbose_name=_("app user"), choices=YES_NO_CHOICES)
+
+    # admin users can toggle helptext edit mode on and off
+    mode = models.IntegerField(choices=mode_choices, default=1)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
 
 
 class DiscussionTopic(shared_models.SimpleLookup):
@@ -170,17 +196,6 @@ class ContactExtension(models.Model):
     contact = models.ForeignKey(ml_models.Person, blank=False, null=False, default=1, related_name="ext_con",
                                 verbose_name="Contact", on_delete=models.CASCADE)
     role = models.CharField(max_length=255, default="N/A", verbose_name="Role")
-
-
-# This allowes users to toggle helptext editing on forms on and off
-class UserMode(models.Model):
-    mode_choices = (
-        (1, "read"),
-        (2, "edit"),
-    )
-    user = models.ForeignKey(User, blank=True, null=True, on_delete=models.DO_NOTHING)
-    mode = models.IntegerField(choices=mode_choices, default=1)
-
 
 # This is a special table used to house application help text
 class HelpText(models.Model):

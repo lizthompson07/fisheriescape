@@ -6,6 +6,9 @@ app_name = 'maret'
 urlpatterns = [
     path('', views.IndexView.as_view(), name="index"),
 
+    path('settings/admin/', views.MaretAdminUserFormsetView.as_view(), name="manage_maret_admin_users"),
+    path('settings/admin/<int:pk>/delete/', views.MaretAdminUserHardDeleteView.as_view(), name="delete_maret_admin_user"),
+
     path('organization/', views.OrganizationListView.as_view(), name="org_list"),
     path('organization/new/', views.OrganizationCreateView.as_view(), name="org_new"),
     path('organization/<int:pk>/view/', views.OrganizationDetailView.as_view(), name="org_detail"),
