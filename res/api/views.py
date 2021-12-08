@@ -164,7 +164,6 @@ class AchievementViewSet(ModelViewSet):
                 raise ValidationError(_("Cannot run summary without user param."))
             user = get_object_or_404(User, pk=qp.get("user"))
             data = achievements_summary_table(user)
-            print(data)
             return Response(data)
         return super().list(request, *args, **kwargs)
 

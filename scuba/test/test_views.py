@@ -3,11 +3,11 @@ from django.test import tag
 from django.urls import reverse_lazy
 from faker import Factory
 
-from .common_tests import ScubaCommonTest as CommonTest
 from shared_models.utils import dm2decdeg
 from shared_models.views import CommonCreateView, CommonFilterView, CommonUpdateView, CommonDeleteView, CommonDetailView, CommonFormView
 from . import FactoryFloor
 from .FactoryFloor import DiveFactory
+from .common_tests import ScubaCommonTest as CommonTest
 from .. import views, models
 
 faker = Factory.create()
@@ -183,7 +183,6 @@ class TestDiveUpdateView(CommonTest):
         data = FactoryFloor.DiveFactory.get_valid_data(self.instance.sample)
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
-
     @tag("Dive", "dive_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -268,7 +267,7 @@ class TestRegionDetailView(CommonTest):
     @tag("Region", "region_detail", "context")
     def test_context(self):
         context_vars = [
-            "site_field_list",
+            "transect_field_list",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
@@ -366,7 +365,7 @@ class TestSampleCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('scuba:sample_new')
-        self.expected_template = 'scuba/form.html'
+        self.expected_template = 'scuba/coord_form.html'
         self.user = self.get_and_login_admin()
 
     @tag("Sample", "sample_new", "view")
@@ -484,7 +483,7 @@ class TestSampleUpdateView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.SampleFactory()
         self.test_url = reverse_lazy('scuba:sample_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/form.html'
+        self.expected_template = 'scuba/coord_form.html'
         self.user = self.get_and_login_admin()
 
     @tag("Sample", "sample_edit", "view")
@@ -507,141 +506,12 @@ class TestSampleUpdateView(CommonTest):
         self.assert_correct_url("scuba:sample_edit", f"/en/scuba/samples/{self.instance.pk}/edit/", [self.instance.pk])
 
 
-class TestSiteCreateView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.RegionFactory()
-        self.test_url = reverse_lazy('scuba:site_new', args=[self.instance.id])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_admin()
-
-    @tag("Site", "site_new", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.SiteCreateView, CommonCreateView)
-
-    @tag("Site", "site_new", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Site", "site_new", "submit")
-    def test_submit(self):
-        data = FactoryFloor.SiteFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-    @tag("Site", "site_new", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:site_new", f"/en/scuba/regions/{self.instance.id}/new-site/", test_url_args=[self.instance.id])
-
-
-class TestSiteDeleteView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.SiteFactory()
-        self.test_url = reverse_lazy('scuba:site_delete', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_admin()
-
-    @tag("Site", "site_delete", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.SiteDeleteView, CommonDeleteView)
-
-    @tag("Site", "site_delete", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Site", "site_delete", "submit")
-    def test_submit(self):
-        data = FactoryFloor.SiteFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-        # for delete views...
-        self.assertEqual(models.Site.objects.filter(pk=self.instance.pk).count(), 0)
-
-    @tag("Site", "site_delete", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:site_delete", f"/en/scuba/sites/{self.instance.pk}/delete/", [self.instance.pk])
-
-
-class TestSiteDetailView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.SiteFactory()
-        self.test_url = reverse_lazy('scuba:site_detail', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/site_detail.html'
-        self.user = self.get_and_login_admin()
-
-    @tag("Site", "site_detail", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.SiteDetailView, CommonDetailView)
-
-    @tag("Site", "site_detail", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Site", "site_detail", "context")
-    def test_context(self):
-        context_vars = [
-            "transect_field_list",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
-    @tag("Site", "site_detail", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:site_detail", f"/en/scuba/sites/{self.instance.pk}/view/", [self.instance.pk])
-
-
-class TestSiteUpdateView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.SiteFactory()
-        self.test_url = reverse_lazy('scuba:site_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_admin()
-
-    @tag("Site", "site_edit", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.SiteUpdateView, CommonUpdateView)
-
-    @tag("Site", "site_edit", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Site", "site_edit", "submit")
-    def test_submit(self):
-        data = FactoryFloor.SiteFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-        # let's test out the save method
-        data = FactoryFloor.SiteFactory.get_valid_data()
-        data['latitude_d'] = 48
-        data['latitude_mm'] = 12.34
-        data['longitude_d'] = -64
-        data['longitude_mm'] = 56.78
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-        obj = get_object_or_404(models.Site, pk=self.instance.pk)
-        self.assertEqual(dm2decdeg(data['latitude_d'], data['latitude_mm']), obj.latitude)
-        self.assertEqual(dm2decdeg(data['longitude_d'], data['longitude_mm']), obj.longitude)
-
-    @tag("Site", "site_edit", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:site_edit", f"/en/scuba/sites/{self.instance.pk}/edit/", [self.instance.pk])
-
-
 class TestTransectCreateView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.SiteFactory()
+        self.instance = FactoryFloor.RegionFactory()
         self.test_url = reverse_lazy('scuba:transect_new', args=[self.instance.id])
-        self.expected_template = 'scuba/transect_form.html'
+        self.expected_template = 'scuba/coord_form.html'
         self.user = self.get_and_login_admin()
 
     @tag("Transect", "transect_new", "view")
@@ -661,7 +531,7 @@ class TestTransectCreateView(CommonTest):
     @tag("Transect", "transect_new", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:transect_new", f"/en/scuba/sites/{self.instance.id}/new-transect/", test_url_args=[self.instance.id])
+        self.assert_correct_url("scuba:transect_new", f"/en/scuba/regions/{self.instance.id}/new-transect/", test_url_args=[self.instance.id])
 
 
 class TestTransectDeleteView(CommonTest):
@@ -700,7 +570,7 @@ class TestTransectUpdateView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.TransectFactory()
         self.test_url = reverse_lazy('scuba:transect_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/transect_form.html'
+        self.expected_template = 'scuba/coord_form.html'
         self.user = self.get_and_login_admin()
 
     @tag("Transect", "transect_edit", "view")

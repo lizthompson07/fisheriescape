@@ -4,13 +4,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.http import HttpResponse, Http404, HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy, gettext as _
 
-from lib.templatetags.custom_filters import nz
 from scuba.mixins import LoginAccessRequiredMixin, ScubaAdminRequiredMixin, ScubaCRUDAccessRequiredMixin, SuperuserOrAdminRequiredMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonUpdateView, CommonCreateView, \
     CommonDeleteView, CommonDetailView, CommonFormView
@@ -87,9 +87,11 @@ class RegionListView(ScubaAdminRequiredMixin, CommonFilterView):
 
     field_list = [
         {"name": 'name', "class": "", "width": ""},
+        {"name": 'abbreviation', "class": "", "width": ""},
         {"name": 'tdescription|{}'.format("description"), "class": "", "width": ""},
         {"name": 'province', "class": "", "width": ""},
-        {"name": 'site_count|{}'.format(_("# sites")), "class": "", "width": ""},
+        {"name": 'transect_count|{}'.format(_("# transect")), "class": "", "width": ""},
+        {"name": 'sample_count|{}'.format(_("# outings")), "class": "", "width": ""},
     ]
 
     def get_queryset(self):
@@ -124,20 +126,25 @@ class RegionDetailView(ScubaAdminRequiredMixin, CommonDetailView):
     container_class = "container curvy"
     field_list = [
         'name',
+        'abbreviation',
         'tdescription|{}'.format("description"),
         'province',
-        'samples|{}'.format(_("sample count")),
+        'coordinates',
+        'transect_count|{}'.format(_("# transects")),
+        'sample_count|{}'.format(_("# outings")),
     ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        site_field_list = [
+        transect_field_list = [
             'name',
-            'abbreviation',
-            'tdescription|{}'.format("description"),
-            'coordinates',
+            'old_name',
+            'starting_coordinates_ddmm|{}'.format(_("starting coordinates (0m)")),
+            'ending_coordinates_ddmm|{}'.format(_("ending coordinates (100m)")),
+            'distance|{}'.format(_("transect distance (m)")),
+
         ]
-        context["site_field_list"] = site_field_list
+        context["transect_field_list"] = transect_field_list
         return context
 
 
@@ -149,20 +156,102 @@ class RegionDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
     container_class = "container curvy"
 
 
-# SITES #
-#########
+#
+#
+# # SITES #
+# #########
+#
+#
+# class SiteCreateView(ScubaAdminRequiredMixin, CommonCreateView):
+#     model = models.Site
+#     form_class = forms.SiteForm
+#     template_name = 'scuba/form.html'
+#     home_url_name = "scuba:index"
+#     container_class = "container curvy"
+#     grandparent_crumb = {"title": gettext_lazy("Regions"), "url": reverse_lazy("scuba:region_list")}
+#
+#     def get_region(self):
+#         return get_object_or_404(models.Region, pk=self.kwargs.get("region"))
+#
+#     def get_parent_crumb(self):
+#         return {"title": self.get_region(), "url": reverse("scuba:region_detail", args=[self.get_region().id])}
+#
+#     def get_success_url(self):
+#         return self.get_parent_crumb()["url"]
+#
+#     def form_valid(self, form):
+#         obj = form.save(commit=False)
+#         obj.region = self.get_region()
+#         return super().form_valid(form)
+#
+#
+# class SiteDetailView(ScubaAdminRequiredMixin, CommonDetailView):
+#     model = models.Site
+#     template_name = 'scuba/site_detail.html'
+#     home_url_name = "scuba:index"
+#     grandparent_crumb = {"title": gettext_lazy("Regions"), "url": reverse_lazy("scuba:region_list")}
+#     container_class = "container curvy"
+#     field_list = [
+#         'name',
+#         'abbreviation',
+#         'tdescription|{}'.format("description"),
+#         'coordinates',
+#     ]
+#
+#     def get_parent_crumb(self):
+#         return {"title": self.get_object().region, "url": reverse_lazy("scuba:region_detail", args=[self.get_object().region.id])}
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+
+#         return context
+#
+#
+# class SiteUpdateView(ScubaAdminRequiredMixin, CommonUpdateView):
+#     model = models.Site
+#     form_class = forms.SiteForm
+#     template_name = 'scuba/form.html'
+#     home_url_name = "scuba:index"
+#     greatgrandparent_crumb = {"title": gettext_lazy("Regions"), "url": reverse_lazy("scuba:region_list")}
+#     container_class = "container curvy"
+#
+#     def get_parent_crumb(self):
+#         return {"title": self.get_object(), "url": reverse_lazy("scuba:site_detail", args=[self.get_object().id])}
+#
+#     def get_grandparent_crumb(self):
+#         return {"title": self.get_object().region, "url": reverse_lazy("scuba:region_detail", args=[self.get_object().region.id])}
+#
+#
+# class SiteDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
+#     model = models.Site
+#     success_message = 'The functional group was successfully deleted!'
+#     template_name = 'scuba/confirm_delete.html'
+#     container_class = "container curvy"
+#     home_url_name = "scuba:index"
+#     greatgrandparent_crumb = {"title": gettext_lazy("Regions"), "url": reverse_lazy("scuba:region_list")}
+#
+#     def get_parent_crumb(self):
+#         return {"title": self.get_object(), "url": reverse_lazy("scuba:site_detail", args=[self.get_object().id])}
+#
+#     def get_grandparent_crumb(self):
+#         return {"title": self.get_object().region, "url": reverse_lazy("scuba:region_detail", args=[self.get_object().region.id])}
+#
+
+# TRANSECTS #
+#############
 
 
-class SiteCreateView(ScubaAdminRequiredMixin, CommonCreateView):
-    model = models.Site
-    form_class = forms.SiteForm
-    template_name = 'scuba/form.html'
+class TransectCreateView(ScubaAdminRequiredMixin, CommonCreateView):
+    model = models.Transect
+    form_class = forms.TransectForm
+    template_name = 'scuba/coord_form.html'
     home_url_name = "scuba:index"
     container_class = "container curvy"
     grandparent_crumb = {"title": gettext_lazy("Regions"), "url": reverse_lazy("scuba:region_list")}
 
     def get_region(self):
-        return get_object_or_404(models.Region, pk=self.kwargs.get("region"))
+        region = get_object_or_404(models.Region, pk=self.kwargs["region"])
+        return region
 
     def get_parent_crumb(self):
         return {"title": self.get_region(), "url": reverse("scuba:region_detail", args=[self.get_region().id])}
@@ -176,109 +265,16 @@ class SiteCreateView(ScubaAdminRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class SiteDetailView(ScubaAdminRequiredMixin, CommonDetailView):
-    model = models.Site
-    template_name = 'scuba/site_detail.html'
-    home_url_name = "scuba:index"
-    grandparent_crumb = {"title": gettext_lazy("Regions"), "url": reverse_lazy("scuba:region_list")}
-    container_class = "container curvy"
-    field_list = [
-        'name',
-        'abbreviation',
-        'tdescription|{}'.format("description"),
-        'coordinates',
-    ]
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object().region, "url": reverse_lazy("scuba:region_detail", args=[self.get_object().region.id])}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        transect_field_list = [
-            'name',
-            'starting_coordinates_ddmm|{}'.format(_("starting coordinates (0m)")),
-            'ending_coordinates_ddmm|{}'.format(_("ending coordinates (100m)")),
-            'transect_distance|{}'.format(_("transect distance (m)")),
-
-        ]
-        context["transect_field_list"] = transect_field_list
-        return context
-
-
-class SiteUpdateView(ScubaAdminRequiredMixin, CommonUpdateView):
-    model = models.Site
-    form_class = forms.SiteForm
-    template_name = 'scuba/form.html'
-    home_url_name = "scuba:index"
-    greatgrandparent_crumb = {"title": gettext_lazy("Regions"), "url": reverse_lazy("scuba:region_list")}
-    container_class = "container curvy"
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("scuba:site_detail", args=[self.get_object().id])}
-
-    def get_grandparent_crumb(self):
-        return {"title": self.get_object().region, "url": reverse_lazy("scuba:region_detail", args=[self.get_object().region.id])}
-
-
-class SiteDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
-    model = models.Site
-    success_message = 'The functional group was successfully deleted!'
-    template_name = 'scuba/confirm_delete.html'
-    container_class = "container curvy"
-    home_url_name = "scuba:index"
-    greatgrandparent_crumb = {"title": gettext_lazy("Regions"), "url": reverse_lazy("scuba:region_list")}
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("scuba:site_detail", args=[self.get_object().id])}
-
-    def get_grandparent_crumb(self):
-        return {"title": self.get_object().region, "url": reverse_lazy("scuba:region_detail", args=[self.get_object().region.id])}
-
-
-# TRANSECTS #
-#############
-
-
-class TransectCreateView(ScubaAdminRequiredMixin, CommonCreateView):
-    model = models.Transect
-    form_class = forms.TransectForm
-    template_name = 'scuba/transect_form.html'
-    home_url_name = "scuba:index"
-    container_class = "container curvy"
-    greatgrandparent_crumb = {"title": gettext_lazy("Regions"), "url": reverse_lazy("scuba:region_list")}
-
-    def get_site(self):
-        site = get_object_or_404(models.Site, pk=self.kwargs["site"])
-        return site
-
-    def get_parent_crumb(self):
-        return {"title": self.get_site(), "url": reverse("scuba:site_detail", args=[self.get_site().id])}
-
-    def get_grandparent_crumb(self):
-        return {"title": self.get_site().region, "url": reverse("scuba:region_detail", args=[self.get_site().region.id])}
-
-    def get_success_url(self):
-        return self.get_parent_crumb()["url"]
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.site = self.get_site()
-        return super().form_valid(form)
-
-
 class TransectUpdateView(ScubaAdminRequiredMixin, CommonUpdateView):
     model = models.Transect
     form_class = forms.TransectForm
-    template_name = 'scuba/transect_form.html'
+    template_name = 'scuba/coord_form.html'
     home_url_name = "scuba:index"
     container_class = "container curvy"
-    greatgrandparent_crumb = {"title": gettext_lazy("Regions"), "url": reverse_lazy("scuba:region_list")}
+    grandparent_crumb = {"title": gettext_lazy("Regions"), "url": reverse_lazy("scuba:region_list")}
 
     def get_parent_crumb(self):
-        return {"title": self.get_object().site, "url": reverse("scuba:site_detail", args=[self.get_object().site.id])}
-
-    def get_grandparent_crumb(self):
-        return {"title": self.get_object().site.region, "url": reverse("scuba:region_detail", args=[self.get_object().site.region.id])}
+        return {"title": self.get_object().region, "url": reverse("scuba:region_detail", args=[self.get_object().region.id])}
 
 
 class TransectDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
@@ -287,13 +283,10 @@ class TransectDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
     success_message = 'The functional group was successfully deleted!'
     template_name = 'scuba/confirm_delete.html'
     container_class = "container curvy"
-    greatgrandparent_crumb = {"title": gettext_lazy("Regions"), "url": reverse_lazy("scuba:region_list")}
+    grandparent_crumb = {"title": gettext_lazy("Regions"), "url": reverse_lazy("scuba:region_list")}
 
     def get_parent_crumb(self):
-        return {"title": self.get_object().site, "url": reverse("scuba:site_detail", args=[self.get_object().site.id])}
-
-    def get_grandparent_crumb(self):
-        return {"title": self.get_object().site.region, "url": reverse("scuba:region_detail", args=[self.get_object().site.region.id])}
+        return {"title": self.get_object().region, "url": reverse("scuba:region_detail", args=[self.get_object().region.id])}
 
 
 # SAMPLES #
@@ -312,9 +305,9 @@ class SampleListView(ScubaCRUDAccessRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'id|{}'.format("sample Id"), "class": "", "width": ""},
         {"name": 'datetime|{}'.format("date"), "class": "", "width": ""},
-        {"name": 'site', "class": "", "width": ""},
+        {"name": 'transect.region|region', "class": "", "width": ""},
+        {"name": 'transect', "class": "", "width": ""},
         {"name": 'is_upm', "class": "", "width": ""},
-        {"name": 'site.region|{}'.format("region"), "class": "", "width": ""},
         {"name": 'dive_count|{}'.format(_("dive count")), "class": "", "width": ""},
     ]
 
@@ -322,9 +315,9 @@ class SampleListView(ScubaCRUDAccessRequiredMixin, CommonFilterView):
 class SampleUpdateView(ScubaCRUDAccessRequiredMixin, CommonUpdateView):
     model = models.Sample
     form_class = forms.SampleForm
-    template_name = 'scuba/form.html'
+    template_name = 'scuba/coord_form.html'
     home_url_name = "scuba:index"
-    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    grandparent_crumb = {"title": gettext_lazy("Outings"), "url": reverse_lazy("scuba:sample_list")}
     container_class = "container curvy"
 
     def get_parent_crumb(self):
@@ -334,9 +327,9 @@ class SampleUpdateView(ScubaCRUDAccessRequiredMixin, CommonUpdateView):
 class SampleCreateView(ScubaCRUDAccessRequiredMixin, CommonCreateView):
     model = models.Sample
     form_class = forms.SampleForm
-    template_name = 'scuba/form.html'
+    template_name = 'scuba/coord_form.html'
     home_url_name = "scuba:index"
-    parent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    parent_crumb = {"title": gettext_lazy("Outings"), "url": reverse_lazy("scuba:sample_list")}
     container_class = "container curvy"
 
 
@@ -344,11 +337,14 @@ class SampleDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
     model = models.Sample
     template_name = 'scuba/sample_detail.html'
     home_url_name = "scuba:index"
-    parent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    parent_crumb = {"title": gettext_lazy("Outings"), "url": reverse_lazy("scuba:sample_list")}
     container_class = "container curvy"
     field_list = [
-        'site_region|{}'.format(gettext_lazy("site")),
+        'transect',
         'datetime',
+        'starting_coordinates_ddmm|{}'.format(_("starting coordinates")),
+        'ending_coordinates_ddmm|{}'.format(_("ending coordinates")),
+        'distance|{}'.format(_("transect distance (m)")),
         'weather_notes',
         'is_upm',
         'comment',
@@ -358,7 +354,7 @@ class SampleDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         dive_field_list = [
             'is_training|{}'.format(_("Training?")),
-            'transect',
+            # 'transect',
             'diver',
             'heading',
             'side',
@@ -378,7 +374,7 @@ class SampleDeleteView(ScubaCRUDAccessRequiredMixin, CommonDeleteView):
     success_message = 'The functional group was successfully deleted!'
     template_name = 'scuba/confirm_delete.html'
     container_class = "container curvy"
-    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    grandparent_crumb = {"title": gettext_lazy("Outings"), "url": reverse_lazy("scuba:sample_list")}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("scuba:sample_detail", args=[self.get_object().id])}
@@ -393,7 +389,7 @@ class DiveCreateView(ScubaCRUDAccessRequiredMixin, CommonCreateView):
     template_name = 'scuba/form.html'
     home_url_name = "scuba:index"
     container_class = "container curvy"
-    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    grandparent_crumb = {"title": gettext_lazy("Outings"), "url": reverse_lazy("scuba:sample_list")}
 
     def get_initial(self):
         sample = self.get_sample()
@@ -424,7 +420,7 @@ class DiveUpdateView(ScubaCRUDAccessRequiredMixin, CommonUpdateView):
     form_class = forms.DiveForm
     template_name = 'scuba/form.html'
     home_url_name = "scuba:index"
-    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("Outings"), "url": reverse_lazy("scuba:sample_list")}
     container_class = "container curvy"
 
     def get_parent_crumb(self):
@@ -445,7 +441,7 @@ class DiveDeleteView(ScubaCRUDAccessRequiredMixin, CommonDeleteView):
     template_name = 'scuba/confirm_delete.html'
     container_class = "container curvy"
     home_url_name = "scuba:index"
-    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("Outings"), "url": reverse_lazy("scuba:sample_list")}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("scuba:dive_detail", args=[self.get_object().id])}
@@ -458,11 +454,10 @@ class DiveDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
     model = models.Dive
     template_name = 'scuba/dive_detail.html'
     home_url_name = "scuba:index"
-    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    grandparent_crumb = {"title": gettext_lazy("Outings"), "url": reverse_lazy("scuba:sample_list")}
     container_class = "container curvy"
     field_list = [
         'is_training',
-        'transect',
         'diver',
         'dive_distance|{}'.format(_("dive distance (m)")),
         'start_descent',
@@ -517,7 +512,7 @@ class DiveDataEntryDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
         'comment',
     ]
     home_url_name = "scuba:index"
-    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("Outings"), "url": reverse_lazy("scuba:sample_list")}
 
     def get_grandparent_crumb(self):
         return {"title": self.get_object().sample, "url": reverse("scuba:sample_detail", args=[self.get_object().sample.id])}
@@ -573,11 +568,19 @@ class ReportSearchFormView(ScubaCRUDAccessRequiredMixin, CommonFormView):
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        year = nz(form.cleaned_data["year"], "None")
+        year = form.cleaned_data["year"] if form.cleaned_data["year"] else ""
         if report == 1:
             return HttpResponseRedirect(reverse("scuba:dive_log_report") + f"?year={year}")
         elif report == 2:
-            return HttpResponseRedirect(reverse("scuba:dive_transect_report") + f"?year={year}")
+            return HttpResponseRedirect(reverse("scuba:export_transect_data"))
+        elif report == 3:
+            return HttpResponseRedirect(reverse("scuba:export_section_data") + f"?year={year}")
+        elif report == 4:
+            return HttpResponseRedirect(reverse("scuba:export_obs_data") + f"?year={year}")
+        elif report == 5:
+            return HttpResponseRedirect(reverse("scuba:export_dive_data") + f"?year={year}")
+        elif report == 6:
+            return HttpResponseRedirect(reverse("scuba:export_outing_data") + f"?year={year}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("scuba:reports"))
@@ -585,7 +588,7 @@ class ReportSearchFormView(ScubaCRUDAccessRequiredMixin, CommonFormView):
 
 @login_required()
 def dive_log_report(request):
-    year = None if not request.GET.get("year") or request.GET.get("year") == "None" else int(request.GET.get("year"))
+    year = None if not request.GET.get("year") or request.GET.get("year") == "" else int(request.GET.get("year"))
     file_url = reports.generate_dive_log(year=year)
 
     if os.path.exists(file_url):
@@ -597,14 +600,62 @@ def dive_log_report(request):
     raise Http404
 
 
-@login_required()
-def dive_transect_report(request):
-    year = None if not request.GET.get("year") or request.GET.get("year") == "None" else int(request.GET.get("year"))
-    file_url = reports.dive_transect_export(year=year)
 
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="dive-transect report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
-            return response
-    raise Http404
+def export_transect_data(request):
+    year = request.GET.get("year")
+    filename = "scuba transect export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_transect_csv()),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+def export_outing_data(request):
+    year = request.GET.get("year")
+    filename = "outing data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_outing_csv(year)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+def export_section_data(request):
+    year = request.GET.get("year")
+    filename = "section data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_section_csv(year)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+def export_dive_data(request):
+    year = request.GET.get("year")
+    filename = "dive data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_dive_csv(year)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+def export_obs_data(request):
+    year = request.GET.get("year")
+    filename = "observation data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_obs_csv(year)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
