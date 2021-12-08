@@ -63,6 +63,8 @@ class SampleForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             "datetime": forms.DateInput(attrs=dict(type="datetime-local"), format="%Y-%m-%dT%H:%M:%S"),
+            'transect': forms.Select(attrs=chosen_js),
+
         }
 
     def __init__(self, *args, **kwargs):
@@ -80,10 +82,10 @@ class DiveForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if kwargs.get("instance"):
-            self.fields["transect"].queryset = kwargs.get("instance").sample.region.transects.all()
-        elif kwargs.get("initial"):
-            self.fields["transect"].queryset = models.Sample.objects.get(pk=kwargs.get("initial").get("sample")).region.transects.all()
+        # if kwargs.get("instance"):
+        #     self.fields["transect"].queryset = kwargs.get("instance").sample.region.transects.all()
+        # elif kwargs.get("initial"):
+        #     self.fields["transect"].queryset = models.Sample.objects.get(pk=kwargs.get("initial").get("sample")).region.transects.all()
 
         # self.fields["start_descent"].label += " (yyyy-mm-dd HH:MM:SS)"
 

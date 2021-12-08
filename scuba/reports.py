@@ -37,7 +37,7 @@ def generate_dive_log(year):
 
     field_list = [
         "datetime|Date",
-        "site|Region/Site",
+        "transect|Region/Transect",
         "diver",
         "psi_in",
         "psi_out",
@@ -69,8 +69,11 @@ def generate_dive_log(year):
             if "datetime" in field:
                 my_val = dive.sample.datetime.strftime("%Y-%m-%d")
                 my_ws.write(i, j, my_val, date_format)
-            elif "site" in field:
-                my_val = f"{dive.sample.site.region.name} / {dive.sample.site.name}"
+            elif "transect" in field:
+                if dive.sample.transect:
+                    my_val = f"{dive.sample.transect.region.name} / {dive.sample.transect.name}"
+                else:
+                    my_val = ""
                 my_ws.write(i, j, my_val, normal_format)
             else:
                 my_val = str(get_field_value(dive, field))
@@ -146,13 +149,13 @@ def generate_obs_csv(year):
     yield writer.writerow(header_row)
 
     for obj in qs:
-        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), ""))) for field in field_names]  # starter
+        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), "NA"))) for field in field_names]  # starter
         data_row.extend([
             obj.section.dive.sample,
             obj.section.dive.sample_id,
             obj.section.dive.sample.datetime.strftime("%Y-%m-%d"),
-            obj.section.dive.sample.transect.region,
-            obj.section.dive.sample.transect.name,
+            obj.section.dive.sample.transect.region  if obj.section.dive.sample.transect else "NA",
+            obj.section.dive.sample.transect.name if obj.section.dive.sample.transect else "NA",
             obj.section.dive.get_side_display(),
             obj.section.interval,
             obj.section.get_interval_display(),
@@ -211,13 +214,13 @@ def generate_section_csv(year):
     yield writer.writerow(header_row)
 
     for obj in qs:
-        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), ""))) for field in field_names]  # starter
+        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), "NA"))) for field in field_names]  # starter
         data_row.extend([
             obj.dive.sample,
             obj.dive.sample_id,
             obj.dive.sample.datetime.strftime("%Y-%m-%d"),
-            obj.dive.sample.transect.region,
-            obj.dive.sample.transect.name,
+            obj.dive.sample.transect.region if obj.dive.sample.transect else "NA",
+            obj.dive.sample.transect.name if obj.dive.sample.transect else "NA",
             unidecode.unidecode(str(obj.dive.diver)),
             obj.dive.get_side_display(),
             obj.dive.width_m,
