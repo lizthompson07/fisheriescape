@@ -167,6 +167,19 @@ OrgCategoriesFormSet = modelformset_factory(
 )
 
 
+class AreaForm(forms.ModelForm):
+    class Meta:
+        model = models.AreaOffice
+        fields = "__all__"
+
+
+AreasFormSet = modelformset_factory(
+    model=models.AreaOffice,
+    form=AreaForm,
+    extra=3,
+)
+
+
 class AreaOfficeForm(forms.ModelForm):
     class Meta:
         model = models.AreaOffice

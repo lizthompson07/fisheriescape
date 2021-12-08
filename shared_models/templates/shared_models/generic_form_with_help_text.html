@@ -17,6 +17,10 @@
             {% endif %}
 
             {% bootstrap_field field placeholder="" show_label=False %}
+        {% elif manage_help_url %}
+            {% bootstrap_label field.label %}
+            <a class='mdi mdi-plus-box h6 ml-1' pop-href='{% url manage_help_url model_name field.name %}'></a>
+            {% bootstrap_field field placeholder="" show_label=False %}
         {% else %}
             {% bootstrap_field field placeholder="" %}
         {% endif %}
