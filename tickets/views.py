@@ -112,13 +112,14 @@ class MyAssignedTicketListView(LoginRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'id', "class": "", "width": ""},
         {"name": 'primary_contact', "class": "", "width": ""},
-        {"name": 'priority', "class": "", "width": ""},
+        {"name": 'date_opened', "class": "", "width": "125px"},
+        {"name": 'priority', "class": "", "width": "125px"},
         {"name": 'dm_assigned', "class": "", "width": ""},
         {"name": 'app_display|app', "class": "", "width": ""},
         {"name": 'title', "class": "", "width": ""},
         {"name": 'request_type', "class": "", "width": ""},
         {"name": 'status', "class": "", "width": ""},
-        {"name": 'github_issue_number', "class": "", "width": ""},
+        {"name": 'github_issue_number', "class": "", "width": "175px"},
     ]
 
     def get_h1(self):
