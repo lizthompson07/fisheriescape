@@ -141,8 +141,7 @@ class Region(UnilingualLookup):
 
 class Transect(UnilingualLookup, CoordinatesModel):
     name = models.IntegerField(verbose_name=_("name"))
-    region = models.ForeignKey(Region, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("region"), blank=False,
-                               null=True)  # to replace site
+    region = models.ForeignKey(Region, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("region"))  # to replace site
 
     # not editable
     old_name = models.CharField(max_length=255, verbose_name=_("old name"), blank=True, null=True, editable=False)

@@ -84,7 +84,7 @@ class TestTransectModel(CommonTest):
 
     @tag('Transect', 'models', 'mandatory_fields')
     def test_mandatory_fields(self):
-        fields_to_check = ['site', ]
+        fields_to_check = ['region', ]
         self.assert_mandatory_fields(models.Transect, fields_to_check)
 
 
@@ -129,17 +129,17 @@ class TestSampleModel(CommonTest):
         self.assert_has_props(models.Sample, ['dive_count'])
 
     @tag('Sample', 'models', '12m')
-    def test_12m_site(self):
+    def test_12m_transect(self):
         # a `sample` that is attached to a given `site` should be accessible by the reverse name `samples`
-        region = FactoryFloor.RegionFactory()
+        transect = FactoryFloor.TransectFactory()
         my_instance = self.instance
-        my_instance.site = region
+        my_instance.transect = transect
         my_instance.save()
-        self.assertIn(my_instance, region.samples.all())
+        self.assertIn(my_instance, transect.samples.all())
 
     @tag('Sample', 'models', 'mandatory_fields')
     def test_mandatory_fields(self):
-        fields_to_check = ['site', 'datetime']
+        fields_to_check = ['datetime']
         self.assert_mandatory_fields(models.Sample, fields_to_check)
 
 
@@ -182,15 +182,6 @@ class TestDiveModel(CommonTest):
         my_instance.sample = sample
         my_instance.save()
         self.assertIn(my_instance, sample.dives.all())
-
-    @tag('Dive', 'models', '12m')
-    def test_12m_transect(self):
-        # a `dive` that is attached to a given `transect` should be accessible by the reverse name `dives`
-        transect = FactoryFloor.TransectFactory()
-        my_instance = self.instance
-        my_instance.transect = transect
-        my_instance.save()
-        self.assertIn(my_instance, transect.dives.all())
 
     @tag('Dive', 'models', '12m')
     def test_12m_diver(self):
