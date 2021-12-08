@@ -48,6 +48,11 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     is_valid_request = serializers.SerializerMethodField()
     prioritization_display_short = serializers.SerializerMethodField()
     coordinator = serializers.SerializerMethodField()
+    tags_display = serializers.SerializerMethodField()
+
+    def get_tags_display(self, instance):
+        if instance.tags.exists():
+            return listrify(instance.tags.all())
 
     def get_coordinator(self, instance):
         return str(instance.office.coordinator)

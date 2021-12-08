@@ -18,7 +18,7 @@ from csas2.utils import get_quarter
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import percentage
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
-    SimpleLookupWithUUID
+    SimpleLookupWithUUID, SubjectMatter
 
 NULL_YES_NO_CHOICES = (
     (None, _("Unsure")),
@@ -181,6 +181,7 @@ class CSASRequest(MetadataFields):
     prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("How would you classify the prioritization of this request?"),
                                          choices=model_choices.prioritization_choices)
     prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("What is the rationale behind the prioritization?"))
+    tags = models.ManyToManyField(SubjectMatter, blank=True, verbose_name=_("keyword tags"))
 
     # non-editable fields
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)

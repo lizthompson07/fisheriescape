@@ -258,6 +258,23 @@
                     </div>
                   </div>
                 </div>
+
+                <div class="mb-3">
+                  <span class="text-muted small">${requestLabels.tags}</span>
+                  <v-select
+                    style="width: 100%"
+                    v-model="r.tags"
+                    @input="updateTags(r)"
+                    :options="tagChoices"
+                    :reduce="choice => choice.value"
+                    label="text"
+                    :clearable="false"
+                    class="bg-light"
+                    :multiple="true"
+                  >
+                  </v-select>
+                </div>
+
                 <div class="mb-3 float-right">
                   <span class="mdi mdi-delete text-danger mr-1"></span>
                   <span class="text-danger pointy" @click="deleteReview(r)"> {% trans "delete this review" %} </span>
@@ -325,6 +342,7 @@
       regionChoices: [],
       sectorChoices: [],
       sectionChoices: [],
+      tagChoices: [],
       fresh: true,
     },
     methods: {
@@ -412,6 +430,14 @@
           this.getRequest(request);
         });
       },
+      updateTags(request) {
+        this.errorMsg = null;
+        let endpoint = `/api/csas/requests/${request.id}/`;
+        apiService(endpoint, "PUT", request).then(data => {
+          if (!data.id) this.errorMsg = groomJSON(data);
+          this.getRequest(request);
+        });
+      },
       deleteReview(request) {
         this.errorMsg = null;
         let userInput = confirm("{% trans 'Are you certain you want to delete this review?' %}")
@@ -430,6 +456,7 @@
           this.regionChoices = data.region_choices;
           this.sectorChoices = data.sector_choices;
           this.sectionChoices = data.section_choices;
+          this.tagChoices = data.tag_choices;
           this.fyChoices = data.fy_choices;
         });
         apiService(`/api/csas/meta/models/request-review/`).then(data => {

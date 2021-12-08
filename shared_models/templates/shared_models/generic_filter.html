@@ -50,7 +50,7 @@
       {% block table_header %}
         <div class="row mb-3">
           <div class="col">
-            {% trans "(click on a header to sort table)" %}
+            {% trans "(click on a header to sort current page)" %}
           </div>
           <div class="col" style="text-align: center">
             {% if paginate_by %}
@@ -149,7 +149,7 @@
       {% endif %}
       {% if filter %}
         {% if filter_list %}
-          <em>{% trans 'displaying' %} {{ filter_list.count }} {% trans 'of' %} {{ filter.qs.count }}</em>
+          <em>{% trans 'displaying' %} {{ filter_list|length }} {% trans 'of' %} {{ filter.qs.count }}</em>
         {% else %}
           <em>{% trans 'displaying' %} {{ filter.qs.count }} {% trans 'of' %} {{ object_list.count }}</em>
         {% endif %}
