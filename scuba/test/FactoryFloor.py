@@ -22,34 +22,18 @@ class RegionFactory(factory.django.DjangoModelFactory):
         }
 
 
-class SiteFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.Site
-
-    region = factory.SubFactory(RegionFactory)
-    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
-    abbreviation = factory.lazy_attribute(lambda o: faker.word())
-
-    @staticmethod
-    def get_valid_data():
-        return {
-            'region': RegionFactory().id,
-            'name': faker.catch_phrase(),
-            'abbreviation': faker.word(),
-        }
-
 
 class TransectFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Transect
 
-    site = factory.SubFactory(SiteFactory)
+    region = factory.SubFactory(RegionFactory)
     name = factory.lazy_attribute(lambda o: faker.word())
 
     @staticmethod
     def get_valid_data():
         return {
-            'site': SiteFactory().id,
+            'region': RegionFactory().id,
             'name': faker.word(),
         }
 
@@ -73,13 +57,13 @@ class SampleFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Sample
 
-    site = factory.SubFactory(SiteFactory)
+    transect = factory.SubFactory(TransectFactory)
     datetime = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
 
     @staticmethod
     def get_valid_data():
         return {
-            'site': SiteFactory().id,
+            'transect': TransectFactory().id,
             'datetime': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
         }
 
