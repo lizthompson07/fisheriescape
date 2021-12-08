@@ -146,13 +146,13 @@ def generate_obs_csv(year):
     yield writer.writerow(header_row)
 
     for obj in qs:
-        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), ""))) for field in field_names]  # starter
+        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), "NA"))) for field in field_names]  # starter
         data_row.extend([
             obj.section.dive.sample,
             obj.section.dive.sample_id,
             obj.section.dive.sample.datetime.strftime("%Y-%m-%d"),
-            obj.section.dive.sample.transect.region,
-            obj.section.dive.sample.transect.name,
+            obj.section.dive.sample.transect.region  if obj.section.dive.sample.transect else "NA",
+            obj.section.dive.sample.transect.name if obj.section.dive.sample.transect else "NA",
             obj.section.dive.get_side_display(),
             obj.section.interval,
             obj.section.get_interval_display(),
