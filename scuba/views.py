@@ -342,6 +342,9 @@ class SampleDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
     field_list = [
         'transect',
         'datetime',
+        'starting_coordinates_ddmm|{}'.format(_("starting coordinates")),
+        'ending_coordinates_ddmm|{}'.format(_("ending coordinates")),
+        'distance|{}'.format(_("transect distance (m)")),
         'weather_notes',
         'is_upm',
         'comment',

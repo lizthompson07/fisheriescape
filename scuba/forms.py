@@ -63,6 +63,8 @@ class SampleForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             "datetime": forms.DateInput(attrs=dict(type="datetime-local"), format="%Y-%m-%dT%H:%M:%S"),
+            'transect': forms.Select(attrs=chosen_js),
+
         }
 
     def __init__(self, *args, **kwargs):
