@@ -107,16 +107,6 @@ class DiveFactory(factory.django.DjangoModelFactory):
             'is_training': False,
         }
 
-    @staticmethod
-    def get_invalid_data():
-        return {
-            'sample': SampleFactory().id,
-            'transect': TransectFactory().id,
-            'diver': DiverFactory().id,
-            'width_m': faker.pyint(1, 100),
-            'is_training': False,
-        }
-
 
 class SectionFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -148,7 +138,7 @@ class ObservationFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def get_valid_data():
         return {
-            'species_id': SpeciesFactory().id,
+            'species': SpeciesFactory().id,
             'section_id': SectionFactory().id,
             'sex': models.Observation.sex_choices[faker.random_int(0, len(models.Observation.sex_choices) - 1)][0],
             'certainty_rating': faker.pyint(0, 1),

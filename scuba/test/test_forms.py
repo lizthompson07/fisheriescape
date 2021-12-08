@@ -24,10 +24,6 @@ class TestDiveForm(CommonTest):
         data = FactoryFloor.DiveFactory.get_valid_data(self.dive.sample)
         self.assert_form_valid(self.Form, data=data, instance=self.dive)
 
-        # the transect must belong to the same site as the sample!
-        data = FactoryFloor.DiveFactory.get_invalid_data()
-        self.assert_form_invalid(self.Form, data=data, instance=self.dive)
-
         # the start descent time must be in sync with sample datetime!
         data = FactoryFloor.DiveFactory.get_valid_data(self.dive.sample)
         new_dt = self.dive.sample.datetime + timedelta(seconds=10)
@@ -42,10 +38,6 @@ class TestDiveForm(CommonTest):
         data = FactoryFloor.DiveFactory.get_valid_data(self.dive.sample)
         initial = dict(sample=self.dive.sample.id)
         self.assert_form_valid(self.Form, data=data, initial=initial)
-
-        # the transect must belong to the same site as the sample!
-        data = FactoryFloor.DiveFactory.get_invalid_data()
-        self.assert_form_invalid(self.Form, data=data, initial=initial)
 
         # the start descent time must be in sync with sample datetime!
         data = FactoryFloor.DiveFactory.get_valid_data(self.dive.sample)

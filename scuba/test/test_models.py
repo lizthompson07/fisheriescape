@@ -26,7 +26,6 @@ class TestRegionModel(CommonTest):
         self.assert_inheritance(type(self.instance), shared_models.UnilingualLookup)
 
 
-
 class TestTransectModel(CommonTest):
     def setUp(self):
         super().setUp()
@@ -152,7 +151,6 @@ class TestDiveModel(CommonTest):
     def test_fields(self):
         fields_to_check = [
             "sample",
-            "transect",
             "diver",
             "is_training",
             "start_descent",

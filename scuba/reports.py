@@ -37,7 +37,7 @@ def generate_dive_log(year):
 
     field_list = [
         "datetime|Date",
-        "site|Region/Site",
+        "transect|Region/Transect",
         "diver",
         "psi_in",
         "psi_out",
@@ -69,8 +69,11 @@ def generate_dive_log(year):
             if "datetime" in field:
                 my_val = dive.sample.datetime.strftime("%Y-%m-%d")
                 my_ws.write(i, j, my_val, date_format)
-            elif "site" in field:
-                my_val = f"{dive.sample.site.region.name} / {dive.sample.site.name}"
+            elif "transect" in field:
+                if dive.sample.transect:
+                    my_val = f"{dive.sample.transect.region.name} / {dive.sample.transect.name}"
+                else:
+                    my_val = ""
                 my_ws.write(i, j, my_val, normal_format)
             else:
                 my_val = str(get_field_value(dive, field))
