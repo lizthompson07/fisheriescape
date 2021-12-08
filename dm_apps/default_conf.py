@@ -34,7 +34,7 @@ APP_DICT = {
     'scifi': dict(name='SciFi', staff_ids=[50, ]),
     'masterlist': dict(name='Masterlist', staff_ids=[50, ]),
     'shares': dict(name='Gulf Shares', staff_ids=[50, ]),
-    'travel': dict(name='Travel Management System', staff_ids=[385, 50]),  # beware, the staff ids will have to be changed below for cloud instances of app
+    'travel': dict(name='Travel Management System', staff_ids=[1798, 50]),  # beware, the staff ids will have to be changed below for cloud instances of app
     'sar_search': dict(name="SAR Search", staff_ids=[50, 452]),
     'spot': dict(name='Grants & Contributions (Spot)', staff_ids=[50, ]),  # dependency on masterlist, sar_search)
     'ios2': dict(name='Instruments', staff_ids=[381, ]),
