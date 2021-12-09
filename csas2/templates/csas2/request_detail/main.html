@@ -38,6 +38,14 @@
       </p>
     </div>
 
+    <div v-if="canModify" class="alert alert-danger no-print" role="alert">
+      <p class="">
+        <span class="h5 mdi mdi-exclamation mr-3"></span>
+        <span class="h6">{% trans "Regional CSAS staff have recommended that this request be <b>withdrawn</b>." %}</span>
+        <button class="btn btn-danger float-right">{% trans "Withdraw This Request" %}</button>
+      </p>
+    </div>
+
     <div class="mb-3 float-right">
       {% if object.submission_date %}
         <button v-if="!request.review" class="btn btn-sm btn-dark" @click="primeReview">{% trans "Start a Review" %}</button>
@@ -366,6 +374,9 @@
     computed: {
       canModify() {
         return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      },
+      isClient() {
+        return this.currentUser.is_client;
       }
     },
     filters: {
