@@ -45,6 +45,7 @@ class CurrentUserAPIView(APIView):
 
         if qp.get("request"):
             data["can_modify"] = utils.can_modify_request(request.user, qp.get("request"), return_as_dict=True)
+            data["is_client"] = utils.is_client(request.user, qp.get("request"))
         elif qp.get("process"):
             data["can_modify"] = utils.can_modify_process(request.user, qp.get("process"), return_as_dict=True)
         elif qp.get("document"):
