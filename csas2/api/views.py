@@ -20,7 +20,8 @@ from shared_models.api.views import _get_labels
 from shared_models.models import Person, Language, Region, FiscalYear, SubjectMatter
 from . import serializers
 from .pagination import StandardResultsSetPagination
-from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission
+from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission, CanModifyRequestReviewOrReadOnly
+from .serializers import CSASRequestSerializer
 from .. import models, emails, model_choices, utils, filters
 
 
@@ -71,6 +72,17 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
         qs = qs.annotate(search=Concat('title', Value(" "), 'translated_title', Value(" "), 'id', output_field=TextField()))
         return qs
 
+    def post(self, request, pk):
+        qp = request.query_params
+        print(pk)
+        csas_request = get_object_or_404(models.CSASRequest, pk=pk)
+        if qp.get("withdraw"):
+            if utils.is_client(request.user, pk) or utils.can_modify_request(request.user, pk, True):
+                csas_request.withdraw()
+                return Response(CSASRequestSerializer(csas_request).data, status.HTTP_200_OK)
+            raise ValidationError(_("Sorry, you do not have permissions to withdraw this request"))
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
+
 
 class CSASRequestNoteViewSet(viewsets.ModelViewSet):
     queryset = models.CSASRequestNote.objects.all()
@@ -100,16 +112,20 @@ class CSASRequestNoteViewSet(viewsets.ModelViewSet):
 
 class CSASRequestReviewViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CSASRequestReviewSerializer
-    permission_classes = [CanModifyRequestOrReadOnly]
+    permission_classes = [CanModifyRequestReviewOrReadOnly]
     queryset = models.CSASRequestReview.objects.all()
 
     def perform_destroy(self, instance):
-        # a little bit of gymnastics here in order to save the csas request truely following the deletion of the review (not working with signals)
+        # a little bit of gymnastics here in order to save the csas request truly following the deletion of the review (not working with signals)
         csas_request = instance.csas_request
         instance.delete()
         csas_request.save()
 
     def perform_create(self, serializer):
+        # only create a review if the request has been submitted!
+        csas_request = get_object_or_404(models.CSASRequest, pk=self.request.data["csas_request"])
+        if not csas_request.submission_date:
+            return ValidationError(_("Cannot create a review of a request that is still in draft mode."))
         serializer.save(created_by=self.request.user)
 
     def perform_update(self, serializer):

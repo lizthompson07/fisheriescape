@@ -38,13 +38,13 @@
       </p>
     </div>
 
-{#    <div v-if="canModify" class="alert alert-danger no-print" role="alert">#}
-{#      <p class="">#}
-{#        <span class="h5 mdi mdi-exclamation mr-3"></span>#}
-{#        <span class="h6">{% trans "Regional CSAS staff have recommended that this request be <b>withdrawn</b>." %}</span>#}
-{#        <button class="btn btn-danger float-right">{% trans "Withdraw This Request" %}</button>#}
-{#      </p>#}
-{#    </div>#}
+    <div v-if="(canModify || isClient) && request.status ===  12" class="alert alert-danger no-print" role="alert">
+      <p class="">
+        <span class="h5 mdi mdi-exclamation mr-3"></span>
+        <span class="h5">{% trans "Regional CSAS staff have recommended that this request be <b>withdrawn</b>." %}</span>
+        <button @click="withdrawRequest" class="btn btn-danger float-right">{% trans "Withdraw This Request" %}</button>
+      </p>
+    </div>
 
     <div class="mb-3 float-right">
       {% if object.submission_date %}
@@ -350,6 +350,21 @@
           if (!data.id) this.errors = groomJSON(data);
           else this.getRequest();
         });
+      },
+      withdrawRequest() {
+        userInput = confirm("{% trans "Are you sure you want to withdraw this request?" %}")
+        if (userInput) {
+          this.errors = null;
+          let endpoint = `/api/csas/requests/${this.request.id}/?withdraw=true;`;
+          apiService(endpoint, "POST", this.request).then(data => {
+            if (!data.id) {
+              this.errors = groomJSON(data);
+              console.log(data);
+            } else {
+              window.location.reload();
+            }
+          });
+        }
       },
       deleteReview() {
         let userInput = confirm("{% trans 'Are you certain you want to delete this review?' %}")

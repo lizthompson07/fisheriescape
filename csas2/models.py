@@ -204,6 +204,10 @@ class CSASRequest(MetadataFields):
     def __str__(self):
         return self.title
 
+    def withdraw(self):
+        self.status = 6
+        self.save()
+
     def save(self, *args, **kwargs):
 
         # request fiscal year
@@ -223,26 +227,35 @@ class CSASRequest(MetadataFields):
             self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
         else:
             self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
+
+
         # set the STATUS
+
         # if there is a process, the request the request MUST have been approved.
         if self.id and self.processes.exists():
             if self.processes.filter(status=100).count() == self.processes.all().count():
                 self.status = 5  # fulfilled
             elif self.processes.filter(status=90).count() == self.processes.all().count():
-                self.status = 12  # withdrawn
+                self.status = 6  # withdrawn
             else:
                 self.status = 11  # accepted
         else:
-            # look at the review to help determine the status
-            self.status = 1  # draft
-            if self.submission_date:
-                self.status = 2  # submitted
-            if self.files.filter(is_approval=True).exists():
-                self.status = 3  # approved
-            if hasattr(self, "review") and self.review.id:
-                self.status = 4  # under review
-                if self.review.decision:
-                    self.status = self.review.decision + 10
+            # if the request is not submitted, it should automatically be in draft
+            if not self.submission_date:
+                self.status = 1  # draft
+            else:
+                # if the status is set to withdrawn, we do nothing more.
+                if self.status != 6:
+                    # look at the review to help determine the status
+                    self.status = 1  # draft
+                    if self.submission_date:
+                        self.status = 2  # submitted
+                    if self.files.filter(is_approval=True).exists():
+                        self.status = 3  # approved
+                    if hasattr(self, "review") and self.review.id:
+                        self.status = 4  # under review
+                        if self.review.decision:
+                            self.status = self.review.decision + 10
 
         super().save(*args, **kwargs)
 
