@@ -249,7 +249,7 @@ def connect_refs(txt, achievements_qs):
             text_class = "text-danger"
             text = "???"
             href = "??"
-        replace_text = f"<a href='{href}' class='{text_class} helper' data-toggle='tooltip' title='{tip}'>{text}</a>"
+        replace_text = f"<a href='{href}' class='{text_class} helper' data-html='true' data-toggle='tooltip' title='{tip}'>{text}</a>"
         txt = txt.replace(f"[{ref}]", replace_text)
     return markdown(txt)
 
