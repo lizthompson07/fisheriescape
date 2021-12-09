@@ -38,13 +38,13 @@
       {% trans "No O&M costs have been added to this year of the project" %}
     </div>
 
-    <table v-else class="table table-sm w-75">
+    <table v-else class="table table-sm w-90">
       <thead>
       <tr>
-        <th style="width: 125px">{% trans "Category type" %}</th>
-        <th style="width: 175px">${omCostLabels.om_category}</th>
+        <th style="width: 250px">{% trans "Category type" %}</th>
+        <th style="width: 250px">${omCostLabels.om_category}</th>
         <th>${omCostLabels.description}</th>
-        <th style="width: 120px">${omCostLabels.funding_source}</th>
+        <th>${omCostLabels.funding_source}</th>
         <th style="width: 120px">${omCostLabels.amount}</th>
       </tr>
       </thead>

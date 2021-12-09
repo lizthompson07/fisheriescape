@@ -79,8 +79,14 @@ var app = new Vue({
       var query = `?user=true`;
       apiService(`/api/ppt/themes/${query}`).then(response => this.themes = response)
       apiService(`/api/ppt/fiscal-years/${query}`).then(response => this.fiscalYears = response)
-      apiService(`/api/ppt/tags/${query}`).then(response => this.tags = response)
-      apiService(`/api/ppt/funding-sources/${query}`).then(response => this.fundingSources = response)
+      apiService(`/api/ppt/tags/${query}`).then(response => {
+        this.tags = [{name:"-----", id: ""}];
+        this.tags.push(...response);
+      })
+      apiService(`/api/ppt/funding-sources/${query}`).then(response => {
+        this.fundingSources = [{display:"-----", id: ""}];
+        this.fundingSources.push(...response);
+      })
       apiService(`/api/ppt/regions/${query}`).then(response => this.regions = response)
       if (this.filter.region && this.filter.region !== "") query += `&branch__sector__region=${this.filter.region}`
       apiService(`/api/ppt/divisions/${query}`).then(response => this.divisions = response)
