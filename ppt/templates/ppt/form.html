@@ -33,17 +33,21 @@
     {% if field.name|is_markdown_field %}
 
       <label for="id_{{ field.name }}">{{ field.label }}</label>
-      <a href="{% static 'markdown-cheatsheet-online.pdf' %}" data-toggle="tooltip" target="_blank" tabindex="-1"
-         title="{% trans "Markdown syntax is supported in this field" %}">
-        <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
-      </a>
+      {% block markdown_icon %}
+        <a href="{% static 'markdown-cheatsheet-online.pdf' %}" data-toggle="tooltip" target="_blank" tabindex="-1"
+           title="{% trans "Markdown syntax is supported in this field" %}">
+          <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
+        </a>
+      {% endblock %}
       {% bootstrap_field field placeholder="" show_label=False %}
-      <div class="mb-5">
-      <a href="{% static 'markdown-cheatsheet-online.pdf' %}" data-toggle="tooltip" target="_blank" tabindex="-1" class="helper"
-         title="{% trans "Markdown syntax is supported in this field" %}">
-        {% trans "You can use markdown syntax in this field" %}
-      </a>
-      </div>
+      {% block markdown_blurb %}
+        <div class="mb-5">
+          <a href="{% static 'markdown-cheatsheet-online.pdf' %}" data-toggle="tooltip" target="_blank" tabindex="-1" class="helper"
+             title="{% trans "Markdown syntax is supported in this field" %}">
+            {% trans "You can use markdown syntax in this field" %}
+          </a>
+        </div>
+      {% endblock %}
 
     {% else %}
       {% bootstrap_field field placeholder="" %}
