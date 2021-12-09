@@ -99,6 +99,11 @@ h1 {
     background-color: #cacaca;
 }
 
+.flagged {
+    background-color: #e06400;
+    color: #ffffff;
+}
+
 .fulfilled {
     background-color: #87ff76;
 }

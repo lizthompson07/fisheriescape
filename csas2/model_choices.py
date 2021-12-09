@@ -24,18 +24,20 @@ language_choices = (
 request_status_choices = (
     (1, _("Draft")),
     (2, _("Submitted")),  # client submits request
-    (3, _("Ready for review")),  # signed PDF
+    (3, _("Ready for review")),  # signed PDF uploaded (should only be temporary while approval mod. not in app)
     (4, _("Under review")),  # review is created by coordinator
     (5, _("Fulfilled")),
+    (6, _("Withdrawn")),
+
     # all status below here should correspond to review decision choice + 10
     (11, _("Reviewed")),  # coordinator approves
-    (12, _("Withdrawn")),  # client (coordinator) withdraws
+    (12, _("Flagged")),  # client (coordinator) withdraws
 )
 
 request_decision_choices = (
     (1, _("Screen in")),
     (2, _("Return to client")),
-    # (3, _("Involve other region(s)")),
+    (3, _("Re-scope")),
 )
 
 prioritization_choices = (
