@@ -166,7 +166,7 @@ class CSASRequestReviewSerializer(serializers.ModelSerializer):
             if there is already a process, the decision must be screened in.
         """
         decision = attrs.get("decision")
-        if self.instance.csas_request.processes.exists() and decision != 1:
+        if self.instance and self.instance.csas_request.processes.exists() and decision != 1:
             msg = gettext('The review recommendation must be screened-in if there is already a CSAS Process underway.')
             raise ValidationError(msg)
         return attrs
