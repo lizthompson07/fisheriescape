@@ -85,6 +85,21 @@ class NewRequestEmail(Email):
         return self.instance.office.all_emails
 
 
+class ReviewCompleteEmail(Email):
+    subject_en = 'A CSAS review has been completed'
+    subject_fr = "Un examen du SCAS a été effectué"
+
+    def get_email_template_path(self):
+        if self.instance.decision == 1:
+            return 'csas2/emails/review_complete_successful.html'
+        return 'csas2/emails/review_complete_withdrawn.html'
+
+
+    def get_recipient_list(self):
+        # should go to the client as listed on the original request
+        return [self.instance.csas_request.client.email]
+
+
 class PostedProcessEmail(Email):
     email_template_path = 'csas2/emails/posted_process.html'
     subject_en = 'Your process has been posted to the CSAS website'

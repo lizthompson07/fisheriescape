@@ -149,9 +149,6 @@ class CSASRequest(MetadataFields):
     translated_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("translated title"))
     office = models.ForeignKey(CSASOffice, on_delete=models.DO_NOTHING, related_name="csas_offices", verbose_name=_("CSAS office"),
                                blank=True, null=False)
-
-    # coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("CSAS coordinator"),
-    #                                 blank=True, null=True, editable=False)
     client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=False)
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("client section"), blank=True, null=False)
     is_multiregional = models.IntegerField(default=False, choices=NULL_YES_NO_CHOICES, blank=True, null=True,
@@ -392,6 +389,9 @@ class CSASRequestReview(MetadataFields):
     advice_date = models.DateTimeField(verbose_name=_("advice required by (final)"), blank=True, null=True)
     deferred_text = models.TextField(null=True, blank=True, verbose_name=_("rationale for alternate scheduling"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
+
+    # non-editable
+    email_notification_date = models.DateTimeField(verbose_name=_("email notification date"), blank=True, null=True, editable=False)
 
     def save(self, *args, **kwargs):
         if self.is_valid == 0 or self.is_feasible == 0:

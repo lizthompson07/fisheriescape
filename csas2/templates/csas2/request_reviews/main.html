@@ -241,9 +241,7 @@
                       <textarea rows="13" class="form-control" v-model="r.review.decision_text" @change="updateReview(r)"></textarea>
                     </div>
                   </div>
-
                   <div class="col">
-
                     <div class="mb-3">
                     <span class="text-muted small">${reviewLabels.deferred_text} (<span
                       class="text-success font-weight-bold">{% trans "VISIBLE TO CLIENT" %}</span>)</span>
@@ -251,14 +249,39 @@
                                 :disabled="!r.is_rescheduled || !r.is_valid_request"></textarea>
                     </div>
                   </div>
-                  <div class="col">
-                    <div class="mb-3">
-                      <span class="text-muted small">${reviewLabels.notes} (<span class="text-danger font-weight-bold">{% trans "INTERNAL / CSAS ONLY" %}</span>)</span>
-                      <textarea rows="13" class="form-control" v-model="r.review.notes" @change="updateReview(r)"></textarea>
-                    </div>
-                  </div>
+
                 </div>
 
+                {# email stuff #}
+                <div v-if="r.review.decision === 1 || r.review.decision === 2" class="mb-3">
+                  <div v-if="!r.review.email_notification_date">
+                    <button class="btn btn-sm btn-success" @click="previewNotificationEmail(r)">
+                      <span class="mdi mdi-email text-light mr-1"></span> {% trans "Send notification email to client" %}
+                    </button>
+                    <button class="btn btn-sm btn-dark" @click="notificationEmail(r, 'manual')">
+                      <span class="mdi mdi-postage-stamp text-light mr-1"></span> {% trans "Mark as sent" %}
+                    </button>
+                  </div>
+                  <div v-else>
+                    <mark class="text-muted font-italic">
+                      {% trans "Notification email sent on " %} ${r.review.email_notification_date_display}
+                      <span class="text-danger pointy ml-1" @click="notificationEmail(r,'clear')">({% trans "clear" %})</span>
+                    </mark>
+                  </div>
+                </div>
+                <email-preview
+                  :email="email"
+                  :object="r"
+                  @clear="email=null"
+                  @send="notificationEmail"
+                ></email-preview>
+
+
+                <div class="mb-3">
+                  <span class="text-muted small">${reviewLabels.notes} (<span
+                    class="text-danger font-weight-bold">{% trans "INTERNAL / CSAS ONLY" %}</span>)</span>
+                  <textarea rows="3" class="form-control" v-model="r.review.notes" @change="updateReview(r)"></textarea>
+                </div>
                 <div class="mb-3">
                   <span class="text-muted small">${requestLabels.tags}</span>
                   <v-select
@@ -312,8 +335,8 @@
         </table>
       </div>
     </div>
-  </div>
 
+  </div>
 
 {% endblock %}
 
@@ -321,6 +344,7 @@
 {% block body_js %}
   {{ block.super }}
   {% include "csas2/components/filter_control.html" %}
+  {% include "csas2/components/email_preview.html" %}
 
   <script type="application/javascript">
 
@@ -347,6 +371,7 @@
       sectionChoices: [],
       tagChoices: [],
       fresh: true,
+      email: null,
     },
     methods: {
       submitForm() {
@@ -431,6 +456,25 @@
         apiService(endpoint, "PUT", review).then(data => {
           if (!data.id) this.errorMsg = groomJSON(data);
           this.getRequest(request);
+        });
+      },
+      previewNotificationEmail(request) {
+        this.errorMsg = null;
+        let review = request.review;
+        let endpoint = `/api/csas/request-reviews/${review.id}/?notification_email=view`;
+        apiService(endpoint, "POST", review).then(data => {
+          if (!data.message) this.errorMsg = groomJSON(data);
+          else this.email = data;
+        });
+      },
+      notificationEmail(request, action) {
+        this.errorMsg = null;
+        let review = request.review;
+        let endpoint = `/api/csas/request-reviews/${review.id}/?notification_email=${action}`;
+        apiService(endpoint, "POST", review).then(data => {
+          if (!data.id) this.errorMsg = groomJSON(data);
+          this.getRequest(request);
+          this.email = null;
         });
       },
       updateTags(request) {

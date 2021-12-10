@@ -300,6 +300,7 @@
       reviewLabels: {},
       errors: null,
       yesNoChoices: [],
+      yesNoUnsureChoices: [],
       decisionChoices: [],
       notes: [],
       showSidebar: false,
@@ -379,6 +380,7 @@
         apiService(`/api/csas/meta/models/request-review/`).then(data => {
           this.reviewLabels = data.labels;
           this.yesNoChoices = data.yes_no_choices;
+          this.yesNoUnsureChoices = data.yes_no_unsure_choices;
           this.decisionChoices = data.decision_choices;
         });
         apiService(`/api/csas/meta/models/request/`).then(data => {

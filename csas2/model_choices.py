@@ -32,6 +32,7 @@ request_status_choices = (
     # all status below here should correspond to review decision choice + 10
     (11, _("Reviewed")),  # coordinator approves
     (12, _("Flagged")),  # client (coordinator) withdraws
+    (13, _("Re-scoping")),  # coordinator want to rescope the request
 )
 
 request_decision_choices = (

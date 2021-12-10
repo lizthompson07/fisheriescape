@@ -86,6 +86,10 @@ h1 {
 }
 
 
+.re-scoping {
+    background-color: #63ffce;
+    color: #000000;
+}
 .reviewed {
     background-color: #63ceff;
     color: #000000;
