@@ -749,7 +749,7 @@ class Meeting(SimpleLookup, MetadataFields):
     def full_display(self):
         fy = str(self.fiscal_year) if self.fiscal_year else "TBD"
         invitee_count = self.invitees.count()
-        return f"{self.process.lead_region} - {fy} - {self.display} ({invitee_count} invitee{pluralize(invitee_count)})"
+        return f"{self.process.lead_office.region} - {fy} - {self.display} ({invitee_count} invitee{pluralize(invitee_count)})"
 
     class Meta:
         ordering = ["-is_planning", 'start_date', ]
