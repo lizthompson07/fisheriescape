@@ -56,3 +56,19 @@ lobster_shp = os.path.abspath(
 def run(verbose=True):
     lm = LayerMapping(FisheryArea, lobster_shp, mapping, transform=False)
     lm.save(strict=True, verbose=verbose)
+
+## For hexagon grid scores
+# mapping = {
+#     'layer_id': 'Layer_id',
+#     'name': 'LFA',
+#     'polygon': 'MULTIPOLYGON',
+# }
+#
+# lobster_shp = os.path.abspath(
+#     os.path.join(os.path.dirname(__file__), 'data', 'Lobster_polygons.shp'),
+# )
+#
+#
+# def run(verbose=True):
+#     lm = LayerMapping(FisheryArea, lobster_shp, mapping, transform=False)
+#     lm.save(strict=True, verbose=verbose)
