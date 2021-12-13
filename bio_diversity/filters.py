@@ -242,7 +242,7 @@ class GrpdFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.GroupDet
-        fields = ["anidc_id", ]
+        fields = ["anidc_id", "adsc_id", "det_val"]
 
 
 class HeatFilter(django_filters.FilterSet):
@@ -292,7 +292,7 @@ class IndvdFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.IndividualDet
-        fields = ["anidc_id", ]
+        fields = ["anidc_id", "adsc_id", "det_val"]
 
 
 class IndvtFilter(django_filters.FilterSet):
@@ -513,7 +513,7 @@ class SampdFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.SampleDet
-        fields = ["anidc_id", ]
+        fields = ["anidc_id", "adsc_id", "det_val"]
 
 
 class SireFilter(django_filters.FilterSet):

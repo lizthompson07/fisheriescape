@@ -2263,10 +2263,12 @@ class GrpList(mixins.GrpMixin, GenericList):
 
 class GrpdList(mixins.GrpdMixin, GenericList):
     field_list = [
-        {"name": 'anix_id', "class": "", "width": ""},
         {"name": 'anidc_id', "class": "", "width": ""},
+        {"name": 'adsc_id', "class": "", "width": ""},
+        {"name": 'det_val', "class": "", "width": ""},
+        {"name": 'detail_date', "class": "", "width": ""},
     ]
-    queryset = models.GroupDet.objects.select_related("anix_id", "anidc_id")
+    queryset = models.GroupDet.objects.select_related("anidc_id", "adsc_id")
     filterset_class = filters.GrpdFilter
 
 
@@ -2322,8 +2324,11 @@ class IndvList(mixins.IndvMixin, GenericList):
 class IndvdList(mixins.IndvdMixin, GenericList):
     field_list = [
         {"name": 'anidc_id', "class": "", "width": ""},
+        {"name": 'adsc_id', "class": "", "width": ""},
+        {"name": 'det_val', "class": "", "width": ""},
+        {"name": 'detail_date', "class": "", "width": ""},
     ]
-    queryset = models.IndividualDet.objects.all().select_related("anidc_id")
+    queryset = models.IndividualDet.objects.all().select_related("anidc_id", "adsc_id")
     filterset_class = filters.IndvdFilter
 
 
@@ -2562,8 +2567,11 @@ class SampdList(mixins.SampdMixin, GenericList):
     field_list = [
         {"name": 'samp_id', "class": "", "width": ""},
         {"name": 'anidc_id', "class": "", "width": ""},
+        {"name": 'adsc_id', "class": "", "width": ""},
+        {"name": 'det_val', "class": "", "width": ""},
+        {"name": 'detail_date', "class": "", "width": ""},
     ]
-    queryset = models.SampleDet.objects.all().select_related("samp_id", "anidc_id")
+    queryset = models.SampleDet.objects.all().select_related("samp_id", "anidc_id", "adsc_id")
     filterset_class = filters.SampdFilter
 
 
@@ -3325,11 +3333,15 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
             return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + arg_str)
         elif report == 3:
             adsc_pk = int(form.cleaned_data["adsc_id"].pk)
+            arg_str = f"?adsc_pk={adsc_pk}"
+
+            if form.cleaned_data["prog_id"]:
+                prog_pk = int(form.cleaned_data["prog_id"].pk)
+                arg_str += f"&prog_pk={prog_pk}"
             if form.cleaned_data["stok_id"]:
                 stok_pk = int(form.cleaned_data["stok_id"].pk)
-                return HttpResponseRedirect(reverse("bio_diversity:detail_report") + f"?adsc_pk={adsc_pk}" + f"&stok_pk={stok_pk}")
-            else:
-                return HttpResponseRedirect(reverse("bio_diversity:detail_report") + f"?adsc_pk={adsc_pk}")
+                arg_str += f"&stok_pk={stok_pk}"
+            return HttpResponseRedirect(reverse("bio_diversity:detail_report") + arg_str)
         elif report == 4:
             indv_pk = int(form.cleaned_data["indv_id"].pk)
             return HttpResponseRedirect(reverse("bio_diversity:individual_report_file") + f"?indv_pk={indv_pk}")
@@ -3339,6 +3351,9 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
         elif report == 6:
             facic_pk = int(form.cleaned_data["facic_id"].pk)
             arg_str = f"?facic_pk={facic_pk}"
+            if form.cleaned_data["prog_id"]:
+                prog_pk = int(form.cleaned_data["prog_id"].pk)
+                arg_str += f"&prog_pk={prog_pk}"
             if form.cleaned_data["stok_id"]:
                 stok_pk = int(form.cleaned_data["stok_id"].pk)
                 arg_str += f"&stok_pk={stok_pk}"
@@ -3410,13 +3425,19 @@ def stock_code_report(request):
 def detail_report(request):
     adsc_pk = request.GET.get("adsc_pk")
     adsc_id = models.AniDetSubjCode.objects.filter(pk=adsc_pk).get()
+
+    prog_pk = request.GET.get("prog_pk")
+    prog_id = None
+    if prog_pk:
+        prog_id = models.Program.objects.filter(pk=prog_pk).get()
+
     stok_pk = request.GET.get("stok_pk")
     stok_id = None
     if stok_pk:
         stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
     file_url = None
     if adsc_id:
-        file_url = reports.generate_detail_report(adsc_id, stok_id=stok_id)
+        file_url = reports.generate_detail_report(adsc_id, prog_id, stok_id=stok_id)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -3430,6 +3451,10 @@ def detail_report(request):
 def mort_report_file(request):
     facic_pk = request.GET.get("facic_pk")
     facic_id = models.FacilityCode.objects.filter(pk=facic_pk).get()
+    prog_pk = request.GET.get("prog_pk")
+    prog_id = None
+    if prog_pk:
+        prog_id = models.Program.objects.filter(pk=prog_pk).get()
     stok_pk = request.GET.get("stok_pk")
     stok_id = None
     if stok_pk:
@@ -3439,7 +3464,7 @@ def mort_report_file(request):
     if coll_pk:
         coll_id = models.Collection.objects.filter(pk=coll_pk).get()
     year = request.GET.get("year")
-    file_url = reports.generate_morts_report(facic_id, stok_id, year, coll_id)
+    file_url = reports.generate_morts_report(facic_id, prog_id, stok_id, year, coll_id)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:

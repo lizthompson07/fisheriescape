@@ -221,7 +221,7 @@ def generate_stock_code_report(stok_id, coll_id, year, start_date=datetime.min, 
     return report.target_url
 
 
-def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, start_date=utils.naive_to_aware(datetime.min),
+def generate_morts_report(facic_id=None, prog_id=None, stok_id=None, year=None, coll_id=None, start_date=utils.naive_to_aware(datetime.min),
                           end_date=utils.naive_to_aware(datetime.now())):
     # report is given some filter criteria, returns all dead fish details.
     report = ExcelReport()
@@ -245,6 +245,10 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
         indv_mortd_qs = indv_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
         grp_mortd_qs = grp_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
         samp_mortd_qs = samp_mortd_qs.filter(samp_id__anix_id__evnt_id__facic_id=facic_id)
+    if prog_id:
+        indv_mortd_qs = indv_mortd_qs.filter(anix_id__evnt_id__prog_id=prog_id)
+        grp_mortd_qs = grp_mortd_qs.filter(anix_id__evnt_id__prog_id=prog_id)
+        samp_mortd_qs = samp_mortd_qs.filter(samp_id__anix_id__evnt_id__prog_id=prog_id)
     if stok_id:
         indv_mortd_qs = indv_mortd_qs.filter(anix_id__indv_id__stok_id=stok_id)
         grp_mortd_qs = grp_mortd_qs.filter(anix_id__grp_id__stok_id=stok_id)
@@ -323,7 +327,7 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
     return report.target_url
 
 
-def generate_detail_report(adsc_id, stok_id=None):
+def generate_detail_report(adsc_id, prog_id, stok_id=None):
     # report is given an animal detail subjective code (skinny/precocious) and returns
     # all fish with that detail
     # group and that detail count
@@ -332,9 +336,11 @@ def generate_detail_report(adsc_id, stok_id=None):
     report = ExcelReport()
     report.load_wb("detail_report_template.xlsx")
 
-    indvd_set = models.IndividualDet.objects.all()
+    indvd_set = models.IndividualDet.objects.all().select_related("anix_id__indv_id__stok_id", "anix_id__evnt_id__prog_id")
     if stok_id:
         indvd_set = indvd_set.filter(anix_id__indv_id__stok_id=stok_id)
+    if prog_id:
+        indvd_set = indvd_set.filter(anix_id__evnt_id__prog_id=prog_id)
     indvd_set = indvd_set.filter(adsc_id=adsc_id, anix_id__indv_id__isnull=False). \
         select_related("anix_id__indv_id", "anix_id__indv_id__stok_id", "anix_id__indv_id__coll_id", )
     indv_list = list(dict.fromkeys([indvd.anix_id.indv_id for indvd in indvd_set]))

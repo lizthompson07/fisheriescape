@@ -1070,6 +1070,9 @@ class ReportForm(forms.Form):
     facic_id = forms.ModelChoiceField(required=False,
                                       queryset=models.FacilityCode.objects.all(),
                                       label=_("Facility"))
+    prog_id = forms.ModelChoiceField(required=False,
+                                     queryset=models.Program.objects.all(),
+                                     label=_("Program"))
     stok_id = forms.ModelChoiceField(required=False,
                                      queryset=models.StockCode.objects.all(),
                                      label=_("Stock Code"))

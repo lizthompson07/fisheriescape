@@ -1370,8 +1370,8 @@ def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None,
                                     vax_anidc_pk, adsc_str=vaccinated)
     if nan_to_none(tissue_yn):
         if y_n_to_bool(tissue_yn):
-            health_anidc_pk = models.AnimalDetCode.objects.filter(name="Animal Health").get().pk
-            data_entered += enter_indvd(anix_pk, cleaned_data, det_date, None, health_anidc_pk, "Tissue Sample")
+            tissue_anidc_pk = models.AnimalDetCode.objects.filter(name="Tissue Sample").get().pk
+            data_entered += enter_indvd(anix_pk, cleaned_data, det_date, None, tissue_anidc_pk, None)
 
     if nan_to_none(comments):
         comment_anidc_pk = models.AnimalDetCode.objects.filter(name="Comment").get().pk
@@ -1478,8 +1478,8 @@ def enter_bulk_sampd(samp_pk, cleaned_data, det_date, len_val=None, len_mm=None,
                                     vax_anidc_pk, adsc_str=vaccinated)
     if nan_to_none(tissue_yn):
         if y_n_to_bool(tissue_yn):
-            health_anidc_pk = models.AnimalDetCode.objects.filter(name="Animal Health").get().pk
-            data_entered += enter_sampd(samp_pk, cleaned_data, det_date, None, health_anidc_pk, "Tissue Sample")
+            tissue_anidc_pk = models.AnimalDetCode.objects.filter(name="Tissue Samp").get().pk
+            data_entered += enter_sampd(samp_pk, cleaned_data, det_date, None, tissue_anidc_pk, None)
 
     if nan_to_none(comments):
         comment_anidc_pk = models.AnimalDetCode.objects.filter(name="Comment").get().pk
