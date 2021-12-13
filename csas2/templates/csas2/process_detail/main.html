@@ -175,26 +175,17 @@
 
 
             <tr>
-              <th class="text-left" v-html="processLabels.coordinator"></th>
-              <td class="text-left">${process.coordinator|nz}</td>
-            </tr>
-
-            <tr>
-              <th class="text-left" v-html="processLabels.advisors"></th>
-              <td class="text-left">${process.advisors|nz}</td>
-            </tr>
-            <tr>
               <th class="text-left" v-html="processLabels.editors"></th>
               <td class="text-left">${process.editors|nz}</td>
             </tr>
 
             <tr>
-              <th class="text-left" v-html="processLabels.lead_region"></th>
-              <td class="text-left">${process.lead_region|nz}</td>
+              <th class="text-left" v-html="processLabels.lead_office"></th>
+              <td class="text-left">${process.lead_office|nz}</td>
             </tr>
             <tr>
-              <th class="text-left" v-html="processLabels.other_regions"></th>
-              <td class="text-left">${process.other_regions|nz}</td>
+              <th class="text-left" v-html="processLabels.other_offices"></th>
+              <td class="text-left">${process.other_offices|nz}</td>
             </tr>
             <tr>
               <th>
@@ -476,9 +467,9 @@
       }
     },
     created() {
+      this.getProcessMetadata();
       this.getCurrentUser();
       this.getProcess(true);
-      this.getProcessMetadata();
     },
   });
 

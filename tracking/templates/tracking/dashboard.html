@@ -34,6 +34,12 @@ ul, li {
     <button v-else>
       <span class="spinner-border spinner-border-sm" role="status"><span class="sr-only">Loading...</span></span>
     </button>
+    <br>
+    <a href="{% url 'tracking:user_report'  %}">user report</a><br>
+    <a href="{% url 'tracking:page_visit_summary_report'  %}">page visit summary report</a><br>
+    <a href="{% url 'tracking:user_summary_report'  %}">user count summary report</a><br>
+{#    <a href="{% url 'tracking:user_report'  %}">user report</a><br>#}
+
   </div>
   <h1>DM Apps Admin Dashboard</h1>
   <div class="row">

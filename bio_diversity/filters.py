@@ -493,9 +493,11 @@ class RoleFilter(django_filters.FilterSet):
 
 class SampFilter(django_filters.FilterSet):
 
+    samp_num = django_filters.CharFilter(field_name='samp_num', lookup_expr='icontains')
+
     class Meta:
         model = models.Sample
-        fields = ["loc_id", "samp_num",  "spec_id", ]
+        fields = ["samp_num",  "spec_id", ]
 
 
 class SampcFilter(django_filters.FilterSet):
@@ -511,14 +513,14 @@ class SampdFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.SampleDet
-        fields = ["samp_id", "anidc_id", ]
+        fields = ["anidc_id", ]
 
 
 class SireFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Sire
-        fields = ["prio_id", "pair_id", ]
+        fields = ["prio_id", ]
 
 
 class SpwndFilter(django_filters.FilterSet):

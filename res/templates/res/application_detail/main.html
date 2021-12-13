@@ -105,7 +105,9 @@
             :publication_type_choices="publicationTypeChoices"
             :review_type_choices="reviewTypeChoices"
             :categories="categories"
+            :achievement="achievementToEdit"
             @new="newAchievement"
+            @update="updateAchievement"
           ></ref-editor>
         </div>
 
@@ -158,6 +160,7 @@
       contexts: [],
       categories: [],
       achievements: [],
+      achievementToEdit: {},
       achievementsSummary: [],
       applicationLabels: {},
       recommendationLabels: {},
@@ -333,6 +336,10 @@
               this.getOutcomes(false)
               this.getApplication(false)
             })
+      },
+      editAchievement(achievement) {
+        this.achievementToEdit = achievement;
+
       },
       updateAchievement(achievement) {
         this.errors = null;

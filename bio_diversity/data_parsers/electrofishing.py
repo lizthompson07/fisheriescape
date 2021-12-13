@@ -81,6 +81,7 @@ class ElectrofishingParser(DataParser):
                 # if fish are only observed, don't make a group
                 data_rows = (self.data[self.tank_key].isnull())
                 self.data.loc[data_rows, "grp_id"] = None
+                self.data.loc[data_rows, "contx_id"] = None
                 break
             stok_id = models.StockCode.objects.filter(name__icontains=row[self.rive_key]).get()
 
@@ -151,6 +152,7 @@ class ElectrofishingParser(DataParser):
             self.data.loc[data_rows, "grp_id"] = grp
             contx, data_entered = utils.enter_tank_contx(row[self.tank_key], cleaned_data, True, None, grp.pk,
                                                          return_contx=True)
+            self.data.loc[data_rows, "contx_id"] = contx
 
         self.data_dict = self.data.to_dict("records")
 
@@ -162,7 +164,7 @@ class ElectrofishingParser(DataParser):
 
         if not utils.nan_to_none(row.get(self.tank_key)) and utils.nan_to_none(row.get(self.fish_caught_key)):
             # make sure if fish are caught they are assigned a tank:
-            raise Exception("All Caught fish must be assigned a tank")
+            raise Exception("All caught fish must be assigned a tank")
 
         if utils.nan_to_none(row.get(self.site_key)):
             relc_qs = models.ReleaseSiteCode.objects.filter(name__iexact=row[self.site_key])
@@ -197,9 +199,15 @@ class ElectrofishingParser(DataParser):
                                                  loc_lon=loc.loc_lon, loc_date=loc.loc_date).get()
         self.loc = loc
         if row["grp_id"]:
-            self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, grp_pk=row["grp_id"].pk, return_sucess=True)
+            self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, grp_pk=row["grp_id"].pk,
+                                                 return_sucess=True)
         if self.loc.loc_lon and self.loc.loc_lat and not self.loc.relc_id:
-            self.log_data += "\nNo site found in db for Lat-Long ({}, {}) given on row: \n{}\n\n".format(self.loc.loc_lat, self.loc.loc_lon, row)
+            self.log_data += "\nNo site found in db for Lat-Long ({}, {}) given on row: \n{}\n\n"\
+                .format(self.loc.loc_lat, self.loc.loc_lon, row)
+
+        if utils.nan_to_none(row["contx_id"]):
+            self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=row["contx_id"].pk,
+                                                 return_sucess=True)
 
         self.team_parser(row[self.crew_key], row, loc_id=loc)
 
@@ -405,7 +413,7 @@ class AdultCollectionParser(DataParser):
 
         if utils.nan_to_none(row.get(self.mort_key)):
             if utils.y_n_to_bool(row[self.mort_key]):
-                mort_evnt, mort_anix, mort_entered = utils.enter_mortality(indv_id, self.cleaned_data, row_datetime)
+                mort_anix, mort_entered = utils.enter_mortality(indv_id, self.cleaned_data, row_datetime)
                 self.row_entered += mort_entered
 
         if utils.nan_to_none(row.get(self.wr_key)):

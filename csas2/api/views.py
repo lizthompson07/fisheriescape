@@ -17,7 +17,7 @@ from unidecode import unidecode
 
 from shared_models.api.serializers import PersonSerializer
 from shared_models.api.views import _get_labels
-from shared_models.models import Person, Language, Region, FiscalYear
+from shared_models.models import Person, Language, Region, FiscalYear, SubjectMatter
 from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission
@@ -40,8 +40,8 @@ class CurrentUserAPIView(APIView):
 
         # provide the region for which that use is an admin for, if applicable
         data["regional_admin"] = None
-        if hasattr(request.user, "csas_admin_user"):
-            data["regional_admin"] = request.user.csas_admin_user.region_id
+        if request.user.csas_offices.exists():
+            data["regional_admin"] = [office.region_id for office in request.user.csas_offices.all()]
 
         if qp.get("request"):
             data["can_modify"] = utils.can_modify_request(request.user, qp.get("request"), return_as_dict=True)
@@ -660,6 +660,7 @@ class RequestModelMetaAPIView(APIView):
         data['sector_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_sector_choices(with_requests=True)]
         data['section_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_section_choices(with_requests=True)]
         data['fy_choices'] = [dict(text=str(c), value=c.id) for c in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
+        data['tag_choices'] = [dict(text=str(c), value=c.id) for c in SubjectMatter.objects.all()]
         return Response(data)
 
 

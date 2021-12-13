@@ -1,0 +1,21 @@
+{% load custom_filters %}
+{% for share in share_list %}
+  <code>
+  ###############################                     <br>
+  # {{ share.server.hostname   }} >> {{ share.name }}                       <br>
+  ###############################                      <br>
+  [{{ share.name }}]                      <br>
+  comment = {{ share.notes | nz:"n/a"}}                      <br>
+  path =  {{ share.mounted_path }}<br>
+  browseable = no                      <br>
+  writeable = yes                      <br>
+  guest ok = no                      <br>
+  valid users = admin_dave,{% for u in share.users.all %}{{ u.username }},{% endfor %}                      <br>
+
+  </code>
+  <br>
+  <br>
+
+{% endfor %}
+
+

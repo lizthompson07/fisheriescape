@@ -1,4 +1,6 @@
+import requests
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 
@@ -8,10 +10,44 @@ from shared_models import models as shared_models
 from maret import models
 
 
-class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class MaretBasicRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        if self.request.user.id:
+            return True
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = in_maret_admin_group(self.request.user)
+        context["is_author"] = in_maret_author_group(self.request.user) or context["is_admin"]
+        context["is_user"] = in_maret_user_group(self.request.user) or context["is_author"]
+        return context
+
+
+def in_maret_admin_group(user):
+    if user:
+        return bool(hasattr(user, "maret_user") and user.maret_user.is_admin)
+
+
+def in_maret_author_group(user):
+    if user:
+        return bool(hasattr(user, "maret_user") and user.maret_user.is_author)
+
+
+def in_maret_user_group(user):
+    if user:
+        return bool(hasattr(user, "maret_user") and user.maret_user.is_user)
+
+
+class AdminOrSuperuserRequiredMixin(MaretBasicRequiredMixin):
 
     def test_func(self):
-        return maret_admin_authorized(self.request.user)
+        return self.request.user.is_superuser or in_maret_admin_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -21,10 +57,23 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class AuthorRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class AdminRequiredMixin(MaretBasicRequiredMixin):
 
     def test_func(self):
-        return maret_author_authorized(self.request.user)
+        return in_maret_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:denied_access', kwargs={
+                "message": _("Sorry, you need to be a MarET admin in order to access this page.")}))
+        return super().dispatch(request, *args, **kwargs)
+
+
+class AuthorRequiredMixin(AdminRequiredMixin):
+
+    def test_func(self):
+        return super().test_func() or in_maret_author_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -34,10 +83,10 @@ class AuthorRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class UserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class UserRequiredMixin(AuthorRequiredMixin):
 
     def test_func(self):
-        return maret_user_authorized(self.request.user)
+        return super().test_func() or in_maret_user_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -47,19 +96,26 @@ class UserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-# authorize for users who may view data only
-def maret_user_authorized(user):
-    return user.is_authenticated and user.groups.filter(name='maret_user').exists() or maret_author_authorized(user)
+def toggle_help_text_edit(request, user_id):
+    usr = User.objects.get(pk=user_id)
 
+    user_mode = None
+    # mode 1 is read only
+    mode = 1
+    if models.MaretUser.objects.filter(user=usr):
+        user_mode = models.MaretUser.objects.get(user=usr)
+        mode = user_mode.mode
 
-# authorize for users who may view and edit data
-def maret_author_authorized(user):
-    return user.is_authenticated and user.groups.filter(name='maret_author').exists() or maret_admin_authorized(user)
+    # fancy math way of toggling between 1 and 2
+    mode = (mode % 2) + 1
 
+    if not user_mode:
+        user_mode = models.MaretUser(user=usr)
 
-# authorize for administrators
-def maret_admin_authorized(user):
-    return user.is_authenticated and user.groups.filter(name='maret_admin').exists()
+    user_mode.mode = mode
+    user_mode.save()
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 def get_help_text_dict(model=None, title=''):

@@ -8,6 +8,8 @@ from shared_models import models as shared_models
 from masterlist import models as ml_models
 
 
+YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
+
 NULL_YES_NO_CHOICES = (
     (None, _("---------")),
     (1, _("Yes")),
@@ -15,6 +17,7 @@ NULL_YES_NO_CHOICES = (
 )
 
 ROLE_DFO_CHOICES = (
+    (None, _("---------")),
     (1, "Programs"),
     (2, "Manager"),
     (3, "Director"),
@@ -26,7 +29,32 @@ ROLE_DFO_CHOICES = (
     (9, "Senior Assistant Deputy Minister"),
     (10, "Deputy Minister"),
     (11, "Minister"),
+    (12, "Unknown"),
 )
+
+
+class MaretUser(models.Model):
+    mode_choices = (
+        (1, "read"),
+        (2, "edit"),
+    )
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="maret_user", verbose_name=_("DM Apps user"))
+    # admins can modify helptext and other app settings
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator"), choices=YES_NO_CHOICES)
+    # authors can create/modify/delete records
+    is_author = models.BooleanField(default=False, verbose_name=_("app author"), choices=YES_NO_CHOICES)
+    # users can view, but not modify records
+    is_user = models.BooleanField(default=False, verbose_name=_("app user"), choices=YES_NO_CHOICES)
+
+    # admin users can toggle helptext edit mode on and off
+    mode = models.IntegerField(choices=mode_choices, default=1)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
 
 
 class DiscussionTopic(shared_models.SimpleLookup):
@@ -45,6 +73,10 @@ class OrgCategory(shared_models.SimpleLookup):
     pass
 
 
+class AreaOffice(shared_models.SimpleLookup):
+    pass
+
+
 class Committee(models.Model):
     meeting_frequency_choices = (
         (0, "Monthly"),
@@ -60,9 +92,15 @@ class Committee(models.Model):
     )
 
     name = models.CharField(max_length=255, verbose_name=_("Name of committee/Working Group"))
+    main_topic = models.ManyToManyField(DiscussionTopic, blank=True, related_name="committee_main_topics",
+                                        verbose_name=_("Main Topic(s) of discussion"))
+    species = models.ManyToManyField(Species, blank=True, related_name="committee_species",
+                                     verbose_name=_("Main species of discussion"))
     branch = models.ForeignKey(shared_models.Branch, default=1, on_delete=models.DO_NOTHING,
-                               related_name="committee_branch", verbose_name=_("Lead DFO Branch"))
-    division = models.ForeignKey(shared_models.Division, default=1, on_delete=models.DO_NOTHING,
+                               related_name="committee_branch", verbose_name=_("Lead DFO branch"))
+    area_office = models.ManyToManyField(AreaOffice, blank=True, related_name="committee_area_office",
+                                         verbose_name=_("Area Office"))
+    division = models.ForeignKey(shared_models.Division, default=1, blank=True, null=True, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Division"))
 
     # leaving this out for now because it may be a redundant filed included in the interactions model
@@ -77,6 +115,8 @@ class Committee(models.Model):
     other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="committee_dfo_branch",
                                               verbose_name=_("Other participating DFO branches/regions/area offices")
                                               )
+    dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=12,
+                                   verbose_name="Role of highest level DFO participant")
     first_nation_participation = models.BooleanField(default=False,
                                                      verbose_name=_("First Nations/Indigenous group participation?"))
     provincial_participation = models.BooleanField(default=False,
@@ -116,7 +156,8 @@ class Interaction(models.Model):
     interaction_type = models.IntegerField(choices=interaction_type_choices, default=None)
     committee = models.ForeignKey(Committee, blank=True, null=True, on_delete=models.DO_NOTHING,
                                   verbose_name="Committee / Working Group", related_name="committee_interactions")
-    dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=None)
+    dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=None,
+                                   verbose_name="Role of highest level DFO participant")
     dfo_liaison = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_liaison",
                                          verbose_name=_("DFO liaison/secretariat"))
     other_dfo_participants = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_participants",
@@ -138,6 +179,9 @@ class Interaction(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          verbose_name=_("last modified by"))
 
+    def __str__(self):
+        return "{}: {}".format(self.pk, self.description)
+
 
 class OrganizationExtension(models.Model):
     organization = models.ForeignKey(ml_models.Organization, blank=False, null=False, default=1, related_name="ext_org",
@@ -152,7 +196,6 @@ class ContactExtension(models.Model):
     contact = models.ForeignKey(ml_models.Person, blank=False, null=False, default=1, related_name="ext_con",
                                 verbose_name="Contact", on_delete=models.CASCADE)
     role = models.CharField(max_length=255, default="N/A", verbose_name="Role")
-
 
 # This is a special table used to house application help text
 class HelpText(models.Model):

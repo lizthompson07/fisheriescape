@@ -6,16 +6,25 @@
 
 
 {% block form_field %}
+    <div id="{{ field.name }}_div">
+        {% if field.name in help_text_dict %}
+            {% bootstrap_label field.label %}
+            <span class="mdi mdi-help-circle-outline h6" data-toggle="popover" title="{{ field.label }}"
+                  data-content="{{ help_text_dict|lookup:field.name }}" data-trigger="hover"></span>
 
-  {% if field.name in help_text_dict %}
-    {% bootstrap_label field.label %}
-    <span class="mdi mdi-help-circle-outline h6" data-toggle="popover" title="{{ field.label }}"
-          data-content="{{ help_text_dict|lookup:field.name }}" data-trigger="hover"></span>
-    {% bootstrap_field field placeholder="" show_label=False %}
-  {% else %}
-    {% bootstrap_field field placeholder="" %}
-  {% endif %}
+            {% if manage_help_url %}
+                <a class='mdi mdi-plus-box h6 ml-1' pop-href='{% url manage_help_url model_name field.name %}'></a>
+            {% endif %}
 
+            {% bootstrap_field field placeholder="" show_label=False %}
+        {% elif manage_help_url %}
+            {% bootstrap_label field.label %}
+            <a class='mdi mdi-plus-box h6 ml-1' pop-href='{% url manage_help_url model_name field.name %}'></a>
+            {% bootstrap_field field placeholder="" show_label=False %}
+        {% else %}
+            {% bootstrap_field field placeholder="" %}
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block body_js %}
