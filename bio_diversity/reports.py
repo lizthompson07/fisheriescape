@@ -265,13 +265,14 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
     # to order worksheets so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
     ws_indv = report.get_sheet("Individuals")
+    ws_samp = report.get_sheet("Samples")
     ws_grp = report.get_sheet("Groups")
 
     # start writing data at row 3 in the sheet
     row_count = 3
     for indvd in indv_mortd_qs:
         indv_id = indvd.anix_id.indv_id
-        mort_date = utils.naive_to_aware(indvd.anix_id.evnt_id.start_date)
+        mort_date = utils.naive_to_aware(indvd.detail_date)
         ws_indv['A' + str(row_count)].value = indv_id.pit_tag
         ws_indv['B' + str(row_count)].value = indv_id.stok_id.name
         ws_indv['C' + str(row_count)].value = indv_id.indv_year
@@ -282,15 +283,30 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
         ws_indv['H' + str(row_count)].value = mort_date
         ws_indv['I' + str(row_count)].value = indv_id.individual_detail("Length", before_date=mort_date)
         ws_indv['J' + str(row_count)].value = indv_id.individual_detail("Weight", before_date=mort_date)
-
         ws_indv['K' + str(row_count)].value = indv_id.individual_evnt_details(indvd.anix_id.evnt_id)
+        row_count += 1
 
+    row_count = 3
+    for sampd in samp_mortd_qs:
+        samp_id = sampd.samp_id
+        mort_date = utils.naive_to_aware(sampd.detail_date)
+        ws_samp['A' + str(row_count)].value = samp_id.samp_num
+        ws_samp['B' + str(row_count)].value = getattr(samp_id.stok_id, "name", "")
+        ws_samp['C' + str(row_count)].value = samp_id.indv_year
+        ws_samp['D' + str(row_count)].value = getattr(samp_id.coll_id, "name", "")
+        ws_samp['E' + str(row_count)].value = samp_id.prog_group(get_string=True)
+        ws_samp['F' + str(row_count)].value = samp_id.cont(get_string=True)
+        ws_samp['G' + str(row_count)].value = samp_id.sample_detail("Gender", before_date=mort_date)
+        ws_samp['H' + str(row_count)].value = mort_date
+        ws_samp['I' + str(row_count)].value = samp_id.sample_detail("Length", before_date=mort_date)
+        ws_samp['J' + str(row_count)].value = samp_id.sample_detail("Weight", before_date=mort_date)
+        ws_samp['J' + str(row_count)].value = samp_id.comments
         row_count += 1
 
     row_count = 3
     for grpd in grp_mortd_qs:
         grp_id = grpd.anix_id.anix_id.grp_id
-        mort_date = utils.naive_to_aware(grpd.anix_id.anix_id.evnt_id.start_date)
+        mort_date = utils.naive_to_aware(grpd.detail_date)
         ws_grp['A' + str(row_count)].value = grp_id.stok_id.name
         ws_grp['B' + str(row_count)].value = grp_id.grp_year
         ws_grp['C' + str(row_count)].value = grp_id.coll_id.name
@@ -300,7 +316,6 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
         ws_grp['G' + str(row_count)].value = mort_date
         ws_grp['H' + str(row_count)].value = grpd.anix_id.samp_detail("Length")
         ws_grp['I' + str(row_count)].value = grpd.anix_id.samp_detail("Weight")
-
         row_count += 1
 
     report.save_wb()

@@ -2019,6 +2019,32 @@ class Sample(BioModel):
         else:
             return None
 
+    def cont(self, get_string=False):
+        if self.anix_id:
+            cont = utils.get_cont_from_anix(self.anix_id, None)
+        else:
+            cont = None
+        if get_string:
+            if cont:
+                return cont.__str__()
+            else:
+                return ""
+        return cont
+
+    def sample_detail(self, anidc_name="Length", before_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        latest_sampd = SampleDet.objects.filter(anidc_id__name__icontains=anidc_name, samp_id=self,
+                                                detail_date__lte=before_date).order_by("-detail_date").first()
+        if latest_sampd:
+            return latest_sampd.det_val
+        else:
+            return None
+
+    def prog_group(self, get_string=False):
+        if self.anix_id:
+            return self.anix_id.grp_id.prog_group(get_string=get_string)
+        else:
+            return None
+
 
 class SampleCode(BioLookup):
     # sampc tag
