@@ -2101,3 +2101,15 @@ def parse_trof_str(trof_str, facic_id):
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
+
+
+def col_count_to_excel(col_count):
+    # 0 returns A, 1 returns B, 26 returns AA
+    # chr(65) returns "A"
+    mod = col_count % 26
+    floor = col_count // 26
+    a_key = 65
+    if floor:
+        return "{}{}".format(chr(floor + a_key - 1), chr(mod + a_key))
+    else:
+        return chr(mod + a_key)

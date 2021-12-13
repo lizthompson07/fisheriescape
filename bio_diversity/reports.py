@@ -14,6 +14,7 @@ from django.urls import reverse
 from openpyxl import load_workbook
 
 from bio_diversity import models, utils
+from bio_diversity.scripts import model_export
 from bio_diversity.static.calculation_constants import in_out_dict, distribution_locc_list, collection_locc_list
 from dm_apps import settings
 
@@ -726,6 +727,28 @@ def generate_grp_report(grp_id):
             end_date = utils.naive_to_aware(grp_tuple[2])
             cont_evnt_list = grp_id.get_cont_history(end_date=end_date, start_date=start_date)
             treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count)[2]
+
+    report.save_wb()
+
+    return report.target_url
+
+
+def generate_system_code_report():
+    report = ExcelReport()
+    report.load_wb("system_code_report_template.xlsx")
+    ws = report.get_sheet('System Codes')
+    model_list = model_export
+
+    col_count = 0
+    for model_type in model_list:
+        col = utils.col_count_to_excel(col_count)
+        ws[col + "2"].value = model_type.__name__
+        code_qs = model_type.objects.all()
+        row_count = 3
+        for code in code_qs:
+            ws[col + str(row_count)].value = code.__str__()
+            row_count += 1
+        col_count += 1
 
     report.save_wb()
 

@@ -3348,8 +3348,9 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
             if form.cleaned_data["year"]:
                 year = int(form.cleaned_data["year"])
                 arg_str += f"&year={year}"
-
             return HttpResponseRedirect(reverse("bio_diversity:mort_report_file") + arg_str)
+        elif report == 7:
+            return HttpResponseRedirect(reverse("bio_diversity:system_code_report_file"))
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -3497,6 +3498,17 @@ def grp_report_file(request):
                 response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
                 response['Content-Disposition'] = f'inline; filename="group_report_ ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
                 return response
+    raise Http404
+
+
+@login_required()
+def system_code_report_file(request):
+    file_url = reports.generate_system_code_report()
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="system_code_report_ ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+            return response
     raise Http404
 
 
