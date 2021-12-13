@@ -671,7 +671,7 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
                     invitee = models.Invitee.objects.create(
                         meeting=meeting,
                         person_id=person,
-                        region=obj.lead_region,
+                        region=obj.lead_office.region,
                     )
                     invitee.roles.add(scm_roles.first())
             else:
