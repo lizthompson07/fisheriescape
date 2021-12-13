@@ -18,21 +18,22 @@
   </div>
   <!-- Nav tabs -->
   <ul class="nav nav-tabs">
-    {# Overview #}
-    <li class="nav-item tabby">
-      <a :class="{'nav-link text-center': true, active: showTranslationTracking}" @click="changeTabs('showTranslationTracking')">
-        {% trans "Translation" %}
-{#        <br>(${document.status_text})#}
-      </a>
-    </li>
+
 
     {# Traveller #}
     <li class="nav-item tabby">
       <a :class="{'nav-link': true, active: showProcessTracking}" @click="changeTabs('showProcessTracking')">
         {% trans "CSAS Process" %}
-{#        <br>(${document.tstatus_text})#}
       </a>
     </li>
+
+    {# Overview #}
+    <li class="nav-item tabby">
+      <a :class="{'nav-link text-center': true, active: showTranslationTracking}" @click="changeTabs('showTranslationTracking')">
+        {% trans "Translation" %}
+      </a>
+    </li>
+
   </ul>
   <hr>
 

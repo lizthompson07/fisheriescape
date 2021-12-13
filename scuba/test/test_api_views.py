@@ -72,7 +72,6 @@ class TestObservationListCreateAPIView(CommonTest):
         # PERMISSIONS
         # authenticated users
         response = self.client.get(self.test_url)
-        print(self.test_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # unauthenticated users
         self.client.logout()
@@ -82,18 +81,19 @@ class TestObservationListCreateAPIView(CommonTest):
         # RESPONSE DATA
         self.get_and_login_user(user=None)
         response = self.client.get(self.test_url)
-        self.assertEqual(len(response.data), 6)
+        print(response.data)
+        self.assertEqual(len(response.data.get("results")), 6)
 
         # check query params
         response = self.client.get(self.test_url + f"?dive={self.dive.id}")
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], self.observation.id)
+        self.assertEqual(len(response.data.get("results")), 1)
+        self.assertEqual(response.data.get("results")[0]["id"], self.observation.id)
 
     @tag("api", 'observation-list')
     def test_post(self):
         # PERMISSIONS
         # authenticated users
-        self.get_and_login_admin()
+        self.get_and_login_crud_user()
         data = ObservationFactory.get_valid_data()
         response = self.client.post(self.test_url, data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -104,7 +104,7 @@ class TestObservationListCreateAPIView(CommonTest):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # RESPONSE DATA
-        self.get_and_login_admin()
+        self.get_and_login_crud_user()
         response = self.client.post(self.test_url, data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         keys = [

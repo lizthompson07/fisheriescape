@@ -23,8 +23,10 @@
   <div id="app" v-cloak>
     <div class="mb-3">
 
-      <div>
-        <div :class="{'sidebar':true, 'edit':!observation.id, 'mild-concern':observation.id}">
+      <div class="row">
+
+
+        <div :class="{'col-3':true, 'edit':!observation.id, 'mild-concern':observation.id}">
           <div v-if="observation.id" class="card-header lead concern"> {% trans "Edit" %} </div>
           <div v-else class="card-header lead good"> {% trans "New" %} </div>
           <div class="card-body">
@@ -34,11 +36,13 @@
             <div v-if="successMsg" class="alert alert-success mb-3" role="alert">
               ${successMsg}
             </div>
+
             <form @submit.prevent="updateObservation">
-              <table class="my-table table-small-12">
+
+              <table class="table">
                 <tr>
-                  <td class="w-50">
-                    <label for="">${labels.species}</label>
+                  <td class="w-35">
+                    <label for="" class="text-danger">${labels.species} (*)</label>
                   </td>
                   <td>
                     <v-select
@@ -54,65 +58,108 @@
                   </td>
                 </tr>
                 <tr>
-                  <td><label for="">${labels.status}</label></td>
+                  <td><label for="" class="text-danger">${labels.status} (*)</label></td>
                   <td>
-                    <select v-model="observation.status" class="table-input" required>
-                      <option v-for="c in statusChoices" :value="c.value" :label="c.text"></option>
-                    </select>
+                    <v-select
+                      v-model="observation.status"
+                      :options="statusChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class=""
+                      :clearable=false
+                      required
+                    ></v-select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><label for="">${labels.life_stage}</label></td>
+                  <td>
+                    <v-select
+                      v-model="observation.life_stage"
+                      :options="lifeStageChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class=""
+                      :clearable=false
+
+                    ></v-select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><label for="">${labels.reproductive_status}</label></td>
+                  <td>
+                    <v-select
+                      v-model="observation.reproductive_status"
+                      :options="reproductiveStatusChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class=""
+                      :clearable=false
+                    ></v-select>
                   </td>
                 </tr>
                 <tr>
                   <td><label for="">${labels.origin}</label></td>
                   <td>
-                    <select v-model="observation.origin" class="table-input">
-                      <option v-for="c in originChoices" :value="c.value" :label="c.text"></option>
-                    </select>
+                    <v-select
+                      v-model="observation.origin"
+                      :options="originChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class=""
+                      :clearable=false
+                    ></v-select>
                   </td>
                 </tr>
                 <tr>
                   <td><label for="">${labels.sex}</label></td>
                   <td>
-                    <select v-model="observation.sex" class="table-input">
-                      <option v-for="c in sexChoices" :value="c.value" :label="c.text"></option>
-                    </select>
+                    <v-select
+                      v-model="observation.sex"
+                      :options="sexChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class=""
+                      :clearable=false
+                    ></v-select>
                   </td>
                 </tr>
 
                 <tr>
                   <td><label for="">${labels.fork_length}</label></td>
-                  <td><input type="number" step="any" v-model="observation.fork_length" class="table-input"/></td>
+                  <td><input type="number" step="any" v-model="observation.fork_length" class="form-control w-100"/></td>
                 </tr>
                 <tr v-if="!isElectro">
                   <td><label for="">${labels.total_length}</label></td>
-                  <td><input type="number" step="any" v-model="observation.total_length" class="table-input"/></td>
+                  <td><input type="number" step="any" v-model="observation.total_length" class="form-control"/></td>
                 </tr>
                 <tr>
                   <td><label for="">${labels.weight}</label></td>
-                  <td><input type="number" step="any" v-model="observation.weight" class="table-input"/></td>
+                  <td><input type="number" step="any" v-model="observation.weight" class="form-control"/></td>
                 </tr>
                 <tr v-if="!isElectro">
                   <td><label for="">${labels.tag_number}</label></td>
-                  <td><input type="text" v-model="observation.tag_number" class="table-input"/></td>
+                  <td><input type="text" v-model="observation.tag_number" class="form-control"/></td>
                 </tr>
                 <tr v-if="!isElectro">
                   <td><label for="">${labels.location_tagged}</label></td>
-                  <td><input type="text" v-model="observation.location_tagged" class="table-input"/></td>
+                  <td><input type="text" v-model="observation.location_tagged" class="form-control"/></td>
                 </tr>
                 <tr v-if="!isElectro">
                   <td><label for="">${labels.date_tagged}</label></td>
-                  <td><input type="date" v-model="observation.date_tagged" class="table-input"/></td>
+                  <td><input type="date" v-model="observation.date_tagged" class="form-control"/></td>
                 </tr>
                 <tr>
                   <td><label for="">${labels.scale_id_number}</label></td>
-                  <td><input type="text" v-model="observation.scale_id_number" class="table-input"/></td>
+                  <td><input type="text" v-model="observation.scale_id_number" class="form-control"/></td>
                 </tr>
                 <tr v-if="!isElectro">
                   <td><label for="">${labels.tags_removed}</label></td>
-                  <td><input type="text" v-model="observation.tags_removed" class="table-input"/></td>
+                  <td><input type="text" v-model="observation.tags_removed" class="form-control"/></td>
                 </tr>
                 <tr>
                   <td><label for="">${labels.notes}</label></td>
-                  <td><input type="text" v-model="observation.notes" class="table-input"/></td>
+                  <td><input type="text" v-model="observation.notes" class="form-control"/></td>
                 </tr>
 
               </table>
@@ -132,7 +179,7 @@
         </div>
 
 
-        <div id="main">
+        <div class="col">
           {% include "shared_models/_generic_breadcrumbs.html" %}
           <div class="">
             <div class="card" style="">
@@ -150,6 +197,8 @@
                     <th class="w50">#</th>
                     <th class="w75">${labels.species}</th>
                     <th class="w75">${labels.status}</th>
+                    <th class="w75">${labels.life_stage}</th>
+                    <th class="w75">${labels.reproductive_status}</th>
                     <th class="w75">${labels.origin}</th>
                     <th class="w75">${labels.sex}</th>
                     <th class="w75">${labels.fork_length}</th>
@@ -167,12 +216,30 @@
                   <tr v-for="o, index in observations" :key="o.id" :class="{'mild-concern':o.id===observation.id}">
                     <td>${index+1}</td>
                     <td @click="editObservation(o)">${o.species_display|nz}</td>
+
                     <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.status_display|nz}</td>
                     <td v-else>
                       <select v-model="observation.status" class="table-input" required @keyup.enter="updateObservation">
                         <option v-for="c in statusChoices" :value="c.value" :label="c.text"></option>
                       </select>
                     </td>
+
+
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.life_stage_display|nz}</td>
+                    <td v-else>
+                      <select v-model="observation.life_stage" class="table-input" required @keyup.enter="updateObservation">
+                        <option v-for="c in lifeStageChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+
+
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.reproductive_status_display|nz}</td>
+                    <td v-else>
+                      <select v-model="observation.reproductive_status" class="table-input" required @keyup.enter="updateObservation">
+                        <option v-for="c in reproductiveStatusChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+
                     <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.origin_display|nz}</td>
                     <td v-else>
                       <select v-model="observation.origin" class="table-input" @keyup.enter="updateObservation">
@@ -299,6 +366,8 @@
       sexChoices: [],
       originChoices: [],
       statusChoices: [],
+      reproductiveStatusChoices: [],
+      lifeStageChoices: [],
       lastOrigin: "2",
       lastSpecies: null,
       lastLocation: null,
@@ -412,6 +481,9 @@
           this.sexChoices = data.sex_choices;
           this.statusChoices = data.status_choices;
           this.originChoices = data.origin_choices;
+          this.reproductiveStatusChoices = data.reproductive_status_choices;
+          this.lifeStageChoices = data.life_stage_choices;
+
         });
       },
       deleteObservation(obs) {

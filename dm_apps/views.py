@@ -107,7 +107,7 @@ def get_app_dict(request):
 
     try:
         app_dict["csas2"] = {
-            "title": _("Canadian Science Advisory Secretariat (v2)"),
+            "title": _("Canadian Science Advisory Secretariat"),
             "description": _("Tool for tracking meetings, requests and publications."),
             "status": "beta",
             "access": "login-required",

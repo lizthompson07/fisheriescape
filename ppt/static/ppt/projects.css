@@ -168,7 +168,7 @@ label.filter {
 @media screen {
     .sidebar-opened {
         height: 100%; /* 100% Full-height */
-        width: 300px; /* 0 width - change this with JavaScript */
+        width: 350px; /* 0 width - change this with JavaScript */
         position: fixed; /* Stay in place */
         z-index: 1; /* Stay on top */
         top: 0;
@@ -212,13 +212,13 @@ label.filter {
     /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
     .main-opened {
         transition: margin-left .5s; /* If you want a transition effect */
-        margin-left: 300px; /* If you want a transition effect */
+        margin-left: 350px;
         padding: 20px;
     }
 
     .main-opened-sm {
         transition: margin-left .5s; /* If you want a transition effect */
-        margin-left: 225px; /* If you want a transition effect */
+        margin-left: 225px;
         padding: 20px;
     }
 

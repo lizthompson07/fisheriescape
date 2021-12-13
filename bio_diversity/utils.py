@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError, MultipleObjectsReturned, Obj
 from django.db import IntegrityError
 from django.http import JsonResponse
 from decimal import Decimal
+from django.template.defaulttags import register
 
 from shapely.geometry import GeometryCollection, shape, Polygon
 
@@ -332,10 +333,13 @@ def parse_extra_cols(row, cleaned_data, anix, indv=False, grp=False, samp=False)
     return row_entered
 
 
-def parse_cont_strs(cont_str, facic_id, at_date, exclude_str=""):
+def parse_cont_strs(cont_str, facic_id, at_date, exclude_str):
     cont_str = cont_str.replace(" ", "")
-    exclude_str = exclude_str.replace(" ", "")
-    exclude_list = exclude_str.split("")
+    if nan_to_none(exclude_str):
+        exclude_str = exclude_str.replace(" ", "")
+        exclude_list = exclude_str.split("")
+    else:
+        exclude_list = []
     cont_ids = []
     if "," in cont_str:
         cont_list = cont_str.split(",")
@@ -430,7 +434,17 @@ def load_sfas():
 def get_cont_evnt(contx_tuple):
     # input should be in the form (contx, bool/null)
     contx = contx_tuple[0]
-    in_out_dict = {None: "", False: "Origin", True: "Destination"}
+    output_dict = {"evnt_id": contx.evnt_id, "contx_id": contx, "destination": contx_tuple[1]}
+    for cont in [contx.tank_id, contx.cup_id, contx.tray_id, contx.trof_id, contx.draw_id, contx.heat_id]:
+        if cont:
+            output_dict["cont_id"] = cont
+            break
+    return output_dict
+
+
+def get_view_cont_list(contx_tuple):
+    # input should be in the form (contx, bool/null)
+    contx = contx_tuple[0]
     output_list = [contx.evnt_id.evntc_id.__str__(), contx.evnt_id.start_date, in_out_dict[contx_tuple[1]]]
     for cont in [contx.tank_id, contx.cup_id, contx.tray_id, contx.trof_id, contx.draw_id, contx.heat_id]:
         if cont:
@@ -549,7 +563,7 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
         if nan_to_none(stock_str):
             grp_qs = grp_qs.filter(stok_id__name=stock_str)
         if nan_to_none(coll_id):
-            grp_qs = grp_qs.filter( coll_id=coll_id)
+            grp_qs = grp_qs.filter(coll_id=coll_id)
         if nan_to_none(grp_year):
             grp_qs = grp_qs.filter(grp_year=grp_year)
         grp_list = [grp for grp in grp_qs]
@@ -582,9 +596,13 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
 
 def get_tray_group(pair_id, tray_id, row_date):
     if pair_id:
-        anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
-                                                      grp_id__isnull=False).select_related('grp_id').get()
-        grp_id = anix_id.grp_id
+        anix_qs = models.AniDetailXref.objects.filter(pair_id=pair_id,
+                                                      grp_id__isnull=False).select_related('grp_id')
+        grp_list = anix_qs.values_list('grp_id', flat=True).distinct()
+        if len(grp_list) == 1:
+            grp_id = models.Group.objects.filter(pk=grp_list[0]).get()
+        else:
+            raise Exception("multiple groups associated with this pairing")
     else:
         grp_list = tray_id.fish_in_cont(row_date, get_grp=True)
         if grp_list:
@@ -592,6 +610,56 @@ def get_tray_group(pair_id, tray_id, row_date):
         else:
             raise Exception("No group found in tray {}".format(tray_id.__str__()))
     return grp_id
+
+
+def get_indv_or_samp(row, pit_key, samp_key, evnt_id):
+    log_data = ""
+    indv = None
+    samp = None
+    if nan_to_none(row[pit_key]):
+        indv_qs = models.Individual.objects.filter(pit_tag=row[pit_key])
+        if len(indv_qs) == 1:
+            indv = indv_qs.get()
+        else:
+            log_data += "Error parsing row: \n"
+            log_data += str(row)
+            log_data += "\nFish with PIT {} not found in db\n".format(row[pit_key])
+    elif nan_to_none(row[samp_key]):
+        samp_qs = models.Sample.objects.filter(samp_num=row[samp_key], anix_id__evnt_id=evnt_id)
+        if len(samp_qs) == 1:
+            samp = samp_qs.get()
+        else:
+            log_data += "Error parsing row: \n"
+            log_data += str(row)
+            log_data += "\nSample associated with event and with ID {} not found in db\n".format(row[samp_key])
+
+    return indv, samp, log_data
+
+
+def get_pair(cross_str, stok_id, pair_year, end_date_isnull=True, prog_grp=None, prog_str=None,
+             fail_on_not_found=False):
+
+    if nan_to_none(prog_str):
+        prog_grp = models.SpawnDetSubjCode.objects.filter(name__iexact=prog_str).get()
+
+    pair_qs = models.Pairing.objects.filter(cross=cross_str, end_date__isnull=end_date_isnull, indv_id__stok_id=stok_id,
+                                           start_date__year=pair_year)
+    pair_list = [pair for pair in pair_qs]
+
+    prog_pair_list = []
+    for pair in pair_list:
+        if prog_grp:
+            if prog_grp in pair.prog_group():
+                prog_pair_list.append(pair)
+        else:
+            if not pair.prog_group():
+                prog_pair_list.append(pair)
+    pair_list = prog_pair_list.copy()
+
+    if len(pair_list) == 0 and fail_on_not_found:
+        raise Exception("\nPair with cross {}, sotck {}, year {} and with program group {} not uniquely found in"
+                        " db\n".format(cross_str, stok_id.name, pair_year, prog_str))
+    return pair_list
 
 
 def set_row_tank(df, cleaned_data, tank_key, col_name="tank_id"):
@@ -1215,6 +1283,7 @@ def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=N
 
 def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=None, adsc_str=None, comments=None):
     row_entered = False
+    det_date = naive_to_aware(det_date)
     if isinstance(det_value, float):
         if math.isnan(det_value):
             return False
@@ -1360,6 +1429,65 @@ def enter_bulk_grpd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None, 
     return data_entered
 
 
+def enter_bulk_sampd(samp_pk, cleaned_data, det_date, len_val=None, len_mm=None, weight=None, weight_kg=None, vial=None,
+                     scale_envelope=None, gender=None, tissue_yn=None, status=None, mark=None, prog_grp=None,
+                     vaccinated=None, lifestage=None, comments=None):
+    data_entered = 0
+    if nan_to_none(len_val):
+        len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, len_val, len_anidc_id.pk, None)
+    if nan_to_none(len_mm):
+        len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, 0.1 * len_mm, len_anidc_id.pk, None)
+    if nan_to_none(weight):
+        weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, weight, weight_anidc_id.pk, None)
+    if nan_to_none(weight_kg):
+        weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, weight_kg * 1000, weight_anidc_id.pk, None)
+    if nan_to_none(vial):
+        vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, vial, vial_anidc_id.pk, None)
+    if nan_to_none(scale_envelope):
+        envelope_anidc_id = models.AnimalDetCode.objects.filter(name="Scale Envelope").get()
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, scale_envelope, envelope_anidc_id.pk, None)
+    if nan_to_none(gender):
+        sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
+        func_sex_dict = calculation_constants.sex_dict
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, func_sex_dict[gender.upper()], sex_anidc_id.pk,
+                                    adsc_str=func_sex_dict[gender.upper()])
+    if nan_to_none(status):
+        status_anidc_pk = models.AnimalDetCode.objects.filter(name="Status").get().pk
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, status,
+                                    status_anidc_pk, adsc_str=status)
+    if nan_to_none(mark):
+        mark_anidc_pk = models.AnimalDetCode.objects.filter(name="Mark").get().pk
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, mark,
+                                    mark_anidc_pk, adsc_str=mark)
+    if nan_to_none(lifestage):
+        lifestage_anidc_pk = models.AnimalDetCode.objects.filter(name="Lifestage").get().pk
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, lifestage,
+                                    lifestage_anidc_pk, adsc_str=lifestage)
+    if nan_to_none(prog_grp):
+        prog_anidc_pk = models.AnimalDetCode.objects.filter(name="Program Group").get().pk
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, prog_grp,
+                                    prog_anidc_pk, adsc_str=prog_grp)
+    if nan_to_none(vaccinated):
+        vax_anidc_pk = models.AnimalDetCode.objects.filter(name="Vaccination").get().pk
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, vaccinated,
+                                    vax_anidc_pk, adsc_str=vaccinated)
+    if nan_to_none(tissue_yn):
+        if y_n_to_bool(tissue_yn):
+            health_anidc_pk = models.AnimalDetCode.objects.filter(name="Animal Health").get().pk
+            data_entered += enter_sampd(samp_pk, cleaned_data, det_date, None, health_anidc_pk, "Tissue Sample")
+
+    if nan_to_none(comments):
+        comment_anidc_pk = models.AnimalDetCode.objects.filter(name="Comment").get().pk
+        data_entered += enter_sampd(samp_pk, cleaned_data, det_date, None, comment_anidc_pk, comments=comments)
+
+    return data_entered
+
+
 def enter_indvt(anix_pk, cleaned_data, treat_datetime, dose, indvtc_pk, treat_endtime=None, lot_num=None, unit_id=None):
     row_entered = False
     if isinstance(dose, float):
@@ -1421,109 +1549,85 @@ def enter_locd(loc_pk, cleaned_data, det_date, det_value, locdc_pk, ldsc_str=Non
 
 
 def enter_mortality(indv, cleaned_data, mort_date):
-    # Get/creat a mortality event
-    # link to indv
+    # enter indvd
     # record indvd on indv
     # remove indv from container
     data_entered = False
-    mort_evntc = models.EventCode.objects.filter(name="Mortality").get()
+    mort_date = naive_to_aware(mort_date)
+
     mort_anidc = models.AnimalDetCode.objects.filter(name="Mortality Observation").get()
-    mortality_evnt = models.Event(evntc_id=mort_evntc,
-                                  facic_id=cleaned_data["evnt_id"].facic_id,
-                                  prog_id=cleaned_data["evnt_id"].prog_id,
-                                  perc_id=cleaned_data["evnt_id"].perc_id,
-                                  start_datetime=mort_date,
-                                  end_datetime=mort_date,
-                                  created_by=cleaned_data["created_by"],
-                                  created_date=cleaned_data["created_date"],
-                                  )
-    try:
-        mortality_evnt.clean()
-        mortality_evnt.save()
-        data_entered = True
-    except (ValidationError, IntegrityError):
-        mortality_evnt = models.Event.objects.filter(evntc_id=mortality_evnt.evntc_id,
-                                                     facic_id=mortality_evnt.facic_id,
-                                                     prog_id=mortality_evnt.prog_id,
-                                                     start_datetime=mortality_evnt.start_datetime,
-                                                     end_datetime=mortality_evnt.end_datetime,
-                                                     ).get()
-    new_cleaned_data = cleaned_data.copy()
-    new_cleaned_data["evnt_id"] = mortality_evnt
-    anix, anix_entered = enter_anix(new_cleaned_data, indv_pk=indv.pk)
-    data_entered += enter_indvd(anix.pk, new_cleaned_data, mort_date, None, mort_anidc.pk)
+
+    anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv.pk)
+    data_entered += enter_indvd(anix.pk, cleaned_data, mort_date, None, mort_anidc.pk)
     data_entered += anix_entered
     for cont in indv.current_cont(at_date=mort_date):
-        data_entered += enter_contx(cont, new_cleaned_data, False, indv.pk)
+        data_entered += enter_contx(cont, cleaned_data, False, indv.pk)
 
     indv.indv_valid = False
     indv.save()
 
-    return mortality_evnt, anix, data_entered
+    return anix, data_entered
 
 
-def enter_grp_mortality(grp, samp_num, cleaned_data, mort_date, cont=None):
-    # -create a mortality event, link to group with anix
-    # -create mortality samp
-    # -record counts
+def enter_samp_mortality(samp_id, cleaned_data, mort_date):
+    # add sampd
+    # record counts on group
     data_entered = False
     mort_date = naive_to_aware(mort_date)
-    salmon_pk = models.SpeciesCode.objects.filter(name__icontains="Salmon").get().pk
-    mort_evntc = models.EventCode.objects.filter(name="Mortality").get()
-    mort_sampc = models.SampleCode.objects.filter(name="Mortality Sample").get().pk
     mort_anidc = models.AnimalDetCode.objects.filter(name="Mortality Observation").get()
+    data_entered += enter_sampd(samp_id.pk, cleaned_data, mort_date, None, mort_anidc.pk)
+    samp_contx_id = samp_id.anix_id.contx_id
+    # one count per cont per mortality event, count up similar sample details:
+    cnt_val = models.SampleDet.objects.filter(anidc_id=mort_anidc,
+                                              samp_id__anix_id__evnt_id=cleaned_data["evnt_id"],
+                                              samp_id__anix_id__grp_id=samp_id.anix_id.grp_id,
+                                              samp_id__anix_id__contx_id=samp_contx_id
+                                              ).distinct().count()
 
-    mortality_evnt = models.Event(evntc_id=mort_evntc,
-                                  facic_id=cleaned_data["evnt_id"].facic_id,
-                                  prog_id=cleaned_data["evnt_id"].prog_id,
-                                  perc_id=cleaned_data["evnt_id"].perc_id,
-                                  start_datetime=mort_date,
-                                  end_datetime=mort_date,
-                                  created_by=cleaned_data["created_by"],
-                                  created_date=cleaned_data["created_date"],
-                                  )
-    try:
-        mortality_evnt.clean()
-        mortality_evnt.save()
-        data_entered = True
-    except (ValidationError, IntegrityError):
-        mortality_evnt = models.Event.objects.filter(evntc_id=mortality_evnt.evntc_id,
-                                                     facic_id=mortality_evnt.facic_id,
-                                                     prog_id=mortality_evnt.prog_id,
-                                                     start_datetime=mortality_evnt.start_datetime,
-                                                     end_datetime=mortality_evnt.end_datetime,
-                                                     ).get()
-    new_cleaned_data = cleaned_data.copy()
-    new_cleaned_data["evnt_id"] = mortality_evnt
-
-    anix, anix_entered = enter_anix(new_cleaned_data, grp_pk=grp.pk)
-    data_entered += anix_entered
-
-    if not nan_to_none(cont):
-        cont = grp.current_cont(at_date=mort_date)[0]
-
-    # create contx, link to grp and samp:
-    contx, contx_entered = enter_contx(cont, new_cleaned_data, None, return_contx=True)
-    data_entered += contx_entered
-
-    samp_anix, anix_entered = enter_anix(new_cleaned_data, grp_pk=grp.pk, contx_pk=contx.pk)
-    data_entered += anix_entered
-
-    samp, samp_entered = enter_samp(new_cleaned_data, samp_num, salmon_pk, mort_sampc, anix_pk=samp_anix.pk)
-    data_entered += samp_entered
-
-    data_entered += enter_sampd(samp.pk, new_cleaned_data, mort_date, None, mort_anidc.pk)
-    # one count per cont per mortality event, count up similar samples:
-    cnt_val = models.Sample.objects.filter(anix_id__evnt_id=mortality_evnt,
-                                           anix_id__grp_id=grp,
-                                           anix_id__contx_id=contx).distinct().count()
-
-    cnt, cnt_entered = enter_cnt(cleaned_data, 0, contx.pk, cnt_code="Mortality")
+    cnt, cnt_entered = enter_cnt(cleaned_data, 0, samp_contx_id.pk, cnt_code="Mortality")
     data_entered += cnt_entered
     cnt.cnt = cnt_val
     cnt.save()
+    return data_entered
 
-    return samp, mortality_evnt, anix, data_entered
+
+def enter_grp_mortality(grp, cleaned_data, mort_date, mort_cnt, cont=None):
+    # add grdp
+    # link to cont
+    # record counts on group
+    data_entered = False
+    mort_date = naive_to_aware(mort_date)
+    mort_anidc = models.AnimalDetCode.objects.filter(name="Mortality Observation").get()
+
+    if not cont:
+        cont = grp.current_cont(at_date=cleaned_data["mort_date"])[0]
+
+    contx_id, contx_entered = enter_contx(cont, cleaned_data, None, grp_pk=grp.pk, return_contx=True)
+    data_entered += contx_entered
+
+    anix = contx_id.animal_details.filter(grp_id=grp,
+                                          evnt_id=cleaned_data["evnt_id"],
+                                          indv_id__isnull=True,
+                                          loc_id__isnull=True,
+                                          pair_id__isnull=True,
+                                          final_contx_flag=None).get()
+
+    data_entered += enter_grpd(anix.pk, cleaned_data, mort_date, mort_cnt, mort_anidc.pk)
+
+    # one count per cont per day, per group, per event, count up similar details:
+    mort_cnt = sum(models.GroupDet.objects.filter(anidc_id=mort_anidc,
+                                                  anix_id__evnt_id=cleaned_data["evnt_id"],
+                                                  anix_id__grp_id=grp,
+                                                  anix_id__contx_id=contx_id,
+                                                  detail_date=mort_date,
+                                                  ).distinct().values_list('det_val', flat=True))
+
+    cnt, cnt_entered = enter_cnt(cleaned_data, 0, contx_id.pk, cnt_code="Mortality")
+    data_entered += cnt_entered
+    cnt.cnt = mort_cnt
+    cnt.save()
+
+    return data_entered
 
 
 def enter_samp(cleaned_data, samp_num, spec_pk, sampc_pk, anix_pk=None, loc_pk=None, comments=None):
@@ -1533,7 +1637,7 @@ def enter_samp(cleaned_data, samp_num, spec_pk, sampc_pk, anix_pk=None, loc_pk=N
                          spec_id_id=spec_pk,
                          samp_num=samp_num,
                          sampc_id_id=sampc_pk,
-                         comments = comments,
+                         comments=comments,
                          created_by=cleaned_data["created_by"],
                          created_date=cleaned_data["created_date"],
                          )
@@ -1945,7 +2049,6 @@ def common_err_parser(err):
     err_msg = err.__str__()
     if issubclass(type(err), ObjectDoesNotExist):
         err_msg = "Could not find a {} object from worksheet in database.".format(err.__str__().split(" ")[0])
-
     return err_msg
 
 
@@ -1993,3 +2096,8 @@ def parse_trof_str(trof_str, facic_id):
             trof_id = models.Trough.objects.filter(name__iexact=cont, facic_id=facic_id).get()
             cont_ids.append(trof_id)
     return cont_ids
+
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

@@ -14,7 +14,7 @@
   }
 
   #map {
-      height: 200px; /* The height is 400 pixels */
+      height: 300px; /* The height is 400 pixels */
       width: 100%; /* The width is the width of the web page */
   }
   </style>
@@ -29,28 +29,47 @@
     <div class="col">
       <table class="table table-sm w-75">
         {% for field in field_list %}
-          {% verbose_td_display object field %}
+          {% if field == "transect" %}
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              {% if object.transect %}
+                <td>{{ object.transect }}</td>
+              {% else %}
+                <td>---</td>
+              {% endif %}
+            </tr>
+          {% else %}
+            {% verbose_td_display object field display_time=True %}
+          {% endif %}
         {% endfor %}
       </table>
     </div>
     <div class="col">
-      {% if object.site.get_coordinates %}
-        {% localize off %}
-          <div id="map"></div>
-        {% endlocalize %}
-      {% else %}
+      {% if not object.has_coordinates %}
         <div class="alert alert-danger lead mb-3" role="alert">
-          {% url 'scuba:site_detail' object.site.id as site_url %}
           <span class="mdi mdi-emoticon-confused-outline h3 mr-2"></span>
           {% blocktrans with transect_url=transect_url %}
-            The site associated with this sample is missing coordinates. Please add some <a href="{{ site_url }}" target="_blank">here</a>.
+            This sample has no associated coordinates associated coordinates. Please add some <a href="{{ site_url }}" target="_blank">here</a>.
           {% endblocktrans %}
-
+        </div>
+      {% endif %}
+      {% if object.transect and not object.transect.has_coordinates %}
+        {% url 'scuba:transect_edit' object.transect.id as transect_url %}
+        <div class="alert alert-danger lead mb-3" role="alert">
+          <span class="mdi mdi-emoticon-confused-outline h3 mr-2"></span>
+          {% blocktrans with transect_url=transect_url %}
+            The transect associated with this sample has no coordinates. Please add some <a href="{{ transect_url }}" target="_blank">here</a>.
+          {% endblocktrans %}
         </div>
       {% endif %}
     </div>
   </div>
 
+  {% if object.has_coordinates or object.transect.has_coordinates %}
+    {% localize off %}
+      <div id="map" class="mb-3"></div>
+    {% endlocalize %}
+  {% endif %}
   <div class="mb-3">
     <div class="float-right">
       <a href="{% url 'scuba:dive_new' object.id %}" class="btn btn-sm btn-success"> {% trans "New Dive" %}</a>
@@ -94,28 +113,59 @@
 
     {% endif %}
   </div>
-  {% if object.site.get_coordinates %}
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+
+  {% if object.transect.has_coordinates or object.has_coordinates %}
     {% localize off %}
       <script type="application/javascript">
       function initialize() {
-
         map = new L.Map("map", {
-          zoom: 10,
+          zoom: 14,
         });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map)
 
-        var coords = [];
-        latLong = [{{object.site.get_coordinates.x}}, {{ object.site.get_coordinates.y }}];
-        L.marker(
-            latLong, {title: '{{object.site}}',}
-        ).addTo(map).bindPopup("<b>Site name:</b> {{object.site.name}}");
-        coords.push(latLong)
+        let coords = [];
+        let tempCoords =[];
+
+        {% if object.transect.has_coordinates %}
+          tempCoords = [
+            [{{object.transect.get_starting_coordinates.x }}, {{object.transect.get_starting_coordinates.y }}],
+            [{{object.transect.get_ending_coordinates.x }}, {{object.transect.get_ending_coordinates.y }}],
+          ];
+
+          L.polyline([tempCoords], {
+            color: 'black',
+            dashArray: '4',
+            weight: 3,
+          }).addTo(map).bindPopup("Transect: {{object.transect.name}}");
+
+          for (const tempCoord of tempCoords) coords.push(tempCoord);
+        {% endif %}
+
+        {% if object.has_coordinates %}
+          tempCoords = [
+            [{{object.get_starting_coordinates.x }}, {{object.get_starting_coordinates.y }}],
+            [{{object.get_ending_coordinates.x }}, {{object.get_ending_coordinates.y }}],
+          ];
+
+          L.polyline([tempCoords], {
+            color: 'blue',
+            dashArray: '4',
+            weight: 3,
+          }).addTo(map).bindPopup("outing: {{object.id}}");
+
+          for (const tempCoord of tempCoords) coords.push(tempCoord);
+        {% endif %}
 
         map.fitBounds(coords);
-        if (coords.length === 1) map.setZoom(12);
 
       }
 
@@ -127,5 +177,43 @@
       </script>
     {% endlocalize %}
   {% endif %}
-
 {% endblock %}
+
+
+{#  #}
+{# Only do this is there are coordinates to display #}
+{#  {% if object.transect.has_coordinates or object.has_coordinates %}#}
+{#    {% localize off %}#}
+{#      <script type="application/javascript">#}
+{#      function initialize() {#}
+{##}
+{#        map = new L.Map("map", {#}
+{#          zoom: 10,#}
+{#        });#}
+{##}
+{#        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {#}
+{#          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'#}
+{#        }).addTo(map)#}
+{##}
+{#        var coords = [];#}
+{#        latLong = [{{object.get_starting_coordinates.x}}, {{ object.site.get_coordinates.y }}];#}
+{#        L.marker(#}
+{#            latLong, {title: '{{object.site}}',}#}
+{#        ).addTo(map).bindPopup("<b>Site name:</b> {{object.site.name}}");#}
+{#        coords.push(latLong)#}
+{##}
+{#        map.fitBounds(coords);#}
+{#        if (coords.length === 1) map.setZoom(12);#}
+{##}
+{#      }#}
+{##}
+{#      $(document).ready(function () {#}
+{#        // Stuff to do as soon as the DOM is ready#}
+{#        initialize()#}
+{##}
+{#      });#}
+{#      </script>#}
+{#    {% endlocalize %}#}
+{#  {% endif %}#}
+{##}
+{#{% endblock %}#}

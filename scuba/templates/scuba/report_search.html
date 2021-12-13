@@ -43,10 +43,9 @@
   function configureForm() {
     var reportChoice = $("#id_report")[0].value;
     // cfts report
-    if (reportChoice === "1") {
+    if (reportChoice === "1" || reportChoice === "3" || reportChoice === "4" || reportChoice === "5" || reportChoice === "6") {
       $(".year_div").removeClass("gone");
       $("#id_year").prop("required", false);
-
     }
   }
 

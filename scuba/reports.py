@@ -1,9 +1,13 @@
+import csv
 import os
 
+import unidecode
 import xlsxwriter
 from django.conf import settings
 from django.utils import timezone
 
+from dm_apps.utils import Echo
+from lib.templatetags.custom_filters import nz
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
 from scuba import models
 
@@ -22,10 +26,9 @@ def generate_dive_log(year):
     header_format = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
     total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True,'border': 1, 'border_color': 'black', })
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
     currency_format = workbook.add_format({'num_format': '#,##0.00'})
     date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
-
 
     # get the dive list
     dives = models.Dive.objects.all()
@@ -34,7 +37,7 @@ def generate_dive_log(year):
 
     field_list = [
         "datetime|Date",
-        "site|Region/Site",
+        "transect|Region/Transect",
         "diver",
         "psi_in",
         "psi_out",
@@ -66,8 +69,11 @@ def generate_dive_log(year):
             if "datetime" in field:
                 my_val = dive.sample.datetime.strftime("%Y-%m-%d")
                 my_ws.write(i, j, my_val, date_format)
-            elif "site" in field:
-                my_val = f"{dive.sample.site.region.name} / {dive.sample.site.name}"
+            elif "transect" in field:
+                if dive.sample.transect:
+                    my_val = f"{dive.sample.transect.region.name} / {dive.sample.transect.name}"
+                else:
+                    my_val = ""
                 my_ws.write(i, j, my_val, normal_format)
             else:
                 my_val = str(get_field_value(dive, field))
@@ -91,3 +97,162 @@ def generate_dive_log(year):
 
     workbook.close()
     return target_url
+
+
+def generate_transect_csv():
+    """Returns a generator for an HTTP Streaming Response"""
+
+    filter_kwargs = {}
+    qs = models.Transect.objects.filter(**filter_kwargs).iterator()
+    random_obj = models.Transect.objects.first()
+    fields = random_obj._meta.fields
+    field_names = [field.name for field in fields]
+
+    # add any FKs
+    for field in fields:
+        if field.attname not in field_names:
+            field_names.append(field.attname)
+    header_row = [field for field in field_names]  # starter
+    # header_row.extend(["sample", "sample_id", "transect", "transect_id"])
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
+
+    for obj in qs:
+        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), ""))) for field in field_names]  # starter
+        # data_row.extend([obj.section.dive.sample, obj.section.dive.sample_id, obj.section.dive.sample.transect, obj.section.dive.sample.transect_id])
+        yield writer.writerow(data_row)
+
+
+def generate_obs_csv(year):
+    """Returns a generator for an HTTP Streaming Response"""
+
+    filter_kwargs = {}
+    if year != "":
+        filter_kwargs["section__dive__sample__datetime__year"] = year
+
+    qs = models.Observation.objects.filter(**filter_kwargs).iterator()
+    random_obj = models.Observation.objects.first()
+    fields = random_obj._meta.fields
+    field_names = [field.name for field in fields]
+
+    # add any FKs
+    for field in fields:
+        if field.attname not in field_names:
+            field_names.append(field.attname)
+    header_row = [field for field in field_names]  # starter
+    header_row.extend(["sample", "sample_id", "date", "region", "transect", "side_display", "interval", "interval_display"])
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
+
+    for obj in qs:
+        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), "NA"))) for field in field_names]  # starter
+        data_row.extend([
+            obj.section.dive.sample,
+            obj.section.dive.sample_id,
+            obj.section.dive.sample.datetime.strftime("%Y-%m-%d"),
+            obj.section.dive.sample.transect.region  if obj.section.dive.sample.transect else "NA",
+            obj.section.dive.sample.transect.name if obj.section.dive.sample.transect else "NA",
+            obj.section.dive.get_side_display(),
+            obj.section.interval,
+            obj.section.get_interval_display(),
+        ])
+        yield writer.writerow(data_row)
+
+
+def generate_outing_csv(year):
+    """Returns a generator for an HTTP Streaming Response"""
+
+    filter_kwargs = {}
+    if year != "":
+        filter_kwargs["datetime__year"] = year
+
+    qs = models.Sample.objects.filter(**filter_kwargs).iterator()
+    random_obj = models.Sample.objects.first()
+    fields = random_obj._meta.fields
+    field_names = [field.name for field in fields]
+
+    # add any FKs
+    for field in fields:
+        if field.attname not in field_names:
+            field_names.append(field.attname)
+    header_row = [field for field in field_names]  # starter
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
+
+    for obj in qs:
+        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), ""))) for field in field_names]  # starter
+        yield writer.writerow(data_row)
+
+
+def generate_section_csv(year):
+    """Returns a generator for an HTTP Streaming Response"""
+
+    filter_kwargs = {}
+    if year != "":
+        filter_kwargs["dive__sample__datetime__year"] = year
+
+    qs = models.Section.objects.filter(**filter_kwargs).iterator()
+    random_obj = models.Section.objects.first()
+    fields = random_obj._meta.fields
+    field_names = [field.name for field in fields]
+
+    # add any FKs
+    for field in fields:
+        if field.attname not in field_names:
+            field_names.append(field.attname)
+    header_row = [field for field in field_names]  # starter
+    header_row.extend(["sample", "sample_id", "date", "region", "transect", "diver", "side_display", "width_m", "interval_display"])
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
+
+    for obj in qs:
+        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), "NA"))) for field in field_names]  # starter
+        data_row.extend([
+            obj.dive.sample,
+            obj.dive.sample_id,
+            obj.dive.sample.datetime.strftime("%Y-%m-%d"),
+            obj.dive.sample.transect.region if obj.dive.sample.transect else "NA",
+            obj.dive.sample.transect.name if obj.dive.sample.transect else "NA",
+            unidecode.unidecode(str(obj.dive.diver)),
+            obj.dive.get_side_display(),
+            obj.dive.width_m,
+            obj.get_interval_display()
+        ])
+        yield writer.writerow(data_row)
+
+
+def generate_dive_csv(year):
+    """Returns a generator for an HTTP Streaming Response"""
+
+    filter_kwargs = {}
+    if year != "":
+        filter_kwargs["sample__datetime__year"] = year
+
+    qs = models.Dive.objects.filter(**filter_kwargs).iterator()
+    random_obj = models.Dive.objects.first()
+    fields = random_obj._meta.fields
+    field_names = [field.name for field in fields]
+
+    # add any FKs
+    for field in fields:
+        if field.attname not in field_names:
+            field_names.append(field.attname)
+    header_row = [field for field in field_names]  # starter
+    header_row.extend(["transect", "transect_id"])
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
+
+    for obj in qs:
+        data_row = [unidecode.unidecode(str(nz(getattr(obj, field), ""))) for field in field_names]  # starter
+        data_row.extend([obj.sample.transect, obj.sample.transect_id])
+        yield writer.writerow(data_row)

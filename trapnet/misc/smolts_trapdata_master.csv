@@ -474,17 +474,17 @@ id,River,Year,Month,Day,Time_arrival,Time_departure,Airtemp_arrival,Airtemp_min,
 473,334,2019,6,12,9:50,10:10,10.6,9,22,0%,no,heavy,81,,13.8,,10.25,10.5,good,Pam,
 474,334,2019,6,13,10:00,10:20,14.8,11,22,0%,no,calm,81,,14.2,,10,10.25,good,Pam,
 475,334,2019,6,14,9:05,9:20,12.1,10,15,100%,yes,heavy,79,,14.5,,10,10,good,Dustin,end
-476,334,2021,5,12,10:05,10:55,0,,,Cloudy,Little rain,No wind,237,1.49,8.2,8.3,11,12.5,Good - Tire is not turning,"PI, DB, DM, MM and VDG",Tag B101410 manquant et B101422 brisÈ - Flatland's church
+476,334,2021,5,12,10:05,10:55,0,,,Cloudy,Little rain,No wind,237,1.49,8.2,8.3,11,12.5,Good - Tire is not turning,"PI, DB, DM, MM and VDG",Tag B101410 manquant et B101422 bris√© - Flatland's church
 477,334,2021,5,13,9:33,10:37,9.7,,,No clouds,No rain,No wind,227,1.46,8.1,8.5,13.25,11,Good - Tire is not turning,"PI, DB, DM, MM and VDG","Dave cleaned the trap - NB's side in the middle, water level is too low to get to the church "
 478,334,2021,5,14,9:49,10:40,9.7,,,Cloudy,No rain,little wind,211,1.42,10,5,12.25,12.5,Good - Tire is not turning,"DB, JB, SB, DB, DM and VDG",flatland's church
 479,334,2021,5,15,10:05,11:01,9,,,little cloudy,No rain,No wind,195,1.379,5,8,12.25,12,"good - Tire is not turning, there's a big branch that Dusty took off and another branch stucked on the shaft but is doesn't seem to slow down the wheel ","DB, JB, SB, DB and VDG",They cleaned the little wheel. flatland's church
-480,334,2021,5,16,9:40,10:47,8,,,No clouds,No rain,little wind,183,1.34,5,10,11.5,12,good - Tire is not turning - Branch is still there,"DB, JB, SB, DB, DM and VDG","Il fait soleil, la tempÈrature de l'eau dans les chaudiËres monte vite, on mesure 50 smolts parce que 100 ca va Ítre beaucoup trop long. flatland's church"
+480,334,2021,5,16,9:40,10:47,8,,,No clouds,No rain,little wind,183,1.34,5,10,11.5,12,good - Tire is not turning - Branch is still there,"DB, JB, SB, DB, DM and VDG","Il fait soleil, la temp√©rature de l'eau dans les chaudi√®res monte vite, on mesure 50 smolts parce que 100 ca va √™tre beaucoup trop long. flatland's church"
 481,334,2021,5,17,9:40,10:50,10.2,,,No clouds,No rain,No wind,173,1.312,10,11,10.5,11.25,good - Tire is not turning - Branch is still there,"DB, JB, SB, DB and VDG",flatland's church
 482,334,2021,5,18,9:26,10:52,9.5,,,Cloudy,Rain,little wind,168,1.296,7,7,9.75,11.875,good - Tire is not turning - Branch is still there,"PI, DB, DM, MM and VDG",Just before the towers 
-483,334,2021,5,19,9:28,10:58,10,,,No clouds,No rain,No wind,159,1.269,7,7,13,11.75,Good - Tire is not turning - Branch is still there,"PI, DB, DM, MM and VDG","On vient de voir que la rËgle de mesure des saumons n'est pas ""accotÈe"" sur le support, il faut donc retrancher 2mm aux mesures d'avant pour avoir la bonne mesure. La correction est fait dans les donnÈes dÈj‡ - Near the towers, they were getting belly up"
+483,334,2021,5,19,9:28,10:58,10,,,No clouds,No rain,No wind,159,1.269,7,7,13,11.75,Good - Tire is not turning - Branch is still there,"PI, DB, DM, MM and VDG","On vient de voir que la r√®gle de mesure des saumons n'est pas ""accot√©e"" sur le support, il faut donc retrancher 2mm aux mesures d'avant pour avoir la bonne mesure. La correction est fait dans les donn√©es d√©j√† - Near the towers, they were getting belly up"
 484,334,2021,5,20,9:33,10:50,11.1,,,little cloudy,No rain,No wind,146,1.226,6.5,8,9.25,13,"Good - Tire is not turning, branch is gone ","PI, DB, DM and VDG","Dropped the fish above the towers, they were starting to go belly up"
 485,334,2021,5,21,9:29,10:10,18.8,,,No clouds,No rain,No wind,137,1.198,10,13,11.75,11.25,good - Tire is not turning,"PI, DB, DM and VDG",Fish dropped just before the end of the island that leads to front of the church 
-486,334,2021,5,22,9:49,10:32,20,,,Cloudy,little rain,Windy,133,1.185,15,16,11.25,10.5,good - Tire is not turning,"JB, DB, DB, SB, VDG","On a trouvÈ le smolt taguÈ B102107 mort sur le bateau, il a probablement sautÈ lors du dropping - Dropped the fish NB side un peu en amont de la trappe, l'eau est trop basse pour aller plus loin"
+486,334,2021,5,22,9:49,10:32,20,,,Cloudy,little rain,Windy,133,1.185,15,16,11.25,10.5,good - Tire is not turning,"JB, DB, DB, SB, VDG","On a trouv√© le smolt tagu√© B102107 mort sur le bateau, il a probablement saut√© lors du dropping - Dropped the fish NB side un peu en amont de la trappe, l'eau est trop basse pour aller plus loin"
 487,334,2021,5,23,9:39,10:20,13.2,,,Cloudy,Rain,little wind,132,1.181,12,10,11.25,11.25,good - Tire is not turning,"JB, DB, DB, SB, VDG",Fish dropped at the same place as yesterday
 488,334,2021,5,24,9:30,10:06,8.3,,,No clouds,no rain,little wind,131,1.178,14,14,11.25,10.25,good - Tire is not turning,"JB, DB, DB, SB, VDG",Fish dropped a little further than yesterday
 489,334,2021,5,25,9:30,10:00,12.5,,,cloudy,no rain,no wind,121,1.141,8,9,9.25,9.75,good - Tire is not turning,"JB, DB, DB, SB, VDG",Fish dropped at the same place as yesterday
@@ -499,8 +499,8 @@ id,River,Year,Month,Day,Time_arrival,Time_departure,Airtemp_arrival,Airtemp_min,
 498,334,2021,6,3,9:53,10:16,18.3,,,little cloudy,no rain,little wind,114,1.117,11,11,10.5,10.5,good - Tire is not turning,"DM, MM, VDG",MM is tagging - Dropped the fish NB side same place as yesterday
 499,334,2021,6,4,10:30,10:45,24,,,cloudy,no rain,little wind,103,1.076,12,11,10.25,10.75,good - Tire is not turning,"DM, MM, VDG","1 smolt, no tagging"
 500,334,2021,6,5,11:13,11:28,18.7,,,cloudy,little rain,little wind,104,1.082,12,12,10.5,10,good - Tire is not turning,"DM, MM, VDG","1 smolt, no tagging"
-501,334,2021,6,6,11:20,11:54,20.8,,,little cloudy,no rain,no wind,100,1.066,13,13,10.5,10.25,Good - Tire is not turning,"DM, MM, VDG","no smolts, no tagging. On a essayÈ de la lever pour arrÍter la pÍche mais une attache a cassÈe. Elle est plus basse qu'‡ l'habitude. Aussi, Caro a un questionnement par rapport au dÈcompte du RPM, j'ai pris un vidÈo pour lui montrer notre facon de compter. "
-502,334,2021,6,7,9:44,10:30,19.9,,,little cloudy,no rain,no wind,94,1.042,18,15,7.5,8.75,"Wheel is touching the bottom of the river, it's very slow ","JB, DB, VDG","no smolts, no tagging, on a levÈ la trappe aujourdhui "
+501,334,2021,6,6,11:20,11:54,20.8,,,little cloudy,no rain,no wind,100,1.066,13,13,10.5,10.25,Good - Tire is not turning,"DM, MM, VDG","no smolts, no tagging. On a essay√© de la lever pour arr√™ter la p√™che mais une attache a cass√©e. Elle est plus basse qu'√† l'habitude. Aussi, Caro a un questionnement par rapport au d√©compte du RPM, j'ai pris un vid√©o pour lui montrer notre facon de compter. "
+502,334,2021,6,7,9:44,10:30,19.9,,,little cloudy,no rain,no wind,94,1.042,18,15,7.5,8.75,"Wheel is touching the bottom of the river, it's very slow ","JB, DB, VDG","no smolts, no tagging, on a lev√© la trappe aujourdhui "
 503,336,2002,5,8,8:30,9:30,2,,,75,0,strong west ,82,,3.7,,0,0,jammed,"Ivan, Kevin, Mike, Paul",
 504,336,2002,5,9,8:30,9:30,2.4,,,90,0,no wind,90,,2.7,,0,0,wheel not set last evening,"Ivan, Kevin, Mike, Paul ",
 505,336,2002,5,10,8:30,9:30,12,,,10,0,calm,82,,5,6,11,11,"fully operational, some debris in box","Ivan, Kevin, Mike, Paul and Gerald",
@@ -1130,65 +1130,65 @@ id,River,Year,Month,Day,Time_arrival,Time_departure,Airtemp_arrival,Airtemp_min,
 1129,337,2003,10,24,8:30,,,,,,,,,,,,,,,,
 1130,337,2003,10,25,14:30,,,,,,,,1,,,,6,,,,
 1131,337,2003,10,26,9:30,,,,,,,,1,,,,6,,,,
-1132,338,2015,5,20,12:30,14:50,11,,,0,,,,169,7,,14,14,Fully,"Joanie Carrier, Andrew, Marie-Camille St-Amour","Level : dÈbit ‡ la station de MatapÈdia ‡ 4km en amont de l'Assemetquagan , Nuageux, fine pluie et venteux.  Trappe installÈe le 19 mai 2015 ‡ 16h30 QC, PremiËre levÈe le 20 mai 2015"
-1133,338,2015,5,21,8:50,11:10,10,,,0,,,,173,5,,14,14,Fully,"Joanie, Marie-Camille","Ciel dÈgagÈ, vent moyen"
-1134,338,2015,5,22,8:35,10:30,8,,,0,,,,154,6,,13,13,Fully,"Joanie, Marie-Camille, M‚lanie Poirier","water level entered as a velocity 154 m3/sec  Ciel couvert avec ‚claircies, pas de vent"
-1135,338,2015,5,23,10:00,12:30,8,,,0,,,,138,5,,13,13,Fully,"Joanie, Marie-Camille, M‚lanie Poirier, Carole-Anne Gillis","water level entered as a velocity 138 m3/sec Ciel d‚gag, venteux. Probl?me de bateau : les poissons ont ‚t‚ remont‚s en camion et relƒch‚s au pont de St-Alexis"
-1136,338,2015,5,24,8:45,10:45,10,,,0,,,,125,5,,13,13,Fully,"Joanie, Marie-Camille, Claude Gallant, Carole-Anne Gillis","water level entered as a velocity 125 m3/sec Ciel d‚gag, pas de vent"
-1137,338,2015,5,25,8:30,10:55,20,,,0,,,,115,8,,13,13,Fully,"Joanie, Marie-Camille, Claude Gallant","water level entered as a velocity 115 m3/sec Ciel d‚gag, pas de vent"
-1138,338,2015,5,26,8:30,11:00,14,,,0,,,,106.5,10,,13.5,13.5,Fully,"Joanie, Marie-Camille, Claude, M‚lanie","water level entered as a velocity 106.5 m3/sec Nuageux, pluvieux"
-1139,338,2015,5,27,8:30,10:50,21,,,0,,,,106.2,11,,14,14,Fully,"Joanie, Marie-Camille, Claude, M‚lanie, Carole-Anne",water level entered as a velocity 106.2 m3/sec Ciel d‚gag
-1140,338,2015,5,28,8:30,11:30,22,,,0,,,,113.3,11,,14,14,Fully,"Joanie, Marie-Camille, Claude, M‚lanie, Carole-Anne","water level entered as a velocity 113.3 m3/sec Chaud humide, Nuageux avec ‚claircies"
-1141,338,2015,5,29,8:45,11:45,16.5,,,0,,,,122.6,11,,14,14,Fully,"Joanie, Marie-Camille, MÈlanie, Carole-Anne","Ciel dÈgagÈ, peu de vent"
-1142,338,2015,5,30,8:30,12:00,17,,,0,,,,111,11,,14,14,Fully,"Marie-Camille, MÈlanie, Carole-Anne",Ciel dÈgagÈ
-1143,338,2015,5,31,8:40,12:00,10,,,0,,,,121.3,11,,13.5,13.5,Fully,"Joanie, Marie-Camille, Claude, Carole-Anne",Ciel ‡ 90% nuageux
-1144,338,2015,6,1,8:30,11:00,12,,,0,,,,118.7,9,,13.5,13.5,Fully,"Joanie, Marie-Camille, Claude, Carole-Anne",Ciel ‡ 50% nuageux
-1145,338,2015,6,2,8:30,11:00,9,,,0,,,,105.8,10,,13.5,13.5,Fully,"Joanie, Marie-Camille, MÈlanie, Carole-Anne, FrÈdÈric Gauthier","Ciel couvert, peu de vent"
-1146,338,2015,6,3,8:30,10:45,7,,,0,,,,99.79,8,,13.5,13.5,Fully,"Joanie, Marie-Camille, MÈlanie, Carole-Anne, Claude","Nuageux, pas de vent"
-1147,338,2015,6,4,8:35,10:45,12.5,,,0,,,,92.39,9,,14,14,Fully,"Joanie, Marie-Camille, MÈlanie, Claude","Ciel dÈgagÈ, le tambour a ÈtÈ nettoyÈ"
-1148,338,2015,6,5,8:30,10:50,21,,,0,,,,86.92,11,,14,14,Fully,"Joanie, Marie-Camille, MÈlanie, Carole-Anne",Soleil et lÈger couvert nuageux
-1149,338,2015,6,6,8:30,10:30,15,,,0,,,,84,11,,14,14,Fully,"Joanie, Marie-Camille, MÈlanie","Passages nuageux, vent"
-1150,338,2016,5,20,8:50,10:15,15,NA,NA,NA,NA,NA,,277,6.4,6.4,10.75,10.75,Fully,"Joanie, Claude, MÈlanie, Carole-Anne, Sylvain, David",
-1151,338,2016,5,21,8:45,11:00,16,NA,NA,NA,NA,NA,,249,7.4,7.4,11,11,Fully,"Joanie, Claude, MÈlanie, Sylvain",
-1152,338,2016,5,22,8:45,11:00,19,NA,NA,NA,NA,NA,,232,8,8,11,11,Fully,"Joanie, Claude, MÈlanie, Carole-Anne",
+1132,338,2015,5,20,12:30,14:50,11,,,0,,,,169,7,,14,14,Fully,"Joanie Carrier, Andrew, Marie-Camille St-Amour","Level : d√©bit √† la station de Matap√©dia √† 4km en amont de l'Assemetquagan , Nuageux, fine pluie et venteux.  Trappe install√©e le 19 mai 2015 √† 16h30 QC, Premi√®re lev√©e le 20 mai 2015"
+1133,338,2015,5,21,8:50,11:10,10,,,0,,,,173,5,,14,14,Fully,"Joanie, Marie-Camille","Ciel d√©gag√©, vent moyen"
+1134,338,2015,5,22,8:35,10:30,8,,,0,,,,154,6,,13,13,Fully,"Joanie, Marie-Camille, M√¢lanie Poirier","water level entered as a velocity 154 m3/sec  Ciel couvert avec √¢claircies, pas de vent"
+1135,338,2015,5,23,10:00,12:30,8,,,0,,,,138,5,,13,13,Fully,"Joanie, Marie-Camille, M√¢lanie Poirier, Carole-Anne Gillis","water level entered as a velocity 138 m3/sec Ciel d√¢gag, venteux. Probl?me de bateau : les poissons ont √¢t√¢ remont√¢s en camion et rel√Ñch√¢s au pont de St-Alexis"
+1136,338,2015,5,24,8:45,10:45,10,,,0,,,,125,5,,13,13,Fully,"Joanie, Marie-Camille, Claude Gallant, Carole-Anne Gillis","water level entered as a velocity 125 m3/sec Ciel d√¢gag, pas de vent"
+1137,338,2015,5,25,8:30,10:55,20,,,0,,,,115,8,,13,13,Fully,"Joanie, Marie-Camille, Claude Gallant","water level entered as a velocity 115 m3/sec Ciel d√¢gag, pas de vent"
+1138,338,2015,5,26,8:30,11:00,14,,,0,,,,106.5,10,,13.5,13.5,Fully,"Joanie, Marie-Camille, Claude, M√¢lanie","water level entered as a velocity 106.5 m3/sec Nuageux, pluvieux"
+1139,338,2015,5,27,8:30,10:50,21,,,0,,,,106.2,11,,14,14,Fully,"Joanie, Marie-Camille, Claude, M√¢lanie, Carole-Anne",water level entered as a velocity 106.2 m3/sec Ciel d√¢gag
+1140,338,2015,5,28,8:30,11:30,22,,,0,,,,113.3,11,,14,14,Fully,"Joanie, Marie-Camille, Claude, M√¢lanie, Carole-Anne","water level entered as a velocity 113.3 m3/sec Chaud humide, Nuageux avec √¢claircies"
+1141,338,2015,5,29,8:45,11:45,16.5,,,0,,,,122.6,11,,14,14,Fully,"Joanie, Marie-Camille, M√©lanie, Carole-Anne","Ciel d√©gag√©, peu de vent"
+1142,338,2015,5,30,8:30,12:00,17,,,0,,,,111,11,,14,14,Fully,"Marie-Camille, M√©lanie, Carole-Anne",Ciel d√©gag√©
+1143,338,2015,5,31,8:40,12:00,10,,,0,,,,121.3,11,,13.5,13.5,Fully,"Joanie, Marie-Camille, Claude, Carole-Anne",Ciel √† 90% nuageux
+1144,338,2015,6,1,8:30,11:00,12,,,0,,,,118.7,9,,13.5,13.5,Fully,"Joanie, Marie-Camille, Claude, Carole-Anne",Ciel √† 50% nuageux
+1145,338,2015,6,2,8:30,11:00,9,,,0,,,,105.8,10,,13.5,13.5,Fully,"Joanie, Marie-Camille, M√©lanie, Carole-Anne, Fr√©d√©ric Gauthier","Ciel couvert, peu de vent"
+1146,338,2015,6,3,8:30,10:45,7,,,0,,,,99.79,8,,13.5,13.5,Fully,"Joanie, Marie-Camille, M√©lanie, Carole-Anne, Claude","Nuageux, pas de vent"
+1147,338,2015,6,4,8:35,10:45,12.5,,,0,,,,92.39,9,,14,14,Fully,"Joanie, Marie-Camille, M√©lanie, Claude","Ciel d√©gag√©, le tambour a √©t√© nettoy√©"
+1148,338,2015,6,5,8:30,10:50,21,,,0,,,,86.92,11,,14,14,Fully,"Joanie, Marie-Camille, M√©lanie, Carole-Anne",Soleil et l√©ger couvert nuageux
+1149,338,2015,6,6,8:30,10:30,15,,,0,,,,84,11,,14,14,Fully,"Joanie, Marie-Camille, M√©lanie","Passages nuageux, vent"
+1150,338,2016,5,20,8:50,10:15,15,NA,NA,NA,NA,NA,,277,6.4,6.4,10.75,10.75,Fully,"Joanie, Claude, M√©lanie, Carole-Anne, Sylvain, David",
+1151,338,2016,5,21,8:45,11:00,16,NA,NA,NA,NA,NA,,249,7.4,7.4,11,11,Fully,"Joanie, Claude, M√©lanie, Sylvain",
+1152,338,2016,5,22,8:45,11:00,19,NA,NA,NA,NA,NA,,232,8,8,11,11,Fully,"Joanie, Claude, M√©lanie, Carole-Anne",
 1153,338,2016,5,23,8:45,11:00,18,NA,NA,NA,NA,NA,,210,8,8,11,11,Fully,"Joanie, Claude, David",
-1154,338,2016,5,24,8:50,11:30,21,NA,NA,NA,NA,NA,,190,8.5,9.1,10,10,Fully,"Joanie, Claude, MÈlanie, Sylvain",
-1155,338,2016,5,25,9:30,11:30,15,NA,NA,NA,NA,NA,,169,9,10,9.5,9.5,Fully,"Joanie, Claude, MÈlanie, Sylvain",
-1156,338,2016,5,26,9:00,12:00,12,NA,NA,NA,NA,NA,,155,9,10.8,9,9,Fully,"Joanie, Claude, MÈlanie, Sylvain",
-1157,338,2016,5,27,8:50,13:00,9,NA,NA,NA,NA,NA,,142,7.2,9.4,9.5,9.5,Fully,"Joanie, MÈlanie, Sylvain",
-1158,338,2016,5,28,9:00,11:30,13,NA,NA,NA,NA,NA,,132,8.5,8.6,9.4,9.8,Fully,"Joanie, MÈlanie, Carole-Anne, FrÈdÈric",
-1159,338,2016,5,29,9:00,13:00,15.5,NA,NA,NA,NA,NA,,119,8.8,9.6,9.9,10,Fully,"Joanie, Claude, Carole-Anne, FrÈdÈric",
-1160,338,2016,5,30,8:45,12:00,11,NA,NA,NA,NA,NA,,112,9.1,9.6,10,10,Fully,"Joanie, Claude, Carole-Anne, ClÈment",
-1161,338,2016,5,31,9:00,11:50,20,NA,NA,NA,NA,NA,,105,9.6,10.7,10.5,10.5,Fully,"Joanie, Claude, MÈlanie, ClÈment",
-1162,338,2016,6,1,9:00,12:30,13,NA,NA,NA,NA,NA,,98,10,12.7,11,11,Fully,"Joanie, Claude, MÈlanie, Sylvain",
-1163,338,2016,6,2,9:00,9:50,13,NA,NA,NA,NA,NA,,89,11,11.3,10.9,10.9,Fully,"Joanie, Claude, MÈlanie, Sylvain",
-1164,338,2016,6,3,8:50,10:00,12,NA,NA,NA,NA,NA,,87,9.6,11,11,11,Fully,"Joanie,  MÈlanie, Sylvain, GeneviËve",
-1165,338,2016,6,4,9:00,9:40,13,NA,NA,NA,NA,NA,,90,9.1,10.7,11.4,11.4,Fully,"Joanie, MÈlanie, Carole-Anne, GeneviËve",
-1166,338,2016,6,5,10:00,10:40,14,NA,NA,NA,NA,NA,,83,11.3,11.6,11.4,11.4,Fully,"Joanie, Claude, Carole-Anne, GeneviËve",
-1167,338,2016,6,6,9:00,10:45,11,NA,NA,NA,NA,NA,,80,10,12,11.2,11.2,Fully,"Joanie, Claude, Sylvain, GeneviËve",
-1168,338,2016,6,7,9:20,11:00,10,NA,NA,NA,NA,NA,,91,9,11,10.5,10.5,Fully,"Joanie, Claude, MÈlanie Donald",
-1169,338,2016,6,8,9:05,11:15,10,NA,NA,NA,NA,NA,,95,8.6,10.6,10,10,Fully,"Joanie, Claude, MÈlanie, Sylvain",
+1154,338,2016,5,24,8:50,11:30,21,NA,NA,NA,NA,NA,,190,8.5,9.1,10,10,Fully,"Joanie, Claude, M√©lanie, Sylvain",
+1155,338,2016,5,25,9:30,11:30,15,NA,NA,NA,NA,NA,,169,9,10,9.5,9.5,Fully,"Joanie, Claude, M√©lanie, Sylvain",
+1156,338,2016,5,26,9:00,12:00,12,NA,NA,NA,NA,NA,,155,9,10.8,9,9,Fully,"Joanie, Claude, M√©lanie, Sylvain",
+1157,338,2016,5,27,8:50,13:00,9,NA,NA,NA,NA,NA,,142,7.2,9.4,9.5,9.5,Fully,"Joanie, M√©lanie, Sylvain",
+1158,338,2016,5,28,9:00,11:30,13,NA,NA,NA,NA,NA,,132,8.5,8.6,9.4,9.8,Fully,"Joanie, M√©lanie, Carole-Anne, Fr√©d√©ric",
+1159,338,2016,5,29,9:00,13:00,15.5,NA,NA,NA,NA,NA,,119,8.8,9.6,9.9,10,Fully,"Joanie, Claude, Carole-Anne, Fr√©d√©ric",
+1160,338,2016,5,30,8:45,12:00,11,NA,NA,NA,NA,NA,,112,9.1,9.6,10,10,Fully,"Joanie, Claude, Carole-Anne, Cl√©ment",
+1161,338,2016,5,31,9:00,11:50,20,NA,NA,NA,NA,NA,,105,9.6,10.7,10.5,10.5,Fully,"Joanie, Claude, M√©lanie, Cl√©ment",
+1162,338,2016,6,1,9:00,12:30,13,NA,NA,NA,NA,NA,,98,10,12.7,11,11,Fully,"Joanie, Claude, M√©lanie, Sylvain",
+1163,338,2016,6,2,9:00,9:50,13,NA,NA,NA,NA,NA,,89,11,11.3,10.9,10.9,Fully,"Joanie, Claude, M√©lanie, Sylvain",
+1164,338,2016,6,3,8:50,10:00,12,NA,NA,NA,NA,NA,,87,9.6,11,11,11,Fully,"Joanie,  M√©lanie, Sylvain, Genevi√®ve",
+1165,338,2016,6,4,9:00,9:40,13,NA,NA,NA,NA,NA,,90,9.1,10.7,11.4,11.4,Fully,"Joanie, M√©lanie, Carole-Anne, Genevi√®ve",
+1166,338,2016,6,5,10:00,10:40,14,NA,NA,NA,NA,NA,,83,11.3,11.6,11.4,11.4,Fully,"Joanie, Claude, Carole-Anne, Genevi√®ve",
+1167,338,2016,6,6,9:00,10:45,11,NA,NA,NA,NA,NA,,80,10,12,11.2,11.2,Fully,"Joanie, Claude, Sylvain, Genevi√®ve",
+1168,338,2016,6,7,9:20,11:00,10,NA,NA,NA,NA,NA,,91,9,11,10.5,10.5,Fully,"Joanie, Claude, M√©lanie Donald",
+1169,338,2016,6,8,9:05,11:15,10,NA,NA,NA,NA,NA,,95,8.6,10.6,10,10,Fully,"Joanie, Claude, M√©lanie, Sylvain",
 1170,338,2016,6,9,9:00,9:30,NA,NA,NA,NA,NA,NA,,156,,,0,NA,NOT,"Joanie, Claude, David, Sylvain",
 1171,338,2017,5,21,8:40,10:20,10,NA,NA,NA,NA,NA,,242.1,6,7,9.5,9.5,Fully,"Carole-Ann, Marie-Camille, Claude, Marco",
 1172,338,2017,5,22,8:20,9:30,11,NA,NA,NA,NA,NA,,205.6,7,7,9.5,9.5,Fully,"Carole-Ann, Marie-Camille, Claude Galland",
 1173,338,2017,5,23,8:20,10:40,10,NA,NA,NA,NA,NA,,182.2,8,8,0,8,Bad,"Marie-Camille, David Leblanc et Claude Galland",
-1174,338,2017,5,24,8:20,10:40,16,NA,NA,NA,NA,NA,,168.7,8,8,10.5,10.5,Fully,"Marie-Camille, Claude Galland et MÈlanie Poirier",
-1175,338,2017,5,25,8:15,10:00,9,NA,NA,NA,NA,NA,,156.1,8,9,10,10,Fully,"Marie-Camille, Claude Galland, MÈlanie Poirier et Carole-Anne Gillis",
-1176,338,2017,5,26,8:30,10:30,11,NA,NA,NA,NA,NA,,141.3,9,9,10,10,Fully,"Marie-Camille, Carole-Anne Gillis, MÈlanie Poirier",
-1177,338,2017,5,27,8:20,10:30,16.8,NA,NA,NA,NA,NA,,130.7,9.5,10,10.5,10.5,Fully,"Marie-Camille, MÈlanie Poirier, Carole-Anne Gillis",
+1174,338,2017,5,24,8:20,10:40,16,NA,NA,NA,NA,NA,,168.7,8,8,10.5,10.5,Fully,"Marie-Camille, Claude Galland et M√©lanie Poirier",
+1175,338,2017,5,25,8:15,10:00,9,NA,NA,NA,NA,NA,,156.1,8,9,10,10,Fully,"Marie-Camille, Claude Galland, M√©lanie Poirier et Carole-Anne Gillis",
+1176,338,2017,5,26,8:30,10:30,11,NA,NA,NA,NA,NA,,141.3,9,9,10,10,Fully,"Marie-Camille, Carole-Anne Gillis, M√©lanie Poirier",
+1177,338,2017,5,27,8:20,10:30,16.8,NA,NA,NA,NA,NA,,130.7,9.5,10,10.5,10.5,Fully,"Marie-Camille, M√©lanie Poirier, Carole-Anne Gillis",
 1178,338,2017,5,28,8:25,11:00,9,NA,NA,NA,NA,NA,,120.7,9.5,10,11,11,Fully,"Marie-Camille, David Leblanc, Carole-Anne Gillis, Claude Galland, Annabelle",
 1179,338,2017,5,29,8:10,11:30,7,NA,NA,NA,NA,NA,,111.3,9.5,10,11,11,Fully,"Marie-Camille, Claude Galland, Carole-Anne Gillis, Anabelle",
-1180,338,2017,5,30,8:20,9:15,9,NA,NA,NA,NA,NA,,103.1,9,9,11,11,Fully,"Marie-Camille, Claude Galland, MÈlanie Poirier et Carole-Anne Gillis",
-1181,338,2017,5,31,8:45,11:00,13,NA,NA,NA,NA,NA,,96.11,10,10,11.5,11.5,Fully,"Marie-Camille, MÈlanie Poirier, Clade Galland",
-1182,338,2017,6,1,8:40,10:00,14,NA,NA,NA,NA,NA,,92.03,11,11,11.8,11.8,Fully,"Marie-Camille, Carole-Anne Gillis, MÈlanie Poirier, Claude Gallant",
+1180,338,2017,5,30,8:20,9:15,9,NA,NA,NA,NA,NA,,103.1,9,9,11,11,Fully,"Marie-Camille, Claude Galland, M√©lanie Poirier et Carole-Anne Gillis",
+1181,338,2017,5,31,8:45,11:00,13,NA,NA,NA,NA,NA,,96.11,10,10,11.5,11.5,Fully,"Marie-Camille, M√©lanie Poirier, Clade Galland",
+1182,338,2017,6,1,8:40,10:00,14,NA,NA,NA,NA,NA,,92.03,11,11,11.8,11.8,Fully,"Marie-Camille, Carole-Anne Gillis, M√©lanie Poirier, Claude Gallant",
 1183,338,2017,6,2,8:30,11:30,17,NA,NA,NA,NA,NA,,97.7,10.5,11,11.8,11.8,Fully,"Marie-Camille, Claude Galland, Simon",
 1184,338,2017,6,3,8:15,10:15,12,NA,NA,NA,NA,NA,,101.3,11,11,11.5,11.5,Fully,"Marie-Camille, Claude Galland, Simon",
 1185,338,2017,6,4,8:30,9:35,12,NA,NA,NA,NA,NA,,93.38,11,10,11,11,Fully,"Marie-Camille, Carole-Anne Gilis, Melanie Poirier, Stephen",
-1186,338,2017,6,5,8:30,9:40,12,NA,NA,NA,NA,NA,,85.44,10,10,11.5,11.5,Fully,"Marie-Camille, MÈlanie Poirier, Stephen",
-1187,338,2017,6,6,8:40,9:45,12,NA,NA,NA,NA,NA,,79.67,11,10.5,11.5,11.5,Fully,"Marie-Camille, MÈlanie Poirier, Claude Galland",
-1188,338,2017,6,7,8:35,9:30,9,NA,NA,NA,NA,NA,,73.48,9.5,10,11.5,11.5,Fully,"Marie-Camille, MÈlanie Poirier, Claude Galland, Carole-Ann Gillis",
-1189,338,2017,6,8,8:30,9:48,19,NA,NA,NA,NA,NA,,67,12,12,11.5,11.5,Fully,"Marie-Camille, MÈlanie Poirier, Claude Galland",
-1190,338,2017,6,9,8:30,9:00,19,NA,NA,NA,NA,NA,,61,,14,11.5,11.5,Fully,"Marie-Camille, MÈlanie Poirier, Annabelle, Carole-Ann Gillis, David Leblanc + MPO team + Listuguj team",
+1186,338,2017,6,5,8:30,9:40,12,NA,NA,NA,NA,NA,,85.44,10,10,11.5,11.5,Fully,"Marie-Camille, M√©lanie Poirier, Stephen",
+1187,338,2017,6,6,8:40,9:45,12,NA,NA,NA,NA,NA,,79.67,11,10.5,11.5,11.5,Fully,"Marie-Camille, M√©lanie Poirier, Claude Galland",
+1188,338,2017,6,7,8:35,9:30,9,NA,NA,NA,NA,NA,,73.48,9.5,10,11.5,11.5,Fully,"Marie-Camille, M√©lanie Poirier, Claude Galland, Carole-Ann Gillis",
+1189,338,2017,6,8,8:30,9:48,19,NA,NA,NA,NA,NA,,67,12,12,11.5,11.5,Fully,"Marie-Camille, M√©lanie Poirier, Claude Galland",
+1190,338,2017,6,9,8:30,9:00,19,NA,NA,NA,NA,NA,,61,,14,11.5,11.5,Fully,"Marie-Camille, M√©lanie Poirier, Annabelle, Carole-Ann Gillis, David Leblanc + MPO team + Listuguj team",
 1191,335,2002,5,31,11:05,11:20,16,,,75,0,mod east,,,12,,5.375,5.125,fully operational,"Mike,Francis,Pam,Paul",first day fishing
 1192,335,2002,6,1,10:05,10:25,17,,,25,0,strong west,,,17,,5.35,5.35,fully operational,"Mike,Francis",
 1193,335,2002,6,2,9:15,9:30,8,,,100,0,strong west,,,11,,5.5,5.875,"fully operation Ivan,Kevin,","Mike,Francis",

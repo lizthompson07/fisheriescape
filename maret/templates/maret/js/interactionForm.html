@@ -3,64 +3,71 @@
     function updateFields() {
         let int_type = parseInt($("#id_interaction_type :selected").val(), 10);
 
-        let committee = $("#id_committee");
-        let date_of_meeting = $("#id_date_of_meeting");
-        let dfo_liaison = $("#id_dfo_liaison");
-        let other_dfo_participants = $("#id_other_dfo_participants");
-        let external_contact = $("#id_external_contact");
-        let external_organization = $("#id_external_organization");
-        let main_topic = $("#id_main_topic");
-        let species = $("#id_species");
+        let $committee = $("#committee_div");
+        let $date_of_meeting = $("#date_of_meeting_div");
+        let $dfo_liaison = $("#dfo_liaison_div");
+        let $dfo_role = $("#dfo_role_div");
+        let $other_dfo_participants = $("#other_dfo_participants_div");
+        let $external_contact = $("#external_contact_div");
+        let $external_organization = $("#external_organization_div");
+        let $main_topic = $("#main_topic_div");
+        let $species = $("#species_div");
 
         // Default hiden fields
-        committee.parent().addClass("gone");
-        committee.prop("required", false);
+        $committee.hide();
+        $("#id_committee").prop("required", false);
 
-        date_of_meeting.parent().addClass("gone");
-        date_of_meeting.prop("required", false);
+        $date_of_meeting.hide();
+        $("#id_date_of_meeting").prop("required", false);
 
         // Default not hidden fields
-        dfo_liaison.parent().removeClass("gone");
-        dfo_liaison.prop("required", false);
-        other_dfo_participants.parent().removeClass("gone");
-        other_dfo_participants.prop("required", false);
-        external_contact.parent().removeClass("gone");
-        external_contact.prop("required", false);
-        external_organization.parent().removeClass("gone");
-        external_organization.prop("required", false);
-        main_topic.parent().removeClass("gone");
-        main_topic.prop("required", false);
-        species.parent().removeClass("gone");
-        species.prop("required", false);
+        $dfo_liaison.show();
+        $("#id_dfo_liaison").prop("required", false);
+        $dfo_role.show();
+        $("#id_dfo_role").prop("required", false);
+        $other_dfo_participants.show();
+        $("#id_other_dfo_participants").prop("required", false);
+        $external_contact.show();
+        $("#id_external_contact").prop("required", false);
+        $external_organization.show();
+        $("#id_external_organization").prop("required", false);
+        $main_topic.parent().show();
+        $("#id_main_topic").prop("required", false);
+        $species.show();
+        $("#id_species").prop("required", false);
 
         if (int_type === 1 || int_type === 2 || int_type === 3 || int_type === 4) {
-            date_of_meeting.parent().removeClass("gone");
+            $date_of_meeting.show();
+            $("#id_date_of_meeting").prop("required", true);
         }
 
         if (int_type === 4) {
-            committee.parent().removeClass("gone");
-            committee.prop("required", true);
+            $committee.show();
+            $("#id_committee").prop("required", true);
 
-            dfo_liaison.parent().addClass("gone");
-            dfo_liaison.prop("required", false);
+            $dfo_role.hide();
+            $("#id_dfo_role").prop("required", false);
 
-            other_dfo_participants.parent().addClass("gone");
-            other_dfo_participants.prop("required", false);
+            $dfo_liaison.hide();
+            $("#dfo_liaison").prop("required", false);
 
-            external_contact.parent().addClass("gone");
-            external_contact.prop("required", false);
+            $other_dfo_participants.hide();
+            $("id_other_dfo_participants").prop("required", false);
 
-            external_organization.parent().addClass("gone");
-            external_organization.prop("required", false);
+            $external_contact.hide();
+            $("#id_external_contact").prop("required", false);
 
-            main_topic.parent().addClass("gone");
-            main_topic.prop("required", false);
+            $external_organization.hide();
+            $("#id_external_organization").prop("required", false);
 
-            species.parent().addClass("gone");
-            species.prop("required", false);
+            $main_topic.hide();
+            $("#id_main_topic").prop("required", false);
+
+            $species.hide();
+            $("#id_species").prop("required", false);
         } else if (int_type === 5) {
-            committee.parent().removeClass("gone");
-            committee.prop("required", true);
+            $committee.show();
+            $("#id_committee").prop("required", true);
         }
     }
 

@@ -80,7 +80,13 @@
       {% endif %}
     </div>
 
-    <div class="row">
+
+    <div v-if="loadingRequest" class="loading mb-3 mt-3 mt-5">
+      <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+        <span class="sr-only"></span>
+      </div>
+    </div>
+    <div v-else class="row">
       <div class="col">
         <table class="table table-sm">
           <tr>
@@ -108,8 +114,10 @@
             <td class="text-left" v-html="request.section_display"></td>
           </tr>
           <tr>
-            <th class="text-left" v-html="requestLabels.coordinator"></th>
-            <td class="text-left" v-html="request.coordinator"></td>
+            <th class="text-left" v-html="requestLabels.office"></th>
+            <td class="text-left">
+              <span>${request.office} {% trans "Center for Science Advice" %} (${request.coordinator})</span>
+            </td>
           </tr>
           <tr>
             <th class="text-left" v-html="requestLabels.client"></th>
@@ -150,6 +158,10 @@
           <tr>
             <th class="text-left">{% trans "Client prioritization?" %}</th>
             <td class="text-left" v-html="request.prioritization_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.tags"></th>
+            <td class="text-left" v-html="request.tags_display"></td>
           </tr>
           <tr>
             <th class="text-left" v-html="requestLabels.submission_date"></th>
@@ -297,11 +309,13 @@
       },
 
       getRequest(update_notes) {
+        this.loadingRequest = true;
         let endpoint = `/api/csas/requests/${requestId}/`;
         apiService(endpoint).then(data => {
           if (data) {
             this.request = data;
             if (update_notes) this.getNotes();
+            this.loadingRequest = false;
           }
         });
       },

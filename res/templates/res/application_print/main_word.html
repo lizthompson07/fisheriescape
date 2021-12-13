@@ -1,0 +1,230 @@
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+<div>
+  <b><em>
+    {% blocktrans %}
+      This document is an export from DM Apps intended to help solicit feedback on applications.
+      It is NOT intended to serve a template for the Career Progression application process.
+    {% endblocktrans %}
+  </em></b>
+</div>
+<br>
+<div class="mb-3 print-only">
+  <h2 class="">{{ object.applicant }} ({{ object.target_group_level }})</h2>
+  <p>
+    <em>
+      <a href="{{ SITE_FULL_URL }}{% url 'res:application_detail' object.id %}?print=true">
+        {{ SITE_FULL_URL }}{% url 'res:application_detail' object.id %}?print=true
+      </a>
+    </em>
+  </p>
+</div>
+<br>
+<br>
+<div class="sidebar">
+  <p class="lead p-3 mt-5 mb-3 p-0 mx-1">
+    {% trans "Table of Contents" %}
+  </p>
+  <ul class="small">
+    <li class="m-3">
+      <span href="#section0">{% trans "BASIC INFORMATION" %}</span>
+    </li>
+    <li class="m-3">
+      <span href="#section1">{% trans "SECTION 1: Accountable Manager's Assessment and Recommendation" %}</span>
+    </li>
+    <li class="m-3">
+      <span href="#section2">{% trans "SECTION 2: Demonstrated Achievements and Contributions" %}</span>
+    </li>
+    <li class="m-3">
+      <span href="#section3">{% trans "ANNEX A: CONTEXTS AND VALUED OUTCOMES" %}</span>
+      <ul>
+        {% for context in contexts %}
+
+          <li>
+            <span href="#context{{ context.id }}"> {{ context.tname }} </span>
+            <ul>
+              {% for outcome in context.outcomes.all %}
+                <li>
+                  <span href="#outcome{{ outcome.id }}"> {{ outcome.tname }} </span>
+                </li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endfor %}
+
+      </ul>
+    </li>
+    <li class="m-3">
+      <span href="#annex">{% trans "ANNEX B: Complete List of Achievements / Contributions" %}</span>
+      <ul>
+        {% for category in object.achievement_categories %}
+          <li>
+            <span href="#category{{ category.id }}"> {{ category }} </span>
+            {% if category.is_publication %}
+              <ul>
+                {% for publication_type in object.achievement_publication_types %}
+                  <li>
+                    <span href="#publication_type{{ publication_type.id }}"> {{ publication_type }} </span>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </li>
+        {% endfor %}
+        <li>
+          <span href="#summary_table"> {% trans "Table of the cumulative NUMBER of publications prior to and since last promotion" %} </span>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+
+<hr>
+<br>
+<br>
+
+<div class="mb-5">
+  <h4>
+    {% trans "BASIC INFORMATION" %}
+  </h4>
+  {% for field in basic_fields %}
+    {% get_field_value object field as val %}
+    <p>
+      <b>{% get_verbose_label object field crop_html=True %}</b><br>
+      {{ val|safe }}
+    </p>
+  {% endfor %}
+</div>
+
+<hr>
+<br>
+
+
+<div class="mb-5">
+  <h4>
+    {% trans "SECTION 1: Accountable Manager's Assessment and Recommendation" %}
+  </h4>
+  {% if object.recommendation %}
+    {% for field in recommendation_fields %}
+      {% get_field_value object.recommendation field as val %}
+      <p>
+        <b>{% get_verbose_label object.recommendation field crop_html=True %}</b><br>
+        {{ val|safe }}
+      </p>
+    {% endfor %}
+  {% endif %}
+</div>
+
+
+<hr>
+<br>
+<br>
+
+<div class="mb-5">
+  <h4>
+    {% trans "SECTION 2: Demonstrated Achievements and Contributions" %}
+  </h4>
+  {% for field in section_2_fields %}
+    {% get_field_value object field as val %}
+    <p>
+      <b>{% get_verbose_label object field crop_html=True %}</b><br>
+      {{ val|safe }}
+    </p>
+  {% endfor %}
+</div>
+
+
+<hr>
+<br>
+<br>
+
+
+<div class="mb-5" id="section3">
+  <h4>
+    {% trans "ANNEX A: CONTEXTS AND VALUED OUTCOMES" %}
+  </h4>
+  {% for context in contexts %}
+    <div class="mb-5" id="context{{ context.id }}">
+      <h6>
+        {{ context.tname }}
+      </h6>
+      <br>
+      {% for o in object.outcomes.all %}
+        {% if o.outcome.context.id == context.id %}
+          <div class="mb-4" id="outcome{{ o.id }}">
+            <p>
+              <em><b>{{ o.outcome.tname }}</b></em>
+            </p>
+            <br>
+            <div class="mt-2">
+              {{ o.text_html|safe }}<br><br>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endfor %}
+</div>
+
+
+<hr>
+<br>
+<br>
+
+
+<div class="mb-5" id="annex">
+  <h4>
+    {% trans "ANNEX B: Complete List of Achievements / Contributions" %}
+  </h4>
+
+  {% for category in object.achievement_categories %}
+    <div class="mb-5" id="category{{ category.id }}">
+      <h6>
+        {{ category.tname }} ({{ category.code }})
+      </h6>
+      <br>
+      {% if not category.is_publication %}
+        {% for achievement in object.applicant.achievements.all %}
+          {% if achievement.category.id == category.id %}
+            <div class="" id="achievement{{ achievement.id }}">
+              {{ achievement.achievement_display|safe }}<br><br>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        {% for publication_type in object.achievement_publication_types %}
+          <div class="mb-5">
+            <u class="mb-3 font-italic" id="publication_type{{ publication_type.id }}">
+              {{ publication_type }}
+            </u>
+            {% for achievement in object.applicant.achievements.all %}
+              {% if achievement.category.id == category.id and achievement.publication_type.id == publication_type.id %}
+                <div class="" id="achievement{{ achievement.id }}">
+                  {{ achievement.achievement_display|safe }}
+                </div><br><br>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+
+      {% endif %}
+      <hr>
+
+    </div>
+  {% endfor %}
+
+
+  <br><br>
+
+  {% include "res/application_print/_summary_table.html" %}
+</div>
+
+
+
+
