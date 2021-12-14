@@ -1,11 +1,16 @@
 from django.urls import path
+
 from . import views
 
 app_name = 'spot'
 
 urlpatterns = [
-    path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.IndexTemplateView.as_view(), name="index"),
+
+    # URLS
+    # user permissions
+    path('settings/users/', views.SpotUserFormsetView.as_view(), name="manage_spot_users"),
+    path('settings/users/<int:pk>/delete/', views.SpotUserHardDeleteView.as_view(), name="delete_spot_user"),
 
     # ORGANIZATION #
     ################
@@ -133,4 +138,3 @@ urlpatterns = [
     path('projectcertified/<int:pk>/edit/', views.ProjectCertifiedUpdateView.as_view(), name="projectcertified_edit"),
     path('projectcertified/<int:pk>/delete/', views.ProjectCertifiedDeleteView.as_view(), name="projectcertified_delete"),
 ]
-

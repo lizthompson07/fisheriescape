@@ -5,6 +5,7 @@ from . import models
 from django.utils.safestring import mark_safe
 from . import choices
 
+
 attr_chosen_contains = {"class": "chosen-select-contains"}
 attr_chosen = {"class": "chosen-select"}
 attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
@@ -418,3 +419,19 @@ class ProjectCertifiedForm(forms.ModelForm):
             'project': forms.HiddenInput(),
             'certified': forms.Select(choices=YES_NO_CHOICES, attrs=attr_chosen)
         }
+
+
+class SpotUserForm(forms.ModelForm):
+    class Meta:
+        model = models.SpotUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=attr_chosen_contains),
+        }
+
+
+SpotUserFormset = modelformset_factory(
+    model=models.SpotUser,
+    form=SpotUserForm,
+    extra=1,
+)
