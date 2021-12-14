@@ -175,6 +175,7 @@ class CSASRequestForm(forms.ModelForm):
             'funding_text',
             'prioritization',
             'prioritization_text',
+            'tags',
         ]
         required_fields = [
             'client',
@@ -194,6 +195,7 @@ class CSASRequestForm(forms.ModelForm):
             'risk_text': forms.Textarea(),
             'rationale_for_timeline': forms.Textarea(attrs=rows3),
             'prioritization_text': forms.Textarea(attrs=rows3),
+            'tags': forms.SelectMultiple(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):

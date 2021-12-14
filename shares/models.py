@@ -74,3 +74,13 @@ class Share(models.Model):
 
     def get_absolute_url(self):
         return reverse('shares:share_detail', kwargs={'pk': self.id})
+
+    def save(self, *args, **kwargs):
+        if not self.local_path:
+            self.local_path = f"/volume1/{self.name}/"
+        if not self.mounted_path:
+            self.mounted_path = f"/mnt/{self.server.hostname}/{self.name}/"
+        if not self.network_path:
+            self.network_path = f"\\\\glfscidm002\\{self.name}\\"
+
+        super().save(*args, **kwargs)

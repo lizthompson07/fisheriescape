@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _, gettext, get_language, activate
 from markdown import markdown
 
-from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import fiscal_year, truncate
 from lib.templatetags.custom_filters import timedelta_duration_days, nz
 from res import model_choices
 from res.utils import connect_refs, achievements_summary_table
@@ -317,7 +317,7 @@ class Achievement(MetadataFields):
     review_type = models.ForeignKey(ReviewType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
                                     verbose_name=_("peer review type"))
     date = models.DateTimeField(verbose_name=_("date of publication / achievement"), blank=True, null=True)
-    detail = models.CharField(verbose_name=_("detail"), max_length=2000)
+    detail = models.TextField(verbose_name=_("detail"))
 
     class Meta:
         ordering = ["category", "publication_type", "-date", "id"]
@@ -377,7 +377,8 @@ class Achievement(MetadataFields):
             mystr += f"{self.date.year}."
         if self.detail:
             mystr += f" {self.detail}"
-        return mystr
+
+        return truncate(mystr, max_length=1000)
 
     @property
     def is_publication(self):

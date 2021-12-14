@@ -91,7 +91,7 @@ class GenericIndvParser(DataParser):
                                                       self.ani_health_anidc_id.pk, "Precocity")
         if utils.nan_to_none(row.get(self.mort_key)):
             if utils.y_n_to_bool(row[self.mort_key]):
-                mort_evnt, mort_anix, mort_entered = utils.enter_mortality(indv, self.cleaned_data, row_datetime)
+                mort_anix, mort_entered = utils.enter_mortality(indv, self.cleaned_data, row_datetime)
                 self.row_entered += mort_entered
 
         in_tank = None
@@ -260,68 +260,50 @@ class GenericUntaggedParser(DataParser):
             row_grp = row_end_grp
         row_anix, data_entered = utils.enter_anix(cleaned_data, grp_pk=row_grp.pk)
         self.row_entered += data_entered
-        row_samp = None
+
+        row_contx, data_entered = utils.enter_contx(row.get("start_tank_id"), cleaned_data, None, grp_pk=row_grp.pk, return_contx=True)
+        self.row_entered += data_entered
+
+        samp_anix = row_contx.animal_details.filter(grp_id=row_grp,
+                                                    evnt_id=cleaned_data["evnt_id"],
+                                                    indv_id__isnull=True,
+                                                    loc_id__isnull=True,
+                                                    pair_id__isnull=True,
+                                                    final_contx_flag=None).get()
+
+        row_samp, data_entered = utils.enter_samp(cleaned_data, row[self.samp_key], row_grp.spec_id.pk,
+                                                  self.sampc_id.pk,
+                                                  anix_pk=samp_anix.pk)
+        self.row_entered += data_entered
+
         if utils.nan_to_none(row.get(self.mort_key)):
             if utils.y_n_to_bool(row[self.mort_key]):
-                mort_out = utils.enter_grp_mortality(row_grp, row[self.samp_key], cleaned_data, row_date, cont=row.get("start_tank_id"))
-                row_samp = mort_out[0]
-                self.row_entered += mort_out[3]
-
-        if not row_samp:
-            row_samp, data_entered = utils.enter_samp(cleaned_data, row[self.samp_key], row_grp.spec_id.pk,
-                                                      self.sampc_id.pk,
-                                                      anix_pk=row_anix.pk)
-            self.row_entered += data_entered
+                self.row_entered += utils.enter_samp_mortality(row_samp, cleaned_data, row_date)
 
         if row_samp:
-            if utils.nan_to_none(row.get(self.sex_key)):
-                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date,
-                                                      self.sex_dict[row[self.sex_key].upper()], self.sex_anidc_id.pk,
-                                                      adsc_str=self.sex_dict[row[self.sex_key].upper()])
-            if utils.nan_to_none(row.get(self.mark_key)):
-                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.mark_key],
-                                                      self.mark_anidc_id.pk, adsc_str=row[self.mark_key])
-            if utils.nan_to_none(row.get(self.lifestage_key)):
-                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.lifestage_key],
-                                                      self.lifestage_anidc_id.pk, adsc_str=row[self.lifestage_key])
-            if utils.nan_to_none(row.get(self.vax_key)):
-                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.vax_key],
-                                                      self.vax_anidc_id.pk, adsc_str=row[self.vax_key])
-            if utils.nan_to_none(row.get(self.len_key)):
-                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.len_key],
-                                                      self.len_anidc_id.pk, )
-            if utils.nan_to_none(row.get(self.len_key_mm)):
-                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, 0.1 * row[self.len_key_mm],
-                                                      self.len_anidc_id.pk, )
-            if utils.nan_to_none(row.get(self.weight_key)):
-                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.weight_key],
-                                                      self.weight_anidc_id.pk, )
-            if utils.nan_to_none(row.get(self.weight_key_kg)):
-                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date,
-                                                      1000 * row[self.weight_key_kg], self.weight_anidc_id.pk, )
-
-            if utils.nan_to_none(row.get(self.vial_key)):
-                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.vial_key],
-                                                      self.vial_anidc_id.pk)
+            self.row_entered += utils.enter_bulk_sampd(row_samp.pk, self.cleaned_data, row_date,
+                                                       gender=row.get(self.sex_key),
+                                                       len_mm=row.get(self.len_key_mm),
+                                                       len_val=row.get(self.len_key),
+                                                       weight=row.get(self.weight_key),
+                                                       weight_kg=row.get(self.weight_key_kg),
+                                                       vial=row.get(self.vial_key),
+                                                       scale_envelope=row.get(self.envelope_key),
+                                                       tissue_yn=row.get(self.tissue_key),
+                                                       mark=row.get(self.mark_key),
+                                                       vaccinated=row.get(self.vax_key),
+                                                       lifestage=row.get(self.lifestage_key),
+                                                       comments=row.get(self.comment_key)
+                                                       )
 
             if utils.nan_to_none(row.get(self.precocity_key)):
                 if utils.y_n_to_bool(row[self.precocity_key]):
                     self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, "Precocity",
                                                           self.ani_health_anidc_id.pk, adsc_str="Precocity")
-            if utils.nan_to_none(row.get(self.tissue_key)):
-                if utils.y_n_to_bool(row[self.tissue_key]):
-                    self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, "Tissue Sample",
-                                                          self.ani_health_anidc_id.pk, adsc_str="Tissue Sample")
+
             if utils.nan_to_none(row.get(self.ufid_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.ufid_key],
                                                       self.anidc_ufid_id.pk)
-            if utils.nan_to_none(row.get(self.envelope_key)):
-                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.envelope_key],
-                                                      self.envelope_anidc_id.pk)
-
-            if utils.nan_to_none(row.get(self.comment_key)):
-                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, None,
-                                                      self.comment_anidc_id.pk, comments=row[self.comment_key])
 
             self.row_entered += utils.parse_extra_cols(row, self.cleaned_data, row_samp, samp=True)
 
@@ -388,12 +370,12 @@ class GenericGrpParser(DataParser):
         self.row_entered += contx_entered
 
         whole_grp = utils.y_n_to_bool(row[self.abs_key])
-        det_anix = None
+        det_anix = start_anix
         row["start_contx_pk"] = None
         if not whole_grp:
             row["start_contx_pk"] = start_contx.pk
 
-        if row["end_tank_id"]:
+        if utils.nan_to_none(row["end_tank_id"]):
             # 4 possible cases here: group in tank or not and whole group move or not:
             row_end_grp_list = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["end_tank_id"],
                                              row_date, prog_str=row[self.prio_key], mark_str=row[self.grp_mark_key])
@@ -411,6 +393,7 @@ class GenericGrpParser(DataParser):
                                                           prog_grp=row.get(self.prio_key),
                                                           mark=row.get(self.mark_key))
             elif not whole_grp:
+                # splitting fish group, merging to exsisting end group
                 row_end_grp = row_end_grp_list[0]
 
             if row_end_grp:
@@ -423,20 +406,21 @@ class GenericGrpParser(DataParser):
                 cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], move_contx.pk)
                 self.row_entered = cnt_entered
 
+                # record details on end tank group
                 det_anix = end_grp_anix
 
             else:
-                det_anix = start_anix
+                # move all the fish (whole group, merge to fish at destination if needed)
                 move_contx = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
                                                         row_date, grp_pk=row_start_grp.pk, return_end_contx=True)
                 cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], move_contx.pk,
                                                    cnt_code="Fish Count")
                 self.row_entered = cnt_entered
-
-        elif whole_grp:
-            cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], start_contx.pk,
-                                               cnt_code="Fish Count")
-            self.row_entered = cnt_entered
+        else:
+            if utils.nan_to_none(row[self.nfish_key]):
+                cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], start_contx.pk,
+                                                   cnt_code="Fish Count")
+                self.row_entered = cnt_entered
 
         # add details to det_anix:
         self.row_entered += utils.enter_bulk_grpd(det_anix.pk, cleaned_data, row_date,

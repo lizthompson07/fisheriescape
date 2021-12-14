@@ -1,0 +1,45 @@
+{% load verbose_names %}
+{% load i18n %}
+<style>
+.email-table {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+    padding-left: 5px;
+    padding-right: 2px;
+}
+
+</style>
+
+<em>
+  *** un message français suivra
+</em>
+<br><br>
+
+{% language 'en' %}
+  <p>
+    {{ object.csas_request.client }},
+  </p>
+
+  <p>
+    Your request for Science Advice entitled <a href="{% url 'csas2:request_detail' object.csas_request.id %}">{{ object.csas_request.title }}</a>
+    has been reviewed and was flagged as problematic. It is the recommendation of the reviewers that the request be withdrawn.
+  </p>
+
+  <p>
+    Please do not hesitate to contact your CSAS Coordinator, {{ object.csas_request.office.coordinator }}
+    (<a href="mailto:{{ object.csas_request.office.coordinator.email }}">{{ object.csas_request.office.coordinator.email }}</a>), for more information.
+  </p>
+
+{% endlanguage %}
+
+<hr>
+
+{% language 'fr' %}
+{% endlanguage %}
+
+
+
+
+
+

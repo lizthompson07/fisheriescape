@@ -105,7 +105,9 @@
             :publication_type_choices="publicationTypeChoices"
             :review_type_choices="reviewTypeChoices"
             :categories="categories"
+            :achievement="achievementToEdit"
             @new="newAchievement"
+            @update="updateAchievement"
           ></ref-editor>
         </div>
 
@@ -158,6 +160,7 @@
       contexts: [],
       categories: [],
       achievements: [],
+      achievementToEdit: {},
       achievementsSummary: [],
       applicationLabels: {},
       recommendationLabels: {},
@@ -243,11 +246,11 @@
         if (reload) this.loadingAchievements = true;
         let endpoint = `/api/res/achievements/?user=${this.application.applicant}`;
         apiService(endpoint).then(data => {
-          if (data) {
-            for (const datum of data) {
+          if (data.count) {
+            for (const datum of data.results) {
               if (datum.date) datum.date = datum.date.split("T")[0];
             }
-            this.achievements = data;
+            this.achievements = data.results;
             if (reload) this.loadingAchievements = false;
           }
         });
@@ -333,6 +336,10 @@
               this.getOutcomes(false)
               this.getApplication(false)
             })
+      },
+      editAchievement(achievement) {
+        this.achievementToEdit = achievement;
+
       },
       updateAchievement(achievement) {
         this.errors = null;

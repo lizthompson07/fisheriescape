@@ -1,67 +1,19 @@
-import os
 import csv
 from datetime import date
-from django.conf import settings
+
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
 from django.db.models import TextField
 from django.db.models.functions import Concat
-from django.shortcuts import render
-from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.http import HttpResponseRedirect, HttpResponse
+from django.urls import reverse_lazy
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView
 from django_filters.views import FilterView
-from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
-###
-from lib.functions.custom_functions import fiscal_year, listrify
-from lib.functions.custom_functions import nz
-from . import models
-from . import forms
+
+from shared_models.views import CommonFormsetView, CommonHardDeleteView
 from . import filters
-from . import emails
-from . import reports
-
-
-# Create your views here.
-class CloserTemplateView(TemplateView):
-    template_name = 'spot/close_me.html'
-
-
-def in_spot_group(user):
-    if user:
-        return user.groups.filter(name='spot_access').count() != 0
-
-
-class SpotAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return in_spot_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
-
-
-def in_spot_admin_group(user):
-    if user:
-        return user.groups.filter(name='spot_admin').count() != 0
-
-
-class SpotAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return in_spot_admin_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
+from . import forms
+from . import models
+from .mixins import SuperuserOrAdminRequiredMixin, SpotAccessRequiredMixin, SpotAdminRequiredMixin
 
 
 class IndexTemplateView(SpotAccessRequiredMixin, TemplateView):
@@ -1480,3 +1432,19 @@ def export_project(request):
         ])
 
     return response
+
+
+class SpotUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
+    template_name = 'shared_models/generic_formset.html'
+    h1 = "Manage Spot Users"
+    queryset = models.SpotUser.objects.all()
+    formset_class = forms.SpotUserFormset
+    success_url_name = "spot:manage_spot_users"
+    home_url_name = "spot:index"
+    delete_url_name = "spot:delete_spot_user"
+    container_class = "container bg-light curvy"
+
+
+class SpotUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
+    model = models.SpotUser
+    success_url = reverse_lazy("spot:manage_spot_users")

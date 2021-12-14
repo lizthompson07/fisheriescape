@@ -286,46 +286,58 @@
 
             {% for site in sites %}
                 var mySiteInfoText{{ site.id }} = '<b>Site:</b> <a href="{% url 'bio_diversity:details_relc' site.id %}">{{site.name}}</a><br><b>River:</b> <a href="{% url 'bio_diversity:details_rive' site.rive_id.id %}">{{site.rive_id.name}}</a>'
-                marker = new google.maps.Marker({
-                    position: new google.maps.LatLng({{site.bbox.centroid.y}}, {{site.bbox.centroid.x}}),
-                    map: map,
-                    //label: {text: "{{site.name}}", color: "#ffffff"},
-                });
-                google.maps.event.addListener(marker, 'click', (function (marker) {
+
+                {% if site.bbox %}
+                    site_marker = new google.maps.Marker({
+                        position: new google.maps.LatLng({{site.bbox.centroid.y}}, {{site.bbox.centroid.x}}),
+                        map: map,
+                        //label: {text: "{{site.name}}", color: "#ffffff"},
+                    });
+                {% else %}
+                    site_marker = new google.maps.Marker({
+                        position: new google.maps.LatLng({{site.min_lat}}, {{site.min_lon}}),
+                        map: map,
+                        //label: {text: "{{site.name}}", color: "#ffffff"},
+                    });
+                {% endif %}
+                google.maps.event.addListener(site_marker, 'click', (function (site_marker) {
                     return function () {
                         infowindow.setContent(mySiteInfoText{{ site.id }});
-                        infowindow.open(map, marker);
+                        infowindow.open(map, site_marker);
                     }
-                })(marker));
+                })(site_marker));
 
-                // extend bounds var
-                bounds.extend(marker.position);
-                {% for point in site.bbox.exterior.coords %}
-                    bounds.extend(new google.maps.LatLng({{point.1}}, {{ point.0 }}));
-                {% endfor %}
+                {% if site.bbox %}
 
-                // Define the LatLng coordinates for the polygon's path.
-                var polygonCoords = [
+                    // extend bounds var
+                    bounds.extend(site_marker.position);
                     {% for point in site.bbox.exterior.coords %}
-                        {lat: {{point.1}}, lng: {{point.0}}},
+                        bounds.extend(new google.maps.LatLng({{point.1}}, {{ point.0 }}));
                     {% endfor %}
-                ];
 
-                // Construct the stratum.
-                var color = '#ea4544';
-                var myPolygon = new google.maps.Polygon({
-                    paths: polygonCoords,
-                    strokeColor: 'white',
-                    strokeOpacity: 0.8,
-                    strokeWeight: 2,
-                    fillColor: color,
-                    fillOpacity: 0.25
-                });
-                myPolygon.setMap(map);
-                {#bounds.extend(myPolygon.getBounds());#}
+                    // Define the LatLng coordinates for the polygon's path.
+                    var polygonCoords = [
+                        {% for point in site.bbox.exterior.coords %}
+                            {lat: {{point.1}}, lng: {{point.0}}},
+                        {% endfor %}
+                    ];
 
-                map.fitBounds(bounds);
-                // add a click event on the polygon
+                    // Construct the stratum.
+                    var color = '#ea4544';
+                    var myPolygon = new google.maps.Polygon({
+                        paths: polygonCoords,
+                        strokeColor: 'white',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 2,
+                        fillColor: color,
+                        fillOpacity: 0.25
+                    });
+                    myPolygon.setMap(map);
+                    {#bounds.extend(myPolygon.getBounds());#}
+
+                    map.fitBounds(bounds);
+                    // add a click event on the polygon
+                    {% endif %}
             {% endfor %}
 
 
@@ -376,8 +388,6 @@
                 // lon = x, lat = y
                 var contentString = '<a href="{% url 'bio_diversity:loc_map' %}n/' + ne.lat() + '/s/' + sw.lat() + '/e/' + ne.lng() + '/w/' + sw.lng() + '/?start=' + start_date + '&end=' + end_date + '&' + '" class="btn btn-small btn-primary">Search this area!</a>' +
                     '<br>' +
-                    '<br>' +
-                    '<a href="{% url 'bio_diversity:create_relc' %}n/' + ne.lat() + '/s/' + sw.lat() + '/e/' + ne.lng() + '/w/' + sw.lng() + '" class="btn btn-small btn-secondary">Create New Site</a>' +
                     '<br>' +
                     '<br><b>start date:</b> ' + start_date +
                     '<br><b>end date:</b> ' + end_date

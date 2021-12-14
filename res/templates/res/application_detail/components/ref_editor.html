@@ -3,7 +3,7 @@
 <!-- template for the modal component -->
 <script type="text/x-template" id="ref-editor-template">
 <div class="">
-  <button @click="openOverlay" class="btn btn-primary">
+  <button @click="openOverlay" class="btn btn-primary" ref="open_modal">
     <span class="h5 mdi mdi-plus text-light"></span>
   </button>
   <transition v-if="overlay" name="modal">
@@ -50,7 +50,9 @@ Vue.component("ref-editor", {
       type: Array,
       required: true
     },
-
+    achievement: {
+      type: Object,
+    }
   },
   data() {
     return {
@@ -68,9 +70,12 @@ Vue.component("ref-editor", {
       this.error = null;
       this.overlay = true;
     },
-
     onSubmit() {
-      this.$emit("new", this.reference);
+      if (!this.reference.id) {
+        this.$emit("new", this.reference);
+      } else {
+        this.$emit("update", this.reference);
+      }
       this.closeOverlay();
     }
 
@@ -89,6 +94,14 @@ Vue.component("ref-editor", {
       return {};
     }
 
-  }
+  },
+  watch: {
+    achievement() {
+      this.reference = this.achievement;
+      if (this.reference.id) {
+        this.openOverlay();
+      }
+    },
+  },
 });
 </script>

@@ -1,14 +1,154 @@
 import csv
 import os
+from copy import deepcopy
 
 import pytz
 from django.conf import settings
 from django.db import IntegrityError
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.timezone import make_aware
 
+from lib.functions.custom_functions import listrify
 from scuba import models
+
+
+
+def check_samples():
+    for s in models.Sample.objects.all():
+        dive_transects = list(set([d.transect for d in s.dives.all()]))
+        if len(dive_transects) > 1:
+            print(s)
+
+    for d in models.Dive.objects.all():
+        if d.transect != d.sample.transect:
+            print("big problemo")
+
+
+def revamp_transects():
+    # NOTHING TO DO WITH SPREADSHEET
+    # let's attach the region directly to the transect; also, give the transect a new name based on site + transect name
+    # for t in models.Transect.objects.all():
+    #     if not t.region:
+    #         t.region = t.site.region
+    #     # if not t.old_name:
+    #     try:
+    #         t.old_name = f"{t.site.name}-{t.name}"
+    #         t.new_name = f"{t.site.name}-{t.name}"
+    #     except Exception as E:
+    #         print(E, t)
+    #     t.save()
+    #
+    # # let's attach the region directly to the sample as well; this is just temporarily while we figure out the whole transect thing.
+    # for s in models.Sample.objects.all():
+    #     if not s.region:
+    #         s.region = s.site.region
+    #         s.save()
+    #
+    # # actually, a sample should have only a single transect associated with it.
+    # for s in models.Sample.objects.all():
+    #     dive_transects = list(set([d.transect for d in s.dives.all()]))
+    #     if not s.transect:
+    #         # let's start with the easy one. If there is only one transect across all the dives, we only have to populate the sample's transect field and then we are done.
+    #         if len(dive_transects) == 1:
+    #             s.transect = dive_transects[0]
+    #             s.save()
+    #         # otherwise, we will have to duplicate the samples
+    #         elif len(dive_transects) > 1:
+    #             # take the first transect and use for the current sample
+    #             s.transect = dive_transects[0]
+    #             s.save()
+    #
+    #             # next, go through the unique list of transects. make sure a sample exists for each.
+    #             for t in dive_transects:
+    #                 sample_qs = models.Sample.objects.filter(datetime=s.datetime, transect=t)
+    #                 # if this sample does not exist, clone from the original
+    #                 if not sample_qs.exists():
+    #                     new_sample = deepcopy(s)
+    #                     new_sample.pk = None
+    #                     new_sample.transect = t
+    #                     new_sample.save()
+    #                 else:
+    #                     new_sample = sample_qs.first()
+    #
+    #                 # go though the dives of the original sample and move over any that need to be moved
+    #                 if not s == new_sample:
+    #                     for d in s.dives.all():
+    #                         if new_sample.transect == d.transect:
+    #                             d.sample = new_sample
+    #                             d.save()
+
+    # open the csv we want to read
+
+    # my_target_data_file = os.path.join(settings.BASE_DIR, 'scuba', 'data', 'scuba revamp1.csv')
+    # with open(my_target_data_file, 'r') as csv_read_file:
+    #     my_csv = csv.DictReader(csv_read_file)
+    #     for row in my_csv:
+    #         # clean the dict:
+    #         for key in row:
+    #             if row[key] == "---":
+    #                 row[key] = None
+    #
+    #         # see if we can match the region
+    #         region_name = row["region"]
+    #         region_qs = models.Region.objects.filter(name__iexact=region_name)
+    #         region = None
+    #         if not region_qs.exists():
+    #             print(region_name, "region not found.")
+    #         elif region_qs.count() > 1:
+    #             print(region_name, "has too many matches.")
+    #         else:
+    #             region = region_qs.first()
+    #
+    #         if region:
+    #             transect_qs = region.transects.filter(old_name=row["old_name"])
+    #             if not transect_qs.exists():
+    #                 print(row["old_name"], "not found in", region)
+    #             elif transect_qs.count() > 1:
+    #                 print(row["old_name"], "found multiple times in", region)
+    #             else:
+    #                 t = transect_qs.first()
+    #                 t.name = row["transect_New"]
+    #                 t.save()
+
+    # go through each region and move over all the samples from duplicate transects
+    for r in models.Region.objects.all():
+        transects = r.transects.all()
+        for t0 in transects:
+            try:
+                dup_qs = transects.filter(name=t0.name)
+                if dup_qs.count() > 1:
+                    print(listrify([t.old_name for t in dup_qs]), f"to be combined into one transect called '{dup_qs.first().name}'")
+
+                    keeper = None
+                    # keep the one that has coordinates
+                    for t1 in dup_qs:
+                        if t1.has_coordinates:
+                            keeper = t1
+                            break
+                        keeper = t1
+
+                    # go through the other transects that will not be kept and move over samples.
+                    deletables = dup_qs.filter(~Q(id=keeper.id))
+                    for t1 in deletables:
+                        for s in t1.samples.all():
+                            s.transect = keeper
+                            s.save()
+                        if not t1.old_name in keeper.old_name:
+                            keeper.old_name += f", {t1.old_name}"
+                            keeper.save()
+                        t1.delete()
+            except Exception as E:
+                print(E, t0)
+
+
+
+
+
+
+
+
 
 def populate_default():
     default_spp = get_object_or_404(models.Species, is_default=True)

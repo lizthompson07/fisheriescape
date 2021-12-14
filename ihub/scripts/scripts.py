@@ -211,10 +211,7 @@ def import_org_list():
 
             # add the region
             # check the province in order to determine the region
-            if int(row["province"]) in [12, 13]:
-                region = shared_models.Region.objects.get(name__icontains="arctic")
-            else:
-                region = shared_models.Region.objects.get(name__icontains="ontario")
+            region = shared_models.Region.objects.get(name__icontains="pacific")
 
             for r in org.regions.all():
                 org.regions.remove(r)

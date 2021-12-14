@@ -64,10 +64,18 @@ class CSRFPriority(SimpleLookup):
 
 class CSRFClientInformation(Lookup):
     csrf_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, related_name="client_information", verbose_name=_("CSRF priority"))
-    name = models.CharField(max_length=1000, verbose_name=_("name (en)"))
-    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("name (fr)"))
+    name = models.CharField(max_length=1000, verbose_name=_("name (en)"), blank=True, null=True, editable=False)
+    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("name (fr)"), editable=False)
     description_en = models.TextField(verbose_name=_("additional client information (en)"))
     description_fr = models.TextField(blank=True, null=True, verbose_name=_("additional client information (fr)"))
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year"))
+
+    def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = self.quickname_en
+        if not self.nom and self.description_fr:
+            self.nom = self.quickname_fr
+        super().save(*args, **kwargs)
 
     @property
     def quickname_en(self):
@@ -216,7 +224,8 @@ class Project(models.Model):
     staff_search_field = models.CharField(editable=False, max_length=5000, blank=True, null=True)
     lead_staff = models.ManyToManyField("Staff", editable=False, verbose_name=_("project leads"))
     fiscal_years = models.ManyToManyField(shared_models.FiscalYear, editable=False, verbose_name=_("fiscal years"))
-
+    starting_fy = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, editable=False, blank=True, null=True,
+                                    verbose_name=_("starting fiscal year"), related_name="project_starting_years")
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
@@ -224,6 +233,9 @@ class Project(models.Model):
 
     def save(self, *args, **kwargs):
         project_years = self.years.order_by("fiscal_year")  # being explicit about ordering here is impnt
+
+        if project_years.exists():
+            self.starting_fy = project_years.first().fiscal_year
 
         # list of things to do if there are project years
         if project_years.exists():

@@ -22,6 +22,7 @@ class DistributionParser(DataParser):
     prog_key = "Program"
     mark_key = "Mark"
     cont_key = "Container"
+    trof_key = "Trough"
     exclude_key = "Exclude"
     relm_key = "Release Method"
     temp_key = "River Temp"
@@ -76,14 +77,23 @@ class DistributionParser(DataParser):
 
         # set location:
         relc_id = models.ReleaseSiteCode.objects.filter(name__iexact=row[self.site_key]).get()
+
+        if utils.nan_to_none(row[self.lat_key]):
+            loc_lat = utils.round_no_nan(row[self.lat_key], 6)
+        else:
+            loc_lat = relc_id.min_lat
+        if utils.nan_to_none(row[self.lon_key]):
+            loc_lon = utils.round_no_nan(row[self.lon_key], 6)
+        else:
+            loc_lon = relc_id.min_lon
         rive_id = relc_id.rive_id
 
         loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
                               locc_id=self.locc_id,
                               rive_id=rive_id,
                               relc_id=relc_id,
-                              loc_lat=utils.round_no_nan(row[self.lat_key], 6),
-                              loc_lon=utils.round_no_nan(row[self.lon_key], 6),
+                              loc_lat=loc_lat,
+                              loc_lon=loc_lon,
                               loc_date=row_date,
                               comments=utils.nan_to_none(row[self.comment_key]),
                               created_by=cleaned_data["created_by"],
@@ -118,7 +128,6 @@ class DistributionParser(DataParser):
         if utils.nan_to_none(row.get(self.acclimation_key)):
             self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.acclimation_key],
                                                  self.acclimation_locdc_id.pk, None)
-
 
         # ----------Count and count details----------------
         cnt_year = None
@@ -161,9 +170,12 @@ class DistributionParser(DataParser):
         if utils.nan_to_none(row[self.cont_key]):
             cont_list = utils.parse_cont_strs(str(row[self.cont_key]), cleaned_data["facic_id"], row_date,
                                               exclude_str=row.get(self.exclude_key))
+        elif utils.nan_to_none(row.get(self.trof_key)):
+            cont_list = utils.parse_trof_str(str(row[self.trof_key]), cleaned_data["facic_id"])
 
         for cont_id in cont_list:
             contx, data_entered = utils.enter_contx(cont_id, cleaned_data, return_contx=True)
+            self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=contx.pk, return_sucess=True)
             self.row_entered += data_entered
             grp_list = utils.get_grp(utils.nan_to_none(row[self.stok_key]), cnt_year, coll, cont_id, row_date,
                                      prog_str=utils.nan_to_none(row.get(self.prog_key)),
@@ -171,7 +183,6 @@ class DistributionParser(DataParser):
             if grp_list:
                 grp_id = grp_list[0]
                 self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
-                self.row_entered += utils.enter_contx(cont_id, cleaned_data)
                 self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk, return_sucess=True)
 
 

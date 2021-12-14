@@ -8,27 +8,55 @@
 
 
 
-
 {% block form_field %}
-  {{ block.super }}
-
-  {% if field.name == "priorities" and object.project.is_csrf %}
-    <p class="py-0 mt-0 table-bordered highlight">
-      {% trans "The word limit for this field in the CSRF application is 500 words. This limit will have to be shared between all years of the project." %}
-      {% trans "Current field word count:" %} <span class="blue-font" id="id_{{ field.name }}_word_count"></span>
-    </p>
-  {% elif object.project.is_csrf %}
-    {% if field.name == "data_collected" or field.name == "data_products" or field.name == "data_storage_plan" %}
-      <div class="{{ field.name }}_div">
-        <p class="py-0 mt-0 table-bordered highlight">
-          {% trans "This field will be concatenated with other fields to form the Data Management response on the CSRF application. The total word limit for this field in the application is 150 words. This limit will have to be shared between all data-management related fields and between all years of the project." %}
-          {% trans "Current field word count:" %} <span class="blue-font" id="id_{{ field.name }}_word_count"></span>
-        </p>
-      </div>
+  <div class="{{ field.name }}_div">
+    {% if field.name|is_markdown_field %}
+      <label for="id_{{ field.name }}">{{ field.label }}</label>
+      {% block markdown_icon %}
+        {{ block.super }}
+      {% endblock %}
+      {% bootstrap_field field placeholder="" show_label=False %}
+      {% if object.project.is_csrf %}
+        {% if field.name == "priorities" and object.project.is_csrf %}
+          <div class="{{ field.name }}_div">
+            <p class="p-1 mark">
+              {% blocktrans %}
+                The corresponding field in the CSRF application will contain the data from each project year. You will have to manually verify that the CSRF
+                application's word limit is not exceeded.
+              {% endblocktrans %}<br><br>
+              {% trans "Current word count:" %} <span class="blue-font" id="id_{{ field.name }}_word_count"></span>
+            </p>
+          </div>
+        {% elif field.name == "data_collected" or field.name == "data_products" or field.name == "data_storage_plan" %}
+          <div class="{{ field.name }}_div">
+            <p class="p-1 mark">
+              {% blocktrans %}
+                This field will be concatenated with other fields to form the Data Management response on the CSRF application. Please be mindful of the word
+                limit as specified on the application. This limit will have to be shared between all data-management related fields and between all years of the
+                project.
+              {% endblocktrans %}<br><br>
+              {% trans "Current word count:" %} <span class="blue-font" id="id_{{ field.name }}_word_count"></span>
+            </p>
+          </div>
+        {% endif %}
+      {% endif %}
+      {% block markdown_blurb %}
+        {{ block.super }}
+      {% endblock %}
+    {% else %}
+      {% bootstrap_field field placeholder="" %}
     {% endif %}
-  {% endif %}
 
+  </div>
 {% endblock %}
+{##}
+{##}
+{#{% block form_field %}#}
+{#  {{ block.super }}#}
+{##}
+
+{##}
+{#{% endblock %}#}
 
 
 
@@ -43,7 +71,7 @@
     updateWordCount($("#id_priorities"))
     updateWordCount($("#id_data_collected"))
     updateWordCount($("#id_data_products"))
-    updateWordCount($("#id_data_storage"))
+    updateWordCount($("#id_data_storage_plan"))
   });
 
 

@@ -25,12 +25,12 @@
 
         var dataType = e.value;
         if (edFlag==1) {
-            if ( dataType==0 ) {
+            if ( dataType==0 || dataType==4  ) {
                 $("#id_trof_id").parent().show();
                 $("#id_pickc_id").parent().hide();
 
             }
-            else if ( dataType==1 || dataType==4 ) {
+            else if ( dataType==1) {
                 $("#id_pickc_id").parent().show();
                 $("#id_trof_id").parent().hide();
 

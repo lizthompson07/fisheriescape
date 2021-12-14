@@ -40,29 +40,4 @@
 {% endfor %}
 
 
-
-{# summary table #}
-
-<p class="h6" id="summary_table">{% trans "Table of the cumulative NUMBER of publications prior to and since last promotion (E1 Summary Table)" %}</p>
-<table class="table table-sm table-bordered w-auto">
-  <thead>
-  <tr>
-    <th>{% trans "Publication Type" %}</th>
-    <th class="text-center">{% trans "Before last promotion" %}</th>
-    <th class="text-center">{% trans "Since last promotion" %}</th>
-    <th class="text-center">{% trans "Career total" %}</th>
-  </tr>
-  </thead>
-  <tbody>
-  {% for row in object.achievement_summary_table %}
-    <tr v-for="row, index in achievementsSummary" :key="index">
-      <td>{{row.publication_type}}</td>
-      <td class="text-center">{{row.before_last_promotion}}</td>
-      <td class="text-center">{{row.since_last_promotion}}</td>
-      <td class="text-center">{{row.total}}</td>
-    </tr>
-  {% endfor %}
-  </tbody>
-
-</table>
-
+{% include "res/application_print/_summary_table.html" %}
