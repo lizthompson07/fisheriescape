@@ -1088,7 +1088,7 @@
     "model": "spot.fundingsources",
     "pk": 23,
     "fields": {
-        "name": "AFS"
+        "name": "AFS 1"
     }
 },
 {
