@@ -46,7 +46,7 @@ class CSASRequestFilter(django_filters.FilterSet):
     client = django_filters.ChoiceFilter(field_name="client", label=_("Client"), lookup_expr='exact')
     decision = django_filters.ChoiceFilter(field_name="review__decision", label=_("Review decision"), lookup_expr='exact')
     prioritization = django_filters.ChoiceFilter(field_name="prioritization", label=_("Client prioritization"), lookup_expr='exact')
-    tags = django_filters.MultipleChoiceFilter(field_name="tags", label=_("Client region"), lookup_expr='exact', distinct=True)
+    tags = django_filters.MultipleChoiceFilter(field_name="tags", label=_("Keyword tags"), lookup_expr='exact', distinct=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
