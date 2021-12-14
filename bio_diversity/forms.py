@@ -1064,11 +1064,16 @@ class ReportForm(forms.Form):
         (4, "Individual Report (xlsx)"),
         (5, "Group Report (xlsx)"),
         (6, "Mortality Report (xlsx)"),
+        (7, "System Codes (xlsx)"),
+        (8, "Samples Report (xlsx)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     facic_id = forms.ModelChoiceField(required=False,
                                       queryset=models.FacilityCode.objects.all(),
                                       label=_("Facility"))
+    prog_id = forms.ModelChoiceField(required=False,
+                                     queryset=models.Program.objects.all(),
+                                     label=_("Program"))
     stok_id = forms.ModelChoiceField(required=False,
                                      queryset=models.StockCode.objects.all(),
                                      label=_("Stock Code"))
