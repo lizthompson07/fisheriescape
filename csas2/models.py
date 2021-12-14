@@ -149,9 +149,6 @@ class CSASRequest(MetadataFields):
     translated_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("translated title"))
     office = models.ForeignKey(CSASOffice, on_delete=models.DO_NOTHING, related_name="csas_offices", verbose_name=_("CSAS office"),
                                blank=True, null=False)
-
-    # coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("CSAS coordinator"),
-    #                                 blank=True, null=True, editable=False)
     client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=False)
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("client section"), blank=True, null=False)
     is_multiregional = models.IntegerField(default=False, choices=NULL_YES_NO_CHOICES, blank=True, null=True,
@@ -204,6 +201,10 @@ class CSASRequest(MetadataFields):
     def __str__(self):
         return self.title
 
+    def withdraw(self):
+        self.status = 6
+        self.save()
+
     def save(self, *args, **kwargs):
 
         # request fiscal year
@@ -223,26 +224,35 @@ class CSASRequest(MetadataFields):
             self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
         else:
             self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
+
+
         # set the STATUS
+
         # if there is a process, the request the request MUST have been approved.
         if self.id and self.processes.exists():
             if self.processes.filter(status=100).count() == self.processes.all().count():
                 self.status = 5  # fulfilled
             elif self.processes.filter(status=90).count() == self.processes.all().count():
-                self.status = 12  # withdrawn
+                self.status = 6  # withdrawn
             else:
                 self.status = 11  # accepted
         else:
-            # look at the review to help determine the status
-            self.status = 1  # draft
-            if self.submission_date:
-                self.status = 2  # submitted
-            if self.files.filter(is_approval=True).exists():
-                self.status = 3  # approved
-            if hasattr(self, "review") and self.review.id:
-                self.status = 4  # under review
-                if self.review.decision:
-                    self.status = self.review.decision + 10
+            # if the request is not submitted, it should automatically be in draft
+            if not self.submission_date:
+                self.status = 1  # draft
+            else:
+                # if the status is set to withdrawn, we do nothing more.
+                if self.status != 6:
+                    # look at the review to help determine the status
+                    self.status = 1  # draft
+                    if self.submission_date:
+                        self.status = 2  # submitted
+                    if self.files.filter(is_approval=True).exists():
+                        self.status = 3  # approved
+                    if hasattr(self, "review") and self.review.id:
+                        self.status = 4  # under review
+                        if self.review.decision:
+                            self.status = self.review.decision + 10
 
         super().save(*args, **kwargs)
 
@@ -379,6 +389,9 @@ class CSASRequestReview(MetadataFields):
     advice_date = models.DateTimeField(verbose_name=_("advice required by (final)"), blank=True, null=True)
     deferred_text = models.TextField(null=True, blank=True, verbose_name=_("rationale for alternate scheduling"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
+
+    # non-editable
+    email_notification_date = models.DateTimeField(verbose_name=_("email notification date"), blank=True, null=True, editable=False)
 
     def save(self, *args, **kwargs):
         if self.is_valid == 0 or self.is_feasible == 0:
@@ -736,7 +749,7 @@ class Meeting(SimpleLookup, MetadataFields):
     def full_display(self):
         fy = str(self.fiscal_year) if self.fiscal_year else "TBD"
         invitee_count = self.invitees.count()
-        return f"{self.process.lead_region} - {fy} - {self.display} ({invitee_count} invitee{pluralize(invitee_count)})"
+        return f"{self.process.lead_office.region} - {fy} - {self.display} ({invitee_count} invitee{pluralize(invitee_count)})"
 
     class Meta:
         ordering = ["-is_planning", 'start_date', ]

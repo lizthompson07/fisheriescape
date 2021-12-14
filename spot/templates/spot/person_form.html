@@ -1,12 +1,16 @@
 {% extends "spot/spot_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
-{% load custom_filters %}
 {% block header %}
+    <link rel="stylesheet" href="{% static 'lou-multi-select-e052211/css/multi-select.css' %}" media="screen" type="text/css">
 {% endblock %}
 {% block content %}
 
-
+    <style>
+        .ms-container {
+            width: 100%;
+        }
+    </style>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -23,24 +27,27 @@
 
     <div class="container">
 
-        {% if object %}
-            <h1>{{ object }}</h1>
-        {% else %}
-            New Person
-        {% endif %}
+        <h1>
+            {% if object %}
+                {{ object }}
+            {% else %}
+                New Person
+            {% endif %}
+        </h1>
 
         <br><br>
 
         <form method="post" class="form">
             {% csrf_token %}
+
             {% for field in form %}
-                {% if 'editable' in field.field.widget.attrs|lookup:"class" %}
-                    {% bootstrap_label field.label %}
-                    {{ field }}<br>
+                {% if field.help_text %}
+                    <a data-toggle="popover" data-placement="bottom" data-trigger="hover" data-content="{{ field.help_text }}">{% bootstrap_field field show_help=False %}</a>
                 {% else %}
                     {% bootstrap_field field placeholder="" %}
                 {% endif %}
             {% endfor %}
+
 
             {% buttons %}
                 {% if object %}
@@ -54,7 +61,10 @@
 
             {% endbuttons %}
         </form>
-
     </div>
-
+<script>
+    $(document).ready(function() {
+    $('.has-popover').popover({'trigger':'hover'});
+    });
+</script>
 {% endblock content %}

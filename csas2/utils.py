@@ -187,6 +187,41 @@ def can_modify_request(user, request_id, return_as_dict=False):
         return my_dict if return_as_dict else my_dict["can_modify"]
 
 
+def can_modify_request_review(user, request_id, return_as_dict=False):
+    """
+    returns True if user has permissions to delete or modify a request
+    The answer of this question will depend on the business rules...
+
+    always: csas admin, coordinator
+    if NOT submitted: client, created_by
+
+    """
+    my_dict = dict(can_modify=False, reason=_("You are not logged in"))
+
+    if user.id:
+        my_dict["reason"] = _("You do not have the permissions to modify this review")
+        csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
+        if hasattr(csas_request, "review"):
+            if is_request_coordinator(user, request_id=csas_request.id):
+                my_dict["reason"] = _("You can modify this record because you are the CSAS coordinator for this region")
+                my_dict["can_modify"] = True
+            # check to see if they are an advisor
+            elif is_request_advisor(user, request_id=csas_request.id):
+                my_dict["reason"] = _("You can modify this record because you a CSAS Science advisor in this region")
+                my_dict["can_modify"] = True
+            # check to see if they are an administrator
+            elif is_request_administrator(user, request_id=csas_request.id):
+                my_dict["reason"] = _("You can modify this record because you a CSAS Science administrator in this region")
+                my_dict["can_modify"] = True
+            # are they a national administrator?
+            elif in_csas_national_admin_group(user):
+                my_dict["reason"] = _("You can modify this record because you are a national CSAS administrator")
+                my_dict["can_modify"] = True
+        else:
+            my_dict["reason"] = _("This CSAS request does not have a review!")
+        return my_dict if return_as_dict else my_dict["can_modify"]
+
+
 def can_modify_process(user, process_id, return_as_dict=False):
     """
     returns True if user has permissions to delete or modify a process

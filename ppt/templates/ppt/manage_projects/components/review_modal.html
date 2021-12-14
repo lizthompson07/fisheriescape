@@ -310,7 +310,7 @@ Vue.component("modal", {
   },
   computed: {
     isOldReview() {
-      return this.project_year.review && this.project_year.review.id
+      return Boolean(this.project_year.review && this.project_year.review.id)
     },
     total_score() {
       collaboration_score = 0

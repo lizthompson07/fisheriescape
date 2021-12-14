@@ -1,0 +1,51 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="">
+    <h4>
+        {% trans "Select Funding Year:" %}
+    </h4>
+</div>
+
+{% if object.funding_year.count == 0 %}
+    <em>
+        {% trans "No Funding Years have been entered" %}
+
+    </em><br>
+{% else %}
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th style="width: 120px">
+                {% trans "Funding Year" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Agreement Cost" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Project Cost" %}
+            </th>
+        </tr>
+        <tbody>
+        {% for obj in object.funding_year.all %}
+            <tr href="{% url 'spot:fundingyear_edit' obj.id  %}" pop data-toggle="tooltip" title="click to edit this funding year">
+                <td>
+                    {{ obj.funding_year }}
+                </td>
+                <td>
+                    {{ obj.agreement_cost }}
+                </td>
+                <td>
+                    {{ obj.project_cost }}
+                </td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+    <a class="" href="#" pop-href="{% url 'spot:fundingyear_new' object.id  %}">
+        {% trans "(Add Funding Year)" %}
+    </a>
+<br><br>

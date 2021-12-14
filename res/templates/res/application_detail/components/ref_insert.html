@@ -13,7 +13,7 @@
     <div class="modal-mask">
       <div class="modal-wrapper">
 
-        <div v-if="searchMode" class="modal-container" style="width: 850px">
+        <div v-if="searchMode" class="modal-container" style="width: 1500px">
           <div class="modal-header">
             <h4> {% trans "Find a Reference" %}</h4>
             <div class="mb-3">
@@ -46,14 +46,19 @@
               </div>
             </div>
             <div class="">
+               <div v-if="countWarning">
+                <div class="alert alert-warning" role="alert">
+                  ${countWarning}
+                </div>
+              </div>
               <div>
                 <table class="table table-sm table-bordered">
                   <thead>
                   <tr>
                     <th class="w50">{% trans "ID" %}</th>
                     <th>{% trans "Reference" %}</th>
-                    <th>{% trans "Add to Text" %}</th>
-                    <th>{% trans "Add and Close" %}</th>
+                    <th class="w150">{% trans "Add to Text" %}</th>
+                    <th class="w150">{% trans "Add and Close" %}</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -140,6 +145,7 @@ Vue.component("ref-inserter", {
       search: "",
       searchMode: true,
       loadingAchievements: false,
+      countWarning: null,
     };
   },
   methods: {
@@ -182,13 +188,19 @@ Vue.component("ref-inserter", {
     },
     insert(achievement, close) {
       this.$emit("insert", achievement);
-      if (close) this.closeOverlay();
+      if (close) {
+        this.closeOverlay();
+      }
     },
     getAchievements() {
       this.loadingAchievements = true;
-      let endpoint = `/api/res/achievements/?user=${this.applicant}&search=${this.search}`;
+      this.countWarning = null;
+      let endpoint = `/api/res/achievements/?user=${this.applicant}&search=${this.search}&page_size=10`;
       apiService(endpoint).then(data => {
-        this.achievements = data;
+        this.achievements = data.results;
+        if (data.count > this.achievements.length) {
+          this.countWarning = "{% trans "Warning, due to too many results, some of your achievements are not displayed. Try a more specific search." %}"
+        }
         this.loadingAchievements = false;
       });
     },

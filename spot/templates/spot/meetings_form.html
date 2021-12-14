@@ -1,0 +1,66 @@
+{% extends "spot/spot_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% block header %}
+    <link rel="stylesheet" href="{% static 'lou-multi-select-e052211/css/multi-select.css' %}" media="screen" type="text/css">
+{% endblock %}
+{% block content %}
+
+    <style>
+        .ms-container {
+            width: 100%;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'spot:meetings_list' %}">Meetings</a></li>
+            {% if object %}
+                <li class="breadcrumb-item"><a href="{% url 'spot:meetings_detail' object.id %}">{{ object }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+            {% else %}
+                <li class="breadcrumb-item active" aria-current="page">New</li>
+            {% endif %}
+        </ol>
+    </nav>
+
+    <div class="container">
+
+        <h1>
+            {% if object %}
+                {{ object }}
+            {% else %}
+                New Meeting
+            {% endif %}
+        </h1>
+
+        <br><br>
+
+        <form method="post" class="form">
+            {% csrf_token %}
+
+            {% bootstrap_form form %}
+
+            {% buttons %}
+                {% if object %}
+                    <button type="submit" class="btn btn-success">Submit</button>
+                    <a class="btn btn-secondary" href="{% url 'spot:meetings_detail' object.id %}">Cancel</a>
+                {% else %}
+                    <button type="submit" class="btn btn-success">Add</button>
+                    <a class="btn btn-secondary" href="{% url 'spot:meetings_list' %}">Cancel</a>
+                {% endif %}
+
+
+            {% endbuttons %}
+        </form>
+
+    </div>
+<script>
+    $(document).ready(function() {
+    $('.has-popover').popover({'trigger':'hover'});
+    });
+</script>
+{% endblock content %}
+
+
