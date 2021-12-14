@@ -1,0 +1,50 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="">
+    <h4>
+        {% trans "Select Method:" %}
+    </h4>
+</div>
+
+{% if object.project_method.count == 0 %}
+    <em>
+        {% trans "No Methods have been entered" %}
+
+    </em><br>
+{% else %}
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th style="width: 120px">
+                {% trans "Planning Method Type" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Field Work Method Type" %}
+            </th>
+             <th style="width: 120px">
+                {% trans "Sample Processing Method Type" %}
+            </th>
+        </tr>
+        <tbody>
+        {% for obj in object.project_method.all %}
+            <tr href="{% url 'spot:meth_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this method">
+                <td>
+                    {% for planning_method_type in obj.planning_method_type.all %}{{ planning_method_type }}<br/>{% endfor %}
+                </td>
+                <td>
+                    {% for field_work_method_type in obj.field_work_method_type.all %}{{ field_work_method_type }}<br/>{% endfor %}
+                </td>
+                <td>
+                    {% for sample_processing_method_type in obj.sample_processing_method_type.all %}{{ sample_processing_method_type }}<br/>{% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+    <a class="" href="{% url 'spot:meth_new' object.id  %}">
+        {% trans "(Add Method)" %}
+    </a>
+<br><br>

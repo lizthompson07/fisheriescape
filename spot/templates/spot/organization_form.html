@@ -40,7 +40,13 @@
         <form method="post" class="form">
             {% csrf_token %}
 
-            {% bootstrap_form form %}
+            {% for field in form %}
+                {% if field.help_text %}
+                    <a data-toggle="popover" data-placement="bottom" data-trigger="hover" data-content="{{ field.help_text }}">{% bootstrap_field field show_help=False %}</a>
+                {% else %}
+                    {% bootstrap_field field placeholder="" %}
+                {% endif %}
+            {% endfor %}
 
             {% buttons %}
                 {% if object %}
@@ -50,17 +56,14 @@
                     <button type="submit" class="btn btn-success">Add</button>
                     <a class="btn btn-secondary" href="{% url 'spot:org_list' %}">Cancel</a>
                 {% endif %}
-
-
             {% endbuttons %}
         </form>
 
     </div>
-    <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
-    <script type="application/javascript">
-        $("#id_grouping").multiSelect()
-        $("#id_regions").multiSelect()
-        $("#id_sectors").multiSelect()
+    <script>
+        $(document).ready(function() {
+        $('.has-popover').popover({'trigger':'hover'});
+        });
     </script>
 
 {% endblock content %}

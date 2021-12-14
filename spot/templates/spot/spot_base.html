@@ -24,51 +24,39 @@
 {% endblock left_all %}
 
 {% block left_auth %}
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:org_list' %}">
-            {% trans "Organizations" %}
-        </a>
-    </li>
 
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:person_list' %}">
-            {% trans "People" %}
-        </a>
-    </li>
-
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:project_list' %}">
-            {% trans "Project Tracking" %}
-        </a>
-    </li>
-
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:report_search' %}">
-            {% trans "Reports" %}
-        </a>
-    </li>
-
-    {% for group in user.groups.all %}
-        {% if group.name == "spot_admin" %}
-
-            <li class="nav-item dropdown">
+    <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
-                    Settings
+                    Navigation
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="{% url 'spot:manage_activities' %}">Manage Activities</a>
-                    <a class="dropdown-item" href="{% url 'spot:manage_basins' %}">Manage Drainage Basins</a>
-                    <a class="dropdown-item" href="{% url 'spot:manage_watersheds' %}">Manage Watersheds</a>
-                    <a class="dropdown-item" href="{% url 'sar_search:species_list' %}" target="_blank">Manage Species (via SAR Search App)</a>
+                    <a class="dropdown-item" href="{% url 'spot:org_list' %}">Organizations</a>
+                    <a class="dropdown-item" href="{% url 'spot:person_list' %}">People</a>
+                    <a class="dropdown-item" href="{% url 'spot:project_list' %}">Projects</a>
+                    <a class="dropdown-item" href="{% url 'spot:obj_list' %}">Objectives</a>
+                    <a class="dropdown-item" href="{% url 'spot:meth_list' %}">Methods</a>
+                    <a class="dropdown-item" href="{% url 'spot:data_list' %}">Data</a>
+                    <a class="dropdown-item" href="{% url 'spot:meetings_list' %}">Meetings</a>
+                    <a class="dropdown-item" href="{% url 'spot:reports_list' %}">Reports</a>
                 </div>
-            </li>
-
-        {% endif %}
-
-    {% endfor %}
-
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'spot:feedback_new' %}">
+            {% trans "Feedback and Suggestions" %}
+        </a>
+    </li>
+    <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Admin
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
+                    <a class="dropdown-item" href="{% url 'spot:river_list' %}">Rivers</a>
+                    <a class="dropdown-item" href="{% url 'spot:watershed_list' %}">Watersheds</a>
+                    <a class="dropdown-item" href="{% url 'spot:lakesystem_list' %}">Lake Systems</a>
+                </div>
+    </li>
 
 {% endblock left_auth %}
-{% block left_admin %}
-{% endblock left_admin %}
+
