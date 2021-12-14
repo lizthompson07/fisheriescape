@@ -776,6 +776,20 @@ def generate_system_code_report():
     return report.target_url
 
 
+def generate_samples_report(request, prog_id, facic_id, stok_id, coll_id, year, start_date, end_date):
+    report = ExcelReport()
+    report.load_wb("samples_report_template.xlsx")
+    ws_vials = report.get_sheet('Vials')
+    ws_tissue = report.get_sheet('Tissue Samples')
+    ws_scale = report.get_sheet('Scale Envelopes')
+
+    fill_samples_sheet(request, report, ws_vials, "Vial", prog_id, facic_id, stok_id, coll_id, year, start_date, end_date)
+    fill_samples_sheet(request, report, ws_tissue, "Tissue Sample", prog_id, facic_id, stok_id, coll_id, year, start_date, end_date)
+    fill_samples_sheet(request, report, ws_scale, "Scale Envelope", prog_id, facic_id, stok_id, coll_id, year, start_date, end_date)
+
+    return report.target_url
+
+
 def generate_growth_chart(plot_fish):
     if type(plot_fish) == models.Individual:
         len_dets = models.IndividualDet.objects.filter(anidc_id__name="Length").filter(anix_id__indv_id=plot_fish)
@@ -946,3 +960,85 @@ def plot_date_data(x_data, y_data, y_label, title):
         writer.writerows(itertools.zip_longest(x_data, y_data))
     scirpt, div = components(p, CDN)
     return scirpt, div, target_url
+
+
+def fill_samples_sheet(request, report, ws, anidc_name, prog_id, facic_id, stok_id, coll_id, year, start_date, end_date):
+    anidc_id = models.AnimalDetCode.objects.filter(name=anidc_name).get()
+
+    indvd_qs = models.IndividualDet.objects.filter(anidc_id=anidc_id,
+                                                   anix_id__evnt_id__start_datetime__lte=end_date,
+                                                   anix_id__evnt_id__start_datetime__gte=start_date).select_related(
+        "anix_id__evnt_id", "anix_id__indv_id__stok_id", "anix_id__indv_id__coll_id", "anix_id__indv_id")
+    sampd_qs = models.SampleDet.objects.filter(anidc_id=anidc_id,
+                                               samp_id__anix_id__evnt_id__start_datetime__lte=end_date,
+                                               samp_id__anix_id__evnt_id__start_datetime__gte=start_date).select_related(
+        "samp_id__anix_id__evnt_id", "samp_id", "samp_id__anix_id__grp_id", "samp_id__anix_id__grp_id__coll_id",
+        "samp_id__anix_id__grp_id__stok_id")
+
+    if stok_id:
+        indvd_qs = indvd_qs.filter(anix_id__indv_id__stok_id=stok_id)
+        sampd_qs = sampd_qs.filter(samp_id__anix_id__grp_id__stok_id=stok_id)
+    if facic_id:
+        indvd_qs = indvd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
+        sampd_qs = sampd_qs.filter(samp_id__anix_id__evnt_id__facic_id=facic_id)
+    if coll_id:
+        indvd_qs = indvd_qs.filter(anix_id__indv_id__coll_id=coll_id)
+        sampd_qs = sampd_qs.filter(samp_id__anix_id__grp_id__coll_id=coll_id)
+    if prog_id:
+        indvd_qs = indvd_qs.filter(anix_id__evnt_id__prog_id=prog_id)
+        sampd_qs = sampd_qs.filter(samp_id__anix_id__evnt_id__prog_id=prog_id)
+    if year:
+        indvd_qs = indvd_qs.filter(anix_id__indv_id__indv_year=year)
+        sampd_qs = sampd_qs.filter(samp_id__anix_id__grp_id__grp_year=year)
+
+    row_count = 3
+    for indvd in indvd_qs:
+        indv_id = indvd.anix_id.indv_id
+        evnt_id = indvd.anix_id.evnt_id
+        ws["A" + str(row_count)].value = evnt_id.__str__()
+        ws["B" + str(row_count)].value = indvd.detail_date
+        ws["C" + str(row_count)].value = indvd.det_val
+        if anidc_name == "Vial":
+            ws["D" + str(row_count)].value = indv_id.individual_detail(anidc_name="Box Location", evnt_id=evnt_id,
+                                                                         before_date=indvd.detail_date)
+            ws["E" + str(row_count)].value = indv_id.individual_detail(anidc_name="Box", evnt_id=evnt_id,
+                                                                         before_date=indvd.detail_date)
+        ws["F" + str(row_count)].value = indv_id.pit_tag
+        ws["G" + str(row_count)].value = indv_id.stok_id.__str__()
+        ws["H" + str(row_count)].value = "{}, {}".format(indv_id.indv_year, indv_id.coll_id.__str__())
+        ws['I' + str(row_count)].value = indv_id.individual_detail(anidc_name="Gender", evnt_id=evnt_id,
+                                                                         before_date=indvd.detail_date)
+        ws['J' + str(row_count)].value = indv_id.individual_detail(anidc_name="Length", evnt_id=evnt_id,
+                                                                         before_date=indvd.detail_date)
+        ws['K' + str(row_count)].value = indv_id.individual_detail(anidc_name="Weight", evnt_id=evnt_id,
+                                                                         before_date=indvd.detail_date)
+        ws["L" + str(row_count)].value = indvd.comments
+        ws["M" + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_evnt", args=[evnt_id.id]))
+        row_count += 1
+
+    for sampd in sampd_qs:
+        samp_id = sampd.samp_id
+        grp_id = samp_id.anix_id.grp_id
+        evnt_id = samp_id.anix_id.evnt_id
+        ws["A" + str(row_count)].value = evnt_id.__str__()
+        ws["B" + str(row_count)].value = sampd.detail_date
+        ws["C" + str(row_count)].value = sampd.det_val
+        ws["D" + str(row_count)].value = samp_id.sample_detail(anidc_name="Box Location", evnt_id=evnt_id,
+                                                                   before_date=indvd.detail_date)
+        ws["E" + str(row_count)].value = samp_id.sample_detail(anidc_name="Box", evnt_id=evnt_id,
+                                                                   before_date=indvd.detail_date)
+        ws["G" + str(row_count)].value = samp_id.samp_num
+        ws["H" + str(row_count)].value = grp_id.stok_id.__str__()
+        ws["I" + str(row_count)].value = "{}, {}".format(grp_id.grp_year, grp_id.coll_id.__str__())
+        ws['J' + str(row_count)].value = samp_id.sample_detail(anidc_name="Gender", evnt_id=evnt_id,
+                                                               before_date=sampd.detail_date)
+        ws['K' + str(row_count)].value = samp_id.sample_detail(anidc_name="Length", evnt_id=evnt_id,
+                                                               before_date=sampd.detail_date)
+        ws['L' + str(row_count)].value = samp_id.sample_detail(anidc_name="Weight", evnt_id=evnt_id,
+                                                               before_date=sampd.detail_date)
+        ws["M" + str(row_count)].value = sampd.comments
+        ws["N" + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_evnt", args=[evnt_id.id]))
+        row_count += 1
+
+    report.save_wb()
+    return

@@ -1065,6 +1065,7 @@ class ReportForm(forms.Form):
         (5, "Group Report (xlsx)"),
         (6, "Mortality Report (xlsx)"),
         (7, "System Codes (xlsx)"),
+        (8, "Samples Report (xlsx)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     facic_id = forms.ModelChoiceField(required=False,

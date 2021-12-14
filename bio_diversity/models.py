@@ -1404,17 +1404,29 @@ class Individual(BioModel):
         else:
             return None
 
-    def individual_detail(self, anidc_name="Length", before_date=datetime.now().replace(tzinfo=pytz.UTC)):
-        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
-                                                    detail_date__lte=before_date).order_by("-detail_date").first()
+    def individual_detail(self, anidc_name="Length", before_date=datetime.now().replace(tzinfo=pytz.UTC), evnt_id=None):
+        if evnt_id:
+            latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
+                                                        detail_date__lte=before_date,
+                                                        anix_id__evnt_id=evnt_id).order_by("-detail_date").first()
+        else:
+            latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
+                                                        detail_date__lte=before_date).order_by("-detail_date").first()
         if latest_indvd:
             return latest_indvd.det_val
         else:
             return None
 
-    def individual_subj_detail(self, anidc_name="Animal Health", before_date=datetime.now().replace(tzinfo=pytz.UTC)):
-        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
-                                                    detail_date__lte=before_date, adsc_id__isnull=False).order_by("-detail_date").select_related("adsc_id").first()
+    def individual_subj_detail(self, anidc_name="Animal Health", before_date=datetime.now().replace(tzinfo=pytz.UTC), evnt_id=None):
+        if evnt_id:
+            latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
+                                                        detail_date__lte=before_date, anix_id__evnt_id=evnt_id,
+                                                        adsc_id__isnull=False).order_by("-detail_date").select_related(
+                "adsc_id").first()
+        else:
+            latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
+                                                        detail_date__lte=before_date,
+                                                        adsc_id__isnull=False).order_by("-detail_date").select_related("adsc_id").first()
         if latest_indvd:
             return latest_indvd.adsc_id.name
         else:
@@ -2031,9 +2043,13 @@ class Sample(BioModel):
                 return ""
         return cont
 
-    def sample_detail(self, anidc_name="Length", before_date=datetime.now().replace(tzinfo=pytz.UTC)):
-        latest_sampd = SampleDet.objects.filter(anidc_id__name__icontains=anidc_name, samp_id=self,
-                                                detail_date__lte=before_date).order_by("-detail_date").first()
+    def sample_detail(self, anidc_name="Length", before_date=datetime.now().replace(tzinfo=pytz.UTC), evnt_id=None):
+        if evnt_id:
+            latest_sampd = SampleDet.objects.filter(anidc_id__name__icontains=anidc_name, samp_id=self,
+                                                    detail_date__lte=before_date, samp_id__anix_id__evnt_id=evnt_id).order_by("-detail_date").first()
+        else:
+            latest_sampd = SampleDet.objects.filter(anidc_id__name__icontains=anidc_name, samp_id=self,
+                                                    detail_date__lte=before_date).order_by("-detail_date").first()
         if latest_sampd:
             return latest_sampd.det_val
         else:

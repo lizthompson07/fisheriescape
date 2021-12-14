@@ -2113,3 +2113,11 @@ def col_count_to_excel(col_count):
         return "{}{}".format(chr(floor + a_key - 1), chr(mod + a_key))
     else:
         return chr(mod + a_key)
+
+
+def get_object_from_request(request, param, model_type):
+    obj_pk = request.GET.get(param)
+    obj_id = None
+    if obj_pk:
+        obj_id = model_type.objects.filter(pk=obj_pk).get()
+    return obj_id

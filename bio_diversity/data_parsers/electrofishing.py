@@ -333,13 +333,15 @@ class AdultCollectionParser(DataParser):
         cleaned_data = self.cleaned_data
         row_datetime = utils.get_row_date(row)
         relc_id = self.site_dict[row[self.site_key]]
+        year, coll = utils.year_coll_splitter(row[self.coll_key])
+        coll_id = utils.coll_getter(coll)
+        stok_id = models.StockCode.objects.filter(name__iexact=relc_id.rive_id.name).get()
+
         indv_id = None
+
         if utils.nan_to_none(row[self.pit_key]):
             indv_id = models.Individual.objects.filter(pit_tag=row[self.pit_key]).first()
             if not indv_id:
-                year, coll = utils.year_coll_splitter(row[self.coll_key])
-                coll_id = utils.coll_getter(coll)
-                stok_id = models.StockCode.objects.filter(name__iexact=relc_id.rive_id.name).get()
                 indv_id = models.Individual(spec_id=self.salmon_id,
                                             stok_id=stok_id,
                                             coll_id=coll_id,
@@ -383,60 +385,101 @@ class AdultCollectionParser(DataParser):
         if indv_id:
             anix_loc_indv, anix_entered = utils.enter_anix(cleaned_data, loc_pk=loc.pk, indv_pk=indv_id.pk)
             self.row_entered += anix_entered
+
+            self.row_entered += utils.enter_bulk_indvd(anix_loc_indv.pk, self.cleaned_data, row_datetime,
+                                                       gender=row.get(self.sex_key),
+                                                       len_mm=row.get(self.len_key_mm),
+                                                       len_val=row.get(self.len_key),
+                                                       weight=row.get(self.weight_key),
+                                                       weight_kg=row.get(self.weight_key_kg),
+                                                       vial=row.get(self.vial_key),
+                                                       scale_envelope=row.get(self.scale_key),
+                                                       prog_grp=row.get(self.grp_key),
+                                                       comments=row.get(self.comment_key)
+                                                       )
+
+            if utils.nan_to_none(row.get(self.mort_key)):
+                if utils.y_n_to_bool(row[self.mort_key]):
+                    mort_anix, mort_entered = utils.enter_mortality(indv_id, self.cleaned_data, row_datetime)
+                    self.row_entered += mort_entered
+
+            if utils.nan_to_none(row.get(self.wr_key)):
+                if utils.y_n_to_bool(row[self.wr_key]):
+                    self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, None,
+                                                          self.ani_health_anidc_id.pk, adsc_str=self.wr_adsc_id.name)
+
+            if utils.nan_to_none(row.get(self.aquaculture_key)):
+                if utils.y_n_to_bool(row[self.aquaculture_key]):
+                    self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, None,
+                                                          self.ani_health_anidc_id.pk, adsc_str="Aquaculture")
+
+            if utils.nan_to_none(row[self.tank_key]):
+                self.row_entered += utils.enter_contx(self.tank_dict[row[self.tank_key]], cleaned_data, True, indv_id.pk)
+                if self.loc.pk not in self.loc_caught_dict:
+                    self.loc_caught_dict[self.loc.pk] = 1
+                else:
+                    self.loc_caught_dict[self.loc.pk] += 1
+            else:
+                if self.loc.pk not in self.loc_obs_dict:
+                    self.loc_obs_dict[self.loc.pk] = 1
+                else:
+                    self.loc_obs_dict[self.loc.pk] += 1
+
         elif utils.nan_to_none(row.get(self.samp_key)):
-            samp, samp_entered = utils.enter_samp(cleaned_data, row[self.samp_key], self.salmon_id.pk, self.sampc_id.pk,
-                                                  loc_pk=loc.pk, comments=utils.nan_to_none(row.get(self.comment_key)))
-            self.row_entered += samp_entered
-            if utils.nan_to_none(row[self.comment_key]):
-                comments_parsed, data_entered = utils.samp_comment_parser(row[self.comment_key], cleaned_data,
-                                                                          samp.pk, row_datetime)
+            samp = models.Sample.objects.filter(anix_id__evnt_id=cleaned_data["evnt_id"],
+                                                loc_id=loc,
+                                                spec_id=self.salmon_id,
+                                                samp_num=row[self.samp_key],
+                                                sampc_id=self.sampc_id,
+                                                ).get()
+            if not samp:
+                # create group for sample:
+                grp_id = models.Group(spec_id=self.salmon_id,
+                                      stok_id=stok_id,
+                                      coll_id=coll_id,
+                                      grp_year=year,
+                                      grp_valid=False,
+                                      created_by=cleaned_data["created_by"],
+                                      created_date=cleaned_data["created_date"],
+                                      )
+                grp_id.clean()
+                grp_id.save()
+                self.row_entered = True
+
+                grp_anix, data_entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
                 self.row_entered += data_entered
-                if not comments_parsed:
-                    self.log_data += "Unparsed comment on row {}:\n {} \n\n".format(row, row[self.comment_key])
+
+                samp, samp_entered = utils.enter_samp(cleaned_data, row[self.samp_key], self.salmon_id.pk, self.sampc_id.pk,
+                                                      anix_pk=grp_anix.pk, loc_pk=loc.pk,
+                                                      comments=utils.nan_to_none(row.get(self.comment_key)))
+                self.row_entered += samp_entered
+
+            self.row_entered += utils.enter_bulk_sampd(samp.pk, self.cleaned_data, row_datetime,
+                                                       gender=row.get(self.sex_key),
+                                                       len_mm=row.get(self.len_key_mm),
+                                                       len_val=row.get(self.len_key),
+                                                       weight=row.get(self.weight_key),
+                                                       weight_kg=row.get(self.weight_key_kg),
+                                                       vial=row.get(self.vial_key),
+                                                       scale_envelope=row.get(self.scale_key),
+                                                       prog_grp=row.get(self.grp_key),
+                                                       comments=row.get(self.comment_key)
+                                                       )
+            if utils.nan_to_none(row.get(self.mort_key)):
+                if utils.y_n_to_bool(row[self.mort_key]):
+                    self.row_entered += utils.enter_samp_mortality(samp, self.cleaned_data, row_datetime)
+
+            if utils.nan_to_none(row.get(self.wr_key)):
+                if utils.y_n_to_bool(row[self.wr_key]):
+                    self.row_entered += utils.enter_sampd(samp.pk, cleaned_data, row_datetime, None,
+                                                          self.ani_health_anidc_id.pk, adsc_str=self.wr_adsc_id.name)
+
+            if utils.nan_to_none(row.get(self.aquaculture_key)):
+                if utils.y_n_to_bool(row[self.aquaculture_key]):
+                    self.row_entered += utils.enter_sampd(samp.pk, cleaned_data, row_datetime, None,
+                                                          self.ani_health_anidc_id.pk, adsc_str="Aquaculture")
         else:
             raise Exception("Fish must either be assigned a sample number or a pit tag.")
-
-        if not indv_id:
-            return
-
-        self.row_entered += utils.enter_bulk_indvd(anix_loc_indv.pk, self.cleaned_data, row_datetime,
-                                                   gender=row.get(self.sex_key),
-                                                   len_mm=row.get(self.len_key_mm),
-                                                   len_val=row.get(self.len_key),
-                                                   weight=row.get(self.weight_key),
-                                                   weight_kg=row.get(self.weight_key_kg),
-                                                   vial=row.get(self.vial_key),
-                                                   scale_envelope=row.get(self.scale_key),
-                                                   prog_grp=row.get(self.grp_key),
-                                                   comments=row.get(self.comment_key)
-                                                   )
-
-        if utils.nan_to_none(row.get(self.mort_key)):
-            if utils.y_n_to_bool(row[self.mort_key]):
-                mort_anix, mort_entered = utils.enter_mortality(indv_id, self.cleaned_data, row_datetime)
-                self.row_entered += mort_entered
-
-        if utils.nan_to_none(row.get(self.wr_key)):
-            if utils.y_n_to_bool(row[self.wr_key]):
-                self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, None,
-                                                      self.ani_health_anidc_id.pk, adsc_str=self.wr_adsc_id.name)
-
-        if utils.nan_to_none(row.get(self.aquaculture_key)):
-            if utils.y_n_to_bool(row[self.aquaculture_key]):
-                self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, None,
-                                                      self.ani_health_anidc_id.pk, adsc_str="Aquaculture")
-
-        if utils.nan_to_none(row[self.tank_key]):
-            self.row_entered += utils.enter_contx(self.tank_dict[row[self.tank_key]], cleaned_data, True, indv_id.pk)
-            if self.loc.pk not in self.loc_caught_dict:
-                self.loc_caught_dict[self.loc.pk] = 1
-            else:
-                self.loc_caught_dict[self.loc.pk] += 1
-        else:
-            if self.loc.pk not in self.loc_obs_dict:
-                self.loc_obs_dict[self.loc.pk] = 1
-            else:
-                self.loc_obs_dict[self.loc.pk] += 1
 
     def data_cleaner(self):
         for loc_pk, cnt_caught in self.loc_caught_dict.items():
