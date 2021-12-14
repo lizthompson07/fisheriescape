@@ -14,6 +14,11 @@ class SpotBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = is_admin(self.request.user)
+        return context
+
 
 class SpotAccessRequiredMixin(SpotBasicMixin):
     pass
