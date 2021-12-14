@@ -274,6 +274,7 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'id', "class": "", "width": "50px"},
         {"name": 'fiscal_year', "class": "", "width": "100px"},
+        {"name": 'advice_fiscal_year', "class": "", "width": "100px"},
         {"name": 'title|{}'.format(gettext_lazy("title")), "class": "w-25"},
         {"name": 'status', "class": "", "width": "100px"},
         {"name": 'has_process|{}'.format(gettext_lazy("has process?")), "class": "text-center", "width": "120px"},
