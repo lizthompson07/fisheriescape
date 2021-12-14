@@ -187,7 +187,7 @@ class River(models.Model):
 
 class Organization(models.Model):
     objects = models.Manager()
-    name = models.CharField(unique=True, max_length=1000, verbose_name=_("Name"))
+    name = models.CharField(unique=False, max_length=1000, verbose_name=_("Name"))
     address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Address"))
     organization_type = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Organization Type"))
     province_state = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Province/State"))
