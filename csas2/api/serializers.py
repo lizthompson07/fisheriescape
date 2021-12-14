@@ -3,6 +3,7 @@ from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.template.defaultfilters import date, pluralize
 from django.utils.translation import gettext
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 
 from lib.functions.custom_functions import listrify
@@ -48,6 +49,11 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     is_valid_request = serializers.SerializerMethodField()
     prioritization_display_short = serializers.SerializerMethodField()
     coordinator = serializers.SerializerMethodField()
+    tags_display = serializers.SerializerMethodField()
+
+    def get_tags_display(self, instance):
+        if instance.tags.exists():
+            return listrify(instance.tags.all())
 
     def get_coordinator(self, instance):
         return str(instance.office.coordinator)
@@ -126,6 +132,11 @@ class CSASRequestReviewSerializer(serializers.ModelSerializer):
     metadata = serializers.SerializerMethodField()
     is_valid_display = serializers.SerializerMethodField()
     is_feasible_display = serializers.SerializerMethodField()
+    email_notification_date_display = serializers.SerializerMethodField()
+
+    def get_email_notification_date_display(self, instance):
+        if instance.email_notification_date:
+            return date(instance.email_notification_date)
 
     def get_is_valid_display(self, instance):
         return instance.get_is_valid_display()
@@ -149,6 +160,16 @@ class CSASRequestReviewSerializer(serializers.ModelSerializer):
     def get_decision_date_display(self, instance):
         if instance.decision_date:
             return instance.decision_date.strftime("%Y-%m-%d")
+
+    def validate(self, attrs):
+        """
+            if there is already a process, the decision must be screened in.
+        """
+        decision = attrs.get("decision")
+        if self.instance and self.instance.csas_request.processes.exists() and decision != 1:
+            msg = gettext('The review recommendation must be screened-in if there is already a CSAS Process underway.')
+            raise ValidationError(msg)
+        return attrs
 
 
 class MeetingSerializerLITE(serializers.ModelSerializer):

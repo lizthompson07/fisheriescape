@@ -17,15 +17,14 @@ from unidecode import unidecode
 
 from shared_models.api.serializers import PersonSerializer
 from shared_models.api.views import _get_labels
-from shared_models.models import Person, Language, Region, FiscalYear
+from shared_models.models import Person, Language, Region, FiscalYear, SubjectMatter
 from . import serializers
 from .pagination import StandardResultsSetPagination
-from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission
+from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission, CanModifyRequestReviewOrReadOnly
 from .. import models, emails, model_choices, utils, filters
-
-
 # USER
 #######
+from ..emails import ReviewCompleteEmail
 
 
 class CurrentUserAPIView(APIView):
@@ -45,6 +44,7 @@ class CurrentUserAPIView(APIView):
 
         if qp.get("request"):
             data["can_modify"] = utils.can_modify_request(request.user, qp.get("request"), return_as_dict=True)
+            data["is_client"] = utils.is_client(request.user, qp.get("request"))
         elif qp.get("process"):
             data["can_modify"] = utils.can_modify_process(request.user, qp.get("process"), return_as_dict=True)
         elif qp.get("document"):
@@ -69,6 +69,16 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
         qs = models.CSASRequest.objects.all()
         qs = qs.annotate(search=Concat('title', Value(" "), 'translated_title', Value(" "), 'id', output_field=TextField()))
         return qs
+
+    def post(self, request, pk):
+        qp = request.query_params
+        csas_request = get_object_or_404(models.CSASRequest, pk=pk)
+        if qp.get("withdraw"):
+            if utils.is_client(request.user, pk) or utils.can_modify_request(request.user, pk, True):
+                csas_request.withdraw()
+                return Response(serializers.CSASRequestSerializer(csas_request).data, status.HTTP_200_OK)
+            raise ValidationError(_("Sorry, you do not have permissions to withdraw this request"))
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
 
 
 class CSASRequestNoteViewSet(viewsets.ModelViewSet):
@@ -99,20 +109,48 @@ class CSASRequestNoteViewSet(viewsets.ModelViewSet):
 
 class CSASRequestReviewViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CSASRequestReviewSerializer
-    permission_classes = [CanModifyRequestOrReadOnly]
+    permission_classes = [CanModifyRequestReviewOrReadOnly]
     queryset = models.CSASRequestReview.objects.all()
 
     def perform_destroy(self, instance):
-        # a little bit of gymnastics here in order to save the csas request truely following the deletion of the review (not working with signals)
+        # a little bit of gymnastics here in order to save the csas request truly following the deletion of the review (not working with signals)
         csas_request = instance.csas_request
         instance.delete()
         csas_request.save()
 
     def perform_create(self, serializer):
+        # only create a review if the request has been submitted!
+        csas_request = get_object_or_404(models.CSASRequest, pk=self.request.data["csas_request"])
+        if not csas_request.submission_date:
+            return ValidationError(_("Cannot create a review of a request that is still in draft mode."))
         serializer.save(created_by=self.request.user)
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
+
+    def post(self, request, pk):
+        qp = request.query_params
+        review = get_object_or_404(models.CSASRequestReview, pk=pk)
+        if qp.get("notification_email"):
+            if utils.can_modify_request_review(request.user, review.csas_request.id):
+                email = ReviewCompleteEmail(request, review)
+                if qp.get("notification_email") == "send":
+                    email.send()
+                    review.email_notification_date = timezone.now()
+                    review.save()
+                    return Response(serializers.CSASRequestReviewSerializer(review).data, status.HTTP_200_OK)
+                elif qp.get("notification_email") == "view":
+                    return Response(email.as_dict(), status.HTTP_200_OK)
+                elif qp.get("notification_email") == "manual":
+                    review.email_notification_date = timezone.now()
+                    review.save()
+                    return Response(serializers.CSASRequestReviewSerializer(review).data, status.HTTP_200_OK)
+                elif qp.get("notification_email") == "clear":
+                    review.email_notification_date = None
+                    review.save()
+                    return Response(serializers.CSASRequestReviewSerializer(review).data, status.HTTP_200_OK)
+            raise ValidationError(_("Sorry, you do not have permissions to send this email"))
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
 
 
 class ProcessViewSet(viewsets.ModelViewSet):
@@ -660,6 +698,7 @@ class RequestModelMetaAPIView(APIView):
         data['sector_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_sector_choices(with_requests=True)]
         data['section_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_section_choices(with_requests=True)]
         data['fy_choices'] = [dict(text=str(c), value=c.id) for c in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
+        data['tag_choices'] = [dict(text=str(c), value=c.id) for c in SubjectMatter.objects.all()]
         return Response(data)
 
 

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-29 13:48-0400\n"
+"POT-Creation-Date: 2021-12-08 11:54-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -79,7 +79,7 @@ msgid "phone (office)"
 msgstr "téléphone (bureau)"
 
 #: .\accounts\models.py:18 .\inventory\models.py:83
-#: .\shared_models\models.py:973
+#: .\shared_models\models.py:974
 msgid "language preference"
 msgstr "préférence linguistique"
 
@@ -105,8 +105,9 @@ msgstr "subject_fr"
 msgid "message_en"
 msgstr "message_fr"
 
-#: .\accounts\templates\accounts\accounts_base.html:7 .\templates\index.html:98
-#: .\templates\index_OLD.html:32 .\templates\index_OLD.html:41
+#: .\accounts\templates\accounts\accounts_base.html:7
+#: .\templates\index.html:98 .\templates\index_OLD.html:32
+#: .\templates\index_OLD.html:41
 msgid "DM Apps"
 msgstr "Applis GD"
 
@@ -137,7 +138,7 @@ msgstr "Nouvelle demande d'accès:"
 #: .\publications\templates\publications\pub_submit_form.html:62
 #: .\sar_search\templates\sar_search\points_file_import_form.html:205
 #: .\sar_search\templates\sar_search\rp_points_file_import_form.html:124
-#: .\shared_models\templates\shared_models\generic_form.html:29
+#: .\shared_models\templates\shared_models\generic_form.html:31
 #: .\shared_models\templates\shared_models\generic_popout_form.html:34
 #: .\shared_models\templates\shared_models\org_form.html:39
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:149
@@ -333,12 +334,11 @@ msgid "Cannot be valid after end date"
 msgstr ""
 
 #: .\bio_diversity\forms.py:141 .\bio_diversity\forms.py:601
-#: .\bio_diversity\mixins.py:181 .\bio_diversity\models.py:332
-#: .\bio_diversity\models.py:400 .\bio_diversity\models.py:542
-#: .\bio_diversity\models.py:802 .\bio_diversity\models.py:1526
-#: .\bio_diversity\models.py:2077
+#: .\bio_diversity\mixins.py:181 .\bio_diversity\models.py:336
+#: .\bio_diversity\models.py:404 .\bio_diversity\models.py:571
+#: .\bio_diversity\models.py:831 .\bio_diversity\models.py:1559
+#: .\bio_diversity\models.py:2195
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:19
-#: .\bio_diversity\templates\bio_diversity\index.html:20
 msgid "Event"
 msgstr ""
 
@@ -354,17 +354,17 @@ msgstr "Section"
 msgid "Collection Time"
 msgstr "Section"
 
-#: .\bio_diversity\forms.py:144 .\bio_diversity\models.py:1530
-#: .\bio_diversity\models.py:1824 .\bio_diversity\models.py:2031
-#: .\bio_diversity\models.py:2139
+#: .\bio_diversity\forms.py:144 .\bio_diversity\models.py:1563
+#: .\bio_diversity\models.py:1900 .\bio_diversity\models.py:2149
+#: .\bio_diversity\models.py:2257
 #, fuzzy
 #| msgid "Division"
 msgid "River"
 msgstr "Division"
 
 #: .\bio_diversity\forms.py:145 .\bio_diversity\mixins.py:68
-#: .\bio_diversity\models.py:457 .\bio_diversity\models.py:863
-#: .\bio_diversity\models.py:918 .\bio_diversity\models.py:1304
+#: .\bio_diversity\models.py:461 .\bio_diversity\models.py:892
+#: .\bio_diversity\models.py:947 .\bio_diversity\models.py:1340
 #, fuzzy
 #| msgid "Section"
 msgid "Collection"
@@ -391,9 +391,9 @@ msgstr "Titre"
 msgid "Crew"
 msgstr ""
 
-#: .\bio_diversity\forms.py:292 .\bio_diversity\views.py:306
-#: .\bio_diversity\views.py:315 .\bio_diversity\views.py:321
-#: .\bio_diversity\views.py:336
+#: .\bio_diversity\forms.py:292 .\bio_diversity\views.py:283
+#: .\bio_diversity\views.py:292 .\bio_diversity\views.py:298
+#: .\bio_diversity\views.py:313 .\bio_diversity\views.py:397
 #, fuzzy
 msgid "Type of data entry"
 msgstr "Inventaire des données"
@@ -405,7 +405,7 @@ msgid "Personnel"
 msgstr "Personne"
 
 #: .\bio_diversity\forms.py:541 .\bio_diversity\mixins.py:472
-#: .\bio_diversity\models.py:743 .\bio_diversity\models.py:1745
+#: .\bio_diversity\models.py:772 .\bio_diversity\models.py:1821
 msgid "Program"
 msgstr ""
 
@@ -416,9 +416,8 @@ msgid "Feed Type"
 msgstr "type d'enregistrement"
 
 #: .\bio_diversity\forms.py:544 .\bio_diversity\mixins.py:253
-#: .\bio_diversity\models.py:880
+#: .\bio_diversity\models.py:909
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:315
-#: .\bio_diversity\templates\bio_diversity\prog_index.html:41
 msgid "Feeding Method"
 msgstr ""
 
@@ -451,13 +450,13 @@ msgstr ""
 msgid "Can only add to one group at a time"
 msgstr ""
 
-#: .\bio_diversity\forms.py:845 .\bio_diversity\models.py:118
-#: .\bio_diversity\models.py:512 .\bio_diversity\models.py:2100
-#: .\shared_models\models.py:618
+#: .\bio_diversity\forms.py:845 .\bio_diversity\models.py:119
+#: .\bio_diversity\models.py:541 .\bio_diversity\models.py:2218
+#: .\shared_models\models.py:619
 msgid "Start Date"
 msgstr "Date de début"
 
-#: .\bio_diversity\forms.py:846 .\bio_diversity\models.py:222
+#: .\bio_diversity\forms.py:846 .\bio_diversity\models.py:223
 #, fuzzy
 #| msgid "End Date"
 msgid "End date"
@@ -476,8 +475,8 @@ msgid "Sub River Code"
 msgstr "Toutes les espèces "
 
 #: .\bio_diversity\forms.py:849 .\bio_diversity\mixins.py:682
-#: .\bio_diversity\models.py:1532 .\bio_diversity\models.py:1827
-#: .\bio_diversity\models.py:2033
+#: .\bio_diversity\models.py:1565 .\bio_diversity\models.py:1903
+#: .\bio_diversity\models.py:2151
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:91
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:58
 msgid "Tributary"
@@ -519,17 +518,23 @@ msgstr ""
 msgid "Observations"
 msgstr "section"
 
-#: .\bio_diversity\forms.py:1025 .\bio_diversity\forms.py:1158
-#: .\bio_diversity\models.py:1169 .\bio_diversity\models.py:1749
-#: .\bio_diversity\models.py:2050 .\bio_diversity\models.py:2159
+#: .\bio_diversity\forms.py:888
+#, fuzzy
+#| msgid "serial number"
+msgid "Sample Number"
+msgstr "numéro de série"
+
+#: .\bio_diversity\forms.py:1071 .\bio_diversity\forms.py:1210
+#: .\bio_diversity\models.py:1205 .\bio_diversity\models.py:1825
+#: .\bio_diversity\models.py:2168 .\bio_diversity\models.py:2277
 #, fuzzy
 msgid "Facility"
 msgstr "Résumé financier:"
 
-#: .\bio_diversity\forms.py:1028 .\bio_diversity\mixins.py:617
-#: .\bio_diversity\models.py:453 .\bio_diversity\models.py:809
-#: .\bio_diversity\models.py:860 .\bio_diversity\models.py:914
-#: .\bio_diversity\models.py:1300
+#: .\bio_diversity\forms.py:1074 .\bio_diversity\mixins.py:617
+#: .\bio_diversity\models.py:457 .\bio_diversity\models.py:838
+#: .\bio_diversity\models.py:889 .\bio_diversity\models.py:943
+#: .\bio_diversity\models.py:1336
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:141
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:76
 #, fuzzy
@@ -537,7 +542,7 @@ msgstr "Résumé financier:"
 msgid "Stock Code"
 msgstr "Projet"
 
-#: .\bio_diversity\forms.py:1031
+#: .\bio_diversity\forms.py:1077
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:129
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:70
 #, fuzzy
@@ -545,45 +550,57 @@ msgstr "Projet"
 msgid "Collection Code"
 msgstr "Projet"
 
-#: .\bio_diversity\forms.py:1035
+#: .\bio_diversity\forms.py:1081
 #, fuzzy
 msgid "Search Detail"
 msgstr "Détails de la personne:"
 
-#: .\bio_diversity\forms.py:1038 .\bio_diversity\mixins.py:318
-#: .\bio_diversity\models.py:341
+#: .\bio_diversity\forms.py:1084 .\bio_diversity\mixins.py:318
+#: .\bio_diversity\models.py:345 .\bio_diversity\models.py:2046
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:103
 msgid "Individual"
 msgstr ""
 
-#: .\bio_diversity\forms.py:1041 .\bio_diversity\mixins.py:268
-#: .\bio_diversity\models.py:344
+#: .\bio_diversity\forms.py:1087 .\bio_diversity\mixins.py:268
+#: .\bio_diversity\models.py:348
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:132
 msgid "Group"
 msgstr ""
 
-#: .\bio_diversity\forms.py:1042
+#: .\bio_diversity\forms.py:1088
 #, fuzzy
 #| msgid "Start Date"
 msgid "Report Date"
 msgstr "Date de début"
 
-#: .\bio_diversity\forms.py:1058
+#: .\bio_diversity\forms.py:1089
+#, fuzzy
+#| msgid "Start Date"
+msgid "Report Start Date"
+msgstr "Date de début"
+
+#: .\bio_diversity\forms.py:1090
+#, fuzzy
+#| msgid "Start Date"
+msgid "Report End Date"
+msgstr "Date de début"
+
+#: .\bio_diversity\forms.py:1110
 msgid "Facic Id is required"
 msgstr ""
 
-#: .\bio_diversity\forms.py:1159
+#: .\bio_diversity\forms.py:1211
 #, fuzzy
 #| msgid "record type"
 msgid "Template Type"
 msgstr "type d'enregistrement"
 
-#: .\bio_diversity\mixins.py:12 .\bio_diversity\models.py:131
+#: .\bio_diversity\mixins.py:12 .\bio_diversity\models.py:132
 msgid "Animal Detail Code"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:20 .\bio_diversity\models.py:1128
-#: .\bio_diversity\models.py:1418 .\bio_diversity\models.py:1467
+#: .\bio_diversity\mixins.py:20 .\bio_diversity\models.py:1164
+#: .\bio_diversity\models.py:1451 .\bio_diversity\models.py:1500
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:112
 msgid "Animal Detail Cross Reference"
 msgstr ""
@@ -593,22 +610,22 @@ msgstr ""
 msgid "Add Fish to Collection"
 msgstr "Ajouter / Modifier les détails du projet"
 
-#: .\bio_diversity\mixins.py:35 .\bio_diversity\models.py:134
-#: .\bio_diversity\models.py:373
+#: .\bio_diversity\mixins.py:35 .\bio_diversity\models.py:135
+#: .\bio_diversity\models.py:377
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:239
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:152
 msgid "Animal Detail Subjective Code"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:43 .\bio_diversity\models.py:459
-#: .\bio_diversity\models.py:486
+#: .\bio_diversity\mixins.py:43 .\bio_diversity\models.py:463
+#: .\bio_diversity\models.py:515
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:224
 #, fuzzy
 #| msgid "Amount"
 msgid "Count"
 msgstr "Montant"
 
-#: .\bio_diversity\mixins.py:51 .\bio_diversity\models.py:451
+#: .\bio_diversity\mixins.py:51 .\bio_diversity\models.py:455
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:227
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:158
 #, fuzzy
@@ -616,13 +633,13 @@ msgstr "Montant"
 msgid "Count Code"
 msgstr "Projet"
 
-#: .\bio_diversity\mixins.py:59 .\bio_diversity\models.py:1223
+#: .\bio_diversity\mixins.py:59 .\bio_diversity\models.py:1259
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:230
 #, fuzzy
 msgid "Count Detail"
 msgstr "Détails de financement:"
 
-#: .\bio_diversity\mixins.py:76 .\bio_diversity\models.py:94
+#: .\bio_diversity\mixins.py:76 .\bio_diversity\models.py:95
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:153
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:91
 #, fuzzy
@@ -630,27 +647,27 @@ msgstr "Détails de financement:"
 msgid "Container Detail Code"
 msgstr "Courriel"
 
-#: .\bio_diversity\mixins.py:84 .\bio_diversity\models.py:335
-#: .\bio_diversity\models.py:450 .\bio_diversity\models.py:588
-#: .\bio_diversity\models.py:702 .\bio_diversity\models.py:878
+#: .\bio_diversity\mixins.py:84 .\bio_diversity\models.py:339
+#: .\bio_diversity\models.py:454 .\bio_diversity\models.py:617
+#: .\bio_diversity\models.py:731 .\bio_diversity\models.py:907
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:156
 msgid "Container Cross Reference"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:92 .\bio_diversity\models.py:97
+#: .\bio_diversity\mixins.py:92 .\bio_diversity\models.py:98
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:159
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:95
 msgid "Container Detail Subjective Code"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:100 .\bio_diversity\models.py:412
-#: .\bio_diversity\models.py:528
+#: .\bio_diversity\mixins.py:100 .\bio_diversity\models.py:416
+#: .\bio_diversity\models.py:557
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:165
-#: .\bio_diversity\templates\bio_diversity\facic_index.html:32
+#: .\bio_diversity\templates\bio_diversity\facic_index.html:31
 msgid "Cup"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:108 .\bio_diversity\models.py:1243
+#: .\bio_diversity\mixins.py:108 .\bio_diversity\models.py:1279
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:168
 #, fuzzy
 msgid "Cup Detail"
@@ -661,14 +678,14 @@ msgstr "Détails de la personne:"
 msgid "Data"
 msgstr "Détails de la personne:"
 
-#: .\bio_diversity\mixins.py:125 .\bio_diversity\models.py:410
-#: .\bio_diversity\models.py:511 .\bio_diversity\models.py:1237
+#: .\bio_diversity\mixins.py:125 .\bio_diversity\models.py:414
+#: .\bio_diversity\models.py:540 .\bio_diversity\models.py:1273
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:171
-#: .\bio_diversity\templates\bio_diversity\facic_index.html:36
+#: .\bio_diversity\templates\bio_diversity\facic_index.html:35
 msgid "Drawer"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:133 .\bio_diversity\models.py:689
+#: .\bio_diversity\mixins.py:133 .\bio_diversity\models.py:718
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:265
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:101
 #, fuzzy
@@ -676,17 +693,17 @@ msgstr ""
 msgid "Environment Code"
 msgstr "Projet"
 
-#: .\bio_diversity\mixins.py:141 .\bio_diversity\models.py:643
+#: .\bio_diversity\mixins.py:141 .\bio_diversity\models.py:672
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:259
 msgid "Environment Condition"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:149 .\bio_diversity\models.py:646
+#: .\bio_diversity\mixins.py:149 .\bio_diversity\models.py:675
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:262
 msgid "Environment Condition File"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:157 .\bio_diversity\models.py:599
+#: .\bio_diversity\mixins.py:157 .\bio_diversity\models.py:628
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:268
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:104
 msgid "Environment Subjective Code"
@@ -697,14 +714,14 @@ msgstr ""
 msgid "Environment Treatment"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:173 .\bio_diversity\models.py:704
+#: .\bio_diversity\mixins.py:173 .\bio_diversity\models.py:733
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:292
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:114
 msgid "Environment Treatment Code"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:190 .\bio_diversity\models.py:740
-#: .\bio_diversity\models.py:1752
+#: .\bio_diversity\mixins.py:190 .\bio_diversity\models.py:769
+#: .\bio_diversity\models.py:1828
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:46
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:28
 #, fuzzy
@@ -718,7 +735,7 @@ msgstr "Projet"
 msgid "Event Files"
 msgstr "Projet"
 
-#: .\bio_diversity\mixins.py:206 .\bio_diversity\models.py:804
+#: .\bio_diversity\mixins.py:206 .\bio_diversity\models.py:833
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:52
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:31
 #, fuzzy
@@ -726,7 +743,7 @@ msgstr "Projet"
 msgid "Event File Code"
 msgstr "Projet"
 
-#: .\bio_diversity\mixins.py:214 .\bio_diversity\models.py:739
+#: .\bio_diversity\mixins.py:214 .\bio_diversity\models.py:768
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:55
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:34
 #, fuzzy
@@ -746,7 +763,7 @@ msgstr "description"
 msgid "Feeding"
 msgstr "Financement"
 
-#: .\bio_diversity\mixins.py:245 .\bio_diversity\models.py:882
+#: .\bio_diversity\mixins.py:245 .\bio_diversity\models.py:911
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:312
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:139
 msgid "Feeding Code"
@@ -757,21 +774,21 @@ msgstr ""
 msgid "Add Fish to Container"
 msgstr "Ajouter / Modifier les détails du projet"
 
-#: .\bio_diversity\mixins.py:276 .\bio_diversity\models.py:1225
+#: .\bio_diversity\mixins.py:276 .\bio_diversity\models.py:1261
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:135
 #, fuzzy
 #| msgid "Project Detail"
 msgid "Group Detail"
 msgstr "Détails du projet"
 
-#: .\bio_diversity\mixins.py:285 .\bio_diversity\models.py:409
-#: .\bio_diversity\models.py:561 .\bio_diversity\models.py:1180
+#: .\bio_diversity\mixins.py:285 .\bio_diversity\models.py:413
+#: .\bio_diversity\models.py:590 .\bio_diversity\models.py:1216
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:174
 #: .\bio_diversity\templates\bio_diversity\facic_index.html:39
 msgid "Heath Unit"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:293 .\bio_diversity\models.py:1235
+#: .\bio_diversity\mixins.py:293 .\bio_diversity\models.py:1271
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:177
 msgid "Heath Unit Detail"
 msgstr ""
@@ -782,13 +799,13 @@ msgstr ""
 msgid "Doccuments"
 msgstr "Commentaires"
 
-#: .\bio_diversity\mixins.py:310 .\bio_diversity\models.py:1219
+#: .\bio_diversity\mixins.py:310 .\bio_diversity\models.py:1255
 #, fuzzy
 #| msgid "Project"
 msgid "Document Code"
 msgstr "Projet"
 
-#: .\bio_diversity\mixins.py:327 .\bio_diversity\models.py:1229
+#: .\bio_diversity\mixins.py:327 .\bio_diversity\models.py:1265
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:106
 msgid "Individual Detail"
 msgstr ""
@@ -798,21 +815,20 @@ msgstr ""
 msgid "Individual Treatment"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:344 .\bio_diversity\models.py:1469
+#: .\bio_diversity\mixins.py:344 .\bio_diversity\models.py:1502
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:121
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:143
 msgid "Individual Treatment Code"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:352 .\bio_diversity\models.py:593
-#: .\bio_diversity\models.py:1504
+#: .\bio_diversity\mixins.py:352 .\bio_diversity\models.py:622
+#: .\bio_diversity\models.py:1537
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:274
-#: .\bio_diversity\templates\bio_diversity\facic_index.html:25
 #: .\ios2\templates\ios2\_instruments.html:42
 msgid "Instrument"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:360 .\bio_diversity\models.py:1487
+#: .\bio_diversity\mixins.py:360 .\bio_diversity\models.py:1520
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:277
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:107
 #, fuzzy
@@ -826,23 +842,24 @@ msgstr "Type d'entrée"
 msgid "Instrument Detail"
 msgstr "Détails de l'entrée"
 
-#: .\bio_diversity\mixins.py:376 .\bio_diversity\models.py:1506
+#: .\bio_diversity\mixins.py:376 .\bio_diversity\models.py:1539
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:283
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:111
 #, fuzzy
 msgid "Instrument Detail Code"
 msgstr "Détails de l'entrée"
 
-#: .\bio_diversity\mixins.py:384 .\bio_diversity\models.py:339
-#: .\bio_diversity\models.py:447 .\bio_diversity\models.py:591
-#: .\bio_diversity\models.py:1221 .\bio_diversity\models.py:1621
-#: .\bio_diversity\models.py:1885 .\bio_diversity\models.py:2078
+#: .\bio_diversity\mixins.py:384 .\bio_diversity\models.py:343
+#: .\bio_diversity\models.py:451 .\bio_diversity\models.py:620
+#: .\bio_diversity\models.py:1257 .\bio_diversity\models.py:1667
+#: .\bio_diversity\models.py:1969 .\bio_diversity\models.py:2196
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:70
-#: .\ios2\models.py:58 .\publications\templates\publications\pub_detail.html:54
+#: .\ios2\models.py:58
+#: .\publications\templates\publications\pub_detail.html:54
 msgid "Location"
 msgstr "Location"
 
-#: .\bio_diversity\mixins.py:394 .\bio_diversity\models.py:1528
+#: .\bio_diversity\mixins.py:394 .\bio_diversity\models.py:1561
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:73
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:43
 #, fuzzy
@@ -857,7 +874,7 @@ msgstr "Location"
 msgid "Location Detail"
 msgstr "Location"
 
-#: .\bio_diversity\mixins.py:410 .\bio_diversity\models.py:1623
+#: .\bio_diversity\mixins.py:410 .\bio_diversity\models.py:1669
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:79
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:46
 #, fuzzy
@@ -865,7 +882,7 @@ msgstr "Location"
 msgid "Location Detail Code"
 msgstr "Location"
 
-#: .\bio_diversity\mixins.py:418 .\bio_diversity\models.py:1626
+#: .\bio_diversity\mixins.py:418 .\bio_diversity\models.py:1672
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:82
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:49
 #, fuzzy
@@ -874,6 +891,7 @@ msgid "Location Detail Subjective Code"
 msgstr "Courriel"
 
 #: .\bio_diversity\mixins.py:425
+#: .\bio_diversity\templates\bio_diversity\index.html:40
 msgid "Map"
 msgstr ""
 
@@ -881,22 +899,22 @@ msgstr ""
 msgid "Mortality"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:440 .\bio_diversity\models.py:1721
+#: .\bio_diversity\mixins.py:440 .\bio_diversity\models.py:1797
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:28
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:16
 #, fuzzy
 msgid "Organization"
 msgstr "Organisations"
 
-#: .\bio_diversity\mixins.py:448 .\bio_diversity\models.py:343
-#: .\bio_diversity\models.py:1942 .\bio_diversity\models.py:1961
+#: .\bio_diversity\mixins.py:448 .\bio_diversity\models.py:347
+#: .\bio_diversity\models.py:2044 .\bio_diversity\models.py:2079
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:206
 msgid "Pairing"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:456 .\bio_diversity\models.py:741
+#: .\bio_diversity\mixins.py:456 .\bio_diversity\models.py:770
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:58
-#: .\bio_diversity\templates\bio_diversity\prog_index.html:32
+#: .\bio_diversity\templates\bio_diversity\facic_index.html:76
 #, fuzzy
 #| msgid "Project"
 msgid "Personnel Code"
@@ -910,18 +928,17 @@ msgstr "Projet"
 msgid "Priority Code"
 msgstr "Projet"
 
-#: .\bio_diversity\mixins.py:480 .\bio_diversity\models.py:1719
+#: .\bio_diversity\mixins.py:480 .\bio_diversity\models.py:1795
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:34
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:19
-#: .\bio_diversity\templates\bio_diversity\prog_index.html:22
 msgid "Program Authority"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:488 .\bio_diversity\models.py:1778
+#: .\bio_diversity\mixins.py:488 .\bio_diversity\models.py:1854
 msgid "Protocol"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:496 .\bio_diversity\models.py:1747
+#: .\bio_diversity\mixins.py:496 .\bio_diversity\models.py:1823
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:37
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:22
 #, fuzzy
@@ -929,10 +946,8 @@ msgstr ""
 msgid "Protocol Code"
 msgstr "Projet"
 
-#: .\bio_diversity\mixins.py:504 .\bio_diversity\models.py:1779
+#: .\bio_diversity\mixins.py:504 .\bio_diversity\models.py:1855
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:40
-#: .\bio_diversity\templates\bio_diversity\facic_index.html:22
-#: .\bio_diversity\templates\bio_diversity\prog_index.html:25
 #, fuzzy
 #| msgid "Project title"
 msgid "Protocol File"
@@ -942,7 +957,7 @@ msgstr "Titre du projet"
 msgid "Quality Code"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:520 .\bio_diversity\models.py:1536
+#: .\bio_diversity\mixins.py:520 .\bio_diversity\models.py:1569
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:85
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:52
 #, fuzzy
@@ -960,7 +975,7 @@ msgstr "Toutes les espèces "
 msgid "Reports"
 msgstr "Rapports"
 
-#: .\bio_diversity\mixins.py:543 .\bio_diversity\models.py:2076
+#: .\bio_diversity\mixins.py:543 .\bio_diversity\models.py:2194
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:61
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:37
 #, fuzzy
@@ -968,25 +983,26 @@ msgstr "Rapports"
 msgid "Role Code"
 msgstr "Projet"
 
-#: .\bio_diversity\mixins.py:551 .\bio_diversity\models.py:1927
+#: .\bio_diversity\mixins.py:551 .\bio_diversity\models.py:2029
+#: .\bio_diversity\models.py:2049
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:242
 #: .\herring\models.py:237
 msgid "Sample"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:559 .\bio_diversity\models.py:1891
+#: .\bio_diversity\mixins.py:559 .\bio_diversity\models.py:1975
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:245
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:155
 msgid "Sample Code"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:567 .\bio_diversity\models.py:1227
+#: .\bio_diversity\mixins.py:567 .\bio_diversity\models.py:1263
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:248
 #, fuzzy
 msgid "Sample Detail"
 msgstr "Détails de l'entrée"
 
-#: .\bio_diversity\mixins.py:576 .\bio_diversity\models.py:1944
+#: .\bio_diversity\mixins.py:576
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:209
 #, fuzzy
 #| msgid "Title"
@@ -999,7 +1015,7 @@ msgstr "Titre"
 msgid "Spawning Detail"
 msgstr "Détails de financement:"
 
-#: .\bio_diversity\mixins.py:593 .\bio_diversity\models.py:2008
+#: .\bio_diversity\mixins.py:593 .\bio_diversity\models.py:2126
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:215
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:126
 msgid "Spawn Detail Code"
@@ -1023,53 +1039,53 @@ msgstr "Toutes les espèces "
 msgid "Sub river Code"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:633 .\bio_diversity\models.py:402
-#: .\bio_diversity\models.py:2061
+#: .\bio_diversity\mixins.py:633 .\bio_diversity\models.py:406
+#: .\bio_diversity\models.py:2179
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:180
 #: .\bio_diversity\templates\bio_diversity\facic_index.html:43
 msgid "Tank"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:641 .\bio_diversity\models.py:1233
+#: .\bio_diversity\mixins.py:641 .\bio_diversity\models.py:1269
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:183
 #, fuzzy
 msgid "Tank Detail"
 msgstr "Détails de la personne:"
 
-#: .\bio_diversity\mixins.py:650 .\bio_diversity\models.py:346
-#: .\bio_diversity\models.py:414
+#: .\bio_diversity\mixins.py:650 .\bio_diversity\models.py:350
+#: .\bio_diversity\models.py:418
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:64
 msgid "Team"
 msgstr ""
 
 #: .\bio_diversity\mixins.py:657
-#: .\bio_diversity\templates\bio_diversity\index.html:37
+#: .\bio_diversity\templates\bio_diversity\index.html:26
 #, fuzzy
 #| msgid "name"
 msgid "Templates"
 msgstr "nom"
 
-#: .\bio_diversity\mixins.py:665 .\bio_diversity\models.py:406
-#: .\bio_diversity\models.py:2124
+#: .\bio_diversity\mixins.py:665 .\bio_diversity\models.py:410
+#: .\bio_diversity\models.py:2242
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:186
 #: .\bio_diversity\templates\bio_diversity\facic_index.html:47
 msgid "Tray"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:673 .\bio_diversity\models.py:1241
+#: .\bio_diversity\mixins.py:673 .\bio_diversity\models.py:1277
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:189
 #, fuzzy
 msgid "Tray Detail"
 msgstr "Détails de la personne:"
 
-#: .\bio_diversity\mixins.py:690 .\bio_diversity\models.py:404
-#: .\bio_diversity\models.py:2098 .\bio_diversity\models.py:2191
+#: .\bio_diversity\mixins.py:690 .\bio_diversity\models.py:408
+#: .\bio_diversity\models.py:2216 .\bio_diversity\models.py:2309
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:192
 #: .\bio_diversity\templates\bio_diversity\facic_index.html:51
 msgid "Trough"
 msgstr ""
 
-#: .\bio_diversity\mixins.py:698 .\bio_diversity\models.py:1239
+#: .\bio_diversity\mixins.py:698 .\bio_diversity\models.py:1275
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:195
 #, fuzzy
 msgid "Trough Detail"
@@ -1081,49 +1097,49 @@ msgstr "Détails de financement:"
 msgid "Unit"
 msgstr "Annuler la soumission"
 
-#: .\bio_diversity\models.py:31 .\bio_diversity\models.py:157
+#: .\bio_diversity\models.py:32 .\bio_diversity\models.py:158
 msgid "Created By"
 msgstr ""
 
-#: .\bio_diversity\models.py:32 .\bio_diversity\models.py:158
+#: .\bio_diversity\models.py:33 .\bio_diversity\models.py:159
 #, fuzzy
 #| msgid "Start Date"
 msgid "Created Date"
 msgstr "Date de début"
 
-#: .\bio_diversity\models.py:95 .\bio_diversity\models.py:127
-#: .\bio_diversity\models.py:596 .\bio_diversity\models.py:1508
-#: .\bio_diversity\models.py:1966
+#: .\bio_diversity\models.py:96 .\bio_diversity\models.py:128
+#: .\bio_diversity\models.py:625 .\bio_diversity\models.py:1541
+#: .\bio_diversity\models.py:2084
 #, fuzzy
 #| msgid "Email"
 msgid "Value"
 msgstr "Courriel"
 
-#: .\bio_diversity\models.py:98 .\bio_diversity\models.py:129
+#: .\bio_diversity\models.py:99 .\bio_diversity\models.py:130
 #, fuzzy
 #| msgid "Date last modified"
 msgid "Date detail was recorded"
 msgstr "Date de la dernière modification"
 
-#: .\bio_diversity\models.py:99
+#: .\bio_diversity\models.py:100
 msgid "Last Date Detail is valid"
 msgstr ""
 
-#: .\bio_diversity\models.py:100 .\bio_diversity\models.py:120
-#: .\bio_diversity\models.py:1126 .\bio_diversity\models.py:1416
+#: .\bio_diversity\models.py:101 .\bio_diversity\models.py:121
+#: .\bio_diversity\models.py:1162 .\bio_diversity\models.py:1449
 msgid "Detail still valid?"
 msgstr ""
 
-#: .\bio_diversity\models.py:101 .\bio_diversity\models.py:121
-#: .\bio_diversity\models.py:130 .\bio_diversity\models.py:461
-#: .\bio_diversity\models.py:603 .\bio_diversity\models.py:647
-#: .\bio_diversity\models.py:713 .\bio_diversity\models.py:745
-#: .\bio_diversity\models.py:810 .\bio_diversity\models.py:890
-#: .\bio_diversity\models.py:921 .\bio_diversity\models.py:1246
-#: .\bio_diversity\models.py:1311 .\bio_diversity\models.py:1473
-#: .\bio_diversity\models.py:1491 .\bio_diversity\models.py:1546
-#: .\bio_diversity\models.py:1781 .\bio_diversity\models.py:1893
-#: .\bio_diversity\models.py:1947 .\bio_diversity\models.py:1968
+#: .\bio_diversity\models.py:102 .\bio_diversity\models.py:122
+#: .\bio_diversity\models.py:131 .\bio_diversity\models.py:465
+#: .\bio_diversity\models.py:632 .\bio_diversity\models.py:676
+#: .\bio_diversity\models.py:742 .\bio_diversity\models.py:774
+#: .\bio_diversity\models.py:839 .\bio_diversity\models.py:919
+#: .\bio_diversity\models.py:950 .\bio_diversity\models.py:1282
+#: .\bio_diversity\models.py:1347 .\bio_diversity\models.py:1506
+#: .\bio_diversity\models.py:1524 .\bio_diversity\models.py:1579
+#: .\bio_diversity\models.py:1857 .\bio_diversity\models.py:1977
+#: .\bio_diversity\models.py:2053 .\bio_diversity\models.py:2086
 #: .\ios2\templates\ios2\_instruments.html:73
 #: .\ios2\templates\ios2\_moorings.html:69
 #: .\ios2\templates\ios2\_services.html:49 .\maret\models.py:93
@@ -1131,48 +1147,48 @@ msgstr ""
 msgid "Comments"
 msgstr "Commentaires"
 
-#: .\bio_diversity\models.py:119 .\bio_diversity\models.py:513
-#: .\bio_diversity\models.py:2101 .\shared_models\models.py:619
+#: .\bio_diversity\models.py:120 .\bio_diversity\models.py:542
+#: .\bio_diversity\models.py:2219 .\shared_models\models.py:620
 msgid "End Date"
 msgstr "Date de fin"
 
-#: .\bio_diversity\models.py:128 .\bio_diversity\models.py:1967
+#: .\bio_diversity\models.py:129 .\bio_diversity\models.py:2085
 msgid "Quality"
 msgstr ""
 
-#: .\bio_diversity\models.py:221 .\bio_diversity\models.py:1545
+#: .\bio_diversity\models.py:222 .\bio_diversity\models.py:1578
 #, fuzzy
 #| msgid "Start Date"
 msgid "Start date"
 msgstr "Date de début"
 
-#: .\bio_diversity\models.py:258 .\bio_diversity\models.py:510
-#: .\bio_diversity\models.py:559 .\bio_diversity\models.py:2030
-#: .\bio_diversity\models.py:2097 .\bio_diversity\models.py:2138
-#: .\shared_models\models.py:30 .\shared_models\models.py:232
-#: .\shared_models\models.py:276 .\shared_models\models.py:315
-#: .\shared_models\models.py:348 .\shared_models\models.py:834
-#: .\shared_models\models.py:896
+#: .\bio_diversity\models.py:259 .\bio_diversity\models.py:539
+#: .\bio_diversity\models.py:588 .\bio_diversity\models.py:2148
+#: .\bio_diversity\models.py:2215 .\bio_diversity\models.py:2256
+#: .\shared_models\models.py:30 .\shared_models\models.py:233
+#: .\shared_models\models.py:277 .\shared_models\models.py:316
+#: .\shared_models\models.py:349 .\shared_models\models.py:835
+#: .\shared_models\models.py:897
 #, fuzzy
 msgid "name (en)"
 msgstr "nom (fra)"
 
-#: .\bio_diversity\models.py:313 .\bio_diversity\models.py:381
-#: .\bio_diversity\models.py:577 .\bio_diversity\models.py:1651
-#: .\bio_diversity\models.py:1998
+#: .\bio_diversity\models.py:317 .\bio_diversity\models.py:385
+#: .\bio_diversity\models.py:606 .\bio_diversity\models.py:1697
+#: .\bio_diversity\models.py:2116
 msgid "Minimum Value"
 msgstr ""
 
-#: .\bio_diversity\models.py:314 .\bio_diversity\models.py:382
-#: .\bio_diversity\models.py:579 .\bio_diversity\models.py:1652
-#: .\bio_diversity\models.py:2000
+#: .\bio_diversity\models.py:318 .\bio_diversity\models.py:386
+#: .\bio_diversity\models.py:608 .\bio_diversity\models.py:1698
+#: .\bio_diversity\models.py:2118
 msgid "Maximum Value"
 msgstr ""
 
-#: .\bio_diversity\models.py:315 .\bio_diversity\models.py:383
-#: .\bio_diversity\models.py:580 .\bio_diversity\models.py:710
-#: .\bio_diversity\models.py:887 .\bio_diversity\models.py:1472
-#: .\bio_diversity\models.py:1653 .\bio_diversity\models.py:2002
+#: .\bio_diversity\models.py:319 .\bio_diversity\models.py:387
+#: .\bio_diversity\models.py:609 .\bio_diversity\models.py:739
+#: .\bio_diversity\models.py:916 .\bio_diversity\models.py:1505
+#: .\bio_diversity\models.py:1699 .\bio_diversity\models.py:2120
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:147
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:85
 #, fuzzy
@@ -1180,35 +1196,35 @@ msgstr ""
 msgid "Units"
 msgstr "Annuler la soumission"
 
-#: .\bio_diversity\models.py:316 .\bio_diversity\models.py:2003
+#: .\bio_diversity\models.py:320 .\bio_diversity\models.py:2121
 #, fuzzy
 #| msgid "Subject"
 msgid "Subjective?"
 msgstr "Sujet"
 
-#: .\bio_diversity\models.py:327
+#: .\bio_diversity\models.py:331
 msgid "Type of measurement"
 msgstr ""
 
-#: .\bio_diversity\models.py:336
+#: .\bio_diversity\models.py:340
 msgid "Final Container in movement"
 msgstr ""
 
-#: .\bio_diversity\models.py:384 .\bio_diversity\models.py:1655
+#: .\bio_diversity\models.py:388 .\bio_diversity\models.py:1701
 #, fuzzy
 #| msgid "Project Detail"
 msgid "Subjective detail?"
 msgstr "Détails du projet"
 
-#: .\bio_diversity\models.py:390
+#: .\bio_diversity\models.py:394
 #, fuzzy
 #| msgid "Confirm email address"
 msgid "Container detail code"
 msgstr "Courriel"
 
-#: .\bio_diversity\models.py:452 .\bio_diversity\models.py:913
-#: .\bio_diversity\models.py:1299 .\bio_diversity\models.py:1890
-#: .\bio_diversity\models.py:2014 .\grais\models.py:115
+#: .\bio_diversity\models.py:456 .\bio_diversity\models.py:942
+#: .\bio_diversity\models.py:1335 .\bio_diversity\models.py:1974
+#: .\bio_diversity\models.py:2132 .\grais\models.py:115
 #: .\grais\templates\grais\base\_nav_left_auth.html:20
 #: .\grais\views\shared_views.py:112 .\grais\views\shared_views.py:129
 #: .\grais\views\shared_views.py:141
@@ -1217,322 +1233,328 @@ msgstr "Courriel"
 msgid "Species"
 msgstr "Toutes les espèces "
 
-#: .\bio_diversity\models.py:455 .\bio_diversity\models.py:916
-#: .\bio_diversity\models.py:1301
+#: .\bio_diversity\models.py:459 .\bio_diversity\models.py:945
+#: .\bio_diversity\models.py:1337
 #, fuzzy
 #| msgid "Section"
 msgid "Collection year"
 msgstr "Section"
 
-#: .\bio_diversity\models.py:460
+#: .\bio_diversity\models.py:464
 msgid "Estimated?"
 msgstr ""
 
-#: .\bio_diversity\models.py:543 .\bio_diversity\models.py:544
+#: .\bio_diversity\models.py:572 .\bio_diversity\models.py:573
 msgid "Data Format"
 msgstr ""
 
-#: .\bio_diversity\models.py:545
+#: .\bio_diversity\models.py:574
 #, fuzzy
 msgid "Datafile"
 msgstr "Détails de la personne:"
 
-#: .\bio_diversity\models.py:582
+#: .\bio_diversity\models.py:611
 #, fuzzy
 #| msgid "section"
 msgid "Objective observation?"
 msgstr "section"
 
-#: .\bio_diversity\models.py:594
+#: .\bio_diversity\models.py:623
 msgid "Environment variable"
 msgstr ""
 
-#: .\bio_diversity\models.py:600
+#: .\bio_diversity\models.py:629
 msgid "Is value an average?"
 msgstr ""
 
-#: .\bio_diversity\models.py:601
+#: .\bio_diversity\models.py:630
 #, fuzzy
 msgid "Quality of observation"
 msgstr "Organisation"
 
-#: .\bio_diversity\models.py:694 .\bio_diversity\models.py:1460
+#: .\bio_diversity\models.py:723 .\bio_diversity\models.py:1493
 msgid "Recommended Dosage"
 msgstr ""
 
-#: .\bio_diversity\models.py:696 .\bio_diversity\models.py:1461
+#: .\bio_diversity\models.py:725 .\bio_diversity\models.py:1494
 msgid "Treatment Manufacturer"
 msgstr ""
 
-#: .\bio_diversity\models.py:705 .\bio_diversity\models.py:884
-#: .\bio_diversity\models.py:1470
+#: .\bio_diversity\models.py:734 .\bio_diversity\models.py:913
+#: .\bio_diversity\models.py:1503
 #, fuzzy
 msgid "Lot Number"
 msgstr "Nouvelle organisation"
 
-#: .\bio_diversity\models.py:707 .\bio_diversity\models.py:1471
+#: .\bio_diversity\models.py:736 .\bio_diversity\models.py:1504
 #, fuzzy
 #| msgid "Close"
 msgid "Dose"
 msgstr "Fermer"
 
-#: .\bio_diversity\models.py:709
+#: .\bio_diversity\models.py:738
 #, fuzzy
 #| msgid "Location"
 msgid "Concentration"
 msgstr "Location"
 
-#: .\bio_diversity\models.py:711
+#: .\bio_diversity\models.py:740
 msgid "Duration (minutes)"
 msgstr ""
 
-#: .\bio_diversity\models.py:806
+#: .\bio_diversity\models.py:835
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:49
 #, fuzzy
 #| msgid "Project"
 msgid "Event File"
 msgstr "Projet"
 
-#: .\bio_diversity\models.py:864
+#: .\bio_diversity\models.py:893
 msgid "A"
 msgstr ""
 
-#: .\bio_diversity\models.py:865
+#: .\bio_diversity\models.py:894
 #, fuzzy
 #| msgid "NB"
 msgid "B"
 msgstr "N.-B."
 
-#: .\bio_diversity\models.py:886
+#: .\bio_diversity\models.py:915
 #, fuzzy
 #| msgid "Amount"
 msgid "Amount of Feed"
 msgstr "Montant"
 
-#: .\bio_diversity\models.py:888
+#: .\bio_diversity\models.py:917
 #, fuzzy
 msgid "Description of frequency"
 msgstr "description (ang)"
 
-#: .\bio_diversity\models.py:903
+#: .\bio_diversity\models.py:932
 msgid "Maufacturer"
 msgstr ""
 
-#: .\bio_diversity\models.py:920
+#: .\bio_diversity\models.py:949
 msgid "Group still valid?"
 msgstr ""
 
-#: .\bio_diversity\models.py:1125 .\bio_diversity\models.py:1298
+#: .\bio_diversity\models.py:1161 .\bio_diversity\models.py:1334
 msgid "From Parent Group"
 msgstr ""
 
-#: .\bio_diversity\models.py:1196 .\cruises\models.py:101 .\maret\models.py:161
-#: .\shared_models\models.py:97
+#: .\bio_diversity\models.py:1232 .\cruises\models.py:101
+#: .\maret\models.py:161 .\shared_models\models.py:98
 msgid "English text"
 msgstr "Texte en anglais"
 
-#: .\bio_diversity\models.py:1197 .\cruises\models.py:102 .\maret\models.py:162
-#: .\shared_models\models.py:98
+#: .\bio_diversity\models.py:1233 .\cruises\models.py:102
+#: .\maret\models.py:162 .\shared_models\models.py:99
 msgid "French text"
 msgstr "Texte en français"
 
-#: .\bio_diversity\models.py:1202 .\bio_diversity\models.py:1203
+#: .\bio_diversity\models.py:1238 .\bio_diversity\models.py:1239
 #: .\cruises\models.py:106 .\cruises\models.py:107 .\maret\models.py:166
-#: .\maret\models.py:167 .\shared_models\models.py:102
-#: .\shared_models\models.py:103
+#: .\maret\models.py:167 .\shared_models\models.py:103
+#: .\shared_models\models.py:104
 msgid "eng_text"
 msgstr "fra_text"
 
-#: .\bio_diversity\models.py:1231
+#: .\bio_diversity\models.py:1267
 #, fuzzy
 msgid "Spawn Detail"
 msgstr "Détails de la personne:"
 
-#: .\bio_diversity\models.py:1244
+#: .\bio_diversity\models.py:1280
 #, fuzzy
 #| msgid "Project"
 msgid "Document File"
 msgstr "Projet"
 
-#: .\bio_diversity\models.py:1306
+#: .\bio_diversity\models.py:1342
 msgid "ABL Fish UFID"
 msgstr ""
 
-#: .\bio_diversity\models.py:1308
+#: .\bio_diversity\models.py:1344
 msgid "PIT tag ID"
 msgstr ""
 
-#: .\bio_diversity\models.py:1310
+#: .\bio_diversity\models.py:1346
 msgid "Entry still valid?"
 msgstr ""
 
-#: .\bio_diversity\models.py:1490
+#: .\bio_diversity\models.py:1523
 #, fuzzy
 #| msgid "serial number"
 msgid "Serial Number"
 msgstr "numéro de série"
 
-#: .\bio_diversity\models.py:1534 .\bio_diversity\models.py:1829
+#: .\bio_diversity\models.py:1567 .\bio_diversity\models.py:1905
 msgid "SubRiver Code"
 msgstr ""
 
-#: .\bio_diversity\models.py:1538 .\publications\models.py:200
+#: .\bio_diversity\models.py:1571 .\publications\models.py:200
 msgid "Latitude"
 msgstr ""
 
-#: .\bio_diversity\models.py:1540 .\publications\models.py:201
+#: .\bio_diversity\models.py:1573 .\publications\models.py:201
 msgid "Longitude"
 msgstr ""
 
-#: .\bio_diversity\models.py:1542
+#: .\bio_diversity\models.py:1575
 #, fuzzy
 #| msgid "title"
 msgid "End Latitude"
 msgstr "titre"
 
-#: .\bio_diversity\models.py:1544
+#: .\bio_diversity\models.py:1577
 #, fuzzy
 #| msgid "title"
 msgid "End Longitude"
 msgstr "titre"
 
-#: .\bio_diversity\models.py:1661
+#: .\bio_diversity\models.py:1707
 #, fuzzy
 #| msgid "Confirm email address"
 msgid "Location detail code"
 msgstr "Courriel"
 
-#: .\bio_diversity\models.py:1676
+#: .\bio_diversity\models.py:1722
 msgid "Dam"
 msgstr ""
 
-#: .\bio_diversity\models.py:1678
+#: .\bio_diversity\models.py:1725
+#, fuzzy
+#| msgid "name"
+msgid "sample"
+msgstr "nom"
+
+#: .\bio_diversity\models.py:1728
 #, fuzzy
 #| msgid "Project"
 msgid "Priority of Female"
 msgstr "Projet"
 
-#: .\bio_diversity\models.py:1680
+#: .\bio_diversity\models.py:1730
 #, fuzzy
 #| msgid "Project"
 msgid "Priority of Pair"
 msgstr "Projet"
 
-#: .\bio_diversity\models.py:1682
+#: .\bio_diversity\models.py:1732
 #, fuzzy
 #| msgid "Cruises"
 msgid "Cross"
 msgstr "Croisières"
 
-#: .\bio_diversity\models.py:1695 .\bio_diversity\models.py:1730
+#: .\bio_diversity\models.py:1771 .\bio_diversity\models.py:1806
 #, fuzzy
 #| msgid "Last name"
 msgid "Last Name"
 msgstr "Nom de famille"
 
-#: .\bio_diversity\models.py:1696 .\bio_diversity\models.py:1731
+#: .\bio_diversity\models.py:1772 .\bio_diversity\models.py:1807
 #, fuzzy
 #| msgid "First name"
 msgid "First Name"
 msgstr "Prénom"
 
-#: .\bio_diversity\models.py:1697
+#: .\bio_diversity\models.py:1773
 #, fuzzy
 #| msgid "Unsubmit"
 msgid "Initials"
 msgstr "Annuler la soumission"
 
-#: .\bio_diversity\models.py:1698
+#: .\bio_diversity\models.py:1774
 #, fuzzy
 #| msgid "Record List"
 msgid "Record still valid?"
 msgstr "Liste des enregistrements"
 
-#: .\bio_diversity\models.py:1717
+#: .\bio_diversity\models.py:1793
 #, fuzzy
 #| msgid "record name"
 msgid "Program Name"
 msgstr "nom d'enregistrement"
 
-#: .\bio_diversity\models.py:1718
+#: .\bio_diversity\models.py:1794
 #, fuzzy
 #| msgid "Description"
 msgid "Program Description"
 msgstr "Description"
 
-#: .\bio_diversity\models.py:1753
+#: .\bio_diversity\models.py:1829
 #, fuzzy
 #| msgid "Project"
 msgid "Protocol Name"
 msgstr "Projet"
 
-#: .\bio_diversity\models.py:1754
+#: .\bio_diversity\models.py:1830
 #, fuzzy
 #| msgid "Description"
 msgid "Protocol Description"
 msgstr "Description"
 
-#: .\bio_diversity\models.py:1831
+#: .\bio_diversity\models.py:1907
 #, fuzzy
 #| msgid "title"
 msgid "Min Latitude"
 msgstr "titre"
 
-#: .\bio_diversity\models.py:1833
+#: .\bio_diversity\models.py:1909
 #, fuzzy
 #| msgid "title"
 msgid "Max Latitude"
 msgstr "titre"
 
-#: .\bio_diversity\models.py:1835
+#: .\bio_diversity\models.py:1911
 msgid "Min Longitude"
 msgstr ""
 
-#: .\bio_diversity\models.py:1837
+#: .\bio_diversity\models.py:1913
 msgid "Max Longitude"
 msgstr ""
 
-#: .\bio_diversity\models.py:1887
+#: .\bio_diversity\models.py:1971
 msgid "Animal Detail X Ref"
 msgstr ""
 
-#: .\bio_diversity\models.py:1889
+#: .\bio_diversity\models.py:1973
 msgid "Sample Fish Number"
 msgstr ""
 
-#: .\bio_diversity\models.py:1940
+#: .\bio_diversity\models.py:2042
 msgid "Priority"
 msgstr ""
 
-#: .\bio_diversity\models.py:1946
+#: .\bio_diversity\models.py:2052
 msgid "Choice"
 msgstr ""
 
-#: .\bio_diversity\models.py:1962
+#: .\bio_diversity\models.py:2080
 msgid "Spawning Detail Code"
 msgstr ""
 
-#: .\bio_diversity\models.py:1965
+#: .\bio_diversity\models.py:2083
 msgid "Spawning Detail Subjective Code"
 msgstr ""
 
-#: .\bio_diversity\models.py:2013
+#: .\bio_diversity\models.py:2131
 #, fuzzy
 #| msgid "All Species "
 msgid "Species Name"
 msgstr "Toutes les espèces "
 
-#: .\bio_diversity\models.py:2015
+#: .\bio_diversity\models.py:2133
 #, fuzzy
 #| msgid "Common name"
 msgid "Species Common Name"
 msgstr "Nom commun"
 
-#: .\bio_diversity\models.py:2074
+#: .\bio_diversity\models.py:2192
 msgid "Team Member"
 msgstr ""
 
-#: .\bio_diversity\models.py:2141
+#: .\bio_diversity\models.py:2259
 #, fuzzy
 #| msgid "All Species "
 msgid "Subriver"
@@ -1540,19 +1562,17 @@ msgstr "Toutes les espèces "
 
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:11
 #: .\bio_diversity\templates\bio_diversity\codes_index.html:11
-#: .\bio_diversity\templates\bio_diversity\facic_index.html:11
 #: .\bio_diversity\templates\bio_diversity\index.html:11
 msgid "Biodiversity Tool"
 msgstr ""
 
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:16
-#: .\bio_diversity\templates\bio_diversity\prog_index.html:16
+#: .\bio_diversity\templates\bio_diversity\facic_index.html:68
 msgid "Program "
 msgstr ""
 
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:31
-#: .\bio_diversity\templates\bio_diversity\facic_index.html:19
-#: .\bio_diversity\templates\bio_diversity\prog_index.html:19
+#: .\bio_diversity\templates\bio_diversity\facic_index.html:72
 msgid "Protocol "
 msgstr ""
 
@@ -1661,23 +1681,24 @@ msgstr "Mettre à jour"
 #: .\scifi\templates\scifi\project_detail.html:28
 #: .\scifi\templates\scifi\responsibilitycenter_detail.html:28
 #: .\scifi\templates\scifi\transaction_detail.html:32
-#: .\shared_models\templates\shared_models\generic_form.html:41
+#: .\shared_models\templates\shared_models\generic_form.html:43
 #: .\shared_models\templates\shared_models\org_form.html:48
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:458
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:505
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:549
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:594
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:634
-#: .\shared_models\test\test_common_views.py:543 .\shared_models\views.py:199
+#: .\shared_models\test\test_common_views.py:543 .\shared_models\views.py:215
 #: .\shiny\templates\shiny\index.html:64
 msgid "Delete"
 msgstr "Supprimer"
 
-#: .\bio_diversity\templates\bio_diversity\bio_details.html:62
+#: .\bio_diversity\templates\bio_diversity\bio_details.html:70
 msgid "Add program event data"
 msgstr ""
 
-#: .\bio_diversity\templates\bio_diversity\bio_details.html:64
+#: .\bio_diversity\templates\bio_diversity\bio_details.html:72
+#: .\bio_diversity\templates\bio_diversity\bio_details.html:75
 #: .\bio_diversity\templates\bio_diversity\details_prot.html:13
 #: .\bio_diversity\templates\bio_diversity\details_table_block.html:11
 #: .\ios2\templates\ios2\instrument_form.html:53
@@ -1687,31 +1708,37 @@ msgstr ""
 #: .\publications\templates\publications\pub_form.html:32
 #: .\publications\templates\publications\pub_form.html:60
 #: .\shared_models\templates\shared_models\shared_filter.html:25
-#: .\shared_models\test\test_common_views.py:270 .\shared_models\views.py:84
+#: .\shared_models\test\test_common_views.py:270 .\shared_models\views.py:100
 #: .\staff\templates\staff\staffingplan_form.html:42
 #: .\staff\templates\staff\staffingplan_form.html:64
 msgid "Add"
 msgstr "Ajouter"
 
-#: .\bio_diversity\templates\bio_diversity\bio_details.html:64
+#: .\bio_diversity\templates\bio_diversity\bio_details.html:72
 #, fuzzy
 #| msgid "Add New Record"
 msgid "Add New Data"
 msgstr "Ajouter un enregistrement"
 
-#: .\bio_diversity\templates\bio_diversity\bio_details.html:79
+#: .\bio_diversity\templates\bio_diversity\bio_details.html:75
+#, fuzzy
+#| msgid "Add New Record"
+msgid "Add Measuring Data"
+msgstr "Ajouter un enregistrement"
+
+#: .\bio_diversity\templates\bio_diversity\bio_details.html:90
 #, fuzzy
 #| msgid "Confirm email address"
 msgid "Container History"
 msgstr "Courriel"
 
-#: .\bio_diversity\templates\bio_diversity\bio_details.html:103
+#: .\bio_diversity\templates\bio_diversity\bio_details.html:114
 #, fuzzy
 #| msgid "Comments"
 msgid "Documents"
 msgstr "Commentaires"
 
-#: .\bio_diversity\templates\bio_diversity\bio_details.html:105
+#: .\bio_diversity\templates\bio_diversity\bio_details.html:116
 #, fuzzy
 #| msgid "Add New Record"
 msgid "Add New Document"
@@ -1734,7 +1761,7 @@ msgstr ""
 #: .\sar_search\templates\sar_search\rp_points_file_import_form.html:121
 #: .\scifi\templates\scifi\file_import_form.html:101
 #: .\shared_models\mixins.py:233
-#: .\shared_models\templates\shared_models\generic_form.html:28
+#: .\shared_models\templates\shared_models\generic_form.html:30
 #: .\shared_models\templates\shared_models\generic_popout_form.html:33
 #: .\shared_models\templates\shared_models\org_form.html:38
 #: .\shared_models\templates\shared_models\shared_entry_form.html:47
@@ -1810,25 +1837,41 @@ msgstr ""
 msgid "Add New "
 msgstr "Ajouter un enregistrement"
 
-#: .\bio_diversity\templates\bio_diversity\facic_index.html:16
+#: .\bio_diversity\templates\bio_diversity\facic_index.html:11
+#, fuzzy
+msgid "Facility Data"
+msgstr "Résumé financier:"
+
+#: .\bio_diversity\templates\bio_diversity\facic_index.html:20
 msgid "Bulk Entry"
 msgstr ""
 
-#: .\bio_diversity\templates\bio_diversity\index.html:23
-msgid "Quick Entry (New Event)"
-msgstr ""
+#: .\bio_diversity\templates\bio_diversity\facic_index.html:64
+#, fuzzy
+#| msgid "All Species "
+msgid "Site Codes"
+msgstr "Toutes les espèces "
 
-#: .\bio_diversity\templates\bio_diversity\index.html:34
+#: .\bio_diversity\templates\bio_diversity\index.html:20
+#, fuzzy
+#| msgid "Project"
+msgid "Event List"
+msgstr "Projet"
+
+#: .\bio_diversity\templates\bio_diversity\index.html:23
+#, fuzzy
+#| msgid "New Component"
+msgid "New Event"
+msgstr "Nouveau composant"
+
+#: .\bio_diversity\templates\bio_diversity\index.html:37
 msgid "Generate reports"
 msgstr ""
 
-#: .\bio_diversity\templates\bio_diversity\index.html:40
-msgid "Maps"
-msgstr ""
-
 #: .\bio_diversity\templates\bio_diversity\index.html:43
-msgid "Individuals"
-msgstr ""
+#, fuzzy
+msgid "All Data"
+msgstr "Détails de la personne:"
 
 #: .\bio_diversity\templates\bio_diversity\index.html:54
 #, fuzzy
@@ -1840,75 +1883,57 @@ msgstr "enregistrement"
 msgid "Facility Info"
 msgstr "Résumé financier:"
 
-#: .\bio_diversity\templates\bio_diversity\index.html:60
-#, fuzzy
-#| msgid "record name"
-msgid "Programs"
-msgstr "nom d'enregistrement"
-
-#: .\bio_diversity\templates\bio_diversity\prog_index.html:11
-#, fuzzy
-#| msgid "record name"
-msgid "Program Admin"
-msgstr "nom d'enregistrement"
-
-#: .\bio_diversity\templates\bio_diversity\prog_index.html:38
-#, fuzzy
-#| msgid "All Species "
-msgid "Site Codes"
-msgstr "Toutes les espèces "
-
-#: .\bio_diversity\views.py:3080
+#: .\bio_diversity\views.py:3146
 #, fuzzy
 msgid "Are you sure you want to delete the following from the database?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette demande de capital du projet?"
 
-#: .\bio_diversity\views.py:3081
+#: .\bio_diversity\views.py:3147
 msgid "You will not be able to recover this object."
 msgstr ""
 
-#: .\bio_diversity\views.py:3104
+#: .\bio_diversity\views.py:3170
 msgid "Bio Diversity Comment Keywords"
 msgstr ""
 
-#: .\bio_diversity\views.py:3105
+#: .\bio_diversity\views.py:3171
 msgid "Manage Comment Keywords"
 msgstr ""
 
-#: .\bio_diversity\views.py:3120
+#: .\bio_diversity\views.py:3186
 msgid "Bio Diversity Help Text"
 msgstr ""
 
-#: .\bio_diversity\views.py:3121 .\maret\views.py:776
+#: .\bio_diversity\views.py:3187 .\maret\views.py:776
 #, fuzzy
 #| msgid "Help Text"
 msgid "Manage Help Texts"
 msgstr "Texte d'aide"
 
-#: .\bio_diversity\views.py:3221
+#: .\bio_diversity\views.py:3288
 #, fuzzy
 msgid "Facility Reports"
 msgstr "Résumé financier:"
 
-#: .\bio_diversity\views.py:3425
+#: .\bio_diversity\views.py:3501
 msgid "Default Templates"
 msgstr ""
 
-#: .\bio_diversity\views.py:3466
+#: .\bio_diversity\views.py:3542
 msgid "Growth Chart"
 msgstr ""
 
-#: .\bio_diversity\views.py:3483
+#: .\bio_diversity\views.py:3559
 #, fuzzy
 #| msgid "Start Date"
 msgid "Maturity Rate"
 msgstr "Date de début"
 
-#: .\bio_diversity\views.py:3532
+#: .\bio_diversity\views.py:3608
 msgid "Oxygen Data"
 msgstr ""
 
-#: .\bio_diversity\views.py:3537
+#: .\bio_diversity\views.py:3613
 msgid "Temperature Data"
 msgstr ""
 
@@ -1933,7 +1958,6 @@ msgstr ""
 #: .\sar_search\templates\sar_search\species_list.html:54
 #: .\scifi\templates\scifi\scifiuser_list.html:24
 #: .\scifi\templates\scifi\transaction_list.html:67
-#: .\shared_models\templates\shared_models\generic_filter.html:53
 #: .\shares\templates\shares\server_list.html:34
 #: .\shares\templates\shares\share_list.html:34
 #: .\shares\templates\shares\user_list.html:33
@@ -1987,14 +2011,14 @@ msgstr "Nouveau"
 #: .\sar_search\models.py:56 .\sar_search\models.py:85
 #: .\sar_search\models.py:109 .\shared_models\models.py:19
 #: .\shared_models\models.py:28 .\shared_models\models.py:36
-#: .\shared_models\models.py:37 .\shared_models\models.py:560
-#: .\shared_models\models.py:561 .\shared_models\models.py:577
-#: .\shared_models\models.py:578 .\shared_models\models.py:723
-#: .\shared_models\models.py:724 .\shared_models\models.py:730
-#: .\shared_models\models.py:839 .\shared_models\models.py:840
-#: .\shared_models\models.py:1038 .\shared_models\models.py:1039
-#: .\shared_models\utils.py:23 .\shared_models\views.py:975
-#: .\shared_models\views.py:1026 .\shared_models\views.py:1130
+#: .\shared_models\models.py:37 .\shared_models\models.py:561
+#: .\shared_models\models.py:562 .\shared_models\models.py:578
+#: .\shared_models\models.py:579 .\shared_models\models.py:724
+#: .\shared_models\models.py:725 .\shared_models\models.py:731
+#: .\shared_models\models.py:840 .\shared_models\models.py:841
+#: .\shared_models\models.py:1039 .\shared_models\models.py:1040
+#: .\shared_models\utils.py:23 .\shared_models\views.py:997
+#: .\shared_models\views.py:1048 .\shared_models\views.py:1152
 #: .\shares\models.py:61 .\staff\views.py:34 .\staff\views.py:221
 #: .\staff\views.py:222
 msgid "name"
@@ -2071,8 +2095,8 @@ msgstr "Types de composantes des instruments"
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:548
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:593
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:633
-#: .\shared_models\test\test_common_views.py:400 .\shared_models\views.py:136
-#: .\shared_models\views.py:306 .\shiny\templates\shiny\index.html:62
+#: .\shared_models\test\test_common_views.py:400 .\shared_models\views.py:152
+#: .\shared_models\views.py:322 .\shiny\templates\shiny\index.html:62
 msgid "Edit"
 msgstr "Modifier"
 
@@ -2824,7 +2848,7 @@ msgid "Probes"
 msgstr "Projet"
 
 #: .\grais\templates\grais\base\_nav_left_auth.html:38
-#: .\shared_models\models.py:617
+#: .\shared_models\models.py:618
 msgid "Samplers"
 msgstr ""
 
@@ -2882,7 +2906,7 @@ msgstr ""
 msgid "GCSamples"
 msgstr "nom"
 
-#: .\herring\models.py:174 .\shared_models\models.py:1025
+#: .\herring\models.py:174 .\shared_models\models.py:1026
 #, fuzzy
 #| msgid "Clear"
 msgid "year"
@@ -3163,7 +3187,7 @@ msgstr "Liens externes"
 #: .\inventory\templates\inventory\temp_formset.html:30
 #: .\inventory\templates\inventory\temp_formset.html:77
 #: .\shared_models\templates\shared_models\generic_formset.html:18
-#: .\shared_models\test\test_common_views.py:401 .\shared_models\views.py:142
+#: .\shared_models\test\test_common_views.py:401 .\shared_models\views.py:158
 #: .\staff\templates\staff\staffingplan_form.html:35
 #: .\staff\templates\staff\staffingplan_form.html:57
 msgid "Save"
@@ -3433,8 +3457,8 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"                Êtes-vous sûr de vouloir supprimer l'entrée suivante : <em>"
-"%(o)s</em>\n"
+"                Êtes-vous sûr de vouloir supprimer l'entrée suivante : <em>%"
+"(o)s</em>\n"
 "            "
 
 #: .\ios2\templates\ios2\instrument_base.html:12
@@ -3464,8 +3488,8 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"                Êtes-vous sûr de vouloir supprimer l'entrée suivante : <em>"
-"%(o)s</em>\n"
+"                Êtes-vous sûr de vouloir supprimer l'entrée suivante : <em>%"
+"(o)s</em>\n"
 "            "
 
 #: .\ios2\templates\ios2\instrument_detail.html:43
@@ -3562,8 +3586,8 @@ msgstr ""
 #, fuzzy, python-format
 msgid ""
 "\n"
-"                  %(object)s  Adding %(ct)s to %(instrument)s "
-"%(object.instruments)s\n"
+"                  %(object)s  Adding %(ct)s to %(instrument)s %(object."
+"instruments)s\n"
 "                "
 msgstr ""
 "\n"
@@ -3736,8 +3760,8 @@ msgstr "Soumis"
 #, fuzzy, python-format
 msgid ""
 "\n"
-"                    %(object)s  Adding %(ct)s to %(instrument)s "
-"%(object.instruments)s\n"
+"                    %(object)s  Adding %(ct)s to %(instrument)s %(object."
+"instruments)s\n"
 "                "
 msgstr ""
 "\n"
@@ -3890,18 +3914,18 @@ msgid "Main actions"
 msgstr "Transactions"
 
 #: .\maret\models.py:95 .\maret\models.py:137 .\sar_search\models.py:225
-#: .\sar_search\models.py:327 .\shared_models\models.py:187
-#: .\shared_models\models.py:213 .\shared_models\models.py:244
-#: .\shared_models\models.py:288 .\shared_models\models.py:324
-#: .\shared_models\models.py:357
+#: .\sar_search\models.py:327 .\shared_models\models.py:188
+#: .\shared_models\models.py:214 .\shared_models\models.py:245
+#: .\shared_models\models.py:289 .\shared_models\models.py:325
+#: .\shared_models\models.py:358
 msgid "date last modified"
 msgstr "date de dernière modification"
 
 #: .\maret\models.py:97 .\maret\models.py:139 .\sar_search\models.py:226
-#: .\sar_search\models.py:328 .\shared_models\models.py:188
-#: .\shared_models\models.py:214 .\shared_models\models.py:245
-#: .\shared_models\models.py:289 .\shared_models\models.py:325
-#: .\shared_models\models.py:358
+#: .\sar_search\models.py:328 .\shared_models\models.py:189
+#: .\shared_models\models.py:215 .\shared_models\models.py:246
+#: .\shared_models\models.py:290 .\shared_models\models.py:326
+#: .\shared_models\models.py:359
 msgid "last modified by"
 msgstr "dernièrement modifié par"
 
@@ -3934,7 +3958,7 @@ msgstr "Aucun élément n'a été ajouté à cet instrument."
 
 #: .\maret\templates\maret\_committees.html:18
 #: .\maret\templates\maret\_interactions.html:18 .\publications\models.py:220
-#: .\shared_models\models.py:614
+#: .\shared_models\models.py:615
 msgid "Description"
 msgstr "Description"
 
@@ -4468,13 +4492,13 @@ msgstr "Détails du projet"
 #, python-format
 msgid ""
 "\n"
-"                Are you sure you want to delete the project entitled: <em>"
-"%(o)s</em> from the database?\n"
+"                Are you sure you want to delete the project entitled: <em>%"
+"(o)s</em> from the database?\n"
 "            "
 msgstr ""
 "\n"
-"                Êtes-vous sûr de vouloir supprimer le projet suivant : <em>"
-"%(o)s</em>\n"
+"                Êtes-vous sûr de vouloir supprimer le projet suivant : <em>%"
+"(o)s</em>\n"
 "            "
 
 #: .\publications\templates\publications\pub_detail.html:24
@@ -4723,7 +4747,7 @@ msgid "Duplicate Record"
 msgstr ""
 
 #: .\shared_models\filters.py:19 .\shared_models\filters.py:81
-#: .\shared_models\filters.py:136 .\shared_models\models.py:227
+#: .\shared_models\filters.py:136 .\shared_models\models.py:228
 #: .\shared_models\templates\shared_models\org_index.html:13
 #, fuzzy
 msgid "Region - National (NCR)"
@@ -4731,7 +4755,7 @@ msgstr "chef de section"
 
 #: .\shared_models\filters.py:20 .\shared_models\filters.py:82
 #: .\shared_models\filters.py:119 .\shared_models\filters.py:137
-#: .\shared_models\models.py:262
+#: .\shared_models\models.py:263
 #: .\shared_models\templates\shared_models\org_index.html:16
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:58
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:225
@@ -4744,18 +4768,18 @@ msgid "Sector"
 msgstr "secteur"
 
 #: .\shared_models\filters.py:21 .\shared_models\filters.py:83
-#: .\shared_models\filters.py:120 .\shared_models\models.py:310
+#: .\shared_models\filters.py:120 .\shared_models\models.py:311
 #: .\shared_models\templates\shared_models\org_index.html:19
 msgid "Branch - Directorate (NCR)"
 msgstr ""
 
 #: .\shared_models\filters.py:22 .\shared_models\filters.py:84
-#: .\shared_models\models.py:337
+#: .\shared_models\models.py:338
 #: .\shared_models\templates\shared_models\org_index.html:22
 msgid "Division - Branch (NCR)"
 msgstr ""
 
-#: .\shared_models\filters.py:23 .\shared_models\models.py:369
+#: .\shared_models\filters.py:23 .\shared_models\models.py:370
 #: .\shared_models\templates\shared_models\org_index.html:25
 #, fuzzy
 msgid "Section - Team (NCR)"
@@ -4802,387 +4826,387 @@ msgstr ""
 msgid "Please make sure the two email addresses provided match."
 msgstr "Assurez-vous que les deux adresses e-mail fournies correspondent."
 
-#: .\shared_models\models.py:31 .\shared_models\models.py:835
+#: .\shared_models\models.py:31 .\shared_models\models.py:836
 #, fuzzy
 msgid "name (fr)"
 msgstr "nom (fra)"
 
-#: .\shared_models\models.py:51 .\shared_models\models.py:210
-#: .\shared_models\models.py:241 .\shared_models\models.py:286
-#: .\shared_models\models.py:322 .\shared_models\models.py:355
+#: .\shared_models\models.py:51 .\shared_models\models.py:211
+#: .\shared_models\models.py:242 .\shared_models\models.py:287
+#: .\shared_models\models.py:323 .\shared_models\models.py:356
 msgid "unique identifier"
 msgstr ""
 
-#: .\shared_models\models.py:63 .\shared_models\models.py:81
+#: .\shared_models\models.py:63 .\shared_models\models.py:82
 #, fuzzy
 msgid "Description (en)"
 msgstr "description (ang)"
 
-#: .\shared_models\models.py:64 .\shared_models\models.py:82
+#: .\shared_models\models.py:64 .\shared_models\models.py:83
 #, fuzzy
 msgid "Description (fr)"
 msgstr "description (fra)"
 
 # please never touch this translation!!
 #: .\shared_models\models.py:69 .\shared_models\models.py:70
-#: .\shared_models\models.py:87 .\shared_models\models.py:88
+#: .\shared_models\models.py:88 .\shared_models\models.py:89
 #: .\shiny\models.py:38 .\shiny\models.py:39
 msgid "description_en"
 msgstr "description_fr"
 
-#: .\shared_models\models.py:180
+#: .\shared_models\models.py:181
 msgid "Canada"
 msgstr ""
 
-#: .\shared_models\models.py:181
+#: .\shared_models\models.py:182
 msgid "United States"
 msgstr ""
 
-#: .\shared_models\models.py:183 .\shared_models\models.py:233
+#: .\shared_models\models.py:184 .\shared_models\models.py:234
 msgid "abbreviation (English)"
 msgstr ""
 
-#: .\shared_models\models.py:184 .\shared_models\models.py:234
+#: .\shared_models\models.py:185 .\shared_models\models.py:235
 msgid "abbreviation (French)"
 msgstr ""
 
-#: .\shared_models\models.py:185
+#: .\shared_models\models.py:186
 msgid "country"
 msgstr ""
 
-#: .\shared_models\models.py:193 .\shared_models\models.py:194
+#: .\shared_models\models.py:194 .\shared_models\models.py:195
 msgid "abbrev_eng"
 msgstr "abbrev_fre"
 
-#: .\shared_models\models.py:205 .\shared_models\models.py:277
-#: .\shared_models\models.py:316 .\shared_models\models.py:354
-#: .\shared_models\models.py:571 .\shared_models\models.py:897
+#: .\shared_models\models.py:206 .\shared_models\models.py:278
+#: .\shared_models\models.py:317 .\shared_models\models.py:355
+#: .\shared_models\models.py:572 .\shared_models\models.py:898
 msgid "abbreviation"
 msgstr ""
 
-#: .\shared_models\models.py:206
+#: .\shared_models\models.py:207
 msgid "RDG / ADM"
 msgstr ""
 
-#: .\shared_models\models.py:208 .\shared_models\models.py:239
-#: .\shared_models\models.py:284 .\shared_models\models.py:320
-#: .\shared_models\models.py:352
+#: .\shared_models\models.py:209 .\shared_models\models.py:240
+#: .\shared_models\models.py:285 .\shared_models\models.py:321
+#: .\shared_models\models.py:353
 msgid "admin"
 msgstr ""
 
-#: .\shared_models\models.py:228
+#: .\shared_models\models.py:229
 #, fuzzy
 msgid "Regions - National (NCR)"
 msgstr "chef de section"
 
-#: .\shared_models\models.py:235 .\shared_models\models.py:278
-#: .\shared_models\models.py:1033
+#: .\shared_models\models.py:236 .\shared_models\models.py:279
+#: .\shared_models\models.py:1034
 msgid "region"
 msgstr ""
 
-#: .\shared_models\models.py:237
+#: .\shared_models\models.py:238
 msgid "Director General / Associate Deputy Minister"
 msgstr ""
 
 # please never touch this translation!!
-#: .\shared_models\models.py:267 .\shared_models\models.py:268
+#: .\shared_models\models.py:268 .\shared_models\models.py:269
 msgid "abbrev_en"
 msgstr "abbrev_fr"
 
-#: .\shared_models\models.py:280 .\shared_models\views.py:776
+#: .\shared_models\models.py:281 .\shared_models\views.py:798
 msgid "sector"
 msgstr "secteur"
 
-#: .\shared_models\models.py:282
+#: .\shared_models\models.py:283
 msgid "regional director / NCR director general"
 msgstr ""
 
-#: .\shared_models\models.py:311
+#: .\shared_models\models.py:312
 msgid "Branches - Directorates (NCR)"
 msgstr ""
 
-#: .\shared_models\models.py:317 .\shared_models\views.py:705
+#: .\shared_models\models.py:318 .\shared_models\views.py:727
 msgid "branch"
 msgstr "direction"
 
-#: .\shared_models\models.py:318
+#: .\shared_models\models.py:319
 #, fuzzy
 msgid "division manager / NCR director"
 msgstr "chef de division"
 
-#: .\shared_models\models.py:338
+#: .\shared_models\models.py:339
 msgid "Divisions - Branches (NCR)"
 msgstr ""
 
-#: .\shared_models\models.py:350
+#: .\shared_models\models.py:351
 #, fuzzy
 msgid "section head  / NCR team lead"
 msgstr "approuvé par le chef de section"
 
-#: .\shared_models\models.py:370
+#: .\shared_models\models.py:371
 msgid "Sections - Teams (NCR)"
 msgstr ""
 
 # please never touch this translation!!
-#: .\shared_models\models.py:427 .\shared_models\models.py:428
+#: .\shared_models\models.py:428 .\shared_models\models.py:429
 msgid "full_name_en"
 msgstr "full_name_fr"
 
 # please never touch this translation!!
-#: .\shared_models\models.py:435 .\shared_models\models.py:436
+#: .\shared_models\models.py:436 .\shared_models\models.py:437
 msgid "full_name_en_ver1"
 msgstr "full_name_fr_ver1"
 
-#: .\shared_models\models.py:612
+#: .\shared_models\models.py:613
 #, fuzzy
 msgid "Mission Number"
 msgstr "Nouvelle organisation"
 
-#: .\shared_models\models.py:613
+#: .\shared_models\models.py:614
 #, fuzzy
 msgid "Mission Name"
 msgstr "Organisation"
 
-#: .\shared_models\models.py:615
+#: .\shared_models\models.py:616
 msgid "Purpose"
 msgstr ""
 
-#: .\shared_models\models.py:616
+#: .\shared_models\models.py:617
 msgid "Chief Scientist"
 msgstr ""
 
-#: .\shared_models\models.py:621
+#: .\shared_models\models.py:622
 msgid "Area of Operation"
 msgstr ""
 
-#: .\shared_models\models.py:622
+#: .\shared_models\models.py:623
 #, fuzzy
 msgid "Number of Profiles"
 msgstr "Projets soumis"
 
-#: .\shared_models\models.py:623
+#: .\shared_models\models.py:624
 msgid "MEDS ID"
 msgstr ""
 
-#: .\shared_models\models.py:627
+#: .\shared_models\models.py:628
 msgid "West Bound Longitude"
 msgstr ""
 
-#: .\shared_models\models.py:629
+#: .\shared_models\models.py:630
 msgid "East Bound Longitude"
 msgstr ""
 
-#: .\shared_models\models.py:631
+#: .\shared_models\models.py:632
 msgid "North Bound Latitude"
 msgstr ""
 
-#: .\shared_models\models.py:633
+#: .\shared_models\models.py:634
 msgid "South Bound Latitude"
 msgstr ""
 
-#: .\shared_models\models.py:635
+#: .\shared_models\models.py:636
 #, fuzzy
 msgid "funding agency name"
 msgstr "programme de financement"
 
-#: .\shared_models\models.py:637
+#: .\shared_models\models.py:638
 #, fuzzy
 msgid "funding project title"
 msgstr "titre du projet"
 
-#: .\shared_models\models.py:639
+#: .\shared_models\models.py:640
 #, fuzzy
 msgid "funding project ID"
 msgstr "but du financement"
 
-#: .\shared_models\models.py:641
+#: .\shared_models\models.py:642
 msgid "research projects programs"
 msgstr ""
 
-#: .\shared_models\models.py:643
+#: .\shared_models\models.py:644
 #, fuzzy
 msgid "references"
 msgstr "Référence"
 
-#: .\shared_models\models.py:645
+#: .\shared_models\models.py:646
 #, fuzzy
 #| msgid "Section"
 msgid "editors"
 msgstr "Section"
 
-#: .\shared_models\models.py:646
+#: .\shared_models\models.py:647
 msgid "A list of dmapps user who can edit this cruise"
 msgstr ""
 
-#: .\shared_models\models.py:679
+#: .\shared_models\models.py:680
 msgid "NS"
 msgstr "N.-É."
 
-#: .\shared_models\models.py:680
+#: .\shared_models\models.py:681
 msgid "NB"
 msgstr "N.-B."
 
-#: .\shared_models\models.py:681
+#: .\shared_models\models.py:682
 msgid "PE"
 msgstr ""
 
-#: .\shared_models\models.py:682
+#: .\shared_models\models.py:683
 msgid "QC"
 msgstr "Qc"
 
-#: .\shared_models\models.py:683
+#: .\shared_models\models.py:684
 #, fuzzy
 msgid "NL"
 msgstr "T.-N.-L."
 
-#: .\shared_models\models.py:742
+#: .\shared_models\models.py:743
 msgid "GCNDB key"
 msgstr ""
 
-#: .\shared_models\models.py:743
+#: .\shared_models\models.py:744
 msgid "Parent GCNDB key"
 msgstr ""
 
-#: .\shared_models\models.py:744
+#: .\shared_models\models.py:745
 msgid "NDADW water body ID"
 msgstr ""
 
-#: .\shared_models\models.py:833
+#: .\shared_models\models.py:834
 #, fuzzy
 msgid "code"
 msgstr "enregistrement"
 
-#: .\shared_models\models.py:851
+#: .\shared_models\models.py:852
 #, fuzzy
 msgid "script"
 msgstr "description"
 
 # please never touch this translation!!
-#: .\shared_models\models.py:881 .\shared_models\models.py:882
+#: .\shared_models\models.py:882 .\shared_models\models.py:883
 msgid "location_en"
 msgstr "Location_fr"
 
-#: .\shared_models\models.py:898
+#: .\shared_models\models.py:899
 #, fuzzy
 #| msgid "Email address"
 msgid "address"
 msgstr "Courriel"
 
-#: .\shared_models\models.py:899
+#: .\shared_models\models.py:900
 #, fuzzy
 msgid "city"
 msgstr "description"
 
-#: .\shared_models\models.py:900
+#: .\shared_models\models.py:901
 msgid "postal code"
 msgstr ""
 
-#: .\shared_models\models.py:902
+#: .\shared_models\models.py:903
 msgid "Is this a DFO location?"
 msgstr ""
 
 # please never touch this translation!!
-#: .\shared_models\models.py:955 .\shared_models\models.py:956
+#: .\shared_models\models.py:956 .\shared_models\models.py:957
 msgid "full_name_and_address_en"
 msgstr "full_name_and_address_fr"
 
-#: .\shared_models\models.py:969
+#: .\shared_models\models.py:970
 msgid "first name"
 msgstr "prénom"
 
-#: .\shared_models\models.py:970
+#: .\shared_models\models.py:971
 msgid "last name"
 msgstr "nom de famille"
 
-#: .\shared_models\models.py:971
+#: .\shared_models\models.py:972
 #, fuzzy
 #| msgid "Close"
 msgid "phone"
 msgstr "Fermer"
 
-#: .\shared_models\models.py:972
+#: .\shared_models\models.py:973
 #, fuzzy
 #| msgid "Email"
 msgid "email"
 msgstr "Courriel"
 
-#: .\shared_models\models.py:974
+#: .\shared_models\models.py:975
 #, fuzzy
 msgid "affiliation"
 msgstr "Organisation"
 
-#: .\shared_models\models.py:975
+#: .\shared_models\models.py:976
 #, fuzzy
 #| msgid "job_title_en"
 msgid "job title (en)"
 msgstr "job_title_fr"
 
-#: .\shared_models\models.py:976
+#: .\shared_models\models.py:977
 #, fuzzy
 msgid "job title (fr)"
 msgstr "titre"
 
-#: .\shared_models\models.py:977
+#: .\shared_models\models.py:978
 #, fuzzy
 msgid "linkage to DM Apps User"
 msgstr "Utilisateur de Applis GD"
 
-#: .\shared_models\models.py:980
+#: .\shared_models\models.py:981
 #, fuzzy
 #| msgid "Reports"
 msgid "expertise"
 msgstr "Rapports"
 
 # please never touch this translation!!
-#: .\shared_models\models.py:1008 .\shared_models\models.py:1009
+#: .\shared_models\models.py:1009 .\shared_models\models.py:1010
 msgid "job_title_en"
 msgstr "job_title_fr"
 
-#: .\shared_models\models.py:1024
+#: .\shared_models\models.py:1025
 msgid "authors"
 msgstr ""
 
-#: .\shared_models\models.py:1026
+#: .\shared_models\models.py:1027
 #, fuzzy
 #| msgid "application name"
 msgid "publication name"
 msgstr "nom de l'application"
 
-#: .\shared_models\models.py:1027
+#: .\shared_models\models.py:1028
 #, fuzzy
 #| msgid "application name"
 msgid "publication number"
 msgstr "nom de l'application"
 
-#: .\shared_models\models.py:1028
+#: .\shared_models\models.py:1029
 msgid "URL (en)"
 msgstr ""
 
-#: .\shared_models\models.py:1029
+#: .\shared_models\models.py:1030
 msgid "URL (fr)"
 msgstr ""
 
-#: .\shared_models\models.py:1030
+#: .\shared_models\models.py:1031
 msgid "abstract (en)"
 msgstr ""
 
-#: .\shared_models\models.py:1031
+#: .\shared_models\models.py:1032
 msgid "abstract (fr)"
 msgstr ""
 
-#: .\shared_models\models.py:1032
+#: .\shared_models\models.py:1033
 #, fuzzy
 #| msgid "Cruises"
 msgid "series"
 msgstr "Croisières"
 
 # please never touch this translation!!
-#: .\shared_models\models.py:1048 .\shared_models\models.py:1049
+#: .\shared_models\models.py:1049 .\shared_models\models.py:1050
 msgid "url_en"
 msgstr "url_fr"
 
 # please never touch this translation!!
-#: .\shared_models\models.py:1058 .\shared_models\models.py:1059
+#: .\shared_models\models.py:1059 .\shared_models\models.py:1060
 msgid "abstract_en"
 msgstr "abstract_fr"
 
@@ -5219,6 +5243,10 @@ msgstr ""
 "\n"
 "                                Calendrier %(y)s \n"
 "                            "
+
+#: .\shared_models\templates\shared_models\generic_filter.html:53
+msgid "(click on a header to sort current page)"
+msgstr "(cliquez sur un en-tête pour trier la page actuelle)"
 
 #: .\shared_models\templates\shared_models\generic_filter.html:66
 #: .\shared_models\templates\shared_models\generic_filter.html:157
@@ -5293,8 +5321,8 @@ msgid "Financial Coding"
 msgstr "Résumé financier:"
 
 #: .\shared_models\templates\shared_models\org_index.html:47
-#: .\shared_models\views.py:1034 .\shared_models\views.py:1042
-#: .\shared_models\views.py:1055 .\shared_models\views.py:1064
+#: .\shared_models\views.py:1056 .\shared_models\views.py:1064
+#: .\shared_models\views.py:1077 .\shared_models\views.py:1086
 #, fuzzy
 #| msgid "Project"
 msgid "Project Codes"
@@ -5489,7 +5517,7 @@ msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
 msgid "Details"
 msgstr "Détails de la personne:"
 
-#: .\shared_models\test\test_common_views.py:269 .\shared_models\views.py:78
+#: .\shared_models\test\test_common_views.py:269 .\shared_models\views.py:94
 #, fuzzy
 msgid "New {}"
 msgstr "Nouveau"
@@ -5517,7 +5545,7 @@ msgstr ""
 msgid "unknown"
 msgstr ""
 
-#: .\shared_models\views.py:190
+#: .\shared_models\views.py:206
 msgid ""
 "Are you sure you want to delete the following {item_name}? <br>  <span "
 "class='red-font'>{item}</span>"
@@ -5525,89 +5553,89 @@ msgstr ""
 "Êtes-vous certain de vouloir supprimer l'objet suivant ? <br> <span "
 "class='red-font'>{item}</span>"
 
-#: .\shared_models\views.py:262
+#: .\shared_models\views.py:278
 msgid "Delete Confirmation"
 msgstr "Confirmation de suppression"
 
-#: .\shared_models\views.py:533
+#: .\shared_models\views.py:555
 msgid "Warning"
 msgstr "Avertissement"
 
-#: .\shared_models\views.py:535
+#: .\shared_models\views.py:557
 msgid "These are shared tables for all of DM Apps."
 msgstr "Ce sont des tables partagées pour toutes les Applis GD."
 
-#: .\shared_models\views.py:536 .\shared_models\views.py:543
+#: .\shared_models\views.py:558 .\shared_models\views.py:565
 msgid "Please be careful when editing."
 msgstr "S'il vous plaît soyez prudent lors de l'édition."
 
-#: .\shared_models\views.py:537
+#: .\shared_models\views.py:559
 msgid "DM Apps Shared Settings"
 msgstr "Paramètres partagés des Applis GD"
 
-#: .\shared_models\views.py:542 .\shared_models\views.py:544
+#: .\shared_models\views.py:564 .\shared_models\views.py:566
 #, fuzzy
 msgid "DFO Organization Spreadsheet"
 msgstr "Organisations"
 
-#: .\shared_models\views.py:560
+#: .\shared_models\views.py:582
 msgid "section"
 msgstr "section"
 
-#: .\shared_models\views.py:566 .\shared_models\views.py:586
-#: .\shared_models\views.py:602 .\shared_models\views.py:613
-#: .\shared_models\views.py:639 .\shared_models\views.py:659
-#: .\shared_models\views.py:675 .\shared_models\views.py:686
-#: .\shared_models\views.py:711 .\shared_models\views.py:731
-#: .\shared_models\views.py:747 .\shared_models\views.py:758
-#: .\shared_models\views.py:782 .\shared_models\views.py:803
-#: .\shared_models\views.py:819 .\shared_models\views.py:830
-#: .\shared_models\views.py:851 .\shared_models\views.py:867
-#: .\shared_models\views.py:883 .\shared_models\views.py:894
-#: .\shared_models\views.py:916 .\shared_models\views.py:932
-#: .\shared_models\views.py:948 .\shared_models\views.py:959
-#: .\shared_models\views.py:1165 .\shared_models\views.py:1177
+#: .\shared_models\views.py:588 .\shared_models\views.py:608
+#: .\shared_models\views.py:624 .\shared_models\views.py:635
+#: .\shared_models\views.py:661 .\shared_models\views.py:681
+#: .\shared_models\views.py:697 .\shared_models\views.py:708
+#: .\shared_models\views.py:733 .\shared_models\views.py:753
+#: .\shared_models\views.py:769 .\shared_models\views.py:780
+#: .\shared_models\views.py:804 .\shared_models\views.py:825
+#: .\shared_models\views.py:841 .\shared_models\views.py:852
+#: .\shared_models\views.py:873 .\shared_models\views.py:889
+#: .\shared_models\views.py:905 .\shared_models\views.py:916
+#: .\shared_models\views.py:938 .\shared_models\views.py:954
+#: .\shared_models\views.py:970 .\shared_models\views.py:981
+#: .\shared_models\views.py:1187 .\shared_models\views.py:1199
 #, fuzzy
 msgid "DFO Orgs"
 msgstr "Secteurs du MPO"
 
-#: .\shared_models\views.py:633
+#: .\shared_models\views.py:655
 msgid "division"
 msgstr "division"
 
-#: .\shared_models\views.py:845
+#: .\shared_models\views.py:867
 msgid "Regions - Sectors (NCR)"
 msgstr ""
 
-#: .\shared_models\views.py:909
+#: .\shared_models\views.py:931
 #, fuzzy
 msgid "Organizations - Sectors (NCR)"
 msgstr "Organisations"
 
-#: .\shared_models\views.py:982 .\shared_models\views.py:990
-#: .\shared_models\views.py:1003 .\shared_models\views.py:1012
+#: .\shared_models\views.py:1004 .\shared_models\views.py:1012
+#: .\shared_models\views.py:1025 .\shared_models\views.py:1034
 msgid "Responsibility Center"
 msgstr ""
 
-#: .\shared_models\views.py:1076
+#: .\shared_models\views.py:1098
 msgid "Create a New DM Apps User"
 msgstr "Créer un nouveau utilisateur de Applis GD"
 
-#: .\shared_models\views.py:1078
+#: .\shared_models\views.py:1100
 msgid "Please use extreme vigilance with this form."
 msgstr ""
 
-#: .\shared_models\views.py:1079
+#: .\shared_models\views.py:1101
 msgid ""
 "After this form is submitted, the new user will receive a confirmation e-"
 "mail."
 msgstr ""
 
-#: .\shared_models\views.py:1114
+#: .\shared_models\views.py:1136
 msgid "The user '{}' was created and an email was sent"
 msgstr ""
 
-#: .\shared_models\views.py:1131 .\shiny\views.py:30
+#: .\shared_models\views.py:1153 .\shiny\views.py:30
 msgid "description"
 msgstr "description"
 
@@ -5933,6 +5961,16 @@ msgstr "développement"
 #: .\templates\index_OLD.html:133
 msgid "Region Specific Applications"
 msgstr ""
+
+#, fuzzy
+#~| msgid "record name"
+#~ msgid "Programs"
+#~ msgstr "nom d'enregistrement"
+
+#, fuzzy
+#~| msgid "record name"
+#~ msgid "Program Admin"
+#~ msgstr "nom d'enregistrement"
 
 #~ msgid ""
 #~ "Required - a verification email will be sent to you once this form is "

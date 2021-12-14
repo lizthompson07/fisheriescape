@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
-from shared_models.models import FiscalYear, Section, Person
+from shared_models.models import FiscalYear, Section, Person, SubjectMatter
 from . import models, utils, model_choices
 from .model_choices import request_status_choices, get_process_status_choices
 
@@ -44,8 +44,9 @@ class CSASRequestFilter(django_filters.FilterSet):
     has_process = django_filters.BooleanFilter(field_name='processes', lookup_expr='isnull', label=_("Has process?"), exclude=True)
     status = django_filters.MultipleChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"), widget=forms.SelectMultiple(attrs=chosen_js))
     client = django_filters.ChoiceFilter(field_name="client", label=_("Client"), lookup_expr='exact')
-    decision = django_filters.ChoiceFilter(field_name="review__decision", label=_("Review decision"), lookup_expr='exact')
+    decision = django_filters.ChoiceFilter(field_name="review__decision", label=_("Recommendation"), lookup_expr='exact')
     prioritization = django_filters.ChoiceFilter(field_name="prioritization", label=_("Client prioritization"), lookup_expr='exact')
+    tags = django_filters.MultipleChoiceFilter(field_name="tags", label=_("Keyword tags"), lookup_expr='exact', distinct=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -59,6 +60,7 @@ class CSASRequestFilter(django_filters.FilterSet):
         office_choices = [(o.id, str(o)) for o in models.CSASOffice.objects.all()]
         decision_choices = model_choices.request_decision_choices
         prioritization_choices = model_choices.prioritization_choices
+        tag_choices = [(o.id, str(o)) for o in SubjectMatter.objects.filter(csasrequest__isnull=False).distinct()]
 
         self.filters['region'].field.choices = region_choices
         self.filters['sector'].field.choices = sector_choices
@@ -70,6 +72,7 @@ class CSASRequestFilter(django_filters.FilterSet):
         self.filters['decision'].field.choices = decision_choices
         self.filters['prioritization'].field.choices = prioritization_choices
         self.filters['office'].field.choices = office_choices
+        self.filters['tags'].field.choices = tag_choices
 
         self.filters['client'].field.widget.attrs = chosen_js
         self.filters['section'].field.widget.attrs = chosen_js
@@ -77,6 +80,7 @@ class CSASRequestFilter(django_filters.FilterSet):
         self.filters['advice_fiscal_year'].field.widget.attrs = chosen_js
         self.filters['region'].field.widget.attrs = chosen_js
         self.filters['sector'].field.widget.attrs = chosen_js
+        self.filters['tags'].field.widget.attrs = chosen_js
 
         regions = None
         if hasattr(self.data, "getlist"):

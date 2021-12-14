@@ -16,6 +16,7 @@ from rest_framework.viewsets import ModelViewSet
 from shared_models.api.views import _get_labels
 from shared_models.models import Section, Organization
 from . import serializers
+from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyApplicationOrReadOnly
 from .. import models, utils, model_choices, emails
 
@@ -150,6 +151,7 @@ class ApplicationOutcomeViewSet(ModelViewSet):
 class AchievementViewSet(ModelViewSet):
     queryset = models.Achievement.objects.all()
     serializer_class = serializers.AchievementSerializer
+    pagination_class = StandardResultsSetPagination
     permission_classes = [CanModifyApplicationOrReadOnly]
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['detail']
@@ -164,7 +166,6 @@ class AchievementViewSet(ModelViewSet):
                 raise ValidationError(_("Cannot run summary without user param."))
             user = get_object_or_404(User, pk=qp.get("user"))
             data = achievements_summary_table(user)
-            print(data)
             return Response(data)
         return super().list(request, *args, **kwargs)
 

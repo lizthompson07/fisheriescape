@@ -3,11 +3,31 @@ from django.db import models
 from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
-from shared_models.models import UnilingualSimpleLookup
+from shared_models.models import UnilingualSimpleLookup, Region
 # from django.core.mail import send_mail
 from django.urls import reverse
 from . import choices
 from django.utils.safestring import mark_safe
+
+
+YES_NO_CHOICES = (
+        (True, "Yes"),
+        (False, "No"),
+    )
+
+
+class SpotUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="spot_user", verbose_name=_("DM Apps user"))
+    region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="spot_users", on_delete=models.CASCADE, blank=True,
+                               null=True)
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator?"), choices=YES_NO_CHOICES)
+    is_crud_user = models.BooleanField(default=False, verbose_name=_("CRUD permissions?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
 
 
 class Species(UnilingualSimpleLookup):
@@ -210,7 +230,7 @@ class Person(models.Model):
     section = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("Section"))
     other_membership = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Other Membership"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), related_name="spot_last_modifications")
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()

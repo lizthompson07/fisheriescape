@@ -67,7 +67,7 @@ class Email:
         }
 
     def get_html_message(self):
-        t = loader.get_template(self.email_template_path)
+        t = loader.get_template(self.get_email_template_path())
         context = self.get_context_data()
         rendered = t.render(context)
         return rendered

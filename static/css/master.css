@@ -360,6 +360,10 @@
     width: 45%;
 }
 
+.w-90 {
+    width: 90%;
+}
+
 .greyed {
     background-color: #dddcdc;
 }

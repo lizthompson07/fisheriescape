@@ -7,7 +7,6 @@ urlpatterns = [
     # for home/index page
     path('', views.IndexTemplateView.as_view(),    name="index"),
     path('admin/index/', views.AdminIndexTemplateView.as_view(),    name="admin_index"),
-    path('prog/index/', views.ProgIndexTemplateView.as_view(),    name="prog_index"),
     path('codes/index/', views.CodesIndexTemplateView.as_view(),    name="codes_index"),
     path('facic/index/', views.FacicIndexTemplateView.as_view(),    name="facic_index"),
 
@@ -84,6 +83,8 @@ urlpatterns = [
     path('create/data/', views.DataCreate.as_view(), name="create_data"),
     path('create/data/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
     path('create/data/<int:evnt>/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
+
+    path('create/data/measuring/<int:evnt>/<str:pop>/', views.DataMeasuringCreate.as_view(), name="create_measuring_data"),
 
     path('log/data/', views.DataLog.as_view(), name="data_log"),
 

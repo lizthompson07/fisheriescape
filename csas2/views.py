@@ -671,7 +671,7 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
                     invitee = models.Invitee.objects.create(
                         meeting=meeting,
                         person_id=person,
-                        region=obj.lead_region,
+                        region=obj.lead_office.region,
                     )
                     invitee.roles.add(scm_roles.first())
             else:
@@ -701,7 +701,7 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
                     invitee = models.Invitee.objects.get_or_create(
                         meeting=meeting,
                         person_id=person,
-                        region=obj.lead_region,
+                        region=obj.lead_office.region,
                     )[0]
                     invitee.roles.add(science_lead_roles.first())
             else:
@@ -715,7 +715,7 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
                     invitee = models.Invitee.objects.get_or_create(
                         meeting=meeting,
                         person_id=person,
-                        region=obj.lead_region,
+                        region=obj.lead_office.region,
                     )[0]
                     invitee.roles.add(client_lead_roles.first())
             else:
@@ -729,7 +729,7 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
                     invitee = models.Invitee.objects.get_or_create(
                         meeting=meeting,
                         person_id=chair,
-                        region=obj.lead_region,
+                        region=obj.lead_office.region,
                     )[0]
                     invitee.roles.add(chair_roles.first())
             else:

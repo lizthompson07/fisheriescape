@@ -18,7 +18,7 @@
   <div class="btns mb-3">
     <a href="{% url 'scuba:dive_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
     <a href="{% url 'scuba:dive_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
-    {% if object.transect %}
+    {% if object.sample.transect %}
       <a href="{% url 'scuba:dive_data_entry' object.id %}" class="btn btn-primary btn-sm">{% trans "Data Entry Mode" %}</a>
     {% endif %}
   </div>
@@ -32,35 +32,11 @@
               <th>{% get_verbose_label object field %}</th>
               <td>{{ object.start_descent|time }}</td>
             </tr>
-          {% elif "transect" in field %}
-            <tr>
-              <th>{% get_verbose_label object field %}</th>
-              {% if object.transect %}
-                <td><a href="{% url 'scuba:site_detail' object.transect.site.id %}">{% trans "Transect" %} {{ object.transect }}</a></td>
-              {% else %}
-                <td>n/a</td>
-              {% endif %}
-            </tr>
           {% else %}
             {% verbose_td_display object field %}
           {% endif %}
         {% endfor %}
       </table>
-    </div>
-    <div class="col">
-      {% if not object.transect.get_starting_coordinates %}
-        <div class="alert alert-danger lead mb-3" role="alert">
-          {% url 'scuba:transect_edit' object.transect.id as transect_url %}
-          <span class="mdi mdi-emoticon-confused-outline h3 mr-2"></span>
-          {% blocktrans with transect_url=transect_url %}
-            This transect associated with this dive is missing some coordinates. Please add some <a href="{{ transect_url }}" target="_blank">here</a>.
-          {% endblocktrans %}
-        </div>
-      {% endif %}
-      {% localize off %}
-        <div id="map">
-        </div>
-      {% endlocalize %}
     </div>
   </div>
 
@@ -162,6 +138,7 @@
   </div>
 
 {% endblock %}
+
 {% block body_js %}
   {% localize off %}
     {{ block.super }}
@@ -174,41 +151,6 @@
     })
     </script>
 
-    {% if object.transect.get_starting_coordinates and  object.transect.get_ending_coordinates %}
-      <script type="application/javascript">
-
-      function initialize() {
-        map = new L.Map("map", {
-          center: new L.LatLng({{ object.transect.get_starting_coordinates.x }}, {{ object.transect.get_starting_coordinates.y }}),
-          zoom: 14,
-        });
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map)
-
-        var lineCoords = [
-          [{{object.transect.get_starting_coordinates.x }}, {{object.transect.get_starting_coordinates.y }}],
-          [{{object.transect.get_ending_coordinates.x }}, {{object.transect.get_ending_coordinates.y }}],
-        ];
-        L.marker(lineCoords[0], {icon: greenIcon}).addTo(map).bindPopup("<b>Start (0m)");
-        L.marker(lineCoords[1], {icon: redIcon}).addTo(map).bindPopup("<b>End (100m)");
-        L.polyline([lineCoords], {
-          color: 'black',
-          dashArray: '3',
-          weight: 1,
-        }).addTo(map).bindPopup("Transect: {{object.transect}}").openPopup();
-
-        map.fitBounds(lineCoords);
-      }
-
-      $(document).ready(function () {
-        // Stuff to do as soon as the DOM is ready
-        initialize()
-
-      });
-      </script>
-    {% endif %}
   {% endlocalize %}
 
 {% endblock %}

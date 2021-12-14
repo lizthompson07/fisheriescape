@@ -79,8 +79,14 @@ var app = new Vue({
       var query = `?user=true`;
       apiService(`/api/ppt/themes/${query}`).then(response => this.themes = response)
       apiService(`/api/ppt/fiscal-years/${query}`).then(response => this.fiscalYears = response)
-      apiService(`/api/ppt/tags/${query}`).then(response => this.tags = response)
-      apiService(`/api/ppt/funding-sources/${query}`).then(response => this.fundingSources = response)
+      apiService(`/api/ppt/tags/${query}`).then(response => {
+        this.tags = [{name:"-----", id: ""}];
+        this.tags.push(...response);
+      })
+      apiService(`/api/ppt/funding-sources/${query}`).then(response => {
+        this.fundingSources = [{display:"-----", id: ""}];
+        this.fundingSources.push(...response);
+      })
       apiService(`/api/ppt/regions/${query}`).then(response => this.regions = response)
       if (this.filter.region && this.filter.region !== "") query += `&branch__sector__region=${this.filter.region}`
       apiService(`/api/ppt/divisions/${query}`).then(response => this.divisions = response)
@@ -109,6 +115,7 @@ var app = new Vue({
       if (this.filter.title) endpoint += `title=${this.filter.title}&`;
       if (this.filter.staff) endpoint += `staff=${this.filter.staff}&`;
       if (this.filter.fiscal_year) endpoint += `fiscal_year=${this.filter.fiscal_year}&`;
+      if (this.filter.starting_fy) endpoint += `starting_fy=${this.filter.starting_fy}&`
       if (this.filter.tag) endpoint += `tag=${this.filter.tag}&`;
       if (this.filter.theme) endpoint += `theme=${this.filter.theme}&`;
       if (this.filter.functional_group) endpoint += `functional_group=${this.filter.functional_group}&`;
