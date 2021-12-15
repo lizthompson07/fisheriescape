@@ -379,19 +379,6 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["events"] = {
-            "title": _("Events Planner"),
-            "description": _("Tool for the planning and organization of events"),
-            "status": "dev",
-            "access": "login-required",
-            "url": reverse('events:index'),
-            "icon_path": 'img/icons/calendar.png',
-            "region": "all",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
         app_dict["spot"] = {
             "title": _("Pacific Salmon Grants & Contributions"),
             "description": _("Pacific region application for recording salmon G&C science project metadata"),
@@ -400,19 +387,6 @@ def get_app_dict(request):
             "url": reverse('spot:index'),
             "icon_path": 'img/icons/agreement.svg',
             "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
-        app_dict["scifi"] = {
-            "title": _("SciFi"),
-            "description": _("Science finance tracking and reporting tool."),
-            "status": "production",
-            "access": "permission-required",
-            "url": reverse('scifi:index'),
-            "icon_path": 'img/icons/money1.svg',
-            "region": "all",
         }
     except NoReverseMatch:
         pass
@@ -476,10 +450,6 @@ class IndexView(TemplateView):
     template_name = 'index.html'
 
     def dispatch(self, request, *args, **kwargs):
-        # messages.info(request,
-        #               mark_safe(_("Please note that this site is only intended for the storage of <b>unclassified information</b>.")))
-        # messages.warning(request,
-        #               mark_safe(_("<b>On Friday January 10, 2020 at 12pm AST, the site will be down for a few hours for scheduled maintenance. Sorry for any inconvenience.</b>")))
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):

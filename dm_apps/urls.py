@@ -77,13 +77,6 @@ if settings.INSTALLED_APPS.count("ihub"):
     urlpatterns.append(
         path('api/', include('ihub.api.urls')),
     )
-if settings.INSTALLED_APPS.count("events"):
-    urlpatterns.extend([
-        path('events/', include('events.urls')),
-        path('api/', include('events.api.urls')),
-    ])
-else:
-    print("not connecting events app")
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
@@ -146,11 +139,6 @@ if settings.INSTALLED_APPS.count("ihub"):
     urlpatterns += i18n_patterns(path('ihub/', include('ihub.urls')), prefix_default_language=True)
 else:
     print("not connecting ihub app")
-
-if settings.INSTALLED_APPS.count("scifi"):
-    urlpatterns += i18n_patterns(path('scifi/', include('scifi.urls')), prefix_default_language=True)
-else:
-    print("not connecting scifi app")
 
 if settings.INSTALLED_APPS.count("shares"):
     urlpatterns += i18n_patterns(path('gulf-shares/', include('shares.urls')), prefix_default_language=True)
