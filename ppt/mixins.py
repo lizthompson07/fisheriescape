@@ -18,6 +18,11 @@ class PPTLoginRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             return HttpResponseRedirect(reverse('accounts:denied_access'))
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = in_ppt_admin_group(self.request.user)
+        return context
+
 
 class ProjectLeadRequiredMixin(PPTLoginRequiredMixin):
     def test_func(self):

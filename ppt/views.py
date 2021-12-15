@@ -5,7 +5,6 @@ from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.db import IntegrityError
 from django.db.models import Value, TextField, Q
@@ -22,13 +21,13 @@ from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonCreateView, \
     CommonDetailView, CommonFilterView, CommonDeleteView, CommonUpdateView, CommonListView, CommonHardDeleteView, CommonFormsetView, CommonFormView
 from . import filters, forms, models, reports
-from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin, ManagerOrAdminRequiredMixin, SuperuserOrNationalAdminRequiredMixin
+from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin, ManagerOrAdminRequiredMixin, SuperuserOrNationalAdminRequiredMixin, PPTLoginRequiredMixin
 from .utils import get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin, \
     get_review_score_rubric, get_status_report_field_list, get_review_field_list, in_ppt_admin_group, get_user_fte_breakdown
 
 
-class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
+class IndexTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
     template_name = 'ppt/index.html'
     h1 = gettext_lazy("DFO Science Project Planning")
     active_page_name_crumb = gettext_lazy("Home")
@@ -43,8 +42,6 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
             else:
                 pass
         context["is_management_or_admin"] = is_management_or_admin(self.request.user)
-        context["reference_materials"] = models.ReferenceMaterial.objects.all()
-        context["upcoming_dates"] = models.UpcomingDate.objects.filter(date__gte=timezone.now()).order_by("date")
         context["past_dates"] = models.UpcomingDate.objects.filter(date__lt=timezone.now()).order_by("date")
         context["upcoming_dates_field_list"] = [
             "date",
@@ -56,7 +53,16 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
         project_count = models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title").count()
         orphen_count = models.Project.objects.filter(years__isnull=True, modified_by=self.request.user).count()
         context["my_project_count"] = project_count + orphen_count
-        context["is_admin"] = in_ppt_admin_group(self.request.user)
+
+        upcoming_dates = models.UpcomingDate.objects.filter(date__gte=timezone.now()).order_by("date")
+        context["upcoming_dates"] = upcoming_dates
+        context["upcoming_dates_regions"] = [shared_models.Region.objects.get(pk=r["region"])  for r in upcoming_dates.order_by("region").values("region").distinct()]
+
+        reference_materials = models.ReferenceMaterial.objects.all()
+        context["reference_materials"] = models.ReferenceMaterial.objects.all()
+        context["reference_materials_regions"] = [shared_models.Region.objects.get(pk=r["region"])  for r in reference_materials.order_by("region").values("region").distinct()]
+
+
         return context
 
 
@@ -64,7 +70,7 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
 ############
 
 
-class ExploreProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
+class ExploreProjectsTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
     h1 = gettext_lazy("Projects")
     template_name = 'ppt/explore_projects/main.html'
     home_url_name = "ppt:index"
@@ -121,7 +127,7 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         return context
 
 
-class MyProjectListView(LoginRequiredMixin, CommonFilterView):
+class MyProjectListView(PPTLoginRequiredMixin, CommonFilterView):
     template_name = 'ppt/my_project_list.html'
     filterset_class = filters.ProjectFilter
     h1 = gettext_lazy("My Projects")
@@ -153,7 +159,7 @@ class MyProjectListView(LoginRequiredMixin, CommonFilterView):
         return context
 
 
-class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
+class ProjectCreateView(PPTLoginRequiredMixin, CommonCreateView):
     model = models.Project
     form_class = forms.NewProjectForm
     home_url_name = "ppt:index"
@@ -202,7 +208,7 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
         return {'last_modified_by': self.request.user}
 
 
-class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
+class ProjectDetailView(PPTLoginRequiredMixin, CommonDetailView):
     model = models.Project
     template_name = 'ppt/project_detail/main.html'
     home_url_name = "ppt:index"
@@ -381,7 +387,7 @@ class ProjectCloneView(ProjectUpdateView):
         return HttpResponseRedirect(reverse_lazy("ppt:project_detail", kwargs={"pk": new_obj.project.id}))
 
 
-class ProjectReferencesDetailView(LoginRequiredMixin, CommonDetailView):
+class ProjectReferencesDetailView(PPTLoginRequiredMixin, CommonDetailView):
     model = models.Project
     template_name = 'ppt/project_references.html'
     home_url_name = "ppt:index"
@@ -997,7 +1003,7 @@ class StatusReportDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
             self.get_project_year().project.id]) + f"?project_year={self.get_project_year().id}"}
 
 
-class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
+class StatusReportDetailView(PPTLoginRequiredMixin, CommonDetailView):
     model = models.StatusReport
     home_url_name = "ppt:index"
     template_name = "ppt/status_report/main.html"
@@ -1075,7 +1081,7 @@ class StatusReportReviewUpdateView(ManagerOrAdminRequiredMixin, StatusReportUpda
     container_class = "container bg-light curvy"
 
 
-class StatusReportPrintDetailView(LoginRequiredMixin, CommonDetailView):
+class StatusReportPrintDetailView(PPTLoginRequiredMixin, CommonDetailView):
     template_name = "ppt/status_report_pdf.html"
     model = models.StatusReport
 
