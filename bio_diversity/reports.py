@@ -14,6 +14,7 @@ from django.urls import reverse
 from openpyxl import load_workbook
 
 from bio_diversity import models, utils
+from bio_diversity.scripts import model_export
 from bio_diversity.static.calculation_constants import in_out_dict, distribution_locc_list, collection_locc_list
 from dm_apps import settings
 
@@ -220,7 +221,7 @@ def generate_stock_code_report(stok_id, coll_id, year, start_date=datetime.min, 
     return report.target_url
 
 
-def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, start_date=utils.naive_to_aware(datetime.min),
+def generate_morts_report(facic_id=None, prog_id=None, stok_id=None, year=None, coll_id=None, start_date=utils.naive_to_aware(datetime.min),
                           end_date=utils.naive_to_aware(datetime.now())):
     # report is given some filter criteria, returns all dead fish details.
     report = ExcelReport()
@@ -234,28 +235,32 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
     indv_mortd_qs = models.IndividualDet.objects.filter(anidc_id=mort_anidc,
                                                         anix_id__evnt_id__start_datetime__gte=start_date,
                                                         anix_id__evnt_id__end_datetime__lte=end_date)
-    grp_mortd_qs = models.Group.objects.filter(anidc_id=mort_anidc,
-                                               anix_id__evnt_id__start_datetime__gte=start_date,
-                                               anix_id__evnt_id__end_datetime__lte=end_date)
+    grp_mortd_qs = models.GroupDet.objects.filter(anidc_id=mort_anidc,
+                                                  anix_id__evnt_id__start_datetime__gte=start_date,
+                                                  anix_id__evnt_id__end_datetime__lte=end_date)
     samp_mortd_qs = models.SampleDet.objects.filter(anidc_id=mort_anidc,
-                                                    anix_id__evnt_id__start_datetime__gte=start_date,
-                                                    anix_id__evnt_id__end_datetime__lte=end_date)
+                                                    samp_id__anix_id__evnt_id__start_datetime__gte=start_date,
+                                                    samp_id__anix_id__evnt_id__end_datetime__lte=end_date)
     if facic_id:
         indv_mortd_qs = indv_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
         grp_mortd_qs = grp_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
-        samp_mortd_qs = samp_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
+        samp_mortd_qs = samp_mortd_qs.filter(samp_id__anix_id__evnt_id__facic_id=facic_id)
+    if prog_id:
+        indv_mortd_qs = indv_mortd_qs.filter(anix_id__evnt_id__prog_id=prog_id)
+        grp_mortd_qs = grp_mortd_qs.filter(anix_id__evnt_id__prog_id=prog_id)
+        samp_mortd_qs = samp_mortd_qs.filter(samp_id__anix_id__evnt_id__prog_id=prog_id)
     if stok_id:
         indv_mortd_qs = indv_mortd_qs.filter(anix_id__indv_id__stok_id=stok_id)
         grp_mortd_qs = grp_mortd_qs.filter(anix_id__grp_id__stok_id=stok_id)
-        samp_mortd_qs = samp_mortd_qs.filter(anix_id__grp_id__stok_id=stok_id)
+        samp_mortd_qs = samp_mortd_qs.filter(samp_id__anix_id__grp_id__stok_id=stok_id)
     if year:
         indv_mortd_qs = indv_mortd_qs.filter(anix_id__indv_id__indv_year=year)
         grp_mortd_qs = grp_mortd_qs.filter(anix_id__grp_id__grp_year=year)
-        samp_mortd_qs = samp_mortd_qs.filter(anix_id__grp_id__indv_year=year)
+        samp_mortd_qs = samp_mortd_qs.filter(samp_id__anix_id__grp_id__indv_year=year)
     if coll_id:
         indv_mortd_qs = indv_mortd_qs.filter(anix_id__indv_id__coll_id=coll_id)
         grp_mortd_qs = grp_mortd_qs.filter(anix_id__grp_id__coll_id=coll_id)
-        samp_mortd_qs = samp_mortd_qs.filter(anix_id__grp_id__coll_id=coll_id)
+        samp_mortd_qs = samp_mortd_qs.filter(samp_id__anix_id__grp_id__coll_id=coll_id)
 
     indv_mortd_qs.select_related("anix_id", "anix_id__indv_id", "anix__id__indv_id__coll_id", "anix_id__indv_id__stok_id", "anix_id__evnt_id")
     grp_mortd_qs.select_related("anix_id", "anix_id__grp_id", "anix__id__grp_id__coll_id", "anix_id__grp_id__stok_id", "anix_id__evnt_id")
@@ -264,13 +269,14 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
     # to order worksheets so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
     ws_indv = report.get_sheet("Individuals")
+    ws_samp = report.get_sheet("Samples")
     ws_grp = report.get_sheet("Groups")
 
     # start writing data at row 3 in the sheet
     row_count = 3
     for indvd in indv_mortd_qs:
         indv_id = indvd.anix_id.indv_id
-        mort_date = utils.naive_to_aware(indvd.anix_id.evnt_id.start_date)
+        mort_date = utils.naive_to_aware(indvd.detail_date)
         ws_indv['A' + str(row_count)].value = indv_id.pit_tag
         ws_indv['B' + str(row_count)].value = indv_id.stok_id.name
         ws_indv['C' + str(row_count)].value = indv_id.indv_year
@@ -281,15 +287,30 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
         ws_indv['H' + str(row_count)].value = mort_date
         ws_indv['I' + str(row_count)].value = indv_id.individual_detail("Length", before_date=mort_date)
         ws_indv['J' + str(row_count)].value = indv_id.individual_detail("Weight", before_date=mort_date)
-
         ws_indv['K' + str(row_count)].value = indv_id.individual_evnt_details(indvd.anix_id.evnt_id)
+        row_count += 1
 
+    row_count = 3
+    for sampd in samp_mortd_qs:
+        samp_id = sampd.samp_id
+        mort_date = utils.naive_to_aware(sampd.detail_date)
+        ws_samp['A' + str(row_count)].value = samp_id.samp_num
+        ws_samp['B' + str(row_count)].value = getattr(samp_id.stok_id, "name", "")
+        ws_samp['C' + str(row_count)].value = samp_id.indv_year
+        ws_samp['D' + str(row_count)].value = getattr(samp_id.coll_id, "name", "")
+        ws_samp['E' + str(row_count)].value = samp_id.prog_group(get_string=True)
+        ws_samp['F' + str(row_count)].value = samp_id.cont(get_string=True)
+        ws_samp['G' + str(row_count)].value = samp_id.sample_detail("Gender", before_date=mort_date)
+        ws_samp['H' + str(row_count)].value = mort_date
+        ws_samp['I' + str(row_count)].value = samp_id.sample_detail("Length", before_date=mort_date)
+        ws_samp['J' + str(row_count)].value = samp_id.sample_detail("Weight", before_date=mort_date)
+        ws_samp['J' + str(row_count)].value = samp_id.comments
         row_count += 1
 
     row_count = 3
     for grpd in grp_mortd_qs:
         grp_id = grpd.anix_id.anix_id.grp_id
-        mort_date = utils.naive_to_aware(grpd.anix_id.anix_id.evnt_id.start_date)
+        mort_date = utils.naive_to_aware(grpd.detail_date)
         ws_grp['A' + str(row_count)].value = grp_id.stok_id.name
         ws_grp['B' + str(row_count)].value = grp_id.grp_year
         ws_grp['C' + str(row_count)].value = grp_id.coll_id.name
@@ -299,7 +320,6 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
         ws_grp['G' + str(row_count)].value = mort_date
         ws_grp['H' + str(row_count)].value = grpd.anix_id.samp_detail("Length")
         ws_grp['I' + str(row_count)].value = grpd.anix_id.samp_detail("Weight")
-
         row_count += 1
 
     report.save_wb()
@@ -307,7 +327,7 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
     return report.target_url
 
 
-def generate_detail_report(adsc_id, stok_id=None):
+def generate_detail_report(adsc_id, prog_id, stok_id=None):
     # report is given an animal detail subjective code (skinny/precocious) and returns
     # all fish with that detail
     # group and that detail count
@@ -316,9 +336,11 @@ def generate_detail_report(adsc_id, stok_id=None):
     report = ExcelReport()
     report.load_wb("detail_report_template.xlsx")
 
-    indvd_set = models.IndividualDet.objects.all()
+    indvd_set = models.IndividualDet.objects.all().select_related("anix_id__indv_id__stok_id", "anix_id__evnt_id__prog_id")
     if stok_id:
         indvd_set = indvd_set.filter(anix_id__indv_id__stok_id=stok_id)
+    if prog_id:
+        indvd_set = indvd_set.filter(anix_id__evnt_id__prog_id=prog_id)
     indvd_set = indvd_set.filter(adsc_id=adsc_id, anix_id__indv_id__isnull=False). \
         select_related("anix_id__indv_id", "anix_id__indv_id__stok_id", "anix_id__indv_id__coll_id", )
     indv_list = list(dict.fromkeys([indvd.anix_id.indv_id for indvd in indvd_set]))
@@ -732,6 +754,42 @@ def generate_grp_report(grp_id):
     return report.target_url
 
 
+def generate_system_code_report():
+    report = ExcelReport()
+    report.load_wb("system_code_report_template.xlsx")
+    ws = report.get_sheet('System Codes')
+    model_list = model_export
+
+    col_count = 0
+    for model_type in model_list:
+        col = utils.col_count_to_excel(col_count)
+        ws[col + "2"].value = model_type.__name__
+        code_qs = model_type.objects.all()
+        row_count = 3
+        for code in code_qs:
+            ws[col + str(row_count)].value = code.__str__()
+            row_count += 1
+        col_count += 1
+
+    report.save_wb()
+
+    return report.target_url
+
+
+def generate_samples_report(request, prog_id, facic_id, stok_id, coll_id, year, start_date, end_date):
+    report = ExcelReport()
+    report.load_wb("samples_report_template.xlsx")
+    ws_vials = report.get_sheet('Vials')
+    ws_tissue = report.get_sheet('Tissue Samples')
+    ws_scale = report.get_sheet('Scale Envelopes')
+
+    fill_samples_sheet(request, report, ws_vials, "Vial", prog_id, facic_id, stok_id, coll_id, year, start_date, end_date)
+    fill_samples_sheet(request, report, ws_tissue, "Tissue Sample", prog_id, facic_id, stok_id, coll_id, year, start_date, end_date)
+    fill_samples_sheet(request, report, ws_scale, "Scale Envelope", prog_id, facic_id, stok_id, coll_id, year, start_date, end_date)
+
+    return report.target_url
+
+
 def generate_growth_chart(plot_fish):
     if type(plot_fish) == models.Individual:
         len_dets = models.IndividualDet.objects.filter(anidc_id__name="Length").filter(anix_id__indv_id=plot_fish)
@@ -902,3 +960,85 @@ def plot_date_data(x_data, y_data, y_label, title):
         writer.writerows(itertools.zip_longest(x_data, y_data))
     scirpt, div = components(p, CDN)
     return scirpt, div, target_url
+
+
+def fill_samples_sheet(request, report, ws, anidc_name, prog_id, facic_id, stok_id, coll_id, year, start_date, end_date):
+    anidc_id = models.AnimalDetCode.objects.filter(name=anidc_name).get()
+
+    indvd_qs = models.IndividualDet.objects.filter(anidc_id=anidc_id,
+                                                   anix_id__evnt_id__start_datetime__lte=end_date,
+                                                   anix_id__evnt_id__start_datetime__gte=start_date).select_related(
+        "anix_id__evnt_id", "anix_id__indv_id__stok_id", "anix_id__indv_id__coll_id", "anix_id__indv_id")
+    sampd_qs = models.SampleDet.objects.filter(anidc_id=anidc_id,
+                                               samp_id__anix_id__evnt_id__start_datetime__lte=end_date,
+                                               samp_id__anix_id__evnt_id__start_datetime__gte=start_date).select_related(
+        "samp_id__anix_id__evnt_id", "samp_id", "samp_id__anix_id__grp_id", "samp_id__anix_id__grp_id__coll_id",
+        "samp_id__anix_id__grp_id__stok_id")
+
+    if stok_id:
+        indvd_qs = indvd_qs.filter(anix_id__indv_id__stok_id=stok_id)
+        sampd_qs = sampd_qs.filter(samp_id__anix_id__grp_id__stok_id=stok_id)
+    if facic_id:
+        indvd_qs = indvd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
+        sampd_qs = sampd_qs.filter(samp_id__anix_id__evnt_id__facic_id=facic_id)
+    if coll_id:
+        indvd_qs = indvd_qs.filter(anix_id__indv_id__coll_id=coll_id)
+        sampd_qs = sampd_qs.filter(samp_id__anix_id__grp_id__coll_id=coll_id)
+    if prog_id:
+        indvd_qs = indvd_qs.filter(anix_id__evnt_id__prog_id=prog_id)
+        sampd_qs = sampd_qs.filter(samp_id__anix_id__evnt_id__prog_id=prog_id)
+    if year:
+        indvd_qs = indvd_qs.filter(anix_id__indv_id__indv_year=year)
+        sampd_qs = sampd_qs.filter(samp_id__anix_id__grp_id__grp_year=year)
+
+    row_count = 3
+    for indvd in indvd_qs:
+        indv_id = indvd.anix_id.indv_id
+        evnt_id = indvd.anix_id.evnt_id
+        ws["A" + str(row_count)].value = evnt_id.__str__()
+        ws["B" + str(row_count)].value = indvd.detail_date
+        ws["C" + str(row_count)].value = indvd.det_val
+        if anidc_name == "Vial":
+            ws["D" + str(row_count)].value = indv_id.individual_detail(anidc_name="Box Location", evnt_id=evnt_id,
+                                                                         before_date=indvd.detail_date)
+            ws["E" + str(row_count)].value = indv_id.individual_detail(anidc_name="Box", evnt_id=evnt_id,
+                                                                         before_date=indvd.detail_date)
+        ws["F" + str(row_count)].value = indv_id.pit_tag
+        ws["G" + str(row_count)].value = indv_id.stok_id.__str__()
+        ws["H" + str(row_count)].value = "{}, {}".format(indv_id.indv_year, indv_id.coll_id.__str__())
+        ws['I' + str(row_count)].value = indv_id.individual_detail(anidc_name="Gender", evnt_id=evnt_id,
+                                                                         before_date=indvd.detail_date)
+        ws['J' + str(row_count)].value = indv_id.individual_detail(anidc_name="Length", evnt_id=evnt_id,
+                                                                         before_date=indvd.detail_date)
+        ws['K' + str(row_count)].value = indv_id.individual_detail(anidc_name="Weight", evnt_id=evnt_id,
+                                                                         before_date=indvd.detail_date)
+        ws["L" + str(row_count)].value = indvd.comments
+        ws["M" + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_evnt", args=[evnt_id.id]))
+        row_count += 1
+
+    for sampd in sampd_qs:
+        samp_id = sampd.samp_id
+        grp_id = samp_id.anix_id.grp_id
+        evnt_id = samp_id.anix_id.evnt_id
+        ws["A" + str(row_count)].value = evnt_id.__str__()
+        ws["B" + str(row_count)].value = sampd.detail_date
+        ws["C" + str(row_count)].value = sampd.det_val
+        ws["D" + str(row_count)].value = samp_id.sample_detail(anidc_name="Box Location", evnt_id=evnt_id,
+                                                                   before_date=indvd.detail_date)
+        ws["E" + str(row_count)].value = samp_id.sample_detail(anidc_name="Box", evnt_id=evnt_id,
+                                                                   before_date=indvd.detail_date)
+        ws["G" + str(row_count)].value = samp_id.samp_num
+        ws["H" + str(row_count)].value = grp_id.stok_id.__str__()
+        ws["I" + str(row_count)].value = "{}, {}".format(grp_id.grp_year, grp_id.coll_id.__str__())
+        ws['J' + str(row_count)].value = samp_id.sample_detail(anidc_name="Gender", evnt_id=evnt_id,
+                                                               before_date=sampd.detail_date)
+        ws['K' + str(row_count)].value = samp_id.sample_detail(anidc_name="Length", evnt_id=evnt_id,
+                                                               before_date=sampd.detail_date)
+        ws['L' + str(row_count)].value = samp_id.sample_detail(anidc_name="Weight", evnt_id=evnt_id,
+                                                               before_date=sampd.detail_date)
+        ws["M" + str(row_count)].value = sampd.comments
+        ws["N" + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_evnt", args=[evnt_id.id]))
+        row_count += 1
+
+    report.save_wb()
+    return
