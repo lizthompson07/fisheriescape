@@ -306,6 +306,24 @@ def get_review_field_list():
     return my_list
 
 
+def get_tor_field_list():
+    my_list = [
+        "context_en",
+        "context_fr",
+        "objectives_en",
+        "objectives_fr",
+        "participation_en",
+        "participation_fr",
+        "references_en",
+        "references_fr",
+        "meeting",
+        "expected_document_types",
+        'metadata|{}'.format(_("metadata")),
+    ]
+    while None in my_list: my_list.remove(None)
+    return my_list
+
+
 def get_process_field_list(process):
     my_list = [
         'fiscal_year',

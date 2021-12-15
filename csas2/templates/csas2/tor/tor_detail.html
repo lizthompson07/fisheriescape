@@ -1,0 +1,45 @@
+{% extends "csas2/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load i18n %}
+
+
+{% block subcontent %}
+
+
+  <div class="btns mb-3">
+
+    <a class="btn btn-sm btn-warning" href="{% url 'csas2:tor_edit' object.id %}">{% trans "Edit" %}</a>
+    <a class="btn btn-sm btn-primary" href="{% url 'csas2:tor_edit' object.id %}">{% trans "Submit" %}</a>
+    <a class="btn btn-sm btn-danger " href="{% url 'csas2:tor_delete' object.id %}">{% trans "Delete" %}</a>
+
+    <div class="neighbours">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-dark dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+           aria-expanded="false">
+          <span class="mdi mdi-file-word text-light mr-1"></span>{% trans "Export" %}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+          <a class="dropdown-item" href="{% url 'csas2:tor_export' object.id %}?lang=en">{% trans "Word (en)" %}</a>
+          <a class="dropdown-item" href="{% url 'csas2:tor_export' object.id %}?lang=fr">{% trans "Word (fr)" %}</a>
+          <a class="dropdown-item" href="{% url 'csas2:tor_html' object.id %}?lang=en">{% trans "HTML (en)" %}</a>
+          <a class="dropdown-item" href="{% url 'csas2:tor_html' object.id %}?lang=fr">{% trans "HTML (fr)" %}</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="mb-5">
+    <table class="table table-sm">
+      {% for field in field_list %}
+        {% verbose_td_display object field to_html=True %}
+      {% endfor %}
+    </table>
+  </div>
+
+
+
+{% endblock %}

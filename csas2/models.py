@@ -225,7 +225,6 @@ class CSASRequest(MetadataFields):
         else:
             self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
 
-
         # set the STATUS
 
         # if there is a process, the request the request MUST have been approved.
@@ -638,6 +637,9 @@ class TermsOfReference(MetadataFields):
     is_complete = models.BooleanField(default=False, verbose_name=_("Are the ToRs complete?"), choices=YES_NO_CHOICES,
                                       help_text=_("Selecting yes will update the process status"))
 
+    def __str__(self):
+        return gettext("Terms of Reference")
+
     @property
     def context_en_html(self):
         if self.context_en:
@@ -693,6 +695,9 @@ class TermsOfReference(MetadataFields):
         mystr = listrify(self.expected_document_types.all())
         activate(lang)
         return mystr
+
+    def get_absolute_url(self):
+        return reverse('csas2:tor_detail', args=[self.id])
 
 
 class ProcessNote(GenericNote):

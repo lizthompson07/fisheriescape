@@ -37,33 +37,18 @@
       <a class="btn btn-sm btn-warning" href="{% url 'csas2:process_edit' object.id %}">{% trans "Edit" %}</a>
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:process_delete' object.id %}">{% trans "Delete" %}</a>
       {% if object.tor %}
-        {% url 'csas2:tor_edit' object.tor.id as tor_url %}
+        {% url 'csas2:tor_detail' object.tor.id as tor_url %}
       {% else %}
         {% url 'csas2:tor_new' object.id as tor_url %}
       {% endif %}
 
       {% if object.tor %}
         <a class="btn btn-sm btn-primary ml-3" href="{{ tor_url }}">
-          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Modify ToR" %}
+          {% trans "View Terms of Reference (ToR)" %}
         </a>
-        <div class="neighbours">
-          <div class="dropdown">
-            <a class="btn btn-sm btn-primary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
-               aria-expanded="false">
-              <span class="mdi mdi-file-word text-light mr-1"></span>{% trans "Export ToR" %}
-            </a>
-
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-              <a class="dropdown-item" href="{% url 'csas2:tor_export' object.tor.id %}?lang=en">{% trans "Word (en)" %}</a>
-              <a class="dropdown-item" href="{% url 'csas2:tor_export' object.tor.id %}?lang=fr">{% trans "Word (fr)" %}</a>
-              <a class="dropdown-item" href="{% url 'csas2:tor_html' object.tor.id %}?lang=en">{% trans "HTML (en)" %}</a>
-              <a class="dropdown-item" href="{% url 'csas2:tor_html' object.tor.id %}?lang=fr">{% trans "HTML (fr)" %}</a>
-            </div>
-          </div>
-        </div>
       {% else %}
         <a class="btn btn-sm btn-primary ml-3" href="{{ tor_url }}">
-          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Initiate ToR" %}
+          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Initiate Terms of Reference (ToR)" %}
         </a>
       {% endif %}
 

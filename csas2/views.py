@@ -821,18 +821,22 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
 class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
     model = models.TermsOfReference
     form_class = forms.TermsOfReferenceForm
-    template_name = 'csas2/tor_form.html'  # shared js_body
+    template_name = 'csas2/tor_form.html'
     home_url_name = "csas2:index"
-    grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
     def get_h3(self):
         if self.get_object().process.is_posted:
             mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
             return mark_safe(mystr)
 
-    def get_parent_crumb(self):
+    def get_greatparent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
                 "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
+
+    def get_parent_crumb(self):
+        return {"title": "{} {}".format(_("Terms of Reference"), self.get_object().id),
+                "url": reverse_lazy("csas2:tor_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -876,6 +880,18 @@ class TermsOfReferenceDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView
 
     def get_success_url(self):
         return self.get_parent_crumb().get("url")
+
+
+class TermsOfReferenceDetailView(CanModifyProcessRequiredMixin, CommonDetailView):
+    model = models.TermsOfReference
+    template_name = 'csas2/tor/tor_detail.html'
+    home_url_name = "csas2:index"
+    grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+    field_list = utils.get_tor_field_list()
+
+    def get_parent_crumb(self):
+        return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
+                "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
 
 
 @login_required()
