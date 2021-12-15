@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-08 11:54-0400\n"
+"POT-Creation-Date: 2021-12-15 08:07-0400\n"
 "PO-Revision-Date: 2021-10-28 13:40-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -32,7 +32,7 @@ msgstr "La date de votre dernière demande doit être dans le passé"
 msgid "The date of your last promotion must be in the past"
 msgstr "La date de votre dernière promotion doit être dans le passé"
 
-#: .\res\api\views.py:89
+#: .\res\api\views.py:90
 msgid ""
 "Sorry, you are not the right person to be recommending this application. We "
 "were expecting:"
@@ -40,13 +40,13 @@ msgstr ""
 "Désolé, vous n'êtes pas la bonne personne pour recommander cette "
 "application. Nous attendions :"
 
-#: .\res\api\views.py:92
+#: .\res\api\views.py:93
 msgid "You must provide recommendation text and a decision before signing."
 msgstr ""
 "Vous devez fournir un texte de recommandation et une décision avant de "
 "signer."
 
-#: .\res\api\views.py:94 .\res\api\views.py:115
+#: .\res\api\views.py:95 .\res\api\views.py:116
 msgid ""
 "You can only sign a recommendation for an application that has been "
 "submitted."
@@ -54,28 +54,28 @@ msgstr ""
 "Vous ne pouvez signer une recommandation que pour une demande qui a été "
 "soumise."
 
-#: .\res\api\views.py:96 .\res\api\views.py:119
+#: .\res\api\views.py:97 .\res\api\views.py:120
 msgid "You have already signed this recommendation."
 msgstr "Vous avez déjà signé cette recommandation."
 
-#: .\res\api\views.py:112
+#: .\res\api\views.py:113
 msgid "Sorry, you are not the right person to be signing. We were expecting:"
 msgstr ""
 "Désolé, vous n'êtes pas la bonne personne pour signer. Nous attendions :"
 
-#: .\res\api\views.py:117
+#: .\res\api\views.py:118
 msgid "Your manager has not yet signed this recommendation."
 msgstr "Votre gestionnaire n'a pas encore signé cette recommandation."
 
-#: .\res\api\views.py:126 .\res\api\views.py:186
+#: .\res\api\views.py:127 .\res\api\views.py:188
 msgid "This endpoint cannot be used without a query param"
 msgstr "Ce point de contact ne peut pas être utilisé sans paramètre de requête"
 
-#: .\res\api\views.py:141
+#: .\res\api\views.py:142
 msgid "You need to specify a RES application"
 msgstr "Vous devez spécifier une application RES"
 
-#: .\res\api\views.py:164
+#: .\res\api\views.py:166
 msgid "Cannot run summary without user param."
 msgstr "Impossible d'exécuter le résumé sans paramètre utilisateur."
 
@@ -382,7 +382,7 @@ msgid "detail"
 msgstr "détails"
 
 #: .\res\models.py:330
-#: .\res\templates\res\application_detail\components\ref_insert.html:54
+#: .\res\templates\res\application_detail\components\ref_insert.html:59
 msgid "Reference"
 msgstr "Référence"
 
@@ -605,7 +605,7 @@ msgid "Edit this outcome"
 msgstr "Modifier ce résultat"
 
 #: .\res\templates\res\application_detail\components\ref_editor.html:14
-#: .\res\templates\res\application_detail\components\ref_insert.html:91
+#: .\res\templates\res\application_detail\components\ref_insert.html:96
 msgid "Add Achievement / Publication"
 msgstr "Ajouter une réalisation / une publication"
 
@@ -629,17 +629,23 @@ msgstr "Nouvelle référence (Ctrl-A)"
 msgid "Search:"
 msgstr "Rechercher :"
 
-#: .\res\templates\res\application_detail\components\ref_insert.html:53
+#: .\res\templates\res\application_detail\components\ref_insert.html:58
 msgid "ID"
 msgstr "ID"
 
-#: .\res\templates\res\application_detail\components\ref_insert.html:55
+#: .\res\templates\res\application_detail\components\ref_insert.html:60
 msgid "Add to Text"
 msgstr "Ajouter au texte"
 
-#: .\res\templates\res\application_detail\components\ref_insert.html:56
+#: .\res\templates\res\application_detail\components\ref_insert.html:61
 msgid "Add and Close"
 msgstr "Ajouter et fermer"
+
+#: .\res\templates\res\application_detail\components\ref_insert.html:202
+msgid ""
+"Warning, due to too many results, some of your achievements are not "
+"displayed. Try a more specific search."
+msgstr ""
 
 #: .\res\templates\res\application_detail\main.html:25
 #: .\res\templates\res\application_print\main.html:38

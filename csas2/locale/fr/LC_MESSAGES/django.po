@@ -2,22 +2,52 @@ msgid ""
 msgstr ""
 "Project-Id-Version: app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-08 11:54-0400\n"
+"POT-Creation-Date: 2021-12-15 08:06-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: POEditor.com\n"
 "Language: en\n"
 
-#: .\csas2\api\serializers.py:188 .\csas2\models.py:763 .\csas2\models.py:885
+#: .\csas2\api\serializers.py:170
+msgid ""
+"The review recommendation must be screened-in if there is already a CSAS "
+"Process underway."
+msgstr ""
+
+#: .\csas2\api\serializers.py:209 .\csas2\models.py:777 .\csas2\models.py:899
 msgid "day"
 msgstr "Jour"
 
-#: .\csas2\api\views.py:91
+#: .\csas2\api\views.py:80
+#, fuzzy
+#| msgid "You do not have the permissions to modify this request"
+msgid "Sorry, you do not have permissions to withdraw this request"
+msgstr ""
+"Vous n'avez pas les autorisations nécessaires pour modifier cette demande."
+
+#: .\csas2\api\views.py:81 .\csas2\api\views.py:153 .\csas2\api\views.py:195
+#: .\csas2\api\views.py:224 .\csas2\api\views.py:473
+msgid "This endpoint cannot be used without a query param"
+msgstr ""
+"Ce point de terminaison ne peut pas être utilisé sans un paramètre de requête"
+
+#: .\csas2\api\views.py:101
 msgid "You need to specify at least one query param."
 msgstr "Vous devez spécifier au moins un paramètre de requête."
 
-#: .\csas2\api\views.py:154
+#: .\csas2\api\views.py:125
+msgid "Cannot create a review of a request that is still in draft mode."
+msgstr ""
+
+#: .\csas2\api\views.py:152
+#, fuzzy
+#| msgid "You do not have the permissions to modify this request"
+msgid "Sorry, you do not have permissions to send this email"
+msgstr ""
+"Vous n'avez pas les autorisations nécessaires pour modifier cette demande."
+
+#: .\csas2\api\views.py:192
 msgid ""
 "Success! Your request for a posting has been sent to the National CSAS "
 "Office."
@@ -25,28 +55,23 @@ msgstr ""
 "Succès! Votre demande de publication a été envoyée au bureau national du "
 "SCAS."
 
-#: .\csas2\api\views.py:156
+#: .\csas2\api\views.py:194
 msgid "A request to have this process posted has already occurred."
 msgstr "Une demande de publication de ce processus a déjà eu lieu."
 
-#: .\csas2\api\views.py:157 .\csas2\api\views.py:186 .\csas2\api\views.py:435
-msgid "This endpoint cannot be used without a query param"
-msgstr ""
-"Ce point de terminaison ne peut pas être utilisé sans un paramètre de requête"
-
-#: .\csas2\api\views.py:200 .\csas2\api\views.py:380
+#: .\csas2\api\views.py:238 .\csas2\api\views.py:418
 msgid "You need to specify a csas process"
 msgstr "Vous devez spécifier un processus SCAS"
 
-#: .\csas2\api\views.py:226 .\csas2\api\views.py:335 .\csas2\api\views.py:365
+#: .\csas2\api\views.py:264 .\csas2\api\views.py:373 .\csas2\api\views.py:403
 msgid "You need to specify a meeting"
 msgstr "Vous devez spécifier une réunion"
 
-#: .\csas2\api\views.py:252 .\csas2\api\views.py:273
+#: .\csas2\api\views.py:290 .\csas2\api\views.py:311
 msgid "You need to specify a process"
 msgstr "Vous devez spécifier un processus"
 
-#: .\csas2\api\views.py:398
+#: .\csas2\api\views.py:436
 msgid ""
 "Success! Your request for a publication number has been sent to the National "
 "CSAS Office."
@@ -54,17 +79,17 @@ msgstr ""
 "Succès ! Votre demande pour un numéro de publication a été envoyée au bureau "
 "national du SCAS."
 
-#: .\csas2\api\views.py:400
+#: .\csas2\api\views.py:438
 msgid "A publication number has already been requested."
 msgstr "Un numéro de publication a déjà été demandé."
 
-#: .\csas2\api\views.py:421
+#: .\csas2\api\views.py:459
 msgid "Cannot generate a pub number if there is no anticipated posting date."
 msgstr ""
 "Il est impossible de générer un numéro de publication s'il n'y a pas de date "
 "d'affichage prévue."
 
-#: .\csas2\api\views.py:426
+#: .\csas2\api\views.py:464
 msgid ""
 "Cannot guess at the due date because the document type has not pre-"
 "configuration. Please talk to a national CSAS administrator to have this "
@@ -74,7 +99,7 @@ msgstr ""
 "pas été pré-configuré. Veuillez vous consulter avec un administrateur "
 "national du SCAS pour faire corriger ce problème!"
 
-#: .\csas2\api\views.py:429
+#: .\csas2\api\views.py:467
 msgid ""
 "Cannot guess at the due date because there are no connected meetings to this "
 "document!"
@@ -82,7 +107,7 @@ msgstr ""
 "Impossible de deviner la date d'échéance car il n'y a pas de réunions liées "
 "à ce document!"
 
-#: .\csas2\api\views.py:432
+#: .\csas2\api\views.py:470
 msgid ""
 "Cannot guess at the due date because none of the connected meeting have end "
 "dates!"
@@ -90,31 +115,31 @@ msgstr ""
 "Impossible de deviner la date d'échéance car aucune des réunions connectées "
 "n'a de date de fin!"
 
-#: .\csas2\api\views.py:452 .\csas2\reports.py:279 .\csas2\utils.py:281
+#: .\csas2\api\views.py:490 .\csas2\reports.py:279 .\csas2\utils.py:316
 #: .\csas2\views.py:583
 msgid "chair"
 msgstr "président(e)"
 
-#: .\csas2\api\views.py:477 .\csas2\api\views.py:503
+#: .\csas2\api\views.py:515 .\csas2\api\views.py:541
 msgid "You need to specify a document"
 msgstr "Vous devez spécifier un document"
 
-#: .\csas2\api\views.py:585
+#: .\csas2\api\views.py:623
 msgid "external"
 msgstr "externe"
 
-#: .\csas2\emails.py:22 .\csas2\emails.py:42 .\csas2\utils.py:301
+#: .\csas2\emails.py:22 .\csas2\emails.py:42 .\csas2\utils.py:336
 #: .\csas2\views.py:618 .\csas2\views.py:928
 msgid "dates"
 msgstr "dates"
 
 #: .\csas2\filters.py:10 .\csas2\models.py:25 .\csas2\models.py:29
-#: .\csas2\models.py:290 .\csas2\templates\csas2\request_pdf.html:306
+#: .\csas2\models.py:301 .\csas2\templates\csas2\request_pdf.html:306
 msgid "Yes"
 msgstr "Oui"
 
 #: .\csas2\filters.py:10 .\csas2\models.py:26 .\csas2\models.py:29
-#: .\csas2\models.py:291 .\csas2\templates\csas2\request_pdf.html:308
+#: .\csas2\models.py:302 .\csas2\templates\csas2\request_pdf.html:308
 msgid "No"
 msgstr "Non"
 
@@ -146,11 +171,11 @@ msgstr "Secteur(s) client"
 msgid "Client Section"
 msgstr "Secteur(s) client"
 
-#: .\csas2\filters.py:44 .\csas2\filters.py:146
+#: .\csas2\filters.py:44 .\csas2\filters.py:150
 msgid "Has process?"
 msgstr "A un processus?"
 
-#: .\csas2\filters.py:45 .\csas2\filters.py:113
+#: .\csas2\filters.py:45 .\csas2\filters.py:117
 #: .\csas2\templates\csas2\process_detail\main.html:106
 #: .\csas2\templates\csas2\process_detail\main.html:278
 msgid "Status"
@@ -161,49 +186,55 @@ msgid "Client"
 msgstr "Client"
 
 #: .\csas2\filters.py:47
-msgid "Review decision"
-msgstr "Reviser une décision"
+#, fuzzy
+#| msgid "recommendation"
+msgid "Recommendation"
+msgstr "recommendation"
 
 #: .\csas2\filters.py:48
 msgid "Client prioritization"
 msgstr "La priorisation du client?"
 
-#: .\csas2\filters.py:112
+#: .\csas2\filters.py:49
+msgid "Keyword tags"
+msgstr ""
+
+#: .\csas2\filters.py:116
 msgid "Process ID"
 msgstr "ID du processus"
 
-#: .\csas2\filters.py:115 .\csas2\filters.py:143 .\csas2\filters.py:162
+#: .\csas2\filters.py:119 .\csas2\filters.py:147 .\csas2\filters.py:166
 msgid "Title contains"
 msgstr "Le titre contient"
 
-#: .\csas2\filters.py:116
+#: .\csas2\filters.py:120
 msgid "Lead Office"
 msgstr "Bureau principal"
 
-#: .\csas2\filters.py:117
+#: .\csas2\filters.py:121
 msgid "Is Posted?"
 msgstr "Est-il publié?"
 
-#: .\csas2\filters.py:117 .\csas2\templates\csas2\report_search.html:138
+#: .\csas2\filters.py:121 .\csas2\templates\csas2\report_search.html:138
 #: .\csas2\templates\csas2\report_search.html:154
 #: .\csas2\templates\csas2\report_search.html:171
 #: .\csas2\templates\csas2\report_search.html:189
 msgid "All"
 msgstr "Tout"
 
-#: .\csas2\filters.py:118 .\csas2\filters.py:128
+#: .\csas2\filters.py:122 .\csas2\filters.py:132
 msgid "Request client"
 msgstr "Demander un client"
 
-#: .\csas2\filters.py:127 .\csas2\forms.py:87
+#: .\csas2\filters.py:131 .\csas2\forms.py:87
 msgid "Fiscal year"
 msgstr "Exercice financier"
 
-#: .\csas2\filters.py:144 .\csas2\templates\csas2\request_pdf.html:188
+#: .\csas2\filters.py:148 .\csas2\templates\csas2\request_pdf.html:188
 msgid "Region"
 msgstr "Région"
 
-#: .\csas2\filters.py:145
+#: .\csas2\filters.py:149
 msgid "Branch / Sector"
 msgstr "Direction/Secteur"
 
@@ -259,7 +290,7 @@ msgstr "Division du MPO"
 msgid "DFO Section"
 msgstr "Section du MPO"
 
-#: .\csas2\forms.py:99 .\csas2\models.py:200
+#: .\csas2\forms.py:99 .\csas2\models.py:198
 #: .\csas2\templates\csas2\todo_list.html:29 .\csas2\views.py:309
 #: .\csas2\views.py:316 .\csas2\views.py:412 .\csas2\views.py:440
 #: .\csas2\views.py:464
@@ -278,19 +309,19 @@ msgstr "Seulement publié"
 msgid "Only un-posted"
 msgstr "Seulement non publié"
 
-#: .\csas2\forms.py:220
+#: .\csas2\forms.py:222
 msgid "Must enter a client for this request!"
 msgstr "Vous devez inscrire un client pour cette demande!"
 
-#: .\csas2\forms.py:223
+#: .\csas2\forms.py:225
 msgid "Must enter a CSAS office for this request!"
 msgstr "Vous devez inscrire un bureau SCAS pour cette demande!"
 
-#: .\csas2\forms.py:226
+#: .\csas2\forms.py:228
 msgid "Must enter a section for this request!"
 msgstr "Vous devez inscrire une section pour cette demande!"
 
-#: .\csas2\forms.py:298
+#: .\csas2\forms.py:300
 msgid ""
 "By checking this box, a draft steering committee meeting will be "
 "automatically created upon submitting this form."
@@ -298,11 +329,11 @@ msgstr ""
 "En cochant cette case, une ébauche de la réunion du comité directeur sera "
 "automatiquement créé lors de la soumission de ce formulaire."
 
-#: .\csas2\forms.py:299
+#: .\csas2\forms.py:301
 msgid "Create a placeholder steering committee meeting?"
 msgstr "Créer une réunion du comité directeur provisoire?"
 
-#: .\csas2\forms.py:303
+#: .\csas2\forms.py:305
 msgid ""
 "These individuals will be added as meeting invitees and tagged with the role "
 "of 'Steering Committee Member'."
@@ -310,23 +341,29 @@ msgstr ""
 "Ces personnes seront ajoutées en tant qu'invités à la réunion et étiquetées "
 "avec le rôle de \"membre du comité directeur\"."
 
-#: .\csas2\forms.py:304
+#: .\csas2\forms.py:306
 msgid "Steering committee members"
 msgstr "Membres du comité directeur"
 
-#: .\csas2\forms.py:309
+#: .\csas2\forms.py:311
+#, fuzzy
+#| msgid ""
+#| "By checking this box, a draft keystone meeting will be automatically "
+#| "created upon submitting this form."
 msgid ""
-"By checking this box, a draft keystone meeting will be automatically created "
-"upon submitting this form."
+"By checking this box, a draft peer review meeting will be automatically "
+"created upon submitting this form."
 msgstr ""
 "En cochant cette case, une ébauche de la réunion principale sera "
 "automatiquement créé lors de la soumission de ce formulaire."
 
-#: .\csas2\forms.py:310
-msgid "Create a placeholder keystone meeting?"
+#: .\csas2\forms.py:312
+#, fuzzy
+#| msgid "Create a placeholder keystone meeting?"
+msgid "Create a placeholder peer review meeting?"
 msgstr "Créer une réunion principale en main?"
 
-#: .\csas2\forms.py:314
+#: .\csas2\forms.py:316
 msgid ""
 "These individuals will be added as meeting invitees and tagged with the role "
 "of 'Science Lead'."
@@ -334,11 +371,11 @@ msgstr ""
 "Ces personnes seront ajoutées en tant qu'invités à la réunion et étiquetées "
 "avec le rôle de \"responsable scientifique\"."
 
-#: .\csas2\forms.py:315
+#: .\csas2\forms.py:317
 msgid "Science leads"
 msgstr "Responsables scientifiques"
 
-#: .\csas2\forms.py:320
+#: .\csas2\forms.py:322
 msgid ""
 "These individuals will be added as meeting invitees and tagged with the role "
 "of 'Client Lead'."
@@ -346,11 +383,11 @@ msgstr ""
 "Ces personnes seront ajoutées en tant qu'invités à la réunion et étiquetées "
 "avec le rôle de \"Client(e) principal(e)\"."
 
-#: .\csas2\forms.py:321 .\csas2\templates\csas2\process_detail\main.html:156
+#: .\csas2\forms.py:323 .\csas2\templates\csas2\process_detail\main.html:156
 msgid "Client leads"
 msgstr "Clients principaux"
 
-#: .\csas2\forms.py:326
+#: .\csas2\forms.py:328
 msgid ""
 "This individual will be added as a meeting invitee and tagged with the role "
 "of 'chair'."
@@ -358,40 +395,40 @@ msgstr ""
 "Cette personne sera ajoutée en tant qu'invité à la réunion et sera étiquetée "
 "avec le rôle de \"président\""
 
-#: .\csas2\forms.py:327
+#: .\csas2\forms.py:329
 #: .\csas2\templates\csas2\document_detail\_tracking_process.html:50
 msgid "Chair"
 msgstr "Président(e)"
 
-#: .\csas2\forms.py:348 .\csas2\models.py:445 .\csas2\models.py:714
-#: .\csas2\models.py:847 .\csas2\models.py:915 .\csas2\models.py:916
+#: .\csas2\forms.py:350 .\csas2\models.py:459 .\csas2\models.py:728
+#: .\csas2\models.py:861 .\csas2\models.py:929 .\csas2\models.py:930
 #: .\csas2\utils.py:34 .\csas2\views.py:193 .\csas2\views.py:942
 msgid "name"
 msgstr "nom"
 
-#: .\csas2\forms.py:385
+#: .\csas2\forms.py:387
 msgid "Must have either an English title or a French title!"
 msgstr "Doit avoir un titre anglais ou un titre français!"
 
-#: .\csas2\forms.py:390
+#: .\csas2\forms.py:392
 msgid "The lead office cannot be listed in the 'Other offices' field."
 msgstr ""
 "Votre bureau principale ne peut pas figurer dans le champ \"Autres bureaux\"."
 
-#: .\csas2\forms.py:393
+#: .\csas2\forms.py:395
 msgid "Must enter a lead office for this process!"
 msgstr "Vous devez entrer un bureau principale pour ce processus!"
 
-#: .\csas2\forms.py:408 .\csas2\templates\csas2\process_postings.html:128
+#: .\csas2\forms.py:410 .\csas2\templates\csas2\process_postings.html:128
 msgid "Meeting dates"
 msgstr "Dates de la réunion"
 
-#: .\csas2\forms.py:409
+#: .\csas2\forms.py:411
 msgid "You can provide an approximate date."
 msgstr "Vous pouvez fournir une date approximative."
 
-#: .\csas2\model_choices.py:20 .\csas2\models.py:612 .\csas2\models.py:614
-#: .\csas2\models.py:616 .\csas2\models.py:618
+#: .\csas2\model_choices.py:20 .\csas2\models.py:626 .\csas2\models.py:628
+#: .\csas2\models.py:630 .\csas2\models.py:632
 #: .\csas2\templates\csas2\document_detail\main.html:114
 #: .\csas2\templates\csas2\document_detail\main.html:123
 #: .\csas2\templates\csas2\document_detail\main.html:132
@@ -400,8 +437,8 @@ msgstr "Vous pouvez fournir une date approximative."
 msgid "English"
 msgstr "Anglais"
 
-#: .\csas2\model_choices.py:21 .\csas2\models.py:613 .\csas2\models.py:615
-#: .\csas2\models.py:617 .\csas2\models.py:619
+#: .\csas2\model_choices.py:21 .\csas2\models.py:627 .\csas2\models.py:629
+#: .\csas2\models.py:631 .\csas2\models.py:633
 #: .\csas2\templates\csas2\document_detail\main.html:116
 #: .\csas2\templates\csas2\document_detail\main.html:124
 #: .\csas2\templates\csas2\document_detail\main.html:134
@@ -430,177 +467,191 @@ msgstr "En cours de révision"
 msgid "Fulfilled"
 msgstr "Satisfait"
 
-#: .\csas2\model_choices.py:31
-msgid "Reviewed"
-msgstr "Révisé"
-
-#: .\csas2\model_choices.py:32 .\csas2\model_choices.py:79
+#: .\csas2\model_choices.py:30 .\csas2\model_choices.py:82
 msgid "Withdrawn"
 msgstr "Retiré "
 
-#: .\csas2\model_choices.py:36
+#: .\csas2\model_choices.py:33
+msgid "Reviewed"
+msgstr "Révisé"
+
+#: .\csas2\model_choices.py:34
+msgid "Flagged"
+msgstr ""
+
+#: .\csas2\model_choices.py:35
+msgid "Re-scoping"
+msgstr ""
+
+#: .\csas2\model_choices.py:39
 msgid "Screen in"
 msgstr "L'écran en"
 
-#: .\csas2\model_choices.py:37
+#: .\csas2\model_choices.py:40
 msgid "Return to client"
 msgstr "Retourne au client"
 
-#: .\csas2\model_choices.py:42
+#: .\csas2\model_choices.py:41
+#, fuzzy
+#| msgid "scope"
+msgid "Re-scope"
+msgstr "portée"
+
+#: .\csas2\model_choices.py:45
 msgid "High"
 msgstr "Haut"
 
-#: .\csas2\model_choices.py:43
+#: .\csas2\model_choices.py:46
 msgid "Medium"
 msgstr "Moyenne"
 
-#: .\csas2\model_choices.py:44
+#: .\csas2\model_choices.py:47
 msgid "Low"
 msgstr "Bas"
 
-#: .\csas2\model_choices.py:48
+#: .\csas2\model_choices.py:51
 msgid "Regional"
 msgstr "Régional"
 
-#: .\csas2\model_choices.py:49
+#: .\csas2\model_choices.py:52
 msgid "Zonal"
 msgstr "Zonal"
 
-#: .\csas2\model_choices.py:50
+#: .\csas2\model_choices.py:53
 msgid "National"
 msgstr "National"
 
-#: .\csas2\model_choices.py:54
+#: .\csas2\model_choices.py:57
 msgid "Advisory Meeting"
 msgstr "Réunion d'avis scientifiques"
 
-#: .\csas2\model_choices.py:55
+#: .\csas2\model_choices.py:58
 msgid "Science Response Process"
 msgstr "Processus de réponse des sciences"
 
-#: .\csas2\model_choices.py:68
+#: .\csas2\model_choices.py:71
 msgid "Initiated"
 msgstr "Initié"
 
-#: .\csas2\model_choices.py:70
+#: .\csas2\model_choices.py:73
 msgid "On"
 msgstr "Marche"
 
-#: .\csas2\model_choices.py:72
+#: .\csas2\model_choices.py:75
 msgid "ToR Complete"
 msgstr "Cadre de référence complet"
 
-#: .\csas2\model_choices.py:73
+#: .\csas2\model_choices.py:76
 msgid "Meeting Complete"
 msgstr "Réunion complète"
 
-#: .\csas2\model_choices.py:75
+#: .\csas2\model_choices.py:78
 msgid "Deferred"
 msgstr "Reporté"
 
-#: .\csas2\model_choices.py:77 .\csas2\model_choices.py:212
+#: .\csas2\model_choices.py:80 .\csas2\model_choices.py:215
 msgid "Complete"
 msgstr "Complet"
 
-#: .\csas2\model_choices.py:111
+#: .\csas2\model_choices.py:114
 msgid "General comment"
 msgstr "commentaire général"
 
-#: .\csas2\model_choices.py:112
+#: .\csas2\model_choices.py:115
 #: .\csas2\templates\csas2\components\note_pad.html:41
 msgid "To Do"
 msgstr "À faire"
 
-#: .\csas2\model_choices.py:149
+#: .\csas2\model_choices.py:152
 msgid "OK"
 msgstr "Ok"
 
-#: .\csas2\model_choices.py:151
+#: .\csas2\model_choices.py:154
 msgid "Tracking initiated"
 msgstr "Suivi initié"
 
-#: .\csas2\model_choices.py:152
+#: .\csas2\model_choices.py:155
 msgid "Submitted by author"
 msgstr "Soumis par l'auteur"
 
-#: .\csas2\model_choices.py:154
+#: .\csas2\model_choices.py:157
 msgid "Under review by chair"
 msgstr "En cours de révision par le président"
 
-#: .\csas2\model_choices.py:155
+#: .\csas2\model_choices.py:158
 msgid "Approved by chair"
 msgstr "Approuvé par le président"
 
-#: .\csas2\model_choices.py:156
+#: .\csas2\model_choices.py:159
 msgid "Under review by CSAS coordinator"
 msgstr "En cours de révision par le coordinateur SCAS"
 
-#: .\csas2\model_choices.py:157
+#: .\csas2\model_choices.py:160
 msgid "Approved by CSAS coordinator"
 msgstr "Approuvé par le coordinateur SCAS"
 
-#: .\csas2\model_choices.py:158
+#: .\csas2\model_choices.py:161
 msgid "Under review by section head"
 msgstr "En cours de révision par le chef de section"
 
-#: .\csas2\model_choices.py:159
+#: .\csas2\model_choices.py:162
 msgid "Approved by section head"
 msgstr "Approuvé par le chef de section"
 
-#: .\csas2\model_choices.py:160
+#: .\csas2\model_choices.py:163
 msgid "Under review by division manager"
 msgstr "En cours de révision par le gestionnaire de la division"
 
-#: .\csas2\model_choices.py:161
+#: .\csas2\model_choices.py:164
 msgid "Approved by division manager"
 msgstr "Approuvé par le gestionnaire de la division"
 
-#: .\csas2\model_choices.py:162
+#: .\csas2\model_choices.py:165
 msgid "Under review by director"
 msgstr "En cours de révision par le directeur"
 
-#: .\csas2\model_choices.py:163
+#: .\csas2\model_choices.py:166
 msgid "Approved by director"
 msgstr "Approuvé par le directeur"
 
-#: .\csas2\model_choices.py:166
+#: .\csas2\model_choices.py:169
 msgid "Submitted to CSAS office"
 msgstr "Soumis au bureau du SCCS"
 
-#: .\csas2\model_choices.py:167
+#: .\csas2\model_choices.py:170
 msgid "Proof sent to author"
 msgstr "L'approbation envoyée à l'auteur"
 
-#: .\csas2\model_choices.py:168
+#: .\csas2\model_choices.py:171
 msgid "Proof approved by author"
 msgstr "L'approbation approuvée par l'auteur"
 
-#: .\csas2\model_choices.py:170
+#: .\csas2\model_choices.py:173
 #: .\csas2\templates\csas2\process_postings.html:146
 msgid "Posted"
 msgstr "Publié"
 
-#: .\csas2\model_choices.py:171
+#: .\csas2\model_choices.py:174
 msgid "Posted (updated)"
 msgstr "Publié (mis à jour)"
 
-#: .\csas2\model_choices.py:190
+#: .\csas2\model_choices.py:193
 msgid "In progress"
 msgstr "En cours"
 
-#: .\csas2\model_choices.py:191
+#: .\csas2\model_choices.py:194
 msgid "Translated, unreviewed"
 msgstr "Traduit, non révisé"
 
-#: .\csas2\model_choices.py:192
+#: .\csas2\model_choices.py:195
 msgid "Translated, reviewed"
 msgstr "Traduit, révisé"
 
-#: .\csas2\model_choices.py:210 .\csas2\models.py:298 .\csas2\models.py:403
+#: .\csas2\model_choices.py:213 .\csas2\models.py:309 .\csas2\models.py:417
 msgid "---"
 msgstr "---"
 
-#: .\csas2\model_choices.py:211
+#: .\csas2\model_choices.py:214
 msgid "In-progress"
 msgstr "En cours"
 
@@ -640,7 +691,7 @@ msgstr "source de fonds"
 msgid "amount (CAD)"
 msgstr "Montant (CAD)"
 
-#: .\csas2\models.py:90 .\csas2\models.py:417
+#: .\csas2\models.py:90 .\csas2\models.py:431
 msgid "type"
 msgstr "Type"
 
@@ -693,15 +744,15 @@ msgstr "titre "
 msgid "translated title"
 msgstr "titre traduit"
 
-#: .\csas2\models.py:155
+#: .\csas2\models.py:152
 msgid "DFO client"
 msgstr "Client du MPO"
 
-#: .\csas2\models.py:156 .\csas2\reports.py:196 .\csas2\views.py:285
+#: .\csas2\models.py:153 .\csas2\reports.py:196 .\csas2\views.py:285
 msgid "client section"
 msgstr "Secteur(s) client"
 
-#: .\csas2\models.py:158
+#: .\csas2\models.py:155
 msgid ""
 "Could the advice provided potentially be applicable to other regions and/or "
 "sectors?"
@@ -709,7 +760,7 @@ msgstr ""
 "Les avis fournis pourraient-ils potentiellement être applicables à d'autres "
 "régions et/ou secteurs?"
 
-#: .\csas2\models.py:160
+#: .\csas2\models.py:157
 msgid ""
 "e.g., frameworks, tools, issues and/or aquatic species widely distributed "
 "throughout more than one region"
@@ -717,17 +768,17 @@ msgstr ""
 "p. ex., des cadres, des outils, des enjeux et/ou des espèces aquatiques "
 "largement réparties dans plus d'une région"
 
-#: .\csas2\models.py:161
+#: .\csas2\models.py:158
 msgid "Please list other sectors and/or regions and provide brief rationale"
 msgstr ""
 "Veuillez indiquer les autres secteurs et/ou régions et fournir une brève "
 "justification"
 
-#: .\csas2\models.py:163
+#: .\csas2\models.py:160
 msgid "Issue requiring science information and/or advice"
 msgstr "Problème nécessitant des informations et/ou des conseils scientifiques"
 
-#: .\csas2\models.py:165
+#: .\csas2\models.py:162
 msgid ""
 "Should be phrased as a question to be answered by Science. The text provided "
 "here will serve as the objectives for the terms of reference."
@@ -735,7 +786,7 @@ msgstr ""
 "Veuillez formuler comme une question à laquelle le Secteur des sciences doit "
 "répondre. Le texte fourni ici servira d'objectifs pour le cadre de référence."
 
-#: .\csas2\models.py:167
+#: .\csas2\models.py:164
 msgid ""
 "From whom in Science have you had assistance in developing the question/"
 "request (CSAS and/or DFO science staff)"
@@ -743,11 +794,11 @@ msgstr ""
 "De qui, dans le Secteur des sciences, avez-vous reçu de l'aide pour rédiger "
 "la question/demande (personnel du SCAS et/ou personnel scientifique du MPO) ?"
 
-#: .\csas2\models.py:169
+#: .\csas2\models.py:166
 msgid "Rationale or context for the request"
 msgstr "Justification ou contexte de la demande"
 
-#: .\csas2\models.py:170
+#: .\csas2\models.py:167
 msgid ""
 "What will the information/advice be used for? Who will be the end user(s)? "
 "Will it impact other DFO programs or regions? The text provided here will "
@@ -757,21 +808,21 @@ msgstr ""
 "finaux? Cela aura-t-il un impact sur d'autres programmes ou régions du MPO? "
 "Le texte fourni ici servira de contexte pour le cadre de référence."
 
-#: .\csas2\models.py:172
+#: .\csas2\models.py:169
 msgid "What is the expected consequence if science advice is not provided?"
 msgstr ""
 "Quelle est la conséquence attendue si l'avis scientifique ne soit pas "
 "fournis?"
 
-#: .\csas2\models.py:173
+#: .\csas2\models.py:170
 msgid "Latest possible date to receive Science advice"
 msgstr "La date limite la plus tardive pour recevoir l'avis scientifique"
 
-#: .\csas2\models.py:174
+#: .\csas2\models.py:171
 msgid "Rationale for deadline?"
 msgstr "Justification de la date limite?"
 
-#: .\csas2\models.py:175
+#: .\csas2\models.py:172
 msgid ""
 "e.g., COSEWIC or consultation meetings, Environmental Assessments, legal or "
 "regulatory requirement, Treaty obligation, international commitments, etc). "
@@ -782,7 +833,7 @@ msgstr ""
 "du traité, les engagements internationaux, etc). Veuillez élaborer et "
 "fournir des dates anticipées"
 
-#: .\csas2\models.py:178
+#: .\csas2\models.py:175
 msgid ""
 "Click here if you have funds to cover any extra costs associated with this "
 "request?"
@@ -790,128 +841,138 @@ msgstr ""
 "Cliquez ici si vous disposez de fonds pour couvrir toute dépense "
 "supplémentaire associé à cette demande?"
 
-#: .\csas2\models.py:179
+#: .\csas2\models.py:176
 msgid "i.e., special analysis, meeting costs, translation)?"
 msgstr "par exemple, analyse spéciale, frais de réunion, traduction)?"
 
-#: .\csas2\models.py:180
+#: .\csas2\models.py:177
 msgid "Please describe"
 msgstr "Veuillez décrire"
 
-#: .\csas2\models.py:181
+#: .\csas2\models.py:178
 msgid "How would you classify the prioritization of this request?"
 msgstr "Comment classeriez-vous la priorisation de cette demande?"
 
-#: .\csas2\models.py:183
+#: .\csas2\models.py:180
 msgid "What is the rationale behind the prioritization?"
 msgstr "Quel est la justification qui sous-tend la priorisation?"
 
-#: .\csas2\models.py:186 .\csas2\models.py:415 .\csas2\models.py:867
-#: .\csas2\models.py:954 .\csas2\utils.py:237 .\csas2\utils.py:278
+#: .\csas2\models.py:181
+msgid "keyword tags"
+msgstr ""
+
+#: .\csas2\models.py:184 .\csas2\models.py:429 .\csas2\models.py:881
+#: .\csas2\models.py:968 .\csas2\utils.py:272 .\csas2\utils.py:313
 msgid "status"
 msgstr "statut"
 
-#: .\csas2\models.py:187
+#: .\csas2\models.py:185
 msgid "submission date"
 msgstr "date de soumission"
 
-#: .\csas2\models.py:189
+#: .\csas2\models.py:187
 msgid "unique identifier"
 msgstr "identifiant unique"
 
-#: .\csas2\models.py:193
+#: .\csas2\models.py:191
 msgid "advice FY"
 msgstr "exercice de l'avis"
 
-#: .\csas2\models.py:195
+#: .\csas2\models.py:193
 msgid "request FY"
 msgstr "exercice de la demande"
 
-#: .\csas2\models.py:196 .\csas2\utils.py:262
+#: .\csas2\models.py:194 .\csas2\utils.py:297
 msgid "reference number"
 msgstr "numéro de référence"
 
-#: .\csas2\models.py:201 .\csas2\templates\csas2\todo_list.html:41
+#: .\csas2\models.py:199 .\csas2\templates\csas2\todo_list.html:41
 msgid "CSAS Request"
 msgstr "Demande de SCAS"
 
-#: .\csas2\models.py:270 .\csas2\models.py:289
+#: .\csas2\models.py:281 .\csas2\models.py:300
 msgid "no further details provided."
 msgstr "aucun autre détail n'a été fourni."
 
-#: .\csas2\models.py:296 .\csas2\models.py:401
+#: .\csas2\models.py:307 .\csas2\models.py:415
 msgid "no further detail provided."
 msgstr "aucun autre détail n'a été fourni."
 
-#: .\csas2\models.py:371
+#: .\csas2\models.py:382
 msgid "reference number (optional)"
 msgstr "numéro de référence (facultatif)"
 
-#: .\csas2\models.py:372
+#: .\csas2\models.py:383
 msgid "Is this within the scope of CSAS?"
 msgstr "Cela fait-il partie du champ d'application du SCAS?"
 
-#: .\csas2\models.py:373
+#: .\csas2\models.py:384
 msgid "is this feasible from a Science perspective"
 msgstr "Est-ce réalisable d'un point de vue scientifique?"
 
-#: .\csas2\models.py:375
+#: .\csas2\models.py:386
 msgid "recommendation"
 msgstr "recommendation"
 
-#: .\csas2\models.py:376
+#: .\csas2\models.py:387
 msgid "recommendation explanation"
 msgstr "Explication de la recommendation"
 
-#: .\csas2\models.py:377
+#: .\csas2\models.py:388
 msgid "recommendation date"
 msgstr "Date de la recommendation"
 
-#: .\csas2\models.py:378
+#: .\csas2\models.py:389
 msgid "advice required by (final)"
 msgstr "avis demandé par (final)"
 
-#: .\csas2\models.py:379
+#: .\csas2\models.py:390
 msgid "rationale for alternate scheduling"
 msgstr "Justification du calendrier alternatif"
 
-#: .\csas2\models.py:380
+#: .\csas2\models.py:391
 msgid "administrative notes"
 msgstr "notes administratives"
 
-#: .\csas2\models.py:396
+#: .\csas2\models.py:394
+#, fuzzy
+#| msgid "Posting notification date"
+msgid "email notification date"
+msgstr "Date de notification de la publication"
+
+#: .\csas2\models.py:410
 msgid "Review for CSAS Request #"
 msgstr "Examen pour le numéro de demande SCAS"
 
-#: .\csas2\models.py:408
+#: .\csas2\models.py:422
 msgid "is this file an approval for this request?"
 msgstr "ce dossier est-il une approbation pour cette demande?"
 
-#: .\csas2\models.py:413 .\csas2\models.py:692
+#: .\csas2\models.py:427 .\csas2\models.py:706
 msgid "title (en)"
 msgstr "titre (an)"
 
-#: .\csas2\models.py:414 .\csas2\models.py:693
+#: .\csas2\models.py:428 .\csas2\models.py:707
 msgid "title (fr)"
 msgstr "titre (fr)"
 
-#: .\csas2\models.py:416
+#: .\csas2\models.py:430
 msgid "scope"
 msgstr "portée"
 
-#: .\csas2\models.py:419
+#: .\csas2\models.py:433
 msgid "lead CSAS office"
 msgstr "Bureau SCAS principal"
 
-#: .\csas2\models.py:421
+#: .\csas2\models.py:435
 msgid "other CSAS offices"
 msgstr "Autres bureaux SCAS"
 
-#: .\csas2\models.py:430
+#: .\csas2\models.py:444
 msgid "process editors"
 msgstr "éditeurs de processus"
 
-#: .\csas2\models.py:431
+#: .\csas2\models.py:445
 msgid ""
 "A list of non-CSAS staff with permissions to edit the process, meetings and "
 "documents"
@@ -919,129 +980,129 @@ msgstr ""
 "Une liste du personnel non-SCAS ayant des autorisations pour modifier le "
 "processus, les réunions et les documents."
 
-#: .\csas2\models.py:433
+#: .\csas2\models.py:447
 msgid "Connected CSAS requests"
 msgstr "Demandes SCAS connectées"
 
-#: .\csas2\models.py:434
+#: .\csas2\models.py:448
 msgid "Target date for to provide Science advice"
 msgstr "date pour fournir l'avis scientifique"
 
-#: .\csas2\models.py:437
+#: .\csas2\models.py:451
 msgid "is posted on CSAS website?"
 msgstr "est publié sur le site web du SCAS ?"
 
-#: .\csas2\models.py:438
+#: .\csas2\models.py:452
 msgid "Date of posting request"
 msgstr "Date de la demande de publication"
 
-#: .\csas2\models.py:439
+#: .\csas2\models.py:453
 msgid "Posting notification date"
 msgstr "Date de notification de la publication"
 
-#: .\csas2\models.py:440 .\csas2\models.py:710
+#: .\csas2\models.py:454 .\csas2\models.py:724
 msgid "fiscal year"
 msgstr "Exercice financier"
 
-#: .\csas2\models.py:581
+#: .\csas2\models.py:595
 msgid "ToR has not been initiated"
 msgstr "Le cadre de référence n'a pas été initié"
 
-#: .\csas2\models.py:586
+#: .\csas2\models.py:600
 msgid "ToR has not been linked to a meeting"
 msgstr "Le cadre de référence n'a pas été lié à une réunion"
 
-#: .\csas2\models.py:591
+#: .\csas2\models.py:605
 msgid "ToR does not list expected publications"
 msgstr "Le cadre de référence n'a pas de publications prévues"
 
-#: .\csas2\models.py:607 .\csas2\models.py:691 .\csas2\models.py:924
+#: .\csas2\models.py:621 .\csas2\models.py:705 .\csas2\models.py:938
 msgid "process"
 msgstr "processus"
 
-#: .\csas2\models.py:612
+#: .\csas2\models.py:626
 msgid "context (en)"
 msgstr "contexte (an)"
 
-#: .\csas2\models.py:613
+#: .\csas2\models.py:627
 msgid "context (fr)"
 msgstr "contexte (fr)"
 
-#: .\csas2\models.py:614
+#: .\csas2\models.py:628
 msgid "objectives (en)"
 msgstr "objectifs (an)"
 
-#: .\csas2\models.py:615
+#: .\csas2\models.py:629
 msgid "objectives (fr)"
 msgstr "objectifs (fr)"
 
-#: .\csas2\models.py:616
+#: .\csas2\models.py:630
 msgid "participation (en)"
 msgstr "participation (an)"
 
-#: .\csas2\models.py:617
+#: .\csas2\models.py:631
 msgid "participation (fr)"
 msgstr "participation (fr)"
 
-#: .\csas2\models.py:618
+#: .\csas2\models.py:632
 msgid "references (en)"
 msgstr "références (an)"
 
-#: .\csas2\models.py:619
+#: .\csas2\models.py:633
 msgid "references (fr)"
 msgstr "références (fr)"
 
-#: .\csas2\models.py:621
+#: .\csas2\models.py:635
 msgid "Linked to which meeting?"
 msgstr "Lié à quelle réunion?"
 
-#: .\csas2\models.py:622
+#: .\csas2\models.py:636
 msgid ""
 "The ToR will pull several fields from the linked meeting (e.g., dates, "
 "chair, location, ...)"
 msgstr "Le cadre "
 
-#: .\csas2\models.py:623 .\csas2\reports.py:284
+#: .\csas2\models.py:637 .\csas2\reports.py:284
 msgid "expected publications"
 msgstr "publications prévues"
 
-#: .\csas2\models.py:624
+#: .\csas2\models.py:638
 msgid "Are the ToRs complete?"
 msgstr "Le cadre de référence est-il complet?"
 
-#: .\csas2\models.py:625
+#: .\csas2\models.py:639
 msgid "Selecting yes will update the process status"
 msgstr "En sélectionnant \"oui\", le statut du processus sera mis à jour"
 
-#: .\csas2\models.py:694
+#: .\csas2\models.py:708
 msgid "Is this a planning meeting?"
 msgstr "Est-ce une réunion de planification?"
 
-#: .\csas2\models.py:695
+#: .\csas2\models.py:709
 msgid "Is this a virtual meeting?"
 msgstr "Est-ce une réunion virtuelle?"
 
-#: .\csas2\models.py:696
+#: .\csas2\models.py:710
 msgid "location"
 msgstr "endroit"
 
-#: .\csas2\models.py:697
+#: .\csas2\models.py:711
 msgid "City, State/Province, Country or Virtual"
 msgstr "Ville, État/Province, Pays ou Virtuel"
 
-#: .\csas2\models.py:698
+#: .\csas2\models.py:712
 msgid "initial activity date"
 msgstr "date d'activité initiale"
 
-#: .\csas2\models.py:699
+#: .\csas2\models.py:713
 msgid "anticipated end date"
 msgstr "date de fin prévue"
 
-#: .\csas2\models.py:700
+#: .\csas2\models.py:714
 msgid "The dates provided above are approximations"
 msgstr "Les dates indiquées ci-dessus sont approximatives"
 
-#: .\csas2\models.py:701
+#: .\csas2\models.py:715
 msgid ""
 "By selecting yes, the meeting date will be displayed in the 'quarter/year' "
 "format, e.g.: Summer 2024"
@@ -1049,341 +1110,341 @@ msgstr ""
 "En sélectionnant oui, la date de la réunion sera affichée au format "
 "\"trimestre/année\", par exemple : Été 2024"
 
-#: .\csas2\models.py:702
+#: .\csas2\models.py:716
 msgid "description of meeting times (en)"
 msgstr "description des horaires de réunion (an)"
 
-#: .\csas2\models.py:703
+#: .\csas2\models.py:717
 msgid "e.g.: 9am to 4pm (Atlantic)"
 msgstr "p.ex.: 9h à 16h (Atlantique)"
 
-#: .\csas2\models.py:704
+#: .\csas2\models.py:718
 msgid "description of meeting times (fr)"
 msgstr "description des horaires de réunion (fr)"
 
-#: .\csas2\models.py:705
+#: .\csas2\models.py:719
 msgid "e.g.: 9h à 16h (Atlantique)"
 msgstr "p.ex.: 9h à 16h (Atlantique)"
 
-#: .\csas2\models.py:708
+#: .\csas2\models.py:722
 msgid "CSAS office notified about SoMP"
 msgstr "Le bureau du SCAS est informé du résumé des produits de réunion"
 
-#: .\csas2\models.py:728
+#: .\csas2\models.py:742
 msgid "planning"
 msgstr "planification"
 
-#: .\csas2\models.py:820 .\csas2\models.py:821
+#: .\csas2\models.py:834 .\csas2\models.py:835
 msgid "time_description_en"
 msgstr "time_description_fr"
 
-#: .\csas2\models.py:833
+#: .\csas2\models.py:847
 msgid "name (en)"
 msgstr "nom (an)"
 
-#: .\csas2\models.py:834
+#: .\csas2\models.py:848
 msgid "url (English)"
 msgstr "url (Anglais)"
 
-#: .\csas2\models.py:835
+#: .\csas2\models.py:849
 msgid "url (French)"
 msgstr "url (Français)"
 
-#: .\csas2\models.py:840 .\csas2\models.py:841
+#: .\csas2\models.py:854 .\csas2\models.py:855
 msgid "url_en"
 msgstr "url_fr"
 
-#: .\csas2\models.py:853
+#: .\csas2\models.py:867
 msgid "is this the SoMP?"
 msgstr "est-ce le résumé des produits de réunion?"
 
-#: .\csas2\models.py:857
+#: .\csas2\models.py:871
 msgid "special category"
 msgstr "catégorie spéciale"
 
-#: .\csas2\models.py:865
+#: .\csas2\models.py:879
 msgid "DFO Region (if applicable)"
 msgstr "région du MPO (si applicable)"
 
-#: .\csas2\models.py:866
+#: .\csas2\models.py:880
 #: .\csas2\templates\csas2\meeting_detail\_invitees.html:31
 msgid "Function(s)"
 msgstr "Fonction(s)"
 
-#: .\csas2\models.py:868
+#: .\csas2\models.py:882
 msgid "date invitation was sent"
 msgstr "date d'envoi de l'invitation"
 
-#: .\csas2\models.py:900
+#: .\csas2\models.py:914
 msgid "attendee"
 msgstr "participant"
 
-#: .\csas2\models.py:901
+#: .\csas2\models.py:915
 msgid "date"
 msgstr "date"
 
-#: .\csas2\models.py:909
+#: .\csas2\models.py:923
 msgid "days due following meeting"
 msgstr "jours dus après la réunion"
 
-#: .\csas2\models.py:910
+#: .\csas2\models.py:924
 msgid "hide from main search?"
 msgstr "cacher de la recherche principale?"
 
-#: .\csas2\models.py:925
+#: .\csas2\models.py:939
 msgid "document type"
 msgstr "type de document"
 
-#: .\csas2\models.py:926
+#: .\csas2\models.py:940
 msgid "title (English)"
 msgstr "titre (Anglais)"
 
-#: .\csas2\models.py:927
+#: .\csas2\models.py:941
 msgid "title (French)"
 msgstr "titre (Français)"
 
-#: .\csas2\models.py:928
+#: .\csas2\models.py:942
 msgid "title (Inuktitut)"
 msgstr "titre (Inuktitut)"
 
-#: .\csas2\models.py:929
+#: .\csas2\models.py:943
 msgid "Publication Year"
 msgstr "Année de publication"
 
-#: .\csas2\models.py:930
+#: .\csas2\models.py:944
 msgid "pages"
 msgstr "pages"
 
-#: .\csas2\models.py:933
+#: .\csas2\models.py:947
 msgid "file attachment (en)"
 msgstr "fichier joint (an)"
 
-#: .\csas2\models.py:934
+#: .\csas2\models.py:948
 msgid "file attachment (fr)"
 msgstr "fichier join (fr)"
 
-#: .\csas2\models.py:936
+#: .\csas2\models.py:950
 msgid "document url (en)"
 msgstr "url du document (an)"
 
-#: .\csas2\models.py:937
+#: .\csas2\models.py:951
 msgid "document url (fr)"
 msgstr "url du document (fr)"
 
-#: .\csas2\models.py:939
+#: .\csas2\models.py:953
 msgid "dev link (en)"
 msgstr "lien de développement (an)"
 
-#: .\csas2\models.py:940
+#: .\csas2\models.py:954
 msgid "dev link (fr)"
 msgstr "lien de développement (fr)"
 
-#: .\csas2\models.py:942
+#: .\csas2\models.py:956
 msgid "EKME# / GCDocs (en)"
 msgstr "#EKME/ GCDocs (an)"
 
-#: .\csas2\models.py:943
+#: .\csas2\models.py:957
 msgid "EKME# / GCDocs (fr)"
 msgstr "#EKME/ GCDocs (fr)"
 
-#: .\csas2\models.py:945
+#: .\csas2\models.py:959
 msgid "library catalogue # (en)"
 msgstr "numéro de catalogue de la bibliothèque (an)"
 
-#: .\csas2\models.py:946
+#: .\csas2\models.py:960
 msgid "library catalogue # (fr)"
 msgstr "numéro de catalogue de la bibliothèque (fr)"
 
-#: .\csas2\models.py:949
+#: .\csas2\models.py:963
 msgid "document due date"
 msgstr "date de remise du document"
 
-#: .\csas2\models.py:950
+#: .\csas2\models.py:964
 msgid "date of publication number request"
 msgstr "date de la demande du numéro de publication"
 
-#: .\csas2\models.py:951 .\csas2\models.py:1058
+#: .\csas2\models.py:965 .\csas2\models.py:1072
 msgid "publication number"
 msgstr "numéro de publication"
 
-#: .\csas2\models.py:952
+#: .\csas2\models.py:966
 msgid "csas meeting linkages"
 msgstr "liens avec les réunions du SCAS"
 
-#: .\csas2\models.py:953
+#: .\csas2\models.py:967
 msgid "authors"
 msgstr "auteurs"
 
-#: .\csas2\models.py:955
+#: .\csas2\models.py:969
 msgid "translation status"
 msgstr "statut de la traduction"
 
-#: .\csas2\models.py:960 .\csas2\models.py:989 .\csas2\models.py:990
+#: .\csas2\models.py:974 .\csas2\models.py:1003 .\csas2\models.py:1004
 msgid "title_en"
 msgstr "title_fr"
 
-#: .\csas2\models.py:1028
+#: .\csas2\models.py:1042
 msgid "product due date"
 msgstr "date d'échéance du produit"
 
-#: .\csas2\models.py:1029
+#: .\csas2\models.py:1043
 #, fuzzy
 #| msgid "Submitted by author"
 msgid "date submitted by author"
 msgstr "Soumis par l'auteur"
 
-#: .\csas2\models.py:1030
+#: .\csas2\models.py:1044
 msgid "submitted by"
 msgstr "soumis par"
 
-#: .\csas2\models.py:1032
+#: .\csas2\models.py:1046
 msgid "chairperson"
 msgstr "président(e)"
 
-#: .\csas2\models.py:1033
+#: .\csas2\models.py:1047
 msgid "date sent to chair"
 msgstr "date envoyée au président"
 
-#: .\csas2\models.py:1034
+#: .\csas2\models.py:1048
 msgid "date approved by chair"
 msgstr "date approuvée par le président"
 
-#: .\csas2\models.py:1035 .\csas2\models.py:1039 .\csas2\models.py:1045
-#: .\csas2\models.py:1051 .\csas2\models.py:1056
+#: .\csas2\models.py:1049 .\csas2\models.py:1053 .\csas2\models.py:1059
+#: .\csas2\models.py:1065 .\csas2\models.py:1070
 #, fuzzy
 #| msgid "recommendation"
 msgid "comment"
 msgstr "recommendation"
 
-#: .\csas2\models.py:1037
+#: .\csas2\models.py:1051
 msgid "date sent to CSAS coordinator"
 msgstr "date envoyée au coordinateur SCAS"
 
-#: .\csas2\models.py:1038
+#: .\csas2\models.py:1052
 msgid "date approved by CSAS coordinator"
 msgstr "date approuvée par le coordinateur SCAS"
 
-#: .\csas2\models.py:1041
+#: .\csas2\models.py:1055
 msgid "section head"
 msgstr "chef de la section"
 
-#: .\csas2\models.py:1043
+#: .\csas2\models.py:1057
 msgid "date sent to section head"
 msgstr "date envoyée au chef de la section"
 
-#: .\csas2\models.py:1044
+#: .\csas2\models.py:1058
 msgid "date approved by section head"
 msgstr "date approuvée par le chef de la section"
 
-#: .\csas2\models.py:1047
+#: .\csas2\models.py:1061
 msgid "division manager"
 msgstr "gestionnaire de la division"
 
-#: .\csas2\models.py:1049
+#: .\csas2\models.py:1063
 msgid "date sent to division manager"
 msgstr "date envoyée au gestionnaire de la division"
 
-#: .\csas2\models.py:1050
+#: .\csas2\models.py:1064
 msgid "date approved by division manager"
 msgstr "date approuvée par le gestionnaire de la division"
 
-#: .\csas2\models.py:1053
+#: .\csas2\models.py:1067
 msgid "director"
 msgstr "directeur"
 
-#: .\csas2\models.py:1054
+#: .\csas2\models.py:1068
 msgid "date sent to director"
 msgstr "date envoyée au directeur"
 
-#: .\csas2\models.py:1055
+#: .\csas2\models.py:1069
 msgid "date approved by director"
 msgstr "date approuvée par le directuer"
 
-#: .\csas2\models.py:1059
+#: .\csas2\models.py:1073
 msgid "date document submitted to CSAS office"
 msgstr "date de remise du document au bureau du SCAS"
 
-#: .\csas2\models.py:1061
+#: .\csas2\models.py:1075
 msgid "proof will be sent to which author"
 msgstr "L'approbation sera envoyée à quel auteur"
 
-#: .\csas2\models.py:1063
+#: .\csas2\models.py:1077
 msgid "date PDF proof sent to author"
 msgstr "date d'envoi de l'approbation du PDF à l'auteur"
 
-#: .\csas2\models.py:1064
+#: .\csas2\models.py:1078
 msgid "date PDF proof approved by author"
 msgstr "date l'approbation du PDF a été approuvé par l'auteur"
 
-#: .\csas2\models.py:1066
+#: .\csas2\models.py:1080
 msgid "anticipated posting date"
 msgstr "date de publication prévue"
 
-#: .\csas2\models.py:1067
+#: .\csas2\models.py:1081
 msgid "actual posting date"
 msgstr "date de publication actuelle"
 
-#: .\csas2\models.py:1068
+#: .\csas2\models.py:1082
 msgid "updated posting date"
 msgstr "date de publication révisée"
 
-#: .\csas2\models.py:1071
+#: .\csas2\models.py:1085
 msgid "Will translation be tackled in-house?"
 msgstr "La traduction sera-t-elle faite en interne?"
 
-#: .\csas2\models.py:1072
+#: .\csas2\models.py:1086
 msgid "target language"
 msgstr "langue cible"
 
-#: .\csas2\models.py:1074
+#: .\csas2\models.py:1088
 msgid "date sent to translation"
 msgstr "date envoyée à la traduction"
 
-#: .\csas2\models.py:1075
+#: .\csas2\models.py:1089
 msgid "forecasted return date"
 msgstr "date de retour prévue"
 
-#: .\csas2\models.py:1076
+#: .\csas2\models.py:1090
 msgid "client reference number"
 msgstr "numéro de référence du client"
 
-#: .\csas2\models.py:1077
+#: .\csas2\models.py:1091
 msgid "translation reference number"
 msgstr "le numéro de référence de la traduction"
 
-#: .\csas2\models.py:1078
+#: .\csas2\models.py:1092
 msgid "was submitted as an urgent request?"
 msgstr "a été soumise comme une demande urgente?"
 
-#: .\csas2\models.py:1079
+#: .\csas2\models.py:1093
 msgid "date received from translation"
 msgstr "date reçue de la traduction"
 
-#: .\csas2\models.py:1080
+#: .\csas2\models.py:1094
 msgid "invoice number"
 msgstr "numéro de facture"
 
-#: .\csas2\models.py:1082
+#: .\csas2\models.py:1096
 msgid "translation review completion date"
 msgstr "date d'achèvement de la révision de la traduction"
 
-#: .\csas2\models.py:1083
+#: .\csas2\models.py:1097
 msgid "translation review completed by"
 msgstr "révision de la traduction effectué par"
 
-#: .\csas2\models.py:1086
+#: .\csas2\models.py:1100
 msgid "translation notes"
 msgstr "notes du traduction"
 
-#: .\csas2\models.py:1091
+#: .\csas2\models.py:1105
 msgid "document"
 msgstr "document"
 
-#: .\csas2\models.py:1092
+#: .\csas2\models.py:1106
 msgid "person"
 msgstr "personne"
 
-#: .\csas2\models.py:1093
+#: .\csas2\models.py:1107
 msgid "lead author?"
 msgstr "auteur principal?"
 
@@ -1483,6 +1544,50 @@ msgstr "Permissions des utilisateurs du SCAS"
 msgid "CSAS Offices"
 msgstr "Bureaux du SCAS"
 
+#: .\csas2\templates\csas2\components\email_preview.html:11
+#, fuzzy
+#| msgid "Review Panel"
+msgid "Preview Email"
+msgstr "Panneau de révision"
+
+#: .\csas2\templates\csas2\components\email_preview.html:14
+#: .\csas2\templates\csas2\meeting_detail\components\email-overlay.html:18
+msgid "FROM:"
+msgstr "DE:"
+
+#: .\csas2\templates\csas2\components\email_preview.html:15
+#: .\csas2\templates\csas2\meeting_detail\components\email-overlay.html:19
+msgid "TO:"
+msgstr "À:"
+
+#: .\csas2\templates\csas2\components\email_preview.html:16
+#: .\csas2\templates\csas2\meeting_detail\components\email-overlay.html:20
+msgid "SUBJECT:"
+msgstr "SUJET:"
+
+#: .\csas2\templates\csas2\components\email_preview.html:17
+#: .\csas2\templates\csas2\meeting_detail\components\email-overlay.html:21
+msgid "MESSAGE:"
+msgstr "MESSAGE:"
+
+#: .\csas2\templates\csas2\components\email_preview.html:20
+#: .\csas2\templates\csas2\components\note_pad.html:115
+#: .\csas2\templates\csas2\document_detail\components\author_editor.html:57
+#: .\csas2\templates\csas2\document_detail\components\author_editor.html:105
+#: .\csas2\templates\csas2\meeting_detail\components\email-overlay.html:24
+#: .\csas2\templates\csas2\meeting_detail\components\invitee_editor.html:94
+#: .\csas2\templates\csas2\meeting_detail\components\invitee_importer.html:41
+#: .\csas2\templates\csas2\meeting_detail\components\resource_editor.html:52
+#: .\csas2\templates\csas2\process_detail\components\cost_editor.html:62
+msgid "Back"
+msgstr "Retour"
+
+#: .\csas2\templates\csas2\components\email_preview.html:21
+#, fuzzy
+#| msgid "Sent"
+msgid "Send"
+msgstr "Envoyer"
+
 #: .\csas2\templates\csas2\components\filter_control.html:82
 msgid "yes"
 msgstr "oui"
@@ -1505,7 +1610,7 @@ msgstr "Général"
 #: .\csas2\templates\csas2\meeting_detail\main.html:55
 #: .\csas2\templates\csas2\person_detail.html:14
 #: .\csas2\templates\csas2\process_detail\main.html:37
-#: .\csas2\templates\csas2\request_detail\main.html:52
+#: .\csas2\templates\csas2\request_detail\main.html:60
 msgid "Edit"
 msgstr "Modifier"
 
@@ -1515,7 +1620,7 @@ msgstr "Modifier"
 #: .\csas2\templates\csas2\meeting_detail\main.html:56
 #: .\csas2\templates\csas2\person_detail.html:15
 #: .\csas2\templates\csas2\process_detail\main.html:38
-#: .\csas2\templates\csas2\request_detail\main.html:68
+#: .\csas2\templates\csas2\request_detail\main.html:76
 #: .\csas2\templates\csas2\todo_list.html:60
 #: .\csas2\templates\csas2\todo_list.html:108
 #: .\csas2\templates\csas2\todo_list.html:156
@@ -1554,17 +1659,6 @@ msgstr "Mise à jour"
 #: .\csas2\templates\csas2\process_detail\components\cost_editor.html:60
 msgid "Create"
 msgstr "Créer"
-
-#: .\csas2\templates\csas2\components\note_pad.html:115
-#: .\csas2\templates\csas2\document_detail\components\author_editor.html:57
-#: .\csas2\templates\csas2\document_detail\components\author_editor.html:105
-#: .\csas2\templates\csas2\meeting_detail\components\email-overlay.html:24
-#: .\csas2\templates\csas2\meeting_detail\components\invitee_editor.html:94
-#: .\csas2\templates\csas2\meeting_detail\components\invitee_importer.html:41
-#: .\csas2\templates\csas2\meeting_detail\components\resource_editor.html:52
-#: .\csas2\templates\csas2\process_detail\components\cost_editor.html:62
-msgid "Back"
-msgstr "Retour"
 
 #: .\csas2\templates\csas2\components\note_pad.html:235
 #: .\csas2\templates\csas2\todo_list.html:273
@@ -1722,6 +1816,7 @@ msgstr "Ajouter une personne"
 
 #: .\csas2\templates\csas2\document_detail\components\date_field_group.html:12
 #: .\csas2\templates\csas2\request_detail\_review.html:92
+#: .\csas2\templates\csas2\request_reviews\main.html:268
 msgid "clear"
 msgstr "Dégagé"
 
@@ -1782,8 +1877,8 @@ msgstr "Il n'y a pas de reunions liées à ce document."
 #: .\csas2\templates\csas2\document_detail\main.html:174
 #: .\csas2\templates\csas2\meeting_detail\main.html:144
 #: .\csas2\templates\csas2\process_detail\main.html:207
-#: .\csas2\templates\csas2\request_detail\main.html:210
-#: .\csas2\templates\csas2\request_detail\main.html:254
+#: .\csas2\templates\csas2\request_detail\main.html:222
+#: .\csas2\templates\csas2\request_detail\main.html:266
 msgid "Metadata"
 msgstr "Métadonnées"
 
@@ -1988,7 +2083,7 @@ msgid "Invitee Attendance"
 msgstr "Participation des invités"
 
 #: .\csas2\templates\csas2\meeting_detail\components\attendance-overlay.html:22
-#: .\csas2\templates\csas2\process_reviews\main.html:68
+#: .\csas2\templates\csas2\process_reviews\main.html:69
 #: .\csas2\templates\csas2\request_detail\_review.html:87
 #: .\csas2\templates\csas2\request_reviews\main.html:232
 msgid "Click to select dates"
@@ -2005,22 +2100,6 @@ msgstr "Modifier le courriel d'invitation à la réunion"
 #: .\csas2\templates\csas2\meeting_detail\components\email-overlay.html:15
 msgid "Meeting Invitation Email"
 msgstr "Courriel d'invitation à la réunion"
-
-#: .\csas2\templates\csas2\meeting_detail\components\email-overlay.html:18
-msgid "FROM:"
-msgstr "DE:"
-
-#: .\csas2\templates\csas2\meeting_detail\components\email-overlay.html:19
-msgid "TO:"
-msgstr "À:"
-
-#: .\csas2\templates\csas2\meeting_detail\components\email-overlay.html:20
-msgid "SUBJECT:"
-msgstr "SUJET:"
-
-#: .\csas2\templates\csas2\meeting_detail\components\email-overlay.html:21
-msgid "MESSAGE:"
-msgstr "MESSAGE:"
 
 #: .\csas2\templates\csas2\meeting_detail\components\email-overlay.html:25
 msgid "Send Invitation"
@@ -2115,7 +2194,7 @@ msgstr ""
 "de notification à l'équipe nationale du SCAS."
 
 #: .\csas2\templates\csas2\meeting_detail\main.html:58
-#: .\csas2\templates\csas2\request_detail\main.html:73
+#: .\csas2\templates\csas2\request_detail\main.html:81
 msgid "Add a File"
 msgstr "Ajouter un fichier"
 
@@ -2144,7 +2223,7 @@ msgid "There are no documents linked to this meeting."
 msgstr "Il n'y a pas de documents liés à cette réunion."
 
 #: .\csas2\templates\csas2\meeting_detail\main.html:119
-#: .\csas2\templates\csas2\request_detail\main.html:172
+#: .\csas2\templates\csas2\request_detail\main.html:184
 msgid "Files"
 msgstr "Fichiers"
 
@@ -2348,7 +2427,7 @@ msgid "There are no meetings associated with this process."
 msgstr "Il n'y a pas de réunions liées à ce processus."
 
 #: .\csas2\templates\csas2\process_detail\main.html:276
-#: .\csas2\templates\csas2\process_reviews\main.html:52 .\csas2\utils.py:277
+#: .\csas2\templates\csas2\process_reviews\main.html:52 .\csas2\utils.py:312
 msgid "Title"
 msgstr "Titre"
 
@@ -2374,14 +2453,14 @@ msgstr "Êtes-vous certain de vouloir supprimer ce coût?"
 
 #: .\csas2\templates\csas2\process_postings.html:42
 #: .\csas2\templates\csas2\process_reviews\_filter.html:24
-#: .\csas2\templates\csas2\request_list.html:38
+#: .\csas2\templates\csas2\request_list.html:37
 #: .\csas2\templates\csas2\request_reviews\_filter.html:36
 msgid "Filter"
 msgstr "Filtrer"
 
 #: .\csas2\templates\csas2\process_postings.html:43
 #: .\csas2\templates\csas2\process_reviews\_filter.html:25
-#: .\csas2\templates\csas2\request_list.html:39
+#: .\csas2\templates\csas2\request_list.html:38
 #: .\csas2\templates\csas2\request_reviews\_filter.html:37
 msgid "Clear"
 msgstr "Dégagé"
@@ -2489,84 +2568,99 @@ msgstr "Supprimer la révision"
 msgid "Request ID:"
 msgstr "ID de la demande"
 
-#: .\csas2\templates\csas2\request_detail\main.html:43
+#: .\csas2\templates\csas2\request_detail\main.html:44
+msgid ""
+"Regional CSAS staff have recommended that this request be <b>withdrawn</b>."
+msgstr ""
+
+#: .\csas2\templates\csas2\request_detail\main.html:45
+msgid "Withdraw This Request"
+msgstr ""
+
+#: .\csas2\templates\csas2\request_detail\main.html:51
 msgid "Start a Review"
 msgstr "Commencer un examen"
 
-#: .\csas2\templates\csas2\request_detail\main.html:46
-#: .\csas2\templates\csas2\request_reviews\main.html:272
+#: .\csas2\templates\csas2\request_detail\main.html:54
+#: .\csas2\templates\csas2\request_reviews\main.html:312
 msgid "Initiate a Process"
 msgstr "Commencer un processus"
 
-#: .\csas2\templates\csas2\request_detail\main.html:56
+#: .\csas2\templates\csas2\request_detail\main.html:64
 msgid "Un-Submit"
 msgstr "Dé-soumettre"
 
-#: .\csas2\templates\csas2\request_detail\main.html:59
-#: .\csas2\templates\csas2\request_detail\main.html:63
+#: .\csas2\templates\csas2\request_detail\main.html:67
+#: .\csas2\templates\csas2\request_detail\main.html:71
 #: .\csas2\templates\csas2\request_submit.html:81
 msgid "Submit"
 msgstr "Soumettre"
 
-#: .\csas2\templates\csas2\request_detail\main.html:61
+#: .\csas2\templates\csas2\request_detail\main.html:69
 msgid "All fields are mandatory before approvals and submission"
 msgstr "Tous les domaines sont obligatoires avant d'être approuvés et soumis"
 
-#: .\csas2\templates\csas2\request_detail\main.html:70
+#: .\csas2\templates\csas2\request_detail\main.html:78
 msgid "Click here to clone this request into a new request"
 msgstr "Cliquez ici pour cloner cette demande dans une nouvelle demande"
 
-#: .\csas2\templates\csas2\request_detail\main.html:71
+#: .\csas2\templates\csas2\request_detail\main.html:79
 msgid "Clone Me"
 msgstr "Clonez-moi"
 
-#: .\csas2\templates\csas2\request_detail\main.html:78
+#: .\csas2\templates\csas2\request_detail\main.html:86
 msgid "Export to PDF"
 msgstr "Exporter en PDF"
 
-#: .\csas2\templates\csas2\request_detail\main.html:105 .\csas2\utils.py:238
+#: .\csas2\templates\csas2\request_detail\main.html:113 .\csas2\utils.py:273
 msgid "is carry over?"
 msgstr "est un report?"
 
-#: .\csas2\templates\csas2\request_detail\main.html:119
+#: .\csas2\templates\csas2\request_detail\main.html:127
 msgid "Center for Science Advice"
 msgstr "Centre des avis scientifiques"
 
-#: .\csas2\templates\csas2\request_detail\main.html:127 .\csas2\utils.py:243
+#: .\csas2\templates\csas2\request_detail\main.html:135 .\csas2\utils.py:278
 msgid "Multiregional / multisector?"
 msgstr "Multirégional / multisectoriel?"
 
-#: .\csas2\templates\csas2\request_detail\main.html:135
+#: .\csas2\templates\csas2\request_detail\main.html:143
 msgid "Assistance from DFO Science"
 msgstr "Aide du Secteur des sciences du MPO"
 
-#: .\csas2\templates\csas2\request_detail\main.html:155
+#: .\csas2\templates\csas2\request_detail\main.html:163
 msgid "Client funding?"
 msgstr "Financement des clients?"
 
-#: .\csas2\templates\csas2\request_detail\main.html:159
+#: .\csas2\templates\csas2\request_detail\main.html:167
 msgid "Client prioritization?"
 msgstr "La priorisation du client?"
 
-#: .\csas2\templates\csas2\request_detail\main.html:188
+#: .\csas2\templates\csas2\request_detail\main.html:200
 msgid "There are no files attached to this request."
 msgstr "Il n'y a pas de fichiers attachés à cette demande."
 
-#: .\csas2\templates\csas2\request_detail\main.html:195
+#: .\csas2\templates\csas2\request_detail\main.html:207
 msgid "Connected processes"
 msgstr "Processus connectés"
 
-#: .\csas2\templates\csas2\request_detail\main.html:205
+#: .\csas2\templates\csas2\request_detail\main.html:217
 msgid "There are no processes attached to this request."
 msgstr "Il n'y a pas de processus attachés à cette demande."
 
-#: .\csas2\templates\csas2\request_detail\main.html:224
+#: .\csas2\templates\csas2\request_detail\main.html:236
 #: .\csas2\templates\csas2\request_reviews\main.html:58
 msgid "Review"
 msgstr "Réviser"
 
-#: .\csas2\templates\csas2\request_detail\main.html:343
-#: .\csas2\templates\csas2\request_reviews\main.html:417
+#: .\csas2\templates\csas2\request_detail\main.html:356
+#, fuzzy
+#| msgid "Are you certain you want to delete this resource?"
+msgid "Are you sure you want to withdraw this request?"
+msgstr "Êtes-vous certain de vouloir supprimer cette ressource?"
+
+#: .\csas2\templates\csas2\request_detail\main.html:371
+#: .\csas2\templates\csas2\request_reviews\main.html:490
 msgid "Are you certain you want to delete this review?"
 msgstr "Êtes-vous certain de vouloir supprimer cet examen?"
 
@@ -2696,32 +2790,48 @@ msgid "Recommendation rationale"
 msgstr "Explication de la recommendation"
 
 #: .\csas2\templates\csas2\request_reviews\main.html:240
-#: .\csas2\templates\csas2\request_reviews\main.html:249
+#: .\csas2\templates\csas2\request_reviews\main.html:247
 msgid "VISIBLE TO CLIENT"
 msgstr "VISIBLE POUR LE CLIENT"
 
-#: .\csas2\templates\csas2\request_reviews\main.html:256
+#: .\csas2\templates\csas2\request_reviews\main.html:259
+#, fuzzy
+#| msgid "Posting notification date"
+msgid "Send notification email to client"
+msgstr "Date de notification de la publication"
+
+#: .\csas2\templates\csas2\request_reviews\main.html:262
+msgid "Mark as sent"
+msgstr ""
+
+#: .\csas2\templates\csas2\request_reviews\main.html:267
+#, fuzzy
+#| msgid "Email notification sent on"
+msgid "Notification email sent on "
+msgstr "Notification par courriel envoyée le"
+
+#: .\csas2\templates\csas2\request_reviews\main.html:282
 msgid "INTERNAL / CSAS ONLY"
 msgstr "INTERNE / SCAS SEULEMENT"
 
-#: .\csas2\templates\csas2\request_reviews\main.html:263
+#: .\csas2\templates\csas2\request_reviews\main.html:303
 msgid "delete this review"
 msgstr "Supprimer l'examen"
 
-#: .\csas2\templates\csas2\request_reviews\main.html:270
+#: .\csas2\templates\csas2\request_reviews\main.html:310
 msgid "WARNING: This request does yet not have an associated CSAS process."
 msgstr ""
 "CAVERTISSEMENT : Cette demande n'a pas encore de processus SCAS associé."
 
-#: .\csas2\templates\csas2\request_reviews\main.html:275
+#: .\csas2\templates\csas2\request_reviews\main.html:315
 msgid "This review has an associated process."
 msgstr "Cette réunion n'a pas de processus associées."
 
-#: .\csas2\templates\csas2\request_reviews\main.html:282
+#: .\csas2\templates\csas2\request_reviews\main.html:322
 msgid "This request does not have a review."
 msgstr "Cette demande "
 
-#: .\csas2\templates\csas2\request_reviews\main.html:283
+#: .\csas2\templates\csas2\request_reviews\main.html:323
 msgid ""
 "\n"
 "                  Click <span class=\"text-primary pointy\" @click="
@@ -2731,6 +2841,10 @@ msgstr ""
 "\n"
 "Cliquer <span class=\"text-primary pointy\" @click=\"primerReview(r)\"> ICI "
 "</span> pour en commencer un."
+
+#: .\csas2\templates\csas2\request_reviews\main.html:329
+msgid "A review can be started only after the request has been submitted."
+msgstr ""
 
 #: .\csas2\templates\csas2\request_submit.html:18
 msgid ""
@@ -2875,7 +2989,7 @@ msgstr "Administrateur national"
 msgid "Regional Administrator"
 msgstr "Administrateur régional"
 
-#: .\csas2\utils.py:150 .\csas2\utils.py:195
+#: .\csas2\utils.py:150 .\csas2\utils.py:199 .\csas2\utils.py:230
 msgid "You are not logged in"
 msgstr "Vous n'êtes pas connecté"
 
@@ -2894,7 +3008,7 @@ msgstr ""
 msgid "You can modify this record because you are the record creator"
 msgstr "Vous pouvez modifier cet enregistrement car vous l'avez créer"
 
-#: .\csas2\utils.py:165
+#: .\csas2\utils.py:165 .\csas2\utils.py:206
 msgid ""
 "You can modify this record because you are the CSAS coordinator for this "
 "region"
@@ -2902,14 +3016,14 @@ msgstr ""
 "Vous pouvez modifier cet enregistrement car vous êtes le coordinateur SCAS "
 "pour cette région"
 
-#: .\csas2\utils.py:169
+#: .\csas2\utils.py:169 .\csas2\utils.py:210
 msgid ""
 "You can modify this record because you a CSAS Science advisor in this region"
 msgstr ""
 "Vous pouvez modifier cet enregistrement car vous êtes un conseiller "
 "scientifique du SCAS dans cette région"
 
-#: .\csas2\utils.py:173
+#: .\csas2\utils.py:173 .\csas2\utils.py:214
 msgid ""
 "You can modify this record because you a CSAS Science administrator in this "
 "region"
@@ -2917,32 +3031,45 @@ msgstr ""
 "Vous pouvez modifier cet enregistrement car vous êtes un administrateur "
 "scientifique du SCAS dans cette région"
 
-#: .\csas2\utils.py:177 .\csas2\utils.py:219
+#: .\csas2\utils.py:177 .\csas2\utils.py:218 .\csas2\utils.py:254
 msgid ""
 "You can modify this record because you are a national CSAS administrator"
 msgstr ""
 "Vous pouvez modifier cet enregistrement car vous êtes un administrateur "
 "scientifique national du SCAS"
 
-#: .\csas2\utils.py:181 .\csas2\utils.py:223
+#: .\csas2\utils.py:181 .\csas2\utils.py:258
 msgid "You can modify this record because you are a NCR web & pub staff member"
 msgstr ""
 "Vous pouvez modifier cet enregistrement car vous êtes un membre de l'équipe "
 "de site web et de publications du RCN"
 
-#: .\csas2\utils.py:198
+#: .\csas2\utils.py:202
+#, fuzzy
+#| msgid "You do not have the permissions to modify this request"
+msgid "You do not have the permissions to modify this review"
+msgstr ""
+"Vous n'avez pas les autorisations nécessaires pour modifier cette demande."
+
+#: .\csas2\utils.py:221
+#, fuzzy
+#| msgid "This request does not have a review."
+msgid "This CSAS request does not have a review!"
+msgstr "Cette demande "
+
+#: .\csas2\utils.py:233
 msgid "You do not have the permissions to modify this process"
 msgstr ""
 "Vous n'avez pas les autorisations nécessaires pour modifier ce processus"
 
-#: .\csas2\utils.py:203
+#: .\csas2\utils.py:238
 msgid ""
 "You can modify this record because you have been tagged as a process editor"
 msgstr ""
 "Vous pouvez modifier cet enregistrement car vous avez été étiqueté comme "
 "éditeur de processus"
 
-#: .\csas2\utils.py:207
+#: .\csas2\utils.py:242
 msgid ""
 "You can modify this record because you are a science administrator for this "
 "process"
@@ -2950,85 +3077,85 @@ msgstr ""
 "Vous pouvez modifier cet enregistrement car vous êtes un administrateur "
 "scientifique pour ce processus"
 
-#: .\csas2\utils.py:211
+#: .\csas2\utils.py:246
 msgid ""
 "You can modify this record because you are a science advisor for this process"
 msgstr ""
 "Vous pouvez modifier cet enregistrement car vous êtes un conseiller "
 "scientifique pour ce processus"
 
-#: .\csas2\utils.py:215
+#: .\csas2\utils.py:250
 msgid ""
 "You can modify this record because you are the coordinator for this process"
 msgstr ""
 "Vous pouvez modifier cet enregistrement car vous êtes un coordinateur pour "
 "ce processus"
 
-#: .\csas2\utils.py:228
+#: .\csas2\utils.py:263
 msgid ""
 "You can modify this record because you are a regional CSAS administrator"
 msgstr ""
 "Vous pouvez modifier cet enregistrement car vous êtes un administrateur "
 "régional du SCAS"
 
-#: .\csas2\utils.py:235
+#: .\csas2\utils.py:270
 msgid "request Id"
 msgstr "ID de la demande"
 
-#: .\csas2\utils.py:245
+#: .\csas2\utils.py:280
 msgid "Assistance from DFO Science?"
 msgstr "Aide du Secteur des sciences du MPO?"
 
-#: .\csas2\utils.py:250
+#: .\csas2\utils.py:285
 msgid "client funding?"
 msgstr "financement des clients?"
 
-#: .\csas2\utils.py:251
+#: .\csas2\utils.py:286
 msgid "client prioritization"
 msgstr "priorisation des clients"
 
-#: .\csas2\utils.py:254 .\csas2\utils.py:268 .\csas2\utils.py:290
-#: .\csas2\utils.py:302 .\csas2\utils.py:321 .\csas2\utils.py:385
+#: .\csas2\utils.py:289 .\csas2\utils.py:303 .\csas2\utils.py:325
+#: .\csas2\utils.py:337 .\csas2\utils.py:356 .\csas2\utils.py:420
 msgid "metadata"
 msgstr "métadonnées"
 
-#: .\csas2\utils.py:263
+#: .\csas2\utils.py:298
 msgid "prioritization"
 msgstr "priorisation"
 
-#: .\csas2\utils.py:264
+#: .\csas2\utils.py:299
 msgid "decision"
 msgstr "décision"
 
-#: .\csas2\utils.py:266
+#: .\csas2\utils.py:301
 msgid "Was the original request date deferred?"
 msgstr "la date de la demande initiale a-t-elle été reportée?"
 
-#: .\csas2\utils.py:280
+#: .\csas2\utils.py:315
 msgid "advisory process type"
 msgstr "type de processus de consultation"
 
-#: .\csas2\utils.py:377
+#: .\csas2\utils.py:412
 msgid "Full name"
 msgstr "Nom complet"
 
-#: .\csas2\utils.py:382
+#: .\csas2\utils.py:417
 msgid "job title"
 msgstr "titre du poste"
 
-#: .\csas2\utils.py:393
+#: .\csas2\utils.py:428
 msgid "Winter"
 msgstr "Hiver"
 
-#: .\csas2\utils.py:395
+#: .\csas2\utils.py:430
 msgid "Spring"
 msgstr "Printemps"
 
-#: .\csas2\utils.py:397
+#: .\csas2\utils.py:432
 msgid "Summer"
 msgstr "Été"
 
-#: .\csas2\utils.py:399
+#: .\csas2\utils.py:434
 msgid "Fall"
 msgstr "Automne"
 
@@ -3221,6 +3348,9 @@ msgstr "Liste des tâches"
 #: .\csas2\views.py:1265
 msgid "CSAS Reports"
 msgstr "Rapports du SCAS"
+
+#~ msgid "Review decision"
+#~ msgstr "Reviser une décision"
 
 #~ msgid "date submitted for review"
 #~ msgstr "date soumise pour examen"
