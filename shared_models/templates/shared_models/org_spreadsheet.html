@@ -439,16 +439,16 @@
             </thead>
             <tbody>
             <tr v-for="obj, index in filteredSections" :key="obj.id" :ref="`section_${obj.id}`">
-              <td v-if="obj.division_obj.branch_obj.sector_obj">${obj.division_obj.branch_obj.sector_obj.region_obj.name}</td>
-              <td v-else>---</td>
-              <td v-if="obj.division_obj.branch_obj">${obj.division_obj.branch_obj.sector_obj.name}</td>
-              <td v-else>---</td>
-              <td v-if="obj.division_obj.branch_obj">${obj.division_obj.branch_obj.name}</td>
-              <td v-else>---</td>
-              <td v-if="obj.division_obj">${obj.division_obj.name}</td>
-              <td v-else>---</td>
-              <td>${obj.name}</td>
-              <td>${obj.nom}</td>
+              <td class="text-muted" class="text-muted" v-if="obj.division_obj.branch_obj.sector_obj">${obj.division_obj.branch_obj.sector_obj.region_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="text-muted" v-if="obj.division_obj.branch_obj">${obj.division_obj.branch_obj.sector_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="text-muted" v-if="obj.division_obj.branch_obj">${obj.division_obj.branch_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="text-muted" v-if="obj.division_obj">${obj.division_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="font-weight-bold">${obj.name}</td>
+              <td class="font-weight-bold">${obj.nom}</td>
               <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
@@ -490,14 +490,14 @@
             </thead>
             <tbody>
             <tr v-for="obj, index in filteredDivisions" :key="obj.id" :ref="`division_${obj.id}`">
-              <td v-if="obj.branch_obj.sector_obj.region_obj">${obj.branch_obj.sector_obj.region_obj.name}</td>
-              <td v-else>---</td>
-              <td v-if="obj.branch_obj.sector_obj">${obj.branch_obj.sector_obj.name}</td>
-              <td v-else>---</td>
-              <td v-if="obj.branch_obj">${obj.branch_obj.name}</td>
-              <td v-else>---</td>
-              <td>${obj.name}</td>
-              <td>${obj.nom}</td>
+              <td class="text-muted" v-if="obj.branch_obj.sector_obj.region_obj">${obj.branch_obj.sector_obj.region_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="text-muted" v-if="obj.branch_obj.sector_obj">${obj.branch_obj.sector_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="text-muted" v-if="obj.branch_obj">${obj.branch_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="font-weight-bold">${obj.name}</td>
+              <td class="font-weight-bold">${obj.nom}</td>
               <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
@@ -538,13 +538,13 @@
             </thead>
             <tbody>
             <tr v-for="obj, index in filteredBranches" :key="obj.id" :ref="`branch_${obj.id}`">
-              <td v-if="obj.sector_obj.region_obj">${obj.sector_obj.region_obj.name}</td>
-              <td v-else>---</td>
-              <td v-if="obj.sector_obj">${obj.sector_obj.name}</td>
-              <td v-else>---</td>
-              <td>${obj.name} <span v-if="obj.region_obj">[${obj.region_obj.name}]</span></td>
+              <td class="text-muted" v-if="obj.sector_obj.region_obj">${obj.sector_obj.region_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="text-muted" v-if="obj.sector_obj">${obj.sector_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="font-weight-bold">${obj.name} <span v-if="obj.region_obj">[${obj.region_obj.name}]</span></td>
               {# TODO: This should be deleted eventually #}
-              <td>${obj.nom}</td>
+              <td class="font-weight-bold">${obj.nom}</td>
               <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
@@ -587,10 +587,10 @@
             </thead>
             <tbody>
             <tr v-for="obj, index in filteredSectors" :key="obj.id" :ref="`branch_${obj.id}`">
-              <td v-if="obj.region_obj">${obj.region_obj.name}</td>
-              <td v-else>---</td>
-              <td>${obj.name}</td>
-              <td>${obj.nom}</td>
+              <td class="text-muted" class="text-muted" v-if="obj.region_obj">${obj.region_obj.name}</td>
+              <td class="text-muted" class="text-muted" v-else>---</td>
+              <td class="font-weight-bold">${obj.name}</td>
+              <td class="font-weight-bold">${obj.nom}</td>
               <td>${obj.abbrev_en}</td>
               <td>${obj.abbrev_fr}</td>
               <td>${obj.head_display}</td>
@@ -632,8 +632,8 @@
             </thead>
             <tbody>
             <tr v-for="obj, index in regions" :key="obj.id" :ref="`region_${obj.id}`">
-              <td>${obj.name}</td>
-              <td>${obj.nom}</td>
+              <td class="font-weight-bold">${obj.name}</td>
+              <td class="font-weight-bold">${obj.nom}</td>
               <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
