@@ -580,6 +580,7 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'status', "class": "", "width": ""},
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
         {"name": 'regions|{}'.format(_("regions")), "class": "", "width": ""},
+        {"name": 'tor_status|{}'.format(_("ToR status")), "class": "", "width": ""},
         {"name": 'chair|{}'.format(_("chair")), "class": "w-25", "width": ""},
         {"name": 'science_leads|{}'.format(_("science lead(s)")), "class": "", "width": ""},
     ]
@@ -651,6 +652,8 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
         obj = form.save(commit=False)
         obj.created_by = self.request.user
         obj.save()
+        tor, created = models.TermsOfReference.objects.get_or_create(process=obj)
+
         # create the steering committee meeting if the user wants to...
         create_sc_meeting = form.cleaned_data.get("create_steering_committee_meeting")
         if create_sc_meeting:
@@ -691,7 +694,8 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
                 is_estimate=True,
             )
             # since we know this is the keystone meeting, let's make the connections with the TOR
-            models.TermsOfReference.objects.create(process=obj, meeting=meeting)
+            tor.meeting = meeting
+            tor.save()
 
             # add the science leads
             science_lead_roles = models.InviteeRole.objects.filter(category=4)
@@ -734,6 +738,18 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
                     invitee.roles.add(chair_roles.first())
             else:
                 messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'chair' role in the system."))
+
+        super().form_valid(form)
+
+        if obj.csas_requests.exists():
+            r = obj.csas_requests.first()
+            if r.language == 2:
+                tor.context_fr = r.issue
+                tor.objectives_fr = r.rationale
+            else:
+                tor.context_en = r.issue
+                tor.objectives_en = r.rationale
+            tor.save()
         return super().form_valid(form)
 
 
@@ -865,21 +881,6 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
                                                    old_expected_publications_fr, new_expected_publications_fr)
                 email.send()
         return HttpResponseRedirect(self.get_success_url())
-
-
-class TermsOfReferenceDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
-    model = models.TermsOfReference
-    template_name = 'csas2/confirm_delete.html'
-    delete_protection = False
-    home_url_name = "csas2:index"
-    grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
-
-    def get_parent_crumb(self):
-        return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
-                "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
-
-    def get_success_url(self):
-        return self.get_parent_crumb().get("url")
 
 
 class TermsOfReferenceDetailView(CanModifyProcessRequiredMixin, CommonDetailView):

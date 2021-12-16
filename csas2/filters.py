@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from shared_models.models import FiscalYear, Section, Person, SubjectMatter
 from . import models, utils, model_choices
-from .model_choices import request_status_choices, get_process_status_choices
+from .model_choices import request_status_choices, get_process_status_choices, tor_status_choices
 
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
 chosen_js = {"class": "chosen-select-contains"}
@@ -120,6 +120,7 @@ class ProcessFilter(django_filters.FilterSet):
     lead_office = django_filters.ChoiceFilter(field_name="lead_office", label=_("Lead Office"), lookup_expr='exact')
     is_posted = django_filters.ChoiceFilter(field_name="is_posted", label=_("Is Posted?"), lookup_expr='exact', empty_label=_("All"), choices=YES_NO_CHOICES)
     csas_requests__client = django_filters.ChoiceFilter(field_name="csas_requests__client", label=_("Request client"), lookup_expr='exact')
+    tor_status = django_filters.ChoiceFilter(field_name='tor__status', lookup_expr='exact', label=_("ToR status"), widget=forms.Select(attrs=chosen_js))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -132,6 +133,7 @@ class ProcessFilter(django_filters.FilterSet):
         self.filters['csas_requests__client'] = django_filters.ChoiceFilter(field_name="csas_requests__client", label=_("Request client"), lookup_expr='exact',
                                                                             choices=client_choices)
         self.filters['status'].field.choices = get_process_status_choices()
+        self.filters['tor_status'].field.choices = tor_status_choices
         self.filters['lead_office'].field.choices = office_choices
 
     class Meta:

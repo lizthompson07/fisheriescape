@@ -161,3 +161,23 @@ def digest_csv():
                     if created:
                         print(f"creating a review for {r} with ref id: {ref}")
             i += 1
+
+
+def check_tor():
+    for p in Process.objects.all():
+        p.save()
+        tor = p.tor
+        requests = p.csas_requests.all()
+        if requests.exists():
+            r = requests.first()
+            if r.language == 2:
+                if not tor.context_fr:
+                    tor.context_fr = r.issue
+                if not tor.objectives_fr:
+                    tor.objectives_fr = r.rationale
+            else:
+                if not tor.context_en:
+                    tor.context_en = r.issue
+                if not tor.objectives_en:
+                    tor.objectives_en = r.rationale
+            tor.save()

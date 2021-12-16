@@ -91,6 +91,10 @@
               <th class="text-left">{% trans "Status" %}</th>
               <td class="text-left" v-html="process.status_display_html"></td>
             </tr>
+          <tr>
+              <th class="text-left">{% trans "ToR status" %}</th>
+              <td class="text-left" v-html="process.tor_status"></td>
+            </tr>
 
             <tr>
               <th class="text-left" v-html="processLabels.is_posted"></th>

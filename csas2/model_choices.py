@@ -82,19 +82,18 @@ process_status_dict = (
     dict(trigger=None, stage="withdrawn", text=_("Withdrawn"), value=90),
 )
 
-
 tor_status_choices = (
-    (1, _("Draft")),
-    (4, _("Under review")),  # review is created by coordinator
-    (5, _("Approved")),
-    (6, _("Withdrawn")),
-
-    # all status below here should correspond to review decision choice + 10
-    (11, _("Reviewed")),  # coordinator approves
-    (12, _("Flagged")),  # client (coordinator) withdraws
-    (13, _("Re-scoping")),  # coordinator want to rescope the request
+    (10, _("Draft")),
+    (20, _("Under review")),
+    (30, _("Awaiting changes")),
+    (40, _("Awaiting posting")),
+    (50, _("Posted")),
 )
 
+tor_review_decision_choices = (
+    (1, _("Accept")),
+    (2, _("Request changes")),
+)
 
 
 def get_process_status_choices():

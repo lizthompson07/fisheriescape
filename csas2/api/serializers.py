@@ -698,7 +698,11 @@ class ProcessSerializer(serializers.ModelSerializer):
     can_post_meeting = serializers.SerializerMethodField()
     key_meetings = serializers.SerializerMethodField()
     tor = serializers.SerializerMethodField()
+    tor_status = serializers.SerializerMethodField()
 
+    def get_tor_status(self, instance):
+        return instance.tor_status
+    
     def get_tor(self, instance):
         if hasattr(instance, "tor"):
             return ToRSerializer(instance.tor).data

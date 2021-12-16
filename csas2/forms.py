@@ -379,6 +379,7 @@ class ProcessForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         # make sure that the lead_region is not also listed in the other_regions field
+        csas_requests = cleaned_data.get("csas_requests")
         lead_office = cleaned_data.get("lead_office")
         other_offices = cleaned_data.get("other_offices")
         name = cleaned_data.get("name")
@@ -393,6 +394,9 @@ class ProcessForm(forms.ModelForm):
             self.add_error('other_offices', error_msg)
         if not lead_office:
             error_msg = gettext("Must enter a lead office for this process!")
+            raise forms.ValidationError(error_msg)
+        if not csas_requests:
+            error_msg = gettext("You must attach the process to at least one request")
             raise forms.ValidationError(error_msg)
         return self.cleaned_data
 

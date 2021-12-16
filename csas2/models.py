@@ -489,13 +489,6 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
         super().save(*args, **kwargs)
 
-    # @property
-    # def status_display(self):
-    #     return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
-    #
-    # @property
-    # def status_class(self):
-    #     return slugify(self.get_status_display()) if self.status else ""
 
     @property
     def status_display(self):
@@ -508,6 +501,13 @@ class Process(SimpleLookupWithUUID, MetadataFields):
             return model_choices.get_process_status_lookup().get(self.status).get("stage")
         except:
             pass
+
+    @property
+    def tor_status(self):
+        try:
+            return self.tor.get_status_display()
+        except:
+            return gettext("n/a")
 
     def get_absolute_url(self):
         return reverse("csas2:process_detail", args=[self.pk])
@@ -635,7 +635,7 @@ class TermsOfReference(MetadataFields):
                                    help_text=_("The ToR will pull several fields from the linked meeting (e.g., dates, chair, location, ...)"))
     expected_document_types = models.ManyToManyField("DocumentType", blank=True, verbose_name=_("expected publications"))
     is_complete = models.BooleanField(default=False, verbose_name=_("Are the ToRs complete?"), choices=YES_NO_CHOICES,
-                                      help_text=_("Selecting yes will update the process status"))
+                                      help_text=_("Selecting yes will update the process status"), editable=False)
 
 
     # non-editable fields
@@ -644,6 +644,17 @@ class TermsOfReference(MetadataFields):
     posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"))
     posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
 
+    @property
+    def status_display(self):
+        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
+
+    @property
+    def status_class(self):
+        lang = get_language()
+        activate("en")
+        mystr = slugify(self.get_status_display()) if self.status else ""
+        activate(lang)
+        return mystr
 
     def __str__(self):
         return gettext("Terms of Reference")

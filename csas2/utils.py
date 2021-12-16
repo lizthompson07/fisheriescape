@@ -308,15 +308,11 @@ def get_review_field_list():
 
 def get_tor_field_list():
     my_list = [
-        "context_en",
-        "context_fr",
-        "objectives_en",
-        "objectives_fr",
-        "participation_en",
-        "participation_fr",
-        "references_en",
-        "references_fr",
+        "status_display|{}".format(_("ToR status")),
         "meeting",
+        "meeting.chair|chair(s)",
+        "meeting.tor_display_dates|{}".format(_("meeting dates")),
+        "meeting.location|{}".format(_("meeting location")),
         "expected_document_types",
         'metadata|{}'.format(_("metadata")),
     ]
