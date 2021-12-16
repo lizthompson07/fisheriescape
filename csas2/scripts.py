@@ -84,7 +84,7 @@ def digest_csv():
 
                 # section
                 section = Section.objects.get(uuid=row["section_uuid"])
-                zonal = True if row['Zonal'].lower() == "yes" else False
+                zonal = True if row['Zonal'] and row['Zonal'].lower() == "yes" else False
                 zonal_text = row['ZonalText']
                 issue = row['TheQuestion']
                 assistance_text = row['AssistanceText']
