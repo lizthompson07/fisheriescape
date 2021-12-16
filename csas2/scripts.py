@@ -88,7 +88,7 @@ def digest_csv():
                 zonal_text = row['ZonalText']
                 issue = row['TheQuestion']
                 assistance_text = row['AssistanceText']
-                rationale = row['RationaleOrContextText']
+                rationale = row['RationaleForContextText']
                 risk_text = row['ConsequenceIfAdviceNotProvidedText']
                 timeline_text = row['RationaleForDeadlineText']
                 funds = True if row['Funds'] and row['Funds'].lower() == "yes" else False
