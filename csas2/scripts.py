@@ -46,18 +46,29 @@ def digest_csv():
     my_target_data_file = os.path.join(settings.BASE_DIR, 'csas2', 'csas_import.csv')
     with open(my_target_data_file, 'r') as csv_read_file:
         my_csv = csv.DictReader(csv_read_file)
-
+        i = 1
         for row in my_csv:
+            print(i)
             for key in row:
                 row[key] = row[key].strip()
                 if row[key].strip() == "":
                     row[key] = None
 
+            # first thing is to check whether there is a matching reference ID in the system...
+            ref = row["ID"]
+            qs = models.CSASRequestReview.objects.filter(ref_number=ref)
+
+            r = None
+            if ref:
+                if qs.exists() and qs.count() == 1:
+                    r = qs.first().csas_request
+                elif qs.exists():
+                    print(f"warning ref number {ref} has multiple matches")
+
             now = timezone.now()
             title = row["Title"]
             if title:
                 # coord
-                print(row["CsasOffice"])
                 office_region = Region.objects.get(name__iexact=row["CsasOffice"])
                 office_qs = models.CSASOffice.objects.filter(region=office_region)
                 if office_qs.exists():
@@ -93,7 +104,7 @@ def digest_csv():
                 timeline_text = row['RationaleForDeadlineText']
                 funds = True if row['Funds'] and row['Funds'].lower() == "yes" else False
                 funds_text = row['FundsText']
-                date = datetime.datetime.strptime(row['date'] + " 12:00", "%m/%d/%Y %H:%M")
+                date = datetime.datetime.strptime(row['AdviceDate'] + " 12:00", "%m/%d/%Y %H:%M")
                 date = make_aware(date, utc)
 
                 submission_date = None
@@ -102,28 +113,33 @@ def digest_csv():
                     submission_date = make_aware(submission_date, utc)
 
                 # first determine if a request exists with the same title
-                qs = models.CSASRequest.objects.filter(title=title, advice_needed_by=date)
-                if not qs.exists():
-                    r = models.CSASRequest.objects.create(
-                        title=title,
-                        office=office,
-                        client=client,
-                        section=section,
-                        is_multiregional=zonal,
-                        multiregional_text=zonal_text,
-                        issue=issue,
-                        assistance_text=assistance_text,
-                        rationale=rationale,
-                        risk_text=risk_text,
-                        rationale_for_timeline=timeline_text,
-                        has_funding=funds,
-                        funding_text=funds_text,
-                        advice_needed_by=date,
-                        old_id=9999,
-                        submission_date=submission_date,
-                    )
-                else:
-                    r = qs.first()
+                created = False
+                if not r:
+                    qs = models.CSASRequest.objects.filter(title=title, advice_needed_by=date)
+                    if not qs.exists():
+                        created = True
+                        r = models.CSASRequest.objects.create(
+                            title=title,
+                            office=office,
+                            client=client,
+                            section=section,
+                            is_multiregional=zonal,
+                            multiregional_text=zonal_text,
+                            issue=issue,
+                            assistance_text=assistance_text,
+                            rationale=rationale,
+                            risk_text=risk_text,
+                            rationale_for_timeline=timeline_text,
+                            has_funding=funds,
+                            funding_text=funds_text,
+                            advice_needed_by=date,
+                            old_id=9999,
+                            submission_date=submission_date,
+                        )
+                    else:
+                        r = qs.first()
+
+                if not created:
                     r.office = office
                     r.client = client
                     r.section = section
@@ -138,3 +154,10 @@ def digest_csv():
                     r.funding_text = funds_text
                     r.submission_date = submission_date
                     r.save()
+
+                #if there is a reference ID, we will create a review
+                if ref:
+                    review, created = models.CSASRequestReview.objects.get_or_create(ref_number=ref, csas_request=r)
+                    if created:
+                        print(f"creating a review for {r} with ref id: {ref}")
+            i += 1
