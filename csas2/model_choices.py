@@ -83,6 +83,20 @@ process_status_dict = (
 )
 
 
+tor_status_choices = (
+    (1, _("Draft")),
+    (4, _("Under review")),  # review is created by coordinator
+    (5, _("Approved")),
+    (6, _("Withdrawn")),
+
+    # all status below here should correspond to review decision choice + 10
+    (11, _("Reviewed")),  # coordinator approves
+    (12, _("Flagged")),  # client (coordinator) withdraws
+    (13, _("Re-scoping")),  # coordinator want to rescope the request
+)
+
+
+
 def get_process_status_choices():
     return [(item["value"], item["text"]) for item in process_status_dict]
 

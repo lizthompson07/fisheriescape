@@ -57,6 +57,7 @@ def digest_csv():
             title = row["Title"]
             if title:
                 # coord
+                print(row["CsasOffice"])
                 office_region = Region.objects.get(name__iexact=row["CsasOffice"])
                 office_qs = models.CSASOffice.objects.filter(region=office_region)
                 if office_qs.exists():
