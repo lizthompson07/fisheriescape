@@ -637,6 +637,14 @@ class TermsOfReference(MetadataFields):
     is_complete = models.BooleanField(default=False, verbose_name=_("Are the ToRs complete?"), choices=YES_NO_CHOICES,
                                       help_text=_("Selecting yes will update the process status"))
 
+
+    # non-editable fields
+    status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
+    submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("submission date"), editable=False)
+    posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"))
+    posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
+
+
     def __str__(self):
         return gettext("Terms of Reference")
 
