@@ -587,8 +587,8 @@
             </thead>
             <tbody>
             <tr v-for="obj, index in filteredSectors" :key="obj.id" :ref="`branch_${obj.id}`">
-              <td class="text-muted" class="text-muted" v-if="obj.region_obj">${obj.region_obj.name}</td>
-              <td class="text-muted" class="text-muted" v-else>---</td>
+              <td class="text-muted" v-if="obj.region_obj">${obj.region_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
               <td class="font-weight-bold">${obj.name}</td>
               <td class="font-weight-bold">${obj.nom}</td>
               <td>${obj.abbrev_en}</td>
