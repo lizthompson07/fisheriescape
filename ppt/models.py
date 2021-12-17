@@ -1129,7 +1129,7 @@ class Activity(models.Model):
     def dates(self):
         my_str = date(self.target_start_date) if self.target_start_date else "??"
         if self.target_date:
-            my_str += f" &rarr; {date(self.target_date)}"
+            my_str += f" &rarr;<br> {date(self.target_date)}"
         return mark_safe(my_str)
 
 

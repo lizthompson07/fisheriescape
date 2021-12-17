@@ -12,6 +12,11 @@
     <button @click="openModal(null, 'activity')" class="{{ btn_class_1 }} no-print" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Activity" %}
     </button>
+
+    <button class="{{ btn_class_1 }} no-print" @click="goProjectYearGantt(projectYear.id)">
+      <span class="mdi mdi-chart-gantt"></span> {% trans "View Gantt Chart" %}
+    </button>
+
   </div>
 
   <div v-if="activity_loading">
@@ -32,13 +37,13 @@
     <table class="table table-sm w-100">
       <thead>
       <tr>
-        <th style="width: 100px">${activityLabels.type}</th>
-        <th style="width: 150px">${activityLabels.name}</th>
+        <th class="w-10">${activityLabels.type}</th>
+        <th class="w-10">${activityLabels.name}</th>
         <th>${activityLabels.description}</th>
-        <th style="width: 120px">{% trans "Dates" %}</th>
-        <th style="width: 120px">${activityLabels.responsible_parties}</th>
-        <th style="width: 120px">{% trans "Latest status" %}</th>
-        <th class="text-center" style="width: 50px">{% trans "Completed?" %}</th>
+        <th class="w-10">{% trans "Dates" %}</th>
+        <th class="w-10">${activityLabels.responsible_parties}</th>
+        <th class="w-10">{% trans "Latest status" %}</th>
+        <th class="text-center w-5">{% trans "Completed?" %}</th>
       </tr>
 
       </thead>
