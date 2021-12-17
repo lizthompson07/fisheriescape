@@ -63,26 +63,26 @@
                       </div>
                       <div class="col">
                         <br>
-                        <span class="text-muted small">{% trans "Shortcut for start of: " %}</span>
-                        <button class="btn btn-xs btn-success" type="button" @click="populateTargetDate('q1', 'start')">Q1</button>
-                        <button class="btn btn-xs btn-success" type="button" @click="populateTargetDate('q2', 'start')">Q2</button>
-                        <button class="btn btn-xs btn-success" type="button" @click="populateTargetDate('q3', 'start')">Q3</button>
-                        <button class="btn btn-xs btn-success" type="button" @click="populateTargetDate('q4', 'start')">Q4</button>
+                        <span class="text-muted small">{% trans "Shortcut for end of: " %}</span>
+                        <button class="btn btn-xs btn-danger" type="button" @click="populateTargetDate('q1', 'end')">Q1</button>
+                        <button class="btn btn-xs btn-danger" type="button" @click="populateTargetDate('q2', 'end')">Q2</button>
+                        <button class="btn btn-xs btn-danger" type="button" @click="populateTargetDate('q3', 'end')">Q3</button>
+                        <button class="btn btn-xs btn-danger" type="button" @click="populateTargetDate('q4', 'end')">Q4</button>
                       </div>
                     </div>
 
-                  {% elif field.name == "target_end_date" %}
+                  {% elif field.name == "target_start_date" %}
                     <div class="row">
                       <div class="col">
                         {% bootstrap_field field size='small' placeholder="" %}
                       </div>
                       <div class="col">
                         <br>
-                        <span class="text-muted small">{% trans "Shortcut for end of: " %}</span>
-                        <button class="btn btn-xs btn-danger" type="button" @click="populateTargetDate('q1', 'end')">Q1</button>
-                        <button class="btn btn-xs btn-danger" type="button" @click="populateTargetDate('q2', 'end')">Q2</button>
-                        <button class="btn btn-xs btn-danger" type="button" @click="populateTargetDate('q3', 'end')">Q3</button>
-                        <button class="btn btn-xs btn-danger" type="button" @click="populateTargetDate('q4', 'end')">Q4</button>
+                        <span class="text-muted small">{% trans "Shortcut for start of: " %}</span>
+                        <button class="btn btn-xs btn-success" type="button" @click="populateTargetDate('q1', 'start')">Q1</button>
+                        <button class="btn btn-xs btn-success" type="button" @click="populateTargetDate('q2', 'start')">Q2</button>
+                        <button class="btn btn-xs btn-success" type="button" @click="populateTargetDate('q3', 'start')">Q3</button>
+                        <button class="btn btn-xs btn-success" type="button" @click="populateTargetDate('q4', 'start')">Q4</button>
                       </div>
                     </div>
 
@@ -157,13 +157,13 @@ Vue.component("activity-modal", {
         if (which === "start") myDate = `${sap_year}-01-01`;
         else myDate = myDate = `${sap_year}-03-31`
       }
-      if (which === "start") this.activity.target_date = myDate;
-      else this.activity.target_end_date = myDate;
+      if (which === "start") this.activity.target_start_date = myDate;
+      else this.activity.target_date = myDate;
     },
     onSubmit() {
       this.errors = null
       if (this.activity.target_date === "") this.activity.target_date = null
-      if (this.activity.target_end_date === "") this.activity.target_end_date = null
+      if (this.activity.target_start_date === "") this.activity.target_start_date = null
       if (this.my_object) {
         let endpoint = `/api/ppt/activities/${this.my_object.id}/`;
         apiService(endpoint, "PATCH", this.activity).then(response => {
@@ -219,8 +219,8 @@ Vue.component("activity-modal", {
           if (this.activity.target_date) this.activity.target_date = this.activity.target_date.slice(0, 10)
           else this.activity.target_date = null
 
-          if (this.activity.target_end_date) this.activity.target_end_date = this.activity.target_end_date.slice(0, 10)
-          else this.activity.target_end_date = null
+          if (this.activity.target_start_date) this.activity.target_start_date = this.activity.target_start_date.slice(0, 10)
+          else this.activity.target_start_date = null
         }
       }
     })

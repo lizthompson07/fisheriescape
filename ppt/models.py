@@ -1097,8 +1097,8 @@ class Activity(models.Model):
     project_year = models.ForeignKey(ProjectYear, related_name="activities", on_delete=models.CASCADE)
     type = models.IntegerField(choices=type_choices)
     name = models.CharField(max_length=500, verbose_name=_("name"))
-    target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target start date (optional)"))
-    target_end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target end date (optional)"))
+    target_start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target start date (optional)"))
+    target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target end date (optional)"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     responsible_parties = models.ManyToManyField(User, blank=True, verbose_name=_("responsible parties"))
     responsible_party = models.CharField(max_length=500, verbose_name=_("responsible party notes"), blank=True, null=True)
@@ -1127,9 +1127,9 @@ class Activity(models.Model):
 
     @property
     def dates(self):
-        my_str = date(self.target_date)
-        if self.target_end_date:
-            my_str += f" &rarr; {date(self.target_end_date)}"
+        my_str = date(self.target_start_date) if self.target_start_date else "??"
+        if self.target_date:
+            my_str += f" &rarr; {date(self.target_date)}"
         return mark_safe(my_str)
 
 

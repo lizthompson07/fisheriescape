@@ -371,7 +371,7 @@ class CapitalCostSerializer(serializers.ModelSerializer):
 
 class ActivitySerializer(serializers.ModelSerializer):
     target_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
-    target_end_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
+    target_start_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
 
     class Meta:
         model = models.Activity
@@ -416,9 +416,9 @@ class ActivitySerializer(serializers.ModelSerializer):
         - make that there is at least a project, project year or status report
         """
         target_date = attrs.get("target_date")
-        target_end_date = attrs.get("target_end_date")
+        target_start_date = attrs.get("target_start_date")
 
-        if target_date and target_end_date and target_end_date < target_date:
+        if target_date and target_start_date and target_start_date > target_date:
             msg = _('The target end date must occur after the target start date.')
             raise ValidationError(msg)
         return attrs
