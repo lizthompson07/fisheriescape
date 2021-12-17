@@ -36,8 +36,8 @@
         <th style="width: 100px">${activityLabels.type}</th>
         <th style="width: 150px">${activityLabels.name}</th>
         <th>${activityLabels.description}</th>
-        <th style="width: 120px">{% trans "Target date" %}</th>
-        <th style="width: 120px">${activityLabels.responsible_party}</th>
+        <th style="width: 120px">{% trans "Dates" %}</th>
+        <th style="width: 120px">${activityLabels.responsible_parties}</th>
         <th style="width: 120px">{% trans "Latest status" %}</th>
         <th class="text-center" style="width: 50px">{% trans "Completed?" %}</th>
       </tr>
@@ -48,8 +48,8 @@
         <td v-html="item.type_display"></td>
         <td v-html="item.name"></td>
         <td v-html="item.description"></td>
-        <td>${item.target_date_display|nz}</td>
-        <td v-html="item.responsible_party"></td>
+        <td v-html="item.dates"></td>
+        <td v-html="item.responsible_parties_display"></td>
         <td v-html="item.latest_update"></td>
         <td v-if="canModify" class="text-center">
           <button @click="markActivity(item, 'incomplete')" v-if="item.latest_update.toLowerCase().search('complete') > -1" class="no-print btn"><span

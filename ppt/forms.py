@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.forms import modelformset_factory
+from django.shortcuts import get_object_or_404
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext, gettext_lazy
 
@@ -442,11 +443,24 @@ class ActivityForm(forms.ModelForm):
         self.fields["name"].widget.attrs = {"v-model": "activity.name"}
         self.fields["description"].widget.attrs = {"v-model": "activity.description", "rows": "4"}
         self.fields["responsible_party"].widget.attrs = {"v-model": "activity.responsible_party"}
+        self.fields["responsible_parties"].widget.attrs = {"v-model": "activity.responsible_parties", "style": "height: 100px"}
         self.fields["target_date"].widget = forms.DateInput(attrs={"v-model": "activity.target_date", "type": "date"})
+        self.fields["target_end_date"].widget = forms.DateInput(attrs={"v-model": "activity.target_end_date", "type": "date"})
         self.fields["likelihood"].widget.attrs = {"v-model": "activity.likelihood", ":disabled": "!isACRDP"}
         self.fields["impact"].widget.attrs = {"v-model": "activity.impact", ":disabled": "!isACRDP"}
         self.fields["risk_description"].widget.attrs = {"v-model": "activity.risk_description", "rows": "4", ":disabled": "!isACRDP && !isCSRF"}
         self.fields["mitigation_measures"].widget.attrs = {"v-model": "activity.mitigation_measures", "rows": "4", ":disabled": "!isACRDP && !isCSRF"}
+
+        # limit the user select for responsible parties to only those listed on the project
+        project = self.initial.get("project")
+
+        project_users = User.objects.filter(staff_instances2__project_year__project=project).distinct()
+        print(project_users)
+        user_choices = [(obj.id, str(obj)) for obj in project_users]
+        self.fields["responsible_parties"].choices = user_choices
+        self.fields["responsible_parties"].label += _(" (use SHIFT to select multiple)")
+
+
 
 
 class CollaborationForm(forms.ModelForm):

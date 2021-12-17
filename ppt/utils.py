@@ -455,7 +455,7 @@ def get_project_year_field_list(project_year=None):
 
         'it_needs|{}'.format(_("special IT requirements")),
         'additional_notes',
-        'coding',
+        'project_codes|{}'.format(_("project codes")),
         'submitted',
         'formatted_status|{}'.format(_("status")),
         # 'allocated_budget|{}'.format(_("allocated budget")),

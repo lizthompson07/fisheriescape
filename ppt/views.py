@@ -242,7 +242,7 @@ class ProjectDetailView(PPTLoginRequiredMixin, CommonDetailView):
         context["capital_cost_form"] = forms.CapitalCostForm
         context["random_capital_cost"] = models.CapitalCost.objects.first()
 
-        context["activity_form"] = forms.ActivityForm
+        context["activity_form"] = forms.ActivityForm(initial=dict(project=project))
         context["random_activity"] = models.Activity.objects.first()
 
         context["collaboration_form"] = forms.CollaborationForm

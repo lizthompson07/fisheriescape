@@ -577,6 +577,11 @@ class ProjectYear(models.Model):
             pc = "xxxxx"
         return "{}-{}-{}".format(rc, ac, pc)
 
+    @property
+    def project_codes(self):
+        if self.existing_project_codes.exists():
+            return listrify(self.existing_project_codes.all())
+
     def get_funding_sources(self):
         # look through all expenses and compile a unique list of funding sources
         my_list = []
@@ -1092,9 +1097,12 @@ class Activity(models.Model):
     project_year = models.ForeignKey(ProjectYear, related_name="activities", on_delete=models.CASCADE)
     type = models.IntegerField(choices=type_choices)
     name = models.CharField(max_length=500, verbose_name=_("name"))
-    target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target date (optional)"))
+    target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target start date (optional)"))
+    target_end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target end date (optional)"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
-    responsible_party = models.CharField(max_length=500, verbose_name=_("responsible party"), blank=True, null=True)
+    responsible_parties = models.ManyToManyField(User, blank=True, verbose_name=_("responsible parties"))
+    responsible_party = models.CharField(max_length=500, verbose_name=_("responsible party notes"), blank=True, null=True)
+
     risk_description = models.TextField(blank=True, null=True, verbose_name=_("Description of risks and their consequences"))  # CSRF and ACRDP
     impact = models.IntegerField(choices=impact_choices, blank=True, null=True, verbose_name=_("what will be the impact if the risks occurs"))  # ACRDP
     likelihood = models.IntegerField(choices=likelihood_choices, blank=True, null=True,
@@ -1116,6 +1124,13 @@ class Activity(models.Model):
     @property
     def latest_update(self):
         return self.updates.first()
+
+    @property
+    def dates(self):
+        my_str = date(self.target_date)
+        if self.target_end_date:
+            my_str += f" &rarr; {date(self.target_end_date)}"
+        return mark_safe(my_str)
 
 
 class ActivityUpdate(MetadataFields):

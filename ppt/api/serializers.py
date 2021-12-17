@@ -184,6 +184,10 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     om_costs = serializers.SerializerMethodField()
     salary_costs = serializers.SerializerMethodField()
     capital_costs = serializers.SerializerMethodField()
+    project_codes = serializers.SerializerMethodField()
+
+    def get_project_codes(self, instance):
+        return instance.project_codes
 
     def get_capital_costs(self, instance):
         return instance.capital_costs
@@ -367,6 +371,7 @@ class CapitalCostSerializer(serializers.ModelSerializer):
 
 class ActivitySerializer(serializers.ModelSerializer):
     target_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
+    target_end_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
 
     class Meta:
         model = models.Activity
@@ -377,6 +382,15 @@ class ActivitySerializer(serializers.ModelSerializer):
     project_year_id = serializers.SerializerMethodField()
     type_display = serializers.SerializerMethodField()
     risk_rating_display = serializers.SerializerMethodField()
+    dates = serializers.SerializerMethodField()
+    responsible_parties_display = serializers.SerializerMethodField()
+
+    def get_responsible_parties_display(self, instance):
+        if instance.responsible_parties.exists():
+            return listrify(instance.responsible_parties.all())
+
+    def get_dates(self, instance):
+        return instance.dates
 
     def get_type_display(self, instance):
         return instance.get_type_display()
@@ -395,6 +409,19 @@ class ActivitySerializer(serializers.ModelSerializer):
 
     def get_project_year_id(self, instance):
         return instance.project_year_id
+
+    def validate(self, attrs):
+        """
+        form validation:
+        - make that there is at least a project, project year or status report
+        """
+        target_date = attrs.get("target_date")
+        target_end_date = attrs.get("target_end_date")
+
+        if target_date and target_end_date and target_end_date < target_date:
+            msg = _('The target end date must occur after the target start date.')
+            raise ValidationError(msg)
+        return attrs
 
 
 class CollaborationSerializer(serializers.ModelSerializer):
