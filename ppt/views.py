@@ -478,7 +478,7 @@ class ProjectYearGanttDetailView(CanModifyProjectRequiredMixin, CommonDetailView
     container_class = "container-fluid"
 
     def get_h1(self):
-        return _("Gantt Chart ")
+        return _("Gantt Chart for Project ") + str(self.get_project().id)
 
     def get_project(self):
         return self.get_object().project

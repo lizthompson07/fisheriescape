@@ -390,6 +390,8 @@ class ActivitySerializer(serializers.ModelSerializer):
     dates = serializers.SerializerMethodField()
     responsible_parties_display = serializers.SerializerMethodField()
     duration = serializers.SerializerMethodField()
+    latest_update_text = serializers.SerializerMethodField()
+    latest_update_status = serializers.SerializerMethodField()
 
     def get_duration(self, instance):
         if instance.target_start_date and instance.target_date:
@@ -414,6 +416,16 @@ class ActivitySerializer(serializers.ModelSerializer):
         if instance.latest_update:
             return f'<a target="_blank" href="{reverse("ppt:report_detail", args=[instance.latest_update.status_report.id])}">{instance.latest_update.get_status_display()}</a>'
         return "n/a"
+
+    def get_latest_update_text(self, instance):
+        if instance.latest_update:
+            return f'{instance.latest_update.get_status_display()}'
+        return "n/a"
+
+    def get_latest_update_status(self, instance):
+        if instance.latest_update:
+            return instance.latest_update.status
+
 
     def get_target_date_display(self, instance):
         if instance.target_date:

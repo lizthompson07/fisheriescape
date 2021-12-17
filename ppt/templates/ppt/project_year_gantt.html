@@ -5,18 +5,17 @@
 {% load static %}
 {% load bootstrap4 %}
 
-{% block filter %}{% endblock %}
-
-
-<div id="app" v-cloak>
-  hello!!
-  <div v-if="!activityLoading" style="width:100%;height:100%">
-    <gantt-elastic :tasks="activities" :options="options" :dynamic-style="dynamicStyle">
-      <gantt-header slot="header"></gantt-header>
-      {#            <gantt-footer slot="footer"></gantt-footer>#}
-    </gantt-elastic>
+{% block subcontent %}
+  {{ block.super }}
+  <div id="app" v-cloak>
+    <div v-if="!activityLoading" style="width:100%;height:1000px">
+      <gantt-elastic :tasks="activities" :options="options" :dynamic-style="dynamicStyle">
+        <gantt-header slot="header" :options="headerOptions"></gantt-header>
+      </gantt-elastic>
+    </div>
   </div>
-</div>
+{% endblock %}
+
 
 {% block body_js %}
   {{ block.super }}
@@ -30,9 +29,23 @@
   let projectYearId = {{ object.id }};
   let projectId = {{ project.id }};
 
+  const headerOptions = {
+    title: {
+      label: '',
+      html: false
+    },
+    locale: {
+      Now: 'Now',
+      'X-Scale': 'Zoom-X',
+      'Y-Scale': 'Zoom-Y',
+      'Task list width': 'Task list',
+      'Before/After': 'Expand',
+      'Display task list': 'Show activities panel'
+    }
+  };
   let options = {
-    maxRows: 100,
-    maxHeight: 300,
+    maxRows: 500,
+    maxHeight: 1500,
     title: {
       label: 'Your project title as html (link or whatever...)',
       html: false,
@@ -47,7 +60,7 @@
     },
     chart: {
       progress: {
-        bar: false,
+        bar: true,
       },
       expander: {
         display: true,
@@ -55,13 +68,13 @@
     },
     taskList: {
       expander: {
-        straight: false,
+        straight: true,
       },
       columns: [
         {
           id: 1,
           label: 'Name (click for description)',
-          value: 'name',
+          value: 'label',
           width: 200,
           html: true,
           events: {
@@ -92,7 +105,7 @@
         {
           id: 5,
           label: 'Status',
-          value: 'latest_update',
+          value: 'latest_update_text',
           html: true,
           width: 100,
           style: {
@@ -109,6 +122,8 @@
       ],
     },
   };
+
+
   </script>
 
 
@@ -130,11 +145,11 @@
           'font-weight': 'bold',
         },
       },
+      headerOptions,
       destroy: false,
 
-      // activities
-      activityLoading: false,
       activities: [],
+      activityLoading: false,
 
     },
     methods: {
@@ -153,8 +168,36 @@
         apiService(endpoint)
             .then(response => {
               for (const item of response) {
-                if (item.target_start_date) item.start = item.target_start_date;
-                else if (item.target_date) item.start = item.target_date;
+                if (item.target_start_date) item.start = dayjs(item.target_start_date).format("YYYY-MM-DD");
+                else if (item.target_date) item.start = dayjs(item.target_date).format("YYYY-MM-DD");
+                item.label = item.name;
+                if (item.type === 1) item.type = 'task';
+                else item.type = 'milestone';
+
+                if (item.latest_update_status === 8) {
+                  item.style = {
+                    base: {
+                      fill: '#1EBC61',
+                      stroke: '#7cb895'
+                    }
+                  }
+                } else if (!item.latest_update_status || item.latest_update_status === 7) {
+                  item.style = {
+                    base: {
+                      fill: '#1e58bc',
+                      stroke: '#0e23ac'
+                    }
+                  }
+                } else if (item.latest_update_status === 9) {
+                  item.style = {
+                    base: {
+                      fill: '#bc1e30',
+                      stroke: '#ac0e0e'
+                    }
+                  }
+                }
+
+
               }
               this.activities = response;
               this.activityLoading = false;
