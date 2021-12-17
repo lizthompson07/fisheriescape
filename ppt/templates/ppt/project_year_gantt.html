@@ -1,0 +1,185 @@
+{% extends 'ppt/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+{% load custom_filters %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block filter %}{% endblock %}
+
+
+<div id="app" v-cloak>
+  hello!!
+  <div v-if="!activityLoading" style="width:100%;height:100%">
+    <gantt-elastic :tasks="activities" :options="options" :dynamic-style="dynamicStyle">
+      <gantt-header slot="header"></gantt-header>
+      {#            <gantt-footer slot="footer"></gantt-footer>#}
+    </gantt-elastic>
+  </div>
+</div>
+
+{% block body_js %}
+  {{ block.super }}
+
+  <script src="https://unpkg.com/gantt-elastic/dist/GanttElastic.umd.js"></script>
+  <script src="https://unpkg.com/gantt-elastic-header/dist/Header.umd.js"></script>
+  <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+
+
+  <script type="application/javascript">
+  let projectYearId = {{ object.id }};
+  let projectId = {{ project.id }};
+
+  let options = {
+    maxRows: 100,
+    maxHeight: 300,
+    title: {
+      label: 'Your project title as html (link or whatever...)',
+      html: false,
+    },
+    row: {
+      height: 24,
+    },
+    calendar: {
+      hour: {
+        display: false,
+      },
+    },
+    chart: {
+      progress: {
+        bar: false,
+      },
+      expander: {
+        display: true,
+      },
+    },
+    taskList: {
+      expander: {
+        straight: false,
+      },
+      columns: [
+        {
+          id: 1,
+          label: 'Name (click for description)',
+          value: 'name',
+          width: 200,
+          html: true,
+          events: {
+            click({data, column}) {
+              alert(data.description);
+            },
+          },
+        },
+        {
+          id: 2,
+          label: 'Responsible parties',
+          value: 'responsible_parties_display',
+          width: 130,
+        },
+        {
+          id: 3,
+          label: 'Date',
+          value: task => dayjs(task.start).format('YYYY-MM-DD'),
+          html: true,
+          width: 100,
+        },
+        {
+          id: 4,
+          label: 'Type',
+          value: 'type_display',
+          width: 100,
+        },
+        {
+          id: 5,
+          label: 'Status',
+          value: 'latest_update',
+          html: true,
+          width: 100,
+          style: {
+            'task-list-header-label': {
+              'text-align': 'center',
+              width: '100%',
+            },
+            'task-list-item-value-container': {
+              'text-align': 'center',
+              width: '100%',
+            },
+          },
+        },
+      ],
+    },
+  };
+  </script>
+
+
+  <script type="application/javascript">
+
+  Vue.component('v-select', VueSelect.VueSelect);
+
+  var app = new Vue({
+    components: {
+      'gantt-header': Header,
+      'gantt-elastic': GanttElastic,
+    },
+
+    delimiters: ["${", "}"],
+    data: {
+      options,
+      dynamicStyle: {
+        'task-list-header-label': {
+          'font-weight': 'bold',
+        },
+      },
+      destroy: false,
+
+      // activities
+      activityLoading: false,
+      activities: [],
+
+    },
+    methods: {
+      getCurrentUser(projectId) {
+        let endpoint = `/api/ppt/user/?project=${projectId}`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+              this.canModify = this.currentUser.can_modify
+            })
+      },
+      // Activities
+      getActivities() {
+        this.activityLoading = true;
+        let endpoint = `/api/ppt/activities/?project_year=${projectYearId}`;
+        apiService(endpoint)
+            .then(response => {
+              for (const item of response) {
+                if (item.target_start_date) item.start = item.target_start_date;
+                else if (item.target_date) item.start = item.target_date;
+              }
+              this.activities = response;
+              this.activityLoading = false;
+            })
+      },
+
+
+    },
+    computed: {},
+    created() {
+      this.getActivities();
+      this.getCurrentUser(projectId)
+    },
+    mounted() {
+    },
+    filters: {
+      yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
+      floatformat: vueFiltersObject["floatformat"],
+      currencyFormat: vueFiltersObject["currencyFormat"],
+      zero2NullMark: vueFiltersObject["zero2NullMark"],
+    },
+
+  });
+
+
+  </script>
+{% endblock %}

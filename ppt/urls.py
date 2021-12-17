@@ -27,6 +27,7 @@ urlpatterns = [
     path('project-years/<int:pk>/edit/', views.ProjectYearUpdateView.as_view(), name="year_edit"),  # tested
     path('project-years/<int:pk>/delete/', views.ProjectYearDeleteView.as_view(), name="year_delete"),  # tested
     path('project-years/<int:pk>/clone/', views.ProjectYearCloneView.as_view(), name="year_clone"),  # tested
+    path('project-years/<int:pk>/gantt/', views.ProjectYearGanttDetailView.as_view(), name="project_year_gantt"),
 
     # STATUS REPORT #
     #################

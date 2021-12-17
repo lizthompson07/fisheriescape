@@ -453,9 +453,7 @@ class ActivityForm(forms.ModelForm):
 
         # limit the user select for responsible parties to only those listed on the project
         project = self.initial.get("project")
-
         project_users = User.objects.filter(staff_instances2__project_year__project=project).distinct()
-        print(project_users)
         user_choices = [(obj.id, str(obj)) for obj in project_users]
         self.fields["responsible_parties"].choices = user_choices
         self.fields["responsible_parties"].label += _(" (use SHIFT to select multiple)")

@@ -471,6 +471,27 @@ class ProjectYearUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
         return super().get_success_url() + f"?project_year={self.get_object().id}"
 
 
+class ProjectYearGanttDetailView(CanModifyProjectRequiredMixin, CommonDetailView):
+    model = models.ProjectYear
+    home_url_name = "ppt:index"
+    template_name = 'ppt/project_year_gantt.html'
+    container_class = "container-fluid"
+
+    def get_h1(self):
+        return _("Gantt Chart ")
+
+    def get_project(self):
+        return self.get_object().project
+
+    def get_parent_crumb(self):
+        return {"title": self.get_project(), "url": reverse_lazy("ppt:project_detail", args=[self.get_project().id])}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["project"] = self.get_project()
+        return context
+
+
 class ProjectYearDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
     model = models.ProjectYear
     delete_protection = False

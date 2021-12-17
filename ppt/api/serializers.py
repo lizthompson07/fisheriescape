@@ -384,6 +384,13 @@ class ActivitySerializer(serializers.ModelSerializer):
     risk_rating_display = serializers.SerializerMethodField()
     dates = serializers.SerializerMethodField()
     responsible_parties_display = serializers.SerializerMethodField()
+    duration = serializers.SerializerMethodField()
+
+    def get_duration(self, instance):
+        if instance.target_start_date and instance.target_date:
+            return (instance.target_date - instance.target_start_date).total_seconds() * 1000
+        # otherwise return just a single day
+        return 7 * 24 * 60 * 60 * 1000
 
     def get_responsible_parties_display(self, instance):
         if instance.responsible_parties.exists():
