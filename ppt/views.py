@@ -471,7 +471,7 @@ class ProjectYearUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
         return super().get_success_url() + f"?project_year={self.get_object().id}"
 
 
-class ProjectYearGanttDetailView(CanModifyProjectRequiredMixin, CommonDetailView):
+class ProjectYearGanttDetailView(PPTLoginRequiredMixin, CommonDetailView):
     model = models.ProjectYear
     home_url_name = "ppt:index"
     template_name = 'ppt/project_year_gantt.html'
