@@ -185,6 +185,11 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     salary_costs = serializers.SerializerMethodField()
     capital_costs = serializers.SerializerMethodField()
     project_codes = serializers.SerializerMethodField()
+    project_user_choices = serializers.SerializerMethodField()
+
+    def get_project_user_choices(self, instance):
+        project_users = User.objects.filter(staff_instances2__project_year__project=instance.project).distinct()
+        return [dict(id=obj.id, value=str(obj)) for obj in project_users]
 
     def get_project_codes(self, instance):
         return instance.project_codes

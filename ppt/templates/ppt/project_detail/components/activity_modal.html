@@ -85,7 +85,24 @@
                         <button class="btn btn-xs btn-success" type="button" @click="populateTargetDate('q4', 'start')">Q4</button>
                       </div>
                     </div>
-
+                  {% elif field.name == "responsible_parties" %}
+                    <div class="form-group">
+                      <label for="id_user">{{ field.label }}</label>
+                      <v-select
+                        style="width: 100%"
+                        v-model="activity.responsible_parties"
+                        {#                        @input="adjustStaffFields"#}
+                        {#                        @click="adjustStaffFields"#}
+                        {#                        class="w90 filter vs"#}
+                        {#                        id="id_user"#}
+                        :options="year.project_user_choices"
+                        label='value'
+                        :reduce="value => value.id"
+                        multiple
+                        {#                        :clearable="false"#}
+                      >
+                      </v-select>
+                    </div>
                   {% else %}
                     {% bootstrap_field field size='small' placeholder="" %}
                   {% endif %}
