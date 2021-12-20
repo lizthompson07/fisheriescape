@@ -557,7 +557,7 @@ class ProjectYear(models.Model):
             return mark_safe(markdown(self.priorities))
 
     def get_project_leads_as_users(self):
-        return [s.user for s in self.staff_set.filter(is_lead=True)]
+        return [s.user for s in self.staff_set.filter(is_lead=True, user__isnull=False)]
 
     def get_coding(self):
         if self.responsibility_center:
