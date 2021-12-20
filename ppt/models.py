@@ -1127,9 +1127,14 @@ class Activity(models.Model):
 
     @property
     def dates(self):
-        my_str = date(self.target_start_date) if self.target_start_date else "??"
-        if self.target_date:
-            my_str += f" &rarr;<br> {date(self.target_date)}"
+        # if there is just an end date, we should display politely
+        my_str = "??"
+        if self.target_date and not self.target_start_date:
+            my_str = _("ending {date}").format(date=date(self.target_date))
+        elif not self.target_date and self.target_start_date:
+            my_str = _("starting {date}").format(date=date(self.target_start_date))
+        elif self.target_start_date and self.target_date:
+            my_str = f"{date(self.target_start_date)} &rarr;<br> {date(self.target_date)}"
         return mark_safe(my_str)
 
 
