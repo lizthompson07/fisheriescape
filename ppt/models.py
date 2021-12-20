@@ -1116,7 +1116,7 @@ class Activity(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ['project_year', 'target_date', 'name']
+        ordering = ['project_year', 'target_start_date', 'target_date', 'name']
 
     def __str__(self):
         return self.name

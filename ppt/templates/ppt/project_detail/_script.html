@@ -399,7 +399,8 @@ var app = new Vue({
       window.location.href = `/ppt/project-years/${projectYearId}/edit/`
     },
     goProjectYearGantt(projectYearId) {
-      window.location.href = `/ppt/project-years/${projectYearId}/gantt/`
+      url =  `/ppt/project-years/${projectYearId}/gantt/`;
+      win = window.open(url, '_blank');
     },
     goProjectEdit(projectId) {
       window.location.href = `/ppt/projects/${projectId}/edit/`
