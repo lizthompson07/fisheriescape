@@ -175,7 +175,7 @@ class Tag(SimpleLookup):
 
 
 class HelpText(HelpTextLookup):
-    pass
+    model = models.CharField(max_length=255, blank=True, null=True)
 
 
 class Project(models.Model):
@@ -385,6 +385,7 @@ class ProjectYear(models.Model):
         (1, "Draft"),
         (2, "Submitted"),
         (3, "Reviewed"),
+        (6, "Recommended"),
         (4, "Approved"),
         (5, "Not Approved"),
         (9, "Cancelled"),
@@ -935,13 +936,14 @@ class StatusReport(models.Model):
 class Review(models.Model):
     approval_status_choices = (
         (1, _("approved")),
+        (2, _("recommended")),
         (0, _("not approved")),
         (9, _("cancelled")),
     )
     approval_level_choices = (
         (1, _("Division-level")),
         (2, _("Branch-level")),
-        (3, _("National")),
+        (3, _("National-level")),
     )
     score_choices = (
         (3, _("high")),

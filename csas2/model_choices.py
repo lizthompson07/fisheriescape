@@ -56,16 +56,7 @@ process_scope_choices = (
 process_type_choices = (
     (1, _('Advisory Meeting')),
     (2, _('Science Response Process')),
-    # (3, _('Peer Review')),
 )
-
-# process_status_choices = (
-#     (1, _('In-progress')),
-#     (2, _('Complete')),
-#     (3, _('Deferred')),
-#     (4, _('Delayed')),
-#     (5, _('Tentative')),
-# )
 
 process_status_dict = (
     dict(trigger=None, stage="initiation", text=_("Initiated"), value=1),
@@ -95,6 +86,12 @@ tor_review_decision_choices = (
     (2, _("Request changes")),
 )
 
+tor_review_status_choices = (
+        (10, _("Draft")),
+        (20, _("Queued")),
+        (30, _("Pending")),
+        (40, _("Complete")),
+    )
 
 def get_process_status_choices():
     return [(item["value"], item["text"]) for item in process_status_dict]

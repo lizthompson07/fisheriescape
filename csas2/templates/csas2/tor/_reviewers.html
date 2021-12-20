@@ -1,0 +1,117 @@
+{% load custom_filters %}
+{% load i18n %}
+
+<div class="card mb-2">
+  <h3 class="card-header bg-outline-dark">
+    <div class="float-right" v-if="canModify">
+      <button class="btn btn-sm btn-primary">
+        <span class="mdi mdi-plus text-light"></span> {% trans "Modify" %}
+      </button>
+    </div>
+    {% trans "Reviewer Queue" %}
+  </h3>
+  <div class="card-body">
+    <div class="card-text">
+      <div v-if="loadingReviewers" class="loading mb-3 mt-3 text-center mt-5">
+        <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+      </div>
+      <div v-else class="w-75">
+
+        <div v-if="reviewers.length">
+          <table class="table table-sm">
+            <thead>
+            <tr>
+              <th>${ reviewerLabels.user}</th>
+              <th>${ reviewerLabels.role}</th>
+              <th>${ reviewerLabels.status}</th>
+              <th>${ reviewerLabels.status_date}</th>
+              <th style="width: 45%">${ reviewerLabels.comments}</th>
+            </tr>
+            </thead>
+
+            {# display body #}
+            <tbody v-if="!canEditReviewers">
+            <tr v-for="item in reviewers" :key="item.id">
+              <td>${item.user_display }</td>
+              <td>${item.role_display }</td>
+              <td><span :class="item.status_class + ' px-1 py-1'">${item.status_display }</span></td>
+              <td>${item.status_date_display |nz }</td>
+              <td v-html="item.comments_html"></td>
+            </tr>
+            </tbody>
+
+            {# editable body #}
+            <tbody v-else>
+            <tr v-for="(item, index) in editableReviewers" :key="item.id">
+              <td>
+                <button v-if="index!==0" @click="moveReviewer(item, 'up')"><span class="mdi mdi-arrow-up-bold-circle-outline h5"></span></button>
+                <span v-else style="margin-right: 39px"> </span>
+
+                <button v-if="index!==reviewers.length-1" @click="moveReviewer(item, 'down')"><span
+                  class="mdi mdi-arrow-down-bold-circle-outline h5"></span></button>
+              <td>
+                <v-select
+                  class="w-100"
+                  v-model="item.user"
+                  id="id_user"
+                  @input="updateReviewer(item)"
+                  :options="dmAppsUsers"
+                  label='full_name'
+                  :reduce="full_name => full_name.id"
+                  :clearable="false"
+                  placeholder="{% trans "Start typing to search for a user" %}"
+                >
+                </v-select>
+              </td>
+              <td>
+                <select v-model="item.role" class="form-control form-control-sm" @change="updateReviewer(item)">
+                  <option v-for="(obj, index) in roleChoices" :value="obj.value">${obj.text}</option>
+                </select>
+              </td>
+              <td :class="item.status_class">${item.status_display}</td>
+              <td v-if="canModify && !isReview" style="width:75px">
+                <button
+                  @click="deleteReviewer(item)"
+                  class="btn btn-sm btn-outline-dark py-0 px-1" data-toggle="tooltip" title="{% trans "Delete" %}">
+                  <span class="mdi mdi-delete text-dark"></span>
+                </button>
+              </td>
+            </tr>
+            </tbody>
+
+          </table>
+        </div>
+        <div v-else>
+          <em>{% trans "No reviewers have been added to this Terms of Reference." %}</em>
+        </div>
+
+
+        <div v-else-if="tor.submission_date">
+          <table class="table table-sm">
+
+          </table>
+          <div v-if="errorMsgReviewer" class="alert alert-danger py-1 mt-3" role="alert" style="width: 80%">
+            <p class="mb-0">
+              <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
+              <span class="h6">${errorMsgReviewer}</span>
+            </p>
+          </div>
+          <div class="mt-3">
+            <button @click="closeReviewerForm" class="btn btn-sm btn-primary text-light">{% trans "Done" %}</button>
+            <button @click="addReviewer" class="btn btn-sm btn-success text-light">
+              <span class="mdi mdi-plus text-light"></span>{% trans "Add reviewer" %}</button>
+            <button v-if="(request && !request.submitted) || (trip && (trip.status ===30 ||trip.status ===41) )" @click="resetReviewers"
+                    class="btn btn-sm btn-warning" id="reset-btn">
+              <span class="mdi mdi-redo-variant"></span> {% trans "Reset" %}
+            </button>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+

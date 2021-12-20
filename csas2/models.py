@@ -12,8 +12,10 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext, get_language, activate
 from markdown import markdown
+from textile import textile
 
 from csas2 import model_choices
+from csas2.model_choices import tor_review_status_choices, tor_review_decision_choices
 from csas2.utils import get_quarter
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import percentage
@@ -489,7 +491,6 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
         super().save(*args, **kwargs)
 
-
     @property
     def status_display(self):
         stage = model_choices.get_process_status_lookup().get(self.status).get("stage")
@@ -637,7 +638,6 @@ class TermsOfReference(MetadataFields):
     is_complete = models.BooleanField(default=False, verbose_name=_("Are the ToRs complete?"), choices=YES_NO_CHOICES,
                                       help_text=_("Selecting yes will update the process status"), editable=False)
 
-
     # non-editable fields
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
     submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("submission date"), editable=False)
@@ -717,6 +717,28 @@ class TermsOfReference(MetadataFields):
 
     def get_absolute_url(self):
         return reverse('csas2:tor_detail', args=[self.id])
+
+
+class ToRReviewer(MetadataFields):
+    tor = models.ForeignKey(TermsOfReference, on_delete=models.CASCADE, related_name="reviewers")
+    order = models.IntegerField(null=True, verbose_name=_("process order"))
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="tor_reviews", verbose_name=_("user"))
+    decision = models.IntegerField(verbose_name=_("decision"), choices=tor_review_decision_choices, blank=True, null=True)
+    comments = models.TextField(null=True, verbose_name=_("Comments"))
+    status = models.IntegerField(verbose_name=_("review status"), default=10, choices=tor_review_status_choices)
+    status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
+
+    class Meta:
+        unique_together = ['tor', 'user', ]
+        ordering = ['tor', 'order', ]
+        verbose_name = _("ToR reviewer")
+
+    @property
+    def comments_html(self):
+        if self.comments:
+            return textile(self.comments)
+        else:
+            return "---"
 
 
 class ProcessNote(GenericNote):

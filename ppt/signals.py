@@ -135,6 +135,10 @@ def save_project_year_on_review_creation(sender, instance, created, **kwargs):
     elif instance.approval_status == 1:
         py.status = 4
 
+    # if the reviewer recommended, project year status = recommended
+    elif instance.approval_status == 2:
+        py.status = 6
+
     # finally, if the py status happens to be set to 2 (submitted) it should be updated to 3 (reviewed)
     elif py.status == 2:
         py.status = 3

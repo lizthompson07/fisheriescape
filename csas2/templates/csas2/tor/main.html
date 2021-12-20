@@ -1,0 +1,225 @@
+{% extends "csas2/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load i18n %}
+
+
+{% block subcontent %}
+  <div id="app" v-cloak>
+
+    <div class="btns mb-5">
+      <a class="btn btn-sm btn-primary" href="{% url 'csas2:tor_edit' object.id %}">{% trans "Submit" %}</a>
+      <a class="btn btn-sm btn-warning" href="{% url 'csas2:tor_edit' object.id %}">{% trans "Edit" %}</a>
+
+      <div class="neighbours">
+        <div class="dropdown">
+          <a class="btn btn-sm btn-dark dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+             aria-expanded="false">
+            <span class="mdi mdi-printer text-light mr-1"></span>{% trans "Export" %}
+          </a>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <a class="dropdown-item" href="{% url 'csas2:tor_export' object.id %}?lang=en">{% trans "Word (en)" %}</a>
+            <a class="dropdown-item" href="{% url 'csas2:tor_export' object.id %}?lang=fr">{% trans "Word (fr)" %}</a>
+            <a class="dropdown-item" href="{% url 'csas2:tor_html' object.id %}?lang=en">{% trans "HTML (en)" %}</a>
+            <a class="dropdown-item" href="{% url 'csas2:tor_html' object.id %}?lang=fr">{% trans "HTML (fr)" %}</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="mb-5">
+      <table class="table table-sm w-50">
+        {% for field in field_list %}
+          {% verbose_td_display object field %}
+        {% endfor %}
+      </table>
+    </div>
+    <div class="mb-5">
+      <table class="table table-sm table-bordered">
+        <thead>
+        <tr>
+          <th></th>
+          <th class="w-40">{% trans "English text" %}</th>
+          <th class="w-40">{% trans "French text" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <th class="w-10">{% trans "Context" %}</th>
+          <td>
+            {{ object.context_en_html|nz }}
+          </td>
+          <td>
+            {{ object.context_fr_html|nz }}
+          </td>
+        </tr>
+        <tr>
+          <th class="w-10">{% trans "Objectives" %}</th>
+          <td>
+            {{ object.objectives_en_html|nz }}
+          </td>
+          <td>
+            {{ object.objectives_fr_html|nz }}
+          </td>
+        </tr>
+        <tr>
+          <th class="w-10">{% trans "Participation" %}</th>
+          <td>
+            {{ object.participation_en_html|nz }}
+          </td>
+          <td>
+            {{ object.participation_fr_html|nz }}
+          </td>
+        </tr>
+        <tr>
+          <th class="w-10">{% trans "References" %}</th>
+          <td>
+            {{ object.references_en_html|nz }}
+          </td>
+          <td>
+            {{ object.references_fr_html|nz }}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mb-5">
+      {% include "csas2/tor/_reviewers.html" %}
+    </div>
+
+  </div>
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+
+  <script type="application/javascript">
+  let torId = {{ object.id }};
+
+  Vue.component('v-select', VueSelect.VueSelect);
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      torId,
+      currentUser: {},
+      dmAppsUsers: [],
+
+      loadingToR: false,
+      loadingReviewers: false,
+
+      tor: {},
+      reviewers: [],
+
+      torLabels: {},
+      reviewerLabels: {},
+
+      decisionChoices: [],
+    },
+    methods: {
+      addReviewer() {
+        this.trip.reviewers.push({
+          trip: this.trip.id,
+          order: this.trip.reviewers.length + 1,
+          role: null,
+          status: 23,  // this will be updated by the model save method. setting status == 4 just allows to show in list
+        })
+      },
+      fetchDMAppsUsers() {
+        this.loadingDMAppsUsers = true;
+        let endpoint = `/api/shared/users/?page_size=50000`;
+        apiService(endpoint).then(data => {
+          this.dmAppsUsers = data.results;
+          this.dmAppsUsers.unshift({full_name: "-----", id: null})
+          this.loadingDMAppsUsers = false;
+        });
+      },
+      getCurrentUser(trip) {
+        this.loading_user = true;
+        let endpoint = `/api/csas/user/?tor=${torId}`;
+        apiService(endpoint)
+            .then(response => {
+              this.loading_user = false;
+              this.currentUser = response;
+            })
+      },
+      getMetadata() {
+        apiService(`/api/csas/meta/models/tor/`).then(data => {
+          this.torLabels = data.labels;
+        });
+        apiService(`/api/csas/meta/models/tor-reviewer/`).then(data => {
+          this.reviewerLabels = data.labels;
+          this.decisionChoices = data.decision_choices
+        });
+      },
+      getToR() {
+        this.loading = true;
+        let endpoint = `/api/travel/trips/${tripId}/`;
+        apiService(endpoint)
+            .then(response => {
+              this.loading = false;
+              this.trip = response;
+              // if there is one traveller, we should have that traveller on display
+              if (this.trip.travellers.length === 1) {
+                this.trip.travellers[0].show_me = true;
+              }
+              this.getCurrentUser(response);
+              this.$nextTick(() => {
+                // enable popovers everywhere
+                $('[data-toggle="popover"]').popover({html: true});
+              })
+            })
+      },
+
+      moveReviewer(reviewer, direction) {
+        if (direction === 'up') reviewer.order -= 1.5;
+        else if (direction === 'down') reviewer.order += 1.5;
+        this.trip.reviewers.sort((a, b) => {
+          if (a["order"] < b["order"]) return -1
+          if (a["order"] > b["order"]) return 1
+        });
+        // reset the order numbers based on position in array
+        for (var i = 0; i < this.trip.reviewers.length; i++) {
+          r = this.trip.reviewers[i]
+          if (r.status === 4 || r.status === 20) r.order = i;
+          else r.order = i - 1000;
+          this.updateReviewer(this.trip.reviewers[i])
+        }
+      },
+
+    },
+    filters: {
+      //yesNo: vueFiltersObject["yesNo"],
+      //nz: vueFiltersObject["nz"],
+      //floatformat: vueFiltersObject["floatformat"],
+      //currencyFormat: vueFiltersObject["currencyFormat"],
+      //zero2NullMark: vueFiltersObject["zero2NullMark"],
+    },
+    computed: {
+      canModify() {
+        return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      },
+      isCurrentReviewer() {
+        return this.currentUser && this.currentUser.id === this.tor.current_reviewer_id;
+      },
+      canEditReviewers(){
+        return this.canModify && this.tor.submisison_date
+      }
+
+    },
+    created() {
+    },
+    mounted() {
+    },
+  });
+
+  </script>
+
+{% endblock %}

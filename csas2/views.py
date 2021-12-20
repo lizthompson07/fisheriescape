@@ -885,7 +885,7 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
 
 class TermsOfReferenceDetailView(CanModifyProcessRequiredMixin, CommonDetailView):
     model = models.TermsOfReference
-    template_name = 'csas2/tor/tor_detail.html'
+    template_name = 'csas2/tor/main.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
     field_list = utils.get_tor_field_list()
