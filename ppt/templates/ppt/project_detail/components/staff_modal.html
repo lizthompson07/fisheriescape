@@ -253,16 +253,16 @@ Vue.component("staff-modal", {
         apiService(endpoint, "PATCH", this.staff).then(response => {
           if (response.id) this.$emit('close')
           else {
-                        this.errors = groomJSON(response);
+            this.errors = groomJSON(response);
           }
         })
       } else {
-        this.staff.project_year=this.year.id;
+        this.staff.project_year = this.year.id;
         let endpoint = `/api/ppt/staff/`;
         apiService(endpoint, "POST", this.staff).then(response => {
           if (response.id) this.$emit('close')
           else {
-                        this.errors = groomJSON(response);
+            this.errors = groomJSON(response);
           }
         })
       }

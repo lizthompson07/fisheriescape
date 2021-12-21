@@ -380,7 +380,7 @@ class StaffForm(forms.ModelForm):
         self.fields["employee_type"].widget.attrs = {"v-model": "staff.employee_type", "@change": "adjustStaffFields"}
         self.fields["level"].widget.attrs = {"v-model": "staff.level", ":disabled": "disableLevelField"}
         self.fields["duration_weeks"].widget.attrs = {"v-model": "staff.duration_weeks", "step": "0.1"}
-        self.fields["overtime_hours"].widget.attrs = {"v-model": "staff.overtime_hours", "step": "0.1"}
+        self.fields["overtime_hours"].widget.attrs = {"v-model": "staff.overtime_hours", "step": "any"}
         self.fields["student_program"].widget.attrs = {"v-model": "staff.student_program", ":disabled": "disableStudentProgramField"}
 
         self.fields["name"].widget.attrs = {"v-model": "staff.name", ":disabled": "disableNameField"}

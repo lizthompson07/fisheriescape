@@ -81,8 +81,8 @@ urlpatterns = [
     # tested
 
     # permissions
-    path('settings/ppt-admin-users/', views.PPTAdminUserFormsetView.as_view(), name="manage_ppt_admin_users"),
-    path('settings/ppt-admin-user/<int:pk>/delete/', views.PPTAdminUserHardDeleteView.as_view(), name="delete_ppt_admin_user"),
+    path('settings/users/', views.PPTAdminUserFormsetView.as_view(), name="manage_ppt_admin_users"),
+    path('settings/users/<int:pk>/delete/', views.PPTAdminUserHardDeleteView.as_view(), name="delete_ppt_admin_user"),
 
     # full
     path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),  # tested
