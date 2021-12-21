@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime
 
 from django.contrib.auth.models import User
@@ -16,11 +17,12 @@ from rest_framework.views import APIView
 from unidecode import unidecode
 
 from shared_models.api.serializers import PersonSerializer
-from shared_models.api.views import _get_labels
+from shared_models.api.views import _get_labels, SharedModelMetadataAPIView
 from shared_models.models import Person, Language, Region, FiscalYear, SubjectMatter
 from . import serializers
 from .pagination import StandardResultsSetPagination
-from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission, CanModifyRequestReviewOrReadOnly
+from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission, CanModifyRequestReviewOrReadOnly, \
+    CanModifyToROrReadOnly
 from .. import models, emails, model_choices, utils, filters
 # USER
 #######
@@ -734,3 +736,46 @@ class ProcessModelMetaAPIView(APIView):
         data['fy_choices'] = [dict(text=str(c), value=c.id) for c in FiscalYear.objects.filter(processes__isnull=False).distinct()]
 
         return Response(data)
+
+
+
+class CSASModelMetadataAPIView(SharedModelMetadataAPIView):
+    def get_data(self):
+        data = super().get_data()
+        model = self.get_model()
+
+        return data
+
+
+
+
+
+
+
+
+
+
+class ToRViewSet(viewsets.ModelViewSet):
+    queryset = models.TermsOfReference.objects.all()
+    serializer_class = serializers.ToRSerializer
+    permission_classes = [CanModifyToROrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+
+class ToRReviewerViewSet(viewsets.ModelViewSet):
+    queryset = models.ToRReviewer.objects.all()
+    serializer_class = serializers.ToRReviewerSerializer
+    permission_classes = [CanModifyToROrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["tor"]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)

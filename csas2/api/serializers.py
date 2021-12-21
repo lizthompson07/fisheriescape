@@ -671,6 +671,14 @@ class ToRSerializer(serializers.ModelSerializer):
         return {}
 
 
+
+class ToRReviewerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ToRReviewer
+        fields = "__all__"
+
+
+
 class ProcessSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Process

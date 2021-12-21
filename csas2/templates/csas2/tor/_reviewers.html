@@ -17,17 +17,18 @@
           <span class="sr-only"></span>
         </div>
       </div>
-      <div v-else class="w-75">
+      <div v-else class="w-100">
 
         <div v-if="reviewers.length">
           <table class="table table-sm">
             <thead>
             <tr>
-              <th>${ reviewerLabels.user}</th>
-              <th>${ reviewerLabels.role}</th>
-              <th>${ reviewerLabels.status}</th>
-              <th>${ reviewerLabels.status_date}</th>
-              <th style="width: 45%">${ reviewerLabels.comments}</th>
+              <th></th>
+              <th class="w-25">${ reviewerLabels.user }</th>
+              <th>${ reviewerLabels.decision }</th>
+              <th>${ reviewerLabels.status }</th>
+              <th>${ reviewerLabels.status_date }</th>
+              <th style="width: 45%">${ reviewerLabels.comments }</th>
             </tr>
             </thead>
 
@@ -44,7 +45,7 @@
 
             {# editable body #}
             <tbody v-else>
-            <tr v-for="(item, index) in editableReviewers" :key="item.id">
+            <tr v-for="(item, index) in reviewers" :key="item.id">
               <td>
                 <button v-if="index!==0" @click="moveReviewer(item, 'up')"><span class="mdi mdi-arrow-up-bold-circle-outline h5"></span></button>
                 <span v-else style="margin-right: 39px"> </span>
@@ -66,8 +67,8 @@
                 </v-select>
               </td>
               <td>
-                <select v-model="item.role" class="form-control form-control-sm" @change="updateReviewer(item)">
-                  <option v-for="(obj, index) in roleChoices" :value="obj.value">${obj.text}</option>
+                <select v-model="item.decision" class="form-control form-control-sm" @change="updateReviewer(item)">
+                  <option v-for="(obj, index) in decisionChoices" :value="obj.value">${obj.text}</option>
                 </select>
               </td>
               <td :class="item.status_class">${item.status_display}</td>
@@ -87,26 +88,18 @@
           <em>{% trans "No reviewers have been added to this Terms of Reference." %}</em>
         </div>
 
+        <div v-if="errorReviewer" class="alert alert-danger py-1 mt-3 w-75" role="alert">
+          <p class="mb-0">
+            <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
+            <span class="h6">${errorReviewer}</span>
+          </p>
+        </div>
 
-        <div v-else-if="tor.submission_date">
-          <table class="table table-sm">
 
-          </table>
-          <div v-if="errorMsgReviewer" class="alert alert-danger py-1 mt-3" role="alert" style="width: 80%">
-            <p class="mb-0">
-              <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
-              <span class="h6">${errorMsgReviewer}</span>
-            </p>
-          </div>
-          <div class="mt-3">
-            <button @click="closeReviewerForm" class="btn btn-sm btn-primary text-light">{% trans "Done" %}</button>
-            <button @click="addReviewer" class="btn btn-sm btn-success text-light">
-              <span class="mdi mdi-plus text-light"></span>{% trans "Add reviewer" %}</button>
-            <button v-if="(request && !request.submitted) || (trip && (trip.status ===30 ||trip.status ===41) )" @click="resetReviewers"
-                    class="btn btn-sm btn-warning" id="reset-btn">
-              <span class="mdi mdi-redo-variant"></span> {% trans "Reset" %}
-            </button>
-          </div>
+        <div v-if="canEditReviewers" class="mt-3">
+          <button @click="addReviewer" class="btn btn-sm btn-success text-light">
+            <span class="mdi mdi-plus text-light"></span>{% trans "Add reviewer" %}
+          </button>
         </div>
 
 

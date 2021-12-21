@@ -122,16 +122,11 @@
       reviewerLabels: {},
 
       decisionChoices: [],
+
+      errorReviewer: null
     },
     methods: {
-      addReviewer() {
-        this.trip.reviewers.push({
-          trip: this.trip.id,
-          order: this.trip.reviewers.length + 1,
-          role: null,
-          status: 23,  // this will be updated by the model save method. setting status == 4 just allows to show in list
-        })
-      },
+
       fetchDMAppsUsers() {
         this.loadingDMAppsUsers = true;
         let endpoint = `/api/shared/users/?page_size=50000`;
@@ -151,31 +146,34 @@
             })
       },
       getMetadata() {
-        apiService(`/api/csas/meta/models/tor/`).then(data => {
+        apiService(`/api/csas/model-metas/?app_name=csas2&model_name=TermsOfReference`).then(data => {
           this.torLabels = data.labels;
         });
-        apiService(`/api/csas/meta/models/tor-reviewer/`).then(data => {
+        apiService(`/api/csas/model-metas/?app_name=csas2&model_name=ToRReviewer`).then(data => {
           this.reviewerLabels = data.labels;
           this.decisionChoices = data.decision_choices
         });
       },
       getToR() {
-        this.loading = true;
-        let endpoint = `/api/travel/trips/${tripId}/`;
-        apiService(endpoint)
-            .then(response => {
-              this.loading = false;
-              this.trip = response;
-              // if there is one traveller, we should have that traveller on display
-              if (this.trip.travellers.length === 1) {
-                this.trip.travellers[0].show_me = true;
-              }
-              this.getCurrentUser(response);
-              this.$nextTick(() => {
-                // enable popovers everywhere
-                $('[data-toggle="popover"]').popover({html: true});
-              })
-            })
+        this.loadingToR = true;
+        this.loadingReviewers = true;
+        apiService(`/api/csas/tors/${torId}/`).then(response => {
+          this.loadingToR = false;
+          this.tor = response;
+          this.getCurrentUser();
+          apiService(`/api/csas/tor-reviewers/?tor=${torId}`).then(response => {
+            this.loadingReviewers = false;
+            this.reviewers = response;
+          })
+        })
+      },
+
+      addReviewer() {
+        this.reviewers.push({
+          tor: this.tor.id,
+          order: this.reviewers.length + 1,
+          status: 10,
+        })
       },
 
       moveReviewer(reviewer, direction) {
@@ -209,12 +207,15 @@
       isCurrentReviewer() {
         return this.currentUser && this.currentUser.id === this.tor.current_reviewer_id;
       },
-      canEditReviewers(){
-        return this.canModify && this.tor.submisison_date
+      canEditReviewers() {
+        // return this.canModify && !this.tor.submisison_date
+        return true
       }
 
     },
     created() {
+      this.getMetadata();
+      this.getToR();
     },
     mounted() {
     },

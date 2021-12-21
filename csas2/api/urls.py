@@ -18,11 +18,15 @@ router.register(r'authors', views.AuthorViewSet)
 router.register(r'document-notes', views.DocumentNoteViewSet)
 router.register(r'doc-tracking', views.DocumentTrackingViewSet)
 router.register(r'people', views.PersonViewSet)
+router.register(r'tors', views.ToRViewSet)
+router.register(r'tor-reviewers', views.ToRReviewerViewSet)
 
 
 urlpatterns = [
     path("csas/", include(router.urls)),  # tested
     path("csas/user/", views.CurrentUserAPIView.as_view(), name="csas-current-user"),
+
+    path('csas/model-metas/', views.CSASModelMetadataAPIView.as_view(), name="csas-model-metas"), # this should phase everything else out
 
     path("csas/meta/models/request/", views.RequestModelMetaAPIView.as_view(), name="csas-request-review-model-meta"),
     path("csas/meta/models/request-review/", views.RequestReviewModelMetaAPIView.as_view(), name="csas-request-review-model-meta"),
@@ -39,4 +43,7 @@ urlpatterns = [
     path("csas/meta/models/document-tracking/", views.DocumentTrackingModelMetaAPIView.as_view(), name="csas-doc-tracking-model-meta"),
     path("csas/meta/models/author/", views.AuthorModelMetaAPIView.as_view(), name="csas-author-model-meta"),
     path("csas/meta/models/process/", views.ProcessModelMetaAPIView.as_view(), name="csas-process-model-meta"),
+
+
+
 ]
