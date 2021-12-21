@@ -34,7 +34,7 @@
     >
       {% trans "No activities have been added to this year of the project" %}
     </div>
-    <table class="table table-sm w-100">
+    <table v-else class="table table-sm w-100">
       <thead>
       <tr>
         <th class="w-10">${activityLabels.type}</th>
