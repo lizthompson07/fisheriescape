@@ -53,7 +53,7 @@
       {% endif %}
 
       <button
-        v-if="!process.posting_request_date && !process.is_posted"
+        v-if="process.can_post_meeting && !process.posting_request_date && !process.is_posted"
         class="btn btn-sm btn-purple" :disabled="!process.can_post_meeting.can_post" @click="requestPosting"
         data-toggle="tooltip" :title="process.can_post_meeting.reasons"
       >

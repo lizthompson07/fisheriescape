@@ -55,6 +55,9 @@ class CurrentUserAPIView(APIView):
         elif qp.get("meeting"):
             meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
             data["can_modify"] = utils.can_modify_process(request.user, meeting.process_id, return_as_dict=True)
+        elif qp.get("tor"):
+            tor = get_object_or_404(models.TermsOfReference, pk=qp.get("tor"))
+            data["can_modify"] = utils.can_modify_tor(request.user, tor.id, return_as_dict=True)
         return Response(data)
 
 
@@ -734,7 +737,6 @@ class ProcessModelMetaAPIView(APIView):
         data['status_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.get_process_status_choices()]
         data['region_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_region_choices()]
         data['fy_choices'] = [dict(text=str(c), value=c.id) for c in FiscalYear.objects.filter(processes__isnull=False).distinct()]
-
         return Response(data)
 
 

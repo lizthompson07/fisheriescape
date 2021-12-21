@@ -73,6 +73,18 @@ class TripRequestTimestampUpdateForm(forms.ModelForm):
         }
 
 
+class ToRTimestampUpdateForm(forms.ModelForm):
+    class Meta:
+        model = models.TermsOfReference
+        fields = [
+            "meeting",  # just a random field
+        ]
+        widgets = {
+            "meeting": forms.HiddenInput()
+        }
+
+
+
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),

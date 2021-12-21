@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.template.defaultfilters import date, pluralize
-from django.utils.translation import gettext
+from django.template.defaultfilters import date, pluralize, slugify
+from django.utils.translation import gettext, get_language, activate
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
@@ -677,6 +677,38 @@ class ToRReviewerSerializer(serializers.ModelSerializer):
         model = models.ToRReviewer
         fields = "__all__"
 
+    comments_html = serializers.SerializerMethodField()
+    decision_display = serializers.SerializerMethodField()
+    status_class = serializers.SerializerMethodField()
+    status_date_display = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    user_display = serializers.SerializerMethodField()
+    status_date_annotation = serializers.SerializerMethodField()
+
+    def get_status_date_annotation(self, instance):
+        return naturaltime(instance.status_date)
+
+    def get_comments_html(self, instance):
+        return instance.comments_html
+
+    def get_decision_display(self, instance):
+        return instance.get_decision_display()
+
+    def get_status_class(self, instance):
+        lang = get_language()
+        activate("en")
+        mystr = slugify(instance.get_status_display())
+        activate(lang)
+        return mystr
+
+    def get_status_date_display(self, instance):
+        return date(instance.status_date)
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_user_display(self, instance):
+        return instance.user.get_full_name() if instance.user else None
 
 
 class ProcessSerializer(serializers.ModelSerializer):

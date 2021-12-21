@@ -259,11 +259,10 @@ def can_modify_process(user, process_id, return_as_dict=False):
             my_dict["can_modify"] = True
         # are they a regional administrator?
         elif in_csas_regional_admin_group(user) and (
-                user.csas_admin_user.region == process.lead_region or process.other_regions.filter(id=user.csas_admin_user.region.id).exists()):
+                user.csas_admin_user.region == process.lead_office.region or process.other_offices.filter(region=user.csas_admin_user.region).exists()):
             my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
             my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]
-
 
 
 def can_modify_tor(user, tor_id, return_as_dict=False):
@@ -275,40 +274,34 @@ def can_modify_tor(user, tor_id, return_as_dict=False):
 
     if user.id:
         my_dict["reason"] = _("You do not have the permissions to modify this process")
-        tor = get_object_or_404(models.Process, pk=tor_id)
-        # check to see if they are the client
-        # are they an editor?
-        # if is_editor(user, process.id):
-        #     my_dict["reason"] = _("You can modify this record because you have been tagged as a process editor")
-        #     my_dict["can_modify"] = True
-        # # are they an administrator?
-        # if is_process_administrator(user, process.id):
-        #     my_dict["reason"] = _("You can modify this record because you are a science administrator for this process")
-        #     my_dict["can_modify"] = True
-        # # are they an advisor?
-        # if is_process_advisor(user, process.id):
-        #     my_dict["reason"] = _("You can modify this record because you are a science advisor for this process")
-        #     my_dict["can_modify"] = True
-        # # are they a coordinator?
-        # elif is_process_coordinator(user, process.id):
-        #     my_dict["reason"] = _("You can modify this record because you are the coordinator for this process")
-        #     my_dict["can_modify"] = True
-        # # are they a national administrator?
-        # elif in_csas_national_admin_group(user):
-        #     my_dict["reason"] = _("You can modify this record because you are a national CSAS administrator")
-        #     my_dict["can_modify"] = True
-        # # are they a web and pub staff user?
-        # elif in_csas_web_pub_group(user):
-        #     my_dict["reason"] = _("You can modify this record because you are a NCR web & pub staff member")
-        #     my_dict["can_modify"] = True
-        # # are they a regional administrator?
-        # elif in_csas_regional_admin_group(user) and (
-        #         user.csas_admin_user.region == process.lead_region or process.other_regions.filter(id=user.csas_admin_user.region.id).exists()):
-        #     my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
-        #     my_dict["can_modify"] = True
+        tor = get_object_or_404(models.TermsOfReference, pk=tor_id)
+        process = tor.process
+        # are they an editor and tor is unsubmitted?
+        if is_editor(user, process.id) and not tor.submission_date:
+            my_dict["reason"] = _("You can modify this record because you have been tagged as a process editor")
+            my_dict["can_modify"] = True
+        # are they an administrator and tor is unsubmitted?
+        if is_process_administrator(user, process.id) and not tor.submission_date:
+            my_dict["reason"] = _("You can modify this record because you are a science administrator for this process")
+            my_dict["can_modify"] = True
+        # are they an advisor and tor is unsubmitted?
+        if is_process_advisor(user, process.id) and not tor.submission_date:
+            my_dict["reason"] = _("You can modify this record because you are a science advisor for this process")
+            my_dict["can_modify"] = True
+        # are they a coordinator and tor is unsubmitted?
+        elif is_process_coordinator(user, process.id) and not tor.submission_date:
+            my_dict["reason"] = _("You can modify this record because you are the coordinator for this process")
+            my_dict["can_modify"] = True
+        # are they a national administrator?
+        elif in_csas_national_admin_group(user):
+            my_dict["reason"] = _("You can modify this record because you are a national CSAS administrator")
+            my_dict["can_modify"] = True
+        # are they a regional administrator?
+        elif in_csas_regional_admin_group(user) and (
+                user.csas_admin_user.region == process.lead_office.region or process.other_offices.filter(region=user.csas_admin_user.region).exists()):
+            my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
+            my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]
-
-
 
 
 def get_request_field_list(csas_request, user):
@@ -360,6 +353,9 @@ def get_tor_field_list():
         "meeting.tor_display_dates|{}".format(_("meeting dates")),
         "meeting.location|{}".format(_("meeting location")),
         "expected_document_types",
+        "submission_date",
+        "posting_request_date",
+        "posting_notification_date",
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)

@@ -230,6 +230,7 @@ invitee_status_choices = (
     (1, 'Accepted'),
     (2, 'Declined'),
     (3, 'Tentative'),
+    (4, 'Proposed'),
 )
 
 invitee_role_categories = (

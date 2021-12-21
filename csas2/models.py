@@ -641,7 +641,7 @@ class TermsOfReference(MetadataFields):
     # non-editable fields
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
     submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("submission date"), editable=False)
-    posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"))
+    posting_request_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Date of posting request"))
     posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
 
     @property
@@ -724,9 +724,9 @@ class ToRReviewer(MetadataFields):
     order = models.IntegerField(null=True, verbose_name=_("process order"))
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="tor_reviews", verbose_name=_("user"))
     decision = models.IntegerField(verbose_name=_("decision"), choices=tor_review_decision_choices, blank=True, null=True)
-    comments = models.TextField(null=True, verbose_name=_("Comments"))
-    status = models.IntegerField(verbose_name=_("review status"), default=10, choices=tor_review_status_choices)
-    status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
+    comments = models.TextField(null=True, verbose_name=_("comments"))
+    status = models.IntegerField(verbose_name=_("status"), default=10, choices=tor_review_status_choices)
+    status_date = models.DateTimeField(verbose_name=_("date"), blank=True, null=True)
 
     class Meta:
         unique_together = ['tor', 'user', ]
@@ -924,7 +924,7 @@ class Invitee(models.Model):
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name="meeting_invites", blank=True, null=True,
                                verbose_name=_("DFO Region (if applicable)"))
     roles = models.ManyToManyField(InviteeRole, verbose_name=_("Function(s)"))
-    status = models.IntegerField(choices=model_choices.invitee_status_choices, verbose_name=_("status"), default=0)
+    status = models.IntegerField(choices=model_choices.invitee_status_choices, verbose_name=_("status"), default=9)
     invitation_sent_date = models.DateTimeField(verbose_name=_("date invitation was sent"), editable=False, blank=True, null=True)
     resources_received = models.ManyToManyField("MeetingResource", editable=False)
 

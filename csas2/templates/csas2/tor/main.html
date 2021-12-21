@@ -11,7 +11,13 @@
   <div id="app" v-cloak>
 
     <div class="btns mb-5">
-      <a class="btn btn-sm btn-primary" href="{% url 'csas2:tor_edit' object.id %}">{% trans "Submit" %}</a>
+      <a class="btn btn-sm btn-primary" href="{% url 'csas2:tor_submit' object.id %}">
+        {% if object.submission_date %}
+          {% trans "Un-submit" %}
+        {% else %}
+          {% trans "Submit" %}
+        {% endif %}
+      </a>
       <a class="btn btn-sm btn-warning" href="{% url 'csas2:tor_edit' object.id %}">{% trans "Edit" %}</a>
 
       <div class="neighbours">
@@ -176,26 +182,45 @@
         })
       },
 
+      updateReviewer(reviewer) {
+        this.errorReviewer = null;
+        if (reviewer.id) {
+          apiService(`/api/csas/tor-reviewers/${reviewer.id}/`, "PUT", reviewer)
+              .then(response => {
+                if (response.id) reviewer = response;
+                else this.errorReviewer = groomJSON(response);
+              })
+        } else {
+          apiService(`/api/csas/tor-reviewers/`, "POST", reviewer)
+              .then(response => {
+                if (response.id) {
+                  this.$delete(this.reviewers, this.reviewers.indexOf(reviewer));
+                  this.reviewers.push(response);
+                } else this.errorReviewer = groomJSON(response);
+              })
+        }
+      },
+
       moveReviewer(reviewer, direction) {
         if (direction === 'up') reviewer.order -= 1.5;
         else if (direction === 'down') reviewer.order += 1.5;
-        this.trip.reviewers.sort((a, b) => {
+        this.reviewers.sort((a, b) => {
           if (a["order"] < b["order"]) return -1
           if (a["order"] > b["order"]) return 1
         });
         // reset the order numbers based on position in array
-        for (var i = 0; i < this.trip.reviewers.length; i++) {
-          r = this.trip.reviewers[i]
+        for (var i = 0; i < this.reviewers.length; i++) {
+          r = this.reviewers[i]
           if (r.status === 4 || r.status === 20) r.order = i;
           else r.order = i - 1000;
-          this.updateReviewer(this.trip.reviewers[i])
+          this.updateReviewer(this.reviewers[i])
         }
       },
 
     },
     filters: {
       //yesNo: vueFiltersObject["yesNo"],
-      //nz: vueFiltersObject["nz"],
+      nz: vueFiltersObject["nz"],
       //floatformat: vueFiltersObject["floatformat"],
       //currencyFormat: vueFiltersObject["currencyFormat"],
       //zero2NullMark: vueFiltersObject["zero2NullMark"],
@@ -209,13 +234,14 @@
       },
       canEditReviewers() {
         // return this.canModify && !this.tor.submisison_date
-        return true
+        return Boolean(this.tor && this.canModify && !this.tor.submission_date)
       }
 
     },
     created() {
       this.getMetadata();
       this.getToR();
+      this.fetchDMAppsUsers();
     },
     mounted() {
     },

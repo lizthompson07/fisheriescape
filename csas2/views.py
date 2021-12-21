@@ -846,7 +846,7 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
             mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
             return mark_safe(mystr)
 
-    def get_greatparent_crumb(self):
+    def get_grandparent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
                 "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
 
@@ -881,6 +881,48 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
                                                    old_expected_publications_fr, new_expected_publications_fr)
                 email.send()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class TermsOfReferenceSubmitView(TermsOfReferenceUpdateView):
+    template_name = 'csas2/tor_submit.html'
+    form_class = forms.ToRTimestampUpdateForm
+    submit_text = gettext_lazy("Proceed")
+    h2 = None
+
+    def get_h1(self):
+        my_object = self.get_object()
+        if my_object.submission_date:
+            return _("Do you wish to un-submit the following Terms of Reference?")
+        else:
+            return _("Do you wish to submit the following Terms of Reference?")
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("csas2:tor_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        if obj.submission_date:
+            obj.submission_date = None
+        else:
+            obj.submission_date = timezone.now()
+        obj.save()
+
+        # # if the request was just submitted, send an email
+        # if obj.submission_date:
+        #     if not obj.office.disable_request_notifications:
+        #         email = emails.NewRequestEmail(self.request, obj)
+        #         email.send()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_h3(self):
+        if self.get_object().process.is_posted:
+            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
+            return mark_safe(mystr)
+
+    def get_grandparent_crumb(self):
+        return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
+                "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
 
 
 class TermsOfReferenceDetailView(CanModifyProcessRequiredMixin, CommonDetailView):

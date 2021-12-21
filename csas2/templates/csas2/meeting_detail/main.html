@@ -259,7 +259,7 @@
 
       toggleInviteeStatus(invitee) {
         let nextStatus = 0;
-        let statusArray = [0, 1, 2, 3];
+        let statusArray = [0, 1, 2, 3, 4];
         let currentStatusPos = statusArray.indexOf(invitee.status) + 1;
         if (currentStatusPos >= statusArray.length) {
           nextStatus = currentStatusPos % statusArray.length;

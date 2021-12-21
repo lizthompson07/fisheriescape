@@ -46,7 +46,7 @@
       <td>${ invitee.roles_display }</td>
       <td>
         <button @click="toggleInviteeStatus(invitee)"
-                :class="{'badge badge-pill':true, 'badge-success':invitee.status ===1,'badge-warning':invitee.status ===9,'badge-danger':invitee.status ===2,'badge-info':invitee.status ===3,  }">
+                :class="{'badge badge-pill':true, 'badge-success':invitee.status ===1,'badge-danger':invitee.status ===2,'badge-info':invitee.status ===3, 'badge-warning':invitee.status ===4  }">
           ${ invitee.status_display }
         </button>
       </td>
