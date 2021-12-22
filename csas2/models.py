@@ -742,6 +742,12 @@ class ToRReviewer(MetadataFields):
     def save(self, *args, **kwargs):
         if self.decision:
             self.decision_date = timezone.now()
+            if self.decision == 1:  # review decision = approve
+                self.status = 40
+            elif self.decision == 2:  # review decision = request changes
+                tor = self.tor
+                tor.status = 30
+                tor.save()
         else:
             self.decision_date = None
         super().save(*args, **kwargs)

@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 from .. import models
-from ..utils import can_modify_request, can_modify_process, can_modify_request_review, can_modify_tor
+from ..utils import can_modify_request, can_modify_process, can_modify_request_review, can_modify_tor, can_modify_tor_reviewer
 
 
 class CanModifyRequestOrReadOnly(permissions.BasePermission):
@@ -94,6 +94,7 @@ class CanModifyProcessOrReadOnly(permissions.BasePermission):
                 process_id = obj.tor.process.id
             return can_modify_process(request.user, process_id)
 
+
 class CanModifyToROrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
@@ -113,3 +114,21 @@ class CanModifyToROrReadOnly(permissions.BasePermission):
             elif isinstance(obj, models.ToRReviewer):
                 tor_id = obj.tor.process.id
             return can_modify_tor(request.user, tor_id)
+
+
+class CanModifyToRReviewerOrReadOnly(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        if not request.user.is_authenticated:
+            return False
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        else:
+            if isinstance(obj, models.ToRReviewer):
+                tor_reviewer_id = obj.id
+                return can_modify_tor_reviewer(request.user, tor_reviewer_id)

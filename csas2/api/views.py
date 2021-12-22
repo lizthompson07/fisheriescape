@@ -1,4 +1,3 @@
-import sys
 from datetime import datetime
 
 from django.contrib.auth.models import User
@@ -22,7 +21,7 @@ from shared_models.models import Person, Language, Region, FiscalYear, SubjectMa
 from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission, CanModifyRequestReviewOrReadOnly, \
-    CanModifyToROrReadOnly
+    CanModifyToROrReadOnly, CanModifyToRReviewerOrReadOnly
 from .. import models, emails, model_choices, utils, filters
 # USER
 #######
@@ -58,6 +57,7 @@ class CurrentUserAPIView(APIView):
         elif qp.get("tor"):
             tor = get_object_or_404(models.TermsOfReference, pk=qp.get("tor"))
             data["can_modify"] = utils.can_modify_tor(request.user, tor.id, return_as_dict=True)
+            data["can_unsubmit"] = utils.can_unsubmit_tor(request.user, tor.id)
             if tor.current_reviewer and tor.current_reviewer.user == request.user:
                 data["reviewer"] = serializers.ToRReviewerSerializer(tor.current_reviewer).data
         return Response(data)
@@ -742,21 +742,12 @@ class ProcessModelMetaAPIView(APIView):
         return Response(data)
 
 
-
 class CSASModelMetadataAPIView(SharedModelMetadataAPIView):
     def get_data(self):
         data = super().get_data()
         model = self.get_model()
 
         return data
-
-
-
-
-
-
-
-
 
 
 class ToRViewSet(viewsets.ModelViewSet):
@@ -770,11 +761,31 @@ class ToRViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
 
+    def post(self, request, pk):
+        qp = request.query_params
+        tor = get_object_or_404(models.TermsOfReference, pk=pk)
+        if qp.get("approval_seeker"):
+            utils.tor_approval_seeker(tor, request)
+            return Response(None, status.HTTP_204_NO_CONTENT)
+        elif qp.get("resume_review"):
+            # reset the decision of the current reviewer
+            current_reviewer = tor.current_reviewer
+            current_reviewer.decision = None
+            current_reviewer.decision_date = None
+            current_reviewer.save()
+
+            # return the status of the ToR to UNDER REVIEW (20)
+            tor.status = 20
+            tor.save()
+            utils.tor_approval_seeker(tor, request)
+            return Response(None, status.HTTP_204_NO_CONTENT)
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
+
 
 class ToRReviewerViewSet(viewsets.ModelViewSet):
     queryset = models.ToRReviewer.objects.all()
     serializer_class = serializers.ToRReviewerSerializer
-    permission_classes = [CanModifyToROrReadOnly]
+    permission_classes = [CanModifyToRReviewerOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["tor"]
 

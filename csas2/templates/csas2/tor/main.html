@@ -10,8 +10,12 @@
 {% block subcontent %}
   <div id="app" v-cloak>
 
+    <div class="float-right">
+      <button v-if="canModify && tor.status === 30" class="btn btn-lg btn-danger" @click="resumeReview">{% trans "Resume the Review" %}</button>
+    </div>
+
     <div class="btns mb-5">
-      <a v-if="canModify" class="btn btn-sm btn-primary" href="{% url 'csas2:tor_submit' object.id %}">
+      <a v-if="canUnsubmit" class="btn btn-sm btn-primary" href="{% url 'csas2:tor_submit' object.id %}">
         {% if object.submission_date %}
           {% trans "Un-submit" %}
         {% else %}
@@ -33,6 +37,8 @@
             <a class="dropdown-item" href="{% url 'csas2:tor_html' object.id %}?lang=fr">{% trans "HTML (fr)" %}</a>
           </div>
         </div>
+
+
       </div>
 
     </div>
@@ -212,8 +218,22 @@
           }
         } else this.$delete(this.reviewers, this.reviewers.indexOf(reviewer))
       },
-      submitCurrentReviewerForm(){
-
+      submitCurrentReviewerForm(reviewer) {
+        apiService(`/api/csas/tor-reviewers/${reviewer.id}/`, "PUT", reviewer)
+            .then(response => {
+              if (response.id) {
+                apiService(`/api/csas/tors/${this.torId}/?approval_seeker=true`, "POST")
+                    .then(response => {
+                      window.location.reload();
+                    })
+              }
+            })
+      },
+      resumeReview() {
+        apiService(`/api/csas/tors/${this.torId}/?resume_review=true`, "POST")
+            .then(response => {
+              window.location.reload();
+            })
       },
       moveReviewer(reviewer, direction) {
         if (direction === 'up') reviewer.order -= 1.5;
@@ -243,10 +263,17 @@
       canModify() {
         return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
       },
+      canUnsubmit() {
+        return this.currentUser.can_unsubmit;
+      },
       canEditReviewers() {
         // return this.canModify && !this.tor.submisison_date
         return Boolean(this.tor && this.canModify && !this.tor.submission_date)
-      }
+      },
+      showReviewerForm() {
+        // tor status must == under review and the current user must be the reviewer
+        return this.tor.status === 20 && this.currentUser.reviewer && this.currentUser.reviewer.id
+      },
 
     },
     created() {

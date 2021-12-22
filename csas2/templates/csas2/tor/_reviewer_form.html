@@ -1,13 +1,14 @@
 {% load i18n %}
 
-<div v-if="currentUser.reviewer && currentUser.reviewer.id" class="alert alert-success" role="alert">
+<div v-if="showReviewerForm" class="alert alert-success" role="alert">
   <div class="lead alert-heading mb-3">
-    ${currentUser.first_name}, {% trans "please submit your review below:" %}
+    <span class="mdi mdi-eye-outline mr-2"></span>
+    ${currentUser.first_name}, {% trans "please provide your review below" %}
   </div>
   <hr>
-  <form @submit.prevent="submitCurrentReviewerForm" class="">
+  <form @submit.prevent="submitCurrentReviewerForm(currentUser.reviewer)" class="">
     <div class="form-group">
-      <label for="">${reviewerLabels.decision}</label>
+      <label>${reviewerLabels.decision}</label>
       <select
         required
         v-model="currentUser.reviewer.decision"
@@ -19,8 +20,8 @@
     </div>
 
     <div class="form-group">
-      <label v-if="currentUser.reviewer.decision === 2">{% trans "Please descibe changes" %}</label>
-      <label v-else>{% trans "Optional comments" %}</label>
+      <label v-if="currentUser.reviewer.decision === 2">{% trans "Please descibe changes" %} (*)</label>
+      <label v-else>{% trans "Comments (optional)" %}</label>
       <textarea
         :required="currentUser.reviewer.decision === 2"
         v-model="currentUser.reviewer.comments"
@@ -29,8 +30,8 @@
       ></textarea>
     </div>
 
-    <div class="">
-      <input class="btn btn-primary" type="submit" value="{% trans "Submit Review" %}">
+    <div class="text-right">
+      <input class="btn btn-warning" type="submit" value="{% trans "Submit Review" %}">
     </div>
 
   </form>
