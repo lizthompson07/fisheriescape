@@ -783,15 +783,23 @@ class ToRViewSet(viewsets.ModelViewSet):
             # if posted, then unpost
             if tor.status == 50:
                 tor.status = 40
-                tor.posting_notification_date = None
                 tor.save()
             # if not posted, then post
             elif tor.status == 40:
                 tor.status = 50
-                tor.posting_notification_date = timezone.now()
                 tor.save()
-                email = emails.PostedToREmail(request, tor)
-                email.send()
+                if not tor.posting_notification_date:
+                    tor.posting_notification_date = timezone.now()
+                    tor.save()
+                    email = emails.PostedToREmail(request, tor)
+                    email.send()
+            return Response(self.serializer_class(tor).data, status.HTTP_200_OK)
+        elif qp.get("request_posting"):
+            email = emails.ToRPostingRequestEmail(request, tor)
+            email.send()
+            tor.posting_request_date = timezone.now()
+            tor.status = 40
+            tor.save()
             return Response(self.serializer_class(tor).data, status.HTTP_200_OK)
         raise ValidationError(_("This endpoint cannot be used without a query param"))
 

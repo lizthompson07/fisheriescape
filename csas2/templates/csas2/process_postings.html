@@ -158,7 +158,7 @@
                 </p>
               </div>
               <p v-if="p.posting_notification_date">
-                {% trans "Email notification sent on" %} ${p.posting_notification_date}
+                {% trans "Email notification sent on" %} ${p.posting_notification_date_display}
               </p>
 
             </td>
@@ -177,8 +177,8 @@
                   </mark>
                 </p>
               </div>
-              <p v-if="p.posting_notification_date">
-                {% trans "Email notification sent on" %} ${p.posting_notification_date}
+              <p v-if="p.tor.posting_notification_date">
+                {% trans "Email notification sent on" %} ${p.tor.posting_notification_date_display}
               </p>
 
             </td>

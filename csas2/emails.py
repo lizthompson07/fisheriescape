@@ -175,8 +175,17 @@ class ToRPostingRequestEmail(Email):
 
 
 
+class ToRReviewCompleteEmail(Email):
+    email_template_path = 'csas2/emails/tor_review_complete.html'
+    subject_en = 'ToR review is complete'
+    subject_fr = "l'examen du cadre de référence est terminé"
+
+    def get_recipient_list(self):
+        return self.instance.process.editor_email_list
+
+
 class PostedToREmail(Email):
-    email_template_path = 'csas2/emails/posted_process.html'
+    email_template_path = 'csas2/emails/tor_posted.html'
     subject_en = 'Your ToR has been posted to the CSAS website'
     subject_fr = "Votre cadre de référence a été publié sur le site Web du SCCS"
 

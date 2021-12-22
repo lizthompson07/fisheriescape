@@ -77,6 +77,7 @@ tor_status_choices = (
     (10, _("Draft")),
     (20, _("Under review")),
     (30, _("Awaiting changes")),
+    (35, _("Reviewed")),
     (40, _("Awaiting posting")),
     (50, _("Posted")),
 )

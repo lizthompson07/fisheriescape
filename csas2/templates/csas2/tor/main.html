@@ -10,8 +10,9 @@
 {% block subcontent %}
   <div id="app" v-cloak>
 
-    <div class="float-right">
-      <button v-if="canModify && tor.status === 30" class="btn btn-lg btn-danger" @click="resumeReview">{% trans "Resume the Review" %}</button>
+    <div class="float-right" v-if="canModify">
+      <button v-if="tor.status === 30" class="btn btn-lg btn-danger" @click="resumeReview">{% trans "Resume the Review" %}</button>
+      <button v-else-if="tor.status === 35" class="btn btn-lg btn-purple" @click="postToR">{% trans "Request for Posting" %}</button>
     </div>
 
     <div class="btns mb-5">
@@ -231,6 +232,12 @@
       },
       resumeReview() {
         apiService(`/api/csas/tors/${this.torId}/?resume_review=true`, "POST")
+            .then(response => {
+              window.location.reload();
+            })
+      },
+      postToR() {
+        apiService(`/api/csas/tors/${this.torId}/?request_posting=true`, "POST")
             .then(response => {
               window.location.reload();
             })

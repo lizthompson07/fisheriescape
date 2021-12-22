@@ -310,8 +310,11 @@ def can_modify_tor_reviewer(user, tor_reviewer_id):
 def can_unsubmit_tor(user, tor_id):
     if user.id:
         tor = get_object_or_404(models.TermsOfReference, pk=tor_id)
-        # if national admin, they can always unsubmit
+        # if national admin, they can always un-submit
         if in_csas_national_admin_group(user):
+            return True
+        # are they a national administrator?
+        elif in_csas_web_pub_group(user):
             return True
         # otherwise, the must be allowed to edit the process and the tor status must not be AWAITING POSTING (40) or POSTED (50)
         return bool(can_modify_process(user, tor.process.id) and tor.status not in [40, 50])
@@ -554,7 +557,6 @@ def tor_approval_seeker(tor, request):
             if reviewer.status in [20, 30]:
                 next_reviewer = reviewer
                 break
-
         # if there is a next reviewer, set their status to pending and send them an email
         if next_reviewer:
             next_reviewer.status = 30  # pending
@@ -562,10 +564,9 @@ def tor_approval_seeker(tor, request):
             email = emails.ToRReviewAwaitingEmail(request, next_reviewer)
             email.send()
 
-        # if there is no next reviewer, it means the request for posting should go out
+        # if there is no next reviewer,
         else:
-            email = emails.ToRPostingRequestEmail(request, tor)
-            email.send()
-            tor.posting_request_date = timezone.now()
-            tor.status = 40
+            tor.status = 35
             tor.save()
+            email = emails.ToRReviewCompleteEmail(request, tor)
+            email.send()
