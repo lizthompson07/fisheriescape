@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _, gettext, get_language, a
 from markdown import markdown
 from textile import textile
 
-from csas2 import model_choices
+from csas2 import model_choices, utils
 from csas2.model_choices import tor_review_status_choices, tor_review_decision_choices
 from csas2.utils import get_quarter
 from lib.functions.custom_functions import fiscal_year, listrify
@@ -639,10 +639,16 @@ class TermsOfReference(MetadataFields):
                                       help_text=_("Selecting yes will update the process status"), editable=False)
 
     # non-editable fields
-    status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
+    status = models.IntegerField(default=10, verbose_name=_("status"), choices=model_choices.tor_status_choices, editable=False)
     submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("submission date"), editable=False)
     posting_request_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Date of posting request"))
     posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
+
+    def unsubmit(self):
+        utils.end_tor_review_process(self)
+
+    def submit(self):
+        utils.start_tor_review_process(self)
 
     @property
     def status_display(self):
@@ -718,15 +724,27 @@ class TermsOfReference(MetadataFields):
     def get_absolute_url(self):
         return reverse('csas2:tor_detail', args=[self.id])
 
+    @property
+    def current_reviewer(self):
+        """Send back the first reviewer whose status is 'pending' """
+        return self.reviewers.filter(status=30).first()
+
 
 class ToRReviewer(MetadataFields):
     tor = models.ForeignKey(TermsOfReference, on_delete=models.CASCADE, related_name="reviewers")
     order = models.IntegerField(null=True, verbose_name=_("process order"))
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="tor_reviews", verbose_name=_("user"))
     decision = models.IntegerField(verbose_name=_("decision"), choices=tor_review_decision_choices, blank=True, null=True)
+    decision_date = models.DateTimeField(verbose_name=_("date"), blank=True, null=True)
     comments = models.TextField(null=True, verbose_name=_("comments"))
     status = models.IntegerField(verbose_name=_("status"), default=10, choices=tor_review_status_choices)
-    status_date = models.DateTimeField(verbose_name=_("date"), blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.decision:
+            self.decision_date = timezone.now()
+        else:
+            self.decision_date = None
+        super().save(*args, **kwargs)
 
     class Meta:
         unique_together = ['tor', 'user', ]

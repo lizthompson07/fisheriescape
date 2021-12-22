@@ -11,14 +11,14 @@
   <div id="app" v-cloak>
 
     <div class="btns mb-5">
-      <a class="btn btn-sm btn-primary" href="{% url 'csas2:tor_submit' object.id %}">
+      <a v-if="canModify" class="btn btn-sm btn-primary" href="{% url 'csas2:tor_submit' object.id %}">
         {% if object.submission_date %}
           {% trans "Un-submit" %}
         {% else %}
           {% trans "Submit" %}
         {% endif %}
       </a>
-      <a class="btn btn-sm btn-warning" href="{% url 'csas2:tor_edit' object.id %}">{% trans "Edit" %}</a>
+      <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:tor_edit' object.id %}">{% trans "Edit" %}</a>
 
       <div class="neighbours">
         <div class="dropdown">
@@ -36,12 +36,17 @@
       </div>
 
     </div>
-    <div class="mb-5">
-      <table class="table table-sm w-50">
-        {% for field in field_list %}
-          {% verbose_td_display object field %}
-        {% endfor %}
-      </table>
+    <div class="mb-5 row">
+      <div class="col">
+        <table class="table table-sm w-100">
+          {% for field in field_list %}
+            {% verbose_td_display object field %}
+          {% endfor %}
+        </table>
+      </div>
+      <div class="col">
+        {% include "csas2/tor/_reviewer_form.html" %}
+      </div>
     </div>
     <div class="mb-5">
       <table class="table table-sm table-bordered">
@@ -173,7 +178,6 @@
           })
         })
       },
-
       addReviewer() {
         this.reviewers.push({
           tor: this.tor.id,
@@ -181,7 +185,6 @@
           status: 10,
         })
       },
-
       updateReviewer(reviewer) {
         this.errorReviewer = null;
         if (reviewer.id) {
@@ -200,7 +203,18 @@
               })
         }
       },
+      deleteReviewer(reviewer) {
+        if (reviewer.id) {
+          userInput = confirm("{% trans "Are you sure you want to remove this reviewer?" %}");
+          if (userInput) {
+            apiService(`/api/csas/tor-reviewers/${reviewer.id}/`, "DELETE")
+                .then(response => this.$delete(this.reviewers, this.reviewers.indexOf(reviewer)))
+          }
+        } else this.$delete(this.reviewers, this.reviewers.indexOf(reviewer))
+      },
+      submitCurrentReviewerForm(){
 
+      },
       moveReviewer(reviewer, direction) {
         if (direction === 'up') reviewer.order -= 1.5;
         else if (direction === 'down') reviewer.order += 1.5;
@@ -228,9 +242,6 @@
     computed: {
       canModify() {
         return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
-      },
-      isCurrentReviewer() {
-        return this.currentUser && this.currentUser.id === this.tor.current_reviewer_id;
       },
       canEditReviewers() {
         // return this.canModify && !this.tor.submisison_date

@@ -66,12 +66,12 @@ h1 {
     background-color: #ffff9d;
 }
 
-.submitted, .on {
+.submitted, .on, .queued {
     background-color: #009fdb;
     color: white;
 }
 
-.finalization, .tentative, .ready-for-review {
+.finalization, .tentative, .ready-for-review, .pending {
     background-color: #e3aefa;
 }
 

@@ -671,7 +671,6 @@ class ToRSerializer(serializers.ModelSerializer):
         return {}
 
 
-
 class ToRReviewerSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ToRReviewer
@@ -679,14 +678,14 @@ class ToRReviewerSerializer(serializers.ModelSerializer):
 
     comments_html = serializers.SerializerMethodField()
     decision_display = serializers.SerializerMethodField()
+    decision_date_display = serializers.SerializerMethodField()
+    decision_date_annotation = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
-    status_date_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     user_display = serializers.SerializerMethodField()
-    status_date_annotation = serializers.SerializerMethodField()
 
-    def get_status_date_annotation(self, instance):
-        return naturaltime(instance.status_date)
+    def get_decision_date_annotation(self, instance):
+        return naturaltime(instance.decision_date)
 
     def get_comments_html(self, instance):
         return instance.comments_html
@@ -701,8 +700,8 @@ class ToRReviewerSerializer(serializers.ModelSerializer):
         activate(lang)
         return mystr
 
-    def get_status_date_display(self, instance):
-        return date(instance.status_date)
+    def get_decision_date_display(self, instance):
+        return date(instance.decision_date)
 
     def get_status_display(self, instance):
         return instance.get_status_display()
@@ -742,7 +741,7 @@ class ProcessSerializer(serializers.ModelSerializer):
 
     def get_tor_status(self, instance):
         return instance.tor_status
-    
+
     def get_tor(self, instance):
         if hasattr(instance, "tor"):
             return ToRSerializer(instance.tor).data

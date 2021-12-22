@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <div v-if="canModify" class="mb-3">
+    <div v-if="canModify" class="neighbours mb-3">
       <a class="btn btn-sm btn-warning" href="{% url 'csas2:process_edit' object.id %}">{% trans "Edit" %}</a>
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:process_delete' object.id %}">{% trans "Delete" %}</a>
       {% if object.tor %}
@@ -42,11 +42,7 @@
         {% url 'csas2:tor_new' object.id as tor_url %}
       {% endif %}
 
-      {% if object.tor %}
-        <a class="btn btn-sm btn-primary ml-3" href="{{ tor_url }}">
-          {% trans "View Terms of Reference (ToR)" %}
-        </a>
-      {% else %}
+      {% if not object.tor %}
         <a class="btn btn-sm btn-primary ml-3" href="{{ tor_url }}">
           <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Initiate Terms of Reference (ToR)" %}
         </a>
@@ -59,8 +55,17 @@
       >
         {% trans "Request to Post Meeting" %}
       </button>
-
     </div>
+
+    {% if object.tor %}
+      <div class="neighbours mb-3">
+        <a class="btn btn-sm btn-primary" href="{{ tor_url }}">
+          {% trans "View Terms of Reference (ToR)" %}
+        </a>
+      </div>
+    {% endif %}
+
+
 
     <div class="row">
       <div class="col-8">
@@ -91,7 +96,7 @@
               <th class="text-left">{% trans "Status" %}</th>
               <td class="text-left" v-html="process.status_display_html"></td>
             </tr>
-          <tr>
+            <tr>
               <th class="text-left">{% trans "ToR status" %}</th>
               <td class="text-left" v-html="process.tor_status"></td>
             </tr>
@@ -107,7 +112,7 @@
                   &mdash; {% trans "eligible for posting" %}
                 </em>
                 <em v-else-if="!process.is_posted && !process.can_post_meeting.can_post" class=" text-muted">
-                  &mdash; {% trans "not eligible for posting because:" %}  ${process.can_post_meeting.reasons | listrify}
+                  &mdash; {% trans "not eligible for posting because:" %} ${process.can_post_meeting.reasons | listrify}
                 </em>
 
               </td>

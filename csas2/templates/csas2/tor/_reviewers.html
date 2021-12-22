@@ -25,9 +25,9 @@
             <tr>
               <th></th>
               <th class="w-25">${ reviewerLabels.user }</th>
-              <th>${ reviewerLabels.decision }</th>
               <th>${ reviewerLabels.status }</th>
-              <th>${ reviewerLabels.status_date }</th>
+              <th>${ reviewerLabels.decision }</th>
+              <th>${ reviewerLabels.decision_date }</th>
               <th class="w-35">${ reviewerLabels.comments }</th>
             </tr>
             </thead>
@@ -37,9 +37,9 @@
             <tr v-for="item in reviewers" :key="item.id">
               <td></td>
               <td>${item.user_display|nz }</td>
-              <td>${item.decision_display|nz }</td>
               <td><span :class="item.status_class + ' px-1 py-1'">${item.status_display }</span></td>
-              <td>${item.status_date_display |nz }</td>
+              <td>${item.decision_display|nz }</td>
+              <td>${item.decision_date_display |nz }</td>
               <td v-if="item.comments_html" v-html="item.comments_html"></td>
               <td v-else>---</td>
             </tr>

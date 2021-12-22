@@ -58,6 +58,8 @@ class CurrentUserAPIView(APIView):
         elif qp.get("tor"):
             tor = get_object_or_404(models.TermsOfReference, pk=qp.get("tor"))
             data["can_modify"] = utils.can_modify_tor(request.user, tor.id, return_as_dict=True)
+            if tor.current_reviewer and tor.current_reviewer.user == request.user:
+                data["reviewer"] = serializers.ToRReviewerSerializer(tor.current_reviewer).data
         return Response(data)
 
 

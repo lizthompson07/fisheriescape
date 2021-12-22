@@ -1,6 +1,7 @@
 # open basic access up to anybody who is logged in
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from csas2 import models
@@ -304,6 +305,16 @@ def can_modify_tor(user, tor_id, return_as_dict=False):
         return my_dict if return_as_dict else my_dict["can_modify"]
 
 
+def can_unsubmit_tor(user, tor_id):
+    if user.id:
+        tor = get_object_or_404(models.TermsOfReference, pk=tor_id)
+        # if national admin, they can always unsubmit
+        if in_csas_national_admin_group(user):
+            return True
+        # otherwise, the must be allowed to edit the tor and the tor status must not be AWAITING POSTING (40) or POSTED (50)
+        return bool(can_modify_tor(user, tor) and tor.status not in [40, 50])
+
+
 def get_request_field_list(csas_request, user):
     my_list = [
         'id|{}'.format(_("request Id")),
@@ -497,3 +508,67 @@ def has_todos(user):
            user.processnote_created_by.filter(**kwargs).exists() or \
            user.meetingnote_created_by.filter(**kwargs).exists() or \
            user.documentnote_created_by.filter(**kwargs).exists()
+
+
+def end_tor_review_process(tor):
+    """this should be used when a project is unsubmitted. It will change over all reviewers' statuses to Pending"""
+    tor.submission_date = None
+    tor.status = 10  # set status to DRAFT
+    tor.save()
+
+    # set all reviewers to draft
+    for reviewer in tor.reviewers.all():
+        reviewer.status = 10  # DRAFT
+        reviewer.decision_date = None
+        reviewer.save()
+
+
+def start_tor_review_process(tor):
+    """this should be used when a tor is submitted. It will change over all reviewers' statuses to queued
+    """
+    tor.submission_date = timezone.now()
+    tor.status = 20  # under review
+    tor.save()
+
+    # set everyone to being queued
+    for reviewer in tor.reviewers.all():
+        reviewer.status = 20  # QUEUED
+        reviewer.decision_date = None
+        reviewer.save()
+
+
+def tor_approval_seeker(tor, request):
+    """
+    This method is meant to seek approvals via email + set reviewer statuses.
+    """
+
+    # start by setting the trip status... if the trip_request is "denied" OR "draft" or "approved", do not continue
+    # Next: if the trip_request is un submitted, it is in 'draft' status
+
+    # only look for a next reviewer if we are still UNDER REVIEW (20)
+    if tor.status == 20:
+        next_reviewer = None
+        # look through all the reviewers... see if we can decide on who the next reviewer should be...
+        for reviewer in tor.reviewers.all():
+            # if the reviewer's status is set to 'queued', they will be our next selection
+            # we should then exit the loop and set the next_reviewer var
+            if reviewer.status == 20:
+                next_reviewer = reviewer
+                break
+
+        # if there is a next reviewer, set their status to pending and send them an email
+        if next_reviewer:
+            next_reviewer.status = 30
+            next_reviewer.save()
+
+            # email = emails.TripReviewAwaitingEmail(request, trip, next_reviewer)
+            # send the email object
+            # email.send()
+
+        # if there is no next reviewer, it means the request for posting should go out
+        else:
+            # email = emails.RequestToRPostingEmail(request, tor)
+            # email.send()
+            tor.posting_request_date = timezone.now()
+            tor.status = 40
+            tor.save()

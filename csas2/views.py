@@ -902,17 +902,34 @@ class TermsOfReferenceSubmitView(TermsOfReferenceUpdateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.updated_by = self.request.user
-        if obj.submission_date:
-            obj.submission_date = None
-        else:
-            obj.submission_date = timezone.now()
-        obj.save()
+        is_submitted = True if obj.submission_date else False
 
-        # # if the request was just submitted, send an email
+        # if submitted, then unsubmit but only if admin or owner
+        if is_submitted:
+            if utils.can_unsubmit_tor(self.request.user, obj.id):
+                obj.unsubmit()
+        else:
+            obj.submit()
+
+        # No matter what business was done, we will call this function to sort through reviewer and request statuses
+        utils.tor_approval_seeker(obj, self.request)
+        # utils.manage_trip_warning(my_object.trip, self.request)
+
+        # return HttpResponseRedirect(reverse("travel:request_detail", kwargs=self.kwargs) + self.get_query_string())
+
+
+        #
         # if obj.submission_date:
-        #     if not obj.office.disable_request_notifications:
-        #         email = emails.NewRequestEmail(self.request, obj)
-        #         email.send()
+        #     obj.submission_date = None
+        # else:
+        #     obj.submission_date = timezone.now()
+        # obj.save()
+        #
+        # # # if the request was just submitted, send an email
+        # # if obj.submission_date:
+        # #     if not obj.office.disable_request_notifications:
+        # #         email = emails.NewRequestEmail(self.request, obj)
+        # #         email.send()
         return HttpResponseRedirect(self.get_success_url())
 
     def get_h3(self):
@@ -925,7 +942,7 @@ class TermsOfReferenceSubmitView(TermsOfReferenceUpdateView):
                 "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
 
 
-class TermsOfReferenceDetailView(CanModifyProcessRequiredMixin, CommonDetailView):
+class TermsOfReferenceDetailView(LoginAccessRequiredMixin, CommonDetailView):
     model = models.TermsOfReference
     template_name = 'csas2/tor/main.html'
     home_url_name = "csas2:index"
