@@ -56,7 +56,8 @@
           <tr>
             <th>${processLabels.id}</th>
             <th>{% trans "Process" %}</th>
-            <th class="w-35">${processLabels.is_posted}</th>
+            <th class="w-25">${processLabels.is_posted}</th>
+            <th class="w-25">{% trans "Is ToR posted on CSAS website?" %}</th>
           </tr>
           </thead>
           <tbody>
@@ -162,6 +163,26 @@
 
             </td>
 
+            <td>
+              <div v-if="p.tor && p.tor.status === 50" class="mb-3">
+                <button class="btn btn-xs btn-success" @click="toggleToR(p.tor)">{% trans "Posted" %}</button>
+              </div>
+              <div class="mb-1" v-else>
+                <button class="btn btn-xs btn-danger mr-3 mb-3" @click="toggleToR(p.tor)"> {% trans "Not Posted" %}</button>
+                <p v-if="p.tor && p.tor.posting_request_date">
+                  <mark>
+                    <em class="">
+                      {% trans "Request made on " %}${p.tor.posting_request_date_display|nz}
+                    </em>
+                  </mark>
+                </p>
+              </div>
+              <p v-if="p.posting_notification_date">
+                {% trans "Email notification sent on" %} ${p.posting_notification_date}
+              </p>
+
+            </td>
+
           </tr>
           </tbody>
         </table>
@@ -231,6 +252,12 @@
       toggle(p) {
         let endpoint = `/api/csas/processes/${p.id}/`;
         apiService(endpoint, "PATCH", {is_posted: !p.is_posted}).then(data => {
+          if (!data.id) this.errors = groomJSON(data);
+          else this.getProcesses();
+        });
+      },
+      toggleToR(tor) {
+        apiService(`/api/csas/tors/${tor.id}/?toggle_posting=true`, "POST").then(data => {
           if (!data.id) this.errors = groomJSON(data);
           else this.getProcesses();
         });

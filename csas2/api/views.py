@@ -779,6 +779,20 @@ class ToRViewSet(viewsets.ModelViewSet):
             tor.save()
             utils.tor_approval_seeker(tor, request)
             return Response(None, status.HTTP_204_NO_CONTENT)
+        elif qp.get("toggle_posting"):
+            # if posted, then unpost
+            if tor.status == 50:
+                tor.status = 40
+                tor.posting_notification_date = None
+                tor.save()
+            # if not posted, then post
+            elif tor.status == 40:
+                tor.status = 50
+                tor.posting_notification_date = timezone.now()
+                tor.save()
+                email = emails.PostedToREmail(request, tor)
+                email.send()
+            return Response(self.serializer_class(tor).data, status.HTTP_200_OK)
         raise ValidationError(_("This endpoint cannot be used without a query param"))
 
 

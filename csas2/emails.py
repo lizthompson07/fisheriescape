@@ -173,3 +173,12 @@ class ToRPostingRequestEmail(Email):
     def get_recipient_list(self):
         return [csas_generic_email]
 
+
+
+class PostedToREmail(Email):
+    email_template_path = 'csas2/emails/posted_process.html'
+    subject_en = 'Your ToR has been posted to the CSAS website'
+    subject_fr = "Votre cadre de référence a été publié sur le site Web du SCCS"
+
+    def get_recipient_list(self):
+        return self.instance.process.editor_email_list

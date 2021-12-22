@@ -658,6 +658,11 @@ class ToRSerializer(serializers.ModelSerializer):
     meeting_obj = serializers.SerializerMethodField()
     expected_publications_en = serializers.SerializerMethodField()
     expected_publications_fr = serializers.SerializerMethodField()
+    posting_request_date_display = serializers.SerializerMethodField()
+
+    def get_posting_request_date_display(self, instance):
+        if instance.posting_request_date:
+            return f"{date(instance.posting_request_date)} ({naturaltime(instance.posting_request_date)})"
 
     def get_expected_publications_fr(self, instance):
         return instance.expected_publications_fr
