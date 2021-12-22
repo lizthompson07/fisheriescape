@@ -39,10 +39,11 @@
 
 
     <div class="form-group">
-      <label for="">
-        <span v-if="!currentCategoryObj.is_publication">{% trans "Date of achievement" %} ({% trans "optional" %})</span>
-        <span v-else>{% trans "Date of publication" %}</span>
-      </label>
+{#      <label for="">#}
+{#        <span v-if="!currentCategoryObj.is_publication">{% trans "Date of achievement" %} ({% trans "optional" %})</span>#}
+{#        <span v-else>{% trans "Date of publication" %}</span>#}
+{#      </label>#}
+      <label for="">${labels.date}</label>
       <input type="date" v-model="reference.date" class="form-control" :required="currentCategoryObj.is_publication"/>
     </div>
     <div class="form-group">
