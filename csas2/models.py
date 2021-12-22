@@ -616,6 +616,15 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     def advisors(self):
         return self.lead_office.advisors.all()
 
+    @property
+    def editor_email_list(self):
+        payload = self.lead_office.all_emails
+        for office in self.other_offices.all():
+            payload.extend(office.all_emails)
+        for editor in self.editors.all():
+            payload.append(editor.email)
+        return list(set(payload))
+
 
 class ProcessCost(GenericCost):
     process = models.ForeignKey(Process, related_name='costs', on_delete=models.CASCADE, verbose_name=_("process"))

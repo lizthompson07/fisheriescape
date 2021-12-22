@@ -94,7 +94,6 @@ class ReviewCompleteEmail(Email):
             return 'csas2/emails/review_complete_successful.html'
         return 'csas2/emails/review_complete_withdrawn.html'
 
-
     def get_recipient_list(self):
         # should go to the client as listed on the original request
         return [self.instance.csas_request.client.email]
@@ -108,7 +107,6 @@ class PostedProcessEmail(Email):
     def get_recipient_list(self):
         # should go to all emails associated with csas office
         return self.instance.lead_office.all_emails
-
 
 
 class UpdatedMeetingEmail(Email):
@@ -147,3 +145,31 @@ class UpdatedMeetingEmail(Email):
             'old_chair': self.old_chair,
         })
         return context
+
+
+class ToRReviewAwaitingEmail(Email):
+    email_template_path = 'csas2/emails/tor_review_awaiting.html'
+    subject_en = "Terms of reference awaiting your review"
+    subject_fr = "cadre de référence attend votre avis"
+
+    def get_recipient_list(self):
+        return [self.instance.user.email, ]
+
+
+class ToRChangesRequestedEmail(Email):
+    email_template_path = 'csas2/emails/tor_changes_requested.html'
+    subject_en = "Changes to ToR required"
+    subject_fr = "modifications au cadre de référence sont nécessaires"
+
+    def get_recipient_list(self):
+        return self.instance.tor.process.editor_email_list
+
+
+
+class ToRPostingRequestEmail(Email):
+    email_template_path = 'csas2/emails/tor_posting_request.html'
+    subject_en = 'New request to post ToR !!'
+
+    def get_recipient_list(self):
+        return [csas_generic_email]
+

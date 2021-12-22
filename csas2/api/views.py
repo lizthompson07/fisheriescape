@@ -793,4 +793,8 @@ class ToRReviewerViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
     def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+        obj = serializer.save(updated_by=self.request.user)
+        # if the decisions is to request changes, this would be the moment to send out an email!
+        if obj.decision == 2:
+            email = emails.ToRChangesRequestedEmail(self.request, obj)
+            email.send()

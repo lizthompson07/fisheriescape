@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from csas2 import models
+from csas2 import models, emails
 from lib.templatetags.verbose_names import get_verbose_label
 from shared_models.models import Section, Division, Region, Branch, Sector
 
@@ -294,7 +294,6 @@ def can_modify_tor_reviewer(user, tor_reviewer_id):
     if the tor is submitted, the only person who can modify the tor reviewer is the reviewer himself.
     Otherwise it is the same rules as can_modify_tor
     """
-
     if user.id:
         tor_reviewer = get_object_or_404(models.ToRReviewer, pk=tor_reviewer_id)
         tor = tor_reviewer.tor
@@ -541,37 +540,28 @@ def tor_approval_seeker(tor, request):
     """
     This method is meant to seek approvals via email + set reviewer statuses.
     """
-
-    # start by setting the trip status... if the trip_request is "denied" OR "draft" or "approved", do not continue
-    # Next: if the trip_request is un submitted, it is in 'draft' status
-
     # only look for a next reviewer if we are still UNDER REVIEW (20)
     if tor.status == 20:
         next_reviewer = None
         # look through all the reviewers... see if we can decide on who the next reviewer should be...
         for reviewer in tor.reviewers.all():
+            # if the reviewer's status is set to QUEUED (20) or PENDING (30), they will be our next selection
             # we should then exit the loop and set the next_reviewer var
-            if reviewer.status == 30:
-                next_reviewer = reviewer
-                break
-            # if the reviewer's status is set to 'queued', they will be our next selection
-            elif reviewer.status == 20:
+            if reviewer.status in [20, 30]:
                 next_reviewer = reviewer
                 break
 
         # if there is a next reviewer, set their status to pending and send them an email
         if next_reviewer:
-            next_reviewer.status = 30
+            next_reviewer.status = 30  # pending
             next_reviewer.save()
-
-            # email = emails.TripReviewAwaitingEmail(request, trip, next_reviewer)
-            # send the email object
-            # email.send()
+            email = emails.ToRReviewAwaitingEmail(request, next_reviewer)
+            email.send()
 
         # if there is no next reviewer, it means the request for posting should go out
         else:
-            # email = emails.RequestToRPostingEmail(request, tor)
-            # email.send()
+            email = emails.ToRPostingRequestEmail(request, tor)
+            email.send()
             tor.posting_request_date = timezone.now()
             tor.status = 40
             tor.save()
