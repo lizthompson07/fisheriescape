@@ -124,8 +124,9 @@ class PersonForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['designation', 'role', 'first_name', 'last_name', 'phone_1', 'phone_2', 'email_1', 'email_2',
-                           'cell', 'fax', 'language', 'notes'])
+        self.order_fields(['designation', 'role', 'first_name', 'last_name', 'phone_1', 'phone_2', 'cell', 'email_1',
+                           'email_2', 'fax', 'language', 'notes', 'committee'])
+        self.fields['organizations'].label = _("Organization Membership")
 
 
 class TopicForm(forms.ModelForm):

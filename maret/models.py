@@ -193,9 +193,12 @@ class OrganizationExtension(models.Model):
 
 
 class ContactExtension(models.Model):
+    committee = models.ManyToManyField(Committee, blank=True, related_name="contact_committees",
+                                       verbose_name=_("Committee / Working Group Membership"))
     contact = models.ForeignKey(ml_models.Person, blank=False, null=False, default=1, related_name="ext_con",
                                 verbose_name="Contact", on_delete=models.CASCADE)
     role = models.CharField(max_length=255, default="N/A", verbose_name="Role")
+
 
 # This is a special table used to house application help text
 class HelpText(models.Model):

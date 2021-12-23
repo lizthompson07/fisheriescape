@@ -168,6 +168,7 @@ class PersonDetailView(UserRequiredMixin, CommonDetailView):
         "fax",
         "language",
         "notes",
+        "committee",
         "metadata|{}".format(gettext_lazy("metadata")),
     ]
     home_url_name = "maret:index"
