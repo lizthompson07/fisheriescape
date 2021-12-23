@@ -166,6 +166,7 @@ class Analyses(models.Model):
     image = models.FileField(upload_to=image_directory_path, default='/fisheriescape/default_image.png', verbose_name=_("image"))
     ref_text = models.TextField(blank=True, null=True, verbose_name="reference text")
 
+
     def __str__(self):
         my_str = "{}".format(self.species.english_name)
 
@@ -175,7 +176,6 @@ class Analyses(models.Model):
 
     class Meta:
         ordering = ['week', 'species', ]
-
     def get_absolute_url(self):
         return reverse("fisheriescape:analyses_detail", kwargs={"pk": self.id})
 
@@ -210,3 +210,34 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     if not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
+
+
+class Hexagon(models.Model):
+    grid_id = models.CharField(max_length=255, null=True, blank=True, unique=True, verbose_name="grid id")
+    polygon = models.MultiPolygonField(srid=3857) #srid 4326 for WGS84 and 4269 for NAD83
+
+    def __str__(self):
+        my_str = "Grid {}".format(self.grid_id)
+        return my_str
+
+
+class Score(models.Model):
+    hexagon = models.ForeignKey(Hexagon, on_delete=models.DO_NOTHING, related_name="scores",
+                                verbose_name=_("hexagon"))
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="scores",
+                                verbose_name=_("species"))
+    week = models.ForeignKey(Week, on_delete=models.DO_NOTHING, related_name="scores",
+                             verbose_name=_("week"))
+    site_score = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True, verbose_name=_("site score"))
+    ceu_score = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True, verbose_name=_("ceu score"))
+    fs_score = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True, verbose_name=_("fs score"))
+
+    def __str__(self):
+        my_str = "{}".format(self.hexagon.grid_id)
+
+        if self.species:
+            my_str += f' ({self.species.english_name} - {self.week.week_number})'
+        return my_str
+
+    class Meta:
+        ordering = ['species', 'week', ]

@@ -380,7 +380,7 @@ class FisheryDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
         ]
 
         # contexts for fishery_detail maps
-        polygon_subset = models.FisheryArea.objects.filter(species=self.object)
+        polygon_subset = models.FisheryArea.objects.filter(species=self.object) #call related manager with 'species'
 
         context["fishery_polygons"] = serialize("geojson", polygon_subset)
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
