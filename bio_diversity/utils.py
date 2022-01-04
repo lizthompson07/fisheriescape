@@ -62,7 +62,10 @@ class DataParser:
         self.cleaned_data = cleaned_data
         self.mandatory_keys = [self.year_key, self.month_key, self.day_key]
         self.mandatory_filled_keys = [self.year_key, self.month_key, self.day_key]
-        skip_rows = cleaned_data["row_start"] - 1
+        if cleaned_data.get("row_start"):
+            skip_rows = cleaned_data["row_start"] - 1  # python counts from 0, excel row users do not.
+        else:
+            skip_rows = 0
 
         if autorun:
             self.load_data(skip_rows)

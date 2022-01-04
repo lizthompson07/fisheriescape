@@ -253,7 +253,6 @@ class DataCreate(mixins.DataMixin, CommonCreate):
         self.get_form_class().base_fields["anidc_id"].required = False
         self.get_form_class().base_fields["anidc_subj_id"].required = False
         self.get_form_class().base_fields["facic_id"].required = False
-        self.get_form_class().base_fields["row_start"].required = True
 
         self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
@@ -3316,10 +3315,10 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
 
-        if report == 1:
+        if report == "facic_tank_rep":
             facic_pk = int(form.cleaned_data["facic_id"].pk)
             return HttpResponseRedirect(reverse("bio_diversity:facic_tank_report") + f"?facic_pk={facic_pk}")
-        elif report == 2:
+        elif report == "rive_code_rep":
             stok_pk = int(form.cleaned_data["stok_id"].pk)
 
             arg_str = f"?stok_pk={stok_pk}"
@@ -3334,7 +3333,7 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
             if form.cleaned_data["end_date"]:
                 arg_str += f"&end_date={form.cleaned_data['end_date']}"
             return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + arg_str)
-        elif report == 3:
+        elif report == "det_rep":
             adsc_pk = int(form.cleaned_data["adsc_id"].pk)
             arg_str = f"?adsc_pk={adsc_pk}"
 
@@ -3345,13 +3344,13 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 stok_pk = int(form.cleaned_data["stok_id"].pk)
                 arg_str += f"&stok_pk={stok_pk}"
             return HttpResponseRedirect(reverse("bio_diversity:detail_report") + arg_str)
-        elif report == 4:
+        elif report == "indv_rep":
             indv_pk = int(form.cleaned_data["indv_id"].pk)
             return HttpResponseRedirect(reverse("bio_diversity:individual_report_file") + f"?indv_pk={indv_pk}")
-        elif report == 5:
+        elif report == "grp_rep":
             grp_pk = int(form.cleaned_data["grp_id"].pk)
             return HttpResponseRedirect(reverse("bio_diversity:grp_report_file") + f"?grp_pk={grp_pk}")
-        elif report == 6:
+        elif report == "mort_rep":
             facic_pk = int(form.cleaned_data["facic_id"].pk)
             arg_str = f"?facic_pk={facic_pk}"
             if form.cleaned_data["prog_id"]:
@@ -3367,9 +3366,9 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 year = int(form.cleaned_data["year"])
                 arg_str += f"&year={year}"
             return HttpResponseRedirect(reverse("bio_diversity:mort_report_file") + arg_str)
-        elif report == 7:
+        elif report == "sys_code_rep":
             return HttpResponseRedirect(reverse("bio_diversity:system_code_report_file"))
-        elif report == 8:
+        elif report == "samp_rep":
             facic_pk = int(form.cleaned_data["facic_id"].pk)
             arg_str = f"?facic_pk={facic_pk}"
             if form.cleaned_data["prog_id"]:
@@ -3388,7 +3387,7 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 arg_str += f"&start_date={form.cleaned_data['start_date']}"
             if form.cleaned_data["end_date"]:
                 arg_str += f"&end_date={form.cleaned_data['end_date']}"
-        elif report == 9:
+        elif report == "evnt_rep":
             facic_pk = int(form.cleaned_data["facic_id"].pk)
             arg_str = f"?facic_pk={facic_pk}"
             if form.cleaned_data["prog_id"]:

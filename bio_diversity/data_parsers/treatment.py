@@ -42,10 +42,12 @@ class TreatmentParser(DataParser):
         self.mandatory_keys.extend([self.tank_key, self.treatment_key])
         super(TreatmentParser, self).load_data(*args, **kwargs)
 
-    def data_reader(self):
+    def data_reader(self, skip_rows=0):
         self.tank_data = read_excel(self.cleaned_data["data_csv"], header=self.header, engine='openpyxl',
                                     converters=self.converters, sheet_name=self.tank_sheet_name)
         self.tank_data = self.tank_data.mask(self.tank_data.eq('None')).dropna(how="all")
+        self.tank_data = self.tank_data.iloc[skip_rows:]
+
         # to keep parent parser classes happy:
         self.data = self.tank_data
         self.tank_data_dict = self.tank_data.to_dict('records')
@@ -53,6 +55,8 @@ class TreatmentParser(DataParser):
         self.eggroom_data = read_excel(self.cleaned_data["data_csv"], header=self.header, engine='openpyxl',
                                        converters=self.converters, sheet_name=self.eggroom_sheet_name)
         self.eggroom_data = self.eggroom_data.mask(self.eggroom_data.eq('None')).dropna(how="all")
+        self.eggroom_data = self.eggroom_data.iloc[skip_rows:]
+
         self.eggroom_data_dict = self.eggroom_data.to_dict('records')
 
     def data_preper(self):
