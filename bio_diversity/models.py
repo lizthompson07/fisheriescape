@@ -35,7 +35,7 @@ class BioModel(models.Model):
     # to handle unresolved attirbute reference in pycharm
     objects = models.Manager()
 
-    def clean(self):
+    def clean(self, *args, **kwargs):
         # handle null values in uniqueness constraint foreign keys.
         # eg. should only be allowed one instance of a=5, b=null
         super(BioModel, self).clean()
@@ -1649,9 +1649,13 @@ class Location(BioModel):
             self.trib_id = self.relc_id.trib_id
         if self.relc_id and not self.subr_id:
             self.sube_id = self.relc_id.subr_id
-        # if not self.relc_id and not (self.loc_lon and self.loc_lat):
-        #    raise ValidationError("Location must have either lat-long specified or site chosen")
         super(Location, self).clean(*args, **kwargs)
+        if self.loc_lon is not None:  # only check long,that's where minus signs are left off
+            if float(self.loc_lon) < calculation_constants.min_long:
+                raise ValidationError("Longitude must be within maritimes (>{})".format(calculation_constants.min_long))
+            if float(self.loc_lon) > calculation_constants.max_long:
+                raise ValidationError("Longitude must be within maritimes (<{}). "
+                                      "Should this value be negative?".format(calculation_constants.max_long))
 
     def get_cont_history(self, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now()), get_str=False):
         anix_evnt_set = AniDetailXref.objects.filter(loc_id=self, contx_id__isnull=False, grp_id__isnull=True,
@@ -1929,6 +1933,12 @@ class ReleaseSiteCode(BioLookup):
         if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
             if float(self.min_lon) > float(self.max_lon) or float(self.min_lat) > float(self.max_lat):
                 raise ValidationError("Max lat/lon must be greater than min lat/lon")
+            if float(self.min_lon) < calculation_constants.min_long:
+                raise ValidationError("Min longitude must be within maritimes (>{})".format(calculation_constants.min_long))
+            if float(self.max_lon) > calculation_constants.max_long:
+                raise ValidationError("Max longitude must be within maritimes (<{}). "
+                                      "Should this value be negative?".format(calculation_constants.max_long))
+
 
     @property
     def bbox(self):
@@ -1943,6 +1953,7 @@ class ReleaseSiteCode(BioLookup):
             return bbox
         else:
             return
+
     @property
     def point(self):
         # lon = x, lat = y
