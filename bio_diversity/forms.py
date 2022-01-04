@@ -300,6 +300,7 @@ class DataForm(CreatePrams):
                                                    label="Additional code based detail columns")
     anidc_id = forms.ModelMultipleChoiceField(queryset=models.AnimalDetCode.objects.filter(ani_subj_flag=False),
                                               label="Additional numerical detail columns")
+    row_start = forms.IntegerField(min_value=1, label=_("Data row to being entry"))
 
     def __init__(self, request=None, *args, **kwargs):
         self.request = request

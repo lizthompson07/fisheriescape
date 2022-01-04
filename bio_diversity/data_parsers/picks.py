@@ -24,10 +24,10 @@ class EDInitParser(DataParser):
     sheet_name = "Init"
     converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
 
-    def load_data(self):
+    def load_data(self, *args, **kwargs):
         self.mandatory_keys.extend([self.stock_key, self.trof_key, self.tray_key, self.cross_key])
         self.mandatory_filled_keys.extend([self.stock_key, self.tray_key, self.trof_key, self.cross_key])
-        super(EDInitParser, self).load_data()
+        super(EDInitParser, self).load_data(*args, **kwargs)
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
@@ -91,9 +91,9 @@ class EDPickParser(DataParser):
 
     date_dict = {}
 
-    def load_data(self):
+    def load_data(self, *args, **kwargs):
         self.mandatory_keys.extend([self.stock_key, self.trof_key, self.cross_key, self.tray_key])
-        super(EDPickParser, self).load_data()
+        super(EDPickParser, self).load_data(*args, **kwargs)
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
@@ -199,10 +199,10 @@ class EDHUParser(DataParser):
     sheet_name = "Allocations"
     converters = {trof_key: str, cross_key: str, tray_key: str, cont_key: str, 'Year': str, 'Month': str, 'Day': str}
 
-    def load_data(self):
+    def load_data(self, *args, **kwargs):
         self.mandatory_keys.extend([self.stock_key, self.trof_key, self.cross_key, self.tray_key,
                                     self.prog_key, self.cnt_key, self.cont_key])
-        super(EDHUParser, self).load_data()
+        super(EDHUParser, self).load_data(*args, **kwargs)
 
     def data_preper(self):
         cleaned_data = self.cleaned_data

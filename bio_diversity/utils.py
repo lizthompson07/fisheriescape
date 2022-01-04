@@ -62,8 +62,10 @@ class DataParser:
         self.cleaned_data = cleaned_data
         self.mandatory_keys = [self.year_key, self.month_key, self.day_key]
         self.mandatory_filled_keys = [self.year_key, self.month_key, self.day_key]
+        skip_rows = cleaned_data["row_start"] - 1
+
         if autorun:
-            self.load_data()
+            self.load_data(skip_rows)
             self.prep_data()
             self.iterate_rows()
             self.clean_data()
@@ -71,9 +73,9 @@ class DataParser:
             # to run only selection of parser functions
             pass
 
-    def load_data(self):
+    def load_data(self, skip_rows=0):
         try:
-            self.data_reader()
+            self.data_reader(skip_rows)
             self.data_dict = self.data.to_dict('records')
         except Exception as err:
             self.log_data += "\n File format not valid: {}".format(err.__str__())
@@ -97,10 +99,11 @@ class DataParser:
                              " of lines above the header row, which should be {}.".format(self.header)
             self.success = False
 
-    def data_reader(self):
+    def data_reader(self, skip_rows=0):
         self.data = read_excel(self.cleaned_data["data_csv"], header=self.header, engine='openpyxl',
                                converters=self.converters, sheet_name=self.sheet_name)
         self.data = self.data.mask(self.data.eq('None')).dropna(how="all")
+        self.data = self.data.iloc[skip_rows:]
 
     def prep_data(self):
         if self.success:

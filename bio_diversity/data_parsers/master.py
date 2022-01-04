@@ -27,9 +27,9 @@ class MasterIndvParser(DataParser):
     sex_anidc_id = None
     ani_health_anidc_id = None
 
-    def load_data(self):
+    def load_data(self, *args, **kwargs):
         self.mandatory_keys.extend([self.pit_key, self.tank_key, self.stok_key, self.year_coll_key])
-        super(MasterIndvParser, self).load_data()
+        super(MasterIndvParser, self).load_data(*args, **kwargs)
 
     def data_preper(self):
         self.salmon_id = models.SpeciesCode.objects.filter(name__iexact="Salmon").get()
@@ -93,10 +93,10 @@ class MasterGrpParser(DataParser):
     prog_grp_anidc_id = None
     mark_anidc_id = None
 
-    def load_data(self):
+    def load_data(self, *args, **kwargs):
         self.mandatory_keys.extend([self.tank_key, self.group_key, self.stok_key, self.year_coll_key, self.cnt_key])
         self.mandatory_filled_keys.extend([self.tank_key, self.stok_key, self.year_coll_key, self.cnt_key])
-        super(MasterGrpParser, self).load_data()
+        super(MasterGrpParser, self).load_data(*args, **kwargs)
 
     def data_preper(self):
         self.salmon_id = models.SpeciesCode.objects.filter(name__iexact="Salmon").get()

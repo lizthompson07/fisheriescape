@@ -25,11 +25,11 @@ class SitesParser(DataParser):
     row_count = header + 2
     converters = {name_key: str, lat_key: str, lon_key: str, max_lon_key: str, max_lat_key: str}
 
-    def load_data(self):
+    def load_data(self, *args, **kwargs):
         self.mandatory_keys = [self.name_key, self.rive_key, self.lat_key, self.lon_key, self.max_lon_key,
                                self.max_lat_key, self.desc_key, self.subr_key, self.trib_key]
         self.mandatory_filled_keys = [self.name_key, self.rive_key]
-        super(SitesParser, self).load_data()
+        super(SitesParser, self).load_data(*args, **kwargs)
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data

@@ -253,6 +253,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
         self.get_form_class().base_fields["anidc_id"].required = False
         self.get_form_class().base_fields["anidc_subj_id"].required = False
         self.get_form_class().base_fields["facic_id"].required = False
+        self.get_form_class().base_fields["row_start"].required = True
 
         self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
@@ -262,6 +263,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
         self.get_form_class().base_fields["anidc_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["anidc_subj_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["pickc_id"].widget = forms.HiddenInput()
+
+        init['row_start'] = 1
 
         if 'evnt' in self.kwargs:
             evnt = models.Event.objects.filter(pk=self.kwargs["evnt"]).select_related("evntc_id", "facic_id").get()

@@ -36,7 +36,7 @@ class GenericIndvParser(DataParser):
 
     ani_health_anidc_id = None
 
-    def load_data(self):
+    def load_data(self, *args, **kwargs):
         self.mandatory_keys.extend([self.pit_key])
         for extra_col in self.cleaned_data["adsc_id"]:
             self.mandatory_keys.extend([extra_col.name])
@@ -47,7 +47,7 @@ class GenericIndvParser(DataParser):
             self.mandatory_keys.extend([extra_col.name])
 
         self.mandatory_filled_keys.extend([self.pit_key])
-        super(GenericIndvParser, self).load_data()
+        super(GenericIndvParser, self).load_data(*args, **kwargs)
 
     def data_preper(self):
         self.ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
@@ -153,7 +153,7 @@ class GenericUntaggedParser(DataParser):
     comment_anidc_id = None
     lifestage_anidc_id = None
 
-    def load_data(self):
+    def load_data(self, *args, **kwargs):
         self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key, self.grp_mark_key, self.samp_key])
         for extra_col in self.cleaned_data["adsc_id"]:
             self.mandatory_keys.extend([extra_col.name])
@@ -162,7 +162,7 @@ class GenericUntaggedParser(DataParser):
             self.converters[extra_col.name] = str
         for extra_col in self.cleaned_data["anidc_subj_id"]:
             self.mandatory_keys.extend([extra_col.name])
-        super(GenericUntaggedParser, self).load_data()
+        super(GenericUntaggedParser, self).load_data(*args, **kwargs)
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
@@ -333,7 +333,7 @@ class GenericGrpParser(DataParser):
 
     prnt_grp_anidc_id = None
 
-    def load_data(self):
+    def load_data(self, *args, **kwargs):
         self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key])
         for extra_col in self.cleaned_data["adsc_id"]:
             self.mandatory_keys.extend([extra_col.name])
@@ -342,7 +342,7 @@ class GenericGrpParser(DataParser):
             self.converters[extra_col.name] = str
         for extra_col in self.cleaned_data["anidc_subj_id"]:
             self.mandatory_keys.extend([extra_col.name])
-        super(GenericGrpParser, self).load_data()
+        super(GenericGrpParser, self).load_data(*args, **kwargs)
 
     def data_preper(self):
         cleaned_data = self.cleaned_data

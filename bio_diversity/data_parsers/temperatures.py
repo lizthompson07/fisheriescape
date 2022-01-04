@@ -14,9 +14,9 @@ class DataLoggerTemperatureParser(DataParser):
     date_key = "Date(yyyy-mm-dd)"
     time_key = "Time(hh:mm:ss)"
 
-    def load_data(self):
+    def load_data(self, *args, **kwargs):
         self.mandatory_keys = []
-        super(DataLoggerTemperatureParser, self).load_data()
+        super(DataLoggerTemperatureParser, self).load_data(*args, **kwargs)
 
     def data_reader(self):
         self.data = pd.read_csv(self.cleaned_data["data_csv"], encoding='ISO-8859-1', header=7)
