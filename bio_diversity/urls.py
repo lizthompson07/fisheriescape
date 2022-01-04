@@ -390,6 +390,7 @@ urlpatterns = [
     path('reports/mort_report_file/', views.mort_report_file, name="mort_report_file"),
     path('reports/system_code_report_file/', views.system_code_report_file, name="system_code_report_file"),
     path('reports/samples_report_file/', views.samples_report_file, name="samples_report_file"),
+    path('reports/events_report_file/', views.events_report_file, name="events_report_file"),
 
     path('create/rive/', views.RiveCreate.as_view(), name="create_rive"),
     path('details/rive/<int:pk>/', views.RiveDetails.as_view(), name="details_rive"),

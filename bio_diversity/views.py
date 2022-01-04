@@ -3385,8 +3385,18 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 arg_str += f"&start_date={form.cleaned_data['start_date']}"
             if form.cleaned_data["end_date"]:
                 arg_str += f"&end_date={form.cleaned_data['end_date']}"
+        elif report == 9:
+            facic_pk = int(form.cleaned_data["facic_id"].pk)
+            arg_str = f"?facic_pk={facic_pk}"
+            if form.cleaned_data["prog_id"]:
+                prog_pk = int(form.cleaned_data["prog_id"].pk)
+                arg_str += f"&prog_pk={prog_pk}"
+            if form.cleaned_data["start_date"]:
+                arg_str += f"&start_date={form.cleaned_data['start_date']}"
+            if form.cleaned_data["end_date"]:
+                arg_str += f"&end_date={form.cleaned_data['end_date']}"
 
-            return HttpResponseRedirect(reverse("bio_diversity:samples_report_file") + arg_str)
+            return HttpResponseRedirect(reverse("bio_diversity:events_report_file") + arg_str)
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -3568,6 +3578,32 @@ def samples_report_file(request):
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="dmapps samples report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
 
+            return response
+    raise Http404
+
+
+@login_required()
+def events_report_file(request):
+    start_date = request.GET.get("start_date")
+    if not start_date:
+        start_date = utils.naive_to_aware(datetime.min)
+    else:
+        start_date = utils.naive_to_aware(datetime.strptime(start_date, "%Y-%m-%d"))
+    end_date = request.GET.get("end_date")
+    if not end_date:
+        end_date = utils.naive_to_aware(datetime.now())
+    else:
+        end_date = utils.naive_to_aware(datetime.strptime(end_date, "%Y-%m-%d"))
+
+    prog_id = utils.get_object_from_request(request, "prog_pk", models.Program)
+    facic_id = utils.get_object_from_request(request, "facic_pk", models.FacilityCode)
+
+    file_url = reports.generate_events_report(request, prog_id, facic_id, start_date, end_date)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="dmapps events report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
             return response
     raise Http404
 

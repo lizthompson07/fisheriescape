@@ -790,6 +790,46 @@ def generate_samples_report(request, prog_id, facic_id, stok_id, coll_id, year, 
     return report.target_url
 
 
+def generate_events_report(request, prog_id, facic_id, start_date, end_date):
+    report = ExcelReport()
+    report.load_wb("events_report_template.xlsx")
+    ws = report.get_sheet('Events')
+
+    evnt_qs = models.Event.objects.all()
+    if prog_id:
+        evnt_qs = evnt_qs.filter(prog_id=prog_id)
+    if facic_id:
+        evnt_qs = evnt_qs.filter(facic_id=facic_id)
+    if start_date:
+        evnt_qs = evnt_qs.filter(start_datetime__gte=start_date)
+    if end_date:
+        evnt_qs = evnt_qs.filter(start_datetime__lte=end_date)
+
+    evnt_qs = evnt_qs.select_related("evntc_id", "prog_id", "facic_id")
+
+    row_count = 3
+    for evnt_id in evnt_qs:
+        ws["A" + str(row_count)].value = evnt_id.evntc_id.__str__()
+        ws["B" + str(row_count)].value = evnt_id.start_datetime
+        ws["C" + str(row_count)].value = evnt_id.end_datetime
+        ws["D" + str(row_count)].value = evnt_id.prog_id.__str__()
+        ws["E" + str(row_count)].value = evnt_id.facic_id.__str__()
+        ws["F" + str(row_count)].value = evnt_id.created_date
+        ws["G" + str(row_count)].value = evnt_id.perc_id.__str__()
+
+        indv_cnt = models.AniDetailXref.objects.filter(evnt_id=evnt_id, indv_id__isnull=False).values("indv_id").distinct().count()
+        grp_cnt = models.AniDetailXref.objects.filter(evnt_id=evnt_id, grp_id__isnull=False).values("indv_id").distinct().count()
+        ws["H" + str(row_count)].value = indv_cnt
+        ws["I" + str(row_count)].value = grp_cnt
+        ws["J" + str(row_count)].value = evnt_id.comments
+        ws["K" + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_evnt", args=[evnt_id.id]))
+        row_count += 1
+
+    report.save_wb()
+
+    return report.target_url
+
+
 def generate_growth_chart(plot_fish):
     if type(plot_fish) == models.Individual:
         len_dets = models.IndividualDet.objects.filter(anidc_id__name="Length").filter(anix_id__indv_id=plot_fish)
