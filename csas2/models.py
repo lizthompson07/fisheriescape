@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.template.defaultfilters import date, slugify, pluralize
 from django.urls import reverse
 from django.utils import timezone
@@ -434,14 +434,6 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     lead_office = models.ForeignKey(CSASOffice, on_delete=models.DO_NOTHING, related_name="csas_lead_offices", verbose_name=_("lead CSAS office"),
                                     blank=True, null=False)
     other_offices = models.ManyToManyField(CSASOffice, blank=True, verbose_name=_("other CSAS offices"))
-
-    # lead_region = models.ForeignKey(Region, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions",
-    #                                 verbose_name=_("lead region"), editable=False)
-    # other_regions = models.ManyToManyField(Region, blank=True, verbose_name=_("other regions"), editable=False)
-    # coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"), null=True,
-    #                                 blank=True, editable=False)
-    # advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
-
     editors = models.ManyToManyField(User, blank=True, verbose_name=_("process editors"), related_name="process_editors",
                                      help_text=_("A list of non-CSAS staff with permissions to edit the process, meetings and documents"))
 
@@ -484,9 +476,11 @@ class Process(SimpleLookupWithUUID, MetadataFields):
             if meeting_qs.exists() and meeting_qs.last().end_date and meeting_qs.last().end_date <= now:
                 self.status = 25  # meeting complete!
 
-            # has the key doc been completed
+            # has the key docs have been completed
             doc_qs = self.documents.filter(status__in=[12, 17])
-            if doc_qs.exists():
+            # compare the count of posted docs with all (non-translation only) docs)
+            if doc_qs.exists() and doc_qs.count() >= self.documents.filter(~Q(document_type__name__icontains="translation")).count():
+                print(123)
                 self.status = 100  # complete!
 
         super().save(*args, **kwargs)
