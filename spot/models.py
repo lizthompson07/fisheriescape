@@ -187,8 +187,8 @@ class River(models.Model):
 
 class Organization(models.Model):
     objects = models.Manager()
-    name = models.CharField(unique=True, max_length=1000, verbose_name=_("Name"))
-    address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Address"))
+    name = models.CharField(unique=True, max_length=255, verbose_name=_("Name"))
+    address = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Address"))
     organization_type = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Organization Type"))
     province_state = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Province/State"))
     country = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Country"))
@@ -391,9 +391,9 @@ class Objective(models.Model):
     objects = models.Manager()
     project = models.ForeignKey('Project', default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='project_objective', verbose_name=_("Agreement Number"))
     objective_id = models.IntegerField(blank=True, null=True)
-    task_description = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Task Description"))
+    task_description = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Task Description"))
     element_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Element Title"))
-    activity_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Activity Title"))
+    activity_title = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Activity Title"))
 
     pst_requirement = models.CharField(max_length=10, default=None, blank=True, null=True, verbose_name=_("PST Requirement Identified?"))
     location = models.ManyToManyField(River, blank=True, default=None, verbose_name=_("Location"))
@@ -432,7 +432,7 @@ class Project(models.Model):
     project_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Project Number"))
     agreement_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("Agreement Number"))
     agreement_history = models.ManyToManyField('Project', default=None, blank=True, verbose_name=_("Agreement History"))
-    name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Project Name"))
+    name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Project Name"))
     project_description = models.TextField(max_length=5000, null=True, blank=True, verbose_name=_("Project Description"))
     start_date = models.DateField(blank=True, null=True, verbose_name=_("Starting Date"))
     end_date = models.DateField(blank=True, null=True, verbose_name=_("End Date"))
