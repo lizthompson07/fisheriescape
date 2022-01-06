@@ -1299,10 +1299,8 @@ class ProjectCertifiedDeleteView(SpotAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-
-
-
-### EXPORT ##
+#EXPORT#
+##############
 def export_project(request):
     project = models.Project.objects.all()
     project_filter = filters.ProjectFilter(request.GET, queryset=project).qs
@@ -1311,12 +1309,14 @@ def export_project(request):
 
     writer = csv.writer(response, delimiter=',')
     writer.writerow([
+        'project_number',
         'agreement_number',
         'agreement_history',
         'name',
         'project_description',
         'start_date',
         'end_date',
+
         'region',
         'ecosystem_type',
         'primary_river',
@@ -1325,7 +1325,7 @@ def export_project(request):
         'watershed',
         'management_area',
 
-        'smu_name',
+        'stock_management_unit',
         'cu_index',
         'cu_name',
         'species',
@@ -1344,40 +1344,43 @@ def export_project(request):
         'DFO_link',
         'DFO_program_reference',
         'government_organization',
-        'government_reference',
+        'policy_program_connection',
 
         'DFO_project_authority',
         'DFO_area_chief',
         'DFO_aboriginal_AAA',
         'DFO_resource_manager',
-        'tribal_council',
-        'primary_first_nations_contact',
-        'primary_first_nations_contact_role',
+        'first_nation',
+        'first_nations_contact',
+        'first_nations_contact_role',
         'DFO_technicians',
         'contractor',
-        'primary_contact_contractor',
+        'contractor_contact',
         'partner',
-        'primary_contact_partner',
+        'partner_contact',
 
         'agreement_database',
         'agreement_comment',
         'funding_sources',
         'other_funding_sources',
         'agreement_type',
-        'project_lead_organization',
+        'lead_organization',
 
         'date_last_modified',
         'last_modified_by',
+
     ])
 
     for obj in project_filter:
         writer.writerow([
             obj.agreement_number,
-            obj.agreement_history,
+            obj.project_number,
+            " ".join(o.name for o in obj.agreement_history.all()),
             obj.name,
             obj.project_description,
             obj.start_date,
             obj.end_date,
+
             obj.region,
             obj.ecosystem_type,
             obj.primary_river,
@@ -1386,10 +1389,10 @@ def export_project(request):
             obj.watershed,
             obj.management_area,
 
-            obj.smu_name,
+            obj.stock_management_unit,
             obj.cu_index,
             obj.cu_name,
-            obj.species,
+            " ".join(s.name for s in obj.species.all()),
             obj.salmon_life_stage,
 
             obj.project_stage,
@@ -1405,32 +1408,221 @@ def export_project(request):
             obj.DFO_link,
             obj.DFO_program_reference,
             obj.government_organization,
-            obj.government_reference,
+            obj.policy_program_connection,
 
-            obj.DFO_project_authority.name,
+            obj.DFO_project_authority,
             obj.DFO_area_chief,
             obj.DFO_aboriginal_AAA,
             obj.DFO_resource_manager,
-            obj.tribal_council,
-            obj.primary_first_nations_contact,
-            obj.primary_first_nations_contact_role,
+            obj.first_nation,
+            obj.first_nations_contact,
+            obj.first_nations_contact_role,
             obj.DFO_technicians,
             obj.contractor,
-            obj.primary_contact_contractor,
+            obj.contractor_contact,
             obj.partner,
-            obj.primary_contact_partner,
+            obj.partner_contact,
 
             obj.agreement_database,
             obj.agreement_comment,
             obj.funding_sources,
             obj.other_funding_sources,
             obj.agreement_type,
-            obj.project_lead_organization,
+            obj.lead_organization,
 
             obj.date_last_modified,
             obj.last_modified_by,
         ])
 
+    return response
+
+
+def export_objective(request):
+    objective = models.Objective.objects.all()
+    objective_filter = filters.ObjectiveFilter(request.GET, queryset=objective).qs
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=objective' + str(date.today()) + '.csv'
+
+    writer = csv.writer(response, delimiter=',')
+    writer.writerow([
+        'project',
+        'objective_id',
+        'task_description',
+        'element_title',
+        'pst_requirement',
+        'location',
+        'objective_category',
+        'species',
+        'sil_requirement',
+        'expected_results',
+        'dfo_report',
+        'outcome_met',
+        'outcomes_contact',
+        'outcome_barrier',
+        'capacity_building',
+        'key_lesson',
+        'missed_opportunities',
+        'date_last_modified',
+        'last_modified_by',
+
+    ])
+
+    for obj in objective_filter:
+        writer.writerow([
+            obj.project,
+            obj.objective_id,
+            obj.task_description,
+            obj.element_title,
+            obj.pst_requirement,
+            obj.location,
+            obj.objective_category,
+            obj.species,
+            obj.sil_requirement,
+            obj.expected_results,
+            obj.dfo_report,
+            obj.outcome_met,
+            obj.outcomes_contact,
+            obj.outcome_barrier,
+            obj.capacity_building,
+            obj.key_lesson,
+            obj.missed_opportunities,
+            obj.date_last_modified,
+            obj.last_modified_by
+
+        ])
+    return response
+
+
+def export_data(request):
+    data = models.Data.objects.all()
+    data_filter = filters.DataFilter(request.GET, queryset=data).qs
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=data' + str(date.today()) + '.csv'
+
+    writer = csv.writer(response, delimiter=',')
+    writer.writerow([
+        'project',
+        'species',
+        'samples_collected',
+        'samples_collected_comment',
+        'samples_collected_database',
+        'shared_drive',
+        'sample_barrier',
+        'sample_entered_database',
+        'data_quality_check',
+        'data_quality_person',
+        'barrier_data_check_entry',
+        'sample_format',
+        'data_products',
+        'data_products_database',
+        'data_products_comment',
+        'data_programs',
+        'data_communication',
+        'date_last_modified',
+        'last_modified_by',
+
+    ])
+
+    for obj in data_filter:
+        writer.writerow([
+            obj.project,
+            obj.species,
+            obj.samples_collected,
+            obj.samples_collected_comment,
+            obj.shared_drive,
+            obj.sample_barrier,
+            obj.sample_entered_database,
+            obj.data_quality_check,
+            obj.data_quality_person,
+            obj.barrier_data_check_entry,
+            obj.sample_format,
+            obj.data_products,
+            obj.data_products_database,
+            obj.data_products_comment,
+            obj.data_programs,
+            obj.data_communication,
+            obj.date_last_modified,
+            obj.last_modified_by,
+
+        ])
+    return response
+
+
+def export_method(request):
+    method = models.Method.objects.all()
+    data_filter = filters.MethodFilter(request.GET, queryset=method).qs
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=method' + str(date.today()) + '.csv'
+
+    writer = csv.writer(response, delimiter=',')
+    writer.writerow([
+        'field_work_method_type',
+        'planning_method_type',
+        'sample_processing_method_type',
+        'knowledge_consideration',
+        'scale_processing_location',
+        'otolith_processing_location',
+        'DNA_processing_location',
+        'heads_processing_location',
+        'instrument_data_processing_location',
+        'date_last_modified',
+        'last_modified_by',
+    ])
+
+    for obj in data_filter:
+        writer.writerow([
+            obj.field_work_method_type,
+            obj.planning_method_type,
+            obj.sample_processing_method_type,
+            obj.knowledge_consideration,
+            obj.scale_processing_location,
+            obj.otolith_processing_location,
+            obj.DNA_processing_location,
+            obj.heads_processing_location,
+            obj.instrument_data_processing_location,
+            obj.date_last_modified,
+            obj.last_modified_by,
+        ])
+    return response
+
+
+def export_reports(request):
+    reports = models.Reports.objects.all()
+    reports_filter = filters.ReportsFilter(request.GET, queryset=reports).qs
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=reports' + str(date.today()) + '.csv'
+
+    writer = csv.writer(response, delimiter=',')
+    writer.writerow([
+        'project',
+        'report_timeline',
+        'report_type',
+        'report_concerns',
+        'document_name',
+        'document_author',
+        'document_reference_information',
+        'document_link',
+        'published',
+        'date_last_modified',
+        'last_modified_by',
+
+    ])
+
+    for obj in reports_filter:
+        writer.writerow([
+            obj.project,
+            obj.report_timeline,
+            obj.report_type,
+            obj.report_concerns,
+            obj.document_name,
+            obj.document_author,
+            obj.document_reference_information,
+            obj.document_link,
+            obj.published,
+            obj.date_last_modified,
+            obj.last_modified_by,
+
+        ])
     return response
 
 
