@@ -91,15 +91,23 @@
                       <v-select
                         style="width: 100%"
                         v-model="activity.responsible_parties"
-                        {#                        @input="adjustStaffFields"#}
-                        {#                        @click="adjustStaffFields"#}
-                        {#                        class="w90 filter vs"#}
-                        {#                        id="id_user"#}
                         :options="year.project_user_choices"
                         label='value'
                         :reduce="value => value.id"
                         multiple
-                        {#                        :clearable="false"#}
+                      >
+                      </v-select>
+                    </div>
+                  {% elif field.name == "parent" %}
+                    <div v-if="parentActivityChoices.length" class="form-group">
+                      <label for="id_user">{{ field.label }}</label>
+                      <v-select
+                        style="width: 100%"
+                        v-model="activity.parent"
+                        :options="parentActivityChoices"
+                        label='value'
+                        :reduce="value => value.id"
+                        clearable
                       >
                       </v-select>
                     </div>
@@ -218,7 +226,21 @@ Vue.component("activity-modal", {
           })
     },
   },
-  computed: {},
+  computed: {
+    parentActivityChoices() {
+      payload = []
+      if (this.year.parent_activity_choices && this.year.parent_activity_choices.length) {
+        if (!this.my_object) payload = this.year.parent_activity_choices;
+        else {
+          for (const activity of this.year.parent_activity_choices) {
+            console.log(activity)
+            if (!this.my_object || activity.id !== this.my_object.id) payload.push(activity);
+          }
+        }
+      }
+      return payload
+    },
+  },
   created() {
     this.getCurrentUser();
     if (this.year.project.default_funding_source && this.year.project.default_funding_source.toLowerCase().search("acrdp") > -1) {

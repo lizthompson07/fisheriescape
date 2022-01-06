@@ -78,6 +78,22 @@
             {% endif %}
           </td>
         </tr>
+      {% elif "csas" in field %}
+        <tr>
+          <th>{% trans "Linkages to CSAS Processes" %}</th>
+          <td>
+            {% if object.csas_processes.exists %}
+              {% for obj in object.csas_processes.all %}
+                <div>
+                  <a href="{% url 'csas2:process_detail' obj.id %}">{{ obj.tname }} ({{ obj.id }})</a>
+                </div>
+              {% endfor %}
+            {% else %}
+              <em>{% trans "There are no CSAS processes attached to this project." %}</em>
+            {% endif %}
+          </td>
+        </tr>
+
       {% else %}
         {% verbose_td_display object field th_width="30%" td_width="70%" nullmark=nulltext %}
       {% endif %}

@@ -213,6 +213,20 @@
               </td>
             </tr>
             <tr>
+              <th class="text-left">${processLabels.projects}</th>
+              <td>
+                {% if object.projects.exists %}
+                  {% for obj in object.projects.all %}
+                    <div>
+                      <a href="{% url 'ppt:project_detail' obj.id %}">{{ obj.title }} ({{ obj.id }})</a>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <em>{% trans "There are no projects attached to this process." %}</em>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
               <th class="text-left">{% trans "Metadata" %}</th>
               <td class="text-left" v-html="process.metadata"></td>
             </tr>

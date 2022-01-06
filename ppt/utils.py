@@ -407,6 +407,7 @@ def get_project_field_list(project):
 
         'tags',
         'references',
+        'csas_processes',
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)

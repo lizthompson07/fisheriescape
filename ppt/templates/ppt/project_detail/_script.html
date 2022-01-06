@@ -299,6 +299,9 @@ var app = new Vue({
       apiService(endpoint)
           .then(response => {
             this.activity_loading = false;
+            for (const responseElement of response) {
+              responseElement.show_children = true;
+            }
             this.activities = response;
           })
     },

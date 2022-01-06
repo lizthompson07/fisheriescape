@@ -356,6 +356,7 @@ class ProcessForm(forms.ModelForm):
             'lead_office',
             'other_offices',
             'editors',
+            'projects',
         ]
         required_fields = [
             'csas_requests',
@@ -370,6 +371,7 @@ class ProcessForm(forms.ModelForm):
             'lead_office': forms.Select(attrs=chosen_js),
             'other_offices': forms.SelectMultiple(attrs=chosen_js),
             'advice_date': forms.DateInput(attrs=dict(type="date"), format="%Y-%m-%d"),
+            'projects': forms.SelectMultiple(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):

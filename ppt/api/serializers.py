@@ -186,6 +186,10 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     capital_costs = serializers.SerializerMethodField()
     project_codes = serializers.SerializerMethodField()
     project_user_choices = serializers.SerializerMethodField()
+    parent_activity_choices = serializers.SerializerMethodField()
+
+    def get_parent_activity_choices(self, instance):
+        return [dict(id=obj.id, value=f"{obj.get_type_display()} - {obj}") for obj in instance.activities.filter(parent__isnull=True)]
 
     def get_project_user_choices(self, instance):
         project_users = User.objects.filter(staff_instances2__project_year__project=instance.project).distinct()
@@ -392,6 +396,12 @@ class ActivitySerializer(serializers.ModelSerializer):
     duration = serializers.SerializerMethodField()
     latest_update_text = serializers.SerializerMethodField()
     latest_update_status = serializers.SerializerMethodField()
+    children = serializers.SerializerMethodField()
+
+    def get_children(self, instance):
+        if instance.children.exists():
+            return [ActivitySerializer(obj).data for obj in instance.children.all()]
+        return list()
 
     def get_duration(self, instance):
         if instance.target_start_date and instance.target_date:

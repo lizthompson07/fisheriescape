@@ -450,11 +450,7 @@ class ActivityForm(forms.ModelForm):
         self.fields["impact"].widget.attrs = {"v-model": "activity.impact", ":disabled": "!isACRDP"}
         self.fields["risk_description"].widget.attrs = {"v-model": "activity.risk_description", "rows": "4", ":disabled": "!isACRDP && !isCSRF"}
         self.fields["mitigation_measures"].widget.attrs = {"v-model": "activity.mitigation_measures", "rows": "4", ":disabled": "!isACRDP && !isCSRF"}
-
-        # limit the user select for responsible parties to only those listed on the project
-        self.fields["responsible_parties"].label += _(" (use SHIFT to select multiple)")
-
-
+        self.fields["parent"].widget.attrs = {"v-model": "activity.parent"}
 
 
 class CollaborationForm(forms.ModelForm):
