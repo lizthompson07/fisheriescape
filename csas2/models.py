@@ -469,7 +469,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         if not self.status == 90:
 
             # if there is a process, the request the request MUST have been approved.
-            if hasattr(self, "tor") and self.tor.is_complete:
+            if hasattr(self, "tor") and self.tor.status == 50:  # complete status
                 self.status = 22  # tor complete!
 
             # has the latest scheduled meeting passed
@@ -639,8 +639,8 @@ class TermsOfReference(MetadataFields):
                                    verbose_name=_("Linked to which meeting?"),
                                    help_text=_("The ToR will pull several fields from the linked meeting (e.g., dates, chair, location, ...)"))
     expected_document_types = models.ManyToManyField("DocumentType", blank=True, verbose_name=_("expected publications"))
-    is_complete = models.BooleanField(default=False, verbose_name=_("Are the ToRs complete?"), choices=YES_NO_CHOICES,
-                                      help_text=_("Selecting yes will update the process status"), editable=False)
+    # is_complete = models.BooleanField(default=False, verbose_name=_("Are the ToRs complete?"), choices=YES_NO_CHOICES,
+    #                                   help_text=_("Selecting yes will update the process status"), editable=False)
 
     # non-editable fields
     status = models.IntegerField(default=10, verbose_name=_("status"), choices=model_choices.tor_status_choices, editable=False)

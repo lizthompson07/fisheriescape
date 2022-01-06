@@ -145,11 +145,28 @@ class ProcessFilter(django_filters.FilterSet):
 
 
 class MeetingFilter(django_filters.FilterSet):
-    process = django_filters.ChoiceFilter(field_name='process', lookup_expr='exact')
-    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title contains"))
-    region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
-    branch = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact')
-    has_process = django_filters.BooleanFilter(field_name='process', lookup_expr='isnull', label=_("Has process?"), exclude=True)
+    # process = django_filters.ChoiceFilter(field_name='process', lookup_expr='exact', widget=forms.Select(attrs=chosen_js))
+    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Meeting Title contains"))
+
+    # fiscal_year = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact')
+    # lead_office = django_filters.ChoiceFilter(field_name="process__lead_office", label=_("Lead office"), lookup_expr='exact')
+
+    class Meta:
+        model = models.Meeting
+        fields = {
+            'process': ['exact'],
+            'process__fiscal_year': ['exact'],
+            'process__lead_office': ['exact'],
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(processes__isnull=False).distinct()]
+
+        self.filters['process'].field.widget.attrs = chosen_js
+        self.filters['process__fiscal_year'] = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year"))
+        self.filters['process__lead_office'].label = _("Lead CSAS office")
 
 
 class DocumentFilter(django_filters.FilterSet):
