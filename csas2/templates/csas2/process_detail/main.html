@@ -33,6 +33,21 @@
       </div>
     </div>
 
+
+    {# PPT #}
+    <div v-if="canModify" class="float-right mb-3">
+
+      <button
+        v-if="process.projects && !process.projects.length"
+        class="btn btn-sm btn-info" @click="exportToPPT"
+        data-toggle="tooltip" title="{% trans "Clone / Export this CSAS Process to the DM Apps Project Planning Tool" %}"
+      >
+        {% trans "Export to PPT" %}
+      </button>
+
+    </div>
+
+
     <div v-if="canModify" class="neighbours mb-3">
       <a class="btn btn-sm btn-warning" href="{% url 'csas2:process_edit' object.id %}">{% trans "Edit" %}</a>
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:process_delete' object.id %}">{% trans "Delete" %}</a>
@@ -334,6 +349,16 @@
       processLabels: {}
     },
     methods: {
+      exportToPPT() {
+        //let userInput = confirm("{% trans 'Are you certain you want to export  a request for this process to be posted on the National CSAS website?' %}")
+        //if (userInput) {
+        //  let endpoint = `/api/csas/processes/${processId}/?request_posting=true`;
+        //  apiService(endpoint, "POST").then(data => {
+        //    this.getProcess()
+        //  });
+        //}
+        alert("under development :)")
+      },
       requestPosting() {
         let userInput = confirm("{% trans 'Are you certain you want to make a request for this process to be posted on the National CSAS website?' %}")
         if (userInput) {

@@ -19,6 +19,7 @@ from csas2.model_choices import tor_review_status_choices, tor_review_decision_c
 from csas2.utils import get_quarter
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import percentage
+from ppt.models import Project
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
     SimpleLookupWithUUID, SubjectMatter
 
@@ -441,6 +442,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     advice_date = models.DateTimeField(verbose_name=_("Target date for to provide Science advice"), blank=True, null=True)
 
     # non-editable
+    projects = models.ManyToManyField(Project, editable=False, related_name="csas_processes", verbose_name=_("Links to PPT Projects"))
     is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"))
     posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"))
     posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
@@ -480,7 +482,6 @@ class Process(SimpleLookupWithUUID, MetadataFields):
             doc_qs = self.documents.filter(status__in=[12, 17])
             # compare the count of posted docs with all (non-translation only) docs)
             if doc_qs.exists() and doc_qs.count() >= self.documents.filter(~Q(document_type__name__icontains="translation")).count():
-                print(123)
                 self.status = 100  # complete!
 
         super().save(*args, **kwargs)
