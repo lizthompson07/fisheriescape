@@ -379,7 +379,11 @@ class ProcessForm(forms.ModelForm):
         self.fields["csas_requests"].choices = request_choices
         if kwargs.get("instance"):
             del self.fields["create_steering_committee_meeting"]
+            del self.fields["committee_members"]
+            del self.fields["create_keystone_meeting"]
             del self.fields["science_leads"]
+            del self.fields["client_leads"]
+            del self.fields["chair"]
         else:
             person_choices = [(p.id, f"{p} ({p.email})") for p in Person.objects.all()]
             self.fields["committee_members"].choices = person_choices
