@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext_lazy, get_language
 
+from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonCreateView, \
@@ -146,6 +147,12 @@ class MyProjectListView(PPTLoginRequiredMixin, CommonFilterView):
         {"name": 'is_hidden|{}'.format(_("hidden?")), "class": "", "width": ""},
         {"name": 'updated_at', "class": "", "width": "150px"},
     ]
+
+    def get_filterset_kwargs(self, filterset_class):
+        kwargs = super().get_filterset_kwargs(filterset_class)
+        if kwargs["data"] is None:
+            kwargs["data"] = {"fiscal_years": fiscal_year(timezone.now(), sap_style=True)+1}
+        return kwargs
 
     def get_queryset(self):
         project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
