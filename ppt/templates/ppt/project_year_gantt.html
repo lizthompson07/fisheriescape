@@ -57,7 +57,7 @@
       timeZoom: 24,
     },
     scope: {
-      before:20
+      before: 20
     },
     calendar: {
       hour: {
@@ -188,7 +188,14 @@
 
                 item.parentId = item.parent;
 
-                if (item.latest_update_status === 8) {
+                if (item.children.length) {
+                  item.style = {
+                    base: {
+                      fill: '#1d99bf',
+                      stroke: '#1d99bf'
+                    }
+                  }
+                } else if (item.latest_update_status === 8) {
                   item.style = {
                     base: {
                       fill: '#1EBC61',
