@@ -132,5 +132,4 @@ class CanModifyToRReviewerOrReadOnly(permissions.BasePermission):
             if isinstance(obj, models.ToRReviewer):
                 tor_reviewer_id = obj.id
                 can_modify = can_modify_tor_reviewer(request.user, tor_reviewer_id)
-                print(can_modify)
                 return can_modify

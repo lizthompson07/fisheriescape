@@ -740,7 +740,7 @@ class ToRReviewer(MetadataFields):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="tor_reviews", verbose_name=_("user"))
     decision = models.IntegerField(verbose_name=_("decision"), choices=tor_review_decision_choices, blank=True, null=True)
     decision_date = models.DateTimeField(verbose_name=_("date"), blank=True, null=True)
-    comments = models.TextField(null=True, verbose_name=_("comments"))
+    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
     status = models.IntegerField(verbose_name=_("status"), default=10, choices=tor_review_status_choices)
 
     def save(self, *args, **kwargs):
