@@ -58,8 +58,8 @@ def is_section_head(user, project):
     try:
         return True if project.section.head == user else False
     except AttributeError as e:
-        print(e)
-
+        # print(e)
+        pass
 
 def is_division_manager(user, project):
     try:

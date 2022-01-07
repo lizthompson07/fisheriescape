@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
 from django.utils import timezone
+from django.utils.timezone import utc, make_aware
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
@@ -26,6 +27,7 @@ from .. import models, emails, model_choices, utils, filters
 # USER
 #######
 from ..emails import ReviewCompleteEmail
+from ..utils import can_modify_process
 
 
 class CurrentUserAPIView(APIView):
@@ -191,14 +193,82 @@ class ProcessViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         process = get_object_or_404(models.Process, pk=pk)
         if qp.get("request_posting"):
-            if not process.is_posted:
-                email = emails.PostingRequestEmail(request, process)
-                email.send()
-                process.posting_request_date = timezone.now()
-                process.save()
-                msg = _("Success! Your request for a posting has been sent to the National CSAS Office.")
-                return Response(msg, status.HTTP_200_OK)
-            raise ValidationError(_("A request to have this process posted has already occurred."))
+            can_modify = can_modify_process(request.user, process.id, True)
+            if not can_modify.can_modify:
+                raise ValidationError(can_modify.reason)
+            elif process.is_posted:
+                raise ValidationError(_("A request to have this process posted has already occurred."))
+
+            email = emails.PostingRequestEmail(request, process)
+            email.send()
+            process.posting_request_date = timezone.now()
+            process.save()
+            msg = _("Success! Your request for a posting has been sent to the National CSAS Office.")
+            return Response(msg, status.HTTP_200_OK)
+
+        elif qp.get("link_2_ppt"):
+            can_modify = can_modify_process(request.user, process.id, True)
+            if not can_modify["can_modify"]:
+                raise ValidationError(can_modify["reason"])
+            elif process.projects.count() > 1:
+                raise ValidationError(_("Cannot perform this action when there are more than 1 projects attached to a process"))
+
+            from ppt.models import Project, ProjectYear, Staff, Activity
+            # There is no project
+            if not process.projects.exists():
+                # let's create a new project in the PPT
+                project = Project.objects.create(
+                    title=process.name,
+                    activity_type_id=3,  # other
+                    default_funding_source_id=1  # a-base core
+                )
+                if process.csas_requests.exists():
+                    project.overview = f"{process.csas_requests.first().issue}\n\n{process.csas_requests.first().rationale}"
+                    project.save()
+                process.projects.add(project)
+                msg = _("Success! A new project in the PPT has been created and was linked to this CSAS Process")
+
+            # There is already a project linked
+            else:
+                project = process.projects.first()
+                msg = _("Success! the linked project in the PPT has been updated")
+
+            # get or create the project year
+            # cannot use get_or_create because of weirdness with project start date / fiscal year
+            year_qs = ProjectYear.objects.filter(fiscal_year_id=process.fiscal_year.id, project=project)
+            if not year_qs:
+                date = datetime.strptime(f"4/1/{process.fiscal_year_id-1} 12:00", "%m/%d/%Y %H:%M")
+                date = make_aware(date, utc)
+                project_year = ProjectYear.objects.create(start_date=date, project=project)
+            else:
+                project_year = year_qs.first()
+
+            # STAFF
+            # make sure the current user and coordinator are on the list
+            leads_to_add = [self.request.user, process.coordinator]
+            leads_to_add.extend([u for u in process.advisors.all()])
+            # for each meeting
+            for m in process.meetings.all():
+                invitees = m.invitees.filter(roles__category__in=[1, 4], person__dmapps_user__isnull=False).distinct()
+                for i in invitees:
+                    leads_to_add.append(i.person.dmapps_user)
+            leads_to_add = list(set(leads_to_add))
+
+            project_year.staff_set.all().delete()
+            for lead in leads_to_add:
+                staff = Staff.objects.create(
+                    project_year=project_year,
+                    employee_type_id=1,  # full time indeterminate
+                    is_lead=True,
+                    user=lead,
+                )
+
+            # ACTIVITIES
+
+            Activity
+
+            return Response(msg, status.HTTP_200_OK)
+
         raise ValidationError(_("This endpoint cannot be used without a query param"))
 
 

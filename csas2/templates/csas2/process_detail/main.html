@@ -36,13 +36,19 @@
 
     {# PPT #}
     <div v-if="canModify" class="float-right mb-3">
-
       <button
         v-if="process.projects && !process.projects.length"
         class="btn btn-sm btn-info" @click="exportToPPT"
         data-toggle="tooltip" title="{% trans "Clone / Export this CSAS Process to the DM Apps Project Planning Tool" %}"
       >
         {% trans "Export to PPT" %}
+      </button>
+      <button
+        v-else-if="process.projects && process.projects.length === 1"
+        class="btn btn-sm btn-info" @click="exportToPPT"
+        data-toggle="tooltip" title="{% trans "Update the linked project in the DM Apps Project Planning Tool" %}"
+      >
+        {% trans "Update Linked Project in PPT" %}
       </button>
 
     </div>
@@ -364,14 +370,23 @@
     },
     methods: {
       exportToPPT() {
-        //let userInput = confirm("{% trans 'Are you certain you want to export  a request for this process to be posted on the National CSAS website?' %}")
-        //if (userInput) {
-        //  let endpoint = `/api/csas/processes/${processId}/?request_posting=true`;
-        //  apiService(endpoint, "POST").then(data => {
-        //    this.getProcess()
-        //  });
-        //}
-        alert("under development :)")
+        // two scenarios: 1) no project, 2) single project
+        let msg;
+        if (this.process.projects.length === 0) {
+          msg = "{% trans "By continuing, a project in the DM Apps Project Planning Tool will be created based on this CSAS Process. \n\nDo you want to proceed?" %}";
+        } else if (this.process.projects.length === 1) {
+          msg = "{% trans "By continuing, the ACTIVITIES and STAFF MEMBERS of the project in the DM Apps Project Planning Tool which is currently link to this CSAS Process will be reset.\n\n\This may result in the loss of information. \n\nDo you want to proceed?" %}";
+        }
+        let userInput = confirm(msg);
+
+        if (userInput) {
+          let endpoint = `/api/csas/processes/${processId}/?link_2_ppt=true`;
+          apiService(endpoint, "POST").then(data => {
+            window.location.reload();
+          });
+        }
+
+
       },
       requestPosting() {
         let userInput = confirm("{% trans 'Are you certain you want to make a request for this process to be posted on the National CSAS website?' %}")
