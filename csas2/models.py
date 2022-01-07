@@ -909,6 +909,11 @@ class Meeting(SimpleLookup, MetadataFields):
             my_str = "{}".format(getattr(self, str(_("time_description_en"))))
         return my_str
 
+    @property
+    def email_list(self):
+        invitees = self.invitees.filter(~Q(status=2)).filter(person__email__isnull=False)
+        return listrify([i.person.email for i in invitees], separator=";")
+
 
 class MeetingNote(GenericNote):
     ''' a note pertaining to a meeting'''
@@ -955,6 +960,7 @@ class Invitee(models.Model):
     status = models.IntegerField(choices=model_choices.invitee_status_choices, verbose_name=_("status"), default=9)
     invitation_sent_date = models.DateTimeField(verbose_name=_("date invitation was sent"), editable=False, blank=True, null=True)
     resources_received = models.ManyToManyField("MeetingResource", editable=False)
+    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
     class Meta:
         ordering = ['person__first_name', "person__last_name"]

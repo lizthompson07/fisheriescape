@@ -294,6 +294,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
                         meeting=meeting,
                         person=new_invitee.person,
                         region=new_invitee.region,
+                        comments=new_invitee.comments,
                     )
                     for role in new_invitee.roles.all():
                         i.roles.add(role)
@@ -637,15 +638,18 @@ class InviteeSendInvitationAPIView(APIView):
     def post(self, request, pk):
         """ send the email"""
         invitee = get_object_or_404(models.Invitee, pk=pk)
-        if not invitee.invitation_sent_date:
-            # send email
-            email = emails.InvitationEmail(request, invitee)
-            email.send()
-            invitee.invitation_sent_date = timezone.now()
-            invitee.save()
+        if invitee.invitation_sent_date:
+            return Response("An email has already been sent to this invitee.", status=status.HTTP_400_BAD_REQUEST)
+        elif invitee.status == 2:
+            return Response("This invitee has a status set to declined.", status=status.HTTP_400_BAD_REQUEST)
 
-            return Response("email sent.", status=status.HTTP_200_OK)
-        return Response("An email has already been sent to this invitee.", status=status.HTTP_400_BAD_REQUEST)
+        # send email
+        email = emails.InvitationEmail(request, invitee)
+        email.send()
+        invitee.invitation_sent_date = timezone.now()
+        invitee.save()
+
+        return Response("email sent.", status=status.HTTP_200_OK)
 
     def get(self, request, pk):
         """ get a preview of the email to be sent"""

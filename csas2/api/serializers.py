@@ -430,6 +430,10 @@ class MeetingSerializer(serializers.ModelSerializer):
     is_posted = serializers.SerializerMethodField()
     has_tor = serializers.SerializerMethodField()
     ttime = serializers.SerializerMethodField()
+    email_list = serializers.SerializerMethodField()
+
+    def get_email_list(self, instance):
+        return instance.email_list
 
     def get_ttime(self, instance):
         return instance.ttime

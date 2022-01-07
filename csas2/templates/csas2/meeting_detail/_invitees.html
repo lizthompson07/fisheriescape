@@ -9,12 +9,21 @@
     <invitee-editor v-if="meeting" :meeting_id="meeting.id" @update-invitees="getInvitees"></invitee-editor>
   </div>
   <div class="mb-2 neighbours">
-    <button @click="sendAllInvitations" class="btn btn-sm btn-primary py-0 px-1" data-toggle="tooltip" title="{% trans "Send invitation to all invitees who have not already received an invitation" %}">
+    <button @click="sendAllInvitations" class="btn btn-sm btn-primary py-0 px-1" data-toggle="tooltip"
+            title="{% trans "Send invitation to all invitees who have not already received an invitation" %}">
       <span class="h5 mdi mdi-email text-light"></span>
     </button>
   </div>
   <div class="mb-2 neighbours">
-    <button @click="attendAll" class="btn btn-sm btn-primary py-0 px-1" data-toggle="tooltip" title="{% trans "Mark all invitees who accepted the invitation as having 100% attendance" %}">
+    <button @click="copyInvitations" class="btn btn-sm btn-primary py-0 px-1" data-toggle="tooltip"
+            title="{% trans "copy emails of non-declined invitees to clipboard" %}">
+      <span class="h5 mdi mdi-content-copy text-light"></span>
+    </button>
+  </div>
+
+  <div class="mb-2 neighbours">
+    <button @click="attendAll" class="btn btn-sm btn-primary py-0 px-1" data-toggle="tooltip"
+            title="{% trans "Mark all invitees who accepted the invitation as having 100% attendance" %}">
       <span class="h5 mdi mdi-account-multiple-check text-light"></span>
     </button>
   </div>
@@ -31,6 +40,7 @@
       <th class="text-left"> {% trans "Function(s)" %}</th>
       <th class="text-left"> {% trans "RSVP Status" %}</th>
       <th class="text-left"> {% trans "Attendance" %}</th>
+      <th></th>
     </tr>
     </thead>
     <tbody>
@@ -62,6 +72,9 @@
           <invitee-editor :invitee="invitee" @update-invitees="getInvitees"></invitee-editor>
           <button class="btn btn-sm" @click="deleteInvitee(invitee)">
             <span class="mdi mdi-delete"></span>
+          </button>
+          <button v-if="invitee.comments" class="btn btn-sm" @click="displayComments(invitee)">
+            <span class="mdi mdi-note-text text-primary lead"></span>
           </button>
         </div>
       </td>
