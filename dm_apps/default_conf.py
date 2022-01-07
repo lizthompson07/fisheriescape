@@ -31,7 +31,6 @@ APP_DICT = {
     'diets': dict(name='Marine diets', staff_ids=[50, ]),
     'ppt': dict(name='Science project planning tool', staff_ids=[50, 382]),
     'ihub': dict(name='iHub', staff_ids=[50, ]),  # dependency on masterlist
-    'scifi': dict(name='SciFi', staff_ids=[50, ]),
     'masterlist': dict(name='Masterlist', staff_ids=[50, ]),
     'shares': dict(name='Gulf Shares', staff_ids=[50, ]),
     'travel': dict(name='Travel Management System', staff_ids=[1798, 50]),  # beware, the staff ids will have to be changed below for cloud instances of app
@@ -49,7 +48,6 @@ APP_DICT = {
     'shiny': dict(name="DM Apps Shiny App Collection", staff_ids=[50, ]),
     'bio_diversity': dict(name="Biodiversity", staff_ids=[382, 1337]),
     'maret': dict(name="Maret", staff_ids=[382, 581]),
-    # 'events': dict(name="Events Planner", staff_ids=[50, ]),
     'fisheriescape': dict(name="Fisheries Landscape Tool", staff_ids=[452, ]),
     'res': dict(name="SE-RES Career Progression Dossier App", staff_ids=[50, 2039]),
 }

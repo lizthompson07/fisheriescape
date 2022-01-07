@@ -1867,7 +1867,10 @@ class SampDetails(mixins.SampMixin, CommonDetails):
                                             "single_object": obj_mixin.model.objects.first()}
         context["calculated_properties"] = {}
         context["calculated_links"] = {}
-        samp_grp = self.object.anix_id.grp_id
+        if self.object.anix_id:
+            samp_grp = self.object.anix_id.grp_id
+        else:
+            samp_grp = None
         samp_loc = self.object.loc_id
         if samp_grp:
             context["calculated_properties"]["Group"] = samp_grp.__str__()
@@ -2260,10 +2263,12 @@ class GrpList(mixins.GrpMixin, GenericList):
 
 class GrpdList(mixins.GrpdMixin, GenericList):
     field_list = [
-        {"name": 'anix_id', "class": "", "width": ""},
         {"name": 'anidc_id', "class": "", "width": ""},
+        {"name": 'adsc_id', "class": "", "width": ""},
+        {"name": 'det_val', "class": "", "width": ""},
+        {"name": 'detail_date', "class": "", "width": ""},
     ]
-    queryset = models.GroupDet.objects.select_related("anix_id", "anidc_id")
+    queryset = models.GroupDet.objects.select_related("anidc_id", "adsc_id")
     filterset_class = filters.GrpdFilter
 
 
@@ -2319,8 +2324,11 @@ class IndvList(mixins.IndvMixin, GenericList):
 class IndvdList(mixins.IndvdMixin, GenericList):
     field_list = [
         {"name": 'anidc_id', "class": "", "width": ""},
+        {"name": 'adsc_id', "class": "", "width": ""},
+        {"name": 'det_val', "class": "", "width": ""},
+        {"name": 'detail_date', "class": "", "width": ""},
     ]
-    queryset = models.IndividualDet.objects.all().select_related("anidc_id")
+    queryset = models.IndividualDet.objects.all().select_related("anidc_id", "adsc_id")
     filterset_class = filters.IndvdFilter
 
 
@@ -2559,8 +2567,11 @@ class SampdList(mixins.SampdMixin, GenericList):
     field_list = [
         {"name": 'samp_id', "class": "", "width": ""},
         {"name": 'anidc_id', "class": "", "width": ""},
+        {"name": 'adsc_id', "class": "", "width": ""},
+        {"name": 'det_val', "class": "", "width": ""},
+        {"name": 'detail_date', "class": "", "width": ""},
     ]
-    queryset = models.SampleDet.objects.all().select_related("samp_id", "anidc_id")
+    queryset = models.SampleDet.objects.all().select_related("samp_id", "anidc_id", "adsc_id")
     filterset_class = filters.SampdFilter
 
 
@@ -3322,11 +3333,15 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
             return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + arg_str)
         elif report == 3:
             adsc_pk = int(form.cleaned_data["adsc_id"].pk)
+            arg_str = f"?adsc_pk={adsc_pk}"
+
+            if form.cleaned_data["prog_id"]:
+                prog_pk = int(form.cleaned_data["prog_id"].pk)
+                arg_str += f"&prog_pk={prog_pk}"
             if form.cleaned_data["stok_id"]:
                 stok_pk = int(form.cleaned_data["stok_id"].pk)
-                return HttpResponseRedirect(reverse("bio_diversity:detail_report") + f"?adsc_pk={adsc_pk}" + f"&stok_pk={stok_pk}")
-            else:
-                return HttpResponseRedirect(reverse("bio_diversity:detail_report") + f"?adsc_pk={adsc_pk}")
+                arg_str += f"&stok_pk={stok_pk}"
+            return HttpResponseRedirect(reverse("bio_diversity:detail_report") + arg_str)
         elif report == 4:
             indv_pk = int(form.cleaned_data["indv_id"].pk)
             return HttpResponseRedirect(reverse("bio_diversity:individual_report_file") + f"?indv_pk={indv_pk}")
@@ -3336,6 +3351,9 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
         elif report == 6:
             facic_pk = int(form.cleaned_data["facic_id"].pk)
             arg_str = f"?facic_pk={facic_pk}"
+            if form.cleaned_data["prog_id"]:
+                prog_pk = int(form.cleaned_data["prog_id"].pk)
+                arg_str += f"&prog_pk={prog_pk}"
             if form.cleaned_data["stok_id"]:
                 stok_pk = int(form.cleaned_data["stok_id"].pk)
                 arg_str += f"&stok_pk={stok_pk}"
@@ -3345,8 +3363,30 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
             if form.cleaned_data["year"]:
                 year = int(form.cleaned_data["year"])
                 arg_str += f"&year={year}"
-
             return HttpResponseRedirect(reverse("bio_diversity:mort_report_file") + arg_str)
+        elif report == 7:
+            return HttpResponseRedirect(reverse("bio_diversity:system_code_report_file"))
+        elif report == 8:
+            facic_pk = int(form.cleaned_data["facic_id"].pk)
+            arg_str = f"?facic_pk={facic_pk}"
+            if form.cleaned_data["prog_id"]:
+                prog_pk = int(form.cleaned_data["prog_id"].pk)
+                arg_str += f"&prog_pk={prog_pk}"
+            if form.cleaned_data["stok_id"]:
+                stok_pk = int(form.cleaned_data["stok_id"].pk)
+                arg_str += f"?stok_pk={stok_pk}"
+            if form.cleaned_data["coll_id"]:
+                coll_pk = int(form.cleaned_data["coll_id"].pk)
+                arg_str += f"&coll_pk={coll_pk}"
+            if form.cleaned_data["year"]:
+                year = int(form.cleaned_data["year"])
+                arg_str += f"&year={year}"
+            if form.cleaned_data["start_date"]:
+                arg_str += f"&start_date={form.cleaned_data['start_date']}"
+            if form.cleaned_data["end_date"]:
+                arg_str += f"&end_date={form.cleaned_data['end_date']}"
+
+            return HttpResponseRedirect(reverse("bio_diversity:samples_report_file") + arg_str)
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -3373,22 +3413,18 @@ def facility_tank_report(request):
 def stock_code_report(request):
     start_date = request.GET.get("start_date")
     if not start_date:
-        start_date = datetime.min
+        start_date = utils.naive_to_aware(datetime.min)
     else:
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        start_date = utils.naive_to_aware(datetime.strptime(start_date, "%Y-%m-%d"))
     end_date = request.GET.get("end_date")
     if not end_date:
-        end_date = datetime.now()
+        end_date = utils.naive_to_aware(datetime.now())
     else:
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
-    stok_pk = request.GET.get("stok_pk")
-    stok_id = None
-    if stok_pk:
-        stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
-    coll_pk = request.GET.get("coll_pk")
-    coll_id = None
-    if coll_pk:
-        coll_id = models.Collection.objects.filter(pk=coll_pk).get()
+        end_date = utils.naive_to_aware(datetime.strptime(end_date, "%Y-%m-%d"))
+
+    coll_id = utils.get_object_from_request(request, "coll_pk", models.Collection)
+    stok_id = utils.get_object_from_request(request, "stok_pk", models.StockCode)
+
     year = request.GET.get("year")
 
     file_url = reports.generate_stock_code_report(stok_id, coll_id, year, start_date, end_date)
@@ -3406,13 +3442,13 @@ def stock_code_report(request):
 def detail_report(request):
     adsc_pk = request.GET.get("adsc_pk")
     adsc_id = models.AniDetSubjCode.objects.filter(pk=adsc_pk).get()
-    stok_pk = request.GET.get("stok_pk")
-    stok_id = None
-    if stok_pk:
-        stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
+
+    prog_id = utils.get_object_from_request(request, "prog_pk", models.Program)
+    stok_id = utils.get_object_from_request(request, "stok_pk", models.StockCode)
+
     file_url = None
     if adsc_id:
-        file_url = reports.generate_detail_report(adsc_id, stok_id=stok_id)
+        file_url = reports.generate_detail_report(adsc_id, prog_id, stok_id=stok_id)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -3426,16 +3462,13 @@ def detail_report(request):
 def mort_report_file(request):
     facic_pk = request.GET.get("facic_pk")
     facic_id = models.FacilityCode.objects.filter(pk=facic_pk).get()
-    stok_pk = request.GET.get("stok_pk")
-    stok_id = None
-    if stok_pk:
-        stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
-    coll_pk = request.GET.get("coll_pk")
-    coll_id = None
-    if coll_pk:
-        coll_id = models.Collection.objects.filter(pk=coll_pk).get()
+
+    prog_id = utils.get_object_from_request(request, "prog_pk", models.Program)
+    coll_id = utils.get_object_from_request(request, "coll_pk", models.Collection)
+    stok_id = utils.get_object_from_request(request, "stok_pk", models.StockCode)
+
     year = request.GET.get("year")
-    file_url = reports.generate_morts_report(facic_id, stok_id, year, coll_id)
+    file_url = reports.generate_morts_report(facic_id, prog_id, stok_id, year, coll_id)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -3494,6 +3527,48 @@ def grp_report_file(request):
                 response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
                 response['Content-Disposition'] = f'inline; filename="group_report_ ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
                 return response
+    raise Http404
+
+
+@login_required()
+def system_code_report_file(request):
+    file_url = reports.generate_system_code_report()
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="system_code_report_ ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+            return response
+    raise Http404
+
+
+@login_required()
+def samples_report_file(request):
+    start_date = request.GET.get("start_date")
+    if not start_date:
+        start_date = utils.naive_to_aware(datetime.min)
+    else:
+        start_date = utils.naive_to_aware(datetime.strptime(start_date, "%Y-%m-%d"))
+    end_date = request.GET.get("end_date")
+    if not end_date:
+        end_date = utils.naive_to_aware(datetime.now())
+    else:
+        end_date = utils.naive_to_aware(datetime.strptime(end_date, "%Y-%m-%d"))
+
+    prog_id = utils.get_object_from_request(request, "prog_pk", models.Program)
+    facic_id = utils.get_object_from_request(request, "facic_pk", models.FacilityCode)
+    coll_id = utils.get_object_from_request(request, "coll_pk", models.Collection)
+    stok_id = utils.get_object_from_request(request, "stok_pk", models.StockCode)
+
+    year = request.GET.get("year")
+
+    file_url = reports.generate_samples_report(request, prog_id, facic_id, stok_id, coll_id, year, start_date, end_date)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="dmapps samples report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+
+            return response
     raise Http404
 
 

@@ -17,6 +17,7 @@
         $("#id_start_date").parent().hide();
         $("#id_end_date").parent().hide();
         $("#id_facic_id").parent().hide();
+        $("#id_prog_id").parent().hide();
         $("#id_coll_id").parent().hide();
         $("#id_year").parent().hide();
         $("#id_adsc_id").parent().hide();
@@ -33,6 +34,7 @@
             $("#id_end_date").parent().show();
         }
         else if (reportType==3) {
+            $("#id_prog_id").parent().show();
             $("#id_stok_id").parent().show();
             $("#id_adsc_id").parent().show();
         }
@@ -44,9 +46,19 @@
         }
         else if (reportType==6) {
             $("#id_facic_id").parent().show();
+            $("#id_prog_id").parent().show();
             $("#id_coll_id").parent().show();
             $("#id_stok_id").parent().show();
             $("#id_year").parent().show();
+        }
+        else if (reportType==8) {
+            $("#id_facic_id").parent().show();
+            $("#id_prog_id").parent().show();
+            $("#id_coll_id").parent().show();
+            $("#id_stok_id").parent().show();
+            $("#id_year").parent().show();
+            $("#id_start_date").parent().show();
+            $("#id_end_date").parent().show();
         }
     }
 </script>

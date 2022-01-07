@@ -111,7 +111,7 @@ def can_modify_project(user, project_id, return_as_dict=False):
             my_dict["can_modify"] = True
 
         # check to see if they are a section head
-        elif is_section_head(user, project):
+        if is_section_head(user, project):
             my_dict["reason"] = "You can modify this record because it falls under your section"
             my_dict["can_modify"] = True
 

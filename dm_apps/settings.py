@@ -279,7 +279,7 @@ LANGUAGES = [
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
-    os.path.join(BASE_DIR, 'events', 'frontend', 'dist'),
+    # os.path.join(BASE_DIR, 'events', 'frontend', 'dist'),
 ]
 
 AZURE_STORAGE_ACCOUNT_NAME = config("AZURE_STORAGE_ACCOUNT_NAME", cast=str, default="")

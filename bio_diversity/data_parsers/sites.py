@@ -39,7 +39,7 @@ class SitesParser(DataParser):
             self.success = False
             return
         subr_id = None
-        if rive_id and utils.nan_to_none(row.get(self.subr_key)):
+        if utils.nan_to_none(row.get(self.subr_key)):
             subr_id = models.SubRiverCode.objects.filter(name__iexact=row.get(self.subr_key), rive_id=rive_id).get()
             if not subr_id:
                 self.log_data += "Subriver Code not found on row: {}".format(row)
@@ -47,7 +47,7 @@ class SitesParser(DataParser):
                 return
 
         trib_id = None
-        if rive_id and utils.nan_to_none(row.get(self.trib_key)):
+        if utils.nan_to_none(row.get(self.trib_key)):
             trib_id = models.Tributary.objects.filter(name__iexact=row.get(self.trib_key), rive_id=rive_id).get()
             if not trib_id:
                 self.log_data += "Tributary not found on row: {}".format(row)
@@ -70,7 +70,7 @@ class SitesParser(DataParser):
             site_id.clean()
             site_id.save()
             self.row_entered = True
-        except (IntegrityError, ValidationError) as err:
+        except (IntegrityError, ValidationError):
             self.log_data += "Row {} not entered. \n".format(self.row_count)
         self.row_count += 1
 
