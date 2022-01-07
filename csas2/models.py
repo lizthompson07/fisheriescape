@@ -440,7 +440,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     csas_requests = models.ManyToManyField(CSASRequest, blank=True, related_name="processes", verbose_name=_("Connected CSAS requests"))
     advice_date = models.DateTimeField(verbose_name=_("Target date for to provide Science advice"), blank=True, null=True)
-    projects = models.ManyToManyField(Project, editable=True, related_name="csas_processes", verbose_name=_("Links to PPT Projects"))
+    projects = models.ManyToManyField(Project, blank=True, related_name="csas_processes", verbose_name=_("Links to PPT Projects"))
 
     # non-editable
     is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"))
