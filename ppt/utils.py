@@ -26,8 +26,6 @@ def in_ppt_national_admin_group(user):
         return bool(hasattr(user, "ppt_admin_user") and user.ppt_admin_user.is_national_admin)
 
 
-
-
 def in_ppt_admin_group(user):
     """
     Will return True if user is in project_admin group
@@ -60,6 +58,7 @@ def is_section_head(user, project):
     except AttributeError as e:
         # print(e)
         pass
+
 
 def is_division_manager(user, project):
     try:
@@ -717,3 +716,28 @@ def get_risk_rating(impact, likelihood):
         },
     }
     return rating_dict[impact][likelihood]
+
+
+def prime_csas_activities(project_year, advice_date):
+    activities = [
+        dict(name="Planning", parent=None, type=1, start=-254, end=-285),
+        dict(name="Pre-Meeting with Science Staff", parent="Planning", type=1, start=-284, end=-285),
+        dict(name="Assemble Steering Committee", parent="Planning", type=1, start=-254, end=-284),
+        dict(name="Terms of Reference", parent=None, type=1, start=-187, end=-254),
+        dict(name="Complete ToR", parent="Terms of Reference", type=1, start=-239, end=-254),
+        dict(name="ToR Approvals", parent="Terms of Reference", type=1, start=-225, end=-239),
+        dict(name="Translate ToR", parent="Terms of Reference", type=1, start=-215, end=-225),
+        dict(name="Publish ToR", parent="Terms of Reference", type=1, start=-187, end=-215),
+        dict(name="Peer-review Meeting", parent=None, type=1, start=-143, end=-187),
+        dict(name="send out six week notice", parent="Peer-review Meeting", type=1, start=-145, end=-187),
+        dict(name="Hold Meeting", parent="Peer-review Meeting", type=1, start=-143, end=-145),
+        dict(name="Document", parent=None, type=2, start=0, end=-143),
+        dict(name="Submit reworked documents", parent="Document", type=1, start=-83, end=-143),
+        dict(name="Management approval (1st language)", parent="Document", type=1, start=-78, end=-83),
+        dict(name="Document translation", parent="Document", type=1, start=-33, end=-78),
+        dict(name="Correct formatting (both languages)", parent="Document", type=1, start=-12, end=-33),
+        dict(name="Review and approval by authors", parent="Document", type=1, start=-7, end=-12),
+        dict(name="Final approvals by management", parent="Document", type=1, start=-2, end=-7),
+        dict(name="Send final documents to NCR", parent="Document", type=1, start=0, end=-2),
+    ]
+

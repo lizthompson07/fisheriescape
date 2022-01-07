@@ -97,6 +97,9 @@ def can_view_application(user, application_id):
         # check to see if they are the client
         if is_applicant(user, application_id=application.id):
             return True
+        # check to see if they are the manager
+        elif is_manager(user, application_id=application.id):
+            return True
         # check to see if they are the client
         elif is_creator(user, application_id=application.id):
             return True

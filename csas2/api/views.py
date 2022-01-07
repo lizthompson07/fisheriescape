@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from unidecode import unidecode
 
+from ppt.utils import prime_csas_activities
 from shared_models.api.serializers import PersonSerializer
 from shared_models.api.views import _get_labels, SharedModelMetadataAPIView
 from shared_models.models import Person, Language, Region, FiscalYear, SubjectMatter
@@ -264,9 +265,8 @@ class ProcessViewSet(viewsets.ModelViewSet):
                 )
 
             # ACTIVITIES
-
-            Activity
-
+            project_year.activities.all().delete()
+            prime_csas_activities(project_year, process.advice_date)
             return Response(msg, status.HTTP_200_OK)
 
         raise ValidationError(_("This endpoint cannot be used without a query param"))
