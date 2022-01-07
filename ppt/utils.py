@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db.models import Sum, Q
 from django.utils.translation import gettext as _, gettext_lazy
 
@@ -718,7 +720,7 @@ def get_risk_rating(impact, likelihood):
     return rating_dict[impact][likelihood]
 
 
-def prime_csas_activities(project_year, advice_date):
+def prime_csas_activities(project_year, starting_date):
     activities = [
         dict(name="Planning", parent=None, type=1, start=-254, end=-285),
         dict(name="Pre-Meeting with Science Staff", parent="Planning", type=1, start=-284, end=-285),
@@ -740,4 +742,21 @@ def prime_csas_activities(project_year, advice_date):
         dict(name="Final approvals by management", parent="Document", type=1, start=-2, end=-7),
         dict(name="Send final documents to NCR", parent="Document", type=1, start=0, end=-2),
     ]
+
+    for a_dict in activities:
+        end = starting_date + timedelta(days=a_dict["start"])
+        start = starting_date + timedelta(days=a_dict["end"])
+
+        a = models.Activity.objects.create(
+            project_year=project_year,
+            name=a_dict["name"],
+            type=a_dict["type"],
+            target_date=end,
+            target_start_date=start,
+        )
+        if a_dict.get("parent"):
+            parent = project_year.activities.get(name=a_dict["parent"])
+            a.parent = parent
+            a.save()
+
 

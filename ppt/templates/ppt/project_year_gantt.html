@@ -8,7 +8,7 @@
 {% block subcontent %}
   {{ block.super }}
   <div id="app" v-cloak>
-    <div v-if="!activityLoading" style="width:100%;height:1000px">
+    <div v-if="!activityLoading" style="width:100%;height:1200px">
       <gantt-elastic :tasks="activities" :options="options" :dynamic-style="dynamicStyle">
         <gantt-header slot="header" :options="headerOptions" localHeight="10"></gantt-header>
       </gantt-elastic>
