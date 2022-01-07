@@ -445,7 +445,7 @@ class Project(models.Model):
     management_area = models.PositiveIntegerField(null=True, blank=True, validators=[MinValueValidator(0), MaxValueValidator(1000)])
     region = models.CharField(max_length=255, choices=choices.REGION, default=None, blank=True, null=True, verbose_name=_("Region"))
 
-    stock_management_unit = models.CharField(max_length=64, default=None, blank=True, null=True, verbose_name=_("Stock Management Unit"))
+    stock_management_unit = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Stock Management Unit"))
     cu_index = models.ForeignKey(CUIndex, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("CU Index"))
     cu_name = models.ForeignKey(CUName, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("CU Name"))
     species = models.ManyToManyField(Species, default=None, blank=True, verbose_name=_("Target Species"))
@@ -476,7 +476,7 @@ class Project(models.Model):
     DFO_resource_manager = models.ManyToManyField(Person, blank=True, related_name='DFO_resource_manager', verbose_name=_("DFO Resource Manager"))
     first_nation = models.ForeignKey(FirstNations, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='tribal_council', verbose_name=_("First Nation/Tribal Council"))
     first_nations_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='first_nations_contact', verbose_name=_("First Nations Contact"))
-    first_nations_contact_role = models.CharField(max_length=32, default=None, null=True, blank=True, verbose_name=_("First Nations Contact Role"))
+    first_nations_contact_role = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("First Nations Contact Role"))
     DFO_technicians = models.ManyToManyField(Person, blank=True, related_name='DFO_technicians', verbose_name=_("DFO Technicians/Biologists"))
     contractor = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Contractors"))
     contractor_contact = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Contractor Contact"))
@@ -590,7 +590,7 @@ class FundingYears(models.Model):
 class MethodDocument(models.Model):
     method = models.ForeignKey(Method, on_delete=models.CASCADE, null=True, blank=True, related_name='method_document', verbose_name=_("method"))
     method_document_type = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("method document type"))
-    authors = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("author"))
+    authors = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("author"))
     publication_year = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("year of publication"))
     title = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("title"))
     reference_number = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("reference number"))

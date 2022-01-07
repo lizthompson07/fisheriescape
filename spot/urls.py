@@ -1,12 +1,14 @@
 from django.urls import path
 
 from . import views
+from shared_models.views import CloserTemplateView
 
 app_name = 'spot'
 
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
+    path('close/', CloserTemplateView.as_view(), name="close_me"),
     # URLS
     # user permissions
     path('settings/users/', views.SpotUserFormsetView.as_view(), name="manage_spot_users"),
