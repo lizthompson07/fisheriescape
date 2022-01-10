@@ -1196,3 +1196,62 @@ class ReferenceMaterial(SimpleLookup):
 
     class Meta:
         ordering = ["region", "-updated_at"]
+
+
+
+
+class DMP(models.Model):
+    status_choices = (
+        (3, _("On-track")),
+        (4, _("Complete")),
+        (5, _("Encountering issues")),
+        (6, _("Aborted / cancelled")),
+    )
+    project = models.ForeignKey(Project, related_name="reports", on_delete=models.CASCADE)
+    status = models.IntegerField(default=3, editable=True, choices=status_choices)
+    major_accomplishments = models.TextField(blank=True, null=True, verbose_name=_("major accomplishments"))
+    major_issues = models.TextField(blank=True, null=True, verbose_name=_("major issues encountered"))
+    target_completion_date = models.DateTimeField(blank=True, null=True, verbose_name=_("target completion date"))
+    rationale_for_modified_completion_date = models.TextField(blank=True, null=True, verbose_name=_(
+        "rationale for a modified completion date"))
+    general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
+    section_head_comment = models.TextField(blank=True, null=True, verbose_name=_("section head comment"))
+    section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"), choices=YES_NO_CHOICES)
+
+    # metadata
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+    modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="last_mod_by_projects_status_report", blank=True,
+                                    null=True, editable=False)
+
+    @property
+    def metadata(self):
+        return get_metadata_string(self.created_at, None, self.updated_at, self.modified_by)
+
+    def save(self, *args, **kwargs):
+        return super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['created_at']
+
+    @property
+    def report_number(self):
+        return [report for report in self.project_year.reports.all().order_by("created_at")].index(self) + 1
+
+    def __str__(self):
+        # what is the number of this report?
+        return "{}{}".format(
+            gettext("Status Report #"),
+            self.report_number,
+        )
+
+    @property
+    def major_accomplishments_html(self):
+        if self.major_accomplishments:
+            return mark_safe(markdown(self.major_accomplishments))
+
+    @property
+    def major_issues_html(self):
+        if self.major_issues:
+            return mark_safe(markdown(self.major_issues))
+
