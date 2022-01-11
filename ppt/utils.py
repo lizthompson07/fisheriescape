@@ -721,7 +721,6 @@ def get_risk_rating(impact, likelihood):
 
 
 def prime_csas_activities(project_year, starting_date):
-
     parent_activities = [
         dict(name="Planning", parent=None, type=1),
         dict(name="Terms of Reference", parent=None, type=1),
@@ -762,7 +761,6 @@ def prime_csas_activities(project_year, starting_date):
             type=a_dict["type"],
         )
 
-
     for a_dict in activities:
         end = starting_date + timedelta(days=a_dict["start"])
         start = starting_date + timedelta(days=a_dict["end"])
@@ -786,13 +784,9 @@ def prime_csas_activities(project_year, starting_date):
             name=a_dict["name"],
             type=a_dict["type"],
         )
-        print(a)
         children = a.children.order_by("target_start_date")
         start = children.first().target_start_date
-        end = children.first().target_date
+        end = children.last().target_date
         a.target_start_date = start
         a.target_date = end
         a.save()
-
-
-
