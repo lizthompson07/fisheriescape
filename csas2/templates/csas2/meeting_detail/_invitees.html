@@ -73,9 +73,9 @@
           <button class="btn btn-sm" @click="deleteInvitee(invitee)">
             <span class="mdi mdi-delete"></span>
           </button>
-          <button v-if="invitee.comments" class="btn btn-sm" @click="displayComments(invitee)">
+          <span v-if="invitee.comments" class="btn btn-sm helper" @click="displayComments(invitee)" data-toggle="tooltip" :title="invitee.comments">
             <span class="mdi mdi-note-text text-primary lead"></span>
-          </button>
+          </span>
         </div>
       </td>
 
