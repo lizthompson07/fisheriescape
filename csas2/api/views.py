@@ -214,14 +214,15 @@ class ProcessViewSet(viewsets.ModelViewSet):
             elif process.projects.count() > 1:
                 raise ValidationError(_("Cannot perform this action when there are more than 1 projects attached to a process"))
 
-            from ppt.models import Project, ProjectYear, Staff, Activity
+            from ppt.models import Project, ProjectYear, Staff, Tag
             # There is no project
             if not process.projects.exists():
                 # let's create a new project in the PPT
                 project = Project.objects.create(
                     title=process.name,
                     activity_type_id=3,  # other
-                    default_funding_source_id=1  # a-base core
+                    default_funding_source_id=1,  # a-base core
+                    section=process.lead_office.ppt_default_section  # ok if NoneType
                 )
                 if process.csas_requests.exists():
                     project.overview = f"{process.csas_requests.first().issue}\n\n{process.csas_requests.first().rationale}"
@@ -234,11 +235,15 @@ class ProcessViewSet(viewsets.ModelViewSet):
                 project = process.projects.first()
                 msg = _("Success! the linked project in the PPT has been updated")
 
+            # tag it with the CSAS keyword
+            keyword, created = Tag.objects.get_or_create(name="CSAS")
+            project.tags.add(keyword)
+
             # get or create the project year
             # cannot use get_or_create because of weirdness with project start date / fiscal year
             year_qs = ProjectYear.objects.filter(fiscal_year_id=process.fiscal_year.id, project=project)
             if not year_qs:
-                date = datetime.strptime(f"4/1/{process.fiscal_year_id-1} 12:00", "%m/%d/%Y %H:%M")
+                date = datetime.strptime(f"4/1/{process.fiscal_year_id - 1} 12:00", "%m/%d/%Y %H:%M")
                 date = make_aware(date, utc)
                 project_year = ProjectYear.objects.create(start_date=date, project=project)
             else:

@@ -57,9 +57,16 @@ class CSASOfficeForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'coordinator': forms.Select(attrs=chosen_js),
+            'ppt_default_section': forms.Select(attrs=chosen_js),
             'advisors': forms.SelectMultiple(attrs=chosen_js),
             'administrators': forms.SelectMultiple(attrs=chosen_js),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        section_choices = utils.get_section_choices(with_requests=True)
+        section_choices.insert(0, (None, "-----"))
+        self.fields['ppt_default_section'].choices = section_choices
 
 
 class TripRequestTimestampUpdateForm(forms.ModelForm):

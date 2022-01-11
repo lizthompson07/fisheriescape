@@ -112,6 +112,9 @@ class CSASOffice(models.Model):
     generic_email = models.EmailField(verbose_name=_("generic email address"), blank=True, null=True)
     disable_request_notifications = models.BooleanField(default=False, verbose_name=_("disable notifications of new requests?"), choices=YES_NO_CHOICES)
     no_staff_emails = models.BooleanField(default=False, verbose_name=_("do not send emails directly to office staff?"), choices=YES_NO_CHOICES)
+    ppt_default_section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_offices",
+                                            verbose_name=_("default section for PPT"),
+                                            help_text=_("When exporting CSAS processes to projects, what should be the default section to use?"))
 
     class Meta:
         ordering = ["region"]
