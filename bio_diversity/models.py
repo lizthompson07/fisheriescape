@@ -7,6 +7,7 @@ import os
 from collections import Counter
 
 import pytz
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Q, Avg
@@ -21,7 +22,10 @@ from bio_diversity.utils import naive_to_aware
 from shared_models import models as shared_models
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-# from django.contrib.gis.db import models
+YES_NO_CHOICES = (
+        (True, _("Yes")),
+        (False, _("No")),
+    )
 
 
 class BioModel(models.Model):
@@ -310,6 +314,25 @@ class BioCont(BioLookup):
         filter_arg = "contx_id__{}_id".format(self.key)
         envt_qs = EnvTreatment.objects.filter(**{filter_arg: self}, start_datetime__gte=start_date, start_datetime__lte=end_date)
         return envt_qs
+
+
+class BioUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="bio_user", verbose_name=_("DM Apps user"))
+
+    # admins can modify helptext and other app settings
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator"), choices=YES_NO_CHOICES)
+
+    # authors can create/modify/delete records
+    is_author = models.BooleanField(default=False, verbose_name=_("app author"), choices=YES_NO_CHOICES)
+
+    # users can view, but not modify records
+    is_user = models.BooleanField(default=False, verbose_name=_("app user"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
 
 
 class AnimalDetCode(BioLookup):

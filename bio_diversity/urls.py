@@ -10,6 +10,9 @@ urlpatterns = [
     path('codes/index/', views.CodesIndexTemplateView.as_view(),    name="codes_index"),
     path('facic/index/', views.FacicIndexTemplateView.as_view(),    name="facic_index"),
 
+    path('settings/users/', views.BioUserFormsetView.as_view(), name="manage_bio_users"),
+    path('settings/users/<int:pk>/delete/', views.BioUserHardDeleteView.as_view(), name="delete_bio_user"),
+
     path('create/anidc/', views.AnidcCreate.as_view(), name="create_anidc"),
     path('details/anidc/<int:pk>/', views.AnidcDetails.as_view(), name="details_anidc"),
     path('list/anidc/', views.AnidcList.as_view(), name="list_anidc"),

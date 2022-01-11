@@ -204,6 +204,22 @@ class AdscForm(CreatePrams):
         exclude = []
 
 
+class BioUserForm(forms.ModelForm):
+    class Meta:
+        model = models.BioUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs={"class": "chosen-select-contains"}),
+        }
+
+
+BioUserFormset = modelformset_factory(
+    model=models.BioUser,
+    form=BioUserForm,
+    extra=1,
+)
+
+
 class CntForm(CreatePrams):
     class Meta:
         model = models.Count

@@ -18,7 +18,7 @@ from shared_models.views import CommonAuthCreateView, CommonAuthUpdateView, Comm
     CommonFormsetView, CommonHardDeleteView, CommonFormView, CommonFilterView
 from django.urls import reverse_lazy, reverse
 from django import forms
-from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset
+from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset, BioUserFormset
 from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models, reports
 import pytz
@@ -42,9 +42,22 @@ class SiteLoginRequiredMixin(UserPassesTestMixin):
             self.admin_only = True
 
         if self.admin_only:
-            return utils.bio_diverisity_admin(self.request.user)
+            return utils.in_bio_diversity_admin_group(self.request.user)
         else:
-            return utils.bio_diverisity_authorized(self.request.user)
+            return utils.in_bio_diversity_user_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.test_func()
+        if not user_test_result:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = utils.in_bio_diversity_admin_group(self.request.user)
+        context["is_author"] = utils.in_bio_diversity_author_group(self.request.user) or context["is_admin"]
+        context["is_user"] = utils.in_bio_diversity_user_group(self.request.user) or context["is_author"]
+        return context
 
 
 class AdminIndexTemplateView(TemplateView):
@@ -109,7 +122,25 @@ class FacicIndexTemplateView(TemplateView):
         context["auth"] = utils.bio_diverisity_admin(self.request.user)
         return context
 
-# CommonCreate Extends the UserPassesTestMixin used to determine if a user has
+
+class BioUserFormsetView(SiteLoginRequiredMixin, CommonFormsetView):
+    admin_only = True
+    template_name = 'bio_diversity/bio_user_formset.html'
+    h1 = "Manage Bio Diversity Administrative Users"
+    queryset = models.BioUser.objects.all()
+    formset_class = BioUserFormset
+    success_url_name = "bio_diversity:manage_bio_users"
+    home_url_name = "bio_diversity:index"
+    delete_url_name = "bio_diversity:delete_bio_user"
+
+
+class BioUserHardDeleteView(SiteLoginRequiredMixin, CommonHardDeleteView):
+    admin_only = True
+    model = models.BioUser
+    success_url = reverse_lazy("bio_diversity:manage_bio_users")
+
+
+#CommonCreate Extends the UserPassesTestMixin used to determine if a user has
 # has the correct privileges to interact with Creation Views
 # --------------------CREATE VIEWS----------------------------------------
 class CommonCreate(CommonAuthCreateView):
