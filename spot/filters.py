@@ -39,7 +39,7 @@ class PersonFilter(django_filters.FilterSet):
 
 class ProjectFilter(django_filters.FilterSet):
 
-    search_term = django_filters.CharFilter(field_name='search_term', label="Search", lookup_expr='icontains', widget=forms.TextInput())
+    #search_term = django_filters.CharFilter(field_name='search_term', label="Search", lookup_expr='icontains', widget=forms.TextInput())
     region = django_filters.ChoiceFilter(choices=choices.REGION, lookup_expr='icontains')
     stock_management_unit = django_filters.ChoiceFilter(choices=choices.SMU_NAME, lookup_expr='icontains')
     project_stage = django_filters.ChoiceFilter(choices=choices.PROJECT_STAGE, lookup_expr='icontains')
@@ -51,7 +51,7 @@ class ProjectFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Project
-        fields = ['search_term', 'species', 'region', 'cu_name', 'stock_management_unit', 'project_stage','ecosystem_type',
+        fields = ['species', 'region', 'cu_name', 'stock_management_unit', 'project_stage','ecosystem_type',
                   'project_type', 'project_sub_type', 'monitoring_approach',
                   'project_theme', 'core_component', 'supportive_component',
                   'government_organization', 'DFO_link',]
@@ -62,7 +62,7 @@ class ProjectFilter(django_filters.FilterSet):
 
 class ObjectiveFilter(django_filters.FilterSet):
 
-    search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget=forms.TextInput())
+    #search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget=forms.TextInput())
 
     class Meta:
         model = models.Objective
@@ -73,7 +73,7 @@ class ObjectiveFilter(django_filters.FilterSet):
 
 
 class MethodFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget=forms.TextInput())
+    #search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget=forms.TextInput())
 
     class Meta:
         model = models.Method
@@ -84,7 +84,7 @@ class MethodFilter(django_filters.FilterSet):
 
 
 class DataFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget=forms.TextInput())
+    #search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget=forms.TextInput())
 
     class Meta:
         model = models.Data
@@ -106,7 +106,7 @@ class MeetingsFilter(django_filters.FilterSet):
 
 
 class ReportsFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains',widget=forms.TextInput())
+    #search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains',widget=forms.TextInput())
     report_timeline = django_filters.ChoiceFilter(choices=choices.REPORT_TIMELINE)
     report_type = django_filters.ChoiceFilter(choices=choices.REPORT_TYPE)
 

@@ -104,7 +104,7 @@
                 <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href=" " class="btn btn-sm btn-success">Export to .csv</a>
+                <a href="{% url 'spot:export_data' %}?{{request.GET.urlencode}}" class="btn btn-sm btn-success">Export to .csv</a>
             </div>
         </div>
 
