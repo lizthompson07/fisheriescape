@@ -64,7 +64,7 @@ class CSASOfficeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        section_choices = utils.get_section_choices(with_requests=True)
+        section_choices = utils.get_section_choices(with_requests=False)
         section_choices.insert(0, (None, "-----"))
         self.fields['ppt_default_section'].choices = section_choices
 
