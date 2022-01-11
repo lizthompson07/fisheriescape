@@ -51,8 +51,8 @@
       <tbody v-for="(item, index) in activities" v-if="!item.parent">
       <tr>
         <td v-if="item.children.length" class="pointy" @click="item.show_children = !item.show_children">
-          <span v-if="item.show_children" class="mdi mdi-minus-box-outline"></span>
-          <span v-else class="mdi mdi-plus-box-outline"></span>
+          <span v-if="item.show_children" class="mdi mdi-minus-box-outline lead"></span>
+          <span v-else class="mdi mdi-plus-box-outline lead"></span>
         </td>
         <td v-else></td>
         <td v-html="item.type_display"></td>
@@ -77,7 +77,7 @@
       </tr>
       <tr v-if="item.show_children" v-for="child in item.children" :key="child.id" class="child">
         <td>
-          <span class="mdi mdi-subdirectory-arrow-right"></span>
+          <span class="mdi mdi-subdirectory-arrow-right ml-3"></span>
         </td>
         <td v-html="child.type_display"></td>
         <td v-html="child.name"></td>

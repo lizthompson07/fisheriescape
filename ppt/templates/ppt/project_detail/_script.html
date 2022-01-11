@@ -300,7 +300,7 @@ var app = new Vue({
           .then(response => {
             this.activity_loading = false;
             for (const responseElement of response) {
-              responseElement.show_children = true;
+              responseElement.show_children = !!this.canModify;
             }
             this.activities = response;
           })
@@ -402,7 +402,7 @@ var app = new Vue({
       window.location.href = `/ppt/project-years/${projectYearId}/edit/`
     },
     goProjectYearGantt(projectYearId) {
-      url =  `/ppt/project-years/${projectYearId}/gantt/`;
+      url = `/ppt/project-years/${projectYearId}/gantt/`;
       win = window.open(url, '_blank');
     },
     goProjectEdit(projectId) {
