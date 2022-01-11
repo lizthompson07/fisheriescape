@@ -10,181 +10,293 @@ def import_watershed():
     with open(path) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            created = models.Watershed.objects.get_or_create(
-                group_code=row['group_code'],
-                name=row['name'],
-            )
+            if models.Watershed.objects.filter(name__exact=row['name']) or row['name'] == "":
+                continue
+            else:
+                created = models.Watershed.objects.get_or_create(
+                    group_code=row['group_code'],
+                    name=row['name'],
+                )
 
-
-def import_lakesystem():
-    path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'lake_systems.csv')
-    with open(path) as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            created = models.LakeSystem.objects.get_or_create(
-                name=row['lake_systems'],
-            )
-
-
-def import_CUIndex():
-    path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'CU_first_nations.csv')
-    with open(path) as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            created = models.CUIndex.objects.get_or_create(
-                name=row['CU Index'],
-            )
-
-
-def import_CUName():
-    path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'CU_first_nations.csv')
-    with open(path) as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            created = models.CUName.objects.get_or_create(
-                name=row['CU Name'],
-            )
-
-
-def import_first_nations():
-    path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'CU_first_nations.csv')
-    with open(path) as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            created = models.FirstNations.objects.get_or_create(
-                name=row['First Nations'],
-            )
-
-
-def import_drop_downs():
-    path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'drop_down3.csv')
-    with open(path) as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            created_species = models.Species.objects.get_or_create(
-                name=row['Species'],
-            )
-            created_salmon_life_stage = models.SalmonLifeStage.objects.get_or_create(
-                name=row['Salmon Life Stage'],
-            )
-            created_project_sub_type = models.ProjectSubType.objects.get_or_create(
-                name=row['Project Sub-Type'],
-            )
-            created_project_theme = models.ProjectTheme.objects.get_or_create(
-                name=row['Project Theme'],
-            )
-            created_core_component = models.CoreComponent.objects.get_or_create(
-                name=row['Project Core Element'],
-            )
-            created_supportive_component = models.SupportiveComponent.objects.get_or_create(
-                name=row['Project Supportive Element'],
-            )
-            created_project_purpose = models.ProjectPurpose.objects.get_or_create(
-                name=row['Project Purpose'],
-            )
-            created_funding_sources = models.FundingSources.objects.get_or_create(
-                name=row['Funding Sources'],
-            )
-            created_capacity_building = models.CapacityBuilding.objects.get_or_create(
-                name=row['What capacity building did this project provide?'],
-            )
-            created_outcome_barrier = models.OutComeBarrier.objects.get_or_create(
-                name=row['Barrier to achieving outcomes?'],
-            )
-            created_planning = models.PlanningMethodType.objects.get_or_create(
-                name=row['Planning Type'],
-            )
-            created_field_work = models.FieldWorkMethodType.objects.get_or_create(
-                name=row['Field Work Method'],
-            )
-            created_sample_processing = models.SampleProcessingMethodType.objects.get_or_create(
-                name=row['Sample Processing Type'],
-            )
-            created_sample_collected = models.SamplesCollected.objects.get_or_create(
-                name=row['Samples Collected'],
-            )
-            created_database = models.DatabaseChoice.objects.get_or_create(
-                name=row['Database'],
-            )
-            created_sample_barrier = models.SampleBarrier.objects.get_or_create(
-                name=row['Barriers to Sample Collection'],
-            )
-            created_data_barrier = models.DataBarrier.objects.get_or_create(
-                name=row['Barriers to data checks/enter into database'],
-            )
-            created_sample_format = models.SampleFormat.objects.get_or_create(
-                name=row['Data Format'],
-            )
-            created_sample_format = models.SampleFormat.objects.get_or_create(
-                name=row['Data Format'],
-            )
-            created_data_products = models.DataProducts.objects.get_or_create(
-                name=row['Data Products'],
-            )
-            created_data_programs = models.DataPrograms.objects.get_or_create(
-                name=row['Programs used in analysis'],
-            )
-            created_data_communication = models.DataCommunication.objects.get_or_create(
-                name=row['data communication'],
-            )
 
 def import_rivers():
     path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'rivers.csv')
     with open(path) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            if models.River.objects.filter(name__contains=row['River']):
+            if models.River.objects.filter(name__exact=row['River']) or row['River'] == "":
                 continue
-            created = models.River.objects.get_or_create(
-                name=row['River'],
-                longitude=row['X_LONGT'],
-                latitude=row['Y_LAT'],
-            )
+            else:
+                created = models.River.objects.get_or_create(
+                    name=row['River'],
+                    longitude=row['X_LONGT'],
+                    latitude=row['Y_LAT'],
+                )
 
+
+def import_generic(file_name, model_name, row_name):
+    path = os.path.join(settings.BASE_DIR, 'spot', 'import', file_name)
+    with open(path) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if model_name.objects.filter(name__exact=row[row_name]) or row[row_name] == "":
+                continue
+            else:
+                created = model_name.objects.get_or_create(
+                    name=row[row_name].strip(),
+                )
+
+
+def import_lakesystem():
+    file_name = 'lake_systems.csv'
+    model_name = models.LakeSystem
+    row_name = 'lake_systems'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_cuindex():
+    file_name = 'CU_first_nations.csv'
+    model_name = models.CUIndex
+    row_name = 'CU Index'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_cuname():
+    file_name = 'CU_first_nations.csv'
+    model_name = models.CUName
+    row_name = 'CU Name'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_first_nations():
+    file_name = 'CU_first_nations.csv'
+    model_name = models.FirstNations
+    row_name = 'First Nations'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_species():
+    file_name = 'drop_down4.csv'
+    model_name = models.Species
+    row_name = 'Species'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_salmonlifestage():
+    file_name = 'drop_down4.csv'
+    model_name = models.SalmonLifeStage
+    row_name = 'Salmon Life Stage'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_projectsubtype():
+    file_name = 'drop_down4.csv'
+    model_name = models.ProjectSubType
+    row_name = 'Project Sub-Type'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_projecttheme():
+    file_name = 'drop_down4.csv'
+    model_name = models.ProjectTheme
+    row_name = 'Project Theme'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_corecomponent():
+    file_name = 'drop_down4.csv'
+    model_name = models.CoreComponent
+    row_name = 'Project Core Element'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_supportivecomponent():
+    file_name = 'drop_down4.csv'
+    model_name = models.SupportiveComponent
+    row_name = 'Project Supportive Element'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_projectpurpose():
+    file_name = 'drop_down4.csv'
+    model_name = models.ProjectPurpose
+    row_name = 'Project Purpose'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_fundingsources():
+    file_name = 'drop_down4.csv'
+    model_name = models.FundingSources
+    row_name = 'Funding Sources'
+    import_generic(file_name, model_name, row_name)
+
+def import_capacitybuilding():
+    file_name = 'drop_down4.csv'
+    model_name = models.CapacityBuilding
+    row_name = 'What capacity building did this project provide?'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_outcomebarrier():
+    file_name = 'drop_down4.csv'
+    model_name = models.OutComeBarrier
+    row_name = 'Barrier to achieving outcomes?'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_planningmethod():
+    file_name = 'drop_down4.csv'
+    model_name = models.PlanningMethodType
+    row_name = 'Planning Type'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_fieldmethod():
+    file_name = 'drop_down4.csv'
+    model_name = models.FieldWorkMethodType
+    row_name = 'Field Work Method'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_samplemethod():
+    file_name = 'drop_down4.csv'
+    model_name = models.SampleProcessingMethodType
+    row_name = 'Sample Processing Type'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_samplecollected():
+    file_name = 'drop_down4.csv'
+    model_name = models.SamplesCollected
+    row_name = 'Samples Collected'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_datadropdown():
+    file_name = 'drop_down4.csv'
+    model_name = models.DatabaseChoice
+    row_name = 'Database'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_samplebarrier():
+    file_name = 'drop_down4.csv'
+    model_name = models.SampleBarrier
+    row_name = 'Barriers to Sample Collection'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_databarrier():
+    file_name = 'drop_down4.csv'
+    model_name = models.DataBarrier
+    row_name = 'Barriers to data checks/enter into database'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_sampleformat():
+    file_name = 'drop_down4.csv'
+    model_name = models.SampleFormat
+    row_name = 'Data Format'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_dataproducts():
+    file_name = 'drop_down4.csv'
+    model_name = models.DataProducts
+    row_name = 'Data Products'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_dataprograms():
+    file_name = 'drop_down4.csv'
+    model_name = models.DataPrograms
+    row_name = 'Programs used in analysis'
+    import_generic(file_name, model_name, row_name)
+
+
+def import_all():
+    import_watershed()
+    import_rivers()
+    import_dataprograms()
+    import_dataproducts()
+    import_sampleformat()
+    import_databarrier()
+    import_samplebarrier()
+    import_datadropdown()
+    import_samplecollected()
+    import_samplemethod()
+    import_fieldmethod()
+    import_planningmethod()
+    import_outcomebarrier()
+    import_capacitybuilding()
+    import_fundingsources()
+    import_projectpurpose()
+    import_supportivecomponent()
+    import_corecomponent()
+    import_projecttheme()
+    import_projectsubtype()
+    import_salmonlifestage()
+    import_species()
+    import_first_nations()
+    import_cuname()
+    import_cuindex()
+    import_lakesystem()
+    import_organization()
+    import_person()
+    import_project()
+    import_objective()
+    import_report()
+    import_data()
+    import_method()
 
 def import_organization():
     path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'organizations.csv')
     with open(path) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            created = models.Organization.objects.get_or_create(
-                name=row['Organization Name'],
-                organization_type=row['Organization Type'],
-                section=row['Section'],
-                address=row['Address'],
-                city=row['City'],
-                province_state=row['Province/State'],
-                country=row['Country'],
-                phone=row['Phone'],
-                email=row['Primary email'],
-                website=row['Website']
-            )
+            if models.Organization.objects.filter(name__iexact=row['Organization Name']) or row['Organization Name'] == "":
+                continue
+            else:
+                created = models.Organization.objects.get_or_create(
+                    name=row['Organization Name'],
+                    organization_type=row['Organization Type'],
+                    section=row['Section'],
+                    address=row['Address'],
+                    city=row['City'],
+                    province_state=row['Province/State'],
+                    country=row['Country'],
+                    phone=row['Phone'],
+                    email=row['Primary email'],
+                    website=row['Website']
+                )
 
 
 def import_person():
     path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'persons.csv')
     with open(path) as f:
         reader = csv.DictReader(f)
-        next(reader, None)
         for row in reader:
-            created, _ = models.Person.objects.get_or_create(
-                last_name=row['Last name'],
-                first_name=row['First name'],
-                phone=row['Work phone'],
-                email=row['Work email'],
-                city=row['Office location - city'],
-                province_state=row['state/province'],
-                country=row['Country'],
-                section=row['Section'],
-                role=row['Role'],
-                other_membership=row['Other membership'],
-            )
-            org_tmp, _ = models.Organization.objects.get_or_create(name=row['Primary Organization'])
-            created.organizations.add(org_tmp)
+            if models.Person.objects.filter(first_name__iexact=row['First name'], last_name__iexact=row['Last name']) or (row['First name'] == "" and row['Last name'] == ""):
+                continue
+            else:
+                created, _ = models.Person.objects.get_or_create(
+                    last_name=row['Last name'],
+                    first_name=row['First name'],
+                    phone=row['Work phone'],
+                    email=row['Work email'],
+                    city=row['Office location - city'],
+                    province_state=row['state/province'],
+                    country=row['Country'],
+                    section=row['Section'],
+                    role=row['Role'],
+                    other_membership=row['Other membership'],
+                )
+                org_tmp, _ = models.Organization.objects.get_or_create(name=row['Primary Organization'].strip())
+                created.organizations.add(org_tmp)
 
 
 def import_project():
-    path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'projects2.csv')
+    path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'projects5.csv')
     with open(path) as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -204,18 +316,18 @@ def import_project():
             else:
                 end_date_tmp = row['Project End Date']
 
-            primary_river_tmp, _ = models.River.objects.get_or_create(name=row['Primary_River'])
-            first_nations_tmp, _ = models.FirstNations.objects.get_or_create(name=row['First Nations'])
-            cu_index_tmp, _ = models.CUIndex.objects.get_or_create(name=row['CUIndex'])
-            cu_name_tmp, _ = models.CUName.objects.get_or_create(name=row['CUName'])
+            primary_river_tmp, _ = models.River.objects.get_or_create(name=row['Primary_River'].strip())
+            first_nations_tmp, _ = models.FirstNations.objects.get_or_create(name=row['First Nations'].strip())
+            cu_index_tmp, _ = models.CUIndex.objects.get_or_create(name=row['CUIndex'].strip())
+            cu_name_tmp, _ = models.CUName.objects.get_or_create(name=row['CUName'].strip())
 
             if row['First Nations Contact'].__contains__(' '):
                 tmp_whole_name = row['First Nations Contact'].split(' ')
                 tmp_first_name = tmp_whole_name[0]
                 tmp_last_name = tmp_whole_name[1]
-                first_nations_contact_tmp, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                first_nations_contact_tmp, _ = models.Person.objects.get_or_create(first_name=tmp_first_name.strip(), last_name=tmp_last_name.strip())
             else:
-                first_nations_contact_tmp, _ = models.Person.objects.get_or_create(first_name=row['First Nations Contact'])
+                first_nations_contact_tmp, _ = models.Person.objects.get_or_create(first_name=row['First Nations Contact'].strip())
 
             created, _ = models.Project.objects.get_or_create(
                 project_number=row['Project Number'],
@@ -254,109 +366,109 @@ def import_project():
             if row['Species'].__contains__(','):
                 tmp_arr = row['Species'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.Species.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.Species.objects.get_or_create(name=tmp.strip())
                     created.species.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.Species.objects.get_or_create(name=row['Species'])
+                tmp_obj, _ = models.Species.objects.get_or_create(name=row['Species'].strip())
                 created.species.add(int(tmp_obj.id))
 
             if row['Salmon Life Stage'].__contains__(','):
                 tmp_arr = row['Salmon Life Stage'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.SalmonLifeStage.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.SalmonLifeStage.objects.get_or_create(name=tmp.strip())
                     created.salmon_life_stage.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.SalmonLifeStage.objects.get_or_create(name=row['Salmon Life Stage'])
+                tmp_obj, _ = models.SalmonLifeStage.objects.get_or_create(name=row['Salmon Life Stage'].strip())
                 created.salmon_life_stage.add(int(tmp_obj.id))
 
             if row['Project_Subtype'].__contains__(','):
                 tmp_arr = row['Project_Subtype'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.ProjectSubType.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.ProjectSubType.objects.get_or_create(name=tmp.strip())
                     created.project_sub_type.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.ProjectSubType.objects.get_or_create(name=row['Project_Subtype'])
+                tmp_obj, _ = models.ProjectSubType.objects.get_or_create(name=row['Project_Subtype'].strip())
                 created.project_sub_type.add(int(tmp_obj.id))
 
             if row['Project_Theme'].__contains__(','):
                 tmp_arr = row['Project_Theme'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.ProjectTheme.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.ProjectTheme.objects.get_or_create(name=tmp.strip())
                     created.project_theme.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.ProjectTheme.objects.get_or_create(name=row['Project_Theme'])
+                tmp_obj, _ = models.ProjectTheme.objects.get_or_create(name=row['Project_Theme'].strip())
                 created.project_theme.add(int(tmp_obj.id))
 
             if row['Project_Core_Element'].__contains__(','):
                 tmp_arr = row['Project_Core_Element'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.CoreComponent.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.CoreComponent.objects.get_or_create(name=tmp.strip())
                     created.core_component.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.CoreComponent.objects.get_or_create(name=row['Project_Core_Element'])
+                tmp_obj, _ = models.CoreComponent.objects.get_or_create(name=row['Project_Core_Element'].strip())
                 created.core_component.add(int(tmp_obj.id))
 
             if row['Project_Supportive_Element'].__contains__(','):
                 tmp_arr = row['Project_Supportive_Element'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.SupportiveComponent.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.SupportiveComponent.objects.get_or_create(name=tmp.strip())
                     created.supportive_component.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.SupportiveComponent.objects.get_or_create(name=row['Project_Supportive_Element'])
+                tmp_obj, _ = models.SupportiveComponent.objects.get_or_create(name=row['Project_Supportive_Element'].strip())
                 created.supportive_component.add(int(tmp_obj.id))
 
             if row['Project Purpose'].__contains__(','):
                 tmp_arr = row['Project Purpose'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.ProjectPurpose.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.ProjectPurpose.objects.get_or_create(name=tmp.strip())
                     created.project_purpose.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.ProjectPurpose.objects.get_or_create(name=row['Project Purpose'])
+                tmp_obj, _ = models.ProjectPurpose.objects.get_or_create(name=row['Project Purpose'].strip())
                 created.project_purpose.add(int(tmp_obj.id))
 
             if row['Funding Sources'].__contains__(','):
                 tmp_arr = row['Funding Sources'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.FundingSources.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.FundingSources.objects.get_or_create(name=tmp.strip())
                     created.funding_sources.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.FundingSources.objects.get_or_create(name=row['Funding Sources'])
+                tmp_obj, _ = models.FundingSources.objects.get_or_create(name=row['Funding Sources'].strip())
                 created.funding_sources.add(int(tmp_obj.id))
 
             if row['Secondary River'].__contains__(','):
                 tmp_arr = row['Secondary River'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.River.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.River.objects.get_or_create(name=tmp.strip())
                     created.secondary_river.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.River.objects.get_or_create(name=row['Secondary River'])
+                tmp_obj, _ = models.River.objects.get_or_create(name=row['Secondary River'].strip())
                 created.secondary_river.add(int(tmp_obj.id))
 
             if row['Lake System'].__contains__(','):
                 tmp_arr = row['Lake System'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.LakeSystem.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.LakeSystem.objects.get_or_create(name=tmp.strip())
                     created.lake_system.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.LakeSystem.objects.get_or_create(name=row['Lake System'])
+                tmp_obj, _ = models.LakeSystem.objects.get_or_create(name=row['Lake System'].strip())
                 created.lake_system.add(int(tmp_obj.id))
 
             if row['Watershed Name'].__contains__(','):
                 tmp_arr = row['Watershed Name'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.Watershed.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.Watershed.objects.get_or_create(name=tmp.strip())
                     created.watershed.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.Watershed.objects.get_or_create(name=row['Watershed Name'])
+                tmp_obj, _ = models.Watershed.objects.get_or_create(name=row['Watershed Name'].strip())
                 created.watershed.add(int(tmp_obj.id))
 
             if row['Partners'].__contains__(','):
                 tmp_arr = row['Partners'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.Organization.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.Organization.objects.get_or_create(name=tmp.strip())
                     created.partner.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.Organization.objects.get_or_create(name=row['Partners'])
+                tmp_obj, _ = models.Organization.objects.get_or_create(name=row['Partners'].strip())
                 created.partner.add(int(tmp_obj.id))
 
             if row['DFO Project Authority'].__contains__(','):
@@ -366,20 +478,20 @@ def import_project():
                         tmp_whole_name = tmp.split(' ')
                         tmp_first_name = tmp_whole_name[0]
                         tmp_last_name = tmp_whole_name[1]
-                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name.strip(), last_name=tmp_last_name.strip())
                         created.DFO_project_authority.add(int(tmp_person.id))
                     else:
-                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp)
+                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp.strip())
                         created.DFO_project_authority.add(int(tmp_person.id))
             elif row['DFO Project Authority'].__contains__(' '):
                 tmp = row['DFO Project Authority']
                 tmp_whole_name = tmp.split(' ')
                 tmp_first_name = tmp_whole_name[0]
                 tmp_last_name = tmp_whole_name[1]
-                tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name.strip(), last_name=tmp_last_name.strip())
                 created.DFO_project_authority.add(int(tmp_person.id))
             else:
-                tmp_person, _ = models.Person.objects.get_or_create(first_name=row['DFO Project Authority'])
+                tmp_person, _ = models.Person.objects.get_or_create(first_name=row['DFO Project Authority'].strip())
                 created.DFO_project_authority.add(int(tmp_person.id))
 
             if row['Area Chief'].__contains__(','):
@@ -389,20 +501,20 @@ def import_project():
                         tmp_whole_name = tmp.split(' ')
                         tmp_first_name = tmp_whole_name[0]
                         tmp_last_name = tmp_whole_name[1]
-                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name.strip(), last_name=tmp_last_name.strip())
                         created.DFO_area_chief.add(int(tmp_person.id))
                     else:
-                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp)
+                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp.strip())
                         created.DFO_area_chief.add(int(tmp_person.id))
             elif row['Area Chief'].__contains__(' '):
                 tmp = row['Area Chief']
                 tmp_whole_name = tmp.split(' ')
                 tmp_first_name = tmp_whole_name[0]
                 tmp_last_name = tmp_whole_name[1]
-                tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name.strip(), last_name=tmp_last_name.strip())
                 created.DFO_area_chief.add(int(tmp_person.id))
             else:
-                tmp_person, _ = models.Person.objects.get_or_create(first_name=row['Area Chief'])
+                tmp_person, _ = models.Person.objects.get_or_create(first_name=row['Area Chief'].strip())
                 created.DFO_area_chief.add(int(tmp_person.id))
 
             if row['DFO Aboriginal Affairs Advisor'].__contains__(','):
@@ -412,20 +524,20 @@ def import_project():
                         tmp_whole_name = tmp.split(' ')
                         tmp_first_name = tmp_whole_name[0]
                         tmp_last_name = tmp_whole_name[1]
-                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name.strip(), last_name=tmp_last_name.strip())
                         created.DFO_aboriginal_AAA.add(int(tmp_person.id))
                     else:
-                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp)
+                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp.strip())
                         created.DFO_aboriginal_AAA.add(int(tmp_person.id))
             elif row['DFO Aboriginal Affairs Advisor'].__contains__(' '):
                 tmp = row['DFO Aboriginal Affairs Advisor']
                 tmp_whole_name = tmp.split(' ')
                 tmp_first_name = tmp_whole_name[0]
                 tmp_last_name = tmp_whole_name[1]
-                tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name.strip(), last_name=tmp_last_name.strip())
                 created.DFO_aboriginal_AAA.add(int(tmp_person.id))
             else:
-                tmp_person, _ = models.Person.objects.get_or_create(first_name=row['DFO Aboriginal Affairs Advisor'])
+                tmp_person, _ = models.Person.objects.get_or_create(first_name=row['DFO Aboriginal Affairs Advisor'].strip())
                 created.DFO_aboriginal_AAA.add(int(tmp_person.id))
 
             if row['DFO Resource manager'].__contains__(','):
@@ -435,20 +547,20 @@ def import_project():
                         tmp_whole_name = tmp.split(' ')
                         tmp_first_name = tmp_whole_name[0]
                         tmp_last_name = tmp_whole_name[1]
-                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name.strip(), last_name=tmp_last_name.strip())
                         created.DFO_resource_manager.add(int(tmp_person.id))
                     else:
-                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp)
+                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp.strip())
                         created.DFO_resource_manager.add(int(tmp_person.id))
             elif row['DFO Resource manager'].__contains__(' '):
                 tmp = row['DFO Resource manager']
                 tmp_whole_name = tmp.split(' ')
                 tmp_first_name = tmp_whole_name[0]
                 tmp_last_name = tmp_whole_name[1]
-                tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name.strip(), last_name=tmp_last_name.strip())
                 created.DFO_resource_manager.add(int(tmp_person.id))
             else:
-                tmp_person, _ = models.Person.objects.get_or_create(first_name=row['DFO Resource manager'])
+                tmp_person, _ = models.Person.objects.get_or_create(first_name=row['DFO Resource manager'].strip())
                 created.DFO_resource_manager.add(int(tmp_person.id))
 
             if row['DFO Biologists or Technicians'].__contains__(','):
@@ -458,20 +570,20 @@ def import_project():
                         tmp_whole_name = tmp.split(' ')
                         tmp_first_name = tmp_whole_name[0]
                         tmp_last_name = tmp_whole_name[1]
-                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name.strip(), last_name=tmp_last_name.strip())
                         created.DFO_technicians.add(int(tmp_person.id))
                     else:
-                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp)
+                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp.strip())
                         created.DFO_technicians.add(int(tmp_person.id))
             elif row['DFO Biologists or Technicians'].__contains__(' '):
                 tmp = row['DFO Biologists or Technicians']
                 tmp_whole_name = tmp.split(' ')
                 tmp_first_name = tmp_whole_name[0]
                 tmp_last_name = tmp_whole_name[1]
-                tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name.strip(), last_name=tmp_last_name.strip())
                 created.DFO_technicians.add(int(tmp_person.id))
             else:
-                tmp_person, _ = models.Person.objects.get_or_create(first_name=row['DFO Biologists or Technicians'])
+                tmp_person, _ = models.Person.objects.get_or_create(first_name=row['DFO Biologists or Technicians'].strip())
                 created.DFO_technicians.add(int(tmp_person.id))
 
             if row['Partners Primary Contact'].__contains__(','):
@@ -481,21 +593,34 @@ def import_project():
                         tmp_whole_name = tmp.split(' ')
                         tmp_first_name = tmp_whole_name[0]
                         tmp_last_name = tmp_whole_name[1]
-                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name.strip(), last_name=tmp_last_name.strip())
                         created.partner_contact.add(int(tmp_person.id))
                     else:
-                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp)
+                        tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp.strip())
                         created.partner_contact.add(int(tmp_person.id))
             elif row['Partners Primary Contact'].__contains__(' '):
                 tmp = row['Partners Primary Contact']
                 tmp_whole_name = tmp.split(' ')
                 tmp_first_name = tmp_whole_name[0]
                 tmp_last_name = tmp_whole_name[1]
-                tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                tmp_person, _ = models.Person.objects.get_or_create(first_name=tmp_first_name.strip(), last_name=tmp_last_name.strip())
                 created.partner_contact.add(int(tmp_person.id))
             else:
-                tmp_person, _ = models.Person.objects.get_or_create(first_name=row['Partners Primary Contact'])
+                tmp_person, _ = models.Person.objects.get_or_create(first_name=row['Partners Primary Contact'].strip())
                 created.partner_contact.add(int(tmp_person.id))
+
+
+def import_singlevar(row, row_name, model_name, created_var):
+    if row[row_name].__contains__(','):
+        tmp_arr = row[row_name].split(',')
+        for tmp in tmp_arr:
+            tmp_obj, _ = model_name.objects.get_or_create(name=tmp)
+            created_var.add(int(tmp_obj.id))
+    else:
+        tmp_obj, _ = model_name.objects.get_or_create(name=row[row_name])
+        created_var.add(int(tmp_obj.id))
+
+
 
 
 def import_objective():
@@ -509,11 +634,11 @@ def import_objective():
                 tmp_whole_name = row['Outcome contact'].split(' ')
                 tmp_first_name = tmp_whole_name[0]
                 tmp_last_name = tmp_whole_name[1]
-                outcome_contact_tmp, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                outcome_contact_tmp, _ = models.Person.objects.get_or_create(first_name=tmp_first_name.strip(), last_name=tmp_last_name.strip())
             else:
-                outcome_contact_tmp, _ = models.Person.objects.get_or_create(first_name=row['Outcome contact'])
+                outcome_contact_tmp, _ = models.Person.objects.get_or_create(first_name=row['Outcome contact'].strip())
 
-            project_tmp, _ = models.Project.objects.get_or_create(agreement_number=row['Agreement_Number'])
+            project_tmp, _ = models.Project.objects.get_or_create(agreement_number=row['Agreement_Number'].strip())
 
             created, _ = models.Objective.objects.get_or_create(
                 project_id=int(project_tmp.id),
@@ -535,55 +660,55 @@ def import_objective():
             if row['River(s)'].__contains__(','):
                 tmp_arr = row['River(s)'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.River.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.River.objects.get_or_create(name=tmp.strip())
                     created.location.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.River.objects.get_or_create(name=row['River(s)'])
+                tmp_obj, _ = models.River.objects.get_or_create(name=row['River(s)'].strip())
                 created.location.add(int(tmp_obj.id))
 
             if row['Objective_Category'].__contains__(','):
                 tmp_arr = row['Objective_Category'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.ObjectiveCategory.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.ObjectiveCategory.objects.get_or_create(name=tmp.strip())
                     created.objective_category.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.ObjectiveCategory.objects.get_or_create(name=row['Objective_Category'])
+                tmp_obj, _ = models.ObjectiveCategory.objects.get_or_create(name=row['Objective_Category'].strip())
                 created.objective_category.add(int(tmp_obj.id))
 
             if row['Species'].__contains__(','):
                 tmp_arr = row['Species'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.Species.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.Species.objects.get_or_create(name=tmp.strip())
                     created.species.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.Species.objects.get_or_create(name=row['Species'])
+                tmp_obj, _ = models.Species.objects.get_or_create(name=row['Species'].strip())
                 created.species.add(int(tmp_obj.id))
 
             if row['Barrieres to Achieving outcomes?'].__contains__(','):
                 tmp_arr = row['Barrieres to Achieving outcomes?'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.OutComeBarrier.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.OutComeBarrier.objects.get_or_create(name=tmp.strip())
                     created.outcome_barrier.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.OutComeBarrier.objects.get_or_create(name=row['Barrieres to Achieving outcomes?'])
+                tmp_obj, _ = models.OutComeBarrier.objects.get_or_create(name=row['Barrieres to Achieving outcomes?'].strip())
                 created.outcome_barrier.add(int(tmp_obj.id))
 
             if row['What capacity building did this project provide? (1-AH)'].__contains__(','):
                 tmp_arr = row['What capacity building did this project provide? (1-AH)'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.CapacityBuilding.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.CapacityBuilding.objects.get_or_create(name=tmp.strip())
                     created.capacity_building.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.CapacityBuilding.objects.get_or_create(name=row['What capacity building did this project provide? (1-AH)'])
+                tmp_obj, _ = models.CapacityBuilding.objects.get_or_create(name=row['What capacity building did this project provide? (1-AH)'].strip())
                 created.capacity_building.add(int(tmp_obj.id))
 
 
 def import_report():
-    path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'projects2.csv')
+    path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'projects5.csv')
     with open(path) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            project_tmp, _ = models.Project.objects.get_or_create(agreement_number=row['Agreement Number'])
+            project_tmp, _ = models.Project.objects.get_or_create(agreement_number=row['Agreement Number'].strip())
 
             created, _ = models.Reports.objects.get_or_create(
                 project_id=int(project_tmp.id),
@@ -599,11 +724,11 @@ def import_report():
 
 
 def import_data():
-    path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'projects2.csv')
+    path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'projects5.csv')
     with open(path) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            project_tmp, _ = models.Project.objects.get_or_create(agreement_number=row['Agreement Number'])
+            project_tmp, _ = models.Project.objects.get_or_create(agreement_number=row['Agreement Number'].strip())
 
             created, _ = models.Data.objects.get_or_create(
                 project_id=int(project_tmp.id),
@@ -617,100 +742,100 @@ def import_data():
             if row['Samples Collected'].__contains__(','):
                 tmp_arr = row['Samples Collected'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.SamplesCollected.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.SamplesCollected.objects.get_or_create(name=tmp.strip())
                     created.samples_collected.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.SamplesCollected.objects.get_or_create(name=row['Samples Collected'])
+                tmp_obj, _ = models.SamplesCollected.objects.get_or_create(name=row['Samples Collected'].strip())
                 created.samples_collected.add(int(tmp_obj.id))
 
             if row['Samples Collected Database'].__contains__(','):
                 tmp_arr = row['Samples Collected Database'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.DatabaseChoice.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.DatabaseChoice.objects.get_or_create(name=tmp.strip())
                     created.samples_collected_database.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.DatabaseChoice.objects.get_or_create(name=row['Samples Collected Database'])
+                tmp_obj, _ = models.DatabaseChoice.objects.get_or_create(name=row['Samples Collected Database'].strip())
                 created.samples_collected_database.add(int(tmp_obj.id))
 
             if row['Species'].__contains__(','):
                 tmp_arr = row['Species'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.Species.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.Species.objects.get_or_create(name=tmp.strip())
                     created.species.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.Species.objects.get_or_create(name=row['Species'])
+                tmp_obj, _ = models.Species.objects.get_or_create(name=row['Species'].strip())
                 created.species.add(int(tmp_obj.id))
 
             if row['Barrier to sample collection?'].__contains__(','):
                 tmp_arr = row['Barrier to sample collection?'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.SampleBarrier.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.SampleBarrier.objects.get_or_create(name=tmp.strip())
                     created.sample_barrier.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.SampleBarrier.objects.get_or_create(name=row['Barrier to sample collection?'])
+                tmp_obj, _ = models.SampleBarrier.objects.get_or_create(name=row['Barrier to sample collection?'].strip())
                 created.sample_barrier.add(int(tmp_obj.id))
 
             if row['Barriers to data checks/enter into database'].__contains__(','):
                 tmp_arr = row['Barriers to data checks/enter into database'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.DataBarrier.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.DataBarrier.objects.get_or_create(name=tmp.strip())
                     created.barrier_data_check_entry.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.DataBarrier.objects.get_or_create(name=row['Barriers to data checks/enter into database'])
+                tmp_obj, _ = models.DataBarrier.objects.get_or_create(name=row['Barriers to data checks/enter into database'].strip())
                 created.barrier_data_check_entry.add(int(tmp_obj.id))
 
             if row['Sample Collection Format(s)'].__contains__(','):
                 tmp_arr = row['Sample Collection Format(s)'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.SampleFormat.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.SampleFormat.objects.get_or_create(name=tmp.strip())
                     created.sample_format.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.SampleFormat.objects.get_or_create(name=row['Sample Collection Format(s)'])
+                tmp_obj, _ = models.SampleFormat.objects.get_or_create(name=row['Sample Collection Format(s)'].strip())
                 created.sample_format.add(int(tmp_obj.id))
 
             if row['Data Products'].__contains__(','):
                 tmp_arr = row['Data Products'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.DataProducts.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.DataProducts.objects.get_or_create(name=tmp.strip())
                     created.data_products.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.DataProducts.objects.get_or_create(name=row['Data Products'])
+                tmp_obj, _ = models.DataProducts.objects.get_or_create(name=row['Data Products'].strip())
                 created.data_products.add(int(tmp_obj.id))
 
             if row['Data Products Database(s)'].__contains__(','):
                 tmp_arr = row['Data Products Database(s)'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.DatabaseChoice.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.DatabaseChoice.objects.get_or_create(name=tmp.strip())
                     created.data_products_database.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.DatabaseChoice.objects.get_or_create(name=row['Data Products Database(s)'])
+                tmp_obj, _ = models.DatabaseChoice.objects.get_or_create(name=row['Data Products Database(s)'].strip())
                 created.data_products_database.add(int(tmp_obj.id))
 
             if row['Data Programs'].__contains__(','):
                 tmp_arr = row['Data Programs'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.DataPrograms.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.DataPrograms.objects.get_or_create(name=tmp.strip())
                     created.data_programs.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.DataPrograms.objects.get_or_create(name=row['Data Programs'])
+                tmp_obj, _ = models.DataPrograms.objects.get_or_create(name=row['Data Programs'].strip())
                 created.data_programs.add(int(tmp_obj.id))
 
             if row['How was the data communicated to recipient?'].__contains__(','):
                 tmp_arr = row['How was the data communicated to recipient?'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.DataCommunication.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.DataCommunication.objects.get_or_create(name=tmp.strip())
                     created.data_communication.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.DataCommunication.objects.get_or_create(name=row['How was the data communicated to recipient?'])
+                tmp_obj, _ = models.DataCommunication.objects.get_or_create(name=row['How was the data communicated to recipient?'].strip())
                 created.data_communication.add(int(tmp_obj.id))
 
 
 def import_method():
-    path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'projects2.csv')
+    path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'projects5.csv')
     with open(path) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            project_tmp, _ = models.Project.objects.get_or_create(agreement_number=row['Agreement Number'])
+            project_tmp, _ = models.Project.objects.get_or_create(agreement_number=row['Agreement Number'].strip())
 
             created, _ = models.Method.objects.get_or_create(
                 project_id=int(project_tmp.id),
@@ -725,8 +850,8 @@ def import_method():
             if row['Method Type'].__contains__(','):
                 tmp_arr = row['Method Type'].split(',')
                 for tmp in tmp_arr:
-                    tmp_obj, _ = models.FieldWorkMethodType.objects.get_or_create(name=tmp)
+                    tmp_obj, _ = models.FieldWorkMethodType.objects.get_or_create(name=tmp.strip())
                     created.field_work_method_type.add(int(tmp_obj.id))
             else:
-                tmp_obj, _ = models.FieldWorkMethodType.objects.get_or_create(name=row['Method Type'])
+                tmp_obj, _ = models.FieldWorkMethodType.objects.get_or_create(name=row['Method Type'].strip())
                 created.field_work_method_type.add(int(tmp_obj.id))

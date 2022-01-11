@@ -1,12 +1,14 @@
 from django.urls import path
 
 from . import views
+from shared_models.views import CloserTemplateView
 
 app_name = 'spot'
 
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
+    path('close/', CloserTemplateView.as_view(), name="close_me"),
     # URLS
     # user permissions
     path('settings/users/', views.SpotUserFormsetView.as_view(), name="manage_spot_users"),
@@ -35,7 +37,7 @@ urlpatterns = [
     path('project/<int:pk>/view/', views.ProjectDetailView.as_view(), name="project_detail"),
     path('project/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),
     path('project/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),
-    path('projects/download-csv', views.export_project, name="export_project"),
+    path('projects/download-project-csv', views.export_project, name="export_project"),
 
     # Objectives #
     ##############
@@ -44,6 +46,7 @@ urlpatterns = [
     path('obj/<int:pk>/view/', views.ObjectiveDetailView.as_view(), name="obj_detail"),
     path('obj/<int:pk>/edit/', views.ObjectiveUpdateView.as_view(), name="obj_edit"),
     path('obj/<int:pk>/delete/', views.ObjectiveDeleteView.as_view(), name="obj_delete"),
+    path('objs/download-objective-csv', views.export_objective, name="export_objective"),
 
     # Methods #
     ###########
@@ -52,6 +55,7 @@ urlpatterns = [
     path('meth/<int:pk>/view/', views.MethodDetailView.as_view(), name="meth_detail"),
     path('meth/<int:pk>/edit/', views.MethodUpdateView.as_view(), name="meth_edit"),
     path('meth/<int:pk>/delete/', views.MethodDeleteView.as_view(), name="meth_delete"),
+    path('meths/download-method-csv', views.export_method, name="export_method"),
 
     # Databases #
     #############
@@ -60,6 +64,7 @@ urlpatterns = [
     path('data/<int:pk>/view/', views.DataDetailView.as_view(), name="data_detail"),
     path('data/<int:pk>/edit/', views.DataUpdateView.as_view(), name="data_edit"),
     path('data/<int:pk>/delete/', views.DataDeleteView.as_view(), name="data_delete"),
+    path('datas/download-data-csv', views.export_data, name="export_data"),
 
     # Feedback #
     #############
@@ -83,6 +88,7 @@ urlpatterns = [
     path('report/<int:pk>/view/', views.ReportsDetailView.as_view(), name="reports_detail"),
     path('report/<int:pk>/edit/', views.ReportsUpdateView.as_view(), name="reports_edit"),
     path('report/<int:pk>/delete/', views.ReportsDeleteView.as_view(), name="reports_delete"),
+    path('reports/download-reports-csv', views.export_reports, name="export_reports"),
 
     # Objective Data Type Quality #
     ###############################

@@ -103,7 +103,7 @@ label {
                 <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href=" " class="btn btn-sm btn-success">Export to .csv</a>
+                <a href="{% url 'spot:export_project' %}?{{request.GET.urlencode}}" class="btn btn-sm btn-success">Export to .csv</a>
                 <a href="{% url 'spot:project_new' %}" class="btn btn-sm btn-primary">New Project</a>
 
             </div>
