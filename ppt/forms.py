@@ -108,9 +108,10 @@ class ProjectForm(forms.ModelForm):
         # self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
         #                                                  _("mandatory - select multiple, if necessary"))
 
-        functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups2.all()]
-        functional_group_choices.insert(0, tuple((None, "---")))
-        self.fields['functional_group'].choices = functional_group_choices
+        if kwargs.get("instance").section:
+            functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups2.all()]
+            functional_group_choices.insert(0, tuple((None, "---")))
+            self.fields['functional_group'].choices = functional_group_choices
 
         if kwargs.get("initial") and kwargs.get("initial").get("cloning"):
             del self.fields["tags"]
