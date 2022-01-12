@@ -44,7 +44,7 @@ class CSASRequestFilter(django_filters.FilterSet):
     has_process = django_filters.BooleanFilter(field_name='processes', lookup_expr='isnull', label=_("Has process?"), exclude=True)
     status = django_filters.MultipleChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"), widget=forms.SelectMultiple(attrs=chosen_js))
     client = django_filters.ChoiceFilter(field_name="client", label=_("Client"), lookup_expr='exact')
-    decision = django_filters.ChoiceFilter(field_name="review__decision", label=_("Review decision"), lookup_expr='exact')
+    decision = django_filters.ChoiceFilter(field_name="review__decision", label=_("Recommendation"), lookup_expr='exact')
     prioritization = django_filters.ChoiceFilter(field_name="prioritization", label=_("Client prioritization"), lookup_expr='exact')
     tags = django_filters.MultipleChoiceFilter(field_name="tags", label=_("Keyword tags"), lookup_expr='exact', distinct=True)
 

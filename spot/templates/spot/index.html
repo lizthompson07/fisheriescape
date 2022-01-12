@@ -18,14 +18,13 @@
         <br>
         <div class="container">
             <div class="jumbotron">
-                <h1 class="three-em">
-                    {% trans "Welcome to Spot" %}
+                <h1 class="three-em" align="center">
+                    {% trans "Pacific Region Salmon G&C Metadata Database" %}
                 </h1>
+                <h4 align="center">
+                    {% trans "Pacific region application for recording salmon G&C science project metadata" %}
+                </h4>
                 <hr>
-                <h3>
-                    {% trans "The Application for Tracking and Managing Grants & Contributions" %}
-                </h3>
-                <br><br>
                 <div align="center">
 
                     <h4>
@@ -38,9 +37,30 @@
                         <a href="{% url 'spot:project_list'  %}" class="btn btn-dark">
                             {% trans "Project Tracking" %}
                         </a>
-                        <a href="#" class="btn btn-dark">
+                        <a href="{% url 'spot:obj_list' %}" class="btn btn-dark">
+                            {% trans "Objectives" %}
+                        </a>
+                        <a href="{% url 'spot:meth_list' %}" class="btn btn-dark">
+                            {% trans "Methods" %}
+                        </a>
+                        <a href="{% url 'spot:data_list' %}" class="btn btn-dark">
+                            {% trans "Data" %}
+                        </a>
+                        <!---
+                        <a href="{% url 'spot:meetings_list' %}" class="btn btn-dark">
+                            {% trans "Meetings" %}
+                        </a>
+                        --->
+                        <a href="{% url 'spot:reports_list' %}" class="btn btn-dark">
                             {% trans "Reports" %}
                         </a>
+                       {% for group in user.groups.all %}
+                            {% if group.name == "spot_admin" %}
+                                 <a href="{% url 'spot:feedback_list' %}" class="btn btn-dark">
+                                     {% trans "Feedback" %}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
                     </h4>
                 </div>
             </div>

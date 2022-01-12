@@ -816,19 +816,7 @@
         "model": "bio_diversity.anidetsubjcode",
         "pk": 38
     },
-    {
-        "fields": {
-            "anidc_id": 15,
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-03-15",
-            "description_en": "Code of the envelope where scales collected upon mortality are stored",
-            "description_fr": "",
-            "name": "Scale Envelope",
-            "nom": null
-        },
-        "model": "bio_diversity.anidetsubjcode",
-        "pk": 15
-    },
+
     {
         "fields": {
             "anidc_id": 7,
@@ -854,19 +842,6 @@
         },
         "model": "bio_diversity.anidetsubjcode",
         "pk": 34
-    },
-    {
-        "fields": {
-            "anidc_id": 15,
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-03-15",
-            "description_en": "Tissue sample collected from individual.",
-            "description_fr": "",
-            "name": "Tissue Sample",
-            "nom": null
-        },
-        "model": "bio_diversity.anidetsubjcode",
-        "pk": 14
     },
     {
         "fields": {

@@ -1236,7 +1236,7 @@ def export_upcoming_trips(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_travel_nat_admin_group, login_url='/accounts/denied/')
 def export_request_summary(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_request_summary(site_url)

@@ -14,15 +14,15 @@
 
 
 {% block subcontent %}
+
+  {% include "shared_models/_generic_breadcrumbs.html" %}
+  <div class="mb-3">
+    <h2 class="">{{ h1|safe }}</h2>
+  </div>
+  {% bootstrap_messages %}
+
+  {% include "csas2/process_reviews/_filter.html" %}
   <div id="app" v-cloak>
-
-    {% include "shared_models/_generic_breadcrumbs.html" %}
-    <div class="mb-3">
-      <h2 class="">{{ h1|safe }}</h2>
-    </div>
-    {% bootstrap_messages %}
-
-    {% include "csas2/process_reviews/_filter.html" %}
     <div v-if="loadingProcesses" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
         <span class="sr-only"></span>
@@ -51,9 +51,9 @@
             <th>${processLabels.fiscal_year}</th>
             <th class="w250">{% trans "Title" %}</th>
             <th>{% trans "Regions" %}</th>
+            <th>${processLabels.status}</th>
             <th>${processLabels.advice_date}</th>
             <th>${processLabels.status}</th>
-            <th>${processLabels.is_posted}</th>
           </tr>
           </thead>
           <tbody>
@@ -64,6 +64,7 @@
               <a :href="`/csas-sccs/processes/${p.id}/view/`" target="_blank">${p.tname}</a>
             </td>
             <td v-html="p.regions"></td>
+            <td v-html="p.status_display_html"></td>
             <td>
               <input v-model="p.advice_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
                      @change="updateProcess(p)">
@@ -81,7 +82,6 @@
               >
               </v-select>
             </td>
-            <td>${p.is_posted | yesNo}</td>
 
 
             {#            <td>#}
@@ -198,6 +198,7 @@
               if (response.results) {
                 for (const r of response.results) {
                   r.collapse = true;
+                  if (r.advice_date) r.advice_date = r.advice_date.split("T")[0];
                 }
                 this.processes = response.results;
               }
