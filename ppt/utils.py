@@ -583,6 +583,34 @@ def get_status_report_field_list():
     return my_list
 
 
+
+
+def get_dma_field_list():
+    my_list = [
+        'title',
+        'data_contact',
+        'metadata_contact',
+        'metadata_tool',
+        'metadata_url',
+        'metadata_update_freq',
+        'metadata_freq_text',
+        'storage_solutions',
+        'storage_solution_text',
+        'storage_needed',
+        'raw_data_retention',
+        'data_retention',
+        'backup_plan',
+        'cloud_costs',
+        'had_sharing_agreements',
+        'sharing_agreements_text',
+        'publication_timeframe',
+        'publishing_platforms',
+        'comments',
+        'status',
+        'metadata',
+    ]
+    return my_list
+
 def get_activity_update_field_list():
     my_list = [
         'activity',
@@ -591,6 +619,17 @@ def get_activity_update_field_list():
         'metadata|{}'.format("meta"),
     ]
     return my_list
+
+
+def get_dma_review_field_list():
+    my_list = [
+        'fiscal_year',
+        'decision',
+        'comments',
+        'metadata|{}'.format("metadata"),
+    ]
+    return my_list
+
 
 
 def get_file_field_list():

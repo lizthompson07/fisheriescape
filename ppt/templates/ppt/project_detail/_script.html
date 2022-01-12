@@ -21,6 +21,7 @@ var app = new Vue({
     collapseOverview: false,
     collapseFinancials: true,
     collapseSubmit: true,
+    collapseDMA: true,
     currentUser: null,
     canModify: false,
     showSubmit: false,
@@ -47,6 +48,10 @@ var app = new Vue({
       status_report: false,
       file: false,
     },
+
+    // dmas
+    dma_loading: false,
+    dmas: [],
 
     // staff
     staff_loading: false,
@@ -158,6 +163,9 @@ var app = new Vue({
             } else if (response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("sara") > -1) {
               this.isSARA = true;
             }
+
+            // load the DMAs
+            this.getDMAs();
 
             // check to see if we are being asked to open the page to a specific year
             // from https://stackoverflow.com/questions/35914069/how-can-i-get-query-parameters-from-a-url-in-vue-js
@@ -291,6 +299,16 @@ var app = new Vue({
       }
     },
 
+    // DMAs
+    getDMAs() {
+      this.dma_loading = true;
+      let endpoint = `/api/ppt/dmas/?project=${projectId}`;
+      apiService(endpoint)
+          .then(response => {
+            this.dma_loading = false;
+            this.dmas = response;
+          })
+    },
 
     // Activities
     getActivities(yearId) {
@@ -401,8 +419,14 @@ var app = new Vue({
     goProjectYearEdit(projectYearId) {
       window.location.href = `/ppt/project-years/${projectYearId}/edit/`
     },
+    goDMADetail(dma) {
+      window.location.href = `/ppt/dmas/${dma.id}/view/`
+    },
+    goDMANew() {
+      window.location.href = `/ppt/projects/${projectId}/new-dma/`
+    },
     goProjectYearGantt(projectYearId) {
-      url =  `/ppt/project-years/${projectYearId}/gantt/`;
+      url = `/ppt/project-years/${projectYearId}/gantt/`;
       win = window.open(url, '_blank');
     },
     goProjectEdit(projectId) {

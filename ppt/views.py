@@ -4,12 +4,12 @@ import os
 from copy import deepcopy
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -20,12 +20,16 @@ from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonCreateView, \
-    CommonDetailView, CommonFilterView, CommonDeleteView, CommonUpdateView, CommonListView, CommonHardDeleteView, CommonFormsetView, CommonFormView
+    CommonDetailView, CommonFilterView, CommonDeleteView, CommonUpdateView, CommonListView, CommonHardDeleteView, \
+    CommonFormsetView, CommonFormView, CommonPopoutCreateView, CommonPopoutDeleteView, CommonPopoutUpdateView
 from . import filters, forms, models, reports
-from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin, ManagerOrAdminRequiredMixin, SuperuserOrNationalAdminRequiredMixin, PPTLoginRequiredMixin
+from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin, ManagerOrAdminRequiredMixin, \
+    SuperuserOrNationalAdminRequiredMixin, PPTLoginRequiredMixin
 from .utils import get_help_text_dict, \
-    get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin, \
-    get_review_score_rubric, get_status_report_field_list, get_review_field_list, in_ppt_admin_group, get_user_fte_breakdown
+    get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, \
+    is_management_or_admin, \
+    get_review_score_rubric, get_status_report_field_list, get_review_field_list, get_user_fte_breakdown, \
+    get_dma_field_list, get_dma_review_field_list
 
 
 class IndexTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
@@ -57,12 +61,13 @@ class IndexTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
 
         upcoming_dates = models.UpcomingDate.objects.filter(date__gte=timezone.now()).order_by("date")
         context["upcoming_dates"] = upcoming_dates
-        context["upcoming_dates_regions"] = [shared_models.Region.objects.get(pk=r["region"])  for r in upcoming_dates.order_by("region").values("region").distinct()]
+        context["upcoming_dates_regions"] = [shared_models.Region.objects.get(pk=r["region"]) for r in
+                                             upcoming_dates.order_by("region").values("region").distinct()]
 
         reference_materials = models.ReferenceMaterial.objects.all()
         context["reference_materials"] = models.ReferenceMaterial.objects.all()
-        context["reference_materials_regions"] = [shared_models.Region.objects.get(pk=r["region"])  for r in reference_materials.order_by("region").values("region").distinct()]
-
+        context["reference_materials_regions"] = [shared_models.Region.objects.get(pk=r["region"]) for r in
+                                                  reference_materials.order_by("region").values("region").distinct()]
 
         return context
 
@@ -151,7 +156,7 @@ class MyProjectListView(PPTLoginRequiredMixin, CommonFilterView):
     def get_filterset_kwargs(self, filterset_class):
         kwargs = super().get_filterset_kwargs(filterset_class)
         if kwargs["data"] is None:
-            kwargs["data"] = {"fiscal_years": fiscal_year(timezone.now(), sap_style=True)+1}
+            kwargs["data"] = {"fiscal_years": fiscal_year(timezone.now(), sap_style=True) + 1}
         return kwargs
 
     def get_queryset(self):
@@ -877,6 +882,22 @@ class PPTAdminUserHardDeleteView(SuperuserOrNationalAdminRequiredMixin, CommonHa
     success_url = reverse_lazy("ppt:manage_ppt_admin_users")
 
 
+class StorageSolutionFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'ppt/formset.html'
+    h1 = "Manage Storage Solutions"
+    queryset = models.StorageSolution.objects.all()
+    formset_class = forms.StorageSolutionFormset
+    success_url_name = "ppt:manage_storage_solutions"
+    home_url_name = "ppt:index"
+    delete_url_name = "ppt:delete_storage_solution"
+    container_class = "container bg-light curvy"
+
+
+class StorageSolutionHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.StorageSolution
+    success_url = reverse_lazy("ppt:manage_storage_solutions")
+
+
 # Reference Materials
 class ReferenceMaterialListView(AdminRequiredMixin, CommonListView):
     template_name = "ppt/list.html"
@@ -949,11 +970,16 @@ class AdminStaffListView(AdminRequiredMixin, CommonFilterView):
     row_object_url_name = "ppt:admin_staff_edit"
 
     def get_queryset(self):
-        qs = models.Staff.objects.filter(user__isnull=True, name__isnull=False).filter(~Q(name__icontains="unknown")).filter(~Q(name__icontains="tbd")).filter(
-            ~Q(name__icontains="BI-")).filter(~Q(name__icontains="PC-")).filter(~Q(name__icontains="EG-")).filter(~Q(name__icontains="determined")).filter(
-            ~Q(name__icontains="to be")).filter(~Q(name__icontains="student")).filter(~Q(name__icontains="casual")).filter(
-            ~Q(name__icontains="technician")).filter(~Q(name__icontains="crew")).filter(~Q(name__icontains="hired")).filter(
-            ~Q(name__icontains="support")).filter(~Q(name__icontains="volunteer")).filter(~Q(name__icontains="staff")).filter(~Q(name__icontains="tba")).filter(
+        qs = models.Staff.objects.filter(user__isnull=True, name__isnull=False).filter(
+            ~Q(name__icontains="unknown")).filter(~Q(name__icontains="tbd")).filter(
+            ~Q(name__icontains="BI-")).filter(~Q(name__icontains="PC-")).filter(~Q(name__icontains="EG-")).filter(
+            ~Q(name__icontains="determined")).filter(
+            ~Q(name__icontains="to be")).filter(~Q(name__icontains="student")).filter(
+            ~Q(name__icontains="casual")).filter(
+            ~Q(name__icontains="technician")).filter(~Q(name__icontains="crew")).filter(
+            ~Q(name__icontains="hired")).filter(
+            ~Q(name__icontains="support")).filter(~Q(name__icontains="volunteer")).filter(
+            ~Q(name__icontains="staff")).filter(~Q(name__icontains="tba")).filter(
             ~Q(name__icontains="1")).filter(~Q(name__icontains="2")).filter(~Q(name__icontains="3"))
 
         qs = qs.order_by('name')
@@ -980,7 +1006,8 @@ class AdminStaffUpdateView(AdminRequiredMixin, CommonUpdateView):
             search_name = f"{obj.user.first_name} {obj.user.last_name}"
             qs = models.Staff.objects.filter(name__contains=search_name)
 
-            messages.info(self.request, f"Searched, found and replaced {qs.count()} additional matches for '{search_name}'")
+            messages.info(self.request,
+                          f"Searched, found and replaced {qs.count()} additional matches for '{search_name}'")
             for staff in qs.all():
                 staff.user = obj.user
                 staff.save()
@@ -1134,6 +1161,129 @@ class StatusReportPrintDetailView(PPTLoginRequiredMixin, CommonDetailView):
         return context
 
 
+# DMAs #
+########
+
+
+class DMACreateView(CanModifyProjectRequiredMixin, CommonCreateView):
+    model = models.DMA
+    form_class = forms.DMAForm
+    home_url_name = "ppt:index"
+    template_name = 'ppt/dma_form.html'
+    container_class = "container bg-light curvy"
+
+    def get_initial(self):
+        return dict(title=f"Data management agreement for {self.get_project().title}")
+
+    def get_project(self):
+        return models.Project.objects.get(pk=self.kwargs["project"])
+
+    def get_parent_crumb(self):
+        return {"title": self.get_project(), "url": reverse_lazy("ppt:project_detail", args=[self.get_project().id])}
+
+    def form_valid(self, form):
+        dma = form.save(commit=False)
+        dma.updated_by = self.request.user
+        dma.project = self.get_project()
+        dma.save()
+        return super().form_valid(form)
+
+
+class DMADeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
+    template_name = "ppt/confirm_delete.html"
+    model = models.DMA
+    container_class = "container bg-light curvy"
+    delete_protection = False
+
+    def get_project(self):
+        return self.get_object().project
+
+    def get_success_url(self, **kwargs):
+        return self.get_grandparent_crumb()["url"]
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("ppt:dma_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        project = self.get_project()
+        return {"title": str(project), "url": reverse_lazy("ppt:project_detail", args=[project.id])}
+
+
+class DMADetailView(PPTLoginRequiredMixin, CommonDetailView):
+    model = models.DMA
+    home_url_name = "ppt:index"
+    template_name = "ppt/dma_detail.html"
+    field_list = get_dma_field_list()
+
+    def get_project(self):
+        return self.get_object().project
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_project()), "url": reverse_lazy("ppt:project_detail", args=[self.get_project().id])}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["dma_review_field_list"] = get_dma_review_field_list()
+        return context
+
+
+class DMAUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+    model = models.DMA
+    form_class = forms.DMAForm
+    home_url_name = "ppt:index"
+    template_name = "ppt/dma_form.html"
+    is_multipart_form_data = True
+    container_class = "container bg-light curvy"
+
+    def get_project(self):
+        return self.get_object().project
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("ppt:dma_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        project = self.get_project()
+        return {"title": str(project), "url": reverse_lazy("ppt:project_detail", args=[project.id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
+
+
+# DMA Reviews #
+###############
+
+class DMAReviewCreateView(ManagerOrAdminRequiredMixin, CommonPopoutCreateView):
+    model = models.DMAReview
+    form_class = forms.DMAReviewForm
+
+    def form_valid(self, form):
+        r = form.save(commit=False)
+        r.updated_by = self.request.user
+        r.dma_id = self.kwargs.get("dma")
+        r.save()
+        return super().form_valid(form)
+
+
+class DMAReviewDeleteView(ManagerOrAdminRequiredMixin, CommonPopoutDeleteView):
+    model = models.DMAReview
+    delete_protection = False
+
+
+class DMAReviewUpdateView(ManagerOrAdminRequiredMixin, CommonPopoutUpdateView):
+    model = models.DMAReview
+    form_class = forms.DMAReviewForm
+    home_url_name = "ppt:index"
+
+    def form_valid(self, form):
+        r = form.save(commit=False)
+        r.updated_by = self.request.user
+        r.save()
+        return super().form_valid(form)
+
+
 # REPORTS #
 ###########
 
@@ -1194,7 +1344,8 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
         elif report == 3:
             return HttpResponseRedirect(reverse("ppt:export_project_status_summary") + f'?year={year}&region={region}')
         elif report == 4:
-            return HttpResponseRedirect(reverse("ppt:export_project_list") + f'?year={year}&section={section}&region={region}')
+            return HttpResponseRedirect(
+                reverse("ppt:export_project_list") + f'?year={year}&section={section}&region={region}')
         elif report == 5:
             return HttpResponseRedirect(reverse("ppt:export_sar_workplan") + f'?year={year}&region={region}')
         elif report == 6:
@@ -1202,7 +1353,8 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
         elif report == 7:
             return HttpResponseRedirect(reverse("ppt:export_ppa") + f'?year={year}&section={section}&region={region}')
         elif report == 8:
-            return HttpResponseRedirect(reverse("ppt:export_crc") + f'?year={year}&section={section}&division={division}&region={region}')
+            return HttpResponseRedirect(
+                reverse("ppt:export_crc") + f'?year={year}&section={section}&division={division}&region={region}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ppt:reports"))
@@ -1216,7 +1368,8 @@ def culture_committee_report(request):
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="dmapps culture committee report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+            response[
+                'Content-Disposition'] = f'inline; filename="dmapps culture committee report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
 
             return response
     raise Http404
@@ -1231,9 +1384,11 @@ def export_acrdp_application(request, pk):
         messages.error(request, _("Warning: There are no lead staff on this project!!"))
     else:
         if not project.lead_staff.first().user.profile.tposition:
-            messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (position title)"))
+            messages.error(request,
+                           _("Warning: project lead's profile information is missing in DM Apps (position title)"))
         if not project.lead_staff.first().user.profile.phone:
-            messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (phone number)"))
+            messages.error(request,
+                           _("Warning: project lead's profile information is missing in DM Apps (phone number)"))
     file_url = reports.generate_acrdp_application(project)
 
     if os.path.exists(file_url):
@@ -1324,7 +1479,8 @@ def export_csrf_submission_list(request):
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="CSRF Regional List of Submissions ({timezone.now().strftime("%Y-%m-%d")}).xls"'
+            response[
+                'Content-Disposition'] = f'inline; filename="CSRF Regional List of Submissions ({timezone.now().strftime("%Y-%m-%d")}).xls"'
             return response
     raise Http404
 
@@ -1335,7 +1491,8 @@ def project_status_summary(request):
     region = request.GET.get("region")
     # Create the HttpResponse object with the appropriate CSV header.
     response = reports.generate_project_status_summary(year, region)
-    response['Content-Disposition'] = f'attachment; filename="project status summary ({timezone.now().strftime("%Y_%m_%d")}).csv"'
+    response[
+        'Content-Disposition'] = f'attachment; filename="project status summary ({timezone.now().strftime("%Y_%m_%d")}).csv"'
     return response
 
 
@@ -1365,7 +1522,8 @@ def export_sar_workplan(request):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             if region_name:
-                response['Content-Disposition'] = f'inline; filename="({year}) {region_name} - SAR Science workingplan.xls"'
+                response[
+                    'Content-Disposition'] = f'inline; filename="({year}) {region_name} - SAR Science workingplan.xls"'
             else:
                 response['Content-Disposition'] = f'inline; filename="({year}) - SAR Science workingplan.xls"'
 
@@ -1482,7 +1640,8 @@ def export_capital_request_costs(request):
         for cost in p.capitalcost_set.all():
             proj = p.project
             writer.writerow(
-                [proj.pk, proj.title, proj.section.division.branch.region, proj.section.division, proj.section, proj.functional_group, cost, cost.amount])
+                [proj.pk, proj.title, proj.section.division.branch.region, proj.section.division, proj.section,
+                 proj.functional_group, cost, cost.amount])
 
     return response
 
@@ -1503,4 +1662,3 @@ def export_project_summary(request):
 
             return response
     raise Http404
-

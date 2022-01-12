@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q, Sum
 from django.template.defaultfilters import date, slugify
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
@@ -686,7 +687,7 @@ class Staff(GenericCost):
         return self.smart_name
 
     class Meta:
-        ordering = ['employee_type', 'level']
+        ordering = ['-is_lead', 'employee_type', 'level']
         unique_together = [('project_year', 'user'), ]
 
     @property
@@ -1113,7 +1114,6 @@ class Activity(models.Model):
     mitigation_measures = models.TextField(blank=True, null=True, verbose_name=_("what measures will be used to mitigate the risks"))  # CSRF and ACRDP
     parent = models.ForeignKey("Activity", related_name="children", on_delete=models.DO_NOTHING, verbose_name=_("parent activity"), blank=True, null=True)
 
-
     def save(self, *args, **kwargs):
         if self.impact and self.likelihood:
             self.risk_rating = get_risk_rating(self.impact, self.likelihood)
@@ -1198,60 +1198,122 @@ class ReferenceMaterial(SimpleLookup):
         ordering = ["region", "-updated_at"]
 
 
+class StorageSolution(SimpleLookup):
+    pass
 
 
-class DMP(models.Model):
+class DMA(MetadataFields):
     status_choices = (
-        (3, _("On-track")),
-        (4, _("Complete")),
-        (5, _("Encountering issues")),
-        (6, _("Aborted / cancelled")),
+        (0, _("Unevaluated")),
+        (1, _("On-track")),
+        (2, _("Complete")),
+        (3, _("Encountering issues")),
+        (4, _("Aborted / cancelled")),
     )
+    frequency_choices = (
+        (1, _("Daily")),
+        (2, _("Weekly")),
+        (3, _("Monthly")),
+        (4, _("Annually")),
+        (5, _("Irregular / as needed")),
+        (9, _("Other")),
+    )
+    status = models.IntegerField(default=3, editable=False, choices=status_choices)
     project = models.ForeignKey(Project, related_name="reports", on_delete=models.CASCADE)
-    status = models.IntegerField(default=3, editable=True, choices=status_choices)
-    major_accomplishments = models.TextField(blank=True, null=True, verbose_name=_("major accomplishments"))
-    major_issues = models.TextField(blank=True, null=True, verbose_name=_("major issues encountered"))
-    target_completion_date = models.DateTimeField(blank=True, null=True, verbose_name=_("target completion date"))
-    rationale_for_modified_completion_date = models.TextField(blank=True, null=True, verbose_name=_(
-        "rationale for a modified completion date"))
-    general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
-    section_head_comment = models.TextField(blank=True, null=True, verbose_name=_("section head comment"))
-    section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"), choices=YES_NO_CHOICES)
 
-    # metadata
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    updated_at = models.DateTimeField(auto_now=True, editable=False)
-    modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="last_mod_by_projects_status_report", blank=True,
-                                    null=True, editable=False)
+    # Identification
+    title = models.CharField(max_length=1000, verbose_name=_("Title"), help_text=_("What is the title of the Data Management Agreement?"))
+    data_contact = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("Who will be the principal steward of this data?"),
+                                    help_text=_("i.e., who is the primary responsible party?"))
 
-    @property
-    def metadata(self):
-        return get_metadata_string(self.created_at, None, self.updated_at, self.modified_by)
+    # Metadata
+    metadata_contact = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("Who is responsible for creating and maintaining the metadata?"),
+                                        help_text=_("i.e., who is responsible for keeping metadata records up-to-date?"))
+    metadata_tool = models.TextField(blank=True, null=True, verbose_name=_("Describe the tools or processes that will be used to create metadata"),
+                                     help_text=_(
+                                         "e.g., Metadata Inventory app in DM Apps, DFO Enterprise Data Hub, Federal Geospatial Portal, stand-alone file, ..."))
+    metadata_url = models.TextField(blank=True, null=True, verbose_name=_("Please provide any URLs to the metadata"),
+                                    help_text=_("Full link to any metadata records available online, if applicable"))
+    metadata_update_freq = models.IntegerField(blank=True, null=True, verbose_name=_("At what frequency should the metadata be updated? "),
+                                               help_text=_("What should be the expectation for how often the metadata is updated?"), choices=frequency_choices)
+    metadata_freq_text = models.TextField(blank=True, null=True, verbose_name=_("Justification for frequency:"),
+                                          help_text=_("What justification can be provided for the above selection?"))
 
-    def save(self, *args, **kwargs):
-        return super().save(*args, **kwargs)
+    # Archiving / Storage
+    storage_solutions = models.ManyToManyField(StorageSolution,  blank=True, verbose_name=_(
+        "Which storage solution(s) will be used to house the raw field data, processed data, and all other data products?"))
+    storage_solution_text = models.TextField(blank=True, null=True, verbose_name=_("Justification for selection of storage solution(s)"),
+                                             help_text=_("Provide your rational for the selection(s) made above."))
+    storage_needed = models.TextField(blank=True, null=True, verbose_name=_("What is the estimated storage space needed for the above?"),
+                                      help_text=_("This includes raw field data, processed data, and all other data products etc.)"))
+    raw_data_retention = models.TextField(blank=True, null=True, verbose_name=_("What is the retention policy for the raw field data?"), help_text=_(
+        "This would include instrument data, field sheets, physical samples etc. Please refer to the DFO EOS Retention Policy for clarification)"))
+    data_retention = models.TextField(blank=True, null=True, verbose_name=_("What is the retention policy for the data?"),
+                                      help_text=_("Please refer to the DFO EOS Retention Policy for clarification."))
+    backup_plan = models.TextField(blank=True, null=True, verbose_name=_("What procedures will be taken to back-up/secure the data?"))
+    cloud_costs = models.BooleanField(blank=True, null=True,
+                                      verbose_name=_("If using cloud storage, what is the estimated annual cost and who will be covering the cost? "),
+                                      help_text=_(
+                                          "e.g., cloud storage is estimated at $1000/yr and will be paid for under the the division manager's budget"))
+
+    # Sharing
+    had_sharing_agreements = models.BooleanField(default=False, verbose_name=_("Is the dataset subject to a data sharing agreement, MOU, etc.?"),
+                                                 choices=YES_NO_CHOICES)
+    sharing_agreements_text = models.TextField(blank=True, null=True, verbose_name=_("If yes, who are the counterparts for the agreement(s)?"),
+                                               help_text=_("please provide the name of the organization and the primary contact for each agreement."))
+    publication_timeframe = models.TextField(blank=True, null=True, verbose_name=_("How soon after data collection will data be made available?"),
+                                             help_text=_("The answer provided will set the expectation for the open data publication frequency"))
+    publishing_platforms = models.TextField(blank=True, null=True, verbose_name=_("Which open data publishing mechanism(s) will be used?"), help_text=_(
+        "The best option is the Government of Canada's Open Data Platform however other platforms / publications are acceptable provided they are"
+        " freely available to the general public."))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("Additional comments to take into consideration (if applicable):"))
 
     class Meta:
-        ordering = ['created_at']
+        verbose_name = _("Data Management Agreement")
 
-    @property
-    def report_number(self):
-        return [report for report in self.project_year.reports.all().order_by("created_at")].index(self) + 1
+    def get_absolute_url(self):
+        return reverse('ppt:dma_detail', args=[self.id])
+
+    def save(self, *args, **kwargs):
+        # set the status...
+        if not self.reviews.exists():
+            self.status = 0  # unevaluated
+        else:
+            last_review = self.reviews.last()
+            if last_review.is_final_review:
+                self.status = 2  # complete
+            elif last_review.decision == 1:  # compliant
+                self.status = 1  # on-track
+            elif last_review.decision == 2:  # non-compliant
+                self.status = 3  # encountering issues
+
+        return super().save(*args, **kwargs)
 
     def __str__(self):
-        # what is the number of this report?
-        return "{}{}".format(
-            gettext("Status Report #"),
-            self.report_number,
-        )
+        return self.title
+
+
+class DMAReview(MetadataFields):
+    decision_choices = (
+        (0, _("Unevaluated")),
+        (1, _("Compliant")),
+        (2, _("Non-compliant")),
+    )
+    dma = models.ForeignKey(DMA, related_name="reviews", on_delete=models.CASCADE)
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="ppt_dma_reviews", on_delete=models.DO_NOTHING,
+                                    default=fiscal_year(timezone.now(), sap_style=True))
+    decision = models.IntegerField(default=0, choices=decision_choices)
+    is_final_review = models.BooleanField(default=False, verbose_name=_("Will this be the final review of this agreement?"),
+                                          help_text=_("If so, please make sure to provide an explanation in the comments field."))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = [
+            ('dma', 'fiscal_year'),  # there should only be a single review per year on a given DMA
+        ]
 
     @property
-    def major_accomplishments_html(self):
-        if self.major_accomplishments:
-            return mark_safe(markdown(self.major_accomplishments))
-
-    @property
-    def major_issues_html(self):
-        if self.major_issues:
-            return mark_safe(markdown(self.major_issues))
-
+    def comments_html(self):
+        if self.comments:
+            return mark_safe(markdown(self.comments))

@@ -436,7 +436,6 @@ class ActivitySerializer(serializers.ModelSerializer):
         if instance.latest_update:
             return instance.latest_update.status
 
-
     def get_target_date_display(self, instance):
         if instance.target_date:
             return instance.target_date.strftime("%Y-%m-%d")
@@ -662,3 +661,18 @@ class PublicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = shared_models.Publication
         fields = "__all__"
+
+
+class DMASerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.DMA
+        fields = "__all__"
+
+    metadata = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_metadata(self, instance):
+        return instance.metadata

@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.forms import modelformset_factory
-from django.shortcuts import get_object_or_404
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext, gettext_lazy
 
@@ -920,3 +919,34 @@ PPTAdminUserFormset = modelformset_factory(
     form=PPTAdminUserForm,
     extra=1,
 )
+
+
+class StorageSolutionForm(forms.ModelForm):
+    class Meta:
+        model = models.StorageSolution
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+StorageSolutionFormset = modelformset_factory(
+    model=models.StorageSolution,
+    form=StorageSolutionForm,
+    extra=1,
+)
+
+
+class DMAForm(forms.ModelForm):
+    class Meta:
+        model = models.DMA
+        exclude = ["project"]
+        widgets = {
+            'storage_solutions': forms.SelectMultiple(attrs=chosen_js),
+        }
+
+
+class DMAReviewForm(forms.ModelForm):
+    class Meta:
+        model = models.DMAReview
+        exclude = ["dma"]

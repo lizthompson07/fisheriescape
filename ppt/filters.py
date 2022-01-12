@@ -72,13 +72,19 @@ class ProjectFilter(django_filters.FilterSet):
 class ProjectYearChildFilter(django_filters.FilterSet):
     project_year = django_filters.NumberFilter(field_name='project_year')
     project = django_filters.NumberFilter(field_name='project_year__project')
-    year = django_filters.NumberFilter(field_name='project_year__fiscal_year' )
+    year = django_filters.NumberFilter(field_name='project_year__fiscal_year')
     region_name = django_filters.CharFilter(field_name='project_year__project__section__division__branch__region__name', lookup_expr="icontains")
+
+
+class DMAFilter(django_filters.FilterSet):
+    project = django_filters.NumberFilter(field_name='project')
+    fiscal_year = django_filters.NumberFilter(field_name='fiscal_year')
+    title_name = django_filters.CharFilter(field_name='title', lookup_expr="icontains")
 
 
 class ProjectYearFilter(django_filters.FilterSet):
     is_hidden = django_filters.CharFilter(field_name='project__is_hidden')
-    status = django_filters.NumberFilter(field_name='status' )
+    status = django_filters.NumberFilter(field_name='status')
     title = django_filters.CharFilter(field_name='project__title', lookup_expr="icontains")
     id = django_filters.NumberFilter(field_name='project__id')
     staff = django_filters.CharFilter(field_name='project__staff_search_field', lookup_expr="icontains")
@@ -91,4 +97,3 @@ class ProjectYearFilter(django_filters.FilterSet):
     division = django_filters.NumberFilter(field_name='project__section__division')
     section = django_filters.NumberFilter(field_name='project__section')
     starting_fy = django_filters.NumberFilter(field_name='project__starting_fy')
-
