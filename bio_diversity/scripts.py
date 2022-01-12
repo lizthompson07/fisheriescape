@@ -1,9 +1,11 @@
 import os
 import json
-
 from django.core import serializers
-
 from bio_diversity import models
+
+# code to run in python manage.py shell:
+# from bio_diversity.scripts import *
+# export_fixtures(model_export, fixture_file)
 
 
 def export_fixtures(models_to_export, output_path=None):
@@ -72,7 +74,3 @@ model_export = [models.AnimalDetCode,
                 models.Tributary,
                 models.UnitCode,
                 ]
-
-
-from bio_diversity.scripts import *
-export_fixtures(model_export, fixture_file)

@@ -43,7 +43,7 @@
       style="width: 100%"
       v-model="request.review.is_feasible"
       @input="updateReview"
-      :options="yesNoChoices"
+      :options="yesNoUnsureChoices"
       :reduce="choice => choice.value"
       label="text"
       :clearable="false"

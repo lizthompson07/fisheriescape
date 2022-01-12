@@ -1,0 +1,63 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="">
+    <h4>
+        {% trans "Select Report:" %}
+    </h4>
+</div>
+
+{% if object.project_report.count == 0 %}
+    <em>
+        {% trans "No Reports" %}
+
+    </em><br>
+{% else %}
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th>
+                {% trans "Report Type" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Document Name" %}
+            </th>
+            <th class="width: 120px">
+                {% trans "Document Author" %}
+            </th>
+            <th class="width: 120px">
+                {% trans "Document Reference Information" %}
+            </th>
+            <th class="width: 120px">
+                {% trans "Document Link" %}
+            </th>
+        </tr>
+        <tbody>
+        {% for obj in object.project_report.all %}
+            <tr href="{% url 'spot:reports_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this report">
+                <td>
+                    {{ obj.report_type }}
+                </td>
+                <td>
+                    {{ obj.document_name }}
+                </td>
+                <td>
+                    {{ obj.document_author }}
+                </td>
+                <td>
+                    {{ obj.document_reference_information }}
+                </td>
+                <td>
+                    {{ obj.document_link }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+    <a class="" href="{% url 'spot:reports_new' object.id  %}">
+        {% trans "(Add Report)" %}
+    </a>
+<br><br>
+

@@ -1370,8 +1370,8 @@ def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None,
                                     vax_anidc_pk, adsc_str=vaccinated)
     if nan_to_none(tissue_yn):
         if y_n_to_bool(tissue_yn):
-            health_anidc_pk = models.AnimalDetCode.objects.filter(name="Animal Health").get().pk
-            data_entered += enter_indvd(anix_pk, cleaned_data, det_date, None, health_anidc_pk, "Tissue Sample")
+            tissue_anidc_pk = models.AnimalDetCode.objects.filter(name="Tissue Sample").get().pk
+            data_entered += enter_indvd(anix_pk, cleaned_data, det_date, None, tissue_anidc_pk, None)
 
     if nan_to_none(comments):
         comment_anidc_pk = models.AnimalDetCode.objects.filter(name="Comment").get().pk
@@ -1478,8 +1478,8 @@ def enter_bulk_sampd(samp_pk, cleaned_data, det_date, len_val=None, len_mm=None,
                                     vax_anidc_pk, adsc_str=vaccinated)
     if nan_to_none(tissue_yn):
         if y_n_to_bool(tissue_yn):
-            health_anidc_pk = models.AnimalDetCode.objects.filter(name="Animal Health").get().pk
-            data_entered += enter_sampd(samp_pk, cleaned_data, det_date, None, health_anidc_pk, "Tissue Sample")
+            tissue_anidc_pk = models.AnimalDetCode.objects.filter(name="Tissue Samp").get().pk
+            data_entered += enter_sampd(samp_pk, cleaned_data, det_date, None, tissue_anidc_pk, None)
 
     if nan_to_none(comments):
         comment_anidc_pk = models.AnimalDetCode.objects.filter(name="Comment").get().pk
@@ -2101,3 +2101,23 @@ def parse_trof_str(trof_str, facic_id):
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
+
+
+def col_count_to_excel(col_count):
+    # 0 returns A, 1 returns B, 26 returns AA
+    # chr(65) returns "A"
+    mod = col_count % 26
+    floor = col_count // 26
+    a_key = 65
+    if floor:
+        return "{}{}".format(chr(floor + a_key - 1), chr(mod + a_key))
+    else:
+        return chr(mod + a_key)
+
+
+def get_object_from_request(request, param, model_type):
+    obj_pk = request.GET.get(param)
+    obj_id = None
+    if obj_pk:
+        obj_id = model_type.objects.filter(pk=obj_pk).get()
+    return obj_id

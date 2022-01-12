@@ -17,39 +17,19 @@
     </p>
     {% if upcoming_dates.count %}
 
-      <table class="table table-sm table-bordered">
-        <thead>
-        {% for field in upcoming_dates_field_list %}
-          {% if field == "date" %}
-            <th style="width: 150px">
-              {% get_verbose_label upcoming_dates.first field %}
-            </th>
-          {% else %}
-            <th>
-              {% get_verbose_label upcoming_dates.first field %}
-            </th>
-          {% endif %}
+      <ul>
+        {% for obj in upcoming_dates %}
+          <li class="{% if obj.is_deadline %}mark{% endif %}">
+            {{ obj.date|date }} {{ obj.date|time }} &rarr;
+            {% if obj.region %}
+              {{ obj.region|upper }} -
+            {% endif %}
+            {{ obj.tdescription }}
+            <span class="small">({{ obj.date|timeuntil }})</span>
+          </li>
         {% endfor %}
-        </thead>
-        <tbody>
-        {% for upcoming_date  in upcoming_dates %}
-          <tr {% if upcoming_date.is_deadline %}class="red-font"{% endif %}>
-            {% for field in upcoming_dates_field_list %}
+      </ul>
 
-              <td>
-                {% if field == "date" %}
-                  {{ upcoming_date.date|date }} {{ upcoming_date.date|time }}<br>
-                  <span class="small">({{ upcoming_date.date|timeuntil }})</span>
-                {% else %}
-                  {% get_field_value upcoming_date field %}
-                {% endif %}
-              </td>
-            {% endfor %}
-          </tr>
-        {% endfor %}
-
-        </tbody>
-      </table>
     {% else %}
       {% trans "There are no upcoming dates in the system" %}
     {% endif %}

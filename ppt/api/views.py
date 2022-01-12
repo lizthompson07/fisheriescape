@@ -485,7 +485,7 @@ class ReviewViewSet(ModelViewSet):
     filterset_class = ProjectYearChildFilter
 
     def perform_update(self, serializer):
-        obj = serializer.save()
+        obj = serializer.save(last_modified_by=self.request.user)
         obj.project_year.update_modified_by(self.request.user)
         data = self.request.data
         if data.get("approval_email_update"):
@@ -494,7 +494,7 @@ class ReviewViewSet(ModelViewSet):
             obj.send_review_email(self.request)
 
     def perform_create(self, serializer):
-        obj = serializer.save()
+        obj = serializer.save(last_modified_by=self.request.user)
         obj.project_year.update_modified_by(self.request.user)
         data = self.request.data
         if data.get("approval_email_update"):

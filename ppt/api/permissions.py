@@ -31,6 +31,8 @@ class CanModifyOrReadOnly(permissions.BasePermission):
             return can_modify_project(request.user, obj.project_id)
         elif hasattr(obj, "project_year"):
             return can_modify_project(request.user, obj.project_year.project_id)
+        elif hasattr(obj, "activity"):
+            return can_modify_project(request.user, obj.activity.project_year.project_id)
         else:
             return can_modify_project(request.user, obj.id)
 

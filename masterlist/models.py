@@ -190,7 +190,7 @@ class Organization(models.Model):
 
 
 class Person(models.Model):
-    designation = models.CharField(max_length=25, verbose_name=_("title"), blank=True, null=True)
+    designation = models.CharField(max_length=75, verbose_name=_("title"), blank=True, null=True)
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
     phone_1 = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone"))

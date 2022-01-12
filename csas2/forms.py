@@ -308,8 +308,8 @@ class ProcessForm(forms.ModelForm):
         required=False,
     )
     create_keystone_meeting = forms.BooleanField(
-        help_text=gettext_lazy("By checking this box, a draft keystone meeting will be automatically created upon submitting this form."),
-        label=gettext_lazy("Create a placeholder keystone meeting?"),
+        help_text=gettext_lazy("By checking this box, a draft peer review meeting will be automatically created upon submitting this form."),
+        label=gettext_lazy("Create a placeholder peer review meeting?"),
         required=False,
     )
     science_leads = forms.MultipleChoiceField(
