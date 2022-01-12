@@ -22,7 +22,7 @@
   </div>
 
   <div class="mb-5">
-    <div class="float-right">
+    <div class="float-right mb-3">
       <a href="#" pop-href="{% url 'ppt:dma_review_new' object.id %}" class="btn btn-primary">
         <span class="mdi mdi-plus text-light"></span>
       </a>
@@ -44,6 +44,9 @@
             {% for field in dma_review_field_list %}
               <td>{% get_field_value review field %}</td>
             {% endfor %}
+          <td>
+            <a href="#" pop-href="{% url 'ppt:dma_review_delete' review.id %}" class="btn btn-xs btn-danger"><span class="mdi mdi-delete text-light"></span></a>
+          </td>
           </tr>
         {% endfor %}
         </tbody>

@@ -18,6 +18,7 @@
       <tr>
         <th>{% trans "Title" %}</th>
         <th>{% trans "Status" %}</th>
+        <th>{% trans "Metadata" %}</th>
       </tr>
       </thead>
       <tbody>
@@ -26,6 +27,7 @@
           <a href="#" @click="goDMADetail(dma)">${dma.title}</a>
         </td>
         <td v-html="dma.status_display"></td>
+        <td v-html="dma.metadata"></td>
       </tr>
       </tbody>
     </table>
