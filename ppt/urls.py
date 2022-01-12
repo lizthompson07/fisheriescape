@@ -37,6 +37,19 @@ urlpatterns = [
     path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),  # tested
     path('status-reports/<int:pk>/print/', views.StatusReportPrintDetailView.as_view(), name="report_pdf"),  # tested
 
+    # DMAs #
+    #################
+    path('projects/<int:project>/new-dma/', views.DMACreateView.as_view(), name="dma_new"),
+    path('dmas/<int:pk>/view/', views.DMADetailView.as_view(), name="dma_detail"),
+    path('dmas/<int:pk>/edit/', views.DMAUpdateView.as_view(), name="dma_edit"),
+    path('dmas/<int:pk>/delete/', views.DMADeleteView.as_view(), name="dma_delete"),
+
+    # DMA Reviews #
+    #################
+    path('dmas/<int:dma>/new-review/', views.DMAReviewCreateView.as_view(), name="dma_review_new"),
+    path('dma-reviews/<int:pk>/edit/', views.DMAReviewUpdateView.as_view(), name="dma_review_edit"),
+    path('dmas-reviews/<int:pk>/delete/', views.DMAReviewDeleteView.as_view(), name="dma_review_delete"),
+
     # SETTINGS #
     ############
     # formsets
@@ -79,6 +92,9 @@ urlpatterns = [
     path('settings/csrf-client-information/', views.CSRFClientInformationFormsetView.as_view(), name="manage_csrf_client_information"),  # tested
     path('settings/csrf-client-information/<int:pk>/delete/', views.CSRFClientInformationHardDeleteView.as_view(), name="delete_csrf_client_information"),
     # tested
+
+    path('settings/storage-solutions/', views.StorageSolutionFormsetView.as_view(), name="manage_storage_solutions"),
+    path('settings/storage-solution/<int:pk>/delete/', views.StorageSolutionHardDeleteView.as_view(), name="delete_storage_solution"),
 
     # permissions
     path('settings/users/', views.PPTAdminUserFormsetView.as_view(), name="manage_ppt_admin_users"),
