@@ -15,10 +15,16 @@
     </button>
   </div>
   <div class="mb-2 neighbours">
-    <button @click="copyInvitations" class="btn btn-sm btn-primary py-0 px-1" data-toggle="tooltip"
-            title="{% trans "copy emails of non-declined invitees to clipboard" %}">
-      <span class="h5 mdi mdi-content-copy text-light"></span>
-    </button>
+    <div class="dropdown">
+      <button class="btn btn-sm btn-primary py-0 px-1 dropdown-toggle" type="button" id="dropdownMenuButton"
+              data-toggle="dropdown" aria-expanded="false">
+        <span class="h5 mdi mdi-content-copy text-light"></span>
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <a @click="copyInvitations([0,1,3,4])" class="dropdown-item" href="#">{% trans "copy emails of non-declined invitees to clipboard" %}</a>
+        <a @click="copyInvitations([1])" class="dropdown-item" href="#">{% trans "copy emails of accepted invitees to clipboard" %}</a>
+      </div>
+    </div>
   </div>
 
   <div class="mb-2 neighbours">

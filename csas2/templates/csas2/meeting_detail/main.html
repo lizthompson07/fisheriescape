@@ -206,17 +206,15 @@
       displayComments(invitee) {
         alert(invitee.comments);
       },
-      copyInvitations() {
-        let endpoint = `/api/csas/meetings/${this.meetingId}/`;
-        apiService(endpoint).then(data => {
-          if (data) {
-            this.meeting = data;
-            this.getInvitees();
-            this.getResources();
-            this.copyToClipboard(this.meeting.email_list);
-            alert(`{% trans "List of invitee email addresses have been copied to clipboard!" %}`);
+      copyInvitations(statusArray) {
+        let payload = "";
+        for (const invitee of this.invitees) {
+          if (statusArray.includes(invitee.status)) {
+            payload += `${invitee.person_object.email}; `
           }
-        });
+        }
+        this.copyToClipboard(payload);
+        alert(`{% trans "List of invitee email addresses have been copied to clipboard!" %}`);
       },
       copyToClipboard(textToCopy) {
         // from https://stackoverflow.com/questions/51805395/navigator-clipboard-is-undefined
