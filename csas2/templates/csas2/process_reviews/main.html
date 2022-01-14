@@ -210,17 +210,14 @@
         let endpoint = `/api/csas/processes/${process.id}/`;
         apiService(endpoint).then(data => {
           if (data) {
-            if (data.review && data.review.advice_date) data.review.advice_date = data.review.advice_date.split("T")[0];
-            if (data.review && data.review.decision_date) data.review.decision_date = data.review.decision_date.split("T")[0];
-            console.log(data)
+            if (data.advice_date) data.advice_date = data.advice_date.split("T")[0];
             this.$set(this.processes, this.processes.indexOf(process), data)
           }
         });
       },
-      cleanReview(review) {
+      cleanProcess(review) {
         for (const reviewKey in review) if (review[reviewKey] === "") review[reviewKey] = null;
         if (review.advice_date) review.advice_date = review.advice_date + "T12:00:00";
-        if (review.decision_date) review.decision_date = review.decision_date + "T12:00:00";
         return review;
       },
       updateProcess(process) {

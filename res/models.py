@@ -313,10 +313,10 @@ class Achievement(MetadataFields):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="achievements")
     category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE, related_name="achievements", verbose_name=_("achievement category"))
     publication_type = models.ForeignKey(PublicationType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
-                                         verbose_name=_("publication type"))
+                                         verbose_name=_("achievement sub-category "))
     review_type = models.ForeignKey(ReviewType, on_delete=models.CASCADE, related_name="achievements", blank=True, null=True,
                                     verbose_name=_("peer review type"))
-    date = models.DateTimeField(verbose_name=_("date of publication / achievement"), blank=True, null=True)
+    date = models.DateTimeField(verbose_name=_("date of achievement / publication "), blank=True, null=True)
     detail = models.TextField(verbose_name=_("detail"))
 
     class Meta:

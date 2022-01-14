@@ -66,12 +66,12 @@ h1 {
     background-color: #ffff9d;
 }
 
-.submitted, .on {
+.submitted, .on, .queued {
     background-color: #009fdb;
     color: white;
 }
 
-.finalization, .tentative, .ready-for-review {
+.finalization, .tentative, .ready-for-review, .pending, .awaiting-posting {
     background-color: #e3aefa;
 }
 
@@ -80,7 +80,7 @@ h1 {
     background-color: #4c6fc6;
 }
 
-.unapproved, .deferred, .delayed {
+.unapproved, .deferred, .delayed, .awaiting-changes {
     color: white;
     background-color: #e94a65;
 }
@@ -103,7 +103,7 @@ h1 {
     background-color: #cacaca;
 }
 
-.flagged {
+.flagged, .awaiting-changes {
     background-color: #e06400;
     color: #ffffff;
 }

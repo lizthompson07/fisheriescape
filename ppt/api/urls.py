@@ -15,6 +15,7 @@ router.register(r'activity-updates', views.ActivityUpdateViewSet)
 router.register(r'citations', views.CitationViewSet)
 router.register(r'reviews', views.ReviewViewSet)
 router.register(r'files', views.FileViewSet)
+router.register(r'dmas', views.DMAViewSet)
 
 urlpatterns = [
     path("ppt/", include(router.urls)),  # tested

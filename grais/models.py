@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import percentage
 from shared_models import models as shared_models
-from shared_models.models import MetadataFields, LatLongFields, UnilingualSimpleLookup, SimpleLookup
+from shared_models.models import MetadataFields, LatLongFields, UnilingualSimpleLookup
 
 YES_NO_CHOICES = (
     (True, "Yes"),
@@ -23,6 +23,18 @@ NULL_YES_NO_CHOICES = (
     (1, _("Yes")),
     (0, _("No")),
 )
+
+
+class GRAISUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="grais_user", verbose_name=_("DM Apps user"))
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator?"), choices=YES_NO_CHOICES)
+    is_crud_user = models.BooleanField(default=False, verbose_name=_("CRUD permissions?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
 
 
 # Create your models here.

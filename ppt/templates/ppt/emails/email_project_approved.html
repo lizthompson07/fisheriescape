@@ -17,7 +17,7 @@
         {{ SITE_FULL_URL }}{% url 'ppt:project_detail' object.project_year.project.id %}?project_year={{ object.project_year.id }}">
       {{ object.project_year.project.title }} ({{ object.project_year }})
     </a>
-    has been approved by the Science Management team!
+    has been recommended by the Science Management team {% if object.approval_level %}at the {{ object.get_approval_level_display|lower }}{% endif %}!
   </p>
 
   {% if object.allocated_budget %}
@@ -25,6 +25,29 @@
       The amount of budget allocated to this project year is ${{ object.allocated_budget|currency }}.
     </p>
   {% endif %}
+
+
+{% elif object.approval_status == 2 %}
+  <p>
+    Congratulations,
+  </p>
+  <p>
+    Your project in the DM Apps Project Planning Application entitled
+    <a
+      href="
+        {{ SITE_FULL_URL }}{% url 'ppt:project_detail' object.project_year.project.id %}?project_year={{ object.project_year.id }}">
+      {{ object.project_year.project.title }} ({{ object.project_year }})
+    </a>
+    has been recommended by the Science Management team {% if object.approval_level %}at the {{ object.get_approval_level_display|lower }}{% endif %}!
+  </p>
+
+  {% if object.allocated_budget %}
+    <p>
+      The amount of budget allocated to this project year is ${{ object.allocated_budget|currency }}.
+    </p>
+  {% endif %}
+
+
 
 {% elif object.approval_status == 0 %}
 
@@ -86,6 +109,25 @@
       {{ object.project_year.project.title }} ({{ object.project_year }})
     </a>
     a été approuvé par l'équipe de gestion des sciences!
+  </p>
+
+  {% if object.allocated_budget %}
+    <p>
+      Le montant du budget alloué à cette année du projet est de {{ object.allocated_budget|currency:True }}.
+    </p>
+  {% endif %}
+
+{% elif object.approval_status == 2 %}
+  <p>
+    Félicitations,
+  </p>
+  <p>
+    Votre projet dans l'application de planification de projet (DM Apps) intitulée
+    <a href="
+      {{ SITE_FULL_URL }}{% url 'ppt:project_detail' object.project_year.project.id %}?project_year={{ object.project_year.id }}">
+      {{ object.project_year.project.title }} ({{ object.project_year }})
+    </a>
+    a été recommendé par l'équipe de gestion des sciences!
   </p>
 
   {% if object.allocated_budget %}
