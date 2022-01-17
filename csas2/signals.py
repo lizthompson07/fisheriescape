@@ -18,32 +18,9 @@ def save_request_on_file_save(sender, instance, created, **kwargs):
 
 @receiver(models.signals.post_save, sender=Process)
 def save_requests_on_process_save(sender, instance, created, **kwargs):
+    tor, created = TermsOfReference.objects.get_or_create(process=instance)
     for r in instance.csas_requests.all():
         r.save()
-
-
-# @receiver(models.signals.m2m_changed, sender=Process.csas_requests.through)
-# def csas_request_change(sender, action, pk_set, instance=None, **kwargs):
-#     """This will save process instance if any of its attached requests are update"""
-#     instance.save()
-
-
-# @receiver(models.signals.post_delete, sender=CSASRequest)
-# def update_process_on_request_delete(sender, instance, **kwargs):
-#     for p in instance.processes.all():
-#         p.save()
-#
-#
-# @receiver(models.signals.post_save, sender=CSASRequest)
-# def update_process_on_request_change_or_create(sender, instance, **kwargs):
-#     for p in instance.processes.all():
-#         p.save()
-
-
-# @receiver(models.signals.post_save, sender=Process)
-# def update_request_on_process_change_or_create(sender, instance, **kwargs):
-#     for r in instance.csas_requests.all():
-#         r.save()
 
 
 @receiver(models.signals.post_save, sender=Meeting)

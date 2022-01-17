@@ -1,21 +1,24 @@
+import sys
+
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from shared_models.utils import special_capitalize
+from shared_models.utils import special_capitalize, get_labels
 from . import serializers
 # USER
 #######
 from .pagination import StandardResultsSetPagination
 from .permissions import IsAdminOrReadOnly
 from .. import models
-from ..models import Region
 
 
 def _get_labels(model):
@@ -124,37 +127,37 @@ class FiscalYearListAPIView(ListAPIView):
     queryset = models.FiscalYear.objects.all()
 
 
-class RegionListAPIView(ListAPIView):
-    serializer_class = serializers.RegionSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        qs = Region.objects.filter(branches__divisions__sections__requests__isnull=False)
-        return qs.distinct()
-
-
-class DivisionListAPIView(ListAPIView):
-    serializer_class = serializers.DivisionSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        qs = Division.objects.filter(sections__requests__isnull=False).distinct()
-        if self.request.query_params.get("region"):
-            qs = qs.filter(branch__region_id=self.request.query_params.get("region"))
-        return qs.distinct()
-
-
-class SectionListAPIView(ListAPIView):
-    serializer_class = serializers.SectionSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        qs = Section.objects.filter(requests__isnull=False).distinct()
-        if self.request.query_params.get("division"):
-            qs = qs.filter(division_id=self.request.query_params.get("division"))
-        elif self.request.query_params.get("region"):
-            qs = qs.filter(division__branch__region_id=self.request.query_params.get("region"))
-        return qs
+# class RegionListAPIView(ListAPIView):
+#     serializer_class = serializers.RegionSerializer
+#     permission_classes = [IsAuthenticated]
+#
+#     def get_queryset(self):
+#         qs = Region.objects.filter(branches__divisions__sections__requests__isnull=False)
+#         return qs.distinct()
+#
+#
+# class DivisionListAPIView(ListAPIView):
+#     serializer_class = serializers.DivisionSerializer
+#     permission_classes = [IsAuthenticated]
+#
+#     def get_queryset(self):
+#         qs = Division.objects.filter(sections__requests__isnull=False).distinct()
+#         if self.request.query_params.get("region"):
+#             qs = qs.filter(branch__region_id=self.request.query_params.get("region"))
+#         return qs.distinct()
+#
+#
+# class SectionListAPIView(ListAPIView):
+#     serializer_class = serializers.SectionSerializer
+#     permission_classes = [IsAuthenticated]
+#
+#     def get_queryset(self):
+#         qs = Section.objects.filter(requests__isnull=False).distinct()
+#         if self.request.query_params.get("division"):
+#             qs = qs.filter(division_id=self.request.query_params.get("division"))
+#         elif self.request.query_params.get("region"):
+#             qs = qs.filter(division__branch__region_id=self.request.query_params.get("region"))
+#         return qs
 
 
 class RegionListAPIView(ListAPIView):
@@ -173,3 +176,45 @@ class SectionListAPIView(ListAPIView):
     serializer_class = serializers.SectionSerializer
     permission_classes = [IsAuthenticated]
     queryset = models.Section.objects.all()
+
+
+class SharedModelMetadataAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = None
+    data = None
+
+    def get_model(self):
+        qp = self.request.GET
+        if not qp.get("app_name"):
+            raise ValidationError(_("Missing the 'app_name' parameter"))
+        if not qp.get("model_name"):
+            raise ValidationError(_("Missing the 'model_name' parameter"))
+        app_name = qp.get("app_name")
+        model_name = qp.get("model_name")
+        if not sys.modules.get(app_name):
+            raise ValidationError(_("Please check the app name. The app module '{}' was not found.").format(app_name))
+        app_mod = sys.modules[app_name]
+        if not hasattr(app_mod, "models"):
+            raise ValidationError(_("The 'models' module was not found in app '{}'.").format(app_name))
+        model_mod = getattr(app_mod, "models")
+        if not hasattr(model_mod, model_name):
+            raise ValidationError(_("Please check the model name. Model '{}' not found in the '{}' module.").format(model_name, model_mod))
+        return getattr(model_mod, model_name)
+
+    def get_display_mode(self):
+        qp = self.request.GET
+        if qp.get("as_choices") and (qp.get("as_choices").lower() == "true" or qp.get("as_choices") == "1"):
+            return "choices"
+
+    def get_data(self):
+        data = dict()
+        model = self.get_model()
+        data['labels'] = get_labels(model)
+        for field in model._meta.get_fields():
+            if hasattr(field, "choices") and getattr(field, "choices"):
+                data[f'{field.name}_choices'] = [dict(text=c[1], value=c[0]) for c in getattr(field, "choices")]
+        return data
+
+    def get(self, request):
+        data = self.get_data()
+        return Response(data, status=status.HTTP_200_OK)

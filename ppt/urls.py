@@ -27,6 +27,7 @@ urlpatterns = [
     path('project-years/<int:pk>/edit/', views.ProjectYearUpdateView.as_view(), name="year_edit"),  # tested
     path('project-years/<int:pk>/delete/', views.ProjectYearDeleteView.as_view(), name="year_delete"),  # tested
     path('project-years/<int:pk>/clone/', views.ProjectYearCloneView.as_view(), name="year_clone"),  # tested
+    path('project-years/<int:pk>/gantt/', views.ProjectYearGanttDetailView.as_view(), name="project_year_gantt"),
 
     # STATUS REPORT #
     #################
@@ -35,6 +36,19 @@ urlpatterns = [
     path('status-reports/<int:pk>/review/', views.StatusReportReviewUpdateView.as_view(), name="report_review"),  # tested
     path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),  # tested
     path('status-reports/<int:pk>/print/', views.StatusReportPrintDetailView.as_view(), name="report_pdf"),  # tested
+
+    # DMAs #
+    #################
+    path('projects/<int:project>/new-dma/', views.DMACreateView.as_view(), name="dma_new"),
+    path('dmas/<int:pk>/view/', views.DMADetailView.as_view(), name="dma_detail"),
+    path('dmas/<int:pk>/edit/', views.DMAUpdateView.as_view(), name="dma_edit"),
+    path('dmas/<int:pk>/delete/', views.DMADeleteView.as_view(), name="dma_delete"),
+
+    # DMA Reviews #
+    #################
+    path('dmas/<int:dma>/new-review/', views.DMAReviewCreateView.as_view(), name="dma_review_new"),
+    path('dma-reviews/<int:pk>/edit/', views.DMAReviewUpdateView.as_view(), name="dma_review_edit"),
+    path('dmas-reviews/<int:pk>/delete/', views.DMAReviewDeleteView.as_view(), name="dma_review_delete"),
 
     # SETTINGS #
     ############
@@ -79,9 +93,12 @@ urlpatterns = [
     path('settings/csrf-client-information/<int:pk>/delete/', views.CSRFClientInformationHardDeleteView.as_view(), name="delete_csrf_client_information"),
     # tested
 
+    path('settings/storage-solutions/', views.StorageSolutionFormsetView.as_view(), name="manage_storage_solutions"),
+    path('settings/storage-solution/<int:pk>/delete/', views.StorageSolutionHardDeleteView.as_view(), name="delete_storage_solution"),
+
     # permissions
-    path('settings/ppt-admin-users/', views.PPTAdminUserFormsetView.as_view(), name="manage_ppt_admin_users"),
-    path('settings/ppt-admin-user/<int:pk>/delete/', views.PPTAdminUserHardDeleteView.as_view(), name="delete_ppt_admin_user"),
+    path('settings/users/', views.PPTAdminUserFormsetView.as_view(), name="manage_ppt_admin_users"),
+    path('settings/users/<int:pk>/delete/', views.PPTAdminUserHardDeleteView.as_view(), name="delete_ppt_admin_user"),
 
     # full
     path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),  # tested

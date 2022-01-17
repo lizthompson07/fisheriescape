@@ -1,0 +1,48 @@
+{% load verbose_names %}
+{% load i18n %}
+<style media="screen">
+table, td, th, tr {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+}
+
+.comments {
+{#color: #ff9700;#} font-style: italic;
+}
+</style>
+
+<em>
+  *** un message français suivra
+</em>
+<br><br>
+
+<p>
+  The following changes are being requested from {{ object.user }}:
+</p>
+<p class="comments">
+  {{ object.comments_html|safe }}
+</p>
+<p>
+  Please address these changes and then re-submit the ToR to continue with the approval process.
+  You can click <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">HERE</a> to access the ToR
+</p>
+
+<hr>
+
+<p>
+  Les modifications suivantes sont demandées par {{ object.user }}:
+</p>
+<p class="comments">
+  {{ object.comments_html|safe }}
+</p>
+<p>
+  Veuillez adresser ces modifications, puis soumettez à nouveau votre cadre de référence pour poursuivre le processus d'approbation.
+  Vous pouvez cliquer <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">ICI</a> pour accéder le cadre de référence.
+</p>
+
+
+
+
+
+

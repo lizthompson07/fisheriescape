@@ -19,7 +19,7 @@ from shared_models.utils import get_labels
 from . import permissions, pagination
 from . import serializers
 from .. import models, stat_holidays, emails
-from ..filters import ProjectYearChildFilter, ProjectYearFilter
+from ..filters import ProjectYearChildFilter, ProjectYearFilter, DMAFilter
 from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project, \
     get_manageable_sections, multiple_financial_project_year_summary_data, is_section_head
 from ..utils import is_management_or_admin
@@ -501,6 +501,23 @@ class ReviewViewSet(ModelViewSet):
             obj.send_approval_email(self.request)
         elif data.get("review_email_update"):
             obj.send_review_email(self.request)
+
+
+
+class DMAViewSet(ModelViewSet):
+    queryset = models.DMA.objects.all()
+    serializer_class = serializers.DMASerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = DMAFilter
+
+    def perform_update(self, serializer):
+        obj = serializer.save(updated_by=self.request.user)
+
+    def perform_create(self, serializer):
+        obj = serializer.save(updated_by=self.request.user, created_by=self.request.user)
+
+
 
 
 # LOOKUPS

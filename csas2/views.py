@@ -580,6 +580,7 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'status', "class": "", "width": ""},
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
         {"name": 'regions|{}'.format(_("regions")), "class": "", "width": ""},
+        {"name": 'tor_status|{}'.format(_("ToR status")), "class": "", "width": ""},
         {"name": 'chair|{}'.format(_("chair")), "class": "w-25", "width": ""},
         {"name": 'science_leads|{}'.format(_("science lead(s)")), "class": "", "width": ""},
     ]
@@ -651,6 +652,8 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
         obj = form.save(commit=False)
         obj.created_by = self.request.user
         obj.save()
+        tor, created = models.TermsOfReference.objects.get_or_create(process=obj)
+
         # create the steering committee meeting if the user wants to...
         create_sc_meeting = form.cleaned_data.get("create_steering_committee_meeting")
         if create_sc_meeting:
@@ -691,7 +694,8 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
                 is_estimate=True,
             )
             # since we know this is the keystone meeting, let's make the connections with the TOR
-            models.TermsOfReference.objects.create(process=obj, meeting=meeting)
+            tor.meeting = meeting
+            tor.save()
 
             # add the science leads
             science_lead_roles = models.InviteeRole.objects.filter(category=4)
@@ -734,6 +738,18 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
                     invitee.roles.add(chair_roles.first())
             else:
                 messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'chair' role in the system."))
+
+        super().form_valid(form)
+
+        if obj.csas_requests.exists():
+            r = obj.csas_requests.first()
+            if r.language == 2:
+                tor.context_fr = r.issue
+                tor.objectives_fr = r.rationale
+            else:
+                tor.context_en = r.issue
+                tor.objectives_en = r.rationale
+            tor.save()
         return super().form_valid(form)
 
 
@@ -821,18 +837,22 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
 class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
     model = models.TermsOfReference
     form_class = forms.TermsOfReferenceForm
-    template_name = 'csas2/tor_form.html'  # shared js_body
+    template_name = 'csas2/tor_form.html'
     home_url_name = "csas2:index"
-    grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
     def get_h3(self):
         if self.get_object().process.is_posted:
             mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
             return mark_safe(mystr)
 
-    def get_parent_crumb(self):
+    def get_grandparent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
                 "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
+
+    def get_parent_crumb(self):
+        return {"title": "{} {}".format(_("Terms of Reference"), self.get_object().id),
+                "url": reverse_lazy("csas2:tor_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -863,19 +883,75 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
         return HttpResponseRedirect(self.get_success_url())
 
 
-class TermsOfReferenceDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
+class TermsOfReferenceSubmitView(TermsOfReferenceUpdateView):
+    template_name = 'csas2/tor_submit.html'
+    form_class = forms.ToRTimestampUpdateForm
+    submit_text = gettext_lazy("Proceed")
+    h2 = None
+
+    def get_h1(self):
+        my_object = self.get_object()
+        if my_object.submission_date:
+            return _("Do you wish to un-submit the following Terms of Reference?")
+        else:
+            return _("Do you wish to submit the following Terms of Reference?")
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("csas2:tor_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        is_submitted = True if obj.submission_date else False
+
+        # if submitted, then unsubmit but only if admin or owner
+        if is_submitted:
+            if utils.can_unsubmit_tor(self.request.user, obj.id):
+                obj.unsubmit()
+        else:
+            obj.submit()
+
+        # No matter what business was done, we will call this function to sort through reviewer and request statuses
+        utils.tor_approval_seeker(obj, self.request)
+        # utils.manage_trip_warning(my_object.trip, self.request)
+
+        # return HttpResponseRedirect(reverse("travel:request_detail", kwargs=self.kwargs) + self.get_query_string())
+
+
+        #
+        # if obj.submission_date:
+        #     obj.submission_date = None
+        # else:
+        #     obj.submission_date = timezone.now()
+        # obj.save()
+        #
+        # # # if the request was just submitted, send an email
+        # # if obj.submission_date:
+        # #     if not obj.office.disable_request_notifications:
+        # #         email = emails.NewRequestEmail(self.request, obj)
+        # #         email.send()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_h3(self):
+        if self.get_object().process.is_posted:
+            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
+            return mark_safe(mystr)
+
+    def get_grandparent_crumb(self):
+        return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
+                "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
+
+
+class TermsOfReferenceDetailView(LoginAccessRequiredMixin, CommonDetailView):
     model = models.TermsOfReference
-    template_name = 'csas2/confirm_delete.html'
-    delete_protection = False
+    template_name = 'csas2/tor/main.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+    field_list = utils.get_tor_field_list()
 
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
                 "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
-
-    def get_success_url(self):
-        return self.get_parent_crumb().get("url")
 
 
 @login_required()
