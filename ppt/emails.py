@@ -55,6 +55,8 @@ class ProjectApprovalEmail:
         self.request = request
         if review.approval_status == 1:
             self.subject = 'Your project has been approved / Votre projet a été approuvé'
+        elif review.approval_status == 2:
+            self.subject = "Your project has been recommended / Votre projet a été recommendé"
         elif review.approval_status == 0:
             self.subject = "Your project has not been approved / Votre projet n'a pas été approuvé"
         else:

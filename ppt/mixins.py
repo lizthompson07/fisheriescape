@@ -18,6 +18,11 @@ class PPTLoginRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             return HttpResponseRedirect(reverse('accounts:denied_access'))
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = in_ppt_admin_group(self.request.user)
+        return context
+
 
 class ProjectLeadRequiredMixin(PPTLoginRequiredMixin):
     def test_func(self):
@@ -60,6 +65,8 @@ class CanModifyProjectRequiredMixin(PPTLoginRequiredMixin):
             if isinstance(obj, models.Project):
                 project_id = obj.id
             elif isinstance(obj, models.ProjectYear):
+                project_id = obj.project_id
+            elif isinstance(obj, models.DMA):
                 project_id = obj.project_id
             elif isinstance(obj, models.StatusReport):
                 project_id = obj.project_year.project_id

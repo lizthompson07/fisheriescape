@@ -2,6 +2,7 @@
 {% load humanize %}
 {% load i18n %}
 {% load custom_filters %}
+{% load custom_tags %}
 
 <div class="card entry-card">
   <div class="card-header">
@@ -11,14 +12,16 @@
 
     {% for status in entries %}
       <div class="mb-3">
-        <p class="h6"><span style="background-color: {{ status.color }}" class="p-1">{{ status }}</span></p>
-        <ul>
-          {% for entry in entries|lookup:status %}
-            <li>
-              <a href="{% url 'ihub:entry_detail'  entry.id %}">{{ entry.title }} </a>
-            </li>
-          {% endfor %}
-        </ul>
+        {% with entries|lookup:status as status_entries %}
+          <p class="h6"><span style="background-color: {{ status.color }}" class="p-1">{{ status }} ({{ status_entries.count }})</span></p>
+          <ul>
+            {% for entry in status_entries %}
+              <li>
+                <a href="{% url 'ihub:entry_detail'  entry.id %}">{{ entry.title }} </a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endwith %}
       </div>
     {% empty %}
       <em>

@@ -46,7 +46,7 @@ def generate_tor(tor, lang):
     field_dict = dict(
         TAG_TITLE=tor.process.tname,
         TAG_TYPE_SCOPE=tor.process.scope_type,
-        TAG_LEAD_REGION=tor.process.lead_region.tname,
+        TAG_LEAD_REGION=tor.process.lead_office.region.tname,
         TAG_DATES=dates,
         TAG_LOCATION=location,
         TAG_CHAIR=chair,

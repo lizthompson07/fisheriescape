@@ -67,8 +67,9 @@ urlpatterns = [
 
     # ToR
     path('processes/<int:process>/new-tor/', views.TermsOfReferenceCreateView.as_view(), name="tor_new"),
+    path('terms-of-reference/<int:pk>/detail/', views.TermsOfReferenceDetailView.as_view(), name="tor_detail"),
     path('terms-of-reference/<int:pk>/edit/', views.TermsOfReferenceUpdateView.as_view(), name="tor_edit"),
-    path('terms-of-reference/<int:pk>/delete/', views.TermsOfReferenceDeleteView.as_view(), name="tor_delete"),
+    path('terms-of-reference/<int:pk>/submit/', views.TermsOfReferenceSubmitView.as_view(), name="tor_submit"),
     path('terms-of-reference/<int:pk>/export/', views.tor_export, name="tor_export"),
     path('terms-of-reference/<int:pk>/html/', views.TermsOfReferenceHTMLDetailView.as_view(), name="tor_html"),
 

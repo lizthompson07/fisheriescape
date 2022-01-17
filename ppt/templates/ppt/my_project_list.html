@@ -5,12 +5,30 @@
 {% load static %}
 {% load bootstrap4 %}
 
-{% block filter %}{% endblock %}
+{% block filter %}
 
-{% block pre_table %}
+  <form class="form" action="." method="get" id="filter-form" style="width: 30%">
+    <div class="row">
+      {% for field in filter.form %}
+        <div class="col">
+          {% bootstrap_field field placeholder="" size="small" %}
+        </div>
+      {% endfor %}
+      <div class="col">
+        <br>
+        <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+        <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+      </div>
+    </div>
+  </form>
+
+
+{% endblock %}
+
+{% block post_table %}
 
   <div id="app" v-cloak>
-    <div class="row mb-5">
+    <div class="row mb-5 mt-5">
       <div class="col-5">
         <h3>
           {% trans "Here's a breakdown of your time allocation:" %}
@@ -39,21 +57,6 @@
 
     </div>
   </div>
-
-  <form class="form" action="." method="get" id="filter-form" style="width: 30%">
-    <div class="row">
-      {% for field in filter.form %}
-        <div class="col">
-          {% bootstrap_field field placeholder="" size="small" %}
-        </div>
-      {% endfor %}
-      <div class="col">
-        <br>
-        <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
-        <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
-      </div>
-    </div>
-  </form>
 
 {% endblock %}
 

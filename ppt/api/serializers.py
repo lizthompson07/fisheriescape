@@ -184,6 +184,19 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     om_costs = serializers.SerializerMethodField()
     salary_costs = serializers.SerializerMethodField()
     capital_costs = serializers.SerializerMethodField()
+    project_codes = serializers.SerializerMethodField()
+    project_user_choices = serializers.SerializerMethodField()
+    parent_activity_choices = serializers.SerializerMethodField()
+
+    def get_parent_activity_choices(self, instance):
+        return [dict(id=obj.id, value=f"{obj.get_type_display()} - {obj}") for obj in instance.activities.filter(parent__isnull=True)]
+
+    def get_project_user_choices(self, instance):
+        project_users = User.objects.filter(staff_instances2__project_year__project=instance.project).distinct()
+        return [dict(id=obj.id, value=str(obj)) for obj in project_users]
+
+    def get_project_codes(self, instance):
+        return instance.project_codes
 
     def get_capital_costs(self, instance):
         return instance.capital_costs
@@ -367,6 +380,7 @@ class CapitalCostSerializer(serializers.ModelSerializer):
 
 class ActivitySerializer(serializers.ModelSerializer):
     target_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
+    target_start_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
 
     class Meta:
         model = models.Activity
@@ -377,6 +391,30 @@ class ActivitySerializer(serializers.ModelSerializer):
     project_year_id = serializers.SerializerMethodField()
     type_display = serializers.SerializerMethodField()
     risk_rating_display = serializers.SerializerMethodField()
+    dates = serializers.SerializerMethodField()
+    responsible_parties_display = serializers.SerializerMethodField()
+    duration = serializers.SerializerMethodField()
+    latest_update_text = serializers.SerializerMethodField()
+    latest_update_status = serializers.SerializerMethodField()
+    children = serializers.SerializerMethodField()
+
+    def get_children(self, instance):
+        if instance.children.exists():
+            return [ActivitySerializer(obj).data for obj in instance.children.all()]
+        return list()
+
+    def get_duration(self, instance):
+        if instance.target_start_date and instance.target_date:
+            return (instance.target_date - instance.target_start_date).total_seconds() * 1000
+        # otherwise return just a single day
+        return 7 * 24 * 60 * 60 * 1000
+
+    def get_responsible_parties_display(self, instance):
+        if instance.responsible_parties.exists():
+            return listrify(instance.responsible_parties.all())
+
+    def get_dates(self, instance):
+        return instance.dates
 
     def get_type_display(self, instance):
         return instance.get_type_display()
@@ -389,12 +427,34 @@ class ActivitySerializer(serializers.ModelSerializer):
             return f'<a target="_blank" href="{reverse("ppt:report_detail", args=[instance.latest_update.status_report.id])}">{instance.latest_update.get_status_display()}</a>'
         return "n/a"
 
+    def get_latest_update_text(self, instance):
+        if instance.latest_update:
+            return f'{instance.latest_update.get_status_display()}'
+        return "n/a"
+
+    def get_latest_update_status(self, instance):
+        if instance.latest_update:
+            return instance.latest_update.status
+
     def get_target_date_display(self, instance):
         if instance.target_date:
             return instance.target_date.strftime("%Y-%m-%d")
 
     def get_project_year_id(self, instance):
         return instance.project_year_id
+
+    def validate(self, attrs):
+        """
+        form validation:
+        - make that there is at least a project, project year or status report
+        """
+        target_date = attrs.get("target_date")
+        target_start_date = attrs.get("target_start_date")
+
+        if target_date and target_start_date and target_start_date > target_date:
+            msg = _('The target end date must occur after the target start date.')
+            raise ValidationError(msg)
+        return attrs
 
 
 class CollaborationSerializer(serializers.ModelSerializer):
@@ -601,3 +661,18 @@ class PublicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = shared_models.Publication
         fields = "__all__"
+
+
+class DMASerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.DMA
+        fields = "__all__"
+
+    metadata = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_metadata(self, instance):
+        return instance.metadata

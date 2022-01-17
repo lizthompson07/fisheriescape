@@ -5,18 +5,21 @@ from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.template.defaultfilters import date, slugify, pluralize
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext, get_language, activate
 from markdown import markdown
+from textile import textile
 
-from csas2 import model_choices
+from csas2 import model_choices, utils
+from csas2.model_choices import tor_review_status_choices, tor_review_decision_choices
 from csas2.utils import get_quarter
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import percentage
+from ppt.models import Project
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
     SimpleLookupWithUUID, SubjectMatter
 
@@ -109,6 +112,9 @@ class CSASOffice(models.Model):
     generic_email = models.EmailField(verbose_name=_("generic email address"), blank=True, null=True)
     disable_request_notifications = models.BooleanField(default=False, verbose_name=_("disable notifications of new requests?"), choices=YES_NO_CHOICES)
     no_staff_emails = models.BooleanField(default=False, verbose_name=_("do not send emails directly to office staff?"), choices=YES_NO_CHOICES)
+    ppt_default_section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_offices",
+                                            verbose_name=_("default section for PPT"),
+                                            help_text=_("When exporting CSAS processes to projects, what should be the default section to use?"))
 
     class Meta:
         ordering = ["region"]
@@ -224,7 +230,6 @@ class CSASRequest(MetadataFields):
             self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
         else:
             self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
-
 
         # set the STATUS
 
@@ -433,22 +438,15 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     lead_office = models.ForeignKey(CSASOffice, on_delete=models.DO_NOTHING, related_name="csas_lead_offices", verbose_name=_("lead CSAS office"),
                                     blank=True, null=False)
     other_offices = models.ManyToManyField(CSASOffice, blank=True, verbose_name=_("other CSAS offices"))
-
-    # lead_region = models.ForeignKey(Region, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions",
-    #                                 verbose_name=_("lead region"), editable=False)
-    # other_regions = models.ManyToManyField(Region, blank=True, verbose_name=_("other regions"), editable=False)
-    # coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"), null=True,
-    #                                 blank=True, editable=False)
-    # advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
-
     editors = models.ManyToManyField(User, blank=True, verbose_name=_("process editors"), related_name="process_editors",
                                      help_text=_("A list of non-CSAS staff with permissions to edit the process, meetings and documents"))
 
     csas_requests = models.ManyToManyField(CSASRequest, blank=True, related_name="processes", verbose_name=_("Connected CSAS requests"))
     advice_date = models.DateTimeField(verbose_name=_("Target date for to provide Science advice"), blank=True, null=True)
+    projects = models.ManyToManyField(Project, blank=True, related_name="csas_processes", verbose_name=_("Links to PPT Projects"))
 
     # non-editable
-    is_posted = models.BooleanField(default=False, verbose_name=_("is posted on CSAS website?"))
+    is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"))
     posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"))
     posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="processes", verbose_name=_("fiscal year"), editable=False)
@@ -474,7 +472,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         if not self.status == 90:
 
             # if there is a process, the request the request MUST have been approved.
-            if hasattr(self, "tor") and self.tor.is_complete:
+            if hasattr(self, "tor") and self.tor.status == 50:  # complete status
                 self.status = 22  # tor complete!
 
             # has the latest scheduled meeting passed
@@ -483,20 +481,13 @@ class Process(SimpleLookupWithUUID, MetadataFields):
             if meeting_qs.exists() and meeting_qs.last().end_date and meeting_qs.last().end_date <= now:
                 self.status = 25  # meeting complete!
 
-            # has the key doc been completed
+            # has the key docs have been completed
             doc_qs = self.documents.filter(status__in=[12, 17])
-            if doc_qs.exists():
+            # compare the count of posted docs with all (non-translation only) docs)
+            if doc_qs.exists() and doc_qs.count() >= self.documents.filter(~Q(document_type__name__icontains="translation")).count():
                 self.status = 100  # complete!
 
         super().save(*args, **kwargs)
-
-    # @property
-    # def status_display(self):
-    #     return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
-    #
-    # @property
-    # def status_class(self):
-    #     return slugify(self.get_status_display()) if self.status else ""
 
     @property
     def status_display(self):
@@ -509,6 +500,13 @@ class Process(SimpleLookupWithUUID, MetadataFields):
             return model_choices.get_process_status_lookup().get(self.status).get("stage")
         except:
             pass
+
+    @property
+    def tor_status(self):
+        try:
+            return self.tor.get_status_display()
+        except:
+            return gettext("n/a")
 
     def get_absolute_url(self):
         return reverse("csas2:process_detail", args=[self.pk])
@@ -616,6 +614,15 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     def advisors(self):
         return self.lead_office.advisors.all()
 
+    @property
+    def editor_email_list(self):
+        payload = self.lead_office.all_emails
+        for office in self.other_offices.all():
+            payload.extend(office.all_emails)
+        for editor in self.editors.all():
+            payload.append(editor.email)
+        return list(set(payload))
+
 
 class ProcessCost(GenericCost):
     process = models.ForeignKey(Process, related_name='costs', on_delete=models.CASCADE, verbose_name=_("process"))
@@ -635,8 +642,35 @@ class TermsOfReference(MetadataFields):
                                    verbose_name=_("Linked to which meeting?"),
                                    help_text=_("The ToR will pull several fields from the linked meeting (e.g., dates, chair, location, ...)"))
     expected_document_types = models.ManyToManyField("DocumentType", blank=True, verbose_name=_("expected publications"))
-    is_complete = models.BooleanField(default=False, verbose_name=_("Are the ToRs complete?"), choices=YES_NO_CHOICES,
-                                      help_text=_("Selecting yes will update the process status"))
+    # is_complete = models.BooleanField(default=False, verbose_name=_("Are the ToRs complete?"), choices=YES_NO_CHOICES,
+    #                                   help_text=_("Selecting yes will update the process status"), editable=False)
+
+    # non-editable fields
+    status = models.IntegerField(default=10, verbose_name=_("status"), choices=model_choices.tor_status_choices, editable=False)
+    submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("submission date"), editable=False)
+    posting_request_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Date of posting request"))
+    posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
+
+    def unsubmit(self):
+        utils.end_tor_review_process(self)
+
+    def submit(self):
+        utils.start_tor_review_process(self)
+
+    @property
+    def status_display(self):
+        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
+
+    @property
+    def status_class(self):
+        lang = get_language()
+        activate("en")
+        mystr = slugify(self.get_status_display()) if self.status else ""
+        activate(lang)
+        return mystr
+
+    def __str__(self):
+        return gettext("Terms of Reference")
 
     @property
     def context_en_html(self):
@@ -693,6 +727,49 @@ class TermsOfReference(MetadataFields):
         mystr = listrify(self.expected_document_types.all())
         activate(lang)
         return mystr
+
+    def get_absolute_url(self):
+        return reverse('csas2:tor_detail', args=[self.id])
+
+    @property
+    def current_reviewer(self):
+        """Send back the first reviewer whose status is 'pending' """
+        return self.reviewers.filter(status=30).first()
+
+
+class ToRReviewer(MetadataFields):
+    tor = models.ForeignKey(TermsOfReference, on_delete=models.CASCADE, related_name="reviewers")
+    order = models.IntegerField(null=True, verbose_name=_("process order"))
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="tor_reviews", verbose_name=_("user"))
+    decision = models.IntegerField(verbose_name=_("decision"), choices=tor_review_decision_choices, blank=True, null=True)
+    decision_date = models.DateTimeField(verbose_name=_("date"), blank=True, null=True)
+    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
+    status = models.IntegerField(verbose_name=_("status"), default=10, choices=tor_review_status_choices)
+
+    def save(self, *args, **kwargs):
+        if self.decision:
+            self.decision_date = timezone.now()
+            if self.decision == 1:  # review decision = approve
+                self.status = 40
+            elif self.decision == 2:  # review decision = request changes
+                tor = self.tor
+                tor.status = 30
+                tor.save()
+        else:
+            self.decision_date = None
+        super().save(*args, **kwargs)
+
+    class Meta:
+        unique_together = ['tor', 'user', ]
+        ordering = ['tor', 'order', ]
+        verbose_name = _("ToR reviewer")
+
+    @property
+    def comments_html(self):
+        if self.comments:
+            return textile(self.comments)
+        else:
+            return "---"
 
 
 class ProcessNote(GenericNote):
@@ -835,6 +912,11 @@ class Meeting(SimpleLookup, MetadataFields):
             my_str = "{}".format(getattr(self, str(_("time_description_en"))))
         return my_str
 
+    @property
+    def email_list(self):
+        invitees = self.invitees.filter(~Q(status=2)).filter(person__email__isnull=False)
+        return listrify([i.person.email for i in invitees], separator=";")
+
 
 class MeetingNote(GenericNote):
     ''' a note pertaining to a meeting'''
@@ -878,9 +960,10 @@ class Invitee(models.Model):
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name="meeting_invites", blank=True, null=True,
                                verbose_name=_("DFO Region (if applicable)"))
     roles = models.ManyToManyField(InviteeRole, verbose_name=_("Function(s)"))
-    status = models.IntegerField(choices=model_choices.invitee_status_choices, verbose_name=_("status"), default=0)
+    status = models.IntegerField(choices=model_choices.invitee_status_choices, verbose_name=_("status"), default=9)
     invitation_sent_date = models.DateTimeField(verbose_name=_("date invitation was sent"), editable=False, blank=True, null=True)
     resources_received = models.ManyToManyField("MeetingResource", editable=False)
+    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
     class Meta:
         ordering = ['person__first_name', "person__last_name"]

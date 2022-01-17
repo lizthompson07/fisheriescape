@@ -81,6 +81,11 @@
                   ></v-select>
                 </div>
               </div>
+              <div class="form-group">
+                  <label for="">${labels.comments}</label>
+                  <textarea v-model="inviteeToEdit.comments" class="form-control"></textarea>
+                </div>
+
               <div class="alert alert-danger mb-3" role="alert" v-if="error">
                 <p class="lead">
                   ${ error }
@@ -313,7 +318,7 @@ Vue.component("invitee-editor", {
     },
     primeInvitee() {
       this.inviteeToEdit = {
-        status: 0,
+        status: 4,
         role: null,
         person: null,
         meeting: this.meeting_id

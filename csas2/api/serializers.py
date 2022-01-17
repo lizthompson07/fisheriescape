@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.template.defaultfilters import date, pluralize
-from django.utils.translation import gettext
+from django.template.defaultfilters import date, pluralize, slugify
+from django.utils.translation import gettext, get_language, activate
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
@@ -430,6 +430,10 @@ class MeetingSerializer(serializers.ModelSerializer):
     is_posted = serializers.SerializerMethodField()
     has_tor = serializers.SerializerMethodField()
     ttime = serializers.SerializerMethodField()
+    email_list = serializers.SerializerMethodField()
+
+    def get_email_list(self, instance):
+        return instance.email_list
 
     def get_ttime(self, instance):
         return instance.ttime
@@ -658,6 +662,16 @@ class ToRSerializer(serializers.ModelSerializer):
     meeting_obj = serializers.SerializerMethodField()
     expected_publications_en = serializers.SerializerMethodField()
     expected_publications_fr = serializers.SerializerMethodField()
+    posting_request_date_display = serializers.SerializerMethodField()
+    posting_notification_date_display = serializers.SerializerMethodField()
+
+    def get_posting_request_date_display(self, instance):
+        if instance.posting_request_date:
+            return f"{date(instance.posting_request_date)} ({naturaltime(instance.posting_request_date)})"
+
+    def get_posting_notification_date_display(self, instance):
+        if instance.posting_notification_date:
+            return f"{date(instance.posting_notification_date)} ({naturaltime(instance.posting_notification_date)})"
 
     def get_expected_publications_fr(self, instance):
         return instance.expected_publications_fr
@@ -669,6 +683,45 @@ class ToRSerializer(serializers.ModelSerializer):
         if instance.meeting:
             return MeetingSerializer(instance.meeting).data
         return {}
+
+
+class ToRReviewerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ToRReviewer
+        fields = "__all__"
+
+    comments_html = serializers.SerializerMethodField()
+    decision_display = serializers.SerializerMethodField()
+    decision_date_display = serializers.SerializerMethodField()
+    decision_date_annotation = serializers.SerializerMethodField()
+    status_class = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    user_display = serializers.SerializerMethodField()
+
+    def get_decision_date_annotation(self, instance):
+        return naturaltime(instance.decision_date)
+
+    def get_comments_html(self, instance):
+        return instance.comments_html
+
+    def get_decision_display(self, instance):
+        return instance.get_decision_display()
+
+    def get_status_class(self, instance):
+        lang = get_language()
+        activate("en")
+        mystr = slugify(instance.get_status_display())
+        activate(lang)
+        return mystr
+
+    def get_decision_date_display(self, instance):
+        return date(instance.decision_date)
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_user_display(self, instance):
+        return instance.user.get_full_name() if instance.user else None
 
 
 class ProcessSerializer(serializers.ModelSerializer):
@@ -698,6 +751,20 @@ class ProcessSerializer(serializers.ModelSerializer):
     can_post_meeting = serializers.SerializerMethodField()
     key_meetings = serializers.SerializerMethodField()
     tor = serializers.SerializerMethodField()
+    tor_status = serializers.SerializerMethodField()
+    posting_notification_date_display = serializers.SerializerMethodField()
+    projects = serializers.SerializerMethodField()
+
+    def get_projects(self, instance):
+        from ppt.api.serializers import ProjectSerializer
+        return [ProjectSerializer(p).data for p in instance.projects.all()]
+
+    def get_posting_notification_date_display(self, instance):
+        if instance.posting_notification_date:
+            return f"{date(instance.posting_notification_date)} ({naturaltime(instance.posting_notification_date)})"
+
+    def get_tor_status(self, instance):
+        return instance.tor_status
 
     def get_tor(self, instance):
         if hasattr(instance, "tor"):
