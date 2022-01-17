@@ -23,7 +23,7 @@ urlpatterns = [
     path('list/anix/', views.AnixList.as_view(), name="list_anix"),
     path('update/anix/<int:pk>/', views.AnixUpdate.as_view(), name="update_anix"),
 
-    path('create/addcollfish/<int:evnt>/<str:pop>/', views.AddCollFishFormView.as_view(), name="create_fish_to_cont"),
+    path('create/addcollfish/<int:evnt>/<str:pop>/', views.AddCollFishFormView.as_view(), name="create_coll_fish_to_cont"),
 
     path('create/adsc/', views.AdscCreate.as_view(), name="create_adsc"),
     path('details/adsc/<int:pk>/', views.AdscDetails.as_view(), name="details_adsc"),

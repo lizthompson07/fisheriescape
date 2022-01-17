@@ -615,12 +615,16 @@ class FeedmForm(CreatePrams):
 
 
 class FishToContForm(forms.Form):
-    evnt_id = forms.ModelChoiceField(required=True, queryset=None, label=_("Event"))
-    grp_id = forms.ModelChoiceField(required=False, queryset=None, label=_("Add to Group"))
-    new_grp_id = forms.ModelChoiceField(required=False, queryset=models.Group.objects.all().select_related("stok_id", "coll_id"), label=_("New Group"))
+    evnt_id = forms.ModelChoiceField(required=False, queryset=None, label=_("Event"))
+    prog_id = forms.ModelChoiceField(required=False, queryset=models.Program.objects.all(), label=_("Event Program"))
+    coll_id = forms.ModelChoiceField(required=True, queryset=models.Collection.objects.all(), label=_("Collection Code"))
+    stok_id = forms.ModelChoiceField(required=True, queryset=models.StockCode.objects.all(), label=_("Stock Code"))
+    year = forms.IntegerField(required=True, min_value=1000, max_value=3000, label=_("Year"))
     grp_prog_id = forms.ModelChoiceField(required=False, queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Program Group"), label=_("Program Group"))
-    perc_id = forms.ModelChoiceField(required=False, queryset=models.PersonnelCode.objects.all(), label=_("Personnel"))
-    num_fish = forms.IntegerField(required=True, max_value=1000000)
+    mark_id = forms.ModelChoiceField(required=False, queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Mark"), label=_("Group Mark"))
+
+    perc_id = forms.ModelChoiceField(required=True, queryset=models.PersonnelCode.objects.all(), label=_("Personnel"))
+    num_fish = forms.IntegerField(required=True, max_value=1000000, label=_("Number of fish"))
     move_date = forms.DateField(required=True, label=_("Date of transfer"))
 
     created_date = forms.DateField(required=True)
@@ -634,41 +638,69 @@ class FishToContForm(forms.Form):
         self.fields['move_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
                                                                  "class": "fp-date"})
 
-        self.fields['evnt_id'].create_url = 'bio_diversity:create_evnt'
-        self.fields['new_grp_id'].create_url = 'bio_diversity:create_grp'
-
     def set_cont(self, cont):
         self.cont = cont
 
     def clean(self):
         cleaned_data = super().clean()
         cleaned_data["move_date"] = utils.naive_to_aware(cleaned_data["move_date"])
-        cleaned_data["facic_id"] = cleaned_data["evnt_id"].facic_id
-
-        if cleaned_data["grp_id"] and not cleaned_data["new_grp_id"]:
-            grp_id = cleaned_data["grp_id"]
-        elif not cleaned_data["grp_id"] and cleaned_data["new_grp_id"]:
-            grp_id = cleaned_data["new_grp_id"]
-        if cleaned_data["grp_id"] and cleaned_data["new_grp_id"]:
-            self.add_error('grp_id', gettext("Can only add to one group at a time"))
-            self.add_error('new_grp_id', gettext("Can only add to one group at a time"))
-
+        cleaned_data["facic_id"] = self.cont.facic_id
         if not self.is_valid():
             return cleaned_data
+
+        if not cleaned_data["evnt_id"]:
+            evnt_id = models.Event(evntc_id=models.EventCode.objects.filter(name="Master Entry").get(),
+                                   facic_id=self.cont.facic_id,
+                                   prog_id=cleaned_data["prog_id"],
+                                   perc_id=cleaned_data["perc_id"],
+                                   start_datetime=cleaned_data["move_date"],
+                                   end_datetime=cleaned_data["move_date"],
+                                   created_by=cleaned_data["created_by"],
+                                   created_date=cleaned_data["created_date"],
+                                   )
+            try:
+                evnt_id.clean()
+                evnt_id.save()
+            except (ValidationError, IntegrityError):
+                evnt_id = models.Event.objects.filter(evntc_id=evnt_id.evntc_id,
+                                                      facic_id=evnt_id.facic_id,
+                                                      prog_id=evnt_id.prog_id,
+                                                      start_datetime=evnt_id.start_datetime,
+                                                      end_datetime=evnt_id.end_datetime,
+                                                      ).get()
+
+            cleaned_data["evnt_id"] = evnt_id
+
+        grp_list = utils.get_grp(cleaned_data["stok_id"].name, cleaned_data["year"], cleaned_data["coll_id"].name,
+                                 cont=self.cont, at_date=cleaned_data["move_date"],
+                                 prog_grp=cleaned_data["grp_prog_id"], grp_mark=cleaned_data["mark_id"])
+
+        if grp_list:
+            grp_id = grp_list[0]
+        else:
+            grp_id = models.Group(spec_id=models.SpeciesCode.objects.filter(name="Salmon").get(),
+                                  stok_id=cleaned_data["stok_id"],
+                                  coll_id=cleaned_data["coll_id"],
+                                  grp_year=cleaned_data["year"],
+                                  grp_valid=True,
+                                  created_by=cleaned_data["created_by"],
+                                  created_date=cleaned_data["created_date"],
+                                  )
+            grp_id.clean()
+            grp_id.save()
+
+        anix_id = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_anix=True)
+        utils.enter_bulk_grpd(anix_id.pk, cleaned_data, cleaned_data["move_date"],
+                              mark=cleaned_data["mark_id"],
+                              prog_grp=cleaned_data["grp_prog_id"]
+                              )
 
         # fish into tank contx
         contx, entered = utils.enter_contx(self.cont, cleaned_data, True, grp_pk=grp_id.pk, return_contx=True)
 
-        #fish to event
-        utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
-
-        # perc contx:
-        if cleaned_data["perc_id"]:
-            team_id, entered = utils.add_team_member(cleaned_data["perc_id"], cleaned_data["evnt_id"], return_team=True)
-            utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, team_pk=team_id.pk)
-
         # cnt:
         utils.enter_cnt(cleaned_data, cleaned_data["num_fish"], contx_pk=contx.pk)
+        return cleaned_data
 
 
 class GrpForm(CreatePrams):

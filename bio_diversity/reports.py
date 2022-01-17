@@ -221,7 +221,7 @@ def generate_stock_code_report(stok_id, coll_id, year, start_date=datetime.min, 
     return report.target_url
 
 
-def generate_morts_report(facic_id=None, prog_id=None, stok_id=None, year=None, coll_id=None, start_date=utils.naive_to_aware(datetime.min),
+def generate_morts_report(request, facic_id=None, prog_id=None, stok_id=None, year=None, coll_id=None, start_date=utils.naive_to_aware(datetime.min),
                           end_date=utils.naive_to_aware(datetime.now())):
     # report is given some filter criteria, returns all dead fish details.
     report = ExcelReport()
@@ -288,6 +288,9 @@ def generate_morts_report(facic_id=None, prog_id=None, stok_id=None, year=None, 
         ws_indv['I' + str(row_count)].value = indv_id.individual_detail("Length", before_date=mort_date)
         ws_indv['J' + str(row_count)].value = indv_id.individual_detail("Weight", before_date=mort_date)
         ws_indv['K' + str(row_count)].value = indv_id.individual_evnt_details(indvd.anix_id.evnt_id)
+        ws_indv['L' + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_indv",
+                                                                                 args=[indv_id.id]))
+
         row_count += 1
 
     row_count = 3
@@ -304,7 +307,9 @@ def generate_morts_report(facic_id=None, prog_id=None, stok_id=None, year=None, 
         ws_samp['H' + str(row_count)].value = mort_date
         ws_samp['I' + str(row_count)].value = samp_id.sample_detail("Length", before_date=mort_date)
         ws_samp['J' + str(row_count)].value = samp_id.sample_detail("Weight", before_date=mort_date)
-        ws_samp['J' + str(row_count)].value = samp_id.comments
+        ws_samp['K' + str(row_count)].value = samp_id.comments
+        ws_samp['L' + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_samp",
+                                                                                 args=[samp_id.id]))
         row_count += 1
 
     row_count = 3
@@ -320,6 +325,8 @@ def generate_morts_report(facic_id=None, prog_id=None, stok_id=None, year=None, 
         ws_grp['G' + str(row_count)].value = mort_date
         ws_grp['H' + str(row_count)].value = grpd.anix_id.samp_detail("Length")
         ws_grp['I' + str(row_count)].value = grpd.anix_id.samp_detail("Weight")
+        ws_grp['J' + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_grp",
+                                                                                 args=[grp_id.id]))
         row_count += 1
 
     report.save_wb()

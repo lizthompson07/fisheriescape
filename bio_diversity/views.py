@@ -140,7 +140,7 @@ class BioUserHardDeleteView(SiteLoginRequiredMixin, CommonHardDeleteView):
     success_url = reverse_lazy("bio_diversity:manage_bio_users")
 
 
-#CommonCreate Extends the UserPassesTestMixin used to determine if a user has
+# CommonCreate Extends the UserPassesTestMixin used to determine if a user has
 # has the correct privileges to interact with Creation Views
 # --------------------CREATE VIEWS----------------------------------------
 class CommonCreate(CommonAuthCreateView):
@@ -3287,18 +3287,20 @@ class FishtocontFormView(mixins.FishtocontMixin, BioCommonFormView):
     def get_initial(self):
         init = super().get_initial()
         init["move_date"] = date.today
-
         cont = utils.get_cont_from_tag(self.kwargs.get("cont_type"), self.kwargs.get("cont_id"))
         self.form_class.set_cont(self.form_class, cont)
-        init["facic_id"] = cont.facic_id
-        indv_list, grp_list = cont.fish_in_cont()
         self.form_class.base_fields["evnt_id"].queryset = models.Event.objects.filter(facic_id=cont.facic_id).select_related("prog_id", "evntc_id")
-        if len(grp_list) == 1:
-            grp = grp_list[0]
-            self.form_class.base_fields["grp_id"].queryset = models.Group.objects.filter(id=grp.pk).select_related("stok_id", "coll_id")
-        else:
-            grp_id_list = [grp.id for grp in grp_list]
-            self.form_class.base_fields["grp_id"].queryset = models.Group.objects.filter(id__in=grp_id_list).select_related("stok_id", "coll_id")
+
+        self.get_form_class().base_fields["evnt_id"].widget = forms.Select(
+            attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["coll_id"].widget = forms.Select(
+            attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["stok_id"].widget = forms.Select(
+            attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["grp_prog_id"].widget = forms.Select(
+            attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["perc_id"].widget = forms.Select(
+            attrs={"class": "chosen-select-contains"})
 
         return init
 
@@ -3344,7 +3346,7 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
         self.get_form_class().base_fields["coll_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
 
     def form_valid(self, form):
-        report = int(form.cleaned_data["report"])
+        report = form.cleaned_data["report"]
 
         if report == "facic_tank_rep":
             facic_pk = int(form.cleaned_data["facic_id"].pk)
@@ -3511,7 +3513,7 @@ def mort_report_file(request):
     stok_id = utils.get_object_from_request(request, "stok_pk", models.StockCode)
 
     year = request.GET.get("year")
-    file_url = reports.generate_morts_report(facic_id, prog_id, stok_id, year, coll_id)
+    file_url = reports.generate_morts_report(request, facic_id, prog_id, stok_id, year, coll_id)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
