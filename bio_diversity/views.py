@@ -278,6 +278,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
     def get_initial(self):
         init = super().get_initial()
         self.get_form_class().base_fields["data_csv"].required = True
+        self.get_form_class().base_fields["feed_date"].required = False
         self.get_form_class().base_fields["trof_id"].required = False
         self.get_form_class().base_fields["pickc_id"].required = False
         self.get_form_class().base_fields["adsc_id"].required = False
@@ -287,6 +288,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
 
         self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["feed_date"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["adsc_id"].widget = forms.HiddenInput()
@@ -323,6 +325,14 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 data_types = ((None, "---------"), ('Individual', 'Individual'), ('Group', 'Group'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
+            elif evntc.__str__() in ["Feeding"]:
+                self.get_form_class().base_fields["data_type"].required = False
+                self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
+                self.get_form_class().base_fields["feed_date"].required = True
+                self.get_form_class().base_fields["feed_date"] = forms.DateField(label=_("Feed Date"))
+                self.get_form_class().base_fields["feed_date"].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                 "class": "fp-date"})
+
             else:
                 self.get_form_class().base_fields["data_type"].required = True
                 data_types = ((None, "---------"), ('Individual', 'Individual'), ('Untagged', 'Untagged'),
@@ -362,7 +372,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             if evnt_code == "egg development":
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code.replace(" ", "_"))
                 context["egg_development"] = 1
-            elif evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
+            elif evnt_code in ["feeding", "pit tagging", "treatment", "spawning", "distribution", "water quality record",
                              "master entry", "adult collection"]:
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code.replace(" ", "_"))
             elif evnt_code in collection_evntc_list:

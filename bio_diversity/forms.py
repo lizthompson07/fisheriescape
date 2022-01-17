@@ -13,6 +13,7 @@ from bio_diversity.data_parsers.containers import TroughParser, HeathUnitParser,
 from bio_diversity.data_parsers.distributions import DistributionIndvParser, DistributionParser
 from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser, \
     ElectrofishingParser, AdultCollectionParser
+from bio_diversity.data_parsers.feeding import FeedingParser
 from bio_diversity.data_parsers.sites import SitesParser
 from bio_diversity.static.calculation_constants import sfa_nums
 
@@ -306,6 +307,7 @@ class DataForm(CreatePrams):
 
     data_types = (None, '---------')
     data_type = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
+    feed_date = forms.DateField(required=False, label=_("Feeding Date"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
     facic_id = forms.ModelChoiceField(queryset=models.FacilityCode.objects.all(), label="Facility")
     pickc_id = forms.ModelMultipleChoiceField(queryset=models.CountCode.objects.all(), required=False,
@@ -316,7 +318,7 @@ class DataForm(CreatePrams):
                                                    label="Additional code based detail columns")
     anidc_id = forms.ModelMultipleChoiceField(queryset=models.AnimalDetCode.objects.filter(ani_subj_flag=False),
                                               label="Additional numerical detail columns")
-    row_start = forms.IntegerField(min_value=1, label=_("Data row to being entry"))
+    row_start = forms.IntegerField(min_value=1, label=_("Data row to begin entry"))
 
     def __init__(self, request=None, *args, **kwargs):
         self.request = request
@@ -405,6 +407,11 @@ class DataForm(CreatePrams):
                     parser = MactaquacTreatmentParser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Coldbrook":
                     parser = ColdbrookTreatmentParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
+
+            # -------------------------------Feeding----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Feeding":
+                parser = FeedingParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
             # ---------------------------------EGG DEVELOPMENT------------------------------------
