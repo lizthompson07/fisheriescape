@@ -94,6 +94,15 @@ h1 {
 }
 
 
+.recommended {
+    background-color: #ffb171;
+}
+
+.child {
+    background-color: #efefef;
+}
+
+
 .to-the-right {
     width: 125px;
 

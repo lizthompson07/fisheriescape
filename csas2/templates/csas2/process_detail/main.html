@@ -33,49 +33,60 @@
       </div>
     </div>
 
-    <div v-if="canModify" class="mb-3">
+
+    {# PPT #}
+    <div v-if="canModify" class="float-right mb-3">
+      <button
+        v-if="process.projects && !process.projects.length"
+        class="btn btn-sm btn-info" @click="exportToPPT"
+        data-toggle="tooltip" title="{% trans "Clone / Export this CSAS Process to the DM Apps Project Planning Tool" %}"
+      >
+        {% trans "Export to PPT" %}
+      </button>
+      <button
+        v-else-if="process.projects && process.projects.length === 1"
+        class="btn btn-sm btn-info" @click="exportToPPT"
+        data-toggle="tooltip" title="{% trans "Update the linked project in the DM Apps Project Planning Tool" %}"
+      >
+        {% trans "Update Linked Project in PPT" %}
+      </button>
+
+    </div>
+
+
+    <div v-if="canModify" class="neighbours mb-3">
       <a class="btn btn-sm btn-warning" href="{% url 'csas2:process_edit' object.id %}">{% trans "Edit" %}</a>
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:process_delete' object.id %}">{% trans "Delete" %}</a>
       {% if object.tor %}
-        {% url 'csas2:tor_edit' object.tor.id as tor_url %}
+        {% url 'csas2:tor_detail' object.tor.id as tor_url %}
       {% else %}
         {% url 'csas2:tor_new' object.id as tor_url %}
       {% endif %}
 
-      {% if object.tor %}
+      {% if not object.tor %}
         <a class="btn btn-sm btn-primary ml-3" href="{{ tor_url }}">
-          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Modify ToR" %}
-        </a>
-        <div class="neighbours">
-          <div class="dropdown">
-            <a class="btn btn-sm btn-primary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
-               aria-expanded="false">
-              <span class="mdi mdi-file-word text-light mr-1"></span>{% trans "Export ToR" %}
-            </a>
-
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-              <a class="dropdown-item" href="{% url 'csas2:tor_export' object.tor.id %}?lang=en">{% trans "Word (en)" %}</a>
-              <a class="dropdown-item" href="{% url 'csas2:tor_export' object.tor.id %}?lang=fr">{% trans "Word (fr)" %}</a>
-              <a class="dropdown-item" href="{% url 'csas2:tor_html' object.tor.id %}?lang=en">{% trans "HTML (en)" %}</a>
-              <a class="dropdown-item" href="{% url 'csas2:tor_html' object.tor.id %}?lang=fr">{% trans "HTML (fr)" %}</a>
-            </div>
-          </div>
-        </div>
-      {% else %}
-        <a class="btn btn-sm btn-primary ml-3" href="{{ tor_url }}">
-          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Initiate ToR" %}
+          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Initiate Terms of Reference (ToR)" %}
         </a>
       {% endif %}
 
       <button
-        v-if="!process.posting_request_date && !process.is_posted"
+        v-if="process.can_post_meeting && !process.posting_request_date && !process.is_posted"
         class="btn btn-sm btn-purple" :disabled="!process.can_post_meeting.can_post" @click="requestPosting"
         data-toggle="tooltip" :title="process.can_post_meeting.reasons"
       >
         {% trans "Request to Post Meeting" %}
       </button>
-
     </div>
+
+    {% if object.tor %}
+      <div class="neighbours mb-3">
+        <a class="btn btn-sm btn-primary" href="{{ tor_url }}">
+          {% trans "View Terms of Reference (ToR)" %}
+        </a>
+      </div>
+    {% endif %}
+
+
 
     <div class="row">
       <div class="col-8">
@@ -106,6 +117,10 @@
               <th class="text-left">{% trans "Status" %}</th>
               <td class="text-left" v-html="process.status_display_html"></td>
             </tr>
+            <tr>
+              <th class="text-left">{% trans "ToR status" %}</th>
+              <td class="text-left" v-html="process.tor_status"></td>
+            </tr>
 
             <tr>
               <th class="text-left" v-html="processLabels.is_posted"></th>
@@ -118,7 +133,7 @@
                   &mdash; {% trans "eligible for posting" %}
                 </em>
                 <em v-else-if="!process.is_posted && !process.can_post_meeting.can_post" class=" text-muted">
-                  &mdash; {% trans "not eligible for posting because:" %}  ${process.can_post_meeting.reasons | listrify}
+                  &mdash; {% trans "not eligible for posting because:" %} ${process.can_post_meeting.reasons | listrify}
                 </em>
 
               </td>
@@ -200,6 +215,20 @@
                   {% endfor %}
                 {% else %}
                   <em>{% trans "There are no requests attached to this process." %}</em>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th class="text-left">${processLabels.projects}</th>
+              <td>
+                {% if object.projects.exists %}
+                  {% for obj in object.projects.all %}
+                    <div>
+                      <a href="{% url 'ppt:project_detail' obj.id %}">{{ obj.title }} ({{ obj.id }})</a>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <em>{% trans "There are no projects attached to this process." %}</em>
                 {% endif %}
               </td>
             </tr>
@@ -340,6 +369,25 @@
       processLabels: {}
     },
     methods: {
+      exportToPPT() {
+        // two scenarios: 1) no project, 2) single project
+        let msg;
+        if (this.process.projects.length === 0) {
+          msg = "{% trans "By continuing, a project in the DM Apps Project Planning Tool will be created based on this CSAS Process. \n\nDo you want to proceed?" %}";
+        } else if (this.process.projects.length === 1) {
+          msg = "{% trans "By continuing, the ACTIVITIES and STAFF MEMBERS of the project in the DM Apps Project Planning Tool which is currently link to this CSAS Process will be reset.\n\n\This may result in the loss of information. \n\nDo you want to proceed?" %}";
+        }
+        let userInput = confirm(msg);
+
+        if (userInput) {
+          let endpoint = `/api/csas/processes/${processId}/?link_2_ppt=true`;
+          apiService(endpoint, "POST").then(data => {
+            window.location.reload();
+          });
+        }
+
+
+      },
       requestPosting() {
         let userInput = confirm("{% trans 'Are you certain you want to make a request for this process to be posted on the National CSAS website?' %}")
         if (userInput) {

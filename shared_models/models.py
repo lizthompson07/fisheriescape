@@ -5,7 +5,7 @@ from django.db import models
 from django.template.defaultfilters import default_if_none
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 from shapely.geometry import Point
 
 from shared_models.utils import get_metadata_string, format_coordinates, get_last_modified_string
@@ -25,7 +25,7 @@ class UnilingualSimpleLookup(models.Model):
 class SimpleLookup(models.Model):
     class Meta:
         abstract = True
-        ordering = [_("name"), ]
+        ordering = [gettext_lazy("name"), ]
 
     name = models.CharField(unique=True, max_length=255, verbose_name=_("name (en)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (fr)"))

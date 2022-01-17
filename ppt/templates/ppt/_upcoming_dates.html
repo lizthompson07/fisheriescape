@@ -9,27 +9,31 @@
 </style>
 
 <div class="">
-
-
   <div class="mb-5">
     <p class="lead">
       {% trans "Important Dates" %}
     </p>
     {% if upcoming_dates.count %}
-
       <ul>
-        {% for obj in upcoming_dates %}
-          <li class="{% if obj.is_deadline %}mark{% endif %}">
-            {{ obj.date|date }} {{ obj.date|time }} &rarr;
-            {% if obj.region %}
-              {{ obj.region|upper }} -
-            {% endif %}
-            {{ obj.tdescription }}
-            <span class="small">({{ obj.date|timeuntil }})</span>
+        {% for region in upcoming_dates_regions %}
+          <li class="mb-2">
+            {{ region|upper }}
+            <ul>
+              {% for obj in upcoming_dates %}
+                {% if obj.region == region %}
+                  <li class="mb-2">
+                  <span class="{% if obj.is_deadline %}mark{% endif %}">
+                    <b>{{ obj.date|date }} @ {{ obj.date|time }}</b><br>
+                    {{ obj.tdescription }}
+                    <span class="small">({{ obj.date|timeuntil }})</span>
+                  </span>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
           </li>
         {% endfor %}
       </ul>
-
     {% else %}
       {% trans "There are no upcoming dates in the system" %}
     {% endif %}
@@ -92,29 +96,33 @@
     <p class="lead">
       {% trans "Reference Materials:" %}
     </p>
+
     <ul>
-      {% for obj in reference_materials %}
-        <li>
-          {% if obj.region %}
-            {{ obj.region|upper }} -
-          {% endif %}
-          {{ obj }}:
-          <a href='{{ obj.file_en.url }}'>
-            {% trans "English" %} <span class='mdi mdi-file'></span>
-          </a>
+      {% for region in reference_materials_regions %}
+        <li class="mb-2">
+          {{ region|upper }}
+          <ul>
+            {% for obj in reference_materials %}
+              {% if obj.region == region %}
+                <li class="mb-2">
+                  {{ obj }}:
+                  <a href='{{ obj.file_en.url }}'>
+                    {% trans "English" %} <span class='mdi mdi-file'></span>
+                  </a>
 
-          {% if obj.file_fr %}
-            / <a href='{{ obj.file_fr.url }}'>
-            {% trans "French" %} <span class='mdi mdi-file'></span>
-          </a>
-          {% endif %}
+                  {% if obj.file_fr %}
+                    / <a href='{{ obj.file_fr.url }}'>
+                    {% trans "French" %} <span class='mdi mdi-file'></span>
+                  </a>
+                  {% endif %}
 
-          ({{ obj.updated_at|date }})
+                  ({{ obj.updated_at|date }})
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
         </li>
       {% endfor %}
-
-
     </ul>
   </div>
-</div>
 </div>

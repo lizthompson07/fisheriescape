@@ -107,9 +107,10 @@ class ProjectForm(forms.ModelForm):
         # self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
         #                                                  _("mandatory - select multiple, if necessary"))
 
-        functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups2.all()]
-        functional_group_choices.insert(0, tuple((None, "---")))
-        self.fields['functional_group'].choices = functional_group_choices
+        if kwargs.get("instance").section:
+            functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups2.all()]
+            functional_group_choices.insert(0, tuple((None, "---")))
+            self.fields['functional_group'].choices = functional_group_choices
 
         if kwargs.get("initial") and kwargs.get("initial").get("cloning"):
             del self.fields["tags"]
@@ -379,7 +380,7 @@ class StaffForm(forms.ModelForm):
         self.fields["employee_type"].widget.attrs = {"v-model": "staff.employee_type", "@change": "adjustStaffFields"}
         self.fields["level"].widget.attrs = {"v-model": "staff.level", ":disabled": "disableLevelField"}
         self.fields["duration_weeks"].widget.attrs = {"v-model": "staff.duration_weeks", "step": "0.1"}
-        self.fields["overtime_hours"].widget.attrs = {"v-model": "staff.overtime_hours", "step": "0.1"}
+        self.fields["overtime_hours"].widget.attrs = {"v-model": "staff.overtime_hours", "step": "any"}
         self.fields["student_program"].widget.attrs = {"v-model": "staff.student_program", ":disabled": "disableStudentProgramField"}
 
         self.fields["name"].widget.attrs = {"v-model": "staff.name", ":disabled": "disableNameField"}
@@ -442,11 +443,14 @@ class ActivityForm(forms.ModelForm):
         self.fields["name"].widget.attrs = {"v-model": "activity.name"}
         self.fields["description"].widget.attrs = {"v-model": "activity.description", "rows": "4"}
         self.fields["responsible_party"].widget.attrs = {"v-model": "activity.responsible_party"}
+        self.fields["responsible_parties"].widget.attrs = {"v-model": "activity.responsible_parties", "style": "height: 100px"}
+        self.fields["target_start_date"].widget = forms.DateInput(attrs={"v-model": "activity.target_start_date", "type": "date"})
         self.fields["target_date"].widget = forms.DateInput(attrs={"v-model": "activity.target_date", "type": "date"})
         self.fields["likelihood"].widget.attrs = {"v-model": "activity.likelihood", ":disabled": "!isACRDP"}
         self.fields["impact"].widget.attrs = {"v-model": "activity.impact", ":disabled": "!isACRDP"}
         self.fields["risk_description"].widget.attrs = {"v-model": "activity.risk_description", "rows": "4", ":disabled": "!isACRDP && !isCSRF"}
         self.fields["mitigation_measures"].widget.attrs = {"v-model": "activity.mitigation_measures", "rows": "4", ":disabled": "!isACRDP && !isCSRF"}
+        self.fields["parent"].widget.attrs = {"v-model": "activity.parent"}
 
 
 class CollaborationForm(forms.ModelForm):
@@ -916,3 +920,34 @@ PPTAdminUserFormset = modelformset_factory(
     form=PPTAdminUserForm,
     extra=1,
 )
+
+
+class StorageSolutionForm(forms.ModelForm):
+    class Meta:
+        model = models.StorageSolution
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+StorageSolutionFormset = modelformset_factory(
+    model=models.StorageSolution,
+    form=StorageSolutionForm,
+    extra=1,
+)
+
+
+class DMAForm(forms.ModelForm):
+    class Meta:
+        model = models.DMA
+        exclude = ["project"]
+        widgets = {
+            'storage_solutions': forms.SelectMultiple(attrs=chosen_js),
+        }
+
+
+class DMAReviewForm(forms.ModelForm):
+    class Meta:
+        model = models.DMAReview
+        exclude = ["dma"]

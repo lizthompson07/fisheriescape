@@ -1,22 +1,15 @@
-from django.contrib.auth.models import Group
-
-
 def is_grais_admin(user):
-    # make sure the following group exist:
-    group, created = Group.objects.get_or_create(name="grais_admin")
     if user:
-        return group in user.groups.all()
+        return bool(hasattr(user, "grais_user") and user.grais_user.is_admin)
 
 
 def has_grais_crud(user):
-    # make sure the following group exist:
-    group, created = Group.objects.get_or_create(name="grais_crud")
+    # nested under admin
     if user:
-        return is_grais_admin(user) or group in user.groups.all()
+        return is_grais_admin(user) or bool(hasattr(user, "grais_user") and user.grais_user.is_crud_user)
 
 
 def has_grais_access(user):
-    # make sure the following group exist:
-    read_group, created = Group.objects.get_or_create(name="grais_access")
+    # nested under admin
     if user:
-        return is_grais_admin(user) or has_grais_crud(user) or read_group in user.groups.all()
+        return bool(hasattr(user, "grais_user"))

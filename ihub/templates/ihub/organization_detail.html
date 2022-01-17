@@ -63,25 +63,29 @@
     </div>
     <div class="col-5">
       {% include "ihub/_members.html" %}
+
       {% include "ihub/_instructions.html" %}
+
+      <div class="card entry-card mb-3">
+        <div class="card-header">
+          <h5 class="card-title"> {% trans "Notes" %}</h5>
+        </div>
+        <div class="card-body">
+          {% if object.notes %}
+            {{ object.notes_html }}
+          {% else %}
+            <em> {% trans "There are no notes on file." %} </em>
+          {% endif %}
+        </div>
+      </div>
+
     </div>
     <div class="col">
       {% include "ihub/_entries.html" %}
     </div>
   </div>
 
-  <div class="card entry-card mt-5 w-75">
-    <div class="card-header">
-      <h5 class="card-title"> {% trans "Notes" %}</h5>
-    </div>
-    <div class="card-body">
-      {% if object.notes %}
-        {{ object.notes_html }}
-      {% else %}
-        <em> {% trans "There are no notes on file." %} </em>
-      {% endif %}
-    </div>
-  </div>
+
 
 {% endblock %}
 

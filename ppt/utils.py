@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db.models import Sum, Q
 from django.utils.translation import gettext as _, gettext_lazy
 
@@ -24,8 +26,6 @@ def in_ppt_national_admin_group(user):
     # make sure the following group exist:
     if user:
         return bool(hasattr(user, "ppt_admin_user") and user.ppt_admin_user.is_national_admin)
-
-
 
 
 def in_ppt_admin_group(user):
@@ -58,7 +58,8 @@ def is_section_head(user, project):
     try:
         return True if project.section.head == user else False
     except AttributeError as e:
-        print(e)
+        # print(e)
+        pass
 
 
 def is_division_manager(user, project):
@@ -407,6 +408,7 @@ def get_project_field_list(project):
 
         'tags',
         'references',
+        'csas_processes',
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)
@@ -455,7 +457,7 @@ def get_project_year_field_list(project_year=None):
 
         'it_needs|{}'.format(_("special IT requirements")),
         'additional_notes',
-        'coding',
+        'project_codes|{}'.format(_("project codes")),
         'submitted',
         'formatted_status|{}'.format(_("status")),
         # 'allocated_budget|{}'.format(_("allocated budget")),
@@ -581,6 +583,34 @@ def get_status_report_field_list():
     return my_list
 
 
+
+
+def get_dma_field_list():
+    my_list = [
+        'title',
+        'data_contact',
+        'metadata_contact',
+        'metadata_tool',
+        'metadata_url',
+        'metadata_update_freq',
+        'metadata_freq_text',
+        'storage_solutions',
+        'storage_solution_text',
+        'storage_needed',
+        'raw_data_retention',
+        'data_retention',
+        'backup_plan',
+        'cloud_costs',
+        'had_sharing_agreements',
+        'sharing_agreements_text',
+        'publication_timeframe',
+        'publishing_platforms',
+        'comments',
+        'status',
+        'metadata',
+    ]
+    return my_list
+
 def get_activity_update_field_list():
     my_list = [
         'activity',
@@ -589,6 +619,17 @@ def get_activity_update_field_list():
         'metadata|{}'.format("meta"),
     ]
     return my_list
+
+
+def get_dma_review_field_list():
+    my_list = [
+        'fiscal_year',
+        'decision',
+        'comments',
+        'metadata|{}'.format("metadata"),
+    ]
+    return my_list
+
 
 
 def get_file_field_list():
@@ -716,3 +757,75 @@ def get_risk_rating(impact, likelihood):
         },
     }
     return rating_dict[impact][likelihood]
+
+
+def prime_csas_activities(project_year, starting_date):
+    parent_activities = [
+        dict(name="Planning", parent=None, type=1),
+        dict(name="Terms of Reference", parent=None, type=1),
+        dict(name="Peer-review Meeting", parent=None, type=1),
+        dict(name="Document", parent=None, type=2),
+    ]
+
+    activities = [
+        # planning
+        dict(name="Pre-Meeting with Science Staff", parent="Planning", type=1, start=-284, end=-285),
+        dict(name="Assemble Steering Committee", parent="Planning", type=1, start=-254, end=-284),
+
+        # tor
+        dict(name="Complete ToR", parent="Terms of Reference", type=1, start=-239, end=-254),
+        dict(name="ToR Approvals", parent="Terms of Reference", type=1, start=-225, end=-239),
+        dict(name="Translate ToR", parent="Terms of Reference", type=1, start=-215, end=-225),
+        dict(name="Publish ToR", parent="Terms of Reference", type=1, start=-187, end=-215),
+
+        # peer review
+        dict(name="send out six week notice", parent="Peer-review Meeting", type=1, start=-145, end=-187),
+        dict(name="Hold Meeting", parent="Peer-review Meeting", type=1, start=-143, end=-145),
+
+        # document
+        dict(name="Submit reworked documents", parent="Document", type=1, start=-83, end=-143),
+        dict(name="Management approval (1st language)", parent="Document", type=1, start=-78, end=-83),
+        dict(name="Document translation", parent="Document", type=1, start=-33, end=-78),
+        dict(name="Correct formatting (both languages)", parent="Document", type=1, start=-12, end=-33),
+        dict(name="Review and approval by authors", parent="Document", type=1, start=-7, end=-12),
+        dict(name="Final approvals by management", parent="Document", type=1, start=-2, end=-7),
+        dict(name="Send final documents to NCR", parent="Document", type=1, start=0, end=-10),
+    ]
+
+    # first create all parents
+    for a_dict in parent_activities:
+        a = models.Activity.objects.create(
+            project_year=project_year,
+            name=a_dict["name"],
+            type=a_dict["type"],
+        )
+
+    for a_dict in activities:
+        end = starting_date + timedelta(days=a_dict["start"])
+        start = starting_date + timedelta(days=a_dict["end"])
+
+        a = models.Activity.objects.create(
+            project_year=project_year,
+            name=a_dict["name"],
+            type=a_dict["type"],
+            target_date=end,
+            target_start_date=start,
+        )
+        if a_dict.get("parent"):
+            parent = project_year.activities.get(name=a_dict["parent"])
+            a.parent = parent
+            a.save()
+
+    # now we have to figure out the dates of the parents
+    for a_dict in parent_activities:
+        a = models.Activity.objects.get(
+            project_year=project_year,
+            name=a_dict["name"],
+            type=a_dict["type"],
+        )
+        children = a.children.order_by("target_start_date")
+        start = children.first().target_start_date
+        end = children.last().target_date
+        a.target_start_date = start
+        a.target_date = end
+        a.save()

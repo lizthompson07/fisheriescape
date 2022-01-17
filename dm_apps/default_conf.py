@@ -30,18 +30,18 @@ APP_DICT = {
     'edna': dict(name='eDNA Krabappel', staff_ids=[50, ]),
     'diets': dict(name='Marine diets', staff_ids=[50, ]),
     'ppt': dict(name='Science project planning tool', staff_ids=[50, 382]),
-    'ihub': dict(name='iHub', staff_ids=[50, ]),  # dependency on masterlist
+    'csas2': dict(name="Canadian Science Advisory Secretariat v2.0", staff_ids=[382, 581, 50, 1337]),  # dependency on ppt
     'masterlist': dict(name='Masterlist', staff_ids=[50, ]),
+    'ihub': dict(name='iHub', staff_ids=[50, ]),  # dependency on masterlist
     'shares': dict(name='Gulf Shares', staff_ids=[50, ]),
     'travel': dict(name='Travel Management System', staff_ids=[1798, 50]),  # beware, the staff ids will have to be changed below for cloud instances of app
     'sar_search': dict(name="SAR Search", staff_ids=[50, 452]),
-    'spot': dict(name='Grants & Contributions (Spot)', staff_ids=[50, ]),  # dependency on masterlist, sar_search)
+    'spot': dict(name='Grants & Contributions (Spot)', staff_ids=[50, ]),  # dependency on masterlist, sar_search
     'ios2': dict(name='Instruments', staff_ids=[381, ]),
     # 'staff': dict(name="Staff Planning Tool", staff_ids=[382, ]),
     'publications': dict(name="Project Publications Inventory", staff_ids=[382, ]),
     'trapnet': dict(name="TrapNet", staff_ids=[50, ]),
     'whalesdb': dict(name="Whale Equipment Deployment Inventory", staff_ids=[382, ]),
-    'csas2': dict(name="Canadian Science Advisory Secretariat v2.0", staff_ids=[382, 581, 50, 1337]),
     'vault': dict(name="Marine Megafauna Media Vault", staff_ids=[452, ]),
     'whalebrary': dict(name="Whalebrary Marine Mammal Tools", staff_ids=[452, ]),
     # 'spring_cleanup': dict(name="Gulf Region Spring Cleanup", staff_ids=[50, ]),

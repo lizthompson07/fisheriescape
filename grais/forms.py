@@ -417,3 +417,19 @@ BaitFormset = modelformset_factory(
     form=BaitForm,
     extra=1,
 )
+
+
+class GRAISUserForm(forms.ModelForm):
+    class Meta:
+        model = models.GRAISUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+GRAISUserFormset = modelformset_factory(
+    model=models.GRAISUser,
+    form=GRAISUserForm,
+    extra=1,
+)

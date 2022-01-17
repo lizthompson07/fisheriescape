@@ -13,7 +13,7 @@ from grais import filters
 from grais import forms
 from grais import models
 from grais import reports
-from grais.mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin, GraisCRUDRequiredMixin
+from grais.mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin, GraisCRUDRequiredMixin, SuperuserOrAdminRequiredMixin
 from grais.utils import is_grais_admin, has_grais_crud
 from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonTemplateView, CommonFilterView, CommonUpdateView, CommonCreateView, \
     CommonDetailView, CommonDeleteView, CommonFormView
@@ -291,3 +291,23 @@ def export_gc_sites(request):
             response['Content-Disposition'] = 'inline; filename="green crab site descriptions.xlsx"'
             return response
     raise Http404
+
+
+
+
+# VIEWS
+
+class GRAISUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
+    template_name = 'grais/formset.html'
+    h1 = "Manage grAIS Users"
+    queryset = models.GRAISUser.objects.all()
+    formset_class = forms.GRAISUserFormset
+    success_url_name = "grais:manage_grais_users"
+    home_url_name = "grais:index"
+    delete_url_name = "grais:delete_grais_user"
+    container_class = "container bg-light curvy"
+
+
+class GRAISUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
+    model = models.GRAISUser
+    success_url = reverse_lazy("grais:manage_grais_users")
