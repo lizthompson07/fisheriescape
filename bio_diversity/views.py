@@ -61,6 +61,11 @@ class SiteLoginRequiredMixin(UserPassesTestMixin):
         return context
 
 
+class AdminOrSuperuserRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_superuser or utils.in_bio_diversity_admin_group(self.request.user)
+
+
 class AdminIndexTemplateView(TemplateView):
     nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
     site_css = 'bio_diversity/bio_diversity_css.css'
@@ -124,7 +129,7 @@ class FacicIndexTemplateView(TemplateView):
         return context
 
 
-class BioUserFormsetView(SiteLoginRequiredMixin, CommonFormsetView):
+class BioUserFormsetView(AdminOrSuperuserRequiredMixin, CommonFormsetView):
     admin_only = True
     template_name = 'bio_diversity/bio_user_formset.html'
     h1 = "Manage Bio Diversity Administrative Users"
@@ -135,7 +140,7 @@ class BioUserFormsetView(SiteLoginRequiredMixin, CommonFormsetView):
     delete_url_name = "bio_diversity:delete_bio_user"
 
 
-class BioUserHardDeleteView(SiteLoginRequiredMixin, CommonHardDeleteView):
+class BioUserHardDeleteView(AdminOrSuperuserRequiredMixin, CommonHardDeleteView):
     admin_only = True
     model = models.BioUser
     success_url = reverse_lazy("bio_diversity:manage_bio_users")
