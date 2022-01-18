@@ -38,6 +38,7 @@ class IndexTemplateView(TemplateView):
 class SiteLoginRequiredMixin(UserPassesTestMixin):
 
     def test_func(self):
+        # if admin only attribute is not set, set it to true
         if not hasattr(self, "admin_only"):
             self.admin_only = True
 

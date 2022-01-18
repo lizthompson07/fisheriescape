@@ -305,8 +305,11 @@ class BioCont(BioLookup):
     def cont_feed(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), get_string=False):
         feed_contx = self.contxs.filter(evnt_id__evntc_id__name="Feeding", evnt_id__start_datetime__lte=at_date).order_by("-evnt_id__start_datetime").first()
         if get_string:
-            cont_feed = feed_contx.feed_str
-            return cont_feed
+            if feed_contx:
+                cont_feed = feed_contx.feed_str
+                return cont_feed
+            else:
+                return ""
         else:
             return feed_contx
 
