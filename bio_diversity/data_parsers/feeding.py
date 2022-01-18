@@ -12,6 +12,7 @@ class FeedingParser(DataParser):
     feedf_key = "Feeding Frequency"
     type_base = "Feed Type "
     size_base = "Feed Size "
+    comment_key = "Comments"
 
     feed_type_count = 5
     header = 2
@@ -26,8 +27,8 @@ class FeedingParser(DataParser):
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
-        cleaned_data["feed_date"] = utils.naive_to_aware(cleaned_data["feed_date"])
         tank_id = models.Tank.objects.filter(name=row[self.tank_key], facic_id=cleaned_data["evnt_id"].facic_id).get()
+        comments = row.get(self.comment_key)
         feed_method_id = None
         if utils.nan_to_none(row.get(self.feedm_key)):
             feed_method_id = models.FeedMethod.objects.filter(name__iexact=row[self.feedm_key]).get()
@@ -41,4 +42,4 @@ class FeedingParser(DataParser):
             if utils.nan_to_none(row.get(type_key)):
                 feedtype_id = models.FeedCode.objects.filter(name__iexact=row[type_key]).get()
                 self.row_entered += utils.enter_feed(cleaned_data, contx_id, feedtype_id, feed_method_id,
-                                                     row[size_key], freq=row[self.feedf_key])
+                                                     row[size_key], freq=row[self.feedf_key], comments=comments)

@@ -278,7 +278,6 @@ class DataCreate(mixins.DataMixin, CommonCreate):
     def get_initial(self):
         init = super().get_initial()
         self.get_form_class().base_fields["data_csv"].required = True
-        self.get_form_class().base_fields["feed_date"].required = False
         self.get_form_class().base_fields["trof_id"].required = False
         self.get_form_class().base_fields["pickc_id"].required = False
         self.get_form_class().base_fields["adsc_id"].required = False
@@ -288,7 +287,6 @@ class DataCreate(mixins.DataMixin, CommonCreate):
 
         self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
-        self.get_form_class().base_fields["feed_date"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["adsc_id"].widget = forms.HiddenInput()
@@ -328,11 +326,6 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             elif evntc.__str__() in ["Feeding"]:
                 self.get_form_class().base_fields["data_type"].required = False
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
-                self.get_form_class().base_fields["feed_date"].required = True
-                self.get_form_class().base_fields["feed_date"] = forms.DateField(label=_("Feed Date"))
-                self.get_form_class().base_fields["feed_date"].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
-                                                                 "class": "fp-date"})
-
             else:
                 self.get_form_class().base_fields["data_type"].required = True
                 data_types = ((None, "---------"), ('Individual', 'Individual'), ('Untagged', 'Untagged'),
@@ -373,7 +366,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code.replace(" ", "_"))
                 context["egg_development"] = 1
             elif evnt_code in ["feeding", "pit tagging", "treatment", "spawning", "distribution", "water quality record",
-                             "master entry", "adult collection"]:
+                               "master entry", "adult collection"]:
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code.replace(" ", "_"))
             elif evnt_code in collection_evntc_list:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
@@ -1419,6 +1412,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
         context["calculated_properties"]["Marks"] = self.object.group_mark(get_string=True)
         context["calculated_properties"]["Current container"] = self.object.current_cont(get_string=True)
+        context["calculated_properties"]["Current feed"] = self.object.current_feed()
         context["calculated_properties"]["Development"] = self.object.get_development()
         context["calculated_properties"]["Fish in group"] = self.object.count_fish_in_group()
 
@@ -1579,6 +1573,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         context["calculated_properties"] = {}
         context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
         context["calculated_properties"]["Current container"] = self.object.current_cont(get_string=True)
+        context["calculated_properties"]["Current feed"] = self.object.current_feed()
         context["calculated_properties"]["Length (cm)"] = indv_len
         context["calculated_properties"]["Weight (g)"] = indv_weight
         context["calculated_properties"]["Condition Factor"] = utils.round_no_nan(utils.condition_factor

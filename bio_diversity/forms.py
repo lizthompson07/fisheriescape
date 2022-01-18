@@ -307,7 +307,6 @@ class DataForm(CreatePrams):
 
     data_types = (None, '---------')
     data_type = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
-    feed_date = forms.DateField(required=False, label=_("Feeding Date"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
     facic_id = forms.ModelChoiceField(queryset=models.FacilityCode.objects.all(), label="Facility")
     pickc_id = forms.ModelMultipleChoiceField(queryset=models.CountCode.objects.all(), required=False,

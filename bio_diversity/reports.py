@@ -59,8 +59,9 @@ class ExcelReport:
         self.wb.save(self.target_file_path)
 
 
-def cont_treat_writer(ws, cont_evnt_list, row_count, treat_row_count, end_date=utils.naive_to_aware(datetime.now())):
+def cont_treat_feed_writer(ws, cont_evnt_list, row_count, treat_row_count, feed_row_count, end_date=utils.naive_to_aware(datetime.now())):
     treat_list = []
+    feed_list = []
     for contx_dict in cont_evnt_list:
         evnt_id = contx_dict["evnt_id"]
         # cont_evnt = [evntc, date, direction, container]
@@ -71,7 +72,8 @@ def cont_treat_writer(ws, cont_evnt_list, row_count, treat_row_count, end_date=u
         row_count += 1
         if contx_dict["destination"]:
             start_date = evnt_id.start_datetime
-            treat_list.extend(contx_dict["cont"].cont_treatments(start_date, end_date))
+            treat_list.extend(contx_dict["cont_id"].cont_treatments(start_date, end_date))
+            feed_list.extend(contx_dict["cont_id"].feed_history(start_date, end_date))
         if not contx_dict["destination"] and contx_dict is not None:
             end_date = evnt_id.start_datetime
 
@@ -83,7 +85,17 @@ def cont_treat_writer(ws, cont_evnt_list, row_count, treat_row_count, end_date=u
         ws['K' + str(treat_row_count)].value = "{} {}".format(treat.amt, treat.unit_id.name)
         ws['L' + str(treat_row_count)].value = treat.duration
         treat_row_count += 1
-    return row_count, treat_row_count, end_date
+
+    for feed_contx in feed_list:
+        feed_dict = feed_contx.feed_props
+        ws['O' + str(feed_row_count)].value = feed_dict["str"]
+        ws['P' + str(feed_row_count)].value = feed_contx.evnt_id.start_date
+        ws['Q' + str(feed_row_count)].value = feed_contx.container.__str__()
+        ws['R' + str(feed_row_count)].value = feed_dict["freq"]
+        ws['S' + str(feed_row_count)].value = feed_dict["method"]
+        ws['T' + str(feed_row_count)].value = feed_dict["comments"]
+        feed_row_count += 1
+    return row_count, treat_row_count, feed_row_count, end_date
 
 
 def generate_facility_tank_report(facic_id):
@@ -128,11 +140,7 @@ def generate_facility_tank_report(facic_id):
             ws['C' + str(row_count)].value = cnt
             ws['D' + str(row_count)].value = str(', '.join(set(year_coll_set)))
 
-            feed_qs = item.cont_feed()
-            feed_str = ""
-            for feed in feed_qs:
-                feed_str += "#{} {}, ".format(feed.amt, feed.feedc_id.name)
-
+            feed_str = item.cont_feed(get_string=True)
             ws['E' + str(row_count)].value = feed_str
 
             row_count += 1
@@ -639,7 +647,7 @@ def generate_individual_report(indv_id):
     contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
     cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
     row_count = 5
-    row_count, treat_row_count, treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, row_count)
+    row_count, treat_row_count, treat_end_date, feed_row_count = cont_treat_feed_writer(ws_cont, cont_evnt_list, row_count, row_count, row_count)
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
@@ -647,7 +655,7 @@ def generate_individual_report(indv_id):
             start_date = utils.naive_to_aware(grp_id.start_date())
             end_date = utils.naive_to_aware(grp_tuple[2])
             cont_evnt_list = grp_id.get_cont_history(start_date=start_date, end_date=end_date)
-            treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, end_date=treat_end_date)[2]
+            treat_end_date = cont_treat_feed_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, feed_row_count, end_date=treat_end_date)[2]
 
     # -----------------Details Sheet------------------------
     indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=indv_id).distinct(). \
@@ -746,7 +754,7 @@ def generate_grp_report(grp_id):
     # -----------------Container Sheet------------------------
     cont_evnt_list = grp_id.get_cont_history()
     row_count = 5
-    row_count, treat_row_count, treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, row_count)
+    row_count, treat_row_count, treat_end_date, feed_row_count = cont_treat_feed_writer(ws_cont, cont_evnt_list, row_count, row_count, row_count)
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
@@ -754,7 +762,7 @@ def generate_grp_report(grp_id):
             start_date = utils.naive_to_aware(grp_id.start_date())
             end_date = utils.naive_to_aware(grp_tuple[2])
             cont_evnt_list = grp_id.get_cont_history(end_date=end_date, start_date=start_date)
-            treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count)[2]
+            treat_end_date = cont_treat_feed_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, feed_row_count)[2]
 
     report.save_wb()
 
