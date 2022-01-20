@@ -122,7 +122,7 @@ class Committee(models.Model):
     provincial_participation = models.BooleanField(default=False,
                                                    verbose_name=_("Provincial government participation?"))
     external_contact = models.ManyToManyField(ml_models.Person, verbose_name=_("External Contact(s)"),
-                                              blank=True,related_name="committee_ext_contact")
+                                              blank=True, related_name="committee_ext_contact")
     external_organization = models.ManyToManyField(ml_models.Organization, verbose_name=_("External Organization(s)"),
                                                    blank=True, related_name="committee_ext_organization")
     meeting_frequency = models.IntegerField(choices=meeting_frequency_choices, verbose_name=_("Meeting frequency"),
@@ -186,6 +186,7 @@ class Interaction(models.Model):
 class OrganizationExtension(models.Model):
     organization = models.ForeignKey(ml_models.Organization, blank=False, null=False, default=1, related_name="ext_org",
                                      verbose_name="Organization", on_delete=models.CASCADE)
+    email = models.EmailField(blank=True, null=True, verbose_name="E-mail", )
     associated_provinces = models.ManyToManyField(shared_models.Province, related_name="ext_asc_province",
                                                   verbose_name="Associated Provinces")
     category = models.ManyToManyField(OrgCategory, related_name="ext_org_category", verbose_name="Category")
