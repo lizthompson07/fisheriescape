@@ -145,6 +145,6 @@ urlpatterns = [
     path('reports/gc/<int:year>/cpue/', shared_views.export_gc_cpue, name="gc_cpue_report"),  # tested
     path('reports/gc/<int:year>/envr/', shared_views.export_gc_envr, name="gc_envr_report"),  # tested
     path('reports/gc/site-list/', shared_views.export_gc_sites, name="gc_site_report"),  # tested
-    path('reports/gc/gravid-green-crabs/', shared_views.export_gc_gravid_green_crabs, name="gc_gravid_green_crabs"),
+    path('reports/gc/gravid-green-crabs/', shared_views.export_gc_gravid_green_crabs, name="gc_gravid_green_crabs"),  # tested
 
 ]

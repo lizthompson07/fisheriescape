@@ -1830,6 +1830,7 @@ class TestReportViews(CommonTest):
             reverse_lazy('grais:gc_cpue_report', args=[2019]),
             reverse_lazy('grais:gc_envr_report', args=[2019]),
             reverse_lazy('grais:gc_site_report'),
+            reverse_lazy('grais:gc_gravid_green_crabs'),
         ]
 
     @tag("grais", 'reports')
