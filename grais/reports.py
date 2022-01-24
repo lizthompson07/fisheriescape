@@ -961,7 +961,7 @@ def generate_gc_gravid_green_crabs_report():
                 str(obj.trap.sample.site.estuary.province),
                 obj.trap.sample.site.name,
                 obj.trap.sample.site.code,
-                obj.trap.sample.traps_set.strftime("%Y-%m-%d") if obj.trap.sample.strftime else "",
+                obj.trap.sample.traps_set.strftime("%Y-%m-%d") if obj.trap.sample.traps_set else "",
                 obj.trap.sample.traps_fished.strftime("%Y-%m-%d") if obj.trap.sample.traps_fished else "",
                 obj.trap.sample.site.latitude,
                 obj.trap.sample.site.longitude,
