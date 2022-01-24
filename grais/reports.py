@@ -925,7 +925,7 @@ def generate_gc_gravid_green_crabs_report():
     my_ws = workbook.add_worksheet(name='sheet1')
 
     # define the header
-    qs = models.Catch.objects.filter(species__aphia_id=107381, sex=2)
+    qs = models.Catch.objects.filter(species__aphia_id=107381, egg_color__isnull=False)
 
     if qs.exists():
         header_row = [
@@ -961,8 +961,8 @@ def generate_gc_gravid_green_crabs_report():
                 str(obj.trap.sample.site.estuary.province),
                 obj.trap.sample.site.name,
                 obj.trap.sample.site.code,
-                obj.trap.sample.traps_set,
-                obj.trap.sample.traps_fished,
+                obj.trap.sample.traps_set.strftime("%Y-%m-%d") if obj.trap.sample.strftime else "",
+                obj.trap.sample.traps_fished.strftime("%Y-%m-%d") if obj.trap.sample.traps_fished else "",
                 obj.trap.sample.site.latitude,
                 obj.trap.sample.site.longitude,
                 obj.trap.sample.id,
