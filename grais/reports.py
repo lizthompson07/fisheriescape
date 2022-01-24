@@ -975,7 +975,7 @@ def generate_gc_gravid_green_crabs_report():
                 obj.trap.total_green_crab_wt_kg,
                 obj.id,
                 str(obj.species),
-                obj.sex,
+                obj.get_sex_display(),
                 obj.egg_color,
                 obj.count,
             ]
