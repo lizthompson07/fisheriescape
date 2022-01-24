@@ -9,6 +9,7 @@ from shared_models.views import CommonCreateView, CommonFilterView, CommonUpdate
     CommonPopoutUpdateView, CommonPopoutDeleteView, CommonPopoutCreateView, CommonTemplateView
 from . import FactoryFloor
 from .. import models
+from ..models import GRAISUser
 from ..views import biofouling_views, shared_views, ir_views, gc_views
 
 faker = Factory.create()
@@ -20,6 +21,7 @@ class TestReportSearchFormView(CommonTest):
         self.test_url = reverse_lazy('grais:reports')
         self.expected_template = 'grais/reports.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("ReportSearch", "reports", "view")
     def test_view_class(self):
@@ -48,6 +50,7 @@ class TestSampleCreateView(CommonTest):
         self.test_url = reverse_lazy('grais:sample_new')
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Sample", "sample_new", "view")
     def test_view_class(self):
@@ -76,6 +79,7 @@ class TestSampleDeleteView(CommonTest):
         self.test_url = reverse_lazy('grais:sample_delete', args=[self.instance.pk, ])
         self.expected_template = 'grais/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Sample", "sample_delete", "view")
     def test_view_class(self):
@@ -107,6 +111,7 @@ class TestSampleDetailView(CommonTest):
         self.test_url = reverse_lazy('grais:sample_detail', args=[self.instance.pk, ])
         self.expected_template = 'grais/biofouling/sample_detail/main.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Sample", "sample_detail", "view")
     def test_view_class(self):
@@ -129,6 +134,7 @@ class TestSampleListView(CommonTest):
         self.test_url = reverse_lazy('grais:sample_list')
         self.expected_template = 'grais/list.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Sample", "sample_list", "view")
     def test_view_class(self):
@@ -159,6 +165,7 @@ class TestSampleUpdateView(CommonTest):
         self.test_url = reverse_lazy('grais:sample_edit', args=[self.instance.pk, ])
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Sample", "sample_edit", "view")
     def test_view_class(self):
@@ -186,6 +193,7 @@ class TestSpeciesCreateView(CommonTest):
         self.test_url = reverse_lazy('grais:species_new')
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Species", "species_new", "view")
     def test_view_class(self):
@@ -214,6 +222,7 @@ class TestSpeciesDeleteView(CommonTest):
         self.test_url = reverse_lazy('grais:species_delete', args=[self.instance.pk, ])
         self.expected_template = 'grais/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Species", "species_delete", "view")
     def test_view_class(self):
@@ -245,6 +254,7 @@ class TestSpeciesDetailView(CommonTest):
         self.test_url = reverse_lazy('grais:species_detail', args=[self.instance.pk, ])
         self.expected_template = 'grais/biofouling/species_detail.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Species", "species_detail", "view")
     def test_view_class(self):
@@ -267,6 +277,7 @@ class TestSpeciesListView(CommonTest):
         self.test_url = reverse_lazy('grais:species_list')
         self.expected_template = 'grais/list.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Species", "species_list", "view")
     def test_view_class(self):
@@ -297,6 +308,7 @@ class TestSpeciesUpdateView(CommonTest):
         self.test_url = reverse_lazy('grais:species_edit', args=[self.instance.pk, ])
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Species", "species_edit", "view")
     def test_view_class(self):
@@ -325,6 +337,7 @@ class TestStationCreateView(CommonTest):
         self.test_url = reverse_lazy('grais:station_new')
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Station", "station_new", "view")
     def test_view_class(self):
@@ -353,6 +366,7 @@ class TestStationDeleteView(CommonTest):
         self.test_url = reverse_lazy('grais:station_delete', args=[self.instance.pk, ])
         self.expected_template = 'grais/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Station", "station_delete", "view")
     def test_view_class(self):
@@ -384,6 +398,7 @@ class TestStationDetailView(CommonTest):
         self.test_url = reverse_lazy('grais:station_detail', args=[self.instance.pk, ])
         self.expected_template = 'grais/biofouling/station_detail.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Station", "station_detail", "view")
     def test_view_class(self):
@@ -406,6 +421,7 @@ class TestStationListView(CommonTest):
         self.test_url = reverse_lazy('grais:station_list')
         self.expected_template = 'grais/list.html'
         self.user = self.get_and_login_user(in_group="grais_access")
+        GRAISUser.objects.create(user=self.user)
 
     @tag("Station", "station_list", "view")
     def test_view_class(self):
@@ -436,6 +452,7 @@ class TestStationUpdateView(CommonTest):
         self.test_url = reverse_lazy('grais:station_edit', args=[self.instance.pk, ])
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Station", "station_edit", "view")
     def test_view_class(self):
@@ -464,6 +481,7 @@ class TestSampleNoteCreateView(CommonTest):
         self.test_url = reverse_lazy('grais:sample_note_new', args=[self.sample.id])
         self.expected_template = 'shared_models/generic_popout_form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("SampleNote", "sample_note_new", "view")
     def test_view_class(self):
@@ -492,6 +510,7 @@ class TestSampleNoteDeleteView(CommonTest):
         self.test_url = reverse_lazy('grais:sample_note_delete', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_confirm_delete.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("SampleNote", "sample_note_delete", "view")
     def test_view_class(self):
@@ -523,6 +542,7 @@ class TestSampleNoteUpdateView(CommonTest):
         self.test_url = reverse_lazy('grais:sample_note_edit', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("SampleNote", "sample_note_edit", "view")
     def test_view_class(self):
@@ -551,6 +571,7 @@ class TestProbeMeasurementCreateView(CommonTest):
         self.test_url = reverse_lazy('grais:measurement_new', args=[self.sample.id])
         self.expected_template = 'shared_models/generic_popout_form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("ProbeMeasurement", "measurement_new", "view")
     def test_view_class(self):
@@ -579,6 +600,7 @@ class TestProbeMeasurementDeleteView(CommonTest):
         self.test_url = reverse_lazy('grais:measurement_delete', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_confirm_delete.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("ProbeMeasurement", "measurement_delete", "view")
     def test_view_class(self):
@@ -610,6 +632,7 @@ class TestProbeMeasurementUpdateView(CommonTest):
         self.test_url = reverse_lazy('grais:measurement_edit', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("ProbeMeasurement", "measurement_edit", "view")
     def test_view_class(self):
@@ -643,6 +666,7 @@ class TestSpeciesObservationTemplateView(CommonTest):
         self.test_url3 = reverse_lazy('grais:species_observations', args=['surfaces', self.surface.id])
         self.expected_template = 'grais/biofouling/species_observations.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("ReportSearch", "reports", "view")
     def test_view_class(self):
@@ -672,6 +696,7 @@ class TestIndexTemplateView(CommonTest):
         self.test_url = reverse_lazy('grais:index')
         self.expected_template = 'grais/index.html'
         self.user = self.get_and_login_user(in_group="grais_access")
+        GRAISUser.objects.create(user=self.user)
 
     @tag("ReportSearch", "reports", "view")
     def test_view_class(self):
@@ -694,6 +719,7 @@ class TestIncidentalReportCreateView(CommonTest):
         self.test_url = reverse_lazy('grais:ir_new')
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("IncidentalReport", "ir_new", "view")
     def test_view_class(self):
@@ -722,6 +748,7 @@ class TestIncidentalReportDeleteView(CommonTest):
         self.test_url = reverse_lazy('grais:ir_delete', args=[self.instance.pk, ])
         self.expected_template = 'grais/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("IncidentalReport", "ir_delete", "view")
     def test_view_class(self):
@@ -753,6 +780,7 @@ class TestIncidentalReportDetailView(CommonTest):
         self.test_url = reverse_lazy('grais:ir_detail', args=[self.instance.pk, ])
         self.expected_template = 'grais/incidental_reports/report_detail.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("IncidentalReport", "ir_detail", "view")
     def test_view_class(self):
@@ -775,6 +803,7 @@ class TestIncidentalReportListView(CommonTest):
         self.test_url = reverse_lazy('grais:ir_list')
         self.expected_template = 'grais/list.html'
         self.user = self.get_and_login_user(in_group="grais_access")
+        GRAISUser.objects.create(user=self.user)
 
     @tag("IncidentalReport", "ir_list", "view")
     def test_view_class(self):
@@ -805,6 +834,7 @@ class TestIncidentalReportUpdateView(CommonTest):
         self.test_url = reverse_lazy('grais:ir_edit', args=[self.instance.pk, ])
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("IncidentalReport", "ir_edit", "view")
     def test_view_class(self):
@@ -833,6 +863,7 @@ class TestFollowUpCreateView(CommonTest):
         self.test_url = reverse_lazy('grais:followup_new', args=[self.ir.id])
         self.expected_template = 'shared_models/generic_popout_form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("FollowUp", "follow_up_new", "view")
     def test_view_class(self):
@@ -861,6 +892,7 @@ class TestFollowUpDeleteView(CommonTest):
         self.test_url = reverse_lazy('grais:followup_delete', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_confirm_delete.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("FollowUp", "follow_up_delete", "view")
     def test_view_class(self):
@@ -892,6 +924,7 @@ class TestFollowUpUpdateView(CommonTest):
         self.test_url = reverse_lazy('grais:followup_edit', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("FollowUp", "follow_up_edit", "view")
     def test_view_class(self):
@@ -920,6 +953,7 @@ class TestLineCreateView(CommonTest):
         self.test_url = reverse_lazy('grais:line_new', args=[self.sample.id])
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Line", "line_new", "view")
     def test_view_class(self):
@@ -950,6 +984,7 @@ class TestLineDeleteView(CommonTest):
         self.test_url = reverse_lazy('grais:line_delete', args=[self.instance.pk, ])
         self.expected_template = 'grais/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Line", "line_delete", "view")
     def test_view_class(self):
@@ -981,6 +1016,7 @@ class TestLineDetailView(CommonTest):
         self.test_url = reverse_lazy('grais:line_detail', args=[self.instance.pk, ])
         self.expected_template = 'grais/biofouling/line_detail/main.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Line", "line_detail", "view")
     def test_view_class(self):
@@ -1004,6 +1040,7 @@ class TestLineUpdateView(CommonTest):
         self.test_url = reverse_lazy('grais:line_edit', args=[self.instance.pk, ])
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Line", "line_edit", "view")
     def test_view_class(self):
@@ -1032,6 +1069,7 @@ class TestSurfaceCreateView(CommonTest):
         self.test_url = reverse_lazy('grais:surface_new', args=[self.line.id])
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Surface", "surface_new", "view")
     def test_view_class(self):
@@ -1060,6 +1098,7 @@ class TestSurfaceDeleteView(CommonTest):
         self.test_url = reverse_lazy('grais:surface_delete', args=[self.instance.pk, ])
         self.expected_template = 'grais/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Surface", "surface_delete", "view")
     def test_view_class(self):
@@ -1091,6 +1130,7 @@ class TestSurfaceDetailView(CommonTest):
         self.test_url = reverse_lazy('grais:surface_detail', args=[self.instance.pk, ])
         self.expected_template = 'grais/biofouling/surface_detail/main.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Surface", "surface_detail", "view")
     def test_view_class(self):
@@ -1114,6 +1154,7 @@ class TestSurfaceUpdateView(CommonTest):
         self.test_url = reverse_lazy('grais:surface_edit', args=[self.instance.pk, ])
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Surface", "surface_edit", "view")
     def test_view_class(self):
@@ -1142,6 +1183,7 @@ class TestEstuaryCreateView(CommonTest):
         self.test_url = reverse_lazy('grais:estuary_new')
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Estuary", "estuary_new", "view")
     def test_view_class(self):
@@ -1170,6 +1212,7 @@ class TestEstuaryDeleteView(CommonTest):
         self.test_url = reverse_lazy('grais:estuary_delete', args=[self.instance.pk, ])
         self.expected_template = 'grais/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Estuary", "estuary_delete", "view")
     def test_view_class(self):
@@ -1201,6 +1244,7 @@ class TestEstuaryDetailView(CommonTest):
         self.test_url = reverse_lazy('grais:estuary_detail', args=[self.instance.pk, ])
         self.expected_template = 'grais/green_crab/estuary_detail.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Estuary", "estuary_detail", "view")
     def test_view_class(self):
@@ -1223,6 +1267,7 @@ class TestEstuaryListView(CommonTest):
         self.test_url = reverse_lazy('grais:estuary_list')
         self.expected_template = 'grais/list.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Estuary", "estuary_list", "view")
     def test_view_class(self):
@@ -1253,6 +1298,7 @@ class TestEstuaryUpdateView(CommonTest):
         self.test_url = reverse_lazy('grais:estuary_edit', args=[self.instance.pk, ])
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Estuary", "estuary_edit", "view")
     def test_view_class(self):
@@ -1281,6 +1327,7 @@ class TestSiteCreateView(CommonTest):
         self.test_url = reverse_lazy('grais:site_new', args=[self.estuary.id])
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Site", "site_new", "view")
     def test_view_class(self):
@@ -1309,6 +1356,7 @@ class TestSiteDeleteView(CommonTest):
         self.test_url = reverse_lazy('grais:site_delete', args=[self.instance.pk, ])
         self.expected_template = 'grais/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Site", "site_delete", "view")
     def test_view_class(self):
@@ -1340,6 +1388,7 @@ class TestSiteDetailView(CommonTest):
         self.test_url = reverse_lazy('grais:site_detail', args=[self.instance.pk, ])
         self.expected_template = 'grais/green_crab/site_detail.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Site", "site_detail", "view")
     def test_view_class(self):
@@ -1363,6 +1412,7 @@ class TestSiteUpdateView(CommonTest):
         self.test_url = reverse_lazy('grais:site_edit', args=[self.instance.pk, ])
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Site", "site_edit", "view")
     def test_view_class(self):
@@ -1390,6 +1440,7 @@ class TestGCSampleCreateView(CommonTest):
         self.test_url = reverse_lazy('grais:gcsample_new')
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("GCSample", "gcsample_new", "view")
     def test_view_class(self):
@@ -1418,6 +1469,7 @@ class TestGCSampleDeleteView(CommonTest):
         self.test_url = reverse_lazy('grais:gcsample_delete', args=[self.instance.pk, ])
         self.expected_template = 'grais/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("GCSample", "gcsample_delete", "view")
     def test_view_class(self):
@@ -1449,6 +1501,7 @@ class TestGCSampleDetailView(CommonTest):
         self.test_url = reverse_lazy('grais:gcsample_detail', args=[self.instance.pk, ])
         self.expected_template = 'grais/green_crab/sample_detail/main.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("GCSample", "gcsample_detail", "view")
     def test_view_class(self):
@@ -1471,6 +1524,7 @@ class TestGCSampleListView(CommonTest):
         self.test_url = reverse_lazy('grais:gcsample_list')
         self.expected_template = 'grais/list.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("GCSample", "gcsample_list", "view")
     def test_view_class(self):
@@ -1501,6 +1555,7 @@ class TestGCSampleUpdateView(CommonTest):
         self.test_url = reverse_lazy('grais:gcsample_edit', args=[self.instance.pk, ])
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("GCSample", "gcsample_edit", "view")
     def test_view_class(self):
@@ -1529,6 +1584,7 @@ class TestGCProbeMeasurementCreateView(CommonTest):
         self.test_url = reverse_lazy('grais:gcmeasurement_new', args=[self.sample.id])
         self.expected_template = 'shared_models/generic_popout_form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("GCProbeMeasurement", "gcmeasurement_new", "view")
     def test_view_class(self):
@@ -1557,6 +1613,7 @@ class TestGCProbeMeasurementDeleteView(CommonTest):
         self.test_url = reverse_lazy('grais:gcmeasurement_delete', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_confirm_delete.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("GCProbeMeasurement", "gcmeasurement_delete", "view")
     def test_view_class(self):
@@ -1588,6 +1645,7 @@ class TestGCProbeMeasurementUpdateView(CommonTest):
         self.test_url = reverse_lazy('grais:gcmeasurement_edit', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("GCProbeMeasurement", "gcmeasurement_edit", "view")
     def test_view_class(self):
@@ -1616,6 +1674,7 @@ class TestTrapCreateView(CommonTest):
         self.test_url = reverse_lazy('grais:trap_new', args=[self.sample.id])
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Trap", "trap_new", "view")
     def test_view_class(self):
@@ -1644,6 +1703,7 @@ class TestTrapDeleteView(CommonTest):
         self.test_url = reverse_lazy('grais:trap_delete', args=[self.instance.pk, ])
         self.expected_template = 'grais/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Trap", "trap_delete", "view")
     def test_view_class(self):
@@ -1675,6 +1735,7 @@ class TestTrapDetailView(CommonTest):
         self.test_url = reverse_lazy('grais:trap_detail', args=[self.instance.pk, ])
         self.expected_template = 'grais/green_crab/trap_detail/main.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag("Trap", "trap_detail", "view")
     def test_view_class(self):
@@ -1698,6 +1759,7 @@ class TestTrapUpdateView(CommonTest):
         self.test_url = reverse_lazy('grais:trap_edit', args=[self.instance.pk, ])
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("Trap", "trap_edit", "view")
     def test_view_class(self):
@@ -1728,6 +1790,7 @@ class TestCatchObservationTemplateView(CommonTest):
         self.test_url2 = reverse_lazy('grais:catch_observations', args=[self.trap.id, 'bycatch'])
         self.expected_template = 'grais/green_crab/species_observations.html'
         self.user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.user, is_crud_user=True)
 
     @tag("CatchObservation", "reports", "view")
     def test_view_class(self):
@@ -1767,6 +1830,7 @@ class TestReportViews(CommonTest):
             reverse_lazy('grais:gc_cpue_report', args=[2019]),
             reverse_lazy('grais:gc_envr_report', args=[2019]),
             reverse_lazy('grais:gc_site_report'),
+            reverse_lazy('grais:gc_gravid_green_crabs'),
         ]
 
     @tag("grais", 'reports')
