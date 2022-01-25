@@ -68,17 +68,17 @@ class DataParser:
             skip_rows = 0
 
         if autorun:
-            self.load_data(skip_rows)
+            self.load_data()
             self.prep_data()
-            self.iterate_rows()
+            self.iterate_rows(skip_rows)
             self.clean_data()
         else:
             # to run only selection of parser functions
             pass
 
-    def load_data(self, skip_rows=0):
+    def load_data(self):
         try:
-            self.data_reader(skip_rows)
+            self.data_reader()
             self.data_dict = self.data.to_dict('records')
         except Exception as err:
             self.log_data += "\n File format not valid: {}".format(err.__str__())
@@ -102,11 +102,10 @@ class DataParser:
                              " of lines above the header row, which should be {}.".format(self.header)
             self.success = False
 
-    def data_reader(self, skip_rows=0):
+    def data_reader(self):
         self.data = read_excel(self.cleaned_data["data_csv"], header=self.header, engine='openpyxl',
                                converters=self.converters, sheet_name=self.sheet_name)
         self.data = self.data.mask(self.data.eq('None')).dropna(how="all")
-        self.data = self.data.iloc[skip_rows:]
 
     def prep_data(self):
         if self.success:
@@ -120,22 +119,25 @@ class DataParser:
     def data_preper(self):
         pass
 
-    def iterate_rows(self):
+    def iterate_rows(self, skip_rows=0):
         if self.success:
             for row in self.data_dict:
                 if self.success:
-                    self.row_entered = False
-                    try:
-                        self.row_parser(row)
-                    except self.catch_error as err:
-                        err_msg = common_err_parser(err)
-                        self.log_data += "\nError:  {} \nError occured when parsing row: \n".format(err_msg)
-                        self.log_data += str(row)
-                        self.parsed_row_counter()
-                        self.success = False
-                    self.rows_parsed += 1
-                    if self.row_entered:
-                        self.rows_entered += 1
+                    if self.rows_parsed >= skip_rows:
+                        self.row_entered = False
+                        try:
+                            self.row_parser(row)
+                        except self.catch_error as err:
+                            err_msg = common_err_parser(err)
+                            self.log_data += "\nError:  {} \nError occured when parsing row: \n".format(err_msg)
+                            self.log_data += str(row)
+                            self.parsed_row_counter()
+                            self.success = False
+                        self.rows_parsed += 1
+                        if self.row_entered:
+                            self.rows_entered += 1
+                    else:
+                        self.rows_parsed += 1
 
     def row_parser(self, row):
         pass
