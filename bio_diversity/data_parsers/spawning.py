@@ -55,10 +55,10 @@ class SpawningParser(DataParser):
 
     sex_dict = calculation_constants.sex_dict
 
-    def load_data(self, *args, **kwargs):
+    def load_data(self):
         self.mandatory_keys.extend([self.prio_key_f, self.prio_key_m, self.cross_key,
                                     self.prio_key_pair, self.choice_key, self.egg_est_key])
-        super(SpawningParser, self).load_data(*args, **kwargs)
+        super(SpawningParser, self).load_data()
 
     def data_preper(self):
         self.fecu_spwndc_id = models.SpawnDetCode.objects.filter(name="Fecundity").get()

@@ -16,10 +16,10 @@ class ContainerParser(DataParser):
     sheet_name = "Template"
     cont = None
 
-    def load_data(self, *args, **kwargs):
+    def load_data(self):
         self.mandatory_keys = [self.name_key, self.desc_key]
         self.mandatory_filled_keys = [self.name_key, self.desc_key]
-        super(ContainerParser, self).load_data( *args, **kwargs)
+        super(ContainerParser, self).load_data()
 
     def row_parser(self, row):
         try:

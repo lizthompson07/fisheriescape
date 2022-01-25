@@ -20,10 +20,10 @@ class FeedingParser(DataParser):
     converters = {tank_key: str, feedm_key: str, feedf_key: str}
     sheet_name = "Feedings"
 
-    def load_data(self, *args, **kwargs):
+    def load_data(self):
         self.mandatory_keys = [self.tank_key, self.feedm_key]
         self.mandatory_filled_keys = [self.tank_key, self.feedm_key]
-        super(FeedingParser, self).load_data( *args, **kwargs)
+        super(FeedingParser, self).load_data()
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data

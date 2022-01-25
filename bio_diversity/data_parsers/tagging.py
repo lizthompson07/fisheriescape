@@ -44,10 +44,10 @@ class TaggingParser(DataParser):
 
     ani_health_anidc_id = None
 
-    def load_data(self, *args, **kwargs):
+    def load_data(self):
         self.mandatory_keys.extend([self.to_tank_key, self.from_tank_key, self.group_key, self.pit_key, self.stok_key, self.coll_key])
         self.mandatory_filled_keys.extend([self.to_tank_key, self.from_tank_key, self.pit_key, self.stok_key, self.coll_key])
-        super(TaggingParser, self).load_data(*args, **kwargs)
+        super(TaggingParser, self).load_data()
 
     def data_preper(self):
         if len(self.data[self.group_key].unique()) > 1 or len(self.data[self.stok_key].unique()) > 1 or \

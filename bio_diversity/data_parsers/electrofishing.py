@@ -43,11 +43,11 @@ class ElectrofishingParser(DataParser):
     locc_id = None
     river_dict = {}
 
-    def load_data(self, *args, **kwargs):
+    def load_data(self):
         self.mandatory_keys.extend([self.rive_key, self.prio_key, self.coll_key, self.tank_key, self.crew_key,
                                     self.fish_caught_key, self.fish_obs_key, self.site_key])
         self.mandatory_filled_keys.extend([self.rive_key, self.coll_key])
-        super(ElectrofishingParser, self).load_data(*args, **kwargs)
+        super(ElectrofishingParser, self).load_data()
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
@@ -300,11 +300,11 @@ class AdultCollectionParser(DataParser):
 
     loc = None
     
-    def load_data(self, *args, **kwargs):
+    def load_data(self):
         self.mandatory_keys.extend([self.site_key, self.wr_key, self.pit_key, self.tank_key, self.crew_key,
                                     self.coll_key])
         self.mandatory_filled_keys.extend([self.site_key, self.coll_key])
-        super(AdultCollectionParser, self).load_data(*args, **kwargs)
+        super(AdultCollectionParser, self).load_data()
         
     def data_preper(self):
         cleaned_data = self.cleaned_data

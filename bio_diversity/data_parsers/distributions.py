@@ -50,9 +50,9 @@ class DistributionParser(DataParser):
     converters = {cont_key: str, 'Year': str, 'Month': str, 'Day': str}
     sheet_name = "Groups"
 
-    def load_data(self, *args, **kwargs):
+    def load_data(self):
         self.mandatory_keys.extend([self.stok_key, self.num_key])
-        super(DistributionParser, self).load_data( *args, **kwargs)
+        super(DistributionParser, self).load_data()
 
     def data_preper(self):
         self.temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
