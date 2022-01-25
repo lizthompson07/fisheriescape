@@ -42,7 +42,7 @@ class DataLoggerTemperatureParser(DataParser):
         self.rows_parsed = len(self.data["env"])
         self.row_entered = len(self.data["env"].dropna())
 
-    def iterate_rows(self):
+    def iterate_rows(self, skip_rows=0):
         pass
 
 

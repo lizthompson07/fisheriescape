@@ -1345,7 +1345,7 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
 
 def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None, weight=None, weight_kg=None, vial=None,
                      scale_envelope=None, gender=None, tissue_yn=None, status=None, mark=None, prog_grp=None,
-                     vaccinated=None, lifestage=None, comments=None):
+                     vaccinated=None, lifestage=None, cryo_out=None, o_fluid_out=None, comments=None):
     data_entered = 0
     if nan_to_none(len_val):
         len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
@@ -1372,24 +1372,27 @@ def enter_bulk_indvd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None,
                                     sex_anidc_id.pk, adsc_str=func_sex_dict[gender.upper()])
     if nan_to_none(status):
         status_anidc_pk = models.AnimalDetCode.objects.filter(name="Status").get().pk
-        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, status,
-                                    status_anidc_pk, adsc_str=status)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, status, status_anidc_pk, adsc_str=status)
     if nan_to_none(mark):
         mark_anidc_pk = models.AnimalDetCode.objects.filter(name="Mark").get().pk
-        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, mark,
-                                    mark_anidc_pk, adsc_str=mark)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, mark, mark_anidc_pk, adsc_str=mark)
     if nan_to_none(lifestage):
         lifestage_anidc_pk = models.AnimalDetCode.objects.filter(name="Lifestage").get().pk
-        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, lifestage,
-                                    lifestage_anidc_pk, adsc_str=lifestage)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, lifestage, lifestage_anidc_pk, adsc_str=lifestage)
+    if nan_to_none(cryo_out):
+        if y_n_to_bool(cryo_out):
+            cryo_anidc_pk = models.AnimalDetCode.objects.filter(name="Cryo Milt Taken").get().pk
+            data_entered += enter_indvd(anix_pk, cleaned_data, det_date, None, cryo_anidc_pk, None)
+    if nan_to_none(o_fluid_out):
+        if y_n_to_bool(o_fluid_out):
+            o_fluid_anidc_pk = models.AnimalDetCode.objects.filter(name="Ovarian Fluid Taken").get().pk
+            data_entered += enter_indvd(anix_pk, cleaned_data, det_date, None, o_fluid_anidc_pk, None)
     if nan_to_none(prog_grp):
         prog_anidc_pk = models.AnimalDetCode.objects.filter(name="Program Group").get().pk
-        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, prog_grp,
-                                    prog_anidc_pk, adsc_str=prog_grp)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, prog_grp, prog_anidc_pk, adsc_str=prog_grp)
     if nan_to_none(vaccinated):
         vax_anidc_pk = models.AnimalDetCode.objects.filter(name="Vaccination").get().pk
-        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, vaccinated,
-                                    vax_anidc_pk, adsc_str=vaccinated)
+        data_entered += enter_indvd(anix_pk, cleaned_data, det_date, vaccinated, vax_anidc_pk, adsc_str=vaccinated)
     if nan_to_none(tissue_yn):
         if y_n_to_bool(tissue_yn):
             tissue_anidc_pk = models.AnimalDetCode.objects.filter(name="Tissue Sample").get().pk
@@ -1453,7 +1456,7 @@ def enter_bulk_grpd(anix_pk, cleaned_data, det_date, len_val=None, len_mm=None, 
 
 def enter_bulk_sampd(samp_pk, cleaned_data, det_date, len_val=None, len_mm=None, weight=None, weight_kg=None, vial=None,
                      scale_envelope=None, gender=None, tissue_yn=None, status=None, mark=None, prog_grp=None,
-                     vaccinated=None, lifestage=None, comments=None):
+                     vaccinated=None, lifestage=None, cryo_out=None, o_fluid_out=None, comments=None):
     data_entered = 0
     if nan_to_none(len_val):
         len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
@@ -1502,7 +1505,14 @@ def enter_bulk_sampd(samp_pk, cleaned_data, det_date, len_val=None, len_mm=None,
         if y_n_to_bool(tissue_yn):
             tissue_anidc_pk = models.AnimalDetCode.objects.filter(name="Tissue Samp").get().pk
             data_entered += enter_sampd(samp_pk, cleaned_data, det_date, None, tissue_anidc_pk, None)
-
+    if nan_to_none(cryo_out):
+        if y_n_to_bool(cryo_out):
+            cryo_anidc_pk = models.AnimalDetCode.objects.filter(name="Cryo Milt Taken").get().pk
+            data_entered += enter_sampd(samp_pk, cleaned_data, det_date, None, cryo_anidc_pk, None)
+    if nan_to_none(o_fluid_out):
+        if y_n_to_bool(o_fluid_out):
+            o_fluid_anidc_pk = models.AnimalDetCode.objects.filter(name="Ovarian Fluid Taken").get().pk
+            data_entered += enter_sampd(samp_pk, cleaned_data, det_date, None, o_fluid_anidc_pk, None)
     if nan_to_none(comments):
         comment_anidc_pk = models.AnimalDetCode.objects.filter(name="Comment").get().pk
         data_entered += enter_sampd(samp_pk, cleaned_data, det_date, None, comment_anidc_pk, comments=comments)

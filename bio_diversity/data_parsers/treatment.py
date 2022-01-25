@@ -65,7 +65,7 @@ class TreatmentParser(DataParser):
         self.kg_unit_id = models.UnitCode.objects.filter(name__icontains="Kilograms").get()
         self.gal_unit_id = models.UnitCode.objects.filter(name__icontains="Gallons").get()
 
-    def iterate_rows(self):
+    def iterate_rows(self, skip_rows=0):
         self.data_dict = self.tank_data_dict
         for row in self.data_dict:
             if self.success:
