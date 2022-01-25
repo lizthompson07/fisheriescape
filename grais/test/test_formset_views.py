@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.utils.translation import activate
 
 from shared_models.test.common_tests import CommonTest
+from ..models import GRAISUser
 from ..test import FactoryFloor
 from shared_models.views import CommonFormsetView, CommonHardDeleteView
 from ..views import biofouling_views, shared_views
@@ -29,6 +30,7 @@ class TestAllFormsets(CommonTest):
         ]
         self.expected_template = 'grais/formset.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
 
     @tag('formsets', "view")
     def test_view_class(self):
@@ -60,6 +62,7 @@ class TestAllHardDeleteViews(CommonTest):
         self.test_dicts = list()
 
         self.user = self.get_and_login_user(in_group="grais_admin")
+        GRAISUser.objects.create(user=self.user, is_admin=True)
         for d in self.starter_dicts:
             new_d = d
             m = d["model"]

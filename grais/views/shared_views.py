@@ -202,6 +202,8 @@ class ReportSearchFormView(GraisAccessRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("grais:gc_site_report"))
         elif report == 9:
             return HttpResponseRedirect(reverse("grais:biofouling_pa_xlsx") + f"?year={year}")
+        elif report == 10:
+            return HttpResponseRedirect(reverse("grais:gc_gravid_green_crabs"))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("grais:report_search"))
@@ -292,6 +294,20 @@ def export_gc_sites(request):
             return response
     raise Http404
 
+
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
+def export_gc_gravid_green_crabs(request):
+    file_url = reports.generate_gc_gravid_green_crabs_report()
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="green crab site descriptions.xlsx"'
+            return response
+    raise Http404
 
 
 
