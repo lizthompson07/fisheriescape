@@ -116,12 +116,6 @@ class FeedbackForm(forms.ModelForm):
                 # if it is a registered app, we do not need the user input regarding which app..
                 if initial['app'] in registered_apps:
                     del self.fields['app']
-                    # if the registered app has a key for staff_ids (with a length), delete the assign to field
-                    try:
-                        if isinstance(local_conf.APP_DICT[initial['app']]['staff_ids'], list) and len(local_conf.APP_DICT[initial['app']]['staff_ids']) > 0:
-                            del self.fields['dm_assigned']
-                    except KeyError:
-                        pass
 
 
 class TicketNoteForm(forms.ModelForm):

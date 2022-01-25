@@ -299,20 +299,6 @@ class TicketCreateViewPopout(LoginRequiredMixin, CommonPopoutCreateView):
             obj.app = self.kwargs.get("app")
         obj.save()
 
-        # if the registered app has a key for staff_ids (with a length), delete the assign to field
-        try:
-            app = self.kwargs.get("app")
-            if isinstance(local_conf.APP_DICT[app]['staff_ids'], list) and len(local_conf.APP_DICT[app]['staff_ids']) > 0:
-                for user_id in local_conf.APP_DICT[app]['staff_ids']:
-                    obj.dm_assigned.add(user_id)
-        except KeyError:
-            pass
-
-        # nobody is assigned, assign everyone
-        if not obj.dm_assigned.exists():
-            for u in User.objects.filter(is_superuser=True):
-                obj.dm_assigned.add(u)
-
         # create a new email object
         email = emails.NewTicketEmail(self.request, obj)
         # send the email object

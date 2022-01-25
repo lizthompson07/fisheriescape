@@ -6,7 +6,7 @@ from dm_apps.context_processor import my_envr
 from dm_apps.emails import Email
 
 from_email = settings.SITE_FROM_EMAIL
-admin_email = 'david.fishman@dfo-mpo.gc.ca'
+admin_email = 'DFO.DMApps-ApplisGD.MPO@dfo-mpo.gc.ca'
 
 
 class NewTicketEmail(Email):
@@ -15,12 +15,7 @@ class NewTicketEmail(Email):
     email_template_path = 'tickets/email_new_ticket.html'
 
     def get_recipient_list(self):
-        if self.instance.dm_assigned.exists():
-            my_to_list = [user.email for user in self.instance.dm_assigned.all()]
-        else:
-            my_to_list = [user.email for user in User.objects.filter(is_staff=True)]
-        my_to_list.append(self.instance.primary_contact.email)
-        return my_to_list
+        return [admin_email]
 
 
 class NewFollowUpEmail(Email):
@@ -29,10 +24,9 @@ class NewFollowUpEmail(Email):
     email_template_path = 'tickets/email_follow_up.html'
 
     def get_recipient_list(self):
+        my_to_list = [admin_email]
         if self.instance.ticket.dm_assigned.exists():
-            my_to_list = [user.email for user in self.instance.ticket.dm_assigned.all()]
-        else:
-            my_to_list = [user.email for user in User.objects.filter(is_staff=True)]
+            my_to_list.extend([user.email for user in self.instance.ticket.dm_assigned.all()])
         my_to_list.append(self.instance.ticket.primary_contact.email)
         return my_to_list
 
@@ -43,10 +37,6 @@ class TicketResolvedEmail(Email):
     email_template_path = 'tickets/email_ticket_resolved.html'
 
     def get_recipient_list(self):
-        if self.instance.dm_assigned.exists():
-            my_to_list = [user.email for user in self.instance.dm_assigned.all()]
-        else:
-            my_to_list = [user.email for user in User.objects.filter(is_staff=True)]
-        my_to_list.append(self.instance.primary_contact.email)
+        my_to_list = [self.instance.primary_contact.email]
         return my_to_list
 
