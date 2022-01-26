@@ -870,7 +870,7 @@ def prime_csas_activities(project_year, starting_date, meeting_duration, has_sr_
             for a_dict in child_list:
                 if i == 0:
                     start = starting_date  # starts at the starting date
-                    end = starting_date + timedelta(days=meeting_duration)
+                    end = starting_date + timedelta(days=a_dict["duration"])
                 else:
                     start = end
                     end = start + timedelta(days=a_dict["duration"])
