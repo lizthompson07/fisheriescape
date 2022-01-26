@@ -662,7 +662,7 @@ def generate_open_data_ver_1_wms_report(year, lang):
     return response
 
 
-def generate_gc_cpue_report(year):
+def generate_gc_cpue_report(year=None):
     """Returns a generator for an HTTP Streaming Response"""
     header_row = [
         'Year',
@@ -681,7 +681,7 @@ def generate_gc_cpue_report(year):
     yield writer.writerow(header_row)
 
     filter_kwargs = {}
-    if year != "":
+    if year:
         filter_kwargs["trap__sample__season"] = year
 
     for c in models.Catch.objects.filter(**filter_kwargs).filter(species_id=26):
