@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import floatformat
 from django.utils import timezone
 
+from dm_apps.utils import Echo
 from lib.functions.custom_functions import nz, listrify
 from lib.functions.verbose_field_name import verbose_field_name
 from . import models
@@ -214,23 +215,15 @@ def generate_species_sample_spreadsheet(year, species_list=None):
 
 
 def generate_biofouling_pa_spreadsheet(year=None):
-    # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'grais', 'temp')
-    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
-    target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'grais', 'temp', target_file)
+    """Returns a generator for an HTTP Streaming Response"""
 
-    # create workbook and worksheets
-    workbook = xlsxwriter.Workbook(target_file_path)
+    stations = models.Station.objects.all()
+    if year:
+        years = [year]
+    else:
+        years = [item["season"] for item in models.Sample.objects.order_by("season").values("season").distinct()]
 
-    # create formatting
-    header_format = workbook.add_format(
-        {'bold': True, "align": 'normal', "text_wrap": True})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True})
-    # Add a format. Light red fill with dark red text.
-
-    # define the header
-    header = [
+    header_row = [
         "Year",
         "Station",
         "Province",
@@ -246,20 +239,12 @@ def generate_biofouling_pa_spreadsheet(year=None):
         "C fragile",
     ]
 
-    stations = models.Station.objects.all()
-    if year:
-        years = [year]
-    else:
-        years = [item["season"] for item in models.Sample.objects.order_by("season").values("season").distinct()]
 
-    i = 1
-    my_ws = workbook.add_worksheet(name="report")
-
-    col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-    my_ws.write_row(0, 0, header, header_format)
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
 
     ais_list = [get_object_or_404(models.Species, pk=id) for id in [24, 48, 23, 25, 47, 59, 26, 55]]
-
     for year in years:
         for station in stations:
             sample_qs = models.Sample.objects.filter(season=year, station=station)
@@ -287,28 +272,7 @@ def generate_biofouling_pa_spreadsheet(year=None):
                         has_been_observed = 1
 
                     data_row.append(has_been_observed)
-
-                # adjust the width of the columns based on the max string length in each col
-                ## replace col_max[j] if str length j is bigger than stored value
-
-                j = 0
-                for d in data_row:
-                    # if new value > stored value... replace stored value
-                    if len(str(d)) > col_max[j]:
-                        if len(str(d)) < 100:
-                            col_max[j] = len(str(d))
-                        else:
-                            col_max[j] = 100
-                    j += 1
-
-                my_ws.write_row(i, 0, data_row, normal_format)
-                i += 1
-
-    for j in range(0, len(col_max)):
-        my_ws.set_column(j, j, width=col_max[j] * 1.3)
-
-    workbook.close()
-    return target_url
+                yield writer.writerow(data_row)
 
 
 def generate_open_data_ver_1_data_dictionary():

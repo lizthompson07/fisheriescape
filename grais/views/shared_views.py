@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404, StreamingHttpResponse
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy
@@ -225,14 +225,14 @@ def species_sample_spreadsheet_export(request, year, species_list):
 @user_passes_test(has_grais_crud, login_url='/accounts/denied/')
 def biofouling_presence_absence_spreadsheet_export(request):
     year = request.GET["year"] if request.GET["year"] != "None" else None
+    filename = "biofouling presence absence {}.csv".format(timezone.now().strftime("%Y-%m-%d"))
 
-    file_url = reports.generate_biofouling_pa_spreadsheet(year)
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="biofouling presence absence {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
-            return response
-    raise Http404
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_biofouling_pa_spreadsheet(year)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
 
 
 @login_required(login_url='/accounts/login/')
