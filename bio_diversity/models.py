@@ -7,6 +7,7 @@ import os
 from collections import Counter
 
 import pytz
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Q, Avg
@@ -21,7 +22,10 @@ from bio_diversity.utils import naive_to_aware
 from shared_models import models as shared_models
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-# from django.contrib.gis.db import models
+YES_NO_CHOICES = (
+        (True, _("Yes")),
+        (False, _("No")),
+    )
 
 
 class BioModel(models.Model):
@@ -35,7 +39,7 @@ class BioModel(models.Model):
     # to handle unresolved attirbute reference in pycharm
     objects = models.Manager()
 
-    def clean(self):
+    def clean(self, *args, **kwargs):
         # handle null values in uniqueness constraint foreign keys.
         # eg. should only be allowed one instance of a=5, b=null
         super(BioModel, self).clean()
@@ -298,18 +302,49 @@ class BioCont(BioLookup):
     def degree_days(self, start_date, end_date):
         return []
 
-    def cont_feed(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def cont_feed(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), get_string=False):
         feed_contx = self.contxs.filter(evnt_id__evntc_id__name="Feeding", evnt_id__start_datetime__lte=at_date).order_by("-evnt_id__start_datetime").first()
-        if feed_contx:
-            cont_feed = feed_contx.feeding_set.select_related("feedc_id", "feedm_id").all()
+        if get_string:
+            if feed_contx:
+                cont_feed = feed_contx.feed_str
+                return cont_feed
+            else:
+                return ""
         else:
-            cont_feed = []
-        return cont_feed
+            return feed_contx
 
-    def cont_treatments(self, start_date=datetime.now().replace(tzinfo=pytz.UTC), end_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def feed_history(self, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now())):
+        oldest_contx = self.cont_feed(at_date=start_date)
+        feed_contx = self.contxs.filter(evnt_id__evntc_id__name="Feeding", evnt_id__start_datetime__gte=start_date,
+                                        evnt_id__start_datetime__lte=end_date).order_by("-evnt_id__start_datetime")
+        contx_list = [contx for contx in feed_contx]
+        if oldest_contx:
+            contx_list.append(oldest_contx)
+        return contx_list
+
+    def cont_treatments(self, start_date=utils.naive_to_aware(datetime.now()), end_date=utils.naive_to_aware(datetime.now())):
         filter_arg = "contx_id__{}_id".format(self.key)
         envt_qs = EnvTreatment.objects.filter(**{filter_arg: self}, start_datetime__gte=start_date, start_datetime__lte=end_date)
         return envt_qs
+
+
+class BioUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="bio_user", verbose_name=_("DM Apps user"))
+
+    # admins can modify helptext and other app settings
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator"), choices=YES_NO_CHOICES)
+
+    # authors can create/modify/delete records
+    is_author = models.BooleanField(default=False, verbose_name=_("app author"), choices=YES_NO_CHOICES)
+
+    # users can view, but not modify records
+    is_user = models.BooleanField(default=False, verbose_name=_("app user"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
 
 
 class AnimalDetCode(BioLookup):
@@ -444,6 +479,26 @@ class ContainerXRef(BioModel):
             return cont
         else:
             return None
+
+    @property
+    def feed_str(self):
+        cont_feed = self.feeding_set.select_related("feedc_id", "feedm_id").all()
+        feed_str = ""
+        for feed in cont_feed:
+            feed_str += "{} #{}, ".format(feed.feedc_id.name, feed.amt)
+        return feed_str
+
+    @property
+    def feed_props(self):
+        feed_dict = {"str": "", "freq": "", "method": "", "comments": ""}
+        cont_feed = self.feeding_set.select_related("feedc_id", "feedm_id").all()
+        for feed in cont_feed:
+            feed_dict["str"] += "{} #{}, ".format(feed.feedc_id.__str__(), feed.amt)
+            feed_dict["freq"] += "{}, ".format(feed.freq)
+            feed_dict["method"] += "{}, ".format(feed.feedm_id.__str__())
+            if feed.comments:
+                feed_dict["comments"] += "{} ".format(feed.comments)
+        return feed_dict
 
 
 class Count(BioModel):
@@ -818,6 +873,7 @@ class EventCode(BioLookup):
     # evntc tag
     pass
 
+
 def evntf_directory_path(instance, filename):
     return 'bio_diversity/event_files/{}'.format(filename)
 
@@ -920,11 +976,14 @@ class Feeding(BioModel):
                                 db_column="COMMENTS")
 
     def __str__(self):
-        return "{}-{}-{}".format(self.contx_id.__str__(), self.feedc_id.__str__(), self.feedm_id.__str__())
+        return "{} {}".format(self.feedc_id.__str__(), self.amt)
 
     @property
     def feed_date(self):
         return self.contx_id.evnt_id.start_date
+
+    class Meta:
+        unique_together = (('contx_id', 'feedm_id', 'feedc_id', 'amt', 'unit_id'),)
 
 
 class FeedCode(BioLookup):
@@ -1004,6 +1063,16 @@ class Group(BioModel):
             out_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
 
         return out_list
+
+    def current_feed(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        cont_list = self.current_cont(at_date=at_date)
+        if len(cont_list) == 1:
+            feed_str = cont_list[0].cont_feed(at_date=at_date, get_string=True)
+        else:
+            feed_str = ""
+            for cont in cont_list:
+                feed_str += "{}: {}\n".format(cont.__str__(), cont.cont_feed(at_date=at_date, get_string=True))
+        return feed_str
 
     def count_fish_in_group(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
         fish_count = 0
@@ -1391,6 +1460,16 @@ class Individual(BioModel):
             return cont_str
         return current_cont_list
 
+    def current_feed(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        cont_list = self.current_cont(at_date=at_date)
+        if len(cont_list) == 1:
+            feed_str = cont_list[0].cont_feed(at_date=at_date, get_string=True)
+        else:
+            feed_str = ""
+            for cont in cont_list:
+                feed_str += "{}: {}\n".format(cont.__str__(), cont.cont_feed(at_date=at_date, get_string=True))
+        return feed_str
+
     def get_parent_history(self):
         parent_grps = [(0, self.grp_id, self.start_date())]
         if self.grp_id:
@@ -1649,9 +1728,13 @@ class Location(BioModel):
             self.trib_id = self.relc_id.trib_id
         if self.relc_id and not self.subr_id:
             self.sube_id = self.relc_id.subr_id
-        # if not self.relc_id and not (self.loc_lon and self.loc_lat):
-        #    raise ValidationError("Location must have either lat-long specified or site chosen")
         super(Location, self).clean(*args, **kwargs)
+        if self.loc_lon is not None:  # only check long,that's where minus signs are left off
+            if float(self.loc_lon) < calculation_constants.min_long:
+                raise ValidationError("Longitude must be within maritimes (>{})".format(calculation_constants.min_long))
+            if float(self.loc_lon) > calculation_constants.max_long:
+                raise ValidationError("Longitude must be within maritimes (<{}). "
+                                      "Should this value be negative?".format(calculation_constants.max_long))
 
     def get_cont_history(self, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now()), get_str=False):
         anix_evnt_set = AniDetailXref.objects.filter(loc_id=self, contx_id__isnull=False, grp_id__isnull=True,
@@ -1929,6 +2012,12 @@ class ReleaseSiteCode(BioLookup):
         if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
             if float(self.min_lon) > float(self.max_lon) or float(self.min_lat) > float(self.max_lat):
                 raise ValidationError("Max lat/lon must be greater than min lat/lon")
+            if float(self.min_lon) < calculation_constants.min_long:
+                raise ValidationError("Min longitude must be within maritimes (>{})".format(calculation_constants.min_long))
+            if float(self.max_lon) > calculation_constants.max_long:
+                raise ValidationError("Max longitude must be within maritimes (<{}). "
+                                      "Should this value be negative?".format(calculation_constants.max_long))
+
 
     @property
     def bbox(self):
@@ -1943,6 +2032,7 @@ class ReleaseSiteCode(BioLookup):
             return bbox
         else:
             return
+
     @property
     def point(self):
         # lon = x, lat = y

@@ -30,6 +30,10 @@ class SpawningParser(DataParser):
     len_key_m_mm = "Ln (mm), M"
     weight_key_m = "Wt (g), M"
     weight_key_m_kg = "Wt (kg), M"
+    cryo_out_key = "Cryo Milt Taken"
+    cryo_in_key = "Cryo Milt Used"
+    fluid_out_key = "Ovarian Fluid Taken"
+    fluid_in_key = "Ovarian Fluid Used"
     choice_key = "Choice"
     egg_est_key = "Exp. #"
     status_key_f = "Status, F"
@@ -46,6 +50,8 @@ class SpawningParser(DataParser):
     fecu_spwndc_id = None
     dud_spwndc_id = None
     prog_spwndc_id = None
+    cryo_spwndc_id = None
+    o_fluid_spwndc_id = None
 
     sex_dict = calculation_constants.sex_dict
 
@@ -58,6 +64,8 @@ class SpawningParser(DataParser):
         self.fecu_spwndc_id = models.SpawnDetCode.objects.filter(name="Fecundity").get()
         self.dud_spwndc_id = models.SpawnDetCode.objects.filter(name="Dud").get()
         self.prog_spwndc_id = models.SpawnDetCode.objects.filter(name="Program").get()
+        self.cryo_spwndc_id = models.SpawnDetCode.objects.filter(name="Cryo Milt Used").get()
+        self.o_fluid_spwndc_id = models.SpawnDetCode.objects.filter(name="Ovarian Fluid Used").get()
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
@@ -92,6 +100,7 @@ class SpawningParser(DataParser):
                                                        weight=row.get(self.weight_key_f),
                                                        weight_kg=row.get(self.weight_key_f_kg),
                                                        status=row.get(self.status_key_f),
+                                                       o_fluid_out=row.get(self.fluid_out_key),
                                                        comments=row.get(self.comment_key_f)
                                                        )
         if indv_male:
@@ -105,6 +114,7 @@ class SpawningParser(DataParser):
                                                        weight=row.get(self.weight_key_m),
                                                        weight_kg=row.get(self.weight_key_m_kg),
                                                        status=row.get(self.status_key_m),
+                                                       cryo_out=row.get(self.cryo_out_key),
                                                        comments=row.get(self.comment_key_m)
                                                        )
         if samp_female:
@@ -115,6 +125,7 @@ class SpawningParser(DataParser):
                                                        weight=row.get(self.weight_key_f),
                                                        weight_kg=row.get(self.weight_key_f_kg),
                                                        status=row.get(self.status_key_f),
+                                                       o_fluid_out=row.get(self.fluid_out_key),
                                                        comments=row.get(self.comment_key_f)
                                                        )
         if samp_male:
@@ -125,6 +136,7 @@ class SpawningParser(DataParser):
                                                        weight=row.get(self.weight_key_m),
                                                        weight_kg=row.get(self.weight_key_m_kg),
                                                        status=row.get(self.status_key_m),
+                                                       cryo_out=row.get(self.cryo_out_key),
                                                        comments=row.get(self.comment_key_m)
                                                        )
 
@@ -181,6 +193,10 @@ class SpawningParser(DataParser):
         if utils.nan_to_none(row.get(self.prog_key)):
             self.row_entered += utils.enter_spwnd(pair.pk, cleaned_data, row[self.prog_key], self.prog_spwndc_id.pk,
                                                   spwnsc_str=row[self.prog_key])
+        if utils.nan_to_none(row.get(self.cryo_in_key)):
+            self.row_entered += utils.enter_spwnd(pair.pk, cleaned_data, None, self.cryo_spwndc_id.pk, None)
+        if utils.nan_to_none(row.get(self.fluid_in_key)):
+            self.row_entered += utils.enter_spwnd(pair.pk, cleaned_data, None, self.o_fluid_spwndc_id.pk, None)
 
         # fecu/dud/extra male
         if row[self.egg_est_key] > 0:

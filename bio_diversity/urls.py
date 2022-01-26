@@ -10,6 +10,9 @@ urlpatterns = [
     path('codes/index/', views.CodesIndexTemplateView.as_view(),    name="codes_index"),
     path('facic/index/', views.FacicIndexTemplateView.as_view(),    name="facic_index"),
 
+    path('settings/users/', views.BioUserFormsetView.as_view(), name="manage_bio_users"),
+    path('settings/users/<int:pk>/delete/', views.BioUserHardDeleteView.as_view(), name="delete_bio_user"),
+
     path('create/anidc/', views.AnidcCreate.as_view(), name="create_anidc"),
     path('details/anidc/<int:pk>/', views.AnidcDetails.as_view(), name="details_anidc"),
     path('list/anidc/', views.AnidcList.as_view(), name="list_anidc"),
@@ -20,7 +23,7 @@ urlpatterns = [
     path('list/anix/', views.AnixList.as_view(), name="list_anix"),
     path('update/anix/<int:pk>/', views.AnixUpdate.as_view(), name="update_anix"),
 
-    path('create/addcollfish/<int:evnt>/<str:pop>/', views.AddCollFishFormView.as_view(), name="create_fish_to_cont"),
+    path('create/addcollfish/<int:evnt>/<str:pop>/', views.AddCollFishFormView.as_view(), name="create_coll_fish_to_cont"),
 
     path('create/adsc/', views.AdscCreate.as_view(), name="create_adsc"),
     path('details/adsc/<int:pk>/', views.AdscDetails.as_view(), name="details_adsc"),
@@ -390,6 +393,7 @@ urlpatterns = [
     path('reports/mort_report_file/', views.mort_report_file, name="mort_report_file"),
     path('reports/system_code_report_file/', views.system_code_report_file, name="system_code_report_file"),
     path('reports/samples_report_file/', views.samples_report_file, name="samples_report_file"),
+    path('reports/events_report_file/', views.events_report_file, name="events_report_file"),
 
     path('create/rive/', views.RiveCreate.as_view(), name="create_rive"),
     path('details/rive/<int:pk>/', views.RiveDetails.as_view(), name="details_rive"),
