@@ -348,7 +348,7 @@ class ActivityViewSet(ModelViewSet):
             update.notes = request.data
             update.save()
 
-            # now we do the same for all the children, but only id the action is "complete"
+            # now we do the same for all the children, but only if the action is "complete"
             if activity.children.exists() and action == "complete":
                 for child in activity.children.all():
                     c_update, create = models.ActivityUpdate.objects.get_or_create(
