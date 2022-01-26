@@ -665,6 +665,7 @@ def generate_open_data_ver_1_wms_report(year, lang):
 def generate_gc_cpue_report(year):
     """Returns a generator for an HTTP Streaming Response"""
     header_row = [
+        'Year',
         'Estuary',
         'Site',
         'Sample ID',
@@ -685,6 +686,7 @@ def generate_gc_cpue_report(year):
 
     for c in models.Catch.objects.filter(**filter_kwargs).filter(species_id=26):
         data_row = [
+            c.trap.sample.season,
             c.trap.sample.site.estuary.name,
             c.trap.sample.site.code,
             c.trap.sample.id,

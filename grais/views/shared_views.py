@@ -258,7 +258,7 @@ def export_open_data_ver1_wms(request, year, lang):
 
 @login_required(login_url='/accounts/login/')
 @user_passes_test(has_grais_crud, login_url='/accounts/denied/')
-def export_gc_cpue(request, year):
+def export_gc_cpue(request):
     filename = "green crab CPUE ({}).csv".format(timezone.now().strftime("%Y-%m-%d"))
     year = request.GET["year"] if request.GET["year"] != "None" else None
     response = StreamingHttpResponse(
