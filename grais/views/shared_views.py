@@ -195,7 +195,7 @@ class ReportSearchFormView(GraisAccessRequiredMixin, CommonFormView):
         elif report == 5:
             return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year, "lang": 2}))
         elif report == 6:
-            return HttpResponseRedirect(reverse("grais:gc_cpue_report", kwargs={"year": year}))
+            return HttpResponseRedirect(reverse("grais:gc_cpue_report") + f"?year={year}")
         elif report == 7:
             return HttpResponseRedirect(reverse("grais:gc_envr_report", kwargs={"year": year}))
         elif report == 8:
@@ -259,14 +259,14 @@ def export_open_data_ver1_wms(request, year, lang):
 @login_required(login_url='/accounts/login/')
 @user_passes_test(has_grais_crud, login_url='/accounts/denied/')
 def export_gc_cpue(request, year):
-    file_url = reports.generate_gc_cpue_report(year)
-
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="{} green crab CPUE data.xlsx"'.format(year)
-            return response
-    raise Http404
+    filename = "green crab CPUE ({}).csv".format(timezone.now().strftime("%Y-%m-%d"))
+    year = request.GET["year"] if request.GET["year"] != "None" else None
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_gc_cpue_report(year)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
 
 
 @login_required(login_url='/accounts/login/')
@@ -295,8 +295,6 @@ def export_gc_sites(request):
     raise Http404
 
 
-
-
 @login_required(login_url='/accounts/login/')
 @user_passes_test(has_grais_crud, login_url='/accounts/denied/')
 def export_gc_gravid_green_crabs(request):
@@ -308,7 +306,6 @@ def export_gc_gravid_green_crabs(request):
             response['Content-Disposition'] = 'inline; filename="green crab site descriptions.xlsx"'
             return response
     raise Http404
-
 
 
 # VIEWS

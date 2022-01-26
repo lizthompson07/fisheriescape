@@ -239,7 +239,6 @@ def generate_biofouling_pa_spreadsheet(year=None):
         "C fragile",
     ]
 
-
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
     yield writer.writerow(header_row)
@@ -664,23 +663,7 @@ def generate_open_data_ver_1_wms_report(year, lang):
 
 
 def generate_gc_cpue_report(year):
-    # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'grais', 'temp')
-    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
-    target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'grais', 'temp', target_file)
-
-    # create workbook and worksheets
-    workbook = xlsxwriter.Workbook(target_file_path)
-
-    # create formatting variables
-    header_format = workbook.add_format({'bold': True, "align": 'normal', "text_wrap": True})
-    normal_format = workbook.add_format({"align": 'normal', "text_wrap": True, })
-
-    # define a worksheet
-    my_ws = workbook.add_worksheet(name='sheet1')
-
-    # define the header
+    """Returns a generator for an HTTP Streaming Response"""
     header_row = [
         'Estuary',
         'Site',
@@ -691,13 +674,16 @@ def generate_gc_cpue_report(year):
         'Sex',
         'Width',
     ]
-    my_ws.write_row(0, 0, header_row, header_format)
 
-    i = 1
-    # create the col_max column to store the length of each header
-    # should be a maximum column width to 100
-    col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header_row]
-    for c in models.Catch.objects.filter(trap__sample__season=year, species_id=26):
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
+
+    filter_kwargs = {}
+    if year != "":
+        filter_kwargs["trap__sample__season"] = year
+
+    for c in models.Catch.objects.filter(**filter_kwargs).filter(species_id=26):
         data_row = [
             c.trap.sample.site.estuary.name,
             c.trap.sample.site.code,
@@ -708,29 +694,7 @@ def generate_gc_cpue_report(year):
             c.get_sex_display(),
             c.width,
         ]
-
-        # adjust the width of the columns based on the max string length in each col
-        ## replace col_max[j] if str length j is bigger than stored value
-
-        j = 0
-        for d in data_row:
-            # if new value > stored value... replace stored value
-            if len(str(d)) > col_max[j]:
-                if len(str(d)) < 75:
-                    col_max[j] = len(str(d))
-                else:
-                    col_max[j] = 75
-            j += 1
-
-        my_ws.write_row(i, 0, data_row, normal_format)
-        i += 1
-
-    # set column widths
-    for j in range(0, len(col_max)):
-        my_ws.set_column(j, j, width=col_max[j] * 1.1)
-
-    workbook.close()
-    return target_url
+        yield writer.writerow(data_row)
 
 
 def generate_gc_envr_report(year):
