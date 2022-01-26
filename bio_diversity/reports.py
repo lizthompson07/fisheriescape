@@ -59,8 +59,9 @@ class ExcelReport:
         self.wb.save(self.target_file_path)
 
 
-def cont_treat_writer(ws, cont_evnt_list, row_count, treat_row_count, end_date=utils.naive_to_aware(datetime.now())):
+def cont_treat_feed_writer(ws, cont_evnt_list, row_count, treat_row_count, feed_row_count, end_date=utils.naive_to_aware(datetime.now())):
     treat_list = []
+    feed_list = []
     for contx_dict in cont_evnt_list:
         evnt_id = contx_dict["evnt_id"]
         # cont_evnt = [evntc, date, direction, container]
@@ -71,7 +72,8 @@ def cont_treat_writer(ws, cont_evnt_list, row_count, treat_row_count, end_date=u
         row_count += 1
         if contx_dict["destination"]:
             start_date = evnt_id.start_datetime
-            treat_list.extend(contx_dict["cont"].cont_treatments(start_date, end_date))
+            treat_list.extend(contx_dict["cont_id"].cont_treatments(start_date, end_date))
+            feed_list.extend(contx_dict["cont_id"].feed_history(start_date, end_date))
         if not contx_dict["destination"] and contx_dict is not None:
             end_date = evnt_id.start_datetime
 
@@ -83,7 +85,17 @@ def cont_treat_writer(ws, cont_evnt_list, row_count, treat_row_count, end_date=u
         ws['K' + str(treat_row_count)].value = "{} {}".format(treat.amt, treat.unit_id.name)
         ws['L' + str(treat_row_count)].value = treat.duration
         treat_row_count += 1
-    return row_count, treat_row_count, end_date
+
+    for feed_contx in feed_list:
+        feed_dict = feed_contx.feed_props
+        ws['O' + str(feed_row_count)].value = feed_dict["str"]
+        ws['P' + str(feed_row_count)].value = feed_contx.evnt_id.start_date
+        ws['Q' + str(feed_row_count)].value = feed_contx.container.__str__()
+        ws['R' + str(feed_row_count)].value = feed_dict["freq"]
+        ws['S' + str(feed_row_count)].value = feed_dict["method"]
+        ws['T' + str(feed_row_count)].value = feed_dict["comments"]
+        feed_row_count += 1
+    return row_count, treat_row_count, feed_row_count, end_date
 
 
 def generate_facility_tank_report(facic_id):
@@ -128,11 +140,7 @@ def generate_facility_tank_report(facic_id):
             ws['C' + str(row_count)].value = cnt
             ws['D' + str(row_count)].value = str(', '.join(set(year_coll_set)))
 
-            feed_qs = item.cont_feed()
-            feed_str = ""
-            for feed in feed_qs:
-                feed_str += "#{} {}, ".format(feed.amt, feed.feedc_id.name)
-
+            feed_str = item.cont_feed(get_string=True)
             ws['E' + str(row_count)].value = feed_str
 
             row_count += 1
@@ -221,7 +229,7 @@ def generate_stock_code_report(stok_id, coll_id, year, start_date=datetime.min, 
     return report.target_url
 
 
-def generate_morts_report(facic_id=None, prog_id=None, stok_id=None, year=None, coll_id=None, start_date=utils.naive_to_aware(datetime.min),
+def generate_morts_report(request, facic_id=None, prog_id=None, stok_id=None, year=None, coll_id=None, start_date=utils.naive_to_aware(datetime.min),
                           end_date=utils.naive_to_aware(datetime.now())):
     # report is given some filter criteria, returns all dead fish details.
     report = ExcelReport()
@@ -288,6 +296,9 @@ def generate_morts_report(facic_id=None, prog_id=None, stok_id=None, year=None, 
         ws_indv['I' + str(row_count)].value = indv_id.individual_detail("Length", before_date=mort_date)
         ws_indv['J' + str(row_count)].value = indv_id.individual_detail("Weight", before_date=mort_date)
         ws_indv['K' + str(row_count)].value = indv_id.individual_evnt_details(indvd.anix_id.evnt_id)
+        ws_indv['L' + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_indv",
+                                                                                 args=[indv_id.id]))
+
         row_count += 1
 
     row_count = 3
@@ -304,7 +315,9 @@ def generate_morts_report(facic_id=None, prog_id=None, stok_id=None, year=None, 
         ws_samp['H' + str(row_count)].value = mort_date
         ws_samp['I' + str(row_count)].value = samp_id.sample_detail("Length", before_date=mort_date)
         ws_samp['J' + str(row_count)].value = samp_id.sample_detail("Weight", before_date=mort_date)
-        ws_samp['J' + str(row_count)].value = samp_id.comments
+        ws_samp['K' + str(row_count)].value = samp_id.comments
+        ws_samp['L' + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_samp",
+                                                                                 args=[samp_id.id]))
         row_count += 1
 
     row_count = 3
@@ -320,6 +333,8 @@ def generate_morts_report(facic_id=None, prog_id=None, stok_id=None, year=None, 
         ws_grp['G' + str(row_count)].value = mort_date
         ws_grp['H' + str(row_count)].value = grpd.anix_id.samp_detail("Length")
         ws_grp['I' + str(row_count)].value = grpd.anix_id.samp_detail("Weight")
+        ws_grp['J' + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_grp",
+                                                                                 args=[grp_id.id]))
         row_count += 1
 
     report.save_wb()
@@ -632,7 +647,7 @@ def generate_individual_report(indv_id):
     contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
     cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
     row_count = 5
-    row_count, treat_row_count, treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, row_count)
+    row_count, treat_row_count, treat_end_date, feed_row_count = cont_treat_feed_writer(ws_cont, cont_evnt_list, row_count, row_count, row_count)
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
@@ -640,7 +655,7 @@ def generate_individual_report(indv_id):
             start_date = utils.naive_to_aware(grp_id.start_date())
             end_date = utils.naive_to_aware(grp_tuple[2])
             cont_evnt_list = grp_id.get_cont_history(start_date=start_date, end_date=end_date)
-            treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, end_date=treat_end_date)[2]
+            treat_end_date = cont_treat_feed_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, feed_row_count, end_date=treat_end_date)[2]
 
     # -----------------Details Sheet------------------------
     indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=indv_id).distinct(). \
@@ -739,7 +754,7 @@ def generate_grp_report(grp_id):
     # -----------------Container Sheet------------------------
     cont_evnt_list = grp_id.get_cont_history()
     row_count = 5
-    row_count, treat_row_count, treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, row_count)
+    row_count, treat_row_count, treat_end_date, feed_row_count = cont_treat_feed_writer(ws_cont, cont_evnt_list, row_count, row_count, row_count)
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
@@ -747,7 +762,7 @@ def generate_grp_report(grp_id):
             start_date = utils.naive_to_aware(grp_id.start_date())
             end_date = utils.naive_to_aware(grp_tuple[2])
             cont_evnt_list = grp_id.get_cont_history(end_date=end_date, start_date=start_date)
-            treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count)[2]
+            treat_end_date = cont_treat_feed_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, feed_row_count)[2]
 
     report.save_wb()
 
@@ -786,6 +801,46 @@ def generate_samples_report(request, prog_id, facic_id, stok_id, coll_id, year, 
     fill_samples_sheet(request, report, ws_vials, "Vial", prog_id, facic_id, stok_id, coll_id, year, start_date, end_date)
     fill_samples_sheet(request, report, ws_tissue, "Tissue Sample", prog_id, facic_id, stok_id, coll_id, year, start_date, end_date)
     fill_samples_sheet(request, report, ws_scale, "Scale Envelope", prog_id, facic_id, stok_id, coll_id, year, start_date, end_date)
+
+    return report.target_url
+
+
+def generate_events_report(request, prog_id, facic_id, start_date, end_date):
+    report = ExcelReport()
+    report.load_wb("events_report_template.xlsx")
+    ws = report.get_sheet('Events')
+
+    evnt_qs = models.Event.objects.all()
+    if prog_id:
+        evnt_qs = evnt_qs.filter(prog_id=prog_id)
+    if facic_id:
+        evnt_qs = evnt_qs.filter(facic_id=facic_id)
+    if start_date:
+        evnt_qs = evnt_qs.filter(start_datetime__gte=start_date)
+    if end_date:
+        evnt_qs = evnt_qs.filter(start_datetime__lte=end_date)
+
+    evnt_qs = evnt_qs.select_related("evntc_id", "prog_id", "facic_id")
+
+    row_count = 3
+    for evnt_id in evnt_qs:
+        ws["A" + str(row_count)].value = evnt_id.evntc_id.__str__()
+        ws["B" + str(row_count)].value = evnt_id.start_datetime
+        ws["C" + str(row_count)].value = evnt_id.end_datetime
+        ws["D" + str(row_count)].value = evnt_id.prog_id.__str__()
+        ws["E" + str(row_count)].value = evnt_id.facic_id.__str__()
+        ws["F" + str(row_count)].value = evnt_id.created_date
+        ws["G" + str(row_count)].value = evnt_id.perc_id.__str__()
+
+        indv_cnt = models.AniDetailXref.objects.filter(evnt_id=evnt_id, indv_id__isnull=False).values("indv_id").distinct().count()
+        grp_cnt = models.AniDetailXref.objects.filter(evnt_id=evnt_id, grp_id__isnull=False).values("indv_id").distinct().count()
+        ws["H" + str(row_count)].value = indv_cnt
+        ws["I" + str(row_count)].value = grp_cnt
+        ws["J" + str(row_count)].value = evnt_id.comments
+        ws["K" + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_evnt", args=[evnt_id.id]))
+        row_count += 1
+
+    report.save_wb()
 
     return report.target_url
 

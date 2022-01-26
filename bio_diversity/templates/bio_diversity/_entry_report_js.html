@@ -23,40 +23,46 @@
         $("#id_adsc_id").parent().hide();
         $("#id_indv_id").parent().hide();
         $("#id_grp_id").parent().hide();
-        if ( reportType==1 ) {
+        if ( reportType=="facic_tank_rep" ) {
             $("#id_facic_id").parent().show();
         }
-        else if (reportType==2) {
+        else if (reportType=="rive_code_rep") {
             $("#id_stok_id").parent().show();
             $("#id_coll_id").parent().show();
             $("#id_year").parent().show();
             $("#id_start_date").parent().show();
             $("#id_end_date").parent().show();
         }
-        else if (reportType==3) {
+        else if (reportType=="det_rep") {
             $("#id_prog_id").parent().show();
             $("#id_stok_id").parent().show();
             $("#id_adsc_id").parent().show();
         }
-        else if (reportType==4) {
+        else if (reportType=="indv_rep") {
             $("#id_indv_id").parent().show();
         }
-        else if (reportType==5) {
+        else if (reportType=="grp_rep") {
             $("#id_grp_id").parent().show();
         }
-        else if (reportType==6) {
+        else if (reportType=="mort_rep") {
             $("#id_facic_id").parent().show();
             $("#id_prog_id").parent().show();
             $("#id_coll_id").parent().show();
             $("#id_stok_id").parent().show();
             $("#id_year").parent().show();
         }
-        else if (reportType==8) {
+        else if (reportType=="samp_rep") {
             $("#id_facic_id").parent().show();
             $("#id_prog_id").parent().show();
             $("#id_coll_id").parent().show();
             $("#id_stok_id").parent().show();
             $("#id_year").parent().show();
+            $("#id_start_date").parent().show();
+            $("#id_end_date").parent().show();
+        }
+        else if (reportType=="evnt_rep") {
+            $("#id_facic_id").parent().show();
+            $("#id_prog_id").parent().show();
             $("#id_start_date").parent().show();
             $("#id_end_date").parent().show();
         }
