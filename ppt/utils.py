@@ -804,15 +804,14 @@ def prime_csas_activities(project_year, starting_date, meeting_duration, has_sr_
     ]
 
     activities.reverse()  # we will start with the last activity and move back in time
-
     i = 0
     for a_dict in activities:
         if i == 0:
             end = starting_date  # finishes at the starting date
-            start = starting_date - timedelta(days=a_dict["duration"])
+            start = starting_date - timedelta(days=meeting_duration)
         else:
             end = start
-            start = end - timedelta(days=meeting_duration)
+            start = end - timedelta(days=a_dict["duration"])
 
         a = models.Activity.objects.create(
             project_year=project_year,
@@ -871,10 +870,10 @@ def prime_csas_activities(project_year, starting_date, meeting_duration, has_sr_
             for a_dict in child_list:
                 if i == 0:
                     start = starting_date  # starts at the starting date
-                    end = starting_date + timedelta(days=a_dict["duration"])
+                    end = starting_date + timedelta(days=meeting_duration)
                 else:
                     start = end
-                    end = start + timedelta(days=meeting_duration)
+                    end = start + timedelta(days=a_dict["duration"])
 
                 a = models.Activity.objects.create(
                     project_year=project_year,

@@ -282,7 +282,7 @@ class ProcessViewSet(viewsets.ModelViewSet):
             starting_date = process.advice_date
             # start with the assumption of a 2-day meeting
             meeting_duration = 2
-            if process.meetings.exists() and process.meetings:
+            if process.meetings.filter(is_planning=False).exists():
                 last_meeting = process.meetings.filter(is_planning=False).last()
                 # use the actual meeting length
                 meeting_duration = last_meeting.length_days
