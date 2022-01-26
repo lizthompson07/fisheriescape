@@ -893,14 +893,15 @@ def prime_csas_activities(project_year, starting_date, meeting_duration, has_sr_
 
     # now we have to figure out the dates of the parents
     for a_dict in parent_activities:
-        a = models.Activity.objects.get(
-            project_year=project_year,
-            name=a_dict["name"],
-            type=a_dict["type"],
-        )
-        children = a.children.order_by("target_start_date")
-        start = children.first().target_start_date
-        end = children.last().target_date
-        a.target_start_date = start
-        a.target_date = end
-        a.save()
+        if a_dict:
+            a = models.Activity.objects.get(
+                project_year=project_year,
+                name=a_dict["name"],
+                type=a_dict["type"],
+            )
+            children = a.children.order_by("target_start_date")
+            start = children.first().target_start_date
+            end = children.last().target_date
+            a.target_start_date = start
+            a.target_date = end
+            a.save()
