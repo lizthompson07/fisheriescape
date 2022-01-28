@@ -36,7 +36,7 @@ request_status_choices = (
 )
 
 request_decision_choices = (
-    (1, _("Screen in")),
+    (1, _("Screen-in")),
     (2, _("Return to client")),
     (3, _("Re-scope")),
 )
