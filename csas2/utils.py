@@ -285,8 +285,8 @@ def can_modify_tor(user, tor_id, return_as_dict=False):
         elif in_csas_web_pub_group(user):
             my_dict["reason"] = _("You can modify this record because you are a NCR web & pub staff member")
             my_dict["can_modify"] = True
-        # if the tor is not submitted OR if the tor is AWAITING CHANGES, we can default back to the can_modify_process rules
-        elif not tor.submission_date or tor.status == 30:
+        # if the tor is not POSTED or AWAITING POSTING, we can default back to the can_modify_process rules
+        elif tor.status not in [40, 50]:
             d = can_modify_process(user, process.id, True)
             my_dict["reason"] = d["reason"]
             my_dict["can_modify"] = d["can_modify"]
