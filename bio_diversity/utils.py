@@ -1250,7 +1250,7 @@ def enter_feed(cleaned_data, contx_id, feedc_id, feedm_id, amt, comments=None, f
                           amt=amt,
                           freq=freq,
                           unit_id=models.UnitCode.objects.filter(name="Feed Size").get(),
-                          comments=comments,
+                          comments=nan_to_none(comments),
                           created_by=cleaned_data["created_by"],
                           created_date=cleaned_data["created_date"],
                           )

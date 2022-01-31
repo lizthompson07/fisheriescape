@@ -149,6 +149,9 @@ class DistributionParser(DataParser):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.prog_key], "Program Group",
                                                     row[self.prog_key])
 
+        if utils.nan_to_none(row.get(self.mark_key)):
+            self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.mark_key], "Mark", row[self.mark_key])
+
         if utils.nan_to_none(row.get(self.len_key)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.len_key], self.len_anidc_id.name)
 
@@ -203,6 +206,7 @@ class DistributionIndvParser(DataParser):
     temp_key = "River Temp"
     truck_temp = "Truck Temp"
     acclimation_key = "Acclimation Time (mins)"
+    mark_key = "Mark"
     lifestage_key = "Lifestage"
     len_key = "Len (cm)"
     len_key_mm = "Len (mm)"
@@ -314,7 +318,8 @@ class DistributionIndvParser(DataParser):
                                                    weight=row.get(self.weight_key),
                                                    weight_kg=row.get(self.weight_key_kg),
                                                    vial=row.get(self.vial_key),
-                                                   tissue_yn=row.get(self.tissue_key)
+                                                   tissue_yn=row.get(self.tissue_key),
+                                                   mark=row.get(self.mark_key),
                                                    )
 
         if utils.nan_to_none(row.get(self.lifestage_key)):

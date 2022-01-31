@@ -70,8 +70,8 @@ class SitesParser(DataParser):
             site_id.clean()
             site_id.save()
             self.row_entered = True
-        except (IntegrityError, ValidationError):
-            self.log_data += "Row {} not entered. \n".format(self.row_count)
+        except (IntegrityError, ValidationError) as err:
+            self.log_data += "Row {} not entered. \n {} \n".format(self.row_count, err)
         self.row_count += 1
 
 

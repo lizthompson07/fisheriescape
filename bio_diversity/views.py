@@ -3431,6 +3431,7 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 arg_str += f"&start_date={form.cleaned_data['start_date']}"
             if form.cleaned_data["end_date"]:
                 arg_str += f"&end_date={form.cleaned_data['end_date']}"
+            return HttpResponseRedirect(reverse("bio_diversity:samples_report_file"))
         elif report == "evnt_rep":
             facic_pk = int(form.cleaned_data["facic_id"].pk)
             arg_str = f"?facic_pk={facic_pk}"
@@ -3441,9 +3442,7 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 arg_str += f"&start_date={form.cleaned_data['start_date']}"
             if form.cleaned_data["end_date"]:
                 arg_str += f"&end_date={form.cleaned_data['end_date']}"
-
             return HttpResponseRedirect(reverse("bio_diversity:events_report_file") + arg_str)
-
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("bio_diversity:reports"))
