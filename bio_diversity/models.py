@@ -232,7 +232,7 @@ class BioTimeModel(BioModel):
 
     @property
     def start_time(self):
-        if self.start_datetime.time() == datetime.min.time():
+        if self.start_datetime.time() == utils.aware_min():
             return None
         return self.start_datetime.time().strftime("%H:%M")
 
@@ -246,7 +246,7 @@ class BioTimeModel(BioModel):
     @property
     def end_time(self):
         if self.end_datetime:
-            if self.end_datetime.time() == datetime.min.time():
+            if self.end_datetime.time() == utils.aware_min():
                 return None
             return self.end_datetime.time().strftime("%H:%M")
         else:
@@ -262,7 +262,7 @@ class BioCont(BioLookup):
     # Make name not unique, is unique together with facility code.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"), db_column="NAME")
 
-    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=None, get_grp=False):
+    def fish_in_cont(self, at_date=timezone.now(), select_fields=None, get_grp=False):
         indv_list = []
         grp_list = []
 
@@ -302,7 +302,7 @@ class BioCont(BioLookup):
     def degree_days(self, start_date, end_date):
         return []
 
-    def cont_feed(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), get_string=False):
+    def cont_feed(self, at_date=timezone.now(), get_string=False):
         feed_contx = self.contxs.filter(evnt_id__evntc_id__name="Feeding", evnt_id__start_datetime__lte=at_date).order_by("-evnt_id__start_datetime").first()
         if get_string:
             if feed_contx:
@@ -313,7 +313,7 @@ class BioCont(BioLookup):
         else:
             return feed_contx
 
-    def feed_history(self, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now())):
+    def feed_history(self, start_date=utils.aware_min(), end_date=timezone.now()):
         oldest_contx = self.cont_feed(at_date=start_date)
         feed_contx = self.contxs.filter(evnt_id__evntc_id__name="Feeding", evnt_id__start_datetime__gte=start_date,
                                         evnt_id__start_datetime__lte=end_date).order_by("-evnt_id__start_datetime")
@@ -322,7 +322,7 @@ class BioCont(BioLookup):
             contx_list.append(oldest_contx)
         return contx_list
 
-    def cont_treatments(self, start_date=utils.naive_to_aware(datetime.now()), end_date=utils.naive_to_aware(datetime.now())):
+    def cont_treatments(self, start_date=utils.aware_min(), end_date=timezone.now()):
         filter_arg = "contx_id__{}_id".format(self.key)
         envt_qs = EnvTreatment.objects.filter(**{filter_arg: self}, start_datetime__gte=start_date, start_datetime__lte=end_date)
         return envt_qs
@@ -1011,10 +1011,10 @@ class Group(BioModel):
     def __str__(self):
         return "{}-{}-{}-{}".format(self.pk, self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
 
-    def current_tank(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_tank(self, at_date=timezone.now()):
         return self.current_cont_by_key('tank', at_date)
 
-    def current_cont_by_key(self, cont_key, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_cont_by_key(self, cont_key, at_date=timezone.now()):
         cont_list = []
 
         anix_in_set = self.animal_details.filter(final_contx_flag=True,
@@ -1036,7 +1036,7 @@ class Group(BioModel):
     def current_trof(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
         return self.current_cont_by_key('trof', at_date)
 
-    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), valid_only=True, get_string=False):
+    def current_cont(self, at_date=timezone.now(), valid_only=True, get_string=False):
         current_cont_list = []
         if not self.grp_valid and valid_only:
             if get_string:
@@ -1051,7 +1051,7 @@ class Group(BioModel):
             return cont_str
         return current_cont_list
 
-    def get_cont_history(self, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now()), get_str=False):
+    def get_cont_history(self, start_date=utils.aware_min(), end_date=timezone.now(), get_str=False):
         anix_evnt_set = AniDetailXref.objects.filter(grp_id=self, contx_id__isnull=False, loc_id__isnull=True,
                                                      pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
                                                      evnt_id__start_datetime__gte=start_date).select_related("contx_id")
@@ -1064,7 +1064,7 @@ class Group(BioModel):
 
         return out_list
 
-    def current_feed(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_feed(self, at_date=timezone.now()):
         cont_list = self.current_cont(at_date=at_date)
         if len(cont_list) == 1:
             feed_str = cont_list[0].cont_feed(at_date=at_date, get_string=True)
@@ -1092,7 +1092,7 @@ class Group(BioModel):
                 fish_count = cnt.cnt
         return fish_count
 
-    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=[], grp_select_fields=[]):
+    def fish_in_cont(self, at_date=timezone.now(), select_fields=[], grp_select_fields=[]):
         indv_set = Individual.objects.filter(grp_id=self).select_related(*select_fields)
         # for consistancy with container version:
         indv_list = [indv for indv in indv_set]
@@ -1104,9 +1104,9 @@ class Group(BioModel):
 
         return indv_list, grp_list
 
-    def get_development(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def get_development(self, at_date=timezone.now()):
         dev = 0
-        start_date = utils.naive_to_aware(datetime.min).date()
+        start_date = utils.aware_min().date()
         dev_qs = GroupDet.objects.filter(anix_id__grp_id=self, grpd_valid=True, anidc_id__name="Development")
         if len(dev_qs) == 1:
             dev = float(dev_qs[0] .det_val)
@@ -1139,7 +1139,7 @@ class Group(BioModel):
 
         return utils.round_no_nan(dev, 5)
 
-    def get_parent_grp(self, at_date=utils.naive_to_aware(datetime.now())):
+    def get_parent_grp(self, at_date=timezone.now()):
         # gets parent groups this group came from.
         grpd_set = GroupDet.objects.filter(anix_id__grp_id=self,
                                            anidc_id__name="Parent Group",
@@ -1202,7 +1202,7 @@ class Group(BioModel):
         else:
             return None
 
-    def avg_weight(self, at_date=utils.naive_to_aware(datetime.now())):
+    def avg_weight(self, at_date=timezone.now()):
         # INCORPORATE SAMPLE DETS!
         weight_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Weight", detail_date__lte=at_date)
         if not weight_deps:
@@ -1213,7 +1213,7 @@ class Group(BioModel):
         avg_weight = last_obs_set.aggregate(Avg('det_val'))["det_val__avg"]
         return avg_weight
 
-    def avg_len(self, at_date=utils.naive_to_aware(datetime.now())):
+    def avg_len(self, at_date=timezone.now()):
         len_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Length", detail_date__lte=at_date)
         if not len_deps:
             return ""
@@ -1427,10 +1427,10 @@ class Individual(BioModel):
     def stok_year_coll_str(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__())
 
-    def current_tank(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_tank(self, at_date=timezone.now()):
         return self.current_cont_by_key('tank', at_date)
 
-    def current_cont_by_key(self, cont_key, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_cont_by_key(self, cont_key, at_date=timezone.now()):
         cont_list = []
 
         anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date).select_related('contx_id__{}_id'.format(cont_key))
@@ -1445,7 +1445,7 @@ class Individual(BioModel):
                 cont_list.append(cont)
         return cont_list
 
-    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), valid_only=False, get_string=False):
+    def current_cont(self, at_date=timezone.now(), valid_only=False, get_string=False):
         current_cont_list = []
         if not self.indv_valid and valid_only:
             if get_string:
@@ -1460,7 +1460,7 @@ class Individual(BioModel):
             return cont_str
         return current_cont_list
 
-    def current_feed(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_feed(self, at_date=timezone.now()):
         cont_list = self.current_cont(at_date=at_date)
         if len(cont_list) == 1:
             feed_str = cont_list[0].cont_feed(at_date=at_date, get_string=True)
@@ -1483,7 +1483,7 @@ class Individual(BioModel):
         else:
             return None
 
-    def individual_detail(self, anidc_name="Length", before_date=datetime.now().replace(tzinfo=pytz.UTC), evnt_id=None):
+    def individual_detail(self, anidc_name="Length", before_date=timezone.now(), evnt_id=None):
         if evnt_id:
             latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
                                                         detail_date__lte=before_date,
@@ -1496,7 +1496,7 @@ class Individual(BioModel):
         else:
             return None
 
-    def individual_subj_detail(self, anidc_name="Animal Health", before_date=datetime.now().replace(tzinfo=pytz.UTC), evnt_id=None):
+    def individual_subj_detail(self, anidc_name="Animal Health", before_date=timezone.now(), evnt_id=None):
         if evnt_id:
             latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
                                                         detail_date__lte=before_date, anix_id__evnt_id=evnt_id,
@@ -1675,7 +1675,7 @@ class Location(BioModel):
 
     @property
     def start_time(self):
-        if self.loc_date.time() == datetime.min.time():
+        if self.loc_date.time() == utils.aware_min().time():
             return None
         return self.loc_date.time().strftime("%H:%M")
 
@@ -1736,7 +1736,7 @@ class Location(BioModel):
                 raise ValidationError("Longitude must be within maritimes (<{}). "
                                       "Should this value be negative?".format(calculation_constants.max_long))
 
-    def get_cont_history(self, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now()), get_str=False):
+    def get_cont_history(self, start_date=utils.aware_min(), end_date=timezone.now(), get_str=False):
         anix_evnt_set = AniDetailXref.objects.filter(loc_id=self, contx_id__isnull=False, grp_id__isnull=True,
                                                      pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
                                                      evnt_id__start_datetime__gte=start_date).select_related("contx_id")
@@ -2138,7 +2138,7 @@ class Sample(BioModel):
                 return ""
         return cont
 
-    def sample_detail(self, anidc_name="Length", before_date=datetime.now().replace(tzinfo=pytz.UTC), evnt_id=None):
+    def sample_detail(self, anidc_name="Length", before_date=timezone.now(), evnt_id=None):
         if evnt_id:
             latest_sampd = SampleDet.objects.filter(anidc_id__name__icontains=anidc_name, samp_id=self,
                                                     detail_date__lte=before_date, samp_id__anix_id__evnt_id=evnt_id).order_by("-detail_date").first()

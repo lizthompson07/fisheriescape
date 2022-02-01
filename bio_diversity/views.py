@@ -3361,7 +3361,10 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
 
         if report == "facic_tank_rep":
             facic_pk = int(form.cleaned_data["facic_id"].pk)
-            return HttpResponseRedirect(reverse("bio_diversity:facic_tank_report") + f"?facic_pk={facic_pk}")
+            arg_str = ""
+            if form.cleaned_data["start_date"]:
+                arg_str += f"&at_date={form.cleaned_data['start_date']}"
+            return HttpResponseRedirect(reverse("bio_diversity:facic_tank_report") + f"?facic_pk={facic_pk}" + arg_str)
         elif report == "rive_code_rep":
             stok_pk = int(form.cleaned_data["stok_id"].pk)
 
@@ -3451,9 +3454,12 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
 @login_required()
 def facility_tank_report(request):
     facic_pk = request.GET.get("facic_pk")
+    at_date = request.GET.get("at_date")
+    if not at_date:
+        at_date = timezone.now()
     file_url = None
     if facic_pk:
-        file_url = reports.generate_facility_tank_report(facic_pk)
+        file_url = reports.generate_facility_tank_report(request, facic_pk, at_date=at_date)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -3468,12 +3474,12 @@ def facility_tank_report(request):
 def stock_code_report(request):
     start_date = request.GET.get("start_date")
     if not start_date:
-        start_date = utils.naive_to_aware(datetime.min)
+        start_date = utils.aware_min()
     else:
         start_date = utils.naive_to_aware(datetime.strptime(start_date, "%Y-%m-%d"))
     end_date = request.GET.get("end_date")
     if not end_date:
-        end_date = utils.naive_to_aware(datetime.now())
+        end_date = timezone.now()
     else:
         end_date = utils.naive_to_aware(datetime.strptime(end_date, "%Y-%m-%d"))
 
@@ -3600,12 +3606,12 @@ def system_code_report_file(request):
 def samples_report_file(request):
     start_date = request.GET.get("start_date")
     if not start_date:
-        start_date = utils.naive_to_aware(datetime.min)
+        start_date = utils.aware_min()
     else:
         start_date = utils.naive_to_aware(datetime.strptime(start_date, "%Y-%m-%d"))
     end_date = request.GET.get("end_date")
     if not end_date:
-        end_date = utils.naive_to_aware(datetime.now())
+        end_date = timezone.now()
     else:
         end_date = utils.naive_to_aware(datetime.strptime(end_date, "%Y-%m-%d"))
 
@@ -3631,12 +3637,12 @@ def samples_report_file(request):
 def events_report_file(request):
     start_date = request.GET.get("start_date")
     if not start_date:
-        start_date = utils.naive_to_aware(datetime.min)
+        start_date = utils.aware_min()
     else:
         start_date = utils.naive_to_aware(datetime.strptime(start_date, "%Y-%m-%d"))
     end_date = request.GET.get("end_date")
     if not end_date:
-        end_date = utils.naive_to_aware(datetime.now())
+        end_date = timezone.now()
     else:
         end_date = utils.naive_to_aware(datetime.strptime(end_date, "%Y-%m-%d"))
 

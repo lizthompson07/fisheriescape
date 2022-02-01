@@ -6,6 +6,7 @@ import math
 
 import numpy as np
 from django.db.models import Q
+from django.utils import timezone
 from pandas import read_excel
 import pytz
 from django.core.exceptions import ValidationError, MultipleObjectsReturned, ObjectDoesNotExist
@@ -215,6 +216,10 @@ def get_help_text_dict(model=None, title=''):
             my_dict[obj.field_name] = str(obj)
 
     return my_dict
+
+
+def aware_min():
+    return timezone.make_aware(timezone.datetime.min)
 
 
 def team_list_splitter(team_str, valid_only=True):
@@ -559,7 +564,7 @@ def get_draw_from_dot(dot_string, cleaned_data):
         return
 
 
-def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().replace(tzinfo=pytz.UTC), prog_grp=None,
+def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=timezone.now(), prog_grp=None,
             prog_str=None, grp_mark=None, mark_str=None, fail_on_not_found=False):
 
     if nan_to_none(prog_str):
@@ -1192,7 +1197,7 @@ def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual
 
 
 def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=None, contx=None, inst_id=None,
-              env_time=datetime.min.time(), avg=False, save=True, qual_id=False):
+              env_time=aware_min().time(), avg=False, save=True, qual_id=False):
     row_entered = False
     if not nan_to_none(env_value):
         return False
@@ -2039,7 +2044,7 @@ def naive_to_aware(naive_date, naive_time=datetime.min.time()):
     # adds null time and timezone to dates
     if not nan_to_none(naive_time):
         naive_time = datetime.min.time()
-    return datetime.combine(naive_date, naive_time).replace(tzinfo=pytz.UTC)
+    return timezone.make_aware(datetime.combine(naive_date, naive_time))
 
 
 def nan_to_none(test_item):

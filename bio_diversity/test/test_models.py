@@ -1,6 +1,7 @@
 from datetime import timedelta
 from decimal import Decimal
 
+from django.utils import timezone
 from django.test import tag
 from datetime import datetime, timedelta
 from bio_diversity.test import BioFactoryFloor
@@ -17,7 +18,7 @@ class TestGrpModel(CommonTest):
         self.grp = BioFactoryFloor.GrpFactory()
         self.trof = BioFactoryFloor.TrofFactory(name='-1')
         self.trof_two = BioFactoryFloor.TrofFactory(name='-2', facic_id=self.trof.facic_id)
-        self.evnt_date = utils.naive_to_aware(datetime.today() - timedelta(days=100))
+        self.evnt_date = timezone.now() - timedelta(days=100)
         self.evnt = BioFactoryFloor.EvntFactory(start_datetime=self.evnt_date, facic_id=self.trof.facic_id)
         self.cleaned_data = {
             "facic_id": self.evnt.facic_id,
