@@ -3457,6 +3457,8 @@ def facility_tank_report(request):
     at_date = request.GET.get("at_date")
     if not at_date:
         at_date = timezone.now()
+    else:
+        at_date = utils.naive_to_aware(datetime.strptime(at_date, "%Y-%m-%d"))
     file_url = None
     if facic_pk:
         file_url = reports.generate_facility_tank_report(request, facic_pk, at_date=at_date)

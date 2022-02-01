@@ -141,7 +141,7 @@ def generate_facility_tank_report(request, facic_id, at_date=timezone.now()):
             ws['C' + str(row_count)].value = cnt
             ws['D' + str(row_count)].value = str(', '.join(set(year_coll_set)))
 
-            feed_str = item.cont_feed(get_string=True)
+            feed_str = item.cont_feed(get_string=True, at_date=at_date)
             ws['E' + str(row_count)].value = feed_str
             cont_url =  "bio_diversity:details_" + cont_code
             ws['F' + str(row_count)].value = request.build_absolute_uri(reverse(cont_url, args=[item.id]))
