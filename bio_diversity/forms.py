@@ -9,6 +9,7 @@ from django.forms import modelformset_factory
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from bio_diversity.data_parsers.calibration import CalibrationParser
 from bio_diversity.data_parsers.containers import TroughParser, HeathUnitParser, TankParser
 from bio_diversity.data_parsers.distributions import DistributionIndvParser, DistributionParser
 from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser, \
@@ -381,6 +382,11 @@ class DataForm(CreatePrams):
             # ---------------------------WATER QUALITY----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Water Quality Record":
                 parser = WaterQualityParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
+
+            # ---------------------------CALIBRATION----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Calibration":
+                parser = CalibrationParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
             # ---------------------------MASTER----------------------------------------

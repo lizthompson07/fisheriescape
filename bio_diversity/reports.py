@@ -153,6 +153,58 @@ def generate_facility_tank_report(request, facic_id, at_date=timezone.now()):
     return report.target_url
 
 
+def fill_calibration_template(facic_id):
+    report = ExcelReport()
+    report.template_dir = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "data_templates")
+
+    template_filename = "{}_calibration.xlsx".format(facic_id.name.lower())
+    report.load_wb(template_filename)
+
+    tank_qs = models.Tank.objects.filter(facic_id=facic_id).order_by('name')
+    tray_qs = models.Tray.objects.filter(trof_id__facic_id=facic_id, end_date__isnull=True).order_by(Concat('trof_id__name', 'name'))
+
+    draw_qs = models.Drawer.objects.filter(heat_id__facic_id=facic_id).order_by(Concat('heat_id__name', 'name'))
+    cup_qs = models.Cup.objects.filter(draw_id__heat_id__facic_id=facic_id, end_date__isnull=True).order_by(
+        Concat('draw_id__heat_id__name', 'draw_id__name', 'name'))
+
+    qs_list = [("Tank", tank_qs, "tank"), ("Trough", tray_qs, "tray"), ("Drawer", draw_qs, "draw"), ("Cup", cup_qs, "cup")]
+
+    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
+    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
+
+    for sheet_name, qs, cont_code in qs_list:
+        ws = report.copy_template(sheet_name)
+
+        # start writing data at row 3 in the sheet
+        row_count = 3
+        for item in qs:
+            indv_list, grp_list = item.fish_in_cont(select_fields=["indv_id__grp_id__stok_id",
+                                                                   "indv_id__grp_id__coll_id"])
+
+            if not grp_list:
+                ws['A' + str(row_count)].value = item.__str__()
+                if indv_list:
+                    if indv_list:
+                        ws['B' + str(row_count)].value = len(indv_list)
+                        year_coll_set = set([indv.stok_year_coll_str() for indv in indv_list])
+                        ws['D' + str(row_count)].value = str(', '.join(set(year_coll_set)))
+                row_count += 1
+
+            for grp in grp_list:
+                ws['A' + str(row_count)].value = item.__str__()
+                if indv_list:
+                    ws['B' + str(row_count)].value = len(indv_list)
+                ws['C' + str(row_count)].value = grp.count_fish_in_group()
+                ws['D' + str(row_count)].value = grp.__str__()
+                ws['E' + str(row_count)].value = grp.pk
+
+                row_count += 1
+
+    report.save_wb()
+
+    return report.target_url
+
+
 def generate_stock_code_report(stok_id, coll_id, year, start_date=utils.aware_min(), end_date=timezone.now()):
     # report is given a stock code and returns location of all associated fish
     report = ExcelReport()

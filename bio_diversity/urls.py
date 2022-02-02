@@ -385,6 +385,7 @@ urlpatterns = [
     
     path('create/repr/', views.ReportFormView.as_view(), name="create_repr"),
     path('reports/facility_tank_report/', views.facility_tank_report, name="facic_tank_report"),
+    path('reports/calibration_template_file/', views.calibration_template, name="calibration_template_file"),
     path('reports/stock_code_report/', views.stock_code_report, name="stock_code_report"),
     path('reports/detail_report/', views.detail_report, name="detail_report"),
     path('reports/site_report_file/', views.site_report_file, name="site_report_file"),

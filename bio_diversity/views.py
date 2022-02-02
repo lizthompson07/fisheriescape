@@ -332,6 +332,9 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             elif evntc.__str__() in ["Feeding"]:
                 self.get_form_class().base_fields["data_type"].required = False
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
+            elif evntc.__str__() in ["Calibration"]:
+                self.get_form_class().base_fields["data_type"].required = False
+                self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
             else:
                 self.get_form_class().base_fields["data_type"].required = True
                 data_types = ((None, "---------"), ('Individual', 'Individual'), ('Untagged', 'Untagged'),
@@ -379,6 +382,11 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             elif evnt_code in ["mortality", "movement"]:
                 template_url = None
                 allow_entry = False
+            elif evnt_code in ["calibration"]:
+                facic_id = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id
+                report_file_url = reports.fill_calibration_template(facic_id)
+                template_url = ""
+                context["filled_template_url"] = reverse("bio_diversity:calibration_template_file") + f"?file_url={report_file_url}"
             else:
                 template_url = 'data_templates/measuring.xlsx'
             template_name = "{}-{}".format(facility_code, evnt_code)
@@ -3468,6 +3476,18 @@ def facility_tank_report(request):
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="dmapps facility tank report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
 
+            return response
+    raise Http404
+
+
+@login_required()
+def calibration_template(request):
+    file_url = request.GET.get("file_url")
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response[
+                'Content-Disposition'] = f'inline; filename="calibration_template_{timezone.now().strftime("%Y-%m-%d")}.xlsx"'
             return response
     raise Http404
 
