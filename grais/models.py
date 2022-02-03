@@ -284,7 +284,7 @@ class Line(MetadataFields, LatLongFields):
 
     @property
     def species_list(self):
-        if Species.objects.filter(surface_spp__surface__line=self).exists()
+        if Species.objects.filter(surface_spp__surface__line=self).exists():
             return mark_safe(listrify(Species.objects.filter(surface_spp__surface__line=self).distinct(), "<br>"))
         return "n/a"
 
