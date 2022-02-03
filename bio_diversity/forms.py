@@ -229,7 +229,7 @@ class CntForm(CreatePrams):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['contx_id'].widget = forms.HiddenInput()
+        self.fields['anix_id'].widget = forms.HiddenInput()
 
 
 class CntcForm(CreatePrams):
@@ -708,10 +708,11 @@ class FishToContForm(forms.Form):
                               )
 
         # fish into tank contx
-        contx, entered = utils.enter_contx(self.cont, cleaned_data, True, grp_pk=grp_id.pk, return_contx=True)
+        contx, entered = utils.enter_contx(self.cont, cleaned_data, return_contx=True)
+        anix, entered = utils.enter_anix(cleaned_data, final_flag=True, grp_pk=grp_id.pk)
 
         # cnt:
-        utils.enter_cnt(cleaned_data, cleaned_data["num_fish"], contx_pk=contx.pk)
+        utils.enter_cnt(cleaned_data, cleaned_data["num_fish"], anix_pk=anix.pk)
         return cleaned_data
 
 

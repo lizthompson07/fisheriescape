@@ -1,5 +1,4 @@
 from django.core.exceptions import ValidationError
-import pandas as pd
 from django.db import IntegrityError
 
 from bio_diversity import models
@@ -150,8 +149,7 @@ class ElectrofishingParser(DataParser):
 
             # grp found, assign to all rows:
             self.data.loc[data_rows, "grp_id"] = grp
-            contx, data_entered = utils.enter_tank_contx(row[self.tank_key], cleaned_data, True, None, grp.pk,
-                                                         return_contx=True)
+            contx, data_entered = utils.enter_tank_contx(row[self.tank_key], cleaned_data, return_contx=True)
             self.data.loc[data_rows, "contx_id"] = contx
 
         self.data_dict = self.data.to_dict("records")
@@ -198,9 +196,15 @@ class ElectrofishingParser(DataParser):
                                                  relc_id=loc.relc_id, loc_lat=loc.loc_lat,
                                                  loc_lon=loc.loc_lon, loc_date=loc.loc_date).get()
         self.loc = loc
-        if row["grp_id"]:
-            self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, grp_pk=row["grp_id"].pk,
-                                                 return_sucess=True)
+        anix_pk = None
+        if row["grp_id"] is not None:
+            self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, grp_pk=row["grp_id"].pk, return_sucess=True)
+            if utils.nan_to_none(row["contx_id"]):
+                cnt_anix, anix_entered = utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=row["contx_id"].pk,
+                                                          grp_pk=row["grp_id"].pk, final_flag=True)
+                anix_pk = cnt_anix.pk
+                self.row_entered += anix_entered
+
         if self.loc.loc_lon and self.loc.loc_lat and not self.loc.relc_id:
             self.log_data += "\nNo site found in db for Lat-Long ({}, {}) given on row: \n{}\n\n"\
                 .format(self.loc.loc_lat, self.loc.loc_lon, row)
@@ -215,8 +219,8 @@ class ElectrofishingParser(DataParser):
             self.row_entered += utils.enter_env(row[self.temp_key], row_datetime, cleaned_data, self.temp_envc_id,
                                                 loc_id=loc)
 
-        cnt_caught, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.fish_caught_key], loc_pk=loc.pk,
-                                                  cnt_code="Fish Caught")
+        cnt_caught, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.fish_caught_key], anix_pk=anix_pk,
+                                                  loc_pk=loc.pk, cnt_code="Fish Caught")
         self.row_entered += cnt_entered
         cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.fish_obs_key], loc_pk=loc.pk,
                                                cnt_code="Fish Observed")
@@ -297,6 +301,7 @@ class AdultCollectionParser(DataParser):
     tank_dict = {}
     loc_obs_dict = {}
     loc_caught_dict = {}
+    grp_cnt_dict = {}
 
     loc = None
     
@@ -326,7 +331,8 @@ class AdultCollectionParser(DataParser):
 
         for tank_name in self.data[self.tank_key].unique():
             if utils.nan_to_none(tank_name):
-                self.tank_dict[tank_name] = models.Tank.objects.filter(name__iexact=tank_name, facic_id=cleaned_data["facic_id"]).get()
+                self.tank_dict[tank_name] = models.Tank.objects.filter(name__iexact=tank_name,
+                                                                       facic_id=cleaned_data["facic_id"]).get()
                 utils.enter_contx(self.tank_dict[tank_name], cleaned_data)
 
     def row_parser(self, row):
@@ -360,7 +366,6 @@ class AdultCollectionParser(DataParser):
                     indv_id = models.Individual.objects.filter(pit_tag=indv_id.pit_tag).get()
             indv_anix, data_entered = utils.enter_anix(cleaned_data, indv_pk=indv_id.pk)
             self.row_entered += data_entered
-            # add program group to individual if needed:
 
         loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
                               locc_id=self.locc_id,
@@ -414,7 +419,8 @@ class AdultCollectionParser(DataParser):
                                                           self.ani_health_anidc_id.pk, adsc_str="Aquaculture")
 
             if utils.nan_to_none(row[self.tank_key]):
-                self.row_entered += utils.enter_contx(self.tank_dict[row[self.tank_key]], cleaned_data, True, indv_id.pk)
+                self.row_entered += utils.enter_contx(self.tank_dict[row[self.tank_key]], cleaned_data, True,
+                                                      indv_id.pk)
                 if self.loc.pk not in self.loc_caught_dict:
                     self.loc_caught_dict[self.loc.pk] = 1
                 else:
@@ -449,10 +455,22 @@ class AdultCollectionParser(DataParser):
                 grp_anix, data_entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
                 self.row_entered += data_entered
 
-                samp, samp_entered = utils.enter_samp(cleaned_data, row[self.samp_key], self.salmon_id.pk, self.sampc_id.pk,
-                                                      anix_pk=grp_anix.pk, loc_pk=loc.pk,
+                samp, samp_entered = utils.enter_samp(cleaned_data, row[self.samp_key], self.salmon_id.pk,
+                                                      self.sampc_id.pk, anix_pk=grp_anix.pk, loc_pk=loc.pk,
                                                       comments=utils.nan_to_none(row.get(self.comment_key)))
                 self.row_entered += samp_entered
+
+            grp_id = samp.anix_id.grp_id
+            if utils.nan_to_none(row[self.tank_key]):
+                contx_id, contx_entered = utils.enter_contx(self.tank_dict[row[self.tank_key]], cleaned_data,
+                                                            return_contx=True)
+                self.row_entered += contx_entered
+                anix_id, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, final_flag=True, loc_pk=loc.pk)
+
+                if anix_id.pk not in self.grp_cnt_dict:
+                    self.grp_cnt_dict[anix_id.pk] = 1
+                else:
+                    self.grp_cnt_dict[anix_id.pk] += 1
 
             self.row_entered += utils.enter_bulk_sampd(samp.pk, self.cleaned_data, row_datetime,
                                                        gender=row.get(self.sex_key),
@@ -486,3 +504,5 @@ class AdultCollectionParser(DataParser):
             utils.enter_cnt(self.cleaned_data, cnt_caught, loc_pk=loc_pk, cnt_code="Fish Caught")
         for loc_pk, cnt_obs in self.loc_obs_dict.items():
             utils.enter_cnt(self.cleaned_data, cnt_obs, loc_pk=loc_pk, cnt_code="Fish Observed")
+        for anix_pk, grp_cnt in self.grp_cnt_dict.items():
+            utils.enter_cnt(self.cleaned_data, grp_cnt, anix_pk=anix_pk, cnt_code="Fish added to container")

@@ -126,7 +126,7 @@ class CntFactory(factory.django.DjangoModelFactory):
         model = models.Count
 
     loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
-    contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    anix_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnixFactory")
     cntc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CntcFactory")
     spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
     cnt = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
@@ -138,7 +138,7 @@ class CntFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def build_valid_data(**kwargs):
         loc = LocFactory()
-        contx = ContxFactory()
+        anix = AnixFactory()
         cntc = CntcFactory()
         spec = SpecFactory()
 
@@ -147,7 +147,7 @@ class CntFactory(factory.django.DjangoModelFactory):
         # Convert the data to a dictionary to be used in testing
         data = {
             'loc_id': loc.pk,
-            'contx_id': contx.pk,
+            'anix_id': anix.pk,
             'cntc_id': cntc.pk,
             'spec_id': spec.pk,
             'cnt': obj.cnt,

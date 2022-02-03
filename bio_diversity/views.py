@@ -940,15 +940,6 @@ class CommonContDetails(CommonDetails):
         envc_used = env_set.values('envc_id').distinct()
         context["envc_set"] = models.EnvCode.objects.filter(id__in=envc_used)
 
-        cnt_set = models.Count.objects.filter(**{arg_name: cont_pk}).select_related("cntc_id")
-        cnt_field_list = ["cntc_id", "cnt", "est", "date"]
-        obj_mixin = mixins.CntMixin
-        context["context_dict"]["cnt"] = {"div_title": "Counts",
-                                          "sub_model_key": obj_mixin.key,
-                                          "objects_list": cnt_set,
-                                          "field_list": cnt_field_list,
-                                          "single_object": obj_mixin.model.objects.first()}
-
         envt_set = models.EnvTreatment.objects.filter(**{arg_name: cont_pk}).select_related("envtc_id", "unit_id")
         envt_field_list = ["envtc_id", "amt", "unit_id", "concentration_str|Concentration", "start_datetime", "duration", ]
         obj_mixin = mixins.EnvtMixin
@@ -998,6 +989,9 @@ class CommonContDetails(CommonDetails):
                                            "objects_list": obj_list,
                                            "field_list": obj_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
+
+        context["calculated_properties"] = {}
+        context["calculated_properties"]["Fish in Cont"] = self.object.fish_count()
 
         context["table_list"].extend(["grp_cont", "indv_cont", "feed", "env", "envt", "team", "cnt"])
 
@@ -1350,9 +1344,8 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "field_list": obj_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        cnt_set = models.Count.objects.filter(Q(contx_id__animal_details__grp_id=self.object) |
-                                              Q(loc_id__animal_details__grp_id=self.object))\
-            .distinct().select_related("cntc_id", "loc_id__relc_id", *utils.contx_conts)
+        cnt_set = models.Count.objects.filter(anix_id__grp_id=self.object).distinct()\
+            .select_related("cntc_id", "loc_id__relc_id", *utils.contx_conts)
         cnt_field_list = ["cntc_id", "loc_id.relc_id", "contx_id.container.name|Container", "cnt", "est", "date"]
         obj_mixin = mixins.CntMixin
         context["context_dict"]["cnt"] = {"div_title": "Counts",

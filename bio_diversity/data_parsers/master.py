@@ -151,10 +151,10 @@ class MasterGrpParser(DataParser):
                                                  lifestage=row.get(self.lifestage_key),
                                                  comments=row.get(self.comment_key))
 
-        contx, contx_entered = utils.enter_contx(tank_id, cleaned_data, True, grp_pk=grp_id.pk, return_contx=True)
+        cnt_anix, contx, contx_entered = utils.enter_contx(tank_id, cleaned_data, True, grp_pk=grp_id.pk, return_anix=True)
         self.row_entered += contx_entered
 
-        cnt, cnt_entered = utils.enter_cnt(cleaned_data, utils.nan_to_none(row[self.cnt_key]), contx_pk=contx.pk,
+        cnt, cnt_entered = utils.enter_cnt(cleaned_data, utils.nan_to_none(row[self.cnt_key]), anix_pk=cnt_anix.pk,
                                            cnt_code="Fish Count")
         self.row_entered += cnt_entered
 

@@ -254,6 +254,7 @@ class BioTimeModel(BioModel):
 
 
 class BioCont(BioLookup):
+    # cont tag
     key = None
 
     class Meta:
@@ -298,6 +299,13 @@ class BioCont(BioLookup):
             return grp_list
         else:
             return indv_list, grp_list
+
+    def fish_count(self, at_date=timezone.now()):
+        indv_list, grp_list = self.fish_in_cont(at_date=at_date)
+        cont_count = len(indv_list)
+        for grp in grp_list:
+            cont_count += grp.count_fish_in_group(at_date=at_date)
+        return cont_count
 
     def degree_days(self, start_date, end_date):
         return []
@@ -505,8 +513,8 @@ class Count(BioModel):
     # cnt tag
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Location"),
                                related_name="counts", db_column="LOCATION_ID")
-    contx_id = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True, related_name="counts",
-                                 verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
+    anix_id = models.ForeignKey("AniDetailXref", on_delete=models.CASCADE, null=True, blank=True, related_name="counts",
+                                 verbose_name=_("Animal Cross Reference"), db_column="ANI_DET_XREF_ID")
     cntc_id = models.ForeignKey("CountCode", on_delete=models.CASCADE, verbose_name=_("Count Code"), db_column="CNT_ID")
     spec_id = models.ForeignKey("SpeciesCode", on_delete=models.CASCADE, verbose_name=_("Species"), db_column="SPEC_ID")
     stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"),
@@ -520,17 +528,29 @@ class Count(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     class Meta:
-        unique_together = (('loc_id', 'contx_id', 'cntc_id', 'spec_id', 'cnt_year', 'coll_id', 'stok_id'),)
+        unique_together = (('loc_id', 'anix_id', 'cntc_id', 'spec_id', 'cnt_year', 'coll_id', 'stok_id'),)
 
     def __str__(self):
         return "{}-{}-{}".format(self.loc_id.__str__(), self.spec_id.__str__(), self.cntc_id.__str__())
 
+    def clean(self):
+        if not self.loc_id and not self.anix_id:
+            raise ValidationError("Animal Detail Xref and location cannot both be null.")
+        super(Count, self).clean()
+
     @property
     def date(self):
-        if self.contx_id:
-            return self.contx_id.evnt_id.start_date
+        if self.anix_id:
+            return self.anix_id.evnt_id.start_date
         if self.loc_id:
             return self.loc_id.loc_date.date()
+        else:
+            return None
+
+    @property
+    def contx_id(self):
+        if self.anix_id:
+            return self.anix_id.contx_id
         else:
             return None
 
@@ -1078,10 +1098,10 @@ class Group(BioModel):
         fish_count = 0
 
         # ordered oldest to newest
-        cnt_set = Count.objects.filter(Q(contx_id__animal_details__grp_id=self,
-                                         contx_id__evnt_id__start_datetime__lte=at_date) |
+        cnt_set = Count.objects.filter(Q(anix_id__grp_id=self,
+                                         anix_id__evnt_id__start_datetime__lte=at_date) |
                                        Q(loc_id__animal_details__grp_id=self, loc_id__loc_date__lte=at_date))\
-            .select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
+            .select_related("cntc_id").distinct().order_by('anix_id__evnt_id__start_datetime')
 
         for cnt in cnt_set:
             if cnt.cntc_id.name in calculation_constants.add_codes:
@@ -1096,12 +1116,7 @@ class Group(BioModel):
         indv_set = Individual.objects.filter(grp_id=self).select_related(*select_fields)
         # for consistancy with container version:
         indv_list = [indv for indv in indv_set]
-
-        # grpd_set = GroupDet.objects.filter(frm_grp_id=self).select_related("anix_id__grp_id", *grp_select_fields)
-        # grp_list = [grpd.anix_id.grp_id for grpd in grpd_set]
-        #
         grp_list = [self]
-
         return indv_list, grp_list
 
     def get_development(self, at_date=timezone.now()):
@@ -2088,6 +2103,11 @@ class Sample(BioModel):
 
     class Meta:
         unique_together = (('loc_id', 'anix_id', 'samp_num', 'spec_id', 'sampc_id'),)
+
+    def clean(self, *args, **kwargs):
+        if self.loc_id is None and self.anix_id.grp_id is None:
+            raise ValidationError("Sample must come from group or location.")
+        super(Sample, self).clean()
 
     @property
     def coll_id(self):

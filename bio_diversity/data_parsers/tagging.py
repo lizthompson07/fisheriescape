@@ -146,10 +146,10 @@ class TaggingParser(DataParser):
         from_tanks = self.data[self.from_tank_key].value_counts()
         for tank_name in from_tanks.keys():
             fish_tagged_from_tank = int(from_tanks[tank_name])
-            contx, data_entered = utils.enter_tank_contx(tank_name, self.cleaned_data, None, grp_pk=self.grp_id.pk,
-                                                         return_contx=True)
-            if contx:
-                utils.enter_cnt(self.cleaned_data, fish_tagged_from_tank, contx.pk, cnt_code="Pit Tagged")
+            anix, contx, data_entered = utils.enter_tank_contx(tank_name, self.cleaned_data, None,
+                                                               grp_pk=self.grp_id.pk, return_anix=True)
+            if anix:
+                utils.enter_cnt(self.cleaned_data, fish_tagged_from_tank, anix.pk, cnt_code="Pit Tagged")
 
 
 class MactaquacTaggingParser(TaggingParser):

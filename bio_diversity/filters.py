@@ -32,7 +32,7 @@ class CntFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Count
-        fields = ["loc_id", "contx_id", "spec_id", ]
+        fields = ["loc_id", "spec_id", ]
 
 
 class CntcFilter(django_filters.FilterSet):
