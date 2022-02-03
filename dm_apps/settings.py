@@ -398,3 +398,10 @@ WEBPACK_LOADER = {
         'STATS_FILE': os.path.join(BASE_DIR, 'events', 'frontend', 'webpack-stats.json')
     }
 }
+
+
+
+CELERY_BROKER_URL = config("CELERY_BROKER_URL", cast=str, default="redis://localhost:6379")
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", cast=str, default="redis://localhost:6379")
+CELERY_RESULT_EXPIRES = 30
+CELERY_TIMEZONE = 'UTC'
