@@ -11,7 +11,7 @@ from ..tasks import chunk_pageviews
 class PageViewsAPIView(APIView):
     def post(self, request):
         if settings.IS_LINUX:
-            chunk_pageviews().delay()
+            chunk_pageviews.delay()
         else:
             chunk_pageviews()
 
