@@ -140,7 +140,7 @@ class Species(MetadataFields):
         return my_str
 
     def __str__(self):
-        return self.tcommon
+        return self.tcommon if self.tcommon else "n/a"
 
     @property
     def full_name(self):
