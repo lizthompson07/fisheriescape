@@ -1,11 +1,11 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.core import validators
 from django.forms import modelformset_factory
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from . import models
+
 from shared_models import models as shared_models
+from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
@@ -14,6 +14,7 @@ attr_fp_date = {"class": "fp-date", "placeholder": "Select a Date.."}
 
 class ResourceCreateForm(forms.ModelForm):
     add_custodian = forms.BooleanField(required=False, label="Add yourself as custodian")
+
     # add_point_of_contact = forms.BooleanField(required=False, label="Add Regional Data Manager as a Point of Contact")
 
     class Meta:
@@ -68,14 +69,12 @@ class ResourceCreateForm(forms.ModelForm):
                            shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")]
         SECTION_CHOICES.insert(0, tuple((None, "---")))
 
-
-
         resource_type_choices = [(obj.id, "{}  ({})".format(obj.label, obj.notes) if obj.notes else "{}".format(obj.label)) for obj in
-                           models.ResourceType.objects.all()]
-        resource_type_choices .insert(0, tuple((None, "---")))
+                                 models.ResourceType.objects.all()]
+        resource_type_choices.insert(0, tuple((None, "---")))
 
         status_choices = [(obj.id, "{}  ({})".format(obj.label, obj.notes) if obj.notes else "{}".format(obj.label)) for obj in
-                                 models.Status.objects.all()]
+                          models.Status.objects.all()]
         status_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
@@ -434,19 +433,20 @@ class ReportSearchForm(forms.Form):
         (2, "Open Data Inventory - Quarterly Report"),
         (3, "Physical Collections Report (xlsx)"),
         (4, "Resources Report (xlsx)"),
+        (5, "Resource published to Open Data"),
         # (2, "Organizational Report / Cue Card (PDF)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     sections = forms.MultipleChoiceField(required=False, label='Region / Division / Section (Leave blank for all)')
+    regions = forms.MultipleChoiceField(required=False, label='Regions')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['sections'].choices = [(s.id, "{}".format(s.full_name)) for s in
                                            shared_models.Section.objects.all().order_by("division__branch__region", "division__branch",
                                                                                         'division', "name")]
-
-
+        self.fields['regions'].choices = [(r.id, "{}".format(r)) for r in shared_models.Region.objects.all()]
 
 
 class TempForm(forms.ModelForm):

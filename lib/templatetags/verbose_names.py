@@ -139,7 +139,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
                 # check to see if it is a many to many field
                 if field_instance.get_internal_type() == 'ManyToManyField' or field_instance.get_internal_type() == 'ManyToManyRel':
                     m2m = val
-                    field_value = str([str(field) for field in m2m.all()]).replace("[", "").replace("]", "").replace("'",
+                    field_value = str([str(field) for field in m2m.all() if field is not None]).replace("[", "").replace("]", "").replace("'",
                                                                                                                      "").replace(
                         '"', "")
 
