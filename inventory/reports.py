@@ -539,9 +539,9 @@ def generate_open_data_resources_report(regions):
                 my_val = listrify([obj for obj in r.resource_people.all()])
                 my_ws.write(i, j, str(my_val), normal_format)
             elif "_url" in field:
-                my_val = r.public_url
+                my_val = get_field_value(r, field)
                 if my_val:
-                    my_ws.write_url(i, j, url=html2text(r.public_url).replace("\n", ""), string="link")
+                    my_ws.write_url(i, j, url=html2text(my_val).replace("\n", ""), string="link")
             elif "keywords" in field:
                 my_val = listrify([obj.non_hierarchical_name_en for obj in r.keywords.all()])
             elif "region" in field:
