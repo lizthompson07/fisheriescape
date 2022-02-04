@@ -494,7 +494,7 @@ def generate_open_data_resources_report(regions):
     # get the resource list
     # anything with resource type as "physical collection"
 
-    resources = models.Resource.objects.filter(Q(od_publication_date__isnull=False))
+    resources = models.Resource.objects.filter(Q(od_publication_date__isnull=False)|Q(fgp_publication_date__isnull=False))
     if regions and regions != "None":
         regions = regions.split(",")
         resources = resources.filter(section__division__branch__sector__region_id__in=regions)
@@ -539,7 +539,7 @@ def generate_open_data_resources_report(regions):
                 my_val = listrify([obj for obj in r.resource_people.all()])
                 my_ws.write(i, j, str(my_val), normal_format)
             elif "_url" in field:
-                my_val = get_field_value(r, field, nullmark="")
+                my_val = r.public_url
                 if my_val:
                     my_ws.write_url(i, j, url=html2text(r.public_url).replace("\n", ""), string="link")
             elif "keywords" in field:
