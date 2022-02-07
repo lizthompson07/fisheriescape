@@ -1345,8 +1345,8 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         cnt_set = models.Count.objects.filter(anix_id__grp_id=self.object).distinct()\
-            .select_related("cntc_id", "loc_id__relc_id", *utils.contx_conts)
-        cnt_field_list = ["cntc_id", "loc_id.relc_id", "contx_id.container.name|Container", "cnt", "est", "date"]
+            .select_related("cntc_id", "loc_id__relc_id", *utils.anix_contx_conts)
+        cnt_field_list = ["cntc_id", "loc_id.relc_id", "anix_id.contx_id.container.name|Container", "cnt", "est", "date"]
         obj_mixin = mixins.CntMixin
         context["context_dict"]["cnt"] = {"div_title": "Counts",
                                           "sub_model_key": obj_mixin.key,

@@ -25,6 +25,8 @@ from dm_apps import settings
 contx_conts = ["contx_id__cup_id", "contx_id__draw_id", "contx_id__heat_id", "contx_id__tank_id", "contx_id__tray_id",
                "contx_id__trof_id"]
 
+anix_contx_conts = ["anix_id__" + contx_cont for contx_cont in contx_conts]
+
 
 class DataParser:
 
@@ -759,11 +761,11 @@ def get_relc_from_point(shapely_geom):
 def get_row_date(row, get_time=False):
     try:
         if get_time:
-            row_datetime = datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"] + "-" + row["Time"],
-                                             "%Y-%b-%d-%H:%M").replace(tzinfo=pytz.UTC)
+            row_datetime = timezone.make_aware(datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"] + "-" + row["Time"],
+                                             "%Y-%b-%d-%H:%M"))
         else:
-            row_datetime = datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"],
-                                            "%Y-%b-%d").replace(tzinfo=pytz.UTC)
+            row_datetime = timezone.make_aware(datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"],
+                                            "%Y-%b-%d"))
     except Exception as err:
         raise Exception("\nFailed to parse date from row, make sure column headers are : \"Year\", \"Month\", \"Day\" "
                         "and the format used is: 1999-Jan-1 \n \n {}".format(err))
@@ -1124,7 +1126,7 @@ def enter_anix_contx(tank, cleaned_data):
         return anix_contx
 
 
-def enter_cnt(cleaned_data, cnt_value, anix_pk=None, loc_pk=None, cnt_code="Fish in Container", est=False,
+def enter_cnt(cleaned_data, cnt_value, anix_pk=None, loc_pk=None, contx_ref_pk=None, cnt_code="Fish in Container", est=False,
               stok_id=None, coll_id=None, cnt_year=None):
     cnt = False
     entered = False
@@ -1133,6 +1135,7 @@ def enter_cnt(cleaned_data, cnt_value, anix_pk=None, loc_pk=None, cnt_code="Fish
     if not math.isnan(cnt_value):
         cnt = models.Count(loc_id_id=loc_pk,
                            anix_id_id=anix_pk,
+                           contx_ref_id=contx_ref_pk,
                            spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                            cntc_id=models.CountCode.objects.filter(name__iexact=cnt_code).get(),
                            cnt=int(cnt_value),
@@ -1149,7 +1152,8 @@ def enter_cnt(cleaned_data, cnt_value, anix_pk=None, loc_pk=None, cnt_code="Fish
             entered = True
         except ValidationError:
             cnt = models.Count.objects.filter(loc_id=cnt.loc_id, anix_id=cnt.anix_id, cntc_id=cnt.cntc_id,
-                                              cnt_year=cnt.cnt_year, stok_id=cnt.stok_id, coll_id=cnt.coll_id).get()
+                                              contx_ref=cnt.contx_ref, cnt_year=cnt.cnt_year, stok_id=cnt.stok_id,
+                                              coll_id=cnt.coll_id).get()
             if cnt_code == "Mortality":
                 cnt.cnt += 1
                 cnt.save()

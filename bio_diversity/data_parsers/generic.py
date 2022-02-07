@@ -222,8 +222,6 @@ class GenericUntaggedParser(DataParser):
             start_grp_id = self.start_grp_dict[row["grp_key"]]
             start_anix, start_contx, contx_entered = utils.enter_contx(row["start_tank_id"], cleaned_data, None,
                                                                        grp_pk=start_grp_id.pk, return_anix=True)
-            self.row_entered += utils.enter_cnt(cleaned_data, sum(end_grp_data[end_grp_data["grp_key"] == row["grp_key"]][0]),
-                                                start_anix.pk, cnt_code="Fish Removed from Container")[1]
 
             if len(grps) > 0:
                 end_grp_id = grps[0]
@@ -246,9 +244,12 @@ class GenericUntaggedParser(DataParser):
                                      self.mark_anidc_id.pk, row[self.grp_mark_key])
                 end_anix = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
                                                       row["datetime"], grp_pk=end_grp_id.pk, return_end_anix=True)
-                if end_anix:
-                    self.row_entered += utils.enter_cnt(cleaned_data, row[0], end_anix.pk,
-                                                        cnt_code="Fish added to container")[1]
+                self.row_entered += utils.enter_cnt(cleaned_data, row[0], end_anix.pk,
+                                                    cnt_code="Fish added to container")[1]
+
+                self.row_entered += \
+                utils.enter_cnt(cleaned_data, sum(end_grp_data[end_grp_data["grp_key"] == row["grp_key"]][0]),
+                                start_anix.pk, contx_ref_pk=end_anix.contx_id.pk, cnt_code="Fish Removed from Container")[1]
         self.data_dict = self.data.to_dict("records")
 
     def row_parser(self, row):
@@ -334,7 +335,7 @@ class GenericGrpParser(DataParser):
     prnt_grp_anidc_id = None
 
     def load_data(self):
-        self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key])
+        self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key, self.mark_key])
         for extra_col in self.cleaned_data["adsc_id"]:
             self.mandatory_keys.extend([extra_col.name])
         for extra_col in self.cleaned_data["anidc_id"]:
@@ -363,7 +364,7 @@ class GenericGrpParser(DataParser):
         cleaned_data = self.cleaned_data
         row_date = row["datetime"].date()
         row_start_grp = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["start_tank_id"],
-                                      row_date, prog_str=row.get(self.prio_key), mark_str=row.get(self.grp_mark_key),
+                                      row["datetime"], prog_str=row.get(self.prio_key), mark_str=row.get(self.grp_mark_key),
                                       fail_on_not_found=True)[0]
         det_anix, self.row_entered = utils.enter_anix(cleaned_data, grp_pk=row_start_grp.pk)
         start_cnt_anix, start_contx, contx_entered = utils.enter_contx(row["start_tank_id"], cleaned_data, final_flag=None,
@@ -399,12 +400,15 @@ class GenericGrpParser(DataParser):
             if row_end_grp:
                 move_anix = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
                                                        row_date, grp_pk=row_end_grp.pk, return_end_anix=True)
+                move_contx = move_anix.contx_id
                 end_grp_anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=row_end_grp.pk)
                 self.row_entered += anix_entered
                 self.row_entered += utils.enter_grpd(end_grp_anix.pk, cleaned_data, row_date, None,
                                                      self.prnt_grp_anidc_id.pk, frm_grp_id=row_start_grp)
                 self.row_entered += utils.enter_cnt(cleaned_data, row[self.nfish_key], move_anix.pk,
                                                     cnt_code="Fish added to container")[1]
+                self.row_entered += utils.enter_cnt(cleaned_data, row[self.nfish_key], start_cnt_anix.pk,
+                                                    contx_ref_pk=move_contx.pk, cnt_code="Fish removed from container")[1]
 
                 # record details on end tank group
                 det_anix = end_grp_anix

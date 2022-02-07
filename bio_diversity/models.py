@@ -276,9 +276,9 @@ class BioCont(BioLookup):
                                                 final_contx_flag__isnull=False,
                                                 evnt_id__start_datetime__lte=at_date).select_related("indv_id", "grp_id", *select_fields)
         anix_indv_in_set = anix_set.filter(final_contx_flag=True, indv_id__indv_valid=True)
-        anix_indv_out_set = anix_set.filter(final_contx_flag=False, indv_id__indv_valid=True)
+        anix_indv_out_set = anix_set.filter(final_contx_flag=False, indv_id__indv_valid=True, evnt_id__start_datetime__lt=at_date)
         anix_grp_in_set = anix_set.filter(final_contx_flag=True, grp_id__grp_valid=True)
-        anix_grp_out_set = anix_set.filter(final_contx_flag=False, grp_id__grp_valid=True)
+        anix_grp_out_set = anix_set.filter(final_contx_flag=False, grp_id__grp_valid=True, evnt_id__start_datetime__lt=at_date)
 
         indv_in_set = Counter([anix.indv_id for anix in anix_indv_in_set])
         indv_out_set = Counter([anix.indv_id for anix in anix_indv_out_set])
@@ -515,6 +515,8 @@ class Count(BioModel):
                                related_name="counts", db_column="LOCATION_ID")
     anix_id = models.ForeignKey("AniDetailXref", on_delete=models.CASCADE, null=True, blank=True, related_name="counts",
                                  verbose_name=_("Animal Cross Reference"), db_column="ANI_DET_XREF_ID")
+    contx_ref = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True, related_name="counts",
+                                 verbose_name=_("Container Reference"), db_column="CONT_XREF_ID")
     cntc_id = models.ForeignKey("CountCode", on_delete=models.CASCADE, verbose_name=_("Count Code"), db_column="CNT_ID")
     spec_id = models.ForeignKey("SpeciesCode", on_delete=models.CASCADE, verbose_name=_("Species"), db_column="SPEC_ID")
     stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"),
@@ -528,7 +530,7 @@ class Count(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     class Meta:
-        unique_together = (('loc_id', 'anix_id', 'cntc_id', 'spec_id', 'cnt_year', 'coll_id', 'stok_id'),)
+        unique_together = (('loc_id', 'anix_id', 'cntc_id', 'contx_ref', 'spec_id', 'cnt_year', 'coll_id', 'stok_id'),)
 
     def __str__(self):
         return "{}-{}-{}".format(self.loc_id.__str__(), self.spec_id.__str__(), self.cntc_id.__str__())
@@ -1170,13 +1172,15 @@ class Group(BioModel):
         depth = 1
         while True:
             for grpd in grpd_qs:
-                # recursion catch
-                if grpd.frm_grp_id.pk != self.pk:
+                # check if parent is not self:
+                if grpd.frm_grp_id.pk != grpd.anix_id.grp_id.pk:
                     parent_grps.append((depth, grpd.frm_grp_id, grpd.detail_date))
                     new_grpd_qs.extend(grpd.frm_grp_id.get_parent_grp(at_date=grpd.detail_date))
+            # recursion catch
             if new_grpd_qs:
                 grpd_qs = new_grpd_qs
                 depth += 1
+                new_grpd_qs = []
             else:
                 break
 
