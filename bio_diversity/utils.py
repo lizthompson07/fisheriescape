@@ -1782,6 +1782,7 @@ def enter_contx(cont, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, 
 
 def enter_tank_contx(tank_name, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
     row_entered = False
+    anix = None
     if not tank_name == "nan":
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
                                      tank_id=models.Tank.objects.filter(name=tank_name, facic_id=cleaned_data["facic_id"]).get(),

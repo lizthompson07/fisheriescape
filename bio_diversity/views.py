@@ -929,6 +929,7 @@ class CommonContDetails(CommonDetails):
         context['java_script'] = 'bio_diversity/_cont_details_js.html'
         cont_pk = self.object.pk
         arg_name = "contx_id__{}_id_id".format(self.key)
+        anix_arg_name = "anix_id__contx_id__{}_id_id".format(self.key)
         env_set = models.EnvCondition.objects.filter(**{arg_name: cont_pk}).select_related("envc_id", "envsc_id")
         env_field_list = ["envc_id", "envsc_id", "start_datetime", "env_val", ]
         obj_mixin = mixins.EnvMixin
@@ -947,6 +948,16 @@ class CommonContDetails(CommonDetails):
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": envt_set,
                                            "field_list": envt_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+
+        cnt_set = models.Count.objects.filter(**{anix_arg_name: cont_pk}).distinct() \
+            .select_related("cntc_id", "loc_id__relc_id", *utils.anix_contx_conts)
+        cnt_field_list = ["cntc_id", "loc_id.relc_id", "anix_id.contx_id.container.name|Container", "cnt", "est", "date"]
+        obj_mixin = mixins.CntMixin
+        context["context_dict"]["cnt"] = {"div_title": "Counts",
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": cnt_set,
+                                           "field_list": cnt_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
         feed_set = models.Feeding.objects.filter(**{arg_name: cont_pk}).select_related("feedc_id", "unit_id",
@@ -969,7 +980,7 @@ class CommonContDetails(CommonDetails):
                                                 "field_list": indv_field_list,
                                                 "single_object": obj_mixin.model.objects.first()}
 
-        grp_field_list = ["stok_id", "coll_id", "spec_id", ]
+        grp_field_list = ["stok_id", "coll_id", "grp_year", "spec_id", ]
         obj_mixin = mixins.GrpMixin
         context["context_dict"]["grp_cont"] = {"div_title": "Groups in Container",
                                                "sub_model_key": obj_mixin.key,

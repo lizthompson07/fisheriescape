@@ -1093,7 +1093,9 @@ class Group(BioModel):
         else:
             feed_str = ""
             for cont in cont_list:
-                feed_str += "{}: {}\n".format(cont.__str__(), cont.cont_feed(at_date=at_date, get_string=True))
+                cont_feed_str = cont.cont_feed(at_date=at_date, get_string=True)
+                if cont_feed_str:
+                    feed_str += "{}: {}\n".format(cont.__str__(), cont_feed_str)
         return feed_str
 
     def count_fish_in_group(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
