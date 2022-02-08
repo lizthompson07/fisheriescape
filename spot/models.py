@@ -1,13 +1,10 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
-from shared_models.models import UnilingualSimpleLookup, Region
-# from django.core.mail import send_mail
+from shared_models.models import Region
 from django.urls import reverse
 from . import choices
-from django.utils.safestring import mark_safe
 
 
 YES_NO_CHOICES = (
@@ -18,8 +15,7 @@ YES_NO_CHOICES = (
 
 class SpotUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="spot_user", verbose_name=_("DM Apps user"))
-    region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="spot_users", on_delete=models.CASCADE, blank=True,
-                               null=True)
+    region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="spot_users", on_delete=models.CASCADE, blank=True, null=True)
     is_admin = models.BooleanField(default=False, verbose_name=_("app administrator?"), choices=YES_NO_CHOICES)
     is_crud_user = models.BooleanField(default=False, verbose_name=_("CRUD permissions?"), choices=YES_NO_CHOICES)
 
@@ -28,6 +24,17 @@ class SpotUser(models.Model):
 
     class Meta:
         ordering = ["-is_admin", "user__first_name", ]
+
+
+class UnilingualSimpleLookup(models.Model):
+    class Meta:
+        abstract = True
+        ordering = ["name", ]
+
+    name = models.CharField(unique=True, max_length=255, verbose_name=_("name"))
+
+    def __str__(self):
+        return self.name
 
 
 class Species(UnilingualSimpleLookup):
@@ -160,7 +167,7 @@ class FirstNations(UnilingualSimpleLookup):
     pass
 
 
-class Watershed(UnilingualSimpleLookup):
+class Watershed(models.Model):
     objects = models.Manager()
     name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Name"))
     group_code = models.CharField(max_length=10, null=True, blank=True, verbose_name=_("Group Code"))
@@ -183,6 +190,9 @@ class River(models.Model):
 
     class Meta:
         ordering = ['name']
+
+    def get_lat_long(self):
+        return "{lat:" + str(self.latitude) + "," + "lng:" + str(self.longitude) + "}"
 
 
 class Organization(models.Model):
@@ -383,6 +393,7 @@ class Feedback(models.Model):
     def __str__(self):
         return "{}".format(self.sent_by)
 
+
     class Meta:
         ordering = ['subject']
 
@@ -390,15 +401,15 @@ class Feedback(models.Model):
 class Objective(models.Model):
     objects = models.Manager()
     project = models.ForeignKey('Project', default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='project_objective', verbose_name=_("Agreement Number"))
-    objective_id = models.IntegerField(blank=True, null=True)
+    unique_objective = models.CharField(max_length=255, blank=True, null=True)
     task_description = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Task Description"))
     element_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Element Title"))
     activity_title = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Activity Title"))
 
-    pst_requirement = models.CharField(max_length=10, default=None, blank=True, null=True, verbose_name=_("PST Requirement Identified?"))
-    location = models.ManyToManyField(River, blank=True, default=None, verbose_name=_("Location"))
+    pst_requirement = models.CharField(max_length=10, default=None,  blank=True, null=True, verbose_name=_("PST Requirement Identified?"))
+    location = models.ForeignKey(River, blank=True, default=None, on_delete=models.DO_NOTHING, null=True, verbose_name=_("Location"))
     objective_category = models.ManyToManyField(ObjectiveCategory, default=None, blank=True, verbose_name=_("Objective Category"))
-    species = models.ManyToManyField(Species, default=None, blank=True, verbose_name=_("Species"))
+    species = models.ForeignKey(Species, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Species"))
     sil_requirement = models.CharField(max_length=10, default=None, blank=True, null=True, verbose_name=_("SIL Requirement"))
 
     expected_results = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Expected Result(s)"))
@@ -431,7 +442,7 @@ class Project(models.Model):
     objects = models.Manager()
     project_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Project Number"))
     agreement_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("Agreement Number"))
-    agreement_history = models.ManyToManyField('Project', default=None, blank=True, verbose_name=_("Agreement History"))
+    agreement_history = models.ManyToManyField('Project', blank=True, verbose_name=_("Agreement History"))
     name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Project Name"))
     project_description = models.TextField(max_length=5000, null=True, blank=True, verbose_name=_("Project Description"))
     start_date = models.DateField(blank=True, null=True, verbose_name=_("Starting Date"))
@@ -442,11 +453,11 @@ class Project(models.Model):
     ecosystem_type = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Eco System Type"))
     lake_system = models.ManyToManyField(LakeSystem, default=None, related_name='project', blank=True, verbose_name=_("Lake System"))
     watershed = models.ManyToManyField(Watershed, default=None, blank=True, related_name='proeject', verbose_name=_("Watershed"))
-    management_area = models.PositiveIntegerField(null=True, blank=True, validators=[MinValueValidator(0), MaxValueValidator(1000)])
+    management_area = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Management Area"))
     region = models.CharField(max_length=255, choices=choices.REGION, default=None, blank=True, null=True, verbose_name=_("Region"))
 
     stock_management_unit = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Stock Management Unit"))
-    cu_index = models.ForeignKey(CUIndex, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("CU Index"))
+    cu_index = models.ManyToManyField(CUIndex, blank=True, verbose_name=_("CU Index"))
     cu_name = models.ForeignKey(CUName, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("CU Name"))
     species = models.ManyToManyField(Species, default=None, blank=True, verbose_name=_("Target Species"))
     salmon_life_stage = models.ManyToManyField(SalmonLifeStage, blank=True, verbose_name=_("Salmon Life Stage"))
@@ -526,10 +537,8 @@ class Meetings(models.Model):
         ordering = ['name']
 
 
-class ObjectiveDataTypeQuality(models.Model):
-    objective = models.ForeignKey(Objective, default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='objective_type_quality', verbose_name=_("Objective"))
-    species = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Species"))
-    location = models.ManyToManyField(River, default=None, blank=True, verbose_name=_("Location"))
+class SampleOutcome(models.Model):
+    objective = models.ForeignKey(Objective, default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='sample_outcome', verbose_name=_("Objective"))
     sampling_outcome = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Sampling Outcome"))
     outcome_delivered = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Was the Sampling Outcome Met?"))
     outcome_report_delivered = models.CharField(max_length=10, default=None, blank=True, null=True, verbose_name=_("Were outcome reports delivered?"))
@@ -548,8 +557,8 @@ class ObjectiveDataTypeQuality(models.Model):
         return super().save(*args, **kwargs)
 
 
-class ObjectiveOutcome(models.Model):
-    objective = models.ForeignKey(Objective, default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='objective_outcome', verbose_name=_("Objective"))
+class ReportOutcome(models.Model):
+    objective = models.ForeignKey(Objective, default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='report_outcome', verbose_name=_("Objective"))
     reporting_outcome = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Reporting Outcome"))
     outcome_delivered = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Was the outcome deliverable met?"))
 
@@ -571,8 +580,8 @@ class ObjectiveOutcome(models.Model):
 class FundingYears(models.Model):
     project = models.ForeignKey(Project, default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='funding_year', verbose_name=_("project"))
     funding_year = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Funding Year"))
-    agreement_cost = models.FloatField(blank=True, null=True, verbose_name=_("Annual Agreement Cost"))
-    project_cost = models.FloatField(blank=True, null=True, verbose_name=_("Annual Project Cost"))
+    agreement_cost = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("Annual Agreement Cost"))
+    project_cost = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("Annual Project Cost"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 

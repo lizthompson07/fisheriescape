@@ -90,17 +90,17 @@ urlpatterns = [
     path('report/<int:pk>/delete/', views.ReportsDeleteView.as_view(), name="reports_delete"),
     path('reports/download-reports-csv', views.export_reports, name="export_reports"),
 
-    # Objective Data Type Quality #
+    # Sample Outcome #
     ###############################
-    path('obj/<int:obj>/objectivedatatypequality/new/', views.ObjectiveDataTypeQualityCreateView.as_view(), name="objectivedatatypequality_new"),
-    path('objectivedatatypequality/<int:pk>/edit/', views.ObjectiveDataTypeQualityUpdateView.as_view(), name="objectivedatatypequality_edit"),
-    path('objectivedatatypequality/<int:pk>/delete/', views.ObjectiveDataTypeQualityDeleteView.as_view(), name="objectivedatatypequality_delete"),
+    path('obj/<int:obj>/sampleoutcome/new/', views.SampleOutcomeCreateView.as_view(), name="sampleoutcome_new"),
+    path('sampleoutcome/<int:pk>/edit/', views.SampleOutcomeUpdateView.as_view(), name="sampleoutcome_edit"),
+    path('sampleoutcome/<int:pk>/delete/', views.SampleOutcomeDeleteView.as_view(), name="sampleoutcome_delete"),
 
-    # Objective Outcome #
+    # Report Outcome #
     ###############################
-    path('obj/<int:obj>/objectiveoutcome/new/', views.ObjectiveOutcomeCreateView.as_view(), name="objectiveoutcome_new"),
-    path('objectiveoutcome/<int:pk>/edit/', views.ObjectiveOutcomeUpdateView.as_view(), name="objectiveoutcome_edit"),
-    path('objectiveoutcome/<int:pk>/delete/', views.ObjectiveOutcomeDeleteView.as_view(), name="objectiveoutcome_delete"),
+    path('obj/<int:obj>/reportoutcome/new/', views.ReportOutcomeCreateView.as_view(), name="reportoutcome_new"),
+    path('reportoutcome/<int:pk>/edit/', views.ReportOutcomeUpdateView.as_view(), name="reportoutcome_edit"),
+    path('reportoutcome/<int:pk>/delete/', views.ReportOutcomeDeleteView.as_view(), name="reportoutcome_delete"),
 
     # River #
     ##########

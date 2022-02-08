@@ -13,6 +13,11 @@
         table, td {
             font-size: small;
         }
+      #map {
+            height: 300px; /* The height is 400 pixels */
+            width: 100%; /* The width is the width of the web page */
+        }
+
     </style>
 
     <nav aria-label="breadcrumb">
@@ -22,14 +27,16 @@
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
-
-
     <div class="container-fluid">
-
+        <div class="row">
+            <div class="col">
         <h1>{{ object }}</h1>
         <h1>{{ object.name }}</h1>
-
-
+            </div>
+            <div class="col">
+        <div id="map"></div>
+            </div>
+        </div>
         <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'spot:project_edit' object.id %}">
                 {% trans "Edit" %}
@@ -39,6 +46,9 @@
             </a>
             <a class="btn btn-success " pop-href="{% url 'spot:projectcertified_new' object.id  %}">
                 {% trans "Certify" %}
+            </a>
+            <a class="btn btn-info " pop-href="">
+                {% trans "Clone" %}
             </a>
 
         </div>
@@ -59,7 +69,9 @@
                      <table class="table table-sm table-bordered" style="width: auto">
                         <h2><u>Project Information</u></h2>
                          {% for field in field_list %}
+                         <tr>
                             {% verbose_field_display object field %}
+                         </tr>
                             {% if field == 'salmon_life_stage' %}
                                 <br><h2><u>Project Categorization</u></h2><br>
                             {% elif field == 'category_comments' %}
@@ -146,6 +158,35 @@
         </div>
 
     </div>
+<script type="text/javascript">
+
+    function initMap() {
+        var river_mark = {{ river_markers | safe }};
+        // The location of Uluru
+        const prim = { lat: river_mark[0][1], lng: river_mark[0][2]};
+        // The map, centered at Uluru
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 4,
+          center: prim,
+        });
+        var marker, i;
+        for(i=0; i<river_mark.length; i++){
+            marker = new google.maps.Marker({
+            position: {lat: river_mark[i][1], lng: river_mark[i][2]},
+            map: map,
+            label: {text: river_mark[i][0], color: "#0f0f11"},
+        });
+        }
+    }
+    function loadScript() {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initMap";
+            document.body.appendChild(script);
+        }
+
+        window.onload = loadScript();
+</script>
 {% endblock content %}
 
 

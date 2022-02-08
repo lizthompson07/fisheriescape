@@ -47,7 +47,6 @@ class ProjectFilter(django_filters.FilterSet):
     project_type = django_filters.ChoiceFilter(choices=choices.PROJECT_TYPE, lookup_expr='icontains')
     monitoring_approach = django_filters.ChoiceFilter(choices=choices.MONITORING_APPROACH, lookup_expr='icontains')
     government_organization = django_filters.ChoiceFilter(choices=choices.GOVERNMENT_LINK, lookup_expr='icontains')
-    DFO_link = django_filters.ChoiceFilter(choices=choices.DFO_LINK, lookup_expr='icontains')
 
     class Meta:
         model = models.Project

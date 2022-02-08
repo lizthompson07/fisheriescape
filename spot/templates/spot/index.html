@@ -55,7 +55,7 @@
                             {% trans "Reports" %}
                         </a>
                        {% for group in user.groups.all %}
-                            {% if group.name == "spot_admin" %}
+                            {% if is_admin %}
                                  <a href="{% url 'spot:feedback_list' %}" class="btn btn-dark">
                                      {% trans "Feedback" %}
                                 </a>

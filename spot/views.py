@@ -1,6 +1,5 @@
 import csv
 from datetime import date
-
 from django.contrib import messages
 from django.db.models import TextField
 from django.db.models.functions import Concat
@@ -8,13 +7,14 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView
 from django_filters.views import FilterView
-
 from shared_models.views import CommonFormsetView, CommonHardDeleteView
 from . import filters
 from . import forms
 from . import models
 from .mixins import SuperuserOrAdminRequiredMixin, SpotAccessRequiredMixin, SpotAdminRequiredMixin
-
+from dm_apps.settings import GOOGLE_API_KEY
+from django.core.mail import send_mail
+from dm_apps.settings import SITE_FROM_EMAIL
 
 class IndexTemplateView(SpotAccessRequiredMixin, TemplateView):
     template_name = 'spot/index.html'
@@ -214,6 +214,14 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        markers = []
+        prim_riv = [self.object.primary_river.name, float(self.object.primary_river.latitude), float(self.object.primary_river.longitude)]
+        markers.append(prim_riv)
+        for obj in self.object.secondary_river.all():
+            if obj.latitude and obj.longitude:
+                markers.append([obj.name, float(obj.latitude), float(obj.longitude)])
+        context["river_markers"] = markers
+        context["google_api_key"] = GOOGLE_API_KEY
         context["field_list"] = [
             'project_number',
             'agreement_number',
@@ -330,6 +338,8 @@ class ObjectiveListView(SpotAccessRequiredMixin, FilterView):
             'project',
             'element_title',
             'activity_title',
+            'unique_objective',
+            'species',
             'location',
         ]
         return context
@@ -343,6 +353,7 @@ class ObjectiveDetailView(SpotAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'project',
+            'unique_objective',
             'task_description',
             'element_title',
             'activity_title',
@@ -667,6 +678,16 @@ class FeedbackCreateView(SpotAccessRequiredMixin, CreateView):
 
     def form_valid(self, form):
         my_data = form.save()
+        subject = my_data.subject + ", " + my_data.sent_by.first_name + " " + my_data.sent_by.last_name + ", " + my_data.sent_by.username
+        print(subject)
+        print(my_data.comment)
+        send_mail(
+            my_data.subject,
+            my_data.comment,
+            SITE_FROM_EMAIL,
+            ['DFO.PAC.SGCM-MSCS.PAC.MPO@dfo-mpo.gc.ca']
+        )
+
         return HttpResponseRedirect(reverse_lazy("spot:feedback_detail", kwargs={"pk": my_data.id}))
 
 
@@ -856,10 +877,10 @@ class ReportsDeleteView(SpotAccessRequiredMixin, DeleteView):
 
 
 # ObjectiveDataTypeQuality #
-class ObjectiveDataTypeQualityCreateView(SpotAccessRequiredMixin, CreateView):
-    model = models.ObjectiveDataTypeQuality
-    template_name = 'spot/objective_data_type_quality_popout.html'
-    form_class = forms.ObjectiveDataTypeQualityForm
+class SampleOutcomeCreateView(SpotAccessRequiredMixin, CreateView):
+    model = models.SampleOutcome
+    template_name = 'spot/sample_outcome_popout.html'
+    form_class = forms.SampleOutcomeForm
 
     def get_initial(self):
         my_objective = models.Objective.objects.get(pk=self.kwargs['obj'])
@@ -879,10 +900,10 @@ class ObjectiveDataTypeQualityCreateView(SpotAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy("spot:close_me"))
 
 
-class ObjectiveDataTypeQualityUpdateView(SpotAccessRequiredMixin, UpdateView):
-    model = models.ObjectiveDataTypeQuality
-    template_name = 'spot/objective_data_type_quality_popout.html'
-    form_class = forms.ObjectiveDataTypeQualityForm
+class SampleOutcomeUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.SampleOutcome
+    template_name = 'spot/sample_outcome_popout.html'
+    form_class = forms.SampleOutcomeForm
 
     def form_valid(self, form):
         my_object = form.save()
@@ -894,10 +915,10 @@ class ObjectiveDataTypeQualityUpdateView(SpotAccessRequiredMixin, UpdateView):
         }
 
 
-class ObjectiveDataTypeQualityDeleteView(SpotAccessRequiredMixin, DeleteView):
-    model = models.ObjectiveDataTypeQuality
+class SampleOutcomeDeleteView(SpotAccessRequiredMixin, DeleteView):
+    model = models.SampleOutcome
     success_message = 'The Sample Type was successfully removed!'
-    template_name = 'spot/objective_data_type_quality_confirm_delete.html'
+    template_name = 'spot/sample_outcome_confirm_delete.html'
 
     def get_success_url(self):
         return reverse_lazy('spot:close_me')
@@ -908,10 +929,10 @@ class ObjectiveDataTypeQualityDeleteView(SpotAccessRequiredMixin, DeleteView):
 
 
 # OBJECTIVE OUTCOME #
-class ObjectiveOutcomeCreateView(SpotAccessRequiredMixin, CreateView):
-    model = models.ObjectiveOutcome
-    template_name = 'spot/objective_outcome_popout.html'
-    form_class = forms.ObjectiveOutcomeForm
+class ReportOutcomeCreateView(SpotAccessRequiredMixin, CreateView):
+    model = models.ReportOutcome
+    template_name = 'spot/report_outcome_popout.html'
+    form_class = forms.ReportOutcomeForm
 
     def get_initial(self):
         my_objective = models.Objective.objects.get(pk=self.kwargs['obj'])
@@ -931,10 +952,10 @@ class ObjectiveOutcomeCreateView(SpotAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy("spot:close_me"))
 
 
-class ObjectiveOutcomeUpdateView(SpotAccessRequiredMixin, UpdateView):
-    model = models.ObjectiveOutcome
-    template_name = 'spot/objective_outcome_popout.html'
-    form_class = forms.ObjectiveOutcomeForm
+class ReportOutcomeUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.ReportOutcome
+    template_name = 'spot/report_outcome_popout.html'
+    form_class = forms.ReportOutcomeForm
 
     def form_valid(self, form):
         my_object = form.save()
@@ -946,9 +967,9 @@ class ObjectiveOutcomeUpdateView(SpotAccessRequiredMixin, UpdateView):
         }
 
 
-class ObjectiveOutcomeDeleteView(SpotAccessRequiredMixin, DeleteView):
-    template_name = 'spot/objective_outcome_confirm_delete.html'
-    model = models.ObjectiveOutcome
+class ReportOutcomeDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/report_outcome_confirm_delete.html'
+    model = models.ReportOutcome
     success_message = 'The Outcome was successfully removed!'
 
     def get_success_url(self):
@@ -1446,7 +1467,7 @@ def export_objective(request):
     writer = csv.writer(response, delimiter=',')
     writer.writerow([
         'project',
-        'objective_id',
+        'unique_objective',
         'task_description',
         'element_title',
         'pst_requirement',
@@ -1470,13 +1491,13 @@ def export_objective(request):
     for obj in objective_filter:
         writer.writerow([
             obj.project,
-            obj.objective_id,
+            obj.unique_objective,
             obj.task_description,
             obj.element_title,
             obj.pst_requirement,
-            ",".join(i.name for i in obj.location.all()),
+            obj.location,
             ",".join(i.name for i in obj.objective_category.all()),
-            ",".join(i.name for i in obj.species.all()),
+            obj.species,
             obj.sil_requirement,
             obj.expected_results,
             obj.dfo_report,
