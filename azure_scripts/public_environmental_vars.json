@@ -5,8 +5,8 @@
     "prod": "8e613a08-d201-4b80-b6a9-6cc9fb1b0995"
   },
   "AAD_REDIRECT": {
-    "dev": "https://dmapps-dev-ase.dfo-dev-ase01.appserviceenvironment.net/accounts/callback",
-    "test": "https://dmapps-test-ase.dfo-dev-ase01.appserviceenvironment.net/accounts/callback",
+    "dev": "https://dmapps-dev-ase.azure.cloud.dfo-mpo.gc.ca/accounts/callback",
+    "test": "https://dmapps-test-ase.azure.cloud.dfo-mpo.gc.ca/accounts/callback",
     "prod": "https://sci-zone.dfo-mpo.gc.ca/accounts/callback"
   },
   "AZURE_ACR": "dmappsdevtestacr",
