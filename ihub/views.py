@@ -359,6 +359,8 @@ class MemberCreateView(iHubEditRequiredMixin, CommonPopoutCreateView):
         }
 
     def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
         obj = form.save()
         return HttpResponseRedirect(reverse("ihub:member_edit", args=[obj.id]))
 
@@ -369,7 +371,12 @@ class MemberUpdateView(iHubEditRequiredMixin, CommonPopoutUpdateView):
     form_class = forms.MemberForm
     width = 1000
     height = 800
-
+    
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
+        return super().form_valid(form)
+    
     def get_initial(self):
         return {
             'last_modified_by': self.request.user,

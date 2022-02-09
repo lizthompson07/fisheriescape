@@ -9,12 +9,27 @@
     <invitee-editor v-if="meeting" :meeting_id="meeting.id" @update-invitees="getInvitees"></invitee-editor>
   </div>
   <div class="mb-2 neighbours">
-    <button @click="sendAllInvitations" class="btn btn-sm btn-primary py-0 px-1" data-toggle="tooltip" title="{% trans "Send invitation to all invitees who have not already received an invitation" %}">
+    <button @click="sendAllInvitations" class="btn btn-sm btn-primary py-0 px-1" data-toggle="tooltip"
+            title="{% trans "Send invitation to all invitees who have not already received an invitation" %}">
       <span class="h5 mdi mdi-email text-light"></span>
     </button>
   </div>
   <div class="mb-2 neighbours">
-    <button @click="attendAll" class="btn btn-sm btn-primary py-0 px-1" data-toggle="tooltip" title="{% trans "Mark all invitees who accepted the invitation as having 100% attendance" %}">
+    <div class="dropdown">
+      <button class="btn btn-sm btn-primary py-0 px-1 dropdown-toggle" type="button" id="dropdownMenuButton"
+              data-toggle="dropdown" aria-expanded="false">
+        <span class="h5 mdi mdi-content-copy text-light"></span>
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <a @click="copyInvitations([0,1,3,4])" class="dropdown-item" href="#">{% trans "copy emails of non-declined invitees to clipboard" %}</a>
+        <a @click="copyInvitations([1])" class="dropdown-item" href="#">{% trans "copy emails of accepted invitees to clipboard" %}</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-2 neighbours">
+    <button @click="attendAll" class="btn btn-sm btn-primary py-0 px-1" data-toggle="tooltip"
+            title="{% trans "Mark all invitees who accepted the invitation as having 100% attendance" %}">
       <span class="h5 mdi mdi-account-multiple-check text-light"></span>
     </button>
   </div>
@@ -31,6 +46,7 @@
       <th class="text-left"> {% trans "Function(s)" %}</th>
       <th class="text-left"> {% trans "RSVP Status" %}</th>
       <th class="text-left"> {% trans "Attendance" %}</th>
+      <th></th>
     </tr>
     </thead>
     <tbody>
@@ -46,7 +62,7 @@
       <td>${ invitee.roles_display }</td>
       <td>
         <button @click="toggleInviteeStatus(invitee)"
-                :class="{'badge badge-pill':true, 'badge-success':invitee.status ===1,'badge-warning':invitee.status ===9,'badge-danger':invitee.status ===2,'badge-info':invitee.status ===3,  }">
+                :class="{'badge badge-pill':true, 'badge-success':invitee.status ===1,'badge-danger':invitee.status ===2,'badge-info':invitee.status ===3, 'badge-warning':invitee.status ===4  }">
           ${ invitee.status_display }
         </button>
       </td>
@@ -63,6 +79,9 @@
           <button class="btn btn-sm" @click="deleteInvitee(invitee)">
             <span class="mdi mdi-delete"></span>
           </button>
+          <span v-if="invitee.comments" class="btn btn-sm helper" @click="displayComments(invitee)" data-toggle="tooltip" :title="invitee.comments">
+            <span class="mdi mdi-note-text text-primary lead"></span>
+          </span>
         </div>
       </td>
 

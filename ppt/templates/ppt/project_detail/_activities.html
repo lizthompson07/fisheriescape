@@ -12,6 +12,11 @@
     <button @click="openModal(null, 'activity')" class="{{ btn_class_1 }} no-print" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Activity" %}
     </button>
+
+    <button class="{{ btn_class_1 }} no-print" @click="goProjectYearGantt(projectYear.id)">
+      <span class="mdi mdi-chart-gantt"></span> {% trans "View Gantt Chart" %}
+    </button>
+
   </div>
 
   <div v-if="activity_loading">
@@ -29,27 +34,32 @@
     >
       {% trans "No activities have been added to this year of the project" %}
     </div>
-
     <table v-else class="table table-sm w-100">
       <thead>
       <tr>
-        <th style="width: 100px">${activityLabels.type}</th>
-        <th style="width: 150px">${activityLabels.name}</th>
+        <th></th>
+        <th class="w-10">${activityLabels.type}</th>
+        <th class="w-10">${activityLabels.name}</th>
         <th>${activityLabels.description}</th>
-        <th style="width: 120px">{% trans "Target date" %}</th>
-        <th style="width: 120px">${activityLabels.responsible_party}</th>
-        <th style="width: 120px">{% trans "Latest status" %}</th>
-        <th class="text-center" style="width: 50px">{% trans "Completed?" %}</th>
+        <th class="w-10">{% trans "Dates" %}</th>
+        <th class="w-10">${activityLabels.responsible_parties}</th>
+        <th class="w-10">{% trans "Latest status" %}</th>
+        <th class="text-center w-5">{% trans "Completed?" %}</th>
       </tr>
 
       </thead>
-      <tbody>
-      <tr v-for="(item, index) in activities">
+      <tbody v-for="(item, index) in activities" v-if="!item.parent">
+      <tr>
+        <td v-if="item.children.length" class="pointy" @click="item.show_children = !item.show_children">
+          <span v-if="item.show_children" class="mdi mdi-minus-box-outline lead"></span>
+          <span v-else class="mdi mdi-plus-box-outline lead"></span>
+        </td>
+        <td v-else></td>
         <td v-html="item.type_display"></td>
         <td v-html="item.name"></td>
         <td v-html="item.description"></td>
-        <td>${item.target_date_display|nz}</td>
-        <td v-html="item.responsible_party"></td>
+        <td v-html="item.dates"></td>
+        <td v-html="item.responsible_parties_display"></td>
         <td v-html="item.latest_update"></td>
         <td v-if="canModify" class="text-center">
           <button @click="markActivity(item, 'incomplete')" v-if="item.latest_update.toLowerCase().search('complete') > -1" class="no-print btn"><span
@@ -59,10 +69,37 @@
         </td>
         <td class="to-the-right" v-if="canModify">
           <button @click="openModal(item, 'activity')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
-          <button @click="cloneActivity(item)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-content-copy" data-toggle="tooltip" title="clone"></span></button>
+          <button @click="cloneActivity(item)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-content-copy" data-toggle="tooltip"
+                                                                                        title="clone"></span>
+          </button>
           <button @click="deleteObject(item, 'activities', activities)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
         </td>
       </tr>
+      <tr v-if="item.show_children" v-for="child in item.children" :key="child.id" class="child">
+        <td>
+          <span class="mdi mdi-subdirectory-arrow-right ml-3"></span>
+        </td>
+        <td v-html="child.type_display"></td>
+        <td v-html="child.name"></td>
+        <td v-html="child.description"></td>
+        <td v-html="child.dates"></td>
+        <td v-html="child.responsible_parties_display"></td>
+        <td v-html="child.latest_update"></td>
+        <td v-if="canModify" class="text-center">
+          <button @click="markActivity(child, 'incomplete')" v-if="child.latest_update.toLowerCase().search('complete') > -1" class="no-print btn"><span
+            class="mdi mdi-checkbox-marked-outline h5" data-toggle="tooltip" title="mark as incompleted"></span></button>
+          <button @click="markActivity(child, 'complete')" v-else class="no-print btn"><span class="mdi mdi-checkbox-blank-outline h5" data-toggle="tooltip"
+                                                                                            title="mark as completed"></span></button>
+        </td>
+        <td class="to-the-right" v-if="canModify">
+          <button @click="openModal(child, 'activity')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
+          <button @click="cloneActivity(child)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-content-copy" data-toggle="tooltip"
+                                                                                        title="clone"></span>
+          </button>
+          <button @click="deleteObject(child, 'activities', activities)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
+        </td>
+      </tr>
+
       </tbody>
 
     </table>

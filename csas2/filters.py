@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from shared_models.models import FiscalYear, Section, Person, SubjectMatter
 from . import models, utils, model_choices
-from .model_choices import request_status_choices, get_process_status_choices
+from .model_choices import request_status_choices, get_process_status_choices, tor_status_choices
 
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
 chosen_js = {"class": "chosen-select-contains"}
@@ -120,6 +120,7 @@ class ProcessFilter(django_filters.FilterSet):
     lead_office = django_filters.ChoiceFilter(field_name="lead_office", label=_("Lead Office"), lookup_expr='exact')
     is_posted = django_filters.ChoiceFilter(field_name="is_posted", label=_("Is Posted?"), lookup_expr='exact', empty_label=_("All"), choices=YES_NO_CHOICES)
     csas_requests__client = django_filters.ChoiceFilter(field_name="csas_requests__client", label=_("Request client"), lookup_expr='exact')
+    tor_status = django_filters.ChoiceFilter(field_name='tor__status', lookup_expr='exact', label=_("ToR status"), widget=forms.Select(attrs=chosen_js))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -132,6 +133,7 @@ class ProcessFilter(django_filters.FilterSet):
         self.filters['csas_requests__client'] = django_filters.ChoiceFilter(field_name="csas_requests__client", label=_("Request client"), lookup_expr='exact',
                                                                             choices=client_choices)
         self.filters['status'].field.choices = get_process_status_choices()
+        self.filters['tor_status'].field.choices = tor_status_choices
         self.filters['lead_office'].field.choices = office_choices
 
     class Meta:
@@ -143,11 +145,28 @@ class ProcessFilter(django_filters.FilterSet):
 
 
 class MeetingFilter(django_filters.FilterSet):
-    process = django_filters.ChoiceFilter(field_name='process', lookup_expr='exact')
-    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title contains"))
-    region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
-    branch = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact')
-    has_process = django_filters.BooleanFilter(field_name='process', lookup_expr='isnull', label=_("Has process?"), exclude=True)
+    # process = django_filters.ChoiceFilter(field_name='process', lookup_expr='exact', widget=forms.Select(attrs=chosen_js))
+    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Meeting Title contains"))
+
+    # fiscal_year = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact')
+    # lead_office = django_filters.ChoiceFilter(field_name="process__lead_office", label=_("Lead office"), lookup_expr='exact')
+
+    class Meta:
+        model = models.Meeting
+        fields = {
+            'process': ['exact'],
+            'process__fiscal_year': ['exact'],
+            'process__lead_office': ['exact'],
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(processes__isnull=False).distinct()]
+
+        self.filters['process'].field.widget.attrs = chosen_js
+        self.filters['process__fiscal_year'] = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year"))
+        self.filters['process__lead_office'].label = _("Lead CSAS office")
 
 
 class DocumentFilter(django_filters.FilterSet):

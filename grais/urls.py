@@ -18,6 +18,10 @@ urlpatterns = [
     path('settings/baits/', gc_views.BaitFormsetView.as_view(), name="manage_baits"),
     path('settings/bait/<int:pk>/delete/', gc_views.BaitHardDeleteView.as_view(), name="delete_bait"),
 
+    # user permissions
+    path('settings/users/', shared_views.GRAISUserFormsetView.as_view(), name="manage_grais_users"),
+    path('settings/users/<int:pk>/delete/', shared_views.GRAISUserHardDeleteView.as_view(), name="delete_grais_user"),
+
     # species
     path('species/', shared_views.SpeciesListView.as_view(), name="species_list"),  # tested
     path('species/new/', shared_views.SpeciesCreateView.as_view(), name="species_new"),  # tested
@@ -129,7 +133,8 @@ urlpatterns = [
     # Reports #
     ###########
     path('reports/search/', shared_views.ReportSearchFormView.as_view(), name="reports"),  # tested
-    path('reports/species-by-sample-spreadsheet/<str:species_list>/<str:year>/', shared_views.species_sample_spreadsheet_export, name="spp_sample_xlsx"),  # tested
+    path('reports/species-by-sample-spreadsheet/<str:species_list>/<str:year>/', shared_views.species_sample_spreadsheet_export, name="spp_sample_xlsx"),
+    # tested
     path('reports/biofouling-presence-absence/', shared_views.biofouling_presence_absence_spreadsheet_export, name="biofouling_pa_xlsx"),  # tested
     path('reports/opendata1/<int:year>/', shared_views.export_open_data_ver1, name="od1_report"),  # tested
     path('reports/opendata1/', shared_views.export_open_data_ver1, name="od1_report"),  # tested
@@ -140,5 +145,6 @@ urlpatterns = [
     path('reports/gc/<int:year>/cpue/', shared_views.export_gc_cpue, name="gc_cpue_report"),  # tested
     path('reports/gc/<int:year>/envr/', shared_views.export_gc_envr, name="gc_envr_report"),  # tested
     path('reports/gc/site-list/', shared_views.export_gc_sites, name="gc_site_report"),  # tested
+    path('reports/gc/gravid-green-crabs/', shared_views.export_gc_gravid_green_crabs, name="gc_gravid_green_crabs"),  # tested
 
 ]

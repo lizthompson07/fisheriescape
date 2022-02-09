@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from django.contrib.auth.models import User
-from django.db.models import Value, TextField
+from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
 from django.utils import timezone
+from django.utils.timezone import utc, make_aware
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
@@ -15,16 +16,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from unidecode import unidecode
 
+from ppt.utils import prime_csas_activities
 from shared_models.api.serializers import PersonSerializer
-from shared_models.api.views import _get_labels
+from shared_models.api.views import _get_labels, SharedModelMetadataAPIView
 from shared_models.models import Person, Language, Region, FiscalYear, SubjectMatter
 from . import serializers
 from .pagination import StandardResultsSetPagination
-from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission, CanModifyRequestReviewOrReadOnly
+from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission, CanModifyRequestReviewOrReadOnly, \
+    CanModifyToROrReadOnly, CanModifyToRReviewerOrReadOnly
 from .. import models, emails, model_choices, utils, filters
 # USER
 #######
 from ..emails import ReviewCompleteEmail
+from ..utils import can_modify_process
 
 
 class CurrentUserAPIView(APIView):
@@ -53,6 +57,12 @@ class CurrentUserAPIView(APIView):
         elif qp.get("meeting"):
             meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
             data["can_modify"] = utils.can_modify_process(request.user, meeting.process_id, return_as_dict=True)
+        elif qp.get("tor"):
+            tor = get_object_or_404(models.TermsOfReference, pk=qp.get("tor"))
+            data["can_modify"] = utils.can_modify_tor(request.user, tor.id, return_as_dict=True)
+            data["can_unsubmit"] = utils.can_unsubmit_tor(request.user, tor.id)
+            if tor.current_reviewer and tor.current_reviewer.user == request.user:
+                data["reviewer"] = serializers.ToRReviewerSerializer(tor.current_reviewer).data
         return Response(data)
 
 
@@ -184,14 +194,103 @@ class ProcessViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         process = get_object_or_404(models.Process, pk=pk)
         if qp.get("request_posting"):
-            if not process.is_posted:
-                email = emails.PostingRequestEmail(request, process)
-                email.send()
-                process.posting_request_date = timezone.now()
-                process.save()
-                msg = _("Success! Your request for a posting has been sent to the National CSAS Office.")
-                return Response(msg, status.HTTP_200_OK)
-            raise ValidationError(_("A request to have this process posted has already occurred."))
+            can_modify = can_modify_process(request.user, process.id, True)
+            if not can_modify.can_modify:
+                raise ValidationError(can_modify.reason)
+            elif process.is_posted:
+                raise ValidationError(_("A request to have this process posted has already occurred."))
+
+            email = emails.PostingRequestEmail(request, process)
+            email.send()
+            process.posting_request_date = timezone.now()
+            process.save()
+            msg = _("Success! Your request for a posting has been sent to the National CSAS Office.")
+            return Response(msg, status.HTTP_200_OK)
+
+        elif qp.get("link_2_ppt"):
+            can_modify = can_modify_process(request.user, process.id, True)
+            if not can_modify["can_modify"]:
+                raise ValidationError(can_modify["reason"])
+            elif process.projects.count() > 1:
+                raise ValidationError(_("Cannot perform this action when there are more than 1 projects attached to a process"))
+
+            from ppt.models import Project, ProjectYear, Staff, Tag
+            # There is no project
+            if not process.projects.exists():
+                # let's create a new project in the PPT
+                project = Project.objects.create(
+                    title=process.name,
+                    activity_type_id=3,  # other
+                    default_funding_source_id=1,  # a-base core
+                    section=process.lead_office.ppt_default_section  # ok if NoneType
+                )
+                if process.csas_requests.exists():
+                    project.overview = f"{process.csas_requests.first().issue}\n\n{process.csas_requests.first().rationale}"
+                    project.save()
+                process.projects.add(project)
+                msg = _("Success! A new project in the PPT has been created and was linked to this CSAS Process")
+
+            # There is already a project linked
+            else:
+                project = process.projects.first()
+                msg = _("Success! the linked project in the PPT has been updated")
+
+            # tag it with the CSAS keyword
+            keyword, created = Tag.objects.get_or_create(name="CSAS")
+            project.tags.add(keyword)
+
+            # get or create the project year
+            # cannot use get_or_create because of weirdness with project start date / fiscal year
+            year_qs = ProjectYear.objects.filter(fiscal_year_id=process.fiscal_year.id, project=project)
+            if not year_qs:
+                date = datetime.strptime(f"4/1/{process.fiscal_year_id - 1} 12:00", "%m/%d/%Y %H:%M")
+                date = make_aware(date, utc)
+                project_year = ProjectYear.objects.create(start_date=date, project=project)
+            else:
+                project_year = year_qs.first()
+
+            # STAFF
+            # make sure the current user and coordinator are on the list
+            leads_to_add = [self.request.user, process.coordinator]
+            leads_to_add.extend([u for u in process.advisors.all()])
+            # for each meeting
+            for m in process.meetings.all():
+                invitees = m.invitees.filter(roles__category__in=[1, 4], person__dmapps_user__isnull=False).distinct()
+                for i in invitees:
+                    leads_to_add.append(i.person.dmapps_user)
+            leads_to_add = list(set(leads_to_add))
+
+            project_year.staff_set.all().delete()
+            for lead in leads_to_add:
+                staff = Staff.objects.create(
+                    project_year=project_year,
+                    employee_type_id=1,  # full time indeterminate
+                    is_lead=True,
+                    user=lead,
+                )
+
+            # ACTIVITIES
+            project_year.activities.all().delete()
+
+            # check the expected docs
+            has_sr_or_ar = hasattr(process, "tor") and process.tor.expected_document_types.filter(
+                Q(name__icontains="response") | Q(name__icontains="advisory")).exists()
+            has_res_or_proc = hasattr(process, "tor") and process.tor.expected_document_types.filter(
+                Q(name__icontains="research") | Q(name__icontains="proceedings")).exists()
+
+            # start with the assumption of a starting date as the advise date
+            starting_date = process.advice_date
+            # start with the assumption of a 2-day meeting
+            meeting_duration = 2
+            if process.meetings.exists() and process.meetings:
+                last_meeting = process.meetings.filter(is_planning=False).last()
+                # use the actual meeting length
+                meeting_duration = last_meeting.length_days
+                # ideally the starting date is the last day of the meeting
+                starting_date = last_meeting.end_date
+            prime_csas_activities(project_year, starting_date, meeting_duration, has_sr_or_ar, has_res_or_proc)
+            return Response(msg, status.HTTP_200_OK)
+
         raise ValidationError(_("This endpoint cannot be used without a query param"))
 
 
@@ -217,6 +316,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
                         meeting=meeting,
                         person=new_invitee.person,
                         region=new_invitee.region,
+                        comments=new_invitee.comments,
                     )
                     for role in new_invitee.roles.all():
                         i.roles.add(role)
@@ -560,15 +660,18 @@ class InviteeSendInvitationAPIView(APIView):
     def post(self, request, pk):
         """ send the email"""
         invitee = get_object_or_404(models.Invitee, pk=pk)
-        if not invitee.invitation_sent_date:
-            # send email
-            email = emails.InvitationEmail(request, invitee)
-            email.send()
-            invitee.invitation_sent_date = timezone.now()
-            invitee.save()
+        if invitee.invitation_sent_date:
+            return Response("An email has already been sent to this invitee.", status=status.HTTP_400_BAD_REQUEST)
+        elif invitee.status == 2:
+            return Response("This invitee has a status set to declined.", status=status.HTTP_400_BAD_REQUEST)
 
-            return Response("email sent.", status=status.HTTP_200_OK)
-        return Response("An email has already been sent to this invitee.", status=status.HTTP_400_BAD_REQUEST)
+        # send email
+        email = emails.InvitationEmail(request, invitee)
+        email.send()
+        invitee.invitation_sent_date = timezone.now()
+        invitee.save()
+
+        return Response("email sent.", status=status.HTTP_200_OK)
 
     def get(self, request, pk):
         """ get a preview of the email to be sent"""
@@ -732,5 +835,84 @@ class ProcessModelMetaAPIView(APIView):
         data['status_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.get_process_status_choices()]
         data['region_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_region_choices()]
         data['fy_choices'] = [dict(text=str(c), value=c.id) for c in FiscalYear.objects.filter(processes__isnull=False).distinct()]
-
         return Response(data)
+
+
+class CSASModelMetadataAPIView(SharedModelMetadataAPIView):
+    def get_data(self):
+        data = super().get_data()
+        model = self.get_model()
+
+        return data
+
+
+class ToRViewSet(viewsets.ModelViewSet):
+    queryset = models.TermsOfReference.objects.all()
+    serializer_class = serializers.ToRSerializer
+    permission_classes = [CanModifyToROrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+    def post(self, request, pk):
+        qp = request.query_params
+        tor = get_object_or_404(models.TermsOfReference, pk=pk)
+        if qp.get("approval_seeker"):
+            utils.tor_approval_seeker(tor, request)
+            return Response(None, status.HTTP_204_NO_CONTENT)
+        elif qp.get("resume_review"):
+            # reset the decision of the current reviewer
+            current_reviewer = tor.current_reviewer
+            current_reviewer.decision = None
+            current_reviewer.decision_date = None
+            current_reviewer.save()
+
+            # return the status of the ToR to UNDER REVIEW (20)
+            tor.status = 20
+            tor.save()
+            utils.tor_approval_seeker(tor, request)
+            return Response(None, status.HTTP_204_NO_CONTENT)
+        elif qp.get("toggle_posting"):
+            # if posted, then unpost
+            if tor.status == 50:
+                tor.status = 40
+                tor.save()
+            # if not posted, then post
+            elif tor.status == 40:
+                tor.status = 50
+                tor.save()
+                if not tor.posting_notification_date:
+                    tor.posting_notification_date = timezone.now()
+                    tor.save()
+                    email = emails.PostedToREmail(request, tor)
+                    email.send()
+            return Response(self.serializer_class(tor).data, status.HTTP_200_OK)
+        elif qp.get("request_posting"):
+            email = emails.ToRPostingRequestEmail(request, tor)
+            email.send()
+            tor.posting_request_date = timezone.now()
+            tor.status = 40
+            tor.save()
+            return Response(self.serializer_class(tor).data, status.HTTP_200_OK)
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
+
+
+class ToRReviewerViewSet(viewsets.ModelViewSet):
+    queryset = models.ToRReviewer.objects.all()
+    serializer_class = serializers.ToRReviewerSerializer
+    permission_classes = [CanModifyToRReviewerOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["tor"]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        obj = serializer.save(updated_by=self.request.user)
+        # if the decisions is to request changes, this would be the moment to send out an email!
+        if obj.decision == 2:
+            email = emails.ToRChangesRequestedEmail(self.request, obj)
+            email.send()

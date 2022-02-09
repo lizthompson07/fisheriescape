@@ -8,6 +8,8 @@
   <td v-html='projectYear.allocated_budget'></td>
 {% elif "it_needs" in field %}
   <td v-html='projectYear.it_needs'></td>
+{% elif "codes" in field %}
+  <td v-html='projectYear.project_codes'></td>
 {% elif "total_score" in field %}
   <td>
     ${ projectYear.review_score_percentage } (${ projectYear.review_score_fraction })

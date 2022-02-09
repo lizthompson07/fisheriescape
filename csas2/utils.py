@@ -1,9 +1,10 @@
 # open basic access up to anybody who is logged in
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from csas2 import models
+from csas2 import models, emails
 from lib.templatetags.verbose_names import get_verbose_label
 from shared_models.models import Section, Division, Region, Branch, Sector
 
@@ -259,10 +260,64 @@ def can_modify_process(user, process_id, return_as_dict=False):
             my_dict["can_modify"] = True
         # are they a regional administrator?
         elif in_csas_regional_admin_group(user) and (
-                user.csas_admin_user.region == process.lead_region or process.other_regions.filter(id=user.csas_admin_user.region.id).exists()):
+                user.csas_admin_user.region == process.lead_office.region or process.other_offices.filter(region=user.csas_admin_user.region).exists()):
             my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
             my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]
+
+
+def can_modify_tor(user, tor_id, return_as_dict=False):
+    """
+    returns True if user has permissions to delete or modify a process' ToR
+    """
+    my_dict = dict(can_modify=False, reason=_("You are not logged in"))
+
+    if user.id:
+        my_dict["reason"] = _("You do not have the permissions to modify this process")
+        tor = get_object_or_404(models.TermsOfReference, pk=tor_id)
+        process = tor.process
+
+        # are they a national administrator?
+        if in_csas_national_admin_group(user):
+            my_dict["reason"] = _("You can modify this record because you are a national CSAS administrator")
+            my_dict["can_modify"] = True
+        # are they a national administrator?
+        elif in_csas_web_pub_group(user):
+            my_dict["reason"] = _("You can modify this record because you are a NCR web & pub staff member")
+            my_dict["can_modify"] = True
+        # if the tor is not submitted OR if the tor is AWAITING CHANGES, we can default back to the can_modify_process rules
+        elif not tor.submission_date or tor.status == 30:
+            d = can_modify_process(user, process.id, True)
+            my_dict["reason"] = d["reason"]
+            my_dict["can_modify"] = d["can_modify"]
+        return my_dict if return_as_dict else my_dict["can_modify"]
+
+
+def can_modify_tor_reviewer(user, tor_reviewer_id):
+    """
+    if the tor is submitted, the only person who can modify the tor reviewer is the reviewer himself.
+    Otherwise it is the same rules as can_modify_tor
+    """
+    if user.id:
+        tor_reviewer = get_object_or_404(models.ToRReviewer, pk=tor_reviewer_id)
+        tor = tor_reviewer.tor
+        if not tor.submission_date:
+            return can_modify_tor(user, tor.id)
+        else:
+            return tor_reviewer.user_id == user.id
+
+
+def can_unsubmit_tor(user, tor_id):
+    if user.id:
+        tor = get_object_or_404(models.TermsOfReference, pk=tor_id)
+        # if national admin, they can always un-submit
+        if in_csas_national_admin_group(user):
+            return True
+        # are they a national administrator?
+        elif in_csas_web_pub_group(user):
+            return True
+        # otherwise, the must be allowed to edit the process and the tor status must not be AWAITING POSTING (40) or POSTED (50)
+        return bool(can_modify_process(user, tor.process.id) and tor.status not in [40, 50])
 
 
 def get_request_field_list(csas_request, user):
@@ -300,6 +355,23 @@ def get_review_field_list():
         'advice_date',
         'deferred_display|{}'.format(_("Was the original request date deferred?")),
         'notes',
+        'metadata|{}'.format(_("metadata")),
+    ]
+    while None in my_list: my_list.remove(None)
+    return my_list
+
+
+def get_tor_field_list():
+    my_list = [
+        "status_display|{}".format(_("ToR status")),
+        "meeting",
+        "meeting.chair|chair(s)",
+        "meeting.tor_display_dates|{}".format(_("meeting dates")),
+        "meeting.location|{}".format(_("meeting location")),
+        "expected_document_types",
+        "submission_date",
+        "posting_request_date",
+        "posting_notification_date",
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)
@@ -441,3 +513,60 @@ def has_todos(user):
            user.processnote_created_by.filter(**kwargs).exists() or \
            user.meetingnote_created_by.filter(**kwargs).exists() or \
            user.documentnote_created_by.filter(**kwargs).exists()
+
+
+def end_tor_review_process(tor):
+    """this should be used when a project is unsubmitted. It will change over all reviewers' statuses to Pending"""
+    tor.submission_date = None
+    tor.status = 10  # set status to DRAFT
+    tor.save()
+
+    # set all reviewers to draft
+    for reviewer in tor.reviewers.all():
+        reviewer.status = 10  # DRAFT
+        reviewer.decision = None
+        reviewer.decision_date = None
+        reviewer.save()
+
+
+def start_tor_review_process(tor):
+    """this should be used when a tor is submitted. It will change over all reviewers' statuses to queued
+    """
+    tor.submission_date = timezone.now()
+    tor.status = 20  # under review
+    tor.save()
+
+    # set everyone to being queued
+    for reviewer in tor.reviewers.all():
+        reviewer.status = 20  # QUEUED
+        reviewer.decision_date = None
+        reviewer.save()
+
+
+def tor_approval_seeker(tor, request):
+    """
+    This method is meant to seek approvals via email + set reviewer statuses.
+    """
+    # only look for a next reviewer if we are still UNDER REVIEW (20)
+    if tor.status == 20:
+        next_reviewer = None
+        # look through all the reviewers... see if we can decide on who the next reviewer should be...
+        for reviewer in tor.reviewers.all():
+            # if the reviewer's status is set to QUEUED (20) or PENDING (30), they will be our next selection
+            # we should then exit the loop and set the next_reviewer var
+            if reviewer.status in [20, 30]:
+                next_reviewer = reviewer
+                break
+        # if there is a next reviewer, set their status to pending and send them an email
+        if next_reviewer:
+            next_reviewer.status = 30  # pending
+            next_reviewer.save()
+            email = emails.ToRReviewAwaitingEmail(request, next_reviewer)
+            email.send()
+
+        # if there is no next reviewer,
+        else:
+            tor.status = 35
+            tor.save()
+            email = emails.ToRReviewCompleteEmail(request, tor)
+            email.send()

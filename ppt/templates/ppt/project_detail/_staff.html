@@ -58,7 +58,12 @@
           {% if "smart_name" in field %}
             <td>${s.smart_name| nz}</td>
           {% elif "lead" in field %}
-            <td>${s.is_lead | yesNo}</td>
+            <td>
+            <span v-if="s.is_lead" class="good p-1">${s.is_lead | yesNo}</span>
+            <span v-else class="p-1">${s.is_lead | yesNo}</span>
+
+
+            </td>
           {% elif "funding_source" in field %}
             <td>
               <span v-if="isABase(s.funding_source_display)" class="a-base py-1 px-1">${s.funding_source_display | nz }</span>

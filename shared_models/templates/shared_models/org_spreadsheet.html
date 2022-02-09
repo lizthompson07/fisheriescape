@@ -433,25 +433,27 @@
               <th>{% trans "Abbreviation" %}</th>
               <th>{% trans "Head" %}</th>
               <th>{% trans "Admin" %}</th>
+              <th>{% trans "uuid" %}</th>
               <th style="width: 170px">{% trans "Metadata" %}</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="obj, index in filteredSections" :key="obj.id" :ref="`section_${obj.id}`">
-              <td v-if="obj.division_obj.branch_obj.sector_obj">${obj.division_obj.branch_obj.sector_obj.region_obj.name}</td>
-              <td v-else>---</td>
-              <td v-if="obj.division_obj.branch_obj">${obj.division_obj.branch_obj.sector_obj.name}</td>
-              <td v-else>---</td>
-              <td v-if="obj.division_obj.branch_obj">${obj.division_obj.branch_obj.name}</td>
-              <td v-else>---</td>
-              <td v-if="obj.division_obj">${obj.division_obj.name}</td>
-              <td v-else>---</td>
-              <td>${obj.name}</td>
-              <td>${obj.nom}</td>
+              <td class="text-muted" class="text-muted" v-if="obj.division_obj.branch_obj.sector_obj">${obj.division_obj.branch_obj.sector_obj.region_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="text-muted" v-if="obj.division_obj.branch_obj">${obj.division_obj.branch_obj.sector_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="text-muted" v-if="obj.division_obj.branch_obj">${obj.division_obj.branch_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="text-muted" v-if="obj.division_obj">${obj.division_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="font-weight-bold">${obj.name}</td>
+              <td class="font-weight-bold">${obj.nom}</td>
               <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
-              <td v-html="obj.metadata"></td>
+              <td class="small">${obj.uuid}</td>
+              <td class="small" v-html="obj.metadata"></td>
               <td>
                 <div class="btn-group">
                   <button @click="editSection(obj)" class="btn btn-sm btn-primary">{% trans "Edit" %}</button>
@@ -482,23 +484,25 @@
               <th>{% trans "Abbreviation" %}</th>
               <th>{% trans "Head" %}</th>
               <th>{% trans "Admin" %}</th>
+              <th>{% trans "uuid" %}</th>
               <th style="width: 170px">{% trans "Metadata" %}</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="obj, index in filteredDivisions" :key="obj.id" :ref="`division_${obj.id}`">
-              <td v-if="obj.branch_obj.sector_obj.region_obj">${obj.branch_obj.sector_obj.region_obj.name}</td>
-              <td v-else>---</td>
-              <td v-if="obj.branch_obj.sector_obj">${obj.branch_obj.sector_obj.name}</td>
-              <td v-else>---</td>
-              <td v-if="obj.branch_obj">${obj.branch_obj.name}</td>
-              <td v-else>---</td>
-              <td>${obj.name}</td>
-              <td>${obj.nom}</td>
+              <td class="text-muted" v-if="obj.branch_obj.sector_obj.region_obj">${obj.branch_obj.sector_obj.region_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="text-muted" v-if="obj.branch_obj.sector_obj">${obj.branch_obj.sector_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="text-muted" v-if="obj.branch_obj">${obj.branch_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="font-weight-bold">${obj.name}</td>
+              <td class="font-weight-bold">${obj.nom}</td>
               <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
-              <td v-html="obj.metadata"></td>
+              <td class="small">${obj.uuid}</td>
+              <td class="small" v-html="obj.metadata"></td>
               <td>
                 <div class="btn-group">
                   <button @click="editDivision(obj)" class="btn btn-sm btn-primary">{% trans "Edit" %}</button>
@@ -528,21 +532,24 @@
               <th>{% trans "Abbreviation" %}</th>
               <th>{% trans "Head" %}</th>
               <th>{% trans "Admin" %}</th>
+              <th>{% trans "uuid" %}</th>
               <th style="width: 170px">{% trans "Metadata" %}</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="obj, index in filteredBranches" :key="obj.id" :ref="`branch_${obj.id}`">
-              <td v-if="obj.sector_obj.region_obj">${obj.sector_obj.region_obj.name}</td>
-              <td v-else>---</td>
-              <td v-if="obj.sector_obj">${obj.sector_obj.name}</td>
-              <td v-else>---</td>
-              <td>${obj.name} <span v-if="obj.region_obj">[${obj.region_obj.name}]</span></td> {# TODO: This should be deleted eventually #}
-              <td>${obj.nom}</td>
+              <td class="text-muted" v-if="obj.sector_obj.region_obj">${obj.sector_obj.region_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="text-muted" v-if="obj.sector_obj">${obj.sector_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="font-weight-bold">${obj.name} <span v-if="obj.region_obj">[${obj.region_obj.name}]</span></td>
+              {# TODO: This should be deleted eventually #}
+              <td class="font-weight-bold">${obj.nom}</td>
               <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
-              <td v-html="obj.metadata"></td>
+              <td class="small">${obj.uuid}</td>
+              <td class="small" v-html="obj.metadata"></td>
               <td>
                 <div class="btn-group">
                   <button @click="editBranch(obj)" class="btn btn-sm btn-primary">{% trans "Edit" %}</button>
@@ -556,7 +563,7 @@
 
       </div>
 
-    <div v-else-if="showSectors">
+      <div v-else-if="showSectors">
         <div v-if="!sectorToEdit">
           <div class="mb-3">
             <h3>{% trans "Sectors" %}</h3>
@@ -574,20 +581,22 @@
               <th>{% trans "Abbreviation (French)" %}</th>
               <th>{% trans "Head" %}</th>
               <th>{% trans "Admin" %}</th>
+              <th>{% trans "uuid" %}</th>
               <th style="width: 170px">{% trans "Metadata" %}</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="obj, index in filteredSectors" :key="obj.id" :ref="`branch_${obj.id}`">
-              <td v-if="obj.region_obj">${obj.region_obj.name}</td>
-              <td v-else>---</td>
-              <td>${obj.name}</td>
-              <td>${obj.nom}</td>
+              <td class="text-muted" v-if="obj.region_obj">${obj.region_obj.name}</td>
+              <td class="text-muted" v-else>---</td>
+              <td class="font-weight-bold">${obj.name}</td>
+              <td class="font-weight-bold">${obj.nom}</td>
               <td>${obj.abbrev_en}</td>
               <td>${obj.abbrev_fr}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
-              <td v-html="obj.metadata"></td>
+              <td class="small">${obj.uuid}</td>
+              <td class="small" v-html="obj.metadata"></td>
               <td>
                 <div class="btn-group">
                   <button @click="editSector(obj)" class="btn btn-sm btn-primary">{% trans "Edit" %}</button>
@@ -617,17 +626,19 @@
               <th>{% trans "Abbreviation" %}</th>
               <th>{% trans "Head" %}</th>
               <th>{% trans "Admin" %}</th>
+              <th>{% trans "uuid" %}</th>
               <th style="width: 170px">{% trans "Metadata" %}</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="obj, index in regions" :key="obj.id" :ref="`region_${obj.id}`">
-              <td>${obj.name}</td>
-              <td>${obj.nom}</td>
+              <td class="font-weight-bold">${obj.name}</td>
+              <td class="font-weight-bold">${obj.nom}</td>
               <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
-              <td v-html="obj.metadata"></td>
+              <td class="small">${obj.uuid}</td>
+              <td class="small" v-html="obj.metadata"></td>
               <td>
                 <div class="btn-group">
                   <button @click="editRegion(obj)" class="btn btn-sm btn-primary">{% trans "Edit" %}</button>
@@ -891,7 +902,6 @@
       },
 
 
-
       editRegion(region) {
         this.errors = null;
         if (!region) this.regionToEdit = {};
@@ -1006,7 +1016,7 @@
             if (this.branches[i].sector === this.sectorFilter) myarray.push(this.branches[i])
           } else if (this.regionFilter) {
             if (this.branches[i].sector_obj.region === this.regionFilter) myarray.push(this.branches[i])
-          }  else myarray.push(this.branches[i])
+          } else myarray.push(this.branches[i])
         }
         return myarray
       },

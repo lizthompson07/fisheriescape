@@ -57,9 +57,16 @@ class CSASOfficeForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'coordinator': forms.Select(attrs=chosen_js),
+            'ppt_default_section': forms.Select(attrs=chosen_js),
             'advisors': forms.SelectMultiple(attrs=chosen_js),
             'administrators': forms.SelectMultiple(attrs=chosen_js),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        section_choices = utils.get_section_choices(with_requests=False)
+        section_choices.insert(0, (None, "-----"))
+        self.fields['ppt_default_section'].choices = section_choices
 
 
 class TripRequestTimestampUpdateForm(forms.ModelForm):
@@ -71,6 +78,18 @@ class TripRequestTimestampUpdateForm(forms.ModelForm):
         widgets = {
             "is_multiregional": forms.HiddenInput()
         }
+
+
+class ToRTimestampUpdateForm(forms.ModelForm):
+    class Meta:
+        model = models.TermsOfReference
+        fields = [
+            "meeting",  # just a random field
+        ]
+        widgets = {
+            "meeting": forms.HiddenInput()
+        }
+
 
 
 class ReportSearchForm(forms.Form):
@@ -344,6 +363,7 @@ class ProcessForm(forms.ModelForm):
             'lead_office',
             'other_offices',
             'editors',
+            'projects',
         ]
         required_fields = [
             'csas_requests',
@@ -358,6 +378,7 @@ class ProcessForm(forms.ModelForm):
             'lead_office': forms.Select(attrs=chosen_js),
             'other_offices': forms.SelectMultiple(attrs=chosen_js),
             'advice_date': forms.DateInput(attrs=dict(type="date"), format="%Y-%m-%d"),
+            'projects': forms.SelectMultiple(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
@@ -367,7 +388,11 @@ class ProcessForm(forms.ModelForm):
         self.fields["csas_requests"].choices = request_choices
         if kwargs.get("instance"):
             del self.fields["create_steering_committee_meeting"]
+            del self.fields["committee_members"]
+            del self.fields["create_keystone_meeting"]
             del self.fields["science_leads"]
+            del self.fields["client_leads"]
+            del self.fields["chair"]
         else:
             person_choices = [(p.id, f"{p} ({p.email})") for p in Person.objects.all()]
             self.fields["committee_members"].choices = person_choices
@@ -379,6 +404,7 @@ class ProcessForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         # make sure that the lead_region is not also listed in the other_regions field
+        csas_requests = cleaned_data.get("csas_requests")
         lead_office = cleaned_data.get("lead_office")
         other_offices = cleaned_data.get("other_offices")
         name = cleaned_data.get("name")
@@ -393,6 +419,9 @@ class ProcessForm(forms.ModelForm):
             self.add_error('other_offices', error_msg)
         if not lead_office:
             error_msg = gettext("Must enter a lead office for this process!")
+            raise forms.ValidationError(error_msg)
+        if not csas_requests:
+            error_msg = gettext("You must attach the process to at least one request")
             raise forms.ValidationError(error_msg)
         return self.cleaned_data
 

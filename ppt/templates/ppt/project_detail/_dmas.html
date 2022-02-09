@@ -1,0 +1,40 @@
+{% load i18n %}
+
+<div class="pointy mb-5" @click="collapseDMA = !collapseDMA">
+  <h4>
+    {% trans "Data Management Agreements" %}
+    <span v-if="!collapseDMA" class="ml-1 mdi mdi-toggle-switch-off text-primary"></span>
+    <span v-else class="ml-1 mdi mdi-toggle-switch"></span>
+  </h4>
+</div>
+
+<div v-if="!collapseDMA">
+  <div v-if="!dmas.length" class="mb-3">
+    <em>{% trans "There are no data management agreements for this project." %}</em>
+  </div>
+  <div v-else class="mb-3">
+    <table class="table table-sm" style="width: 75%;">
+      <thead>
+      <tr>
+        <th>{% trans "Title" %}</th>
+        <th>{% trans "Status" %}</th>
+        <th>{% trans "Metadata" %}</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="(dma, index) in dmas" :key="dma.id">
+        <td>
+          <a href="#" @click="goDMADetail(dma)">${dma.title}</a>
+        </td>
+        <td v-html="dma.status_display"></td>
+        <td v-html="dma.metadata"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <button @click="goDMANew" class="btn btn-primary" data-toggle="tooltip" title="{% trans "Add a new data management agreement to this project." %}">
+    <span class="mdi mdi-plus text-light"></span>
+  </button>
+
+</div>

@@ -156,4 +156,5 @@ class RCFilter(django_filters.FilterSet):
         fields = {
             'name': ['icontains'],
             'code': ['icontains'],
+            'manager__last_name': ['icontains'],
         }

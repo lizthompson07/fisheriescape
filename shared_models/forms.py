@@ -149,6 +149,9 @@ class ResponsibilityCenterForm(forms.ModelForm):
     class Meta:
         model = models.ResponsibilityCenter
         fields = "__all__"
+        widgets = {
+            "manager": forms.Select(attrs=chosen_js)
+        }
 
 
 class ProjectCodeForm(forms.ModelForm):

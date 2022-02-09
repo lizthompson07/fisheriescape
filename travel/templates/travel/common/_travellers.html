@@ -187,13 +187,13 @@
               </div>
               <div class="form-group">
                 <label for="">
-                  ${travellerLabels.phone}
+                  ${travellerLabels.phone} (xxx) xxx-xxxx
                   <span v-if="helpText.phone" @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
                         data-trigger="click" :title="travellerLabels.phone"
                         :data-content="helpText.phone"></span>
                 </label>
-                <input type="tel" v-model="travellerToEdit.phone" class="form-control form-control-sm" placeholder="xxx-xxx-xxxx"
-                       pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}">
+                <input type="tel" v-model="travellerToEdit.phone" class="form-control form-control-sm" placeholder="(xxx) xxx-xxxx"
+                       pattern="[\(][0-9]{3}[\)] [0-9]{3}-[0-9]{4}">
               </div>
               <div class="form-group" v-if="!travellerToEdit.user">
                 <label for="">

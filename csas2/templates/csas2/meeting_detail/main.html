@@ -146,29 +146,24 @@
             </tr>
           </table>
         </div>
-
-        <div class="mb-5">
-          {% include "csas2/meeting_detail/_invitees.html" %}
-        </div>
-
-        <div class="mb-5">
-          {% include "csas2/meeting_detail/_resources.html" %}
-        </div>
-
       </div>
-
       {# Notes #}
       <div class="col">
         <note-pad v-if="meeting.id" parent_name="meeting" :parent_id="meeting.id" :notes="notes" @update-notes="getNotes"></note-pad>
       </div>
 
+    </div>
 
+
+    <div class="mb-5">
+      {% include "csas2/meeting_detail/_invitees.html" %}
+    </div>
+
+    <div class="mb-5">
+      {% include "csas2/meeting_detail/_resources.html" %}
     </div>
 
   </div>
-
-
-
 
 {% endblock %}
 
@@ -208,6 +203,43 @@
       meetingLabels: {}
     },
     methods: {
+      displayComments(invitee) {
+        alert(invitee.comments);
+      },
+      copyInvitations(statusArray) {
+        let payload = "";
+        for (const invitee of this.invitees) {
+          if (statusArray.includes(invitee.status)) {
+            payload += `${invitee.person_object.email}; `
+          }
+        }
+        this.copyToClipboard(payload);
+        alert(`{% trans "List of invitee email addresses have been copied to clipboard!" %}`);
+      },
+      copyToClipboard(textToCopy) {
+        // from https://stackoverflow.com/questions/51805395/navigator-clipboard-is-undefined
+        // navigator clipboard api needs a secure context (https)
+        if (navigator.clipboard && window.isSecureContext) {
+          // navigator clipboard api method'
+          return navigator.clipboard.writeText(textToCopy);
+        } else {
+          // text area method
+          let textArea = document.createElement("textarea");
+          textArea.value = textToCopy;
+          // make the textarea out of viewport
+          textArea.style.position = "fixed";
+          textArea.style.left = "-999999px";
+          textArea.style.top = "-999999px";
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          return new Promise((res, rej) => {
+            // here the magic happens
+            document.execCommand('copy') ? res() : rej();
+            textArea.remove();
+          });
+        }
+      },
       attendAll() {
         if (!this.meeting.start_date) {
           alert("{% trans "You cannot use this function unless you have a meeting start and end date selected :)" %}");
@@ -259,7 +291,7 @@
 
       toggleInviteeStatus(invitee) {
         let nextStatus = 0;
-        let statusArray = [0, 1, 2, 3];
+        let statusArray = [0, 1, 2, 3, 4];
         let currentStatusPos = statusArray.indexOf(invitee.status) + 1;
         if (currentStatusPos >= statusArray.length) {
           nextStatus = currentStatusPos % statusArray.length;
@@ -297,6 +329,7 @@
         let endpoint = `/api/csas/invitees/?meeting=${this.meeting.id}`;
         apiService(endpoint).then(data => {
           this.invitees = data;
+          this.$forceUpdate();
         });
       },
       getResources() {

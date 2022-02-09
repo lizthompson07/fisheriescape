@@ -13,7 +13,7 @@ from grais import filters
 from grais import forms
 from grais import models
 from grais import reports
-from grais.mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin, GraisCRUDRequiredMixin
+from grais.mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin, GraisCRUDRequiredMixin, SuperuserOrAdminRequiredMixin
 from grais.utils import is_grais_admin, has_grais_crud
 from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonTemplateView, CommonFilterView, CommonUpdateView, CommonCreateView, \
     CommonDetailView, CommonDeleteView, CommonFormView
@@ -202,6 +202,8 @@ class ReportSearchFormView(GraisAccessRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("grais:gc_site_report"))
         elif report == 9:
             return HttpResponseRedirect(reverse("grais:biofouling_pa_xlsx") + f"?year={year}")
+        elif report == 10:
+            return HttpResponseRedirect(reverse("grais:gc_gravid_green_crabs"))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("grais:report_search"))
@@ -291,3 +293,37 @@ def export_gc_sites(request):
             response['Content-Disposition'] = 'inline; filename="green crab site descriptions.xlsx"'
             return response
     raise Http404
+
+
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
+def export_gc_gravid_green_crabs(request):
+    file_url = reports.generate_gc_gravid_green_crabs_report()
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="green crab site descriptions.xlsx"'
+            return response
+    raise Http404
+
+
+
+# VIEWS
+
+class GRAISUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
+    template_name = 'grais/formset.html'
+    h1 = "Manage grAIS Users"
+    queryset = models.GRAISUser.objects.all()
+    formset_class = forms.GRAISUserFormset
+    success_url_name = "grais:manage_grais_users"
+    home_url_name = "grais:index"
+    delete_url_name = "grais:delete_grais_user"
+    container_class = "container bg-light curvy"
+
+
+class GRAISUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
+    model = models.GRAISUser
+    success_url = reverse_lazy("grais:manage_grais_users")
