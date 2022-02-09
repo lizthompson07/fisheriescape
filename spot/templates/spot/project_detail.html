@@ -47,7 +47,7 @@
             <a class="btn btn-success " pop-href="{% url 'spot:projectcertified_new' object.id  %}">
                 {% trans "Certify" %}
             </a>
-            <a class="btn btn-info " pop-href="">
+            <a class="btn btn-info " href="{% url 'spot:project_clone' object.id  %}">
                 {% trans "Clone" %}
             </a>
 
@@ -169,6 +169,7 @@
           zoom: 4,
           center: prim,
         });
+        var infowindow = new google.maps.InfoWindow();
         var marker, i;
         for(i=0; i<river_mark.length; i++){
             marker = new google.maps.Marker({
@@ -176,6 +177,12 @@
             map: map,
             label: {text: river_mark[i][0], color: "#0f0f11"},
         });
+        google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent(river_mark[i][0]);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
         }
     }
     function loadScript() {

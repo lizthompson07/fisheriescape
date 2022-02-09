@@ -395,6 +395,7 @@ class MethodDocumentForm(forms.ModelForm):
 
         widgets = {
             'method': forms.HiddenInput(),
+            'method_document_type':forms.Select(choices=choices.METHOD_DOCUMENT, attrs=attr_chosen),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }

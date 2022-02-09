@@ -38,6 +38,7 @@ urlpatterns = [
     path('project/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),
     path('project/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),
     path('projects/download-project-csv', views.export_project, name="export_project"),
+    path('projects/<int:pk>/clone/', views.ProjectCloneView.as_view(), name="project_clone"),
 
     # Objectives #
     ##############

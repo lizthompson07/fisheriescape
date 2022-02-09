@@ -15,6 +15,7 @@ from .mixins import SuperuserOrAdminRequiredMixin, SpotAccessRequiredMixin, Spot
 from dm_apps.settings import GOOGLE_API_KEY
 from django.core.mail import send_mail
 from dm_apps.settings import SITE_FROM_EMAIL
+from copy import deepcopy
 
 class IndexTemplateView(SpotAccessRequiredMixin, TemplateView):
     template_name = 'spot/index.html'
@@ -116,7 +117,7 @@ class PersonListView(SpotAccessRequiredMixin, FilterView):
             'first_name',
             'last_name',
             'email',
-            'province',
+            'province_state',
             'city',
 
         ]
@@ -136,7 +137,7 @@ class PersonDetailView(SpotAccessRequiredMixin, DetailView):
             'email',
             'city',
             'province_state',
-            'country,'
+            'country',
             'address',
             'organizations',
             'role',
@@ -1645,6 +1646,99 @@ def export_reports(request):
 
         ])
     return response
+
+
+class ProjectCloneView(ProjectUpdateView):
+    template_name = 'spot/project_form.html'
+
+    def get_h1(self):
+        return "Cloning: " + str(self.get_object())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cloning"] = True
+        return context
+
+    def test_func(self):
+        return self.request.user.is_authenticated
+
+    def get_initial(self):
+        obj = self.get_object()
+        init = super().get_initial()
+        init["agreement_number"] = f"CLONE OF: {obj.agreement_number}"
+        init["project_number"] = f"CLONE OF: {obj.project_number}"
+        init["cloning"] = True
+        return init
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = models.Project.objects.get(pk=new_obj.pk)
+
+        new_obj.project = new_obj
+        new_obj.pk = None
+        new_obj.save()
+
+        for ah in old_obj.agreement_history.all():
+            new_obj.agreement_history.add(ah)
+
+        for sr in old_obj.secondary_river.all():
+            new_obj.secondary_river.add(sr)
+
+        for ls in old_obj.lake_system.all():
+            new_obj.lake_system.add(ls)
+
+        for ws in old_obj.watershed.all():
+            new_obj.watershed.add(ws)
+
+        for ci in old_obj.cu_index.all():
+            new_obj.cu_index.add(ci)
+
+        for sp in old_obj.species.all():
+            new_obj.species.add(sp)
+
+        for sls in old_obj.salmon_life_stage.all():
+            new_obj.salmon_life_stage.add(sls)
+
+        for pst in old_obj.project_sub_type.all():
+            new_obj.project_sub_type.add(pst)
+
+        for pt in old_obj.project_theme.all():
+            new_obj.project_theme.add(pt)
+
+        for cc in old_obj.core_component.all():
+            new_obj.core_component.add(cc)
+
+        for sc in old_obj.supportive_component.all():
+            new_obj.supportive_component.add(sc)
+
+        for pp in old_obj.project_purpose.all():
+            new_obj.project_purpose.add(pp)
+
+        for dpa in old_obj.DFO_project_authority.all():
+            new_obj.DFO_project_authority.add(dpa)
+
+        for dac in old_obj.DFO_area_chief.all():
+            new_obj.DFO_area_chief.add(dac)
+
+        for daa in old_obj.DFO_aboriginal_AAA.all():
+            new_obj.DFO_aboriginal_AAA.add(daa)
+
+        for drm in old_obj.DFO_resource_manager.all():
+            new_obj.DFO_resource_manager.add(drm)
+
+        for dt in old_obj.DFO_technicians.all():
+            new_obj.DFO_technicians.add(dt)
+
+        for part in old_obj.partner.all():
+            new_obj.partner.add(part)
+
+        for pc in old_obj.partner_contact.all():
+            new_obj.partner_contact.add(pc)
+
+        for fs in old_obj.funding_sources.all():
+            new_obj.funding_sources.add(fs)
+
+        return HttpResponseRedirect(reverse_lazy("spot:project_detail", kwargs={"pk": new_obj.project.id}))
 
 
 class SpotUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):

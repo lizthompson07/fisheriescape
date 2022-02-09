@@ -547,7 +547,7 @@ class SampleOutcome(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
     def __str__(self):
-        return "{}".format(self.species)
+        return "{}".format(self.sampling_outcome)
 
     class Meta:
         ordering = ['sampling_outcome', ]
@@ -567,10 +567,10 @@ class ReportOutcome(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
     def __str__(self):
-        return "{}".format(self.report_link)
+        return "{}".format(self.reporting_outcome)
 
     class Meta:
-        ordering = ['report_link', ]
+        ordering = ['reporting_outcome', ]
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
