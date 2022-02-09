@@ -216,8 +216,9 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         markers = []
-        prim_riv = [self.object.primary_river.name, float(self.object.primary_river.latitude), float(self.object.primary_river.longitude)]
-        markers.append(prim_riv)
+        if self.object.primary_river:
+            prim_riv = [self.object.primary_river.name, float(self.object.primary_river.latitude), float(self.object.primary_river.longitude)]
+            markers.append(prim_riv)
         for obj in self.object.secondary_river.all():
             if obj.latitude and obj.longitude:
                 markers.append([obj.name, float(obj.latitude), float(obj.longitude)])
