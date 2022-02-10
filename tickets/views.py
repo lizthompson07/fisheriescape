@@ -161,14 +161,6 @@ class TicketDetailView(LoginRequiredMixin, CommonDetailView):
             "resolved_email_date",
             "notes_html",
         ]
-
-        # context["field_group_4"] = [
-        #     "sd_ref_number",
-        #     "sd_ticket_url",
-        #     "sd_primary_contact",
-        #     "sd_description_html|Service desk ticket description",
-        #     "sd_date_logged",
-        # ]
         return context
 
 
