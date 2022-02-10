@@ -3,16 +3,17 @@ from shutil import copyfile
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import TextField, Q
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy
 from django.views.generic import TemplateView
-from django_filters.views import FilterView
 from github import Github
 
 from dm_apps.utils import custom_send_mail
@@ -22,12 +23,16 @@ from . import emails
 from . import filters
 from . import forms
 from . import models
-from . import reports
 
 try:
     from dm_apps import my_conf as local_conf
 except (ModuleNotFoundError, ImportError):
     from dm_apps import default_conf as local_conf
+
+
+def is_staff(user):
+    if user.id:
+        return user.is_staff
 
 
 def index_router(request):
@@ -139,12 +144,18 @@ class MyAssignedTicketListView(LoginRequiredMixin, CommonFilterView):
 class TicketDetailView(LoginRequiredMixin, CommonDetailView):
     model = models.Ticket
     home_url_name = "tickets:router"
-    template_name = "tickets/ticket_detail.html"
+
+    def get_template_names(self):
+        if is_staff(self.request.user):
+            qp = self.request.GET
+            if qp.get("assign"):
+                return "tickets/assign_ticket.html"
+        return "tickets/ticket_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super(TicketDetailView, self).get_context_data(**kwargs)
         email = emails.TicketResolvedEmail(self.request, self.object)
-
+        context['staff'] = User.objects.filter(is_staff=True).order_by("last_name", "first_name")
         context['email'] = email.as_table()
         context["field_group_1"] = [
             "primary_contact",
@@ -198,6 +209,23 @@ def mark_ticket_active(request, ticket):
         reopen_github_issue(my_ticket, request.user)
 
     return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(is_staff, login_url='/accounts/denied/')
+def assign_dm(request, ticket, staff):
+    my_ticket = get_object_or_404(models.Ticket, pk=ticket)
+    my_staff = get_object_or_404(User, pk=staff)
+    if my_ticket.dm_assigned.filter(id=my_staff.id).exists():
+        my_ticket.dm_assigned.remove(my_staff)
+    else:
+        my_ticket.dm_assigned.add(my_staff)
+        if my_staff != request.user:
+            email = emails.AssignedToTicketEmail(request, my_ticket, my_staff)
+            email.send()
+            messages.success(request, f"An email has been sent to {my_staff} notifying them that they have been assigned to this ticket!")
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class TicketUpdateView(LoginRequiredMixin, CommonUpdateView):

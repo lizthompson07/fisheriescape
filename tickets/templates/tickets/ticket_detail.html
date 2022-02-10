@@ -23,6 +23,7 @@
     {# staff menu #}
     {% if user.is_staff %}
       <div class="btn-group">
+        <a href="?assign=true" class="btn btn-sm btn-outline-dark">Assign This Ticket</a>
         {% if object.status.id == 2 %}
           <a href="{% url "tickets:ticket_resolved" object.id %}" class="btn btn-sm btn-outline-dark">
             Mark as Resolved {% if object.github_issue_number %}(Connected to Github){% endif %}
@@ -52,6 +53,12 @@
     {% endif %}
   </div>
 
+
+  {% if user.is_staff and not object.dm_assigned.exists %}
+    <div class="lead mb-3">
+    <a href="{% url 'tickets:assign_dm' object.id user.id %}">Assign yourself to this ticket!</a>
+    </div>
+  {% endif %}
 
   <div class="row">
     <div class="col-6">

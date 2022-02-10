@@ -38,3 +38,19 @@ class TicketResolvedEmail(Email):
     def get_recipient_list(self):
         my_to_list = [self.instance.primary_contact.email]
         return my_to_list
+
+
+class AssignedToTicketEmail(Email):
+    subject_en = 'You have been assigned to a ticket'
+    subject_fr = 'Vous avez été affecté à un ticket'
+    email_template_path = 'tickets/email_assigned_to_ticket.html'
+
+    def __init__(self, request, instance=None, staff=None):
+        super().__init__(request, instance)
+        self.request = request
+        self.instance = instance
+        self.staff = staff
+
+    def get_recipient_list(self):
+        my_to_list = [self.staff.email]
+        return my_to_list
