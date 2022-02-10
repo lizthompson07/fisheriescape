@@ -179,6 +179,7 @@ class ObjectiveForm(forms.ModelForm):
             'capacity_building': forms.SelectMultiple(multi_select_js),
             'outcome_deadline': forms.DateInput(),
             'outcome_met': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
+            'unique_objective': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }
@@ -323,6 +324,7 @@ class SampleOutcomeForm(forms.ModelForm):
             'outcome_quality': forms.Select(choices=choices.DATA_QUALITY, attrs=attr_chosen),
             'outcome_delivered': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
             'outcome_report_delivered': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
+            'unique_objective_number': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }
@@ -341,6 +343,7 @@ class ReportOutcomeForm(forms.ModelForm):
             'objective': forms.HiddenInput(),
             'reporting_outcome': forms.Select(choices=choices.OUTCOMES, attrs=attr_chosen),
             'outcome_delivered': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
+            'unique_objective_number': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }

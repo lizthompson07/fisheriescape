@@ -15,6 +15,7 @@ from .mixins import SuperuserOrAdminRequiredMixin, SpotAccessRequiredMixin, Spot
 from dm_apps.settings import MAPBOX_API_KEY
 from . import emails
 
+
 class IndexTemplateView(SpotAccessRequiredMixin, TemplateView):
     template_name = 'spot/index.html'
 
@@ -338,7 +339,6 @@ class ObjectiveListView(SpotAccessRequiredMixin, FilterView):
             'project',
             'element_title',
             'activity_title',
-            'unique_objective',
             'species',
             'location',
         ]
@@ -353,7 +353,6 @@ class ObjectiveDetailView(SpotAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'project',
-            'unique_objective',
             'task_description',
             'element_title',
             'activity_title',
@@ -401,8 +400,15 @@ class ObjectiveCreateView(SpotAccessRequiredMixin, CreateView):
 
     def get_initial(self):
         my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        objs = list(models.Objective.objects.filter(project=my_project.id))
+        num = 0
+        for o in objs:
+            num = max(o.unique_objective)
+        num = int(num) + 1
+        num = str(num)
         return {
             'project': my_project,
+            'unique_objective': num,
             'last_modified_by': self.request.user
         }
 
@@ -876,8 +882,10 @@ class SampleOutcomeCreateView(SpotAccessRequiredMixin, CreateView):
 
     def get_initial(self):
         my_objective = models.Objective.objects.get(pk=self.kwargs['obj'])
+
         return {
             'objective': my_objective,
+            'unique_objective_number': my_objective.unique_objective,
             'last_modified_by': self.request.user
         }
 
@@ -920,7 +928,7 @@ class SampleOutcomeDeleteView(SpotAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-# OBJECTIVE OUTCOME #
+# REPORT OUTCOME #
 class ReportOutcomeCreateView(SpotAccessRequiredMixin, CreateView):
     model = models.ReportOutcome
     template_name = 'spot/report_outcome_popout.html'
@@ -930,6 +938,7 @@ class ReportOutcomeCreateView(SpotAccessRequiredMixin, CreateView):
         my_objective = models.Objective.objects.get(pk=self.kwargs['obj'])
         return {
             'objective': my_objective,
+            'unique_objective_number': my_objective.unique_objective,
             'last_modified_by': self.request.user
         }
 

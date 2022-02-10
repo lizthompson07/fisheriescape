@@ -391,6 +391,7 @@ def import_sample_outcome():
                 objective_id=int(object_tmp.id),
                 sampling_outcome=row['Sampling_Outcome'],
                 outcome_delivered=row['Was the Sampling Outcome Met?'],
+                unique_objective_number=row['Unique Objective'],
                 outcome_report_delivered=row['Was Reporting Outcome Deliverable Met?'],
                 outcome_quality=row['Outcome Quality']
             )
@@ -417,6 +418,7 @@ def import_reporting_outcome():
             created = models.ReportOutcome.objects.create(
                 objective_id=int(object_tmp.id),
                 reporting_outcome=row['Reporting_Outcome'],
+                unique_objective_number=row['Unique Objective'],
                 outcome_delivered=row['Reporting Met'],
                 report_link_id=int(report_tmp.id),
             )

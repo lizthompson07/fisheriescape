@@ -539,6 +539,7 @@ class Meetings(models.Model):
 
 class SampleOutcome(models.Model):
     objective = models.ForeignKey(Objective, default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='sample_outcome', verbose_name=_("Objective"))
+    unique_objective_number = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Unique Objective Number"))
     sampling_outcome = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Sampling Outcome"))
     outcome_delivered = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Was the Sampling Outcome Met?"))
     outcome_report_delivered = models.CharField(max_length=10, default=None, blank=True, null=True, verbose_name=_("Were outcome reports delivered?"))
@@ -559,6 +560,7 @@ class SampleOutcome(models.Model):
 
 class ReportOutcome(models.Model):
     objective = models.ForeignKey(Objective, default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='report_outcome', verbose_name=_("Objective"))
+    unique_objective_number = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Unique Objective Number"))
     reporting_outcome = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Reporting Outcome"))
     outcome_delivered = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Was the outcome deliverable met?"))
 
