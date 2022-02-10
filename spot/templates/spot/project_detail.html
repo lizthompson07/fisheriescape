@@ -3,7 +3,14 @@
 {% load bootstrap4 %}
 {% load verbose_names %}
 {% load i18n %}
+{% load l10n %}
 {% block content %}
+
+
+ {% localize off %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  {% endlocalize %}
 
     <style>
         .label {
@@ -17,9 +24,8 @@
             height: 300px; /* The height is 400 pixels */
             width: 100%; /* The width is the width of the web page */
         }
-
     </style>
-
+<div>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
@@ -34,7 +40,9 @@
         <h1>{{ object.name }}</h1>
             </div>
             <div class="col">
+                {% localize off %}
         <div id="map"></div>
+                {% endlocalize %}
             </div>
         </div>
         <div class="btn-group">
@@ -158,43 +166,39 @@
         </div>
 
     </div>
-<script type="text/javascript">
-
-    function initMap() {
-        var river_mark = {{ river_markers | safe }};
-        // The location of Uluru
-        const prim = { lat: river_mark[0][1], lng: river_mark[0][2]};
-        // The map, centered at Uluru
-        const map = new google.maps.Map(document.getElementById("map"), {
-          zoom: 4,
-          center: prim,
-        });
-        var infowindow = new google.maps.InfoWindow();
-        var marker, i;
-        for(i=0; i<river_mark.length; i++){
-            marker = new google.maps.Marker({
-            position: {lat: river_mark[i][1], lng: river_mark[i][2]},
-            map: map,
-            label: {text: river_mark[i][0], color: "#0f0f11"},
-        });
-        google.maps.event.addListener(marker, 'click', (function(marker, i) {
-        return function() {
-          infowindow.setContent(river_mark[i][0]);
-          infowindow.open(map, marker);
-        }
-      })(marker, i));
-        }
-    }
-    function loadScript() {
-            var script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initMap";
-            document.body.appendChild(script);
-        }
-
-        window.onload = loadScript();
-</script>
 {% endblock content %}
 
+{% block body_js %}
 
+{% localize off %}
+    {{ block.super }}
+    <script type="application/javascript">
+    let points = {{ river_markers | safe }};
+    </script>
+
+    <script type="application/javascript">
+
+    function initialize() {
+      map = new L.Map("map", {
+        center: [points[0][1], points[0][2]],
+        zoom: 6,
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map)
+
+      var i, markers;
+      for(i=0; i<points.length; i++){
+        markers = new L.marker([points[i][1], points[i][2]]).addTo(map).bindPopup(points[i][0]);
+      }
+     }
+
+    $(document).ready(function () {
+      // Stuff to do as soon as the DOM is ready
+      initialize()
+    });
+    </script>
+  {% endlocalize %}
+{% endblock %}
 

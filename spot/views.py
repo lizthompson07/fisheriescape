@@ -12,10 +12,8 @@ from . import filters
 from . import forms
 from . import models
 from .mixins import SuperuserOrAdminRequiredMixin, SpotAccessRequiredMixin, SpotAdminRequiredMixin
-from dm_apps.settings import GOOGLE_API_KEY
-from django.core.mail import send_mail
-from dm_apps.settings import SITE_FROM_EMAIL
-from copy import deepcopy
+from dm_apps.settings import MAPBOX_API_KEY
+from . import emails
 
 class IndexTemplateView(SpotAccessRequiredMixin, TemplateView):
     template_name = 'spot/index.html'
@@ -216,14 +214,14 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         markers = []
-        if self.object.primary_river:
+        if self.object.primary_river.name and self.object.primary_river.latitude and self.object.primary_river.longitude :
             prim_riv = [self.object.primary_river.name, float(self.object.primary_river.latitude), float(self.object.primary_river.longitude)]
             markers.append(prim_riv)
         for obj in self.object.secondary_river.all():
             if obj.latitude and obj.longitude:
                 markers.append([obj.name, float(obj.latitude), float(obj.longitude)])
         context["river_markers"] = markers
-        context["google_api_key"] = GOOGLE_API_KEY
+        context['mapbox_api_key'] = MAPBOX_API_KEY
         context["field_list"] = [
             'project_number',
             'agreement_number',
@@ -680,16 +678,8 @@ class FeedbackCreateView(SpotAccessRequiredMixin, CreateView):
 
     def form_valid(self, form):
         my_data = form.save()
-        subject = my_data.subject + ", " + my_data.sent_by.first_name + " " + my_data.sent_by.last_name + ", " + my_data.sent_by.username
-        print(subject)
-        print(my_data.comment)
-        send_mail(
-            my_data.subject,
-            my_data.comment,
-            SITE_FROM_EMAIL,
-            ['DFO.PAC.SGCM-MSCS.PAC.MPO@dfo-mpo.gc.ca']
-        )
-
+        email = emails.FeedBackEmail(self.request, my_data)
+        email.send()
         return HttpResponseRedirect(reverse_lazy("spot:feedback_detail", kwargs={"pk": my_data.id}))
 
 
