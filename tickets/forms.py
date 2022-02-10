@@ -44,10 +44,6 @@ class TicketForm(forms.ModelForm):
         USER_CHOICES.insert(0, tuple((None, "---")))
         STAFF_USER_CHOICES = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                               User.objects.filter(is_staff=True).order_by("last_name", "first_name")]
-        # STAFF_USER_CHOICES.insert(0, tuple((None, "---")))
-        SECTION_CHOICES = [(s.id, s.full_name) for s in
-                           shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")]
-        SECTION_CHOICES.insert(0, tuple((None, "---")))
 
         # choices for app
         APP_CHOICES = [(app_key, local_conf.APP_DICT[app_key]['name']) for app_key in local_conf.APP_DICT]
@@ -55,9 +51,7 @@ class TicketForm(forms.ModelForm):
         APP_CHOICES.insert(0, ("general", "n/a"))
         super().__init__(*args, **kwargs)
         self.fields['primary_contact'].choices = USER_CHOICES
-        self.fields['sd_primary_contact'].choices = USER_CHOICES
         self.fields['dm_assigned'].choices = STAFF_USER_CHOICES
-        self.fields['section'].choices = SECTION_CHOICES
         self.fields['app'] = forms.ChoiceField(widget=forms.Select(attrs=chosen_select_contains), choices=APP_CHOICES)
 
 
@@ -67,7 +61,6 @@ class FeedbackForm(forms.ModelForm):
         fields = [
             'title',
             'app',
-            'dm_assigned',
             'request_type',
             'priority',
             'description',
@@ -75,7 +68,6 @@ class FeedbackForm(forms.ModelForm):
         widgets = {
             'description': forms.Textarea(attrs={'rows': '5'}),
             'app': forms.Select(attrs=chosen_select_contains),
-            'dm_assigned': forms.SelectMultiple(attrs=chosen_select_contains),
             'priority': forms.Select(attrs=chosen_select_contains),
             'request_type': forms.Select(attrs=chosen_select_contains),
         }
@@ -84,7 +76,6 @@ class FeedbackForm(forms.ModelForm):
             'app': gettext_lazy("Application name (if applicable)"),
             'description': gettext_lazy("Description"),
             'title': gettext_lazy("Subject"),
-            'dm_assigned': gettext_lazy("Assign ticket to")
         }
 
     def __init__(self, *args, **kwargs):
@@ -107,7 +98,7 @@ class FeedbackForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
         self.fields['app'] = forms.ChoiceField(widget=forms.Select(attrs=chosen_select_contains), choices=APP_CHOICES)
-        self.fields['dm_assigned'].choices = STAFF_USER_CHOICES
+        # self.fields['dm_assigned'].choices = STAFF_USER_CHOICES
         self.fields['request_type'].choices = request_type_choices
         if kwargs.get('initial'):
             initial = kwargs['initial']

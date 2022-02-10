@@ -1,8 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.template import loader
 
-from dm_apps.context_processor import my_envr
 from dm_apps.emails import Email
 
 from_email = settings.SITE_FROM_EMAIL
@@ -10,12 +7,14 @@ admin_email = 'DFO.DMApps-ApplisGD.MPO@dfo-mpo.gc.ca'
 
 
 class NewTicketEmail(Email):
-    subject_en = 'A new ticket has been created'
-    subject_fr = 'un nouveau billet a été créé'
+    subject_en = 'new ticket / nouveau billet'
     email_template_path = 'tickets/email_new_ticket.html'
 
     def get_recipient_list(self):
         return [admin_email]
+
+    def get_subject_fr(self):
+        return f'{self.instance.app_display} ({self.instance.get_priority_display()})'
 
 
 class NewFollowUpEmail(Email):
@@ -39,4 +38,3 @@ class TicketResolvedEmail(Email):
     def get_recipient_list(self):
         my_to_list = [self.instance.primary_contact.email]
         return my_to_list
-

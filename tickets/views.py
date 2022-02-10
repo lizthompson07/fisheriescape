@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.db.models import TextField
+from django.db.models import TextField, Q
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
@@ -126,7 +126,7 @@ class MyAssignedTicketListView(LoginRequiredMixin, CommonFilterView):
         return f"Tickets Assigned to {self.request.user.first_name}"
 
     def get_queryset(self):
-        return models.Ticket.objects.filter(dm_assigned=self.request.user.id).annotate(
+        return models.Ticket.objects.filter(Q(dm_assigned=self.request.user.id) | Q(dm_assigned__isnull=True)).annotate(
             search_term=Concat('id', 'title', 'description', 'notes', output_field=TextField()))
 
     def get_filterset_kwargs(self, filterset_class):
@@ -150,19 +150,11 @@ class TicketDetailView(LoginRequiredMixin, CommonDetailView):
             "primary_contact",
             "dm_assigned",
             "app_display|app",
-            "section",
             "description_html|Description",
             "status",
             "priority",
             "request_type",
-        ]
-
-        context["field_group_2"] = [
             "github_issue_number",
-            "financial_coding",
-            "estimated_cost",
-            "financial_follow_up_needed",
-            "people_notes",
             "date_opened",
             "date_modified",
             "date_closed",
@@ -170,13 +162,13 @@ class TicketDetailView(LoginRequiredMixin, CommonDetailView):
             "notes_html",
         ]
 
-        context["field_group_4"] = [
-            "sd_ref_number",
-            "sd_ticket_url",
-            "sd_primary_contact",
-            "sd_description_html|Service desk ticket description",
-            "sd_date_logged",
-        ]
+        # context["field_group_4"] = [
+        #     "sd_ref_number",
+        #     "sd_ticket_url",
+        #     "sd_primary_contact",
+        #     "sd_description_html|Service desk ticket description",
+        #     "sd_date_logged",
+        # ]
         return context
 
 
@@ -489,28 +481,28 @@ class FollowUpDeleteView(LoginRequiredMixin, CommonPopoutDeleteView):
 
 # REPORTS #
 ###########
-
-class FinanceReportListView(LoginRequiredMixin, FilterView):
-    filterset_class = filters.FiscalFilter
-    template_name = "tickets/finance_report.html"
-    queryset = models.Ticket.objects.filter(financial_follow_up_needed=True).filter(sd_ref_number__isnull=False).order_by("-date_opened")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["now"] = timezone.now()
-        return context
-
-
-def finance_spreadsheet(request):
-    file_url = reports.generate_finance_spreadsheet()
-
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="data management report for finance.xlsx"'
-            return response
-    raise Http404
-
+#
+# class FinanceReportListView(LoginRequiredMixin, FilterView):
+#     filterset_class = filters.FiscalFilter
+#     template_name = "tickets/finance_report.html"
+#     queryset = models.Ticket.objects.filter(financial_follow_up_needed=True).filter(sd_ref_number__isnull=False).order_by("-date_opened")
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["now"] = timezone.now()
+#         return context
+#
+#
+# def finance_spreadsheet(request):
+#     file_url = reports.generate_finance_spreadsheet()
+#
+#     if os.path.exists(file_url):
+#         with open(file_url, 'rb') as fh:
+#             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+#             response['Content-Disposition'] = 'inline; filename="data management report for finance.xlsx"'
+#             return response
+#     raise Http404
+#
 
 # GitHub Views #
 ################

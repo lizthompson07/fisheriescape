@@ -48,7 +48,7 @@ urlpatterns = [
 
     # Reports #
     ###########
-    path('reports/finance/', views.FinanceReportListView.as_view(), name="finance_report"),
-    path('reports/finance-spreadsheet/', views.finance_spreadsheet, name="finance_spreadsheet"),
+    # path('reports/finance/', views.FinanceReportListView.as_view(), name="finance_report"),
+    # path('reports/finance-spreadsheet/', views.finance_spreadsheet, name="finance_spreadsheet"),
 
 ]
