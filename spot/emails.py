@@ -12,7 +12,4 @@ class FeedBackEmail(Email):
         return self.instance.subject
 
     def get_from_email(self):
-        return self.instance.sent_by.username
-
-    def get_message_en(self):
-        return self.instance.comment
+        return self.instance.sent_by.email
