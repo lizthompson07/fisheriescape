@@ -9,7 +9,7 @@
     </h4>
 </div>
 
-{% if object.objective_outcome.count == 0 %}
+{% if object.report_outcome.count == 0 %}
     <em>
         {% trans "No Report Outcomes have been entered" %}
 
@@ -28,8 +28,8 @@
             </th>
         </tr>
         <tbody>
-        {% for obj in object.objective_outcome.all %}
-            <tr href="{% url 'spot:objectiveoutcome_edit' obj.id  %}" pop data-toggle="tooltip" title="click to edit this outcome">
+        {% for obj in object.report_outcome.all %}
+            <tr href="{% url 'spot:reportoutcome_edit' obj.id  %}" pop data-toggle="tooltip" title="click to edit this outcome">
                 <td>
                     {{ obj.reporting_outcome }}
                 </td>
@@ -37,14 +37,14 @@
                     {{ obj.outcome_delivered }}
                 </td>
                 <td>
-                    {{ obj.report_link }}
+                    {{ obj.report_link.document_name }}
                 </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 {% endif %}
-    <a class="" href="#" pop-href="{% url 'spot:objectiveoutcome_new' object.id  %}">
+    <a class="" href="#" pop-href="{% url 'spot:reportoutcome_new' object.id  %}">
         {% trans "(Add Outcome)" %}
     </a>
 <br><br>

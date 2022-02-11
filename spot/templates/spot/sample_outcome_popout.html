@@ -55,7 +55,7 @@
                     {% trans "Submit" %}
                 </button>
                 {% if object %}
-                    <a class="btn btn-danger" href="{% url 'spot:objectivedatatypequality_delete' object.id %}">
+                    <a class="btn btn-danger" href="{% url 'spot:sampleoutcome_delete' object.id %}">
                         {% trans "Delete" %}
                     </a>
                 {% endif %}

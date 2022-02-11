@@ -49,8 +49,6 @@ class OrganizationForm(forms.ModelForm):
 
 class PersonForm(forms.ModelForm):
 
-    #organizations = forms.ModelMultipleChoiceField(queryset=models.Organization.objects.all(), widget=forms.SelectMultiple(attrs=multi_select_js))
-
     class Meta:
         model = models.Person
         fields = '__all__'
@@ -70,41 +68,42 @@ class ProjectForm(forms.ModelForm):
         model = models.Project
         fields = '__all__'
         widgets = {
-            'agreement_history': forms.SelectMultiple(attrs=attr_chosen),
-            'primary_river': forms.Select(attrs=attr_chosen),
-            'secondary_river': forms.SelectMultiple(attrs=attr_chosen),
-            'lake_system': forms.SelectMultiple(attrs=attr_chosen),
-            'watershed': forms.SelectMultiple(attrs=attr_chosen),
+            'agreement_history': forms.SelectMultiple(attr_chosen),
+            'primary_river': forms.Select(attr_chosen),
+            'secondary_river': forms.SelectMultiple(attr_chosen),
+            'lake_system': forms.SelectMultiple(attr_chosen),
+            'watershed': forms.SelectMultiple(attr_chosen),
             'ecosystem_type': forms.Select(choices=choices.ECOSYSTEM_TYPE, attrs=attr_chosen),
-            'region': forms.Select(attrs=attr_chosen),
+            'region': forms.Select(attr_chosen),
             'stock_management_unit': forms.Select(choices=choices.SMU_NAME, attrs=attr_chosen),
-            'species': forms.SelectMultiple(attrs=multi_select_js),
-            'salmon_life_stage': forms.SelectMultiple(attrs=multi_select_js),
+            'species': forms.SelectMultiple(multi_select_js),
+            'salmon_life_stage': forms.SelectMultiple(multi_select_js),
             'project_stage': forms.Select(choices=choices.PROJECT_STAGE,attrs=attr_chosen),
             'project_type': forms.Select(choices=choices.PROJECT_TYPE, attrs=attr_chosen),
-            'project_sub_type': forms.SelectMultiple(attrs=multi_select_js),
+            'project_sub_type': forms.SelectMultiple(multi_select_js),
             'monitoring_approach': forms.Select(choices=choices.MONITORING_APPROACH, attrs=attr_chosen),
-            'project_theme': forms.SelectMultiple(attrs=multi_select_js),
-            'core_component': forms.SelectMultiple(attrs=multi_select_js),
-            'supportive_component': forms.SelectMultiple(choices=choices.SUPPORTIVE_COMPONENT, attrs=multi_select_js),
-            'project_purpose': forms.SelectMultiple(attrs=multi_select_js),
+            'project_theme': forms.SelectMultiple(multi_select_js),
+            'core_component': forms.SelectMultiple(multi_select_js),
+            'supportive_component': forms.SelectMultiple(attrs=multi_select_js),
+            'project_purpose': forms.SelectMultiple(multi_select_js),
             #'DFO_link': forms.Select(choices=choices.DFO_LINK, attrs=attr_chosen),
             'government_organization': forms.Select(choices=choices.GOVERNMENT_LINK, attrs=attr_chosen),
             'first_nations_contact_role': forms.Select(choices=choices.ROLE, attrs=attr_chosen),
             'agreement_database': forms.Select(choices=choices.AGREEMENT_DATABASE, attrs=attr_chosen),
-            'funding_sources': forms.SelectMultiple(attrs=attr_chosen),
+            'funding_sources': forms.SelectMultiple(attr_chosen),
             'agreement_type': forms.Select(choices=choices.AGREEMENT_TYPE, attrs=attr_chosen),
             'lead_organization': forms.Select(choices=choices.LEAD_ORGANIZATION, attrs=attr_chosen),
-            'cu_index': forms.Select(attrs=attr_chosen),
-            'cu_name': forms.Select(attrs=attr_chosen),
-            'DFO_project_authority': forms.SelectMultiple(attrs=attr_chosen),
-            'DFO_area_chief': forms.SelectMultiple(attrs=attr_chosen),
-            'DFO_aboriginal_AAA': forms.SelectMultiple(attrs=attr_chosen),
-            'DFO_resource_manager': forms.SelectMultiple(attrs=attr_chosen),
-            'first_nation': forms.Select(attrs=attr_chosen),
-            'first_nations_contact': forms.Select(attrs=attr_chosen),
-            'DFO_technicians': forms.SelectMultiple(attrs=attr_chosen),
-            'partner': forms.SelectMultiple(attrs=attr_chosen),
+            'cu_index': forms.SelectMultiple(attr_chosen),
+            'cu_name': forms.Select(attr_chosen),
+            'policy_program_connection': forms.Select(choices=choices.POLICY_PROGRAM, attrs=attr_chosen),
+            'DFO_project_authority': forms.SelectMultiple(attr_chosen),
+            'DFO_area_chief': forms.SelectMultiple(attr_chosen),
+            'DFO_aboriginal_AAA': forms.SelectMultiple(attr_chosen),
+            'DFO_resource_manager': forms.SelectMultiple(attr_chosen),
+            'first_nation': forms.Select(attr_chosen),
+            'first_nations_contact': forms.Select(attr_chosen),
+            'DFO_technicians': forms.SelectMultiple(attr_chosen),
+            'partner': forms.SelectMultiple(attr_chosen),
             'partner_contact': forms.SelectMultiple(attr_chosen),
             'start_date': forms.SelectDateWidget(years=range(1950, 2050)),
             'end_date': forms.SelectDateWidget(years=range(1950, 2050)),
@@ -169,17 +168,18 @@ class ObjectiveForm(forms.ModelForm):
         model = models.Objective
         fields = '__all__'
         widgets = {
-            'location': forms.SelectMultiple(attrs=attr_chosen),
+            'location': forms.SelectMultiple(attr_chosen),
             'project': forms.HiddenInput(),
             'element_title': forms.Select(choices=choices.ELEMENT_TITLE, attrs=attr_chosen),
             'pst_requirement': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
             'sil_requirement': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
-            'species': forms.SelectMultiple(attrs=multi_select_js),
-            'objective_category': forms.SelectMultiple(attrs=multi_select_js),
-            'outcome_barrier': forms.SelectMultiple(attrs=multi_select_js),
-            'capacity_building': forms.SelectMultiple(attrs=multi_select_js),
+            'species': forms.SelectMultiple(multi_select_js),
+            'objective_category': forms.SelectMultiple(multi_select_js),
+            'outcome_barrier': forms.SelectMultiple(multi_select_js),
+            'capacity_building': forms.SelectMultiple(multi_select_js),
             'outcome_deadline': forms.DateInput(),
             'outcome_met': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
+            'unique_objective': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }
@@ -210,10 +210,9 @@ class MethodForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'project': forms.HiddenInput(),
-            'planning_method_type': forms.SelectMultiple(attrs=multi_select_js),
-            'field_work_method_type': forms.SelectMultiple(attrs=multi_select_js),
-            'sample_processing_method_type': forms.SelectMultiple(attrs=multi_select_js),
-            'method_document_type': forms.Select(choices=choices.METHOD_DOCUMENT, attrs=attr_chosen),
+            'planning_method_type': forms.SelectMultiple(multi_select_js),
+            'field_work_method_type': forms.SelectMultiple(multi_select_js),
+            'sample_processing_method_type': forms.SelectMultiple(multi_select_js),
             'knowledge_consideration': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
@@ -237,17 +236,17 @@ class DataForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'project': forms.HiddenInput(),
-            'species': forms.SelectMultiple(attrs=attr_chosen),
-            'samples_collected': forms.SelectMultiple(attrs=multi_select_js),
+            'species': forms.SelectMultiple(attr_chosen),
+            'samples_collected': forms.SelectMultiple(multi_select_js),
             'sample_entered_database': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
-            'samples_collected_database': forms.SelectMultiple(attrs=multi_select_js),
-            'sample_barrier': forms.SelectMultiple(attrs=multi_select_js),
-            'barrier_data_check_entry': forms.SelectMultiple(attrs=multi_select_js),
-            'sample_format': forms.SelectMultiple(attrs=multi_select_js),
-            'data_products': forms.SelectMultiple(attrs=multi_select_js),
-            'data_products_database': forms.SelectMultiple(attrs=multi_select_js),
-            'data_programs': forms.SelectMultiple(attrs=multi_select_js),
-            'data_communication': forms.SelectMultiple(attrs=multi_select_js),
+            'samples_collected_database': forms.SelectMultiple(multi_select_js),
+            'sample_barrier': forms.SelectMultiple(multi_select_js),
+            'barrier_data_check_entry': forms.SelectMultiple(multi_select_js),
+            'sample_format': forms.SelectMultiple(multi_select_js),
+            'data_products': forms.SelectMultiple(multi_select_js),
+            'data_products_database': forms.SelectMultiple(multi_select_js),
+            'data_programs': forms.SelectMultiple(multi_select_js),
+            'data_communication': forms.SelectMultiple(multi_select_js),
             'data_quality_check': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
@@ -312,19 +311,20 @@ class ReportsForm(forms.ModelForm):
         }
 
 
-class ObjectiveDataTypeQualityForm(forms.ModelForm):
+class SampleOutcomeForm(forms.ModelForm):
 
     class Meta:
-        model = models.ObjectiveDataTypeQuality
+        model = models.SampleOutcome
         fields = '__all__'
         widgets = {
             'objective': forms.HiddenInput(),
-            'location': forms.SelectMultiple(attrs=attr_chosen),
-            'species': forms.Select(choices=choices.SPECIES, attrs=attr_chosen),
+            'location': forms.SelectMultiple(attr_chosen),
+            'species': forms.Select(attr_chosen),
             'sampling_outcome': forms.Select(choices=choices.SAMPLE_TYPE_OUTCOMES, attrs=attr_chosen),
             'outcome_quality': forms.Select(choices=choices.DATA_QUALITY, attrs=attr_chosen),
             'outcome_delivered': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
             'outcome_report_delivered': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
+            'unique_objective_number': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }
@@ -335,14 +335,15 @@ class ObjectiveDataTypeQualityForm(forms.ModelForm):
         }
 
 
-class ObjectiveOutcomeForm(forms.ModelForm):
+class ReportOutcomeForm(forms.ModelForm):
     class Meta:
-        model = models.ObjectiveOutcome
+        model = models.ReportOutcome
         fields = '__all__'
         widgets = {
             'objective': forms.HiddenInput(),
             'reporting_outcome': forms.Select(choices=choices.OUTCOMES, attrs=attr_chosen),
             'outcome_delivered': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
+            'unique_objective_number': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }
@@ -397,6 +398,7 @@ class MethodDocumentForm(forms.ModelForm):
 
         widgets = {
             'method': forms.HiddenInput(),
+            'method_document_type':forms.Select(choices=choices.METHOD_DOCUMENT, attrs=attr_chosen),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }

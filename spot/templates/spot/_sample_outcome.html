@@ -9,7 +9,7 @@
     </h4>
 </div>
 
-{% if object.objective_type_quality.count == 0 %}
+{% if object.sample_outcome.count == 0 %}
     <em>
         {% trans "No Sample Outcomes have been entered" %}
 
@@ -17,12 +17,6 @@
 {% else %}
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
-            <th style="width: 120px">
-                {% trans "Species" %}
-            </th>
-            <th style="width: 120px">
-                {% trans "Location" %}
-            </th>
              <th style="width: 120px">
                 {% trans "Sampling Outcome" %}
             </th>
@@ -31,14 +25,8 @@
             </th>
         </tr>
         <tbody>
-        {% for obj in object.objective_type_quality.all %}
-            <tr href="{% url 'spot:objectivedatatypequality_edit' obj.id  %}" pop data-toggle="tooltip" title="click to edit this sample type">
-                <td>
-                    {{ obj.species }}
-                </td>
-                <td>
-                    {{ obj.location }}
-                </td>
+        {% for obj in object.sample_outcome.all %}
+            <tr href="{% url 'spot:sampleoutcome_edit' obj.id  %}" pop data-toggle="tooltip" title="click to edit this sample type">
                 <td>
                     {{ obj.sampling_outcome }}
                 </td>
@@ -50,7 +38,7 @@
         </tbody>
     </table>
 {% endif %}
-    <a class="" href="#" pop-href="{% url 'spot:objectivedatatypequality_new' object.id  %}">
+    <a class="" href="#" pop-href="{% url 'spot:sampleoutcome_new' object.id  %}">
         {% trans "(Add Sample type)" %}
     </a>
 <br><br>

@@ -41,10 +41,10 @@
                     {{ obj.activity_title }}
                 </td>
                 <td>
-                    {% for species in obj.species.all %}{{ species }}<br/>{% endfor %}
+                    {{ obj.species }}
                 </td>
                 <td>
-                    {% for location in obj.location.all %}{{ location }}<br/>{% endfor %}
+                    {{ obj.location }}
                 </td>
             </tr>
         {% endfor %}
