@@ -413,8 +413,10 @@ def import_reporting_outcome():
                 object_tmp, _ = models.Objective.objects.get_or_create(project=project_tmp, unique_objective=row['Unique Objective'])
             except ObjectDoesNotExist:
                 continue
-
-            report_tmp, _ = models.Reports.objects.get_or_create(document_link=row['Reporting Link'])
+            if row['Reporting Link'] != "" or row['Reporting Link'] is not None:
+                report_tmp, _ = models.Reports.objects.get_or_create(document_link=row['Reporting Link'])
+            else:
+                report_tmp = None
             created = models.ReportOutcome.objects.create(
                 objective_id=int(object_tmp.id),
                 reporting_outcome=row['Reporting_Outcome'],
@@ -425,7 +427,7 @@ def import_reporting_outcome():
 
 
 def first_last(row_name, instance_name):
-    if row_name != "":
+    if row_name != "" or row_name is not None:
         tmp_str = row_name.split(',')
         for tmp in tmp_str:
             tmp_whole_name = tmp.split(' ')
@@ -442,7 +444,7 @@ def first_last(row_name, instance_name):
 
 
 def many_var(row_name, instance_name, model_name):
-    if row_name != "":
+    if row_name != "" or row_name is not None:
         tmp_arr = row_name.split(',')
         for tmp in tmp_arr:
             tmp_obj, _ = model_name.objects.get_or_create(name=tmp.strip())

@@ -19,6 +19,14 @@ from . import emails
 class IndexTemplateView(SpotAccessRequiredMixin, TemplateView):
     template_name = 'spot/index.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        river_list = []
+        for river in models.Project.objects.all():
+            if river.primary_river.latitude and river.primary_river.longitude:
+                river_list.append([river.primary_river.name, float(river.primary_river.latitude), float(river.primary_river.longitude)])
+        context["river_markers"] = river_list
+        return context
 
 # ORGANIZATION #
 ################
@@ -33,7 +41,7 @@ class OrganizationListView(SpotAccessRequiredMixin, FilterView):
         context["my_object"] = models.Organization.objects.first()
         context["field_list"] = [
             'name',
-            'province',
+            'province_state',
             'city',
             'address',
         ]
