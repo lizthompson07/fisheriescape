@@ -1,5 +1,6 @@
 #!/bin/bash
 service ssh start
+service redis-server start
 python create_env_file_from_json.py --environment-name "$ENVIRONMENT_NAME" --output-file-name=".env"
 python manage.py compilemessages
 python manage.py collectstatic --no-input
