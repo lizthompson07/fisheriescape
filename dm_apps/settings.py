@@ -55,6 +55,7 @@ GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
 SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
 # flag to know whether using in linux env
 IS_LINUX = "win" not in sys.platform.lower()
+print(sys.platform.lower(), IS_LINUX)
 # get the git commit number from the ENV to display on index.html
 
 try:
