@@ -181,7 +181,7 @@ class Watershed(models.Model):
 
 class River(models.Model):
     objects = models.Manager()
-    name = models.CharField(max_length=100, unique=True, null=True, blank=True, verbose_name=_("Name"))
+    name = models.CharField(max_length=255, unique=True, null=True, blank=True, verbose_name=_("Name"))
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("Latitude"))
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("Longitude"))
 
@@ -237,7 +237,7 @@ class Person(models.Model):
     address = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Address"))
     organizations = models.ManyToManyField(Organization, default=None, blank=True, verbose_name=_("Organization"))
     role = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Role"))
-    section = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("Section"))
+    section = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Section"))
     other_membership = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Other Membership"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), related_name="spot_last_modifications")
@@ -323,7 +323,7 @@ class Reports(models.Model):
     document_author = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Document Author"))
     document_reference_information = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Document Reference Information"))
     document_link = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Document Link"))
-    published = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("Was this report Published?"))
+    published = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Was this report Published?"))
 
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -351,8 +351,8 @@ class Data(models.Model):
     samples_collected_database = models.ManyToManyField(DatabaseChoice, default=None, blank=True, related_name="sample_database", verbose_name=_("Sample Collected Database"))
     shared_drive = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("If you have chosen one of the shared drives please specify what drive otherwise leave blank"))
     sample_barrier = models.ManyToManyField(SampleBarrier, default=None, blank=True, verbose_name=_("Barriers to Sample Collection"))
-    sample_entered_database = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Was sample collection data entered into database(s)?"))
-    data_quality_check = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Was sample data quality check complete?"))
+    sample_entered_database = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Was sample collection data entered into database(s)?"))
+    data_quality_check = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Was sample data quality check complete?"))
     data_quality_person = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Person/Group responsible for data quality check?"))
     barrier_data_check_entry = models.ManyToManyField(DataBarrier, default=None, blank=True, verbose_name=_("Barriers to data checks/entry to database?"))
     sample_format = models.ManyToManyField(SampleFormat, default=None, blank=True, verbose_name=_("Sample Format(s)"))
@@ -403,19 +403,19 @@ class Objective(models.Model):
     project = models.ForeignKey('Project', default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='project_objective', verbose_name=_("Agreement Number"))
     unique_objective = models.CharField(max_length=255, blank=True, null=True)
     task_description = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Task Description"))
-    element_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Element Title"))
+    element_title = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Element Title"))
     activity_title = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Activity Title"))
 
-    pst_requirement = models.CharField(max_length=10, default=None,  blank=True, null=True, verbose_name=_("PST Requirement Identified?"))
+    pst_requirement = models.CharField(max_length=255, default=None,  blank=True, null=True, verbose_name=_("PST Requirement Identified?"))
     location = models.ForeignKey(River, blank=True, default=None, on_delete=models.DO_NOTHING, null=True, verbose_name=_("Location"))
     objective_category = models.ManyToManyField(ObjectiveCategory, default=None, blank=True, verbose_name=_("Objective Category"))
     species = models.ForeignKey(Species, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Species"))
-    sil_requirement = models.CharField(max_length=10, default=None, blank=True, null=True, verbose_name=_("SIL Requirement"))
+    sil_requirement = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("SIL Requirement"))
 
-    expected_results = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Expected Result(s)"))
-    dfo_report = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Products/Reports to Provide DFO"))
+    expected_results = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Expected Result(s)"))
+    dfo_report = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Products/Reports to Provide DFO"))
 
-    outcome_met = models.CharField(max_length=10, null=True, blank=True, default=None, verbose_name=_("Was the Sampling outcome met?"))
+    outcome_met = models.CharField(max_length=255, null=True, blank=True, default=None, verbose_name=_("Was the Sampling outcome met?"))
     outcomes_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_objective', verbose_name=_("Outcomes Contact"))
     outcomes_comment = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Outcome Comment"))
     outcome_barrier = models.ManyToManyField(OutComeBarrier, default=None, blank=True, verbose_name=_("Barrier to Achieve Outcomes(?)"))
@@ -441,9 +441,9 @@ class Project(models.Model):
 
     objects = models.Manager()
     project_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Project Number"))
-    agreement_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("Agreement Number"))
+    agreement_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Agreement Number"))
     agreement_history = models.ManyToManyField('Project', blank=True, verbose_name=_("Agreement History"))
-    name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Project Name"))
+    name = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Project Name"))
     project_description = models.TextField(max_length=5000, null=True, blank=True, verbose_name=_("Project Description"))
     start_date = models.DateField(blank=True, null=True, verbose_name=_("Starting Date"))
     end_date = models.DateField(blank=True, null=True, verbose_name=_("End Date"))
@@ -539,10 +539,10 @@ class Meetings(models.Model):
 
 class SampleOutcome(models.Model):
     objective = models.ForeignKey(Objective, default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='sample_outcome', verbose_name=_("Objective"))
-    unique_objective_number = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Unique Objective Number"))
+    unique_objective_number = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Unique Objective Number"))
     sampling_outcome = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Sampling Outcome"))
-    outcome_delivered = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Was the Sampling Outcome Met?"))
-    outcome_report_delivered = models.CharField(max_length=10, default=None, blank=True, null=True, verbose_name=_("Were outcome reports delivered?"))
+    outcome_delivered = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Was the Sampling Outcome Met?"))
+    outcome_report_delivered = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Were outcome reports delivered?"))
     outcome_quality = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Quality of Outcome"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -560,9 +560,9 @@ class SampleOutcome(models.Model):
 
 class ReportOutcome(models.Model):
     objective = models.ForeignKey(Objective, default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='report_outcome', verbose_name=_("Objective"))
-    unique_objective_number = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Unique Objective Number"))
+    unique_objective_number = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Unique Objective Number"))
     reporting_outcome = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Reporting Outcome"))
-    outcome_delivered = models.CharField(max_length=10, default=None, null=True, blank=True, verbose_name=_("Was the outcome deliverable met?"))
+    outcome_delivered = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Was the outcome deliverable met?"))
 
     report_link = models.ForeignKey(Reports, on_delete=models.DO_NOTHING, default=None, blank=True, null=True, verbose_name=_("Report Link"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -582,8 +582,8 @@ class ReportOutcome(models.Model):
 class FundingYears(models.Model):
     project = models.ForeignKey(Project, default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='funding_year', verbose_name=_("project"))
     funding_year = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Funding Year"))
-    agreement_cost = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("Annual Agreement Cost"))
-    project_cost = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("Annual Project Cost"))
+    agreement_cost = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Annual Agreement Cost"))
+    project_cost = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Annual Project Cost"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
@@ -602,9 +602,9 @@ class MethodDocument(models.Model):
     method = models.ForeignKey(Method, on_delete=models.CASCADE, null=True, blank=True, related_name='method_document', verbose_name=_("method"))
     method_document_type = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("method document type"))
     authors = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("author"))
-    publication_year = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("year of publication"))
-    title = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("title"))
-    reference_number = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("reference number"))
+    publication_year = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("year of publication"))
+    title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("title"))
+    reference_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("reference number"))
     document_link = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document link"))
 
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
