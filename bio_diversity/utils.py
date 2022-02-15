@@ -11,7 +11,7 @@ from pandas import read_excel
 import pytz
 from django.core.exceptions import ValidationError, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import IntegrityError
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from decimal import Decimal
 from django.template.defaulttags import register
 
@@ -218,6 +218,28 @@ def get_help_text_dict(model=None, title=''):
             my_dict[obj.field_name] = str(obj)
 
     return my_dict
+
+
+def toggle_help_text_edit(request, user_id):
+    usr = models.User.objects.get(pk=user_id)
+
+    user_mode = None
+    # mode 1 is read only
+    mode = 1
+    if models.BioUser.objects.filter(user=usr):
+        user_mode = models.BioUser.objects.get(user=usr)
+        mode = user_mode.mode
+
+    # fancy math way of toggling between 1 and 2
+    mode = (mode % 2) + 1
+
+    if not user_mode:
+        user_mode = models.BioUser(user=usr)
+
+    user_mode.mode = mode
+    user_mode.save()
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 def aware_min():

@@ -18,11 +18,11 @@ from shared_models.views import CommonAuthCreateView, CommonAuthUpdateView, Comm
     CommonFormsetView, CommonHardDeleteView, CommonFormView, CommonFilterView
 from django.urls import reverse_lazy, reverse
 from django import forms
-from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset, BioUserFormset
+from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset, BioUserFormset, HelpTextPopForm
 from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models, reports
 import pytz
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext_lazy
 
 from .static.calculation_constants import collection_evntc_list, egg_dev_evntc_list
 
@@ -146,14 +146,13 @@ class BioUserHardDeleteView(AdminOrSuperuserRequiredMixin, CommonHardDeleteView)
     success_url = reverse_lazy("bio_diversity:manage_bio_users")
 
 
-# CommonCreate Extends the UserPassesTestMixin used to determine if a user has
-# has the correct privileges to interact with Creation Views
 # --------------------CREATE VIEWS----------------------------------------
 class CommonCreate(CommonAuthCreateView):
 
     nav_menu = 'bio_diversity/bio_diversity_nav.html'
     site_css = 'bio_diversity/bio_diversity.css'
     home_url_name = "bio_diversity:index"
+    template_name = "bio_diversity/form.html"
 
     def get_initial(self):
         init = super().get_initial()
@@ -188,6 +187,16 @@ class CommonCreate(CommonAuthCreateView):
         context = super().get_context_data(**kwargs)
         context['editable'] = context['auth']
         context['help_text_dict'] = utils.get_help_text_dict(self.model)
+
+        # if the UserMode table has this user in "edit" mode provide the
+        # link to the dialog to manage help text via the manage_help_url
+        # and provide the model name the help text will be assigned to.
+        # The generic_form_with_help_text.html from the shared_models app
+        # will provide the field name and together you have the required
+        # model and field needed to make an entry in the Help Text table.
+        if self.request.user.bio_user.mode == 2:
+            context['manage_help_url'] = "bio_diversity:manage_help_text"
+            context['model_name'] = self.model.__name__
 
         return context
 
@@ -3246,6 +3255,43 @@ class CommentKeywordsFormsetView(SiteLoginRequiredMixin, CommonFormsetView):
 class CommentKeywordsHardDeleteView(SiteLoginRequiredMixin, CommonHardDeleteView):
     model = models.CommentKeywords
     success_url = reverse_lazy("bio_diversity:manage_comment_keywords")
+
+
+# This is the dialog presented to the user to enter help text for a given model/field
+# it uses the Create View to both create entries and update them. Accessed via the manage_help_url.
+#
+# A point of failure may be if the (model, field_name) pair is not unique in the help text table.
+class HelpTextPopView(SiteLoginRequiredMixin, CommonCreate):
+    model = models.HelpText
+    form_class = HelpTextPopForm
+    success_url = reverse_lazy("shared_models:close_me")
+    title = gettext_lazy("Update Help Text")
+
+    def get_initial(self):
+        if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
+            obj = self.model.objects.get(model=self.kwargs['model_name'], field_name=self.kwargs['field_name'])
+            return {
+                'model': self.kwargs['model_name'],
+                'field_name': self.kwargs['field_name'],
+                'eng_text': obj.eng_text,
+                'fra_text': obj.fra_text
+            }
+
+        return {
+            'model': self.kwargs['model_name'],
+            'field_name': self.kwargs['field_name'],
+        }
+
+    def form_valid(self, form):
+        if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
+            data = form.cleaned_data
+            obj = self.model.objects.get(model=self.kwargs['model_name'], field_name=self.kwargs['field_name'])
+            obj.eng_text = data['eng_text']
+            obj.fra_text = data['fra_text']
+            obj.save()
+            return HttpResponseRedirect(reverse_lazy("shared_models:close_me"))
+        else:
+            return super().form_valid(form)
 
 
 class HelpTextFormsetView(SiteLoginRequiredMixin, CommonFormsetView):

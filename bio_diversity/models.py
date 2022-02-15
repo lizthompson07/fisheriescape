@@ -337,6 +337,11 @@ class BioCont(BioLookup):
 
 
 class BioUser(models.Model):
+    mode_choices = (
+        (1, "read"),
+        (2, "edit"),
+    )
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="bio_user", verbose_name=_("DM Apps user"))
 
     # admins can modify helptext and other app settings
@@ -347,6 +352,11 @@ class BioUser(models.Model):
 
     # users can view, but not modify records
     is_user = models.BooleanField(default=False, verbose_name=_("app user"), choices=YES_NO_CHOICES)
+
+    facic_id = models.ForeignKey("FacilityCode", on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Facility"))
+
+    # admin users can toggle helptext edit mode on and off
+    mode = models.IntegerField(choices=mode_choices, default=1)
 
     def __str__(self):
         return self.user.get_full_name()

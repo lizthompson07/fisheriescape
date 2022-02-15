@@ -774,6 +774,19 @@ HelpTextFormset = modelformset_factory(
 )
 
 
+class HelpTextPopForm(forms.ModelForm):
+
+    class Meta:
+        model = models.HelpText
+        fields = "__all__"
+        widgets = {
+            'model': forms.HiddenInput(),
+            'field_name': forms.HiddenInput(),
+            'eng_text': forms.Textarea(attrs={"rows": 2}),
+            'fra_text': forms.Textarea(attrs={"rows": 2}),
+        }
+
+
 class ImgForm(CreatePrams):
     class Meta:
         model = models.Image
