@@ -113,8 +113,14 @@ class Committee(models.Model):
     dfo_liaison = models.ManyToManyField(User, related_name="committee_dfo_liaison",
                                          verbose_name=_("DFO liaison/secretariat"))
     other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="committee_dfo_branch",
-                                              verbose_name=_("Other participating DFO branches/regions/area offices")
+                                              verbose_name=_("Other participating DFO branches")
                                               )
+    other_dfo_regions = models.ManyToManyField(shared_models.Region, related_name="committee_dfo_region",
+                                               verbose_name=_("Other participating DFO regions")
+                                               )
+    other_dfo_areas = models.ManyToManyField(AreaOffice, related_name="committee_dfo_area",
+                                             verbose_name=_("Other participating DFO area offices")
+                                             )
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=12,
                                    verbose_name="Role of highest level DFO participant")
     first_nation_participation = models.BooleanField(default=False,

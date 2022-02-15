@@ -140,9 +140,7 @@ class PersonListView(UserRequiredMixin, CommonFilterView):
         search_term=Concat('first_name', 'last_name', 'designation', output_field=TextField()))
     field_list = [
         {"name": 'full_name_with_title|{}'.format(_("full name")), "class": "", "width": ""},
-        {"name": 'phone_1', "class": "", "width": ""},
-        # {"name": 'phone_2', "class": "", "width": ""},
-        {"name": 'email_1', "class": "", "width": ""},
+        {"name": 'organizations', "class": "", "width": ""},
         {"name": 'last_updated|{}'.format(_("last updated")), "class": "", "width": ""},
     ]
     new_object_url_name = "maret:person_new"
@@ -302,13 +300,18 @@ class PersonDeleteView(AdminRequiredMixin, CommonDeleteView):
 #######################################################
 class InteractionListView(UserRequiredMixin, CommonFilterView):
     template_name = 'maret/maret_list.html'
+    queryset = models.Interaction.objects.all().distinct().annotate(
+        search_term=Concat('description', Value(' '), 'comments', Value(' '), 'main_topic__name', Value(' '),
+                           'main_topic__nom', Value(' '), 'species__name', Value(' '), 'species__nom', Value(' '),
+                           output_field=TextField()))
     filterset_class = filters.InteractionFilter
     model = models.Interaction
     field_list = [
         {"name": 'description', "class": "", "width": ""},
         {"name": 'interaction_type', "class": "", "width": ""},
-        {"name": 'main_topics', "class": "", "width": ""},
         {"name": 'date_of_meeting', "class": "", "width": ""},
+        {"name": 'main_topics', "class": "", "width": ""},
+        {"name": 'species', "class": "", "width": ""},
     ]
     new_object_url_name = "maret:interaction_new"
     row_object_url_name = "maret:interaction_detail"
@@ -403,10 +406,17 @@ class InteractionDeleteView(AuthorRequiredMixin, CommonDeleteView):
 class CommitteeListView(UserRequiredMixin, CommonFilterView):
     h1 = gettext_lazy("Committees / Working Groups")
     template_name = 'maret/maret_list.html'
+    queryset = models.Committee.objects.all().distinct().annotate(
+        search_term=Concat(
+            'name', Value(" "),
+        ))
     filterset_class = filters.CommitteeFilter
     model = models.Committee
     field_list = [
         {"name": 'name', "class": "", "width": ""},
+        {"name": 'branch', "class": "", "width": ""},
+        {"name": 'main_topic', "class": "", "width": ""},
+        {"name": 'species', "class": "", "width": ""},
     ]
     new_object_url_name = "maret:committee_new"
     row_object_url_name = "maret:committee_detail"
@@ -506,9 +516,10 @@ class OrganizationListView(UserRequiredMixin, CommonFilterView):
     queryset = ml_models.Organization.objects.all().distinct().annotate(
         search_term=Concat(
             'name_eng', Value(" "),
+            'ext_org__area', Value(" "),
+            'ext_org__category', Value(" "),
             'abbrev', Value(" "),
             'name_ind', Value(" "),
-            'former_name', Value(" "),
             'province__name', Value(" "),
             'province__nom', Value(" "),
             'province__abbrev_eng', Value(" "),
@@ -517,13 +528,11 @@ class OrganizationListView(UserRequiredMixin, CommonFilterView):
     paginate_by = 25
     field_list = [
         {"name": 'name_eng', "class": "", "width": ""},
-        {"name": 'name_ind', "class": "", "width": ""},
-        {"name": 'abbrev', "class": "", "width": ""},
-        {"name": 'email', "class": "", "width": ""},
+        {"name": 'category', "class": "", "width": ""},
+        {"name": 'grouping', "class": "", "width": ""},
+        {"name": 'area', "class": "", "width": ""},
         {"name": 'province', "class": "", "width": ""},
-        {"name": 'grouping', "class": "", "width": "200px"},
-        {"name": 'full_address|' + str(_("Full address")), "class": "", "width": "300px"},
-        {"name": 'Audio recording|{}'.format(_("Audio recording")), "class": "", "width": ""},
+        {"name": 'regions', "class": "", "width": ""},
     ]
     home_url_name = "maret:index"
     new_object_url_name = "maret:org_new"

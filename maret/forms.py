@@ -40,6 +40,7 @@ class InteractionForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
 
             'committee': forms.Select(attrs=chosen_js),
+            'dfo_role': forms.Select(attrs=chosen_js),
             'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
             'other_dfo_participants': forms.SelectMultiple(attrs=chosen_js),
             'external_organization': forms.SelectMultiple(attrs=chosen_js),
