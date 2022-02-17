@@ -1,6 +1,7 @@
 <script type="application/javascript">
     var interval = null;
     function divisionChange() {
+        if( $("#branch_id").val() != null) {
         interval = setInterval(function() {
             $.ajax({
                 type: 'GET',
@@ -45,6 +46,7 @@
                 }
             });
         }, 250);
+        }
     }
 
     $("#id_branch").change(divisionChange());
