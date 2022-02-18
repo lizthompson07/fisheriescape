@@ -137,7 +137,13 @@ class PersonListView(UserRequiredMixin, CommonFilterView):
     filterset_class = filters.PersonFilter
     model = ml_models.Person
     queryset = ml_models.Person.objects.annotate(
-        search_term=Concat('first_name', 'last_name', 'designation', output_field=TextField()))
+        search_term=Concat(
+            'first_name', Value(' '),
+            'last_name', Value(' '),
+            'designation', Value(' '),
+            'ext_con__role', Value(' '),
+            'notes', Value(' '),
+            output_field=TextField()))
     field_list = [
         {"name": 'full_name_with_title|{}'.format(_("full name")), "class": "", "width": ""},
         {"name": 'organizations', "class": "", "width": ""},
@@ -301,9 +307,11 @@ class PersonDeleteView(AdminRequiredMixin, CommonDeleteView):
 class InteractionListView(UserRequiredMixin, CommonFilterView):
     template_name = 'maret/maret_list.html'
     queryset = models.Interaction.objects.all().distinct().annotate(
-        search_term=Concat('description', Value(' '), 'comments', Value(' '), 'main_topic__name', Value(' '),
-                           'main_topic__nom', Value(' '), 'species__name', Value(' '), 'species__nom', Value(' '),
-                           output_field=TextField()))
+        search_term=Concat(
+            'description', Value(' '),
+            'comments', Value(' '),
+            'action_items', Value(' '),
+            output_field=TextField()))
     filterset_class = filters.InteractionFilter
     model = models.Interaction
     field_list = [
@@ -409,6 +417,9 @@ class CommitteeListView(UserRequiredMixin, CommonFilterView):
     queryset = models.Committee.objects.all().distinct().annotate(
         search_term=Concat(
             'name', Value(" "),
+            'main_actions', Value(" "),
+            'comments', Value(" "),
+            output_field=TextField()
         ))
     filterset_class = filters.CommitteeFilter
     model = models.Committee
@@ -516,14 +527,10 @@ class OrganizationListView(UserRequiredMixin, CommonFilterView):
     queryset = ml_models.Organization.objects.all().distinct().annotate(
         search_term=Concat(
             'name_eng', Value(" "),
-            'ext_org__area', Value(" "),
-            'ext_org__category', Value(" "),
             'abbrev', Value(" "),
             'name_ind', Value(" "),
-            'province__name', Value(" "),
-            'province__nom', Value(" "),
-            'province__abbrev_eng', Value(" "),
-            'province__abbrev_fre', output_field=TextField()))
+            'notes', Value(" "),
+            output_field=TextField()))
     filterset_class = filters.OrganizationFilter
     paginate_by = 25
     field_list = [
