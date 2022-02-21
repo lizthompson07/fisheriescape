@@ -18,7 +18,7 @@ class DataLoggerTemperatureParser(DataParser):
         self.mandatory_keys = []
         super(DataLoggerTemperatureParser, self).load_data()
 
-    def data_reader(self):
+    def data_reader(self, *args, **kwargs):
         self.data = pd.read_csv(self.cleaned_data["data_csv"], encoding='ISO-8859-1', header=7)
         # to keep parent parser classes happy:
         self.data_dict = {}
@@ -42,7 +42,7 @@ class DataLoggerTemperatureParser(DataParser):
         self.rows_parsed = len(self.data["env"])
         self.row_entered = len(self.data["env"].dropna())
 
-    def iterate_rows(self):
+    def iterate_rows(self, skip_rows=0):
         pass
 
 

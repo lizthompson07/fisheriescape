@@ -40,6 +40,7 @@ class InteractionForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
 
             'committee': forms.Select(attrs=chosen_js),
+            'dfo_role': forms.Select(attrs=chosen_js),
             'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
             'other_dfo_participants': forms.SelectMultiple(attrs=chosen_js),
             'external_organization': forms.SelectMultiple(attrs=chosen_js),
@@ -51,6 +52,7 @@ class OrganizationForm(forms.ModelForm):
     asc_province = forms.MultipleChoiceField(required=False, label=_("Associated Province(s)"))
     category = forms.MultipleChoiceField(required=False, label=_("Categories"))
     area = forms.MultipleChoiceField(required=False, label=_("Area(s)"))
+    email = forms.EmailField(required=False, label=_("E-mail"))
 
     class Meta:
         model = ml_models.Organization
@@ -70,7 +72,7 @@ class OrganizationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['name_eng', 'category', 'name_ind', 'abbrev', 'address', 'mailing_address', 'city',
+        self.order_fields(['name_eng', 'category', 'name_ind', 'abbrev', 'email', 'address', 'mailing_address', 'city',
                            'postal_code', 'province', 'phone', 'fax', 'dfo_contact_instructions', 'notes',
                            'key_species', 'grouping', 'area', 'regions', 'asc_province'])
 
@@ -114,18 +116,23 @@ class MemberForm(forms.ModelForm):
 
 class PersonForm(forms.ModelForm):
     role = forms.CharField(required=True, label=_("Role"))
+    committee = forms.MultipleChoiceField(required=False, label=_("Committees/Working Groups"))
 
     class Meta:
         model = ml_models.Person
-        exclude = ["date_last_modified", "old_id", 'last_modified_by']
+        exclude = ["date_last_modified", "old_id", 'last_modified_by', 'connected_user']
         widgets = {
             'notes': forms.Textarea(attrs={"rows": "3"}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['designation', 'role', 'first_name', 'last_name', 'phone_1', 'phone_2', 'email_1', 'email_2',
-                           'cell', 'fax', 'language', 'notes'])
+        self.order_fields(['designation', 'role', 'first_name', 'last_name', 'phone_1', 'phone_2', 'cell', 'email_1',
+                           'email_2', 'fax', 'language', 'notes', 'committee'])
+        self.fields['organizations'].label = _("Organization Membership")
+
+        committee = [(c.id, c) for c in models.Committee.objects.all()]
+        self.fields['committee'].choices = committee
 
 
 class TopicForm(forms.ModelForm):

@@ -5,6 +5,7 @@ from django.utils import timezone
 from faker import Factory
 
 from bio_diversity import models
+from bio_diversity.static import calculation_constants
 
 faker = Factory.create()
 
@@ -1566,7 +1567,7 @@ class LocFactory(factory.django.DjangoModelFactory):
     subr_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SubrFactory")
     relc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RelcFactory")
     loc_lat = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
-    loc_lon = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
+    loc_lon = factory.lazy_attribute(lambda o: faker.random_int(calculation_constants.min_long, calculation_constants.max_long))
     loc_date = factory.lazy_attribute(lambda o: faker.date_time(tzinfo=pytz.UTC))
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -2079,8 +2080,8 @@ class RelcFactory(factory.django.DjangoModelFactory):
     subr_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SubrFactory")
     min_lat = factory.lazy_attribute(lambda o: faker.random_int(0, 45))
     max_lat = factory.lazy_attribute(lambda o: faker.random_int(50, 90))
-    min_lon = factory.lazy_attribute(lambda o: faker.random_int(0, 45))
-    max_lon = factory.lazy_attribute(lambda o: faker.random_int(50, 90))
+    min_lon = factory.lazy_attribute(lambda o: faker.random_int(calculation_constants.min_long, (calculation_constants.min_long + calculation_constants.max_long) / 2))
+    max_lon = factory.lazy_attribute(lambda o: faker.random_int((calculation_constants.min_long + calculation_constants.max_long) / 2 + 5, calculation_constants.max_long))
 
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())

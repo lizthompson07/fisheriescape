@@ -32,10 +32,10 @@
 
         <h3>
             {% if object %}
-                {% trans "Outcome Details" %}
+                {% trans "Report Outcome Details" %}
 
             {% else %}
-                {% trans "New Outcome" %}
+                {% trans "New Report Outcome" %}
             {% endif %}
         </h3>
         <br>
@@ -55,7 +55,7 @@
                     {% trans "Submit" %}
                 </button>
                 {% if object %}
-                    <a class="btn btn-danger" href="{% url 'spot:objectiveoutcome_delete' object.id %}">
+                    <a class="btn btn-danger" href="{% url 'spot:reportoutcome_delete' object.id %}">
                         {% trans "Delete" %}
                     </a>
                 {% endif %}

@@ -24,7 +24,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'spot:project_list' %}">Project List</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'spot:project_detail' object.project.id %}">{{ object.project }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'spot:project_detail' object.project.id %}">Project</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
@@ -49,15 +49,19 @@
                 <h3>
                     Detail:
                 </h3>
+                <table class="table table-bordered table-sm">
 
                 {% for field in field_list %}
+                    <tr>
                     {% verbose_field_display object field %}
+                    </tr>
                     {% if field == 'knowledge_consideration' %}
                         <br>{% include "spot/_method_document.html" %}<br>
                     {% endif %}
                 {% endfor %}
-                <br>
 
+                <br>
+                </table>
             </div>
         </div>
 

@@ -7,6 +7,7 @@ from rest_framework import status
 
 from shared_models.test.common_tests import CommonTest
 from . import FactoryFloor
+from ..models import GRAISUser
 
 faker = Faker()
 
@@ -16,6 +17,7 @@ class TestSampleSpeciesAPIViewSet(CommonTest):
         super().setUp()
         self.user = self.get_and_login_user()
         self.crud_user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.crud_user, is_crud_user=True)
         self.sample = FactoryFloor.SampleFactory()
         self.instance = FactoryFloor.SampleSpeciesFactory()
         self.test_list_url = reverse("samplespecies-list", args=None) + f"?sample={self.sample.id}"
@@ -93,6 +95,7 @@ class TestLineSpeciesAPIViewSet(CommonTest):
         super().setUp()
         self.user = self.get_and_login_user()
         self.crud_user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.crud_user, is_crud_user=True)
         self.line = FactoryFloor.LineFactory()
         self.instance = FactoryFloor.LineSpeciesFactory()
         self.test_list_url = reverse("linespecies-list", args=None) + f"?line={self.line.id}"
@@ -170,6 +173,7 @@ class TestSurfaceSpeciesAPIViewSet(CommonTest):
         super().setUp()
         self.user = self.get_and_login_user()
         self.crud_user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.crud_user, is_crud_user=True)
         self.surface = FactoryFloor.SurfaceFactory()
         self.instance = FactoryFloor.SurfaceSpeciesFactory()
         self.test_list_url = reverse("surfacespecies-list", args=None) + f"?surface={self.surface.id}"
@@ -247,6 +251,7 @@ class TestIncidentalReportSpeciesAPIViewSet(CommonTest):
         super().setUp()
         self.user = self.get_and_login_user()
         self.crud_user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.crud_user, is_crud_user=True)
         self.incidentalreport = FactoryFloor.IncidentalReportFactory()
         self.instance = FactoryFloor.IncidentalReportSpeciesFactory()
         self.test_list_url = reverse("incidentalreportspecies-list", args=None) + f"?report={self.incidentalreport.id}"
@@ -325,6 +330,7 @@ class TestCatchSpeciesAPIViewSet(CommonTest):
         super().setUp()
         self.user = self.get_and_login_user()
         self.crud_user = self.get_and_login_user(in_group="grais_crud")
+        GRAISUser.objects.create(user=self.crud_user, is_crud_user=True)
         self.trap = FactoryFloor.TrapFactory()
         self.instance = FactoryFloor.CatchSpeciesFactory()
         self.test_list_url1 = reverse("catch-list", args=None) + f"?trap={self.trap.id}&crab=true"

@@ -285,6 +285,7 @@ class ReportSearchForm(forms.Form):
         (8, "Green Crab: Site descriptions (xlsx)"),
         (6, "Green Crab: Fukui traps/CPUE data (xlsx)"),
         (7, "Green Crab: Environmental data (xlsx)"),
+        (10, "Green Crab: gravid female (xlsx)"),
         (None, ""),
         (None, "----- OPEN DATA ------"),
         (3, "OPEN DATA: Data dictionary (csv)"),

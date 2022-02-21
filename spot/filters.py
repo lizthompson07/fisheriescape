@@ -26,12 +26,12 @@ class OrganizationFilter(django_filters.FilterSet):
 
 class PersonFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search", lookup_expr='icontains', widget=forms.TextInput())
-    province = django_filters.ChoiceFilter(choices=choices.PROVINCE_STATE_CHOICES)
+    province_state = django_filters.ChoiceFilter(choices=choices.PROVINCE_STATE_CHOICES)
     role = django_filters.ChoiceFilter(choices=choices.ROLE)
 
     class Meta:
         model = models.Person
-        fields = ['province', 'organizations', 'role',]
+        fields = ['province_state', 'organizations', 'role',]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -47,14 +47,13 @@ class ProjectFilter(django_filters.FilterSet):
     project_type = django_filters.ChoiceFilter(choices=choices.PROJECT_TYPE, lookup_expr='icontains')
     monitoring_approach = django_filters.ChoiceFilter(choices=choices.MONITORING_APPROACH, lookup_expr='icontains')
     government_organization = django_filters.ChoiceFilter(choices=choices.GOVERNMENT_LINK, lookup_expr='icontains')
-    DFO_link = django_filters.ChoiceFilter(choices=choices.DFO_LINK, lookup_expr='icontains')
 
     class Meta:
         model = models.Project
         fields = ['species', 'region', 'cu_name', 'stock_management_unit', 'project_stage','ecosystem_type',
                   'project_type', 'project_sub_type', 'monitoring_approach',
                   'project_theme', 'core_component', 'supportive_component',
-                  'government_organization', 'DFO_link',]
+                  'government_organization',]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
