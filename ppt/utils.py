@@ -583,8 +583,6 @@ def get_status_report_field_list():
     return my_list
 
 
-
-
 def get_dma_field_list():
     my_list = [
         'title',
@@ -611,6 +609,7 @@ def get_dma_field_list():
     ]
     return my_list
 
+
 def get_activity_update_field_list():
     my_list = [
         'activity',
@@ -629,7 +628,6 @@ def get_dma_review_field_list():
         'metadata|{}'.format("metadata"),
     ]
     return my_list
-
 
 
 def get_file_field_list():
@@ -759,54 +757,67 @@ def get_risk_rating(impact, likelihood):
     return rating_dict[impact][likelihood]
 
 
-def prime_csas_activities(project_year, starting_date):
+def prime_csas_activities(project_year, starting_date, meeting_duration, has_sr_ar, has_res_or_proc):
+    print(meeting_duration, starting_date)
     parent_activities = [
-        dict(name="Planning", parent=None, type=1),
-        dict(name="Terms of Reference", parent=None, type=1),
-        dict(name="Peer-review Meeting", parent=None, type=1),
-        dict(name="Document", parent=None, type=2),
-    ]
-
-    activities = [
-        # planning
-        dict(name="Pre-Meeting with Science Staff", parent="Planning", type=1, start=-284, end=-285),
-        dict(name="Assemble Steering Committee", parent="Planning", type=1, start=-254, end=-284),
-
-        # tor
-        dict(name="Complete ToR", parent="Terms of Reference", type=1, start=-239, end=-254),
-        dict(name="ToR Approvals", parent="Terms of Reference", type=1, start=-225, end=-239),
-        dict(name="Translate ToR", parent="Terms of Reference", type=1, start=-215, end=-225),
-        dict(name="Publish ToR", parent="Terms of Reference", type=1, start=-187, end=-215),
-
-        # peer review
-        dict(name="send out six week notice", parent="Peer-review Meeting", type=1, start=-145, end=-187),
-        dict(name="Hold Meeting", parent="Peer-review Meeting", type=1, start=-143, end=-145),
-
-        # document
-        dict(name="Submit reworked documents", parent="Document", type=1, start=-83, end=-143),
-        dict(name="Management approval (1st language)", parent="Document", type=1, start=-78, end=-83),
-        dict(name="Document translation", parent="Document", type=1, start=-33, end=-78),
-        dict(name="Correct formatting (both languages)", parent="Document", type=1, start=-12, end=-33),
-        dict(name="Review and approval by authors", parent="Document", type=1, start=-7, end=-12),
-        dict(name="Final approvals by management", parent="Document", type=1, start=-2, end=-7),
-        dict(name="Send final documents to NCR", parent="Document", type=1, start=0, end=-10),
+        dict(name="Planning", parent=None, type=1, description="Establishing steering committee, chair, science lead"),
+        dict(name="Terms of Reference", parent=None, type=1, description="Meeting objective agreed upon by science sector and client"),
+        dict(name="Peer-review Meeting", parent=None, type=1, description="Evaluation and consensus building"),
+        dict(name="Science response or advisory report", parent=None, type=2, description="Timelines refer to document publication") if has_sr_ar else None,
+        dict(name="Research document or proceedings", parent=None, type=2, description="Timelines refer to document publication") if has_res_or_proc else None,
     ]
 
     # first create all parents
     for a_dict in parent_activities:
-        a = models.Activity.objects.create(
-            project_year=project_year,
-            name=a_dict["name"],
-            type=a_dict["type"],
-        )
+        if a_dict:
+            a = models.Activity.objects.create(
+                project_year=project_year,
+                name=a_dict["name"],
+                type=a_dict["type"],
+                description=a_dict["description"],
+            )
 
+    # Activities are the lead ups to the documents... these culminate in the `starting date`
+    #
+    #                  ___ child 1
+    #  activities-----|                 [The fork is the starting datetime]
+    #                  --- child 2
+
+    activities = [
+        # planning
+        dict(duration=1, name="Pre-Meeting with Science Staff", parent="Planning", type=1,
+             description="Identify science lead(s) and potential chair(s)"),
+        dict(duration=30, name="Assemble Steering Committee", parent="Planning", type=1,
+             description="Identify steering committee members: science leads, section head, CSAS advisor and clients"),
+
+        # tor
+        dict(duration=15, name="Complete ToR", parent="Terms of Reference", type=1, description="Complete ToR with steering committee"),
+        dict(duration=14, name="ToR Approvals", parent="Terms of Reference", type=1,
+             description="ToR approvals by client program and science director (or DG)"),
+        dict(duration=10, name="Translate ToR", parent="Terms of Reference", type=1, description="Translate ToR"),
+        dict(duration=28, name="Request to publish ToR", parent="Terms of Reference", type=1, description="Submit ToR through CSAS app"),
+
+        # peer review
+        dict(duration=42, name="Publish ToR (6 weeks prior to meeting)", parent="Peer-review Meeting", type=1,
+             description="ToR to be posted on CSAS website 6 weeks prior to the meeting"),
+        dict(duration=meeting_duration, name="Hold Meeting", parent="Peer-review Meeting", type=1, description="Evaluation and consensus building"),
+    ]
+
+    activities.reverse()  # we will start with the last activity and move back in time
+
+    i = 0
     for a_dict in activities:
-        end = starting_date + timedelta(days=a_dict["start"])
-        start = starting_date + timedelta(days=a_dict["end"])
+        if i == 0:
+            end = starting_date  # finishes at the starting date
+            start = starting_date - timedelta(days=a_dict["duration"])
+        else:
+            end = start
+            start = end - timedelta(days=meeting_duration)
 
         a = models.Activity.objects.create(
             project_year=project_year,
             name=a_dict["name"],
+            description=a_dict["description"],
             type=a_dict["type"],
             target_date=end,
             target_start_date=start,
@@ -815,6 +826,70 @@ def prime_csas_activities(project_year, starting_date):
             parent = project_year.activities.get(name=a_dict["parent"])
             a.parent = parent
             a.save()
+        i += 1
+
+    # each activity begins at the starting datetime; they run in parallel
+    child_activities = [
+        # Science response or advisory report
+        [
+            dict(duration=28, name="Submit reworked documents", parent="Science response or advisory report", type=1,
+                 description="To submit final document to regional CSAS office"),
+            dict(duration=5, name="Management approval (1st language)", parent="Science response or advisory report", type=1,
+                 description="Preliminary approval for translation"),
+            dict(duration=45, name="Document translation", parent="Science response or advisory report", type=1, description="Send for translation"),
+            dict(duration=21, name="Correct formatting (both languages)", parent="Science response or advisory report", type=1,
+                 description="Document formatting by regional CSAS office"),
+            dict(duration=5, name="Review and approval by authors", parent="Science response or advisory report", type=1,
+                 description="Finalization and review of document formatting"),
+            dict(duration=5, name="Final approvals by management", parent="Science response or advisory report", type=1,
+                 description="Final approval for publication"),
+            dict(duration=10, name="Send final documents to NCR", parent="Science response or advisory report", type=1,
+                 description="Submit final documents for publication"),
+        ] if has_sr_ar else None,
+
+        # Research document or proceedings
+        [
+            dict(duration=60, name="Submit reworked meeting document(s)", parent="Research document or proceedings", type=1,
+                 description="To submit final document to regional CSAS office"),
+            dict(duration=5, name="Management approval (1st language)", parent="Research document or proceedings", type=1,
+                 description="Preliminary approval for translation"),
+            dict(duration=45, name="Document translation", parent="Research document or proceedings", type=1, description="Send for translation"),
+            dict(duration=21, name="Correct formatting (both languages)", parent="Research document or proceedings", type=1,
+                 description="Document formatting by regional CSAS office"),
+            dict(duration=5, name="Review and approval by authors", parent="Research document or proceedings", type=1,
+                 description="Finalization and review of document formatting"),
+            dict(duration=5, name="Final approvals by management", parent="Research document or proceedings", type=1,
+                 description="Final approval for publication"),
+            dict(duration=5, name="Send final documents to NCR", parent="Research document or proceedings", type=1,
+                 description="Submit final documents for publication"),
+        ] if has_res_or_proc else None,
+    ]
+
+    for child_list in child_activities:
+        if child_list:
+            i = 0
+            for a_dict in child_list:
+                if i == 0:
+                    start = starting_date  # starts at the starting date
+                    end = starting_date + timedelta(days=a_dict["duration"])
+                else:
+                    start = end
+                    end = start + timedelta(days=meeting_duration)
+
+                a = models.Activity.objects.create(
+                    project_year=project_year,
+                    name=a_dict["name"],
+                    description=a_dict["description"],
+                    type=a_dict["type"],
+                    target_date=end,
+                    target_start_date=start,
+                )
+
+                if a_dict.get("parent"):
+                    parent = project_year.activities.get(name=a_dict["parent"])
+                    a.parent = parent
+                    a.save()
+                i += 1
 
     # now we have to figure out the dates of the parents
     for a_dict in parent_activities:

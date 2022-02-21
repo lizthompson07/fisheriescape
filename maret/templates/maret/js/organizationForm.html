@@ -1,0 +1,67 @@
+<script type="application/javascript">
+
+    function updateFields() {
+        // these are fields in iHub that we don't use in MarET
+        $("#key_species_div").hide();
+        $("#sectors_div").hide();
+        $("#relationship_rating").hide();
+        $("#orgs_div").hide();
+
+        // These are fields in iHub that we sometimes use in MarET
+        let is_fn = false;
+        let $name_ind = $("#name_ind_div");
+        let $nation = $("#nation_div");
+        let $council_quorum = $("#council_quorum_div");
+        let $next_election = $("#next_election_div");
+        let $election_term = $("#election_term_div");
+        let $new_coucil_effective_date = $("#new_coucil_effective_date_div");
+        let $population_on_reserve = $("#population_on_reserve_div");
+        let $population_off_reserve = $("#population_off_reserve_div");
+        let $population_other_reserve = $("#population_other_reserve_div");
+        let $fin = $("#fin_div");
+        let $processing_plant = $("#processing_plant_div");
+        let $wharf = $("#wharf_div");
+
+        $name_ind.hide();
+        $nation.hide();
+        $council_quorum.hide();
+        $next_election.hide();
+        $election_term.hide();
+        $new_coucil_effective_date.hide();
+        $population_on_reserve.hide();
+        $population_off_reserve.hide();
+        $population_other_reserve.hide();
+        $fin.hide();
+        $processing_plant.hide();
+        $wharf.hide();
+
+        $("#id_grouping").attr('selected', 'selected').each(function(){
+            if( parseInt($(this).val(), 10) === 1) {
+                is_fn = true;
+            }
+        });
+
+        if( is_fn ) {
+            $name_ind.show();
+            $nation.show();
+            $council_quorum.show();
+            $next_election.show();
+            $election_term.show();
+            $new_coucil_effective_date.show();
+            $population_on_reserve.show();
+            $population_off_reserve.show();
+            $population_other_reserve.show();
+            $fin.show();
+            $processing_plant.show();
+            $wharf.show();
+        }
+    }
+
+    $("#id_grouping").change(function () {
+        updateFields();
+    });
+
+    $(document).ready(function () {
+        updateFields();
+    });
+</script>

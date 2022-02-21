@@ -20,9 +20,11 @@ prio_dict = {"H": "High",
 
 sfa_nums = [15, 16, 17, 18, 19, 20, 21, 22, 23]
 
+min_long = -80
+max_long = -40
+
 collection_evntc_list = ["electrofishing", "bypass collection", "smolt wheel collection", "smolt collection",
                          "fall parr collection"]
-
 collection_locc_list = ["Adult Collection Site", "Bypass Site", "Electrofishing Site", "Smolt Wheel Site"]
 distribution_locc_list = ["Distribution Site"]
 

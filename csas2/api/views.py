@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.contrib.auth.models import User
-from django.db.models import Value, TextField
+from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.timezone import utc, make_aware
@@ -271,7 +271,24 @@ class ProcessViewSet(viewsets.ModelViewSet):
 
             # ACTIVITIES
             project_year.activities.all().delete()
-            prime_csas_activities(project_year, process.advice_date)
+
+            # check the expected docs
+            has_sr_or_ar = hasattr(process, "tor") and process.tor.expected_document_types.filter(
+                Q(name__icontains="response") | Q(name__icontains="advisory")).exists()
+            has_res_or_proc = hasattr(process, "tor") and process.tor.expected_document_types.filter(
+                Q(name__icontains="research") | Q(name__icontains="proceedings")).exists()
+
+            # start with the assumption of a starting date as the advise date
+            starting_date = process.advice_date
+            # start with the assumption of a 2-day meeting
+            meeting_duration = 2
+            if process.meetings.exists() and process.meetings:
+                last_meeting = process.meetings.filter(is_planning=False).last()
+                # use the actual meeting length
+                meeting_duration = last_meeting.length_days
+                # ideally the starting date is the last day of the meeting
+                starting_date = last_meeting.end_date
+            prime_csas_activities(project_year, starting_date, meeting_duration, has_sr_or_ar, has_res_or_proc)
             return Response(msg, status.HTTP_200_OK)
 
         raise ValidationError(_("This endpoint cannot be used without a query param"))

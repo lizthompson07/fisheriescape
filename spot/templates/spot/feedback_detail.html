@@ -18,7 +18,9 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
+            {% if is_admin %}
             <li class="breadcrumb-item"><a href="{% url 'spot:feedback_list' %}">Feedback</a></li>
+            {% endif %}
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>

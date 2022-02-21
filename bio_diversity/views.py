@@ -18,7 +18,7 @@ from shared_models.views import CommonAuthCreateView, CommonAuthUpdateView, Comm
     CommonFormsetView, CommonHardDeleteView, CommonFormView, CommonFilterView
 from django.urls import reverse_lazy, reverse
 from django import forms
-from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset
+from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset, BioUserFormset
 from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models, reports
 import pytz
@@ -38,13 +38,32 @@ class IndexTemplateView(TemplateView):
 class SiteLoginRequiredMixin(UserPassesTestMixin):
 
     def test_func(self):
+        # if admin only attribute is not set, set it to true
         if not hasattr(self, "admin_only"):
             self.admin_only = True
 
         if self.admin_only:
-            return utils.bio_diverisity_admin(self.request.user)
+            return utils.in_bio_diversity_admin_group(self.request.user)
         else:
-            return utils.bio_diverisity_authorized(self.request.user)
+            return utils.in_bio_diversity_user_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.test_func()
+        if not user_test_result:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = utils.in_bio_diversity_admin_group(self.request.user)
+        context["is_author"] = utils.in_bio_diversity_author_group(self.request.user) or context["is_admin"]
+        context["is_user"] = utils.in_bio_diversity_user_group(self.request.user) or context["is_author"]
+        return context
+
+
+class AdminOrSuperuserRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_superuser or utils.in_bio_diversity_admin_group(self.request.user)
 
 
 class AdminIndexTemplateView(TemplateView):
@@ -108,6 +127,24 @@ class FacicIndexTemplateView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["auth"] = utils.bio_diverisity_admin(self.request.user)
         return context
+
+
+class BioUserFormsetView(AdminOrSuperuserRequiredMixin, CommonFormsetView):
+    admin_only = True
+    template_name = 'bio_diversity/bio_user_formset.html'
+    h1 = "Manage Bio Diversity Administrative Users"
+    queryset = models.BioUser.objects.all()
+    formset_class = BioUserFormset
+    success_url_name = "bio_diversity:manage_bio_users"
+    home_url_name = "bio_diversity:index"
+    delete_url_name = "bio_diversity:delete_bio_user"
+
+
+class BioUserHardDeleteView(AdminOrSuperuserRequiredMixin, CommonHardDeleteView):
+    admin_only = True
+    model = models.BioUser
+    success_url = reverse_lazy("bio_diversity:manage_bio_users")
+
 
 # CommonCreate Extends the UserPassesTestMixin used to determine if a user has
 # has the correct privileges to interact with Creation Views
@@ -263,6 +300,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
         self.get_form_class().base_fields["anidc_subj_id"].widget = forms.HiddenInput()
         self.get_form_class().base_fields["pickc_id"].widget = forms.HiddenInput()
 
+        init['row_start'] = 1
+
         if 'evnt' in self.kwargs:
             evnt = models.Event.objects.filter(pk=self.kwargs["evnt"]).select_related("evntc_id", "facic_id").get()
             init['evnt_id'] = self.kwargs['evnt']
@@ -290,6 +329,9 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 data_types = ((None, "---------"), ('Individual', 'Individual'), ('Group', 'Group'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
+            elif evntc.__str__() in ["Feeding"]:
+                self.get_form_class().base_fields["data_type"].required = False
+                self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
             else:
                 self.get_form_class().base_fields["data_type"].required = True
                 data_types = ((None, "---------"), ('Individual', 'Individual'), ('Untagged', 'Untagged'),
@@ -329,8 +371,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             if evnt_code == "egg development":
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code.replace(" ", "_"))
                 context["egg_development"] = 1
-            elif evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
-                             "master entry", "adult collection"]:
+            elif evnt_code in ["feeding", "pit tagging", "treatment", "spawning", "distribution", "water quality record",
+                               "master entry", "adult collection"]:
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code.replace(" ", "_"))
             elif evnt_code in collection_evntc_list:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
@@ -1376,6 +1418,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
         context["calculated_properties"]["Marks"] = self.object.group_mark(get_string=True)
         context["calculated_properties"]["Current container"] = self.object.current_cont(get_string=True)
+        context["calculated_properties"]["Current feed"] = self.object.current_feed()
         context["calculated_properties"]["Development"] = self.object.get_development()
         context["calculated_properties"]["Fish in group"] = self.object.count_fish_in_group()
 
@@ -1536,6 +1579,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         context["calculated_properties"] = {}
         context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
         context["calculated_properties"]["Current container"] = self.object.current_cont(get_string=True)
+        context["calculated_properties"]["Current feed"] = self.object.current_feed()
         context["calculated_properties"]["Length (cm)"] = indv_len
         context["calculated_properties"]["Weight (g)"] = indv_weight
         context["calculated_properties"]["Condition Factor"] = utils.round_no_nan(utils.condition_factor
@@ -3254,18 +3298,20 @@ class FishtocontFormView(mixins.FishtocontMixin, BioCommonFormView):
     def get_initial(self):
         init = super().get_initial()
         init["move_date"] = date.today
-
         cont = utils.get_cont_from_tag(self.kwargs.get("cont_type"), self.kwargs.get("cont_id"))
         self.form_class.set_cont(self.form_class, cont)
-        init["facic_id"] = cont.facic_id
-        indv_list, grp_list = cont.fish_in_cont()
         self.form_class.base_fields["evnt_id"].queryset = models.Event.objects.filter(facic_id=cont.facic_id).select_related("prog_id", "evntc_id")
-        if len(grp_list) == 1:
-            grp = grp_list[0]
-            self.form_class.base_fields["grp_id"].queryset = models.Group.objects.filter(id=grp.pk).select_related("stok_id", "coll_id")
-        else:
-            grp_id_list = [grp.id for grp in grp_list]
-            self.form_class.base_fields["grp_id"].queryset = models.Group.objects.filter(id__in=grp_id_list).select_related("stok_id", "coll_id")
+
+        self.get_form_class().base_fields["evnt_id"].widget = forms.Select(
+            attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["coll_id"].widget = forms.Select(
+            attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["stok_id"].widget = forms.Select(
+            attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["grp_prog_id"].widget = forms.Select(
+            attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["perc_id"].widget = forms.Select(
+            attrs={"class": "chosen-select-contains"})
 
         return init
 
@@ -3311,12 +3357,12 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
         self.get_form_class().base_fields["coll_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
 
     def form_valid(self, form):
-        report = int(form.cleaned_data["report"])
+        report = form.cleaned_data["report"]
 
-        if report == 1:
+        if report == "facic_tank_rep":
             facic_pk = int(form.cleaned_data["facic_id"].pk)
             return HttpResponseRedirect(reverse("bio_diversity:facic_tank_report") + f"?facic_pk={facic_pk}")
-        elif report == 2:
+        elif report == "rive_code_rep":
             stok_pk = int(form.cleaned_data["stok_id"].pk)
 
             arg_str = f"?stok_pk={stok_pk}"
@@ -3331,7 +3377,7 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
             if form.cleaned_data["end_date"]:
                 arg_str += f"&end_date={form.cleaned_data['end_date']}"
             return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + arg_str)
-        elif report == 3:
+        elif report == "det_rep":
             adsc_pk = int(form.cleaned_data["adsc_id"].pk)
             arg_str = f"?adsc_pk={adsc_pk}"
 
@@ -3342,13 +3388,13 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 stok_pk = int(form.cleaned_data["stok_id"].pk)
                 arg_str += f"&stok_pk={stok_pk}"
             return HttpResponseRedirect(reverse("bio_diversity:detail_report") + arg_str)
-        elif report == 4:
+        elif report == "indv_rep":
             indv_pk = int(form.cleaned_data["indv_id"].pk)
             return HttpResponseRedirect(reverse("bio_diversity:individual_report_file") + f"?indv_pk={indv_pk}")
-        elif report == 5:
+        elif report == "grp_rep":
             grp_pk = int(form.cleaned_data["grp_id"].pk)
             return HttpResponseRedirect(reverse("bio_diversity:grp_report_file") + f"?grp_pk={grp_pk}")
-        elif report == 6:
+        elif report == "mort_rep":
             facic_pk = int(form.cleaned_data["facic_id"].pk)
             arg_str = f"?facic_pk={facic_pk}"
             if form.cleaned_data["prog_id"]:
@@ -3364,9 +3410,9 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 year = int(form.cleaned_data["year"])
                 arg_str += f"&year={year}"
             return HttpResponseRedirect(reverse("bio_diversity:mort_report_file") + arg_str)
-        elif report == 7:
+        elif report == "sys_code_rep":
             return HttpResponseRedirect(reverse("bio_diversity:system_code_report_file"))
-        elif report == 8:
+        elif report == "samp_rep":
             facic_pk = int(form.cleaned_data["facic_id"].pk)
             arg_str = f"?facic_pk={facic_pk}"
             if form.cleaned_data["prog_id"]:
@@ -3385,8 +3431,18 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 arg_str += f"&start_date={form.cleaned_data['start_date']}"
             if form.cleaned_data["end_date"]:
                 arg_str += f"&end_date={form.cleaned_data['end_date']}"
+        elif report == "evnt_rep":
+            facic_pk = int(form.cleaned_data["facic_id"].pk)
+            arg_str = f"?facic_pk={facic_pk}"
+            if form.cleaned_data["prog_id"]:
+                prog_pk = int(form.cleaned_data["prog_id"].pk)
+                arg_str += f"&prog_pk={prog_pk}"
+            if form.cleaned_data["start_date"]:
+                arg_str += f"&start_date={form.cleaned_data['start_date']}"
+            if form.cleaned_data["end_date"]:
+                arg_str += f"&end_date={form.cleaned_data['end_date']}"
 
-            return HttpResponseRedirect(reverse("bio_diversity:samples_report_file") + arg_str)
+            return HttpResponseRedirect(reverse("bio_diversity:events_report_file") + arg_str)
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -3468,7 +3524,7 @@ def mort_report_file(request):
     stok_id = utils.get_object_from_request(request, "stok_pk", models.StockCode)
 
     year = request.GET.get("year")
-    file_url = reports.generate_morts_report(facic_id, prog_id, stok_id, year, coll_id)
+    file_url = reports.generate_morts_report(request, facic_id, prog_id, stok_id, year, coll_id)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -3568,6 +3624,32 @@ def samples_report_file(request):
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="dmapps samples report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
 
+            return response
+    raise Http404
+
+
+@login_required()
+def events_report_file(request):
+    start_date = request.GET.get("start_date")
+    if not start_date:
+        start_date = utils.naive_to_aware(datetime.min)
+    else:
+        start_date = utils.naive_to_aware(datetime.strptime(start_date, "%Y-%m-%d"))
+    end_date = request.GET.get("end_date")
+    if not end_date:
+        end_date = utils.naive_to_aware(datetime.now())
+    else:
+        end_date = utils.naive_to_aware(datetime.strptime(end_date, "%Y-%m-%d"))
+
+    prog_id = utils.get_object_from_request(request, "prog_pk", models.Program)
+    facic_id = utils.get_object_from_request(request, "facic_pk", models.FacilityCode)
+
+    file_url = reports.generate_events_report(request, prog_id, facic_id, start_date, end_date)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="dmapps events report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
             return response
     raise Http404
 
