@@ -31,7 +31,8 @@ class GenericIndvParser(DataParser):
     lifestage_key = "Lifestage"
 
     converters = {vial_key: str, envelope_key: str, start_tank_key: str, end_tank_key: str, pit_key: str, "Year": str, "Month": str, "Day": str}
-    header = 2
+    header = 1
+    comment_row = [2]
     sheet_name = "Individual"
 
     ani_health_anidc_id = None
@@ -132,7 +133,9 @@ class GenericUntaggedParser(DataParser):
     mark_key = "Mark Applied"
     vax_key = "Vaccinated"
 
-    header = 2
+    header = 1
+    comment_row = [2]
+
     sheet_name = "Untagged"
     start_grp_dict = {}
     end_grp_dict = {}
@@ -326,7 +329,9 @@ class GenericGrpParser(DataParser):
     lifestage_key = "Lifestage"
     mark_key = "Mark Applied"
 
-    header = 2
+    header = 1
+    comment_row = [2]
+
     sheet_name = "Group"
     start_grp_dict = {}
     end_grp_dict = {}

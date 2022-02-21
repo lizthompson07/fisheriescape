@@ -55,6 +55,7 @@ class DataParser:
     mandatory_filled_keys = []
 
     header = 1
+    comment_row = None
     converters = {year_key: str, month_key: str, day_key: str}
     sheet_name = 0
     """ The data is parsed on initializing. The process is broken into steps run sequentially in init.  Each step
@@ -106,7 +107,7 @@ class DataParser:
             self.success = False
 
     def data_reader(self):
-        self.data = read_excel(self.cleaned_data["data_csv"], header=self.header, engine='openpyxl',
+        self.data = read_excel(self.cleaned_data["data_csv"], header=self.header, skiprows=self.comment_row, engine='openpyxl',
                                converters=self.converters, sheet_name=self.sheet_name)
         self.data = self.data.mask(self.data.eq('None')).dropna(how="all")
 

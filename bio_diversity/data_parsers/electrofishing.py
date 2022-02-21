@@ -60,11 +60,11 @@ class ElectrofishingParser(DataParser):
         for river_name in self.data[self.rive_key].unique():
             self.river_dict[river_name] = models.RiverCode.objects.filter(name__icontains=river_name).get()
 
-        if self.cleaned_data["evntc_id"].__str__() == "Electrofishing":
+        if cleaned_data["evntc_id"].__str__() == "Electrofishing":
             self.locc_id = models.LocCode.objects.filter(name__icontains="Electrofishing site").get()
-        elif self.cleaned_data["evntc_id"].__str__() == "Smolt Wheel Collection":
+        elif cleaned_data["evntc_id"].__str__() == "Smolt Wheel Collection":
             self.locc_id = models.LocCode.objects.filter(name__icontains="Smolt Wheel site").get()
-        elif self.cleaned_data["evntc_id"].__str__() == "Bypass Collection":
+        elif cleaned_data["evntc_id"].__str__() == "Bypass Collection":
             self.locc_id = models.LocCode.objects.filter(name__icontains="Bypass site").get()
 
         self.data_dict = self.data.to_dict("records")
@@ -149,8 +149,9 @@ class ElectrofishingParser(DataParser):
                 anix_grp, contx_id, contx_entered = utils.enter_contx(tank_id, cleaned_data, final_flag=True,
                                                                       grp_pk=grp_id.pk, return_anix=True)
                 self.row_entered += contx_entered
-                self.row_entered += utils.enter_grpd(anix_grp.pk, cleaned_data, row_datetime, None,
-                                                     None, anidc_str="Program Group", adsc_str=row[self.prio_key])
+                if utils.nan_to_none(row[self.prio_key]):
+                    self.row_entered += utils.enter_grpd(anix_grp.pk, cleaned_data, row_datetime, None,
+                                                         None, anidc_str="Program Group", adsc_str=row[self.prio_key])
 
             self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=contx_id.pk,
                                                  return_sucess=True)
