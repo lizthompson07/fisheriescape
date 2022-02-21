@@ -214,7 +214,7 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
 
 class Hexagon(models.Model):
     grid_id = models.CharField(max_length=255, null=True, blank=True, unique=True, verbose_name="grid id")
-    polygon = models.MultiPolygonField(srid=3857) #srid 4326 for WGS84 and 4269 for NAD83
+    polygon = models.MultiPolygonField(srid=4326) #srid 4326 for WGS84 and 4269 for NAD83
 
     def __str__(self):
         my_str = "Grid {}".format(self.grid_id)

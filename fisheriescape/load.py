@@ -58,33 +58,33 @@ from .models import FisheryArea, Hexagon, Score
 #     lm.save(strict=True, verbose=verbose)
 
 ## For hexagons
-mapping = {
-    'grid_id': 'grid_id',
-    'polygon': 'MULTIPOLYGON',
-}
-
-hexagon_shp = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'data', 'hexagon_test.shp'),
-)
-
-
-def run(verbose=True):
-    lm = LayerMapping(Hexagon, hexagon_shp, mapping, transform=False)
-    lm.save(strict=True, verbose=verbose)
-
-## For hexagon scores
 # mapping = {
-#     'hexagon': {'grid_id': 'grid_id'},
-#     'species': {'english_name': 'species'},
-#     'week': {'week_number': 'week'},
-#     'site_score': 'mean_score',
+#     'grid_id': 'grid_id',
+#     'polygon': 'MULTIPOLYGON',
 # }
 #
-# site_score_shp = os.path.abspath(
-#     os.path.join(os.path.dirname(__file__), 'data', 'site_score_test.shp'),
+# hexagon_shp = os.path.abspath(
+#     os.path.join(os.path.dirname(__file__), 'data', 'hexagon_test_transformed.shp'),
 # )
 #
 #
 # def run(verbose=True):
-#     lm = LayerMapping(Score, site_score_shp, mapping, transform=False)
+#     lm = LayerMapping(Hexagon, hexagon_shp, mapping, transform=False)
 #     lm.save(strict=True, verbose=verbose)
+
+## For hexagon scores from a shapefile
+mapping = {
+    'hexagon': {'grid_id': 'grid_id'},
+    'species': {'english_name': 'species'},
+    'week': {'week_number': 'week'},
+    'site_score': 'mean_score',
+}
+
+site_score_shp = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), 'data', 'site_score_test.shp'),
+)
+
+
+def run(verbose=True):
+    lm = LayerMapping(Score, site_score_shp, mapping, transform=False)
+    lm.save(strict=True, verbose=verbose)
