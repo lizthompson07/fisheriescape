@@ -384,6 +384,13 @@ class LdscFilter(django_filters.FilterSet):
         fields = ["name", "nom", ]
 
 
+class MoveFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.MoveDet
+        fields = ["move_date"]
+
+
 class OrgaFilter(django_filters.FilterSet):
 
     name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')

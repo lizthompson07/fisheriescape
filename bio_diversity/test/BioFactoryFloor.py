@@ -1743,6 +1743,39 @@ class LdscFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class MoveFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.MoveDet
+
+    anix_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnixFactory")
+    contx_start = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    contx_end = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    move_date = factory.lazy_attribute(lambda o: faker.date())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        obj = MoveFactory.build(**kwargs)
+        anix_id = AnixFactory()
+        contx_start = ContxFactory()
+        contx_end = ContxFactory()
+
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'anix_id': anix_id.pk,
+            'contx_start': contx_start.pk,
+            'contx_end': contx_end.pk,
+            'move_date': obj.move_date,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class OrgaFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Organization

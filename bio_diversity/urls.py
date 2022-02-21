@@ -313,6 +313,11 @@ urlpatterns = [
     path('create/mort/<str:iorg>/<int:pk>/', views.MortFormView.as_view(), name="create_mort"),
     path('create/mort/<str:iorg>/<int:pk>/<str:pop>/', views.MortFormView.as_view(), name="create_mort"),
 
+    path('create/move/', views.MoveCreate.as_view(), name="create_move"),
+    path('details/move/<int:pk>/', views.MoveDetails.as_view(), name="details_move"),
+    path('list/move/', views.MoveList.as_view(), name="list_move"),
+    path('update/move/<int:pk>/', views.MoveUpdate.as_view(), name="update_move"),
+    
     path('create/orga/', views.OrgaCreate.as_view(), name="create_orga"),
     path('create/orga/<str:pop>/', views.OrgaCreate.as_view(), name="create_orga"),
     path('details/orga/<int:pk>/', views.OrgaDetails.as_view(), name="details_orga"),

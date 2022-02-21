@@ -1838,6 +1838,18 @@ class LocDetSubjCode(BioLookup):
         ]
 
 
+class MoveDet(BioModel):
+    # move tag
+    anix_id = models.ForeignKey('AniDetailXref', null=True, blank=True, on_delete=models.CASCADE,
+                                verbose_name=_("Animal Detail X Ref"),
+                                db_column="ANI_DET_X_REF_ID")
+    contx_start = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, related_name="move_start",
+                                 verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_START_ID")
+    contx_end = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True, related_name="move_end",
+                                 verbose_name=_("Container Cross Reference End"), db_column="CONTAINER_XREF_END_ID")
+    move_date = models.DateField(verbose_name=_("Date move was recorded"), db_column="MOVE_DATE")
+
+
 class Organization(BioLookup):
     # orga tag
     pass

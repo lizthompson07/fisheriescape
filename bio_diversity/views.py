@@ -679,6 +679,9 @@ class LdscCreate(mixins.LdscMixin, CommonCreate):
     pass
 
 
+class MoveCreate(mixins.MoveMixin, CommonCreate):
+    pass
+
 class OrgaCreate(mixins.OrgaMixin, CommonCreate):
     pass
 
@@ -1768,6 +1771,9 @@ class LdscDetails(mixins.LdscMixin, CommonDetails):
     fields = ["locdc_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class MoveDetails(mixins.MoveMixin, CommonDetails):
+    fields = ["move_date", "created_by", "created_date", ]
+
 class OrgaDetails(mixins.OrgaMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
@@ -2496,6 +2502,12 @@ class LdscList(mixins.LdscMixin, GenericList):
     filterset_class = filters.LdscFilter
 
 
+class MoveList(mixins.MoveMixin, GenericList):
+    field_list = [
+        {"Date": 'move_date', "class": "", "width": ""},
+    ]
+    filterset_class = filters.MoveFilter
+
 class OrgaList(mixins.OrgaMixin, GenericList):
     field_list = [
         {"name": 'name', "class": "", "width": ""},
@@ -3057,6 +3069,10 @@ class LocdcUpdate(mixins.LocdcMixin, CommonUpdate):
 
 
 class LdscUpdate(mixins.LdscMixin, CommonUpdate):
+    pass
+
+
+class MoveUpdate(mixins.MoveMixin, CommonUpdate):
     pass
 
 

@@ -1056,6 +1056,11 @@ class MortForm(forms.Form):
                                    )
 
 
+class MoveForm(CreatePrams):
+    class Meta:
+        model = models.MoveDet
+        exclude = []
+
 class OrgaForm(CreatePrams):
     class Meta:
         model = models.Organization
