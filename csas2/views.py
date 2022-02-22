@@ -1466,7 +1466,7 @@ def process_list_report(request):
     if process_type:
         qs = qs.filter(type=process_type)
     if lead_region:
-        qs = qs.filter(lead_region_id=lead_region)
+        qs = qs.filter(lead_office__region_id=lead_region)
 
     file_url = reports.generate_process_list(qs)
 
