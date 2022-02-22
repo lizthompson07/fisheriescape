@@ -1787,6 +1787,79 @@ def enter_spwnd(pair_pk, cleaned_data, det_value, spwndc_pk, spwnsc_str, qual_co
     return row_entered
 
 
+def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None, grp_pk=None, return_sucess=False):
+    # cases:
+    # origin == destination / no desitination
+    # origin is none
+    # origin != destination
+    row_entered = False
+    start_contx_pk = None
+    end_contx_pk = None
+    start_anix = None
+    end_anix = None
+    origin_conts = None
+
+    # link indv/grp to cont regardless:
+    anix_pk, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk)
+    row_entered += anix_entered
+
+    if (origin_id == destination_id) or nan_to_none(destination_id) is None:
+        # no movement, link indv/grp to cont:
+        if return_sucess:
+            return row_entered
+        else:
+            return start_anix, end_anix, row_entered
+
+    if nan_to_none(origin_id):
+        if indv_pk:
+            indv = models.Individual.objects.filter(pk=indv_pk).get()
+            origin_conts = indv.current_cont(move_date)
+        elif grp_pk:
+            grp = models.Group.objects.filter(pk=grp_pk).get()
+            origin_conts = grp.current_cont(move_date)
+        if not origin_conts:
+            origin_conts = [None]
+    else:
+        origin_conts = [origin_id.pk]
+
+    # destination is set
+    end_anix, end_contx, contx_entered = enter_contx(destination_id, cleaned_data, return_anix=True,
+                                                     indv_pk=indv_pk, grp_pk=grp_pk)
+    row_entered += contx_entered
+    end_contx_pk = end_contx.pk
+
+    for origin in origin_conts:
+        if origin == destination_id:
+            pass
+        else:
+            if origin:
+                start_anix, start_contx, contx_entered = enter_contx(origin, cleaned_data, return_anix=True,
+                                                                     indv_pk=indv_pk, grp_pk=grp_pk)
+                row_entered += contx_entered
+                start_contx_pk = start_contx.pk
+            else:
+                start_contx_pk = None
+
+            move_id = models.MoveDet(anix_id_id=anix_pk,
+                                     contx_start=start_contx_pk,
+                                     contx_end=end_contx_pk,
+                                     move_date=move_date,
+                                     created_by=cleaned_data["created_by"],
+                                     created_date=cleaned_data["created_date"],
+                                     )
+            try:
+                move_id.clean()
+                move_id.save()
+                row_entered = True
+            except ValidationError:
+                pass
+
+    if return_sucess:
+        return row_entered
+    else:
+        return start_anix, end_anix, row_entered
+
+
 def enter_contx(cont, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
     cont_type = type(cont)
     if cont_type == models.Tank:

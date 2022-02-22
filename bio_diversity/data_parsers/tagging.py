@@ -103,8 +103,8 @@ class TaggingParser(DataParser):
         if utils.nan_to_none(row[self.from_tank_id_key]) or utils.nan_to_none(row[self.to_tank_id_key]):
             in_tank = row[self.from_tank_id_key]
             out_tank = row[self.to_tank_id_key]
-            self.row_entered += utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
-                                                           indv_pk=indv.pk)
+            self.row_entered += utils.enter_move(cleaned_data, in_tank, out_tank, row_datetime.date, indv_pk=indv.pk,
+                                                 return_sucess=True)
             # if tagged fish goes back into same tank, still link fish to tank:
             if in_tank == out_tank:
                 utils.enter_contx(in_tank, cleaned_data, True, indv_pk=indv.pk)

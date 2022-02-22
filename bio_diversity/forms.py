@@ -1061,6 +1061,7 @@ class MoveForm(CreatePrams):
         model = models.MoveDet
         exclude = []
 
+
 class OrgaForm(CreatePrams):
     class Meta:
         model = models.Organization
