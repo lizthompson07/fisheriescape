@@ -27,18 +27,18 @@
               <div class="mb-3">
                 <div class="form-group">
                   <label for="">${labels.person}</label>
-                  <select v-model="inviteeToEdit.person" class="form-control">
-                    <option v-for="choice, index in personChoices" :key="index" :value="choice.value">${choice.text}</option>
-                  </select>
-                  {#                  <v-select#}
-                  {#                    v-model="inviteeToEdit.person"#}
-                  {#                    :options="personChoices"#}
-                  {#                    :reduce="choice => choice.value"#}
-                  {#                    label="text"#}
-                  {#                    class="no-borders"#}
-                  {#                    :clearable=false#}
-                  {#                    required#}
-                  {#                  ></v-select>#}
+                  {#                  <select v-model="inviteeToEdit.person" class="form-control">#}
+                  {#                    <option v-for="choice, index in personChoices" :key="index" :value="choice.value">${choice.text}</option>#}
+                  {#                  </select>#}
+                  <v-select
+                    v-model="inviteeToEdit.person"
+                    :options="personChoices"
+                    :reduce="choice => choice.value"
+                    label="text"
+                    class="no-borders"
+                    :clearable=false
+                    required
+                  ></v-select>
                 </div>
                 <div class="mb-3">
                   <button v-if="!inviteeToEdit.person" @click="openPersonEditMode" class="badge badge-pill badge-primary" tabindex="-1">
