@@ -47,10 +47,32 @@
                   </div>
                   <div class="mb-3">
                     <button v-if="!inviteeToEdit.person" @click="openPersonEditMode" class="badge badge-pill badge-primary" tabindex="-1">
-                      {% trans "Add a person" %}</button>
+                      {% trans "Add a person" %}
+                    </button>
                     <button v-else @click="openPersonEditMode" class="badge badge-pill badge-warning" tabindex="-1">
-                      {% trans "Edit person details" %}</button>
+                      {% trans "Edit person details" %}
+                    </button>
                   </div>
+
+                  <div class="form-group">
+                    <label for="">${personLabels.affiliation}</label>
+                    <input type="text" v-model="inviteeToEdit.person_object.affiliation" class="form-control" @change="updatePerson(inviteeToEdit.person_object)" @keypress.enter.prevent="" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="">${personLabels.expertise}</label>
+                    <v-select
+                      v-model="inviteeToEdit.person_object.expertise"
+                      :options="expertiseChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class="no-borders"
+                      :clearable=false
+                      multiple
+                      @input="updatePerson(inviteeToEdit.person_object)"
+                    ></v-select>
+                  </div>
+
                   <div class="form-group">
                     <label for="">${labels.region}</label>
                     <v-select
@@ -138,7 +160,7 @@
                   </div>
                   <div class="form-group">
                     <label for="">${personLabels.affiliation}</label>
-                    <input type="text" v-model="person.affiliation" class="form-control" :disabled="person.dmapps_user"/>
+                    <input type="text" v-model="person.affiliation" class="form-control" />
                   </div>
                   <div class="form-group">
                     <label for="">${personLabels.job_title_en}</label>
@@ -248,6 +270,7 @@ Vue.component("invitee-editor", {
         this.personLabels = data.labels;
         this.personChoices = data.person_choices;
         this.languageChoices = data.language_choices;
+        this.expertiseChoices = data.expertise_choices;
         this.loadingPersons = false;
       });
     },
@@ -256,6 +279,7 @@ Vue.component("invitee-editor", {
       apiService(endpoint).then(data => {
         if (data) {
           this.person = data;
+          this.inviteeToEdit.person_object = data;
         }
       });
     },
@@ -297,8 +321,25 @@ Vue.component("invitee-editor", {
           this.getPersonMetadata();
           this.personEditMode = false;
           this.inviteeToEdit.person = response.id
+          this.inviteeToEdit.person_object = response
         } else {
           this.error = groomJSON(response)
+        }
+      });
+    },
+    updatePerson(person) {
+      this.error = null;
+      endpoint = `/api/csas/people/${person.id}/`;
+      method = "PUT";
+      apiService(endpoint, method, person).then(response => {
+        if (response.id) {
+          //this.getInviteeMetadata();
+          //this.getPersonMetadata();
+          //this.personEditMode = false;
+          //this.inviteeToEdit.person = response.id
+        } else {
+          this.error = groomJSON(response);
+          this.getPerson(person.id);
         }
       });
     },

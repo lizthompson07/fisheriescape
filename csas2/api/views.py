@@ -732,6 +732,7 @@ class PersonModelMetaAPIView(APIView):
         data['person_choices'] = person_choices
         data['labels'] = _get_labels(self.model)
         data['language_choices'] = [dict(text=str(p), value=p.id) for p in Language.objects.all()]
+        data['expertise_choices'] = [dict(text=str(p), value=p.id) for p in SubjectMatter.objects.all()]
         return Response(data)
 
 

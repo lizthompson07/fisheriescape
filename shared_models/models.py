@@ -998,7 +998,8 @@ class Person(MetadataFields):
             if hasattr(self.dmapps_user, "profile"):
                 self.phone = self.dmapps_user.profile.phone
                 self.language = self.dmapps_user.profile.language
-                self.affiliation = "DFO / MPO"
+                if not self.affiliation:
+                    self.affiliation = "DFO / MPO"
                 self.job_title_en = self.dmapps_user.profile.position_eng
                 self.job_title_fr = self.dmapps_user.profile.position_fre
         super().save(*args, **kwargs)
