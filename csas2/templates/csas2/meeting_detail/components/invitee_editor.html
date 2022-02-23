@@ -293,7 +293,8 @@ Vue.component("invitee-editor", {
       }
       apiService(endpoint, method, this.person).then(response => {
         if (response.id) {
-          this.getInviteeMetadata()
+          this.getInviteeMetadata();
+          this.getPersonMetadata();
           this.personEditMode = false;
           this.inviteeToEdit.person = response.id
         } else {
