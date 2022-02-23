@@ -261,7 +261,7 @@ Vue.component("invitee-editor", {
       }
       apiService(endpoint, method, this.inviteeToEdit).then(response => {
         if (response.id) {
-          this.$emit("update-invitees");
+          this.$emit("refresh-invitee", this.invitee);
           if (!this.inviteeToEdit.id) this.primeInvitee();
           this.overlay = false;
         } else {

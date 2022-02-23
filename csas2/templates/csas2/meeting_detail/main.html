@@ -190,7 +190,7 @@
     data: {
       currentUser: {},
       loadingMeeting: false,
-
+      loadingInvitees: false,
       meeting: {},
       notes: [],
       invitees: [],
@@ -299,10 +299,15 @@
           nextStatus = statusArray[currentStatusPos];
         }
         let endpoint = `/api/csas/invitees/${invitee.id}/`;
-        apiService(endpoint, "PATCH", {
-          status: nextStatus
-        }).then(() => {
-          this.getInvitees()
+        apiService(endpoint, "PATCH", {status: nextStatus}).then(response => {
+          this.$set(this.invitees, this.invitees.indexOf(invitee), response);
+        })
+      },
+      refreshInvitee(invitee) {
+        console.log(invitee)
+        let endpoint = `/api/csas/invitees/${invitee.id}/`;
+        apiService(endpoint, "GET").then(response => {
+          this.$set(this.invitees, this.invitees.indexOf(invitee), response);
         })
       },
       sendAllInvitations() {
@@ -326,8 +331,10 @@
         });
       },
       getInvitees() {
+        this.loadingInvitees = true
         let endpoint = `/api/csas/invitees/?meeting=${this.meeting.id}`;
         apiService(endpoint).then(data => {
+          this.loadingInvitees = false
           this.invitees = data;
           this.$forceUpdate();
         });

@@ -37,8 +37,12 @@
     <invitee-importer v-if="meeting.id" :meeting_id="meeting.id" @update-invitees="getInvitees"></invitee-importer>
   </div>
 </div>
-
-<div v-if="invitees && invitees.length">
+<div v-if="loadingInvitees" class="loading mb-3 mt-3 mt-5">
+  <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+    <span class="sr-only"></span>
+  </div>
+</div>
+<div v-else-if="invitees && invitees.length">
   <table class="table table-sm">
     <thead>
     <tr>
@@ -74,8 +78,8 @@
       </td>
       <td>
         <div class="btn-group">
-          <attendance-overlay :invitee="invitee" @update-invitees="getInvitees" v-if="meeting.dates.length"></attendance-overlay>
-          <invitee-editor :invitee="invitee" @update-invitees="getInvitees"></invitee-editor>
+          <attendance-overlay :invitee="invitee" @refresh-invitee="refreshInvitee" v-if="meeting.dates.length"></attendance-overlay>
+          <invitee-editor :invitee="invitee" @refresh-invitee="refreshInvitee"></invitee-editor>
           <button class="btn btn-sm" @click="deleteInvitee(invitee)">
             <span class="mdi mdi-delete"></span>
           </button>
