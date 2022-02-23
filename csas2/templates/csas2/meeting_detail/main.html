@@ -304,7 +304,6 @@
         })
       },
       refreshInvitee(invitee) {
-        console.log(invitee)
         let endpoint = `/api/csas/invitees/${invitee.id}/`;
         apiService(endpoint, "GET").then(response => {
           this.$set(this.invitees, this.invitees.indexOf(invitee), response);
