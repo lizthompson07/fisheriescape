@@ -4,6 +4,7 @@ import os
 import unidecode
 import xlsxwriter
 from django.conf import settings
+from django.http import HttpResponse
 from django.utils import timezone
 
 from dm_apps.utils import Echo
@@ -154,7 +155,7 @@ def generate_obs_csv(year):
             obj.section.dive.sample,
             obj.section.dive.sample_id,
             obj.section.dive.sample.datetime.strftime("%Y-%m-%d"),
-            obj.section.dive.sample.transect.region  if obj.section.dive.sample.transect else "NA",
+            obj.section.dive.sample.transect.region if obj.section.dive.sample.transect else "NA",
             obj.section.dive.sample.transect.name if obj.section.dive.sample.transect else "NA",
             obj.section.dive.get_side_display(),
             obj.section.interval,
@@ -256,3 +257,71 @@ def generate_dive_csv(year):
         data_row = [unidecode.unidecode(str(nz(getattr(obj, field), ""))) for field in field_names]  # starter
         data_row.extend([obj.sample.transect, obj.sample.transect_id])
         yield writer.writerow(data_row)
+
+
+def generate_od_dataset():
+    """Returns a generator for an HTTP Streaming Response"""
+
+    header_row = [
+        "year",
+        "site_name",
+        "site_lat",
+        "site_lng",
+        "start_date",
+        "end_date",
+        "n_transects",
+        "n_lobsters",
+    ]
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
+
+
+    # each row should be a region-year... summarizes the activity at a region in a given year
+    # first, we will need a list of years sampled
+    years = set([item["datetime"].year for item in models.Sample.objects.order_by("datetime").values("datetime").distinct()])
+    for year in years:
+        # next, a qs of all the region which were sampled in that year
+        qs = models.Region.objects.filter(transects__samples__datetime__year=year).distinct().iterator()
+
+        for r in qs:
+            samples = models.Sample.objects.filter(transect__region=r, datetime__year=year).order_by("datetime")
+            coords = r.get_coordinates()
+            data_row = [
+                year,
+                r.name,
+                coords.x if coords else "",
+                coords.y if coords else "",
+                samples.first().datetime.strftime("%Y-%m-%d"),
+                samples.last().datetime.strftime("%Y-%m-%d"),
+                r.transects.filter(samples__datetime__year=year).count(),
+                models.Observation.objects.filter(section__dive__sample__in=samples).count()
+            ]
+
+            yield writer.writerow(data_row)
+
+
+def generate_od_dictionary():
+    # figure out the filename
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="data_dictionary.csv"'
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+
+    rows = [
+        ["name_nom", "description_en", "description_fr", ],
+        ["year", "Sampling year", "Année d'échantillonnage", ],
+        ["site_name", "Name of site", "Nom du site", ],
+        ["site_lat", "Latitude of site", "Latitude du site", ],
+        ["site_lng", "Longitude of site", "Longitude du site", ],
+        ["start_date", "First day of any sampling at site that year", "Premier jour d'échantillonnage au site pour cette année", ],
+        ["end_date", "Last day of any sampling at site that year", "Dernier jour d'échantillonnage au site pour cette année", ],
+        ["n_transects", "Total number of transects completed at site for that year", "Nombre total de transects réalisés au site pour cette année", ],
+        ["n_lobsters", "Total number of lobsters measured at site that year", "Nombre total de homards mesurés au site pour cette année", ],
+    ]
+
+    for row in rows:
+        writer.writerow(row)
+
+    return response

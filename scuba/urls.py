@@ -55,6 +55,7 @@ urlpatterns = [
     path('reports/dive/', views.export_dive_data, name="export_dive_data"),  # TODO: TESTME
     path('reports/section/', views.export_section_data, name="export_section_data"),  # TODO: TESTME
     path('reports/observations/', views.export_obs_data, name="export_obs_data"),  # TODO: TESTME
+    path('reports/open-data/', views.export_open_data, name="export_open_data"),  # TODO: TESTME
 
 ]
 
