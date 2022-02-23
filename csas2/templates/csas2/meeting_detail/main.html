@@ -304,10 +304,14 @@
         })
       },
       refreshInvitee(invitee) {
-        let endpoint = `/api/csas/invitees/${invitee.id}/`;
-        apiService(endpoint, "GET").then(response => {
-          this.$set(this.invitees, this.invitees.indexOf(invitee), response);
-        })
+        if (!invitee.id) {
+          this.getInvitees();
+        } else {
+          let endpoint = `/api/csas/invitees/${invitee.id}/`;
+          apiService(endpoint, "GET").then(response => {
+            this.$set(this.invitees, this.invitees.indexOf(invitee), response);
+          })
+        }
       },
       sendAllInvitations() {
         let userInput = confirm("{% trans 'Are you certain you want to send out invitations to all invitees? \n\nInvitees who have already received invitations will not receive duplicates.' %}")

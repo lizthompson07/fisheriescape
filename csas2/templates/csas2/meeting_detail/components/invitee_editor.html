@@ -43,6 +43,7 @@
                       class="no-borders"
                       :clearable=false
                       required
+                      @input="updateInviteePerson(inviteeToEdit.person)"
                     ></v-select>
                   </div>
                   <div class="mb-3">
@@ -54,12 +55,13 @@
                     </button>
                   </div>
 
-                  <div class="form-group">
+                  <div class="form-group" v-if="inviteeToEdit.person_object.id">
                     <label for="">${personLabels.affiliation}</label>
-                    <input type="text" v-model="inviteeToEdit.person_object.affiliation" class="form-control" @change="updatePerson(inviteeToEdit.person_object)" @keypress.enter.prevent="" />
+                    <input type="text" v-model="inviteeToEdit.person_object.affiliation" class="form-control"
+                           @change="updatePerson(inviteeToEdit.person_object)" @keypress.enter.prevent=""/>
                   </div>
 
-                  <div class="form-group">
+                  <div class="form-group" v-if="inviteeToEdit.person_object.id">
                     <label for="">${personLabels.expertise}</label>
                     <v-select
                       v-model="inviteeToEdit.person_object.expertise"
@@ -160,7 +162,7 @@
                   </div>
                   <div class="form-group">
                     <label for="">${personLabels.affiliation}</label>
-                    <input type="text" v-model="person.affiliation" class="form-control" />
+                    <input type="text" v-model="person.affiliation" class="form-control"/>
                   </div>
                   <div class="form-group">
                     <label for="">${personLabels.job_title_en}</label>
@@ -183,6 +185,19 @@
                       :disabled="person.dmapps_user"
                     ></v-select>
                   </div>
+                  <div class="form-group">
+                    <label for="">${personLabels.expertise}</label>
+                    <v-select
+                      v-model="person.expertise"
+                      :options="expertiseChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class="no-borders"
+                      :clearable=false
+                      multiple
+                    ></v-select>
+                  </div>
+
                 </div>
                 <div class="alert alert-danger mb-3" role="alert" v-if="error">
                   <p class="lead">
@@ -228,7 +243,9 @@ Vue.component("invitee-editor", {
     return {
       dates: null,
       error: null,
-      inviteeToEdit: {},
+      inviteeToEdit: {
+        person_object: {}
+      },
       labels: {},
       languageChoices: [],
       loadingPersons: false,
@@ -327,6 +344,11 @@ Vue.component("invitee-editor", {
         }
       });
     },
+
+    updateInviteePerson(personId) {
+      this.getPerson(personId);
+      this.$forceUpdate();
+    },
     updatePerson(person) {
       this.error = null;
       endpoint = `/api/csas/people/${person.id}/`;
@@ -375,7 +397,8 @@ Vue.component("invitee-editor", {
         status: 4,
         role: null,
         person: null,
-        meeting: this.meeting_id
+        meeting: this.meeting_id,
+        person_object: {}
       };
     },
   },
