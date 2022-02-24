@@ -2,6 +2,7 @@ import os
 from io import BytesIO
 import xlsxwriter
 from django.template.defaultfilters import date
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import activate, deactivate, gettext as _
 from docx import Document
@@ -163,7 +164,7 @@ def generate_meeting_report(fiscal_year=None, is_posted=None):
     return target_url
 
 
-def generate_request_list(requests):
+def generate_request_list(requests, site_url):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -175,19 +176,21 @@ def generate_request_list(requests):
     # create formatting variables
     title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
     header_format = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
-    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
-    currency_format = workbook.add_format({'num_format': '#,##0.00'})
-    date_format = workbook.add_format({'num_format': "mm/dd/yyyy", "align": 'left', 'border_color': 'black', })
+        {'bold': True, 'border': 0, 'border_color': 'black', "align": 'normal', "text_wrap": True})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 0, 'border_color': 'black', })
+    hyperlink_format = workbook.add_format({'border': 0, 'border_color': 'black', "font_color": "blue", "underline": True})
+    date_format = workbook.add_format({'num_format': "mm/dd/yyyy", "align": 'left', 'border': 0, 'border_color': 'black', })
 
     field_list = [
-        'id',
+        'id|{}'.format("CSAS Request ID"),
+        'title',
+        'translated_title',
         'fiscal_year',
-        'title|{}'.format(_("title")),
         'advice_fiscal_year',
         'target_advice_date|{}'.format(_("advice date")),
         'status',
+        'review.decision|{}'.format(_("recommendation")),
+        'review.decision_text|{}'.format(_("recommendation explanation")),
         'has_process|{}'.format(_("has process?")),
         'coordinator',
         'client',
@@ -220,8 +223,17 @@ def generate_request_list(requests):
                 my_val = listrify(obj.process.advisors.all())
                 my_ws.write(i, j, my_val, normal_format)
             elif "date" in field:
-                my_val = obj.target_advice_date.strftime("%m/%d/%Y") if obj.target_advice_date else ""
+                my_val = obj.target_advice_date.strftime("%m/%d/%Y") if obj.target_advice_date else "---"
                 my_ws.write(i, j, my_val, date_format)
+            elif "decision|" in field:
+                my_val = str(get_field_value(obj.review, "decision")) if hasattr(obj, "review") else "---"
+                my_ws.write(i, j, my_val, normal_format)
+            elif field == "title":
+                my_val = str(get_field_value(obj, field))
+                my_ws.write_url(i, j,
+                                url=f'{site_url}/{reverse("csas2:request_detail", args=[obj.id])}',
+                                string=f"{my_val}",
+                                cell_format=hyperlink_format)
             elif "expected publications" in field:
                 if hasattr(obj.process, "tor"):
                     my_val = listrify(obj.process.tor.expected_document_types.all())
@@ -251,7 +263,7 @@ def generate_request_list(requests):
     workbook.close()
     return target_url
 
-def generate_process_list(processes):
+def generate_process_list(processes, site_url):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -263,16 +275,15 @@ def generate_process_list(processes):
     # create formatting variables
     title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
     header_format = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
-    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
-    currency_format = workbook.add_format({'num_format': '#,##0.00'})
-    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+        {'bold': True, 'border': 0, 'border_color': 'black', "align": 'normal', "text_wrap": True})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 0, 'border_color': 'black', })
+    hyperlink_format = workbook.add_format({'border': 0, 'border_color': 'black', "font_color": "blue", "underline": True})
 
     field_list = [
-        'id',
+        'id|{}'.format("CSAS Process ID"),
         'fiscal_year',
         'name',
+        'nom',
         'scope_type|{}'.format(_("Advisory process type")),
         'status',
         'science_leads|{}'.format(_("Lead scientists")),
@@ -317,6 +328,12 @@ def generate_process_list(processes):
                 else:
                     my_val = "n/a"
                 my_ws.write(i, j, my_val, normal_format)
+            elif field == "name":
+                my_val = str(get_field_value(obj, field))
+                my_ws.write_url(i, j,
+                                url=f'{site_url}/{reverse("csas2:process_detail", args=[obj.id])}',
+                                string=f"{my_val}",
+                                cell_format=hyperlink_format)
             else:
                 my_val = str(get_field_value(obj, field))
                 my_ws.write(i, j, my_val, normal_format)

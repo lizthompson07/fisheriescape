@@ -806,7 +806,7 @@ class RequestModelMetaAPIView(APIView):
         data['sector_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_sector_choices(with_requests=True)]
         data['section_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_section_choices(with_requests=True)]
         data['fy_choices'] = [dict(text=str(c), value=c.id) for c in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
-        data['tag_choices'] = [dict(text=str(c), value=c.id) for c in SubjectMatter.objects.all()]
+        data['tag_choices'] = [dict(text=str(c), value=c.id) for c in SubjectMatter.objects.filter(is_csas_request_tag=True)]
         return Response(data)
 
 

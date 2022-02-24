@@ -184,7 +184,7 @@ class CSASRequest(MetadataFields):
     prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("How would you classify the prioritization of this request?"),
                                          choices=model_choices.prioritization_choices)
     prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("What is the rationale behind the prioritization?"))
-    tags = models.ManyToManyField(SubjectMatter, blank=True, verbose_name=_("keyword tags"))
+    tags = models.ManyToManyField(SubjectMatter, blank=True, verbose_name=_("keyword tags"), limit_choices_to={"is_csas_request_tag": True})
 
     # non-editable fields
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
@@ -561,7 +561,10 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     def key_meetings(self):
         mystr = ""
         for meeting in self.meetings.filter(is_planning=False):
-            mystr += f"{str(meeting)}\n({meeting.tor_display_dates})\n\n"
+            mystr += f"English Title: {meeting.name}\n" \
+                     f"French Title: {meeting.nom}\n" \
+                     f"Location: {meeting.location}\n" \
+                     f"Dates: {meeting.tor_display_dates}\n\n"
         return mystr
 
     @property
