@@ -108,7 +108,8 @@ def generate_meeting_report(fiscal_year=None, is_posted=None):
         'process.coordinator|CSAS Coordinator',
         'process.advisors|Science advisors',
         'expected publications',
-        'other regions',
+        'lead office',
+        'other offices',
     ]
 
     # define the header
@@ -128,8 +129,11 @@ def generate_meeting_report(fiscal_year=None, is_posted=None):
         j = 0
         for field in field_list:
 
-            if "other regions" in field:
-                my_val = listrify(obj.process.other_regions.all())
+            if "other offices" in field:
+                my_val = listrify(obj.process.other_offices.all())
+                my_ws.write(i, j, my_val, normal_format)
+            elif "lead office" in field:
+                my_val = str(obj.process.lead_office)
                 my_ws.write(i, j, my_val, normal_format)
             elif "advisors" in field:
                 my_val = listrify(obj.process.advisors.all())

@@ -10,7 +10,7 @@ from shared_models.models import Section, Division, Region, Branch, Sector
 
 
 def in_csas_regional_admin_group(user):
-    if user:
+    if user.id:
         # this will find if the user is a coordinator for any csas offices OR if they are an advisor or administrator
         return user.csas_offices.exists() or user.csas_offices_advisors.exists() or user.csas_offices_administrators.exists()
 
