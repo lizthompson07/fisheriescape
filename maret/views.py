@@ -598,7 +598,6 @@ class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
     template_name = 'maret/organization_detail.html'
     field_list = [
         'name_eng',
-        'name_ind',
         'former_name',
         'abbrev',
         'email',
@@ -613,21 +612,10 @@ class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
         'regions',
         'sectors',
         'dfo_contact_instructions',
-        'relationship_rating',
         'orgs',
-        'nation',
         'website',
-        'council_quorum',
-        'next_election',
-        'new_coucil_effective_date',
-        'election_term',
-        'population_on_reserve',
-        'population_off_reserve',
-        'population_other_reserve',
-        'fin',
         'processing_plant',
         'wharf',
-        'reserves',
         "metadata|{}".format(gettext_lazy("metadata")),
     ]
     home_url_name = "maret:index"
