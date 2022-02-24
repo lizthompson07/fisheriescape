@@ -521,8 +521,16 @@ class Process(SimpleLookupWithUUID, MetadataFields):
             return self.tor.meeting.chair
 
     @property
-    def client_sectors(self):
+    def client_sections(self):
         return listrify(set([r.section for r in self.csas_requests.all()]))
+
+    @property
+    def client_sectors(self):
+        return listrify(set([r.section.division.branch.sector for r in self.csas_requests.all()]))
+
+    @property
+    def client_regions(self):
+        return listrify(set([r.section.division.branch.sector.region for r in self.csas_requests.all()]))
 
     @property
     def science_leads(self):
@@ -863,7 +871,8 @@ class Meeting(SimpleLookup, MetadataFields):
 
     @property
     def quarter(self):
-        return get_quarter(self.start_date)
+        est_quarter = get_quarter(self.start_date, "verbose")
+        return f"{est_quarter}"
 
     @property
     def tor_display_dates(self):

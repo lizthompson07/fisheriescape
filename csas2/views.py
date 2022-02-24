@@ -1014,6 +1014,17 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'role|{}'.format(_("your role(s)")), "class": "", "width": ""},
     ]
 
+
+    def get_extra_button_dict1(self):
+        qs = self.filterset.qs
+        ids = listrify([obj.id for obj in qs])
+        return {
+            "name": _("<span class=' mr-1 mdi mdi-file-excel'></span> {name}").format(name=_("Export")),
+            "url": reverse("csas2:meeting_report") + f"?meetings={ids}",
+            "class": "btn-outline-dark",
+        }
+
+
     def get_queryset(self):
         qp = self.request.GET
         qs = models.Meeting.objects.all()
@@ -1421,15 +1432,30 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
 @login_required()
 def meeting_report(request):
     qp = request.GET
-    year = None if qp.get("fiscal_year") == "None" else int(qp.get("fiscal_year"))
+    fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
     is_posted = None if qp.get("is_posted") == "None" else bool(qp.get("is_posted"))
-    file_url = reports.generate_meeting_report(fiscal_year=year, is_posted=is_posted)
+    meetings = qp.get("meetings") if qp.get("meetings") and qp.get("meetings") != "None" else None
+
+    # get the meeting list
+    qs = models.Meeting.objects.all()
+    if meetings:
+        meetings = qp.get("meetings").split(",")
+        qs = qs.filter(id__in=meetings)
+    else:
+        qs = qs.filter(is_planning=False)
+        if fiscal_year:
+            qs = qs.filter(process__fiscal_year=fiscal_year)
+        if is_posted is not None:
+            qs = qs.filter(process__is_posted=is_posted)
+
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_meeting_report(qs, site_url)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
-            fy = get_object_or_404(FiscalYear, pk=year) if year else "all years"
+            # fy = get_object_or_404(FiscalYear, pk=year) if year else "all years"
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="CSAS meetings ({fy}).xlsx"'
+            response['Content-Disposition'] = f'inline; filename="CSAS meetings.xlsx"'
             return response
     raise Http404
 
