@@ -1437,7 +1437,7 @@ def meeting_report(request):
     meetings = qp.get("meetings") if qp.get("meetings") and qp.get("meetings") != "None" else None
 
     # get the meeting list
-    qs = models.Meeting.objects.all()
+    qs = models.Meeting.objects.order_by("start_date")
     if meetings:
         meetings = qp.get("meetings").split(",")
         qs = qs.filter(id__in=meetings)
