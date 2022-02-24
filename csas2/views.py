@@ -917,7 +917,6 @@ class TermsOfReferenceSubmitView(TermsOfReferenceUpdateView):
 
         # return HttpResponseRedirect(reverse("travel:request_detail", kwargs=self.kwargs) + self.get_query_string())
 
-
         #
         # if obj.submission_date:
         #     obj.submission_date = None
@@ -1147,6 +1146,24 @@ class MeetingDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
 
     def get_success_url(self):
         return self.get_grandparent_crumb()["url"]
+
+
+class MeetingReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):
+    template_name = 'csas2/meeting_reviews/main.html'
+    container_class = "container-fluid"
+    home_url_name = "csas2:index"
+    h1 = gettext_lazy("CSAS Meeting Review Console")
+    filterset_class = filters.MeetingFilter
+    model = models.Process
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_queryset(self):
+        qs = models.Meeting.objects.all().order_by("-created_at")
+        qs = qs.annotate(search=Concat('name', Value(" "), 'nom', Value(" "), output_field=TextField())).order_by("start_date", _("name"))
+        return qs
 
 
 # meeting files #

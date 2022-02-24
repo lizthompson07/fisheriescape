@@ -68,7 +68,7 @@
             <tr>
               <th class="text-left w200" v-html="meetingLabels.process"></th>
               <td class="text-left">
-                <a href="{% url 'csas2:process_detail' object.process.id %}">${ meeting.process }</a>
+                <a href="{% url 'csas2:process_detail' object.process.id %}">${ meeting.process_object.tname }</a>
               </td>
             </tr>
             <tr>

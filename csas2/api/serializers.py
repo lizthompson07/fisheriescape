@@ -424,13 +424,16 @@ class MeetingSerializer(serializers.ModelSerializer):
     start_date_display = serializers.SerializerMethodField()
     attendees = serializers.SerializerMethodField()
     length_days = serializers.SerializerMethodField()
-    process = serializers.StringRelatedField()
     display = serializers.SerializerMethodField()
     somp_notification_date = serializers.SerializerMethodField()
     is_posted = serializers.SerializerMethodField()
     has_tor = serializers.SerializerMethodField()
     ttime = serializers.SerializerMethodField()
     email_list = serializers.SerializerMethodField()
+    process_object = serializers.SerializerMethodField()
+
+    def get_process_object(self, instance):
+        return ProcessSerializerLITE(instance.process).data
 
     def get_email_list(self, instance):
         return instance.email_list
@@ -722,6 +725,18 @@ class ToRReviewerSerializer(serializers.ModelSerializer):
 
     def get_user_display(self, instance):
         return instance.user.get_full_name() if instance.user else None
+
+
+class ProcessSerializerLITE(serializers.ModelSerializer):
+    fiscal_year = serializers.StringRelatedField()
+    tname = serializers.SerializerMethodField()
+
+    def get_tname(self, instance):
+        return instance.tname
+
+    class Meta:
+        model = models.Process
+        fields = "__all__"
 
 
 class ProcessSerializer(serializers.ModelSerializer):

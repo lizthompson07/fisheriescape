@@ -179,7 +179,7 @@ def generate_request_list(requests):
     total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
     currency_format = workbook.add_format({'num_format': '#,##0.00'})
-    date_format = workbook.add_format({'num_format': "mm/dd/yyyy", "align": 'left', })
+    date_format = workbook.add_format({'num_format': "mm/dd/yyyy", "align": 'left', 'border_color': 'black', })
 
     field_list = [
         'id',

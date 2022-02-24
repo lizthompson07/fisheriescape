@@ -859,6 +859,10 @@ class Meeting(SimpleLookup, MetadataFields):
             return f"{est_quarter} {self.start_date.year}"
 
     @property
+    def quarter(self):
+        return get_quarter(self.start_date)
+
+    @property
     def tor_display_dates(self):
         if not self.is_estimate:
             start = date(self.start_date)

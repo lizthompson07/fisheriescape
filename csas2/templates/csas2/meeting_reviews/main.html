@@ -21,9 +21,9 @@
   </div>
   {% bootstrap_messages %}
 
-  {% include "csas2/process_reviews/_filter.html" %}
+  {% include "csas2/meeting_reviews/_filter.html" %}
   <div id="app" v-cloak>
-    <div v-if="loadingProcesses" class="loading mb-3 mt-3 mt-5">
+    <div v-if="loadingMeetings" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
         <span class="sr-only"></span>
       </div>
@@ -36,59 +36,48 @@
           </em>
         </div>
       </div>
-      <div v-else-if="!processes.length">
+      <div v-else-if="!meetings.length">
         <div class="mt-5">
           <em class="lead">
-            {% trans "No processes found..." %}
+            {% trans "No meetings found..." %}
           </em>
         </div>
       </div>
       <div v-else class="m-3 mt-4">
         <div class="text-center">
           <div class="text-center">
-            <p class="font-italic text-muted">${processes.length} {% trans "results loaded" %}</p>
+            <p class="font-italic text-muted">${meetings.length} {% trans "results loaded" %}</p>
           </div>
         </div>
+
         <table class="table table-sm">
           <thead>
           <tr>
-            <th class="w25">Id</th>
-            <th>${processLabels.fiscal_year}</th>
-            <th class="w250">{% trans "Title" %}</th>
-            <th>{% trans "Regions" %}</th>
-            <th>${processLabels.status}</th>
-            <th>${processLabels.advice_date}</th>
-            <th>${processLabels.status}</th>
+            <th class="w50">Process Id</th>
+            <th>${meetingLabels.fiscal_year}</th>
+            <th>${meetingLabels.start_date}</th>
+            <th>${processLabels.is_posted}</th>
+            <th>${meetingLabels.name}</th>
+            <th>${meetingLabels.nom}</th>
+{#            <th class="w250">{% trans "Title" %}</th>#}
+{#            <th>{% trans "Regions" %}</th>#}
+{#            <th>${meetingLabels.status}</th>#}
+{#            <th>${meetingLabels.advice_date}</th>#}
+{#            <th>${meetingLabels.status}</th>#}
           </tr>
           </thead>
           <tbody>
-          <tr v-for="p in processes" :key="p.id">
-            <td>${p.id}</td>
-            <td>${p.fiscal_year}</td>
+          <tr v-for="m in meetings" :key="m.id">
+            <td>${m.process}</td>
+            <td>${m.process_object.fiscal_year}</td>
+            <td><span v-html="m.display_dates"></span></td>
+            <td>${m.process_object.is_posted | yesNo}</td>
             <td>
-              <a :href="`/csas-sccs/processes/${p.id}/view/`" target="_blank">${p.tname}</a>
+              <input v-model="m.name" type="text" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted">
             </td>
-            <td v-html="p.regions"></td>
-            <td v-html="p.status_display_html"></td>
             <td>
-              <input v-model="p.advice_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
-                     @change="updateProcess(p)">
+              <input v-model="m.nom" type="text" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted">
             </td>
-
-            <td>
-              <v-select
-                v-model="p.status"
-                @input="updateProcess(p)"
-                :options="statusChoices"
-                :reduce="choice => choice.value"
-                label="text"
-                :clearable="false"
-                class="bg-light w-100"
-              >
-              </v-select>
-            </td>
-
-
           </tr>
           </tbody>
         </table>
@@ -116,9 +105,10 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: {},
-      loadingProcesses: false,
-      processes: [],
+      loadingMeetings: false,
+      meetings: [],
       processLabels: {},
+      meetingLabels: {},
       reviewLabels: {},
       errorMsg: null,
       statusChoices: [],
@@ -145,16 +135,16 @@
         $("#filter-form").submit()
       },
 
-      getProcesses() {
+      getMeetings() {
         this.errorMsg = null;
-        this.loadingProcesses = true;
+        this.loadingMeetings = true;
         this.fresh = false;
         let params = window.location.search.substring(1);
 
         if (!params) page_size = 25;
         else page_size = 50000;
 
-        let endpoint = `/api/csas/processes/?${params}&page_size=${page_size}`;
+        let endpoint = `/api/csas/meetings/?${params}&page_size=${page_size}`;
         apiService(endpoint)
             .then(response => {
               if (response.results) {
@@ -162,36 +152,39 @@
                   r.collapse = true;
                   if (r.advice_date) r.advice_date = r.advice_date.split("T")[0];
                 }
-                this.processes = response.results;
+                this.meetings = response.results;
               }
-              this.loadingProcesses = false;
+              this.loadingMeetings = false;
             })
       },
 
-      getProcess(process) {
-        let endpoint = `/api/csas/processes/${process.id}/`;
+      getMeeting(meeting) {
+        let endpoint = `/api/csas/meetings/${meeting.id}/`;
         apiService(endpoint).then(data => {
           if (data) {
             if (data.advice_date) data.advice_date = data.advice_date.split("T")[0];
-            this.$set(this.processes, this.processes.indexOf(process), data)
+            this.$set(this.meetings, this.meetings.indexOf(meeting), data)
           }
         });
       },
-      cleanProcess(review) {
+      cleanMeeting(review) {
         for (const reviewKey in review) if (review[reviewKey] === "") review[reviewKey] = null;
         if (review.advice_date) review.advice_date = review.advice_date + "T12:00:00";
         return review;
       },
-      updateProcess(process) {
+      updateMeeting(meeting) {
         this.errorMsg = null;
-        process = this.cleanProcess(process);
-        let endpoint = `/api/csas/processes/${process.id}/`;
-        apiService(endpoint, "PUT", process).then(data => {
+        meeting = this.cleanMeeting(meeting);
+        let endpoint = `/api/csas/meetings/${meeting.id}/`;
+        apiService(endpoint, "PUT", meeting).then(data => {
           if (!data.id) this.errors = groomJSON(data);
-          else this.getProcess(process);
+          else this.getMeeting(meeting);
         });
       },
       getMetadata() {
+        apiService(`/api/csas/meta/models/meeting/`).then(data => {
+          this.meetingLabels = data.labels;
+        });
         apiService(`/api/csas/meta/models/process/`).then(data => {
           this.processLabels = data.labels;
           this.statusChoices = data.status_choices;
@@ -211,7 +204,7 @@
     },
     created() {
       this.getCurrentUser();
-      this.getProcesses();
+      this.getMeetings();
       {#this.getReviewMetadata();#}
       this.getMetadata();
     },
