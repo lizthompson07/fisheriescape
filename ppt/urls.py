@@ -128,6 +128,7 @@ urlpatterns = [
     path('reports/regional-staff-allocation/', views.export_regional_staff_allocation, name="export_rsa"),
     path('reports/project-position-allocation/', views.export_project_position_allocation, name="export_ppa"),  # TODO: test
     path('reports/project-capital-request-costs/', views.export_capital_request_costs, name="export_crc"),  # TODO: test
+    path('reports/project-equpiment-summary/', views.export_equipment_summary, name="export_eqp"),  # TODO: test
 
     # special
     path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),

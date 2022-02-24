@@ -1355,6 +1355,9 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
         elif report == 8:
             return HttpResponseRedirect(
                 reverse("ppt:export_crc") + f'?year={year}&section={section}&division={division}&region={region}')
+        elif report == 9:
+            return HttpResponseRedirect(
+                reverse("ppt:export_ppteqp") + f'?year={year}&section={section}&division={division}&region={region}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ppt:reports"))
@@ -1642,6 +1645,43 @@ def export_capital_request_costs(request):
             writer.writerow(
                 [proj.pk, proj.title, proj.section.division.branch.region, proj.section.division, proj.section,
                  proj.functional_group, cost, cost.amount])
+
+    return response
+
+
+@login_required()
+def export_equipment_summary(request):
+    year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
+    region = request.GET.get("region")
+    division = request.GET.get("division")
+    section = request.GET.get("section")
+
+    region_name = None
+    if region:
+        region_name = shared_models.Region.objects.get(pk=region)
+
+    division_name = None
+    if division and division != 'None':
+        division_name = shared_models.Division.objects.get(pk=division)
+
+    section_name = None
+    if section and section != 'None':
+        section_name = shared_models.Section.objects.get(pk=section)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}_{}_equipment_summary.csv"'.format(year, region_name)
+
+    writer = csv.writer(response)
+    writer.writerow(['Project ID', 'Project Name', 'Region', 'Division', 'Section', 'Theme', 'Capital Cost', 'Amount'])
+
+    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
+                                                      project__section__division__branch__region_id=region)
+    if division and division != 'None':
+        project_years = project_years.filter(project__section__division_id=division)
+
+    if section and section != 'None':
+        project_years = project_years.filter(project__section_id=section)
 
     return response
 
