@@ -56,7 +56,7 @@ class OrganizationForm(forms.ModelForm):
 
     class Meta:
         model = ml_models.Organization
-        exclude = ["date_last_modified", "old_id", 'last_modified_by']
+        exclude = ["date_last_modified", "old_id", 'last_modified_by', 'relationship_rating', 'reserves']
         widgets = {
             # multiselects
             'grouping': forms.SelectMultiple(attrs=multi_select_js),
@@ -81,8 +81,7 @@ class OrganizationForm(forms.ModelForm):
         self.fields['orgs'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['asc_province'].widget = forms.SelectMultiple(attrs=multi_select_js)
 
-        from ihub.views import get_ind_organizations
-        org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
+        org_choices_all = [(obj.id, obj) for obj in ml_models.Organization.objects.all()]
         self.fields["orgs"].choices = org_choices_all
 
         area_choices = [(a.id, a) for a in models.Area.objects.all()]
