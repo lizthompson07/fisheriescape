@@ -51,9 +51,9 @@ class CSASRequestFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        region_choices = utils.get_region_choices()
-        sector_choices = utils.get_sector_choices()
-        section_choices = utils.get_section_choices()
+        region_choices = utils.get_region_choices(with_requests=True)
+        sector_choices = utils.get_sector_choices(with_requests=True)
+        section_choices = utils.get_section_choices(with_requests=True)
         fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
         advice_fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(csas_request_advice__isnull=False).distinct()]
         client_choices = [(u.id, str(u)) for u in User.objects.filter(csas_client_requests__isnull=False).order_by("first_name", "last_name").distinct()]
@@ -75,9 +75,9 @@ class CSASRequestFilter(django_filters.FilterSet):
         self.filters['tags'].field.choices = tag_choices
 
         self.filters['client'].field.widget.attrs = chosen_js
-        self.filters['section'].field.widget.attrs = chosen_js
         self.filters['fiscal_year'].field.widget.attrs = chosen_js
         self.filters['advice_fiscal_year'].field.widget.attrs = chosen_js
+        self.filters['section'].field.widget.attrs = chosen_js
         self.filters['region'].field.widget.attrs = chosen_js
         self.filters['sector'].field.widget.attrs = chosen_js
         self.filters['tags'].field.widget.attrs = chosen_js
@@ -121,6 +121,9 @@ class ProcessFilter(django_filters.FilterSet):
     is_posted = django_filters.ChoiceFilter(field_name="is_posted", label=_("Is Posted?"), lookup_expr='exact', empty_label=_("All"), choices=YES_NO_CHOICES)
     csas_requests__client = django_filters.ChoiceFilter(field_name="csas_requests__client", label=_("Request client"), lookup_expr='exact')
     tor_status = django_filters.ChoiceFilter(field_name='tor__status', lookup_expr='exact', label=_("ToR status"), widget=forms.Select(attrs=chosen_js))
+    sections = django_filters.ChoiceFilter(field_name="csas_requests__section", label=_("Client Section"), lookup_expr='exact')
+    sectors = django_filters.MultipleChoiceFilter(field_name="csas_requests__section__division__branch__sector", label=_("Client sector"), lookup_expr='exact')
+    regions = django_filters.MultipleChoiceFilter(field_name="csas_requests__section__division__branch__sector__region", label=_("Client region"), lookup_expr='exact')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -128,6 +131,9 @@ class ProcessFilter(django_filters.FilterSet):
         fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(processes__isnull=False).distinct()]
         office_choices = [(obj.id, str(obj)) for obj in models.CSASOffice.objects.all()]
         client_choices = [(u.id, str(u)) for u in User.objects.filter(csas_client_requests__isnull=False).distinct().order_by("first_name", "last_name")]
+        region_choices = utils.get_region_choices(with_requests=True)
+        sector_choices = utils.get_sector_choices(with_requests=True)
+        section_choices = utils.get_section_choices(with_requests=True)
 
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year"))
         self.filters['csas_requests__client'] = django_filters.ChoiceFilter(field_name="csas_requests__client", label=_("Request client"), lookup_expr='exact',
@@ -135,6 +141,13 @@ class ProcessFilter(django_filters.FilterSet):
         self.filters['status'].field.choices = get_process_status_choices()
         self.filters['tor_status'].field.choices = tor_status_choices
         self.filters['lead_office'].field.choices = office_choices
+
+        self.filters['regions'].field.choices = region_choices
+        self.filters['regions'].field.widget.attrs = chosen_js
+        self.filters['sectors'].field.choices = sector_choices
+        self.filters['sectors'].field.widget.attrs = chosen_js
+        self.filters['sections'].field.choices = section_choices
+        self.filters['sections'].field.widget.attrs = chosen_js
 
     class Meta:
         model = models.Process
@@ -152,6 +165,7 @@ class MeetingFilter(django_filters.FilterSet):
         fields = {
             'process': ['exact'],
             'process__fiscal_year': ['exact'],
+            'fiscal_year': ['exact'],
             'process__lead_office': ['exact'],
         }
 
@@ -161,7 +175,7 @@ class MeetingFilter(django_filters.FilterSet):
         fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(processes__isnull=False).distinct()]
 
         self.filters['process'].field.widget.attrs = chosen_js
-        self.filters['process__fiscal_year'] = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year"))
+        self.filters['process__fiscal_year'] = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year of process"))
         self.filters['process__lead_office'].label = _("Lead CSAS office")
 
 
