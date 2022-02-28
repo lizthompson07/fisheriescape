@@ -7,7 +7,7 @@
 {% echo "btn btn-sm btn-outline-secondary px-1 py-0" as btn_class_2 %}
 
 
-<p class="lead">{% trans "Overview" %}</p>
+{#<p class="lead">{% trans "Overview" %}</p>#}
 
 {# buttons #}
 <div v-if="canModify" class="mb-3 btn-group">
@@ -81,21 +81,27 @@
         <tr>
           <th class="narrow-col">{% get_verbose_label random_review field %}</th>
           {% if "total_score" in field %}
-            <td>
+            <td v-if="projectYear.review_score_percentage !== '0%'">
               ${ projectYear.review_score_percentage } (${ projectYear.review_score_fraction })
             </td>
+            <td v-else>-----</td>
           {% elif "approval_level" in field %}
             <td v-html='projectYear.review.approval_level_display'></td>
           {% elif "collaboration_score_html" in field %}
-            <td v-html='projectYear.review.collaboration_score_html'></td>
+            <td v-if="projectYear.review.collaboration_score" v-html='projectYear.review.collaboration_score_html'></td>
+            <td v-else>-----</td>
           {% elif "strategic_score_html" in field %}
-            <td v-html='projectYear.review.strategic_score_html'></td>
+            <td v-if="projectYear.review.strategic_score" v-html='projectYear.review.strategic_score_html'></td>
+            <td v-else>-----</td>
           {% elif "operational_score_html" in field %}
-            <td v-html='projectYear.review.operational_score_html'></td>
+            <td v-if="projectYear.review.operational_score" v-html='projectYear.review.operational_score_html'></td>
+            <td v-else>-----</td>
           {% elif "ecological_score_html" in field %}
-            <td v-html='projectYear.review.ecological_score_html'></td>
+            <td v-if="projectYear.review.ecological_score" v-html='projectYear.review.ecological_score_html'></td>
+            <td v-else>-----</td>
           {% elif "scale_score_html" in field %}
-            <td v-html='projectYear.review.scale_score_html'></td>
+            <td v-if="projectYear.review.scale_score" v-html='projectYear.review.scale_score_html'></td>
+            <td v-else>-----</td>
           {% else %}
             <td v-html='projectYear.review.{{ field }}'></td>
           {% endif %}

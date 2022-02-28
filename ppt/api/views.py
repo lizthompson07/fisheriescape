@@ -341,11 +341,24 @@ class ActivityViewSet(ModelViewSet):
                 activity=activity,
             )
             if action == "complete":
-                update.status = 8
+                action_status = 8
             else:
-                update.status = 7
+                action_status = 7
+            update.status = action_status
             update.notes = request.data
             update.save()
+
+            # now we do the same for all the children, but only if the action is "complete"
+            if activity.children.exists() and action == "complete":
+                for child in activity.children.all():
+                    c_update, create = models.ActivityUpdate.objects.get_or_create(
+                        status_report=status_report,
+                        activity=child,
+                    )
+                    c_update.status = 8
+                    c_update.notes = update.notes
+                    c_update.save()
+
             return Response(serializers.ActivitySerializer(activity).data, status=status.HTTP_200_OK)
         elif clone:
             old_activity = get_object_or_404(models.Activity, pk=pk)
@@ -503,7 +516,6 @@ class ReviewViewSet(ModelViewSet):
             obj.send_review_email(self.request)
 
 
-
 class DMAViewSet(ModelViewSet):
     queryset = models.DMA.objects.all()
     serializer_class = serializers.DMASerializer
@@ -516,8 +528,6 @@ class DMAViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         obj = serializer.save(updated_by=self.request.user, created_by=self.request.user)
-
-
 
 
 # LOOKUPS

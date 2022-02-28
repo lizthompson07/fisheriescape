@@ -21,7 +21,7 @@ COPY ./requirements.txt .
 # install any build dependencies
 RUN set -ex \
     && buildDeps="build-essential libpq-dev git default-libmysqlclient-dev libgeos-dev" \
-    && deps="gdal-bin gettext" \
+    && deps="gdal-bin gettext redis-server" \
     && apt-get update && apt-get install -y $buildDeps $deps --no-install-recommends
 
 # install python dependencies for project

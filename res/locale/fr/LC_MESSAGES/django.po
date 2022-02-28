@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-15 08:07-0400\n"
+"POT-Creation-Date: 2022-01-28 13:22-0400\n"
 "PO-Revision-Date: 2021-10-28 13:40-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -366,16 +366,20 @@ msgid "achievement category"
 msgstr "catégories de réalisations"
 
 #: .\res\models.py:316
-msgid "publication type"
-msgstr "type de publication"
+#, fuzzy
+#| msgid "achievement category"
+msgid "achievement sub-category "
+msgstr "catégories de réalisations"
 
 #: .\res\models.py:318
 msgid "peer review type"
 msgstr "type d'examen par les pairs"
 
 #: .\res\models.py:319
-msgid "date of publication / achievement"
-msgstr "date de publication / réalisation"
+#, fuzzy
+#| msgid "Add Achievement / Publication"
+msgid "date of achievement / publication "
+msgstr "Ajouter une réalisation / une publication"
 
 #: .\res\models.py:320
 msgid "detail"
@@ -529,23 +533,11 @@ msgstr ""
 "Tableau du NOMBRE cumulatif de publications avant et depuis la dernière "
 "promotion"
 
-#: .\res\templates\res\application_detail\components\_ref_form.html:43
-msgid "Date of achievement"
-msgstr "Date de réalisation"
-
-#: .\res\templates\res\application_detail\components\_ref_form.html:43
-msgid "optional"
-msgstr "facultatif"
-
-#: .\res\templates\res\application_detail\components\_ref_form.html:44
-msgid "Date of publication"
-msgstr "Date de publication"
-
-#: .\res\templates\res\application_detail\components\_ref_form.html:55
+#: .\res\templates\res\application_detail\components\_ref_form.html:56
 msgid "Add"
 msgstr "Ajouter"
 
-#: .\res\templates\res\application_detail\components\_ref_form.html:57
+#: .\res\templates\res\application_detail\components\_ref_form.html:58
 #: .\res\templates\res\application_submit.html:82
 msgid "Cancel"
 msgstr "Annuler"
@@ -889,24 +881,24 @@ msgstr "Gestionnaire des réalistions"
 msgid "Please select a report"
 msgstr "Veuillez sélectionner un rapport"
 
-#: .\res\utils.py:58 .\res\utils.py:117 .\res\utils.py:146
+#: .\res\utils.py:58 .\res\utils.py:120 .\res\utils.py:149
 msgid "You are not logged in"
 msgstr "Vous n'êtes pas connecté"
 
 # please never touch this translation!!
-#: .\res\utils.py:175
+#: .\res\utils.py:178
 msgid "name"
 msgstr "nom"
 
-#: .\res\utils.py:248
+#: .\res\utils.py:251
 msgid "Bad reference!!"
 msgstr "Mauvaise référence !!"
 
-#: .\res\utils.py:284
+#: .\res\utils.py:287
 msgid "TOTAL"
 msgstr "TOTAL"
 
-#: .\res\utils.py:309
+#: .\res\utils.py:312
 msgid "metadata"
 msgstr "métadonnées"
 
@@ -959,6 +951,21 @@ msgstr "Les réalisations"
 #: .\res\views.py:487
 msgid "Clone an Achievement"
 msgstr "Cloner une réalisation"
+
+#~ msgid "publication type"
+#~ msgstr "type de publication"
+
+#~ msgid "date of publication / achievement"
+#~ msgstr "date de publication / réalisation"
+
+#~ msgid "Date of achievement"
+#~ msgstr "Date de réalisation"
+
+#~ msgid "optional"
+#~ msgstr "facultatif"
+
+#~ msgid "Date of publication"
+#~ msgstr "Date de publication"
 
 #~ msgid "Achievement ID:"
 #~ msgstr "Identifiant de réalisation :"

@@ -98,7 +98,7 @@ Vue.component("attendance-overlay", {
       method = "PATCH";
       apiService(endpoint, method, {dates: this.dates}).then(response => {
         if (response.id) {
-          this.$emit("update-invitees");
+          this.$emit("refresh-invitee", this.invitee);
           this.overlay = false;
         } else {
           this.error = groomJSON(response)

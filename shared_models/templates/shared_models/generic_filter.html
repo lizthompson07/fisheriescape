@@ -89,7 +89,7 @@
       {% endblock %}
 
       {% block table %}
-        <table class="table table-sm {% if row_object_url_name %}table-hover{% endif %} sortable">
+        <table class="table table-sm {% if row_object_url_name %}table-hover{% endif %} {% if sortable %}sortable{% endif %}">
           <thead>
           {% block head %}
             {% for field in field_list %}

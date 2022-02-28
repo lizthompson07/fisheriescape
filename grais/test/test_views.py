@@ -1827,7 +1827,7 @@ class TestReportViews(CommonTest):
             reverse_lazy('grais:od1_report', args=[2019]),
             reverse_lazy('grais:od1_dictionary'),
             reverse_lazy('grais:od1_wms', args=[2019, 1]),
-            reverse_lazy('grais:gc_cpue_report', args=[2019]),
+            reverse_lazy('grais:gc_cpue_report'),
             reverse_lazy('grais:gc_envr_report', args=[2019]),
             reverse_lazy('grais:gc_site_report'),
             reverse_lazy('grais:gc_gravid_green_crabs'),
