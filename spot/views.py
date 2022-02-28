@@ -14,6 +14,11 @@ from . import models
 from .mixins import SuperuserOrAdminRequiredMixin, SpotAccessRequiredMixin, SpotAdminRequiredMixin
 from dm_apps.settings import MAPBOX_API_KEY
 from . import emails
+from datetime import datetime
+from datetime import timedelta
+from openpyxl import Workbook
+from django.http import HttpResponse
+from django.db.models.deletion import ProtectedError
 
 
 class IndexTemplateView(SpotAccessRequiredMixin, TemplateView):
@@ -23,7 +28,7 @@ class IndexTemplateView(SpotAccessRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         river_list = []
         for river in models.Project.objects.all():
-            if river.primary_river.latitude and river.primary_river.longitude:
+            if river.primary_river and river.primary_river.name and river.primary_river.latitude and river.primary_river.longitude:
                 river_list.append([river.primary_river.name, float(river.primary_river.latitude), float(river.primary_river.longitude)])
         context["river_markers"] = river_list
         return context
@@ -102,10 +107,17 @@ class OrganizationDeleteView(SpotAccessRequiredMixin, DeleteView):
     model = models.Organization
     success_url = reverse_lazy('spot:org_list')
     success_message = 'The organization was deleted successfully!'
+    error_message = 'The organization cannot be deleted'
+    delete_protection = True
 
     def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+        try:
+            super().delete(request, *args, **kwargs)
+            messages.success(self.request, self.success_message)
+            return HttpResponseRedirect(reverse_lazy('spot:org_list'))
+        except ProtectedError:
+            messages.error(self.request, self.error_message)
+            return HttpResponseRedirect(reverse_lazy('spot:org_list'))
 
 
 # PERSON #
@@ -188,10 +200,17 @@ class PersonDeleteView(SpotAccessRequiredMixin, DeleteView):
     model = models.Person
     success_url = reverse_lazy('spot:person_list')
     success_message = 'The person was deleted successfully!'
+    error_message = 'Cannot delete person'
+    delete_protection = True
 
     def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+        try:
+            super().delete(request, *args, **kwargs)
+            messages.success(self.request, self.success_message)
+            return HttpResponseRedirect(reverse_lazy('spot:person_list'))
+        except ProtectedError:
+            messages.error(self.request, self.error_message)
+            return HttpResponseRedirect(reverse_lazy('spot:person_list'))
 
 
 # PROJECT #
@@ -223,7 +242,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         markers = []
-        if self.object.primary_river.name and self.object.primary_river.latitude and self.object.primary_river.longitude :
+        if self.object.primary_river and self.object.primary_river.name and self.object.primary_river.latitude and self.object.primary_river.longitude:
             prim_riv = [self.object.primary_river.name, float(self.object.primary_river.latitude), float(self.object.primary_river.longitude)]
             markers.append(prim_riv)
         for obj in self.object.secondary_river.all():
@@ -787,8 +806,7 @@ class ReportsListView(SpotAccessRequiredMixin,FilterView):
     template_name = 'spot/reports_list.html'
     filterset_class = filters.ReportsFilter
     model = models.Reports
-    queryset = models.Reports.objects.annotate(
-    search_term = Concat('project', 'document_name', output_field=TextField()))
+    queryset = models.Reports.objects.annotate(search_term=Concat('project', 'document_name', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1047,10 +1065,16 @@ class RiverDeleteView(SpotAccessRequiredMixin, DeleteView):
     model = models.River
     success_url = reverse_lazy('spot:river_list')
     success_message = 'The River was deleted successfully!'
+    error_message = 'The River cannot be deleted'
 
     def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+        try:
+            super().delete(request, *args, **kwargs)
+            messages.success(self.request, self.success_message)
+            return HttpResponseRedirect(reverse_lazy('spot:river_list'))
+        except ProtectedError:
+            messages.error(self.request, self.error_message)
+            return HttpResponseRedirect(reverse_lazy('spot:river_list'))
 
 
 # Watershed #
@@ -1107,10 +1131,16 @@ class WaterShedDeleteView(SpotAccessRequiredMixin, DeleteView):
     model = models.Watershed
     success_url = reverse_lazy('spot:watershed_list')
     success_message = 'The Watershed was deleted successfully!'
+    error_message = 'The Watershed cannot be deleted'
 
     def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+        try:
+            super().delete(request, *args, **kwargs)
+            messages.success(self.request, self.success_message)
+            return HttpResponseRedirect(reverse_lazy('spot:watershed_list'))
+        except ProtectedError:
+            messages.error(self.request, self.error_message)
+            return HttpResponseRedirect(reverse_lazy('spot:watershed_list'))
 
 
 # Lake System #
@@ -1167,10 +1197,16 @@ class LakeSystemDeleteView(SpotAccessRequiredMixin, DeleteView):
     model = models.LakeSystem
     success_url = reverse_lazy('spot:lakesystem_list')
     success_message = 'The Lake System was deleted successfully!'
+    error_message = 'The Lake System cannot be deleted'
 
     def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+        try:
+            super().delete(request, *args, **kwargs)
+            messages.success(self.request, self.success_message)
+            return HttpResponseRedirect(reverse_lazy('spot:lakesystem_list'))
+        except ProtectedError:
+            messages.error(self.request, self.error_message)
+            return HttpResponseRedirect(reverse_lazy('spot:lakesystem_list'))
 
 
 # Funding Year #
@@ -1763,3 +1799,159 @@ class SpotUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
 class SpotUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
     model = models.SpotUser
     success_url = reverse_lazy("spot:manage_spot_users")
+
+    '''
+def project_workbook(request):
+    project = models.Project.objects.all()
+    project_filter = filters.ProjectFilter(request.GET, queryset=project).qs
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = 'attachment; filename={date}-Projects.xlsx'.format(
+        date=datetime.now().strftime('%Y-%m-%d'),
+    )
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Projects'
+
+    columns = [
+        'project_number',
+        'agreement_number',
+        'agreement_history',
+        'name',
+        'project_description',
+        'start_date',
+        'end_date',
+
+        'region',
+        'ecosystem_type',
+        'primary_river',
+        'secondary_river',
+        'lake_system',
+        'watershed',
+        'management_area',
+
+        'stock_management_unit',
+        'cu_index',
+        'cu_name',
+        'species',
+        'salmon_life_stage',
+
+        'project_stage',
+        'project_type',
+        'project_sub_type',
+        'monitoring_approach',
+        'project_theme',
+        'core_component',
+        'supportive_component',
+        'project_purpose',
+        'category_comments',
+
+        'DFO_link',
+        'DFO_program_reference',
+        'government_organization',
+        'policy_program_connection',
+
+        'DFO_project_authority',
+        'DFO_area_chief',
+        'DFO_aboriginal_AAA',
+        'DFO_resource_manager',
+        'first_nation',
+        'first_nations_contact',
+        'first_nations_contact_role',
+        'DFO_technicians',
+        'contractor',
+        'contractor_contact',
+        'partner',
+        'partner_contact',
+
+        'agreement_database',
+        'agreement_comment',
+        'funding_sources',
+        'other_funding_sources',
+        'agreement_type',
+        'lead_organization',
+
+        #'date_last_modified',
+        #'last_modified_by',
+
+    ]
+    row_num = 1
+
+    for col_num, column_title in enumerate(columns, 1):
+        cell = worksheet.cell(row=row_num, column=col_num)
+        cell.value = column_title
+
+    for obj in project_filter:
+        row_num += 1
+
+        row = [
+            obj.agreement_number,
+            obj.project_number,
+            ",".join(i.name for i in obj.agreement_history.all()),
+            obj.name,
+            obj.project_description,
+            obj.start_date,
+            obj.end_date,
+
+            obj.region,
+            obj.ecosystem_type,
+            obj.primary_river.name,
+            ",".join(i.name for i in obj.secondary_river.all()),
+            ",".join(i.name for i in obj.lake_system.all()),
+            ",".join(i.name for i in obj.watershed.all()),
+            obj.management_area,
+
+            obj.stock_management_unit,
+            obj.cu_index,
+            obj.cu_name.name,
+            ",".join(i.name for i in obj.species.all()),
+            ",".join(i.name for i in obj.salmon_life_stage.all()),
+
+            obj.project_stage,
+            obj.project_type,
+            ",".join(i.name for i in obj.project_sub_type.all()),
+            obj.monitoring_approach,
+            ",".join(i.name for i in obj.project_theme.all()),
+            ",".join(i.name for i in obj.core_component.all()),
+            ",".join(i.name for i in obj.supportive_component.all()),
+            ",".join(i.name for i in obj.project_purpose.all()),
+            obj.category_comments,
+
+            obj.DFO_link,
+            obj.DFO_program_reference,
+            obj.government_organization,
+            obj.policy_program_connection,
+
+            ",".join(i.full_name for i in obj.DFO_project_authority.all()),
+            ",".join(i.full_name for i in obj.DFO_area_chief.all()),
+            ",".join(i.full_name for i in obj.DFO_aboriginal_AAA.all()),
+            ",".join(i.full_name for i in obj.DFO_resource_manager.all()),
+            obj.first_nation.name,
+            obj.first_nations_contact.full_name,
+            obj.first_nations_contact_role,
+            ",".join(i.full_name for i in obj.DFO_technicians.all()),
+            obj.contractor,
+            obj.contractor_contact,
+            ",".join(i.name for i in obj.partner.all()),
+            ",".join(i.full_name for i in obj.partner_contact.all()),
+
+            obj.agreement_database,
+            obj.agreement_comment,
+            ",".join(i.name for i in obj.funding_sources.all()),
+            obj.other_funding_sources,
+            obj.agreement_type,
+            obj.lead_organization,
+
+           # obj.date_last_modified,
+           # obj.last_modified_by,
+        ]
+
+        for col_num, cell_value in enumerate(row, 1):
+            cell = worksheet.cell(row=row_num, column=col_num)
+            cell.value = cell_value
+
+    workbook.save(response)
+
+    return response
+    '''

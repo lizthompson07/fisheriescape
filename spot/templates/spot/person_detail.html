@@ -27,7 +27,7 @@
 
         <h1>{{ object }}</h1>
 
-
+        {% if is_admin %}
         <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'spot:person_edit' object.id %}">
                 {% trans "Edit" %}
@@ -40,6 +40,7 @@
 {#            </a>#}
 
         </div>
+        {% endif %}
         <br><br>
 
         <div class="row">

@@ -407,16 +407,16 @@ class Objective(models.Model):
     activity_title = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Activity Title"))
 
     pst_requirement = models.CharField(max_length=255, default=None,  blank=True, null=True, verbose_name=_("PST Requirement Identified?"))
-    location = models.ForeignKey(River, blank=True, default=None, on_delete=models.DO_NOTHING, null=True, verbose_name=_("Location"))
+    location = models.ForeignKey(River, blank=True, default=None, on_delete=models.PROTECT, null=True, verbose_name=_("Location"))
     objective_category = models.ManyToManyField(ObjectiveCategory, default=None, blank=True, verbose_name=_("Objective Category"))
-    species = models.ForeignKey(Species, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Species"))
+    species = models.ForeignKey(Species, default=None, on_delete=models.PROTECT, null=True, blank=True, verbose_name=_("Species"))
     sil_requirement = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("SIL Requirement"))
 
     expected_results = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Expected Result(s)"))
     dfo_report = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Products/Reports to Provide DFO"))
 
     outcome_met = models.CharField(max_length=255, null=True, blank=True, default=None, verbose_name=_("Was the Sampling outcome met?"))
-    outcomes_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_objective', verbose_name=_("Outcomes Contact"))
+    outcomes_contact = models.ForeignKey(Person, on_delete=models.PROTECT, blank=True, null=True, related_name='project_objective', verbose_name=_("Outcomes Contact"))
     outcomes_comment = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Outcome Comment"))
     outcome_barrier = models.ManyToManyField(OutComeBarrier, default=None, blank=True, verbose_name=_("Barrier to Achieve Outcomes(?)"))
     capacity_building = models.ManyToManyField(CapacityBuilding, default=None, blank=True, verbose_name=_("What capacity building did this project provide?"))
@@ -448,7 +448,7 @@ class Project(models.Model):
     start_date = models.DateField(blank=True, null=True, verbose_name=_("Starting Date"))
     end_date = models.DateField(blank=True, null=True, verbose_name=_("End Date"))
 
-    primary_river = models.ForeignKey(River, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='primary_river', verbose_name=_("Primary River"))
+    primary_river = models.ForeignKey(River, on_delete=models.PROTECT, blank=True, null=True, related_name='primary_river', verbose_name=_("Primary River"))
     secondary_river = models.ManyToManyField(River, blank=True, related_name='secondary_river', verbose_name=_("Secondary River"))
     ecosystem_type = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Eco System Type"))
     lake_system = models.ManyToManyField(LakeSystem, default=None, related_name='project', blank=True, verbose_name=_("Lake System"))
@@ -458,7 +458,7 @@ class Project(models.Model):
 
     stock_management_unit = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Stock Management Unit"))
     cu_index = models.ManyToManyField(CUIndex, blank=True, verbose_name=_("CU Index"))
-    cu_name = models.ForeignKey(CUName, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("CU Name"))
+    cu_name = models.ForeignKey(CUName, on_delete=models.PROTECT, null=True, blank=True, verbose_name=_("CU Name"))
     species = models.ManyToManyField(Species, default=None, blank=True, verbose_name=_("Target Species"))
     salmon_life_stage = models.ManyToManyField(SalmonLifeStage, blank=True, verbose_name=_("Salmon Life Stage"))
 
@@ -485,8 +485,8 @@ class Project(models.Model):
     DFO_area_chief = models.ManyToManyField(Person, blank=True, related_name='DFO_area_chief', verbose_name=_("DFO Area Chief"))
     DFO_aboriginal_AAA = models.ManyToManyField(Person, blank=True, related_name='DFO_aboriginal_AAA', verbose_name=_("DFO Aboriginal AAA"))
     DFO_resource_manager = models.ManyToManyField(Person, blank=True, related_name='DFO_resource_manager', verbose_name=_("DFO Resource Manager"))
-    first_nation = models.ForeignKey(FirstNations, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='tribal_council', verbose_name=_("First Nation/Tribal Council"))
-    first_nations_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='first_nations_contact', verbose_name=_("First Nations Contact"))
+    first_nation = models.ForeignKey(FirstNations, on_delete=models.PROTECT, null=True, blank=True, related_name='tribal_council', verbose_name=_("First Nation/Tribal Council"))
+    first_nations_contact = models.ForeignKey(Person, on_delete=models.PROTECT, null=True, blank=True, related_name='first_nations_contact', verbose_name=_("First Nations Contact"))
     first_nations_contact_role = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("First Nations Contact Role"))
     DFO_technicians = models.ManyToManyField(Person, blank=True, related_name='DFO_technicians', verbose_name=_("DFO Technicians/Biologists"))
     contractor = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Contractors"))
@@ -564,7 +564,7 @@ class ReportOutcome(models.Model):
     reporting_outcome = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Reporting Outcome"))
     outcome_delivered = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Was the outcome deliverable met?"))
 
-    report_link = models.ForeignKey(Reports, on_delete=models.DO_NOTHING, default=None, blank=True, null=True, verbose_name=_("Report Link"))
+    report_link = models.ForeignKey(Reports, on_delete=models.PROTECT, default=None, blank=True, null=True, verbose_name=_("Report Link"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
