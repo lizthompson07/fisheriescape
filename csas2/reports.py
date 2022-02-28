@@ -134,6 +134,12 @@ def generate_meeting_report(meetings, site_url):
             elif "lead office" in field:
                 my_val = str(obj.process.lead_office)
                 my_ws.write(i, j, my_val, normal_format)
+            elif "scope" in field:
+                my_val = str(obj.process.get_scope_display())
+                my_ws.write(i, j, my_val, normal_format)
+            elif "process.type" in field:
+                my_val = str(obj.process.get_type_display())
+                my_ws.write(i, j, my_val, normal_format)
             elif "status" in field:
                 my_val = str(obj.process.get_status_display())
                 my_ws.write(i, j, my_val, normal_format)
