@@ -192,6 +192,7 @@ class ProcessFilter(django_filters.FilterSet):
         fields = {
             'type': ['exact'],
             'status': ['exact'],
+            'is_posted': ['exact'],
             'has_peer_review_meeting': ['exact'],
         }
 

@@ -513,6 +513,15 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         except:
             return gettext("n/a")
 
+    @property
+    def posting_status(self):
+        if not self.posting_request_date and self.is_posted:
+            return gettext("Not posted")
+        elif self.posting_request_date:
+            return gettext("Request made")
+        else:
+            return gettext("Posted")
+
     def get_absolute_url(self):
         return reverse("csas2:process_detail", args=[self.pk])
 
@@ -814,7 +823,8 @@ class Meeting(SimpleLookup, MetadataFields):
     # non-editable
     somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))
     # calculated
-    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year of meeting"), related_name="meetings",
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year of meeting"),
+                                    related_name="meetings",
                                     editable=False)
 
     class Meta:
