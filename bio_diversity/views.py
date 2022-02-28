@@ -1388,6 +1388,16 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                           "field_list": loc_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
 
+        move_list = models.MoveDet.objects.filter(anix_id__grp_id=self.object)\
+            .select_related("contx_start", "contx_end")
+        move_field_list = ["contx_start.container.name|Start Container", "contx_end.container.name|End Container", "move_date"]
+        obj_mixin = mixins.MoveMixin
+        context["context_dict"]["move"] = {"div_title": "{}s".format(obj_mixin.title),
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": move_list,
+                                           "field_list": move_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+
         anix_set = self.object.animal_details.filter(team_id__isnull=False)
 
         evnt_team_anix_set = models.TeamXRef.objects.filter(evnt_id__in=evnt_list, perc_id=F("evnt_id__perc_id"),
@@ -1556,6 +1566,16 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": pair_list,
                                            "field_list": pair_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+
+        move_list = models.MoveDet.objects.filter(anix_id__indv_id=self.object)\
+            .select_related("contx_start", "contx_end")
+        move_field_list = ["contx_start.container.name|Start Container", "contx_end.container.name|End Container", "move_date"]
+        obj_mixin = mixins.MoveMixin
+        context["context_dict"]["move"] = {"div_title": "{}s".format(obj_mixin.title),
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": move_list,
+                                           "field_list": move_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
         anix_set = self.object.animal_details.filter(team_id__isnull=False)\

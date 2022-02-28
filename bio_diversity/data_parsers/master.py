@@ -154,8 +154,8 @@ class MasterGrpParser(DataParser):
         cnt_anix, contx, contx_entered = utils.enter_contx(tank_id, cleaned_data, True, grp_pk=grp_id.pk, return_anix=True)
         self.row_entered += contx_entered
 
-        cnt, cnt_entered = utils.enter_cnt(cleaned_data, utils.nan_to_none(row[self.cnt_key]), anix_pk=cnt_anix.pk,
-                                           cnt_code="Fish Count")
+        cnt, cnt_entered = utils.enter_cnt(cleaned_data, utils.nan_to_none(row[self.cnt_key]), row_datetime.date(),
+                                           anix_pk=cnt_anix.pk, cnt_code="Fish Count")
         self.row_entered += cnt_entered
 
         if utils.nan_to_none(row.get(self.comment_key)):

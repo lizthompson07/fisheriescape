@@ -159,16 +159,16 @@ class ElectrofishingParser(DataParser):
             cnt_anix, anix_entered = utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=contx_id.pk,
                                                       grp_pk=grp_id.pk, final_flag=True)
             self.row_entered += anix_entered
-            cnt_caught, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.fish_caught_key], anix_pk=cnt_anix.pk,
+            cnt_caught, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fish_caught_key], row_datetime.date, anix_pk=cnt_anix.pk,
                                                       loc_pk=loc.pk, cnt_code="Fish Caught")
             self.row_entered += cnt_entered
             # end if tank_id block
 
-        cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.fish_obs_key], loc_pk=loc.pk,
+        cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fish_obs_key], row_datetime.date, loc_pk=loc.pk,
                                                cnt_code="Fish Observed")
         self.row_entered += cnt_entered
         if utils.nan_to_none(row.get(self.fish_rel_key)):
-            cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.fish_rel_key], loc_pk=loc.pk,
+            cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fish_rel_key], row_datetime.date, loc_pk=loc.pk,
                                                    cnt_code="Fish Released")
             self.row_entered += cnt_entered
 
@@ -458,8 +458,8 @@ class AdultCollectionParser(DataParser):
 
     def data_cleaner(self):
         for loc_pk, cnt_caught in self.loc_caught_dict.items():
-            utils.enter_cnt(self.cleaned_data, cnt_caught, loc_pk=loc_pk, cnt_code="Fish Caught")
+            utils.enter_cnt(self.cleaned_data, cnt_caught, None, loc_pk=loc_pk, cnt_code="Fish Caught")
         for loc_pk, cnt_obs in self.loc_obs_dict.items():
-            utils.enter_cnt(self.cleaned_data, cnt_obs, loc_pk=loc_pk, cnt_code="Fish Observed")
+            utils.enter_cnt(self.cleaned_data, cnt_obs, None, loc_pk=loc_pk, cnt_code="Fish Observed")
         for anix_pk, grp_cnt in self.grp_cnt_dict.items():
-            utils.enter_cnt(self.cleaned_data, grp_cnt, anix_pk=anix_pk, cnt_code="Fish added to container")
+            utils.enter_cnt(self.cleaned_data, grp_cnt, cleaned_data["evnt_id"].start_date, anix_pk=anix_pk, cnt_code="Fish added to container")

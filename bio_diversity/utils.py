@@ -1042,7 +1042,7 @@ def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_c
         cnt_anix, contx, data_entered = enter_contx(tray, new_cleaned_data, final_flag=None, grp_pk=grp_pk,
                                                     return_anix=True)
         row_entered += data_entered
-        enter_cnt(cleaned_data, pick_cnt, anix_pk=cnt_anix.pk, cnt_code=cnt_code)
+        enter_cnt(cleaned_data, pick_cnt, pick_datetime.date, anix_pk=cnt_anix.pk, cnt_code=cnt_code)
 
     if return_anix:
         return anix, row_entered
@@ -1149,12 +1149,14 @@ def enter_anix_contx(tank, cleaned_data):
         return anix_contx
 
 
-def enter_cnt(cleaned_data, cnt_value, anix_pk=None, loc_pk=None, contx_ref_pk=None, cnt_code="Fish in Container", est=False,
+def enter_cnt(cleaned_data, cnt_value, cnt_date, anix_pk=None, loc_pk=None, contx_ref_pk=None, cnt_code="Fish in Container", est=False,
               stok_id=None, coll_id=None, cnt_year=None):
     cnt = False
     entered = False
     if cnt_value is None:
         return False, False
+    if cnt_date is None and loc_pk is not None:
+        cnt_date = models.Location.objects.filter(pk=loc_pk).get().loc_date
     if not math.isnan(cnt_value):
         cnt = models.Count(loc_id_id=loc_pk,
                            anix_id_id=anix_pk,
@@ -1162,6 +1164,7 @@ def enter_cnt(cleaned_data, cnt_value, anix_pk=None, loc_pk=None, contx_ref_pk=N
                            spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                            cntc_id=models.CountCode.objects.filter(name__iexact=cnt_code).get(),
                            cnt=int(cnt_value),
+                           cnt_date=naive_to_aware(cnt_date),
                            coll_id=coll_id,
                            stok_id=stok_id,
                            cnt_year=cnt_year,
@@ -1650,7 +1653,7 @@ def enter_samp_mortality(samp_id, cleaned_data, mort_date):
                                               samp_id__anix_id__grp_id=samp_id.anix_id.grp_id,
                                               ).distinct().count()
 
-    cnt, cnt_entered = enter_cnt(cleaned_data, 0, samp_id.anix_id.pk, cnt_code="Mortality")
+    cnt, cnt_entered = enter_cnt(cleaned_data, 0, mort_date, samp_id.anix_id.pk, cnt_code="Mortality")
     data_entered += cnt_entered
     cnt.cnt = cnt_val
     cnt.save()
@@ -1684,7 +1687,7 @@ def enter_grp_mortality(grp, cleaned_data, mort_date, mort_cnt, cont=None):
                                                   detail_date=mort_date,
                                                   ).distinct().values_list('det_val', flat=True))
 
-    cnt, cnt_entered = enter_cnt(cleaned_data, 0, anix_id.pk, cnt_code="Mortality")
+    cnt, cnt_entered = enter_cnt(cleaned_data, 0, mort_date, anix_id.pk, cnt_code="Mortality")
     data_entered += cnt_entered
     cnt.cnt = mort_cnt
     cnt.save()
@@ -1858,6 +1861,30 @@ def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None,
         return row_entered
     else:
         return start_anix, end_anix, row_entered
+
+
+def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, indv_pk=None, grp_pk=None, nfish=0, start_grp_pk=None):
+    # end group is move group
+    # cases: whole group move: startgroup = endgroup
+    # split fish off main group:
+    start_cnt = None
+    end_cnt = None
+
+    start_anix, end_anix, data_entered = enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk, grp_pk)
+    if grp_pk and nfish:
+        if start_grp_pk == grp_pk or start_grp_pk is None:
+            end_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, end_anix.pk, contx_ref_pk=start_anix.contx_id.pk,
+                                             cnt_code="Fish Count")
+            data_entered += cnt_entered
+        else:
+            start_cnt_anix, contx, row_entered = enter_contx(origin_id, cleaned_data, grp_pk=start_grp_pk, return_anix=True)
+            start_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, start_cnt_anix.pk, contx_ref_pk=end_anix.contx_id.pk,
+                                               cnt_code="Fish removed from container")
+            data_entered += cnt_entered
+            end_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, end_anix.pk, contx_ref_pk=start_anix.contx_id.pk,
+                                             cnt_code="Fish added to container")
+            data_entered += cnt_entered
+    return start_cnt, end_cnt, data_entered
 
 
 def enter_contx(cont, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):

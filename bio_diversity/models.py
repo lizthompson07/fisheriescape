@@ -536,11 +536,12 @@ class Count(BioModel):
     coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, verbose_name=_("Collection"),
                                 db_column="COLLECTION_ID", blank=True, null=True)
     cnt = models.DecimalField(max_digits=6, decimal_places=0, verbose_name=_("Count"), db_column="COUNT")
+    cnt_date = models.DateField(verbose_name=_("Count Date"), default=datetime.min.date())
     est = models.BooleanField(verbose_name=_("Estimated?"), db_column="ESTIMATED")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     class Meta:
-        unique_together = (('loc_id', 'anix_id', 'cntc_id', 'contx_ref', 'spec_id', 'cnt_year', 'coll_id', 'stok_id'),)
+        unique_together = (('loc_id', 'anix_id', 'cntc_id', 'contx_ref', 'spec_id', 'cnt_year', 'coll_id', 'stok_id', 'cnt_date'),)
 
     def __str__(self):
         return "{}-{}-{}".format(self.loc_id.__str__(), self.spec_id.__str__(), self.cntc_id.__str__())
@@ -552,12 +553,7 @@ class Count(BioModel):
 
     @property
     def date(self):
-        if self.anix_id:
-            return self.anix_id.evnt_id.start_date
-        if self.loc_id:
-            return self.loc_id.loc_date.date()
-        else:
-            return None
+        return self.cnt_date
 
     @property
     def contx_id(self):

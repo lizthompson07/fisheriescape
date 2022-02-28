@@ -42,6 +42,6 @@ class CalibrationParser(DataParser):
                             utils.enter_contx(cont, cleaned_data, True, grp_pk=grp_id.pk)
 
             if utils.nan_to_none(row.get(self.cnt_key)):
-                utils.enter_cnt(cleaned_data, row.get(self.cnt_key))
+                utils.enter_cnt(cleaned_data, cleaned_data["evnt_id"].start_date, row.get(self.cnt_key))
 
 

@@ -64,7 +64,7 @@ class EDInitParser(DataParser):
         self.row_entered += contx_entered
 
         if utils.nan_to_none(row.get(self.fecu_key)):
-            cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fecu_key], anix_pk=anix.pk, cnt_code="Photo Count")
+            cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fecu_key], row_date, anix_pk=anix.pk, cnt_code="Photo Count")
             self.row_entered += cnt_entered
 
         self.row_entered += utils.enter_bulk_grpd(anix_id.pk, cleaned_data, row_date,
@@ -246,7 +246,7 @@ class EDHUParser(DataParser):
         self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
 
         # HU Picks:
-        self.row_entered += utils.enter_cnt(cleaned_data, row[self.loss_key], anix_pk=hu_anix.pk,
+        self.row_entered += utils.enter_cnt(cleaned_data, row[self.loss_key], hu_move_date, anix_pk=hu_anix.pk,
                                             cnt_code="HU Transfer Loss")[1]
 
         # generate new group, cup, and movement event:
@@ -266,7 +266,7 @@ class EDHUParser(DataParser):
         self.row_entered += utils.enter_contx(cont, cleaned_data)
         if not utils.y_n_to_bool(row[self.final_key]):
             # NEW GROUPS TAKEN FROM INITIAL
-            out_cnt = utils.enter_cnt(cleaned_data, 0, anix_pk=hu_anix.pk, cnt_code="Eggs Removed")[0]
+            out_cnt = utils.enter_cnt(cleaned_data, 0, hu_move_date, anix_pk=hu_anix.pk, cnt_code="Eggs Removed")[0]
             utils.enter_cnt_det(cleaned_data, out_cnt, row[self.cnt_key], "Program Group Split", row[self.prog_key])
 
             indv, final_grp = cont.fish_in_cont(row_date)
@@ -314,7 +314,7 @@ class EDHUParser(DataParser):
             cnt_anix, anix_entered = utils.enter_anix(move_cleaned_data, grp_pk=final_grp.pk, contx_pk=cnt_contx.pk, return_sucess=True)
             self.row_entered += anix_entered
             # add the positive counts
-            cnt = utils.enter_cnt(move_cleaned_data, row[self.cnt_key], anix_pk=cnt_anix.pk, cnt_code="Eggs Added", )[0]
+            cnt = utils.enter_cnt(move_cleaned_data, row[self.cnt_key], row_date, anix_pk=cnt_anix.pk, cnt_code="Eggs Added", )[0]
             if utils.nan_to_none(self.weight_key):
                 utils.enter_cnt_det(move_cleaned_data, cnt, row[self.weight_key], "Weight")
             utils.enter_cnt_det(move_cleaned_data, cnt, row[self.cnt_key], "Program Group Split", row[self.prog_key])
@@ -325,7 +325,7 @@ class EDHUParser(DataParser):
                                                       grp_pk=grp_id.pk, return_end_anix=True)
                 tray_id.end_date = row_date
                 tray_id.save()
-                end_cnt = utils.enter_cnt(cleaned_data, row[self.cnt_key], anix_pk=end_anix.pk,
+                end_cnt = utils.enter_cnt(cleaned_data, row[self.cnt_key], row_date, anix_pk=end_anix.pk,
                                           cnt_code="Egg Count")[0]
                 utils.enter_cnt_det(cleaned_data, end_cnt, row[self.weight_key], "Weight")
             else:

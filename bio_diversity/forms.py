@@ -712,7 +712,7 @@ class FishToContForm(forms.Form):
         anix, entered = utils.enter_anix(cleaned_data, final_flag=True, grp_pk=grp_id.pk)
 
         # cnt:
-        utils.enter_cnt(cleaned_data, cleaned_data["num_fish"], anix_pk=anix.pk)
+        utils.enter_cnt(cleaned_data, cleaned_data["num_fish"], cleaned_data["move_date"], anix_pk=anix.pk)
         return cleaned_data
 
 

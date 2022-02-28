@@ -130,6 +130,7 @@ class CntFactory(factory.django.DjangoModelFactory):
     cntc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CntcFactory")
     spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
     cnt = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
+    cnt_date = factory.lazy_attribute(lambda o: faker.date())
     est = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -151,6 +152,7 @@ class CntFactory(factory.django.DjangoModelFactory):
             'cntc_id': cntc.pk,
             'spec_id': spec.pk,
             'cnt': obj.cnt,
+            'cnt_date': obj.cnt_date,
             'est': obj.est,
             'comments': obj.comments,
             'created_by': obj.created_by,

@@ -162,7 +162,7 @@ class DistributionParser(DataParser):
                 self.row_entered += anix_entered
 
         # ----------Count and count details----------------
-        cnt, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.num_key], loc_pk=loc.pk,
+        cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.num_key], row_date, loc_pk=loc.pk,
                                            anix_pk=loc_anix.pk, cnt_code="Fish Distributed", cnt_year=cnt_year,
                                            coll_id=coll_id, stok_id=stok_id)
         self.row_entered += cnt_entered
@@ -344,5 +344,5 @@ class DistributionIndvParser(DataParser):
             indv_cnt=django_Count('animal_details', filter=Q(animal_details__indv_id__isnull=False)))
         for loc in loc_list:
             if loc.indv_cnt != 0:
-                utils.enter_cnt(cleaned_data, loc.indv_cnt, loc_pk=loc.pk, cnt_code="Fish Distributed")
+                utils.enter_cnt(cleaned_data, loc.indv_cnt, loc.loc_date, loc_pk=loc.pk, cnt_code="Fish Distributed")
 

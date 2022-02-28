@@ -102,8 +102,8 @@ class GenericIndvParser(DataParser):
         if utils.nan_to_none(row[self.end_tank_key]):
             out_tank = models.Tank.objects.filter(name=row[self.end_tank_key]).get()
         if in_tank or out_tank:
-            self.row_entered += utils.create_movement_evnt(in_tank, out_tank, self.cleaned_data, row_datetime,
-                                                           indv_pk=indv.pk)
+            self.row_entered += utils.enter_move(self.cleaned_data, in_tank, out_tank, row_datetime.date, indv_pk=indv.pk,
+                                                 return_sucess=True)
 
         self.row_entered += utils.parse_extra_cols(row, self.cleaned_data, anix, indv=True)
 
@@ -245,14 +245,12 @@ class GenericUntaggedParser(DataParser):
                 if utils.nan_to_none(row[self.grp_mark_key]):
                     utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], row[self.grp_mark_key],
                                      self.mark_anidc_id.pk, row[self.grp_mark_key])
-                end_anix = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
-                                                      row["datetime"], grp_pk=end_grp_id.pk, return_end_anix=True)
-                self.row_entered += utils.enter_cnt(cleaned_data, row[0], end_anix.pk,
-                                                    cnt_code="Fish added to container")[1]
 
-                self.row_entered += \
-                utils.enter_cnt(cleaned_data, sum(end_grp_data[end_grp_data["grp_key"] == row["grp_key"]][0]),
-                                start_anix.pk, contx_ref_pk=end_anix.contx_id.pk, cnt_code="Fish Removed from Container")[1]
+                self.row_entered += utils.enter_move_cnts(cleaned_data, row["start_tank_id"], row["end_tank_id"],
+                                                          row["datetime"].date,  grp_pk=end_grp_id.pk,
+                                                          nfish=sum(end_grp_data[end_grp_data["grp_key"] == row["grp_key"]][0]),
+                                                          start_grp_pk=start_grp_id.pk)[2]
+
         self.data_dict = self.data.to_dict("records")
 
     def row_parser(self, row):
@@ -382,7 +380,7 @@ class GenericGrpParser(DataParser):
             row["start_contx_pk"] = start_contx.pk
 
         if utils.nan_to_none(row["end_tank_id"]):
-            # 4 possible cases here: group in tank or not and whole group move or not:
+            # 2 checks needed: group in tank or not and whole group move or not:
             row_end_grp_list = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["end_tank_id"],
                                              row_date, prog_str=row[self.prio_key], mark_str=row[self.grp_mark_key])
             row_end_grp = None
@@ -402,34 +400,18 @@ class GenericGrpParser(DataParser):
                 # splitting fish group, merging to exsisting end group
                 row_end_grp = row_end_grp_list[0]
 
-            if row_end_grp:
-                move_anix = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
-                                                       row_date, grp_pk=row_end_grp.pk, return_end_anix=True)
-                move_contx = move_anix.contx_id
-                end_grp_anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=row_end_grp.pk)
-                self.row_entered += anix_entered
-                self.row_entered += utils.enter_grpd(end_grp_anix.pk, cleaned_data, row_date, None,
-                                                     self.prnt_grp_anidc_id.pk, frm_grp_id=row_start_grp)
-                self.row_entered += utils.enter_cnt(cleaned_data, row[self.nfish_key], move_anix.pk,
-                                                    cnt_code="Fish added to container")[1]
-                self.row_entered += utils.enter_cnt(cleaned_data, row[self.nfish_key], start_cnt_anix.pk,
-                                                    contx_ref_pk=move_contx.pk, cnt_code="Fish removed from container")[1]
+            if not row_end_grp:
+                # whole group is moving
+                row_end_grp = row_start_grp
 
-                # record details on end tank group
-                det_anix = end_grp_anix
-
-            else:
-                # move all the fish (whole group, merge to fish at destination if needed)
-                move_anix = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"],
-                                                       cleaned_data, row_date, grp_pk=row_start_grp.pk,
-                                                       return_end_anix=True)
-                cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], move_anix.pk,
-                                                   cnt_code="Fish Count")
-                self.row_entered = cnt_entered
+            self.row_entered += utils.enter_move_cnts(cleaned_data, row["start_tank_id"], row["end_tank_id"],
+                                                      row_date,  grp_pk=row_end_grp.pk,
+                                                      nfish=row[self.nfish_key],
+                                                      start_grp_pk=row_start_grp.pk)[2]
         else:
             # fish did not move
             if utils.nan_to_none(row[self.nfish_key]):
-                cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], start_cnt_anix.pk,
+                cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], row_date, start_cnt_anix.pk,
                                                    cnt_code="Fish Count")
                 self.row_entered = cnt_entered
 

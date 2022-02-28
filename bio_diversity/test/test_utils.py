@@ -150,20 +150,20 @@ class TestGrpCnt(CommonTest):
     def test_simple_cnt(self):
         # test groups record a single count correctly
         cnt_val = randint(0, 100)
-        utils.enter_cnt(self.cleaned_data, cnt_val, self.anix.pk, cnt_code="Fish in Container")
+        utils.enter_cnt(self.cleaned_data, self.evnt.start_date, cnt_val, self.anix.pk, cnt_code="Fish in Container")
         self.assertEqual(self.grp.count_fish_in_group(), cnt_val)
 
     def test_two_cnts_one_grp(self):
         # add two counts in different containers and make sure group record proper count
         cnt_val = randint(0, 100)
-        utils.enter_cnt(self.cleaned_data, cnt_val, self.anix.pk, cnt_code="Fish in Container")
+        utils.enter_cnt(self.cleaned_data, cnt_val, self.evnt.start_date, self.anix.pk, cnt_code="Fish in Container")
         # sometimes factories will reuse an event/tank which will prevent new contx's and cnt's from being entered.
         # this loop ensures that new data does get added
         data_entered = False
         while not data_entered:
             anix, contx, data_entered = utils.enter_contx(self.final_tank, self.cleaned_data, grp_pk=self.grp.pk, final_flag=True, return_anix=True)
 
-        utils.enter_cnt(self.cleaned_data, cnt_val, anix.pk, cnt_code="Fish in Container")
+        utils.enter_cnt(self.cleaned_data, cnt_val, self.evnt.start_date, anix.pk, cnt_code="Fish in Container")
         self.assertEqual(self.grp.count_fish_in_group(), 2 * cnt_val)
 
     def test_program_grp_cnt(self):
@@ -171,8 +171,8 @@ class TestGrpCnt(CommonTest):
         init_cnt = randint(300, 500)
         cnt_one_val = randint(0, 100)
         cnt_two_val = randint(0, 100)
-        utils.enter_cnt(self.cleaned_data, init_cnt, self.anix.pk, cnt_code="Eggs Added")
-        cnt = utils.enter_cnt(self.cleaned_data, 0, self.anix.pk, cnt_code="Eggs Removed")[0]
+        utils.enter_cnt(self.cleaned_data, init_cnt, self.evnt.start_date, self.anix.pk, cnt_code="Eggs Added")
+        cnt = utils.enter_cnt(self.cleaned_data, 0, self.evnt.start_date, self.anix.pk, cnt_code="Eggs Removed")[0]
         utils.enter_cnt_det(self.cleaned_data, cnt, cnt_one_val, "Program Group Split", "EQU")
         utils.enter_cnt_det(self.cleaned_data, cnt, cnt_two_val, "Program Group Split", "PEQU")
         self.assertEqual(self.grp.count_fish_in_group(), init_cnt - cnt_one_val - cnt_two_val)
@@ -191,10 +191,10 @@ class TestGrpCnt(CommonTest):
         end_anix, end_contx, data_entered = utils.enter_contx(self.tank, new_cleaned_data, final_flag=None,
                                                               grp_pk=self.grp.pk, return_anix=True)
 
-        utils.enter_cnt(self.cleaned_data, init_cnt, self.anix.pk, cnt_code="Eggs Added")
-        cnt = utils.enter_cnt(self.cleaned_data, 0, self.anix.pk, cnt_code="Eggs Removed")[0]
+        utils.enter_cnt(self.cleaned_data, init_cnt, self.evnt.start_date, self.anix.pk, cnt_code="Eggs Added")
+        cnt = utils.enter_cnt(self.cleaned_data, 0, self.evnt.start_date, self.anix.pk, cnt_code="Eggs Removed")[0]
         utils.enter_cnt_det(self.cleaned_data, cnt, cnt_one_val, "Program Group Split", "EQU")
-        utils.enter_cnt(new_cleaned_data, cnt_final_val, end_anix.pk, cnt_code="Egg Count")
+        utils.enter_cnt(new_cleaned_data, cnt_final_val, self.next_day_evnt.start_date, end_anix.pk, cnt_code="Egg Count")
         self.assertEqual(self.grp.count_fish_in_group(), cnt_final_val)
 
 
