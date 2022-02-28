@@ -809,7 +809,7 @@ class Meeting(SimpleLookup, MetadataFields):
     # non-editable
     somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))
     # calculated
-    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year"), related_name="meetings",
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year of meeting"), related_name="meetings",
                                     editable=False)
 
     class Meta:

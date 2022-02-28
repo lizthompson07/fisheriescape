@@ -152,6 +152,7 @@ class MeetingFilter(django_filters.FilterSet):
         fields = {
             'process': ['exact'],
             'process__fiscal_year': ['exact'],
+            'fiscal_year': ['exact'],
             'process__lead_office': ['exact'],
         }
 
@@ -161,7 +162,7 @@ class MeetingFilter(django_filters.FilterSet):
         fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(processes__isnull=False).distinct()]
 
         self.filters['process'].field.widget.attrs = chosen_js
-        self.filters['process__fiscal_year'] = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year"))
+        self.filters['process__fiscal_year'] = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year of process"))
         self.filters['process__lead_office'].label = _("Lead CSAS office")
 
 
