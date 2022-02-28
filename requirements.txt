@@ -50,7 +50,7 @@ MarkupSafe==1.1.1
 msrest==0.6.19
 msrestazure==0.6.4
 mysqlclient==2.0.3
-numpy==1.19.4
+numpy==1.21.0
 oauthlib==3.1.0
 opencensus-context==0.1.2
 opencensus-ext-azure==1.0.5
