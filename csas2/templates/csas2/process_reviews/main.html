@@ -44,6 +44,11 @@
         </div>
       </div>
       <div v-else class="m-3 mt-4">
+        <div class="text-center">
+          <div class="text-center">
+            <p class="font-italic text-muted">${processes.length} {% trans "results loaded" %}</p>
+          </div>
+        </div>
         <table class="table table-sm">
           <thead>
           <tr>
@@ -84,49 +89,6 @@
             </td>
 
 
-            {#            <td>#}
-            {#              <v-select#}
-            {#                v-if="r.review"#}
-            {#                style="width: 100%"#}
-            {#                v-model="r.review.decision"#}
-            {#                @input="updateReview(r)"#}
-            {#                :options="decisionChoices"#}
-            {#                :reduce="choice => choice.value"#}
-            {#                label="text"#}
-            {#                :clearable="false"#}
-            {#                class="bg-light"#}
-            {#              >#}
-            {#              </v-select>#}
-            {#              <em v-else class="text-muted">{% trans "no review" %}</em>#}
-            {#            </td>#}
-            {#            <td>#}
-            {#              <textarea v-if="r.review" rows="5" class="form-control" v-model="r.review.decision_text" @change="updateReview(r)"></textarea>#}
-            {#              <em v-else class="text-muted">{% trans "no review" %}</em>#}
-            {#            </td>#}
-            {#
-            {#            <td>#}
-            {#              <input v-if="r.review" v-model="r.review.advice_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"#}
-            {#                     @change="updateReview(r)">#}
-            {#              <em v-else class="text-muted">{% trans "no review" %}</em>#}
-            {##}
-            {#            </td>#}
-            {#            <td>#}
-            {#              <input v-if="r.review" v-model="r.review.is_deferred" class="" type="checkbox" id="is_deferred" @change="updateReview(r)">#}
-            {#              <em v-else class="text-muted">{% trans "no review" %}</em>#}
-            {##}
-            {#            </td>#}
-            {#            <td>#}
-            {#              <textarea v-if="r.review && r.review.is_deferred" rows="5" class="form-control" v-model="r.review.deferred_text"#}
-            {#                        @change="updateReview(r)"></textarea>#}
-            {#              <em v-else-if="r.review" class="text-muted">{% trans "not deffered" %}</em>#}
-            {#              <em v-else class="text-muted">{% trans "no review" %}</em>#}
-            {##}
-            {#            </td>#}
-            {#            <td>#}
-            {#              <textarea v-if="r.review" rows="5" class="form-control" v-model="r.review.notes" @change="updateReview(r)"></textarea>#}
-            {#              <em v-else class="text-muted">{% trans "no review" %}</em>#}
-            {##}
-            {#            </td>#}
           </tr>
           </tbody>
         </table>
