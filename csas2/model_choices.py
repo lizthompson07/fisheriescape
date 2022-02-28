@@ -36,7 +36,7 @@ request_status_choices = (
 )
 
 request_decision_choices = (
-    (1, _("Screen in")),
+    (1, _("Screen-in")),
     (2, _("Return to client")),
     (3, _("Re-scope")),
 )
@@ -60,6 +60,8 @@ process_type_choices = (
 
 process_status_dict = (
     dict(trigger=None, stage="initiation", text=_("Initiated"), value=1),
+    ####################
+    dict(trigger=None, stage="tentative", text=_("Tentative"), value=10),
     ####################
     dict(trigger=None, stage="on", text=_("On"), value=20),
     ####################

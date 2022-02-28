@@ -53,7 +53,10 @@ MAPBOX_API_KEY = config("MAPBOX_API_KEY", cast=str, default="")
 GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
 # Should the ticketing app be displayed on the main index page?
 SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
+# flag to know whether using in linux env
+IS_LINUX = "win" not in sys.platform.lower()
 # get the git commit number from the ENV to display on index.html
+
 try:
     GIT_VERSION = subprocess.check_output(['git', "-C", BASE_DIR, 'rev-parse', '--short', 'HEAD']).decode()
 except Exception as E:
@@ -308,7 +311,7 @@ TRACK_QUERY_STRING = True
 TRACK_REFERER = True
 TRACK_SUPERUSERS = False
 
-if "win" in sys.platform.lower() and GEODJANGO:
+if not IS_LINUX and GEODJANGO:
     GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", cast=str, default="")
     GEOS_LIBRARY_PATH = config("GEOS_LIBRARY_PATH", cast=str, default="")
 
@@ -398,3 +401,9 @@ WEBPACK_LOADER = {
         'STATS_FILE': os.path.join(BASE_DIR, 'events', 'frontend', 'webpack-stats.json')
     }
 }
+
+
+CELERY_BROKER_URL = config("CELERY_BROKER_URL", cast=str, default="redis://localhost:6379")
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", cast=str, default="redis://localhost:6379")
+CELERY_RESULT_EXPIRES = 30
+CELERY_TIMEZONE = 'UTC'

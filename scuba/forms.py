@@ -200,6 +200,9 @@ class ReportSearchForm(forms.Form):
         (5, "dive export (csv)"),
         (3, "section export (csv)"),
         (4, "observation export (csv)"),
+        (None, "------ OPEN DATA STUFF -----"),
+        (7, "Open Data - dataset (csv)"),
+        (8, "Open Data - dictionary (csv)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.IntegerField(required=False, label=gettext_lazy('Year'), widget=forms.NumberInput(attrs={"placeholder": "Leave blank for all years"}))

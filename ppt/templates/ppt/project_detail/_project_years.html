@@ -17,7 +17,7 @@
     <ul class="nav nav-tabs">
       <li class="nav-item" v-for="(year, index) in project.years" :key="index">
         <a @click="displayProjectYear(year.id)" :class="{ 'nav-link': true, 'active': year.id == projectYear.id }" href="#project-year">
-          <span v-if="year.submitted" class="text-primary "> ${ year.display_name }</span>
+          <span v-if="year.submitted" class="text-primary "> ${ year.display_name } (${year.status_display})</span>
           <span v-else class="text-danger "> ${ year.display_name } ({% trans "draft" %})</span>
         </a>
       </li>

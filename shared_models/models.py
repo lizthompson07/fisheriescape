@@ -962,11 +962,10 @@ class Organization(SimpleLookupWithUUID):
 
 
 class SubjectMatter(SimpleLookupWithUUID):
-    pass
+    is_csas_request_tag = models.BooleanField(default=False, verbose_name=_("used for CSAS request tagging?"))
 
 
 class Person(MetadataFields):
-    # Choices for role
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
     phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
@@ -998,7 +997,8 @@ class Person(MetadataFields):
             if hasattr(self.dmapps_user, "profile"):
                 self.phone = self.dmapps_user.profile.phone
                 self.language = self.dmapps_user.profile.language
-                self.affiliation = "DFO / MPO"
+                if not self.affiliation:
+                    self.affiliation = "DFO / MPO"
                 self.job_title_en = self.dmapps_user.profile.position_eng
                 self.job_title_fr = self.dmapps_user.profile.position_fre
         super().save(*args, **kwargs)

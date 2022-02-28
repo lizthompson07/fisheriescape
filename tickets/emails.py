@@ -1,26 +1,20 @@
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.template import loader
 
-from dm_apps.context_processor import my_envr
 from dm_apps.emails import Email
 
 from_email = settings.SITE_FROM_EMAIL
-admin_email = 'david.fishman@dfo-mpo.gc.ca'
+admin_email = 'DFO.DMApps-ApplisGD.MPO@dfo-mpo.gc.ca'
 
 
 class NewTicketEmail(Email):
-    subject_en = 'A new ticket has been created'
-    subject_fr = 'un nouveau billet a été créé'
+    subject_en = 'new ticket / nouveau billet'
     email_template_path = 'tickets/email_new_ticket.html'
 
     def get_recipient_list(self):
-        if self.instance.dm_assigned.exists():
-            my_to_list = [user.email for user in self.instance.dm_assigned.all()]
-        else:
-            my_to_list = [user.email for user in User.objects.filter(is_staff=True)]
-        my_to_list.append(self.instance.primary_contact.email)
-        return my_to_list
+        return [admin_email, self.instance.primary_contact.email]
+
+    def get_subject_fr(self):
+        return f'{self.instance.app_display} ({self.instance.get_priority_display()})'
 
 
 class NewFollowUpEmail(Email):
@@ -29,10 +23,9 @@ class NewFollowUpEmail(Email):
     email_template_path = 'tickets/email_follow_up.html'
 
     def get_recipient_list(self):
+        my_to_list = [admin_email]
         if self.instance.ticket.dm_assigned.exists():
-            my_to_list = [user.email for user in self.instance.ticket.dm_assigned.all()]
-        else:
-            my_to_list = [user.email for user in User.objects.filter(is_staff=True)]
+            my_to_list.extend([user.email for user in self.instance.ticket.dm_assigned.all()])
         my_to_list.append(self.instance.ticket.primary_contact.email)
         return my_to_list
 
@@ -43,10 +36,21 @@ class TicketResolvedEmail(Email):
     email_template_path = 'tickets/email_ticket_resolved.html'
 
     def get_recipient_list(self):
-        if self.instance.dm_assigned.exists():
-            my_to_list = [user.email for user in self.instance.dm_assigned.all()]
-        else:
-            my_to_list = [user.email for user in User.objects.filter(is_staff=True)]
-        my_to_list.append(self.instance.primary_contact.email)
+        my_to_list = [self.instance.primary_contact.email]
         return my_to_list
 
+
+class AssignedToTicketEmail(Email):
+    subject_en = 'You have been assigned to a ticket'
+    subject_fr = 'Vous avez été affecté à un ticket'
+    email_template_path = 'tickets/email_assigned_to_ticket.html'
+
+    def __init__(self, request, instance=None, staff=None):
+        super().__init__(request, instance)
+        self.request = request
+        self.instance = instance
+        self.staff = staff
+
+    def get_recipient_list(self):
+        my_to_list = [self.staff.email]
+        return my_to_list
