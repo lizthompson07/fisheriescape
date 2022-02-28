@@ -580,10 +580,12 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'tname|{}'.format("title"), "class": "w-25", "width": ""},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
-        {"name": 'regions|{}'.format(_("regions")), "class": "", "width": ""},
+        {"name": 'regions|{}'.format(_("CSAS offices")), "class": "", "width": ""},
         {"name": 'tor_status|{}'.format(_("ToR status")), "class": "", "width": ""},
         {"name": 'chair|{}'.format(_("chair")), "class": "w-25", "width": ""},
         {"name": 'science_leads|{}'.format(_("science lead(s)")), "class": "", "width": ""},
+        {"name": 'has_peer_review_meeting|{}'.format(_("has peer review meeting?")), "class": "", "width": ""},
+        {"name": 'has_planning_meeting|{}'.format(_("has planning meeting?")), "class": "", "width": ""},
     ]
 
     def get_extra_button_dict1(self):
@@ -1007,11 +1009,12 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
     h1 = gettext_lazy("Meetings")
     sortable = False
     field_list = [
-        {"name": 'process', "class": "", "width": "400px"},
         {"name": 'tname|{}'.format("title"), "class": "", "width": "400px"},
         {"name": 'location', "class": "", "width": ""},
         {"name": 'display_dates_deluxe|{}'.format(_("dates")), "class": "", "width": ""},
         {"name": 'role|{}'.format(_("your role(s)")), "class": "", "width": ""},
+        {"name": 'process.is_posted|{}'.format(_("is posted?")), "class": "", "width": "400px"},
+        {"name": 'is_planning', "class": "", "width": ""},
     ]
 
 
