@@ -21,7 +21,10 @@
   </div>
   {% bootstrap_messages %}
 
-  {% include "csas2/process_reviews/_filter.html" %}
+
+  {% include "csas2/_process_filter.html" %}
+
+
   <div id="app" v-cloak>
     <div v-if="loadingProcesses" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">

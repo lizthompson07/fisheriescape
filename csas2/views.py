@@ -564,7 +564,7 @@ class CSASRequestFileDeleteView(CanModifyRequestRequiredMixin, CommonPopoutDelet
 #################
 
 class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
-    template_name = 'csas2/list.html'
+    template_name = 'csas2/process_list.html'
     filterset_class = filters.ProcessFilter
     paginate_by = 25
     home_url_name = "csas2:index"
