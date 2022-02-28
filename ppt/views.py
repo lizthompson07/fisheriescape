@@ -1357,7 +1357,13 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
                 reverse("ppt:export_crc") + f'?year={year}&section={section}&division={division}&region={region}')
         elif report == 9:
             return HttpResponseRedirect(
-                reverse("ppt:export_ppteqp") + f'?year={year}&section={section}&division={division}&region={region}')
+                reverse("ppt:export_eqp") + f'?year={year}&section={section}&division={division}&region={region}')
+        elif report == 10:
+            return HttpResponseRedirect(
+                reverse("ppt:export_staff") + f'?year={year}&section={section}&division={division}&region={region}')
+        elif report == 11:
+            return HttpResponseRedirect(
+                reverse("ppt:export_lab") + f'?year={year}&section={section}&division={division}&region={region}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ppt:reports"))
@@ -1673,7 +1679,21 @@ def export_equipment_summary(request):
     response['Content-Disposition'] = 'attachment; filename="{}_{}_equipment_summary.csv"'.format(year, region_name)
 
     writer = csv.writer(response)
-    writer.writerow(['Project ID', 'Project Name', 'Region', 'Division', 'Section', 'Theme', 'Capital Cost', 'Amount'])
+    writer.writerow([
+        'Approved',
+        'Title',
+        'ID',
+        'Section',
+        'Functional group',
+        'Start date of project',
+        'End date of project',
+        'Project years',
+        'Project overview',
+        'Des. Need for Vehicle',
+        'Ship',
+        'COIP number'
+        'Insturments',
+    ])
 
     project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
                                                       project__section__division__branch__region_id=region)
@@ -1683,6 +1703,117 @@ def export_equipment_summary(request):
     if section and section != 'None':
         project_years = project_years.filter(project__section_id=section)
 
+    for p in project_years:
+        writer.writerow([p.status, p.project.title, p.pk, section_name, p.project.functional_group, p.start_date, p.end_date,
+                        p.fiscal_year, p.project.overview, p.vehicle_needs, p.ship_needs, p.coip_reference_id,
+                        p.instrumentation])
+    return response
+
+
+@login_required()
+def export_field_staff_summary(request):
+    year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
+    region = request.GET.get("region")
+    division = request.GET.get("division")
+    section = request.GET.get("section")
+
+    region_name = None
+    if region:
+        region_name = shared_models.Region.objects.get(pk=region)
+
+    division_name = None
+    if division and division != 'None':
+        division_name = shared_models.Division.objects.get(pk=division)
+
+    section_name = None
+    if section and section != 'None':
+        section_name = shared_models.Section.objects.get(pk=section)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}_{}_field_staff_summary.csv"'.format(year, region_name)
+
+    writer = csv.writer(response)
+    writer.writerow([
+        'Approved',
+        'Title',
+        'ID',
+        'Section',
+        'Functional group',
+        'Start date of project',
+        'End date of project',
+        'Project years',
+        'Project overview',
+        'Requires Field Support Staff'
+        'Support Details',
+    ])
+
+    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
+                                                      project__section__division__branch__region_id=region)
+    if division and division != 'None':
+        project_years = project_years.filter(project__section__division_id=division)
+
+    if section and section != 'None':
+        project_years = project_years.filter(project__section_id=section)
+
+    for p in project_years:
+        writer.writerow([p.status, p.project.title, p.pk, section_name, p.project.functional_group, p.start_date,
+                         p.end_date, p.fiscal_year, p.project.overview, p.requires_field_staff, p.field_staff_needs])
+    return response
+
+
+@login_required()
+def export_lab_summary(request):
+    year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
+    region = request.GET.get("region")
+    division = request.GET.get("division")
+    section = request.GET.get("section")
+
+    region_name = None
+    if region:
+        region_name = shared_models.Region.objects.get(pk=region)
+
+    division_name = None
+    if division and division != 'None':
+        division_name = shared_models.Division.objects.get(pk=division)
+
+    section_name = None
+    if section and section != 'None':
+        section_name = shared_models.Section.objects.get(pk=section)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}_{}_field_staff_summary.csv"'.format(year, region_name)
+
+    writer = csv.writer(response)
+    writer.writerow([
+        'Approved',
+        'Title',
+        'ID',
+        'Section',
+        'Functional group',
+        'Start date of project',
+        'End date of project',
+        'Project years',
+        'Project overview',
+        'Requires Lab Work',
+        'Is Lab Space Required',
+        'Specialized Support',
+        'Other Lab Requirements',
+    ])
+
+    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
+                                                      project__section__division__branch__region_id=region)
+    if division and division != 'None':
+        project_years = project_years.filter(project__section__division_id=division)
+
+    if section and section != 'None':
+        project_years = project_years.filter(project__section_id=section)
+
+    for p in project_years:
+        writer.writerow([p.status, p.project.title, p.pk, section_name, p.project.functional_group, p.start_date,
+                         p.end_date, p.fiscal_year, p.project.overview, p.has_lab_component, p.requires_lab_space,
+                         p.requires_other_lab_support, p.other_lab_support_needs])
     return response
 
 

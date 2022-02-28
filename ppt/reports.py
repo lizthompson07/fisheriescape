@@ -603,41 +603,6 @@ def generate_project_status_summary(year, region):
     return response
 
 
-def generate_project_equipment_summary(year, region):
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    writer = csv.writer(response)
-    status_choices = models.ProjectYear.status_choices
-
-    headers = [
-        'Title',
-        'ID',
-        'Section',
-        'Functional group',
-        'Etart date of project',
-        'End date of project',
-        'Project years',
-        'Project overview',
-        'Des. Need for Vehicle',
-        'Ship',
-        'COIP number'
-        'Insturments',
-    ]
-
-    for status in status_choices:
-        headers.append(f'{slugify(status[1]).replace("-", "_")}_status_count')
-    headers.append("total")
-
-    qs = Section.objects.filter(ppt__years__fiscal_year_id=year).distinct()
-    if region != "None":
-        qs = qs.filter(division__branch__region_id=region)
-
-    header_row = [header for header in headers]
-    writer.writerow(header_row)
-
-    return response
-
-
 def generate_csrf_application(project, lang):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
