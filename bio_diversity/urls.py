@@ -315,6 +315,7 @@ urlpatterns = [
 
     path('create/move/', views.MoveCreate.as_view(), name="create_move"),
     path('details/move/<int:pk>/', views.MoveDetails.as_view(), name="details_move"),
+    path('details/move/<str:back>/<int:back_id>/<int:pk>/', views.MoveDetails.as_view(), name="details_move"),
     path('list/move/', views.MoveList.as_view(), name="list_move"),
     path('update/move/<int:pk>/', views.MoveUpdate.as_view(), name="update_move"),
     

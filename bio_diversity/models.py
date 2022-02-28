@@ -1045,39 +1045,35 @@ class Group(BioModel):
     def current_cont_by_key(self, cont_key, at_date=timezone.now()):
         cont_list = []
 
-        anix_in_set = self.animal_details.filter(final_contx_flag=True,
-                                                 evnt_id__start_datetime__lte=at_date).select_related(
-            'contx_id__{}_id'.format(cont_key))
-        cont_in_set = Counter([utils.get_cont_from_anix(anix, cont_key) for anix in anix_in_set])
-        anix_out_set = self.animal_details.filter(final_contx_flag=False,
-                                                  evnt_id__start_datetime__lte=at_date).select_related(
-            'contx_id__{}_id'.format(cont_key))
-        cont_out_set = Counter([utils.get_cont_from_anix(anix, cont_key) for anix in anix_out_set])
+        last_move = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date).\
+            select_related('contx_end__{}_id'.format(cont_key)).order_by("-move_date").first()
 
-        for cont, in_count in cont_in_set.items():
-            if cont not in cont_out_set and cont:
-                cont_list.append(cont)
-            elif in_count > cont_out_set[cont] and cont:
-                cont_list.append(cont)
+        if last_move:
+            cont_list.append(last_move.contx_end.container)
+
         return cont_list
 
     def current_trof(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
         return self.current_cont_by_key('trof', at_date)
 
-    def current_cont(self, at_date=timezone.now(), valid_only=True, get_string=False):
-        current_cont_list = []
+    def current_cont(self, at_date=timezone.now(), valid_only=False, get_string=False):
+        cont_list = []
         if not self.grp_valid and valid_only:
             if get_string:
                 return ""
-            return current_cont_list
-        cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
-        for cont_type in cont_type_list:
-            current_cont_list += self.current_cont_by_key(cont_type, at_date)
+            return cont_list
+
+        last_move = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date). \
+            select_related('contx_end').order_by("-move_date").first()
+
+        if last_move:
+            cont_list.append(last_move.contx_end.container)
+
         if get_string:
-            cont_str_list = [cont.__str__() for cont in current_cont_list]
+            cont_str_list = [cont.__str__() for cont in cont_list]
             cont_str = ", ".join(cont_str_list)
             return cont_str
-        return current_cont_list
+        return cont_list
 
     def get_cont_history(self, start_date=utils.aware_min(), end_date=timezone.now(), get_str=False):
         anix_evnt_set = AniDetailXref.objects.filter(grp_id=self, contx_id__isnull=False, loc_id__isnull=True,
@@ -1457,35 +1453,24 @@ class Individual(BioModel):
     def current_tank(self, at_date=timezone.now()):
         return self.current_cont_by_key('tank', at_date)
 
-    def current_cont_by_key(self, cont_key, at_date=timezone.now()):
-        cont_list = []
-
-        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date).select_related('contx_id__{}_id'.format(cont_key))
-        cont_in_set = Counter([utils.get_cont_from_anix(anix, cont_key) for anix in anix_in_set])
-        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date).select_related('contx_id__{}_id'.format(cont_key))
-        cont_out_set = Counter([utils.get_cont_from_anix(anix, cont_key) for anix in anix_out_set])
-
-        for cont, in_count in cont_in_set.items():
-            if cont not in cont_out_set and cont:
-                cont_list.append(cont)
-            elif in_count > cont_out_set[cont] and cont:
-                cont_list.append(cont)
-        return cont_list
-
     def current_cont(self, at_date=timezone.now(), valid_only=False, get_string=False):
-        current_cont_list = []
+        cont_list = []
         if not self.indv_valid and valid_only:
             if get_string:
                 return ""
-            return current_cont_list
-        cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
-        for cont_type in cont_type_list:
-            current_cont_list += self.current_cont_by_key(cont_type, at_date)
+            return cont_list
+
+        last_move = MoveDet.objects.filter(anix_id__indv_id=self, move_date__lte=at_date). \
+            select_related('contx_end').order_by("-move_date").first()
+
+        if last_move:
+            cont_list.append(last_move.contx_end.container)
+
         if get_string:
-            cont_str_list = [cont.__str__() for cont in current_cont_list]
+            cont_str_list = [cont.__str__() for cont in cont_list]
             cont_str = ", ".join(cont_str_list)
             return cont_str
-        return current_cont_list
+        return cont_list
 
     def current_feed(self, at_date=timezone.now()):
         cont_list = self.current_cont(at_date=at_date)
@@ -1839,11 +1824,16 @@ class MoveDet(BioModel):
     anix_id = models.ForeignKey('AniDetailXref', null=True, blank=True, on_delete=models.CASCADE,
                                 verbose_name=_("Animal Detail X Ref"),
                                 db_column="ANI_DET_X_REF_ID")
-    contx_start = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, related_name="move_start",
+    contx_start = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, related_name="move_start", null=True, blank=True,
                                  verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_START_ID")
     contx_end = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True, related_name="move_end",
                                  verbose_name=_("Container Cross Reference End"), db_column="CONTAINER_XREF_END_ID")
     move_date = models.DateField(verbose_name=_("Date move was recorded"), db_column="MOVE_DATE")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['anix_id', 'contx_start', 'contx_end', 'move_date'], name='Move_Detail_Uniqueness')
+        ]
 
 
 class Organization(BioLookup):

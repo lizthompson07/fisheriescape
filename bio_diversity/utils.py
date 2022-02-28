@@ -1803,7 +1803,7 @@ def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None,
     origin_conts = None
 
     # link indv/grp to cont regardless:
-    anix_pk, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk)
+    anix_id, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk)
     row_entered += anix_entered
 
     if (origin_id == destination_id) or nan_to_none(destination_id) is None:
@@ -1843,9 +1843,9 @@ def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None,
             else:
                 start_contx_pk = None
 
-            move_id = models.MoveDet(anix_id_id=anix_pk,
-                                     contx_start=start_contx_pk,
-                                     contx_end=end_contx_pk,
+            move_id = models.MoveDet(anix_id=anix_id,
+                                     contx_start_id=start_contx_pk,
+                                     contx_end_id=end_contx_pk,
                                      move_date=move_date,
                                      created_by=cleaned_data["created_by"],
                                      created_date=cleaned_data["created_date"],
@@ -1854,7 +1854,7 @@ def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None,
                 move_id.clean()
                 move_id.save()
                 row_entered = True
-            except ValidationError:
+            except IntegrityError:
                 pass
 
     if return_sucess:

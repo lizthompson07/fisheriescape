@@ -365,7 +365,7 @@ class GenericGrpParser(DataParser):
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
-        row_date = row["datetime"].date()
+        row_date = utils.naive_to_aware(row["datetime"].date())
         row_start_grp = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["start_tank_id"],
                                       row["datetime"], prog_str=row.get(self.prio_key), mark_str=row.get(self.grp_mark_key),
                                       fail_on_not_found=True)[0]
@@ -375,9 +375,6 @@ class GenericGrpParser(DataParser):
         self.row_entered += contx_entered
 
         whole_grp = utils.y_n_to_bool(row[self.abs_key])
-        row["start_contx_pk"] = None
-        if not whole_grp:
-            row["start_contx_pk"] = start_contx.pk
 
         if utils.nan_to_none(row["end_tank_id"]):
             # 2 checks needed: group in tank or not and whole group move or not:
@@ -400,7 +397,7 @@ class GenericGrpParser(DataParser):
                 # splitting fish group, merging to exsisting end group
                 row_end_grp = row_end_grp_list[0]
 
-            if not row_end_grp:
+            else:
                 # whole group is moving
                 row_end_grp = row_start_grp
 

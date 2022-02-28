@@ -1333,7 +1333,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["table_list"].extend(["evnt", "indv", "cnt", "grpd", "samp", "loc", "pair", "team", "cont"])
+        context["table_list"].extend(["evnt", "indv", "cnt", "grpd", "samp", "move", "loc", "pair", "team", "cont"])
         anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
                                                      indv_id__isnull=True, pair_id__isnull=True)\
             .select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id', 'evnt_id__perc_id')
@@ -1513,7 +1513,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         # use this to pass fields/sample object to template
         context = super().get_context_data(**kwargs)
         context["title"] = "Individual: {}".format(self.object.__str__())
-        context["table_list"].extend(["evnt", "indvd", "indvt", "pair", "team", "loc", "cont", "sire"])
+        context["table_list"].extend(["evnt", "indvd", "indvt", "pair", "team", "move", "loc", "cont", "sire"])
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
                                                           pair_id__isnull=True)\
