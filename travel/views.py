@@ -685,6 +685,7 @@ class TripCloneView(TripUpdateView):
         new_obj.pk = None
         new_obj.verified_by = self.request.user
         new_obj.created_by = self.request.user
+        new_obj.status = 30
         new_obj.save()
         return HttpResponseRedirect(reverse_lazy("travel:trip_detail", args=[new_obj.id]) + self.get_query_string())
 

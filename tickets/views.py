@@ -3,16 +3,17 @@ from shutil import copyfile
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.db.models import TextField
+from django.db.models import TextField, Q
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy
 from django.views.generic import TemplateView
-from django_filters.views import FilterView
 from github import Github
 
 from dm_apps.utils import custom_send_mail
@@ -22,12 +23,16 @@ from . import emails
 from . import filters
 from . import forms
 from . import models
-from . import reports
 
 try:
     from dm_apps import my_conf as local_conf
 except (ModuleNotFoundError, ImportError):
     from dm_apps import default_conf as local_conf
+
+
+def is_staff(user):
+    if user.id:
+        return user.is_staff
 
 
 def index_router(request):
@@ -126,7 +131,7 @@ class MyAssignedTicketListView(LoginRequiredMixin, CommonFilterView):
         return f"Tickets Assigned to {self.request.user.first_name}"
 
     def get_queryset(self):
-        return models.Ticket.objects.filter(dm_assigned=self.request.user.id).annotate(
+        return models.Ticket.objects.filter(Q(dm_assigned=self.request.user.id) | Q(dm_assigned__isnull=True)).annotate(
             search_term=Concat('id', 'title', 'description', 'notes', output_field=TextField()))
 
     def get_filterset_kwargs(self, filterset_class):
@@ -139,43 +144,33 @@ class MyAssignedTicketListView(LoginRequiredMixin, CommonFilterView):
 class TicketDetailView(LoginRequiredMixin, CommonDetailView):
     model = models.Ticket
     home_url_name = "tickets:router"
-    template_name = "tickets/ticket_detail.html"
+
+    def get_template_names(self):
+        if is_staff(self.request.user):
+            qp = self.request.GET
+            if qp.get("assign"):
+                return "tickets/assign_ticket.html"
+        return "tickets/ticket_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super(TicketDetailView, self).get_context_data(**kwargs)
         email = emails.TicketResolvedEmail(self.request, self.object)
-
+        context['staff'] = User.objects.filter(is_staff=True).order_by("last_name", "first_name")
         context['email'] = email.as_table()
         context["field_group_1"] = [
             "primary_contact",
             "dm_assigned",
             "app_display|app",
-            "section",
             "description_html|Description",
             "status",
             "priority",
             "request_type",
-        ]
-
-        context["field_group_2"] = [
             "github_issue_number",
-            "financial_coding",
-            "estimated_cost",
-            "financial_follow_up_needed",
-            "people_notes",
             "date_opened",
             "date_modified",
             "date_closed",
             "resolved_email_date",
             "notes_html",
-        ]
-
-        context["field_group_4"] = [
-            "sd_ref_number",
-            "sd_ticket_url",
-            "sd_primary_contact",
-            "sd_description_html|Service desk ticket description",
-            "sd_date_logged",
         ]
         return context
 
@@ -214,6 +209,23 @@ def mark_ticket_active(request, ticket):
         reopen_github_issue(my_ticket, request.user)
 
     return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(is_staff, login_url='/accounts/denied/')
+def assign_dm(request, ticket, staff):
+    my_ticket = get_object_or_404(models.Ticket, pk=ticket)
+    my_staff = get_object_or_404(User, pk=staff)
+    if my_ticket.dm_assigned.filter(id=my_staff.id).exists():
+        my_ticket.dm_assigned.remove(my_staff)
+    else:
+        my_ticket.dm_assigned.add(my_staff)
+        if my_staff != request.user:
+            email = emails.AssignedToTicketEmail(request, my_ticket, my_staff)
+            email.send()
+            messages.success(request, f"An email has been sent to {my_staff} notifying them that they have been assigned to this ticket!")
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class TicketUpdateView(LoginRequiredMixin, CommonUpdateView):
@@ -298,20 +310,6 @@ class TicketCreateViewPopout(LoginRequiredMixin, CommonPopoutCreateView):
         if self.kwargs.get("app"):
             obj.app = self.kwargs.get("app")
         obj.save()
-
-        # if the registered app has a key for staff_ids (with a length), delete the assign to field
-        try:
-            app = self.kwargs.get("app")
-            if isinstance(local_conf.APP_DICT[app]['staff_ids'], list) and len(local_conf.APP_DICT[app]['staff_ids']) > 0:
-                for user_id in local_conf.APP_DICT[app]['staff_ids']:
-                    obj.dm_assigned.add(user_id)
-        except KeyError:
-            pass
-
-        # nobody is assigned, assign everyone
-        if not obj.dm_assigned.exists():
-            for u in User.objects.filter(is_superuser=True):
-                obj.dm_assigned.add(u)
 
         # create a new email object
         email = emails.NewTicketEmail(self.request, obj)
@@ -503,28 +501,28 @@ class FollowUpDeleteView(LoginRequiredMixin, CommonPopoutDeleteView):
 
 # REPORTS #
 ###########
-
-class FinanceReportListView(LoginRequiredMixin, FilterView):
-    filterset_class = filters.FiscalFilter
-    template_name = "tickets/finance_report.html"
-    queryset = models.Ticket.objects.filter(financial_follow_up_needed=True).filter(sd_ref_number__isnull=False).order_by("-date_opened")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["now"] = timezone.now()
-        return context
-
-
-def finance_spreadsheet(request):
-    file_url = reports.generate_finance_spreadsheet()
-
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="data management report for finance.xlsx"'
-            return response
-    raise Http404
-
+#
+# class FinanceReportListView(LoginRequiredMixin, FilterView):
+#     filterset_class = filters.FiscalFilter
+#     template_name = "tickets/finance_report.html"
+#     queryset = models.Ticket.objects.filter(financial_follow_up_needed=True).filter(sd_ref_number__isnull=False).order_by("-date_opened")
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["now"] = timezone.now()
+#         return context
+#
+#
+# def finance_spreadsheet(request):
+#     file_url = reports.generate_finance_spreadsheet()
+#
+#     if os.path.exists(file_url):
+#         with open(file_url, 'rb') as fh:
+#             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+#             response['Content-Disposition'] = 'inline; filename="data management report for finance.xlsx"'
+#             return response
+#     raise Http404
+#
 
 # GitHub Views #
 ################

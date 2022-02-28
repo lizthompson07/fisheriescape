@@ -145,11 +145,7 @@ class ProcessFilter(django_filters.FilterSet):
 
 
 class MeetingFilter(django_filters.FilterSet):
-    # process = django_filters.ChoiceFilter(field_name='process', lookup_expr='exact', widget=forms.Select(attrs=chosen_js))
     search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Meeting Title contains"))
-
-    # fiscal_year = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact')
-    # lead_office = django_filters.ChoiceFilter(field_name="process__lead_office", label=_("Lead office"), lookup_expr='exact')
 
     class Meta:
         model = models.Meeting

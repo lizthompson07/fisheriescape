@@ -140,7 +140,7 @@ class Species(MetadataFields):
         return my_str
 
     def __str__(self):
-        return self.tcommon
+        return self.tcommon if self.tcommon else f"species {self.id}"
 
     @property
     def full_name(self):
@@ -284,7 +284,9 @@ class Line(MetadataFields, LatLongFields):
 
     @property
     def species_list(self):
-        return mark_safe(listrify(Species.objects.filter(surface_spp__surface__line=self).distinct(), "<br>"))
+        if Species.objects.filter(surface_spp__surface__line=self).exists():
+            return mark_safe(listrify(Species.objects.filter(surface_spp__surface__line=self).distinct(), "<br>"))
+        return "n/a"
 
 
 def img_file_name(instance, filename):

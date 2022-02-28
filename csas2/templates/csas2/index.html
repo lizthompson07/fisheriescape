@@ -85,6 +85,11 @@
                 class="mdi mdi-format-list-bulleted text-light"></span></a>
               <a href="{% url 'csas2:meeting_list' %}?personalized=true" class="btn btn-warning" data-toggle="tooltip"
                  title="{% trans "CSAS meetings connected to you" %}"><span class="mdi mdi-heart"></span></a>
+              {% if is_admin %}
+                <a href="{% url 'csas2:meeting_reviews' %}" class="btn btn-info" data-toggle="tooltip" title="{% trans "Review multiple meetings" %}">
+                  <span class="mdi mdi-eye"></span>
+                </a>
+              {% endif %}
             </div>
           </div>
         </div>

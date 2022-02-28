@@ -10,7 +10,7 @@ from shared_models.models import Section, Division, Region, Branch, Sector
 
 
 def in_csas_regional_admin_group(user):
-    if user:
+    if user.id:
         # this will find if the user is a coordinator for any csas offices OR if they are an advisor or administrator
         return user.csas_offices.exists() or user.csas_offices_advisors.exists() or user.csas_offices_administrators.exists()
 
@@ -285,8 +285,8 @@ def can_modify_tor(user, tor_id, return_as_dict=False):
         elif in_csas_web_pub_group(user):
             my_dict["reason"] = _("You can modify this record because you are a NCR web & pub staff member")
             my_dict["can_modify"] = True
-        # if the tor is not submitted OR if the tor is AWAITING CHANGES, we can default back to the can_modify_process rules
-        elif not tor.submission_date or tor.status == 30:
+        # if the tor is not POSTED or AWAITING POSTING, we can default back to the can_modify_process rules
+        elif tor.status not in [40, 50]:
             d = can_modify_process(user, process.id, True)
             my_dict["reason"] = d["reason"]
             my_dict["can_modify"] = d["can_modify"]
@@ -495,16 +495,29 @@ def get_person_field_list():
     return my_list
 
 
-def get_quarter(date, as_int=False):
+def get_quarter(date, display_type="season"):
+    """
+    @param date:
+    @param display_type: season || integer || verbose
+    @return:
+    """
+    qdict = {
+        1: {"integer": 1, "season": _("Spring"), "verbose": _("1st quarter"), },
+        2: {"integer": 2, "season": _("Summer"), "verbose": _("2nd quarter"), },
+        3: {"integer": 3, "season": _("Fall"), "verbose": _("3rd quarter"), },
+        4: {"integer": 4, "season": _("Winter"), "verbose": _("4th quarter"), },
+    }
+
     if date.month in [1, 2, 3]:
-        quarter = 4 if as_int else _("Winter")
+        quarter = 4
     elif date.month in [4, 5, 6]:
-        quarter = 1 if as_int else _("Spring")
+        quarter = 1
     elif date.month in [7, 8, 9]:
-        quarter = 2 if as_int else _("Summer")
+        quarter = 2
     else:
-        quarter = 3 if as_int else _("Fall")
-    return quarter
+        quarter = 3
+
+    return qdict[quarter][display_type]
 
 
 def has_todos(user):

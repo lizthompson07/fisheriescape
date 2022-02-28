@@ -18,38 +18,35 @@ from .utils import db_connection_values_exist, get_db_connection_dict
 # add new applications to this dictionary; grey out any app you do not want
 # the dict key should be the actual name of the app
 # if there is a verbose name, it should be the value of key 'name', otherwise None
-# if there are supposed to be staff member to whom tickets should be automatically assigned, user ids should be placed under 'staff_ids'
 
 APP_DICT = {
-    'inventory': dict(name='Metadata Inventory', staff_ids=[]),
-    'grais': dict(name='grAIS', staff_ids=[50, ]),
-    'cruises': dict(name='Cruises', staff_ids=[50, 382, ]),
-    'herring': dict(name='HERMAN', staff_ids=[50, ]),
-    'camp': dict(name='CAMP db', staff_ids=[50, ]),
-    'scuba': dict(name='SCUBA survey', staff_ids=[50, ]),
-    'edna': dict(name='eDNA Krabappel', staff_ids=[50, ]),
-    'diets': dict(name='Marine diets', staff_ids=[50, ]),
-    'ppt': dict(name='Science project planning tool', staff_ids=[50, 382]),
-    'csas2': dict(name="Canadian Science Advisory Secretariat v2.0", staff_ids=[382, 581, 50, 1337]),  # dependency on ppt
-    'masterlist': dict(name='Masterlist', staff_ids=[50, ]),
-    'ihub': dict(name='iHub', staff_ids=[50, ]),  # dependency on masterlist
-    'shares': dict(name='Gulf Shares', staff_ids=[50, ]),
-    'travel': dict(name='Travel Management System', staff_ids=[1798, 50]),  # beware, the staff ids will have to be changed below for cloud instances of app
-    'sar_search': dict(name="SAR Search", staff_ids=[50, 452]),
-    'spot': dict(name='Grants & Contributions (Spot)', staff_ids=[50, ]),  # dependency on masterlist, sar_search
-    'ios2': dict(name='Instruments', staff_ids=[381, ]),
-    # 'staff': dict(name="Staff Planning Tool", staff_ids=[382, ]),
-    'publications': dict(name="Project Publications Inventory", staff_ids=[382, ]),
-    'trapnet': dict(name="TrapNet", staff_ids=[50, ]),
-    'whalesdb': dict(name="Whale Equipment Deployment Inventory", staff_ids=[382, ]),
-    'vault': dict(name="Marine Megafauna Media Vault", staff_ids=[452, ]),
-    'whalebrary': dict(name="Whalebrary Marine Mammal Tools", staff_ids=[452, ]),
-    # 'spring_cleanup': dict(name="Gulf Region Spring Cleanup", staff_ids=[50, ]),
-    'shiny': dict(name="DM Apps Shiny App Collection", staff_ids=[50, ]),
-    'bio_diversity': dict(name="Biodiversity", staff_ids=[382, 1337]),
-    'maret': dict(name="Maret", staff_ids=[382, 581]),
-    'fisheriescape': dict(name="Fisheries Landscape Tool", staff_ids=[452, ]),
-    'res': dict(name="SE-RES Career Progression Dossier App", staff_ids=[50, 2039]),
+    'inventory': dict(name='Metadata Inventory'),
+    'grais': dict(name='grAIS'),
+    'cruises': dict(name='Cruises'),
+    'herring': dict(name='HERMAN'),
+    'camp': dict(name='CAMP db'),
+    'scuba': dict(name='SCUBA survey'),
+    'edna': dict(name='eDNA Krabappel'),
+    'diets': dict(name='Marine diets'),
+    'ppt': dict(name='Science project planning tool'),
+    'csas2': dict(name="Canadian Science Advisory Secretariat v2.0"),  # dependency on ppt
+    'masterlist': dict(name='Masterlist'),
+    'ihub': dict(name='iHub'),  # dependency on masterlist
+    'shares': dict(name='Gulf Shares'),
+    'travel': dict(name='Travel Management System'),  # beware, the staff ids will have to be changed below for cloud instances of app
+    'sar_search': dict(name="SAR Search"),
+    'spot': dict(name='Grants & Contributions (Spot)'),  # dependency on masterlist, sar_search
+    'ios2': dict(name='Instruments'),
+    'publications': dict(name="Project Publications Inventory"),
+    'trapnet': dict(name="TrapNet"),
+    'whalesdb': dict(name="Whale Equipment Deployment Inventory"),
+    'vault': dict(name="Marine Megafauna Media Vault"),
+    'whalebrary': dict(name="Whalebrary Marine Mammal Tools"),
+    'shiny': dict(name="DM Apps Shiny App Collection"),
+    'bio_diversity': dict(name="Biodiversity"),
+    'maret': dict(name="Maret"),
+    'fisheriescape': dict(name="Fisheries Landscape Tool"),
+    'res': dict(name="SE-RES Career Progression Dossier App"),
 }
 
 # Deal with fake apps...
@@ -63,14 +60,14 @@ DEPLOYMENT_STAGE = config("DEPLOYMENT_STAGE", cast=str, default="").upper()
 if DEPLOYMENT_STAGE == 'PROD':
     # overwrite app_dict with only the applications to be deployed to PROD
     APP_DICT = {
-        'travel': dict(name='Travel Management System', staff_ids=[385, 50])
+        'travel': dict(name='Travel Management System')
     }
 
 ### Deploying application in test environment
 elif DEPLOYMENT_STAGE == 'TEST':
     # overwrite app_dict with only the applications to be deployed to TEST
     APP_DICT = {
-        'travel': dict(name='Travel Management System', staff_ids=[385, 50])
+        'travel': dict(name='Travel Management System')
     }
 
 

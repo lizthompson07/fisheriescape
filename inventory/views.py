@@ -1719,10 +1719,13 @@ class ReportSearchFormView(InventoryDMRequiredMixin, FormView):
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        sections = listrify(form.cleaned_data["sections"],",")
+        sections = listrify(form.cleaned_data["sections"], ",")
+        regions = listrify(form.cleaned_data["regions"], ",")
 
         if sections == "":
             sections = "None"
+        if regions == "":
+            regions = "None"
 
         if report == 1:
             return HttpResponseRedirect(reverse("inventory:export_batch_xml", kwargs={
@@ -1734,6 +1737,8 @@ class ReportSearchFormView(InventoryDMRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("inventory:export_phyiscal_samples"))
         if report == 4:
             return HttpResponseRedirect(reverse("inventory:export_resources") + f"?sections={sections}")
+        if report == 5:
+            return HttpResponseRedirect(reverse("inventory:export_open_data_resources") + f"?regions={regions}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("inventory:report_search"))
@@ -1787,6 +1792,19 @@ def export_resources(request):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = 'inline; filename="resources report {}.xlsx"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
+
+@login_required()
+def export_open_data_resources(request):
+    regions = request.GET.get("regions") if request.GET.get("regions") else None
+    file_url = reports.generate_open_data_resources_report(regions)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="open data resources {}.xlsx"'.format(
                 timezone.now().strftime("%Y-%m-%d"))
             return response
     raise Http404

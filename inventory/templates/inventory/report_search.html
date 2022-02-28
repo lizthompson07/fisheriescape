@@ -78,9 +78,11 @@
 
         function hideAll() {
             $(".sections_div").addClass("gone");
+            $(".regions_div").addClass("gone");
 
             $("#id_report").prop('required', true);
             $("#id_sections").prop('required', false);
+            $("#id_regions").prop('required', false);
         }
 
         function configureForm() {
@@ -89,6 +91,9 @@
             if (reportChoice == 1 || reportChoice == 4) {
                 $(".sections_div").removeClass("gone");
                 $("#id_sections").multiSelect()
+            } else if (reportChoice === "5") {
+                $(".regions_div").removeClass("gone");
+                $("#id_regions").multiSelect()
             }
 
 

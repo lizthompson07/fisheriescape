@@ -16,8 +16,9 @@ with open(out_file, 'w', newline='\n') as outcsv:
         lastname = line[2]
         firstname = line[1]
 
+        email = firstname + "." + lastname + "@dfo-mpo.gc.ca"
         try:
-            usr = models.User.objects.get(first_name=firstname, last_name=lastname, email__endswith="dfo-mpo.gc.ca")
+            usr = models.User.objects.get(username=email)
             name = usr.last_name + ", " + usr.first_name
             if name not in names:
                 out_file.writerow([usr.pk, name])
@@ -25,7 +26,9 @@ with open(out_file, 'w', newline='\n') as outcsv:
                 print("{}: {}, {} - {}".format(usr.pk, usr.last_name, usr.first_name, usr.email))
         except models.User.DoesNotExist:
             name = lastname + ", " + firstname
+            usr = models.User(first_name=firstname, last_name=lastname, username=email, email=email)
+            usr.save()
             if name not in names:
-                out_file.writerow(["-1", name])
+                out_file.writerow([usr.pk, name])
                 names.append(name)
-                print("No match for '{}, {}'".format(lastname, firstname))
+                print("{}: {}, {} - {}".format(usr.pk, usr.last_name, usr.first_name, usr.email))
