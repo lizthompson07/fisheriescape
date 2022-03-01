@@ -3,6 +3,7 @@ from django.template.defaultfilters import date
 from django.urls import reverse
 from django.utils.translation import activate
 
+from lib.templatetags.custom_filters import nz
 from . import models
 
 
@@ -246,12 +247,15 @@ def print_bad_surfaces():
 
 
 def print_collectors():
-    line_ids = [
-        422, 421, 419, 417, 420, 418,
-        428, 427, 426, 424, 425, 423,
-        5362, 5363, 5359, 5360, 5361, 5364,
-    ]
-    lines = models.Line.objects.filter(id__in=line_ids)
-    print("sample id", "sample_year", "line id", "collector")
+    lines = models.Line.objects.filter(sample__season__in=[2019, 2020])
+    print("station number,station name,province,year,sample id,line id,collector tag")
     for line in lines:
-        print(line.sample.id, line.sample.season, line.id, line.collector)
+        print("{},{},{},{},{},{},{}".format(
+            line.sample.station.id,
+            line.sample.station.station_name,
+            line.sample.station.province,
+            line.sample.season,
+            line.sample.id,
+            line.id,
+            nz(line.collector, "----")
+        ))
