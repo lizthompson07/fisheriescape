@@ -957,6 +957,7 @@ def generate_biofouling_station_report():
 
     if qs.exists():
         fields = [
+            "id",
             "station_name",
             "province",
             "depth",
@@ -964,6 +965,9 @@ def generate_biofouling_station_report():
             "last_modified_by",
             "contact_information",
             "notes",
+            "latitude",
+            "longitude",
+            "years|years sampled"
             "created_by",
             "created_at",
             "updated_by",

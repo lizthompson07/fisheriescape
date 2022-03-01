@@ -244,3 +244,20 @@ def print_bad_surfaces():
             print(f'{s.id}|{coverage}|http://dmapps{reverse("grais:surface_detail", args=[s.id])}')
 
 
+
+
+
+
+def print_collectors():
+
+
+
+    stations = models.Station.objects.all()
+
+    for station in stations:
+        sample_qs = models.Sample.objects.filter(season__in=[2019,2020], station=station)
+
+        if sample_qs.count() > 1:
+            for s in sample_qs:
+                print(f'{s.id};{s.season};{s.station.station_name};{date(s.date_deployed)};{date(s.date_retrieved)}')
+

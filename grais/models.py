@@ -91,7 +91,10 @@ class Station(MetadataFields, LatLongFields):
     def notes_html(self):
         if self.notes:
             return markdown(self.notes)
-
+    
+    @property
+    def years(self):
+        return listrify([item.get("season") for item in self.samples.order_by("season").values("season").distinct()])
 
 class Species(MetadataFields):
     # choices for epibiont_type
