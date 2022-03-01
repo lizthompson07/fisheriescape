@@ -298,6 +298,10 @@ class MeetingViewSet(viewsets.ModelViewSet):
     queryset = models.Meeting.objects.all().order_by("-created_at")
     serializer_class = serializers.MeetingSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ['name', 'nom']
+    filterset_class = filters.MeetingFilter
 
     def post(self, request, pk):
         qp = request.query_params
@@ -330,12 +334,12 @@ class MeetingViewSet(viewsets.ModelViewSet):
             qs = process.meetings.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
-        if qp.get("choices"):
+        elif qp.get("choices"):
             qs = models.Meeting.objects.filter(is_planning=False, invitees__isnull=False).distinct().order_by("process__lead_region", "fiscal_year")
             meeting_choices = [dict(text=m.full_display, value=m.id) for m in qs]
             meeting_choices.insert(0, dict(text="-----", value=None))
             return Response(meeting_choices)
-        raise ValidationError(_("You need to specify a csas process"))
+        return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -732,6 +736,7 @@ class PersonModelMetaAPIView(APIView):
         data['person_choices'] = person_choices
         data['labels'] = _get_labels(self.model)
         data['language_choices'] = [dict(text=str(p), value=p.id) for p in Language.objects.all()]
+        data['expertise_choices'] = [dict(text=str(p), value=p.id) for p in SubjectMatter.objects.all()]
         return Response(data)
 
 
@@ -801,7 +806,7 @@ class RequestModelMetaAPIView(APIView):
         data['sector_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_sector_choices(with_requests=True)]
         data['section_choices'] = [dict(text=c[1], value=c[0]) for c in utils.get_section_choices(with_requests=True)]
         data['fy_choices'] = [dict(text=str(c), value=c.id) for c in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
-        data['tag_choices'] = [dict(text=str(c), value=c.id) for c in SubjectMatter.objects.all()]
+        data['tag_choices'] = [dict(text=str(c), value=c.id) for c in SubjectMatter.objects.filter(is_csas_request_tag=True)]
         return Response(data)
 
 

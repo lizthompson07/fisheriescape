@@ -11,7 +11,7 @@ class NewTicketEmail(Email):
     email_template_path = 'tickets/email_new_ticket.html'
 
     def get_recipient_list(self):
-        return [admin_email]
+        return [admin_email, self.instance.primary_contact.email]
 
     def get_subject_fr(self):
         return f'{self.instance.app_display} ({self.instance.get_priority_display()})'
