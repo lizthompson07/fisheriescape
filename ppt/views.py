@@ -1658,161 +1658,153 @@ def export_capital_request_costs(request):
 @login_required()
 def export_equipment_summary(request):
     year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
-    region = request.GET.get("region")
-    division = request.GET.get("division")
     section = request.GET.get("section")
-
-    region_name = None
-    if region:
-        region_name = shared_models.Region.objects.get(pk=region)
-
-    division_name = None
-    if division and division != 'None':
-        division_name = shared_models.Division.objects.get(pk=division)
 
     section_name = None
     if section and section != 'None':
         section_name = shared_models.Section.objects.get(pk=section)
 
+    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
+                                                      project__section_id=section)
+
+    status_list = models.ProjectYear.status_choices
+    status = {status_list[i][0]: status_list[i][1] for i in range(0, len(status_list))}
+
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="{}_{}_equipment_summary.csv"'.format(year, region_name)
+    response['Content-Disposition'] = 'attachment; filename="{}_{}_equipment_summary.csv"'.format(year, section_name)
 
     writer = csv.writer(response)
     writer.writerow([
-        'Approved',
-        'Title',
         'ID',
+        'Status',
+        'Title',
         'Section',
         'Functional group',
         'Start date of project',
         'End date of project',
         'Project years',
+        'Project leads',
         'Project overview',
+
         'Des. Need for Vehicle',
         'Ship',
         'COIP number'
         'Insturments',
     ])
 
-    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
-                                                      project__section__division__branch__region_id=region)
-    if division and division != 'None':
-        project_years = project_years.filter(project__section__division_id=division)
-
-    if section and section != 'None':
-        project_years = project_years.filter(project__section_id=section)
-
     for p in project_years:
-        writer.writerow([p.status, p.project.title, p.pk, section_name, p.project.functional_group, p.start_date, p.end_date,
-                        p.fiscal_year, p.project.overview, p.vehicle_needs, p.ship_needs, p.coip_reference_id,
-                        p.instrumentation])
+        years = ", ".join([y.fiscal_year.full for y in p.project.years.all()])
+        leads_as_users = p.get_project_leads_as_users()
+        leads = ""
+        if leads_as_users:
+            leads = ", ".join([u.first_name + " " + u.last_name for u in leads_as_users])
+
+        writer.writerow([p.project.pk, status.get(p.status), p.project.title, section_name, p.project.functional_group,
+                         p.start_date, p.end_date, years, leads, p.project.overview,
+
+                         p.vehicle_needs, p.ship_needs, p.coip_reference_id, p.instrumentation])
     return response
 
 
 @login_required()
 def export_field_staff_summary(request):
     year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
-    region = request.GET.get("region")
-    division = request.GET.get("division")
     section = request.GET.get("section")
-
-    region_name = None
-    if region:
-        region_name = shared_models.Region.objects.get(pk=region)
-
-    division_name = None
-    if division and division != 'None':
-        division_name = shared_models.Division.objects.get(pk=division)
 
     section_name = None
     if section and section != 'None':
         section_name = shared_models.Section.objects.get(pk=section)
 
+    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
+                                                      project__section_id=section)
+
+    status_list = models.ProjectYear.status_choices
+    status = {status_list[i][0]: status_list[i][1] for i in range(0, len(status_list))}
+
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="{}_{}_field_staff_summary.csv"'.format(year, region_name)
+    response['Content-Disposition'] = 'attachment; filename="{}_{}_field_staff_summary.csv"'.format(year, section_name)
 
     writer = csv.writer(response)
     writer.writerow([
+        'ID',
         'Approved',
         'Title',
-        'ID',
         'Section',
         'Functional group',
         'Start date of project',
         'End date of project',
         'Project years',
-        'Project overview',
+        'Project leads',
+
         'Requires Field Support Staff'
         'Support Details',
     ])
 
-    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
-                                                      project__section__division__branch__region_id=region)
-    if division and division != 'None':
-        project_years = project_years.filter(project__section__division_id=division)
-
-    if section and section != 'None':
-        project_years = project_years.filter(project__section_id=section)
-
     for p in project_years:
-        writer.writerow([p.status, p.project.title, p.pk, section_name, p.project.functional_group, p.start_date,
-                         p.end_date, p.fiscal_year, p.project.overview, p.requires_field_staff, p.field_staff_needs])
+        years = ", ".join([y.fiscal_year.full for y in p.project.years.all()])
+        leads_as_users = p.get_project_leads_as_users()
+        leads = ""
+        if leads_as_users:
+            leads = ", ".join([u.first_name + " " + u.last_name for u in leads_as_users])
+
+        writer.writerow([p.project.pk, status.get(p.status), p.project.title, section_name, p.project.functional_group,
+                         p.start_date, p.end_date, years, leads, p.project.overview,
+
+                         p.requires_field_staff, p.field_staff_needs])
     return response
 
 
 @login_required()
 def export_lab_summary(request):
     year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
-    region = request.GET.get("region")
-    division = request.GET.get("division")
     section = request.GET.get("section")
-
-    region_name = None
-    if region:
-        region_name = shared_models.Region.objects.get(pk=region)
-
-    division_name = None
-    if division and division != 'None':
-        division_name = shared_models.Division.objects.get(pk=division)
 
     section_name = None
     if section and section != 'None':
         section_name = shared_models.Section.objects.get(pk=section)
 
+    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
+                                                      project__section_id=section)
+
+    status_list = models.ProjectYear.status_choices
+    status = {status_list[i][0]: status_list[i][1] for i in range(0, len(status_list))}
+
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="{}_{}_field_staff_summary.csv"'.format(year, region_name)
+    response['Content-Disposition'] = 'attachment; filename="{}_{}_field_staff_summary.csv"'.format(year, section_name)
 
     writer = csv.writer(response)
     writer.writerow([
+        'ID',
         'Approved',
         'Title',
-        'ID',
         'Section',
         'Functional group',
         'Start date of project',
         'End date of project',
         'Project years',
+        'Project leads',
         'Project overview',
+
         'Requires Lab Work',
         'Is Lab Space Required',
         'Specialized Support',
         'Other Lab Requirements',
     ])
 
-    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
-                                                      project__section__division__branch__region_id=region)
-    if division and division != 'None':
-        project_years = project_years.filter(project__section__division_id=division)
-
-    if section and section != 'None':
-        project_years = project_years.filter(project__section_id=section)
-
     for p in project_years:
-        writer.writerow([p.status, p.project.title, p.pk, section_name, p.project.functional_group, p.start_date,
-                         p.end_date, p.fiscal_year, p.project.overview, p.has_lab_component, p.requires_lab_space,
+        years = ", ".join([y.fiscal_year.full for y in p.project.years.all()])
+        leads_as_users = p.get_project_leads_as_users()
+        leads = ""
+        if leads_as_users:
+            leads = ", ".join([u.first_name + " " + u.last_name for u in leads_as_users])
+
+        writer.writerow([p.project.pk, status.get(p.status), p.project.title, section_name, p.project.functional_group,
+                         p.start_date, p.end_date, years, leads, p.project.overview,
+
+                         p.has_lab_component, p.requires_lab_space,
                          p.requires_other_lab_support, p.other_lab_support_needs])
     return response
 
