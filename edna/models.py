@@ -441,7 +441,7 @@ class PCRBatch(Batch):
 
 class PCR(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
-    pcr_batch = models.ForeignKey(PCRBatch, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_(" qPCR batch"))
+    pcr_batch = models.ForeignKey(PCRBatch, related_name='pcrs', on_delete=models.CASCADE, verbose_name=_(" qPCR batch"))
     extract = models.ForeignKey(DNAExtract, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="pcrs", verbose_name=_("extraction ID"))
     plate_well = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate well"))
     master_mix = models.ForeignKey(MasterMix, on_delete=models.DO_NOTHING, related_name="pcrs", verbose_name=_("master mix"), blank=False, null=True)

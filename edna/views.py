@@ -840,6 +840,7 @@ class PCRBatchDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
     template_name = 'edna/confirm_delete.html'
     container_class = "container curvy"
     grandparent_crumb = {"title": gettext_lazy("PCR Batches"), "url": reverse_lazy("edna:pcr_batch_list")}
+    delete_protection = False
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("edna:pcr_batch_detail", args=[self.get_object().id])}
