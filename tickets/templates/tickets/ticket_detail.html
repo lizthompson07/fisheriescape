@@ -9,6 +9,11 @@
   {#  <script type="text/javascript" src="{% static "js/popItOut.js" %}"></script>#}
 
   <div class="title-block mb-5">
+    {% if user.is_staff and not object.dm_assigned.exists %}
+      <div class="float-right">
+        <a class="btn btn-outline-primary" href="{% url 'tickets:assign_dm' object.id user.id %}">Assign yourself to this ticket!</a>
+      </div>
+    {% endif %}
 
     <div class="btn-group">
 
@@ -47,18 +52,12 @@
              class="btn btn-sm btn-outline-primary">
             View on GitHub
           </a>
-
         {% endif %}
       </div>
     {% endif %}
+
   </div>
 
-
-  {% if user.is_staff and not object.dm_assigned.exists %}
-    <div class="lead mb-3">
-    <a href="{% url 'tickets:assign_dm' object.id user.id %}">Assign yourself to this ticket!</a>
-    </div>
-  {% endif %}
 
   <div class="row">
     <div class="col-6">
