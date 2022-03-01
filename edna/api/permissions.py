@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from ..utils import in_edna_crud_group
+from ..utils import is_crud_user
 
 
 class eDNACRUDOrReadOnly(permissions.BasePermission):
@@ -10,7 +10,7 @@ class eDNACRUDOrReadOnly(permissions.BasePermission):
             return False
         if request.method in permissions.SAFE_METHODS:
             return True
-        elif in_edna_crud_group(request.user):
+        elif is_crud_user(request.user):
             return True
 
     def has_object_permission(self, request, view, obj):
@@ -18,5 +18,5 @@ class eDNACRUDOrReadOnly(permissions.BasePermission):
             return False
         if request.method in permissions.SAFE_METHODS:
             return True
-        elif in_edna_crud_group(request.user):
+        elif is_crud_user(request.user):
             return True

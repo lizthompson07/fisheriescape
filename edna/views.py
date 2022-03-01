@@ -19,18 +19,36 @@ from lib.templatetags.custom_filters import nz
 from shared_models.views import CommonTemplateView, CommonHardDeleteView, CommonFormsetView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonListView
 from . import models, forms, filters, utils
-from .mixins import LoginAccessRequiredMixin, eDNAAdminRequiredMixin
-from .utils import in_edna_admin_group
+from .mixins import ednaBasicMixin, eDNAAdminRequiredMixin, SuperuserOrAdminRequiredMixin
+from .utils import is_admin
 
 
-class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
+
+class ednaUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
+    template_name = 'edna/formset.html'
+    h1 = "Manage eDNA Users"
+    queryset = models.ednaUser.objects.all()
+    formset_class = forms.ednaUserFormset
+    success_url_name = "edna:manage_edna_users"
+    home_url_name = "edna:index"
+    delete_url_name = "edna:delete_edna_user"
+    container_class = "container bg-light curvy"
+
+
+class ednaUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
+    model = models.ednaUser
+    success_url = reverse_lazy("edna:manage_edna_users")
+
+
+
+class IndexTemplateView(ednaBasicMixin, CommonTemplateView):
     h1 = "home"
     active_page_name_crumb = "home"
     template_name = 'edna/index.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_admin"] = in_edna_admin_group(self.request.user)
+        context["is_admin"] = is_admin(self.request.user)
         return context
 
 

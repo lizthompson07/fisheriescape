@@ -6,13 +6,30 @@ from django.template.defaultfilters import date
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext
 from shapely.geometry import Polygon, Point
 
 from lib.functions.custom_functions import listrify, fiscal_year
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields
 from shared_models.utils import format_coordinates
+
+
+YES_NO_CHOICES = (
+    (True, gettext("Yes")),
+    (False, gettext("No")),
+)
+
+class ednaUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="edna_user", verbose_name=_("DM Apps user"))
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator?"), choices=YES_NO_CHOICES)
+    is_crud_user = models.BooleanField(default=False, verbose_name=_("CRUD permissions?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
 
 
 class FiltrationType(UnilingualLookup):
@@ -188,6 +205,7 @@ class Sample(MetadataFields):
     latitude = models.FloatField(blank=False, null=True, verbose_name=_("latitude"))
     longitude = models.FloatField(blank=False, null=True, verbose_name=_("longitude"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
+
     # calc
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='edna_samples_created_by')
     updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='edna_samples_updated_by')
