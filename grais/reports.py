@@ -966,7 +966,7 @@ def generate_biofouling_station_report():
             "notes",
             "latitude",
             "longitude",
-            "years|years sampled"
+            "years|years sampled",
             "created_by",
             "created_at",
             "updated_by",
