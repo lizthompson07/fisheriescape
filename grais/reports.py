@@ -12,6 +12,7 @@ from django.utils import timezone
 from dm_apps.utils import Echo
 from lib.functions.custom_functions import nz, listrify
 from lib.functions.verbose_field_name import verbose_field_name
+from lib.templatetags.verbose_names import get_verbose_label, get_field_value
 from . import models
 
 
@@ -909,6 +910,75 @@ def generate_gc_gravid_green_crabs_report():
                 obj.egg_color,
                 obj.count,
             ]
+
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
+
+            j = 0
+            for d in data_row:
+                # if new value > stored value... replace stored value
+                if len(str(d)) > col_max[j]:
+                    if len(str(d)) < 75:
+                        col_max[j] = len(str(d))
+                    else:
+                        col_max[j] = 75
+                j += 1
+
+            my_ws.write_row(i, 0, data_row, normal_format)
+            i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    return target_url
+
+
+def generate_biofouling_station_report():
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path, options=dict(remove_timezone=True))
+
+    # create formatting variables
+    header_format = workbook.add_format({'bold': True, "align": 'normal', "text_wrap": True})
+    normal_format = workbook.add_format({"align": 'normal', "text_wrap": True, })
+
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name='stations')
+
+    # define the header
+    qs = models.Station.objects.all()
+
+    if qs.exists():
+        fields = [
+            "station_name",
+            "province",
+            "depth",
+            "site_desc",
+            "last_modified_by",
+            "contact_information",
+            "notes",
+            "created_by",
+            "created_at",
+            "updated_by",
+            "updated_at",
+        ]
+        header_row = [get_verbose_label(qs.first(), field) for field in fields]
+
+        my_ws.write_row(0, 0, header_row, header_format)
+
+        i = 1
+        # create the col_max column to store the length of each header
+        # should be a maximum column width to 100
+        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in fields]
+        for obj in qs:
+            data_row = [str(get_field_value(obj, field)) for field in fields]
 
             # adjust the width of the columns based on the max string length in each col
             ## replace col_max[j] if str length j is bigger than stored value

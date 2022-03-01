@@ -370,12 +370,18 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
 
 
 class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
-    template_name = 'csas2/request_reviews/main.html'
     container_class = "container-fluid"
     home_url_name = "csas2:index"
     h1 = gettext_lazy("CSAS Request Review Console")
     filterset_class = filters.CSASRequestFilter
     model = models.CSASRequest
+
+    def get_template_names(self):
+        qp = self.request.GET
+        if qp.get("translations"):
+            return 'csas2/request_reviews/main_trans.html'
+        return 'csas2/request_reviews/main.html'
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

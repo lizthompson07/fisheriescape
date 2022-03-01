@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from markdown import markdown
 
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import percentage
@@ -65,6 +66,8 @@ class Station(MetadataFields, LatLongFields):
     depth = models.FloatField(blank=True, null=True, verbose_name=_("depth (m)"))
     site_desc = models.TextField(blank=True, null=True, verbose_name=_("site description"))
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False)
+    contact_information = models.TextField(blank=True, null=True, verbose_name=_("contact information"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("general notes"))
 
     def __str__(self):
         return "{}, {}".format(self.station_name, self.province.abbrev_eng)
@@ -78,6 +81,16 @@ class Station(MetadataFields, LatLongFields):
     @property
     def sample_count(self):
         return self.samples.count()
+
+    @property
+    def contact_information_html(self):
+        if self.contact_information:
+            return markdown(self.contact_information)
+
+    @property
+    def notes_html(self):
+        if self.notes:
+            return markdown(self.notes)
 
 
 class Species(MetadataFields):

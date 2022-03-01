@@ -73,6 +73,8 @@ class StationDetailView(GraisAccessRequiredMixin, CommonDetailView):
         'longitude',
         'depth',
         'site_desc',
+        'contact_information_html',
+        'notes_html',
         'metadata',
     ]
 
