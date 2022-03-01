@@ -17,7 +17,7 @@ from easy_pdf.views import PDFTemplateView
 
 from dm_apps.context_processor import my_envr
 from lib.functions.custom_functions import fiscal_year, truncate, listrify
-from shared_models.models import Person, FiscalYear, SubjectMatter
+from shared_models.models import Person, SubjectMatter
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
     CommonHardDeleteView, CommonListView
@@ -372,19 +372,28 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
 class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
     container_class = "container-fluid"
     home_url_name = "csas2:index"
-    h1 = gettext_lazy("CSAS Request Review Console")
     filterset_class = filters.CSASRequestFilter
     model = models.CSASRequest
 
-    def get_template_names(self):
-        qp = self.request.GET
-        if qp.get("translations"):
-            return 'csas2/request_reviews/main_trans.html'
-        return 'csas2/request_reviews/main.html'
+    def get_h1(self):
+        is_staff = utils.in_csas_web_pub_group(self.request.user)
+        if is_staff:
+            qp = self.request.GET
+            if dict(qp) == {} or qp.get("translations"):
+                return _("CSAS Request Translation Review Console")
+        return _("CSAS Request Review Console")
 
+    def get_template_names(self):
+        is_staff = utils.in_csas_web_pub_group(self.request.user)
+        if is_staff:
+            qp = self.request.GET
+            if dict(qp) == {} or qp.get("translations"):
+                return 'csas2/request_reviews/main_trans.html'
+        return 'csas2/request_reviews/main.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["is_staff"] = utils.in_csas_web_pub_group(self.request.user)
         return context
 
     def get_queryset(self):
@@ -1023,7 +1032,6 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'process.posting_status|{}'.format(_("Status of website posting")), "class": "", "width": "400px"},
     ]
 
-
     def get_extra_button_dict1(self):
         qs = self.filterset.qs
         ids = listrify([obj.id for obj in qs])
@@ -1032,7 +1040,6 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
             "url": reverse("csas2:meeting_report") + f"?meetings={ids}",
             "class": "btn-outline-dark",
         }
-
 
     def get_queryset(self):
         qp = self.request.GET
