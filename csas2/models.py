@@ -447,6 +447,8 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     # non-editable
     is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"))
+    has_peer_review_meeting = models.BooleanField(default=False, verbose_name=_("has peer review meeting?"))
+    has_planning_meeting = models.BooleanField(default=False, verbose_name=_("has planning meeting?"))
     posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"))
     posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="processes", verbose_name=_("fiscal year"), editable=False)
@@ -457,6 +459,9 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         ordering = ["fiscal_year", _("name")]
 
     def save(self, *args, **kwargs):
+        self.has_peer_review_meeting = self.meetings.filter(is_planning=False).exists()
+        self.has_planning_meeting = self.meetings.filter(is_planning=True).exists()
+
         # if there is no advice date, take the target date from the first attached request
         if not self.advice_date and self.id and self.csas_requests.exists():
             self.advice_date = self.csas_requests.first().target_advice_date
@@ -507,6 +512,15 @@ class Process(SimpleLookupWithUUID, MetadataFields):
             return self.tor.get_status_display()
         except:
             return gettext("n/a")
+
+    @property
+    def posting_status(self):
+        if not self.posting_request_date and self.is_posted:
+            return gettext("Not posted")
+        elif self.posting_request_date:
+            return gettext("Request made")
+        else:
+            return gettext("Posted")
 
     def get_absolute_url(self):
         return reverse("csas2:process_detail", args=[self.pk])
@@ -809,7 +823,8 @@ class Meeting(SimpleLookup, MetadataFields):
     # non-editable
     somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))
     # calculated
-    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year of meeting"), related_name="meetings",
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year of meeting"),
+                                    related_name="meetings",
                                     editable=False)
 
     class Meta:

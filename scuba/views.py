@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy, gettext as _
 
-from scuba.mixins import LoginAccessRequiredMixin, ScubaAdminRequiredMixin, ScubaCRUDAccessRequiredMixin, SuperuserOrAdminRequiredMixin
+from scuba.mixins import LoginAccessRequiredMixin, ScubaAdminRequiredMixin, ScubaCRUDAccessRequiredMixin, SuperuserOrAdminRequiredMixin, ScubaBasicMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonUpdateView, CommonCreateView, \
     CommonDeleteView, CommonDetailView, CommonFormView
 from . import models, forms, filters, reports
@@ -557,7 +557,7 @@ class DiveDataEntryDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
 # REPORTS #
 ###########
 
-class ReportSearchFormView(ScubaCRUDAccessRequiredMixin, CommonFormView):
+class ReportSearchFormView(ScubaBasicMixin, CommonFormView):
     template_name = 'scuba/report_search.html'
     form_class = forms.ReportSearchForm
     h1 = gettext_lazy("Scuba Reports")
