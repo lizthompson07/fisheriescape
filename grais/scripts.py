@@ -84,6 +84,7 @@ def fix_metadata():
         obj.updated_by = obj.author
         obj.save()
 
+
 def fix_categories():
     '''
     for years 2006 to 2016, the assigned percentages on surfacespecies needs to be fixed.
@@ -244,20 +245,13 @@ def print_bad_surfaces():
             print(f'{s.id}|{coverage}|http://dmapps{reverse("grais:surface_detail", args=[s.id])}')
 
 
-
-
-
-
 def print_collectors():
-
-
-
-    stations = models.Station.objects.all()
-
-    for station in stations:
-        sample_qs = models.Sample.objects.filter(season__in=[2019,2020], station=station)
-
-        if sample_qs.count() > 1:
-            for s in sample_qs:
-                print(f'{s.id};{s.season};{s.station.station_name};{date(s.date_deployed)};{date(s.date_retrieved)}')
-
+    line_ids = [
+        422, 421, 419, 417, 420, 418,
+        428, 427, 426, 424, 425, 423,
+        5362, 5363, 5359, 5360, 5361, 5364,
+    ]
+    lines = models.Line.objects.filter(id__in=line_ids)
+    print("sample id", "sample_year", "line id", "collector")
+    for line in lines:
+        print(line.sample.id, line.sample.season, line.id, line.collector)
