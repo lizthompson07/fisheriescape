@@ -349,6 +349,7 @@ class CollectionDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
     template_name = 'edna/confirm_delete.html'
     container_class = "container curvy"
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    delete_protection = False
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("edna:collection_detail", args=[self.get_object().id])}
@@ -682,6 +683,7 @@ class FiltrationBatchDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
     template_name = 'edna/confirm_delete.html'
     container_class = "container curvy"
     grandparent_crumb = {"title": gettext_lazy("Filtration Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
+    delete_protection = False
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("edna:filtration_batch_detail", args=[self.get_object().id])}
@@ -760,6 +762,7 @@ class ExtractionBatchDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
     template_name = 'edna/confirm_delete.html'
     container_class = "container curvy"
     grandparent_crumb = {"title": gettext_lazy("Extraction Batches"), "url": reverse_lazy("edna:extraction_batch_list")}
+    delete_protection = False
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("edna:extraction_batch_detail", args=[self.get_object().id])}

@@ -194,7 +194,7 @@ class File(models.Model):
 
 
 class Sample(MetadataFields):
-    collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("collection"))
+    collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.CASCADE, verbose_name=_("collection"))
     sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("sample type"))
     bottle_id = models.CharField(verbose_name=_("bottle ID"), blank=True, null=True, max_length=50)
     location = models.CharField(max_length=255, verbose_name=_("location"), blank=True, null=True)
@@ -304,7 +304,7 @@ class FiltrationBatch(Batch):
 
 class Filter(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
-    filtration_batch = models.ForeignKey(FiltrationBatch, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("filtration batch"))
+    filtration_batch = models.ForeignKey(FiltrationBatch, related_name='filters', on_delete=models.CASCADE, verbose_name=_("filtration batch"))
     sample = models.ForeignKey(Sample, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("sample ID"), blank=True, null=True)
     tube_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("tube ID"))
     filtration_type = models.ForeignKey(FiltrationType, on_delete=models.DO_NOTHING, related_name="filters", verbose_name=_("filtration type"), default=1)
@@ -370,7 +370,7 @@ class ExtractionBatch(Batch):
 
 class DNAExtract(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
-    extraction_batch = models.ForeignKey(ExtractionBatch, related_name='extracts', on_delete=models.DO_NOTHING, verbose_name=_("extraction batch"))
+    extraction_batch = models.ForeignKey(ExtractionBatch, related_name='extracts', on_delete=models.CASCADE, verbose_name=_("extraction batch"))
     filter = models.ForeignKey(Filter, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='extracts', verbose_name=_("filter ID"))
     extraction_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("extraction number"), unique=True)
     start_datetime = models.DateTimeField(verbose_name=_("extraction date/time"))
@@ -484,7 +484,7 @@ class PCRAssay(MetadataFields):
         (91, _("LOD missing :(")),
     )
 
-    pcr = models.ForeignKey(PCR, related_name='assays', on_delete=models.DO_NOTHING, verbose_name=_("PCR"))
+    pcr = models.ForeignKey(PCR, related_name='assays', on_delete=models.CASCADE, verbose_name=_("PCR"))
     assay = models.ForeignKey(Assay, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_("assay"), blank=True, null=True)
     threshold = models.FloatField(blank=True, null=True, verbose_name=_("threshold"))
     ct = models.FloatField(blank=True, null=True, verbose_name=_("Ct"))
