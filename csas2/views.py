@@ -369,27 +369,13 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
         return context
 
 
-class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
+class CSASRequestReviewConsoleTemplateView(CsasAdminRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
     container_class = "container-fluid"
     home_url_name = "csas2:index"
     filterset_class = filters.CSASRequestFilter
     model = models.CSASRequest
-
-    def get_h1(self):
-        is_staff = utils.in_csas_web_pub_group(self.request.user)
-        if is_staff:
-            qp = self.request.GET
-            if dict(qp) == {} or qp.get("translations"):
-                return _("CSAS Request Translation Review Console")
-        return _("CSAS Request Review Console")
-
-    def get_template_names(self):
-        is_staff = utils.in_csas_web_pub_group(self.request.user)
-        if is_staff:
-            qp = self.request.GET
-            if dict(qp) == {} or qp.get("translations"):
-                return 'csas2/request_reviews/main_trans.html'
-        return 'csas2/request_reviews/main.html'
+    h1 = gettext_lazy("CSAS Request Review Console")
+    template_name = 'csas2/request_reviews/main.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -400,6 +386,11 @@ class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):  
         qs = models.CSASRequest.objects.all()
         qs = qs.annotate(search=Concat('title', Value(" "), 'translated_title', Value(" "), 'id', output_field=TextField()))
         return qs
+
+
+class CSASRequestTranslationConsoleTemplateView(CSASRequestReviewConsoleTemplateView):
+    h1 = gettext_lazy("CSAS Request Translation Console")
+    template_name = 'csas2/request_reviews/main_trans.html'
 
 
 class ProcessReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):

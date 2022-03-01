@@ -17,7 +17,9 @@
   {% include "shared_models/_generic_breadcrumbs.html" %}
   <div class="mb-3">
     <div class="float-right">
-      <a class="btn btn-dark" href="{% url 'csas2:request_reviews' %}?full=true"><span class="mdi mdi-eye text-light mr-1"></span> {% trans "Full Eyeball" %}</a>
+      <a class="btn btn-dark" href="{% url 'csas2:request_reviews' %}"><span class="mdi mdi-eye text-light mr-1">
+        </span> {% trans "Request Review Console" %}
+      </a>
     </div>
     <h2 class="">{{ h1|safe }}</h2>
   </div>
@@ -61,7 +63,7 @@
             <th>${requestLabels.fiscal_year}</th>
             <th>${requestLabels.advice_fiscal_year}</th>
             <th>${requestLabels.status}</th>
-            <th>{% trans "Region" %}"</th>
+            <th>{% trans "Region" %}</th>
             <th>${requestLabels.title}</th>
             <th>${requestLabels.translated_title}</th>
           </tr>

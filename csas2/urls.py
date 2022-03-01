@@ -47,7 +47,8 @@ urlpatterns = [
     path('requests/print-requests/', views.CSASRequestPDFView.as_view(), name="request_pdf"),
 
     # request reviews
-    path('request-reviews/', views.CSASRequestReviewTemplateView.as_view(), name="request_reviews"),
+    path('request-reviews/', views.CSASRequestReviewConsoleTemplateView.as_view(), name="request_reviews"),
+    path('request-translations/', views.CSASRequestTranslationConsoleTemplateView.as_view(), name="request_translations"),
 
     # request files
     path('requests/<int:crequest>/new-file/', views.CSASRequestFileCreateView.as_view(), name='request_file_new'),
