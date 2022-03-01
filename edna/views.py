@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404
 from django.templatetags.static import static
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.utils.timezone import utc, make_aware
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.templatetags.custom_filters import nz
@@ -341,6 +342,7 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
     home_url_name = "edna:index"
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
     h1 = ' '
+    container_class = "container-fluid"
 
     def get_parent_crumb(self):
         return {"title": self.get_collection(), "url": reverse("edna:collection_detail", args=[self.get_collection().id])}
@@ -357,6 +359,7 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
         for row in csv_reader:
             example_obj.append(row)
         context["example_obj"] = example_obj
+        context["sample_types"] = models.SampleType.objects.all().order_by("id")
         return context
 
     def form_valid(self, form):
@@ -366,15 +369,16 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
         csv_reader = csv.DictReader(StringIO(temp_file.read().decode('utf-8')))
         for row in csv_reader:
             bottle_id = row["bottle_id"]
+            sample_type = row["sample_type"]
             site_identifier = row["site_identifier"]
             site_description = row["site_description"]
             samplers = row["samplers"]
-            datetime = dt.datetime.strptime(row["datetime"], "%Y-%m-%d %H:%S")
+            datetime = make_aware(dt.datetime.strptime(row["datetime"], "%m/%d/%Y %H:%S"), utc)
             latitude = row["latitude"]
             longitude = row["longitude"]
             comments = row["comments"]
 
-            sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, collection=my_object)
+            sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, collection=my_object, sample_type_id=sample_type)
             sample.site_identifier = site_identifier
             sample.site_description = site_description
             sample.samplers = samplers

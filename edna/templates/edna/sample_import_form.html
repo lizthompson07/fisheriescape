@@ -21,7 +21,7 @@
   <script>
   window.resizeTo(width = 1000, height = 800);
   </script>
-  <div class="container">
+  <div class="container-fluid">
 
     <h1>
       {% trans "Sample Import Form:" %}
@@ -49,6 +49,7 @@
 
       <tr>
         <th class="py-1 px-1 red-font">bottle_id</th>
+        <th class="py-1 px-1">sample_type</th>
         <th class="py-1 px-1">site_identifier</th>
         <th class="py-1 px-1">site_description</th>
         <th class="py-1 px-1">samplers</th>
@@ -64,6 +65,19 @@
             <li>must be unique within database</li>
             <li>string or integer</li>
             <li>ideally this would be from an issued bottle id label</li>
+          </ul>
+        </td>
+        <td class="py-1 px-1">
+          <ul>
+            <li>integer</li>
+            <li>
+              must be one of the following:
+              <ul>
+                {% for type in sample_types %}
+                  <code>{{ type.id }}</code> = {{ type }}<br>
+                {% endfor %}
+              </ul>
+            </li>
           </ul>
         </td>
         <td class="py-1 px-1">
@@ -85,8 +99,8 @@
         </td>
         <td class="py-1 px-1">
           <ul>
-            <li>date and time of sample collection</li>
-            <li>format MUST follow: YYYY-mm-dd HH:MM</li>
+            <li>date and time of sample collection in UTC</li>
+            <li>format MUST follow: mm/dd/YYYY HH:MM</li>
           </ul>
         </td>
         <td class="py-1 px-1">
@@ -116,6 +130,7 @@
         <thead>
         <tr>
           <th class="py-1 px-1">bottle_id</th>
+          <th class="py-1 px-1">sample_type</th>
           <th class="py-1 px-1">site_identifier</th>
           <th class="py-1 px-1">site_description</th>
           <th class="py-1 px-1">samplers</th>
@@ -128,6 +143,7 @@
         {% for item in example_obj %}
           <tr>
             <td class="py-1 px-1">{{ item.bottle_id }}</td>
+            <td class="py-1 px-1">{{ item.sample_type }}</td>
             <td class="py-1 px-1">{{ item.site_identifier }}</td>
             <td class="py-1 px-1">{{ item.site_description }}</td>
             <td class="py-1 px-1">{{ item.samplers }}</td>
