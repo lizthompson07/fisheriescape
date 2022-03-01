@@ -962,7 +962,6 @@ def generate_biofouling_station_report():
             "province",
             "depth",
             "site_desc",
-            "last_modified_by",
             "contact_information",
             "notes",
             "latitude",
