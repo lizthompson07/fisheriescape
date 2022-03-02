@@ -109,6 +109,7 @@ def generate_meeting_report(meetings, site_url):
         'client_regions|{}'.format(_("client regions")),
         'client_sectors|{}'.format(_("client sectors")),
         'client_sections|{}'.format(_("client sections")),
+        'process.formatted_notes|{}'.format(_("process notes")),
     ]
 
     # define the header
