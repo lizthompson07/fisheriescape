@@ -4,6 +4,7 @@ from . import views
 app_name = 'tickets'
 
 urlpatterns = [
+
     # Tickets #
     ###########
     path('', views.index_router, name="router"),
@@ -17,6 +18,7 @@ urlpatterns = [
     path('<int:pk>/new-note/', views.TicketNoteUpdateView.as_view(), name="new_note"),
     path('<int:ticket>/resolved/', views.mark_ticket_resolved, name="ticket_resolved"),
     path('<int:ticket>/re-opened/', views.mark_ticket_active, name="ticket_reopened"),
+    path('<int:ticket>/assign-dm/<int:staff>/', views.assign_dm, name="assign_dm"),
 
     # feedback form
     path('feedback-form/new/', views.TicketCreateViewPopout.as_view(), name="bug_create"),
@@ -48,7 +50,7 @@ urlpatterns = [
 
     # Reports #
     ###########
-    path('reports/finance/', views.FinanceReportListView.as_view(), name="finance_report"),
-    path('reports/finance-spreadsheet/', views.finance_spreadsheet, name="finance_spreadsheet"),
+    # path('reports/finance/', views.FinanceReportListView.as_view(), name="finance_report"),
+    # path('reports/finance-spreadsheet/', views.finance_spreadsheet, name="finance_spreadsheet"),
 
 ]

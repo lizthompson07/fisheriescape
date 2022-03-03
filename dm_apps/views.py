@@ -420,7 +420,7 @@ def get_app_dict(request):
     try:
         app_dict["maret"] = {
             "title": _("Maritimes Engagement Tracker (MarET)"),
-            "description": _("Tool for tracking Policy and Economics Engagement"),
+            "description": _("Tool for tracking Maritimes Region engagement"),
             "status": "dev",
             "access": "login-required",
             "url": reverse('maret:index'),

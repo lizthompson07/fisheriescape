@@ -337,6 +337,10 @@ class CommonFilterView(FilterView, CommonListMixin):
     extra_button_dict1 = None
     extra_button_dict2 = None
     open_row_in_new_tab = False
+    sortable = True
+
+    def get_sortable(self):
+        return self.sortable
 
     def get_open_row_in_new_tab(self):
         return self.open_row_in_new_tab
@@ -355,6 +359,7 @@ class CommonFilterView(FilterView, CommonListMixin):
         context["extra_button_dict2"] = self.get_extra_button_dict2()
         context["model_name"] = self.get_queryset().model._meta.verbose_name
         context["open_row_in_new_tab"] = self.get_open_row_in_new_tab()
+        context["sortable"] = self.get_sortable()
         return context
 
 
