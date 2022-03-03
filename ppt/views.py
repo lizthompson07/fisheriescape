@@ -1689,7 +1689,7 @@ def export_equipment_summary(request):
 
         'Des. Need for Vehicle',
         'Ship',
-        'COIP number'
+        'COIP number',
         'Insturments',
     ])
 
@@ -1737,8 +1737,9 @@ def export_field_staff_summary(request):
         'End date of project',
         'Project years',
         'Project leads',
+        'Project overview',
 
-        'Requires Field Support Staff'
+        'Requires Field Support Staff',
         'Support Details',
     ])
 
@@ -1773,7 +1774,7 @@ def export_lab_summary(request):
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="{}_{}_field_staff_summary.csv"'.format(year, section_name)
+    response['Content-Disposition'] = 'attachment; filename="{}_{}_lab_summary.csv"'.format(year, section_name)
 
     writer = csv.writer(response)
     writer.writerow([
