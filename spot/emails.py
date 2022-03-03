@@ -11,5 +11,3 @@ class FeedBackEmail(Email):
     def get_subject_en(self):
         return self.instance.subject
 
-    def get_from_email(self):
-        return self.instance.sent_by.email

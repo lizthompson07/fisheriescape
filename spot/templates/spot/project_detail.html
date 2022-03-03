@@ -77,27 +77,98 @@
                      <table class="table table-sm table-bordered" style="width: auto">
                         <h2><u>Project Information</u></h2>
                          {% for field in field_list %}
+
                          <tr>
-                            {% verbose_field_display object field %}
-                         </tr>
                             {% if field == 'salmon_life_stage' %}
+                                <tr>
+                                    {% verbose_field_display object field %}
+                                </tr>
                                 <br><h2><u>Project Categorization</u></h2><br>
                             {% elif field == 'category_comments' %}
+                                <tr>
+                                    {% verbose_field_display object field %}
+                                </tr>
                                 <br><h2><u>Project Links</u></h2><br>
-                            {% elif field == 'government_organization' %}
+                            {% elif field == 'policy_program_connection' %}
+                                <tr>
+                                    {% verbose_field_display object field %}
+                                </tr>
                                 <br><h2><u>Project Contacts</u></h2><br>
-                            {% elif field == 'partner_contact' %}
-                                <br><h2><u>Costing</u></h2><br>
+
                             {% elif field == 'lead_organization' %}
+                                <tr>
+                                    {% verbose_field_display object field %}
+                                </tr>
                                 <br>{% include "spot/_funding_years.html" %}<br>
+
+                            {% elif field == 'DFO_project_authority' %}
+                                <strong>DFO Project Authority:</strong><br>
+                                <ul>
+                                    {% for person in project.DFO_project_authority.all %}
+                                    <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
+                                    {% endfor %}
+                                 </ul>
+                            {% elif field == 'DFO_area_chief' %}
+                                <strong>DFO Area Chief:</strong><br>
+                                <ul>
+                                    {% for person in project.DFO_area_chief.all %}
+                                    <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
+                                    {% endfor %}
+                                 </ul>
+                            {% elif field == 'DFO_resource_manager' %}
+                                <strong>DFO Resource Manager:</strong><br>
+                                <ul>
+                                    {% for person in project.DFO_resource_manager.all %}
+                                    <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
+                                    {% endfor %}
+                                 </ul>
+                            {% elif field == 'DFO_aboriginal_AAA' %}
+                                <strong>DFO Aboriginal AAA:</strong><br>
+                                <ul>
+                                    {% for person in project.DFO_aboriginal_AAA.all %}
+                                    <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
+                                    {% endfor %}
+                                 </ul>
+                            {% elif field == 'first_nations_contact' %}
+                                <strong>First Nations Contact:</strong><br>
+                                <ul>
+                                    {% if project.first_nations_contact %}
+                                    <li><a href="{% url 'spot:person_detail' project.first_nations_contact.id %}">{{project.first_nations_contact.full_name}}</a></li>
+                                    {% else %}
+                                        <tr>
+                                            {% verbose_field_display object field %}
+                                        </tr>
+                                    {% endif %}
+                                 </ul>
+                            {% elif field == 'DFO_technicians' %}
+                                <strong>DFO Technicians:</strong><br>
+                                <ul>
+                                    {% for person in project.DFO_technicians.all %}
+                                    <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
+                                    {% endfor %}
+                                 </ul>
+                            {% elif field == 'partner_contact' %}
+                                <strong>Partner Contact:</strong><br>
+                                <ul>
+                                    {% for person in project.partner_contact.all %}
+                                    <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
+                                    {% endfor %}
+                                 </ul>
+                                <br><h2><u>Costing</u></h2><br>
+                            {% else %}
+                                <tr>
+                                    {% verbose_field_display object field %}
+                                </tr>
                             {% endif %}
+
+                             </tr>
                         {% endfor %}
+
                         <br>
                      </table>
                     </div>
                 </div>
                  </div>
-                </div>
             <div class="card">
                 <div class="card-header" id="headingThree">
                   <h2 class="mb-0">

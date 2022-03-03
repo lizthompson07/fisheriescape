@@ -197,6 +197,7 @@ class River(models.Model):
 
 class Organization(models.Model):
     objects = models.Manager()
+    is_active = models.BooleanField(default=True, null=True, blank=True, verbose_name=_("Is this organization still active?"))
     name = models.CharField(unique=True, max_length=255, verbose_name=_("Name"))
     address = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Address"))
     organization_type = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Organization Type"))
@@ -227,6 +228,7 @@ class Organization(models.Model):
 
 class Person(models.Model):
     objects = models.Manager()
+    is_active = models.BooleanField(default=True, null=True, blank=True, verbose_name=_("Is this person still active?"))
     first_name = models.CharField(max_length=100, verbose_name=_("First Name"), blank=True, null=True)
     last_name = models.CharField(max_length=100, verbose_name=_("Last Name"), blank=True, null=True)
     phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("Phone"))
@@ -234,7 +236,6 @@ class Person(models.Model):
     city = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("City"))
     province_state = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Province/State"))
     country = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Country"))
-    address = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Address"))
     organizations = models.ManyToManyField(Organization, default=None, blank=True, verbose_name=_("Organization"))
     role = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Role"))
     section = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Section"))
@@ -415,7 +416,6 @@ class Objective(models.Model):
     expected_results = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Expected Result(s)"))
     dfo_report = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Products/Reports to Provide DFO"))
 
-    outcome_met = models.CharField(max_length=255, null=True, blank=True, default=None, verbose_name=_("Was the Sampling outcome met?"))
     outcomes_contact = models.ForeignKey(Person, on_delete=models.PROTECT, blank=True, null=True, related_name='project_objective', verbose_name=_("Outcomes Contact"))
     outcomes_comment = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Outcome Comment"))
     outcome_barrier = models.ManyToManyField(OutComeBarrier, default=None, blank=True, verbose_name=_("Barrier to Achieve Outcomes(?)"))
@@ -458,6 +458,7 @@ class Project(models.Model):
 
     stock_management_unit = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Stock Management Unit"))
     cu_index = models.ManyToManyField(CUIndex, blank=True, verbose_name=_("CU Index"))
+    #cu_name = models.ManyToManyField(CUName, blank=True, verbose_name=_("CU Name"))
     cu_name = models.ForeignKey(CUName, on_delete=models.PROTECT, null=True, blank=True, verbose_name=_("CU Name"))
     species = models.ManyToManyField(Species, default=None, blank=True, verbose_name=_("Target Species"))
     salmon_life_stage = models.ManyToManyField(SalmonLifeStage, blank=True, verbose_name=_("Salmon Life Stage"))
@@ -600,12 +601,12 @@ class FundingYears(models.Model):
 
 class MethodDocument(models.Model):
     method = models.ForeignKey(Method, on_delete=models.CASCADE, null=True, blank=True, related_name='method_document', verbose_name=_("method"))
-    method_document_type = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("method document type"))
-    authors = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("author"))
-    publication_year = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("year of publication"))
-    title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("title"))
-    reference_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("reference number"))
-    document_link = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document link"))
+    method_document_type = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Method Document Type"))
+    authors = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Author"))
+    publication_year = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Year of Publication"))
+    title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
+    reference_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Reference Number"))
+    document_link = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Document Link"))
 
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))

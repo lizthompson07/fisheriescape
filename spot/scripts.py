@@ -85,6 +85,7 @@ def import_all():
     import_method()
     import_reporting_outcome()
     import_sample_outcome()
+    import_method_document()
 
 
 def import_organization():
@@ -129,11 +130,7 @@ def import_person():
                     role=row['Role'],
                     other_membership=row['Other membership'],
                 )
-                if row['Primary Organization'] != "":
-                    org_tmp, _ = models.Organization.objects.get_or_create(name=row['Primary Organization'].strip())
-                    created.organizations.add(org_tmp)
-                else:
-                    continue
+                many_var(row['Primary Organization'], created.organizations, models.Organization)
 
 
 def import_project():
@@ -154,17 +151,31 @@ def import_project():
             else:
                 tmp_end = row['Project End Date']
 
-            primary_river_tmp, _ = models.River.objects.get_or_create(name=row['Primary_River'].strip())
-            first_nations_tmp, _ = models.FirstNations.objects.get_or_create(name=row['First Nations'].strip())
-            cu_name_tmp, _ = models.CUName.objects.get_or_create(name=row['CUName'].strip())
-
-            tmp_whole_name = row['First Nations Contact'].split(' ')
-            tmp_first_name = tmp_whole_name[0].strip()
-            if len(tmp_whole_name) > 1:
-                tmp_last_name = tmp_whole_name[1].strip()
+            if row['Primary_River'] and row['Primary_River'] != "":
+                primary_river_tmp, _ = models.River.objects.get_or_create(name=row['Primary_River'])
             else:
-                tmp_last_name = None
-            first_nations_contact_tmp, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+                primary_river_tmp = None
+
+            if row['First Nations'] and row['First Nations'] != "":
+                first_nations_tmp, _ = models.FirstNations.objects.get_or_create(name=row['First Nations'])
+            else:
+                first_nations_tmp = None
+
+            if row['CUName'] and row['CUName'] != "":
+                cu_name_tmp, _ = models.CUName.objects.get_or_create(name=row['CUName'])
+            else:
+                cu_name_tmp = None
+
+            if row['First Nations Contact'] and row['First Nations Contact'] != "":
+                tmp_whole_name = row['First Nations Contact'].split(' ')
+                tmp_first_name = tmp_whole_name[0].strip()
+                if len(tmp_whole_name) > 1:
+                    tmp_last_name = tmp_whole_name[1].strip()
+                else:
+                    tmp_last_name = None
+                first_nations_contact_tmp, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+            else:
+                first_nations_contact_tmp = None
 
             created, _ = models.Project.objects.get_or_create(
                 project_number=row['Project Number'],
@@ -173,12 +184,12 @@ def import_project():
                 project_description=row['Project Description'],
                 start_date=tmp_start,
                 end_date=tmp_end,
-                primary_river_id=int(primary_river_tmp.id),
+                primary_river_id=int(primary_river_tmp.id) if primary_river_tmp else None,
                 ecosystem_type=row['Ecosystem Type'],
                 management_area=row['DFO Management Area'],
+                cu_name_id=int(cu_name_tmp.id) if cu_name_tmp else None,
                 region=row['Region'],
                 stock_management_unit=row['Stock Management Unit'],
-                cu_name_id=int(cu_name_tmp.id),
                 project_type=row['Project_Type'],
                 project_stage=row['Project Stage'],
                 monitoring_approach=row['Monitoring_Approach'],
@@ -187,8 +198,8 @@ def import_project():
                 DFO_program_reference=row['Linked DFO Program Project Reference'],
                 government_organization=row['Links to other Government Departments'],
                 policy_program_connection=row['Policy and Program Connections'],
-                first_nation_id=int(first_nations_tmp.id),
-                first_nations_contact_id=int(first_nations_contact_tmp.id),
+                first_nation_id=int(first_nations_tmp.id) if first_nations_tmp else None,
+                first_nations_contact_id=int(first_nations_contact_tmp.id) if first_nations_contact_tmp else None,
                 first_nations_contact_role=row['First Nations Contact Role'],
                 contractor=row['Contractors'],
                 contractor_contact=row['Contractors Primary Contact'],
@@ -198,7 +209,8 @@ def import_project():
                 agreement_type=row['Agreement Type'],
                 lead_organization=row['Lead Organization'],
             )
-
+            #many_var(row['CUName'], created.cu_name, models.CUName)
+            #many_var(row['agreement_history'], created.agreement_history, models.Project)
             many_var(row['Species'], created.species, models.Species)
             many_var(row['CUIndex'], created.cu_index, models.CUIndex)
             many_var(row['Salmon Life Stage'], created.salmon_life_stage, models.SalmonLifeStage)
@@ -228,25 +240,36 @@ def import_objective():
         for row in reader:
             if row.values() == "" or row.values() is None:
                 continue
-
             try:
                 project_tmp = models.Project.objects.get(agreement_number=row['Agreement_Number'].strip())
             except ObjectDoesNotExist:
                 continue
-            tmp_whole_name = row['Outcome contact'].split(' ')
-            tmp_first_name = tmp_whole_name[0].strip()
-            if len(tmp_whole_name) > 1:
-                tmp_last_name = tmp_whole_name[1].strip()
-            else:
-                tmp_last_name = None
-            outcome_contact_tmp, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
-            species_tmp, _ = models.Species.objects.get_or_create(name=row['Species'].strip())
-            location_tmp, _ = models.River.objects.get_or_create(name=row['River(s)'].strip())
 
-            created = models.Objective.objects.create(
+            if row['Outcome contact'] and row['Outcome contact'] != "":
+                tmp_whole_name = row['Outcome contact'].split(' ')
+                tmp_first_name = tmp_whole_name[0].strip()
+                if len(tmp_whole_name) > 1:
+                    tmp_last_name = tmp_whole_name[1].strip()
+                else:
+                    tmp_last_name = None
+                outcome_contact_tmp, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
+            else:
+                outcome_contact_tmp = None
+
+            if row['Species'] and row['Species'] != "":
+                species_tmp, _ = models.Species.objects.get_or_create(name=row['Species'])
+            else:
+                species_tmp = None
+
+            if row['River(s)'] and row['River(s)'] != "":
+                location_tmp, _ = models.River.objects.get_or_create(name=row['River(s)'])
+            else:
+                location_tmp = None
+
+            created, _ = models.Objective.objects.get_or_create(
                 project_id=int(project_tmp.id),
-                species_id=int(species_tmp.id),
-                location_id=int(location_tmp.id),
+                species_id=int(species_tmp.id) if species_tmp else None,
+                location_id=int(location_tmp.id) if location_tmp else None,
                 unique_objective=row['Unique Objective'],
                 task_description=row['Task Description'],
                 element_title=row['Element Title'],
@@ -255,8 +278,7 @@ def import_objective():
                 sil_requirement=row['SIL_requirement'],
                 expected_results=row['Expected Results'],
                 dfo_report=row['Products/Reports to provide to DFO'],
-                outcome_met=row['Was the Sampling Outcome Met?'],
-                outcomes_contact_id=int(outcome_contact_tmp.id),
+                outcomes_contact_id=int(outcome_contact_tmp.id) if outcome_contact_tmp else None,
                 outcomes_comment=row['Comment on outcomes'],
                 key_lesson=row['Key Lessons learned'],
                 missed_opportunities=row['Missed opportunities?'],
@@ -278,7 +300,7 @@ def import_report():
             except ObjectDoesNotExist:
                 continue
 
-            created = models.Reports.objects.create(
+            created, _ = models.Reports.objects.get_or_create(
                 project_id=int(project_tmp.id),
                 report_timeline=row['Report Timeline'],
                 report_type=row['Report Types'],
@@ -298,13 +320,11 @@ def import_data():
         for row in reader:
             if row.values() == "" or row.values() is None:
                 continue
-
             try:
                 project_tmp = models.Project.objects.get(agreement_number=row['Agreement Number'].strip())
             except ObjectDoesNotExist:
                 continue
-
-            created = models.Data.objects.create(
+            created, _ = models.Data.objects.get_or_create(
                 project_id=int(project_tmp.id),
                 samples_collected_comment=row['Samples Collected Comment'],
                 sample_entered_database=row['Was sample collection data entered into database(s)?'],
@@ -337,7 +357,7 @@ def import_method():
             except ObjectDoesNotExist:
                 continue
 
-            created = models.Method.objects.create(
+            created, _ = models.Method.objects.get_or_create(
                 project_id=int(project_tmp.id),
                 scale_processing_location=row['Location/Organization responsible for Scale Processing'],
                 otolith_processing_location=row['Location/Organization responsible for Otolith Processing'],
@@ -352,6 +372,32 @@ def import_method():
             many_var(row['Sample Processing Method Type'], created.sample_processing_method_type, models.SampleProcessingMethodType)
 
 
+def import_method_document():
+    path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'projects6.csv')
+    with open(path) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row.values() == "" or row.values() is None:
+                continue
+            try:
+                project_tmp = models.Project.objects.get(agreement_number=row['Agreement Number'].strip())
+            except ObjectDoesNotExist:
+                continue
+            try:
+                method_tmp, _ = models.Method.objects.get_or_create(project=project_tmp)
+            except ObjectDoesNotExist:
+                continue
+            created, _ = models.MethodDocument.objects.get_or_create(
+                method_id=int(method_tmp.id),
+                method_document_type=row['Method Document Type'],
+                reference_number=row['Reference Number'],
+                document_link=row['Link to Document'],
+                #authors
+                #publication year
+                #title
+            )
+
+
 def import_costing():
     path = os.path.join(settings.BASE_DIR, 'spot', 'import', 'costing.csv')
     with open(path) as f:
@@ -363,7 +409,7 @@ def import_costing():
                 project_tmp = models.Project.objects.get(agreement_number=row['agreement_number'].strip())
             except ObjectDoesNotExist:
                 continue
-            created = models.FundingYears.objects.create(
+            created, _ = models.FundingYears.objects.get_or_create(
                 project_id=int(project_tmp.id),
                 funding_year=row['year'],
                 agreement_cost=row['annual_agreement_cost'],
@@ -387,7 +433,7 @@ def import_sample_outcome():
             except ObjectDoesNotExist:
                 continue
 
-            created = models.SampleOutcome.objects.create(
+            created, _ = models.SampleOutcome.objects.get_or_create(
                 objective_id=int(object_tmp.id),
                 sampling_outcome=row['Sampling_Outcome'],
                 outcome_delivered=row['Was the Sampling Outcome Met?'],
@@ -413,21 +459,21 @@ def import_reporting_outcome():
                 object_tmp, _ = models.Objective.objects.get_or_create(project=project_tmp, unique_objective=row['Unique Objective'])
             except ObjectDoesNotExist:
                 continue
-            if row['Reporting Link'] != "" or row['Reporting Link'] is not None:
-                report_tmp, _ = models.Reports.objects.get_or_create(document_link=row['Reporting Link'])
+            if row['Reporting Link'] != "" and row['Reporting Link']:
+                report_tmp = models.Reports.objects.get_or_create(document_link=row['Reporting Link'])
             else:
                 report_tmp = None
-            created = models.ReportOutcome.objects.create(
+            created, _ = models.ReportOutcome.objects.get_or_create(
                 objective_id=int(object_tmp.id),
                 reporting_outcome=row['Reporting_Outcome'],
                 unique_objective_number=row['Unique Objective'],
                 outcome_delivered=row['Reporting Met'],
-                report_link_id=int(report_tmp.id),
+                report_link=report_tmp if report_tmp else None,
             )
 
 
 def first_last(row_name, instance_name):
-    if row_name != "" or row_name is not None:
+    if row_name != "" and row_name:
         tmp_str = row_name.split(',')
         for tmp in tmp_str:
             tmp_whole_name = tmp.split(' ')
@@ -444,7 +490,7 @@ def first_last(row_name, instance_name):
 
 
 def many_var(row_name, instance_name, model_name):
-    if row_name != "" or row_name is not None:
+    if row_name != "" and row_name:
         tmp_arr = row_name.split(',')
         for tmp in tmp_arr:
             tmp_obj, _ = model_name.objects.get_or_create(name=tmp.strip())
@@ -462,3 +508,4 @@ def output_select():
             if row.values() == "" or row.values() is None:
                 continue
             print("('" + row['Report Type'] + "','" + row['Report Type'] + "')," )
+
