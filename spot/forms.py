@@ -179,20 +179,26 @@ class ProjectForm(forms.ModelForm):
 
 class ObjectiveForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+        self.fields['outcomes_contact'].queryset = models.Person.objects.filter(is_active=True)
+
+
     class Meta:
         model = models.Objective
         fields = '__all__'
         widgets = {
-            'location': forms.SelectMultiple(attr_chosen),
+            'location': forms.Select(attr_chosen),
             'project': forms.HiddenInput(),
             'element_title': forms.Select(choices=choices.ELEMENT_TITLE, attrs=attr_chosen),
             'pst_requirement': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
             'sil_requirement': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
-            'species': forms.SelectMultiple(multi_select_js),
+            'species': forms.Select(attr_chosen),
             'objective_category': forms.SelectMultiple(multi_select_js),
             'outcome_barrier': forms.SelectMultiple(multi_select_js),
             'capacity_building': forms.SelectMultiple(multi_select_js),
             'outcome_deadline': forms.DateInput(),
+            'outcomes_contact': forms.Select(attr_chosen),
             'outcome_met': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
             'unique_objective': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),

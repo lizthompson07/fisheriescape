@@ -160,7 +160,7 @@ def export_project(request):
             obj.lead_organization,
 
             obj.date_last_modified,
-            obj.last_modified_by,
+            obj.last_modified_by.get_full_name() if obj.last_modified_by else None,
 
         ]
 
@@ -198,7 +198,7 @@ def export_project(request):
                 fund.agreement_cost,
                 fund.project_cost,
                 fund.date_last_modified,
-                fund.last_modified_by
+                fund.last_modified_by.get_full_name() if fund.last_modified_by else None,
             ]
             for col_num, cell_value in enumerate(fund_rows, 1):
                 cell = funding_worksheet.cell(row=row_num, column=col_num)
@@ -278,7 +278,7 @@ def export_objective(request):
             obj.key_lesson,
             obj.missed_opportunities,
             obj.date_last_modified,
-            obj.last_modified_by
+            obj.last_modified_by.get_full_name() if obj.last_modified_by else None,
 
         ]
 
@@ -320,7 +320,7 @@ def export_objective(request):
                 sample.outcome_report_delivered,
                 sample.outcome_quality,
                 sample.date_last_modified,
-                sample.last_modified_by,
+                sample.last_modified_by.get_full_name() if sample.last_modified_by else None,
             ]
             for col_num, cell_value in enumerate(sample_rows, 1):
                 cell = sample_outcome_worksheet.cell(row=row_num, column=col_num)
@@ -358,7 +358,7 @@ def export_objective(request):
                 report.outcome_delivered,
                 report.report_link.document_name if report.report_link else None,
                 report.date_last_modified,
-                report.last_modified_by,
+                report.last_modified_by.get_full_name() if report.last_modified_by else None,
             ]
             for col_num, cell_value in enumerate(report_rows, 1):
                 cell = reporting_outcome_worksheet.cell(row=row_num, column=col_num)
@@ -434,7 +434,7 @@ def export_data(request):
             ", ".join(i.name for i in obj.data_programs.all()),
             ", ".join(i.name for i in obj.data_communication.all()),
             obj.date_last_modified,
-            obj.last_modified_by,
+            obj.last_modified_by.get_full_name() if obj.last_modified_by else None,
         ]
         for col_num, cell_value in enumerate(row, 1):
             cell = worksheet.cell(row=row_num, column=col_num)
@@ -496,7 +496,7 @@ def export_method(request):
             obj.heads_processing_location,
             obj.instrument_data_processing_location,
             obj.date_last_modified,
-            obj.last_modified_by,
+            obj.last_modified_by.get_full_name() if obj.last_modified_by else None,
         ]
         for col_num, cell_value in enumerate(row, 1):
             cell = worksheet.cell(row=row_num, column=col_num)
@@ -537,7 +537,7 @@ def export_method(request):
                 method.reference_number,
                 method.document_link,
                 method.date_last_modified,
-                method.last_modified_by,
+                method.last_modified_by.get_full_name() if method.last_modified_by else None,
             ]
             for col_num, cell_value in enumerate(method_rows, 1):
                 cell = method_document_worksheet.cell(row=row_num, column=col_num)
@@ -596,7 +596,7 @@ def export_reports(request):
             obj.document_link,
             obj.published,
             obj.date_last_modified,
-            obj.last_modified_by,
+            obj.last_modified_by.get_full_name() if obj.last_modified_by else None,
         ]
         for col_num, cell_value in enumerate(row, 1):
             cell = worksheet.cell(row=row_num, column=col_num)
@@ -899,7 +899,10 @@ def export_project_full(request):
 
     ###########
     # PROJECT #
+    repo_num = 1
+    sampo_num = 1
     row_num = 1
+    methd_num = 1
     for obj in project_filter:
         row_num += 1
         row = [
@@ -963,7 +966,7 @@ def export_project_full(request):
             obj.lead_organization,
 
             obj.date_last_modified,
-            obj.last_modified_by,
+            obj.last_modified_by.get_full_name() if obj.last_modified_by else None,
 
         ]
 
@@ -984,7 +987,7 @@ def export_project_full(request):
                 fund.agreement_cost,
                 fund.project_cost,
                 fund.date_last_modified,
-                fund.last_modified_by
+                fund.last_modified_by.get_full_name() if fund.last_modified_by else None,
             ]
             for col_num, cell_value in enumerate(fund_rows, 1):
                 cell = funding_worksheet.cell(row=fund_num, column=col_num)
@@ -997,7 +1000,6 @@ def export_project_full(request):
         objective_filter = models.Objective.objects.filter(project=obj.id)
         for objective in objective_filter:
             obj_num += 1
-
             objective_row = [
                 objective.project.agreement_number if objective.project else None,
                 objective.unique_objective,
@@ -1018,8 +1020,7 @@ def export_project_full(request):
                 objective.key_lesson,
                 objective.missed_opportunities,
                 objective.date_last_modified,
-                objective.last_modified_by
-
+                objective.last_modified_by.get_full_name() if objective.last_modified_by else None,
             ]
 
             for col_num, cell_value in enumerate(objective_row, 1):
@@ -1028,9 +1029,9 @@ def export_project_full(request):
 
         #######################
         # SAMPLE OUTCOME ROWS #
-        sampo_num = 1
-        for objective in objective_filter:
-            sample_outcomes = models.SampleOutcome.objects.filter(objective=objective.id)
+
+        for sampo_out in objective_filter:
+            sample_outcomes = models.SampleOutcome.objects.filter(objective=sampo_out.id)
             for sample in sample_outcomes:
                 sampo_num += 1
                 sample_rows = [
@@ -1041,17 +1042,15 @@ def export_project_full(request):
                     sample.outcome_report_delivered,
                     sample.outcome_quality,
                     sample.date_last_modified,
-                    sample.last_modified_by,
+                    sample.last_modified_by.get_full_name() if sample.last_modified_by else None,
                 ]
                 for col_num, cell_value in enumerate(sample_rows, 1):
                     cell = sample_outcome_worksheet.cell(row=sampo_num, column=col_num)
                     cell.value = cell_value
-
         #######################
         # REPORT OUTCOME ROWS #
-        repo_num = 1
-        for objective in objective_filter:
-            report_outcomes = models.ReportOutcome.objects.filter(objective=objective.id)
+        for repo_out in objective_filter:
+            report_outcomes = models.ReportOutcome.objects.filter(objective=repo_out.id)
             for report in report_outcomes:
                 repo_num += 1
                 report_rows = [
@@ -1061,7 +1060,7 @@ def export_project_full(request):
                     report.outcome_delivered,
                     report.report_link.document_name if report.report_link else None,
                     report.date_last_modified,
-                    report.last_modified_by,
+                    report.last_modified_by.get_full_name() if report.last_modified_by else None,
                 ]
                 for col_num, cell_value in enumerate(report_rows, 1):
                     cell = reporting_outcome_worksheet.cell(row=repo_num, column=col_num)
@@ -1093,7 +1092,7 @@ def export_project_full(request):
                 ", ".join(i.name for i in data.data_programs.all()),
                 ", ".join(i.name for i in data.data_communication.all()),
                 data.date_last_modified,
-                data.last_modified_by,
+                data.last_modified_by.get_full_name() if data.last_modified_by else None,
             ]
             for col_num, cell_value in enumerate(data_row, 1):
                 cell = data_worksheet.cell(row=data_num, column=col_num)
@@ -1118,7 +1117,7 @@ def export_project_full(request):
                 method.heads_processing_location,
                 method.instrument_data_processing_location,
                 method.date_last_modified,
-                method.last_modified_by,
+                method.last_modified_by.get_full_name() if method.last_modified_by else None,
             ]
             for col_num, cell_value in enumerate(method_row, 1):
                 cell = method_worksheet.cell(row=meth_num, column=col_num)
@@ -1126,7 +1125,7 @@ def export_project_full(request):
 
         ########################
         # METHOD DOCUMENT ROWS #
-        methd_num = 1
+
         for method in method_filter:
             method_documents = models.MethodDocument.objects.filter(method=method.id)
             for method_doc in method_documents:
@@ -1140,7 +1139,7 @@ def export_project_full(request):
                     method_doc.reference_number,
                     method_doc.document_link,
                     method_doc.date_last_modified,
-                    method_doc.last_modified_by,
+                    method_doc.last_modified_by.get_full_name() if method_doc.last_modified_by else None,
                 ]
                 for col_num, cell_value in enumerate(method_doc_rows, 1):
                     cell = method_document_worksheet.cell(row=methd_num, column=col_num)
@@ -1164,7 +1163,7 @@ def export_project_full(request):
                 report.document_link,
                 report.published,
                 report.date_last_modified,
-                report.last_modified_by,
+                report.last_modified_by.get_full_name() if report.last_modified_by else None,
             ]
             for col_num, cell_value in enumerate(report_row, 1):
                 cell = report_worksheet.cell(row=rep_num, column=col_num)
