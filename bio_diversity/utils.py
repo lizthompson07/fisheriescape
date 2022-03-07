@@ -595,6 +595,9 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=timezone.now(), pr
     if nan_to_none(prog_str):
         prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=prog_str).get()
 
+    if nan_to_none(prog_grp) and not (type(prog_grp) == list):
+        prog_grp = [prog_grp]
+
     if nan_to_none(mark_str):
         grp_mark = models.AniDetSubjCode.objects.filter(name__iexact=mark_str).get()
 
@@ -603,7 +606,7 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=timezone.now(), pr
         coll_id = coll_getter(coll_str)
 
     if nan_to_none(cont):
-        indv_list, grp_list = cont.fish_in_cont(at_date, select_fields=["grp_id__coll_id", "grp_id__stok_id"])
+        indv_list, grp_list = cont.fish_in_cont(at_date, select_fields=["anix_id__grp_id__coll_id", "anix_id__grp_id__stok_id"])
         if nan_to_none(stock_str):
             grp_list = [grp for grp in grp_list if grp.stok_id.name == stock_str]
         if nan_to_none(coll_id):
@@ -622,11 +625,12 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=timezone.now(), pr
         grp_list = [grp for grp in grp_qs]
 
     if prog_grp:
-        prog_grp_list = []
-        for grp in grp_list:
-            if prog_grp in grp.prog_group():
-                prog_grp_list.append(grp)
-        grp_list = prog_grp_list.copy()
+        for prog in prog_grp:
+            prog_grp_list = []
+            for grp in grp_list:
+                if prog in grp.prog_group():
+                    prog_grp_list.append(grp)
+            grp_list = prog_grp_list.copy()
 
     if grp_mark:
         mark_grp_list = []
@@ -1801,8 +1805,9 @@ def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None,
     start_anix = None
     end_anix = None
     origin_conts = None
+    end_grp = None
 
-    # link indv/grp to cont regardless:
+    # link indv/grp to evnt regardless:
     anix_id, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk)
     row_entered += anix_entered
 
@@ -1863,28 +1868,91 @@ def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None,
         return start_anix, end_anix, row_entered
 
 
-def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, indv_pk=None, grp_pk=None, nfish=0, start_grp_pk=None):
+def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, nfish=None, start_grp_id=None, end_grp_id=None, whole_grp=True):
     # end group is move group
-    # cases: whole group move: startgroup = endgroup
+    # 4 cases: whole group yes/no, fish at destination yes/no
     # split fish off main group:
+    # adding fish to existing group
     start_cnt = None
     end_cnt = None
+    data_entered = False
 
-    start_anix, end_anix, data_entered = enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk, grp_pk)
-    if grp_pk and nfish:
-        if start_grp_pk == grp_pk or start_grp_pk is None:
-            end_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, end_anix.pk, contx_ref_pk=start_anix.contx_id.pk,
-                                             cnt_code="Fish Count")
-            data_entered += cnt_entered
+    if end_grp_id:
+        end_grp_anix, contx, row_entered = enter_contx(destination_id, cleaned_data, grp_pk=end_grp_id,
+                                                       return_anix=True)
+        if end_grp_id != start_grp_id:
+            data_entered += enter_bulk_grpd(end_grp_anix, cleaned_data, move_date, prnt_grp=start_grp_id)
+
+        if whole_grp:
+            # combine groups, record count and deactivate start group
+            start_anix, end_anix, data_entered = enter_move(cleaned_data, origin_id, destination_id, move_date,
+                                                            grp_pk=start_grp_id.pk)
+
+            start_grp_id.grp_valid = False
+            start_grp_id.save()
+
+            if nfish:
+                end_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, end_grp_anix.pk,
+                                                 contx_ref_pk=start_anix.contx_id.pk,
+                                                 cnt_code="Fish added to container")
+                data_entered += cnt_entered
         else:
-            start_cnt_anix, contx, row_entered = enter_contx(origin_id, cleaned_data, grp_pk=start_grp_pk, return_anix=True)
-            start_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, start_cnt_anix.pk, contx_ref_pk=end_anix.contx_id.pk,
+            # just record counts:
+            start_cnt_anix, contx, row_entered = enter_contx(origin_id, cleaned_data, grp_pk=start_grp_id,
+                                                             return_anix=True)
+            start_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, start_cnt_anix.pk,
+                                               contx_ref_pk=end_grp_anix.contx_id.pk,
                                                cnt_code="Fish removed from container")
             data_entered += cnt_entered
-            end_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, end_anix.pk, contx_ref_pk=start_anix.contx_id.pk,
+            end_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, end_grp_anix.pk,
+                                             contx_ref_pk=start_cnt_anix.contx_id.pk,
                                              cnt_code="Fish added to container")
             data_entered += cnt_entered
+
+    else:  # no group at destination:
+        if whole_grp:
+            # whole group moves, record count
+            start_anix, end_anix, data_entered = enter_move(cleaned_data, origin_id, destination_id, move_date,
+                                                            grp_pk=start_grp_id.pk)
+            if nfish:
+                end_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, end_anix.pk,
+                                                 contx_ref_pk=start_anix.contx_id.pk,
+                                                 cnt_code="Fish Count")
+                data_entered += cnt_entered
+        else:
+            # split off new group from start group, record counts:
+            new_end_grp = copy_grp(start_grp_id, move_date, cleaned_data)
+            start_anix, end_anix, data_entered = enter_move(cleaned_data, origin_id, destination_id, move_date,
+                                                            grp_pk=new_end_grp.pk)
+            if nfish:
+                start_cnt_anix, contx, row_entered = enter_contx(origin_id, cleaned_data, grp_pk=start_grp_id, return_anix=True)
+                start_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, start_cnt_anix.pk,
+                                                   contx_ref_pk=end_anix.contx_id.pk,
+                                                   cnt_code="Fish removed from container")
+                data_entered += cnt_entered
+                end_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, end_anix.pk, contx_ref_pk=start_anix.contx_id.pk,
+                                                 cnt_code="Fish added to container")
+                data_entered += cnt_entered
+
     return start_cnt, end_cnt, data_entered
+
+
+def copy_grp(in_grp_id, copy_date, cleaned_data):
+    new_grp = in_grp_id.copy()
+    new_grp.pk = None
+    new_grp.clean()
+    new_grp.save()
+
+    prog_grp_list = in_grp_id.prog_group()
+    grp_mark_list = in_grp_id.group_mark()
+    anix = enter_anix(cleaned_data, new_grp.pk, return_anix=True)
+    for prog_id in prog_grp_list:
+        enter_bulk_grpd(anix.pk, cleaned_data, copy_date, prog_grp=prog_id.name)
+    for mark_id in grp_mark_list:
+        enter_bulk_grpd(anix.pk, cleaned_data, copy_date, mark=mark_id.name)
+    enter_bulk_grpd(anix.pk, cleaned_data, copy_date, prnt_grp=in_grp_id)
+    return new_grp
+
 
 
 def enter_contx(cont, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):

@@ -102,7 +102,7 @@ class GenericIndvParser(DataParser):
         if utils.nan_to_none(row[self.end_tank_key]):
             out_tank = models.Tank.objects.filter(name=row[self.end_tank_key]).get()
         if in_tank or out_tank:
-            self.row_entered += utils.enter_move(self.cleaned_data, in_tank, out_tank, row_datetime.date, indv_pk=indv.pk,
+            self.row_entered += utils.enter_move(self.cleaned_data, in_tank, out_tank, row_datetime.date, indv_id=indv,
                                                  return_sucess=True)
 
         self.row_entered += utils.parse_extra_cols(row, self.cleaned_data, anix, indv=True)
@@ -247,9 +247,9 @@ class GenericUntaggedParser(DataParser):
                                      self.mark_anidc_id.pk, row[self.grp_mark_key])
 
                 self.row_entered += utils.enter_move_cnts(cleaned_data, row["start_tank_id"], row["end_tank_id"],
-                                                          row["datetime"].date,  grp_pk=end_grp_id.pk,
+                                                          row["datetime"].date,  grp_id=end_grp_id,
                                                           nfish=sum(end_grp_data[end_grp_data["grp_key"] == row["grp_key"]][0]),
-                                                          start_grp_pk=start_grp_id.pk)[2]
+                                                          start_grp_id=start_grp_id)[2]
 
         self.data_dict = self.data.to_dict("records")
 
@@ -402,9 +402,9 @@ class GenericGrpParser(DataParser):
                 row_end_grp = row_start_grp
 
             self.row_entered += utils.enter_move_cnts(cleaned_data, row["start_tank_id"], row["end_tank_id"],
-                                                      row_date,  grp_pk=row_end_grp.pk,
+                                                      row_date,  grp_id=row_end_grp,
                                                       nfish=row[self.nfish_key],
-                                                      start_grp_pk=row_start_grp.pk)[2]
+                                                      start_grp_id=row_start_grp)[2]
         else:
             # fish did not move
             if utils.nan_to_none(row[self.nfish_key]):

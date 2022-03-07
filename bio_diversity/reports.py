@@ -128,8 +128,8 @@ def generate_facility_tank_report(request, facic_id, at_date=timezone.now()):
 
             cnt = 0
             year_coll_set = set()
-            indv_list, grp_list = item.fish_in_cont(select_fields=["indv_id__grp_id__stok_id",
-                                                                   "indv_id__grp_id__coll_id"], at_date=at_date)
+            indv_list, grp_list = item.fish_in_cont(select_fields=["anix_id__indv_id__grp_id__stok_id",
+                                                                   "anix_id__indv_id__grp_id__coll_id"], at_date=at_date)
             if indv_list:
                 ws['B' + str(row_count)].value = "Y"
                 cnt += len(indv_list)
@@ -178,8 +178,8 @@ def fill_calibration_template(facic_id):
         # start writing data at row 3 in the sheet
         row_count = 3
         for item in qs:
-            indv_list, grp_list = item.fish_in_cont(select_fields=["indv_id__grp_id__stok_id",
-                                                                   "indv_id__grp_id__coll_id"])
+            indv_list, grp_list = item.fish_in_cont(select_fields=["anix_id__indv_id__grp_id__stok_id",
+                                                                   "anix_id__indv_id__grp_id__coll_id"])
 
             if not grp_list:
                 ws['A' + str(row_count)].value = item.__str__()
@@ -241,7 +241,7 @@ def generate_stock_code_report(stok_id, coll_id, year, start_date=utils.aware_mi
         ws_indv['B' + str(row_count)].value = item.indv_year
         ws_indv['C' + str(row_count)].value = item.coll_id.name
         ws_indv['D' + str(row_count)].value = item.prog_group(get_string=True)
-        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank(end_date)])
+        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont(end_date)])
 
         item_indvd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Animal Health",
                                                          adsc_id__isnull=False, anix_id__indv_id=item).select_related("adsc_id")
@@ -431,7 +431,7 @@ def generate_detail_report(adsc_id, prog_id, stok_id=None):
         ws_indv['B' + str(row_count)].value = item.stok_id.name
         ws_indv['C' + str(row_count)].value = item.indv_year
         ws_indv['D' + str(row_count)].value = item.coll_id.name
-        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank()])
+        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont()])
         ws_indv['F' + str(row_count)].value = item.individual_detail("Gender")
         ws_indv['G' + str(row_count)].value = item.indv_valid
 
@@ -451,7 +451,7 @@ def generate_detail_report(adsc_id, prog_id, stok_id=None):
         ws_grp['A' + str(row_count)].value = item.stok_id.name
         ws_grp['B' + str(row_count)].value = item.grp_year
         ws_grp['C' + str(row_count)].value = item.coll_id.name
-        ws_grp['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank()])
+        ws_grp['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont()])
         ws_grp['E' + str(row_count)].value = item.grp_valid
 
         sampd_qs = models.SampleDet.objects.filter(adsc_id=adsc_id, samp_id__anix_id__grp_id=item).order_by("-detail_date")

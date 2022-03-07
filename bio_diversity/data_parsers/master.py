@@ -122,7 +122,7 @@ class MasterGrpParser(DataParser):
                                                                name__icontains=row[self.mark_key]).get()
 
         grp_list = utils.get_grp(row[self.stok_key], year, coll, cont=tank_id, at_date=row_datetime,
-                                 prog_grp=prog_grp_id, grp_mark=mark_id)
+                                 prog_grp=[prog_grp_id], grp_mark=mark_id)
         if grp_list:
             grp_id = grp_list[0]
         else:

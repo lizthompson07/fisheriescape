@@ -982,8 +982,8 @@ class CommonContDetails(CommonDetails):
                                            "field_list": feed_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        indv_list, grp_list = self.object.fish_in_cont(select_fields=["indv_id__grp_id__stok_id",
-                                                                      "indv_id__grp_id__coll_id"])
+        indv_list, grp_list = self.object.fish_in_cont(select_fields=["anix_id__indv_id__grp_id__stok_id",
+                                                                      "anix_id__indv_id__grp_id__coll_id"])
         indv_field_list = ["ufid", "pit_tag", "grp_id", ]
         obj_mixin = mixins.IndvMixin
         context["context_dict"]["indv_cont"] = {"div_title": "Individuals in Container",
@@ -1389,8 +1389,8 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                           "single_object": obj_mixin.model.objects.first()}
 
         move_list = models.MoveDet.objects.filter(anix_id__grp_id=self.object)\
-            .select_related("contx_start", "contx_end")
-        move_field_list = ["contx_start.container.name|Start Container", "contx_end.container.name|End Container", "move_date"]
+            .select_related("anix_id__evnt_id", "contx_start", "contx_end")
+        move_field_list = ["evnt|Event", "contx_start.container.name|Start Container", "contx_end.container.name|End Container", "move_date"]
         obj_mixin = mixins.MoveMixin
         context["context_dict"]["move"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1569,8 +1569,8 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         move_list = models.MoveDet.objects.filter(anix_id__indv_id=self.object)\
-            .select_related("contx_start", "contx_end")
-        move_field_list = ["contx_start.container.name|Start Container", "contx_end.container.name|End Container", "move_date"]
+            .select_related("anix_id__evnt_id", "contx_start", "contx_end")
+        move_field_list = ["evnt|Event", "contx_start.container.name|Start Container", "contx_end.container.name|End Container", "move_date"]
         obj_mixin = mixins.MoveMixin
         context["context_dict"]["move"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,

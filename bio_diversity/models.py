@@ -270,31 +270,34 @@ class BioCont(BioLookup):
         if not select_fields:
             select_fields = []
 
-        filter_arg = "contx_id__{}_id".format(self.key)
+        filter_in_arg = "contx_end__{}_id".format(self.key)
+        filter_out_arg = "contx_start__{}_id".format(self.key)
 
-        anix_set = AniDetailXref.objects.filter(**{filter_arg: self},
-                                                final_contx_flag__isnull=False,
-                                                evnt_id__start_datetime__lte=at_date).select_related("indv_id", "grp_id", *select_fields)
-        anix_indv_in_set = anix_set.filter(final_contx_flag=True, indv_id__indv_valid=True)
-        anix_indv_out_set = anix_set.filter(final_contx_flag=False, indv_id__indv_valid=True, evnt_id__start_datetime__lt=at_date)
-        anix_grp_in_set = anix_set.filter(final_contx_flag=True, grp_id__grp_valid=True)
-        anix_grp_out_set = anix_set.filter(final_contx_flag=False, grp_id__grp_valid=True, evnt_id__start_datetime__lt=at_date)
+        move_in_set = MoveDet.objects.filter(**{filter_in_arg: self},
+                                             move_date__lte=at_date).select_related("anix_id__indv_id",
+                                                                                    "anix_id__grp_id", *select_fields)
 
-        indv_in_set = Counter([anix.indv_id for anix in anix_indv_in_set])
-        indv_out_set = Counter([anix.indv_id for anix in anix_indv_out_set])
-        grp_in_set = Counter([anix.grp_id for anix in anix_grp_in_set])
-        grp_out_set = Counter([anix.grp_id for anix in anix_grp_out_set])
+        move_out_set = MoveDet.objects.filter(**{filter_out_arg: self},
+                                              move_date__lte=at_date).select_related("anix_id__indv_id",
+                                                                                     "anix_id__grp_id", *select_fields)
+
+        indv_in_set = Counter([move_det.anix_id.indv_id for move_det in move_in_set])
+        indv_out_set = Counter([move_det.anix_id.indv_id for move_det in move_out_set])
+        grp_in_set = Counter([move_det.anix_id.grp_id for move_det in move_in_set])
+        grp_out_set = Counter([move_det.anix_id.grp_id for move_det in move_out_set])
 
         for indv, in_count in indv_in_set.items():
-            if indv not in indv_out_set:
-                indv_list.append(indv)
-            elif in_count > indv_out_set[indv]:
-                indv_list.append(indv)
+            if indv:
+                if indv not in indv_out_set:
+                    indv_list.append(indv)
+                elif in_count > indv_out_set[indv]:
+                    indv_list.append(indv)
         for grp, in_count in grp_in_set.items():
-            if grp not in grp_out_set:
-                grp_list.append(grp)
-            elif in_count > grp_out_set[grp]:
-                indv_list.append(grp)
+            if grp:
+                if grp not in grp_out_set:
+                    grp_list.append(grp)
+                elif in_count > grp_out_set[grp]:
+                    indv_list.append(grp)
         if get_grp:
             return grp_list
         else:
@@ -1039,23 +1042,6 @@ class Group(BioModel):
     def __str__(self):
         return "{}-{}-{}-{}".format(self.pk, self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
 
-    def current_tank(self, at_date=timezone.now()):
-        return self.current_cont_by_key('tank', at_date)
-
-    def current_cont_by_key(self, cont_key, at_date=timezone.now()):
-        cont_list = []
-
-        last_move = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date).\
-            select_related('contx_end__{}_id'.format(cont_key)).order_by("-move_date").first()
-
-        if last_move:
-            cont_list.append(last_move.contx_end.container)
-
-        return cont_list
-
-    def current_trof(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
-        return self.current_cont_by_key('trof', at_date)
-
     def current_cont(self, at_date=timezone.now(), valid_only=False, get_string=False):
         cont_list = []
         if not self.grp_valid and valid_only:
@@ -1063,11 +1049,17 @@ class Group(BioModel):
                 return ""
             return cont_list
 
-        last_move = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date). \
-            select_related('contx_end').order_by("-move_date").first()
+        move_set = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date). \
+            select_related('contx_end', 'contx_start')
 
-        if last_move:
-            cont_list.append(last_move.contx_end.container)
+        cont_in_set = Counter([move_id.contx_end.container for move_id in move_set])
+        cont_out_set = Counter([move_id.contx_start.container for move_id in move_set])
+
+        for cont, in_count in cont_in_set.items():
+            if cont not in cont_out_set and cont:
+                cont_list.append(cont)
+            elif in_count > cont_out_set[cont] and cont:
+                cont_list.append(cont)
 
         if get_string:
             cont_str_list = [cont.__str__() for cont in cont_list]
@@ -1449,9 +1441,6 @@ class Individual(BioModel):
 
     def stok_year_coll_str(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__())
-
-    def current_tank(self, at_date=timezone.now()):
-        return self.current_cont_by_key('tank', at_date)
 
     def current_cont(self, at_date=timezone.now(), valid_only=False, get_string=False):
         cont_list = []
@@ -1835,6 +1824,9 @@ class MoveDet(BioModel):
             models.UniqueConstraint(fields=['anix_id', 'contx_start', 'contx_end', 'move_date'], name='Move_Detail_Uniqueness')
         ]
 
+    @property
+    def evnt(self):
+        return self.anix_id.evnt_id
 
 class Organization(BioLookup):
     # orga tag
