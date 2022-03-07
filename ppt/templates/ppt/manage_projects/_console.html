@@ -210,6 +210,93 @@
       </div>
 
 
+      {# has Ship needs #}
+      <div class="form-group">
+        <label class="text-muted small" for="filter.has_ship_needs">{% trans "Has ship needs" %}</label>
+        <select
+          v-model="filter.has_ship_needs"
+          @change="updateResults"
+          class="form-control form-control-sm" id="filter.has_ship_needs"
+        >
+          <option value="">------</option>
+          <option :value="true">{% trans "Yes" %}</option>
+          <option :value="false">{% trans "No" %}</option>
+        </select>
+      </div>
+
+      {# requires specialized equipment #}
+      <div class="form-group">
+        <label class="text-muted small" for="filter.requires_specialized_equipment">{% trans "Requires specialized equipment" %}</label>
+        <select
+          v-model="filter.requires_specialized_equipment"
+          @change="updateResults"
+          class="form-control form-control-sm" id="filter.requires_specialized_equipment"
+        >
+          <option value="">------</option>
+          <option :value="true">{% trans "Yes" %}</option>
+          <option :value="false">{% trans "No" %}</option>
+        </select>
+      </div>
+
+
+      {# Has field component #}
+      <div class="form-group">
+        <label class="text-muted small" for="filter.has_field_component">{% trans "Has field component" %}</label>
+        <select
+          v-model="filter.has_field_component"
+          @change="updateResults"
+          class="form-control form-control-sm" id="filter.has_field_component"
+        >
+          <option value="">------</option>
+          <option :value="true">{% trans "Yes" %}</option>
+          <option :value="false">{% trans "No" %}</option>
+        </select>
+      </div>
+
+      {# Has data component #}
+      <div class="form-group">
+        <label class="text-muted small" for="filter.has_data_component">{% trans "Has data component" %}</label>
+        <select
+          v-model="filter.has_data_component"
+          @change="updateResults"
+          class="form-control form-control-sm" id="filter.has_data_component"
+        >
+          <option value="">------</option>
+          <option :value="true">{% trans "Yes" %}</option>
+          <option :value="false">{% trans "No" %}</option>
+        </select>
+      </div>
+
+      {# Has lab component #}
+      <div class="form-group">
+        <label class="text-muted small" for="filter.has_lab_component">{% trans "Has lab component" %}</label>
+        <select
+          v-model="filter.has_lab_component"
+          @change="updateResults"
+          class="form-control form-control-sm" id="filter.has_lab_component"
+        >
+          <option value="">------</option>
+          <option :value="true">{% trans "Yes" %}</option>
+          <option :value="false">{% trans "No" %}</option>
+        </select>
+      </div>
+
+
+
+      {# Requires ABL services #}
+      <div class="form-group">
+        <label class="text-muted small" for="filter.requires_abl_services">{% trans "Requires ABL services" %}</label>
+        <select
+          v-model="filter.requires_abl_services"
+          @change="updateResults"
+          class="form-control form-control-sm" id="filter.requires_abl_services"
+        >
+          <option value="">------</option>
+          <option :value="true">{% trans "Yes" %}</option>
+          <option :value="false">{% trans "No" %}</option>
+        </select>
+      </div>
+
       <div class="mb-3">
         <button @click="clearFilters" class="btn btn-sm btn-warning">{% trans "Clear filters" %}</button>
       </div>
