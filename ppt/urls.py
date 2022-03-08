@@ -132,6 +132,9 @@ urlpatterns = [
     path('reports/project-field-staff-summary/', views.export_field_staff_summary, name="export_staff"),
     path('reports/project-lab-summary/', views.export_lab_summary, name="export_lab"),
 
+    path('reports/project-basic/', views.export_py_basic, name="export_py_basic"),  # TODO: test
+
+
     # special
     path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),
     path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"),

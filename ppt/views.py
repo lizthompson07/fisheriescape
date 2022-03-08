@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext_lazy, get_language
 
+from dm_apps.context_processor import my_envr
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
@@ -1514,6 +1515,22 @@ def export_project_list(request):
     return response
 
 
+
+@login_required()
+def export_py_basic(request):
+    qs = get_project_year_queryset(request)
+
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_py_basic(qs, site_url)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="project export (basic).xlsx"'
+            return response
+    raise Http404
+
+
 @login_required()
 def export_sar_workplan(request):
     year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
@@ -1568,6 +1585,8 @@ def export_regional_staff_allocation(request):
 
 @login_required()
 def export_project_position_allocation(request):
+    project_years = get_project_year_queryset(request)
+
     year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
     region = request.GET.get("region")
     section = request.GET.get("section")
@@ -1589,11 +1608,6 @@ def export_project_position_allocation(request):
 
     writer = csv.writer(response)
     writer.writerow(['Project ID', 'Project Name', 'Project Lead', 'Staff Name', 'Staff Level', 'Funding Source'])
-
-    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
-                                                      project__section__division__branch__region_id=region)
-    if section:
-        project_years = project_years.filter(project__section_id=section)
 
     # Now filter down the projects to projects that have staff with staff levels, but no staff name.
     for p in project_years:

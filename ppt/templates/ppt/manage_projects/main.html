@@ -62,9 +62,14 @@
                 {% trans "Export" %}
               </button>
               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item clickable" @click="goReport('tombstone')">{% trans "Basic Project Report (xlsx)" %}</a>
-                {#                <a class="dropdown-item" href="#">Another action</a>#}
-                {#                <a class="dropdown-item" href="#">Something else here</a>#}
+                <a class="dropdown-item clickable" @click="goReport('basic')">{% trans "Project List (Basic)" %}</a>
+{#                <a class="dropdown-item clickable" @click="goReport('ppa')">{% trans "HR Project-Position Allocation" %}</a>#}
+{##}
+{#                <a class="dropdown-item clickable" @click="goReport('crc')">{% trans "Capital Request Costs" %}</a>#}
+{#                <a class="dropdown-item clickable" @click="goReport('eqp')">{% trans "Project Equipment Summary" %}</a>#}
+{#                <a class="dropdown-item clickable" @click="goReport('staff')">{% trans "Project Field Support Staff Summary" %}</a>#}
+{#                <a class="dropdown-item clickable" @click="goReport('lab')">{% trans "Project Lab Summary" %}</a>#}
+
               </div>
             </div>
           </div>

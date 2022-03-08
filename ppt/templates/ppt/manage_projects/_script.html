@@ -78,8 +78,18 @@ var app = new Vue({
         if (response.results) {
           let ids = [];
           for (const result of response.results) ids.push(result.id);
-          window.location.href = `{% url 'ppt:export_project_list' %}?ids=${ids}`;
+
+          let reportUrl;
+          if (reportName === "basic") reportUrl = `{% url 'ppt:export_py_basic' %}?ids=${ids}`;
+          else if (reportName === "ppa") reportUrl = `{% url 'ppt:export_ppa' %}?ids=${ids}`;
+          else if (reportName === "crc") reportUrl = `{% url 'ppt:export_crc' %}?ids=${ids}`;
+          else if (reportName === "eqp") reportUrl = `{% url 'ppt:export_eqp' %}?ids=${ids}`;
+          else if (reportName === "lab") reportUrl = `{% url 'ppt:export_lab' %}?ids=${ids}`;
+          else if (reportName === "staff") reportUrl = `{% url 'ppt:export_staff' %}?ids=${ids}`;
+
+          window.location.href = reportUrl;
           this.loadingReport = false;
+
         }
       })
     },
