@@ -64,6 +64,7 @@ class OrganizationForm(forms.ModelForm):
             'sectors': forms.SelectMultiple(attrs=multi_select_js),
             'reserves': forms.SelectMultiple(attrs=multi_select_js),
             # dates
+            'dfo_contact_instructions': forms.HiddenInput(),
             'next_election': forms.TextInput(attrs=attr_fp_date),
             'new_coucil_effective_date': forms.TextInput(attrs=attr_fp_date),
             'last_modified': forms.HiddenInput(),
@@ -72,9 +73,9 @@ class OrganizationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['name_eng', 'category', 'name_ind', 'abbrev', 'email', 'address', 'mailing_address', 'city',
-                           'postal_code', 'province', 'phone', 'fax', 'dfo_contact_instructions', 'notes',
-                           'key_species', 'grouping', 'area', 'regions', 'asc_province'])
+        self.order_fields(['name_eng', 'category', 'grouping', 'name_ind', 'abbrev', 'email', 'address', 'mailing_address', 'city',
+                           'postal_code', 'province', 'phone', 'fax', 'notes',
+                           'key_species', 'area', 'regions', 'asc_province'])
 
         self.fields['area'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['category'].widget = forms.SelectMultiple(attrs=multi_select_js)

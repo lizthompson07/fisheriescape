@@ -611,7 +611,6 @@ class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
         'grouping',
         'regions',
         'sectors',
-        'dfo_contact_instructions',
         'orgs',
         'website',
         'processing_plant',
