@@ -30,8 +30,11 @@
     </nav>
 
     <div class="container-fluid">
+        {% if object.project %}
+            <h1>{{ object.project.agreement_number }}</h1>
 
-        <h1>{{ object }}</h1>
+            <h1>{{ object.project.name }}</h1>
+        {% endif %}
 
 
         <div class="btn-group">

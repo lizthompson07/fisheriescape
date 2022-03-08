@@ -381,7 +381,7 @@ def get_app_dict(request):
     try:
         app_dict["spot"] = {
             "title": _("Pacific Salmon Grants & Contributions"),
-            "description": _("Pacific region application for recording salmon G&C science project metadata"),
+            "description": _("Pacific region application for recording salmon G&C science project metadata (2018+)"),
             "status": "dev",
             "access": "permission-required",
             "url": reverse('spot:index'),
