@@ -1052,8 +1052,8 @@ class Group(BioModel):
         move_set = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date). \
             select_related('contx_end', 'contx_start')
 
-        cont_in_set = Counter([move_id.contx_end.container for move_id in move_set])
-        cont_out_set = Counter([move_id.contx_start.container for move_id in move_set])
+        cont_in_set = Counter([move_id.contx_end.container for move_id in move_set if move_id.contx_end])
+        cont_out_set = Counter([move_id.contx_start.container for move_id in move_set if move_id.contx_start])
 
         for cont, in_count in cont_in_set.items():
             if cont not in cont_out_set and cont:
