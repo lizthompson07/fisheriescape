@@ -10,6 +10,7 @@ import ppt.test.FactoryFloor as factory
 from django.test import tag, RequestFactory
 from django.utils import timezone
 from ppt import models as models, reports
+from ppt.utils import get_project_year_queryset
 from shared_models import models as shared_models
 from shared_models.test.common_tests import CommonTest
 
@@ -59,7 +60,7 @@ class ExportProjectSummaryReportTest(CommonTest):
         # simulate a GET request
         request.GET = {"fiscal_year": 2020}
 
-        qs = ApiViews.get_project_year_queryset(request=request)
+        qs = get_project_year_queryset(request=request)
 
         # querying for projects that are in 2020
         self.assertEqual(len(qs), (self.EXPECTED_N_YEAR_2020 + self.EXPECTED_N_YEAR_2020_2021))

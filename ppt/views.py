@@ -29,7 +29,7 @@ from .utils import get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, \
     is_management_or_admin, \
     get_review_score_rubric, get_status_report_field_list, get_review_field_list, get_user_fte_breakdown, \
-    get_dma_field_list, get_dma_review_field_list
+    get_dma_field_list, get_dma_review_field_list, get_project_year_queryset
 
 
 class IndexTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
@@ -1501,18 +1501,16 @@ def project_status_summary(request):
     # Create the HttpResponse object with the appropriate CSV header.
     response = reports.generate_project_status_summary(year, region)
     response[
-        'Content-Disposition'] = f'attachment; filename="project status summary ({timezone.now().strftime("%Y_%m_%d")}).csv"'
+        'Content-Disposition'] = f'attachment; filename="project status summary ({timezone.now().strftime("%Y %m %d")}).csv"'
     return response
 
 
 @login_required()
 def export_project_list(request):
-    year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
-    region = request.GET.get("region")
-    section = request.GET.get("section")
+    qs = get_project_year_queryset(request)
     # Create the HttpResponse object with the appropriate CSV header.
-    response = reports.generate_project_list(request.user, year, region, section)
-    response['Content-Disposition'] = f'attachment; filename="project list ({timezone.now().strftime("%Y_%m_%d")}).csv"'
+    response = reports.generate_project_list(qs)
+    response['Content-Disposition'] = f'attachment; filename="project list ({timezone.now().strftime("%Y %m %d")}).csv"'
     return response
 
 
@@ -1766,8 +1764,7 @@ def export_lab_summary(request):
     if section and section != 'None':
         section_name = shared_models.Section.objects.get(pk=section)
 
-    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
-                                                      project__section_id=section)
+    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year, project__section_id=section)
 
     status_list = models.ProjectYear.status_choices
     status = {status_list[i][0]: status_list[i][1] for i in range(0, len(status_list))}

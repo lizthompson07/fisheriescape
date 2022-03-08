@@ -13,7 +13,7 @@ var app = new Vue({
     hover: false,
 
     errorNoFiscalYear: false,
-
+    loadingReport: false,
 
     showProjectList: true,
     showStaffList: false,
@@ -71,6 +71,18 @@ var app = new Vue({
             this.isAdminOrMgmt = this.currentUser.is_admin || this.currentUser.is_management
           })
     },
+    goReport(reportName) {
+      this.loadingReport = true;
+      endpoint = this.getProjectYearsEndpoint(5000);
+      apiService(endpoint).then(response => {
+        if (response.results) {
+          let ids = [];
+          for (const result of response.results) ids.push(result.id);
+          window.location.href = `{% url 'ppt:export_project_list' %}?ids=${ids}`;
+          this.loadingReport = false;
+        }
+      })
+    },
     goProjectDetail(projectYear) {
       url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
       var win = window.open(url, '_blank');
@@ -80,11 +92,11 @@ var app = new Vue({
       apiService(`/api/ppt/themes/${query}`).then(response => this.themes = response)
       apiService(`/api/ppt/fiscal-years/${query}`).then(response => this.fiscalYears = response)
       apiService(`/api/ppt/tags/${query}`).then(response => {
-        this.tags = [{name:"-----", id: ""}];
+        this.tags = [{name: "-----", id: ""}];
         this.tags.push(...response);
       })
       apiService(`/api/ppt/funding-sources/${query}`).then(response => {
-        this.fundingSources = [{display:"-----", id: ""}];
+        this.fundingSources = [{display: "-----", id: ""}];
         this.fundingSources.push(...response);
       })
       apiService(`/api/ppt/regions/${query}`).then(response => this.regions = response)

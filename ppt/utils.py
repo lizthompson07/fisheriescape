@@ -905,3 +905,74 @@ def prime_csas_activities(project_year, starting_date, meeting_duration, has_sr_
             a.target_start_date = start
             a.target_date = end
             a.save()
+
+
+def get_project_year_queryset(request):
+    qs = models.ProjectYear.objects.order_by("start_date")
+    qp = request.query_params if hasattr(request, 'query_params') else request.GET
+
+    if qp.get("ids"):
+        ids = qp.get("ids").split(",")  # get project year list
+        qs = qs.filter(id__in=ids)  # get project year qs
+    else:
+        filter_list = [
+            "user",
+            "is_hidden",
+            "title",
+            "id",
+            'staff',
+            'fiscal_year',
+            'year',
+            'tag',
+            'theme',
+            'functional_group',
+            'funding_source',
+            'region',
+            'division',
+            'section',
+            'status',
+        ]
+        for filter in filter_list:
+            input = qp.get(filter)
+            if input == "true":
+                input = True
+            elif input == "false":
+                input = False
+            elif input == "null" or input == "" or input == "None":
+                input = None
+
+            if input:
+                if filter == "user":
+                    qs = qs.filter(project__section__in=get_manageable_sections(request.user)).order_by("fiscal_year",
+                                                                                                        "project_id")
+                elif filter == "is_hidden":
+                    qs = qs.filter(project__is_hidden=True)
+                elif filter == "status":
+                    qs = qs.filter(status=input)
+                elif filter == "title":
+                    qs = qs.filter(project__title__icontains=input)
+                elif filter == "id":
+                    qs = qs.filter(project__id=input)
+                elif filter == "staff":
+                    qs = qs.filter(project__staff_search_field__icontains=input)
+                elif filter == "fiscal_year" or filter == "year":
+                    qs = qs.filter(fiscal_year_id=input)
+                elif filter == "tag":
+                    qs = qs.filter(project__tags=input)
+                elif filter == "theme":
+                    qs = qs.filter(project__functional_group__theme_id=input)
+                elif filter == "functional_group":
+                    qs = qs.filter(project__functional_group_id=input)
+                elif filter == "funding_source":
+                    qs = qs.filter(project__default_funding_source_id=input)
+                elif filter == "region":
+                    qs = qs.filter(project__section__division__branch__region_id=input)
+                elif filter == "division":
+                    qs = qs.filter(project__section__division_id=input)
+                elif filter == "section":
+                    qs = qs.filter(project__section_id=input)
+
+        # if a regular user is making the request, show only approved projects (and not hidden projects)
+        if not is_management_or_admin(request.user):
+            qs = qs.filter(project__is_hidden=False, status__in=[2, 3, 4])
+    return qs.distinct()

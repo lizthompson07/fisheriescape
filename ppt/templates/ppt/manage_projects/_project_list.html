@@ -9,12 +9,12 @@
       <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
     </div>
   </div>
-  <table class="table table-sm" style="width: auto">
+  <table class="table table-sm">
     <thead>
     <tr>
       {% for field in field_list %}
         {% if "title" in field %}
-          <th @click="sort('{{ field }}')" style="width: 400px" class="clickable">
+          <th @click="sort('{{ field }}')" class="clickable W-35">
             {% get_verbose_label random_project field %}
           </th>
         {% elif "funding" in field or "functional" in field %}
@@ -54,7 +54,7 @@
             {% trans "Capital Costs" %}
           </th>
         {% elif "lead" in field %}
-          <th @click="sort('{{ field }}')" v-if="showColumnLeads" style="width: 150px" class="clickable">
+          <th @click="sort('{{ field }}')" v-if="showColumnLeads" class="clickable W-25">
             {% get_verbose_label random_project field %}
           </th>
         {% else %}
