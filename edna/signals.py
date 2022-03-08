@@ -50,6 +50,8 @@ def auto_save_edna_collection_on_sample_delete(sender, instance, **kwargs):
 
 @receiver(models.signals.post_delete, sender=PCRAssay)
 def auto_remove_pcr_with_no_assays(sender, instance, **kwargs):
-    if not instance.pcr.assays.exists():
-        instance.pcr.delete()
-
+    try:
+        if not instance.pcr.assays.exists():
+            instance.pcr.delete()
+    except:
+        print("cannot not delete parent PCR.")

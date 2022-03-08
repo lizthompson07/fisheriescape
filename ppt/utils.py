@@ -431,8 +431,9 @@ def get_project_year_field_list(project_year=None):
         #################
         'has_field_component|{}'.format(_("has field component?")),
         'vehicle_needs' if not project_year or project_year.has_field_component else None,
-        'ship_needs' if not project_year or project_year.has_field_component else None,
-        'coip_reference_id' if not project_year or project_year.has_field_component else None,
+        'has_ship_needs' if not project_year or project_year.has_field_component else None,
+        'ship_needs' if not project_year or (project_year.has_field_component and project_year.has_ship_needs) else None,
+        'coip_reference_id' if not project_year or (project_year.has_field_component and project_year.has_ship_needs) else None,
         'instrumentation' if not project_year or project_year.has_field_component else None,
         'owner_of_instrumentation' if not project_year or project_year.has_field_component else None,
         'requires_field_staff' if not project_year or project_year.has_field_component else None,

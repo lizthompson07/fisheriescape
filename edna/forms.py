@@ -243,3 +243,20 @@ class ReportSearchForm(forms.Form):
 
 class FileImportForm(forms.Form):
     temp_file = forms.FileField(label="File to import")
+
+
+class ednaUserForm(forms.ModelForm):
+    class Meta:
+        model = models.ednaUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+ednaUserFormset = modelformset_factory(
+    model=models.ednaUser,
+    form=ednaUserForm,
+    extra=1,
+)
+

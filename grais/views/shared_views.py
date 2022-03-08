@@ -14,7 +14,7 @@ from grais import forms
 from grais import models
 from grais import reports
 from grais.mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin, GraisCRUDRequiredMixin, SuperuserOrAdminRequiredMixin
-from grais.utils import is_grais_admin, has_grais_crud, has_grais_access
+from grais.utils import is_grais_admin, has_grais_access
 from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonTemplateView, CommonFilterView, CommonUpdateView, CommonCreateView, \
     CommonDetailView, CommonDeleteView, CommonFormView
 
@@ -204,6 +204,8 @@ class ReportSearchFormView(GraisAccessRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("grais:biofouling_pa_xlsx") + f"?year={year}")
         elif report == 10:
             return HttpResponseRedirect(reverse("grais:gc_gravid_green_crabs"))
+        elif report == 11:
+            return HttpResponseRedirect(reverse("grais:biofouling_station_report"))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("grais:report_search"))
@@ -233,6 +235,19 @@ def biofouling_presence_absence_spreadsheet_export(request):
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'
     return response
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/')
+def biofouling_station_report(request):
+    file_url = reports.generate_biofouling_station_report()
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="biofouling stations.xlsx"'
+            return response
+    raise Http404
 
 
 @login_required(login_url='/accounts/login/')

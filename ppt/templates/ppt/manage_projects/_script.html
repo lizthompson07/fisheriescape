@@ -124,6 +124,13 @@ var app = new Vue({
       if (this.filter.division) endpoint += `division=${this.filter.division}&`;
       if (this.filter.section) endpoint += `section=${this.filter.section}&`;
       if (this.filter.status) endpoint += `status=${this.filter.status}&`;
+
+      if (this.filter.has_ship_needs === true || this.filter.has_ship_needs === false) endpoint += `has_ship_needs=${this.filter.has_ship_needs}&`;
+      if (this.filter.requires_specialized_equipment === true || this.filter.requires_specialized_equipment === false) endpoint += `requires_specialized_equipment=${this.filter.requires_specialized_equipment}&`;
+      if (this.filter.has_field_component === true || this.filter.has_field_component === false) endpoint += `has_field_component=${this.filter.has_field_component}&`;
+      if (this.filter.has_data_component === true || this.filter.has_data_component === false) endpoint += `has_data_component=${this.filter.has_data_component}&`;
+      if (this.filter.has_lab_component === true || this.filter.has_lab_component === false) endpoint += `has_lab_component=${this.filter.has_lab_component}&`;
+      if (this.filter.requires_abl_services === true || this.filter.requires_abl_services === false) endpoint += `requires_abl_services=${this.filter.requires_abl_services}&`;
       return endpoint
     },
 
@@ -284,7 +291,6 @@ var app = new Vue({
       this.clearProjectYears();
       this.getProjectYears();
       this.getFilterData();
-
     },
     openReviewModal(projectYear, which = "review") {
       this.projectYear2Review = projectYear;

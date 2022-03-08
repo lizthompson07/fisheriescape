@@ -97,3 +97,10 @@ class ProjectYearFilter(django_filters.FilterSet):
     division = django_filters.NumberFilter(field_name='project__section__division')
     section = django_filters.NumberFilter(field_name='project__section')
     starting_fy = django_filters.NumberFilter(field_name='project__starting_fy')
+
+    has_ship_needs = django_filters.BooleanFilter(field_name="has_ship_needs")
+    requires_specialized_equipment = django_filters.BooleanFilter(field_name="requires_specialized_equipment")
+    has_field_component = django_filters.BooleanFilter(field_name="has_field_component")
+    has_data_component = django_filters.BooleanFilter(field_name="has_data_component")
+    has_lab_component = django_filters.BooleanFilter(field_name="has_lab_component")
+    requires_abl_services = django_filters.BooleanFilter(field_name="requires_abl_services")

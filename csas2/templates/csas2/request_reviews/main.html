@@ -16,6 +16,13 @@
 {% block subcontent %}
   {% include "shared_models/_generic_breadcrumbs.html" %}
   <div class="mb-3">
+    {% if is_staff %}
+      <div class="float-right">
+        <a class="btn btn-dark" href="{% url 'csas2:request_translations' %}"><span class="mdi mdi-eye text-light mr-1">
+          </span> {% trans "Translation Console" %}
+        </a>
+      </div>
+    {% endif %}
     <h2 class="">{{ h1|safe }}</h2>
   </div>
 
