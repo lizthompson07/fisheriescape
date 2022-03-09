@@ -380,31 +380,13 @@ class GenericGrpParser(DataParser):
             # 2 checks needed: group in tank or not and whole group move or not:
             row_end_grp_list = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["end_tank_id"],
                                              row_date, prog_str=row[self.prio_key], mark_str=row[self.grp_mark_key])
-            row_end_grp = None
-            if not whole_grp and not row_end_grp_list:
-                # splitting fish group, create end group:
-                row_end_grp = copy.deepcopy(row_start_grp)
-                row_end_grp.pk = None
-                row_end_grp.id = None
-                row_end_grp.save()
-                end_grp_anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=row_end_grp.pk)
-                self.row_entered = anix_entered
-
-                self.row_entered += utils.enter_bulk_grpd(end_grp_anix.pk, cleaned_data, row_date,
-                                                          prog_grp=row.get(self.prio_key),
-                                                          mark=row.get(self.mark_key))
-            elif not whole_grp:
-                # splitting fish group, merging to exsisting end group
-                row_end_grp = row_end_grp_list[0]
-
-            else:
-                # whole group is moving
-                row_end_grp = row_start_grp
+            end_grp = None
+            if row_end_grp_list:
+                end_grp = row_end_grp_list[0]
 
             self.row_entered += utils.enter_move_cnts(cleaned_data, row["start_tank_id"], row["end_tank_id"],
-                                                      row_date,  grp_id=row_end_grp,
-                                                      nfish=row[self.nfish_key],
-                                                      start_grp_id=row_start_grp)[2]
+                                                      row_date,  start_grp_id=row_start_grp, end_grp_id=end_grp,
+                                                      nfish=row[self.nfish_key], whole_grp=whole_grp)[2]
         else:
             # fish did not move
             if utils.nan_to_none(row[self.nfish_key]):

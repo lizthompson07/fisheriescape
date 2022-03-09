@@ -1888,7 +1888,7 @@ def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, nfish=No
             start_anix, end_anix, data_entered = enter_move(cleaned_data, origin_id, destination_id, move_date,
                                                             grp_pk=start_grp_id.pk)
 
-            start_grp_id.grp_valid = False
+            start_grp_id.grp_end_date = move_date
             start_grp_id.save()
 
             if nfish:

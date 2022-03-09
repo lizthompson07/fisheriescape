@@ -263,7 +263,7 @@ class BioCont(BioLookup):
     # Make name not unique, is unique together with facility code.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"), db_column="NAME")
 
-    def fish_in_cont(self, at_date=timezone.now(), select_fields=None, get_grp=False):
+    def fish_in_cont(self, at_date=timezone.now(), select_fields=None, get_grp=False, valid_only=True):
         indv_list = []
         grp_list = []
 
@@ -274,7 +274,7 @@ class BioCont(BioLookup):
         filter_out_arg = "contx_start__{}_id".format(self.key)
 
         move_in_set = MoveDet.objects.filter(**{filter_in_arg: self},
-                                             move_date__lte=at_date).select_related("anix_id__indv_id",
+                                             move_date__lte=at_date, ).select_related("anix_id__indv_id",
                                                                                     "anix_id__grp_id", *select_fields)
 
         move_out_set = MoveDet.objects.filter(**{filter_out_arg: self},
@@ -288,16 +288,18 @@ class BioCont(BioLookup):
 
         for indv, in_count in indv_in_set.items():
             if indv:
-                if indv not in indv_out_set:
-                    indv_list.append(indv)
-                elif in_count > indv_out_set[indv]:
-                    indv_list.append(indv)
+                if indv.indv_valid or not valid_only:
+                    if indv not in indv_out_set:
+                        indv_list.append(indv)
+                    elif in_count > indv_out_set[indv]:
+                        indv_list.append(indv)
         for grp, in_count in grp_in_set.items():
             if grp:
-                if grp not in grp_out_set:
-                    grp_list.append(grp)
-                elif in_count > grp_out_set[grp]:
-                    indv_list.append(grp)
+                if (grp.grp_valid or not valid_only) and not grp.past_end_date(at_date):
+                    if grp not in grp_out_set:
+                        grp_list.append(grp)
+                    elif in_count > grp_out_set[grp]:
+                        indv_list.append(grp)
         if get_grp:
             return grp_list
         else:
@@ -1036,18 +1038,25 @@ class Group(BioModel):
                                    validators=[MinValueValidator(2000), MaxValueValidator(2100)])
     coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, verbose_name=_("Collection"),
                                 db_column="COLLECTION_ID")
+    grp_end_date = models.DateField(null=True, blank=True, verbose_name=_("Group end date"), db_column="GROUP_END_DATE")
     grp_valid = models.BooleanField(default="True", verbose_name=_("Group still valid?"), db_column="STILL_VALID")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTTS")
 
     def __str__(self):
         return "{}-{}-{}-{}".format(self.pk, self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
 
-    def current_cont(self, at_date=timezone.now(), valid_only=False, get_string=False):
+    def current_cont(self, at_date=timezone.now().date(), valid_only=False, get_string=False):
         cont_list = []
         if not self.grp_valid and valid_only:
             if get_string:
                 return ""
             return cont_list
+
+        if self.grp_end_date:
+            if self.grp_end_date < at_date:
+                if get_string:
+                    return ""
+                return cont_list
 
         move_set = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date). \
             select_related('contx_end', 'contx_start')
@@ -1237,6 +1246,15 @@ class Group(BioModel):
         last_obs_set = len_deps.filter(detail_date__gte=last_obs_date)
         avg_len = last_obs_set.aggregate(Avg('det_val'))["det_val__avg"]
         return avg_len
+
+    def past_end_date(self, at_date=timezone.now().date()):
+        if not self.grp_end_date:
+            return True
+        else:
+            if self.grp_end_date < at_date:
+                return False
+            else:
+                return True
 
 
 class GroupDet(BioDet):
