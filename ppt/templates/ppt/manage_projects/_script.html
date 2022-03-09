@@ -72,26 +72,24 @@ var app = new Vue({
           })
     },
     goReport(reportName) {
-      this.loadingReport = true;
-      endpoint = this.getProjectYearsEndpoint(5000);
-      apiService(endpoint).then(response => {
-        if (response.results) {
-          let ids = [];
-          for (const result of response.results) ids.push(result.id);
-
-          let reportUrl;
-          if (reportName === "basic") reportUrl = `{% url 'ppt:export_py_basic' %}?ids=${ids}`;
-          else if (reportName === "ppa") reportUrl = `{% url 'ppt:export_ppa' %}?ids=${ids}`;
-          else if (reportName === "crc") reportUrl = `{% url 'ppt:export_crc' %}?ids=${ids}`;
-          else if (reportName === "eqp") reportUrl = `{% url 'ppt:export_eqp' %}?ids=${ids}`;
-          else if (reportName === "lab") reportUrl = `{% url 'ppt:export_lab' %}?ids=${ids}`;
-          else if (reportName === "staff") reportUrl = `{% url 'ppt:export_staff' %}?ids=${ids}`;
-
-          window.location.href = reportUrl;
-          this.loadingReport = false;
-
-        }
-      })
+      console.log(123)
+      let userInput = true;
+      if (this.count > 500) userInput = confirm(`You are about to generate a report for a large number of projects (i.e., ${this.count} projects). Are you sure you want to continue?`);
+      if (userInput) {
+        this.loadingReport = true;
+        endpoint = this.getProjectYearsEndpoint(5000);
+        apiService(endpoint).then(response => {
+          if (response.results) {
+            let ids = [];
+            for (const result of response.results) ids.push(result.id);
+            let reportUrl;
+            if (reportName === "basic") reportUrl = `{% url 'ppt:export_py_list' %}?ids=${ids}`;
+            else if (reportName === "long") reportUrl = `{% url 'ppt:export_py_list' %}?long=true&ids=${ids}`;
+            window.location.href = reportUrl;
+            this.loadingReport = false;
+          }
+        })
+      }
     },
     goProjectDetail(projectYear) {
       url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;

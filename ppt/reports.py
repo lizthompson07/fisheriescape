@@ -1109,9 +1109,9 @@ def generate_py_basic(qs, site_url):
     date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
 
     field_list = [
+        'fiscal_year',
         'project.id|Project Id',
         'project.title|title',
-        'fiscal_year',
         'project.default_funding_source|Primary funding source',
         'project.functional_group|Functional group',
         'Project leads',
@@ -1121,6 +1121,8 @@ def generate_py_basic(qs, site_url):
         'region',
         'division',
         'project.section|section',
+        'project.starting_fy|starting year',
+        'project.fiscal_years_display|list of project years',
         'updated_at|Last modified date',
         'modified_by|Last modified by',
         'Last modified description',
