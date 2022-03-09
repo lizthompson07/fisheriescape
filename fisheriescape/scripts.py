@@ -1,3 +1,4 @@
+import csv
 import os
 
 from django.conf import settings
@@ -32,3 +33,33 @@ def export_fixtures():
         myfile.write(data)
         myfile.close()
 
+
+def import_marine_mammals():
+    """ a simple function to import information from a csv """
+    csv_file = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), 'data', 'MM and Turtle info for possible interactions.csv'),
+    )
+    cont_success = 0
+    # Remove all data from Table
+    models.MarineMammal.objects.all().delete()
+
+    with open(csv_file, newline='', encoding='latin1') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        next(spamreader, None)  # skip the headers
+        print('Loading...')
+        # for row in spamreader:
+        #     print(row[0])
+        for row in spamreader:
+            models.MarineMammal.objects.get_or_create(
+                english_name=row[1],
+                english_name_short=row[2],
+                french_name=row[3],
+                french_name_short=row[4],
+                latin_name=row[5],
+                population=row[6],
+                sara_status=row[7],
+                cosewic_status=row[8],
+                website=row[9],
+            )
+            cont_success += 1
+        print(f'{str(cont_success)} inserted successfully! ')

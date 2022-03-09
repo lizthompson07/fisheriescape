@@ -83,6 +83,23 @@ class FisheriescapeEditRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 def index(request):
     return render(request, 'fisheriescape/index.html')
 
+### SETTINGS ###
+### FORMSETS ###
+
+
+class MarineMammalFormsetView(FisheriescapeAdminAccessRequired, CommonFormsetView):
+    template_name = 'fisheriescape/formset.html'
+    h1 = "Manage Marine Mammals"
+    queryset = models.MarineMammal.objects.all()
+    formset_class = forms.MarineMammalFormSet
+    success_url_name = "fisheriescape:manage_marinemammals"
+    home_url_name = "fisheriescape:index"
+    delete_url_name = "fisheriescape:delete_marinemammals"
+    container_class = "container-fluid"
+
+class MarineMammalHardDeleteView(FisheriescapeAdminAccessRequired, CommonHardDeleteView):
+    model = models.MarineMammal
+    success_url = reverse_lazy("fisheriescape:manage_marinemammals")
 
 # #
 # # # MAP #
@@ -225,6 +242,7 @@ class FisheryAreaListView(FisheriescapeAccessRequired, CommonFilterView):
         {"name": 'id', "class": "", "width": ""},
         {"name": 'layer_id', "class": "", "width": ""},
         {"name": 'name', "class": "", "width": ""},
+        {"name": 'nafo_area', "class": "", "width": ""},
         {"name": 'region', "class": "", "width": ""},
     ]
 
@@ -238,6 +256,7 @@ class FisheryAreaDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
         'id',
         'layer_id',
         'name',
+        'nafo_area',
         'region',
 
     ]
@@ -337,11 +356,11 @@ class FisheryListView(FisheriescapeAccessRequired, CommonFilterView):
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
+        {"name": 'species', "class": "", "width": ""},
+        {"name": 'fishery_areas', "class": "", "width": ""},
         {"name": 'start_date', "class": "", "width": ""},
         {"name": 'end_date', "class": "", "width": ""},
         {"name": 'fishery_status', "class": "", "width": ""},
-        {"name": 'species', "class": "", "width": ""},
-        {"name": 'fishery_areas', "class": "", "width": ""},
         {"name": 'gear_type', "class": "", "width": ""},
         {"name": 'marine_mammals', "class": "", "width": ""},
     ]
@@ -352,21 +371,43 @@ class FisheryListView(FisheriescapeAccessRequired, CommonFilterView):
 
 class FisheryDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
     model = models.Fishery
-    field_list = [
-        'id',
-        'species',
-        'fishery_areas',
-        'start_date',
-        'end_date',
-        'fishery_status',
-        'gear_type',
-        'marine_mammals',
-    ]
     home_url_name = "fisheriescape:index"
     parent_crumb = {"title": gettext_lazy("Fishery List"), "url": reverse_lazy("fisheriescape:fishery_list")}
+    container_class = "container-fluid"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'id',
+            'species',
+            'fishery_areas',
+            'participants',
+            'start_date',
+            'end_date',
+            'fishery_status',
+            'license_type',
+            'management_system',
+        ]
+        context["field_list_gear"] = [
+            'gear_type',
+            'gear_amount',
+            'gear_config',
+            'gear_primary_colour',
+            'gear_secondary_colour',
+            'gear_tertiary_colour',
+            'gear_comment',
+        ]
+        context["field_list_monitoring"] = [
+            'monitoring_aso',
+            'monitoring_dockside',
+            'monitoring_logbook',
+            'monitoring_vms',
+            'monitoring_comment',
+        ]
+        context["field_list_other"] = [
+            'mitigation',
+            'comments',
+        ]
 
         # contexts for _mammals.html file
         context["random_mammals"] = models.MarineMammal.objects.first()
@@ -374,6 +415,7 @@ class FisheryDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
             'english_name',
             'french_name',
             'latin_name',
+            'population',
             'sara_status',
             'cosewic_status',
             'website',

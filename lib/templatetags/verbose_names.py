@@ -179,6 +179,11 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
             field_value = '${:,.2f}'.format(float(field_value))
         except:
             pass
+    if "percent" in str(format).lower():
+        try:
+            field_value = '{}%'.format(field_value)
+        except:
+            pass
     if isinstance(field_value, bool):
         field_value = yesno(field_value, "Yes,No,Unknown")
     try:

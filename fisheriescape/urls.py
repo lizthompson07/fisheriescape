@@ -44,4 +44,10 @@ urlpatterns = [
     path('analyses/<int:pk>/edit/', views.AnalysesUpdateView.as_view(), name="analyses_edit"),
     path('analyses/<int:pk>/delete/', views.AnalysesDeleteView.as_view(), name="analyses_delete"),
     # path('fishery-filter/', views.AnalysesFilterView.as_view(), name="analyses_filter"),
+
+    # SETTINGS #
+    ############
+
+    path('settings/marinemammals/', views.MarineMammalFormsetView.as_view(), name="manage_marinemammals"),
+    path('settings/marinemammals/<int:pk>/delete/', views.MarineMammalHardDeleteView.as_view(), name="delete_marinemammals"),
 ]

@@ -1,49 +1,139 @@
 {% extends "fisheriescape/base.html" %}
+{% load i18n %}
 {% load static %}
 {% load verbose_names %}
 {% load l10n %}
 
 {% block subcontent %}
 
-  <div class="mb-4">
-    <div class="btn-group">
-      <a class="btn btn-warning" href="{% url 'fisheriescape:fishery_edit' object.id %}">Edit</a>
-      <a class="btn btn-danger" href="{% url 'fisheriescape:fishery_delete' object.id %}">Delete</a>
-      <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}">Back</a>
+    <div class="mb-4">
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'fisheriescape:fishery_edit' object.id %}">Edit</a>
+            <a class="btn btn-danger" href="{% url 'fisheriescape:fishery_delete' object.id %}">Delete</a>
+            <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}">Back</a>
+        </div>
     </div>
-  </div>
 
-  <div class="row">
-    <div class="col-3">
-      <table class="table table-sm table-striped">
-        {% for field in field_list %}
-          {% verbose_td_display object field %}
-        {% endfor %}
-      </table>
-    </div>
-    <div class="col" align="center">
-        <div id="map2"></div>
-    </div>
-  </div>
-  <br>
-  <br>
+    {#  <div class="row">#}
+    {#    <div class="col-3">#}
+    {#      <table class="table table-sm table-striped">#}
+    {#        {% for field in field_list %}#}
+    {#          {% verbose_td_display object field %}#}
+    {#        {% endfor %}#}
+    {#      </table>#}
+    {#    </div>#}
+    {#    <div class="col" align="center">#}
+    {#        <div id="map2"></div>#}
+    {#    </div>#}
+    {#  </div>#}
+    {#  <br>#}
+    {#  <br>#}
 
-  <div class="col-12">
-    {% include "fisheriescape/_mammals.html" %}
-  </div>
+    <div class="row">
+        <div class="col-5">
+
+            {#Fisheries Info Card#}
+            <div class="card entry-card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Fisheries Info" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        {% for field in field_list %}
+                            {% verbose_td_display instance=object field_name=field date_format="%d-%b-%Y" %}
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+            {#Gear Type Card#}
+            <div class="card entry-card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Gear Type" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        {% for field in field_list_gear %}
+                            {% verbose_td_display instance=object field_name=field %}
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+            {#Mitigation and Comments Card#}
+            <div class="card entry-card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Mitigation Measures" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        {% for field in field_list_other %}
+                            {% verbose_td_display instance=object field_name=field %}
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+        </div>
+        <div class="col">
+
+            {#Map Card#}
+            <div class="card entry-card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Map" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-center">
+                        <div id="map2"></div>
+                    </div>
+                </div>
+            </div>
+
+            {#Monitoring Programs Card#}
+            <div class="card entry-card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Monitoring Programs" %}</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>These numbers represent the percent of the fleet that is required to report under each monitoring program.</strong></p>
+                    <table class="table table-sm">
+                        {% for field in field_list_monitoring %}
+                            {% verbose_td_display instance=object field_name=field format="percent" %}
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        {#Marine Mammals Card#}
+        <div class="col-12">
+            <div class="card entry-card mb-3 mt-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Potential Marine Mammal Interactions" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% include "fisheriescape/_mammals.html" %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
 
 {% endblock %}
 
 {% block body_js %}
-  {{ block.super }}
-  <script>
+    {{ block.super }}
+    <script>
 
-  let polygonObj = {{ fishery_polygons | safe }};
-  let mapboxApiKey = '{{ mapbox_api_key }}';
+        let polygonObj = {{ fishery_polygons | safe }};
+        let mapboxApiKey = '{{ mapbox_api_key }}';
 
-  </script>
+    </script>
 
-  <script src="{% static 'fisheriescape/map2.js' %}?version=1.1"></script>
+{#Remember to update version if you change css styling in base.html in order to reload!#}
+    <script src="{% static 'fisheriescape/map2.js' %}?version=1.4"></script>
 
 {% endblock %}
 

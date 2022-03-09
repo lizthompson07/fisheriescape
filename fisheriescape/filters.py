@@ -18,6 +18,7 @@ class FisheryAreaFilter(django_filters.FilterSet):
         model = models.FisheryArea
         fields = {
             'name': ['icontains'],
+            'nafo_area': ['exact'],
             'region': ['exact'],
 
         }

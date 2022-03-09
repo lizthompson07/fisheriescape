@@ -9,6 +9,15 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.gis.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+
+class NAFOArea(models.Model):
+    name = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("nafo area name"))
+    polygon = models.MultiPolygonField(srid=4326)
+
+    def __str__(self):
+        return "{}".format(self.name)
+
+
 REGION_CHOICES = (
     ("Gulf", "Gulf"),
     ("Mar", "Maritimes"),
@@ -20,6 +29,7 @@ REGION_CHOICES = (
 class FisheryArea(models.Model):
     layer_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("layer id"))
     name = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("fisheries area name"))
+    nafo_area = models.ManyToManyField(NAFOArea, blank=True, related_name="nafoareas", verbose_name=_("nafo area name"))
     region = models.CharField(max_length=255, null=True, blank=True, choices=REGION_CHOICES,
                               verbose_name=_("DFO region"))
     polygon = models.MultiPolygonField(srid=4326)
@@ -44,6 +54,9 @@ class Species(models.Model):
     french_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("french name"))
     latin_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("scientific name"))
     website = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("website"))
+
+    class Meta:
+        ordering = ["english_name"]
 
     def __str__(self):
         # check to see if a french value is given
@@ -75,9 +88,13 @@ class MarineMammal(models.Model):
     french_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("french name"))
     french_name_short = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("short french name"))
     latin_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("scientific name"))
+    population = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("population"))
     sara_status = models.CharField(max_length=255, null=True, blank=True, choices=RISK_STATUS_CHOICES, verbose_name=_("sara status"))
-    cosewic_status = models.CharField(max_length=255, null=True, blank=True, choices=RISK_STATUS_CHOICES, verbose_name=_("cosewic status"))
+    cosewic_status = models.CharField(max_length=255, null=True, blank=True, choices=RISK_STATUS_CHOICES, verbose_name=_("cosewic assessed"))
     website = models.URLField(max_length=250, blank=True, null=True, verbose_name=_("website"))
+
+    class Meta:
+        ordering = ["english_name"]
 
     def __str__(self):
         if self.english_name_short:
@@ -93,31 +110,91 @@ class MarineMammal(models.Model):
     #     return reverse("fisheriescape:species_detail", kwargs={"pk": self.id})
 
 
+class Mitigation(models.Model):
+    mitigation_type = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("mitigation type"))
+    description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("description"))
+
+    class Meta:
+        ordering = ["mitigation_type"]
+
+    def __str__(self):
+        return "{}".format(self.mitigation_type)
+
+
 STATUS_CHOICES = (
     ("Active", "Active"),
-    ("Inactive", "Inactive"),
     ("Experimental", "Experimental"),
+    ("Inactive", "Inactive"),
     ("Unknown", "Unknown"),
 )
 
 LICENSE_CHOICES = (
-    ("Single", "Single Species"),
     ("Multi", "Multi Species"),
+    ("Single", "Single Species"),
+)
+
+GEAR_CHOICES = (
+    ("Gillnets", "Gillnets"),
+    ("Longlines", "Longlines"),
+    ("Pots / Traps", "Pots / Traps"),
+    ("Set Gillnet", "Set Gillnet"),
+)
+
+MGMT_CHOICES = (
+    ("Effort Control", "Effort Control"),
+    ("Quota - Competitive", "Quota - Competitive"),
+    ("Quota - Individual", "Quota - Individual"),
+)
+
+ROPE_CHOICES = (
+    ("", "---------"),
+    ("Blue", "Blue"),
+    ("Black", "Black"),
+    ("Red", "Red"),
+    ("Yellow", "Yellow"),
+    ("White", "White"),
+    ("Purple", "Purple"),
+    ("Orange", "Orange"),
+    ("Green", "Green"),
+    ("Grey", "Grey"),
+    ("Brown", "Brown"),
+    ("Pink", "Pink"),
+    ("Red/White Pattern", "Red/White Pattern"),
 )
 
 
 class Fishery(models.Model):
+    #fisheries info
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="fisherys",
                                 verbose_name=_("species"))
     fishery_areas = models.ManyToManyField(FisheryArea, related_name="species", verbose_name=_("fishery areas"))
+    participants = models.IntegerField(null=True, blank=True, verbose_name=_("participants"))
     start_date = models.DateTimeField(null=True, blank=True, verbose_name=_("start date of season"))
     end_date = models.DateTimeField(null=True, blank=True, verbose_name=_("end date of season"))
     fishery_status = models.CharField(max_length=255, null=True, blank=True, choices=STATUS_CHOICES,
                                       verbose_name=_("fishery status"))
-    gear_type = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("gear type"))
+    license_type = models.CharField(max_length=255, null=True, blank=True, choices=LICENSE_CHOICES,
+                                    verbose_name=_("type of license"))
+    management_system = models.CharField(max_length=255, null=True, blank=True, choices=MGMT_CHOICES,
+                                         verbose_name=_("management system"))
+    # gear information
+    gear_type = models.CharField(max_length=255, null=True, blank=True, choices=GEAR_CHOICES, verbose_name=_("gear type"))
+    gear_amount = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("gear amount per participant"))
+    gear_config = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("gear configuration"))
+    gear_primary_colour = models.CharField(max_length=255, null=True, blank=True, choices=ROPE_CHOICES, verbose_name=_("gear primary colour"))
+    gear_secondary_colour = models.CharField(max_length=255, null=True, blank=True, choices=ROPE_CHOICES, verbose_name=_("gear secondary colour"))
+    gear_tertiary_colour = models.CharField(max_length=255, null=True, blank=True, choices=ROPE_CHOICES, verbose_name=_("gear tertiary colour"))
+    gear_comment = models.TextField(blank=True, null=True, verbose_name=_("gear comments"))
+    # monitoring information
+    monitoring_aso = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True, blank=True, verbose_name=_("at sea observer (ASO)"))
+    monitoring_dockside = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True, blank=True, verbose_name=_("dockside monitoring"))
+    monitoring_logbook = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True, blank=True, verbose_name=_("logbook"))
+    monitoring_vms = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True, blank=True, verbose_name=_("vessel monitoring system (VMS)"))
+    monitoring_comment = models.TextField(blank=True, null=True, verbose_name=_("monitoring comments"))
+    # marine mammals and mitigation
+    mitigation = models.ManyToManyField(Mitigation, blank=True, related_name="mitigations", verbose_name=_("mitigation type"))
     marine_mammals = models.ManyToManyField(MarineMammal, blank=True, related_name="fisherys", verbose_name=_("marine mammals"))
-    # license_type = models.CharField(max_length=255, null=True, blank=True, choices=LICENSE_CHOICES,
-    #                                 verbose_name=_("type of license"))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
 
     class Meta:
         ordering = ["start_date", "species", ]
@@ -141,6 +218,9 @@ class Fishery(models.Model):
 
 class Week(models.Model):
     week_number = models.IntegerField(validators=[MaxValueValidator(53), MinValueValidator(1)], verbose_name="week")
+
+    class Meta:
+        ordering = ["week_number"]
 
     def __str__(self):
         my_str = "Week {}".format(self.week_number)
@@ -166,7 +246,6 @@ class Analyses(models.Model):
     image = models.FileField(upload_to=image_directory_path, default='/fisheriescape/default_image.png', verbose_name=_("image"))
     ref_text = models.TextField(blank=True, null=True, verbose_name="reference text")
 
-
     def __str__(self):
         my_str = "{}".format(self.species.english_name)
 
@@ -176,6 +255,7 @@ class Analyses(models.Model):
 
     class Meta:
         ordering = ['week', 'species', ]
+
     def get_absolute_url(self):
         return reverse("fisheriescape:analyses_detail", kwargs={"pk": self.id})
 
