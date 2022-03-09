@@ -1523,9 +1523,9 @@ def export_py_list(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
 
     if request.GET.get("long"):
-        file_url = reports.generate_py_long(qs, site_url)
+        file_url = reports.generate_py(qs, site_url, "long")
     else:
-        file_url = reports.generate_py_basic(qs, site_url)
+        file_url = reports.generate_py(qs, site_url, "basic")
 
 
     if os.path.exists(file_url):
