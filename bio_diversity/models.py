@@ -1249,7 +1249,7 @@ class Group(BioModel):
 
     def past_end_date(self, at_date=timezone.now().date()):
         if not self.grp_end_date:
-            return True
+            return False
         else:
             if self.grp_end_date < at_date:
                 return False
