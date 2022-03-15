@@ -21,8 +21,9 @@ class SitesParser(DataParser):
     lon_key = "Min Long"
     max_lon_key = "Max Long"
 
-    header = 2
-    row_count = header + 2
+    header = 1
+    comment_row = [2]
+    row_count = header + 3
     converters = {name_key: str, lat_key: str, lon_key: str, max_lon_key: str, max_lat_key: str}
 
     def load_data(self):

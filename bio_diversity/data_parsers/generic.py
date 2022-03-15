@@ -102,7 +102,7 @@ class GenericIndvParser(DataParser):
         if utils.nan_to_none(row[self.end_tank_key]):
             out_tank = models.Tank.objects.filter(name=row[self.end_tank_key]).get()
         if in_tank or out_tank:
-            self.row_entered += utils.enter_move(self.cleaned_data, in_tank, out_tank, row_datetime.date, indv_id=indv,
+            self.row_entered += utils.enter_move(self.cleaned_data, in_tank, out_tank, row_datetime.date(), indv_pk=indv.pk,
                                                  return_sucess=True)
 
         self.row_entered += utils.parse_extra_cols(row, self.cleaned_data, anix, indv=True)
@@ -210,7 +210,7 @@ class GenericUntaggedParser(DataParser):
                                    self.data[self.end_tank_key].astype(str) + self.data[self.prio_key].astype(str) + \
                                    self.data["datetime"].astype(str) + self.data[self.grp_mark_key].astype(str)
 
-        # create the end group dict and create, movement event, groups, counts, contxs, etc. necesarry
+        # create the end group dict and create groups, counts, contxs, etc. necesarry
         end_grp_data = self.data.groupby(
             [self.rive_key, "grp_year", "grp_coll", "end_tank_id", "start_tank_id", self.prio_key, "datetime",
              self.grp_mark_key, "grp_key", "end_grp_key"],
@@ -247,9 +247,9 @@ class GenericUntaggedParser(DataParser):
                                      self.mark_anidc_id.pk, row[self.grp_mark_key])
 
                 self.row_entered += utils.enter_move_cnts(cleaned_data, row["start_tank_id"], row["end_tank_id"],
-                                                          row["datetime"].date,  grp_id=end_grp_id,
+                                                          row["datetime"].date(),  end_grp_id=end_grp_id,
                                                           nfish=sum(end_grp_data[end_grp_data["grp_key"] == row["grp_key"]][0]),
-                                                          start_grp_id=start_grp_id)[2]
+                                                          start_grp_id=start_grp_id, whole_grp=False)[2]
 
         self.data_dict = self.data.to_dict("records")
 
@@ -365,9 +365,9 @@ class GenericGrpParser(DataParser):
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
-        row_date = utils.naive_to_aware(row["datetime"].date())
+        row_date = utils.naive_to_aware(row["datetime"]).date()
         row_start_grp = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["start_tank_id"],
-                                      row["datetime"], prog_str=row.get(self.prio_key), mark_str=row.get(self.grp_mark_key),
+                                      row_date, prog_str=row.get(self.prio_key), mark_str=row.get(self.grp_mark_key),
                                       fail_on_not_found=True)[0]
         det_anix, self.row_entered = utils.enter_anix(cleaned_data, grp_pk=row_start_grp.pk)
         start_cnt_anix, start_contx, contx_entered = utils.enter_contx(row["start_tank_id"], cleaned_data, final_flag=None,
@@ -377,7 +377,6 @@ class GenericGrpParser(DataParser):
         whole_grp = utils.y_n_to_bool(row[self.abs_key])
 
         if utils.nan_to_none(row["end_tank_id"]):
-            # 2 checks needed: group in tank or not and whole group move or not:
             row_end_grp_list = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["end_tank_id"],
                                              row_date, prog_str=row[self.prio_key], mark_str=row[self.grp_mark_key])
             end_grp = None

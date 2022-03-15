@@ -46,7 +46,8 @@ class DistributionParser(DataParser):
     weight_anidc_id = None
     driver_role_id = None
 
-    header = 2
+    header = 1
+    comment_row = [2]
     converters = {cont_key: str, 'Year': str, 'Month': str, 'Day': str}
     sheet_name = "Groups"
 
@@ -233,7 +234,8 @@ class DistributionIndvParser(DataParser):
 
     sex_dict = calculation_constants.sex_dict
 
-    header = 2
+    header = 1
+    comment_row = [2]
     converters = {tank_key: str, trof_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
     sheet_name = "Individuals"
 

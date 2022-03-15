@@ -31,6 +31,7 @@ class TaggingParser(DataParser):
     precocity_key = "Precocity (Y/N)"
 
     header = 0
+    comment_row = [1]
     converters = {to_tank_key: str, from_tank_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
     start_grp_dict = {}
     end_grp_dict = {}
@@ -103,7 +104,7 @@ class TaggingParser(DataParser):
         if utils.nan_to_none(row[self.from_tank_id_key]) or utils.nan_to_none(row[self.to_tank_id_key]):
             in_tank = row[self.from_tank_id_key]
             out_tank = row[self.to_tank_id_key]
-            self.row_entered += utils.enter_move(cleaned_data, in_tank, out_tank, row_datetime.date, indv_id=indv,
+            self.row_entered += utils.enter_move(cleaned_data, in_tank, out_tank, row_datetime.date(), indv_pk=indv.pk,
                                                  return_sucess=True)
             # if tagged fish goes back into same tank, still link fish to tank:
             if in_tank == out_tank:
@@ -165,7 +166,8 @@ class MactaquacTaggingParser(TaggingParser):
     vial_key = "Vial Number"
     crew_key = "Crew"
 
-    header = 2
+    header = 1
+    comment_row = [2]
     converters = {to_tank_key: str, from_tank_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
     sex_anidc_id = None
 

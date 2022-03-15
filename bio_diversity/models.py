@@ -263,7 +263,7 @@ class BioCont(BioLookup):
     # Make name not unique, is unique together with facility code.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"), db_column="NAME")
 
-    def fish_in_cont(self, at_date=timezone.now(), select_fields=None, get_grp=False, valid_only=True):
+    def fish_in_cont(self, at_date=timezone.now().date(), select_fields=None, get_grp=False, valid_only=True):
         indv_list = []
         grp_list = []
 
@@ -1101,7 +1101,7 @@ class Group(BioModel):
                     feed_str += "{}: {}\n".format(cont.__str__(), cont_feed_str)
         return feed_str
 
-    def count_fish_in_group(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
+    def count_fish_in_group(self, at_date=timezone.now()):
         fish_count = 0
 
         # ordered oldest to newest
@@ -1845,6 +1845,14 @@ class MoveDet(BioModel):
     @property
     def evnt(self):
         return self.anix_id.evnt_id
+
+    @property
+    def loc_id(self):
+        if self.anix_id.loc_id:
+            return self.anix_id.loc_id
+        else:
+            return None
+
 
 class Organization(BioLookup):
     # orga tag

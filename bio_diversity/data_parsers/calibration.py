@@ -12,15 +12,18 @@ class CalibrationParser(DataParser):
     cnt_key = "New Group Count "
     cont_key = "New Container"
     remove_key = "Remove Group"
+    end_key = "End Group"
     comment_key = "Comments"
     grp_pk_key = "Group ID"
 
-    header = 2
+    header = 1
+    comment_row = [2]
     sheet_name = "Tank"
     converters = {cnt_key: str}
 
     def load_data(self):
         self.mandatory_keys = [self.cnt_key, self.cont_key, self.remove_key]
+        self.mandatory_filled_keys = []
         super(CalibrationParser, self).load_data()
 
     def data_preper(self):
@@ -57,6 +60,14 @@ class CalibrationParser(DataParser):
 
                 utils.enter_move_cnts(cleaned_data, None, new_cont_id, evnt_date, start_grp_id=grp_id,
                                       end_grp_id=end_grp, nfish=nfish, whole_grp=True)
+            elif nfish:
+                anix = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_anix=True)
+                utils.enter_cnt(cleaned_data, nfish, evnt_date, anix_pk=anix.pk, cnt_code="Fish in Container")
+
+            if utils.nan_to_none(row.get(self.end_key)):
+                if utils.y_n_to_bool(row.get(self.end_key)):
+                    grp_id.grp_end_date = evnt_date
+                    grp_id.save()
 
             if utils.nan_to_none(row.get(self.remove_key)):
                 grp_id.grp_valid = False

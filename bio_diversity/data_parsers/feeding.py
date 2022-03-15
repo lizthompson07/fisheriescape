@@ -15,8 +15,10 @@ class FeedingParser(DataParser):
     comment_key = "Comments"
 
     feed_type_count = 5
-    header = 2
-    row_count = header + 2
+
+    header = 1
+    comment_row = [2]
+    row_count = header + 3
     converters = {tank_key: str, feedm_key: str, feedf_key: str}
     sheet_name = "Feedings"
 

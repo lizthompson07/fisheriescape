@@ -42,7 +42,8 @@ class SpawningParser(DataParser):
     dest_key_m = "End Tank, M"
     prog_key = "Program"
 
-    header = 2
+    header = 1
+    comment_row = [2]
     start_grp_dict = {}
     end_grp_dict = {}
     converters = {pit_key_f: str, pit_key_m: str, dest_key_m: str, dest_key_f:str, 'Year': str, 'Month': str, 'Day': str}

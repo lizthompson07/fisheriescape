@@ -20,7 +20,8 @@ class EDInitParser(DataParser):
     fecu_key = "Fecundity"
     comment_key = "Comments"
 
-    header = 2
+    header = 1
+    comment_row = [2]
     sheet_name = "Init"
     converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
 
@@ -84,7 +85,8 @@ class EDPickParser(DataParser):
     all_hatch_key = "100% Hatch Observed (Y/N)"
     comment_key = "Comments"
 
-    header = 2
+    header = 1
+    comment_row = [2]
     sheet_name = "Picking"
     converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
     default_pickc_id = None
@@ -195,7 +197,8 @@ class EDHUParser(DataParser):
     heatl_key = "Heath Unit Location"
     tank_key = "Tank"
 
-    header = 2
+    header = 1
+    comment_row = [2]
     sheet_name = "Allocations"
     converters = {trof_key: str, cross_key: str, tray_key: str, cont_key: str, 'Year': str, 'Month': str, 'Day': str}
 

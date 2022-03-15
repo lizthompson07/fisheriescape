@@ -1,6 +1,5 @@
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-import pandas as pd
 
 from bio_diversity import models
 from bio_diversity import utils
@@ -19,7 +18,8 @@ class MasterIndvParser(DataParser):
     sex_key = "Sex"
     lifestage_key = "Lifestage"
 
-    header = 2
+    header = 1
+    comment_row = [2]
     sheet_name = "Individual"
     converters = {tank_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
 
@@ -85,7 +85,8 @@ class MasterGrpParser(DataParser):
     lifestage_key = "Lifestage"
     comment_key = "Comments"
 
-    header = 2
+    header = 1
+    comment_row = [2]
     sheet_name = "Group"
     converters = {tank_key: str, 'Year': str, 'Month': str, 'Day': str}
 

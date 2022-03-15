@@ -28,7 +28,8 @@ class ElectrofishingParser(DataParser):
     coll_key = "Collection"
     tank_key = "End Tank"
 
-    header = 2
+    header = 1
+    comment_row = [2]
     converters = {tank_key: str, 'Year': str, 'Month': str, 'Day': str}
     start_grp_dict = {}
     end_grp_dict = {}
@@ -126,14 +127,14 @@ class ElectrofishingParser(DataParser):
             # Find group if fish are coming back to facility:
             tank_id = models.Tank.objects.filter(name__icontains=utils.nan_to_none(row[self.tank_key]),
                                                  facic_id=cleaned_data["facic_id"]).get()
+            contx_id, contx_entered = utils.enter_contx(tank_id, cleaned_data, return_contx=True)
+            self.row_entered += contx_entered
+
             grp_list = utils.get_grp(stok_id.name, grp_year, coll_id.name, cont=tank_id, at_date=row_datetime,
                                      prog_str=row[self.prio_key])
             if grp_list:
                 grp_id = grp_list[0]
                 self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
-                anix_grp, contx_id, contx_entered = utils.enter_contx(tank_id, cleaned_data, final_flag=True,
-                                                                   grp_pk=grp_id.pk, return_anix=True)
-                self.row_entered += contx_entered
             else:
                 grp_id = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                                       stok_id=stok_id,
@@ -146,31 +147,30 @@ class ElectrofishingParser(DataParser):
                 # relies on try-except of parser class, there's no way to retrieve the group.
                 grp_id.clean()
                 grp_id.save()
-                anix_grp, contx_id, contx_entered = utils.enter_contx(tank_id, cleaned_data, final_flag=True,
-                                                                      grp_pk=grp_id.pk, return_anix=True)
-                self.row_entered += contx_entered
+                anix_grp, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
+                self.row_entered += anix_entered
                 if utils.nan_to_none(row[self.prio_key]):
                     self.row_entered += utils.enter_grpd(anix_grp.pk, cleaned_data, row_datetime, None,
                                                          None, anidc_str="Program Group", adsc_str=row[self.prio_key])
+            # grp is set, record the move:
+            start_anix, end_anix, move_entered = utils.enter_move(cleaned_data, None, tank_id, row_datetime.date(),
+                                                                  grp_pk=grp_id.pk, loc_pk=loc.pk)
+            self.row_entered += move_entered
 
             self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=contx_id.pk,
                                                  return_sucess=True)
-            self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, grp_pk=grp_id.pk, return_sucess=True)
-            cnt_anix, anix_entered = utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=contx_id.pk,
-                                                      grp_pk=grp_id.pk, final_flag=True)
-            self.row_entered += anix_entered
-            cnt_caught, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fish_caught_key], row_datetime.date, anix_pk=cnt_anix.pk,
-                                                      loc_pk=loc.pk, cnt_code="Fish Caught")
+
+            cnt_caught, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fish_caught_key], row_datetime.date(),
+                                                      anix_pk=end_anix.pk, loc_pk=loc.pk, cnt_code="Fish Caught")
             self.row_entered += cnt_entered
             # end if tank_id block
 
-        cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fish_obs_key], row_datetime.date, loc_pk=loc.pk,
+        cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fish_obs_key], row_datetime.date(), loc_pk=loc.pk,
                                                cnt_code="Fish Observed")
         self.row_entered += cnt_entered
-        if utils.nan_to_none(row.get(self.fish_rel_key)):
-            cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fish_rel_key], row_datetime.date, loc_pk=loc.pk,
-                                                   cnt_code="Fish Released")
-            self.row_entered += cnt_entered
+        cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fish_rel_key], row_datetime.date(), loc_pk=loc.pk,
+                                               cnt_code="Fish Released")
+        self.row_entered += cnt_entered
 
         if self.loc.loc_lon and self.loc.loc_lat and not self.loc.relc_id:
             self.log_data += "\nNo site found in db for Lat-Long ({}, {}) given on row: \n{}\n\n"\
@@ -178,19 +178,15 @@ class ElectrofishingParser(DataParser):
 
         self.team_parser(row[self.crew_key], row, loc_id=loc)
 
-        if utils.nan_to_none(row.get(self.temp_key)):
-            self.row_entered += utils.enter_env(row[self.temp_key], row_datetime, cleaned_data, self.temp_envc_id,
-                                                loc_id=loc)
+        self.row_entered += utils.enter_env(row[self.temp_key], row_datetime, cleaned_data, self.temp_envc_id,
+                                            loc_id=loc)
 
-        if utils.nan_to_none(row.get(self.settings_key)):
-            self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.settings_key],
-                                                 self.settings_locdc_id.pk)
-        if utils.nan_to_none(row.get(self.fishing_time_key)):
-            self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.fishing_time_key],
-                                                 self.fishing_time_locdc_id.pk)
-        if utils.nan_to_none(row.get(self.voltage_key)):
-            self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.voltage_key],
-                                                 self.voltage_locdc_id.pk)
+        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.settings_key],
+                                             self.settings_locdc_id.pk)
+        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.fishing_time_key],
+                                             self.fishing_time_locdc_id.pk)
+        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.voltage_key],
+                                             self.voltage_locdc_id.pk)
 
 
 class ColdbrookElectrofishingParser(ElectrofishingParser):
@@ -212,7 +208,8 @@ class MactaquacElectrofishingParser(ElectrofishingParser):
     fish_rel_key = "# Fish Released"
     settings_key = "Fishing Settings"
     fishing_time_key = "Fishing Seconds"
-    header = 2
+    header = 1
+    comment_row = [2]
     tank_key = "Destination Pond"
     coll_key = "Year Class"
 
@@ -230,6 +227,7 @@ class AdultCollectionParser(DataParser):
     len_key_mm = "Length (mm)"
     weight_key = "Weight (g)"
     weight_key_kg = "Weight (kg)"
+    tissue_key = "Tissue Sample"
     sex_key = "Sex"
     scale_key = "Scale Sample"
     vial_key = "Vial"
@@ -354,6 +352,7 @@ class AdultCollectionParser(DataParser):
                                                        len_val=row.get(self.len_key),
                                                        weight=row.get(self.weight_key),
                                                        weight_kg=row.get(self.weight_key_kg),
+                                                       tissue_yn=row.get(self.tissue_key),
                                                        vial=row.get(self.vial_key),
                                                        scale_envelope=row.get(self.scale_key),
                                                        prog_grp=row.get(self.grp_key),
@@ -435,6 +434,7 @@ class AdultCollectionParser(DataParser):
                                                        len_val=row.get(self.len_key),
                                                        weight=row.get(self.weight_key),
                                                        weight_kg=row.get(self.weight_key_kg),
+                                                       tissue_yn=row.get(self.tissue_key),
                                                        vial=row.get(self.vial_key),
                                                        scale_envelope=row.get(self.scale_key),
                                                        prog_grp=row.get(self.grp_key),
@@ -462,4 +462,4 @@ class AdultCollectionParser(DataParser):
         for loc_pk, cnt_obs in self.loc_obs_dict.items():
             utils.enter_cnt(self.cleaned_data, cnt_obs, None, loc_pk=loc_pk, cnt_code="Fish Observed")
         for anix_pk, grp_cnt in self.grp_cnt_dict.items():
-            utils.enter_cnt(self.cleaned_data, grp_cnt, cleaned_data["evnt_id"].start_date, anix_pk=anix_pk, cnt_code="Fish added to container")
+            utils.enter_cnt(self.cleaned_data, grp_cnt, self.cleaned_data["evnt_id"].start_date, anix_pk=anix_pk, cnt_code="Fish added to container")

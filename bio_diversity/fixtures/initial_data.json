@@ -1333,7 +1333,20 @@
         },
         "model": "bio_diversity.countcode",
         "pk": 12
-    }, {
+    },
+    {
+        "fields": {
+            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+            "created_date": "2021-01-15",
+            "description_en": "Fish released at site",
+            "description_fr": "",
+            "name": "Fish Released",
+            "nom": null
+        },
+        "model": "bio_diversity.countcode",
+        "pk": 23
+    },
+    {
         "fields": {
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-04-13",

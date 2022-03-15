@@ -590,17 +590,8 @@ def get_draw_from_dot(dot_string, cleaned_data):
         return
 
 
-def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=timezone.now(), prog_grp=None,
+def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=timezone.now().date(), prog_grp=None,
             prog_str=None, grp_mark=None, mark_str=None, fail_on_not_found=False):
-
-    if nan_to_none(prog_str):
-        prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=prog_str).get()
-
-    if nan_to_none(prog_grp) and not (type(prog_grp) == list):
-        prog_grp = [prog_grp]
-
-    if nan_to_none(mark_str):
-        grp_mark = models.AniDetSubjCode.objects.filter(name__iexact=mark_str).get()
 
     coll_id = None
     if nan_to_none(coll_str):
@@ -624,6 +615,15 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=timezone.now(), pr
         if nan_to_none(grp_year):
             grp_qs = grp_qs.filter(grp_year=grp_year)
         grp_list = [grp for grp in grp_qs]
+
+    if nan_to_none(prog_str):
+        prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=prog_str).get()
+
+    if nan_to_none(prog_grp) and not (type(prog_grp) == list):
+        prog_grp = [prog_grp]
+
+    if nan_to_none(mark_str):
+        grp_mark = models.AniDetSubjCode.objects.filter(name__iexact=mark_str).get()
 
     if prog_grp:
         for prog in prog_grp:
@@ -1047,7 +1047,7 @@ def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_c
         cnt_anix, contx, data_entered = enter_contx(tray, new_cleaned_data, final_flag=None, grp_pk=grp_pk,
                                                     return_anix=True)
         row_entered += data_entered
-        enter_cnt(cleaned_data, pick_cnt, pick_datetime.date, anix_pk=cnt_anix.pk, cnt_code=cnt_code)
+        enter_cnt(cleaned_data, pick_cnt, pick_datetime.date(), anix_pk=cnt_anix.pk, cnt_code=cnt_code)
 
     if return_anix:
         return anix, row_entered
@@ -1158,8 +1158,10 @@ def enter_cnt(cleaned_data, cnt_value, cnt_date, anix_pk=None, loc_pk=None, cont
               stok_id=None, coll_id=None, cnt_year=None):
     cnt = False
     entered = False
-    if cnt_value is None:
+    if nan_to_none(cnt_value) is None:
         return False, False
+    else:
+        cnt_value = int(cnt_value)
     if cnt_date is None and loc_pk is not None:
         cnt_date = models.Location.objects.filter(pk=loc_pk).get().loc_date
     if not math.isnan(cnt_value):
@@ -1590,6 +1592,9 @@ def enter_indvt(anix_pk, cleaned_data, treat_datetime, dose, indvtc_pk, treat_en
 
 def enter_locd(loc_pk, cleaned_data, det_date, det_value, locdc_pk, ldsc_str=None, comments=None):
     row_entered = False
+    if nan_to_none(det_value):
+        return False
+
     if isinstance(det_value, float):
         if math.isnan(det_value):
             return False
@@ -1795,20 +1800,22 @@ def enter_spwnd(pair_pk, cleaned_data, det_value, spwndc_pk, spwnsc_str, qual_co
     return row_entered
 
 
-def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None, grp_pk=None, return_sucess=False):
+def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None, grp_pk=None, loc_pk=None,
+               return_sucess=False):
     # cases:
     # origin == destination / no desitination
     # origin is none
     # origin != destination
     row_entered = False
     start_anix = None
+    end_anix = None
     origin_conts = None
 
     # link indv/grp to evnt regardless:
-    anix_id, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk)
+    anix_id, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, loc_pk=loc_pk)
     row_entered += anix_entered
 
-    if (origin_id == destination_id) or nan_to_none(destination_id) is None:
+    if (origin_id == destination_id) or (nan_to_none(destination_id) is None and loc_pk is None):
         # no movement, link indv/grp to cont:
         # destination is set
         anix, contx, contx_entered = enter_contx(origin_id, cleaned_data, return_anix=True,
@@ -1818,6 +1825,14 @@ def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None,
             return row_entered
         else:
             return anix, anix, row_entered
+    elif nan_to_none(destination_id) is None and loc_pk:
+        end_contx_pk = None
+    else:
+        # destination is set
+        end_anix, end_contx, contx_entered = enter_contx(destination_id, cleaned_data, return_anix=True,
+                                                         indv_pk=indv_pk, grp_pk=grp_pk)
+        row_entered += contx_entered
+        end_contx_pk = end_contx.pk
 
     if nan_to_none(origin_id):
         origin_conts = [origin_id]
@@ -1825,17 +1840,11 @@ def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None,
         if indv_pk:
             indv = models.Individual.objects.filter(pk=indv_pk).get()
             origin_conts = indv.current_cont(move_date)
-        elif grp_pk:
+        if grp_pk:
             grp = models.Group.objects.filter(pk=grp_pk).get()
             origin_conts = grp.current_cont(move_date)
-        if not origin_conts:
+        if not origin_conts or loc_pk:
             origin_conts = [None]
-
-    # destination is set
-    end_anix, end_contx, contx_entered = enter_contx(destination_id, cleaned_data, return_anix=True,
-                                                     indv_pk=indv_pk, grp_pk=grp_pk)
-    row_entered += contx_entered
-    end_contx_pk = end_contx.pk
 
     for origin in origin_conts:
         if origin == destination_id:
