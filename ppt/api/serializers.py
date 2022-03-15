@@ -138,12 +138,17 @@ class ProjectSerializer(serializers.ModelSerializer):
     functional_group = serializers.StringRelatedField()
     default_funding_source = serializers.StringRelatedField()
     lead_staff = serializers.SerializerMethodField()
+    start_year_display = serializers.SerializerMethodField()
 
     def get_has_unsubmitted_years(self, instance):
         return instance.has_unsubmitted_years
 
     def get_lead_staff(self, instance):
         return listrify([str(nz(s)) for s in instance.lead_staff.all()])
+
+    def get_start_year_display(self, instance):
+        if instance.starting_fy:
+            return str(instance.starting_fy)
 
 
 class ProjectYearSerializer(serializers.ModelSerializer):
