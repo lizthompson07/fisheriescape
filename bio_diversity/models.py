@@ -1126,7 +1126,7 @@ class Group(BioModel):
         grp_list = [self]
         return indv_list, grp_list
 
-    def get_development(self, at_date=timezone.now()):
+    def get_development(self, at_date=timezone.now().date()):
         dev = 0
         start_date = utils.aware_min().date()
         dev_qs = GroupDet.objects.filter(anix_id__grp_id=self, grpd_valid=True, anidc_id__name="Development")
@@ -1134,28 +1134,20 @@ class Group(BioModel):
             dev = float(dev_qs[0] .det_val)
             start_date = utils.naive_to_aware(dev_qs[0].detail_date).date()
         degree_days = []
-        anix_set = AniDetailXref.objects.filter(grp_id=self,
-                                                final_contx_flag__isnull=False,
-                                                evnt_id__start_datetime__lte=at_date
-                                                ).order_by("evnt_id__start_datetime").select_related("contx_id", "evnt_id")
 
-        end_date = 0
-        cont = False
-        for anix in anix_set:
-            if anix.final_contx_flag:
-                # check to see if there is a detail that is more up to date than the anix
-                if anix.evnt_id.start_date > start_date:
-                    start_date = anix.evnt_id.start_datetime.date()
-                cont = utils.get_cont_from_anix(anix, None)
-            else:
-                end_date = anix.evnt_id.start_datetime.date()
-                if cont:
-                    degree_days.extend(cont.degree_days(start_date, end_date))
-                    end_date = False
-
-        if cont and not end_date:
-            # catch group's current tank
-            degree_days.extend(cont.degree_days(start_date, at_date))
+        move_set = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date).\
+            order_by("-move_date").select_related("contx_start", "contx_end")
+        end_date = at_date
+        for moveDet in move_set:
+            # set cont, start_date, end_date
+            if end_date > moveDet.move_date > start_date and moveDet.contx_end is not None:
+                cont = moveDet.contx_end.container
+                degree_days.extend(cont.degree_days(moveDet.move_date, end_date))
+                end_date = moveDet.move_date
+            elif end_date > moveDet.move_date < start_date < end_date and moveDet.contx_end is not None:
+                cont = moveDet.contx_end.container
+                degree_days.extend(cont.degree_days(start_date, end_date))
+                end_date = moveDet.move_date
 
         dev += sum([utils.daily_dev(float(degree_day)) for degree_day in degree_days])
 
@@ -2415,7 +2407,7 @@ class Tray(BioCont):
         if end_date:
             degree_days = self.trof_id.degree_days(start_date, end_date)
         else:
-            degree_days = self.trof_id.degree_days(start_date, datetime.today().date())
+            degree_days = self.trof_id.degree_days(start_date, timezone.now().date())
         return degree_days
 
     def __str__(self):

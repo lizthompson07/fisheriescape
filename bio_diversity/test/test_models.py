@@ -49,15 +49,15 @@ class TestGrpModel(CommonTest):
         # test grp placed in trof and moved to second trof
         entry_date = self.evnt_date - timedelta(days=1)
         move_date = self.evnt_date + timedelta(days=10)
-        utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
-        utils.create_movement_evnt(self.trof, self.trof_two, self.cleaned_data, move_date, grp_pk=self.grp.pk)
+        utils.enter_move(self.cleaned_data, None, self.trof, entry_date, grp_pk=self.grp.pk)
+        utils.enter_move(self.cleaned_data, self.trof, self.trof_two, move_date, grp_pk=self.grp.pk)
         grp_dev = self.grp.get_development()
         self.assertEqual(round(grp_dev, 3), round(Decimal(27.854), 3))
 
     def test_development_after_detail(self):
         # test grp placed in trof, has development recorded go off of that and don't double count
         entry_date = self.evnt_date - timedelta(days=1)
-        utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
+        utils.enter_move(self.cleaned_data, None, self.trof, entry_date, grp_pk=self.grp.pk)
 
         det_date = self.evnt_date + timedelta(days=5)
         det_evnt_cleaned_data = utils.create_new_evnt(self.cleaned_data, "Picking", det_date)
@@ -74,8 +74,9 @@ class TestGrpModel(CommonTest):
         det_evnt_cleaned_data = utils.create_new_evnt(self.cleaned_data, "Picking", det_date)
         anix = utils.enter_anix(det_evnt_cleaned_data, grp_pk=self.grp.pk, return_anix=True)
         utils.enter_grpd(anix.pk, det_evnt_cleaned_data, det_date, 10, None, anidc_str="Development")
-        utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
-        utils.create_movement_evnt(self.trof, self.trof_two, self.cleaned_data, move_date, grp_pk=self.grp.pk)
+        utils.enter_move(self.cleaned_data, None, self.trof, entry_date, grp_pk=self.grp.pk)
+        utils.enter_move(self.cleaned_data, self.trof, self.trof_two, move_date, grp_pk=self.grp.pk)
+
         grp_dev = self.grp.get_development()
         self.assertEqual(round(grp_dev, 3), round(Decimal(36.291), 3))
 
