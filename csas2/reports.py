@@ -87,18 +87,20 @@ def generate_meeting_report(meetings, site_url):
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
     currency_format = workbook.add_format({'num_format': '#,##0.00'})
     date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+    hyperlink_format = workbook.add_format({'border': 1, 'border_color': 'black', "font_color": "blue", "underline": True, "text_wrap": True})
 
     field_list = [
         'process.fiscal_year|fiscal year',
         'process.is_posted|Has been posted?',
-        'process.name|Process name',
+        'process.name|Process name (English)',
+        'process.nom|Process name (French)',
         'process.status|Process status',
         'process.scope|Process scope',
         'process.type|Process type',
         'quarter|meeting quarter',
         'tor_display_dates|meeting dates',
-        'process.name|meeting title (English)',
-        'process.nom|meeting title (French)',
+        'name|meeting title (English)',
+        'nom|meeting title (French)',
         'chair|Chairperson name',
         'process.coordinator|CSAS Coordinator',
         'process.advisors|Science advisors',
@@ -135,6 +137,20 @@ def generate_meeting_report(meetings, site_url):
             elif "lead office" in field:
                 my_val = str(obj.process.lead_office)
                 my_ws.write(i, j, my_val, normal_format)
+
+            elif "Process name" in field:
+                my_val = str(get_field_value(obj, field))
+                my_ws.write_url(i, j,
+                                url=f'{site_url}/{reverse("csas2:process_detail", args=[obj.process.id])}',
+                                string=f"{my_val}",
+                                cell_format=hyperlink_format)
+            elif "meeting title" in field:
+                my_val = str(get_field_value(obj, field))
+                my_ws.write_url(i, j,
+                                url=f'{site_url}/{reverse("csas2:meeting_detail", args=[obj.id])}',
+                                string=f"{my_val}",
+                                cell_format=hyperlink_format)
+
             elif "scope" in field:
                 my_val = str(obj.process.get_scope_display())
                 my_ws.write(i, j, my_val, normal_format)
