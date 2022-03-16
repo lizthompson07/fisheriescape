@@ -153,8 +153,10 @@ def is_admin_or_project_manager(user, project):
 
 
 def get_manageable_sections(user):
-    if in_ppt_admin_group(user):
+    if in_ppt_national_admin_group(user):
         return shared_models.Section.objects.filter(ppt__isnull=False).distinct()
+    elif in_ppt_regional_admin_group(user):
+        return shared_models.Section.objects.filter(division__branch__sector__region=user.ppt_admin_user.region)
     return shared_models.Section.objects.filter(Q(head=user) | Q(division__head=user) | Q(division__branch__head=user))
 
 
@@ -193,7 +195,7 @@ def get_section_choices(all=False, full_name=True, region_filter=None, division_
     else:
         my_choice_list = [(s.id, getattr(s, my_attr)) for s in
                           shared_models.Section.objects.filter(
-                              division__branch__name__icontains="science").order_by(
+                              ).order_by(
                               "division__branch__region",
                               "division__branch",
                               "division",
