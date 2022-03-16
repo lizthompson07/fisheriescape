@@ -266,18 +266,15 @@
               </div>
             </div>
 
-
-
-
             <div class="float-right my-3">
-              <button v-if="p.status != 4 && !p.review" @click="startReview(p)" class="px-1 small-btn-text btn btn-sm w100 btn-info">
+              <button v-if="p.status != 4 && !p.review" @click="startReview(p)" class="btn btn-xs btn-info">
                 {% trans "Start review" %}
               </button>
-              <button v-if="p.status != 4 && p.review && p.review.id" @click="deleteReview(p)" class="px-1 small-btn-text btn btn-sm w100 btn-danger">
+              <button v-if="p.status != 4 && p.review && p.review.id" @click="deleteReview(p)" class="btn btn-xs btn-danger">
                 {% trans "Delete review" %}
               </button>
               <button @click="openReviewModal(p, 'approval')" v-if="p.status !=1 && (currentUser.is_admin || currentUser.is_rds)"
-                      class="px-1 small-btn-text btn btn-sm w100 btn-success">
+                      class="btn btn-xs btn-success">
                 {% trans "Approvals" %}
               </button>
             </div>
