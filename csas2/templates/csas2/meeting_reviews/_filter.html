@@ -17,6 +17,9 @@
         {% bootstrap_field filter.form.process__lead_office placeholder="" size="small" %}
       </div>
       <div class="col">
+        {% bootstrap_field filter.form.is_planning placeholder="" size="small" %}
+      </div>
+      <div class="col">
         <br>
         <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
         <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
