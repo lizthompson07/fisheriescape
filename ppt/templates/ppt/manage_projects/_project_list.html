@@ -252,43 +252,36 @@
                   <br><b>${p.om_costs+p.salary_costs+p.capital_costs|currencyFormat}</b>
                 </div>
               </div>
+            </div>
 
-              <div class="col">
-                {% echo "small-btn-text btn btn-sm w100" as btn_class %}
-                {# submit#}
-                <div class="mb-3">
-                  <button v-if="!p.submitted" @click="submitProjectYear(p, 'submit')" class="px-1 {{ btn_class }} btn-success">
-                    {% trans "Submit" %}
-                  </button>
-                  <button v-else-if="p.submitted && p.status != 4" @click="submitProjectYear(p, 'unsubmit')" class="px-1 {{ btn_class }} btn-danger">
-                    {% trans "Un-submit" %}
-                  </button>
-                </div>
-
-                {# review#}
-                <div class="mb-3">
-                  <button v-if="p.status != 4 && p.review && p.review.id" @click="openReviewModal(p)"
-                          class="px-1 {{ btn_class }} btn-warning">
-                    {% trans "Edit review" %}
-                  </button>
-                  <button v-else-if="p.status != 4" @click="openReviewModal(p)" class="px-1 {{ btn_class }} btn-info">
-                    {% trans "Start review" %}
-                  </button>
-                </div>
-
-                {# approval #}
-                <div class="mb-3" v-if="currentUser.is_admin || currentUser.is_rds">
-                  <button @click="openReviewModal(p, 'approval')" v-if="p.status !=1 && (currentUser.is_admin || currentUser.is_rds)"
-                          class="px-1 {{ btn_class }} btn-dark">
-                    {% trans "Approvals" %}
-                  </button>
-                </div>
+            <div v-if="p.review">
+              <p class="text-muted">{{ review_form.general_comment.label }}</p>
+              <div class="mb-3">
+                <textarea v-model="p.review.general_comment" class="form-control w-100" id="" rows="3"></textarea>
               </div>
+              <p class="text-muted">{{ review_form.comments_for_staff.label }}</p>
+              <div class="mb-3">
+                <textarea v-model="p.review.comments_for_staff" class="form-control w-100" id="" rows="3"></textarea>
+              </div>
+            </div>
 
-            </div>
             <div class="mt-3">
-            <em class="text--secondary small" v-html="p.metadata"></em>
+              <em class="text--secondary" v-html="p.metadata"></em>
             </div>
+
+            <div class="float-right">
+              <button v-if="p.status != 4 && !p.review" @click="startReview(p)" class="px-1 small-btn-text btn btn-sm w100 btn-info">
+                {% trans "Start review" %}
+              </button>
+              <button v-if="p.review" @click="deleteReview(p)" class="px-1 small-btn-text btn btn-sm w100 btn-danger">
+                {% trans "Delete review" %}
+              </button>
+              <button @click="openReviewModal(p, 'approval')" v-if="p.status !=1 && (currentUser.is_admin || currentUser.is_rds)"
+                      class="px-1 small-btn-text btn btn-sm w100 btn-success">
+                {% trans "Approvals" %}
+              </button>
+            </div>
+
           </div>
 
         </td>

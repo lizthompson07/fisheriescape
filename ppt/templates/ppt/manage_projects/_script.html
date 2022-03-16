@@ -1,3 +1,5 @@
+{% load i18n %}
+
 {% include "ppt/manage_projects/components/staff_projects_list.html" %}
 {% include "ppt/manage_projects/components/review_modal.html" %}
 
@@ -356,6 +358,13 @@ var app = new Vue({
         this.projectYearLabels = data.labels;
       });
     },
+    startReview(p) {
+      p.review = {};
+    },
+    deleteReview(p) {
+      userInput = confirm("{% trans "" %}")
+      p.review = null;
+    }
   },
   filters: {
     yesNo: vueFiltersObject["yesNo"],
