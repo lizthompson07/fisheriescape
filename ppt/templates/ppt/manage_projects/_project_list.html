@@ -177,6 +177,7 @@
         v-for="(p, index) in sortedProjectYears"
         @mouseover="hover = true"
         @mouseleave="hover = false"
+        :key="p.id"
       >
         <td class="pt-3 pb-5 card section-card">
           <div class="card-body">
@@ -255,13 +256,13 @@
             </div>
 
             <div v-if="p.review">
-              <p class="text-muted">{{ review_form.general_comment.label }}</p>
               <div class="mb-3">
-                <textarea v-model="p.review.general_comment" class="form-control w-100" id="" rows="3"></textarea>
+                <span class="text-muted font-italic">{{ review_form.general_comment.label }}</span><br>
+                <textarea v-model="p.review.general_comment" class="form-control w-100" id="" rows="3" @change="updateReview(p)"></textarea>
               </div>
-              <p class="text-muted">{{ review_form.comments_for_staff.label }}</p>
               <div class="mb-3">
-                <textarea v-model="p.review.comments_for_staff" class="form-control w-100" id="" rows="3"></textarea>
+                <span class="text-muted font-italic">{{ review_form.comments_for_staff.label }}</span><br>
+                <textarea v-model="p.review.comments_for_staff" class="form-control w-100" id="" rows="3" @change="updateReview(p)"></textarea>
               </div>
             </div>
 

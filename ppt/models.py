@@ -623,6 +623,14 @@ class ProjectYear(models.Model):
                 self.modified_by = request.user
             self.save()
 
+    def start_review(self):
+        if not hasattr(self, "review"):
+            Review.objects.create(project_year=self)
+
+    def remove_review(self):
+        if hasattr(self, "review"):
+            self.review.delete()
+
     @property
     def allocated_budget(self):
         return self.review.allocated_budget if hasattr(self, "review") else None
@@ -993,10 +1001,13 @@ class Review(models.Model):
 
     @property
     def metadata(self):
-        my_str = get_metadata_string(self.created_at, None, self.updated_at, self.last_modified_by)
-        if self.modified_by.exists():
-            my_str += f"<br><u>Reviewed by:</u> {listrify(self.modified_by.all())}"
-        return my_str
+        try:
+            my_str = get_metadata_string(self.created_at, None, self.updated_at, self.last_modified_by)
+            if self.modified_by.exists():
+                my_str += f"<br><u>Reviewed by:</u> {listrify(self.modified_by.all())}"
+            return my_str
+        except:
+            pass
 
     def save(self, *args, **kwargs):
         self.total_score = nz(self.collaboration_score, 0) + nz(self.strategic_score, 0) + nz(self.operational_score, 0) + nz(

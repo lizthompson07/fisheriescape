@@ -207,6 +207,16 @@ class ProjectYearViewSet(ModelViewSet):
         elif qp.get("unsubmit"):
             project_year.unsubmit(request)
             return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
+        elif qp.get("start_review"):
+            if is_management_or_admin(self.request.user):
+                project_year.start_review()
+                project_year = get_object_or_404(models.ProjectYear, pk=project_year.id)
+            return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
+        elif qp.get("remove_review"):
+            if is_management_or_admin(self.request.user):
+                project_year.remove_review()
+                project_year = get_object_or_404(models.ProjectYear, pk=project_year.id)
+            return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
         elif qp.get("add-all-costs"):
             project_year.add_all_om_costs()
             project_year.update_modified_by(request.user)

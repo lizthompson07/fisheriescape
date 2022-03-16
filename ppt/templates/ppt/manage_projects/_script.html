@@ -359,12 +359,23 @@ var app = new Vue({
       });
     },
     startReview(p) {
-      p.review = {};
+      apiService(`/api/ppt/project-years/${p.id}/?start_review=true`, "POST").then(data => {
+        this.$set(this.projectYears, this.projectYears.indexOf(p), data);
+      });
     },
     deleteReview(p) {
-      userInput = confirm("{% trans "" %}")
-      p.review = null;
-    }
+      userInput = confirm("{% trans "Are you sure you want to delete this project's review? This action is not reversible." %}")
+      if (userInput) {
+        apiService(`/api/ppt/project-years/${p.id}/?remove_review=true`, "POST").then(data => {
+          this.$set(this.projectYears, this.projectYears.indexOf(p), data);
+        });
+      }
+    },
+    updateReview(p) {
+      apiService(`/api/ppt/reviews/${p.review.id}/`, "PUT", p.review).then(data => {
+        p.review = data
+      })
+    },
   },
   filters: {
     yesNo: vueFiltersObject["yesNo"],
