@@ -187,17 +187,17 @@
 
             <div class="row">
 
-              <div class="col-4">
+              <div class="col">
                 <div class="mb-3">
                   <span class="text-muted font-italic">{% trans "Project Id:" %}</span>
                   <br><span v-html="">${p.project.id}</span>
                 </div>
                 <div class="mb-3">
-                  <span class="text-muted font-italic">{% trans "Project Leads:" %}</span>
+                  <span class="text-muted font-italic">${projectLabels.lead_staff}</span>
                   <br><span v-html="">${p.project.lead_staff}</span>
                 </div>
                 <div class="mb-3">
-                  <span class="text-muted font-italic">{% trans "Project Status:" %}</span>
+                  <span class="text-muted font-italic">${projectYearLabels.status}</span>
                   <br><span :class="p.status_class + ' p-1'" v-html="p.status_display"></span>
                 </div>
               </div>
@@ -212,20 +212,27 @@
                   <br><span v-html="">${p.project.start_year_display}</span>
                 </div>
                 <div class="mb-3">
-                  <span class="text-muted font-italic">{% trans "Primary funding source:" %}</span>
+                  <span class="text-muted font-italic">${projectLabels.default_funding_source}</span>
                   <br><span v-html="">${p.project.default_funding_source}</span>
                 </div>
                 <div class="mb-3">
-                  <span class="text-muted font-italic">{% trans "Functional group:" %}</span>
+                  <span class="text-muted font-italic">${projectLabels.functional_group}</span>
                   <br><span v-html="">${p.project.functional_group}</span>
                 </div>
               </div>
 
               <div class="col">
                 <div class="mb-3">
-                  <span class="text-muted font-italic">{% trans "Last Updated:" %}</span>
-                  <br><span v-html="p.metadata"></span>
+                  <span class="text-muted font-italic">${projectLabels.tags}</span>
+                  <br><span v-html="p.project.tags_display"></span>
                 </div>
+                <div class="mb-3">
+                  <span class="text-muted font-italic">${projectLabels.funding_sources}</span>
+                  <br><span v-html="p.project.funding_sources_display"></span>
+                </div>
+              </div>
+
+              <div class="col">
                 <div class="mb-3">
                   <span class="text-muted font-italic">{% trans "O&M Requests:" %}</span>
                   <br><span>${p.om_costs|currencyFormat}</span>
@@ -238,12 +245,9 @@
                   <span class="text-muted font-italic">{% trans "Capital Requests:" %}</span>
                   <br><span>${p.capital_costs|currencyFormat}</span>
                 </div>
-              </div>
-
-              <div class="col">
                 <div class="mb-3">
                   <span class="text-muted font-italic">{% trans "Total costs:" %}</span>
-                  <br><span>${p.om_costs+p.salary_costs+p.capital_costs|currencyFormat}</span>
+                  <br><b>${p.om_costs+p.salary_costs+p.capital_costs|currencyFormat}</b>
                 </div>
               </div>
 
@@ -280,8 +284,10 @@
               </div>
 
             </div>
+            <div class="mt-3">
+            <em class="text--secondary small" v-html="p.metadata"></em>
+            </div>
           </div>
-
 
         </td>
 
