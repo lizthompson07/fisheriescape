@@ -4,9 +4,9 @@
 
 <div v-if="showProjectList" class="mt-5">
 
-  <div class="">
+  <div class="text-center">
     <div class="pointy mb-5" @click="cardViewOn = !cardViewOn">
-      <p class="lead" id="overview">
+      <p class="lead text-secondary" id="overview">
         <span>{% trans "Table view" %}</span>
         <span v-if="!cardViewOn" class="mx-2 mdi mdi-toggle-switch-off h4"></span>
         <span v-else class="mx-2 mdi mdi-toggle-switch h4"></span>
@@ -102,7 +102,9 @@
         <td>${p.project.default_funding_source}</td>
         <td>${p.project.functional_group}</td>
         <td v-if="showColumnLeads">${p.project.lead_staff}</td>
-        <td :class="p.status_class" v-html="p.status_display"></td>
+        <td>
+          <span :class="p.status_class + ' p-1'" v-html="p.status_display"></span>
+        </td>
 
         <td v-if="showColumnAllocation">
           <span v-if="p.review">${p.review.allocated_budget | nz(0) | currencyFormat | zero2NullMark}</span>
