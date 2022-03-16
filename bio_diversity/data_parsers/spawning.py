@@ -142,12 +142,16 @@ class SpawningParser(DataParser):
                                                        )
 
         if utils.nan_to_none(row.get(self.dest_key_f)) and indv_female:
-            end_tank_id_f = models.Tank.objects.filter(name=row[self.dest_key_f], facic_id=cleaned_data["facic_id"]).get()
-            self.row_entered += utils.create_movement_evnt(None, end_tank_id_f, cleaned_data, row_date, indv_female.pk)
+            end_tank_id_f = models.Tank.objects.filter(name=row[self.dest_key_f],
+                                                       facic_id=cleaned_data["facic_id"]).get()
+            self.row_entered += utils.enter_move(cleaned_data, None, end_tank_id_f, row_date, indv_pk=indv_female.pk,
+                                                 return_sucess=True)
 
         if utils.nan_to_none(row.get(self.dest_key_m)) and indv_male:
-            end_tank_id_m = models.Tank.objects.filter(name=row[self.dest_key_m], facic_id=cleaned_data["facic_id"]).get()
-            self.row_entered += utils.create_movement_evnt(None, end_tank_id_m, cleaned_data, row_date, indv_male.pk)
+            end_tank_id_m = models.Tank.objects.filter(name=row[self.dest_key_m],
+                                                       facic_id=cleaned_data["facic_id"]).get()
+            self.row_entered += utils.enter_move(cleaned_data, None, end_tank_id_m, row_date, indv_pk=indv_male.pk,
+                                                 return_sucess=True)
 
         # pair
         pair = models.Pairing(start_date=row_date,

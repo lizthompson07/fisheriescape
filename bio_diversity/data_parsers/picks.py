@@ -61,14 +61,23 @@ class EDInitParser(DataParser):
         self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
 
         tray_id = utils.create_tray(row["trof_id"], row[self.tray_key], row_date, cleaned_data)
-        anix, contx, contx_entered = utils.enter_contx(tray_id, cleaned_data, True, grp_pk=grp_id.pk, return_anix=True)
+        grp_list = tray_id.fish_in_cont(row_date, get_grp=True)
+        if grp_list and grp_id not in grp_list:
+            end_grp = grp_list[0]
+        else:
+            end_grp = grp_id
+        start_cnt, end_cnt, move_entered = utils.enter_move_cnts(cleaned_data, None, tray_id, row_date,
+                                                                 start_grp_id=grp_id, end_grp_id=end_grp,
+                                                                 set_origin_if_none=False)
+        self.row_entered += move_entered
+        end_anix, contx, contx_entered = utils.enter_contx(tray_id, cleaned_data, grp_pk=end_grp.pk, return_anix=True)
         self.row_entered += contx_entered
 
         if utils.nan_to_none(row.get(self.fecu_key)):
-            cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fecu_key], row_date, anix_pk=anix.pk, cnt_code="Photo Count")
-            self.row_entered += cnt_entered
+            self.row_entered += utils.enter_cnt(cleaned_data, row[self.fecu_key], row_date, anix_pk=end_anix.pk,
+                                                cnt_code="Photo Count")[1]
 
-        self.row_entered += utils.enter_bulk_grpd(anix_id.pk, cleaned_data, row_date,
+        self.row_entered += utils.enter_bulk_grpd(end_anix.pk, cleaned_data, row_date,
                                                   comments=row.get(self.comment_key))
 
 
@@ -90,6 +99,7 @@ class EDPickParser(DataParser):
     sheet_name = "Picking"
     converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
     default_pickc_id = None
+    ani_health_anidc_id = None
 
     date_dict = {}
 
@@ -100,6 +110,7 @@ class EDPickParser(DataParser):
     def data_preper(self):
         cleaned_data = self.cleaned_data
         self.default_pickc_id = models.CountCode.objects.filter(name="Cleaning Loss").get()
+        self.ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
 
         for pickc_id in cleaned_data["pickc_id"]:
             if pickc_id.name not in self.data.keys():
@@ -120,9 +131,8 @@ class EDPickParser(DataParser):
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
         row_date = utils.get_row_date(row)
-        self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
-        # find group from either cross or tray:
 
+        # find group from either cross or tray:
         if utils.nan_to_none(row.get(self.hu_key)):
             cont_id = utils.get_cont_from_dot(row[self.hu_key], cleaned_data, row_date)
         elif utils.nan_to_none(row.get(self.tray_key)):
@@ -137,18 +147,15 @@ class EDPickParser(DataParser):
         else:
             grp_id = cont_id.fish_in_cont(row_date, get_grp=True)
 
-        grp_anix = None
-        shock = False
+        grp_anix, grp_contx, contx_entered = utils.enter_contx(row["trof_id"], cleaned_data, grp_pk=grp_id.pk,
+                                                               return_anix=True)
+        self.row_entered += contx_entered
         for pickc_id in cleaned_data["pickc_id"]:
             if utils.nan_to_none(row[pickc_id.name]):
-                shock = utils.y_n_to_bool(row.get(self.shocking_key))
-                grp_anix, evnt_entered = utils.create_picks_evnt(cleaned_data, cont_id, grp_id.pk, row[pickc_id.name],
-                                                                 row_date, pickc_id.name,
-                                                                 cleaned_data["evnt_id"].perc_id, shocking=shock,
-                                                                 return_anix=True,
-                                                                 pick_comments=row.get(self.comment_key))
-                self.row_entered += evnt_entered
+                self.row_entered += utils.enter_cnt(cleaned_data, row[pickc_id.name], row_date, anix_pk=grp_anix.pk,
+                                                    cnt_code=pickc_id.name)[1]
 
+        # extra pick columns
         for col_name in row.keys():
             col_date = utils.get_col_date(col_name)
 
@@ -156,19 +163,19 @@ class EDPickParser(DataParser):
                 col_date_str = datetime.strftime(col_date, "%Y-%b-%d")
                 self.date_dict[col_date_str] = True
                 if utils.nan_to_none(row.get(col_name)):
-                    self.row_entered += utils.create_picks_evnt(cleaned_data, cont_id, grp_id.pk, row[col_name],
-                                                                col_date, self.default_pickc_id,
-                                                                cleaned_data["evnt_id"].perc_id,
-                                                                pick_comments=row.get(self.comment_key))
+                    self.row_entered += utils.enter_cnt(cleaned_data, row[col_name], col_date, anix_pk=grp_anix.pk,
+                                                        cnt_code=self.default_pickc_id.name)[1]
 
-        # record development
-        if grp_anix and shock:
-            pick_evnt_cleaned_data = cleaned_data.copy()
-            pick_evnt_cleaned_data["evnt_id"] = grp_anix.evnt_id
-            dev_at_pick = grp_id.get_development(row_date)
-            utils.enter_grpd(grp_anix.pk, pick_evnt_cleaned_data, row_date, dev_at_pick, None,
-                             anidc_str="Development")
-            self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
+        self.row_entered += utils.enter_bulk_grpd(grp_anix.pk, cleaned_data, row_date,
+                                                  comments=row.get(self.comment_key))
+
+        # record development and shocking:
+        if utils.y_n_to_bool(row.get(self.shocking_key)):
+            dev_at_shock = grp_id.get_development(row_date)
+            self.row_entered += utils.enter_grpd(grp_anix.pk, self.cleaned_data, row_date, dev_at_shock, None,
+                                                 anidc_str="Development")
+            self.row_entered += utils.enter_grpd(grp_anix.pk, self.cleaned_data, row_date, "Shocking",
+                                                 anidc_pk=self.ani_health_anidc_id.pk, adsc_str="Shocking")
 
     def data_cleaner(self):
         self.log_data += "\nDate columns read from headers:"
@@ -229,110 +236,62 @@ class EDHUParser(DataParser):
 
         tray_qs = models.Tray.objects.filter(trof_id=row["trof_id"], name=row[self.tray_key])
         tray_id = tray_qs.filter(Q(start_date__lte=row_date, end_date__gte=row_date) | Q(end_date__isnull=True)).get()
+        hu_cont = utils.get_cont_from_dot(row[self.cont_key], cleaned_data, row_date)
+
+        # find start group/container:
         pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
                                                 indv_id__stok_id=row["stok_id"], start_date__year=row[self.year_key]).first()
+        if tray_id:
+            grp_id = utils.get_tray_group(pair_id, tray_id, row_date)
+            start_cont = tray_id
+        elif hu_cont:
+            grp_id = utils.get_tray_group(pair_id, hu_cont, row_date)
+            start_cont = hu_cont
+        else:
+            raise Exception("No start container found")
 
-        grp_id = utils.get_tray_group(pair_id, tray_id, row_date)
-
-        # want to shift the hu move event, so that the counting math always works out.
-        hu_move_date = row_date + timedelta(minutes=1)
-        hu_cleaned_data = utils.create_new_evnt(cleaned_data, "Allocation", hu_move_date)
-        hu_anix, data_entered = utils.enter_anix(hu_cleaned_data, grp_pk=grp_id.pk)
-        self.row_entered += data_entered
-        hu_anix, hu_contx, data_entered = utils.enter_contx(tray_id, hu_cleaned_data, None, grp_pk=grp_id.pk,
-                                                            return_anix=True)
-        self.row_entered += data_entered
-        # record development
-        dev_at_hu_transfer = grp_id.get_development(hu_move_date)
-        utils.enter_grpd(hu_anix.pk, hu_cleaned_data, hu_move_date, dev_at_hu_transfer, None,
-                         anidc_str="Development")
-        self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
-
-        # HU Picks:
-        self.row_entered += utils.enter_cnt(cleaned_data, row[self.loss_key], hu_move_date, anix_pk=hu_anix.pk,
-                                            cnt_code="HU Transfer Loss")[1]
-
-        # generate new group, cup, and movement event:
+        # find end group/container
         cont = None
         if utils.nan_to_none(row[self.end_tray_key]):
-            trof_id = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"], name=row[self.end_trof_key]).get()
+            trof_id = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"],
+                                                   name=row[self.end_trof_key]).get()
             tray_qs = models.Tray.objects.filter(trof_id=trof_id, name=row[self.tray_key])
             cont = tray_qs.filter(
                 Q(start_date__lte=row_date, end_date__gte=row_date) | Q(end_date__isnull=True)).get()
         elif utils.nan_to_none(row[self.end_trof_key]):
-            cont = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"], name=row[self.end_trof_key]).get()
+            cont = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"],
+                                                name=row[self.end_trof_key]).get()
         elif utils.nan_to_none(row[self.heatl_key]):
             cont = utils.get_cont_from_dot(row[self.cont_key], cleaned_data, row_date)
         elif utils.nan_to_none(row[self.tank_key]):
             cont = models.Tank.objects.filter(facic_id=cleaned_data["facic_id"], name=row[self.tank_key])
 
-        self.row_entered += utils.enter_contx(cont, cleaned_data)
-        if not utils.y_n_to_bool(row[self.final_key]):
-            # NEW GROUPS TAKEN FROM INITIAL
-            out_cnt = utils.enter_cnt(cleaned_data, 0, hu_move_date, anix_pk=hu_anix.pk, cnt_code="Eggs Removed")[0]
-            utils.enter_cnt_det(cleaned_data, out_cnt, row[self.cnt_key], "Program Group Split", row[self.prog_key])
-
-            indv, final_grp = cont.fish_in_cont(row_date)
-            if not final_grp:
-                final_grp = models.Group(spec_id=grp_id.spec_id,
-                                         coll_id=grp_id.coll_id,
-                                         grp_year=grp_id.grp_year,
-                                         stok_id=grp_id.stok_id,
-                                         grp_valid=True,
-                                         created_by=cleaned_data["created_by"],
-                                         created_date=cleaned_data["created_date"],
-                                         )
-                try:
-                    final_grp.clean()
-                    final_grp.save()
-                except (ValidationError, IntegrityError):
-                    return None
-            else:
-                # MAIN GROUP GETTING MOVED
-                final_grp = final_grp[0]
-            final_grp_anix = utils.enter_anix(cleaned_data, grp_pk=final_grp.pk, return_anix=True)
-            self.row_entered += utils.enter_anix(hu_cleaned_data, grp_pk=final_grp.pk, return_sucess=True)
-            self.row_entered += utils.enter_bulk_grpd(final_grp_anix, cleaned_data, row_date,
-                                                      prnt_grp=grp_id,
-                                                      prog_grp=row.get(self.prog_key),
-                                                      comments=row.get(self.comment_key)
-                                                      )
-            self.row_entered += utils.enter_grpd(final_grp_anix.pk, cleaned_data, row_date, dev_at_hu_transfer, None,
-                                                 anidc_str="Development")
-
-            # create movement for the new group, create 2 contx's and 3 anix's
-            # cup contx is contx used to link the positive counts
-            cont_contx = utils.create_egg_movement_evnt(tray_id, cont, cleaned_data, row_date, final_grp.pk,
-                                                        return_cup_contx=True)
-
-            move_cleaned_data = cleaned_data.copy()
-            move_cleaned_data["evnt_id"] = cont_contx.evnt_id
-            cnt_contx = cont_contx
-            cnt_contx.pk = None
-            cnt_contx.tray_id = tray_id
-            try:
-                cnt_contx.save()
-            except IntegrityError:
-                cnt_contx = models.ContainerXRef.objects.filter(pk=cont_contx.pk).get()
-            cnt_anix, anix_entered = utils.enter_anix(move_cleaned_data, grp_pk=final_grp.pk, contx_pk=cnt_contx.pk, return_sucess=True)
-            self.row_entered += anix_entered
-            # add the positive counts
-            cnt = utils.enter_cnt(move_cleaned_data, row[self.cnt_key], row_date, anix_pk=cnt_anix.pk, cnt_code="Eggs Added", )[0]
-            if utils.nan_to_none(self.weight_key):
-                utils.enter_cnt_det(move_cleaned_data, cnt, row[self.weight_key], "Weight")
-            utils.enter_cnt_det(move_cleaned_data, cnt, row[self.cnt_key], "Program Group Split", row[self.prog_key])
+        grp_list = utils.get_grp(grp_id.stok_id.name, grp_id.grp_year, grp_id.coll_id.name, cont=cont,
+                                 at_date=row_date, prog_str=utils.nan_to_none(row.get(self.prog_key)))
+        if grp_list:
+            end_grp_id = grp_list[0]
         else:
-            # Move main group to drawer, and add end date to tray:
-            if cont:
-                end_anix = utils.create_movement_evnt(tray_id, cont, cleaned_data, row_date,
-                                                      grp_pk=grp_id.pk, return_end_anix=True)
-                tray_id.end_date = row_date
-                tray_id.save()
-                end_cnt = utils.enter_cnt(cleaned_data, row[self.cnt_key], row_date, anix_pk=end_anix.pk,
-                                          cnt_code="Egg Count")[0]
-                utils.enter_cnt_det(cleaned_data, end_cnt, row[self.weight_key], "Weight")
-            else:
-                self.log_data += "\n Draw {} from {} not found".format(cont, row[self.cont_key])
+            end_grp_id = None
 
-            # link cup to egg development event
-            utils.enter_contx(cont, cleaned_data, None)
+        whole_grp = utils.y_n_to_bool(row[self.final_key])
+        start_cnt, end_cnt, data_entered = utils.enter_move_cnts(cleaned_data, start_cont, cont, row_date,
+                                                                 nfish=row.get(self.cnt_key), start_grp_id=grp_id,
+                                                                 end_grp_id=end_grp_id, whole_grp=whole_grp)
+        self.row_entered += data_entered
+
+        if utils.nan_to_none(row[self.prog_key]):
+            utils.enter_bulk_grpd(end_cnt.anix_id, cleaned_data, row_date, prog_grp=row[self.prog_key])
+            utils.enter_cnt_det(cleaned_data, start_cnt, row[self.cnt_key], "Program Group Split", row[self.prog_key])
+            utils.enter_cnt_det(cleaned_data, end_cnt, row[self.cnt_key], "Program Group Split", row[self.prog_key])
+
+        if utils.nan_to_none(row[self.weight_key]):
+            utils.enter_cnt_det(cleaned_data, start_cnt, row[self.weight_key], "Weight")
+            utils.enter_cnt_det(cleaned_data, end_cnt, row[self.weight_key], "Weight")
+
+        if utils.nan_to_none(row[self.loss_key]):
+            self.row_entered += utils.enter_cnt(cleaned_data, row[self.loss_key], row_date, anix_pk=end_cnt.anix_id.pk,
+                                                cnt_code="HU Transfer Loss")[1]
+
+        if whole_grp and  hasattr(start_cont, 'end_date'):
+            start_cont.end_date = row_date
+            start_cont.save()

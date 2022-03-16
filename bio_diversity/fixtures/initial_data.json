@@ -975,7 +975,21 @@
         },
         "model": "bio_diversity.anidetsubjcode",
         "pk": 39
-    }, {
+    },
+     {
+        "fields": {
+            "anidc_id": 7,
+            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+            "created_date": "2021-08-17",
+            "description_en": "Eggs were shocked.",
+            "description_fr": "",
+            "name": "Shocking",
+            "nom": null
+        },
+        "model": "bio_diversity.anidetsubjcode",
+        "pk": 44
+    },
+    {
         "fields": {
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-07-06",

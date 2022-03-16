@@ -1801,7 +1801,7 @@ def enter_spwnd(pair_pk, cleaned_data, det_value, spwndc_pk, spwnsc_str, qual_co
 
 
 def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None, grp_pk=None, loc_pk=None,
-               return_sucess=False):
+               set_origin_if_none=True, return_sucess=False):
     # cases:
     # origin == destination / no desitination
     # origin is none
@@ -1836,7 +1836,7 @@ def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None,
 
     if nan_to_none(origin_id):
         origin_conts = [origin_id]
-    else:
+    elif set_origin_if_none:
         if indv_pk:
             indv = models.Individual.objects.filter(pk=indv_pk).get()
             origin_conts = indv.current_cont(move_date)
@@ -1845,6 +1845,8 @@ def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None,
             origin_conts = grp.current_cont(move_date)
         if not origin_conts or loc_pk:
             origin_conts = [None]
+    else:
+        origin_conts = [None]
 
     for origin in origin_conts:
         if origin == destination_id:
@@ -1878,7 +1880,8 @@ def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None,
         return start_anix, end_anix, row_entered
 
 
-def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, nfish=None, start_grp_id=None, end_grp_id=None, whole_grp=True):
+def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, nfish=None, start_grp_id=None, end_grp_id=None,
+                    whole_grp=True, set_origin_if_none=True):
     # end group is move group
     # 4 cases: whole group yes/no, fish at destination yes/no
     # split fish off main group:
@@ -1895,7 +1898,7 @@ def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, nfish=No
         if whole_grp:
             # combine groups, record count and deactivate start group
             start_anix, end_anix, data_entered = enter_move(cleaned_data, origin_id, destination_id, move_date,
-                                                            grp_pk=start_grp_id.pk)
+                                                            grp_pk=start_grp_id.pk, set_origin_if_none=set_origin_if_none)
 
             start_grp_id.grp_end_date = move_date
             start_grp_id.save()
@@ -1922,7 +1925,7 @@ def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, nfish=No
         if whole_grp:
             # whole group moves, record count
             start_anix, end_anix, data_entered = enter_move(cleaned_data, origin_id, destination_id, move_date,
-                                                            grp_pk=start_grp_id.pk)
+                                                            grp_pk=start_grp_id.pk, set_origin_if_none=set_origin_if_none)
             if nfish:
                 end_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, end_anix.pk,
                                                  contx_ref_pk=start_anix.contx_id.pk,
@@ -1932,7 +1935,7 @@ def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, nfish=No
             # split off new group from start group, record counts:
             new_end_grp = copy_grp(start_grp_id, move_date, cleaned_data)
             start_anix, end_anix, data_entered = enter_move(cleaned_data, origin_id, destination_id, move_date,
-                                                            grp_pk=new_end_grp.pk)
+                                                            grp_pk=new_end_grp.pk, set_origin_if_none=set_origin_if_none)
             if nfish:
                 start_cnt_anix, contx, row_entered = enter_contx(origin_id, cleaned_data, grp_pk=start_grp_id.pk, return_anix=True)
                 start_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, start_cnt_anix.pk,
@@ -1961,7 +1964,6 @@ def copy_grp(in_grp_id, copy_date, cleaned_data):
         enter_bulk_grpd(anix.pk, cleaned_data, copy_date, mark=mark_id.name)
     enter_bulk_grpd(anix.pk, cleaned_data, copy_date, prnt_grp=in_grp_id)
     return new_grp
-
 
 
 def enter_contx(cont, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
