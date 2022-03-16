@@ -11,7 +11,7 @@ var app = new Vue({
     currentUser: {},
     isAdminOrMgmt: false,
     hover: false,
-    cardViewOn: true,
+    cardViewOn: false,
 
     errorNoFiscalYear: false,
     loadingReport: false,
@@ -57,6 +57,9 @@ var app = new Vue({
     sections: [],
     regions: [],
     divisions: [],
+
+    projectLabels: {},
+    projectYearLabels: {},
 
     // modal
     projectYear2Review: {},
@@ -344,7 +347,15 @@ var app = new Vue({
     },
     generateReports(url, tag) {
       window.open(url + "?" + this.getFilterString(), tag, 'toolbar=0,status=0,height=500,width=600');
-    }
+    },
+    getModelMetadata() {
+      apiService(`/api/ppt/meta/models/project/`).then(data => {
+        this.projectLabels = data.labels;
+      });
+      apiService(`/api/ppt/meta/models/projectyear/`).then(data => {
+        this.projectYearLabels = data.labels;
+      });
+    },
   },
   filters: {
     yesNo: vueFiltersObject["yesNo"],
@@ -397,9 +408,10 @@ var app = new Vue({
     },
   },
   created() {
-    this.getCurrentUser()
-    this.getProjectYears()
-    this.getFilterData()
+    this.getModelMetadata();
+    this.getCurrentUser();
+    this.getProjectYears();
+    this.getFilterData();
   },
   mounted() {
   },

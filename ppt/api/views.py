@@ -668,3 +668,23 @@ class OMCostModelMetaAPIView(APIView):
         data['labels'] = get_labels(self.model)
         data['om_category_choices'] = [dict(text=item.id, value=str(item)) for item in models.OMCategory.objects.all()]
         return Response(data)
+
+
+class ProjectModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Project
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = get_labels(self.model)
+        return Response(data)
+
+
+class ProjectYearModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.ProjectYear
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = get_labels(self.model)
+        return Response(data)

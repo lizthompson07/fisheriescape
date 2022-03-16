@@ -8,7 +8,7 @@
     <div class="pointy mb-5" @click="cardViewOn = !cardViewOn">
       <p class="lead" id="overview">
         <span>{% trans "Table view" %}</span>
-        <span v-if="cardViewOn" class="mx-2 mdi mdi-toggle-switch-off h4"></span>
+        <span v-if="!cardViewOn" class="mx-2 mdi mdi-toggle-switch-off h4"></span>
         <span v-else class="mx-2 mdi mdi-toggle-switch h4"></span>
         <span>{% trans "Card view" %}</span>
       </p>
@@ -22,7 +22,7 @@
   </div>
 
 
-  <div v-if="cardViewOn">
+  <div v-if="!cardViewOn">
     <table class="table table-sm">
       <thead>
       <tr>
@@ -176,106 +176,110 @@
         @mouseover="hover = true"
         @mouseleave="hover = false"
       >
-        <td class="pt-3 pb-5 card">
-          <p class="lead mb-3">${p.project.title}</p>
-          <div class="row">
-            <div class="col">
-              <div class="mb-3">
-                <span class="text-muted font-italic">{% trans "Project Id:" %}</span>
-                <br><span v-html="">${p.project.id}</span>
+        <td class="pt-3 pb-5 card section-card">
+          <div class="card-body">
+
+            <p class="lead mb-3">
+              <a class="text-primary pointy" @click="goProjectDetail(p)">
+                ${p.project.title}
+              </a>
+            </p>
+
+            <div class="row">
+
+              <div class="col-4">
+                <div class="mb-3">
+                  <span class="text-muted font-italic">{% trans "Project Id:" %}</span>
+                  <br><span v-html="">${p.project.id}</span>
+                </div>
+                <div class="mb-3">
+                  <span class="text-muted font-italic">{% trans "Project Leads:" %}</span>
+                  <br><span v-html="">${p.project.lead_staff}</span>
+                </div>
+                <div class="mb-3">
+                  <span class="text-muted font-italic">{% trans "Project Status:" %}</span>
+                  <br><span :class="p.status_class + ' p-1'" v-html="p.status_display"></span>
+                </div>
               </div>
-{#              <div class="mb-3">#}
-{#                <span class="text-muted font-italic">{% trans "Title:" %}</span>#}
-{#                <br><span v-html="">${p.project.title}</span>#}
-{#              </div>#}
-              <div class="mb-3">
-                <span class="text-muted font-italic">{% trans "Project Leads:" %}</span>
-                <br><span v-html="">${p.project.lead_staff}</span>
+
+              <div class="col">
+                <div class="mb-3">
+                  <span class="text-muted font-italic">{% trans "Fiscal Year:" %}</span>
+                  <br><span v-html="">${p.display_name}</span>
+                </div>
+                <div class="mb-3">
+                  <span class="text-muted font-italic">{% trans "Start Year:" %}</span>
+                  <br><span v-html="">${p.project.start_year_display}</span>
+                </div>
+                <div class="mb-3">
+                  <span class="text-muted font-italic">{% trans "Primary funding source:" %}</span>
+                  <br><span v-html="">${p.project.default_funding_source}</span>
+                </div>
+                <div class="mb-3">
+                  <span class="text-muted font-italic">{% trans "Functional group:" %}</span>
+                  <br><span v-html="">${p.project.functional_group}</span>
+                </div>
               </div>
-              <div class="mb-3">
-                <span class="text-muted font-italic">{% trans "Project Status:" %}</span>
-                <br><span :class="p.status_class + ' p-1'" v-html="p.status_display"></span>
+
+              <div class="col">
+                <div class="mb-3">
+                  <span class="text-muted font-italic">{% trans "Last Updated:" %}</span>
+                  <br><span v-html="p.metadata"></span>
+                </div>
+                <div class="mb-3">
+                  <span class="text-muted font-italic">{% trans "O&M Requests:" %}</span>
+                  <br><span>${p.om_costs|currencyFormat}</span>
+                </div>
+                <div class="mb-3">
+                  <span class="text-muted font-italic">{% trans "Salary Requests:" %}</span>
+                  <br><span>${p.salary_costs|currencyFormat}</span>
+                </div>
+                <div class="mb-3">
+                  <span class="text-muted font-italic">{% trans "Capital Requests:" %}</span>
+                  <br><span>${p.capital_costs|currencyFormat}</span>
+                </div>
               </div>
-            </div>
-            <div class="col">
-              <div class="mb-3">
-                <span class="text-muted font-italic">{% trans "Fiscal Year:" %}</span>
-                <br><span v-html="">${p.display_name}</span>
+
+              <div class="col">
+                <div class="mb-3">
+                  <span class="text-muted font-italic">{% trans "Total costs:" %}</span>
+                  <br><span>${p.om_costs+p.salary_costs+p.capital_costs|currencyFormat}</span>
+                </div>
               </div>
-              <div class="mb-3">
-                <span class="text-muted font-italic">{% trans "Start Year:" %}</span>
-                <br><span v-html="">${p.project.start_year_display}</span>
-              </div>
-              <div class="mb-3">
-                <span class="text-muted font-italic">{% trans "Primary funding source:" %}</span>
-                <br><span v-html="">${p.project.default_funding_source}</span>
-              </div>
-              <div class="mb-3">
-                <span class="text-muted font-italic">{% trans "Functional group:" %}</span>
-                <br><span v-html="">${p.project.functional_group}</span>
+
+              <div class="col">
+                {% echo "small-btn-text btn btn-sm w100" as btn_class %}
+                {# submit#}
+                <div class="mb-3">
+                  <button v-if="!p.submitted" @click="submitProjectYear(p, 'submit')" class="px-1 {{ btn_class }} btn-success">
+                    {% trans "Submit" %}
+                  </button>
+                  <button v-else-if="p.submitted && p.status != 4" @click="submitProjectYear(p, 'unsubmit')" class="px-1 {{ btn_class }} btn-danger">
+                    {% trans "Un-submit" %}
+                  </button>
+                </div>
+
+                {# review#}
+                <div class="mb-3">
+                  <button v-if="p.status != 4 && p.review && p.review.id" @click="openReviewModal(p)"
+                          class="px-1 {{ btn_class }} btn-warning">
+                    {% trans "Edit review" %}
+                  </button>
+                  <button v-else-if="p.status != 4" @click="openReviewModal(p)" class="px-1 {{ btn_class }} btn-info">
+                    {% trans "Start review" %}
+                  </button>
+                </div>
+
+                {# approval #}
+                <div class="mb-3" v-if="currentUser.is_admin || currentUser.is_rds">
+                  <button @click="openReviewModal(p, 'approval')" v-if="p.status !=1 && (currentUser.is_admin || currentUser.is_rds)"
+                          class="px-1 {{ btn_class }} btn-dark">
+                    {% trans "Approvals" %}
+                  </button>
+                </div>
               </div>
 
             </div>
-
-            <div class="col">
-              <div class="mb-3">
-                <span class="text-muted font-italic">{% trans "Last Updated:" %}</span>
-                <br><span v-html="p.metadata"></span>
-              </div>
-              <div class="mb-3">
-                <span class="text-muted font-italic">{% trans "O&M Requests:" %}</span>
-                <br><span>${p.om_costs|currencyFormat}</span>
-              </div>
-              <div class="mb-3">
-                <span class="text-muted font-italic">{% trans "Salary Requests:" %}</span>
-                <br><span>${p.salary_costs|currencyFormat}</span>
-              </div>
-              <div class="mb-3">
-                <span class="text-muted font-italic">{% trans "Capital Requests:" %}</span>
-                <br><span>${p.capital_costs|currencyFormat}</span>
-              </div>
-            </div>
-            <div class="col">
-              <div class="mb-5">
-                <span class="text-muted font-italic">{% trans "Total costs:" %}</span>
-                <br><span>${p.om_costs+p.salary_costs+p.capital_costs|currencyFormat}</span>
-              </div>
-
-              {% echo "small-btn-text btn btn-sm w100" as btn_class %}
-
-              {# submit#}
-              <div class="mb-3">
-                <button v-if="!p.submitted" @click="submitProjectYear(p, 'submit')" class="px-1 {{ btn_class }} btn-success">
-                  {% trans "Submit" %}
-                </button>
-                <button v-else-if="p.submitted && p.status != 4" @click="submitProjectYear(p, 'unsubmit')" class="px-1 {{ btn_class }} btn-danger">
-                  {% trans "Un-submit" %}
-                </button>
-              </div>
-
-              {# review#}
-              <div class="mb-3">
-                <button v-if="p.status != 4 && p.review && p.review.id" @click="openReviewModal(p)"
-                        class="px-1 {{ btn_class }} btn-warning">
-                  {% trans "Edit review" %}
-                </button>
-                <button v-else-if="p.status != 4" @click="openReviewModal(p)" class="px-1 {{ btn_class }} btn-info">
-                  {% trans "Start review" %}
-                </button>
-              </div>
-
-
-              {# approval #}
-              <div class="mb-3" v-if="currentUser.is_admin || currentUser.is_rds">
-                <button @click="openReviewModal(p, 'approval')" v-if="p.status !=1 && (currentUser.is_admin || currentUser.is_rds)"
-                        class="px-1 {{ btn_class }} btn-dark">
-                  {% trans "Approvals" %}
-                </button>
-              </div>
-
-            </div>
-
-
           </div>
 
 
