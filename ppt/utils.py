@@ -107,12 +107,14 @@ def can_modify_project(user, project_id, return_as_dict=False):
         project = models.Project.objects.get(pk=project_id)
 
         # check to see if a superuser or projects_admin -- both are allow to modify projects
-        if in_ppt_admin_group(user):
-            my_dict["reason"] = "You can modify this record because you are a system administrator"
+        if in_ppt_national_admin_group(user):
+            my_dict["reason"] = "You can modify this record because you are a National PPT Administrator"
             my_dict["can_modify"] = True
-
+        elif in_ppt_regional_admin_group(user) and project.section and project.section.division.branch.sector.region == user.ppt_admin_user.region:
+            my_dict["reason"] = f"You can modify this record because you are a {user.ppt_admin_user.region} Regional Administrator"
+            my_dict["can_modify"] = True
         # check to see if they are a section head
-        if is_section_head(user, project):
+        elif is_section_head(user, project):
             my_dict["reason"] = "You can modify this record because it falls under your section"
             my_dict["can_modify"] = True
 
