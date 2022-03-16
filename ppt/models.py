@@ -35,7 +35,7 @@ class PPTAdminUser(models.Model):
         return self.user.get_full_name()
 
     class Meta:
-        ordering = ["-is_national_admin", "user__first_name", ]
+        ordering = ["-is_national_admin", "region", "user__first_name", ]
 
 
 class CSRFTheme(SimpleLookup):
