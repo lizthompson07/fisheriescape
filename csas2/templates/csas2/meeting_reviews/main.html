@@ -74,10 +74,12 @@
             <td><span v-html="m.display_dates"></span></td>
             <td>${m.process_object.is_posted | yesNo}</td>
             <td>
-              <textarea v-model="m.name" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted" rows="3"></textarea>
+              <textarea v-model="m.name" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted"
+                        rows="3"></textarea>
             </td>
             <td>
-              <textarea v-model="m.nom" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted" rows="3"></textarea>
+              <textarea v-model="m.nom" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted"
+                        rows="3"></textarea>
             </td>
           </tr>
           </tbody>
@@ -139,11 +141,12 @@
       getMeetings() {
         this.errorMsg = null;
         this.loadingMeetings = true;
-        this.fresh = false;
         let params = window.location.search.substring(1);
-
-        if (!params) page_size = 25;
-        else page_size = 50000;
+        if (!params) page_size = 5;
+        else {
+          page_size = 50000;
+          this.fresh = false;
+        }
 
         let endpoint = `/api/csas/meetings/?${params}&page_size=${page_size}`;
         apiService(endpoint)
@@ -206,7 +209,6 @@
     created() {
       this.getCurrentUser();
       this.getMeetings();
-      {#this.getReviewMetadata();#}
       this.getMetadata();
     },
   });
