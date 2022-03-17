@@ -842,83 +842,6 @@ def samp_comment_parser(comment_str, cleaned_data, samp_pk, det_date):
     return parsed, data_entered
 
 
-def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_pk=None, grp_pk=None,
-                         return_end_contx=False, return_end_anix=False):
-    # Creates and returns a movement event if the origin and destination containers are different
-    # Also links the containers to the event as well as any specified group or individual
-
-    row_entered = False
-    end_contx = False
-    origin_conts = []
-    movement_date = naive_to_aware(movement_date)
-    new_cleaned_data = cleaned_data.copy()
-    if (origin == destination or not nan_to_none(destination)) and nan_to_none(origin):
-        # if both origin and destination are the same, or just if origin is entered, only enter contx.
-        contx, row_entered = enter_contx(origin, cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, return_contx=True)
-        if return_end_contx:
-            return contx
-        else:
-            return row_entered
-
-    if cleaned_data.get("evnt_id"):
-        # move indvidual or group to destination and clean up previous contx's
-        # link containers to parent event
-        if indv_pk:
-            indv = models.Individual.objects.filter(pk=indv_pk).get()
-            origin_conts = indv.current_cont(movement_date)
-        elif not origin and grp_pk:
-            grp = models.Group.objects.filter(pk=grp_pk).get()
-            origin_conts = grp.current_cont(movement_date)
-        else:
-            row_entered += enter_contx(origin, cleaned_data, None)
-
-        row_entered += enter_contx(destination, cleaned_data, None)
-
-    if destination:
-        movement_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Movement").get(),
-                                     facic_id=cleaned_data["evnt_id"].facic_id,
-                                     perc_id=cleaned_data["evnt_id"].perc_id,
-                                     prog_id=cleaned_data["evnt_id"].prog_id,
-                                     start_datetime=movement_date,
-                                     end_datetime=movement_date,
-                                     created_by=new_cleaned_data["created_by"],
-                                     created_date=new_cleaned_data["created_date"],
-                                     )
-        try:
-            movement_evnt.clean()
-            movement_evnt.save()
-            row_entered = True
-        except (ValidationError, IntegrityError):
-            movement_evnt = models.Event.objects.filter(evntc_id=movement_evnt.evntc_id,
-                                                        facic_id=movement_evnt.facic_id,
-                                                        prog_id=movement_evnt.prog_id,
-                                                        start_datetime=movement_evnt.start_datetime,
-                                                        end_datetime=movement_evnt.end_datetime,
-                                                        ).get()
-
-        new_cleaned_data["evnt_id"] = movement_evnt
-        if indv_pk:
-            row_entered += enter_anix(new_cleaned_data, indv_pk=indv_pk, return_sucess=True)
-        if grp_pk:
-            row_entered += enter_anix(new_cleaned_data, grp_pk=grp_pk, return_sucess=True)
-        if origin:
-            row_entered += enter_contx(origin, new_cleaned_data, False, indv_pk=indv_pk, grp_pk=grp_pk)
-        elif origin_conts:
-            for cont in origin_conts:
-                if not cont == destination:
-                    row_entered += enter_contx(cont, new_cleaned_data, False, indv_pk=indv_pk, grp_pk=grp_pk)
-        end_anix, end_contx, data_entered = enter_contx(destination, new_cleaned_data, True, indv_pk=indv_pk, grp_pk=grp_pk,
-                                              return_anix=True)
-        row_entered += data_entered
-
-    if return_end_contx:
-        return end_contx
-    elif return_end_anix:
-        return end_anix
-    else:
-        return row_entered
-
-
 def create_new_evnt(cleaned_data, evntc_name, evnt_date):
     new_cleaned_data = cleaned_data.copy()
     new_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name=evntc_name).get(),
@@ -969,92 +892,6 @@ def create_feed_evnt(cleaned_data):
     return new_evnt
 
 
-def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk, return_cup_contx=False):
-    # moves eggs from trof-tray to heat.draw.cup, only use the final group as this splits groups
-    # cup argument can also be a drawer object
-    row_entered = False
-    new_cleaned_data = cleaned_data.copy()
-
-    movement_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Movement").get(),
-                                 facic_id=cleaned_data["evnt_id"].facic_id,
-                                 perc_id=cleaned_data["evnt_id"].perc_id,
-                                 prog_id=cleaned_data["evnt_id"].prog_id,
-                                 start_datetime=movement_date,
-                                 end_datetime=movement_date,
-                                 created_by=new_cleaned_data["created_by"],
-                                 created_date=new_cleaned_data["created_date"],
-                                 )
-    try:
-        movement_evnt.clean()
-        movement_evnt.save()
-        row_entered = True
-    except (ValidationError, IntegrityError):
-        movement_evnt = models.Event.objects.filter(evntc_id=movement_evnt.evntc_id,
-                                                    facic_id=movement_evnt.facic_id,
-                                                    prog_id=movement_evnt.prog_id,
-                                                    start_datetime=movement_evnt.start_datetime,
-                                                    end_datetime=movement_evnt.end_datetime,
-                                                    ).get()
-
-    new_cleaned_data["evnt_id"] = movement_evnt
-    if grp_pk:
-        enter_anix(new_cleaned_data, grp_pk=grp_pk)
-    tray_contx, data_entered = enter_contx(tray, new_cleaned_data, False, None, grp_pk=grp_pk, return_contx=True)
-    row_entered += data_entered
-    cup_contx, data_entered = enter_contx(cup, new_cleaned_data, True, None, grp_pk=grp_pk, return_contx=True)
-    row_entered += data_entered
-    if return_cup_contx:
-        return cup_contx
-    else:
-        return row_entered
-
-
-def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_code, perc_id, shocking=False, return_anix=False, pick_comments=None):
-    row_entered = False
-    new_cleaned_data = cleaned_data.copy()
-    if shocking:
-        evntc_id = models.EventCode.objects.filter(name="Shocking").get()
-    else:
-        evntc_id = models.EventCode.objects.filter(name="Picking").get()
-
-    pick_evnt = models.Event(evntc_id=evntc_id,
-                             facic_id=cleaned_data["evnt_id"].facic_id,
-                             perc_id=perc_id,
-                             prog_id=cleaned_data["evnt_id"].prog_id,
-                             start_datetime=pick_datetime,
-                             end_datetime=pick_datetime,
-                             created_by=new_cleaned_data["created_by"],
-                             created_date=new_cleaned_data["created_date"],
-                             )
-    try:
-        pick_evnt.clean()
-        pick_evnt.save()
-        row_entered = True
-    except (ValidationError, IntegrityError):
-        pick_evnt = models.Event.objects.filter(evntc_id=pick_evnt.evntc_id,
-                                                facic_id=pick_evnt.facic_id,
-                                                prog_id=pick_evnt.prog_id,
-                                                start_datetime=pick_evnt.start_datetime,
-                                                end_datetime=pick_evnt.end_datetime,
-                                                ).get()
-
-    new_cleaned_data["evnt_id"] = pick_evnt
-    anix = None
-    if grp_pk:
-        anix = enter_anix(new_cleaned_data, grp_pk=grp_pk, return_anix=True)
-        row_entered += enter_bulk_grpd(anix.pk, cleaned_data, pick_datetime,
-                                       comments=pick_comments)
-        cnt_anix, contx, data_entered = enter_contx(tray, new_cleaned_data, final_flag=None, grp_pk=grp_pk,
-                                                    return_anix=True)
-        row_entered += data_entered
-        enter_cnt(cleaned_data, pick_cnt, pick_datetime.date(), anix_pk=cnt_anix.pk, cnt_code=cnt_code)
-
-    if return_anix:
-        return anix, row_entered
-    else:
-        return row_entered
-
-
 def add_team_member(perc_id, evnt_id, loc_id=None, role_id=None, return_team=False):
     row_entered = False
     team = models.TeamXRef(perc_id=perc_id,
@@ -1094,7 +931,8 @@ def create_tray(trof, tray_name, start_date, cleaned_data, save=True):
     return tray
 
 
-def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, team_pk=None, final_flag=None, return_sucess=False, return_anix=False):
+def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, team_pk=None,
+               return_sucess=False, return_anix=False):
     row_entered = False
     if any([indv_pk, contx_pk, loc_pk, pair_pk, grp_pk, team_pk]):
         anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -1104,7 +942,6 @@ def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=N
                                     pair_id_id=pair_pk,
                                     grp_id_id=grp_pk,
                                     team_id_id=team_pk,
-                                    final_contx_flag=final_flag,
                                     created_by=cleaned_data["created_by"],
                                     created_date=cleaned_data["created_date"],
                                     )
@@ -1120,7 +957,6 @@ def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=N
                                                           pair_id=anix.pair_id,
                                                           grp_id=anix.grp_id,
                                                           team_id=anix.team_id,
-                                                          final_contx_flag=anix.final_contx_flag,
                                                           )
             if anix_qs:
                 anix = anix_qs.get()
@@ -1641,7 +1477,7 @@ def enter_mortality(indv, cleaned_data, mort_date):
     data_entered += enter_indvd(anix.pk, cleaned_data, mort_date, None, mort_anidc.pk)
     data_entered += anix_entered
     for cont in indv.current_cont(at_date=mort_date):
-        data_entered += enter_contx(cont, cleaned_data, False, indv.pk)
+        data_entered += enter_move(cleaned_data, cont, None, mort_date, indv_pk=indv.pk, mort=True)
 
     indv.indv_valid = False
     indv.save()
@@ -1684,7 +1520,7 @@ def enter_grp_mortality(grp, cleaned_data, mort_date, mort_cnt, cont=None):
     contx_id, contx_entered = enter_contx(cont, cleaned_data, return_contx=True)
     data_entered += contx_entered
 
-    anix_id, anix_entered = enter_anix(cleaned_data, grp_pk=grp.pk, final_flag=None, contx_pk=contx_id.pk)
+    anix_id, anix_entered = enter_anix(cleaned_data, grp_pk=grp.pk, contx_pk=contx_id.pk)
     data_entered += anix_entered
 
     data_entered += enter_grpd(anix_id.pk, cleaned_data, mort_date, mort_cnt, mort_anidc.pk)
@@ -1800,7 +1636,7 @@ def enter_spwnd(pair_pk, cleaned_data, det_value, spwndc_pk, spwnsc_str, qual_co
     return row_entered
 
 
-def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None, grp_pk=None, loc_pk=None,
+def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None, grp_pk=None, loc_pk=None, mort=None,
                set_origin_if_none=True, return_sucess=False):
     # cases:
     # origin == destination / no desitination
@@ -1815,7 +1651,7 @@ def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None,
     anix_id, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, loc_pk=loc_pk)
     row_entered += anix_entered
 
-    if (origin_id == destination_id) or (nan_to_none(destination_id) is None and loc_pk is None):
+    if (origin_id == destination_id) or (nan_to_none(destination_id) is None and loc_pk is None and mort is None):
         # no movement, link indv/grp to cont:
         # destination is set
         anix, contx, contx_entered = enter_contx(origin_id, cleaned_data, return_anix=True,
@@ -1825,7 +1661,7 @@ def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None,
             return row_entered
         else:
             return anix, anix, row_entered
-    elif nan_to_none(destination_id) is None and loc_pk:
+    elif nan_to_none(destination_id) is None and (loc_pk or mort):
         end_contx_pk = None
     else:
         # destination is set
@@ -1890,6 +1726,9 @@ def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, nfish=No
     end_cnt = None
     data_entered = False
 
+    if start_grp_id is None:
+        raise Exception("Must specify a start group")
+
     if end_grp_id and end_grp_id != start_grp_id:
         end_grp_anix, contx, row_entered = enter_contx(destination_id, cleaned_data, grp_pk=end_grp_id.pk,
                                                        return_anix=True)
@@ -1937,7 +1776,8 @@ def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, nfish=No
             start_anix, end_anix, data_entered = enter_move(cleaned_data, origin_id, destination_id, move_date,
                                                             grp_pk=new_end_grp.pk, set_origin_if_none=set_origin_if_none)
             if nfish:
-                start_cnt_anix, contx, row_entered = enter_contx(origin_id, cleaned_data, grp_pk=start_grp_id.pk, return_anix=True)
+                start_cnt_anix, contx, row_entered = enter_contx(origin_id, cleaned_data, grp_pk=start_grp_id.pk,
+                                                                 return_anix=True)
                 start_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, start_cnt_anix.pk,
                                                    contx_ref_pk=end_anix.contx_id.pk,
                                                    cnt_code="Fish removed from container")
@@ -1966,23 +1806,23 @@ def copy_grp(in_grp_id, copy_date, cleaned_data):
     return new_grp
 
 
-def enter_contx(cont, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
+def enter_contx(cont, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
     cont_type = type(cont)
     if cont_type == models.Tank:
-        return enter_tank_contx(cont.name, cleaned_data, final_flag, indv_pk, grp_pk, team_pk, return_contx, return_anix)
+        return enter_tank_contx(cont.name, cleaned_data,indv_pk, grp_pk, team_pk, return_contx, return_anix)
     elif cont_type == models.Trough:
-        return enter_trof_contx(cont.name, cleaned_data, final_flag, indv_pk, grp_pk, team_pk, return_contx, return_anix)
+        return enter_trof_contx(cont.name, cleaned_data,indv_pk, grp_pk, team_pk, return_contx, return_anix)
     elif cont_type == models.Tray:
-        return enter_tray_contx(cont, cleaned_data, final_flag, indv_pk, grp_pk, team_pk, return_contx, return_anix)
+        return enter_tray_contx(cont, cleaned_data, indv_pk, grp_pk, team_pk, return_contx, return_anix)
     elif cont_type == models.Cup:
-        return enter_cup_contx(cont, cleaned_data, final_flag, indv_pk, grp_pk, team_pk, return_contx, return_anix)
+        return enter_cup_contx(cont, cleaned_data, indv_pk, grp_pk, team_pk, return_contx, return_anix)
     elif cont_type == models.Drawer:
-        return enter_draw_contx(cont, cleaned_data, final_flag, indv_pk, grp_pk, team_pk, return_contx, return_anix)
+        return enter_draw_contx(cont, cleaned_data, indv_pk, grp_pk, team_pk, return_contx, return_anix)
     elif cont_type == models.HeathUnit:
-        return enter_heat_contx(cont, cleaned_data, final_flag, indv_pk, grp_pk, team_pk, return_contx, return_anix)
+        return enter_heat_contx(cont, cleaned_data, indv_pk, grp_pk, team_pk, return_contx, return_anix)
 
 
-def enter_tank_contx(tank_name, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
+def enter_tank_contx(tank_name, cleaned_data,  indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
     row_entered = False
     anix = None
     if not tank_name == "nan":
@@ -2006,7 +1846,7 @@ def enter_tank_contx(tank_name, cleaned_data, final_flag=None, indv_pk=None, grp
                                                         heat_id__isnull=True,
                                                         team_id=contx.team_id).get()
         if indv_pk or grp_pk:
-            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag)
+            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, )
             row_entered += anix_entered
         if return_anix:
             return anix, contx, row_entered
@@ -2018,7 +1858,7 @@ def enter_tank_contx(tank_name, cleaned_data, final_flag=None, indv_pk=None, grp
         return False
 
 
-def enter_trof_contx(trof_name, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
+def enter_trof_contx(trof_name, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
     row_entered = False
     if not trof_name == "nan":
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -2041,8 +1881,7 @@ def enter_trof_contx(trof_name, cleaned_data, final_flag=None, indv_pk=None, grp
                                                         heat_id__isnull=True,
                                                         team_id=contx.team_id).get()
         if indv_pk or grp_pk:
-            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk,
-                                            final_flag=final_flag)
+            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk)
             row_entered += anix_entered
         if return_anix:
             return anix, contx, row_entered
@@ -2054,7 +1893,7 @@ def enter_trof_contx(trof_name, cleaned_data, final_flag=None, indv_pk=None, grp
         return False
 
 
-def enter_tray_contx(tray, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
+def enter_tray_contx(tray, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
     row_entered = False
     if not tray == "nan":
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -2077,8 +1916,7 @@ def enter_tray_contx(tray, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
                                                         heat_id__isnull=True,
                                                         team_id=contx.team_id).get()
         if indv_pk or grp_pk:
-            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk,
-                                            final_flag=final_flag)
+            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk)
             row_entered += anix_entered
         if return_anix:
             return anix, contx, row_entered
@@ -2090,7 +1928,7 @@ def enter_tray_contx(tray, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
         return False
 
 
-def enter_cup_contx(cup, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
+def enter_cup_contx(cup, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
     row_entered = False
     if not cup == "nan":
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -2139,7 +1977,7 @@ def enter_cup_contx(cup, cleaned_data, final_flag=None, indv_pk=None, grp_pk=Non
 
         if indv_pk or grp_pk:
             anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk,
-                                            final_flag=final_flag)
+                                            )
             row_entered += anix_entered
         if return_anix:
             return anix, contx, row_entered
@@ -2151,7 +1989,7 @@ def enter_cup_contx(cup, cleaned_data, final_flag=None, indv_pk=None, grp_pk=Non
         return False
 
 
-def enter_draw_contx(draw, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
+def enter_draw_contx(draw, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
     row_entered = False
     if draw:
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -2187,8 +2025,7 @@ def enter_draw_contx(draw, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
             pass
 
         if indv_pk or grp_pk:
-            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk,
-                                            final_flag=final_flag)
+            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk)
             row_entered += anix_entered
         if return_anix:
             return anix, contx, row_entered
@@ -2200,7 +2037,7 @@ def enter_draw_contx(draw, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
         return False
 
 
-def enter_heat_contx(heat, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
+def enter_heat_contx(heat, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
     row_entered = False
     if heat:
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -2224,8 +2061,7 @@ def enter_heat_contx(heat, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
                                                         team_id=contx.team_id).get()
 
         if indv_pk or grp_pk:
-            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk,
-                                            final_flag=final_flag)
+            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk)
             row_entered += anix_entered
         if return_anix:
             return anix, contx, row_entered

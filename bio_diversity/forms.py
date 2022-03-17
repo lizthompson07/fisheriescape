@@ -689,6 +689,8 @@ class FishToContForm(forms.Form):
 
         if grp_list:
             grp_id = grp_list[0]
+            anix, entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
+            utils.enter_cnt(cleaned_data, cleaned_data["num_fish"], cleaned_data["move_date"], anix_pk=anix.pk)
         else:
             grp_id = models.Group(spec_id=models.SpeciesCode.objects.filter(name="Salmon").get(),
                                   stok_id=cleaned_data["stok_id"],
@@ -700,19 +702,16 @@ class FishToContForm(forms.Form):
                                   )
             grp_id.clean()
             grp_id.save()
+            anix_id, entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
+            utils.enter_bulk_grpd(anix_id.pk, cleaned_data, cleaned_data["move_date"],
+                                  mark=cleaned_data["mark_id"],
+                                  prog_grp=cleaned_data["grp_prog_id"]
+                                  )
 
-        anix_id = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_anix=True)
-        utils.enter_bulk_grpd(anix_id.pk, cleaned_data, cleaned_data["move_date"],
-                              mark=cleaned_data["mark_id"],
-                              prog_grp=cleaned_data["grp_prog_id"]
-                              )
+            utils.enter_move_cnts(cleaned_data, None, self.cont, cleaned_data["move_date"],
+                                  nfish=cleaned_data["num_fish"], start_grp_id=grp_id, whole_grp=True,
+                                  set_origin_if_none=False)
 
-        # fish into tank contx
-        contx, entered = utils.enter_contx(self.cont, cleaned_data, return_contx=True)
-        anix, entered = utils.enter_anix(cleaned_data, final_flag=True, grp_pk=grp_id.pk)
-
-        # cnt:
-        utils.enter_cnt(cleaned_data, cleaned_data["num_fish"], cleaned_data["move_date"], anix_pk=anix.pk)
         return cleaned_data
 
 
@@ -1039,7 +1038,7 @@ class MortForm(forms.Form):
             cont = grp.current_cont(at_date=cleaned_data["mort_date"])[0]
 
             # create contx, link to grp and samp:
-            contx, contx_entered = utils.enter_contx(cont, cleaned_data, None, return_contx=True)
+            contx, contx_entered = utils.enter_contx(cont, cleaned_data, return_contx=True)
 
             samp_anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp.pk, contx_pk=contx.pk)
 

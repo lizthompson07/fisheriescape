@@ -135,7 +135,7 @@ class DistributionParser(DataParser):
         coll_id = None
         stok_id = None
         coll = None
-        loc_anix = None
+        loc_anix_pk = None
         if utils.nan_to_none(row.get(self.year_coll_key)):
             cnt_year, coll = utils.year_coll_splitter(row[self.year_coll_key])
             coll_id = utils.coll_getter(coll)
@@ -149,24 +149,32 @@ class DistributionParser(DataParser):
         elif utils.nan_to_none(row.get(self.trof_key)):
             cont_list = utils.parse_trof_str(str(row[self.trof_key]), cleaned_data["facic_id"])
 
-        for cont_id in cont_list:
-            contx, data_entered = utils.enter_contx(cont_id, cleaned_data, return_contx=True)
-            self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=contx.pk, return_sucess=True)
-            self.row_entered += data_entered
-            grp_list = utils.get_grp(utils.nan_to_none(row[self.stok_key]), cnt_year, coll, cont_id, row_date,
-                                     prog_str=utils.nan_to_none(row.get(self.prog_key)),
-                                     mark_str=utils.nan_to_none(row.get(self.mark_key)))
-            if grp_list:
-                grp_id = grp_list[0]
-                self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
-                loc_anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk)
-                self.row_entered += anix_entered
+        if cont_list:
+            for cont_id in cont_list:
+                fish_from_cont = int(float(row[self.num_key]) / len(cont_list))
+                contx, data_entered = utils.enter_contx(cont_id, cleaned_data, return_contx=True)
+                self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=contx.pk, return_sucess=True)
+                self.row_entered += data_entered
+                grp_list = utils.get_grp(utils.nan_to_none(row[self.stok_key]), cnt_year, coll, cont_id, row_date,
+                                         prog_str=utils.nan_to_none(row.get(self.prog_key)),
+                                         mark_str=utils.nan_to_none(row.get(self.mark_key)))
+                if grp_list:
+                    grp_id = grp_list[0]
+                    self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
+                    loc_anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk, contx_pk=contx.pk)
+                    loc_anix_pk = loc_anix.pk
+                    self.row_entered += anix_entered
 
-        # ----------Count and count details----------------
-        cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.num_key], row_date, loc_pk=loc.pk,
-                                           anix_pk=loc_anix.pk, cnt_code="Fish Distributed", cnt_year=cnt_year,
-                                           coll_id=coll_id, stok_id=stok_id)
-        self.row_entered += cnt_entered
+                cnt, cnt_entered = utils.enter_cnt(cleaned_data, fish_from_cont, row_date, loc_pk=loc.pk,
+                                                   anix_pk=loc_anix_pk, contx_ref_pk=contx.pk, cnt_code="Fish Distributed", cnt_year=cnt_year,
+                                                   coll_id=coll_id, stok_id=stok_id)
+                self.row_entered += cnt_entered
+        else:
+            # ----------Count and count details----------------
+            cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.num_key], row_date, loc_pk=loc.pk,
+                                               anix_pk=loc_anix_pk, cnt_code="Fish Distributed", cnt_year=cnt_year,
+                                               coll_id=coll_id, stok_id=stok_id)
+            self.row_entered += cnt_entered
 
         if utils.nan_to_none(row.get(self.prog_key)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.prog_key], "Program Group",

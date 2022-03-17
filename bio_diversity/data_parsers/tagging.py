@@ -106,9 +106,6 @@ class TaggingParser(DataParser):
             out_tank = row[self.to_tank_id_key]
             self.row_entered += utils.enter_move(cleaned_data, in_tank, out_tank, row_datetime.date(), indv_pk=indv.pk,
                                                  return_sucess=True)
-            # if tagged fish goes back into same tank, still link fish to tank:
-            if in_tank == out_tank:
-                utils.enter_contx(in_tank, cleaned_data, True, indv_pk=indv.pk)
 
         anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
         self.row_entered += anix_entered

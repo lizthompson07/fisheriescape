@@ -223,7 +223,7 @@ class GenericUntaggedParser(DataParser):
             grps = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["end_tank_id"],
                                  at_date=row["datetime"], prog_str=row[self.prio_key], mark_str=row[self.grp_mark_key])
             start_grp_id = self.start_grp_dict[row["grp_key"]]
-            start_anix, start_contx, contx_entered = utils.enter_contx(row["start_tank_id"], cleaned_data, None,
+            start_anix, start_contx, contx_entered = utils.enter_contx(row["start_tank_id"], cleaned_data,
                                                                        grp_pk=start_grp_id.pk, return_anix=True)
 
             if len(grps) > 0:
@@ -263,7 +263,8 @@ class GenericUntaggedParser(DataParser):
         row_anix, data_entered = utils.enter_anix(cleaned_data, grp_pk=row_grp.pk)
         self.row_entered += data_entered
 
-        row_contx, data_entered = utils.enter_contx(row.get("start_tank_id"), cleaned_data, None, grp_pk=row_grp.pk, return_contx=True)
+        row_contx, data_entered = utils.enter_contx(row.get("start_tank_id"), cleaned_data, grp_pk=row_grp.pk,
+                                                    return_contx=True)
         self.row_entered += data_entered
 
         samp_anix = row_contx.animal_details.filter(grp_id=row_grp,
@@ -370,7 +371,7 @@ class GenericGrpParser(DataParser):
                                       row_date, prog_str=row.get(self.prio_key), mark_str=row.get(self.grp_mark_key),
                                       fail_on_not_found=True)[0]
         det_anix, self.row_entered = utils.enter_anix(cleaned_data, grp_pk=row_start_grp.pk)
-        start_cnt_anix, start_contx, contx_entered = utils.enter_contx(row["start_tank_id"], cleaned_data, final_flag=None,
+        start_cnt_anix, start_contx, contx_entered = utils.enter_contx(row["start_tank_id"], cleaned_data,
                                                                        grp_pk=row_start_grp.pk, return_anix=True)
         self.row_entered += contx_entered
 

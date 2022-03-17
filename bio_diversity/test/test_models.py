@@ -26,8 +26,8 @@ class TestGrpModel(CommonTest):
             "created_by": self.evnt.created_by,
             "created_date": self.evnt.created_date,
         }
-        self.contx, data_entered = utils.enter_contx(self.trof, self.cleaned_data, None, return_contx=True)
-        self.contx_two, data_entered = utils.enter_contx(self.trof_two, self.cleaned_data, None, return_contx=True)
+        self.contx, data_entered = utils.enter_contx(self.trof, self.cleaned_data, return_contx=True)
+        self.contx_two, data_entered = utils.enter_contx(self.trof_two, self.cleaned_data, return_contx=True)
         temp_envc = models.EnvCode.objects.filter(name="Temperature").get()
         # add ten days worth of temp data to the trough
         for temp in range(0, 10):

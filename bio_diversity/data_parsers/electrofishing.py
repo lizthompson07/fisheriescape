@@ -293,6 +293,7 @@ class AdultCollectionParser(DataParser):
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
         row_datetime = utils.get_row_date(row)
+        row_date = utils.get_row_date(row).date()
         relc_id = self.site_dict[row[self.site_key]]
         year, coll = utils.year_coll_splitter(row[self.coll_key])
         coll_id = utils.coll_getter(coll)
@@ -375,8 +376,8 @@ class AdultCollectionParser(DataParser):
                                                           self.ani_health_anidc_id.pk, adsc_str="Aquaculture")
 
             if utils.nan_to_none(row[self.tank_key]):
-                self.row_entered += utils.enter_contx(self.tank_dict[row[self.tank_key]], cleaned_data, True,
-                                                      indv_id.pk)
+                self.row_entered += utils.enter_move(cleaned_data, None, self.tank_dict[row[self.tank_key]], row_date,
+                                                     indv_pk=indv_id.pk, loc_pk=loc.pk, return_sucess=True)
                 if self.loc.pk not in self.loc_caught_dict:
                     self.loc_caught_dict[self.loc.pk] = 1
                 else:
@@ -421,7 +422,7 @@ class AdultCollectionParser(DataParser):
                 contx_id, contx_entered = utils.enter_contx(self.tank_dict[row[self.tank_key]], cleaned_data,
                                                             return_contx=True)
                 self.row_entered += contx_entered
-                anix_id, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, final_flag=True, loc_pk=loc.pk)
+                anix_id, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk)
 
                 if anix_id.pk not in self.grp_cnt_dict:
                     self.grp_cnt_dict[anix_id.pk] = 1

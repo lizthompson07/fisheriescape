@@ -209,8 +209,8 @@ class TestGrpCnt(TestCase):
             "created_by": self.evnt.created_by,
             "created_date": self.evnt.created_date,
         }
-        self.anix, self.contx, data_entered = utils.enter_contx(self.tank, self.cleaned_data, grp_pk=self.grp.pk,
-                                                                final_flag=True, return_anix=True)
+        start_anix, self.anix, move_entered = utils.enter_move(self.cleaned_data, None, self.tank, self.evnt.start_date, grp_pk=self.grp.pk)
+        self.contx = self.anix.contx_id
 
     def test_zero_cnt(self):
         # test that with no details present, count returns zero
@@ -226,13 +226,9 @@ class TestGrpCnt(TestCase):
         # add two counts in different containers and make sure group record proper count
         cnt_val = randint(0, 100)
         utils.enter_cnt(self.cleaned_data, cnt_val, self.evnt.start_date, self.anix.pk, cnt_code="Fish in Container")
-        # sometimes factories will reuse an event/tank which will prevent new contx's and cnt's from being entered.
-        # this loop ensures that new data does get added
-        data_entered = False
-        while not data_entered:
-            anix, contx, data_entered = utils.enter_contx(self.final_tank, self.cleaned_data, grp_pk=self.grp.pk, final_flag=True, return_anix=True)
+        start_anix, end_anix, move_entered = utils.enter_move(self.cleaned_data, self.tank, self.final_tank, self.evnt.start_date, grp_pk=self.grp.pk)
 
-        utils.enter_cnt(self.cleaned_data, cnt_val, self.evnt.start_date, anix.pk, cnt_code="Fish in Container")
+        utils.enter_cnt(self.cleaned_data, cnt_val, self.evnt.start_date, end_anix.pk, cnt_code="Fish in Container")
         self.assertEqual(self.grp.count_fish_in_group(), 2 * cnt_val)
 
     def test_program_grp_cnt(self):
@@ -257,8 +253,8 @@ class TestGrpCnt(TestCase):
         next_day_evnt.save()
         new_cleaned_data = self.cleaned_data.copy()
         new_cleaned_data["evnt_id"] = next_day_evnt
-        end_anix, end_contx, data_entered = utils.enter_contx(self.tank, new_cleaned_data, final_flag=None,
-                                                              grp_pk=self.grp.pk, return_anix=True)
+        end_anix, end_contx, data_entered = utils.enter_contx(self.tank, new_cleaned_data, grp_pk=self.grp.pk,
+                                                              return_anix=True)
 
         utils.enter_cnt(self.cleaned_data, init_cnt, self.evnt.start_date, self.anix.pk, cnt_code="Eggs Added")
         cnt = utils.enter_cnt(self.cleaned_data, 0, self.evnt.start_date, self.anix.pk, cnt_code="Eggs Removed")[0]
