@@ -182,11 +182,13 @@
         <td class="pt-3 pb-3 card section-card">
           <div class="card-body">
 
-            <p class="lead mb-3">
-              <a class="text-primary pointy" @click="goProjectDetail(p)">
+            <p class="h4 mb-3">
                 ${p.project.title}
+              <a class="text-primary pointy" @click="goProjectDetail(p)" data-toggle="tooltip" title="{% trans "Open project in new tab" %}">
+                <span class="mdi mdi-open-in-new text-primary lead"></span>
               </a>
             </p>
+            <hr>
 
             <div class="row">
 
@@ -254,7 +256,6 @@
                 </div>
               </div>
             </div>
-
             <div v-if="p.review" class="row mt-3">
               <div class="col">
                 <span class="text-muted font-italic">{{ review_form.general_comment.label }}</span><br>
