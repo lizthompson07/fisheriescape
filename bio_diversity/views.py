@@ -329,8 +329,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                               (2, 'Initial'), (3, 'Allocations'), (4, "Data Logger temperatures"))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
-            elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing",
-                                     "Bypass Collection", "Smolt Wheel Collection", "Adult Collection"]:
+            elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Adult Collection"] \
+                    or evntc.__str__().lower() in collection_evntc_list:
                 self.get_form_class().base_fields["data_type"].required = False
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
             elif evntc.__str__() in ["Distribution"]:
@@ -1334,8 +1334,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         context = super().get_context_data(**kwargs)
 
         context["table_list"].extend(["evnt", "indv", "cnt", "grpd", "samp", "move", "loc", "pair", "team", "cont"])
-        anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
-                                                     indv_id__isnull=True, pair_id__isnull=True)\
+        anix_set = self.object.animal_details.filter(evnt_id__isnull=False)\
             .select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id', 'evnt_id__perc_id')
 
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))

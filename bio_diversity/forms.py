@@ -16,7 +16,7 @@ from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingPar
     ElectrofishingParser, AdultCollectionParser
 from bio_diversity.data_parsers.feeding import FeedingParser
 from bio_diversity.data_parsers.sites import SitesParser
-from bio_diversity.static.calculation_constants import sfa_nums
+from bio_diversity.static.calculation_constants import sfa_nums, collection_evntc_list
 
 from bio_diversity import models
 from bio_diversity import utils
@@ -359,7 +359,7 @@ class DataForm(CreatePrams):
                     success += parser.success
 
             # ----------------------------ELECTROFISHING-----------------------------------
-            elif cleaned_data["evntc_id"].__str__() in ["Electrofishing", "Bypass Collection", "Smolt Wheel Collection"]:
+            elif cleaned_data["evntc_id"].__str__().lower() in collection_evntc_list:
                 if cleaned_data["facic_id"].__str__() == "Coldbrook":
                     parser = ColdbrookElectrofishingParser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Mactaquac":
@@ -457,7 +457,7 @@ class DataForm(CreatePrams):
                 log_data = parser.log_data
                 success = parser.success
 
-        except Exception as err:
+        except BlockingIOError as err:
             log_data += "Error parsing data: \n"
             log_data += "\n Error: {}".format(err)
 

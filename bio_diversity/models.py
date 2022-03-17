@@ -896,6 +896,17 @@ class Event(BioTimeModel):
 
         return fecu_dict
 
+    def delete(self, using=None, keep_parents=False):
+        # nuke unused groups here:
+        grp_qs = Group.objects.filter(animal_details__evnt_id=self).distinct()
+
+        for grp_id in grp_qs:
+            anix_set = grp_id.animal_details.filter(evnt_id__isnull=False)
+            evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
+            if len(evnt_list) == 1:
+                grp_id.delete()
+        super(Event, self).delete()
+
 
 @receiver(post_save, sender=Event)
 def my_handler(sender, instance, **kwargs):

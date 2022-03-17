@@ -70,6 +70,8 @@ class TaggingParser(DataParser):
         # set column groups, should only be one of these
         self.data = utils.set_row_grp(self.data, self.stok_key, self.coll_key, self.group_key, self.from_tank_id_key, "datetime", self.mark_key)
         self.grp_id = self.data["grp_id"][0]
+        utils.enter_anix(self.cleaned_data, grp_pk=self.grp_id.pk)
+
 
         year, coll = utils.year_coll_splitter(self.data[self.coll_key][0])
         self.stok_id = models.StockCode.objects.filter(name=self.data[self.stok_key][0]).get()

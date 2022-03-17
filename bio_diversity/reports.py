@@ -691,7 +691,7 @@ def generate_individual_report(indv_id):
                 ws_evnt['A' + str(row_count)].value = evnt.start_date
                 ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
                 ws_evnt['C' + str(row_count)].value = grp_id.__str__()
-                ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
+                ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date), get_string=True)
                 ws_evnt['E' + str(row_count)].value = evnt.comments
                 row_count += 1
 

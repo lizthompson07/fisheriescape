@@ -254,7 +254,7 @@ class SpawningParser(DataParser):
             anix_grp = anix_grp_qs.get()
             grp = anix_grp.grp_id
 
-        if anix_grp:
+        if anix_grp and row.get(self.prog_key):
             utils.enter_bulk_grpd(anix_grp, cleaned_data, row_date, prog_grp=row[self.prog_key])
 
     def data_cleaner(self):

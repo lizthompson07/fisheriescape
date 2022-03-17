@@ -50,7 +50,8 @@ class DataParser:
     month_key = "Month"
     day_key = "Day"
 
-    catch_error = Exception
+    # catch_error = Exception
+    catch_error = BlockingIOError
 
     mandatory_keys = []
     mandatory_filled_keys = []
@@ -89,10 +90,10 @@ class DataParser:
             self.log_data += "\n File format not valid: {}".format(err.__str__())
             self.success = False
 
-        for key in self.mandatory_keys:
-            if key not in list(self.data):
+        for header_key in self.mandatory_keys:
+            if header_key not in list(self.data):
                 # Make sure mandatory key columns exist
-                self.log_data += "Column with header \"{}\" not found in worksheet \n".format(key)
+                self.log_data += "Column with header \"{}\" not found in worksheet \n".format(header_key)
                 self.success = False
         if self.success:
             for key in self.mandatory_filled_keys:
@@ -1707,7 +1708,7 @@ def enter_move(cleaned_data, origin_id, destination_id, move_date, indv_pk=None,
                 move_id.clean()
                 move_id.save()
                 row_entered = True
-            except IntegrityError:
+            except (ValidationError, IntegrityError) as err:
                 pass
 
     if return_sucess:

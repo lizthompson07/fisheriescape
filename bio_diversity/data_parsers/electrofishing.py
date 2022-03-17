@@ -67,7 +67,8 @@ class ElectrofishingParser(DataParser):
             self.locc_id = models.LocCode.objects.filter(name__icontains="Smolt Wheel site").get()
         elif cleaned_data["evntc_id"].__str__() == "Bypass Collection":
             self.locc_id = models.LocCode.objects.filter(name__icontains="Bypass site").get()
-
+        else:
+            self.locc_id = models.LocCode.objects.filter(name__icontains="Collections site").get()
         self.data_dict = self.data.to_dict("records")
 
     def row_parser(self, row):
@@ -160,15 +161,15 @@ class ElectrofishingParser(DataParser):
             self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=contx_id.pk,
                                                  return_sucess=True)
 
-            cnt_caught, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fish_caught_key], row_datetime.date(),
+            cnt_caught, cnt_entered = utils.enter_cnt(cleaned_data, row.get(self.fish_caught_key), row_datetime.date(),
                                                       anix_pk=end_anix.pk, loc_pk=loc.pk, cnt_code="Fish Caught")
             self.row_entered += cnt_entered
             # end if tank_id block
 
-        cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fish_obs_key], row_datetime.date(), loc_pk=loc.pk,
+        cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, row.get(self.fish_obs_key), row_datetime.date(), loc_pk=loc.pk,
                                                cnt_code="Fish Observed")
         self.row_entered += cnt_entered
-        cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fish_rel_key], row_datetime.date(), loc_pk=loc.pk,
+        cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, row.get(self.fish_rel_key), row_datetime.date(), loc_pk=loc.pk,
                                                cnt_code="Fish Released")
         self.row_entered += cnt_entered
 
