@@ -44,30 +44,7 @@ class BioModel(models.Model):
         # eg. should only be allowed one instance of a=5, b=null
         super(BioModel, self).clean()
         self.clean_fields()
-        if self._meta.constraints:
-            uniqueness_constraints = [constraint for constraint in self._meta.constraints
-                                      if isinstance(constraint, models.UniqueConstraint)]
-            for constraint in uniqueness_constraints:
-                # from stackoverflow
-                unique_filter = {}
-                unique_fields = []
-                null_found = False
-                for field_name in constraint.fields:
-                    field_value = getattr(self, field_name)
-                    if getattr(self, field_name) is None:
-                        unique_filter['%s__isnull' % field_name] = True
-                        null_found = True
-                    else:
-                        unique_filter['%s' % field_name] = field_value
-                        unique_fields.append(field_name)
-                if null_found:
-                    unique_queryset = self.__class__.objects.filter(**unique_filter)
-                    if self.pk:
-                        unique_queryset = unique_queryset.exclude(pk=self.pk)
-                    if unique_queryset.exists():
-                        msg = self.unique_error_message(self.__class__, tuple(unique_fields))
-                        raise ValidationError(msg, code="unique_together")
-        elif self._meta.unique_together:
+        if self._meta.unique_together:
             uniqueness_constraints = [constraint for constraint in self._meta.unique_together]
             for constraint in uniqueness_constraints:
                 # from stackoverflow
@@ -169,32 +146,7 @@ class BioLookup(shared_models.Lookup):
         # handle null values in uniqueness constraint foreign keys.
         # eg. should only be allowed one instance of a=5, b=null
         super(BioLookup, self).clean()
-        if self._meta.constraints:
-            uniqueness_constraints = [constraint for constraint in self._meta.constraints
-                                      if isinstance(constraint, models.UniqueConstraint)]
-
-            for constraint in uniqueness_constraints:
-                # from stackoverflow
-                unique_filter = {}
-                unique_fields = []
-                null_found = False
-                for field_name in constraint.fields:
-                    field_value = getattr(self, field_name)
-                    if getattr(self, field_name) is None:
-                        unique_filter['%s__isnull' % field_name] = True
-                        null_found = True
-                    else:
-                        unique_filter['%s' % field_name] = field_value
-                        unique_fields.append(field_name)
-                if null_found:
-                    unique_queryset = self.__class__.objects.filter(**unique_filter)
-                    if self.pk:
-                        unique_queryset = unique_queryset.exclude(pk=self.pk)
-                    if unique_queryset.exists():
-                        msg = self.unique_error_message(self.__class__, tuple(unique_fields))
-                        raise ValidationError(msg)
-
-        elif self._meta.unique_together:
+        if self._meta.unique_together:
             uniqueness_constraints = [constraint for constraint in self._meta.unique_together]
             for constraint in uniqueness_constraints:
                 # from stackoverflow
@@ -409,10 +361,9 @@ class AniDetailXref(BioModel):
                                 related_name="animal_details", db_column="TEAM_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['evnt_id', 'contx_id', 'loc_id', 'indv_id', 'pair_id',
-                                            'grp_id', 'team_id'], name='Animal_Detail_Cross_Reference_Uniqueness')
-        ]
+        unique_together = (('evnt_id', 'contx_id', 'loc_id', 'indv_id', 'pair_id',
+                                            'grp_id', 'team_id'),)
+
 
     def clean(self):
         super(AniDetailXref, self).clean()
@@ -452,9 +403,7 @@ class ContDetSubjCode(BioLookup):
                                   verbose_name=_("Container detail code"))
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'contdc_id'], name='CDSC_Uniqueness')
-        ]
+        unique_together = (('name', 'contdc_id'),)
 
 
 class ContainerXRef(BioModel):
@@ -477,10 +426,7 @@ class ContainerXRef(BioModel):
                                 related_name="contxs", db_column="TEAM_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['evnt_id', 'tank_id', 'trof_id', 'tray_id', 'heat_id', 'draw_id', 'cup_id', 'team_id'],
-                                    name='Container_Cross_Reference_Uniqueness')
-        ]
+        unique_together = (('evnt_id', 'tank_id', 'trof_id', 'tray_id', 'heat_id', 'draw_id', 'cup_id', 'team_id'),)
 
     def __str__(self):
         return "{}-{}".format(self.evnt_id.__str__(), self.container)
@@ -605,9 +551,7 @@ class CountDet(BioDet):
     detail_date = None
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['cnt_id', 'anidc_id', 'adsc_id'], name='Count_Detail_Uniqueness')
-        ]
+        unique_together = (('cnt_id', 'anidc_id', 'adsc_id'),)
 
     def __str__(self):
         return "{} - {}".format(self.cnt_id.__str__(), self.anidc_id.__str__())
@@ -618,9 +562,7 @@ class Cup(BioCont):
     key = "cup"
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'draw_id', 'start_date'], name='cup_uniqueness')
-        ]
+        unique_together = (('name', 'draw_id', 'start_date'),)
         ordering = ['draw_id', 'name']
 
     # Make name not unique, is unique together with drawer.
@@ -645,10 +587,7 @@ class CupDet(BioContainerDet):
     cup_id = models.ForeignKey('Cup', on_delete=models.CASCADE, verbose_name=_("Cup"), db_column="CUP_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['cup_id', 'contdc_id', 'cdsc_id', 'start_date'],
-                                    name='Cup_Detail_Uniqueness')
-        ]
+        unique_together = (('cup_id', 'contdc_id', 'cdsc_id', 'start_date'),)
 
     def __str__(self):
         return "{} - {}".format(self.cup_id.__str__(), self.contdc_id.__str__())
@@ -667,9 +606,7 @@ class Drawer(BioCont):
     key = "draw"
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'heat_id'], name='draw_uniqueness')
-        ]
+        unique_together = (('name', 'heat_id'),)
         ordering = ['heat_id', 'name']
 
     # Make name not unique, is unique together with drawer.
@@ -720,10 +657,7 @@ class EnvCondition(BioTimeModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['contx_id', 'loc_id', 'inst_id', 'envc_id', 'envsc_id', 'start_datetime'],
-                                    name='Environment_Condition_Uniqueness')
-        ]
+        unique_together = (('contx_id', 'loc_id', 'inst_id', 'envc_id', 'envsc_id', 'start_datetime'),)
 
     def __str__(self):
         if self.contx_id:
@@ -874,10 +808,7 @@ class Event(BioTimeModel):
         return "{}-{}".format(self.evntc_id.__str__(), self.start_date)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['facic_id', 'evntc_id', 'prog_id', 'start_datetime', 'end_datetime'],
-                                    name='Event_Uniqueness')
-        ]
+        unique_together = (('facic_id', 'evntc_id', 'prog_id', 'start_datetime', 'end_datetime'),)
         ordering = ['-start_datetime']
 
     def fecu_dict(self):
@@ -939,10 +870,7 @@ class EventFile(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["evnt_id", "stok_id"], name='Event_File_Uniqueness')
-        ]
-
+        unique_together = (("evnt_id", "stok_id"),)
 
 @receiver(models.signals.post_delete, sender=EventFile)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
@@ -994,9 +922,7 @@ class Fecundity(BioDateModel):
     beta = models.DecimalField(max_digits=10, decimal_places=3, verbose_name=_("B"), db_column="B")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['stok_id', 'coll_id', 'start_date'], name='Fecundity_Uniqueness')
-        ]
+        unique_together = (('stok_id', 'coll_id', 'start_date'),)
 
     def __str__(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.alpha, self.beta)
@@ -1269,9 +1195,7 @@ class GroupDet(BioDet):
                                 verbose_name=_("Animal Detail Cross Reference"), db_column="ANI_DET_XREF_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['anix_id', 'anidc_id', 'adsc_id', 'frm_grp_id'], name='Group_Detail_Uniqueness')
-        ]
+        unique_together = (('anix_id', 'anidc_id', 'adsc_id', 'frm_grp_id'),)
 
     def __str__(self):
         return "{} Detail".format(self.anidc_id.name)
@@ -1310,9 +1234,7 @@ class HeathUnit(BioCont):
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'facic_id'], name='heat_uniqueness')
-        ]
+        unique_together = (('name', 'facic_id'),)
         ordering = ['facic_id', 'name']
 
 
@@ -1322,10 +1244,7 @@ class HeathUnitDet(BioContainerDet):
                                 db_column="HEATH_UNIT_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['heat_id', 'contdc_id', 'cdsc_id', 'start_date'],
-                                    name='Heath_Unit_Detail_Uniqueness')
-        ]
+        unique_together = (('heat_id', 'contdc_id', 'cdsc_id', 'start_date'),)
 
     def __str__(self):
         return "{} - {}".format(self.heat_id.__str__(), self.contdc_id.__str__())
@@ -1390,12 +1309,9 @@ class Image(BioModel):
         return "{}".format(self.img_png)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["imgc_id", "loc_id", "cntd_id", "grpd_id", "sampd_id", "indvd_id",
-                                            "spwnd_id", "tankd_id", "heatd_id", "draw_id", "trofd_id", "trayd_id",
-                                            "cupd_id"], name='Image_Uniqueness')
-        ]
-
+        unique_together = (("imgc_id", "loc_id", "cntd_id", "grpd_id", "sampd_id", "indvd_id",
+                            "spwnd_id", "tankd_id", "heatd_id", "draw_id", "trofd_id", "trayd_id",
+                            "cupd_id"),)
 
 @receiver(models.signals.post_delete, sender=Image)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
@@ -1564,10 +1480,7 @@ class IndividualDet(BioDet):
                                 verbose_name=_("Animal Detail Cross Reference"), db_column="ANI_DET_XREF_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['anix_id', 'anidc_id', 'adsc_id'],
-                                    name='Individual_Detail_Uniqueness')
-        ]
+        unique_together = (('anix_id', 'anidc_id', 'adsc_id'),)
 
     def __str__(self):
         return "{} - {}".format(self.anix_id.__str__(), self.anidc_id.__str__())
@@ -1622,10 +1535,7 @@ class IndTreatment(BioTimeModel):
         return "{}-{}".format(self.indvtc_id.__str__(), self.lot_num)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['anix_id', 'indvtc_id'],
-                                    name='Individual_Treatment_Uniqueness')
-        ]
+        unique_together = (('anix_id', 'indvtc_id'),)
 
 
 class Instrument(BioModel):
@@ -1654,9 +1564,7 @@ class InstrumentDet(BioDateModel):
     det_value = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Value"), db_column="VAL")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['inst_id', 'instdc_id', 'start_date'], name='Instrument_Detail_Uniqueness')
-        ]
+        unique_together = (('inst_id', 'instdc_id', 'start_date'),)
 
     def __str__(self):
         return "{}-{}".format(self.instdc_id.__str__(), self.inst_id.__str__())
@@ -1705,10 +1613,8 @@ class Location(BioModel):
         return "{} location".format(self.locc_id.__str__())
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat",
-                                            "loc_lon", "loc_date"], name='Location_Uniqueness')
-        ]
+        unique_together = (("evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat",
+                            "loc_lon", "loc_date"),)
 
     @property
     def point(self):
@@ -1804,9 +1710,7 @@ class LocationDet(BioDet):
             return False
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['loc_id', 'locdc_id', 'ldsc_id'], name='Location_Detail_Uniqueness')
-        ]
+        unique_together = (('loc_id', 'locdc_id', 'ldsc_id'),)
 
 
 class LocationDetCode(BioLookup):
@@ -1824,9 +1728,7 @@ class LocDetSubjCode(BioLookup):
                                  verbose_name=_("Location detail code"))
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'locdc_id'], name='LDSC_Uniqueness')
-        ]
+        unique_together = (('name', 'locdc_id'),)
 
 
 class MoveDet(BioModel):
@@ -1841,9 +1743,7 @@ class MoveDet(BioModel):
     move_date = models.DateField(verbose_name=_("Date move was recorded"), db_column="MOVE_DATE")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['anix_id', 'contx_start', 'contx_end', 'move_date'], name='Move_Detail_Uniqueness')
-        ]
+        unique_together = (('anix_id', 'contx_start', 'contx_end', 'move_date'),)
 
     @property
     def evnt(self):
@@ -1922,9 +1822,7 @@ class PersonnelCode(BioModel):
         return "{} {}".format(self.perc_first_name, self.perc_last_name)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['perc_first_name', 'perc_last_name'], name='Personnel_Code_Uniqueness')
-        ]
+        unique_together = (('perc_first_name', 'perc_last_name'),)
         ordering = ["perc_last_name", "perc_first_name"]
 
 
@@ -1955,9 +1853,9 @@ class ProgAuthority(BioModel):
         return "{} {}".format(self.proga_first_name, self.proga_last_name)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['proga_first_name', 'proga_last_name'], name='Program_Authority_Uniqueness')
-        ]
+        unique_together = (('proga_first_name', 'proga_last_name'),)
+
+
 
 
 class Protocol(BioDateModel):
@@ -1978,9 +1876,8 @@ class Protocol(BioDateModel):
         return self.name
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'prog_id', 'protc_id', 'start_date'], name='Protocol_Uniqueness')
-        ]
+        unique_together = (('name', 'prog_id', 'protc_id', 'start_date'),)
+
 
 
 class ProtoCode(BioLookup):
@@ -2221,9 +2118,8 @@ class SampleDet(BioDet):
     samp_id = models.ForeignKey('Sample', on_delete=models.CASCADE, verbose_name=_("Sample"), db_column="SAMPLE_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['samp_id', 'anidc_id', 'adsc_id'], name='Sample_Detail_Uniqueness')
-        ]
+        unique_together = (('samp_id', 'anidc_id', 'adsc_id'),)
+
 
     def __str__(self):
         return "{} - {}".format(self.samp_id.__str__(), self.anidc_id.__str__())
@@ -2279,9 +2175,7 @@ class SpawnDet(BioModel):
                                 db_column="COMMENTS")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['pair_id', 'spwndc_id', 'spwnsc_id'], name='Spawning_Detail_Uniqueness')
-        ]
+        unique_together = (('pair_id', 'spwndc_id', 'spwnsc_id'),)
 
     def __str__(self):
         return "{} - {}".format(self.pair_id.__str__(), self.spwndc_id.__str__())
@@ -2360,9 +2254,7 @@ class Tank(BioCont):
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'facic_id'], name='tank_uniqueness')
-        ]
+        unique_together = (('name', 'facic_id'),)
         ordering = ['facic_id', 'name']
 
 
@@ -2371,9 +2263,7 @@ class TankDet(BioContainerDet):
     tank_id = models.ForeignKey('Tank', on_delete=models.CASCADE, verbose_name=_("Tank"), db_column="TANK_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['tank_id', 'contdc_id', 'start_date'], name='Tank_Detail_Uniqueness')
-        ]
+        unique_together = (('tank_id', 'contdc_id', 'start_date'),)
 
     def __str__(self):
         return "{} - {}".format(self.tank_id.__str__(), self.contdc_id.__str__())
@@ -2388,19 +2278,14 @@ class TeamXRef(BioModel):
     loc_id = models.ForeignKey("Location", blank=True, null=True, on_delete=models.CASCADE, verbose_name=_("Location"))
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['perc_id', 'role_id', 'evnt_id', 'loc_id'], name='Team_Uniqueness')
-        ]
-
+        unique_together = (('perc_id', 'role_id', 'evnt_id', 'loc_id'),)
 
 class Tray(BioCont):
     # tray tag
     key = "tray"
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'trof_id', 'start_date'], name='tray_uniqueness')
-        ]
+        unique_together = (('name', 'trof_id', 'start_date'),)
         ordering = ['trof_id', 'name']
 
     # Make name not unique, is unique together with trough code.
@@ -2434,9 +2319,7 @@ class TrayDet(BioContainerDet):
     tray_id = models.ForeignKey('Tray', on_delete=models.CASCADE, verbose_name=_("Tray"), db_column="TRAY_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['tray_id', 'contdc_id', 'start_date'], name='Tray_Detail_Uniqueness')
-        ]
+        unique_together = (('tray_id', 'contdc_id', 'start_date'),)
 
     def __str__(self):
         return "{} - {}".format(self.tray_id.__str__(), self.contdc_id.__str__())
@@ -2469,9 +2352,7 @@ class Trough(BioCont):
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'facic_id'], name='trof_uniqueness')
-        ]
+        unique_together = (('name', 'facic_id'),)
         ordering = ['facic_id', 'name']
 
     def degree_days(self, start_date, end_date):
@@ -2501,9 +2382,7 @@ class TroughDet(BioContainerDet):
     trof_id = models.ForeignKey('Trough', on_delete=models.CASCADE, verbose_name=_("Trough"), db_column="TROUGH_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['trof_id', 'contdc_id', 'start_date'], name='Trough_Detail_Uniqueness')
-        ]
+        unique_together = (('trof_id', 'contdc_id', 'start_date'),)
 
     def __str__(self):
         return "{} - {}".format(self.trof_id.__str__(), self.contdc_id.__str__())
