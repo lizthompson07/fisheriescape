@@ -71,18 +71,18 @@
           :options="sections"
           label="full_name_en_ver1"
           :reduce="display => display.id"
-          :clearable="false"
+          :clearable="true"
         >
         </v-select>
 
-        {#        <select#}
-        {#          v-model="filter.section"#}
-        {#          @change="updateResults"#}
-        {#          class="form-control form-control-sm" id="filter.section"#}
-        {#        >#}
-        {#          <option value="">{% trans "all" %}</option>#}
-        {#          <option v-for="(obj, index) in sections" :value="obj.id">${obj.full_name_en_ver1}</option>#}
-        {#        </select>#}
+{#                <select#}
+{#                  v-model="filter.section"#}
+{#                  @change="updateResults"#}
+{#                  class="form-control form-control-sm" id="filter.section"#}
+{#                >#}
+{#                  <option value="">{% trans "all" %}</option>#}
+{#                  <option v-for="(obj, index) in sections" :value="obj.id">${obj.full_name_en_ver1}</option>#}
+{#                </select>#}
       </div>
 
 
