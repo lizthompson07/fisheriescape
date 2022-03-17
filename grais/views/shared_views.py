@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404, StreamingHttpResponse
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy
@@ -14,7 +14,7 @@ from grais import forms
 from grais import models
 from grais import reports
 from grais.mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin, GraisCRUDRequiredMixin, SuperuserOrAdminRequiredMixin
-from grais.utils import is_grais_admin, has_grais_crud
+from grais.utils import is_grais_admin, has_grais_access
 from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonTemplateView, CommonFilterView, CommonUpdateView, CommonCreateView, \
     CommonDetailView, CommonDeleteView, CommonFormView
 
@@ -195,7 +195,7 @@ class ReportSearchFormView(GraisAccessRequiredMixin, CommonFormView):
         elif report == 5:
             return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year, "lang": 2}))
         elif report == 6:
-            return HttpResponseRedirect(reverse("grais:gc_cpue_report", kwargs={"year": year}))
+            return HttpResponseRedirect(reverse("grais:gc_cpue_report") + f"?year={year}")
         elif report == 7:
             return HttpResponseRedirect(reverse("grais:gc_envr_report", kwargs={"year": year}))
         elif report == 8:
@@ -204,13 +204,15 @@ class ReportSearchFormView(GraisAccessRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("grais:biofouling_pa_xlsx") + f"?year={year}")
         elif report == 10:
             return HttpResponseRedirect(reverse("grais:gc_gravid_green_crabs"))
+        elif report == 11:
+            return HttpResponseRedirect(reverse("grais:biofouling_station_report"))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("grais:report_search"))
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/')
 def species_sample_spreadsheet_export(request, year, species_list):
     file_url = reports.generate_species_sample_spreadsheet(year, species_list)
     if os.path.exists(file_url):
@@ -222,55 +224,68 @@ def species_sample_spreadsheet_export(request, year, species_list):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/')
 def biofouling_presence_absence_spreadsheet_export(request):
     year = request.GET["year"] if request.GET["year"] != "None" else None
+    filename = "biofouling presence absence {}.csv".format(timezone.now().strftime("%Y-%m-%d"))
 
-    file_url = reports.generate_biofouling_pa_spreadsheet(year)
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_biofouling_pa_spreadsheet(year)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/')
+def biofouling_station_report(request):
+    file_url = reports.generate_biofouling_station_report()
+
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="biofouling presence absence {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
+            response['Content-Disposition'] = 'inline; filename="biofouling stations.xlsx"'
             return response
     raise Http404
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/')
 def export_open_data_ver1(request, year=None):
     response = reports.generate_open_data_ver_1_report(year)
     return response
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/')
 def export_open_data_ver1_dictionary(request):
     response = reports.generate_open_data_ver_1_data_dictionary()
     return response
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/')
 def export_open_data_ver1_wms(request, year, lang):
     response = reports.generate_open_data_ver_1_wms_report(year, lang)
     return response
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
-def export_gc_cpue(request, year):
-    file_url = reports.generate_gc_cpue_report(year)
-
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="{} green crab CPUE data.xlsx"'.format(year)
-            return response
-    raise Http404
+@user_passes_test(has_grais_access, login_url='/accounts/denied/')
+def export_gc_cpue(request):
+    filename = "green crab CPUE ({}).csv".format(timezone.now().strftime("%Y-%m-%d"))
+    year = request.GET["year"] if request.GET["year"] != "None" else None
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_gc_cpue_report(year)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/')
 def export_gc_envr(request, year):
     file_url = reports.generate_gc_envr_report(year)
 
@@ -283,7 +298,7 @@ def export_gc_envr(request, year):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/')
 def export_gc_sites(request):
     file_url = reports.generate_gc_sites_report()
 
@@ -295,10 +310,8 @@ def export_gc_sites(request):
     raise Http404
 
 
-
-
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/')
 def export_gc_gravid_green_crabs(request):
     file_url = reports.generate_gc_gravid_green_crabs_report()
 
@@ -308,7 +321,6 @@ def export_gc_gravid_green_crabs(request):
             response['Content-Disposition'] = 'inline; filename="green crab site descriptions.xlsx"'
             return response
     raise Http404
-
 
 
 # VIEWS

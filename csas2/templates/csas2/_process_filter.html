@@ -1,0 +1,38 @@
+{% load bootstrap4 %}
+{% load i18n %}
+
+
+<form class="form table-bordered py-3 px-2 admin-panel mb-3 small" action="." method="get" id="filter-form">
+  <div class="row">
+    <div class="col">
+      {% bootstrap_field filter.form.search placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+      {% bootstrap_field filter.form.id placeholder="" size="small" form_group_class="mb-1" label_class=" mb-0" %}
+    </div>
+    <div class="col">
+      {% bootstrap_field filter.form.fiscal_year placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+      {% bootstrap_field filter.form.status placeholder="" size="small" form_group_class="mb-1" label_class=" mb-0" %}
+    </div>
+    <div class="col">
+      {% bootstrap_field filter.form.lead_office placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+      {% bootstrap_field filter.form.has_peer_review_meeting placeholder="" size="small" form_group_class="mb-1" label_class=" mb-0" %}
+    </div>
+    <div class="col">
+      {% bootstrap_field filter.form.csas_requests__client placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+      {% bootstrap_field filter.form.tor_status placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+    </div>
+    <div class="col">
+      {% bootstrap_field filter.form.type placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+      {% bootstrap_field filter.form.sections placeholder="" size="small" form_group_class="mb-1" label_class=" mb-0" %}
+    </div>
+    <div class="col">
+      {% bootstrap_field filter.form.sectors placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+      {% bootstrap_field filter.form.regions placeholder="" size="small" form_group_class="mb-1" label_class=" mb-0" %}
+    </div>
+    <div class="col">
+      {% bootstrap_field filter.form.tags placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+      <br>
+      <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+      <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+    </div>
+  </div>
+</form>

@@ -15,8 +15,9 @@ from django.utils.timezone import make_aware, utc
 from django.utils.translation import gettext_lazy, gettext as _
 from easy_pdf.views import PDFTemplateView
 
+from dm_apps.context_processor import my_envr
 from lib.functions.custom_functions import fiscal_year, truncate, listrify
-from shared_models.models import Person, FiscalYear, SubjectMatter
+from shared_models.models import Person, SubjectMatter
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
     CommonHardDeleteView, CommonListView
@@ -368,22 +369,28 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
         return context
 
 
-class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
-    template_name = 'csas2/request_reviews/main.html'
+class CSASRequestReviewConsoleTemplateView(CsasAdminRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
     container_class = "container-fluid"
     home_url_name = "csas2:index"
-    h1 = gettext_lazy("CSAS Request Review Console")
     filterset_class = filters.CSASRequestFilter
     model = models.CSASRequest
+    h1 = gettext_lazy("CSAS Request Review Console")
+    template_name = 'csas2/request_reviews/main.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["is_staff"] = utils.in_csas_web_pub_group(self.request.user)
         return context
 
     def get_queryset(self):
         qs = models.CSASRequest.objects.all()
         qs = qs.annotate(search=Concat('title', Value(" "), 'translated_title', Value(" "), 'id', output_field=TextField()))
         return qs
+
+
+class CSASRequestTranslationConsoleTemplateView(CSASRequestReviewConsoleTemplateView):
+    h1 = gettext_lazy("CSAS Request Translation Console")
+    template_name = 'csas2/request_reviews/main_trans.html'
 
 
 class ProcessReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):
@@ -563,7 +570,7 @@ class CSASRequestFileDeleteView(CanModifyRequestRequiredMixin, CommonPopoutDelet
 #################
 
 class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
-    template_name = 'csas2/list.html'
+    template_name = 'csas2/process_list.html'
     filterset_class = filters.ProcessFilter
     paginate_by = 25
     home_url_name = "csas2:index"
@@ -579,11 +586,22 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'tname|{}'.format("title"), "class": "w-25", "width": ""},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
-        {"name": 'regions|{}'.format(_("regions")), "class": "", "width": ""},
+        {"name": 'regions|{}'.format(_("CSAS offices")), "class": "", "width": ""},
         {"name": 'tor_status|{}'.format(_("ToR status")), "class": "", "width": ""},
         {"name": 'chair|{}'.format(_("chair")), "class": "w-25", "width": ""},
         {"name": 'science_leads|{}'.format(_("science lead(s)")), "class": "", "width": ""},
+        {"name": 'has_peer_review_meeting|{}'.format(_("has peer review meeting?")), "class": "", "width": ""},
+        {"name": 'has_planning_meeting|{}'.format(_("has planning meeting?")), "class": "", "width": ""},
     ]
+
+    def get_extra_button_dict1(self):
+        qs = self.filterset.qs
+        ids = listrify([obj.id for obj in qs])
+        return {
+            "name": _("<span class=' mr-1 mdi mdi-file-excel'></span> {name}").format(name=_("Export")),
+            "url": reverse("csas2:process_list_report") + f"?processes={ids}",
+            "class": "btn-outline-dark",
+        }
 
     def get_queryset(self):
         qp = self.request.GET
@@ -917,7 +935,6 @@ class TermsOfReferenceSubmitView(TermsOfReferenceUpdateView):
 
         # return HttpResponseRedirect(reverse("travel:request_detail", kwargs=self.kwargs) + self.get_query_string())
 
-
         #
         # if obj.submission_date:
         #     obj.submission_date = None
@@ -996,14 +1013,24 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
     row_object_url_name = row_ = "csas2:meeting_detail"
     container_class = "container-fluid"
     h1 = gettext_lazy("Meetings")
-
+    sortable = False
     field_list = [
-        {"name": 'process', "class": "", "width": "400px"},
         {"name": 'tname|{}'.format("title"), "class": "", "width": "400px"},
         {"name": 'location', "class": "", "width": ""},
         {"name": 'display_dates_deluxe|{}'.format(_("dates")), "class": "", "width": ""},
         {"name": 'role|{}'.format(_("your role(s)")), "class": "", "width": ""},
+        {"name": 'is_planning', "class": "", "width": ""},
+        {"name": 'process.posting_status|{}'.format(_("Status of website posting")), "class": "", "width": "400px"},
     ]
+
+    def get_extra_button_dict1(self):
+        qs = self.filterset.qs
+        ids = listrify([obj.id for obj in qs])
+        return {
+            "name": _("<span class=' mr-1 mdi mdi-file-excel'></span> {name}").format(name=_("Export")),
+            "url": reverse("csas2:meeting_report") + f"?meetings={ids}",
+            "class": "btn-outline-dark",
+        }
 
     def get_queryset(self):
         qp = self.request.GET
@@ -1147,6 +1174,24 @@ class MeetingDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
 
     def get_success_url(self):
         return self.get_grandparent_crumb()["url"]
+
+
+class MeetingReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):
+    template_name = 'csas2/meeting_reviews/main.html'
+    container_class = "container-fluid"
+    home_url_name = "csas2:index"
+    h1 = gettext_lazy("CSAS Meeting Review Console")
+    filterset_class = filters.MeetingFilter
+    model = models.Process
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_queryset(self):
+        qs = models.Meeting.objects.all().order_by("-created_at")
+        qs = qs.annotate(search=Concat('name', Value(" "), 'nom', Value(" "), output_field=TextField())).order_by("start_date", _("name"))
+        return qs
 
 
 # meeting files #
@@ -1394,15 +1439,30 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
 @login_required()
 def meeting_report(request):
     qp = request.GET
-    year = None if qp.get("fiscal_year") == "None" else int(qp.get("fiscal_year"))
+    fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
     is_posted = None if qp.get("is_posted") == "None" else bool(qp.get("is_posted"))
-    file_url = reports.generate_meeting_report(fiscal_year=year, is_posted=is_posted)
+    meetings = qp.get("meetings") if qp.get("meetings") and qp.get("meetings") != "None" else None
+
+    # get the meeting list
+    qs = models.Meeting.objects.order_by("start_date")
+    if meetings:
+        meetings = qp.get("meetings").split(",")
+        qs = qs.filter(id__in=meetings)
+    else:
+        qs = qs.filter(is_planning=False)
+        if fiscal_year:
+            qs = qs.filter(process__fiscal_year=fiscal_year)
+        if is_posted is not None:
+            qs = qs.filter(process__is_posted=is_posted)
+
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_meeting_report(qs, site_url)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
-            fy = get_object_or_404(FiscalYear, pk=year) if year else "all years"
+            # fy = get_object_or_404(FiscalYear, pk=year) if year else "all years"
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="CSAS meetings ({fy}).xlsx"'
+            response['Content-Disposition'] = f'inline; filename="CSAS meetings.xlsx"'
             return response
     raise Http404
 
@@ -1438,14 +1498,14 @@ def request_list_report(request):
             qs = qs.filter(section__division_id=division)
         if section:
             qs = qs.filter(section_id=section)
-
-    file_url = reports.generate_request_list(qs)
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_request_list(qs, site_url)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
-            fy = get_object_or_404(FiscalYear, pk=fiscal_year) if fiscal_year else "all years"
+            # fy = get_object_or_404(FiscalYear, pk=fiscal_year) if fiscal_year else "all years"
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="CSAS requests ({fy}).xlsx"'
+            response['Content-Disposition'] = f'inline; filename="CSAS requests export.xlsx"'
             return response
     raise Http404
 
@@ -1453,27 +1513,32 @@ def request_list_report(request):
 @login_required()
 def process_list_report(request):
     qp = request.GET
+    processes = qp.get("processes") if qp.get("processes") and qp.get("processes") != "None" else None
     fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
     process_status = qp.get("process_status") if qp.get("process_status") and qp.get("process_status") != "None" else None
     process_type = qp.get("process_type") if qp.get("process_type") and qp.get("process_type") != "None" else None
     lead_region = qp.get("lead_region") if qp.get("lead_region") and qp.get("lead_region") != "None" else None
 
     qs = models.Process.objects.all()
-    if fiscal_year:
-        qs = qs.filter(fiscal_year_id=fiscal_year)
-    if process_status:
-        qs = qs.filter(status=process_status)
-    if process_type:
-        qs = qs.filter(type=process_type)
-    if lead_region:
-        qs = qs.filter(lead_region_id=lead_region)
+    if processes:
+        processes = qp.get("processes").split(",")
+        qs = qs.filter(id__in=processes)
+    else:
+        if fiscal_year:
+            qs = qs.filter(fiscal_year_id=fiscal_year)
+        if process_status:
+            qs = qs.filter(status=process_status)
+        if process_type:
+            qs = qs.filter(type=process_type)
+        if lead_region:
+            qs = qs.filter(lead_office__region_id=lead_region)
 
-    file_url = reports.generate_process_list(qs)
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_process_list(qs, site_url)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
-            fy = get_object_or_404(FiscalYear, pk=fiscal_year) if fiscal_year else "all years"
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="CSAS processes ({fy}).xlsx"'
+            response['Content-Disposition'] = f'inline; filename="CSAS processes export.xlsx"'
             return response
     raise Http404

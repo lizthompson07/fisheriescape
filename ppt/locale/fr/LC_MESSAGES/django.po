@@ -2,14 +2,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-15 08:06-0400\n"
+"POT-Creation-Date: 2022-01-28 13:22-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: POEditor.com\n"
 "Language: en\n"
 
-#: .\ppt\api\serializers.py:501
+#: .\ppt\api\serializers.py:455
+#, fuzzy
+msgid "The target end date must occur after the target start date."
+msgstr "La date de début du voyage doit survenir après la date de fin."
+
+#: .\ppt\api\serializers.py:561
 msgid "You must supply either a project, project year or status report"
 msgstr ""
 
@@ -23,7 +28,7 @@ msgstr ""
 msgid "Region"
 msgstr "Région"
 
-#: .\ppt\filters.py:46 .\ppt\models.py:804
+#: .\ppt\filters.py:46 .\ppt\models.py:811
 msgid "Name"
 msgstr "Nom"
 
@@ -31,17 +36,17 @@ msgstr "Nom"
 msgid "Name contains"
 msgstr ""
 
-#: .\ppt\filters.py:69 .\ppt\templates\ppt\my_project_list.html:20
+#: .\ppt\filters.py:69 .\ppt\templates\ppt\my_project_list.html:38
 msgid "Fiscal year"
 msgstr "Exercice fiscal"
 
-#: .\ppt\forms.py:23 .\ppt\forms.py:28 .\ppt\models.py:22 .\ppt\reports.py:650
+#: .\ppt\forms.py:23 .\ppt\forms.py:28 .\ppt\models.py:23 .\ppt\reports.py:650
 #: .\ppt\reports.py:656 .\ppt\templates\ppt\explore_projects\main.html:80
 #: .\ppt\templates\ppt\manage_projects\_project_list.html:117
 msgid "Yes"
 msgstr "Oui"
 
-#: .\ppt\forms.py:24 .\ppt\forms.py:29 .\ppt\models.py:23 .\ppt\reports.py:647
+#: .\ppt\forms.py:24 .\ppt\forms.py:29 .\ppt\models.py:24 .\ppt\reports.py:647
 #: .\ppt\reports.py:653 .\ppt\templates\ppt\explore_projects\main.html:81
 #: .\ppt\templates\ppt\manage_projects\_project_list.html:118
 msgid "No"
@@ -51,85 +56,85 @@ msgstr "Non"
 msgid "----"
 msgstr ""
 
-#: .\ppt\forms.py:155
+#: .\ppt\forms.py:156
 msgid " /  ACRDP objectives"
 msgstr ""
 
-#: .\ppt\forms.py:171
+#: .\ppt\forms.py:172
 msgid ""
 "Provide a brief overview of the project outlining how it specifically "
 "addresses the priority identified "
 msgstr ""
 
-#: .\ppt\forms.py:172
+#: .\ppt\forms.py:173
 msgid "Describe the objective(s) of the project (CSRF)"
 msgstr ""
 
-#: .\ppt\forms.py:175
+#: .\ppt\forms.py:176
 msgid "Describe how the project will generate or promote innovation (CSRF)"
 msgstr ""
 
-#: .\ppt\forms.py:177
+#: .\ppt\forms.py:178
 msgid ""
 "Provide any additional information on the other sources of funding relevant "
 "to the project (e.g. type of in-kind contribution) (CSRF)"
 msgstr ""
 
-#: .\ppt\forms.py:178 .\ppt\forms.py:179
+#: .\ppt\forms.py:179 .\ppt\forms.py:180
 msgid "SEE PRIORITIES DOCUMENT"
 msgstr ""
 
-#: .\ppt\forms.py:199
+#: .\ppt\forms.py:200
 msgid ""
 "Overview:<br>a) What SARA process step does this work support?<br>b) What "
 "recovery or conservation measures does this work support? (if applicable) "
 "(SARA)"
 msgstr ""
 
-#: .\ppt\forms.py:202
+#: .\ppt\forms.py:203
 msgid ""
 "Tags / species (single or multi-species), threat or area of focus (SARA)"
 msgstr ""
 
-#: .\ppt\forms.py:274
+#: .\ppt\forms.py:275
 msgid ""
 "Outline the methods applied to achieve the objective(s) of the project, and "
 "the main steps of the work plan FOR THIS PROJECT YEAR ONLY (CSRF)"
 msgstr ""
 
-#: .\ppt\forms.py:275
+#: .\ppt\forms.py:276
 msgid "And what is the plan for the publication of these products (CSRF)?"
 msgstr ""
 
-#: .\ppt\forms.py:278
+#: .\ppt\forms.py:279
 msgid ""
 "Priorities:<br>a) Objectives – what will be achieved by completing this work?"
 "<br>b) Methods – how will this work be completed (broadly)?"
 msgstr ""
 
-#: .\ppt\forms.py:293 .\ppt\forms.py:303
+#: .\ppt\forms.py:294 .\ppt\forms.py:304
 msgid "Sorry, there is already a {fy} year in this project."
 msgstr ""
 
-#: .\ppt\forms.py:318
+#: .\ppt\forms.py:319
 #, fuzzy
 msgid "The end date must be after the start date!"
 msgstr "La date de début du voyage doit survenir après la date de fin."
 
-#: .\ppt\forms.py:323
+#: .\ppt\forms.py:324
 msgid "The start and end dates must be within the same fiscal year!"
 msgstr ""
 
-#: .\ppt\forms.py:368 .\ppt\forms.py:815
+#: .\ppt\forms.py:369 .\ppt\forms.py:819
 msgid "DFO User"
 msgstr "Utilisateur du MPO"
 
-#: .\ppt\forms.py:369
+#: .\ppt\forms.py:370
 msgid ""
 "Approximate amount (CAD) (will only be visible to project leads and managers)"
 msgstr ""
 
-#: .\ppt\forms.py:480
+#: .\ppt\forms.py:484
 #, fuzzy
 #| msgid ""
 #| "major accomplishments (this can be left blank if reported at the activity "
@@ -141,372 +146,372 @@ msgstr ""
 "réalisations majeures (ceci peut être laissé en blanc si signalé au niveau "
 "de l'étape)"
 
-#: .\ppt\forms.py:504
+#: .\ppt\forms.py:508
 #, fuzzy
 #| msgid "Start a Review"
 msgid "Mark as reviewed"
 msgstr "Commencer un examen"
 
-#: .\ppt\forms.py:520 .\ppt\forms.py:562
+#: .\ppt\forms.py:524 .\ppt\forms.py:566
 #, fuzzy
 #| msgid "End date of project"
 msgid "send an email update to project leads"
 msgstr "Date de fin du projet"
 
-#: .\ppt\forms.py:854 .\ppt\templates\ppt\explore_projects\_console.html:69
+#: .\ppt\forms.py:858 .\ppt\templates\ppt\explore_projects\_console.html:69
 #: .\ppt\templates\ppt\manage_projects\_console.html:92
 #: .\ppt\templates\ppt\project_detail\_submit.html:15
 msgid "Fiscal Year"
 msgstr "Exercice fiscal"
 
-#: .\ppt\forms.py:855
+#: .\ppt\forms.py:859
 #, fuzzy
 #| msgid "Region"
 msgid "DFO Region"
 msgstr "Région"
 
-#: .\ppt\forms.py:856
+#: .\ppt\forms.py:860
 #, fuzzy
 #| msgid "Division"
 msgid "DFO Division"
 msgstr "Division"
 
-#: .\ppt\forms.py:857
+#: .\ppt\forms.py:861
 #, fuzzy
 #| msgid "Section"
 msgid "DFO Section"
 msgstr "Section"
 
-#: .\ppt\forms.py:895
+#: .\ppt\forms.py:899
 msgid "Enter new publication name here"
 msgstr ""
 
-#: .\ppt\models.py:28
+#: .\ppt\models.py:29
 #, fuzzy
 #| msgid "DFO User"
 msgid "DM Apps user"
 msgstr "Utilisateur du MPO"
 
-#: .\ppt\models.py:29
+#: .\ppt\models.py:30
 msgid "regional administrator?"
 msgstr ""
 
-#: .\ppt\models.py:31
+#: .\ppt\models.py:32
 msgid "national administrator?"
 msgstr ""
 
-#: .\ppt\models.py:48 .\ppt\models.py:67
+#: .\ppt\models.py:49 .\ppt\models.py:68
 #, fuzzy
 #| msgid "name"
 msgid "name (en)"
 msgstr "nom"
 
-#: .\ppt\models.py:49
+#: .\ppt\models.py:50
 msgid "CSRF theme"
 msgstr ""
 
-#: .\ppt\models.py:53
+#: .\ppt\models.py:54
 msgid "CSRF sub-theme"
 msgstr ""
 
-#: .\ppt\models.py:54
+#: .\ppt\models.py:55
 msgid "Priority identification number"
 msgstr ""
 
-#: .\ppt\models.py:55
+#: .\ppt\models.py:56
 msgid "priority for research (en)"
 msgstr ""
 
-#: .\ppt\models.py:56
+#: .\ppt\models.py:57
 msgid "priority for research (fr)"
 msgstr ""
 
-#: .\ppt\models.py:66
+#: .\ppt\models.py:67
 msgid "CSRF priority"
 msgstr ""
 
-#: .\ppt\models.py:68
+#: .\ppt\models.py:69
 #, fuzzy
 #| msgid "name"
 msgid "name (fr)"
 msgstr "nom"
 
-#: .\ppt\models.py:69
+#: .\ppt\models.py:70
 #, fuzzy
 #| msgid "additional notes"
 msgid "additional client information (en)"
 msgstr "notes supplémentaires"
 
-#: .\ppt\models.py:70
+#: .\ppt\models.py:71
 msgid "additional client information (fr)"
 msgstr ""
 
-#: .\ppt\models.py:71 .\ppt\models.py:477
+#: .\ppt\models.py:72 .\ppt\models.py:479
 msgid "fiscal year"
 msgstr "exercice fiscal"
 
-#: .\ppt\models.py:109 .\ppt\models.py:1158
+#: .\ppt\models.py:110 .\ppt\models.py:1182
 msgid "region"
 msgstr ""
 
-#: .\ppt\models.py:110
+#: .\ppt\models.py:111
 #, fuzzy
 msgid "description (en)"
 msgstr "description (ang)"
 
-#: .\ppt\models.py:111
+#: .\ppt\models.py:112
 #, fuzzy
 msgid "description (fr)"
 msgstr "description (fra)"
 
-#: .\ppt\models.py:121 .\ppt\models.py:122
+#: .\ppt\models.py:122 .\ppt\models.py:123
 msgid "description_en"
 msgstr "description_fr"
 
-#: .\ppt\models.py:141 .\ppt\test\test_models.py:71
+#: .\ppt\models.py:142 .\ppt\test\test_models.py:71
 msgid "A-base"
 msgstr ""
 
-#: .\ppt\models.py:142 .\ppt\test\test_models.py:72
+#: .\ppt\models.py:143 .\ppt\test\test_models.py:72
 msgid "B-base"
 msgstr ""
 
-#: .\ppt\models.py:143 .\ppt\test\test_models.py:73
+#: .\ppt\models.py:144 .\ppt\test\test_models.py:73
 msgid "C-base"
 msgstr ""
 
-#: .\ppt\models.py:152
+#: .\ppt\models.py:153
 msgid "is competitive funding?"
 msgstr ""
 
-#: .\ppt\models.py:165
+#: .\ppt\models.py:166
 #, fuzzy
 msgid "competitive"
 msgstr "Commentaires"
 
-#: .\ppt\models.py:183
+#: .\ppt\models.py:184
 msgid "section"
 msgstr "section"
 
-#: .\ppt\models.py:184
+#: .\ppt\models.py:185
 msgid "Project title"
 msgstr "Titre du projet"
 
-#: .\ppt\models.py:185
+#: .\ppt\models.py:186
 #, fuzzy
 msgid "activity type"
 msgstr "date d'activité initiale"
 
-#: .\ppt\models.py:187
+#: .\ppt\models.py:188
 msgid "Functional group"
 msgstr ""
 
-#: .\ppt\models.py:189
+#: .\ppt\models.py:190
 #, fuzzy
 msgid "primary funding source"
 msgstr "source de financement"
 
-#: .\ppt\models.py:190
+#: .\ppt\models.py:191
 #, fuzzy
 msgid "Tags / keywords"
 msgstr "Mots clés"
 
-#: .\ppt\models.py:191
+#: .\ppt\models.py:192
 #, fuzzy
 #| msgid "Reference"
 msgid "references"
 msgstr "Référence"
 
-#: .\ppt\models.py:194
+#: .\ppt\models.py:195
 #, fuzzy
 msgid "Project overview"
 msgstr "titre du projet"
 
-#: .\ppt\models.py:196
+#: .\ppt\models.py:197
 msgid "Should the project be hidden from other users?"
 msgstr "Le projet doit-il être caché des autres utilisateurs?"
 
-#: .\ppt\models.py:200
+#: .\ppt\models.py:201
 msgid "physical location (ACRDP)"
 msgstr ""
 
-#: .\ppt\models.py:201
+#: .\ppt\models.py:202
 msgid "species involved (ACRDP)"
 msgstr ""
 
-#: .\ppt\models.py:202 .\ppt\utils.py:388
+#: .\ppt\models.py:203 .\ppt\utils.py:389
 msgid "description of team and required qualifications (ACRDP)"
 msgstr ""
 
-#: .\ppt\models.py:203 .\ppt\utils.py:389
+#: .\ppt\models.py:204 .\ppt\utils.py:390
 msgid "project problem / rationale (ACRDP)"
 msgstr ""
 
-#: .\ppt\models.py:204 .\ppt\utils.py:390
+#: .\ppt\models.py:205 .\ppt\utils.py:391
 msgid "experimental protocol (ACRDP)"
 msgstr ""
 
-#: .\ppt\models.py:208
+#: .\ppt\models.py:209
 msgid "Additional info supplied by client (#1) (CSRF)"
 msgstr ""
 
-#: .\ppt\models.py:210
+#: .\ppt\models.py:211
 msgid "Linkage to second priority (CSRF)"
 msgstr ""
 
-#: .\ppt\models.py:212 .\ppt\utils.py:399
+#: .\ppt\models.py:213 .\ppt\utils.py:400
 #, fuzzy
 #| msgid "Project title"
 msgid "project objectives (CSRF)"
 msgstr "Titre du projet"
 
-#: .\ppt\models.py:213 .\ppt\utils.py:400
+#: .\ppt\models.py:214 .\ppt\utils.py:401
 msgid "innovation (CSRF)"
 msgstr ""
 
-#: .\ppt\models.py:214 .\ppt\utils.py:401
+#: .\ppt\models.py:215 .\ppt\utils.py:402
 msgid "other sources of funding (CSRF)"
 msgstr ""
 
-#: .\ppt\models.py:217
+#: .\ppt\models.py:218
 msgid "quarterly reporting mechanisms (SARA)"
 msgstr ""
 
-#: .\ppt\models.py:218
+#: .\ppt\models.py:219
 msgid "description of future funding needs, if any (SARA)"
 msgstr ""
 
-#: .\ppt\models.py:221
+#: .\ppt\models.py:222
 msgid "Start date of project"
 msgstr "Date de début du projet"
 
-#: .\ppt\models.py:222
+#: .\ppt\models.py:223
 msgid "End date of project"
 msgstr "Date de fin du projet"
 
-#: .\ppt\models.py:223
+#: .\ppt\models.py:224
 #, fuzzy
 msgid "complete list of funding sources"
 msgstr "source de financement"
 
-#: .\ppt\models.py:225
+#: .\ppt\models.py:226
 #, fuzzy
 msgid "project leads"
 msgstr "Chef de projet"
 
-#: .\ppt\models.py:226 .\ppt\views.py:138
+#: .\ppt\models.py:227 .\ppt\views.py:150
 #, fuzzy
 msgid "fiscal years"
 msgstr "exercice fiscal"
 
-#: .\ppt\models.py:228
+#: .\ppt\models.py:229
 #, fuzzy
 #| msgid "fiscal year"
 msgid "starting fiscal year"
 msgstr "exercice fiscal"
 
-#: .\ppt\models.py:277 .\ppt\views.py:214
+#: .\ppt\models.py:278 .\ppt\views.py:232
 #, fuzzy
 #| msgid "Projects"
 msgid "Project"
 msgstr "Projets"
 
-#: .\ppt\models.py:380
+#: .\ppt\models.py:381
 msgid "This project has no fiscal years added yet."
 msgstr ""
 
-#: .\ppt\models.py:394
+#: .\ppt\models.py:396
 msgid "project"
 msgstr "projet"
 
-#: .\ppt\models.py:395
+#: .\ppt\models.py:397
 #, fuzzy
 msgid "Start date for this year of the project"
 msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
 
-#: .\ppt\models.py:396
+#: .\ppt\models.py:398
 #, fuzzy
 msgid "End date for this year of the project"
 msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
 
-#: .\ppt\models.py:399
+#: .\ppt\models.py:401
 #, fuzzy
 msgid "year-specific priorities"
 msgstr "Priorités spécifiques au projet"
 
-#: .\ppt\models.py:401
+#: .\ppt\models.py:403
 #, fuzzy
 msgid "deliverables / activities"
 msgstr "Livrables du projet"
 
-#: .\ppt\models.py:406
+#: .\ppt\models.py:408
 msgid ""
 "Will the project require the purchase, design or fabrication of specialized "
 "laboratory or field equipment?"
 msgstr ""
 
-#: .\ppt\models.py:407
+#: .\ppt\models.py:409
 msgid "What technical services are being requested?"
 msgstr ""
 
-#: .\ppt\models.py:409
+#: .\ppt\models.py:411
 msgid ""
 "Do you anticipate needing assistance with mobilization/demobilization of "
 "this equipment?"
 msgstr ""
 
-#: .\ppt\models.py:413
+#: .\ppt\models.py:415
 msgid "Does this project involved a field component?"
 msgstr ""
 
-#: .\ppt\models.py:415
+#: .\ppt\models.py:417
 msgid ""
 "Describe need for vehicle (type of vehicle, number of weeks, time-frame)"
 msgstr ""
 "Décrivez le besoin de véhicule (type de véhicule, nombre de semaines, "
 "calendrier)"
 
-#: .\ppt\models.py:416
+#: .\ppt\models.py:418
 msgid "Ship (Coast Guard, charter vessel) Requirements"
 msgstr "Navires (garde côtière, charter)"
 
-#: .\ppt\models.py:418
+#: .\ppt\models.py:420
 msgid ""
 "If this project links to a ship time request in COIP, please include the "
 "COIP application number here."
 msgstr ""
 
-#: .\ppt\models.py:420
+#: .\ppt\models.py:422
 msgid "What field instrumentation will be deployed during this project?"
 msgstr ""
 
-#: .\ppt\models.py:422
+#: .\ppt\models.py:424
 msgid "Who is the owner/curator of this instrumentation, if known?"
 msgstr ""
 
-#: .\ppt\models.py:424
+#: .\ppt\models.py:426
 msgid "Do you require field support staff?"
 msgstr ""
 
-#: .\ppt\models.py:425
+#: .\ppt\models.py:427
 msgid ""
 "If so, please include some additional detail, e.g., how many people are "
 "likely to be required and when"
 msgstr ""
 
-#: .\ppt\models.py:430
+#: .\ppt\models.py:432
 msgid "Will new data be collected or generated?"
 msgstr ""
 
-#: .\ppt\models.py:431
+#: .\ppt\models.py:433
 msgid "What type of data will be collected"
 msgstr "Quel type de données sera collecté"
 
-#: .\ppt\models.py:432
+#: .\ppt\models.py:434
 msgid "What data products will be generated (e.g. models, indices)?"
 msgstr ""
 
-#: .\ppt\models.py:433
+#: .\ppt\models.py:435
 #, fuzzy
 msgid ""
 "Are these data / data products eligible to be placed on the Open Data "
@@ -515,620 +520,868 @@ msgstr ""
 "Lesquels de ces données / produits de données seront placés sur la plate-"
 "forme Open Data cette année?"
 
-#: .\ppt\models.py:435
+#: .\ppt\models.py:437
 #, fuzzy
 msgid "Data storage / archiving plan"
 msgstr "Plan de stockage / archivage des données"
 
-#: .\ppt\models.py:436
+#: .\ppt\models.py:438
 msgid "Describe what data management support is required, if any."
 msgstr ""
 
-#: .\ppt\models.py:441
+#: .\ppt\models.py:443
 msgid "Does this project involve laboratory work?"
 msgstr ""
 
-#: .\ppt\models.py:444
+#: .\ppt\models.py:446
 msgid ""
 "Does this project require the services of Aquatic Biotechnology Lab (ABL)?"
 msgstr ""
 
-#: .\ppt\models.py:445
+#: .\ppt\models.py:447
 msgid "Is laboratory space required?"
 msgstr ""
 
-#: .\ppt\models.py:447
+#: .\ppt\models.py:449
 msgid ""
 "Does this project require other specialized laboratory support or services "
 "(provide details below)?"
 msgstr ""
 
-#: .\ppt\models.py:449
+#: .\ppt\models.py:451
 msgid ""
 "Describe other laboratory requirements relevant for project planning "
 "purposes."
 msgstr ""
 
-#: .\ppt\models.py:451
+#: .\ppt\models.py:453
 #, fuzzy
 msgid "Special IT requirements (software, licenses, hardware)"
 msgstr "Configuration informatique requise (logiciels, licences, matériel)"
 
-#: .\ppt\models.py:452
+#: .\ppt\models.py:454
 msgid "additional notes"
 msgstr "notes supplémentaires"
 
-#: .\ppt\models.py:459
+#: .\ppt\models.py:461
 msgid "responsibility center (if known)"
 msgstr "centre de responsabilité (s'il est connu)"
 
-#: .\ppt\models.py:461
+#: .\ppt\models.py:463
 msgid "allotment code (if known)"
 msgstr "code d'allotissement (s'il est connu)"
 
-#: .\ppt\models.py:462
+#: .\ppt\models.py:464
 msgid "existing project codes (if known)"
 msgstr "codes de projet existants (s'ils sont connus)"
 
-#: .\ppt\models.py:467
+#: .\ppt\models.py:469
 #, fuzzy
 msgid "administrative notes"
 msgstr "Notes complémentaires"
 
-#: .\ppt\models.py:478
+#: .\ppt\models.py:480
 #, fuzzy
 msgid "financial coding"
 msgstr "Résumé financier:"
 
-#: .\ppt\models.py:501
+#: .\ppt\models.py:503
 msgid "NEW PROJECT YEAR"
 msgstr ""
 
-#: .\ppt\models.py:634 .\ppt\models.py:757 .\ppt\models.py:782
-#: .\ppt\models.py:803 .\ppt\models.py:827
+#: .\ppt\models.py:641 .\ppt\models.py:764 .\ppt\models.py:789
+#: .\ppt\models.py:810 .\ppt\models.py:834
 #, fuzzy
 msgid "project year"
 msgstr "Chef de projet"
 
-#: .\ppt\models.py:635
+#: .\ppt\models.py:642
 msgid "funding source"
 msgstr "source de financement"
 
-#: .\ppt\models.py:636 .\ppt\models.py:763
+#: .\ppt\models.py:643 .\ppt\models.py:770
 msgid "amount (CAD)"
 msgstr "montant (CAD)"
 
-#: .\ppt\models.py:649 .\ppt\test\test_models.py:355
+#: .\ppt\models.py:656 .\ppt\test\test_models.py:355
 msgid "Salary"
 msgstr "Salaire"
 
-#: .\ppt\models.py:650 .\ppt\test\test_models.py:356
+#: .\ppt\models.py:657 .\ppt\test\test_models.py:356
 msgid "O&M"
 msgstr "F & E"
 
-#: .\ppt\models.py:665
+#: .\ppt\models.py:672
 msgid "employee type"
 msgstr "type d'employé"
 
-#: .\ppt\models.py:666 .\ppt\models.py:759 .\ppt\models.py:823
+#: .\ppt\models.py:673 .\ppt\models.py:766 .\ppt\models.py:830
 msgid "project lead"
 msgstr "chef de projet"
 
-#: .\ppt\models.py:666
+#: .\ppt\models.py:673
 msgid "yes"
 msgstr "oui"
 
-#: .\ppt\models.py:666
+#: .\ppt\models.py:673
 msgid "no"
 msgstr "non"
 
-#: .\ppt\models.py:667
+#: .\ppt\models.py:674
 msgid "User"
 msgstr "Utilisateur"
 
-#: .\ppt\models.py:669
+#: .\ppt\models.py:676
 msgid "Person name (leave blank if user is selected)"
 msgstr "Nom de la personne (laisser vide si l'utilisateur est sélectionné)"
 
-#: .\ppt\models.py:670
+#: .\ppt\models.py:677
 msgid "level"
 msgstr "niveau"
 
-#: .\ppt\models.py:671
+#: .\ppt\models.py:678
 msgid "student program"
 msgstr "programme pour étudiants"
 
-#: .\ppt\models.py:672
+#: .\ppt\models.py:679
 #, fuzzy
 msgid "duration (weeks)"
 msgstr "Durée en semaines"
 
-#: .\ppt\models.py:673
+#: .\ppt\models.py:680
 #, fuzzy
 msgid "overtime (hours)"
 msgstr "Heures supplémentaires"
 
-#: .\ppt\models.py:674
+#: .\ppt\models.py:681
 msgid "overtime description"
 msgstr "description d'heures supplémentaires"
 
-#: .\ppt\models.py:676
+#: .\ppt\models.py:683
 #, fuzzy
 #| msgid "End date of project"
 msgid "role in the project"
 msgstr "Date de fin du projet"
 
-#: .\ppt\models.py:677
+#: .\ppt\models.py:684
 msgid "key expertise"
 msgstr ""
 
-#: .\ppt\models.py:701 .\ppt\test\test_models.py:478
+#: .\ppt\models.py:708 .\ppt\test\test_models.py:478
 msgid "Travel"
 msgstr "Voyage"
 
-#: .\ppt\models.py:702 .\ppt\test\test_models.py:479
+#: .\ppt\models.py:709 .\ppt\test\test_models.py:479
 msgid "Equipment Purchase"
 msgstr "Achat d'équipement"
 
-#: .\ppt\models.py:703 .\ppt\test\test_models.py:480
+#: .\ppt\models.py:710 .\ppt\test\test_models.py:480
 msgid "Material and Supplies"
 msgstr "Matériel et fournitures"
 
-#: .\ppt\models.py:704 .\ppt\test\test_models.py:481
+#: .\ppt\models.py:711 .\ppt\test\test_models.py:481
 msgid "Human Resources"
 msgstr "Ressources humaines"
 
-#: .\ppt\models.py:705 .\ppt\test\test_models.py:482
+#: .\ppt\models.py:712 .\ppt\test\test_models.py:482
 msgid "Contracts, Leases, Services"
 msgstr "Contrats, baux, services"
 
-#: .\ppt\models.py:706 .\ppt\models.py:743 .\ppt\test\test_models.py:483
-#: .\ppt\test\test_models.py:584
+#: .\ppt\models.py:713 .\ppt\models.py:750 .\ppt\models.py:1219
+#: .\ppt\test\test_models.py:483 .\ppt\test\test_models.py:584
 msgid "Other"
 msgstr "Autre"
 
-#: .\ppt\models.py:720 .\ppt\models.py:1094 .\ppt\utils.py:164
-#: .\ppt\utils.py:491 .\ppt\views.py:175 .\ppt\views.py:176 .\ppt\views.py:851
+#: .\ppt\models.py:727 .\ppt\models.py:1102 .\ppt\utils.py:165
+#: .\ppt\utils.py:493 .\ppt\views.py:193 .\ppt\views.py:194 .\ppt\views.py:906
 msgid "name"
 msgstr "nom"
 
-#: .\ppt\models.py:724 .\ppt\models.py:745
+#: .\ppt\models.py:731 .\ppt\models.py:752
 msgid "category"
 msgstr "catégorie"
 
-#: .\ppt\models.py:725 .\ppt\models.py:746 .\ppt\models.py:1096
+#: .\ppt\models.py:732 .\ppt\models.py:753 .\ppt\models.py:1105
 msgid "description"
 msgstr "description"
 
-#: .\ppt\models.py:740 .\ppt\test\test_models.py:581
+#: .\ppt\models.py:747 .\ppt\test\test_models.py:581
 msgid "IM / IT - computers, hardware"
 msgstr "GI / TI - ordinateurs, matériel"
 
-#: .\ppt\models.py:741 .\ppt\test\test_models.py:582
+#: .\ppt\models.py:748 .\ppt\test\test_models.py:582
 msgid "Lab Equipment"
 msgstr "Équipement de laboratoire"
 
-#: .\ppt\models.py:742 .\ppt\test\test_models.py:583
+#: .\ppt\models.py:749 .\ppt\test\test_models.py:583
 msgid "Field Equipment"
 msgstr "Équipement de terrain"
 
-#: .\ppt\models.py:758
+#: .\ppt\models.py:765
 msgid "Recipient organization"
 msgstr "Organisation destinataire"
 
-#: .\ppt\models.py:761
+#: .\ppt\models.py:768
 msgid "Proposed title of agreement"
 msgstr "Titre de l'accord proposé"
 
-#: .\ppt\models.py:762 .\ppt\models.py:789
+#: .\ppt\models.py:769 .\ppt\models.py:796
 msgid "Name of G&C program"
 msgstr "Nom du programme de S & C"
 
-#: .\ppt\models.py:774 .\ppt\test\test_models.py:637
+#: .\ppt\models.py:781 .\ppt\test\test_models.py:637
 #, fuzzy
 msgid "External Collaborator"
 msgstr "Collaborateurs externes:"
 
-#: .\ppt\models.py:775 .\ppt\test\test_models.py:638
+#: .\ppt\models.py:782 .\ppt\test\test_models.py:638
 #, fuzzy
 msgid "Grant & Contribution Agreement"
 msgstr "Subventions et contributions:"
 
-#: .\ppt\models.py:776 .\ppt\test\test_models.py:639
+#: .\ppt\models.py:783 .\ppt\test\test_models.py:639
 #, fuzzy
 msgid "Collaborative Agreement"
 msgstr "Ententes de collaboration"
 
-#: .\ppt\models.py:779 .\ppt\models.py:818
+#: .\ppt\models.py:786 .\ppt\models.py:825
 #: .\ppt\templates\ppt\project_references.html:114
 #: .\ppt\templates\ppt\user_list.html:23 .\ppt\test\test_models.py:628
 msgid "New"
 msgstr "Nouveau"
 
-#: .\ppt\models.py:780 .\ppt\models.py:819 .\ppt\test\test_models.py:629
+#: .\ppt\models.py:787 .\ppt\models.py:826 .\ppt\test\test_models.py:629
 msgid "Existing"
 msgstr "Existant"
 
-#: .\ppt\models.py:783
+#: .\ppt\models.py:790
 #, fuzzy
 #| msgid "collaborating organization"
 msgid "collaboration type"
 msgstr "organisation collaboratrice"
 
-#: .\ppt\models.py:784 .\ppt\models.py:825
+#: .\ppt\models.py:791 .\ppt\models.py:832
 msgid "new or existing"
 msgstr "nouveau ou existant"
 
-#: .\ppt\models.py:785 .\ppt\models.py:822
+#: .\ppt\models.py:792 .\ppt\models.py:829
 msgid "collaborating organization"
 msgstr "organisation collaboratrice"
 
-#: .\ppt\models.py:786
+#: .\ppt\models.py:793
 #, fuzzy
 msgid "project lead(s)"
 msgstr "Chef de projet"
 
-#: .\ppt\models.py:787
+#: .\ppt\models.py:794
 #, fuzzy
 #| msgid "Critical to project delivery"
 msgid "Critical to project delivery?"
 msgstr "Critique à la livraison du projet"
 
-#: .\ppt\models.py:788 .\ppt\models.py:824
+#: .\ppt\models.py:795 .\ppt\models.py:831
 msgid "Title of the agreement"
 msgstr "Titre de l'accord"
 
-#: .\ppt\models.py:790
+#: .\ppt\models.py:797
 msgid "Contribution agreement amount"
 msgstr ""
 
-#: .\ppt\models.py:791 .\ppt\models.py:806 .\ppt\models.py:826
+#: .\ppt\models.py:798 .\ppt\models.py:813 .\ppt\models.py:833
 msgid "notes"
 msgstr "remarques"
 
-#: .\ppt\models.py:805
+#: .\ppt\models.py:812
 msgid "Critical to project delivery"
 msgstr "Critique à la livraison du projet"
 
-#: .\ppt\models.py:843
+#: .\ppt\models.py:850
 msgid "resource name"
 msgstr "nom de la ressource"
 
-#: .\ppt\models.py:844
+#: .\ppt\models.py:851
 msgid "file attachment"
 msgstr "pièce jointe"
 
-#: .\ppt\models.py:847
+#: .\ppt\models.py:854
 msgid "external URL"
 msgstr "URL externe"
 
-#: .\ppt\models.py:876 .\ppt\test\test_models.py:698
+#: .\ppt\models.py:883 .\ppt\models.py:1208 .\ppt\test\test_models.py:698
 msgid "On-track"
 msgstr ""
 
-#: .\ppt\models.py:877 .\ppt\test\test_models.py:699
+#: .\ppt\models.py:884 .\ppt\models.py:1209 .\ppt\test\test_models.py:699
 #, fuzzy
 msgid "Complete"
 msgstr "Commentaires"
 
-#: .\ppt\models.py:878 .\ppt\test\test_models.py:700
+#: .\ppt\models.py:885 .\ppt\models.py:1210 .\ppt\test\test_models.py:700
 msgid "Encountering issues"
 msgstr ""
 
-#: .\ppt\models.py:879 .\ppt\models.py:1125 .\ppt\test\test_models.py:701
-#: .\ppt\test\test_models.py:955
+#: .\ppt\models.py:886 .\ppt\models.py:1149 .\ppt\models.py:1211
+#: .\ppt\test\test_models.py:701 .\ppt\test\test_models.py:955
 msgid "Aborted / cancelled"
 msgstr ""
 
-#: .\ppt\models.py:883 .\ppt\utils.py:572
+#: .\ppt\models.py:890 .\ppt\utils.py:574
 #, fuzzy
 #| msgid "Major Accomplishments"
 msgid "major accomplishments"
 msgstr "Principales réalisations"
 
-#: .\ppt\models.py:884
+#: .\ppt\models.py:891
 msgid "major issues encountered"
 msgstr "problèmes majeurs rencontrés"
 
-#: .\ppt\models.py:885
+#: .\ppt\models.py:892
 msgid "target completion date"
 msgstr "date d'achèvement prévue"
 
-#: .\ppt\models.py:887
+#: .\ppt\models.py:894
 msgid "rationale for a modified completion date"
 msgstr "justification d'une date d'achèvement modifiée"
 
-#: .\ppt\models.py:888 .\ppt\models.py:964
+#: .\ppt\models.py:895 .\ppt\models.py:972
 msgid "general comments"
 msgstr "observations générales"
 
-#: .\ppt\models.py:889
+#: .\ppt\models.py:896
 msgid "section head comment"
 msgstr "commentaire de chefde section"
 
-#: .\ppt\models.py:890
+#: .\ppt\models.py:897
 msgid "reviewed by section head"
 msgstr "examiné par le chef de section"
 
-#: .\ppt\models.py:915
+#: .\ppt\models.py:922
 msgid "Status Report #"
 msgstr "No. de rapport d'état"
 
-#: .\ppt\models.py:932 .\ppt\test\test_models.py:796
+#: .\ppt\models.py:939 .\ppt\test\test_models.py:796
 #, fuzzy
 msgid "approved"
 msgstr "Non approuvé"
 
-#: .\ppt\models.py:933 .\ppt\test\test_models.py:797
+#: .\ppt\models.py:940
+#, fuzzy
+msgid "recommended"
+msgstr "enregistrement"
+
+#: .\ppt\models.py:941 .\ppt\test\test_models.py:797
 #, fuzzy
 #| msgid "Unapproved"
 msgid "not approved"
 msgstr "Non approuvé"
 
-#: .\ppt\models.py:934 .\ppt\test\test_models.py:798
+#: .\ppt\models.py:942 .\ppt\test\test_models.py:798
 #, fuzzy
 #| msgid "Cancel"
 msgid "cancelled"
 msgstr "Annuler"
 
-#: .\ppt\models.py:937 .\ppt\test\test_models.py:806
+#: .\ppt\models.py:945 .\ppt\test\test_models.py:806
 #, fuzzy
 #| msgid "Division"
 msgid "Division-level"
 msgstr "Division"
 
-#: .\ppt\models.py:938 .\ppt\test\test_models.py:807
+#: .\ppt\models.py:946 .\ppt\test\test_models.py:807
 msgid "Branch-level"
 msgstr ""
 
-#: .\ppt\models.py:939 .\ppt\test\test_models.py:808
+#: .\ppt\models.py:947
 #, fuzzy
 #| msgid "National"
-msgid "National"
+msgid "National-level"
 msgstr "National"
 
-#: .\ppt\models.py:942 .\ppt\test\test_models.py:778
+#: .\ppt\models.py:950 .\ppt\test\test_models.py:778
 msgid "high"
 msgstr ""
 
-#: .\ppt\models.py:943 .\ppt\test\test_models.py:779
+#: .\ppt\models.py:951 .\ppt\test\test_models.py:779
 msgid "medium"
 msgstr ""
 
-#: .\ppt\models.py:944 .\ppt\test\test_models.py:780
+#: .\ppt\models.py:952 .\ppt\test\test_models.py:780
 msgid "low"
 msgstr ""
 
-#: .\ppt\models.py:948
+#: .\ppt\models.py:956
 #, fuzzy
 msgid "External Pressures"
 msgstr "Collaborateurs externes:"
 
-#: .\ppt\models.py:950
+#: .\ppt\models.py:958
 #, fuzzy
 #| msgid "general comments"
 msgid "External Pressures comments"
 msgstr "observations générales"
 
-#: .\ppt\models.py:952
+#: .\ppt\models.py:960
 #, fuzzy
 #| msgid "Save comments"
 msgid "Strategic Direction"
 msgstr "Enregistrer les commentaires"
 
-#: .\ppt\models.py:953
+#: .\ppt\models.py:961
 #, fuzzy
 #| msgid "Save comments"
 msgid "Strategic Direction comments"
 msgstr "Enregistrer les commentaires"
 
-#: .\ppt\models.py:955
+#: .\ppt\models.py:963
 #, fuzzy
 #| msgid "general comments"
 msgid "Operational Considerations"
 msgstr "observations générales"
 
-#: .\ppt\models.py:956
+#: .\ppt\models.py:964
 #, fuzzy
 #| msgid "general comments"
 msgid "Operational Considerations comments"
 msgstr "observations générales"
 
-#: .\ppt\models.py:958
+#: .\ppt\models.py:966
 #, fuzzy
 #| msgid "general comments"
 msgid "Ecological Impact"
 msgstr "observations générales"
 
-#: .\ppt\models.py:959
+#: .\ppt\models.py:967
 #, fuzzy
 #| msgid "general comments"
 msgid "Ecological Impact comments"
 msgstr "observations générales"
 
-#: .\ppt\models.py:961
+#: .\ppt\models.py:969
 #, fuzzy
 #| msgid "Fiscal Year"
 msgid "scale"
 msgstr "Exercice fiscal"
 
-#: .\ppt\models.py:962
+#: .\ppt\models.py:970
 #, fuzzy
 #| msgid "Save comments"
 msgid "scale comments"
 msgstr "Enregistrer les commentaires"
 
-#: .\ppt\models.py:965
+#: .\ppt\models.py:973
 #, fuzzy
 #| msgid "End date of project"
 msgid "questions and comments for project leads"
 msgstr "Date de fin du projet"
 
-#: .\ppt\models.py:967
+#: .\ppt\models.py:975
 #, fuzzy
 #| msgid "project status"
 msgid "Approval status"
 msgstr "l'état du projet"
 
-#: .\ppt\models.py:968
+#: .\ppt\models.py:976
 msgid "level of approval"
 msgstr ""
 
-#: .\ppt\models.py:970 .\ppt\templates\ppt\manage_projects\_console.html:235
+#: .\ppt\models.py:978 .\ppt\templates\ppt\manage_projects\_console.html:235
 msgid "Allocated budget"
 msgstr ""
 
-#: .\ppt\models.py:971 .\ppt\models.py:972
+#: .\ppt\models.py:979 .\ppt\models.py:980
 msgid "Notification Email Sent"
 msgstr ""
 
-#: .\ppt\models.py:973
+#: .\ppt\models.py:981
 msgid "Approver comments (shared with project leads)"
 msgstr ""
 
-#: .\ppt\models.py:983
+#: .\ppt\models.py:991
 msgid "total score"
 msgstr ""
 
-#: .\ppt\models.py:1068 .\ppt\test\test_models.py:859
+#: .\ppt\models.py:1076 .\ppt\test\test_models.py:859
 msgid "Milestone"
 msgstr "Jalons"
 
-#: .\ppt\models.py:1069 .\ppt\test\test_models.py:860
+#: .\ppt\models.py:1077 .\ppt\test\test_models.py:860
 msgid "Deliverable"
 msgstr ""
 
-#: .\ppt\models.py:1072
+#: .\ppt\models.py:1080
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:51
 #: .\ppt\test\test_models.py:868
 msgid "1-Very unlikely"
 msgstr ""
 
-#: .\ppt\models.py:1073
+#: .\ppt\models.py:1081
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:52
 #: .\ppt\test\test_models.py:869
 msgid "2-Unlikely"
 msgstr ""
 
-#: .\ppt\models.py:1074
+#: .\ppt\models.py:1082
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:53
 #: .\ppt\test\test_models.py:870
 msgid "3-Low"
 msgstr ""
 
-#: .\ppt\models.py:1075
+#: .\ppt\models.py:1083
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:54
 #: .\ppt\test\test_models.py:871
 msgid "4-Likely"
 msgstr ""
 
-#: .\ppt\models.py:1076
+#: .\ppt\models.py:1084
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:55
 #: .\ppt\test\test_models.py:872
 msgid "5-Almost certain"
 msgstr ""
 
-#: .\ppt\models.py:1079
+#: .\ppt\models.py:1087
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:42
 #: .\ppt\test\test_models.py:880
 msgid "1-Negligible"
 msgstr ""
 
-#: .\ppt\models.py:1080
+#: .\ppt\models.py:1088
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:34
 #: .\ppt\test\test_models.py:881
 msgid "2-Low"
 msgstr ""
 
-#: .\ppt\models.py:1081
+#: .\ppt\models.py:1089
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:26
 #: .\ppt\test\test_models.py:882
 msgid "3-Medium"
 msgstr ""
 
-#: .\ppt\models.py:1082
+#: .\ppt\models.py:1090
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:18
 #: .\ppt\test\test_models.py:883
 msgid "4-High"
 msgstr ""
 
-#: .\ppt\models.py:1083
+#: .\ppt\models.py:1091
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:10
 #: .\ppt\test\test_models.py:884
 msgid "5-Extreme"
 msgstr ""
 
-#: .\ppt\models.py:1087
+#: .\ppt\models.py:1095
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:35
 #: .\ppt\test\test_models.py:893
 msgid "Low"
 msgstr ""
 
-#: .\ppt\models.py:1088
+#: .\ppt\models.py:1096
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:29
 #: .\ppt\test\test_models.py:894
 msgid "Medium"
 msgstr ""
 
-#: .\ppt\models.py:1089
+#: .\ppt\models.py:1097
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:23
 #: .\ppt\test\test_models.py:895
 msgid "High"
 msgstr ""
 
-#: .\ppt\models.py:1095
+#: .\ppt\models.py:1103
 #, fuzzy
-msgid "Target date (optional)"
+msgid "Target start date (optional)"
 msgstr "Date d'achèvement prévue"
 
-#: .\ppt\models.py:1097
-msgid "responsible party"
-msgstr ""
+#: .\ppt\models.py:1104
+#, fuzzy
+msgid "Target end date (optional)"
+msgstr "Date d'achèvement prévue"
 
-#: .\ppt\models.py:1098
+#: .\ppt\models.py:1106
+#, fuzzy
+#| msgid "responsibility center (if known)"
+msgid "responsible parties"
+msgstr "centre de responsabilité (s'il est connu)"
+
+#: .\ppt\models.py:1107
+#, fuzzy
+#| msgid "responsibility center (if known)"
+msgid "responsible party notes"
+msgstr "centre de responsabilité (s'il est connu)"
+
+#: .\ppt\models.py:1109
 msgid "Description of risks and their consequences"
 msgstr ""
 
-#: .\ppt\models.py:1099
+#: .\ppt\models.py:1110
 msgid "what will be the impact if the risks occurs"
 msgstr ""
 
-#: .\ppt\models.py:1101
+#: .\ppt\models.py:1112
 msgid "what is the likelihood of the risks occurring"
 msgstr ""
 
-#: .\ppt\models.py:1103
+#: .\ppt\models.py:1114
 msgid "what measures will be used to mitigate the risks"
 msgstr ""
 
-#: .\ppt\models.py:1123 .\ppt\test\test_models.py:953
+#: .\ppt\models.py:1115
+#, fuzzy
+msgid "parent activity"
+msgstr "Gérer les types d'employés"
+
+#: .\ppt\models.py:1137
+#, fuzzy
+msgid "ending {date}"
+msgstr "Financement"
+
+#: .\ppt\models.py:1139
+#, fuzzy
+#| msgid "fiscal year"
+msgid "starting {date}"
+msgstr "exercice fiscal"
+
+#: .\ppt\models.py:1147 .\ppt\test\test_models.py:953
 #, fuzzy
 msgid "In progress"
 msgstr "j'approuve"
 
-#: .\ppt\models.py:1124 .\ppt\test\test_models.py:954
+#: .\ppt\models.py:1148 .\ppt\test\test_models.py:954
 msgid "Completed"
 msgstr ""
 
-#: .\ppt\models.py:1130
+#: .\ppt\models.py:1154
 msgid "Notes"
 msgstr "Remarques"
 
-#: .\ppt\models.py:1139
+#: .\ppt\models.py:1163
 msgid "Update on "
 msgstr "Mise à jour sur"
 
-#: .\ppt\models.py:1155
+#: .\ppt\models.py:1179
 #, fuzzy
 #| msgid "file attachment"
 msgid "file attachment (English)"
 msgstr "pièce jointe"
 
-#: .\ppt\models.py:1156
+#: .\ppt\models.py:1180
 #, fuzzy
 #| msgid "file attachment"
 msgid "file attachment (French)"
 msgstr "pièce jointe"
+
+#: .\ppt\models.py:1207 .\ppt\models.py:1298
+msgid "Unevaluated"
+msgstr ""
+
+#: .\ppt\models.py:1214
+#, fuzzy
+#| msgid "Report Details:"
+msgid "Daily"
+msgstr "Détails du rapport:"
+
+#: .\ppt\models.py:1215
+#, fuzzy
+#| msgid "Weekday"
+msgid "Weekly"
+msgstr "Jour de la semaine"
+
+#: .\ppt\models.py:1216
+msgid "Monthly"
+msgstr ""
+
+#: .\ppt\models.py:1217
+msgid "Annually"
+msgstr ""
+
+#: .\ppt\models.py:1218
+msgid "Irregular / as needed"
+msgstr ""
+
+#: .\ppt\models.py:1225 .\ppt\templates\ppt\explore_projects\_console.html:38
+#: .\ppt\templates\ppt\manage_projects\_console.html:148
+#: .\ppt\templates\ppt\project_detail\_dmas.html:19
+msgid "Title"
+msgstr "Titre"
+
+#: .\ppt\models.py:1225
+msgid "What is the title of the Data Management Agreement?"
+msgstr ""
+
+#: .\ppt\models.py:1226
+msgid "Who will be the principal steward of this data?"
+msgstr ""
+
+#: .\ppt\models.py:1227
+msgid "i.e., who is the primary responsible party?"
+msgstr ""
+
+#: .\ppt\models.py:1230
+msgid "Who is responsible for creating and maintaining the metadata?"
+msgstr ""
+
+#: .\ppt\models.py:1231
+msgid "i.e., who is responsible for keeping metadata records up-to-date?"
+msgstr ""
+
+#: .\ppt\models.py:1232
+msgid "Describe the tools or processes that will be used to create metadata"
+msgstr ""
+
+#: .\ppt\models.py:1234
+msgid ""
+"e.g., Metadata Inventory app in DM Apps, DFO Enterprise Data Hub, Federal "
+"Geospatial Portal, stand-alone file, ..."
+msgstr ""
+
+#: .\ppt\models.py:1235
+msgid "Please provide any URLs to the metadata"
+msgstr ""
+
+#: .\ppt\models.py:1236
+msgid "Full link to any metadata records available online, if applicable"
+msgstr ""
+
+#: .\ppt\models.py:1237
+msgid "At what frequency should the metadata be updated? "
+msgstr ""
+
+#: .\ppt\models.py:1238
+msgid "What should be the expectation for how often the metadata is updated?"
+msgstr ""
+
+#: .\ppt\models.py:1239
+msgid "Justification for frequency:"
+msgstr ""
+
+#: .\ppt\models.py:1240
+msgid "What justification can be provided for the above selection?"
+msgstr ""
+
+#: .\ppt\models.py:1244
+msgid ""
+"Which storage solution(s) will be used to house the raw field data, "
+"processed data, and all other data products?"
+msgstr ""
+
+#: .\ppt\models.py:1245
+msgid "Justification for selection of storage solution(s)"
+msgstr ""
+
+#: .\ppt\models.py:1246
+msgid "Provide your rational for the selection(s) made above."
+msgstr ""
+
+#: .\ppt\models.py:1247
+msgid "What is the estimated storage space needed for the above?"
+msgstr ""
+
+#: .\ppt\models.py:1248
+msgid ""
+"This includes raw field data, processed data, and all other data products "
+"etc.)"
+msgstr ""
+
+#: .\ppt\models.py:1249
+msgid "What is the retention policy for the raw field data?"
+msgstr ""
+
+#: .\ppt\models.py:1250
+msgid ""
+"This would include instrument data, field sheets, physical samples etc. "
+"Please refer to the DFO EOS Retention Policy for clarification)"
+msgstr ""
+
+#: .\ppt\models.py:1251
+msgid "What is the retention policy for the data?"
+msgstr ""
+
+#: .\ppt\models.py:1252
+msgid "Please refer to the DFO EOS Retention Policy for clarification."
+msgstr ""
+
+#: .\ppt\models.py:1253
+msgid "What procedures will be taken to back-up/secure the data?"
+msgstr ""
+
+#: .\ppt\models.py:1255
+msgid ""
+"If using cloud storage, what is the estimated annual cost and who will be "
+"covering the cost? "
+msgstr ""
+
+#: .\ppt\models.py:1257
+msgid ""
+"e.g., cloud storage is estimated at $1000/yr and will be paid for under the "
+"the division manager's budget"
+msgstr ""
+
+#: .\ppt\models.py:1260
+msgid "Is the dataset subject to a data sharing agreement, MOU, etc.?"
+msgstr ""
+
+#: .\ppt\models.py:1262
+msgid "If yes, who are the counterparts for the agreement(s)?"
+msgstr ""
+
+#: .\ppt\models.py:1263
+msgid ""
+"please provide the name of the organization and the primary contact for each "
+"agreement."
+msgstr ""
+
+#: .\ppt\models.py:1264
+msgid "How soon after data collection will data be made available?"
+msgstr ""
+
+#: .\ppt\models.py:1265
+msgid ""
+"The answer provided will set the expectation for the open data publication "
+"frequency"
+msgstr ""
+
+#: .\ppt\models.py:1266
+msgid "Which open data publishing mechanism(s) will be used?"
+msgstr ""
+
+#: .\ppt\models.py:1267
+msgid ""
+"The best option is the Government of Canada's Open Data Platform however "
+"other platforms / publications are acceptable provided they are freely "
+"available to the general public."
+msgstr ""
+
+#: .\ppt\models.py:1269
+msgid "Additional comments to take into consideration (if applicable):"
+msgstr ""
+
+#: .\ppt\models.py:1272
+#, fuzzy
+msgid "Data Management Agreement"
+msgstr "Gestion de données"
+
+#: .\ppt\models.py:1299
+#, fuzzy
+msgid "Compliant"
+msgstr "Commentaires"
+
+#: .\ppt\models.py:1300
+msgid "Non-compliant"
+msgstr ""
+
+#: .\ppt\models.py:1306
+msgid "Will this be the final review of this agreement?"
+msgstr ""
+
+#: .\ppt\models.py:1307
+msgid ""
+"If so, please make sure to provide an explanation in the comments field."
+msgstr ""
+
+#: .\ppt\models.py:1308
+#, fuzzy
+#| msgid "Save comments"
+msgid "comments"
+msgstr "Enregistrer les commentaires"
 
 #: .\ppt\reports.py:46
 msgid ""
@@ -1143,60 +1396,60 @@ msgstr ""
 msgid "DFO-"
 msgstr ""
 
-#: .\ppt\templates\ppt\_upcoming_dates.html:16
+#: .\ppt\templates\ppt\_upcoming_dates.html:14
 #, fuzzy
 msgid "Important Dates"
 msgstr "Date de début"
 
-#: .\ppt\templates\ppt\_upcoming_dates.html:54
+#: .\ppt\templates\ppt\_upcoming_dates.html:38
 #, fuzzy
 msgid "There are no upcoming dates in the system"
 msgstr "Il n'y a pas de frais associés à cette demande"
 
-#: .\ppt\templates\ppt\_upcoming_dates.html:56
+#: .\ppt\templates\ppt\_upcoming_dates.html:40
 #, fuzzy
 msgid "View past dates"
 msgstr "statut de révision"
 
-#: .\ppt\templates\ppt\_upcoming_dates.html:64
+#: .\ppt\templates\ppt\_upcoming_dates.html:48
 #, fuzzy
 msgid "Past Dates"
 msgstr "Date de début"
 
-#: .\ppt\templates\ppt\_upcoming_dates.html:103
+#: .\ppt\templates\ppt\_upcoming_dates.html:87
 #: .\ppt\templates\ppt\manage_projects\components\review_modal.html:214
 #: .\ppt\templates\ppt\project_detail\components\_project_year_modal_form.html:34
-#: .\ppt\templates\ppt\project_detail\components\activity_modal.html:80
+#: .\ppt\templates\ppt\project_detail\components\activity_modal.html:126
 #: .\ppt\templates\ppt\project_detail\components\capital_cost_modal.html:37
 #: .\ppt\templates\ppt\project_detail\components\collaboration_modal.html:37
 #: .\ppt\templates\ppt\project_detail\components\file_modal.html:37
 #: .\ppt\templates\ppt\project_detail\components\om_cost_modal.html:37
 #: .\ppt\templates\ppt\project_detail\components\staff_modal.html:77
 #: .\ppt\templates\ppt\project_detail\components\status_report_modal.html:50
-#: .\ppt\templates\ppt\project_detail\main.html:116
+#: .\ppt\templates\ppt\project_detail\main.html:118
 #: .\ppt\templates\ppt\status_report\components\modal_form.html:65
 msgid "Close"
 msgstr "Fermer"
 
-#: .\ppt\templates\ppt\_upcoming_dates.html:113
+#: .\ppt\templates\ppt\_upcoming_dates.html:97
 #, fuzzy
 msgid "Reference Materials:"
 msgstr "Référence"
 
-#: .\ppt\templates\ppt\_upcoming_dates.html:123
+#: .\ppt\templates\ppt\_upcoming_dates.html:110
 msgid "English"
 msgstr ""
 
-#: .\ppt\templates\ppt\_upcoming_dates.html:128
+#: .\ppt\templates\ppt\_upcoming_dates.html:115
 msgid "French"
 msgstr ""
 
-#: .\ppt\templates\ppt\base\_app_title.html:2 .\ppt\views.py:68
-#: .\ppt\views.py:92
+#: .\ppt\templates\ppt\base\_app_title.html:2 .\ppt\views.py:80
+#: .\ppt\views.py:104
 msgid "Projects"
 msgstr "Projets"
 
-#: .\ppt\templates\ppt\base\_nav_left_auth.html:4 .\ppt\views.py:34
+#: .\ppt\templates\ppt\base\_nav_left_auth.html:4 .\ppt\views.py:38
 msgid "Home"
 msgstr "Accueil"
 
@@ -1269,26 +1522,84 @@ msgstr "Gérer les étiquettes"
 msgid "Manage CSRF Priority"
 msgstr "Mes projets"
 
-#: .\ppt\templates\ppt\base\_nav_left_auth.html:67
+#: .\ppt\templates\ppt\base\_nav_left_auth.html:69
 #, fuzzy
 msgid "Manage CSRF Client Information"
 msgstr "Ajouter / Modifier les détails du projet"
 
-#: .\ppt\templates\ppt\base\_nav_left_auth.html:71
+#: .\ppt\templates\ppt\base\_nav_left_auth.html:73
 #, fuzzy
 msgid "Manage Functional Groups"
 msgstr "Gérer les source de financement"
 
-#: .\ppt\templates\ppt\base\_nav_left_auth.html:74
+#: .\ppt\templates\ppt\base\_nav_left_auth.html:77
+#, fuzzy
+#| msgid "Manage Staff Levels"
+msgid "Manage Storage Solutions"
+msgstr "Gérer les niveaux ressources humaines"
+
+#: .\ppt\templates\ppt\base\_nav_left_auth.html:81
 msgid "ADMIN: Manage DFO Organizations"
 msgstr "ADMIN : Gérer les organisations du MPO"
 
-#: .\ppt\templates\ppt\base\_nav_left_auth.html:77
+#: .\ppt\templates\ppt\base\_nav_left_auth.html:85
 msgid "ADMIN: Non-DMApps Staff List"
 msgstr ""
 
-#: .\ppt\templates\ppt\base\_nav_left_auth.html:80
+#: .\ppt\templates\ppt\base\_nav_left_auth.html:89
 msgid "ADMIN: User Permissions"
+msgstr ""
+
+#: .\ppt\templates\ppt\dma_detail.html:13
+#: .\ppt\templates\ppt\project_detail\_overview.html:15
+#: .\ppt\templates\ppt\project_detail\_project_year_detail.html:17
+msgid "Edit"
+msgstr "Modifier"
+
+#: .\ppt\templates\ppt\dma_detail.html:14
+#: .\ppt\templates\ppt\manage_projects\components\review_modal.html:210
+#: .\ppt\templates\ppt\project_detail\_project_year_detail.html:22
+#: .\ppt\templates\ppt\project_references.html:37
+#: .\ppt\templates\ppt\status_report\main.html:16
+msgid "Delete"
+msgstr "Supprimer"
+
+#: .\ppt\templates\ppt\dma_detail.html:31
+#, fuzzy
+msgid "Reviews"
+msgstr "Examinateur"
+
+#: .\ppt\templates\ppt\dma_detail.html:55
+msgid "This DMA has not been reviewed."
+msgstr ""
+
+#: .\ppt\templates\ppt\dma_form.html:13 .\ppt\templates\ppt\form.html:38
+#: .\ppt\templates\ppt\form.html:46
+#: .\ppt\templates\ppt\project_detail\components\status_report_modal.html:35
+#: .\ppt\templates\ppt\status_report\components\modal_form.html:44
+msgid "Markdown syntax is supported in this field"
+msgstr ""
+
+#: .\ppt\templates\ppt\dma_form.html:14
+msgid "Markdown syntax is supported in the textbox fields"
+msgstr ""
+
+#: .\ppt\templates\ppt\dma_form.html:24
+msgid "Identification"
+msgstr ""
+
+#: .\ppt\templates\ppt\dma_form.html:34
+#: .\ppt\templates\ppt\project_detail\_dmas.html:21
+#, fuzzy
+msgid "Metadata"
+msgstr "Mes métadonnées"
+
+#: .\ppt\templates\ppt\dma_form.html:48
+msgid "Archiving and Storage"
+msgstr ""
+
+#: .\ppt\templates\ppt\dma_form.html:63
+msgid "Sharing"
 msgstr ""
 
 #: .\ppt\templates\ppt\explore_projects\_console.html:8
@@ -1306,11 +1617,6 @@ msgstr "Filter"
 #: .\ppt\templates\ppt\explore_projects\_console.html:29
 msgid "Id"
 msgstr ""
-
-#: .\ppt\templates\ppt\explore_projects\_console.html:38
-#: .\ppt\templates\ppt\manage_projects\_console.html:148
-msgid "Title"
-msgstr "Titre"
 
 #: .\ppt\templates\ppt\explore_projects\_console.html:47
 #: .\ppt\templates\ppt\manage_projects\_console.html:158
@@ -1407,12 +1713,6 @@ msgstr ""
 msgid "Load more results..."
 msgstr ""
 
-#: .\ppt\templates\ppt\form.html:38 .\ppt\templates\ppt\form.html:46
-#: .\ppt\templates\ppt\project_detail\components\status_report_modal.html:35
-#: .\ppt\templates\ppt\status_report\components\modal_form.html:44
-msgid "Markdown syntax is supported in this field"
-msgstr ""
-
 #: .\ppt\templates\ppt\form.html:47
 msgid "You can use markdown syntax in this field"
 msgstr ""
@@ -1432,7 +1732,7 @@ msgstr "Date de début du projet"
 msgid "Your Projects"
 msgstr "Projets"
 
-#: .\ppt\templates\ppt\index.html:44 .\ppt\views.py:72
+#: .\ppt\templates\ppt\index.html:44 .\ppt\views.py:84
 #, fuzzy
 msgid "Explore Projects"
 msgstr "Cloner le projet"
@@ -1442,12 +1742,13 @@ msgstr "Cloner le projet"
 msgid "Management Only"
 msgstr "Gestion de données"
 
-#: .\ppt\templates\ppt\index.html:55 .\ppt\views.py:96
+#: .\ppt\templates\ppt\index.html:55 .\ppt\views.py:108
 #, fuzzy
 msgid "Manage Projects"
 msgstr "Mes projets"
 
 #: .\ppt\templates\ppt\manage_projects\_console.html:123
+#: .\ppt\templates\ppt\project_detail\_dmas.html:20
 #: .\ppt\templates\ppt\project_detail\_submit.html:16
 msgid "Status"
 msgstr "Statut"
@@ -1584,7 +1885,7 @@ msgid "Capital Costs"
 msgstr "Coûts en capital:"
 
 #: .\ppt\templates\ppt\manage_projects\_project_list.html:126
-#: .\ppt\templates\ppt\project_detail\components\staff_modal.html:164
+#: .\ppt\templates\ppt\project_detail\components\staff_modal.html:165
 msgid "Submit"
 msgstr "Soumettre"
 
@@ -1622,7 +1923,7 @@ msgid "FTE (weeks)"
 msgstr "No. de semaines"
 
 #: .\ppt\templates\ppt\manage_projects\_staff.html:33
-#: .\ppt\templates\ppt\my_project_list.html:24
+#: .\ppt\templates\ppt\my_project_list.html:42
 #, fuzzy
 msgid "Draft"
 msgstr "Date"
@@ -1633,7 +1934,7 @@ msgid "Submitted, Unapproved"
 msgstr "Projets soumis"
 
 #: .\ppt\templates\ppt\manage_projects\_staff.html:35
-#: .\ppt\templates\ppt\my_project_list.html:26
+#: .\ppt\templates\ppt\my_project_list.html:44
 msgid "Approved"
 msgstr "Approuvé"
 
@@ -1714,13 +2015,6 @@ msgid "NOTE: An email has already been send to the project leads on "
 msgstr ""
 "Succès ! Un courriel a été envoyé au responsable de la demande de voyage."
 
-#: .\ppt\templates\ppt\manage_projects\components\review_modal.html:210
-#: .\ppt\templates\ppt\project_detail\_project_year_detail.html:22
-#: .\ppt\templates\ppt\project_references.html:37
-#: .\ppt\templates\ppt\status_report\main.html:16
-msgid "Delete"
-msgstr "Supprimer"
-
 #: .\ppt\templates\ppt\manage_projects\components\review_modal.html:211
 msgid "Update"
 msgstr "Mettre à jour"
@@ -1761,13 +2055,13 @@ msgid "Financial Summary"
 msgstr "Résumé financier:"
 
 #: .\ppt\templates\ppt\manage_projects\main.html:65
-#: .\ppt\templates\ppt\project_detail\main.html:136
+#: .\ppt\templates\ppt\project_detail\main.html:138
 #, fuzzy
 msgid "Are certain you want to submit the following year of the project?"
 msgstr "Êtes-vous sûr de vouloir soumettre le projet"
 
 #: .\ppt\templates\ppt\manage_projects\main.html:66
-#: .\ppt\templates\ppt\project_detail\main.html:137
+#: .\ppt\templates\ppt\project_detail\main.html:139
 msgid ""
 "Are certain you want to un-submit the following year of the project? The "
 "status of the project year will be reset!"
@@ -1786,28 +2080,28 @@ msgstr "Êtes-vous sûr de vouloir supprimer cette accord du projet?"
 msgid "Please select a report"
 msgstr "Veuillez sélectionner le rapport"
 
-#: .\ppt\templates\ppt\my_project_list.html:16
-msgid "Here's a breakdown of your time allocation:"
-msgstr "Voici une ventilation de votre allocation de temps:"
-
-#: .\ppt\templates\ppt\my_project_list.html:21
-msgid "Time in weeks"
-msgstr "Durée en semaines"
-
-#: .\ppt\templates\ppt\my_project_list.html:25
-#, fuzzy
-msgid "Submitted (unapproved)"
-msgstr "Projets soumis"
-
-#: .\ppt\templates\ppt\my_project_list.html:52
+#: .\ppt\templates\ppt\my_project_list.html:19
 msgid "Filter"
 msgstr "Filter"
 
-#: .\ppt\templates\ppt\my_project_list.html:53
+#: .\ppt\templates\ppt\my_project_list.html:20
 #, fuzzy
 #| msgid "Close"
 msgid "Clear"
 msgstr "Fermer"
+
+#: .\ppt\templates\ppt\my_project_list.html:34
+msgid "Here's a breakdown of your time allocation:"
+msgstr "Voici une ventilation de votre allocation de temps:"
+
+#: .\ppt\templates\ppt\my_project_list.html:39
+msgid "Time in weeks"
+msgstr "Durée en semaines"
+
+#: .\ppt\templates\ppt\my_project_list.html:43
+#, fuzzy
+msgid "Submitted (unapproved)"
+msgstr "Projets soumis"
 
 #: .\ppt\templates\ppt\project_detail\_activities.html:9
 #, fuzzy
@@ -1818,23 +2112,29 @@ msgstr "date d'activité initiale"
 msgid "Add Activity"
 msgstr ""
 
-#: .\ppt\templates\ppt\project_detail\_activities.html:30
+#: .\ppt\templates\ppt\project_detail\_activities.html:17
+#, fuzzy
+msgid "View Gantt Chart"
+msgstr "statut de révision"
+
+#: .\ppt\templates\ppt\project_detail\_activities.html:35
 #: .\ppt\templates\ppt\status_report\_updates.html:25
 #: .\ppt\templates\ppt\status_report_pdf.html:61
 #, fuzzy
 msgid "No activities have been added to this year of the project"
 msgstr "Aucun jalon n'a été ajouté à ce projet."
 
-#: .\ppt\templates\ppt\project_detail\_activities.html:39
+#: .\ppt\templates\ppt\project_detail\_activities.html:44
 #, fuzzy
-msgid "Target date"
-msgstr "Date d'achèvement prévue"
+#| msgid "Date"
+msgid "Dates"
+msgstr "Date"
 
-#: .\ppt\templates\ppt\project_detail\_activities.html:41
+#: .\ppt\templates\ppt\project_detail\_activities.html:46
 msgid "Latest status"
 msgstr "Dernier statut"
 
-#: .\ppt\templates\ppt\project_detail\_activities.html:42
+#: .\ppt\templates\ppt\project_detail\_activities.html:47
 #, fuzzy
 msgid "Completed?"
 msgstr "Commentaires"
@@ -1943,7 +2243,6 @@ msgid "Navigation"
 msgstr "National"
 
 #: .\ppt\templates\ppt\project_detail\_console.html:115
-#: .\ppt\templates\ppt\project_detail\_project_year_detail.html:10
 #, fuzzy
 msgid "Overview"
 msgstr "Gérer les réviseurs"
@@ -1965,6 +2264,21 @@ msgstr "Créer un nouveau rapport de statut pour ce projet"
 #, fuzzy
 msgid "Add New Year"
 msgstr "Ajouter un enregistrement"
+
+#: .\ppt\templates\ppt\project_detail\_dmas.html:5
+msgid "Data Management Agreements"
+msgstr ""
+
+#: .\ppt\templates\ppt\project_detail\_dmas.html:13
+#, fuzzy
+#| msgid "Are you sure you want to delete this agreement from the project?"
+msgid "There are no data management agreements for this project."
+msgstr "Êtes-vous sûr de vouloir supprimer cette accord du projet?"
+
+#: .\ppt\templates\ppt\project_detail\_dmas.html:36
+#, fuzzy
+msgid "Add a new data management agreement to this project."
+msgstr "Créer un nouveau rapport de statut pour ce projet"
 
 #: .\ppt\templates\ppt\project_detail\_files.html:9
 #: .\ppt\templates\ppt\status_report\_files.html:9
@@ -2020,11 +2334,6 @@ msgstr "Type de catégorie"
 msgid "Project Overview"
 msgstr "titre du projet"
 
-#: .\ppt\templates\ppt\project_detail\_overview.html:15
-#: .\ppt\templates\ppt\project_detail\_project_year_detail.html:17
-msgid "Edit"
-msgstr "Modifier"
-
 #: .\ppt\templates\ppt\project_detail\_overview.html:19
 msgid "<span class='red-font'>missing</span>"
 msgstr ""
@@ -2034,6 +2343,14 @@ msgstr ""
 #| msgid "name"
 msgid "manage"
 msgstr "nom"
+
+#: .\ppt\templates\ppt\project_detail\_overview.html:83
+msgid "Linkages to CSAS Processes"
+msgstr ""
+
+#: .\ppt\templates\ppt\project_detail\_overview.html:92
+msgid "There are no CSAS processes attached to this project."
+msgstr ""
 
 #: .\ppt\templates\ppt\project_detail\_project_year_detail.html:27
 msgid "Clone"
@@ -2071,8 +2388,8 @@ msgstr ""
 msgid "Likelihood"
 msgstr ""
 
-#: .\ppt\templates\ppt\project_detail\_script.html:108
-#: .\ppt\templates\ppt\project_detail\main.html:138
+#: .\ppt\templates\ppt\project_detail\_script.html:113
+#: .\ppt\templates\ppt\project_detail\main.html:140
 #, fuzzy
 msgid "Are you sure you want to delete this item? "
 msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
@@ -2137,7 +2454,7 @@ msgid "Cannot unsubmit approved projects"
 msgstr "Projets non soumis"
 
 #: .\ppt\templates\ppt\project_detail\components\_project_year_modal_form.html:32
-#: .\ppt\templates\ppt\project_detail\components\activity_modal.html:78
+#: .\ppt\templates\ppt\project_detail\components\activity_modal.html:124
 #: .\ppt\templates\ppt\project_detail\components\capital_cost_modal.html:35
 #: .\ppt\templates\ppt\project_detail\components\collaboration_modal.html:35
 #: .\ppt\templates\ppt\project_detail\components\file_modal.html:35
@@ -2165,12 +2482,12 @@ msgid ""
 "space, etc.)"
 msgstr ""
 
-#: .\ppt\templates\ppt\project_detail\components\activity_modal.html:62
-msgid "Shortcuts"
+#: .\ppt\templates\ppt\project_detail\components\activity_modal.html:66
+msgid "Shortcut for end of: "
 msgstr ""
 
-#: .\ppt\templates\ppt\project_detail\components\activity_modal.html:62
-msgid "End of "
+#: .\ppt\templates\ppt\project_detail\components\activity_modal.html:81
+msgid "Shortcut for start of: "
 msgstr ""
 
 #: .\ppt\templates\ppt\project_detail\components\capital_cost_modal.html:15
@@ -2298,24 +2615,24 @@ msgstr "Jour de la semaine"
 msgid "Overtime hours"
 msgstr "Heures supplémentaires"
 
-#: .\ppt\templates\ppt\project_detail\components\staff_modal.html:131
+#: .\ppt\templates\ppt\project_detail\components\staff_modal.html:132
 msgid "hours"
 msgstr "heures"
 
-#: .\ppt\templates\ppt\project_detail\components\staff_modal.html:142
+#: .\ppt\templates\ppt\project_detail\components\staff_modal.html:143
 msgid "Extra Hours to be Worked:"
 msgstr "Heures supplémentaires à travailler:"
 
-#: .\ppt\templates\ppt\project_detail\components\staff_modal.html:148
+#: .\ppt\templates\ppt\project_detail\components\staff_modal.html:149
 msgid "Calculated Overtime Hours:"
 msgstr "Heures supplémentaires calculées:"
 
-#: .\ppt\templates\ppt\project_detail\components\staff_modal.html:154
+#: .\ppt\templates\ppt\project_detail\components\staff_modal.html:155
 #, fuzzy
 msgid "Overtime Description:"
 msgstr "description d'heures supplémentaires"
 
-#: .\ppt\templates\ppt\project_detail\components\staff_modal.html:165
+#: .\ppt\templates\ppt\project_detail\components\staff_modal.html:166
 #: .\ppt\templates\ppt\project_references.html:104
 msgid "Cancel"
 msgstr "Annuler"
@@ -2325,16 +2642,16 @@ msgstr "Annuler"
 msgid "Project ID:"
 msgstr "Projet"
 
-#: .\ppt\templates\ppt\project_detail\main.html:94
+#: .\ppt\templates\ppt\project_detail\main.html:96
 msgid "Add a New Year to This Project"
 msgstr ""
 
-#: .\ppt\templates\ppt\project_detail\main.html:102
+#: .\ppt\templates\ppt\project_detail\main.html:104
 #, fuzzy
 msgid "Please select among the following:"
 msgstr "Veuillez sélectionner le rapport"
 
-#: .\ppt\templates\ppt\project_detail\main.html:107
+#: .\ppt\templates\ppt\project_detail\main.html:109
 #, fuzzy, python-format
 msgid ""
 "\n"
@@ -2345,11 +2662,11 @@ msgstr ""
 "                    %(o)s\n"
 "                "
 
-#: .\ppt\templates\ppt\project_detail\main.html:112
+#: .\ppt\templates\ppt\project_detail\main.html:114
 msgid "Start from Scratch"
 msgstr ""
 
-#: .\ppt\templates\ppt\project_detail\main.html:135
+#: .\ppt\templates\ppt\project_detail\main.html:137
 msgid ""
 "WARNING! If you remove yourself as project lead you will loose the ability "
 "to further modify this project."
@@ -2357,12 +2674,12 @@ msgstr ""
 "ATTENTION! Si vous vous retirez en tant que responsable de projet, vous ne "
 "pourrez plus modifier ce projet."
 
-#: .\ppt\templates\ppt\project_detail\main.html:139
+#: .\ppt\templates\ppt\project_detail\main.html:141
 #, fuzzy
 msgid "Are you sure you want to remove yourself?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
 
-#: .\ppt\templates\ppt\project_detail\main.html:139
+#: .\ppt\templates\ppt\project_detail\main.html:141
 #, fuzzy
 msgid ""
 "WARNING: This action might result in you loosing the ability to modify this "
@@ -2371,17 +2688,17 @@ msgstr ""
 "ATTENTION! Si vous vous retirez en tant que responsable de projet, vous ne "
 "pourrez plus modifier ce projet."
 
-#: .\ppt\templates\ppt\project_detail\main.html:140
+#: .\ppt\templates\ppt\project_detail\main.html:142
 msgid "Do you want to add this OT description to the current staff member?"
 msgstr ""
 
-#: .\ppt\templates\ppt\project_detail\main.html:141
+#: .\ppt\templates\ppt\project_detail\main.html:143
 msgid ""
 "Do you want to mark this activity as 'complete'? \\n\\nYou may provide "
 "comments below (optional)."
 msgstr ""
 
-#: .\ppt\templates\ppt\project_detail\main.html:142
+#: .\ppt\templates\ppt\project_detail\main.html:144
 msgid ""
 "Do you want to mark this activity as 'incomplete'?  \\n\\nYou may provide "
 "comments below (optional)."
@@ -2566,356 +2883,376 @@ msgstr ""
 msgid "Travel App Administrator"
 msgstr ""
 
-#: .\ppt\utils.py:101
+#: .\ppt\test\test_models.py:808
+#, fuzzy
+#| msgid "National"
+msgid "National"
+msgstr "National"
+
+#: .\ppt\utils.py:102
 msgid "You are not logged in"
 msgstr ""
 
-#: .\ppt\utils.py:374
+#: .\ppt\utils.py:375
 #, fuzzy
 #| msgid "Other"
 msgid "theme"
 msgstr "Autre"
 
-#: .\ppt\utils.py:379
+#: .\ppt\utils.py:380
 #, fuzzy
 msgid "Project years"
 msgstr "Chef de projet"
 
-#: .\ppt\utils.py:385
+#: .\ppt\utils.py:386
 #, fuzzy
 msgid "Project overview / ACRDP objectives"
 msgstr "Livrables du projet"
 
-#: .\ppt\utils.py:394
+#: .\ppt\utils.py:395
 msgid "CSRF Research Area"
 msgstr ""
 
-#: .\ppt\utils.py:395
+#: .\ppt\utils.py:396
 msgid "CSRF Research Field"
 msgstr ""
 
-#: .\ppt\utils.py:396
+#: .\ppt\utils.py:397
 msgid "CSRF Research priority"
 msgstr ""
 
-#: .\ppt\utils.py:397
+#: .\ppt\utils.py:398
 msgid "Additional info supplied by client"
 msgstr ""
 
-#: .\ppt\utils.py:404
+#: .\ppt\utils.py:405
 msgid "Objectives and methods"
 msgstr ""
 
-#: .\ppt\utils.py:410 .\ppt\utils.py:463
+#: .\ppt\utils.py:412 .\ppt\utils.py:465
 #, fuzzy
 msgid "metadata"
 msgstr "Mes métadonnées"
 
-#: .\ppt\utils.py:424
+#: .\ppt\utils.py:426
 msgid "requires specialized equipment?"
 msgstr ""
 
-#: .\ppt\utils.py:430
+#: .\ppt\utils.py:432
 msgid "has field component?"
 msgstr ""
 
-#: .\ppt\utils.py:456
+#: .\ppt\utils.py:458
 msgid "special IT requirements"
 msgstr ""
 
 #: .\ppt\utils.py:460
+#, fuzzy
+msgid "project codes"
+msgstr "Chef de projet"
+
+#: .\ppt\utils.py:462
 msgid "status"
 msgstr "statut"
 
-#: .\ppt\utils.py:507
+#: .\ppt\utils.py:509
 #, fuzzy
 #| msgid "Title"
 msgid "title"
 msgstr "Titre"
 
-#: .\ppt\utils.py:513
+#: .\ppt\utils.py:515
 msgid "abstract"
 msgstr ""
 
-#: .\ppt\utils.py:522
+#: .\ppt\utils.py:524
 #, fuzzy
 msgid "category type"
 msgstr "Type de catégorie"
 
-#: .\ppt\utils.py:548
+#: .\ppt\utils.py:550
 #, fuzzy
 msgid "latest status"
 msgstr "Dernier statut"
 
-#: .\ppt\utils.py:573
+#: .\ppt\utils.py:575
 #, fuzzy
 #| msgid "major issues encountered"
 msgid "major issues"
 msgstr "problèmes majeurs rencontrés"
 
-#: .\ppt\utils.py:576
+#: .\ppt\utils.py:578
 #, fuzzy
 #| msgid "Supporting Resources"
 msgid "supporting resources"
 msgstr "Ressources de support"
 
-#: .\ppt\utils.py:611
+#: .\ppt\utils.py:650
 msgid ""
 "no formal commitments; limited interest from stakeholders; limited "
 "opportunity for partnership or collaboration."
 msgstr ""
 
-#: .\ppt\utils.py:613
+#: .\ppt\utils.py:652
 msgid ""
 "No expressed interest or identified as a low priority (or potential "
 "conflict) by a stakeholder advisory committee."
 msgstr ""
 
-#: .\ppt\utils.py:616
+#: .\ppt\utils.py:655
 msgid ""
 "Informal departmental commitments; some interest from stakeholders; internal "
 "collaboration."
 msgstr ""
 
-#: .\ppt\utils.py:618
+#: .\ppt\utils.py:657
 msgid ""
 "Verbal agreement with stakeholders or external partner. Collaboration "
 "between internal programs of science staff."
 msgstr ""
 
-#: .\ppt\utils.py:622
+#: .\ppt\utils.py:661
 msgid ""
 "regulatory or legal commitment; high interest from stakeholders; strong "
 "opportunity for external partnership and collaboration."
 msgstr ""
 
-#: .\ppt\utils.py:623
+#: .\ppt\utils.py:662
 msgid "Signed G&C agreement with external partner."
 msgstr ""
 
-#: .\ppt\utils.py:628
+#: .\ppt\utils.py:667
 msgid "limited long-term value; short-term benefit (fire-fighting)"
 msgstr ""
 
-#: .\ppt\utils.py:630
+#: .\ppt\utils.py:669
 msgid ""
 "Local, archived dataset, with limited likelihood of replication going "
 "forward.   No clear link to decision-making."
 msgstr ""
 
-#: .\ppt\utils.py:633
+#: .\ppt\utils.py:672
 msgid "some strategic value to department; medium-term benefit"
 msgstr ""
 
-#: .\ppt\utils.py:635
+#: .\ppt\utils.py:674
 msgid ""
 "Regional dataset of current high value, but potential to be replaced by "
 "emerging technology.  Indirect link to decision."
 msgstr ""
 
-#: .\ppt\utils.py:638
+#: .\ppt\utils.py:677
 msgid ""
 "high long-term strategic value to the department; high innovation value; "
 "broad applicability"
 msgstr ""
 
-#: .\ppt\utils.py:640
+#: .\ppt\utils.py:679
 msgid ""
 "High value/priority, nationally consistent dataset using emerging, more cost "
 "effective (emerging) technology.  Clear link to high-priority decision-"
 "making."
 msgstr ""
 
-#: .\ppt\utils.py:645
+#: .\ppt\utils.py:684
 msgid "One-off project; feasible now but not sustainable in the long-term."
 msgstr ""
 
-#: .\ppt\utils.py:646
+#: .\ppt\utils.py:685
 msgid "New data collection. Significant admin work required."
 msgstr ""
 
-#: .\ppt\utils.py:650
+#: .\ppt\utils.py:689
 msgid ""
 "Moderate level of feasibility or operational efficiency, e.g. equipment/"
 "tools readily available to be implemented within year"
 msgstr ""
 
-#: .\ppt\utils.py:651
+#: .\ppt\utils.py:690
 msgid "Some processing/analysis required of an existing dataset."
 msgstr ""
 
-#: .\ppt\utils.py:655
+#: .\ppt\utils.py:694
 msgid ""
 "high feasibility, e.g. data availability, expertise, existing monitoring "
 "platforms, and regulatory tools available"
 msgstr ""
 
-#: .\ppt\utils.py:657
+#: .\ppt\utils.py:696
 msgid ""
 "Open publication of an existing data layer.  Low administrative burden (e.g. "
 "existing agreements in place)."
 msgstr ""
 
-#: .\ppt\utils.py:662
+#: .\ppt\utils.py:701
 msgid "limited ecological value, or lower priority species/habitats"
 msgstr ""
 
-#: .\ppt\utils.py:663
+#: .\ppt\utils.py:702
 msgid ""
 "Project related to a species or area with limited or unknown ecological "
 "role, or of localized interest."
 msgstr ""
 
-#: .\ppt\utils.py:666
+#: .\ppt\utils.py:705
 msgid "Evidence of ecological value, e.g., prey linkages to key species."
 msgstr ""
 
-#: .\ppt\utils.py:668
+#: .\ppt\utils.py:707
 msgid ""
 "Project related to a species or area with known linkages to a species of "
 "high ecological value (prey species), or importance identified through "
 "ecological modelling."
 msgstr ""
 
-#: .\ppt\utils.py:671
+#: .\ppt\utils.py:710
 msgid ""
 "high ecological value (important species) or high ecological risk (SARA-"
 "listed species)"
 msgstr ""
 
-#: .\ppt\utils.py:673
+#: .\ppt\utils.py:712
 msgid ""
 "Project related to a nationally or regionally recognized ESS (Eelgrass) or "
 "EBSA (Minas Basin), or SAR (Blue Whale)."
 msgstr ""
 
-#: .\ppt\utils.py:678
+#: .\ppt\utils.py:717
 msgid ""
 "limited geographic or temporal scope; site-specific and lessons not readily "
 "applicable to other areas"
 msgstr ""
 
-#: .\ppt\utils.py:679
+#: .\ppt\utils.py:718
 msgid "Data only available for a single location or bay."
 msgstr ""
 
-#: .\ppt\utils.py:682
+#: .\ppt\utils.py:721
 msgid "broad geographic/temporal scope; area of some significance"
 msgstr ""
 
-#: .\ppt\utils.py:683
+#: .\ppt\utils.py:722
 msgid "Subregional data layer, e.g., for a single NAFO Unit or MPA."
 msgstr ""
 
-#: .\ppt\utils.py:686
+#: .\ppt\utils.py:725
 msgid "broad geographic or temporal scope; area of high significance"
 msgstr ""
 
-#: .\ppt\utils.py:687
+#: .\ppt\utils.py:726
 msgid "Bioregional data layers, e.g. remote sensing, RV Survey."
 msgstr ""
 
-#: .\ppt\views.py:33
+#: .\ppt\views.py:37
 #, fuzzy
 msgid "DFO Science Project Planning"
 msgstr "Planification de projets (Science)"
 
-#: .\ppt\views.py:127
+#: .\ppt\views.py:139
 #, fuzzy
 msgid "My Projects"
 msgstr "Mes projets"
 
-#: .\ppt\views.py:140
+#: .\ppt\views.py:152
 msgid "hidden?"
 msgstr ""
 
-#: .\ppt\views.py:198
+#: .\ppt\views.py:216
 msgid ""
 "<span class='h4'>Your new project was created successfully! To get started, "
 "<b class='highlight'>add a new project year</b>.</span>"
 msgstr ""
 
-#: .\ppt\views.py:296 .\ppt\views.py:492
+#: .\ppt\views.py:314 .\ppt\views.py:531
 #, fuzzy
 msgid "Cloning: "
 msgstr "Financement"
 
-#: .\ppt\views.py:389 .\ppt\views.py:390
+#: .\ppt\views.py:407 .\ppt\views.py:408
 #, fuzzy
 msgid "Project References"
 msgstr "Chef de projet"
 
-#: .\ppt\views.py:450
+#: .\ppt\views.py:468
 #, fuzzy
 msgid "Edit "
 msgstr "Modifier"
 
-#: .\ppt\views.py:598 .\ppt\views.py:608
+#: .\ppt\views.py:493
+#, fuzzy
+msgid "Gantt Chart for Project "
+msgstr "Date de fin du projet"
+
+#: .\ppt\views.py:637 .\ppt\views.py:647
 #, fuzzy
 msgid "Functional Groups"
 msgstr "Gérer les source de financement"
 
-#: .\ppt\views.py:853
+#: .\ppt\views.py:908
 #, fuzzy
 msgid "File attachment (EN)"
 msgstr "pièce jointe"
 
-#: .\ppt\views.py:854
+#: .\ppt\views.py:909
 #, fuzzy
 msgid "File attachment (FR)"
 msgstr "pièce jointe"
 
-#: .\ppt\views.py:861 .\ppt\views.py:869 .\ppt\views.py:882 .\ppt\views.py:892
-#: .\ppt\views.py:1050
+#: .\ppt\views.py:916 .\ppt\views.py:924 .\ppt\views.py:937 .\ppt\views.py:947
+#: .\ppt\views.py:1111
 #, fuzzy
 msgid "Reference Materials"
 msgstr "Référence"
 
-#: .\ppt\views.py:906
+#: .\ppt\views.py:961
 #, fuzzy
 msgid "Non-DMApps Staff List"
 msgstr "Section"
 
-#: .\ppt\views.py:908
+#: .\ppt\views.py:963
 msgid ""
 "The purpose of this list view is to check if any DFO staff were listed on "
 "projects, but were not connected to their dmapps user accounts"
 msgstr ""
 
-#: .\ppt\views.py:934
+#: .\ppt\views.py:994
 #, fuzzy
 #| msgid "Editing Staff Member:"
 msgid "Edit Non-DMApps Staff Member"
 msgstr "Modification au personnel:"
 
-#: .\ppt\views.py:935
+#: .\ppt\views.py:995
 msgid "Non-registered Staff List"
 msgstr ""
 
-#: .\ppt\views.py:1074
+#: .\ppt\views.py:1135
 msgid "Please provide review comments"
 msgstr ""
 
-#: .\ppt\views.py:1110 .\ppt\views.py:1143
+#: .\ppt\views.py:1294 .\ppt\views.py:1327
 #, fuzzy
 msgid "Project Planning Reports"
 msgstr "Planification de projets (Science)"
 
-#: .\ppt\views.py:1197 .\ppt\views.py:1238 .\ppt\views.py:1266
+#: .\ppt\views.py:1384 .\ppt\views.py:1427 .\ppt\views.py:1455
 msgid "Warning: There are no lead staff on this project!!"
 msgstr ""
 
-#: .\ppt\views.py:1200 .\ppt\views.py:1219
+#: .\ppt\views.py:1388 .\ppt\views.py:1408
 msgid ""
 "Warning: project lead's profile information is missing in DM Apps (position "
 "title)"
 msgstr ""
 
-#: .\ppt\views.py:1202 .\ppt\views.py:1221
+#: .\ppt\views.py:1391 .\ppt\views.py:1410
 msgid ""
 "Warning: project lead's profile information is missing in DM Apps (phone "
 "number)"
 msgstr ""
+
+#, fuzzy
+#~ msgid "Target date"
+#~ msgstr "Date d'achèvement prévue"
 
 #, fuzzy
 #~ msgid "Upcoming Dates"
@@ -3139,9 +3476,6 @@ msgstr ""
 #~ msgid "Are you sure you want to delete this collaborator from the project?"
 #~ msgstr "Êtes-vous sûr de vouloir supprimer ce collaborateur du projet?"
 
-#~ msgid "Are you sure you want to delete this agreement from the project?"
-#~ msgstr "Êtes-vous sûr de vouloir supprimer cette accord du projet?"
-
 #~ msgid "Are you sure you want to delete this o&m request from the project?"
 #~ msgstr ""
 #~ "Êtes-vous sûr de vouloir supprimer cette demande de F & E du projet?"
@@ -3182,10 +3516,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "By Primary Funding Source"
 #~ msgstr "Source de financement"
-
-#, fuzzy
-#~ msgid "Recommended"
-#~ msgstr "enregistrement"
 
 #, fuzzy
 #~ msgid "recommend"
@@ -3377,10 +3707,6 @@ msgstr ""
 #~ "                "
 
 #, fuzzy
-#~ msgid "Funding type"
-#~ msgstr "Financement"
-
-#, fuzzy
 #~ msgid "Financial summary"
 #~ msgstr "Résumé financier:"
 
@@ -3463,10 +3789,6 @@ msgstr ""
 #~ msgid "Project Deliverables / Activities"
 #~ msgstr "Livrables du projet"
 
-#, fuzzy
-#~ msgid "End Date of Project"
-#~ msgstr "Date de fin du projet"
-
 #~ msgid "Amount"
 #~ msgstr "Montant"
 
@@ -3499,11 +3821,6 @@ msgstr ""
 
 #~ msgid "Back"
 #~ msgstr "Retour"
-
-#, fuzzy
-#~| msgid "responsibility center (if known)"
-#~ msgid "Responsibility Center"
-#~ msgstr "centre de responsabilité (s'il est connu)"
 
 #, fuzzy
 #~ msgid "Milestones"

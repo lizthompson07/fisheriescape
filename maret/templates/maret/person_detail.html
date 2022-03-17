@@ -42,7 +42,8 @@
                 <div class="card-body">
                     <table class="table table-sm">
                         {% for field in field_list %}
-                            {% if field == "phone_1" %}
+                            {% if field == "committee" %}
+                             {% elif field == "phone_1" %}
                                 <tr>
                                     <th class="w-25"> {% trans "Role" %} </th>
                                     <td>
@@ -63,7 +64,7 @@
         <div class="col-5">
             <div class="card entry-card mb-3">
                 <div class="card-header">
-                    <h5 class="card-title"> {% trans "Membership:" %}</h5>
+                    <h5 class="card-title"> {% trans "Organization Membership:" %}</h5>
                 </div>
                 <div class="card-body">
                     <ul>

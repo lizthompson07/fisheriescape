@@ -2,6 +2,7 @@ import os
 from io import BytesIO
 import xlsxwriter
 from django.template.defaultfilters import date
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import activate, deactivate, gettext as _
 from docx import Document
@@ -69,7 +70,7 @@ def generate_tor(tor, lang):
     return target_url
 
 
-def generate_meeting_report(fiscal_year=None, is_posted=None):
+def generate_meeting_report(meetings, site_url):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -87,31 +88,32 @@ def generate_meeting_report(fiscal_year=None, is_posted=None):
     currency_format = workbook.add_format({'num_format': '#,##0.00'})
     date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
 
-    # get the meeting list
-    objects = models.Meeting.objects.filter(is_planning=False)
-    if fiscal_year:
-        objects = objects.filter(process__fiscal_year=fiscal_year)
-
-    if is_posted is not None:
-        objects = objects.filter(process__is_posted=is_posted)
-
     field_list = [
         'process.fiscal_year|fiscal year',
         'process.is_posted|Has been posted?',
         'process.name|Process name',
-        'process.scope_type|type of process',
+        'process.status|Process status',
+        'process.scope|Process scope',
+        'process.type|Process type',
+        'quarter|meeting quarter',
         'tor_display_dates|meeting dates',
-        'process.name|meeting name (English)',
-        'process.nom|meeting name (French)',
+        'process.name|meeting title (English)',
+        'process.nom|meeting title (French)',
         'chair|Chairperson name',
         'process.coordinator|CSAS Coordinator',
         'process.advisors|Science advisors',
         'expected publications',
-        'other regions',
+        'lead office',
+        'other offices',
+        'process.id|process ID',
+        'client_regions|{}'.format(_("client regions")),
+        'client_sectors|{}'.format(_("client sectors")),
+        'client_sections|{}'.format(_("client sections")),
+        'process.formatted_notes|{}'.format(_("process notes")),
     ]
 
     # define the header
-    header = [get_verbose_label(objects.first(), field) for field in field_list]
+    header = [get_verbose_label(meetings.first(), field) for field in field_list]
     title = "CSAS Meeting Report"
 
     # define a worksheet
@@ -120,18 +122,39 @@ def generate_meeting_report(fiscal_year=None, is_posted=None):
     my_ws.write_row(2, 0, header, header_format)
 
     i = 3
-    for obj in objects:
+    for obj in meetings:
         # create the col_max column to store the length of each header
         # should be a maximum column width to 100
         col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
         j = 0
         for field in field_list:
 
-            if "other regions" in field:
-                my_val = listrify(obj.process.other_regions.all())
+            if "other offices" in field:
+                my_val = listrify(obj.process.other_offices.all())
+                my_ws.write(i, j, my_val, normal_format)
+            elif "lead office" in field:
+                my_val = str(obj.process.lead_office)
+                my_ws.write(i, j, my_val, normal_format)
+            elif "scope" in field:
+                my_val = str(obj.process.get_scope_display())
+                my_ws.write(i, j, my_val, normal_format)
+            elif "process.type" in field:
+                my_val = str(obj.process.get_type_display())
+                my_ws.write(i, j, my_val, normal_format)
+            elif "status" in field:
+                my_val = str(obj.process.get_status_display())
                 my_ws.write(i, j, my_val, normal_format)
             elif "advisors" in field:
                 my_val = listrify(obj.process.advisors.all())
+                my_ws.write(i, j, my_val, normal_format)
+            elif "sections" in field:
+                my_val = obj.process.client_sections
+                my_ws.write(i, j, my_val, normal_format)
+            elif "sectors" in field:
+                my_val = obj.process.client_sectors
+                my_ws.write(i, j, my_val, normal_format)
+            elif "regions" in field:
+                my_val = obj.process.client_regions
                 my_ws.write(i, j, my_val, normal_format)
             elif "expected publications" in field:
                 if hasattr(obj.process, "tor"):
@@ -163,7 +186,7 @@ def generate_meeting_report(fiscal_year=None, is_posted=None):
     return target_url
 
 
-def generate_request_list(requests):
+def generate_request_list(requests, site_url):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -176,18 +199,20 @@ def generate_request_list(requests):
     title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
     header_format = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
-    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
-    currency_format = workbook.add_format({'num_format': '#,##0.00'})
-    date_format = workbook.add_format({'num_format': "mm/dd/yyyy", "align": 'left', })
+    hyperlink_format = workbook.add_format({'border': 1, 'border_color': 'black', "font_color": "blue", "underline": True, "text_wrap": True})
+    date_format = workbook.add_format({'num_format': "mm/dd/yyyy", "align": 'left', 'border': 1, 'border_color': 'black', })
 
     field_list = [
-        'id',
+        'id|{}'.format("CSAS Request ID"),
+        'title',
+        'translated_title',
         'fiscal_year',
-        'title|{}'.format(_("title")),
         'advice_fiscal_year',
         'target_advice_date|{}'.format(_("advice date")),
         'status',
+        'review.decision|{}'.format(_("recommendation")),
+        'review.decision_text|{}'.format(_("recommendation explanation")),
         'has_process|{}'.format(_("has process?")),
         'coordinator',
         'client',
@@ -220,8 +245,17 @@ def generate_request_list(requests):
                 my_val = listrify(obj.process.advisors.all())
                 my_ws.write(i, j, my_val, normal_format)
             elif "date" in field:
-                my_val = obj.target_advice_date.strftime("%m/%d/%Y") if obj.target_advice_date else ""
+                my_val = obj.target_advice_date.strftime("%m/%d/%Y") if obj.target_advice_date else "---"
                 my_ws.write(i, j, my_val, date_format)
+            elif "decision|" in field:
+                my_val = str(get_field_value(obj.review, "decision")) if hasattr(obj, "review") else "---"
+                my_ws.write(i, j, my_val, normal_format)
+            elif field == "title":
+                my_val = str(get_field_value(obj, field))
+                my_ws.write_url(i, j,
+                                url=f'{site_url}/{reverse("csas2:request_detail", args=[obj.id])}',
+                                string=f"{my_val}",
+                                cell_format=hyperlink_format)
             elif "expected publications" in field:
                 if hasattr(obj.process, "tor"):
                     my_val = listrify(obj.process.tor.expected_document_types.all())
@@ -251,7 +285,7 @@ def generate_request_list(requests):
     workbook.close()
     return target_url
 
-def generate_process_list(processes):
+def generate_process_list(processes, site_url):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -264,15 +298,14 @@ def generate_process_list(processes):
     title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
     header_format = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
-    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
-    currency_format = workbook.add_format({'num_format': '#,##0.00'})
-    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+    hyperlink_format = workbook.add_format({'border': 1, 'border_color': 'black', "font_color": "blue", "underline": True})
 
     field_list = [
-        'id',
+        'id|{}'.format("CSAS Process ID"),
         'fiscal_year',
         'name',
+        'nom',
         'scope_type|{}'.format(_("Advisory process type")),
         'status',
         'science_leads|{}'.format(_("Lead scientists")),
@@ -317,6 +350,12 @@ def generate_process_list(processes):
                 else:
                     my_val = "n/a"
                 my_ws.write(i, j, my_val, normal_format)
+            elif field == "name":
+                my_val = str(get_field_value(obj, field))
+                my_ws.write_url(i, j,
+                                url=f'{site_url}/{reverse("csas2:process_detail", args=[obj.id])}',
+                                string=f"{my_val}",
+                                cell_format=hyperlink_format)
             else:
                 my_val = str(get_field_value(obj, field))
                 my_ws.write(i, j, my_val, normal_format)

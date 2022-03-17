@@ -99,7 +99,7 @@ class Committee(models.Model):
     branch = models.ForeignKey(shared_models.Branch, default=1, on_delete=models.DO_NOTHING,
                                related_name="committee_branch", verbose_name=_("Lead DFO branch"))
     area_office = models.ManyToManyField(AreaOffice, blank=True, related_name="committee_area_office",
-                                         verbose_name=_("Area Office"))
+                                         verbose_name=_("Lead Area Office"))
     division = models.ForeignKey(shared_models.Division, default=1, blank=True, null=True, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Division"))
 
@@ -113,8 +113,14 @@ class Committee(models.Model):
     dfo_liaison = models.ManyToManyField(User, related_name="committee_dfo_liaison",
                                          verbose_name=_("DFO liaison/secretariat"))
     other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="committee_dfo_branch",
-                                              verbose_name=_("Other participating DFO branches/regions/area offices")
+                                              verbose_name=_("Other participating DFO branches")
                                               )
+    other_dfo_regions = models.ManyToManyField(shared_models.Region, related_name="committee_dfo_region",
+                                               verbose_name=_("Other participating DFO regions")
+                                               )
+    other_dfo_areas = models.ManyToManyField(AreaOffice, related_name="committee_dfo_area",
+                                             verbose_name=_("Other participating DFO area offices")
+                                             )
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=12,
                                    verbose_name="Role of highest level DFO participant")
     first_nation_participation = models.BooleanField(default=False,
@@ -122,7 +128,7 @@ class Committee(models.Model):
     provincial_participation = models.BooleanField(default=False,
                                                    verbose_name=_("Provincial government participation?"))
     external_contact = models.ManyToManyField(ml_models.Person, verbose_name=_("External Contact(s)"),
-                                              blank=True,related_name="committee_ext_contact")
+                                              blank=True, related_name="committee_ext_contact")
     external_organization = models.ManyToManyField(ml_models.Organization, verbose_name=_("External Organization(s)"),
                                                    blank=True, related_name="committee_ext_organization")
     meeting_frequency = models.IntegerField(choices=meeting_frequency_choices, verbose_name=_("Meeting frequency"),
@@ -186,6 +192,7 @@ class Interaction(models.Model):
 class OrganizationExtension(models.Model):
     organization = models.ForeignKey(ml_models.Organization, blank=False, null=False, default=1, related_name="ext_org",
                                      verbose_name="Organization", on_delete=models.CASCADE)
+    email = models.EmailField(blank=True, null=True, verbose_name="E-mail", )
     associated_provinces = models.ManyToManyField(shared_models.Province, related_name="ext_asc_province",
                                                   verbose_name="Associated Provinces")
     category = models.ManyToManyField(OrgCategory, related_name="ext_org_category", verbose_name="Category")
@@ -193,9 +200,12 @@ class OrganizationExtension(models.Model):
 
 
 class ContactExtension(models.Model):
+    committee = models.ManyToManyField(Committee, blank=True, related_name="contact_committees",
+                                       verbose_name=_("Committee / Working Group Membership"))
     contact = models.ForeignKey(ml_models.Person, blank=False, null=False, default=1, related_name="ext_con",
                                 verbose_name="Contact", on_delete=models.CASCADE)
     role = models.CharField(max_length=255, default="N/A", verbose_name="Role")
+
 
 # This is a special table used to house application help text
 class HelpText(models.Model):

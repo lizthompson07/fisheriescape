@@ -111,8 +111,8 @@ class Region(UnilingualLookup):
                     Point(t.start_latitude, t.start_longitude),
                     Point(t.end_latitude, t.end_longitude),
                 ])
-            if len(points):
-                return MultiPoint(points).centroid
+        if len(points):
+            return MultiPoint(points).centroid
 
     @property
     def coordinates(self):

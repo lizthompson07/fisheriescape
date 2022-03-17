@@ -184,7 +184,7 @@ class CSASRequest(MetadataFields):
     prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("How would you classify the prioritization of this request?"),
                                          choices=model_choices.prioritization_choices)
     prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("What is the rationale behind the prioritization?"))
-    tags = models.ManyToManyField(SubjectMatter, blank=True, verbose_name=_("keyword tags"))
+    tags = models.ManyToManyField(SubjectMatter, blank=True, verbose_name=_("keyword tags"), limit_choices_to={"is_csas_request_tag": True})
 
     # non-editable fields
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
@@ -447,6 +447,8 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     # non-editable
     is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"))
+    has_peer_review_meeting = models.BooleanField(default=False, verbose_name=_("has peer review meeting?"))
+    has_planning_meeting = models.BooleanField(default=False, verbose_name=_("has planning meeting?"))
     posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"))
     posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="processes", verbose_name=_("fiscal year"), editable=False)
@@ -457,6 +459,9 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         ordering = ["fiscal_year", _("name")]
 
     def save(self, *args, **kwargs):
+        self.has_peer_review_meeting = self.meetings.filter(is_planning=False).exists()
+        self.has_planning_meeting = self.meetings.filter(is_planning=True).exists()
+
         # if there is no advice date, take the target date from the first attached request
         if not self.advice_date and self.id and self.csas_requests.exists():
             self.advice_date = self.csas_requests.first().target_advice_date
@@ -508,6 +513,15 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         except:
             return gettext("n/a")
 
+    @property
+    def posting_status(self):
+        if not self.posting_request_date and self.is_posted:
+            return gettext("Not posted")
+        elif self.posting_request_date:
+            return gettext("Request made")
+        else:
+            return gettext("Posted")
+
     def get_absolute_url(self):
         return reverse("csas2:process_detail", args=[self.pk])
 
@@ -521,8 +535,16 @@ class Process(SimpleLookupWithUUID, MetadataFields):
             return self.tor.meeting.chair
 
     @property
-    def client_sectors(self):
+    def client_sections(self):
         return listrify(set([r.section for r in self.csas_requests.all()]))
+
+    @property
+    def client_sectors(self):
+        return listrify(set([r.section.division.branch.sector for r in self.csas_requests.all()]))
+
+    @property
+    def client_regions(self):
+        return listrify(set([r.section.division.branch.sector.region for r in self.csas_requests.all()]))
 
     @property
     def science_leads(self):
@@ -561,7 +583,10 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     def key_meetings(self):
         mystr = ""
         for meeting in self.meetings.filter(is_planning=False):
-            mystr += f"{str(meeting)}\n({meeting.tor_display_dates})\n\n"
+            mystr += f"English Title: {meeting.name}\n" \
+                     f"French Title: {meeting.nom}\n" \
+                     f"Location: {meeting.location}\n" \
+                     f"Dates: {meeting.tor_display_dates}\n\n"
         return mystr
 
     @property
@@ -798,7 +823,8 @@ class Meeting(SimpleLookup, MetadataFields):
     # non-editable
     somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))
     # calculated
-    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year"), related_name="meetings",
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year of meeting"),
+                                    related_name="meetings",
                                     editable=False)
 
     class Meta:
@@ -857,6 +883,11 @@ class Meeting(SimpleLookup, MetadataFields):
         else:
             est_quarter = get_quarter(self.start_date)
             return f"{est_quarter} {self.start_date.year}"
+
+    @property
+    def quarter(self):
+        est_quarter = get_quarter(self.start_date, "verbose")
+        return f"{est_quarter}"
 
     @property
     def tor_display_dates(self):

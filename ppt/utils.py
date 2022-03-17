@@ -431,8 +431,9 @@ def get_project_year_field_list(project_year=None):
         #################
         'has_field_component|{}'.format(_("has field component?")),
         'vehicle_needs' if not project_year or project_year.has_field_component else None,
-        'ship_needs' if not project_year or project_year.has_field_component else None,
-        'coip_reference_id' if not project_year or project_year.has_field_component else None,
+        'has_ship_needs' if not project_year or project_year.has_field_component else None,
+        'ship_needs' if not project_year or (project_year.has_field_component and project_year.has_ship_needs) else None,
+        'coip_reference_id' if not project_year or (project_year.has_field_component and project_year.has_ship_needs) else None,
         'instrumentation' if not project_year or project_year.has_field_component else None,
         'owner_of_instrumentation' if not project_year or project_year.has_field_component else None,
         'requires_field_staff' if not project_year or project_year.has_field_component else None,
@@ -804,15 +805,14 @@ def prime_csas_activities(project_year, starting_date, meeting_duration, has_sr_
     ]
 
     activities.reverse()  # we will start with the last activity and move back in time
-
     i = 0
     for a_dict in activities:
         if i == 0:
             end = starting_date  # finishes at the starting date
-            start = starting_date - timedelta(days=a_dict["duration"])
+            start = starting_date - timedelta(days=meeting_duration)
         else:
             end = start
-            start = end - timedelta(days=meeting_duration)
+            start = end - timedelta(days=a_dict["duration"])
 
         a = models.Activity.objects.create(
             project_year=project_year,
@@ -874,7 +874,7 @@ def prime_csas_activities(project_year, starting_date, meeting_duration, has_sr_
                     end = starting_date + timedelta(days=a_dict["duration"])
                 else:
                     start = end
-                    end = start + timedelta(days=meeting_duration)
+                    end = start + timedelta(days=a_dict["duration"])
 
                 a = models.Activity.objects.create(
                     project_year=project_year,
@@ -893,14 +893,15 @@ def prime_csas_activities(project_year, starting_date, meeting_duration, has_sr_
 
     # now we have to figure out the dates of the parents
     for a_dict in parent_activities:
-        a = models.Activity.objects.get(
-            project_year=project_year,
-            name=a_dict["name"],
-            type=a_dict["type"],
-        )
-        children = a.children.order_by("target_start_date")
-        start = children.first().target_start_date
-        end = children.last().target_date
-        a.target_start_date = start
-        a.target_date = end
-        a.save()
+        if a_dict:
+            a = models.Activity.objects.get(
+                project_year=project_year,
+                name=a_dict["name"],
+                type=a_dict["type"],
+            )
+            children = a.children.order_by("target_start_date")
+            start = children.first().target_start_date
+            end = children.last().target_date
+            a.target_start_date = start
+            a.target_date = end
+            a.save()

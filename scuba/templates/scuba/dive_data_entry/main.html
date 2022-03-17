@@ -90,7 +90,7 @@
               <td v-html="obs.certainty_rating_display"></td>
               <td>${obs.comment|nz}</td>
               <td v-if="index1==0" :rowspan="section.observations.length" style="width: 120px" class="text-center">
-                <button @click="editSection(section)" class="btn btn-sm btn-warning">
+                <button @click="editSection(section)" class="btn btn-sm btn-warning mr-3">
                   <span class="mdi mdi-pencil"></span>
                 </button>
                 <button @click="deleteSection(section)" class="btn btn-sm btn-danger">
@@ -106,7 +106,7 @@
               <td v-html="section.comment" style="width: 120px"></td>
               <td colspan="7" class=""><em class="text-muted">{% trans "None" %}</em></td>
               <td class="text-center">
-                <button class="btn btn-sm btn-warning" @click="editSection(section)">
+                <button class="btn btn-sm btn-warning mr-3" @click="editSection(section)">
                   <span class="mdi mdi-pencil"></span>
                 </button>
                 <button class="btn btn-sm btn-danger" @click="deleteSection(section)">

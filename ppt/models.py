@@ -415,7 +415,8 @@ class ProjectYear(models.Model):
     has_field_component = models.BooleanField(default=False, verbose_name=_("Does this project involved a field component?"))
     vehicle_needs = models.TextField(blank=True, null=True,
                                      verbose_name=_("Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
-    ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Ship (Coast Guard, charter vessel) Requirements"))
+    has_ship_needs = models.BooleanField(default=False, verbose_name=_("Ship (Coast Guard, charter vessel) Requirements?"), choices=YES_NO_CHOICES)
+    ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Description of Ship (Coast Guard, charter vessel) Requirements"))
     coip_reference_id = models.CharField(max_length=100, blank=True, null=True, verbose_name=_(
         "If this project links to a ship time request in COIP, please include the COIP application number here."))
     instrumentation = models.TextField(blank=True, null=True,
@@ -1112,7 +1113,7 @@ class Activity(models.Model):
                                      verbose_name=_("what is the likelihood of the risks occurring"))  # ACRDP
     risk_rating = models.IntegerField(choices=risk_rating_choices, blank=True, null=True, editable=False)  # ACRDP
     mitigation_measures = models.TextField(blank=True, null=True, verbose_name=_("what measures will be used to mitigate the risks"))  # CSRF and ACRDP
-    parent = models.ForeignKey("Activity", related_name="children", on_delete=models.DO_NOTHING, verbose_name=_("parent activity"), blank=True, null=True)
+    parent = models.ForeignKey("Activity", related_name="children", on_delete=models.CASCADE, verbose_name=_("parent activity"), blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if self.impact and self.likelihood:

@@ -123,7 +123,7 @@ class SectionForm(forms.ModelForm):
         klass = "form-control form-control-sm"
 
         self.fields["interval"].widget.attrs = {"v-model": "sectionToEdit.interval", "ref": "top_of_form", "@change": "unsavedSectionWork=true",
-                                                ":disabled": "sectionToEdit.id", "class": klass}
+                                                "class": klass} #":disabled": "sectionToEdit.id",}
         self.fields["depth_ft"].widget.attrs = {"v-model": "sectionToEdit.depth_ft", "min": 0, "@change": "unsavedSectionWork=true", "step": "0.01",
                                                 "class": klass}
         self.fields["percent_sand"].widget.attrs = {"v-model": "sectionToEdit.percent_sand", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
@@ -200,6 +200,9 @@ class ReportSearchForm(forms.Form):
         (5, "dive export (csv)"),
         (3, "section export (csv)"),
         (4, "observation export (csv)"),
+        (None, "------ OPEN DATA STUFF -----"),
+        (7, "Open Data - dataset (csv)"),
+        (8, "Open Data - dictionary (csv)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.IntegerField(required=False, label=gettext_lazy('Year'), widget=forms.NumberInput(attrs={"placeholder": "Leave blank for all years"}))

@@ -6,13 +6,30 @@ from django.template.defaultfilters import date
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext
 from shapely.geometry import Polygon, Point
 
 from lib.functions.custom_functions import listrify, fiscal_year
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields
 from shared_models.utils import format_coordinates
+
+
+YES_NO_CHOICES = (
+    (True, gettext("Yes")),
+    (False, gettext("No")),
+)
+
+class ednaUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="edna_user", verbose_name=_("DM Apps user"))
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator?"), choices=YES_NO_CHOICES)
+    is_crud_user = models.BooleanField(default=False, verbose_name=_("CRUD permissions?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
 
 
 class FiltrationType(UnilingualLookup):
@@ -177,7 +194,7 @@ class File(models.Model):
 
 
 class Sample(MetadataFields):
-    collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("collection"))
+    collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.CASCADE, verbose_name=_("collection"))
     sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("sample type"))
     bottle_id = models.CharField(verbose_name=_("bottle ID"), blank=True, null=True, max_length=50)
     location = models.CharField(max_length=255, verbose_name=_("location"), blank=True, null=True)
@@ -188,6 +205,7 @@ class Sample(MetadataFields):
     latitude = models.FloatField(blank=False, null=True, verbose_name=_("latitude"))
     longitude = models.FloatField(blank=False, null=True, verbose_name=_("longitude"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
+
     # calc
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='edna_samples_created_by')
     updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='edna_samples_updated_by')
@@ -286,7 +304,7 @@ class FiltrationBatch(Batch):
 
 class Filter(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
-    filtration_batch = models.ForeignKey(FiltrationBatch, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("filtration batch"))
+    filtration_batch = models.ForeignKey(FiltrationBatch, related_name='filters', on_delete=models.CASCADE, verbose_name=_("filtration batch"))
     sample = models.ForeignKey(Sample, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("sample ID"), blank=True, null=True)
     tube_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("tube ID"))
     filtration_type = models.ForeignKey(FiltrationType, on_delete=models.DO_NOTHING, related_name="filters", verbose_name=_("filtration type"), default=1)
@@ -352,7 +370,7 @@ class ExtractionBatch(Batch):
 
 class DNAExtract(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
-    extraction_batch = models.ForeignKey(ExtractionBatch, related_name='extracts', on_delete=models.DO_NOTHING, verbose_name=_("extraction batch"))
+    extraction_batch = models.ForeignKey(ExtractionBatch, related_name='extracts', on_delete=models.CASCADE, verbose_name=_("extraction batch"))
     filter = models.ForeignKey(Filter, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='extracts', verbose_name=_("filter ID"))
     extraction_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("extraction number"), unique=True)
     start_datetime = models.DateTimeField(verbose_name=_("extraction date/time"))
@@ -423,7 +441,7 @@ class PCRBatch(Batch):
 
 class PCR(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
-    pcr_batch = models.ForeignKey(PCRBatch, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_(" qPCR batch"))
+    pcr_batch = models.ForeignKey(PCRBatch, related_name='pcrs', on_delete=models.CASCADE, verbose_name=_(" qPCR batch"))
     extract = models.ForeignKey(DNAExtract, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="pcrs", verbose_name=_("extraction ID"))
     plate_well = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate well"))
     master_mix = models.ForeignKey(MasterMix, on_delete=models.DO_NOTHING, related_name="pcrs", verbose_name=_("master mix"), blank=False, null=True)
@@ -466,7 +484,7 @@ class PCRAssay(MetadataFields):
         (91, _("LOD missing :(")),
     )
 
-    pcr = models.ForeignKey(PCR, related_name='assays', on_delete=models.DO_NOTHING, verbose_name=_("PCR"))
+    pcr = models.ForeignKey(PCR, related_name='assays', on_delete=models.CASCADE, verbose_name=_("PCR"))
     assay = models.ForeignKey(Assay, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_("assay"), blank=True, null=True)
     threshold = models.FloatField(blank=True, null=True, verbose_name=_("threshold"))
     ct = models.FloatField(blank=True, null=True, verbose_name=_("Ct"))

@@ -136,13 +136,14 @@ urlpatterns = [
     path('reports/species-by-sample-spreadsheet/<str:species_list>/<str:year>/', shared_views.species_sample_spreadsheet_export, name="spp_sample_xlsx"),
     # tested
     path('reports/biofouling-presence-absence/', shared_views.biofouling_presence_absence_spreadsheet_export, name="biofouling_pa_xlsx"),  # tested
+    path('reports/biofouling/stations/', shared_views.biofouling_station_report, name="biofouling_station_report"),  # tested
     path('reports/opendata1/<int:year>/', shared_views.export_open_data_ver1, name="od1_report"),  # tested
     path('reports/opendata1/', shared_views.export_open_data_ver1, name="od1_report"),  # tested
     path('reports/opendata1/dictionary/', shared_views.export_open_data_ver1_dictionary, name="od1_dictionary"),  # tested
     path('reports/opendata1/wms/<str:year>/lang/<int:lang>/', shared_views.export_open_data_ver1_wms, name="od1_wms"),  # tested
 
     # GC monitoring
-    path('reports/gc/<int:year>/cpue/', shared_views.export_gc_cpue, name="gc_cpue_report"),  # tested
+    path('reports/gc/cpue/', shared_views.export_gc_cpue, name="gc_cpue_report"),  # tested
     path('reports/gc/<int:year>/envr/', shared_views.export_gc_envr, name="gc_envr_report"),  # tested
     path('reports/gc/site-list/', shared_views.export_gc_sites, name="gc_site_report"),  # tested
     path('reports/gc/gravid-green-crabs/', shared_views.export_gc_gravid_green_crabs, name="gc_gravid_green_crabs"),  # tested

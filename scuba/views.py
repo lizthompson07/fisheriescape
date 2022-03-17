@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy, gettext as _
 
-from scuba.mixins import LoginAccessRequiredMixin, ScubaAdminRequiredMixin, ScubaCRUDAccessRequiredMixin, SuperuserOrAdminRequiredMixin
+from scuba.mixins import LoginAccessRequiredMixin, ScubaAdminRequiredMixin, ScubaCRUDAccessRequiredMixin, SuperuserOrAdminRequiredMixin, ScubaBasicMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonUpdateView, CommonCreateView, \
     CommonDeleteView, CommonDetailView, CommonFormView
 from . import models, forms, filters, reports
@@ -557,7 +557,7 @@ class DiveDataEntryDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
 # REPORTS #
 ###########
 
-class ReportSearchFormView(ScubaCRUDAccessRequiredMixin, CommonFormView):
+class ReportSearchFormView(ScubaBasicMixin, CommonFormView):
     template_name = 'scuba/report_search.html'
     form_class = forms.ReportSearchForm
     h1 = gettext_lazy("Scuba Reports")
@@ -581,6 +581,10 @@ class ReportSearchFormView(ScubaCRUDAccessRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("scuba:export_dive_data") + f"?year={year}")
         elif report == 6:
             return HttpResponseRedirect(reverse("scuba:export_outing_data") + f"?year={year}")
+        elif report == 7:
+            return HttpResponseRedirect(reverse("scuba:export_open_data") + "?dataset=true")
+        elif report == 8:
+            return HttpResponseRedirect(reverse("scuba:export_open_data") + "?dictionary=true")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("scuba:reports"))
@@ -598,7 +602,6 @@ def dive_log_report(request):
 
             return response
     raise Http404
-
 
 
 def export_transect_data(request):
@@ -658,4 +661,22 @@ def export_obs_data(request):
         content_type='text/csv',
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+def export_open_data(request):
+    if request.GET.get("dataset"):
+        filename = "open_data_dataset_{}.csv".format(now().year)
+        response = StreamingHttpResponse(
+            streaming_content=(reports.generate_od_dataset()),
+            content_type='text/csv',
+        )
+        response['Content-Disposition'] = f'attachment;filename={filename}'
+
+    elif request.GET.get("dictionary"):
+        response = reports.generate_od_dictionary()
+
+    else:
+        return Http404("bad parameter")
+
     return response

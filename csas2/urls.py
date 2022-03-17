@@ -47,7 +47,8 @@ urlpatterns = [
     path('requests/print-requests/', views.CSASRequestPDFView.as_view(), name="request_pdf"),
 
     # request reviews
-    path('request-reviews/', views.CSASRequestReviewTemplateView.as_view(), name="request_reviews"),
+    path('request-reviews/', views.CSASRequestReviewConsoleTemplateView.as_view(), name="request_reviews"),
+    path('request-translations/', views.CSASRequestTranslationConsoleTemplateView.as_view(), name="request_translations"),
 
     # request files
     path('requests/<int:crequest>/new-file/', views.CSASRequestFileCreateView.as_view(), name='request_file_new'),
@@ -62,7 +63,7 @@ urlpatterns = [
     path('processes/<int:pk>/delete/', views.ProcessDeleteView.as_view(), name="process_delete"),
     path('processes/manage-postings/', views.ProcessPostingsVueJSView.as_view(), name="process_postings"),
 
-    # request reviews
+    # process reviews
     path('process-reviews/', views.ProcessReviewTemplateView.as_view(), name="process_reviews"),
 
     # ToR
@@ -79,6 +80,9 @@ urlpatterns = [
     path('meetings/<int:pk>/view/', views.MeetingDetailView.as_view(), name="meeting_detail"),
     path('meetings/<int:pk>/edit/', views.MeetingUpdateView.as_view(), name="meeting_edit"),
     path('meetings/<int:pk>/delete/', views.MeetingDeleteView.as_view(), name="meeting_delete"),
+
+    # meeting reviews
+    path('meeting-reviews/', views.MeetingReviewTemplateView.as_view(), name="meeting_reviews"),
 
     # meeting files
     path('meetings/<int:meeting>/new-file/', views.MeetingFileCreateView.as_view(), name='meeting_file_new'),

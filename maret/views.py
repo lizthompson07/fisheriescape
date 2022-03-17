@@ -137,12 +137,16 @@ class PersonListView(UserRequiredMixin, CommonFilterView):
     filterset_class = filters.PersonFilter
     model = ml_models.Person
     queryset = ml_models.Person.objects.annotate(
-        search_term=Concat('first_name', 'last_name', 'designation', output_field=TextField()))
+        search_term=Concat(
+            'first_name', Value(' '),
+            'last_name', Value(' '),
+            'designation', Value(' '),
+            'ext_con__role', Value(' '),
+            'notes', Value(' '),
+            output_field=TextField()))
     field_list = [
         {"name": 'full_name_with_title|{}'.format(_("full name")), "class": "", "width": ""},
-        {"name": 'phone_1', "class": "", "width": ""},
-        # {"name": 'phone_2', "class": "", "width": ""},
-        {"name": 'email_1', "class": "", "width": ""},
+        {"name": 'organizations', "class": "", "width": ""},
         {"name": 'last_updated|{}'.format(_("last updated")), "class": "", "width": ""},
     ]
     new_object_url_name = "maret:person_new"
@@ -168,6 +172,7 @@ class PersonDetailView(UserRequiredMixin, CommonDetailView):
         "fax",
         "language",
         "notes",
+        "committee",
         "metadata|{}".format(gettext_lazy("metadata")),
     ]
     home_url_name = "maret:index"
@@ -238,10 +243,16 @@ class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
         fields = form.cleaned_data
         if fields['role']:
             if not ext_con:
-                ext_con = models.ContactExtension(organization=obj)
+                ext_con = models.ContactExtension(contact=obj)
                 ext_con.save()
             ext_con.role = fields['role']
             ext_con.save()
+
+        if fields['committee']:
+            for com_id in fields['committee']:
+                com = models.Committee.objects.get(id=com_id)
+                com.external_contact.add(obj)
+                com.save()
 
         return super().form_valid(form)
 
@@ -295,13 +306,20 @@ class PersonDeleteView(AdminRequiredMixin, CommonDeleteView):
 #######################################################
 class InteractionListView(UserRequiredMixin, CommonFilterView):
     template_name = 'maret/maret_list.html'
+    queryset = models.Interaction.objects.all().distinct().annotate(
+        search_term=Concat(
+            'description', Value(' '),
+            'comments', Value(' '),
+            'action_items', Value(' '),
+            output_field=TextField()))
     filterset_class = filters.InteractionFilter
     model = models.Interaction
     field_list = [
         {"name": 'description', "class": "", "width": ""},
         {"name": 'interaction_type', "class": "", "width": ""},
-        {"name": 'main_topics', "class": "", "width": ""},
         {"name": 'date_of_meeting', "class": "", "width": ""},
+        {"name": 'main_topics', "class": "", "width": ""},
+        {"name": 'species', "class": "", "width": ""},
     ]
     new_object_url_name = "maret:interaction_new"
     row_object_url_name = "maret:interaction_detail"
@@ -396,10 +414,20 @@ class InteractionDeleteView(AuthorRequiredMixin, CommonDeleteView):
 class CommitteeListView(UserRequiredMixin, CommonFilterView):
     h1 = gettext_lazy("Committees / Working Groups")
     template_name = 'maret/maret_list.html'
+    queryset = models.Committee.objects.all().distinct().annotate(
+        search_term=Concat(
+            'name', Value(" "),
+            'main_actions', Value(" "),
+            'comments', Value(" "),
+            output_field=TextField()
+        ))
     filterset_class = filters.CommitteeFilter
     model = models.Committee
     field_list = [
         {"name": 'name', "class": "", "width": ""},
+        {"name": 'branch', "class": "", "width": ""},
+        {"name": 'main_topic', "class": "", "width": ""},
+        {"name": 'species', "class": "", "width": ""},
     ]
     new_object_url_name = "maret:committee_new"
     row_object_url_name = "maret:committee_detail"
@@ -501,21 +529,17 @@ class OrganizationListView(UserRequiredMixin, CommonFilterView):
             'name_eng', Value(" "),
             'abbrev', Value(" "),
             'name_ind', Value(" "),
-            'former_name', Value(" "),
-            'province__name', Value(" "),
-            'province__nom', Value(" "),
-            'province__abbrev_eng', Value(" "),
-            'province__abbrev_fre', output_field=TextField()))
+            'notes', Value(" "),
+            output_field=TextField()))
     filterset_class = filters.OrganizationFilter
     paginate_by = 25
     field_list = [
         {"name": 'name_eng', "class": "", "width": ""},
-        {"name": 'name_ind', "class": "", "width": ""},
-        {"name": 'abbrev', "class": "", "width": ""},
+        {"name": 'category', "class": "", "width": ""},
+        {"name": 'grouping', "class": "", "width": ""},
+        {"name": 'area', "class": "", "width": ""},
         {"name": 'province', "class": "", "width": ""},
-        {"name": 'grouping', "class": "", "width": "200px"},
-        {"name": 'full_address|' + str(_("Full address")), "class": "", "width": "300px"},
-        {"name": 'Audio recording|{}'.format(_("Audio recording")), "class": "", "width": ""},
+        {"name": 'regions', "class": "", "width": ""},
     ]
     home_url_name = "maret:index"
     new_object_url_name = "maret:org_new"
@@ -562,15 +586,21 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
 
         return HttpResponseRedirect(reverse_lazy('maret:org_detail', kwargs={'pk': object.id}))
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scripts'] = ['maret/js/organizationForm.html']
+
+        return context
+
 
 class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
     model = ml_models.Organization
     template_name = 'maret/organization_detail.html'
     field_list = [
         'name_eng',
-        'name_ind',
         'former_name',
         'abbrev',
+        'email',
         'address',
         'mailing_address',
         'city',
@@ -582,21 +612,10 @@ class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
         'regions',
         'sectors',
         'dfo_contact_instructions',
-        'relationship_rating',
         'orgs',
-        'nation',
         'website',
-        'council_quorum',
-        'next_election',
-        'new_coucil_effective_date',
-        'election_term',
-        'population_on_reserve',
-        'population_off_reserve',
-        'population_other_reserve',
-        'fin',
         'processing_plant',
         'wharf',
-        'reserves',
         "metadata|{}".format(gettext_lazy("metadata")),
     ]
     home_url_name = "maret:index"
@@ -672,7 +691,20 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
             ext_org.associated_provinces.set(fields['asc_province'])
             ext_org.save()
 
+        if fields['email']:
+            if not ext_org:
+                ext_org = models.OrganizationExtension(organization=object)
+                ext_org.save()
+            ext_org.email.set(fields['email'])
+            ext_org.save()
+
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scripts'] = ['maret/js/organizationForm.html']
+
+        return context
 
 
 class OrganizationDeleteView(AdminRequiredMixin, CommonDeleteView):

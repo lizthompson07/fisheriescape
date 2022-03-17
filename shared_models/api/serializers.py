@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User, Group
+from django.utils.translation import gettext
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from shared_models.models import FiscalYear, Region, Division, Section, Person, Branch, Sector
 
@@ -197,3 +199,11 @@ class PersonSerializer(serializers.ModelSerializer):
 
     def get_full_name(self, instance):
         return instance.full_name
+
+    def validate(self, attrs):
+        dmapps_user = attrs.get("dmapps_user")
+        affiliation = attrs.get("affiliation")
+        if dmapps_user and affiliation and "dfo" not in affiliation.lower() and "mpo" not in affiliation.lower():
+            msg = gettext('This user must have the word "DFO" or "MPO" in their affiliation.')
+            raise ValidationError(msg)
+        return attrs
