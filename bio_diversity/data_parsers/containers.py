@@ -10,8 +10,9 @@ class ContainerParser(DataParser):
     name_key = "Name"
     desc_key = "Description"
 
-    header = 2
-    row_count = header + 2
+    header = 1
+    comment_row = [2]
+    row_count = header + 3
     converters = {name_key: str, desc_key: str, }
     sheet_name = "Template"
     cont = None

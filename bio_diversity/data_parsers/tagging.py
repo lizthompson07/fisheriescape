@@ -31,6 +31,7 @@ class TaggingParser(DataParser):
     precocity_key = "Precocity (Y/N)"
 
     header = 0
+    comment_row = [1]
     converters = {to_tank_key: str, from_tank_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
     start_grp_dict = {}
     end_grp_dict = {}
@@ -69,6 +70,8 @@ class TaggingParser(DataParser):
         # set column groups, should only be one of these
         self.data = utils.set_row_grp(self.data, self.stok_key, self.coll_key, self.group_key, self.from_tank_id_key, "datetime", self.mark_key)
         self.grp_id = self.data["grp_id"][0]
+        utils.enter_anix(self.cleaned_data, grp_pk=self.grp_id.pk)
+
 
         year, coll = utils.year_coll_splitter(self.data[self.coll_key][0])
         self.stok_id = models.StockCode.objects.filter(name=self.data[self.stok_key][0]).get()
@@ -103,11 +106,8 @@ class TaggingParser(DataParser):
         if utils.nan_to_none(row[self.from_tank_id_key]) or utils.nan_to_none(row[self.to_tank_id_key]):
             in_tank = row[self.from_tank_id_key]
             out_tank = row[self.to_tank_id_key]
-            self.row_entered += utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
-                                                           indv_pk=indv.pk)
-            # if tagged fish goes back into same tank, still link fish to tank:
-            if in_tank == out_tank:
-                utils.enter_contx(in_tank, cleaned_data, True, indv_pk=indv.pk)
+            self.row_entered += utils.enter_move(cleaned_data, in_tank, out_tank, row_datetime.date(), indv_pk=indv.pk,
+                                                 return_sucess=True)
 
         anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
         self.row_entered += anix_entered
@@ -146,10 +146,11 @@ class TaggingParser(DataParser):
         from_tanks = self.data[self.from_tank_key].value_counts()
         for tank_name in from_tanks.keys():
             fish_tagged_from_tank = int(from_tanks[tank_name])
-            contx, data_entered = utils.enter_tank_contx(tank_name, self.cleaned_data, None, grp_pk=self.grp_id.pk,
-                                                         return_contx=True)
-            if contx:
-                utils.enter_cnt(self.cleaned_data, fish_tagged_from_tank, contx.pk, cnt_code="Pit Tagged")
+            anix, contx, data_entered = utils.enter_tank_contx(tank_name, self.cleaned_data, None,
+                                                               grp_pk=self.grp_id.pk, return_anix=True)
+            if anix:
+                utils.enter_cnt(self.cleaned_data, fish_tagged_from_tank, self.cleaned_data["evnt_id"].start_date,
+                                anix.pk, cnt_code="Pit Tagged")
 
 
 class MactaquacTaggingParser(TaggingParser):
@@ -164,7 +165,8 @@ class MactaquacTaggingParser(TaggingParser):
     vial_key = "Vial Number"
     crew_key = "Crew"
 
-    header = 2
+    header = 1
+    comment_row = [2]
     converters = {to_tank_key: str, from_tank_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
     sex_anidc_id = None
 

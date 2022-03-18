@@ -44,30 +44,7 @@ class BioModel(models.Model):
         # eg. should only be allowed one instance of a=5, b=null
         super(BioModel, self).clean()
         self.clean_fields()
-        if self._meta.constraints:
-            uniqueness_constraints = [constraint for constraint in self._meta.constraints
-                                      if isinstance(constraint, models.UniqueConstraint)]
-            for constraint in uniqueness_constraints:
-                # from stackoverflow
-                unique_filter = {}
-                unique_fields = []
-                null_found = False
-                for field_name in constraint.fields:
-                    field_value = getattr(self, field_name)
-                    if getattr(self, field_name) is None:
-                        unique_filter['%s__isnull' % field_name] = True
-                        null_found = True
-                    else:
-                        unique_filter['%s' % field_name] = field_value
-                        unique_fields.append(field_name)
-                if null_found:
-                    unique_queryset = self.__class__.objects.filter(**unique_filter)
-                    if self.pk:
-                        unique_queryset = unique_queryset.exclude(pk=self.pk)
-                    if unique_queryset.exists():
-                        msg = self.unique_error_message(self.__class__, tuple(unique_fields))
-                        raise ValidationError(msg, code="unique_together")
-        elif self._meta.unique_together:
+        if self._meta.unique_together:
             uniqueness_constraints = [constraint for constraint in self._meta.unique_together]
             for constraint in uniqueness_constraints:
                 # from stackoverflow
@@ -169,32 +146,7 @@ class BioLookup(shared_models.Lookup):
         # handle null values in uniqueness constraint foreign keys.
         # eg. should only be allowed one instance of a=5, b=null
         super(BioLookup, self).clean()
-        if self._meta.constraints:
-            uniqueness_constraints = [constraint for constraint in self._meta.constraints
-                                      if isinstance(constraint, models.UniqueConstraint)]
-
-            for constraint in uniqueness_constraints:
-                # from stackoverflow
-                unique_filter = {}
-                unique_fields = []
-                null_found = False
-                for field_name in constraint.fields:
-                    field_value = getattr(self, field_name)
-                    if getattr(self, field_name) is None:
-                        unique_filter['%s__isnull' % field_name] = True
-                        null_found = True
-                    else:
-                        unique_filter['%s' % field_name] = field_value
-                        unique_fields.append(field_name)
-                if null_found:
-                    unique_queryset = self.__class__.objects.filter(**unique_filter)
-                    if self.pk:
-                        unique_queryset = unique_queryset.exclude(pk=self.pk)
-                    if unique_queryset.exists():
-                        msg = self.unique_error_message(self.__class__, tuple(unique_fields))
-                        raise ValidationError(msg)
-
-        elif self._meta.unique_together:
+        if self._meta.unique_together:
             uniqueness_constraints = [constraint for constraint in self._meta.unique_together]
             for constraint in uniqueness_constraints:
                 # from stackoverflow
@@ -232,7 +184,7 @@ class BioTimeModel(BioModel):
 
     @property
     def start_time(self):
-        if self.start_datetime.time() == datetime.min.time():
+        if self.start_datetime.time() == utils.aware_min():
             return None
         return self.start_datetime.time().strftime("%H:%M")
 
@@ -246,7 +198,7 @@ class BioTimeModel(BioModel):
     @property
     def end_time(self):
         if self.end_datetime:
-            if self.end_datetime.time() == datetime.min.time():
+            if self.end_datetime.time() == utils.aware_min():
                 return None
             return self.end_datetime.time().strftime("%H:%M")
         else:
@@ -254,6 +206,7 @@ class BioTimeModel(BioModel):
 
 
 class BioCont(BioLookup):
+    # cont tag
     key = None
 
     class Meta:
@@ -262,47 +215,59 @@ class BioCont(BioLookup):
     # Make name not unique, is unique together with facility code.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"), db_column="NAME")
 
-    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=None, get_grp=False):
+    def fish_in_cont(self, at_date=timezone.now().date(), select_fields=None, get_grp=False, valid_only=True):
         indv_list = []
         grp_list = []
 
         if not select_fields:
             select_fields = []
 
-        filter_arg = "contx_id__{}_id".format(self.key)
+        filter_in_arg = "contx_end__{}_id".format(self.key)
+        filter_out_arg = "contx_start__{}_id".format(self.key)
 
-        anix_set = AniDetailXref.objects.filter(**{filter_arg: self},
-                                                final_contx_flag__isnull=False,
-                                                evnt_id__start_datetime__lte=at_date).select_related("indv_id", "grp_id", *select_fields)
-        anix_indv_in_set = anix_set.filter(final_contx_flag=True, indv_id__indv_valid=True)
-        anix_indv_out_set = anix_set.filter(final_contx_flag=False, indv_id__indv_valid=True)
-        anix_grp_in_set = anix_set.filter(final_contx_flag=True, grp_id__grp_valid=True)
-        anix_grp_out_set = anix_set.filter(final_contx_flag=False, grp_id__grp_valid=True)
+        move_in_set = MoveDet.objects.filter(**{filter_in_arg: self},
+                                             move_date__lte=at_date, ).select_related("anix_id__indv_id",
+                                                                                    "anix_id__grp_id", *select_fields)
 
-        indv_in_set = Counter([anix.indv_id for anix in anix_indv_in_set])
-        indv_out_set = Counter([anix.indv_id for anix in anix_indv_out_set])
-        grp_in_set = Counter([anix.grp_id for anix in anix_grp_in_set])
-        grp_out_set = Counter([anix.grp_id for anix in anix_grp_out_set])
+        move_out_set = MoveDet.objects.filter(**{filter_out_arg: self},
+                                              move_date__lte=at_date).select_related("anix_id__indv_id",
+                                                                                     "anix_id__grp_id", *select_fields)
+
+        indv_in_set = Counter([move_det.anix_id.indv_id for move_det in move_in_set])
+        indv_out_set = Counter([move_det.anix_id.indv_id for move_det in move_out_set])
+        grp_in_set = Counter([move_det.anix_id.grp_id for move_det in move_in_set])
+        grp_out_set = Counter([move_det.anix_id.grp_id for move_det in move_out_set])
 
         for indv, in_count in indv_in_set.items():
-            if indv not in indv_out_set:
-                indv_list.append(indv)
-            elif in_count > indv_out_set[indv]:
-                indv_list.append(indv)
+            if indv:
+                if indv.indv_valid or not valid_only:
+                    if indv not in indv_out_set:
+                        indv_list.append(indv)
+                    elif in_count > indv_out_set[indv]:
+                        indv_list.append(indv)
         for grp, in_count in grp_in_set.items():
-            if grp not in grp_out_set:
-                grp_list.append(grp)
-            elif in_count > grp_out_set[grp]:
-                indv_list.append(grp)
+            if grp:
+                if (grp.grp_valid or not valid_only) and not grp.past_end_date(at_date):
+                    if grp not in grp_out_set:
+                        grp_list.append(grp)
+                    elif in_count > grp_out_set[grp]:
+                        indv_list.append(grp)
         if get_grp:
             return grp_list
         else:
             return indv_list, grp_list
 
+    def fish_count(self, at_date=timezone.now()):
+        indv_list, grp_list = self.fish_in_cont(at_date=at_date)
+        cont_count = len(indv_list)
+        for grp in grp_list:
+            cont_count += grp.count_fish_in_group(at_date=at_date)
+        return cont_count
+
     def degree_days(self, start_date, end_date):
         return []
 
-    def cont_feed(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), get_string=False):
+    def cont_feed(self, at_date=timezone.now(), get_string=False):
         feed_contx = self.contxs.filter(evnt_id__evntc_id__name="Feeding", evnt_id__start_datetime__lte=at_date).order_by("-evnt_id__start_datetime").first()
         if get_string:
             if feed_contx:
@@ -313,7 +278,7 @@ class BioCont(BioLookup):
         else:
             return feed_contx
 
-    def feed_history(self, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now())):
+    def feed_history(self, start_date=utils.aware_min(), end_date=timezone.now()):
         oldest_contx = self.cont_feed(at_date=start_date)
         feed_contx = self.contxs.filter(evnt_id__evntc_id__name="Feeding", evnt_id__start_datetime__gte=start_date,
                                         evnt_id__start_datetime__lte=end_date).order_by("-evnt_id__start_datetime")
@@ -322,13 +287,18 @@ class BioCont(BioLookup):
             contx_list.append(oldest_contx)
         return contx_list
 
-    def cont_treatments(self, start_date=utils.naive_to_aware(datetime.now()), end_date=utils.naive_to_aware(datetime.now())):
+    def cont_treatments(self, start_date=utils.aware_min(), end_date=timezone.now()):
         filter_arg = "contx_id__{}_id".format(self.key)
         envt_qs = EnvTreatment.objects.filter(**{filter_arg: self}, start_datetime__gte=start_date, start_datetime__lte=end_date)
         return envt_qs
 
 
 class BioUser(models.Model):
+    mode_choices = (
+        (1, "read"),
+        (2, "edit"),
+    )
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="bio_user", verbose_name=_("DM Apps user"))
 
     # admins can modify helptext and other app settings
@@ -339,6 +309,11 @@ class BioUser(models.Model):
 
     # users can view, but not modify records
     is_user = models.BooleanField(default=False, verbose_name=_("app user"), choices=YES_NO_CHOICES)
+
+    facic_id = models.ForeignKey("FacilityCode", on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Facility"))
+
+    # admin users can toggle helptext edit mode on and off
+    mode = models.IntegerField(choices=mode_choices, default=1)
 
     def __str__(self):
         return self.user.get_full_name()
@@ -386,10 +361,9 @@ class AniDetailXref(BioModel):
                                 related_name="animal_details", db_column="TEAM_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['evnt_id', 'contx_id', 'loc_id', 'indv_id', 'pair_id',
-                                            'grp_id', 'team_id'], name='Animal_Detail_Cross_Reference_Uniqueness')
-        ]
+        unique_together = (('evnt_id', 'contx_id', 'loc_id', 'indv_id', 'pair_id',
+                                            'grp_id', 'team_id'),)
+
 
     def clean(self):
         super(AniDetailXref, self).clean()
@@ -429,9 +403,7 @@ class ContDetSubjCode(BioLookup):
                                   verbose_name=_("Container detail code"))
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'contdc_id'], name='CDSC_Uniqueness')
-        ]
+        unique_together = (('name', 'contdc_id'),)
 
 
 class ContainerXRef(BioModel):
@@ -454,10 +426,7 @@ class ContainerXRef(BioModel):
                                 related_name="contxs", db_column="TEAM_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['evnt_id', 'tank_id', 'trof_id', 'tray_id', 'heat_id', 'draw_id', 'cup_id', 'team_id'],
-                                    name='Container_Cross_Reference_Uniqueness')
-        ]
+        unique_together = (('evnt_id', 'tank_id', 'trof_id', 'tray_id', 'heat_id', 'draw_id', 'cup_id', 'team_id'),)
 
     def __str__(self):
         return "{}-{}".format(self.evnt_id.__str__(), self.container)
@@ -505,8 +474,10 @@ class Count(BioModel):
     # cnt tag
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Location"),
                                related_name="counts", db_column="LOCATION_ID")
-    contx_id = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True, related_name="counts",
-                                 verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
+    anix_id = models.ForeignKey("AniDetailXref", on_delete=models.CASCADE, null=True, blank=True, related_name="counts",
+                                 verbose_name=_("Animal Cross Reference"), db_column="ANI_DET_XREF_ID")
+    contx_ref = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True, related_name="counts",
+                                 verbose_name=_("Container Reference"), db_column="CONT_XREF_ID")
     cntc_id = models.ForeignKey("CountCode", on_delete=models.CASCADE, verbose_name=_("Count Code"), db_column="CNT_ID")
     spec_id = models.ForeignKey("SpeciesCode", on_delete=models.CASCADE, verbose_name=_("Species"), db_column="SPEC_ID")
     stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"),
@@ -516,21 +487,29 @@ class Count(BioModel):
     coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, verbose_name=_("Collection"),
                                 db_column="COLLECTION_ID", blank=True, null=True)
     cnt = models.DecimalField(max_digits=6, decimal_places=0, verbose_name=_("Count"), db_column="COUNT")
+    cnt_date = models.DateField(verbose_name=_("Count Date"), default=datetime.min.date())
     est = models.BooleanField(verbose_name=_("Estimated?"), db_column="ESTIMATED")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     class Meta:
-        unique_together = (('loc_id', 'contx_id', 'cntc_id', 'spec_id', 'cnt_year', 'coll_id', 'stok_id'),)
+        unique_together = (('loc_id', 'anix_id', 'cntc_id', 'contx_ref', 'spec_id', 'cnt_year', 'coll_id', 'stok_id', 'cnt_date'),)
 
     def __str__(self):
         return "{}-{}-{}".format(self.loc_id.__str__(), self.spec_id.__str__(), self.cntc_id.__str__())
 
+    def clean(self):
+        if not self.loc_id and not self.anix_id:
+            raise ValidationError("Animal Detail Xref and location cannot both be null.")
+        super(Count, self).clean()
+
     @property
     def date(self):
-        if self.contx_id:
-            return self.contx_id.evnt_id.start_date
-        if self.loc_id:
-            return self.loc_id.loc_date.date()
+        return self.cnt_date
+
+    @property
+    def contx_id(self):
+        if self.anix_id:
+            return self.anix_id.contx_id
         else:
             return None
 
@@ -572,9 +551,7 @@ class CountDet(BioDet):
     detail_date = None
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['cnt_id', 'anidc_id', 'adsc_id'], name='Count_Detail_Uniqueness')
-        ]
+        unique_together = (('cnt_id', 'anidc_id', 'adsc_id'),)
 
     def __str__(self):
         return "{} - {}".format(self.cnt_id.__str__(), self.anidc_id.__str__())
@@ -585,9 +562,7 @@ class Cup(BioCont):
     key = "cup"
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'draw_id', 'start_date'], name='cup_uniqueness')
-        ]
+        unique_together = (('name', 'draw_id', 'start_date'),)
         ordering = ['draw_id', 'name']
 
     # Make name not unique, is unique together with drawer.
@@ -612,10 +587,7 @@ class CupDet(BioContainerDet):
     cup_id = models.ForeignKey('Cup', on_delete=models.CASCADE, verbose_name=_("Cup"), db_column="CUP_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['cup_id', 'contdc_id', 'cdsc_id', 'start_date'],
-                                    name='Cup_Detail_Uniqueness')
-        ]
+        unique_together = (('cup_id', 'contdc_id', 'cdsc_id', 'start_date'),)
 
     def __str__(self):
         return "{} - {}".format(self.cup_id.__str__(), self.contdc_id.__str__())
@@ -634,9 +606,7 @@ class Drawer(BioCont):
     key = "draw"
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'heat_id'], name='draw_uniqueness')
-        ]
+        unique_together = (('name', 'heat_id'),)
         ordering = ['heat_id', 'name']
 
     # Make name not unique, is unique together with drawer.
@@ -687,10 +657,7 @@ class EnvCondition(BioTimeModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['contx_id', 'loc_id', 'inst_id', 'envc_id', 'envsc_id', 'start_datetime'],
-                                    name='Environment_Condition_Uniqueness')
-        ]
+        unique_together = (('contx_id', 'loc_id', 'inst_id', 'envc_id', 'envsc_id', 'start_datetime'),)
 
     def __str__(self):
         if self.contx_id:
@@ -841,10 +808,7 @@ class Event(BioTimeModel):
         return "{}-{}".format(self.evntc_id.__str__(), self.start_date)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['facic_id', 'evntc_id', 'prog_id', 'start_datetime', 'end_datetime'],
-                                    name='Event_Uniqueness')
-        ]
+        unique_together = (('facic_id', 'evntc_id', 'prog_id', 'start_datetime', 'end_datetime'),)
         ordering = ['-start_datetime']
 
     def fecu_dict(self):
@@ -862,6 +826,17 @@ class Event(BioTimeModel):
             fecu_dict[key] = value
 
         return fecu_dict
+
+    def delete(self, using=None, keep_parents=False):
+        # nuke unused groups here:
+        grp_qs = Group.objects.filter(animal_details__evnt_id=self).distinct()
+
+        for grp_id in grp_qs:
+            anix_set = grp_id.animal_details.filter(evnt_id__isnull=False)
+            evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
+            if len(evnt_list) == 1:
+                grp_id.delete()
+        super(Event, self).delete()
 
 
 @receiver(post_save, sender=Event)
@@ -895,10 +870,7 @@ class EventFile(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["evnt_id", "stok_id"], name='Event_File_Uniqueness')
-        ]
-
+        unique_together = (("evnt_id", "stok_id"),)
 
 @receiver(models.signals.post_delete, sender=EventFile)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
@@ -950,9 +922,7 @@ class Fecundity(BioDateModel):
     beta = models.DecimalField(max_digits=10, decimal_places=3, verbose_name=_("B"), db_column="B")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['stok_id', 'coll_id', 'start_date'], name='Fecundity_Uniqueness')
-        ]
+        unique_together = (('stok_id', 'coll_id', 'start_date'),)
 
     def __str__(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.alpha, self.beta)
@@ -1005,53 +975,45 @@ class Group(BioModel):
                                    validators=[MinValueValidator(2000), MaxValueValidator(2100)])
     coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, verbose_name=_("Collection"),
                                 db_column="COLLECTION_ID")
+    grp_end_date = models.DateField(null=True, blank=True, verbose_name=_("Group end date"), db_column="GROUP_END_DATE")
     grp_valid = models.BooleanField(default="True", verbose_name=_("Group still valid?"), db_column="STILL_VALID")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTTS")
 
     def __str__(self):
         return "{}-{}-{}-{}".format(self.pk, self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
 
-    def current_tank(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
-        return self.current_cont_by_key('tank', at_date)
-
-    def current_cont_by_key(self, cont_key, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_cont(self, at_date=timezone.now().date(), valid_only=False, get_string=False):
         cont_list = []
+        if not self.grp_valid and valid_only:
+            if get_string:
+                return ""
+            return cont_list
 
-        anix_in_set = self.animal_details.filter(final_contx_flag=True,
-                                                 evnt_id__start_datetime__lte=at_date).select_related(
-            'contx_id__{}_id'.format(cont_key))
-        cont_in_set = Counter([utils.get_cont_from_anix(anix, cont_key) for anix in anix_in_set])
-        anix_out_set = self.animal_details.filter(final_contx_flag=False,
-                                                  evnt_id__start_datetime__lte=at_date).select_related(
-            'contx_id__{}_id'.format(cont_key))
-        cont_out_set = Counter([utils.get_cont_from_anix(anix, cont_key) for anix in anix_out_set])
+        if self.grp_end_date:
+            if self.grp_end_date < at_date:
+                if get_string:
+                    return ""
+                return cont_list
+
+        move_set = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date). \
+            select_related('contx_end', 'contx_start')
+
+        cont_in_set = Counter([move_id.contx_end.container for move_id in move_set if move_id.contx_end])
+        cont_out_set = Counter([move_id.contx_start.container for move_id in move_set if move_id.contx_start])
 
         for cont, in_count in cont_in_set.items():
             if cont not in cont_out_set and cont:
                 cont_list.append(cont)
             elif in_count > cont_out_set[cont] and cont:
                 cont_list.append(cont)
-        return cont_list
 
-    def current_trof(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
-        return self.current_cont_by_key('trof', at_date)
-
-    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), valid_only=True, get_string=False):
-        current_cont_list = []
-        if not self.grp_valid and valid_only:
-            if get_string:
-                return ""
-            return current_cont_list
-        cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
-        for cont_type in cont_type_list:
-            current_cont_list += self.current_cont_by_key(cont_type, at_date)
         if get_string:
-            cont_str_list = [cont.__str__() for cont in current_cont_list]
+            cont_str_list = [cont.__str__() for cont in cont_list]
             cont_str = ", ".join(cont_str_list)
             return cont_str
-        return current_cont_list
+        return cont_list
 
-    def get_cont_history(self, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now()), get_str=False):
+    def get_cont_history(self, start_date=utils.aware_min(), end_date=timezone.now(), get_str=False):
         anix_evnt_set = AniDetailXref.objects.filter(grp_id=self, contx_id__isnull=False, loc_id__isnull=True,
                                                      pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
                                                      evnt_id__start_datetime__gte=start_date).select_related("contx_id")
@@ -1064,24 +1026,26 @@ class Group(BioModel):
 
         return out_list
 
-    def current_feed(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_feed(self, at_date=timezone.now()):
         cont_list = self.current_cont(at_date=at_date)
         if len(cont_list) == 1:
             feed_str = cont_list[0].cont_feed(at_date=at_date, get_string=True)
         else:
             feed_str = ""
             for cont in cont_list:
-                feed_str += "{}: {}\n".format(cont.__str__(), cont.cont_feed(at_date=at_date, get_string=True))
+                cont_feed_str = cont.cont_feed(at_date=at_date, get_string=True)
+                if cont_feed_str:
+                    feed_str += "{}: {}\n".format(cont.__str__(), cont_feed_str)
         return feed_str
 
-    def count_fish_in_group(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
+    def count_fish_in_group(self, at_date=timezone.now()):
         fish_count = 0
 
         # ordered oldest to newest
-        cnt_set = Count.objects.filter(Q(contx_id__animal_details__grp_id=self,
-                                         contx_id__evnt_id__start_datetime__lte=at_date) |
+        cnt_set = Count.objects.filter(Q(anix_id__grp_id=self,
+                                         anix_id__evnt_id__start_datetime__lte=at_date) |
                                        Q(loc_id__animal_details__grp_id=self, loc_id__loc_date__lte=at_date))\
-            .select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
+            .select_related("cntc_id").distinct().order_by('anix_id__evnt_id__start_datetime')
 
         for cnt in cnt_set:
             if cnt.cntc_id.name in calculation_constants.add_codes:
@@ -1092,54 +1056,41 @@ class Group(BioModel):
                 fish_count = cnt.cnt
         return fish_count
 
-    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=[], grp_select_fields=[]):
+    def fish_in_cont(self, at_date=timezone.now(), select_fields=[], grp_select_fields=[]):
         indv_set = Individual.objects.filter(grp_id=self).select_related(*select_fields)
         # for consistancy with container version:
         indv_list = [indv for indv in indv_set]
-
-        # grpd_set = GroupDet.objects.filter(frm_grp_id=self).select_related("anix_id__grp_id", *grp_select_fields)
-        # grp_list = [grpd.anix_id.grp_id for grpd in grpd_set]
-        #
         grp_list = [self]
-
         return indv_list, grp_list
 
-    def get_development(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def get_development(self, at_date=timezone.now().date()):
         dev = 0
-        start_date = utils.naive_to_aware(datetime.min).date()
+        start_date = utils.aware_min().date()
         dev_qs = GroupDet.objects.filter(anix_id__grp_id=self, grpd_valid=True, anidc_id__name="Development")
         if len(dev_qs) == 1:
             dev = float(dev_qs[0] .det_val)
             start_date = utils.naive_to_aware(dev_qs[0].detail_date).date()
         degree_days = []
-        anix_set = AniDetailXref.objects.filter(grp_id=self,
-                                                final_contx_flag__isnull=False,
-                                                evnt_id__start_datetime__lte=at_date
-                                                ).order_by("evnt_id__start_datetime").select_related("contx_id", "evnt_id")
 
-        end_date = 0
-        cont = False
-        for anix in anix_set:
-            if anix.final_contx_flag:
-                # check to see if there is a detail that is more up to date than the anix
-                if anix.evnt_id.start_date > start_date:
-                    start_date = anix.evnt_id.start_datetime.date()
-                cont = utils.get_cont_from_anix(anix, None)
-            else:
-                end_date = anix.evnt_id.start_datetime.date()
-                if cont:
-                    degree_days.extend(cont.degree_days(start_date, end_date))
-                    end_date = False
-
-        if cont and not end_date:
-            # catch group's current tank
-            degree_days.extend(cont.degree_days(start_date, at_date))
+        move_set = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date).\
+            order_by("-move_date").select_related("contx_start", "contx_end")
+        end_date = at_date
+        for moveDet in move_set:
+            # set cont, start_date, end_date
+            if end_date > moveDet.move_date > start_date and moveDet.contx_end is not None:
+                cont = moveDet.contx_end.container
+                degree_days.extend(cont.degree_days(moveDet.move_date, end_date))
+                end_date = moveDet.move_date
+            elif end_date > moveDet.move_date < start_date < end_date and moveDet.contx_end is not None:
+                cont = moveDet.contx_end.container
+                degree_days.extend(cont.degree_days(start_date, end_date))
+                end_date = moveDet.move_date
 
         dev += sum([utils.daily_dev(float(degree_day)) for degree_day in degree_days])
 
         return utils.round_no_nan(dev, 5)
 
-    def get_parent_grp(self, at_date=utils.naive_to_aware(datetime.now())):
+    def get_parent_grp(self, at_date=timezone.now()):
         # gets parent groups this group came from.
         grpd_set = GroupDet.objects.filter(anix_id__grp_id=self,
                                            anidc_id__name="Parent Group",
@@ -1155,13 +1106,15 @@ class Group(BioModel):
         depth = 1
         while True:
             for grpd in grpd_qs:
-                # recursion catch
-                if grpd.frm_grp_id.pk != self.pk:
+                # check if parent is not self:
+                if grpd.frm_grp_id.pk != grpd.anix_id.grp_id.pk:
                     parent_grps.append((depth, grpd.frm_grp_id, grpd.detail_date))
                     new_grpd_qs.extend(grpd.frm_grp_id.get_parent_grp(at_date=grpd.detail_date))
+            # recursion catch
             if new_grpd_qs:
                 grpd_qs = new_grpd_qs
                 depth += 1
+                new_grpd_qs = []
             else:
                 break
 
@@ -1202,7 +1155,7 @@ class Group(BioModel):
         else:
             return None
 
-    def avg_weight(self, at_date=utils.naive_to_aware(datetime.now())):
+    def avg_weight(self, at_date=timezone.now()):
         # INCORPORATE SAMPLE DETS!
         weight_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Weight", detail_date__lte=at_date)
         if not weight_deps:
@@ -1213,7 +1166,7 @@ class Group(BioModel):
         avg_weight = last_obs_set.aggregate(Avg('det_val'))["det_val__avg"]
         return avg_weight
 
-    def avg_len(self, at_date=utils.naive_to_aware(datetime.now())):
+    def avg_len(self, at_date=timezone.now()):
         len_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Length", detail_date__lte=at_date)
         if not len_deps:
             return ""
@@ -1222,6 +1175,15 @@ class Group(BioModel):
         last_obs_set = len_deps.filter(detail_date__gte=last_obs_date)
         avg_len = last_obs_set.aggregate(Avg('det_val'))["det_val__avg"]
         return avg_len
+
+    def past_end_date(self, at_date=timezone.now().date()):
+        if not self.grp_end_date:
+            return False
+        else:
+            if self.grp_end_date < at_date:
+                return False
+            else:
+                return True
 
 
 class GroupDet(BioDet):
@@ -1233,9 +1195,7 @@ class GroupDet(BioDet):
                                 verbose_name=_("Animal Detail Cross Reference"), db_column="ANI_DET_XREF_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['anix_id', 'anidc_id', 'adsc_id', 'frm_grp_id'], name='Group_Detail_Uniqueness')
-        ]
+        unique_together = (('anix_id', 'anidc_id', 'adsc_id', 'frm_grp_id'),)
 
     def __str__(self):
         return "{} Detail".format(self.anidc_id.name)
@@ -1274,9 +1234,7 @@ class HeathUnit(BioCont):
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'facic_id'], name='heat_uniqueness')
-        ]
+        unique_together = (('name', 'facic_id'),)
         ordering = ['facic_id', 'name']
 
 
@@ -1286,10 +1244,7 @@ class HeathUnitDet(BioContainerDet):
                                 db_column="HEATH_UNIT_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['heat_id', 'contdc_id', 'cdsc_id', 'start_date'],
-                                    name='Heath_Unit_Detail_Uniqueness')
-        ]
+        unique_together = (('heat_id', 'contdc_id', 'cdsc_id', 'start_date'),)
 
     def __str__(self):
         return "{} - {}".format(self.heat_id.__str__(), self.contdc_id.__str__())
@@ -1354,12 +1309,9 @@ class Image(BioModel):
         return "{}".format(self.img_png)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["imgc_id", "loc_id", "cntd_id", "grpd_id", "sampd_id", "indvd_id",
-                                            "spwnd_id", "tankd_id", "heatd_id", "draw_id", "trofd_id", "trayd_id",
-                                            "cupd_id"], name='Image_Uniqueness')
-        ]
-
+        unique_together = (("imgc_id", "loc_id", "cntd_id", "grpd_id", "sampd_id", "indvd_id",
+                            "spwnd_id", "tankd_id", "heatd_id", "draw_id", "trofd_id", "trayd_id",
+                            "cupd_id"),)
 
 @receiver(models.signals.post_delete, sender=Image)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
@@ -1427,40 +1379,26 @@ class Individual(BioModel):
     def stok_year_coll_str(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__())
 
-    def current_tank(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
-        return self.current_cont_by_key('tank', at_date)
-
-    def current_cont_by_key(self, cont_key, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_cont(self, at_date=timezone.now(), valid_only=False, get_string=False):
         cont_list = []
-
-        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date).select_related('contx_id__{}_id'.format(cont_key))
-        cont_in_set = Counter([utils.get_cont_from_anix(anix, cont_key) for anix in anix_in_set])
-        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date).select_related('contx_id__{}_id'.format(cont_key))
-        cont_out_set = Counter([utils.get_cont_from_anix(anix, cont_key) for anix in anix_out_set])
-
-        for cont, in_count in cont_in_set.items():
-            if cont not in cont_out_set and cont:
-                cont_list.append(cont)
-            elif in_count > cont_out_set[cont] and cont:
-                cont_list.append(cont)
-        return cont_list
-
-    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), valid_only=False, get_string=False):
-        current_cont_list = []
         if not self.indv_valid and valid_only:
             if get_string:
                 return ""
-            return current_cont_list
-        cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
-        for cont_type in cont_type_list:
-            current_cont_list += self.current_cont_by_key(cont_type, at_date)
+            return cont_list
+
+        last_move = MoveDet.objects.filter(anix_id__indv_id=self, move_date__lte=at_date). \
+            select_related('contx_end').order_by("-move_date").first()
+
+        if last_move:
+            cont_list.append(last_move.contx_end.container)
+
         if get_string:
-            cont_str_list = [cont.__str__() for cont in current_cont_list]
+            cont_str_list = [cont.__str__() for cont in cont_list]
             cont_str = ", ".join(cont_str_list)
             return cont_str
-        return current_cont_list
+        return cont_list
 
-    def current_feed(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_feed(self, at_date=timezone.now()):
         cont_list = self.current_cont(at_date=at_date)
         if len(cont_list) == 1:
             feed_str = cont_list[0].cont_feed(at_date=at_date, get_string=True)
@@ -1483,7 +1421,7 @@ class Individual(BioModel):
         else:
             return None
 
-    def individual_detail(self, anidc_name="Length", before_date=datetime.now().replace(tzinfo=pytz.UTC), evnt_id=None):
+    def individual_detail(self, anidc_name="Length", before_date=timezone.now(), evnt_id=None):
         if evnt_id:
             latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
                                                         detail_date__lte=before_date,
@@ -1496,7 +1434,7 @@ class Individual(BioModel):
         else:
             return None
 
-    def individual_subj_detail(self, anidc_name="Animal Health", before_date=datetime.now().replace(tzinfo=pytz.UTC), evnt_id=None):
+    def individual_subj_detail(self, anidc_name="Animal Health", before_date=timezone.now(), evnt_id=None):
         if evnt_id:
             latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
                                                         detail_date__lte=before_date, anix_id__evnt_id=evnt_id,
@@ -1542,10 +1480,7 @@ class IndividualDet(BioDet):
                                 verbose_name=_("Animal Detail Cross Reference"), db_column="ANI_DET_XREF_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['anix_id', 'anidc_id', 'adsc_id'],
-                                    name='Individual_Detail_Uniqueness')
-        ]
+        unique_together = (('anix_id', 'anidc_id', 'adsc_id'),)
 
     def __str__(self):
         return "{} - {}".format(self.anix_id.__str__(), self.anidc_id.__str__())
@@ -1600,10 +1535,7 @@ class IndTreatment(BioTimeModel):
         return "{}-{}".format(self.indvtc_id.__str__(), self.lot_num)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['anix_id', 'indvtc_id'],
-                                    name='Individual_Treatment_Uniqueness')
-        ]
+        unique_together = (('anix_id', 'indvtc_id'),)
 
 
 class Instrument(BioModel):
@@ -1632,9 +1564,7 @@ class InstrumentDet(BioDateModel):
     det_value = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Value"), db_column="VAL")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['inst_id', 'instdc_id', 'start_date'], name='Instrument_Detail_Uniqueness')
-        ]
+        unique_together = (('inst_id', 'instdc_id', 'start_date'),)
 
     def __str__(self):
         return "{}-{}".format(self.instdc_id.__str__(), self.inst_id.__str__())
@@ -1675,7 +1605,7 @@ class Location(BioModel):
 
     @property
     def start_time(self):
-        if self.loc_date.time() == datetime.min.time():
+        if self.loc_date.time() == utils.aware_min().time():
             return None
         return self.loc_date.time().strftime("%H:%M")
 
@@ -1683,10 +1613,8 @@ class Location(BioModel):
         return "{} location".format(self.locc_id.__str__())
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat",
-                                            "loc_lon", "loc_date"], name='Location_Uniqueness')
-        ]
+        unique_together = (("evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat",
+                            "loc_lon", "loc_date"),)
 
     @property
     def point(self):
@@ -1736,7 +1664,7 @@ class Location(BioModel):
                 raise ValidationError("Longitude must be within maritimes (<{}). "
                                       "Should this value be negative?".format(calculation_constants.max_long))
 
-    def get_cont_history(self, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now()), get_str=False):
+    def get_cont_history(self, start_date=utils.aware_min(), end_date=timezone.now(), get_str=False):
         anix_evnt_set = AniDetailXref.objects.filter(loc_id=self, contx_id__isnull=False, grp_id__isnull=True,
                                                      pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
                                                      evnt_id__start_datetime__gte=start_date).select_related("contx_id")
@@ -1782,9 +1710,7 @@ class LocationDet(BioDet):
             return False
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['loc_id', 'locdc_id', 'ldsc_id'], name='Location_Detail_Uniqueness')
-        ]
+        unique_together = (('loc_id', 'locdc_id', 'ldsc_id'),)
 
 
 class LocationDetCode(BioLookup):
@@ -1802,9 +1728,33 @@ class LocDetSubjCode(BioLookup):
                                  verbose_name=_("Location detail code"))
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'locdc_id'], name='LDSC_Uniqueness')
-        ]
+        unique_together = (('name', 'locdc_id'),)
+
+
+class MoveDet(BioModel):
+    # move tag
+    anix_id = models.ForeignKey('AniDetailXref', null=True, blank=True, on_delete=models.CASCADE,
+                                verbose_name=_("Animal Detail X Ref"),
+                                db_column="ANI_DET_X_REF_ID")
+    contx_start = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, related_name="move_start", null=True, blank=True,
+                                 verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_START_ID")
+    contx_end = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True, related_name="move_end",
+                                 verbose_name=_("Container Cross Reference End"), db_column="CONTAINER_XREF_END_ID")
+    move_date = models.DateField(verbose_name=_("Date move was recorded"), db_column="MOVE_DATE")
+
+    class Meta:
+        unique_together = (('anix_id', 'contx_start', 'contx_end', 'move_date'),)
+
+    @property
+    def evnt(self):
+        return self.anix_id.evnt_id
+
+    @property
+    def loc_id(self):
+        if self.anix_id.loc_id:
+            return self.anix_id.loc_id
+        else:
+            return None
 
 
 class Organization(BioLookup):
@@ -1872,9 +1822,7 @@ class PersonnelCode(BioModel):
         return "{} {}".format(self.perc_first_name, self.perc_last_name)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['perc_first_name', 'perc_last_name'], name='Personnel_Code_Uniqueness')
-        ]
+        unique_together = (('perc_first_name', 'perc_last_name'),)
         ordering = ["perc_last_name", "perc_first_name"]
 
 
@@ -1905,9 +1853,9 @@ class ProgAuthority(BioModel):
         return "{} {}".format(self.proga_first_name, self.proga_last_name)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['proga_first_name', 'proga_last_name'], name='Program_Authority_Uniqueness')
-        ]
+        unique_together = (('proga_first_name', 'proga_last_name'),)
+
+
 
 
 class Protocol(BioDateModel):
@@ -1928,9 +1876,8 @@ class Protocol(BioDateModel):
         return self.name
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'prog_id', 'protc_id', 'start_date'], name='Protocol_Uniqueness')
-        ]
+        unique_together = (('name', 'prog_id', 'protc_id', 'start_date'),)
+
 
 
 class ProtoCode(BioLookup):
@@ -2012,12 +1959,17 @@ class ReleaseSiteCode(BioLookup):
         if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
             if float(self.min_lon) > float(self.max_lon) or float(self.min_lat) > float(self.max_lat):
                 raise ValidationError("Max lat/lon must be greater than min lat/lon")
-            if float(self.min_lon) < calculation_constants.min_long:
-                raise ValidationError("Min longitude must be within maritimes (>{})".format(calculation_constants.min_long))
-            if float(self.max_lon) > calculation_constants.max_long:
-                raise ValidationError("Max longitude must be within maritimes (<{}). "
-                                      "Should this value be negative?".format(calculation_constants.max_long))
-
+        if self.min_lon is not None:
+            lon_float = float(self.min_lon)
+            if lon_float < calculation_constants.min_long or lon_float > calculation_constants.max_long:
+                raise ValidationError("Min longitude must be within maritimes (>{}, <{})".format(calculation_constants.min_long,
+                                                                                                 calculation_constants.max_long))
+        if self.max_lon is not None:
+            lon_float = float(self.max_lon)
+            if lon_float < calculation_constants.min_long or lon_float > calculation_constants.max_long:
+                raise ValidationError("Max longitude must be within maritimes (>{}, <{}). "
+                                      "Should this value be negative?".format(calculation_constants.min_long,
+                                                                              calculation_constants.max_long))
 
     @property
     def bbox(self):
@@ -2084,6 +2036,11 @@ class Sample(BioModel):
     class Meta:
         unique_together = (('loc_id', 'anix_id', 'samp_num', 'spec_id', 'sampc_id'),)
 
+    def clean(self, *args, **kwargs):
+        if self.loc_id is None and self.anix_id.grp_id is None:
+            raise ValidationError("Sample must come from group or location.")
+        super(Sample, self).clean()
+
     @property
     def coll_id(self):
         if self.anix_id.grp_id:
@@ -2133,7 +2090,7 @@ class Sample(BioModel):
                 return ""
         return cont
 
-    def sample_detail(self, anidc_name="Length", before_date=datetime.now().replace(tzinfo=pytz.UTC), evnt_id=None):
+    def sample_detail(self, anidc_name="Length", before_date=timezone.now(), evnt_id=None):
         if evnt_id:
             latest_sampd = SampleDet.objects.filter(anidc_id__name__icontains=anidc_name, samp_id=self,
                                                     detail_date__lte=before_date, samp_id__anix_id__evnt_id=evnt_id).order_by("-detail_date").first()
@@ -2161,9 +2118,8 @@ class SampleDet(BioDet):
     samp_id = models.ForeignKey('Sample', on_delete=models.CASCADE, verbose_name=_("Sample"), db_column="SAMPLE_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['samp_id', 'anidc_id', 'adsc_id'], name='Sample_Detail_Uniqueness')
-        ]
+        unique_together = (('samp_id', 'anidc_id', 'adsc_id'),)
+
 
     def __str__(self):
         return "{} - {}".format(self.samp_id.__str__(), self.anidc_id.__str__())
@@ -2219,9 +2175,7 @@ class SpawnDet(BioModel):
                                 db_column="COMMENTS")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['pair_id', 'spwndc_id', 'spwnsc_id'], name='Spawning_Detail_Uniqueness')
-        ]
+        unique_together = (('pair_id', 'spwndc_id', 'spwnsc_id'),)
 
     def __str__(self):
         return "{} - {}".format(self.pair_id.__str__(), self.spwndc_id.__str__())
@@ -2300,9 +2254,7 @@ class Tank(BioCont):
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'facic_id'], name='tank_uniqueness')
-        ]
+        unique_together = (('name', 'facic_id'),)
         ordering = ['facic_id', 'name']
 
 
@@ -2311,9 +2263,7 @@ class TankDet(BioContainerDet):
     tank_id = models.ForeignKey('Tank', on_delete=models.CASCADE, verbose_name=_("Tank"), db_column="TANK_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['tank_id', 'contdc_id', 'start_date'], name='Tank_Detail_Uniqueness')
-        ]
+        unique_together = (('tank_id', 'contdc_id', 'start_date'),)
 
     def __str__(self):
         return "{} - {}".format(self.tank_id.__str__(), self.contdc_id.__str__())
@@ -2328,19 +2278,14 @@ class TeamXRef(BioModel):
     loc_id = models.ForeignKey("Location", blank=True, null=True, on_delete=models.CASCADE, verbose_name=_("Location"))
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['perc_id', 'role_id', 'evnt_id', 'loc_id'], name='Team_Uniqueness')
-        ]
-
+        unique_together = (('perc_id', 'role_id', 'evnt_id', 'loc_id'),)
 
 class Tray(BioCont):
     # tray tag
     key = "tray"
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'trof_id', 'start_date'], name='tray_uniqueness')
-        ]
+        unique_together = (('name', 'trof_id', 'start_date'),)
         ordering = ['trof_id', 'name']
 
     # Make name not unique, is unique together with trough code.
@@ -2358,7 +2303,7 @@ class Tray(BioCont):
         if end_date:
             degree_days = self.trof_id.degree_days(start_date, end_date)
         else:
-            degree_days = self.trof_id.degree_days(start_date, datetime.today().date())
+            degree_days = self.trof_id.degree_days(start_date, timezone.now().date())
         return degree_days
 
     def __str__(self):
@@ -2374,9 +2319,7 @@ class TrayDet(BioContainerDet):
     tray_id = models.ForeignKey('Tray', on_delete=models.CASCADE, verbose_name=_("Tray"), db_column="TRAY_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['tray_id', 'contdc_id', 'start_date'], name='Tray_Detail_Uniqueness')
-        ]
+        unique_together = (('tray_id', 'contdc_id', 'start_date'),)
 
     def __str__(self):
         return "{} - {}".format(self.tray_id.__str__(), self.contdc_id.__str__())
@@ -2409,9 +2352,7 @@ class Trough(BioCont):
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'facic_id'], name='trof_uniqueness')
-        ]
+        unique_together = (('name', 'facic_id'),)
         ordering = ['facic_id', 'name']
 
     def degree_days(self, start_date, end_date):
@@ -2441,9 +2382,7 @@ class TroughDet(BioContainerDet):
     trof_id = models.ForeignKey('Trough', on_delete=models.CASCADE, verbose_name=_("Trough"), db_column="TROUGH_ID")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['trof_id', 'contdc_id', 'start_date'], name='Trough_Detail_Uniqueness')
-        ]
+        unique_together = (('trof_id', 'contdc_id', 'start_date'),)
 
     def __str__(self):
         return "{} - {}".format(self.trof_id.__str__(), self.contdc_id.__str__())

@@ -433,6 +433,14 @@ class MortMixin:
     admin_only = False
 
 
+class MoveMixin:
+    key = 'move'
+    model = models.MoveDet
+    form_class = forms.MoveForm
+    title = _("Move Detail")
+    admin_only = True
+
+
 class OrgaMixin:
     key = 'orga'
     model = models.Organization

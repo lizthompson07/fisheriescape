@@ -31,7 +31,8 @@ class TreatmentParser(DataParser):
     kg_unit_id = None
     gal_unit_id = None
 
-    header = 2
+    header = 1
+    comment_row = [2]
     converters = {tank_key: str, trof_key: str, 'Year': str, 'Month': str, 'Day': str}
     tank_sheet_name = "Ponds"
     eggroom_sheet_name = "Eggrooms"
