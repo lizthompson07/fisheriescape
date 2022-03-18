@@ -17,7 +17,8 @@
             {% endif %}
 
             {% bootstrap_field field placeholder="" show_label=False %}
-        {% elif manage_help_url %}
+        {% elif not field.is_hidden and manage_help_url %}
+            {# if the "is_hidden" attribute is true then don't show the help label #}
             {% bootstrap_label field.label %}
             <a class='mdi mdi-plus-box h6 ml-1' pop-href='{% url manage_help_url model_name field.name %}'></a>
             {% bootstrap_field field placeholder="" show_label=False %}

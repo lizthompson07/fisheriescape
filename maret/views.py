@@ -448,6 +448,7 @@ class CommitteeCreateView(UserRequiredMixin, CommonCreateViewHelp):
 
     def get_initial(self):
         return {
+            'branch': 0,
             'last_modified_by': self.request.user,
             'created_by': self.request.user
         }

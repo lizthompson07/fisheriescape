@@ -21,6 +21,7 @@ ROLE_DFO_CHOICES = (
     (1, "Programs"),
     (2, "Manager"),
     (3, "Director"),
+    (13, "Area Director"),
     (4, "Regional Director"),
     (5, "Associate Regional Director General"),
     (6, "Regional Director General"),
@@ -100,7 +101,7 @@ class Committee(models.Model):
                                related_name="committee_branch", verbose_name=_("Lead DFO branch"))
     area_office = models.ManyToManyField(AreaOffice, blank=True, related_name="committee_area_office",
                                          verbose_name=_("Lead Area Office"))
-    division = models.ForeignKey(shared_models.Division, default=1, blank=True, null=True, on_delete=models.DO_NOTHING,
+    division = models.ForeignKey(shared_models.Division, blank=True, null=True, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Division"))
 
     # leaving this out for now because it may be a redundant filed included in the interactions model
@@ -110,16 +111,16 @@ class Committee(models.Model):
 
     external_chair = models.ForeignKey(ml_models.Person, blank=True, null=True, on_delete=models.DO_NOTHING,
                                        verbose_name=_("External Chair"))
-    dfo_liaison = models.ManyToManyField(User, related_name="committee_dfo_liaison",
+    dfo_liaison = models.ManyToManyField(User, blank=True, related_name="committee_dfo_liaison",
                                          verbose_name=_("DFO liaison/secretariat"))
     other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="committee_dfo_branch",
-                                              verbose_name=_("Other participating DFO branches")
+                                              blank=True, verbose_name=_("Other participating DFO branches")
                                               )
     other_dfo_regions = models.ManyToManyField(shared_models.Region, related_name="committee_dfo_region",
-                                               verbose_name=_("Other participating DFO regions")
+                                               blank=True, verbose_name=_("Other participating DFO regions")
                                                )
     other_dfo_areas = models.ManyToManyField(AreaOffice, related_name="committee_dfo_area",
-                                             verbose_name=_("Other participating DFO area offices")
+                                             blank=True, verbose_name=_("Other participating DFO area offices")
                                              )
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=12,
                                    verbose_name="Role of highest level DFO participant")
