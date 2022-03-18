@@ -590,15 +590,18 @@ def get_draw_from_dot(dot_string, cleaned_data):
         return
 
 
-def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=timezone.now().date(), prog_grp=None,
+def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=None, prog_grp=None,
             prog_str=None, grp_mark=None, mark_str=None, fail_on_not_found=False):
 
+    if not at_date:
+        at_date = timezone.now().date()
     coll_id = None
     if nan_to_none(coll_str):
         coll_id = coll_getter(coll_str)
 
     if nan_to_none(cont):
-        indv_list, grp_list = cont.fish_in_cont(at_date, select_fields=["anix_id__grp_id__coll_id", "anix_id__grp_id__stok_id"])
+        indv_list, grp_list = cont.fish_in_cont(at_date, select_fields=["anix_id__grp_id__coll_id",
+                                                                        "anix_id__grp_id__stok_id"])
         if nan_to_none(stock_str):
             grp_list = [grp for grp in grp_list if grp.stok_id.name == stock_str]
         if nan_to_none(coll_id):
@@ -645,7 +648,8 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=timezone.now().dat
     if len(final_grp_list) == 0 and fail_on_not_found:
         if cont:
             raise Exception("\nGroup {}-{}-{} in container {}, program group {} and mark {} not uniquely found in"
-                            " db\n Groups in container are: {}".format(stock_str, grp_year, coll_str, cont.name, prog_str, mark_str, cont.fish_in_cont()[1]))
+                            " db\n Groups in container are: {}".format(stock_str, grp_year, coll_str, cont.name,
+                                                                       prog_str, mark_str, cont.fish_in_cont()[1]))
         else:
             raise Exception("\nGroup {}-{}-{} with program group {} and mark {} not uniquely found in"
                             " db\n".format(stock_str, grp_year, coll_str, prog_str, mark_str))
@@ -737,7 +741,8 @@ def set_row_datetime(df, datetime_key="datetime"):
     return df
 
 
-def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, mark_key, grp_col_name="grp_id", return_dict=False):
+def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, mark_key, grp_col_name="grp_id",
+                return_dict=False):
     # function will return a df with a "grp_id" column containing the group associated with the values
     # datetime key must be a datetime object, cont_key must be a cont object
     grp_key = "grp_key"
@@ -758,7 +763,8 @@ def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, mar
 
     # for each row in this smaller df, find the grp_id, and then make a dictionary out of these
     grp_data["grp_id"] = grp_data.apply(lambda row: get_grp(row[stok_key], row[grp_year], row[grp_coll], row[cont_key],
-                                                            at_date=row[datetime_key], prog_str=nan_to_none(row[prio_key]),
+                                                            at_date=row[datetime_key],
+                                                            prog_str=nan_to_none(row[prio_key]),
                                                             mark_str=nan_to_none(row[mark_key]),
                                                             fail_on_not_found=True)[0], axis=1)
 
@@ -789,11 +795,11 @@ def get_relc_from_point(shapely_geom):
 def get_row_date(row, get_time=False):
     try:
         if get_time:
-            row_datetime = timezone.make_aware(datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"] + "-" + row["Time"],
-                                             "%Y-%b-%d-%H:%M"))
+            row_datetime = timezone.make_aware(datetime.strptime(row["Year"] + "-" + row["Month"] + "-" +
+                                                                 row["Day"] + "-" + row["Time"], "%Y-%b-%d-%H:%M"))
         else:
             row_datetime = timezone.make_aware(datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"],
-                                            "%Y-%b-%d"))
+                                                                 "%Y-%b-%d"))
     except Exception as err:
         raise Exception("\nFailed to parse date from row, make sure column headers are : \"Year\", \"Month\", \"Day\" "
                         "and the format used is: 1999-Jan-1 \n \n {}".format(err))
@@ -990,8 +996,8 @@ def enter_anix_contx(tank, cleaned_data):
         return anix_contx
 
 
-def enter_cnt(cleaned_data, cnt_value, cnt_date, anix_pk=None, loc_pk=None, contx_ref_pk=None, cnt_code="Fish in Container", est=False,
-              stok_id=None, coll_id=None, cnt_year=None):
+def enter_cnt(cleaned_data, cnt_value, cnt_date, anix_pk=None, loc_pk=None, contx_ref_pk=None,
+              cnt_code="Fish in Container", est=False, stok_id=None, coll_id=None, cnt_year=None):
     cnt = False
     entered = False
     if nan_to_none(cnt_value) is None:
@@ -1063,7 +1069,9 @@ def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual
 
         # update count total if needed:
         if det_code == "Program Group Split":
-            new_cnt = sum([float(cnt) for cnt in models.CountDet.objects.filter(cnt_id=cnt, anidc_id__name__iexact=det_code).values_list('det_val', flat=True)])
+            new_cnt = sum([float(cnt) for cnt in models.CountDet.objects.filter(anidc_id__name__iexact=det_code,
+                                                                                cnt_id=cnt).values_list('det_val',
+                                                                                                        flat=True)])
             if new_cnt > cnt.cnt:
                 cnt.cnt = int(new_cnt)
                 cnt.save()
@@ -1073,8 +1081,12 @@ def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual
 
 
 def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=None, contx=None, inst_id=None,
-              env_time=aware_min().time(), avg=False, save=True, qual_id=False):
+              env_time=None, avg=False, save=True, qual_id=False):
+
     row_entered = False
+    if not env_time:
+        env_time = aware_min().time()
+
     if not nan_to_none(env_value):
         return False
     env_datetime = naive_to_aware(env_date, env_time)
@@ -1144,7 +1156,8 @@ def enter_feed(cleaned_data, contx_id, feedc_id, feedm_id, amt, comments=None, f
     return row_entered
 
 
-def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=None, adsc_str=None, frm_grp_id=None, comments=None):
+def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=None, adsc_str=None, frm_grp_id=None,
+               comments=None):
     row_entered = False
     if isinstance(det_value, float):
         if math.isnan(det_value):
@@ -1737,7 +1750,8 @@ def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, nfish=No
         if whole_grp:
             # combine groups, record count and deactivate start group
             start_anix, end_anix, data_entered = enter_move(cleaned_data, origin_id, destination_id, move_date,
-                                                            grp_pk=start_grp_id.pk, set_origin_if_none=set_origin_if_none)
+                                                            grp_pk=start_grp_id.pk,
+                                                            set_origin_if_none=set_origin_if_none)
 
             start_grp_id.grp_end_date = move_date
             start_grp_id.save()
@@ -1764,7 +1778,8 @@ def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, nfish=No
         if whole_grp:
             # whole group moves, record count
             start_anix, end_anix, data_entered = enter_move(cleaned_data, origin_id, destination_id, move_date,
-                                                            grp_pk=start_grp_id.pk, set_origin_if_none=set_origin_if_none)
+                                                            grp_pk=start_grp_id.pk,
+                                                            set_origin_if_none=set_origin_if_none)
             if nfish:
                 end_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, end_anix.pk,
                                                  contx_ref_pk=start_anix.contx_id.pk,
@@ -1774,7 +1789,8 @@ def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, nfish=No
             # split off new group from start group, record counts:
             new_end_grp = copy_grp(start_grp_id, move_date, cleaned_data)
             start_anix, end_anix, data_entered = enter_move(cleaned_data, origin_id, destination_id, move_date,
-                                                            grp_pk=new_end_grp.pk, set_origin_if_none=set_origin_if_none)
+                                                            grp_pk=new_end_grp.pk,
+                                                            set_origin_if_none=set_origin_if_none)
             if nfish:
                 start_cnt_anix, contx, row_entered = enter_contx(origin_id, cleaned_data, grp_pk=start_grp_id.pk,
                                                                  return_anix=True)
@@ -1782,7 +1798,8 @@ def enter_move_cnts(cleaned_data, origin_id, destination_id, move_date, nfish=No
                                                    contx_ref_pk=end_anix.contx_id.pk,
                                                    cnt_code="Fish removed from container")
                 data_entered += cnt_entered
-                end_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, end_anix.pk, contx_ref_pk=start_anix.contx_id.pk,
+                end_cnt, cnt_entered = enter_cnt(cleaned_data, nfish, move_date, end_anix.pk,
+                                                 contx_ref_pk=start_anix.contx_id.pk,
                                                  cnt_code="Fish added to container")
                 data_entered += cnt_entered
 
@@ -1822,12 +1839,14 @@ def enter_contx(cont, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, ret
         return enter_heat_contx(cont, cleaned_data, indv_pk, grp_pk, team_pk, return_contx, return_anix)
 
 
-def enter_tank_contx(tank_name, cleaned_data,  indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
+def enter_tank_contx(tank_name, cleaned_data,  indv_pk=None, grp_pk=None, team_pk=None, return_contx=False,
+                     return_anix=False):
     row_entered = False
     anix = None
     if not tank_name == "nan":
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                     tank_id=models.Tank.objects.filter(name=tank_name, facic_id=cleaned_data["facic_id"]).get(),
+                                     tank_id=models.Tank.objects.filter(name=tank_name,
+                                                                        facic_id=cleaned_data["facic_id"]).get(),
                                      team_id_id=team_pk,
                                      created_by=cleaned_data["created_by"],
                                      created_date=cleaned_data["created_date"],
@@ -1858,11 +1877,13 @@ def enter_tank_contx(tank_name, cleaned_data,  indv_pk=None, grp_pk=None, team_p
         return False
 
 
-def enter_trof_contx(trof_name, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
+def enter_trof_contx(trof_name, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False,
+                     return_anix=False):
     row_entered = False
     if not trof_name == "nan":
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                     trof_id=models.Trough.objects.filter(name=trof_name, facic_id=cleaned_data["facic_id"]).get(),
+                                     trof_id=models.Trough.objects.filter(name=trof_name,
+                                                                          facic_id=cleaned_data["facic_id"]).get(),
                                      team_id_id=team_pk,
                                      created_by=cleaned_data["created_by"],
                                      created_date=cleaned_data["created_date"],
@@ -1893,7 +1914,8 @@ def enter_trof_contx(trof_name, cleaned_data, indv_pk=None, grp_pk=None, team_pk
         return False
 
 
-def enter_tray_contx(tray, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
+def enter_tray_contx(tray, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False,
+                     return_anix=False):
     row_entered = False
     if not tray == "nan":
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -1989,7 +2011,8 @@ def enter_cup_contx(cup, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, 
         return False
 
 
-def enter_draw_contx(draw, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
+def enter_draw_contx(draw, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False,
+                     return_anix=False):
     row_entered = False
     if draw:
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -2037,7 +2060,8 @@ def enter_draw_contx(draw, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None
         return False
 
 
-def enter_heat_contx(heat, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False, return_anix=False):
+def enter_heat_contx(heat, cleaned_data, indv_pk=None, grp_pk=None, team_pk=None, return_contx=False,
+                     return_anix=False):
     row_entered = False
     if heat:
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -2100,10 +2124,10 @@ def ajax_get_fields(request):
     return JsonResponse(data)
 
 
-def naive_to_aware(naive_date, naive_time=datetime.min.time()):
+def naive_to_aware(naive_date, naive_time=None):
     # adds null time and timezone to dates
     if not nan_to_none(naive_time):
-        naive_time = datetime.min.time()
+        naive_time = timezone.datetime.min.time()
     return timezone.make_aware(datetime.combine(naive_date, naive_time))
 
 

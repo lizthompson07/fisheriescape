@@ -60,7 +60,10 @@ class ExcelReport:
         self.wb.save(self.target_file_path)
 
 
-def cont_treat_feed_writer(ws, cont_evnt_list, row_count, treat_row_count, feed_row_count, end_date=timezone.now()):
+def cont_treat_feed_writer(ws, cont_evnt_list, row_count, treat_row_count, feed_row_count, end_date=None):
+    if not end_date:
+        end_date = timezone.now()
+
     treat_list = []
     feed_list = []
     for contx_dict in cont_evnt_list:
@@ -99,7 +102,10 @@ def cont_treat_feed_writer(ws, cont_evnt_list, row_count, treat_row_count, feed_
     return row_count, treat_row_count, feed_row_count, end_date
 
 
-def generate_facility_tank_report(request, facic_id, at_date=timezone.now()):
+def generate_facility_tank_report(request, facic_id, at_date=None):
+    if not at_date:
+        at_date = timezone.now()
+
     report = ExcelReport()
     report.load_wb("facility_tank_template.xlsx")
 
@@ -205,7 +211,12 @@ def fill_calibration_template(facic_id):
     return report.target_url
 
 
-def generate_stock_code_report(stok_id, coll_id, year, start_date=utils.aware_min(), end_date=timezone.now()):
+def generate_stock_code_report(stok_id, coll_id, year, start_date=None, end_date=None):
+    if not start_date:
+        start_date = utils.aware_min()
+    if not end_date:
+        end_date = timezone.now()
+
     # report is given a stock code and returns location of all associated fish
     report = ExcelReport()
     report.load_wb("stock_code_report_template.xlsx")
