@@ -18,7 +18,7 @@ class DataLoggerTemperatureParser(DataParser):
         self.mandatory_keys = []
         super(DataLoggerTemperatureParser, self).load_data()
 
-    def data_reader(self, *args, **kwargs):
+    def data_reader(self):
         self.data = pd.read_csv(self.cleaned_data["data_csv"], encoding='ISO-8859-1', header=7)
         # to keep parent parser classes happy:
         self.data_dict = {}
@@ -66,7 +66,7 @@ class TemperatureParser(DataParser):
 
         trof_list = utils.parse_trof_str(row.get(self.trof_key), cleaned_data["facic_id"])
         for trof_id in trof_list:
-            row_contx, contx_entered = utils.enter_contx(trof_id, cleaned_data, final_flag=None, return_contx=True)
+            row_contx, contx_entered = utils.enter_contx(trof_id, cleaned_data, return_contx=True)
             self.row_entered += contx_entered
 
             self.row_entered += utils.enter_env(row[self.temp_key], row_datetime.date(), cleaned_data,

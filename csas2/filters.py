@@ -208,6 +208,7 @@ class MeetingFilter(django_filters.FilterSet):
             'process__fiscal_year': ['exact'],
             'fiscal_year': ['exact'],
             'process__lead_office': ['exact'],
+            'process__status': ['exact'],
             'is_planning': ['exact'],
 
         }
@@ -216,10 +217,13 @@ class MeetingFilter(django_filters.FilterSet):
         super().__init__(*args, **kwargs)
 
         fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(processes__isnull=False).distinct()]
+        status_choices = model_choices.get_process_status_choices()
 
         self.filters['process'].field.widget.attrs = chosen_js
-        self.filters['process__fiscal_year'] = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year of process"))
         self.filters['process__lead_office'].label = _("Lead CSAS office")
+        self.filters['process__fiscal_year'] = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year of process"))
+        self.filters['process__status'] = django_filters.MultipleChoiceFilter(field_name='process__status', lookup_expr='exact', choices=status_choices)
+        self.filters['process__status'].field.widget.attrs = chosen_js
 
 
 class DocumentFilter(django_filters.FilterSet):

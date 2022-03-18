@@ -53,7 +53,14 @@
 
     <div v-if="canModify" class="mb-3">
       <a class="btn btn-sm btn-warning" href="{% url 'csas2:meeting_edit' object.id %}">{% trans "Edit" %}</a>
-      <a class="btn btn-sm btn-danger" href="{% url 'csas2:meeting_delete' object.id %}">{% trans "Delete" %}</a>
+
+      {% if object.tor %}
+        <span data-toggle="tooltip" title="{% trans "This meeting cannot be delete while it is still linked to the Terms of Reference" %}">
+          <a class="btn btn-sm btn-danger disabled" href="#">{% trans "Delete" %}</a>
+        </span>
+      {% else %}
+        <a class="btn btn-sm btn-danger" href="{% url 'csas2:meeting_delete' object.id %}">{% trans "Delete" %}</a>
+      {% endif %}
       <button @click="openPopout('{% url 'csas2:meeting_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
         <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
       </button>

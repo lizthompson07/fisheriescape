@@ -15,8 +15,10 @@ class FeedingParser(DataParser):
     comment_key = "Comments"
 
     feed_type_count = 5
-    header = 2
-    row_count = header + 2
+
+    header = 1
+    comment_row = [2]
+    row_count = header + 3
     converters = {tank_key: str, feedm_key: str, feedf_key: str}
     sheet_name = "Feedings"
 
@@ -28,7 +30,7 @@ class FeedingParser(DataParser):
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
         tank_id = models.Tank.objects.filter(name=row[self.tank_key], facic_id=cleaned_data["evnt_id"].facic_id).get()
-        comments = row.get(self.comment_key)
+        comments = utils.nan_to_none(row.get(self.comment_key))
         feed_method_id = None
         if utils.nan_to_none(row.get(self.feedm_key)):
             feed_method_id = models.FeedMethod.objects.filter(name__iexact=row[self.feedm_key]).get()
