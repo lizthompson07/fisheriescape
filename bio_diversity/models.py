@@ -215,12 +215,15 @@ class BioCont(BioLookup):
     # Make name not unique, is unique together with facility code.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"), db_column="NAME")
 
-    def fish_in_cont(self, at_date=timezone.now().date(), select_fields=None, get_grp=False, valid_only=True):
+    def fish_in_cont(self, at_date=None, select_fields=None, get_grp=False, valid_only=True):
         indv_list = []
         grp_list = []
 
         if not select_fields:
             select_fields = []
+
+        if not at_date:
+            at_date = timezone.now().date()
 
         filter_in_arg = "contx_end__{}_id".format(self.key)
         filter_out_arg = "contx_start__{}_id".format(self.key)
@@ -257,7 +260,9 @@ class BioCont(BioLookup):
         else:
             return indv_list, grp_list
 
-    def fish_count(self, at_date=timezone.now()):
+    def fish_count(self, at_date=None):
+        if not at_date:
+            at_date = timezone.now()
         indv_list, grp_list = self.fish_in_cont(at_date=at_date)
         cont_count = len(indv_list)
         for grp in grp_list:
@@ -267,7 +272,9 @@ class BioCont(BioLookup):
     def degree_days(self, start_date, end_date):
         return []
 
-    def cont_feed(self, at_date=timezone.now(), get_string=False):
+    def cont_feed(self, at_date=None, get_string=False):
+        if not at_date:
+            at_date = timezone.now()
         feed_contx = self.contxs.filter(evnt_id__evntc_id__name="Feeding", evnt_id__start_datetime__lte=at_date).order_by("-evnt_id__start_datetime").first()
         if get_string:
             if feed_contx:
@@ -278,7 +285,14 @@ class BioCont(BioLookup):
         else:
             return feed_contx
 
-    def feed_history(self, start_date=utils.aware_min(), end_date=timezone.now()):
+    def feed_history(self, start_date=None, end_date=None):
+
+        if not start_date:
+            start_date = utils.aware_min()
+
+        if not end_date:
+            end_date = timezone.now()
+
         oldest_contx = self.cont_feed(at_date=start_date)
         feed_contx = self.contxs.filter(evnt_id__evntc_id__name="Feeding", evnt_id__start_datetime__gte=start_date,
                                         evnt_id__start_datetime__lte=end_date).order_by("-evnt_id__start_datetime")
@@ -287,7 +301,13 @@ class BioCont(BioLookup):
             contx_list.append(oldest_contx)
         return contx_list
 
-    def cont_treatments(self, start_date=utils.aware_min(), end_date=timezone.now()):
+    def cont_treatments(self, start_date=None, end_date=None):
+        if not start_date:
+            start_date = utils.aware_min()
+
+        if not end_date:
+            end_date = timezone.now()
+
         filter_arg = "contx_id__{}_id".format(self.key)
         envt_qs = EnvTreatment.objects.filter(**{filter_arg: self}, start_datetime__gte=start_date, start_datetime__lte=end_date)
         return envt_qs
@@ -363,7 +383,6 @@ class AniDetailXref(BioModel):
     class Meta:
         unique_together = (('evnt_id', 'contx_id', 'loc_id', 'indv_id', 'pair_id',
                                             'grp_id', 'team_id'),)
-
 
     def clean(self):
         super(AniDetailXref, self).clean()
@@ -872,6 +891,7 @@ class EventFile(BioModel):
     class Meta:
         unique_together = (("evnt_id", "stok_id"),)
 
+
 @receiver(models.signals.post_delete, sender=EventFile)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
     """
@@ -982,7 +1002,9 @@ class Group(BioModel):
     def __str__(self):
         return "{}-{}-{}-{}".format(self.pk, self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
 
-    def current_cont(self, at_date=timezone.now().date(), valid_only=False, get_string=False):
+    def current_cont(self, at_date=None, valid_only=False, get_string=False):
+        if not at_date:
+            at_date = timezone.now().date()
         cont_list = []
         if not self.grp_valid and valid_only:
             if get_string:
@@ -1013,7 +1035,11 @@ class Group(BioModel):
             return cont_str
         return cont_list
 
-    def get_cont_history(self, start_date=utils.aware_min(), end_date=timezone.now(), get_str=False):
+    def get_cont_history(self, start_date=None, end_date=None, get_str=False):
+        if not start_date:
+            start_date = utils.aware_min()
+        if not end_date:
+            end_date = timezone.now()
         anix_evnt_set = AniDetailXref.objects.filter(grp_id=self, contx_id__isnull=False, loc_id__isnull=True,
                                                      pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
                                                      evnt_id__start_datetime__gte=start_date).select_related("contx_id")
@@ -1026,7 +1052,11 @@ class Group(BioModel):
 
         return out_list
 
-    def current_feed(self, at_date=timezone.now()):
+    def current_feed(self, at_date=None):
+
+        if not at_date:
+            at_date = timezone.now()
+
         cont_list = self.current_cont(at_date=at_date)
         if len(cont_list) == 1:
             feed_str = cont_list[0].cont_feed(at_date=at_date, get_string=True)
@@ -1038,9 +1068,11 @@ class Group(BioModel):
                     feed_str += "{}: {}\n".format(cont.__str__(), cont_feed_str)
         return feed_str
 
-    def count_fish_in_group(self, at_date=timezone.now()):
+    def count_fish_in_group(self, at_date=None):
         fish_count = 0
 
+        if not at_date:
+            at_date = timezone.now()
         # ordered oldest to newest
         cnt_set = Count.objects.filter(Q(anix_id__grp_id=self,
                                          anix_id__evnt_id__start_datetime__lte=at_date) |
@@ -1056,15 +1088,21 @@ class Group(BioModel):
                 fish_count = cnt.cnt
         return fish_count
 
-    def fish_in_cont(self, at_date=timezone.now(), select_fields=[], grp_select_fields=[]):
+    def fish_in_cont(self, at_date=None, select_fields=[], grp_select_fields=[]):
+        if not at_date:
+            at_date = timezone.now()
+
         indv_set = Individual.objects.filter(grp_id=self).select_related(*select_fields)
         # for consistancy with container version:
         indv_list = [indv for indv in indv_set]
         grp_list = [self]
         return indv_list, grp_list
 
-    def get_development(self, at_date=timezone.now().date()):
+    def get_development(self, at_date=None):
         dev = 0
+        if not at_date:
+            at_date = timezone.now().date()
+
         start_date = utils.aware_min().date()
         dev_qs = GroupDet.objects.filter(anix_id__grp_id=self, grpd_valid=True, anidc_id__name="Development")
         if len(dev_qs) == 1:
@@ -1090,7 +1128,11 @@ class Group(BioModel):
 
         return utils.round_no_nan(dev, 5)
 
-    def get_parent_grp(self, at_date=timezone.now()):
+    def get_parent_grp(self, at_date=None):
+
+        if not at_date:
+            at_date = timezone.now()
+
         # gets parent groups this group came from.
         grpd_set = GroupDet.objects.filter(anix_id__grp_id=self,
                                            anidc_id__name="Parent Group",
@@ -1155,18 +1197,24 @@ class Group(BioModel):
         else:
             return None
 
-    def avg_weight(self, at_date=timezone.now()):
+    def avg_weight(self, at_date=None):
+
+        if not at_date:
+            at_date = timezone.now()
+
         # INCORPORATE SAMPLE DETS!
         weight_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Weight", detail_date__lte=at_date)
         if not weight_deps:
             return ""
-        weight_deps =weight_deps.order_by("-detail_date")
+        weight_deps = weight_deps.order_by("-detail_date")
         last_obs_date = weight_deps.first().detail_date
         last_obs_set = weight_deps.filter(detail_date__gte=last_obs_date)
         avg_weight = last_obs_set.aggregate(Avg('det_val'))["det_val__avg"]
         return avg_weight
 
-    def avg_len(self, at_date=timezone.now()):
+    def avg_len(self, at_date=None):
+        if not at_date:
+            at_date = timezone.now()
         len_deps = GroupDet.objects.filter(anix_id__grp_id=self, anidc_id__name="Length", detail_date__lte=at_date)
         if not len_deps:
             return ""
@@ -1176,7 +1224,9 @@ class Group(BioModel):
         avg_len = last_obs_set.aggregate(Avg('det_val'))["det_val__avg"]
         return avg_len
 
-    def past_end_date(self, at_date=timezone.now().date()):
+    def past_end_date(self, at_date=None):
+        if not at_date:
+            at_date = timezone.now().date()
         if not self.grp_end_date:
             return False
         else:
@@ -1313,6 +1363,7 @@ class Image(BioModel):
                             "spwnd_id", "tankd_id", "heatd_id", "draw_id", "trofd_id", "trayd_id",
                             "cupd_id"),)
 
+
 @receiver(models.signals.post_delete, sender=Image)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
     """
@@ -1379,7 +1430,9 @@ class Individual(BioModel):
     def stok_year_coll_str(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__())
 
-    def current_cont(self, at_date=timezone.now(), valid_only=False, get_string=False):
+    def current_cont(self, at_date=None, valid_only=False, get_string=False):
+        if not at_date:
+            at_date = timezone.now()
         cont_list = []
         if not self.indv_valid and valid_only:
             if get_string:
@@ -1398,7 +1451,10 @@ class Individual(BioModel):
             return cont_str
         return cont_list
 
-    def current_feed(self, at_date=timezone.now()):
+    def current_feed(self, at_date=None):
+        if not at_date:
+            at_date = timezone.now()
+
         cont_list = self.current_cont(at_date=at_date)
         if len(cont_list) == 1:
             feed_str = cont_list[0].cont_feed(at_date=at_date, get_string=True)
@@ -1421,7 +1477,9 @@ class Individual(BioModel):
         else:
             return None
 
-    def individual_detail(self, anidc_name="Length", before_date=timezone.now(), evnt_id=None):
+    def individual_detail(self, anidc_name="Length", before_date=None, evnt_id=None):
+        if not before_date:
+            before_date = timezone.now()
         if evnt_id:
             latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
                                                         detail_date__lte=before_date,
@@ -1434,7 +1492,9 @@ class Individual(BioModel):
         else:
             return None
 
-    def individual_subj_detail(self, anidc_name="Animal Health", before_date=timezone.now(), evnt_id=None):
+    def individual_subj_detail(self, anidc_name="Animal Health", before_date=None, evnt_id=None):
+        if not before_date:
+            before_date = timezone.now()
         if evnt_id:
             latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
                                                         detail_date__lte=before_date, anix_id__evnt_id=evnt_id,
@@ -1664,7 +1724,12 @@ class Location(BioModel):
                 raise ValidationError("Longitude must be within maritimes (<{}). "
                                       "Should this value be negative?".format(calculation_constants.max_long))
 
-    def get_cont_history(self, start_date=utils.aware_min(), end_date=timezone.now(), get_str=False):
+    def get_cont_history(self, start_date=None, end_date=None, get_str=False):
+        if not start_date:
+            start_date = utils.aware_min()
+        if not end_date:
+            end_date = timezone.now()
+
         anix_evnt_set = AniDetailXref.objects.filter(loc_id=self, contx_id__isnull=False, grp_id__isnull=True,
                                                      pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
                                                      evnt_id__start_datetime__gte=start_date).select_related("contx_id")
@@ -1856,8 +1921,6 @@ class ProgAuthority(BioModel):
         unique_together = (('proga_first_name', 'proga_last_name'),)
 
 
-
-
 class Protocol(BioDateModel):
     # prot tag
 
@@ -1877,7 +1940,6 @@ class Protocol(BioDateModel):
 
     class Meta:
         unique_together = (('name', 'prog_id', 'protc_id', 'start_date'),)
-
 
 
 class ProtoCode(BioLookup):
@@ -2090,7 +2152,9 @@ class Sample(BioModel):
                 return ""
         return cont
 
-    def sample_detail(self, anidc_name="Length", before_date=timezone.now(), evnt_id=None):
+    def sample_detail(self, anidc_name="Length", before_date=None, evnt_id=None):
+        if not before_date:
+            before_date = timezone.now()
         if evnt_id:
             latest_sampd = SampleDet.objects.filter(anidc_id__name__icontains=anidc_name, samp_id=self,
                                                     detail_date__lte=before_date, samp_id__anix_id__evnt_id=evnt_id).order_by("-detail_date").first()
@@ -2119,7 +2183,6 @@ class SampleDet(BioDet):
 
     class Meta:
         unique_together = (('samp_id', 'anidc_id', 'adsc_id'),)
-
 
     def __str__(self):
         return "{} - {}".format(self.samp_id.__str__(), self.anidc_id.__str__())
@@ -2280,6 +2343,7 @@ class TeamXRef(BioModel):
     class Meta:
         unique_together = (('perc_id', 'role_id', 'evnt_id', 'loc_id'),)
 
+
 class Tray(BioCont):
     # tray tag
     key = "tray"
@@ -2343,7 +2407,6 @@ class Tributary(BioLookup):
                 "subr_id": ValidationError("Sub River river {} must match River {}"
                                            .format(self.subr_id.rive_id, self.rive_id))
             })
-
 
 
 class Trough(BioCont):
