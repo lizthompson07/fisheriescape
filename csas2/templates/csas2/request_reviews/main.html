@@ -397,11 +397,13 @@
       getRequests() {
         this.errorMsg = null;
         this.loadingRequests = true;
-        this.fresh = false;
         let params = window.location.search.substring(1);
 
-        if (!params) page_size = 25;
-        else page_size = 50000;
+        if (!params) page_size = 5;
+        else {
+          this.fresh = false;
+          page_size = 50000;
+        }
 
         let endpoint = `/api/csas/requests/?${params}&page_size=${page_size}`;
         apiService(endpoint)
