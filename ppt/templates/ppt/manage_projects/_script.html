@@ -1,3 +1,5 @@
+{% load i18n %}
+
 {% include "ppt/manage_projects/components/staff_projects_list.html" %}
 {% include "ppt/manage_projects/components/review_modal.html" %}
 
@@ -8,12 +10,14 @@ var app = new Vue({
   delimiters: ["${", "}"],
   data: {
     showSidebar: true,
+    showMoreFilters: false,
     currentUser: {},
     isAdminOrMgmt: false,
     hover: false,
+    cardViewOn: false,
 
     errorNoFiscalYear: false,
-
+    loadingReport: false,
 
     showProjectList: true,
     showStaffList: false,
@@ -57,6 +61,9 @@ var app = new Vue({
     regions: [],
     divisions: [],
 
+    projectLabels: {},
+    projectYearLabels: {},
+
     // modal
     projectYear2Review: {},
     showReviewModal: false,
@@ -71,6 +78,26 @@ var app = new Vue({
             this.isAdminOrMgmt = this.currentUser.is_admin || this.currentUser.is_management
           })
     },
+    goReport(reportName) {
+      console.log(123)
+      let userInput = true;
+      if (this.count > 500) userInput = confirm(`You are about to generate a report for a large number of projects (i.e., ${this.count} projects). Are you sure you want to continue?`);
+      if (userInput) {
+        this.loadingReport = true;
+        endpoint = this.getProjectYearsEndpoint(5000);
+        apiService(endpoint).then(response => {
+          if (response.results) {
+            let ids = [];
+            for (const result of response.results) ids.push(result.id);
+            let reportUrl;
+            if (reportName === "basic") reportUrl = `{% url 'ppt:export_py_list' %}?ids=${ids}`;
+            else if (reportName === "long") reportUrl = `{% url 'ppt:export_py_list' %}?long=true&ids=${ids}`;
+            window.location.href = reportUrl;
+            this.loadingReport = false;
+          }
+        })
+      }
+    },
     goProjectDetail(projectYear) {
       url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
       var win = window.open(url, '_blank');
@@ -80,11 +107,11 @@ var app = new Vue({
       apiService(`/api/ppt/themes/${query}`).then(response => this.themes = response)
       apiService(`/api/ppt/fiscal-years/${query}`).then(response => this.fiscalYears = response)
       apiService(`/api/ppt/tags/${query}`).then(response => {
-        this.tags = [{name:"-----", id: ""}];
+        this.tags = [{name: "-----", id: ""}];
         this.tags.push(...response);
       })
       apiService(`/api/ppt/funding-sources/${query}`).then(response => {
-        this.fundingSources = [{display:"-----", id: ""}];
+        this.fundingSources = [{display: "-----", id: ""}];
         this.fundingSources.push(...response);
       })
       apiService(`/api/ppt/regions/${query}`).then(response => this.regions = response)
@@ -323,7 +350,33 @@ var app = new Vue({
     },
     generateReports(url, tag) {
       window.open(url + "?" + this.getFilterString(), tag, 'toolbar=0,status=0,height=500,width=600');
-    }
+    },
+    getModelMetadata() {
+      apiService(`/api/ppt/meta/models/project/`).then(data => {
+        this.projectLabels = data.labels;
+      });
+      apiService(`/api/ppt/meta/models/projectyear/`).then(data => {
+        this.projectYearLabels = data.labels;
+      });
+    },
+    startReview(p) {
+      apiService(`/api/ppt/project-years/${p.id}/?start_review=true`, "POST").then(data => {
+        this.$set(this.projectYears, this.projectYears.indexOf(p), data);
+      });
+    },
+    deleteReview(p) {
+      userInput = confirm("{% trans "Are you sure you want to delete this project's review? This action is not reversible." %}")
+      if (userInput) {
+        apiService(`/api/ppt/project-years/${p.id}/?remove_review=true`, "POST").then(data => {
+          this.$set(this.projectYears, this.projectYears.indexOf(p), data);
+        });
+      }
+    },
+    updateReview(p) {
+      apiService(`/api/ppt/reviews/${p.review.id}/`, "PUT", p.review).then(data => {
+        p.review = data
+      })
+    },
   },
   filters: {
     yesNo: vueFiltersObject["yesNo"],
@@ -376,9 +429,10 @@ var app = new Vue({
     },
   },
   created() {
-    this.getCurrentUser()
-    this.getProjectYears()
-    this.getFilterData()
+    this.getModelMetadata();
+    this.getCurrentUser();
+    this.getProjectYears();
+    this.getFilterData();
   },
   mounted() {
   },

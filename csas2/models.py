@@ -515,12 +515,12 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     @property
     def posting_status(self):
-        if not self.posting_request_date and self.is_posted:
-            return gettext("Not posted")
-        elif self.posting_request_date:
+        if self.posting_request_date and not self.is_posted:
             return gettext("Request made")
-        else:
+        elif self.is_posted:
             return gettext("Posted")
+        else:
+            return gettext("Not posted")
 
     def get_absolute_url(self):
         return reverse("csas2:process_detail", args=[self.pk])

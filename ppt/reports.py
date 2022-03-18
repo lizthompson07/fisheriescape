@@ -17,12 +17,11 @@ from openpyxl import load_workbook
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz, currency
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
-from shared_models.models import Region, FiscalYear, Section
-from . import models, utils
-from .models import ProjectYear
-from .utils import in_ppt_admin_group, is_management_or_admin, get_manageable_sections
-
 from shared_models import models as shared_models
+from shared_models.models import Region, FiscalYear, Section
+from . import models
+from .models import ProjectYear
+from .utils import get_project_year_queryset
 
 
 def generate_acrdp_application(project):
@@ -823,26 +822,25 @@ def generate_csrf_application(project, lang):
     return target_url
 
 
-def generate_project_list(user, year, region, section):
+def generate_project_list(qs):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
-    status_choices = models.ProjectYear.status_choices
 
     fields = [
-        'region',
-        'division',
-        'project.section|section',
         'project.id|Project Id',
-        'fiscal_year',
         'project.title|title',
-        'Overview',
-        'Overview word count',
+        'fiscal_year',
         'project.default_funding_source|Primary funding source',
         'project.functional_group|Functional group',
         'Project leads',
         'status',
+        'Overview',
+        'Overview word count',
+        'region',
+        'division',
+        'project.section|section',
         'updated_at|Last modified date',
         'modified_by|Last modified by',
         'Last modified description',
@@ -851,17 +849,6 @@ def generate_project_list(user, year, region, section):
         'Sum of staff FTE (weeks)',
         'Sum of costs',
     ]
-
-    if in_ppt_admin_group(user):
-
-        qs = ProjectYear.objects.filter(fiscal_year_id=year).distinct()
-        if section != "None":
-            qs = qs.filter(project__section_id=section)
-        elif region != "None":
-            qs = qs.filter(project__section__division__branch__region_id=region)
-    else:
-        sections = utils.get_manageable_sections(user)
-        qs = ProjectYear.objects.filter(project__section__in=sections).distinct()
 
     header_row = [get_verbose_label(ProjectYear.objects.first(), header) for header in fields]
     writer.writerow(header_row)
@@ -1099,69 +1086,285 @@ def export_project_summary(request):
     return target_url
 
 
+def generate_py_basic(qs, site_url):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
 
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
+    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": False, 'border': 1, 'border_color': 'black', })
+    currency_format = workbook.add_format({'num_format': '#,##0.00'})
+    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
 
-def get_project_year_queryset(request):
-    qs = models.ProjectYear.objects.order_by("start_date")
-    qp = request.query_params if hasattr(request, 'query_params') else request.GET
-
-    filter_list = [
-        "user",
-        "is_hidden",
-        "title",
-        "id",
-        'staff',
+    field_list = [
         'fiscal_year',
-        'tag',
-        'theme',
-        'functional_group',
-        'funding_source',
+        'project.id|Project Id',
+        'project.title|title',
+        'project.default_funding_source|Primary funding source',
+        'project.functional_group|Functional group',
+        'Project leads',
+        'status',
+        'Overview',
+        'Overview word count',
         'region',
         'division',
-        'section',
-        'status',
+        'project.section|section',
+        'project.starting_fy|starting year',
+        'project.fiscal_years_display|list of project years',
+        'updated_at|Last modified date',
+        'modified_by|Last modified by',
+        'Last modified description',
+        'Activity count',
+        'Staff count',
+        'Sum of staff FTE (weeks)',
+        'Sum of costs',
     ]
-    for filter in filter_list:
-        input = qp.get(filter)
-        if input == "true":
-            input = True
-        elif input == "false":
-            input = False
-        elif input == "null" or input == "":
-            input = None
 
-        if input:
-            if filter == "user":
-                qs = qs.filter(project__section__in=get_manageable_sections(request.user)).order_by("fiscal_year",
-                                                                                                    "project_id")
-            elif filter == "is_hidden":
-                qs = qs.filter(project__is_hidden=True)
-            elif filter == "status":
-                qs = qs.filter(status=input)
-            elif filter == "title":
-                qs = qs.filter(project__title__icontains=input)
-            elif filter == "id":
-                qs = qs.filter(project__id=input)
-            elif filter == "staff":
-                qs = qs.filter(project__staff_search_field__icontains=input)
-            elif filter == "fiscal_year":
-                qs = qs.filter(fiscal_year_id=input)
-            elif filter == "tag":
-                qs = qs.filter(project__tags=input)
-            elif filter == "theme":
-                qs = qs.filter(project__functional_group__theme_id=input)
-            elif filter == "functional_group":
-                qs = qs.filter(project__functional_group_id=input)
-            elif filter == "funding_source":
-                qs = qs.filter(project__default_funding_source_id=input)
-            elif filter == "region":
-                qs = qs.filter(project__section__division__branch__region_id=input)
-            elif filter == "division":
-                qs = qs.filter(project__section__division_id=input)
-            elif filter == "section":
-                qs = qs.filter(project__section_id=input)
+    # define the header
+    header = [get_verbose_label(qs.first(), field) for field in field_list]
+    title = "List of PPT Projects"
 
-    # if a regular user is making the request, show only approved projects (and not hidden projects)
-    if not is_management_or_admin(request.user):
-        qs = qs.filter(project__is_hidden=False, status__in=[2, 3, 4])
-    return qs.distinct()
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name="projects")
+    my_ws.write(0, 0, title, title_format)
+    my_ws.write_row(2, 0, header, header_format)
+
+    # create the col_max column to store the length of each header
+    # should be a maximum column width to 100
+    col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+
+    i = 3
+    for obj in qs:
+        j = 0
+        for field in field_list:
+            if "division" in field:
+                val = " ---"
+                if obj.project.section:
+                    val = obj.project.section.division.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "region" in field:
+                val = " ---"
+                if obj.project.section:
+                    val = obj.project.section.division.branch.region.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "leads" in field:
+                val = listrify(obj.get_project_leads_as_users())
+                my_ws.write(i, j, val, normal_format)
+            elif "updated_at" in field:
+                val = obj.updated_at.strftime("%Y-%m-%d")
+                my_ws.write(i, j, val, normal_format)
+            elif "Last modified description" in field:
+                val = naturaltime(obj.updated_at)
+                my_ws.write(i, j, val, normal_format)
+            elif field == "Overview":
+                val = html2text(nz(obj.project.overview_html, ""))
+                my_ws.write(i, j, val, normal_format)
+            elif field == "Overview word count":
+                val = len(html2text(nz(obj.project.overview_html, "")).split(" "))
+                my_ws.write(i, j, val, normal_format)
+            elif field == "Activity count":
+                val = obj.activities.count()
+                my_ws.write(i, j, val, normal_format)
+            elif field == "Staff count":
+                val = obj.staff_set.count()
+                my_ws.write(i, j, val, normal_format)
+            elif field == "Sum of staff FTE (weeks)":
+                val = obj.staff_set.order_by("duration_weeks").aggregate(dsum=Sum("duration_weeks"))["dsum"]
+                my_ws.write(i, j, val, normal_format)
+            elif field == "Sum of costs":
+                val = nz(obj.omcost_set.filter(amount__isnull=False).aggregate(dsum=Sum("amount"))["dsum"], 0) + \
+                      nz(obj.capitalcost_set.filter(amount__isnull=False).aggregate(dsum=Sum("amount"))["dsum"], 0) + \
+                      nz(obj.staff_set.filter(amount__isnull=False).aggregate(dsum=Sum("amount"))["dsum"], 0)
+                my_ws.write(i, j, val, normal_format)
+            else:
+                val = str(get_field_value(obj, field))
+                my_ws.write(i, j, val, normal_format)
+
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
+
+            # if new value > stored value... replace stored value
+            if len(str(val)) > col_max[j]:
+                if len(str(val)) < 75:
+                    col_max[j] = len(str(val))
+                else:
+                    col_max[j] = 75
+            j += 1
+        i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    return target_url
+
+
+def generate_py(qs, site_url, type):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
+    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": False, 'border': 1, 'border_color': 'black', })
+    currency_format = workbook.add_format({'num_format': '#,##0.00'})
+    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+
+    basic_field_list = [
+        'fiscal_year',
+        'project.id|Project Id',
+        'project.title|title',
+        'project.default_funding_source|Primary funding source',
+        'project.functional_group|Functional group',
+        'Project leads',
+        'status',
+        'Overview',
+        'Overview word count',
+        'region',
+        'division',
+        'project.section|section',
+        'project.starting_fy|starting year',
+        'project.fiscal_years_display|list of project years',
+        'updated_at|Last modified date',
+        'modified_by|Last modified by',
+        'Last modified description',
+        'Activity count',
+        'Staff count',
+        'Sum of staff FTE (weeks)',
+        'Sum of costs',
+    ]
+
+    field_list = basic_field_list
+
+    if type == "long":
+        field_list.extend(
+            [
+                'start_date',
+                'end_date',
+                'priorities',
+                'deliverables',
+                'requires_specialized_equipment',
+                'technical_service_needs',
+                'mobilization_needs',
+                'has_field_component',
+                'vehicle_needs',
+                'has_ship_needs',
+                'ship_needs',
+                'coip_reference_id',
+                'instrumentation',
+                'owner_of_instrumentation',
+                'requires_field_staff',
+                'field_staff_needs',
+                'has_data_component',
+                'data_collected',
+                'data_products',
+                'open_data_eligible',
+                'data_storage_plan',
+                'data_management_needs',
+                'has_lab_component',
+                'requires_abl_services',
+                'requires_lab_space',
+                'requires_other_lab_support',
+                'other_lab_support_needs',
+                'it_needs',
+                'additional_notes',
+                'responsibility_center',
+                'allotment_code',
+                'existing_project_codes',
+            ]
+        )
+
+    # define the header
+    header = [get_verbose_label(qs.first(), field) for field in field_list]
+    title = "List of PPT Projects"
+
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name="projects")
+    my_ws.write(0, 0, title, title_format)
+    my_ws.write_row(2, 0, header, header_format)
+
+    # create the col_max column to store the length of each header
+    # should be a maximum column width to 100
+    col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+
+    i = 3
+    for obj in qs:
+        j = 0
+        for field in field_list:
+            if "division" in field:
+                val = " ---"
+                if obj.project.section:
+                    val = obj.project.section.division.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "region" in field:
+                val = " ---"
+                if obj.project.section:
+                    val = obj.project.section.division.branch.region.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "leads" in field:
+                val = listrify(obj.get_project_leads_as_users())
+                my_ws.write(i, j, val, normal_format)
+            elif "updated_at" in field:
+                val = obj.updated_at.strftime("%Y-%m-%d")
+                my_ws.write(i, j, val, normal_format)
+            elif "Last modified description" in field:
+                val = naturaltime(obj.updated_at)
+                my_ws.write(i, j, val, normal_format)
+            elif field == "Overview":
+                val = html2text(nz(obj.project.overview_html, ""))
+                my_ws.write(i, j, val, normal_format)
+            elif field == "Overview word count":
+                val = len(html2text(nz(obj.project.overview_html, "")).split(" "))
+                my_ws.write(i, j, val, normal_format)
+            elif field == "Activity count":
+                val = obj.activities.count()
+                my_ws.write(i, j, val, normal_format)
+            elif field == "Staff count":
+                val = obj.staff_set.count()
+                my_ws.write(i, j, val, normal_format)
+            elif field == "Sum of staff FTE (weeks)":
+                val = obj.staff_set.order_by("duration_weeks").aggregate(dsum=Sum("duration_weeks"))["dsum"]
+                my_ws.write(i, j, val, normal_format)
+            elif field == "Sum of costs":
+                val = nz(obj.omcost_set.filter(amount__isnull=False).aggregate(dsum=Sum("amount"))["dsum"], 0) + \
+                      nz(obj.capitalcost_set.filter(amount__isnull=False).aggregate(dsum=Sum("amount"))["dsum"], 0) + \
+                      nz(obj.staff_set.filter(amount__isnull=False).aggregate(dsum=Sum("amount"))["dsum"], 0)
+                my_ws.write(i, j, val, normal_format)
+            else:
+                val = str(get_field_value(obj, field))
+                my_ws.write(i, j, val, normal_format)
+
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
+
+            # if new value > stored value... replace stored value
+            if len(str(val)) > col_max[j]:
+                if len(str(val)) < 75:
+                    col_max[j] = len(str(val))
+                else:
+                    col_max[j] = 75
+            j += 1
+        i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    return target_url

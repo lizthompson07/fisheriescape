@@ -40,5 +40,7 @@ urlpatterns = [
     # model lookups
     path("ppt/meta/models/activity/", views.ActivityModelMetaAPIView.as_view(), name="projects-activity-model-meta"),
     path("ppt/meta/models/om-cost/", views.OMCostModelMetaAPIView.as_view(), name="projects-omcost-model-meta"),
+    path("ppt/meta/models/project/", views.ProjectModelMetaAPIView.as_view(), name="projects-project-model-meta"),
+    path("ppt/meta/models/projectyear/", views.ProjectYearModelMetaAPIView.as_view(), name="projects-projectyear-model-meta"),
 
 ]
