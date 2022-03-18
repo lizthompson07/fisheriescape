@@ -296,7 +296,12 @@ def generate_stock_code_report(stok_id, coll_id, year, start_date=None, end_date
 
 
 def generate_morts_report(request, facic_id=None, prog_id=None, stok_id=None, year=None, coll_id=None,
-                          start_date=utils.aware_min(), end_date=timezone.now()):
+                          start_date=None, end_date=None):
+
+    if not start_date:
+        start_date = utils.aware_min()
+    if not end_date:
+        end_date = timezone.now()
     # report is given some filter criteria, returns all dead fish details.
     report = ExcelReport()
     report.load_wb("mortality_report_template.xlsx")
