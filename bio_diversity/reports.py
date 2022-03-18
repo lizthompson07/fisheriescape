@@ -3,6 +3,7 @@ import itertools
 import os
 from datetime import datetime
 
+from django.utils import timezone
 import pytz
 from bokeh.embed import components
 from bokeh.layouts import column
@@ -59,7 +60,7 @@ class ExcelReport:
         self.wb.save(self.target_file_path)
 
 
-def cont_treat_feed_writer(ws, cont_evnt_list, row_count, treat_row_count, feed_row_count, end_date=utils.naive_to_aware(datetime.now())):
+def cont_treat_feed_writer(ws, cont_evnt_list, row_count, treat_row_count, feed_row_count, end_date=timezone.now()):
     treat_list = []
     feed_list = []
     for contx_dict in cont_evnt_list:
@@ -98,7 +99,7 @@ def cont_treat_feed_writer(ws, cont_evnt_list, row_count, treat_row_count, feed_
     return row_count, treat_row_count, feed_row_count, end_date
 
 
-def generate_facility_tank_report(facic_id):
+def generate_facility_tank_report(request, facic_id, at_date=timezone.now()):
     report = ExcelReport()
     report.load_wb("facility_tank_template.xlsx")
 
@@ -111,12 +112,12 @@ def generate_facility_tank_report(facic_id):
     cup_qs = models.Cup.objects.filter(draw_id__heat_id__facic_id=facic, end_date__isnull=True).order_by(
         Concat('draw_id__heat_id__name', 'draw_id__name', 'name'))
 
-    qs_list = [("Tank", tank_qs), ("Trough", tray_qs), ("Drawer", draw_qs), ("Cup", cup_qs)]
+    qs_list = [("Tank", tank_qs, "tank"), ("Trough", tray_qs, "tray"), ("Drawer", draw_qs, "draw"), ("Cup", cup_qs, "cup")]
 
     # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
 
-    for sheet_name, qs in qs_list:
+    for sheet_name, qs, cont_code in qs_list:
         ws = report.copy_template(sheet_name)
 
         # start writing data at row 3 in the sheet
@@ -127,8 +128,8 @@ def generate_facility_tank_report(facic_id):
 
             cnt = 0
             year_coll_set = set()
-            indv_list, grp_list = item.fish_in_cont(select_fields=["indv_id__grp_id__stok_id",
-                                                                   "indv_id__grp_id__coll_id"])
+            indv_list, grp_list = item.fish_in_cont(select_fields=["anix_id__indv_id__grp_id__stok_id",
+                                                                   "anix_id__indv_id__grp_id__coll_id"], at_date=at_date)
             if indv_list:
                 ws['B' + str(row_count)].value = "Y"
                 cnt += len(indv_list)
@@ -140,8 +141,10 @@ def generate_facility_tank_report(facic_id):
             ws['C' + str(row_count)].value = cnt
             ws['D' + str(row_count)].value = str(', '.join(set(year_coll_set)))
 
-            feed_str = item.cont_feed(get_string=True)
+            feed_str = item.cont_feed(get_string=True, at_date=at_date)
             ws['E' + str(row_count)].value = feed_str
+            cont_url =  "bio_diversity:details_" + cont_code
+            ws['F' + str(row_count)].value = request.build_absolute_uri(reverse(cont_url, args=[item.id]))
 
             row_count += 1
 
@@ -150,7 +153,59 @@ def generate_facility_tank_report(facic_id):
     return report.target_url
 
 
-def generate_stock_code_report(stok_id, coll_id, year, start_date=datetime.min, end_date=datetime.now()):
+def fill_calibration_template(facic_id):
+    report = ExcelReport()
+    report.template_dir = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "data_templates")
+
+    template_filename = "{}_calibration.xlsx".format(facic_id.name.lower())
+    report.load_wb(template_filename)
+
+    tank_qs = models.Tank.objects.filter(facic_id=facic_id).order_by('name')
+    tray_qs = models.Tray.objects.filter(trof_id__facic_id=facic_id, end_date__isnull=True).order_by(Concat('trof_id__name', 'name'))
+
+    draw_qs = models.Drawer.objects.filter(heat_id__facic_id=facic_id).order_by(Concat('heat_id__name', 'name'))
+    cup_qs = models.Cup.objects.filter(draw_id__heat_id__facic_id=facic_id, end_date__isnull=True).order_by(
+        Concat('draw_id__heat_id__name', 'draw_id__name', 'name'))
+
+    qs_list = [("Tank", tank_qs, "tank"), ("Trough", tray_qs, "tray"), ("Drawer", draw_qs, "draw"), ("Cup", cup_qs, "cup")]
+
+    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
+    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
+
+    for sheet_name, qs, cont_code in qs_list:
+        ws = report.copy_template(sheet_name)
+
+        # start writing data at row 3 in the sheet
+        row_count = 3
+        for item in qs:
+            indv_list, grp_list = item.fish_in_cont(select_fields=["anix_id__indv_id__grp_id__stok_id",
+                                                                   "anix_id__indv_id__grp_id__coll_id"])
+
+            if not grp_list:
+                ws['A' + str(row_count)].value = item.__str__()
+                if indv_list:
+                    if indv_list:
+                        ws['B' + str(row_count)].value = len(indv_list)
+                        year_coll_set = set([indv.stok_year_coll_str() for indv in indv_list])
+                        ws['D' + str(row_count)].value = str(', '.join(set(year_coll_set)))
+                row_count += 1
+
+            for grp in grp_list:
+                ws['A' + str(row_count)].value = item.__str__()
+                if indv_list:
+                    ws['B' + str(row_count)].value = len(indv_list)
+                ws['C' + str(row_count)].value = grp.count_fish_in_group()
+                ws['D' + str(row_count)].value = grp.__str__()
+                ws['E' + str(row_count)].value = grp.pk
+
+                row_count += 1
+
+    report.save_wb()
+
+    return report.target_url
+
+
+def generate_stock_code_report(stok_id, coll_id, year, start_date=utils.aware_min(), end_date=timezone.now()):
     # report is given a stock code and returns location of all associated fish
     report = ExcelReport()
     report.load_wb("stock_code_report_template.xlsx")
@@ -186,7 +241,7 @@ def generate_stock_code_report(stok_id, coll_id, year, start_date=datetime.min, 
         ws_indv['B' + str(row_count)].value = item.indv_year
         ws_indv['C' + str(row_count)].value = item.coll_id.name
         ws_indv['D' + str(row_count)].value = item.prog_group(get_string=True)
-        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank(end_date)])
+        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont(end_date)])
 
         item_indvd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Animal Health",
                                                          adsc_id__isnull=False, anix_id__indv_id=item).select_related("adsc_id")
@@ -229,8 +284,8 @@ def generate_stock_code_report(stok_id, coll_id, year, start_date=datetime.min, 
     return report.target_url
 
 
-def generate_morts_report(request, facic_id=None, prog_id=None, stok_id=None, year=None, coll_id=None, start_date=utils.naive_to_aware(datetime.min),
-                          end_date=utils.naive_to_aware(datetime.now())):
+def generate_morts_report(request, facic_id=None, prog_id=None, stok_id=None, year=None, coll_id=None,
+                          start_date=utils.aware_min(), end_date=timezone.now()):
     # report is given some filter criteria, returns all dead fish details.
     report = ExcelReport()
     report.load_wb("mortality_report_template.xlsx")
@@ -376,7 +431,7 @@ def generate_detail_report(adsc_id, prog_id, stok_id=None):
         ws_indv['B' + str(row_count)].value = item.stok_id.name
         ws_indv['C' + str(row_count)].value = item.indv_year
         ws_indv['D' + str(row_count)].value = item.coll_id.name
-        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank()])
+        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont()])
         ws_indv['F' + str(row_count)].value = item.individual_detail("Gender")
         ws_indv['G' + str(row_count)].value = item.indv_valid
 
@@ -396,7 +451,7 @@ def generate_detail_report(adsc_id, prog_id, stok_id=None):
         ws_grp['A' + str(row_count)].value = item.stok_id.name
         ws_grp['B' + str(row_count)].value = item.grp_year
         ws_grp['C' + str(row_count)].value = item.coll_id.name
-        ws_grp['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank()])
+        ws_grp['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont()])
         ws_grp['E' + str(row_count)].value = item.grp_valid
 
         sampd_qs = models.SampleDet.objects.filter(adsc_id=adsc_id, samp_id__anix_id__grp_id=item).order_by("-detail_date")
@@ -506,13 +561,13 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
         start_date = "Not Picked"
         ws['B1'].value = start_date
         ws_indv['B1'].value = start_date
-        start_date = datetime.min
+        start_date = utils.aware_min()
     else:
         ws['B1'].value = start_date
         ws_indv['B1'].value = start_date
 
     if not end_date:
-        end_date = datetime.now().replace(tzinfo=pytz.UTC)
+        end_date = timezone.now()
     ws['B2'].value = end_date
     ws_indv['B2'].value = end_date
 
@@ -636,7 +691,7 @@ def generate_individual_report(indv_id):
                 ws_evnt['A' + str(row_count)].value = evnt.start_date
                 ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
                 ws_evnt['C' + str(row_count)].value = grp_id.__str__()
-                ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
+                ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date), get_string=True)
                 ws_evnt['E' + str(row_count)].value = evnt.comments
                 row_count += 1
 
@@ -867,13 +922,13 @@ def generate_growth_chart(plot_fish):
     x_len_data = []
     y_len_data = []
     for len_det in len_dets:
-        x_len_data.append(datetime.combine(len_det.detail_date, datetime.min.time()))
+        x_len_data.append(datetime.combine(len_det.detail_date, utils.aware_min().time()))
         y_len_data.append(len_det.det_val)
 
     x_weight_data = []
     y_weight_data = []
     for weight_det in weight_dets:
-        x_weight_data.append(datetime.combine(weight_det.detail_date, datetime.min.time()))
+        x_weight_data.append(datetime.combine(weight_det.detail_date, utils.aware_min().time()))
         y_weight_data.append(weight_det.det_val)
 
     x_cond_data = []
@@ -882,7 +937,7 @@ def generate_growth_chart(plot_fish):
         for len_det in len_dets:
             weight_det = weight_dets.filter(detail_date=len_det.detail_date).first()
             if weight_det:
-                x_cond_data.append(datetime.combine(len_det.detail_date, datetime.min.time()))
+                x_cond_data.append(datetime.combine(len_det.detail_date, utils.aware_min().time()))
                 y_cond_data.append(utils.condition_factor(len_det.det_val, weight_det.det_val))
 
     # create a new plot
@@ -1059,16 +1114,16 @@ def fill_samples_sheet(request, report, ws, anidc_name, prog_id, facic_id, stok_
             ws["E" + str(row_count)].value = indv_id.individual_detail(anidc_name="Box", evnt_id=evnt_id,
                                                                          before_date=indvd.detail_date)
         ws["F" + str(row_count)].value = indv_id.pit_tag
-        ws["G" + str(row_count)].value = indv_id.stok_id.__str__()
-        ws["H" + str(row_count)].value = "{}, {}".format(indv_id.indv_year, indv_id.coll_id.__str__())
-        ws['I' + str(row_count)].value = indv_id.individual_detail(anidc_name="Gender", evnt_id=evnt_id,
+        ws["H" + str(row_count)].value = indv_id.stok_id.__str__()
+        ws["I" + str(row_count)].value = "{}, {}".format(indv_id.indv_year, indv_id.coll_id.__str__())
+        ws['J' + str(row_count)].value = indv_id.individual_detail(anidc_name="Gender", evnt_id=evnt_id,
                                                                          before_date=indvd.detail_date)
-        ws['J' + str(row_count)].value = indv_id.individual_detail(anidc_name="Length", evnt_id=evnt_id,
+        ws['K' + str(row_count)].value = indv_id.individual_detail(anidc_name="Length", evnt_id=evnt_id,
                                                                          before_date=indvd.detail_date)
-        ws['K' + str(row_count)].value = indv_id.individual_detail(anidc_name="Weight", evnt_id=evnt_id,
+        ws['L' + str(row_count)].value = indv_id.individual_detail(anidc_name="Weight", evnt_id=evnt_id,
                                                                          before_date=indvd.detail_date)
-        ws["L" + str(row_count)].value = indvd.comments
-        ws["M" + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_evnt", args=[evnt_id.id]))
+        ws["M" + str(row_count)].value = indvd.comments
+        ws["N" + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_evnt", args=[evnt_id.id]))
         row_count += 1
 
     for sampd in sampd_qs:

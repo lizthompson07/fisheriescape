@@ -6,7 +6,11 @@ from django.db import transaction
 from django.forms import model_to_dict
 from django.test import tag
 from datetime import datetime
+
+from django.utils import timezone
+
 from bio_diversity import forms, models
+from bio_diversity.data_parsers.calibration import CalibrationParser
 from bio_diversity.data_parsers.distributions import DistributionIndvParser
 from bio_diversity.data_parsers.electrofishing import MactaquacElectrofishingParser, ColdbrookElectrofishingParser
 from bio_diversity.data_parsers.generic import GenericUntaggedParser, GenericIndvParser, GenericGrpParser
@@ -57,8 +61,8 @@ class TestMactaquacParsers(CommonTest):
         }
 
     def test_parser(self):
-        # this is to ignore all of the errors raised and caught in the parsers.  If the parsers crash, they will return
-        # success = False as well as log data of the error
+        # assertingTrue on the parser result is to avoid errors raised and caught in the parsers.
+        # If the parsers crash, they will return success = False as well as log data of the error
         parser = MactaquacElectrofishingParser(self.cleaned_data)
         self.assertTrue(parser.success, parser.log_data)
 
@@ -173,6 +177,59 @@ class TestMasterParser(CommonTest):
         # success = False as well as log data of the error
         parser = MasterGrpParser(self.cleaned_data)
         self.assertTrue(parser.success, parser.log_data)
+
+@tag("Calibration", 'Parser')
+class TestCalibrationParser(CommonTest):
+    fixtures = ["initial_data.json"]
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+        self.mactaquac_facic = models.FacilityCode.objects.filter(name="Mactaquac").get()
+        self.calibration_evntc = models.EventCode.objects.filter(name="Calibration").get()
+
+        # used to get the full path from the static directory
+        self.calibration_test_data = finders.find("test\\parser_test_files\\test-calibration.xlsx")
+
+        self.calibration_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.calibration_evntc, facic_id=self.mactaquac_facic,
+                                                            start_datetime=timezone.now(), created_date=timezone.now(),
+                                                            end_datetime=None)
+
+        self.cleaned_data = {
+            "facic_id": self.mactaquac_facic,
+            "evnt_id": self.calibration_evnt,
+            "evntc_id": self.calibration_evntc,
+            "data_csv": self.calibration_test_data,
+            "created_by": self.calibration_evnt.created_by,
+            "created_date": self.calibration_evnt.created_date,
+        }
+
+    def test_calibration_parser(self):
+        # this is to ignore all of the errors raised and caught in the parsers.  If the parsers crash, they will return
+        # success = False as well as log data of the error
+        grp_a = BioFactoryFloor.GrpFactory()
+        grp_b = BioFactoryFloor.GrpFactory()
+        grp_c = BioFactoryFloor.GrpFactory()
+        tank_a = BioFactoryFloor.TankFactory(name="Tank A", facic_id=self.mactaquac_facic)
+
+        # set pk's to match test parser sheet
+        grp_a.pk = 7777
+        grp_a.save()
+        grp_b.pk = 8888
+        grp_b.save()
+        grp_c.pk = 9999
+        grp_c.save()
+
+        parser = CalibrationParser(self.cleaned_data)
+        self.assertTrue(parser.success, parser.log_data)
+
+        # refresh grps
+        grp_a = models.Group.objects.filter(pk=grp_a.pk).get()
+        grp_b = models.Group.objects.filter(pk=grp_b.pk).get()
+        grp_c = models.Group.objects.filter(pk=grp_c.pk).get()
+        self.assertEqual(grp_a.count_fish_in_group(at_date=timezone.now()), 7777)
+        self.assertEqual(grp_a.grp_end_date, self.calibration_evnt.start_datetime.date())
+        self.assertIn(grp_b, tank_a.fish_in_cont()[1])
+        self.assertEqual(grp_c.grp_valid, False)
 
 
 @tag("Treatment", 'Parser')

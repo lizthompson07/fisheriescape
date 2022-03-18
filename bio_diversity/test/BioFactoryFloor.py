@@ -126,10 +126,11 @@ class CntFactory(factory.django.DjangoModelFactory):
         model = models.Count
 
     loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
-    contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    anix_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnixFactory")
     cntc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CntcFactory")
     spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
     cnt = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
+    cnt_date = factory.lazy_attribute(lambda o: faker.date())
     est = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -138,7 +139,7 @@ class CntFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def build_valid_data(**kwargs):
         loc = LocFactory()
-        contx = ContxFactory()
+        anix = AnixFactory()
         cntc = CntcFactory()
         spec = SpecFactory()
 
@@ -147,10 +148,11 @@ class CntFactory(factory.django.DjangoModelFactory):
         # Convert the data to a dictionary to be used in testing
         data = {
             'loc_id': loc.pk,
-            'contx_id': contx.pk,
+            'anix_id': anix.pk,
             'cntc_id': cntc.pk,
             'spec_id': spec.pk,
             'cnt': obj.cnt,
+            'cnt_date': obj.cnt_date,
             'est': obj.est,
             'comments': obj.comments,
             'created_by': obj.created_by,
@@ -1736,6 +1738,39 @@ class LdscFactory(factory.django.DjangoModelFactory):
             'nom': obj.nom,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class MoveFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.MoveDet
+
+    anix_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnixFactory")
+    contx_start = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    contx_end = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    move_date = factory.lazy_attribute(lambda o: faker.date())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        obj = MoveFactory.build(**kwargs)
+        anix_id = AnixFactory()
+        contx_start = ContxFactory()
+        contx_end = ContxFactory()
+
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'anix_id': anix_id.pk,
+            'contx_start': contx_start.pk,
+            'contx_end': contx_end.pk,
+            'move_date': obj.move_date,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }
