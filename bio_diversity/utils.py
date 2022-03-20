@@ -50,7 +50,8 @@ class DataParser:
     month_key = "Month"
     day_key = "Day"
 
-    catch_error = Exception
+    catch_error = IOError
+    # catch_error = Exception
 
     mandatory_keys = []
     mandatory_filled_keys = []
@@ -485,22 +486,22 @@ def load_sfas():
     return sfa_dict
 
 
-def get_cont_evnt(contx_tuple):
+def get_cont_evnt(contx_id):
     # input should be in the form (contx, bool/null)
-    contx = contx_tuple[0]
-    output_dict = {"evnt_id": contx.evnt_id, "contx_id": contx, "destination": contx_tuple[1]}
-    for cont in [contx.tank_id, contx.cup_id, contx.tray_id, contx.trof_id, contx.draw_id, contx.heat_id]:
+    output_dict = {"evnt_id": contx_id.evnt_id, "contx_id": contx_id}
+    for cont in [contx_id.tank_id, contx_id.cup_id, contx_id.tray_id, contx_id.trof_id, contx_id.draw_id,
+                 contx_id.heat_id]:
         if cont:
             output_dict["cont_id"] = cont
             break
     return output_dict
 
 
-def get_view_cont_list(contx_tuple):
-    # input should be in the form (contx, bool/null)
-    contx = contx_tuple[0]
-    output_list = [contx.evnt_id.evntc_id.__str__(), contx.evnt_id.start_date, in_out_dict[contx_tuple[1]]]
-    for cont in [contx.tank_id, contx.cup_id, contx.tray_id, contx.trof_id, contx.draw_id, contx.heat_id]:
+def get_view_cont_list(contx_id):
+    # input should be in the form (contx_id)
+    output_list = [contx_id.evnt_id.evntc_id.__str__(), contx_id.evnt_id.start_date]
+    for cont in [contx_id.tank_id, contx_id.cup_id, contx_id.tray_id, contx_id.trof_id, contx_id.draw_id,
+                 contx_id.heat_id]:
         if cont:
             output_list.append(cont)
             break
@@ -1490,7 +1491,7 @@ def enter_mortality(indv, cleaned_data, mort_date):
     data_entered += enter_indvd(anix.pk, cleaned_data, mort_date, None, mort_anidc.pk)
     data_entered += anix_entered
     for cont in indv.current_cont(at_date=mort_date):
-        data_entered += enter_move(cleaned_data, cont, None, mort_date, indv_pk=indv.pk, mort=True)
+        data_entered += enter_move(cleaned_data, cont, None, mort_date, indv_pk=indv.pk, mort=True, return_sucess=True)
 
     indv.indv_valid = False
     indv.save()
@@ -2242,3 +2243,19 @@ def get_object_from_request(request, param, model_type):
     if obj_pk:
         obj_id = model_type.objects.filter(pk=obj_pk).get()
     return obj_id
+
+
+def get_dict_from_move(move_id, destination):
+    # out dict format:
+    if destination:
+        move_contx = move_id.contx_end
+    else:
+        move_contx = move_id.contx_start
+
+    if move_contx:
+        move_cont = move_contx.container
+    else:
+        return None
+
+    out_dict = {"move_id": move_id, "cont_id": move_cont, "destination": destination}
+    return out_dict

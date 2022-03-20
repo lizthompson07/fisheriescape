@@ -134,9 +134,6 @@ class AnixForm(CreatePrams):
     class Meta:
         model = models.AniDetailXref
         exclude = []
-        widgets = {
-            'final_contx_flag': forms.NullBooleanSelect()
-        }
 
 
 class AddCollFishForm(forms.Form):
@@ -457,7 +454,7 @@ class DataForm(CreatePrams):
                 log_data = parser.log_data
                 success = parser.success
 
-        except Exception as err:
+        except IOError as err:
             log_data += "Error parsing data: \n"
             log_data += "\n Error: {}".format(err)
 

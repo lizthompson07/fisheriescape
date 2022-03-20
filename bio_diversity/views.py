@@ -1419,7 +1419,6 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         context["cont_evnt_field_list"] = [
             "Event",
             "Date",
-            "Direction",
             "Container",
         ]
 
@@ -1609,12 +1608,11 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
                                                           pair_id__isnull=True)\
             .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
-        contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
-        context["cont_evnt_list"] = [utils.get_view_cont_list(contx) for contx in contx_tuple_set]
+        contx_set = list(dict.fromkeys([anix.contx_id for anix in anix_evnt_set]))
+        context["cont_evnt_list"] = [utils.get_view_cont_list(contx) for contx in contx_set]
         context["cont_evnt_field_list"] = [
             "Event",
             "Date",
-            "Direction"
             "Container",
         ]
         indv_len = self.object.individual_detail("Length")
@@ -1765,7 +1763,6 @@ class LocDetails(mixins.LocMixin, CommonDetails):
         context["cont_evnt_field_list"] = [
             "Event",
             "Date",
-            "Direction",
             "Container",
         ]
 
@@ -3491,8 +3488,10 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
             grp_pk = int(form.cleaned_data["grp_id"].pk)
             return HttpResponseRedirect(reverse("bio_diversity:grp_report_file") + f"?grp_pk={grp_pk}")
         elif report == "mort_rep":
-            facic_pk = int(form.cleaned_data["facic_id"].pk)
-            arg_str = f"?facic_pk={facic_pk}"
+            arg_str = ""
+            if form.cleaned_data["facic_id"]:
+                facic_pk = int(form.cleaned_data["facic_id"].pk)
+                arg_str += f"?facic_pk={facic_pk}"
             if form.cleaned_data["prog_id"]:
                 prog_pk = int(form.cleaned_data["prog_id"].pk)
                 arg_str += f"&prog_pk={prog_pk}"

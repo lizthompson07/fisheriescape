@@ -744,19 +744,6 @@
     },
     {
         "fields": {
-            "anidc_id": 7,
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-12-06",
-            "description_en": "Fish died.",
-            "description_fr": "",
-            "name": "Mortality",
-            "nom": null
-        },
-        "model": "bio_diversity.anidetsubjcode",
-        "pk": 43
-    },
-    {
-        "fields": {
             "anidc_id": 17,
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-04-27",
@@ -2650,16 +2637,6 @@
         "pk": 1
     }, {
         "fields": {
-            "comments": null,
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-01-14",
-            "instc_id": 1,
-            "serial_number": "TestTherm"
-        },
-        "model": "bio_diversity.instrument",
-        "pk": 1
-    }, {
-        "fields": {
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-01-14",
             "description_en": "",
@@ -2990,18 +2967,6 @@
         },
         "model": "bio_diversity.personnelcode",
         "pk": 15
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-04-07",
-            "initials": "TD",
-            "perc_first_name": "Test",
-            "perc_last_name": "Dummy",
-            "perc_valid": true
-        },
-        "model": "bio_diversity.personnelcode",
-        "pk": 14
     },
     {
         "fields": {
@@ -6591,19 +6556,6 @@
         },
         "model": "bio_diversity.tank",
         "pk": 89
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-05-21",
-            "description_en": "Test pond, may or may not actually exist.",
-            "description_fr": "",
-            "facic_id": 2,
-            "name": "LP22B",
-            "nom": null
-        },
-        "model": "bio_diversity.tank",
-        "pk": 33
     },
     {
         "fields": {

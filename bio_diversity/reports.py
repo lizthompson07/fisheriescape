@@ -60,26 +60,25 @@ class ExcelReport:
         self.wb.save(self.target_file_path)
 
 
-def cont_treat_feed_writer(ws, cont_evnt_list, row_count, treat_row_count, feed_row_count, end_date=None):
+def cont_treat_feed_writer(ws, move_hist_list, row_count, treat_row_count, feed_row_count, end_date=None):
     if not end_date:
         end_date = timezone.now()
 
     treat_list = []
     feed_list = []
-    for contx_dict in cont_evnt_list:
-        evnt_id = contx_dict["evnt_id"]
-        # cont_evnt = [evntc, date, direction, container]
-        ws['A' + str(row_count)].value = evnt_id.start_datetime.date()
-        ws['B' + str(row_count)].value = evnt_id.evntc_id.name
-        ws['C' + str(row_count)].value = contx_dict["cont_id"].name
-        ws['D' + str(row_count)].value = in_out_dict[contx_dict["destination"]]
+    for move_dict in move_hist_list:
+        # move_dict = [move_id, direction, container]
+        ws['A' + str(row_count)].value = move_dict["move_id"].move_date
+        ws['B' + str(row_count)].value = move_dict["move_id"].anix_id.evnt_id.evntc_id.name
+        ws['C' + str(row_count)].value = move_dict["cont_id"].name
+        ws['D' + str(row_count)].value = in_out_dict[move_dict["destination"]]
         row_count += 1
-        if contx_dict["destination"]:
-            start_date = evnt_id.start_datetime
-            treat_list.extend(contx_dict["cont_id"].cont_treatments(start_date, end_date))
-            feed_list.extend(contx_dict["cont_id"].feed_history(start_date, end_date))
-        if not contx_dict["destination"] and contx_dict is not None:
-            end_date = evnt_id.start_datetime
+        if move_dict["destination"]:
+            start_date = move_dict["move_id"].move_date
+            treat_list.extend(move_dict["cont_id"].cont_treatments(start_date, end_date))
+            feed_list.extend(move_dict["cont_id"].feed_history(start_date, end_date))
+        if not move_dict["destination"] and move_dict is not None:
+            end_date = move_dict["move_id"].move_date
 
     for treat in treat_list:
         ws['G' + str(treat_row_count)].value = treat.envtc_id.name
@@ -279,11 +278,11 @@ def generate_stock_code_report(stok_id, coll_id, year, start_date=None, end_date
         ws_grp['G' + str(row_count)].value = item.avg_len(at_date=end_date)
         ws_grp['H' + str(row_count)].value = item.avg_weight(at_date=end_date)
         ws_grp['I' + str(row_count)].value = item.count_fish_in_group(end_date)
-        grp_history = item.get_cont_history(start_date=start_date, end_date=end_date)
+        grp_history = item.get_move_history(start_date=start_date, end_date=end_date)
         cont_str = ""
-        for contx_dict in grp_history:
-            if contx_dict["destination"] is not None:
-                cont_str += contx_dict["cont_id"].name + ", "
+        for move_dict in grp_history:
+            if move_dict["destination"] is not None:
+                cont_str += move_dict["cont_id"].name + ", "
         if not cont_str:
             cont_str = current_cont_str
         ws_grp['J' + str(row_count)].value = cont_str
@@ -312,14 +311,14 @@ def generate_morts_report(request, facic_id=None, prog_id=None, stok_id=None, ye
 
     # select all individuals
     indv_mortd_qs = models.IndividualDet.objects.filter(anidc_id=mort_anidc,
-                                                        anix_id__evnt_id__start_datetime__gte=start_date,
-                                                        anix_id__evnt_id__end_datetime__lte=end_date)
+                                                        detail_date__gte=start_date,
+                                                        detail_date__lte=end_date)
     grp_mortd_qs = models.GroupDet.objects.filter(anidc_id=mort_anidc,
-                                                  anix_id__evnt_id__start_datetime__gte=start_date,
-                                                  anix_id__evnt_id__end_datetime__lte=end_date)
+                                                  detail_date__gte=start_date,
+                                                  detail_date__lte=end_date)
     samp_mortd_qs = models.SampleDet.objects.filter(anidc_id=mort_anidc,
-                                                    samp_id__anix_id__evnt_id__start_datetime__gte=start_date,
-                                                    samp_id__anix_id__evnt_id__end_datetime__lte=end_date)
+                                                    detail_date__gte=start_date,
+                                                    detail_date__lte=end_date)
     if facic_id:
         indv_mortd_qs = indv_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
         grp_mortd_qs = grp_mortd_qs.filter(anix_id__evnt_id__facic_id=facic_id)
@@ -701,32 +700,29 @@ def generate_individual_report(indv_id):
         if grp_id:
             start_date = utils.naive_to_aware(grp_id.start_date())
             end_date = utils.naive_to_aware(grp_tuple[2])
-            cont_evnt_list = grp_id.get_cont_history(start_date=start_date, end_date=end_date)
-            for contx_dict in cont_evnt_list:
-                evnt = contx_dict["evnt_id"]
-                ws_evnt['A' + str(row_count)].value = evnt.start_date
-                ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
+            move_hist_list = grp_id.get_move_history(start_date=start_date, end_date=end_date)
+            for move_dict in move_hist_list:
+                ws_evnt['A' + str(row_count)].value = move_dict["move_id"].move_date
+                ws_evnt['B' + str(row_count)].value = move_dict["move_id"].anix_id.evnt_id.evntc_id.name
                 ws_evnt['C' + str(row_count)].value = grp_id.__str__()
-                ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date), get_string=True)
-                ws_evnt['E' + str(row_count)].value = evnt.comments
+                ws_evnt['D' + str(row_count)].value = move_dict["cont_id"].__str__()
+                ws_evnt['E' + str(row_count)].value = move_dict["move_id"].comments
                 row_count += 1
 
     # -----------------Container Sheet------------------------
-    anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True, pair_id__isnull=True) \
-        .order_by("-evnt_id__start_datetime", "-final_contx_flag") \
-        .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
-    contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
-    cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+    move_hist_dict = indv_id.get_move_history()
     row_count = 5
-    row_count, treat_row_count, treat_end_date, feed_row_count = cont_treat_feed_writer(ws_cont, cont_evnt_list, row_count, row_count, row_count)
+    row_count, treat_row_count, treat_end_date, feed_row_count = cont_treat_feed_writer(ws_cont, move_hist_dict,
+                                                                                        row_count, row_count, row_count)
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
         if grp_id:
             start_date = utils.naive_to_aware(grp_id.start_date())
             end_date = utils.naive_to_aware(grp_tuple[2])
-            cont_evnt_list = grp_id.get_cont_history(start_date=start_date, end_date=end_date)
-            treat_end_date = cont_treat_feed_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, feed_row_count, end_date=treat_end_date)[2]
+            move_hist_list = grp_id.get_move_history(start_date=start_date, end_date=end_date)
+            treat_end_date = cont_treat_feed_writer(ws_cont, move_hist_list, row_count, treat_row_count, feed_row_count,
+                                                    end_date=treat_end_date)[2]
 
     # -----------------Details Sheet------------------------
     indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=indv_id).distinct(). \
@@ -823,17 +819,17 @@ def generate_grp_report(grp_id):
                 row_count += 1
 
     # -----------------Container Sheet------------------------
-    cont_evnt_list = grp_id.get_cont_history()
+    move_hist_list = grp_id.get_move_history()
     row_count = 5
-    row_count, treat_row_count, treat_end_date, feed_row_count = cont_treat_feed_writer(ws_cont, cont_evnt_list, row_count, row_count, row_count)
+    row_count, treat_row_count, treat_end_date, feed_row_count = cont_treat_feed_writer(ws_cont, move_hist_list, row_count, row_count, row_count)
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
         if grp_id:
             start_date = utils.naive_to_aware(grp_id.start_date())
             end_date = utils.naive_to_aware(grp_tuple[2])
-            cont_evnt_list = grp_id.get_cont_history(end_date=end_date, start_date=start_date)
-            treat_end_date = cont_treat_feed_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, feed_row_count)[2]
+            move_hist_list = grp_id.get_move_history(end_date=end_date, start_date=start_date)
+            treat_end_date = cont_treat_feed_writer(ws_cont, move_hist_list, row_count, treat_row_count, feed_row_count)[2]
 
     report.save_wb()
 

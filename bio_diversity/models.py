@@ -309,7 +309,8 @@ class BioCont(BioLookup):
             end_date = timezone.now()
 
         filter_arg = "contx_id__{}_id".format(self.key)
-        envt_qs = EnvTreatment.objects.filter(**{filter_arg: self}, start_datetime__gte=start_date, start_datetime__lte=end_date)
+        envt_qs = EnvTreatment.objects.filter(**{filter_arg: self}, start_datetime__gte=start_date,
+                                              start_datetime__lte=end_date)
         return envt_qs
 
 
@@ -367,8 +368,6 @@ class AniDetailXref(BioModel):
                                 related_name="animal_details")
     contx_id = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True, related_name="animal_details",
                                  verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
-    final_contx_flag = models.BooleanField(verbose_name=_("Final Container in movement"), default=None, blank=True,
-                                           null=True, db_column="FINAL_CONTAINER_FLAG")
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True, db_column="LOCATION_ID",
                                related_name="animal_details", verbose_name=_("Location"))
     indv_id = models.ForeignKey("Individual", on_delete=models.CASCADE, null=True, blank=True, db_column="INDIV_ID",
@@ -1040,15 +1039,36 @@ class Group(BioModel):
             start_date = utils.aware_min()
         if not end_date:
             end_date = timezone.now()
+
         anix_evnt_set = AniDetailXref.objects.filter(grp_id=self, contx_id__isnull=False, loc_id__isnull=True,
                                                      pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
                                                      evnt_id__start_datetime__gte=start_date).select_related("contx_id")
 
-        contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
+        contx_set = list(dict.fromkeys([anix.contx_id for anix in anix_evnt_set]))
         if get_str:
-            out_list = [utils.get_view_cont_list(contx) for contx in contx_tuple_set]
+            out_list = [utils.get_view_cont_list(contx) for contx in contx_set]
         else:
-            out_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+            out_list = [utils.get_cont_evnt(contx) for contx in contx_set]
+
+        return out_list
+
+    def get_move_history(self, start_date=None, end_date=None):
+        if not start_date:
+            start_date = utils.aware_min()
+        if not end_date:
+            end_date = timezone.now()
+
+        move_set = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=end_date, move_date__gte=start_date).\
+            order_by("-move_date").select_related('contx_end', 'contx_start')
+
+        out_list = []
+        for move_id in move_set:
+            end_move_dict = utils.get_dict_from_move(move_id, True)
+            if end_move_dict["move_id"] is not None:
+                out_list.append(end_move_dict)
+            start_move_dict = utils.get_dict_from_move(move_id, False)
+            if start_move_dict["move_id"] is not None:
+                out_list.append(start_move_dict)
 
         return out_list
 
@@ -1245,7 +1265,7 @@ class GroupDet(BioDet):
                                 verbose_name=_("Animal Detail Cross Reference"), db_column="ANI_DET_XREF_ID")
 
     class Meta:
-        unique_together = (('anix_id', 'anidc_id', 'adsc_id', 'frm_grp_id'),)
+        unique_together = (('anix_id', 'anidc_id', 'adsc_id', 'frm_grp_id', 'detail_date'),)
 
     def __str__(self):
         return "{} Detail".format(self.anidc_id.name)
@@ -1443,7 +1463,8 @@ class Individual(BioModel):
             select_related('contx_end').order_by("-move_date").first()
 
         if last_move:
-            cont_list.append(last_move.contx_end.container)
+            if last_move.contx_end:
+                cont_list = [last_move.contx_end.container]
 
         if get_string:
             cont_str_list = [cont.__str__() for cont in cont_list]
@@ -1469,6 +1490,26 @@ class Individual(BioModel):
         if self.grp_id:
             parent_grps.extend(self.grp_id.get_parent_history())
         return parent_grps
+
+    def get_move_history(self, start_date=None, end_date=None):
+        if not start_date:
+            start_date = utils.aware_min()
+        if not end_date:
+            end_date = timezone.now()
+
+        move_set = MoveDet.objects.filter(anix_id__indv_id=self, move_date__lte=end_date, move_date__gte=start_date).\
+            order_by("-move_date").select_related('contx_end', 'contx_start')
+
+        out_list = []
+        for move_id in move_set:
+            end_move_dict = utils.get_dict_from_move(move_id, True)
+            if end_move_dict is not None:
+                out_list.append(end_move_dict)
+            start_move_dict = utils.get_dict_from_move(move_id, False)
+            if start_move_dict is not None:
+                out_list.append(start_move_dict)
+
+        return out_list
 
     def start_date(self):
         first_evnt = self.animal_details.order_by("-evnt_id__start_date").first()
@@ -1514,7 +1555,7 @@ class Individual(BioModel):
                                                 anix_id__evnt_id=evnt_id).order_by("-detail_date").select_related("adsc_id")
         out_str = ""
         for indvd in indvd_qs:
-            out_str += indvd.adsc_id__name + ", "
+            out_str += indvd.adsc_id.name + ", "
         return out_str
 
     def prog_group(self, get_string=False):
@@ -1540,7 +1581,7 @@ class IndividualDet(BioDet):
                                 verbose_name=_("Animal Detail Cross Reference"), db_column="ANI_DET_XREF_ID")
 
     class Meta:
-        unique_together = (('anix_id', 'anidc_id', 'adsc_id'),)
+        unique_together = (('anix_id', 'anidc_id', 'adsc_id', 'detail_date'),)
 
     def __str__(self):
         return "{} - {}".format(self.anix_id.__str__(), self.anidc_id.__str__())
@@ -1734,11 +1775,11 @@ class Location(BioModel):
                                                      pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
                                                      evnt_id__start_datetime__gte=start_date).select_related("contx_id")
 
-        contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
+        contx_set = list(dict.fromkeys([anix.contx_id for anix in anix_evnt_set]))
         if get_str:
-            out_list = [utils.get_view_cont_list(contx) for contx in contx_tuple_set]
+            out_list = [utils.get_view_cont_list(contx) for contx in contx_set]
         else:
-            out_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+            out_list = [utils.get_cont_evnt(contx) for contx in contx_set]
 
         return out_list
 
@@ -2179,10 +2220,11 @@ class SampleCode(BioLookup):
 
 
 class SampleDet(BioDet):
+    # sampd tag
     samp_id = models.ForeignKey('Sample', on_delete=models.CASCADE, verbose_name=_("Sample"), db_column="SAMPLE_ID")
 
     class Meta:
-        unique_together = (('samp_id', 'anidc_id', 'adsc_id'),)
+        unique_together = (('samp_id', 'anidc_id', 'adsc_id', 'detail_date'),)
 
     def __str__(self):
         return "{} - {}".format(self.samp_id.__str__(), self.anidc_id.__str__())
