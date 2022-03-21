@@ -16,7 +16,7 @@ from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingPar
     ElectrofishingParser, AdultCollectionParser
 from bio_diversity.data_parsers.feeding import FeedingParser
 from bio_diversity.data_parsers.sites import SitesParser
-from bio_diversity.calculation_constants import sfa_nums, collection_evntc_list
+from bio_diversity.static.bio_diversity.calculation_constants import sfa_nums, collection_evntc_list
 
 from bio_diversity import models
 from bio_diversity import utils

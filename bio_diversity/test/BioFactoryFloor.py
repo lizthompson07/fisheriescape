@@ -3,7 +3,8 @@ import factory
 import pytz
 from faker import Factory
 
-from bio_diversity import models, calculation_constants
+from bio_diversity import models
+from bio_diversity.static.bio_diversity import calculation_constants
 
 faker = Factory.create()
 
@@ -2112,7 +2113,7 @@ class RelcFactory(factory.django.DjangoModelFactory):
     min_lat = factory.lazy_attribute(lambda o: faker.random_int(0, 45))
     max_lat = factory.lazy_attribute(lambda o: faker.random_int(50, 90))
     min_lon = factory.lazy_attribute(lambda o: faker.random_int(calculation_constants.min_long, (
-                calculation_constants.min_long + calculation_constants.max_long) / 2))
+            calculation_constants.min_long + calculation_constants.max_long) / 2))
     max_lon = factory.lazy_attribute(lambda o: faker.random_int((calculation_constants.min_long +
                                                                  calculation_constants.max_long) / 2 + 5,
                                                                 calculation_constants.max_long))

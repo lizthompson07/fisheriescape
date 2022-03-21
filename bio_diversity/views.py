@@ -22,7 +22,7 @@ from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models, reports
 from django.utils.translation import gettext_lazy as _, gettext_lazy
 
-from bio_diversity.calculation_constants import collection_evntc_list, egg_dev_evntc_list
+from bio_diversity.static.bio_diversity.calculation_constants import collection_evntc_list, egg_dev_evntc_list
 
 
 class IndexTemplateView(TemplateView):

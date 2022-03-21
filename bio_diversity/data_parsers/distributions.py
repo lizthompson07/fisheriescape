@@ -3,7 +3,8 @@ from django.core.exceptions import ValidationError
 from django.db.models import Count as django_Count
 from django.db.models import Q
 
-from bio_diversity import models, calculation_constants
+from bio_diversity import models
+from bio_diversity.static.bio_diversity import calculation_constants
 from bio_diversity import utils
 from bio_diversity.utils import DataParser
 

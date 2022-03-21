@@ -13,7 +13,8 @@ from django.dispatch import receiver
 from django.utils import timezone
 from shapely.geometry import Point, box, LineString
 
-from bio_diversity import utils, calculation_constants
+from bio_diversity import utils
+from bio_diversity.static.bio_diversity import calculation_constants
 from bio_diversity.utils import naive_to_aware
 from shared_models import models as shared_models
 from django.db import models
