@@ -271,8 +271,7 @@ class GenericUntaggedParser(DataParser):
                                                     evnt_id=cleaned_data["evnt_id"],
                                                     indv_id__isnull=True,
                                                     loc_id__isnull=True,
-                                                    pair_id__isnull=True,
-                                                    final_contx_flag=None).get()
+                                                    pair_id__isnull=True).get()
 
         row_samp, data_entered = utils.enter_samp(cleaned_data, row[self.samp_key], row_grp.spec_id.pk,
                                                   self.sampc_id.pk,

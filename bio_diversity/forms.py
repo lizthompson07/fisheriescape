@@ -134,9 +134,6 @@ class AnixForm(CreatePrams):
     class Meta:
         model = models.AniDetailXref
         exclude = []
-        widgets = {
-            'final_contx_flag': forms.NullBooleanSelect()
-        }
 
 
 class AddCollFishForm(forms.Form):
