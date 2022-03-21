@@ -3,8 +3,7 @@ import factory
 import pytz
 from faker import Factory
 
-from bio_diversity import models
-from bio_diversity.static.bio_diversity import calculation_constants
+from bio_diversity import models, calculation_constants
 
 faker = Factory.create()
 
