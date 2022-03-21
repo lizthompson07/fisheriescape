@@ -2262,10 +2262,11 @@ class EnvtcList(mixins.EnvtcMixin, GenericList):
 class EvntList(mixins.EvntMixin, GenericList):
     field_list = [
         {"name": 'facic_id', "class": "", "width": ""},
+        {"name": 'prog_id', "class": "", "width": ""},
         {"name": 'evntc_id', "class": "", "width": ""},
         {"name": 'start_datetime', "class": "", "width": ""},
     ]
-    queryset = models.Event.objects.select_related("facic_id", "evntc_id")
+    queryset = models.Event.objects.select_related("facic_id", "evntc_id", "prog_id")
     filterset_class = filters.EvntFilter
 
 

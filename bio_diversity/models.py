@@ -1064,11 +1064,11 @@ class Group(BioModel):
         out_list = []
         for move_id in move_set:
             end_move_dict = utils.get_dict_from_move(move_id, True)
-            if end_move_dict["move_id"] is not None:
+            if end_move_dict is not None:
                 out_list.append(end_move_dict)
             start_move_dict = utils.get_dict_from_move(move_id, False)
-            if start_move_dict["move_id"] is not None:
-                out_list.append(start_move_dict)
+            if start_move_dict is not None:
+                    out_list.append(start_move_dict)
 
         return out_list
 
