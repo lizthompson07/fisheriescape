@@ -16,8 +16,8 @@ class CommitteeForm(forms.ModelForm):
     class Meta:
         model = models.Committee
         exclude = [
-            'date_last_modified',
-            'date_created',
+            'last_modified_by',
+            'last_modified',
         ]
         widgets = {
             'external_chair': forms.Select(attrs=chosen_js),
@@ -25,6 +25,27 @@ class CommitteeForm(forms.ModelForm):
             'external_organization': forms.SelectMultiple(attrs=chosen_js),
             'external_contact': forms.SelectMultiple(attrs=chosen_js),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.order_fields(['name', 'main_topic', 'species', 'branch', 'division', 'area_office', 'is_dfo_chair',
+                           'external_chair', 'dfo_liaison', 'other_dfo_branch', 'other_dfo_regions', 'other_dfo_areas',
+                           'dfo_role', 'first_nation_participation', 'provincial_participation', 'external_contact',
+                           'external_organization', 'meeting_frequency', 'are_tor', 'location_of_tor',
+                           'main_actions', 'comments',
+                           ])
+
+        branch = [(c.id, c) for c in shared_models.Branch.objects.all()]
+        branch.insert(0, (None, "-----"))
+        self.fields['branch'].choices = branch
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if cleaned_data["dfo_liaison"] is None:
+            self.add_error('dfo_liaison', _("DFO liaison/secretariat is required"))
+
+        return cleaned_data
 
 
 class InteractionForm(forms.ModelForm):
@@ -64,6 +85,7 @@ class OrganizationForm(forms.ModelForm):
             'sectors': forms.SelectMultiple(attrs=multi_select_js),
             'reserves': forms.SelectMultiple(attrs=multi_select_js),
             # dates
+            'dfo_contact_instructions': forms.HiddenInput(),
             'next_election': forms.TextInput(attrs=attr_fp_date),
             'new_coucil_effective_date': forms.TextInput(attrs=attr_fp_date),
             'last_modified': forms.HiddenInput(),
@@ -72,9 +94,9 @@ class OrganizationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['name_eng', 'category', 'name_ind', 'abbrev', 'email', 'address', 'mailing_address', 'city',
-                           'postal_code', 'province', 'phone', 'fax', 'dfo_contact_instructions', 'notes',
-                           'key_species', 'grouping', 'area', 'regions', 'asc_province'])
+        self.order_fields(['name_eng', 'category', 'grouping', 'name_ind', 'abbrev', 'email', 'address', 'mailing_address', 'city',
+                           'postal_code', 'province', 'phone', 'fax', 'notes',
+                           'key_species', 'area', 'regions', 'asc_province'])
 
         self.fields['area'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['category'].widget = forms.SelectMultiple(attrs=multi_select_js)

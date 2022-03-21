@@ -1,7 +1,7 @@
 <script type="application/javascript">
     var interval = null;
     function divisionChange() {
-        if( $("#branch_id").val() != null) {
+        if( $("#id_branch").val() != null) {
         interval = setInterval(function() {
             $.ajax({
                 type: 'GET',
@@ -19,7 +19,13 @@
 
                     // get the currently selected division id. The values Django assigns to
                     // selection list is the items primary key
-                    var sel_div_pk = $("#id_division :selected").val();
+                    var sel_div_pk = 0;
+
+                    $("#division_div").hide();
+                    if($("#id_branch").val() != 0 ) {
+                        sel_div_pk = $("#id_division :selected").val();
+                        $("#division_div").show();
+                    }
                     $("#id_division").empty(); // remove old options
 
                     var sel_changed = true;
@@ -48,7 +54,11 @@
         }, 250);
         }
     }
-
+    $("#division_div").hide();
     $("#id_branch").change(divisionChange());
     $("#id_branch").change(divisionChange);
+
+    $("#id_other_dfo_branch").prop("required", false);
+    $("#id_other_dfo_regions").prop("required", false);
+    $("#id_other_dfo_areas").prop("required", false);
 </script>
