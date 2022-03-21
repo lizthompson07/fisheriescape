@@ -45,6 +45,10 @@ urlpatterns = [
     path('analyses/<int:pk>/delete/', views.AnalysesDeleteView.as_view(), name="analyses_delete"),
     # path('fishery-filter/', views.AnalysesFilterView.as_view(), name="analyses_filter"),
 
+    # SCORES #
+    path('scores-list/', views.ScoreFilterView.as_view(), name="score_filter"),
+    path('scores-map/', views.ScoreMapView.as_view(), name="score_map"),
+
     # SETTINGS #
     ############
 

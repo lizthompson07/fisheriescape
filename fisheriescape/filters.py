@@ -42,6 +42,7 @@ class FisheryFilter(django_filters.FilterSet):
             'fishery_areas': ['exact'],
             'fishery_status': ['exact'],
             'gear_type': ['exact'],
+            'management_system': ['exact'],
 
         }
 
@@ -75,3 +76,15 @@ class AnalysesFilter(django_filters.FilterSet):
 # my_date= request.POST.get('my_date','') # for eg. 2019-10-26
 # my_date = datetime.strptime(my_date, "%Y-%m-%d")
 # date_between = Fishery.objects.filter(start_date__lt=my_date, end_date__gt=my_date).order_by('start_date')
+
+
+class ScoreFilter(django_filters.FilterSet):
+    week = django_filters.ModelMultipleChoiceFilter(queryset=models.Week.objects.all(), widget=forms.SelectMultiple(attrs={"class": "chosen-select-contains"}), label="Week")
+
+    class Meta:
+        model = models.Score
+        fields = {
+            'hexagon': ['exact'],
+            'species': ['exact'],
+
+        }

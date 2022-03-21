@@ -30,7 +30,7 @@
     {#  <br>#}
 
     <div class="row">
-        <div class="col-5">
+        <div class="col-6">
 
             {#Fisheries Info Card#}
             <div class="card entry-card mb-3">
@@ -75,7 +75,7 @@
             </div>
 
         </div>
-        <div class="col">
+        <div class="col-6">
 
             {#Map Card#}
             <div class="card entry-card mb-3">
@@ -98,7 +98,11 @@
                     <p><strong>These numbers represent the percent of the fleet that is required to report under each monitoring program.</strong></p>
                     <table class="table table-sm">
                         {% for field in field_list_monitoring %}
-                            {% verbose_td_display instance=object field_name=field format="percent" %}
+                            {% if field == "monitoring_comment" %}
+                                {% verbose_td_display instance=object field_name=field %}
+                            {% else %}
+                                {% verbose_td_display instance=object field_name=field format="percent" %}
+                            {% endif %}
                         {% endfor %}
                     </table>
                 </div>
@@ -136,55 +140,3 @@
     <script src="{% static 'fisheriescape/map2.js' %}?version=1.4"></script>
 
 {% endblock %}
-
-{#{% load static %}#}
-{#<!doctype html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#  <title>Map</title>#}
-{#  <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
-{#  <link rel="stylesheet" type="text/css" href="{% static 'fisheriescape/map.css' %}?version=1.0">#}
-{# <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"#}
-{#   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="#}
-{#   crossorigin=""/>#}
-{# <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"#}
-{#   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="#}
-{#   crossorigin=""></script>#}
-{#</head>#}
-{#<body>#}
-{#    <div class="mb-4">#}
-{#        <div class="btn-group">#}
-{#            <a class="btn btn-warning" href="{% url 'fisheriescape:fishery_edit' object.id %}">Edit</a>#}
-{#            <a class="btn btn-danger" href="{% url 'fisheriescape:fishery_delete' object.id %}">Delete</a>#}
-{#            <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}" >Back</a>#}
-{#        </div>#}
-{#    </div>#}
-{##}
-{#    <div class="row">#}
-{#        <div class="col-3">#}
-{#            <table class="table table-sm table-striped">#}
-{#            {% for field in field_list %}#}
-{#                 {% verbose_td_display object field %}#}
-{#            {% endfor %}#}
-{#            </table>#}
-{#        </div>#}
-{##}
-{#    </div>#}
-{#    <br>#}
-{#    <br>#}
-{##}
-{#  <div id="map2"></div>#}
-{##}
-{#     <div class="col-12">#}
-{#            {% include "fisheriescape/_mammals.html" %}#}
-{#     </div>#}
-{##}
-{##}
-{#  <script>#}
-{#      var lobsterObj = {{ lobster_areas | safe }}#}
-{#      var snowCrabObj = {{ snow_crab_areas | safe }}#}
-{#      var nafoObj = {{ nafo_areas | safe }}#}
-{#  </script>#}
-{#  <script src="{% static 'fisheriescape/map2.js' %}?version=1.0"></script>#}
-{#</body>#}
-{#</html>#}

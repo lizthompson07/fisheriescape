@@ -147,6 +147,7 @@ INSTALLED_APPS = [
                      'django.contrib.gis',
                      'preventconcurrentlogins',
                      'rest_framework',
+                     'rest_framework_gis',
                      'django_filters',
                      'storages',
                      'django.contrib.humanize',

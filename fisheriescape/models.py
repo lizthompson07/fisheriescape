@@ -9,6 +9,9 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.gis.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+from shared_models.models import MetadataFields
+from shared_models.utils import get_metadata_string
+
 
 class NAFOArea(models.Model):
     name = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("nafo area name"))
@@ -163,7 +166,7 @@ ROPE_CHOICES = (
 )
 
 
-class Fishery(models.Model):
+class Fishery(MetadataFields):
     #fisheries info
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="fisherys",
                                 verbose_name=_("species"))

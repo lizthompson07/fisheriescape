@@ -77,6 +77,10 @@ if settings.INSTALLED_APPS.count("ihub"):
     urlpatterns.append(
         path('api/', include('ihub.api.urls')),
     )
+if settings.INSTALLED_APPS.count("fisheriescape"):
+    urlpatterns.append(
+        path('api/', include('fisheriescape.api.urls')),
+    )
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
