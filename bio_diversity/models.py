@@ -377,8 +377,7 @@ class AniDetailXref(BioModel):
                                 related_name="animal_details", db_column="TEAM_ID")
 
     class Meta:
-        unique_together = (('evnt_id', 'contx_id', 'loc_id', 'indv_id', 'pair_id',
-                                            'grp_id', 'team_id'),)
+        unique_together = (('evnt_id', 'contx_id', 'loc_id', 'indv_id', 'pair_id', 'grp_id', 'team_id'),)
 
     def clean(self):
         super(AniDetailXref, self).clean()
@@ -1013,7 +1012,7 @@ class Group(BioModel):
                     return ""
                 return cont_list
 
-        move_set = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date). \
+        move_set = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date).order_by("move_date"). \
             select_related('contx_end', 'contx_start')
 
         # These dicts can only hold each group/indv once, the order by method on the queryset ensures that the entry
