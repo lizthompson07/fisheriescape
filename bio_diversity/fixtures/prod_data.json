@@ -257,22 +257,6 @@
     },
     {
         "fields": {
-            "ani_subj_flag": false,
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-02-10",
-            "description_en": "Indicates if the fish looks like it has potential",
-            "description_fr": "",
-            "max_val": null,
-            "min_val": null,
-            "name": "Precocity",
-            "nom": null,
-            "unit_id": null
-        },
-        "model": "bio_diversity.animaldetcode",
-        "pk": 13
-    },
-    {
-        "fields": {
             "ani_subj_flag": true,
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-04-06",
@@ -468,19 +452,6 @@
         },
         "model": "bio_diversity.anidetsubjcode",
         "pk": 31
-    },
-    {
-        "fields": {
-            "anidc_id": 7,
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-02-01",
-            "description_en": "Fish is an albino",
-            "description_fr": "",
-            "name": "Albino",
-            "nom": null
-        },
-        "model": "bio_diversity.anidetsubjcode",
-        "pk": 6
     },
     {
         "fields": {
@@ -877,7 +848,7 @@
             "anidc_id": 7,
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-02-02",
-            "description_en": "Fish in need of some extra food and relaxation time",
+            "description_en": "Fish in need of extra food.",
             "description_fr": "",
             "name": "Skinny",
             "nom": null
@@ -3001,60 +2972,8 @@
         },
         "model": "bio_diversity.progauthority",
         "pk": 5
-    }, {
-        "fields": {
-            "comments": null,
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-03-12",
-            "end_date": null,
-            "evntc_id": 1,
-            "facic_id": 2,
-            "name": "Electrofishing",
-            "prog_id": 5,
-            "prot_desc": "This is how we electrofish",
-            "protc_id": 1,
-            "start_date": "2021-03-12",
-            "valid": true
-        },
-        "model": "bio_diversity.protocol",
-        "pk": 2
     },
     {
-        "fields": {
-            "comments": null,
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-03-18",
-            "end_date": "2021-03-19",
-            "evntc_id": 8,
-            "facic_id": 2,
-            "name": "Salt Treatment",
-            "prog_id": 5,
-            "prot_desc": "Particulate salt is dissolved into tanks until salinity stabilizes to target level.",
-            "protc_id": 4,
-            "start_date": "2021-03-18",
-            "valid": true
-        },
-        "model": "bio_diversity.protocol",
-        "pk": 3
-    },
-    {
-        "fields": {
-            "comments": null,
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-03-18",
-            "end_date": "2021-03-19",
-            "evntc_id": 8,
-            "facic_id": 2,
-            "name": "Formaldehyde Treatment",
-            "prog_id": 5,
-            "prot_desc": "Formaldehyde is dissolved to the desired concentration and then poured into tanks in set doses.",
-            "protc_id": 4,
-            "start_date": "2021-03-18",
-            "valid": true
-        },
-        "model": "bio_diversity.protocol",
-        "pk": 4
-    }, {
         "fields": {
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-01-13",
