@@ -454,7 +454,7 @@ class DataForm(CreatePrams):
                 log_data = parser.log_data
                 success = parser.success
 
-        except IOError as err:
+        except Exception as err:
             log_data += "Error parsing data: \n"
             log_data += "\n Error: {}".format(err)
 

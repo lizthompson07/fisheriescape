@@ -158,7 +158,7 @@ def generate_facility_tank_report(request, facic_id, at_date=None):
     return report.target_url
 
 
-def fill_calibration_template(facic_id):
+def fill_calibration_template(request, facic_id):
     report = ExcelReport()
     report.template_dir = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "data_templates")
 
@@ -172,36 +172,50 @@ def fill_calibration_template(facic_id):
     cup_qs = models.Cup.objects.filter(draw_id__heat_id__facic_id=facic_id, end_date__isnull=True).order_by(
         Concat('draw_id__heat_id__name', 'draw_id__name', 'name'))
 
-    qs_list = [("Tank", tank_qs, "tank"), ("Trough", tray_qs, "tray"), ("Drawer", draw_qs, "draw"), ("Cup", cup_qs, "cup")]
+    qs_list = [("Tank", tank_qs, "tank"), ("Trough", tray_qs, "tray"), ("Drawer", draw_qs, "draw"),
+               ("Cup", cup_qs, "cup")]
 
     # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
 
     for sheet_name, qs, cont_code in qs_list:
-        ws = report.copy_template(sheet_name)
+        ws = report.get_sheet(sheet_name)
 
         # start writing data at row 3 in the sheet
-        row_count = 3
+        row_count = 4
         for item in qs:
-            indv_list, grp_list = item.fish_in_cont(select_fields=["anix_id__indv_id__grp_id__stok_id",
-                                                                   "anix_id__indv_id__grp_id__coll_id"])
+            indv_list, grp_list = item.fish_in_cont(select_fields=["anix_id__indv_id__stok_id",
+                                                                   "anix_id__grp_id__stok_id",
+                                                                   "anix_id__indv_id__coll_id",
+                                                                   "anix_id__grp_id__coll_id"])
 
-            if not grp_list:
+            if indv_list:
                 ws['A' + str(row_count)].value = item.__str__()
-                if indv_list:
-                    if indv_list:
-                        ws['B' + str(row_count)].value = len(indv_list)
-                        year_coll_set = set([indv.stok_year_coll_str() for indv in indv_list])
-                        ws['D' + str(row_count)].value = str(', '.join(set(year_coll_set)))
+                ws['B' + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_{}"
+                                                                                    .format(item.key),
+                                                                                    args=[item.pk]))
+                ws['C' + str(row_count)].value = "Individuals"
+                ws['D' + str(row_count)].value = len(indv_list)
+                year_coll_set = set([indv.stok_year_coll_str() for indv in indv_list])
+                ws['E' + str(row_count)].value = str(', '.join(set(year_coll_set)))
                 row_count += 1
+            elif not grp_list:
+                ws['A' + str(row_count)].value = item.__str__()
+                ws['B' + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_{}"
+                                                                                    .format(item.key),
+                                                                                    args=[item.pk]))
+                row_count += 1
+
 
             for grp in grp_list:
                 ws['A' + str(row_count)].value = item.__str__()
-                if indv_list:
-                    ws['B' + str(row_count)].value = len(indv_list)
-                ws['C' + str(row_count)].value = grp.count_fish_in_group()
-                ws['D' + str(row_count)].value = grp.__str__()
-                ws['E' + str(row_count)].value = grp.pk
+                ws['B' + str(row_count)].value = request.build_absolute_uri(reverse("bio_diversity:details_{}"
+                                                                                    .format(item.key),
+                                                                                    args=[item.pk]))
+                ws['C' + str(row_count)].value = "Group"
+                ws['D' + str(row_count)].value = grp.count_fish_in_group()
+                ws['E' + str(row_count)].value = grp.__str__()
+                ws['F' + str(row_count)].value = grp.pk
 
                 row_count += 1
 

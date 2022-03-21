@@ -4,9 +4,6 @@
 from datetime import datetime, timedelta 
 import decimal
 import os
-from collections import Counter
-
-import pytz
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -229,32 +226,32 @@ class BioCont(BioLookup):
         filter_out_arg = "contx_start__{}_id".format(self.key)
 
         move_in_set = MoveDet.objects.filter(**{filter_in_arg: self},
-                                             move_date__lte=at_date, ).select_related("anix_id__indv_id",
-                                                                                    "anix_id__grp_id", *select_fields)
+                                             move_date__lte=at_date, ).order_by("move_date")\
+            .select_related("anix_id__indv_id", "anix_id__grp_id", *select_fields)
 
         move_out_set = MoveDet.objects.filter(**{filter_out_arg: self},
-                                              move_date__lte=at_date).select_related("anix_id__indv_id",
-                                                                                     "anix_id__grp_id", *select_fields)
+                                              move_date__lte=at_date).order_by("move_date").\
+            select_related("anix_id__indv_id", "anix_id__grp_id", *select_fields)
 
-        indv_in_set = Counter([move_det.anix_id.indv_id for move_det in move_in_set])
-        indv_out_set = Counter([move_det.anix_id.indv_id for move_det in move_out_set])
-        grp_in_set = Counter([move_det.anix_id.grp_id for move_det in move_in_set])
-        grp_out_set = Counter([move_det.anix_id.grp_id for move_det in move_out_set])
+        # These dicts can only hold each group/indv once, the order by method on the queryset ensures that the entry
+        # has the latest date
+        indv_in_dict = {move_det.anix_id.indv_id: move_det.move_date for move_det in move_in_set if move_det.anix_id.indv_id}
+        indv_out_dict = {move_det.anix_id.indv_id: move_det.move_date for move_det in move_out_set if move_det.anix_id.indv_id}
+        grp_in_dict = {move_det.anix_id.grp_id: move_det.move_date for move_det in move_in_set if move_det.anix_id.grp_id}
+        grp_out_dict = {move_det.anix_id.grp_id: move_det.move_date for move_det in move_out_set if move_det.anix_id.grp_id}
 
-        for indv, in_count in indv_in_set.items():
-            if indv:
-                if indv.indv_valid or not valid_only:
-                    if indv not in indv_out_set:
-                        indv_list.append(indv)
-                    elif in_count > indv_out_set[indv]:
-                        indv_list.append(indv)
-        for grp, in_count in grp_in_set.items():
-            if grp:
-                if (grp.grp_valid or not valid_only) and not grp.past_end_date(at_date):
-                    if grp not in grp_out_set:
-                        grp_list.append(grp)
-                    elif in_count > grp_out_set[grp]:
-                        indv_list.append(grp)
+        for indv in indv_in_dict.keys():
+            if indv.indv_valid or not valid_only:
+                if indv not in indv_out_dict.keys():
+                    indv_list.append(indv)
+                elif indv_in_dict[indv] > indv_out_dict[indv]:
+                    indv_list.append(indv)
+        for grp in grp_in_dict.keys():
+            if (grp.grp_valid or not valid_only) and not grp.past_end_date(at_date):
+                if grp not in grp_out_dict.keys():
+                    grp_list.append(grp)
+                elif grp_in_dict[grp] > grp_out_dict[grp]:
+                    grp_list.append(grp)
         if get_grp:
             return grp_list
         else:
@@ -1019,13 +1016,17 @@ class Group(BioModel):
         move_set = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date). \
             select_related('contx_end', 'contx_start')
 
-        cont_in_set = Counter([move_id.contx_end.container for move_id in move_set if move_id.contx_end])
-        cont_out_set = Counter([move_id.contx_start.container for move_id in move_set if move_id.contx_start])
+        # These dicts can only hold each group/indv once, the order by method on the queryset ensures that the entry
+        # has the latest date
+        cont_in_dict = {move_det.contx_end.container: move_det.move_date for move_det in move_set if
+                       move_det.contx_end}
+        cont_out_dict = {move_det.contx_start.container: move_det.move_date for move_det in move_set if
+                       move_det.contx_start}
 
-        for cont, in_count in cont_in_set.items():
-            if cont not in cont_out_set and cont:
+        for cont in cont_in_dict.keys():
+            if cont not in cont_out_dict.keys() and cont:
                 cont_list.append(cont)
-            elif in_count > cont_out_set[cont] and cont:
+            elif cont_in_dict[cont] > cont_out_dict[cont] and cont:
                 cont_list.append(cont)
 
         if get_string:

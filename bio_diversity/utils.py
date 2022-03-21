@@ -50,8 +50,7 @@ class DataParser:
     month_key = "Month"
     day_key = "Day"
 
-    catch_error = IOError
-    # catch_error = Exception
+    catch_error = Exception
 
     mandatory_keys = []
     mandatory_filled_keys = []

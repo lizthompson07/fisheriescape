@@ -393,7 +393,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 allow_entry = False
             elif evnt_code in ["calibration"]:
                 facic_id = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id
-                report_file_url = reports.fill_calibration_template(facic_id)
+                report_file_url = reports.fill_calibration_template(self.request, facic_id)
                 template_url = ""
                 context["filled_template_url"] = reverse("bio_diversity:calibration_template_file") + f"?file_url={report_file_url}"
             else:
