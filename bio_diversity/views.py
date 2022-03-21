@@ -7,9 +7,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.staticfiles import finders
-from django.db.models import F, Q
+from django.db.models import F
 from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.templatetags.static import static
 from django.utils import timezone
 from django.views.generic import TemplateView, DetailView, DeleteView
 from shapely.geometry import box
@@ -21,10 +20,9 @@ from django import forms
 from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset, BioUserFormset, HelpTextPopForm
 from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models, reports
-import pytz
 from django.utils.translation import gettext_lazy as _, gettext_lazy
 
-from .static.calculation_constants import collection_evntc_list, egg_dev_evntc_list
+from bio_diversity.calculation_constants import collection_evntc_list, egg_dev_evntc_list
 
 
 class IndexTemplateView(TemplateView):
@@ -1273,7 +1271,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                             "single_object": obj_mixin.model.objects.first()}
 
         evnt_code = self.object.evntc_id.__str__()
-        if evnt_code == "Electrofishing" or evnt_code == "Bypass Collection" or evnt_code == "Smolt Wheel Collection":
+        if evnt_code.lower() in collection_evntc_list:
             context["coll_btn"] = True
 
         context["calculated_properties"] = {}
@@ -2262,10 +2260,11 @@ class EnvtcList(mixins.EnvtcMixin, GenericList):
 class EvntList(mixins.EvntMixin, GenericList):
     field_list = [
         {"name": 'facic_id', "class": "", "width": ""},
+        {"name": 'prog_id', "class": "", "width": ""},
         {"name": 'evntc_id', "class": "", "width": ""},
         {"name": 'start_datetime', "class": "", "width": ""},
     ]
-    queryset = models.Event.objects.select_related("facic_id", "evntc_id")
+    queryset = models.Event.objects.select_related("facic_id", "evntc_id", "prog_id")
     filterset_class = filters.EvntFilter
 
 

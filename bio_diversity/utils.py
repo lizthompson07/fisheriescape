@@ -16,11 +16,10 @@ from django.http import JsonResponse, HttpResponseRedirect
 from decimal import Decimal
 from django.template.defaulttags import register
 
-from shapely.geometry import GeometryCollection, shape, Polygon
+from shapely.geometry import shape
 
-from bio_diversity import models
-from bio_diversity.static import calculation_constants
-from bio_diversity.static.calculation_constants import *
+from bio_diversity import models, calculation_constants
+from bio_diversity.calculation_constants import *
 from dm_apps import settings
 
 contx_conts = ["contx_id__cup_id", "contx_id__draw_id", "contx_id__heat_id", "contx_id__tank_id", "contx_id__tray_id",

@@ -37,12 +37,17 @@ class TankParser(ContainerParser):
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
-        self.cont = models.Tank(name=row.get(self.name_key),
-                                description_en=row.get(self.desc_key),
-                                facic_id=cleaned_data["facic_id"],
-                                created_by=cleaned_data["created_by"],
-                                created_date=cleaned_data["created_date"]
-                                )
+        tank_id = models.Tank.objects.filter(name=row.get(self.name_key), facic_id=cleaned_data["facic_id"]).get()
+        if tank_id:
+            self.cont = tank_id
+            self.cont.description_en = row.get(self.desc_key)
+        else:
+            self.cont = models.Tank(name=row.get(self.name_key),
+                                    description_en=row.get(self.desc_key),
+                                    facic_id=cleaned_data["facic_id"],
+                                    created_by=cleaned_data["created_by"],
+                                    created_date=cleaned_data["created_date"]
+                                    )
         super(TankParser, self).row_parser(row)
 
 
@@ -51,12 +56,17 @@ class TroughParser(ContainerParser):
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
-        self.cont = models.Trough(name=row.get(self.name_key),
-                                  description_en=row.get(self.desc_key),
-                                  facic_id=cleaned_data["facic_id"],
-                                  created_by=cleaned_data["created_by"],
-                                  created_date=cleaned_data["created_date"]
-                                  )
+        trof_id = models.Trough.objects.filter(name=row.get(self.name_key), facic_id=cleaned_data["facic_id"]).get()
+        if trof_id:
+            self.cont = trof_id
+            self.cont.description_en = row.get(self.desc_key)
+        else:
+            self.cont = models.Trough(name=row.get(self.name_key),
+                                      description_en=row.get(self.desc_key),
+                                      facic_id=cleaned_data["facic_id"],
+                                      created_by=cleaned_data["created_by"],
+                                      created_date=cleaned_data["created_date"]
+                                      )
         super(TroughParser, self).row_parser(row)
 
 
@@ -65,10 +75,16 @@ class HeathUnitParser(ContainerParser):
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
-        self.cont = models.HeathUnit(name=row.get(self.name_key),
-                                     description_en=row.get(self.desc_key),
-                                     facic_id=cleaned_data["facic_id"],
-                                     created_by=cleaned_data["created_by"],
-                                     created_date=cleaned_data["created_date"]
-                                     )
+
+        hu_id = models.HeathUnit.objects.filter(name=row.get(self.name_key), facic_id=cleaned_data["facic_id"]).get()
+        if hu_id:
+            self.cont = hu_id
+            self.cont.description_en = row.get(self.desc_key)
+        else:
+            self.cont = models.HeathUnit(name=row.get(self.name_key),
+                                         description_en=row.get(self.desc_key),
+                                         facic_id=cleaned_data["facic_id"],
+                                         created_by=cleaned_data["created_by"],
+                                         created_date=cleaned_data["created_date"]
+                                         )
         super(HeathUnitParser, self).row_parser(row)

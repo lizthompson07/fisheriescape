@@ -1,10 +1,7 @@
 import copy
 
-from pandas import DataFrame
-
-from bio_diversity import models
+from bio_diversity import models, calculation_constants
 from bio_diversity import utils
-from bio_diversity.static import calculation_constants
 from bio_diversity.utils import DataParser
 
 

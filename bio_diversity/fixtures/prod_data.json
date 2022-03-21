@@ -257,22 +257,6 @@
     },
     {
         "fields": {
-            "ani_subj_flag": false,
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-02-10",
-            "description_en": "Indicates if the fish looks like it has potential",
-            "description_fr": "",
-            "max_val": null,
-            "min_val": null,
-            "name": "Precocity",
-            "nom": null,
-            "unit_id": null
-        },
-        "model": "bio_diversity.animaldetcode",
-        "pk": 13
-    },
-    {
-        "fields": {
             "ani_subj_flag": true,
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-04-06",
@@ -468,19 +452,6 @@
         },
         "model": "bio_diversity.anidetsubjcode",
         "pk": 31
-    },
-    {
-        "fields": {
-            "anidc_id": 7,
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-02-01",
-            "description_en": "Fish is an albino",
-            "description_fr": "",
-            "name": "Albino",
-            "nom": null
-        },
-        "model": "bio_diversity.anidetsubjcode",
-        "pk": 6
     },
     {
         "fields": {
@@ -877,7 +848,7 @@
             "anidc_id": 7,
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-02-02",
-            "description_en": "Fish in need of some extra food and relaxation time",
+            "description_en": "Fish in need of extra food.",
             "description_fr": "",
             "name": "Skinny",
             "nom": null
@@ -2944,102 +2915,7 @@
         },
         "model": "bio_diversity.organization",
         "pk": 6
-    }, {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-03-18",
-            "initials": "SB",
-            "perc_first_name": "Shelley",
-            "perc_last_name": "Bond",
-            "perc_valid": true
-        },
-        "model": "bio_diversity.personnelcode",
-        "pk": 10
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2022-01-25",
-            "initials": "SD",
-            "perc_first_name": "Sam",
-            "perc_last_name": "Dave",
-            "perc_valid": false
-        },
-        "model": "bio_diversity.personnelcode",
-        "pk": 15
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-03-18",
-            "initials": null,
-            "perc_first_name": "Cynthia",
-            "perc_last_name": "Hawthorne",
-            "perc_valid": true
-        },
-        "model": "bio_diversity.personnelcode",
-        "pk": 11
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-03-18",
-            "initials": "JJ",
-            "perc_first_name": "Jesse",
-            "perc_last_name": "Jenkins",
-            "perc_valid": true
-        },
-        "model": "bio_diversity.personnelcode",
-        "pk": 13
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-03-18",
-            "initials": null,
-            "perc_first_name": "Anna",
-            "perc_last_name": "MacDonnell",
-            "perc_valid": true
-        },
-        "model": "bio_diversity.personnelcode",
-        "pk": 9
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-03-18",
-            "initials": null,
-            "perc_first_name": "Alanna",
-            "perc_last_name": "MacFarlane",
-            "perc_valid": true
-        },
-        "model": "bio_diversity.personnelcode",
-        "pk": 12
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2022-01-25",
-            "initials": "GP",
-            "perc_first_name": "George",
-            "perc_last_name": "Peter",
-            "perc_valid": false
-        },
-        "model": "bio_diversity.personnelcode",
-        "pk": 16
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-02-25",
-            "initials": "QS",
-            "perc_first_name": "Quentin",
-            "perc_last_name": "Stoyel",
-            "perc_valid": true
-        },
-        "model": "bio_diversity.personnelcode",
-        "pk": 8
-    }, {
+    },  {
         "fields": {
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-01-13",
@@ -3096,60 +2972,8 @@
         },
         "model": "bio_diversity.progauthority",
         "pk": 5
-    }, {
-        "fields": {
-            "comments": null,
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-03-12",
-            "end_date": null,
-            "evntc_id": 1,
-            "facic_id": 2,
-            "name": "Electrofishing",
-            "prog_id": 5,
-            "prot_desc": "This is how we electrofish",
-            "protc_id": 1,
-            "start_date": "2021-03-12",
-            "valid": true
-        },
-        "model": "bio_diversity.protocol",
-        "pk": 2
     },
     {
-        "fields": {
-            "comments": null,
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-03-18",
-            "end_date": "2021-03-19",
-            "evntc_id": 8,
-            "facic_id": 2,
-            "name": "Salt Treatment",
-            "prog_id": 5,
-            "prot_desc": "Particulate salt is dissolved into tanks until salinity stabilizes to target level.",
-            "protc_id": 4,
-            "start_date": "2021-03-18",
-            "valid": true
-        },
-        "model": "bio_diversity.protocol",
-        "pk": 3
-    },
-    {
-        "fields": {
-            "comments": null,
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-03-18",
-            "end_date": "2021-03-19",
-            "evntc_id": 8,
-            "facic_id": 2,
-            "name": "Formaldehyde Treatment",
-            "prog_id": 5,
-            "prot_desc": "Formaldehyde is dissolved to the desired concentration and then poured into tanks in set doses.",
-            "protc_id": 4,
-            "start_date": "2021-03-18",
-            "valid": true
-        },
-        "model": "bio_diversity.protocol",
-        "pk": 4
-    }, {
         "fields": {
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-01-13",
@@ -3243,126 +3067,8 @@
         },
         "model": "bio_diversity.qualcode",
         "pk": 2
-    },{
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-01-13",
-            "description_en": "",
-            "description_fr": "",
-            "name": "BSR",
-            "nom": null
-        },
-        "model": "bio_diversity.rivercode",
-        "pk": 1
     },
     {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-01-13",
-            "description_en": "",
-            "description_fr": "",
-            "name": "GAK",
-            "nom": null
-        },
-        "model": "bio_diversity.rivercode",
-        "pk": 2
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-08-30",
-            "description_en": "A river",
-            "description_fr": "",
-            "name": "LAH",
-            "nom": null
-        },
-        "model": "bio_diversity.rivercode",
-        "pk": 34
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-01-13",
-            "description_en": "",
-            "description_fr": "",
-            "name": "LSR",
-            "nom": null
-        },
-        "model": "bio_diversity.rivercode",
-        "pk": 4
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-02-25",
-            "description_en": "Petticodiac River",
-            "description_fr": "",
-            "name": "PET",
-            "nom": null
-        },
-        "model": "bio_diversity.rivercode",
-        "pk": 30
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-02-25",
-            "description_en": "Point Wolf River",
-            "description_fr": "",
-            "name": "PWR",
-            "nom": null
-        },
-        "model": "bio_diversity.rivercode",
-        "pk": 31
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-05-18",
-            "description_en": "St John River",
-            "description_fr": "",
-            "name": "SJR",
-            "nom": null
-        },
-        "model": "bio_diversity.rivercode",
-        "pk": 32
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-01-13",
-            "description_en": "St. Mary's River",
-            "description_fr": "",
-            "name": "SMA",
-            "nom": null
-        },
-        "model": "bio_diversity.rivercode",
-        "pk": 3
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-06-16",
-            "description_en": "",
-            "description_fr": "",
-            "name": "STW",
-            "nom": null
-        },
-        "model": "bio_diversity.rivercode",
-        "pk": 33
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-02-25",
-            "description_en": "Tobique  River",
-            "description_fr": "",
-            "name": "TOB",
-            "nom": null
-        },
-        "model": "bio_diversity.rivercode",
-        "pk": 29
-    }, {
         "fields": {
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-04-21",
@@ -3629,33 +3335,6 @@
         },
         "model": "bio_diversity.stockcode",
         "pk": 13
-    }, {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-01-14",
-            "description_en": "",
-            "description_fr": "",
-            "name": "East",
-            "nom": null,
-            "rive_id": 3,
-            "trib_id": null
-        },
-        "model": "bio_diversity.subrivercode",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-            "created_date": "2021-01-14",
-            "description_en": "",
-            "description_fr": "",
-            "name": "West",
-            "nom": null,
-            "rive_id": 3,
-            "trib_id": null
-        },
-        "model": "bio_diversity.subrivercode",
-        "pk": 2
     }, {
         "fields": {
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
