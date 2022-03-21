@@ -4,7 +4,6 @@ import os
 from datetime import datetime
 
 from django.utils import timezone
-import pytz
 from bokeh.embed import components
 from bokeh.layouts import column
 from bokeh.models import Title
@@ -16,7 +15,7 @@ from openpyxl import load_workbook
 
 from bio_diversity import models, utils
 from bio_diversity.scripts import model_export
-from bio_diversity.static.calculation_constants import in_out_dict, distribution_locc_list, collection_locc_list
+from bio_diversity.calculation_constants import in_out_dict, distribution_locc_list, collection_locc_list
 from dm_apps import settings
 
 

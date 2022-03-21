@@ -13,8 +13,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from shapely.geometry import Point, box, LineString
 
-from bio_diversity import utils
-from bio_diversity.static import calculation_constants
+from bio_diversity import utils, calculation_constants
 from bio_diversity.utils import naive_to_aware
 from shared_models import models as shared_models
 from django.db import models
@@ -2065,8 +2064,9 @@ class ReleaseSiteCode(BioLookup):
         if self.min_lon is not None:
             lon_float = float(self.min_lon)
             if lon_float < calculation_constants.min_long or lon_float > calculation_constants.max_long:
-                raise ValidationError("Min longitude must be within maritimes (>{}, <{})".format(calculation_constants.min_long,
-                                                                                                 calculation_constants.max_long))
+                raise ValidationError("Min longitude must be within maritimes (>{}, <{})".format(
+                    calculation_constants.min_long,
+                    calculation_constants.max_long))
         if self.max_lon is not None:
             lon_float = float(self.max_lon)
             if lon_float < calculation_constants.min_long or lon_float > calculation_constants.max_long:

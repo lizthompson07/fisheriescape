@@ -1,9 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
-from bio_diversity import models
+from bio_diversity import models, calculation_constants
 from bio_diversity import utils
-from bio_diversity.static import calculation_constants
 from bio_diversity.utils import DataParser
 
 
