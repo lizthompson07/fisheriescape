@@ -797,9 +797,18 @@ def get_relc_from_point(shapely_geom):
 
 def get_row_date(row, get_time=False):
     try:
-        if get_time:
-            row_datetime = timezone.make_aware(datetime.strptime(row["Year"] + "-" + row["Month"] + "-" +
-                                                                 row["Day"] + "-" + row["Time"], "%Y-%b-%d-%H:%M"))
+        if get_time and nan_to_none(row["Time"]):
+            if len(row["Time"]) == 8:
+                row_datetime = timezone.make_aware(datetime.strptime(row["Year"] + "-" + row["Month"] + "-" +
+                                                                     row["Day"] + "-" + row["Time"], "%Y-%b-%d-%H:%M:%S"))
+            elif len(row["Time"]) == 6:
+                row_datetime = timezone.make_aware(datetime.strptime(row["Year"] + "-" + row["Month"] + "-" +
+                                                                     row["Day"] + "-" + row["Time"],
+                                                                     "%Y-%b-%d-%H:%M"))
+            else:
+                row_date = timezone.make_aware(
+                    datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"], "%Y-%b-%d"))
+                row_datetime = datetime.combine(row_date, time(0,0))
         else:
             row_datetime = timezone.make_aware(datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"],
                                                                  "%Y-%b-%d"))

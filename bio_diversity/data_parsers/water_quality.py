@@ -8,7 +8,7 @@ from bio_diversity.utils import DataParser
 
 class WaterQualityParser(DataParser):
     tank_key = "Pond"
-    time_key = "Time (24HR)"
+    time_key = "Time"
     temp_key = "Temp °C"
     dox_key = "DO%"
     ph_key = "pH"
@@ -20,7 +20,7 @@ class WaterQualityParser(DataParser):
 
     header = 1
     comment_row = [2]
-    converters = {tank_key: str, 'Year': str, 'Month': str, 'Day': str}
+    converters = {tank_key: str, 'Year': str, 'Month': str, 'Day': str, "Time" : str}
 
     temp_envc_id = None
     oxlvl_envc_id = None
@@ -43,11 +43,9 @@ class WaterQualityParser(DataParser):
         cleaned_data = self.cleaned_data
         contx, data_entered = utils.enter_tank_contx(row[self.tank_key], cleaned_data, None, return_contx=True)
         self.row_entered += data_entered
-        row_date = utils.get_row_date(row)
-        if utils.nan_to_none(row[self.time_key]):
-            row_time = row[self.time_key].replace(tzinfo=pytz.UTC)
-        else:
-            row_time = None
+        row_datetime = utils.get_row_date(row, get_time=True)
+        row_date = row_datetime.date()
+        row_time = row_datetime.time()
 
         if utils.nan_to_none(row.get(self.temp_key)):
             self.row_entered += utils.enter_env(row[self.temp_key], row_date, cleaned_data, self.temp_envc_id,
