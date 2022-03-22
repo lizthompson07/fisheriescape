@@ -193,12 +193,12 @@ def in_bio_diversity_admin_group(user):
 
 def in_bio_diversity_author_group(user):
     if user:
-        return bool(hasattr(user, "bio_user") and user.bio_user.is_author)
+        return bool(hasattr(user, "bio_user") and (user.bio_user.is_author or user.bio_user.is_admin))
 
 
 def in_bio_diversity_user_group(user):
     if user:
-        return bool(hasattr(user, "bio_user") and user.bio_user.is_user)
+        return bool(hasattr(user, "bio_user") and (user.bio_user.is_user or user.bio_user.is_admin))
 
 
 def get_comment_keywords_dict():

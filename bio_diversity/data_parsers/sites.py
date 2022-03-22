@@ -63,7 +63,7 @@ class SitesParser(DataParser):
                                          max_lon=utils.nan_to_none(row.get(self.max_lon_key)),
                                          created_by=cleaned_data["created_by"],
                                          created_date=cleaned_data["created_date"]
-        )
+                                         )
         try:
             site_id.clean()
             site_id.save()
