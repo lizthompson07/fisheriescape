@@ -41,19 +41,51 @@ from .models import FisheryArea, Hexagon, Score, NAFOArea
 #     lm.save(strict=True, verbose=verbose)
 
 ## For Lobster.shp
+# mapping = {
+#     'layer_id': 'Fishery',
+#     'name': 'Area',
+#     'polygon': 'MULTIPOLYGON',
+# }
+#
+# lobster_shp = os.path.abspath(
+#     os.path.join(os.path.dirname(__file__), 'data', 'Lobster.shp'),
+# )
+#
+#
+# def run(verbose=True):
+#     lm = LayerMapping(FisheryArea, lobster_shp, mapping, transform=False)
+#     lm.save(strict=True, verbose=verbose)
+
+## For Groundfish.shp
+# mapping = {
+#     'layer_id': 'Fishery',
+#     'name': 'Area',
+#     'polygon': 'MULTIPOLYGON',
+# }
+#
+# groundfish_shp = os.path.abspath(
+#     os.path.join(os.path.dirname(__file__), 'data', 'Groundfish.shp'),
+# )
+#
+#
+# def run(verbose=True):
+#     lm = LayerMapping(FisheryArea, groundfish_shp, mapping, transform=False)
+#     lm.save(strict=True, verbose=verbose)
+
+## For Herring.shp
 mapping = {
     'layer_id': 'Fishery',
     'name': 'Area',
     'polygon': 'MULTIPOLYGON',
 }
 
-lobster_shp = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'data', 'Lobster.shp'),
+herring_shp = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), 'data', 'Herring.shp'),
 )
 
 
 def run(verbose=True):
-    lm = LayerMapping(FisheryArea, lobster_shp, mapping, transform=False)
+    lm = LayerMapping(FisheryArea, herring_shp, mapping, transform=False)
     lm.save(strict=True, verbose=verbose)
 
 ## For hexagons

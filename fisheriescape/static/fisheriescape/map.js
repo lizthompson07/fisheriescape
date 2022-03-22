@@ -48,6 +48,14 @@ function removeInfoCrab() {
     snowCrabFishery.resetStyle(this);
 }
 
+function removeInfoHerring() {
+    herringFishery.resetStyle(this);
+}
+
+function removeInfoGroundfish() {
+    groundfishFishery.resetStyle(this);
+}
+
 function removeInfoNafo() {
     nafoFishery.resetStyle(this);
 }
@@ -89,6 +97,42 @@ var snowCrabFishery = L.geoJSON(snowCrabObj, {
         }
 });
 
+// Create Herring polygon layer and use onEachFeature to show certain info for each feature
+
+var herringFishery = L.geoJSON(herringObj, {
+    style: function() {
+        return {
+            color: 'red'
+        }
+    },
+    onEachFeature: function (feature, layer) {
+        myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+        layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
+        layer.on({
+            mouseover: showInfo,
+            mouseout: removeInfoHerring
+        });
+        }
+});
+
+// Create Groundfish polygon layer and use onEachFeature to show certain info for each feature
+
+var groundfishFishery = L.geoJSON(groundfishObj, {
+    style: function() {
+        return {
+            color: 'grey'
+        }
+    },
+    onEachFeature: function (feature, layer) {
+        myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+        layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
+        layer.on({
+            mouseover: showInfo,
+            mouseout: removeInfoGroundfish
+        });
+        }
+});
+
 // Create NAFO polygon layer and use onEachFeature to show certain info for each feature
 
 var nafoFishery = L.geoJSON(nafoObj, {
@@ -121,6 +165,8 @@ var overlayMaps = {
     "Test": tests,
     "Lobster Areas": lobsterFishery,
     "Snow Crab Areas": snowCrabFishery,
+    "Herring Areas": herringFishery,
+    "Groundfish Areas": groundfishFishery,
     "NAFO Areas": nafoFishery
 };
 

@@ -17,6 +17,7 @@ class FisheryAreaFilter(django_filters.FilterSet):
     class Meta:
         model = models.FisheryArea
         fields = {
+            'layer_id': ['icontains'],
             'name': ['icontains'],
             'nafo_area': ['exact'],
             'region': ['exact'],

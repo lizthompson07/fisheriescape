@@ -119,6 +119,8 @@ class MapView(FisheriescapeAccessRequired, TemplateView):
         context = super().get_context_data(**kwargs)
         context["lobster_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Lobster"))
         context["snow_crab_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Crab"))
+        context["herring_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Herring"))
+        context["groundfish_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Groundfish"))
         context["nafo_areas"] = serialize("geojson", models.NAFOArea.objects.filter(layer_id="NAFO"))
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
         return context
