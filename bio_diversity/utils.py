@@ -91,7 +91,8 @@ class DataParser:
         for header_key in self.mandatory_keys:
             if header_key not in list(self.data):
                 # Make sure mandatory key columns exist
-                self.log_data += "Column with header \"{}\" not found in worksheet \n".format(header_key)
+                self.log_data += "Column with header \"{}\" not found in worksheet \n Headers should be on " \
+                                 "row {}".format(header_key, (self.header + 1))
                 self.success = False
         if self.success:
             for key in self.mandatory_filled_keys:
@@ -110,6 +111,9 @@ class DataParser:
         self.data = read_excel(self.cleaned_data["data_csv"], header=self.header, skiprows=self.comment_row, engine='openpyxl',
                                converters=self.converters, sheet_name=self.sheet_name)
         self.data = self.data.mask(self.data.eq('None')).dropna(how="all")
+        if self.data is None:
+            self.success = False
+            self.log_data += "\nError loading Data. Check if sheet named: {} exists.".format(self.sheet_name)
 
     def prep_data(self):
         if self.success:
