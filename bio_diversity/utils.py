@@ -1,7 +1,7 @@
 import json
 import os
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, time
 import decimal
 import math
 
@@ -248,7 +248,7 @@ def toggle_help_text_edit(request, user_id):
 
 
 def aware_min():
-    return timezone.make_aware(timezone.datetime.min)
+    return timezone.make_aware(timezone.datetime(1, 1, 1, 0, 0))
 
 
 def team_list_splitter(team_str, valid_only=True):
@@ -2130,7 +2130,7 @@ def ajax_get_fields(request):
 def naive_to_aware(naive_date, naive_time=None):
     # adds null time and timezone to dates
     if not nan_to_none(naive_time):
-        naive_time = timezone.datetime.min.time()
+        naive_time = time(0, 0)
     return timezone.make_aware(datetime.combine(naive_date, naive_time))
 
 

@@ -1,5 +1,5 @@
 import inspect
-from datetime import date, datetime
+from datetime import date, datetime, time
 
 import pandas as pd
 from django import forms
@@ -97,13 +97,13 @@ class CreateTimePrams(forms.ModelForm):
         if cleaned_data["start_time"]:
             start_time = datetime.strptime(cleaned_data["start_time"], '%H:%M').time()
         else:
-            start_time = datetime.min.time()
+            start_time = time(0, 0)
         cleaned_data["start_datetime"] = utils.naive_to_aware(cleaned_data["start_date"], start_time)
         if cleaned_data["end_date"]:
             if cleaned_data["end_time"]:
                 end_time = datetime.strptime(cleaned_data["end_time"], '%H:%M').time()
             else:
-                end_time = datetime.min.time()
+                end_time = time(0, 0)
             cleaned_data["end_datetime"] = utils.naive_to_aware(cleaned_data["end_date"], end_time)
 
         end_date = cleaned_data.get("end_date")
@@ -878,7 +878,7 @@ class LocForm(CreatePrams):
         if self.cleaned_data["start_time"]:
             start_time = datetime.strptime(self.cleaned_data["start_time"], '%H:%M').time()
         else:
-            start_time = datetime.min.time()
+            start_time = datetime.time(0, 0)
         obj.loc_date = utils.naive_to_aware(self.cleaned_data["start_date"], start_time)
         obj.save()
         return obj
