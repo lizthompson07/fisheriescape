@@ -6,49 +6,33 @@
 
 import os
 from django.contrib.gis.utils import LayerMapping
-from .models import FisheryArea, Hexagon, Score
+from .models import FisheryArea, Hexagon, Score, NAFOArea
 
-# For NAFO.shp
+# For NAFO_subzones.shp
 # mapping = {
-#     'layer_id': 'Layer_id',
+#     'layer_id': 'layer_id',
 #     'name': 'ZONE',
 #     'polygon': 'MULTIPOLYGON',
 # }
 #
 # nafo_shp = os.path.abspath(
-#     os.path.join(os.path.dirname(__file__), 'data', 'NAFO_Atlantic.shp'),
+#     os.path.join(os.path.dirname(__file__), 'data', 'NAFO_subzones.shp'),
 # )
 #
 #
 # def run(verbose=True):
-#     lm = LayerMapping(FisheryArea, nafo_shp, mapping, transform=False)
+#     lm = LayerMapping(NAFOArea, nafo_shp, mapping, transform=False)
 #     lm.save(strict=True, verbose=verbose)
 
-# For NAFO_subzones.shp
-mapping = {
-    'layer_id': 'Layer_id',
-    'name': 'ZONE',
-    'polygon': 'MULTIPOLYGON',
-}
-
-nafo_shp = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'data', 'NAFO_Atlantic.shp'),
-)
-
-
-def run(verbose=True):
-    lm = LayerMapping(FisheryArea, nafo_shp, mapping, transform=False)
-    lm.save(strict=True, verbose=verbose)
-
-# For SnowCrab_polygons.shp
+# For Snow Crab.shp
 # mapping = {
-#     'layer_id': 'Layer_id',
-#     'name': 'ZONE_1',
+#     'layer_id': 'Fishery',
+#     'name': 'Area',
 #     'polygon': 'MULTIPOLYGON',
 # }
 #
 # crab_shp = os.path.abspath(
-#     os.path.join(os.path.dirname(__file__), 'data', 'SnowCrab_polygons.shp'),
+#     os.path.join(os.path.dirname(__file__), 'data', 'Snow Crab.shp'),
 # )
 #
 #
@@ -56,21 +40,21 @@ def run(verbose=True):
 #     lm = LayerMapping(FisheryArea, crab_shp, mapping, transform=False)
 #     lm.save(strict=True, verbose=verbose)
 
-## For Lobster_polygons.shp
-# mapping = {
-#     'layer_id': 'Layer_id',
-#     'name': 'LFA',
-#     'polygon': 'MULTIPOLYGON',
-# }
-#
-# lobster_shp = os.path.abspath(
-#     os.path.join(os.path.dirname(__file__), 'data', 'Lobster_polygons.shp'),
-# )
-#
-#
-# def run(verbose=True):
-#     lm = LayerMapping(FisheryArea, lobster_shp, mapping, transform=False)
-#     lm.save(strict=True, verbose=verbose)
+## For Lobster.shp
+mapping = {
+    'layer_id': 'Fishery',
+    'name': 'Area',
+    'polygon': 'MULTIPOLYGON',
+}
+
+lobster_shp = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), 'data', 'Lobster.shp'),
+)
+
+
+def run(verbose=True):
+    lm = LayerMapping(FisheryArea, lobster_shp, mapping, transform=False)
+    lm.save(strict=True, verbose=verbose)
 
 ## For hexagons
 # mapping = {

@@ -14,11 +14,16 @@ from shared_models.utils import get_metadata_string
 
 
 class NAFOArea(models.Model):
+    layer_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("layer id"))
     name = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("nafo area name"))
     polygon = models.MultiPolygonField(srid=4326)
 
     def __str__(self):
         return "{}".format(self.name)
+
+    class Meta:
+        unique_together = (('name', 'layer_id'),)
+        ordering = ["name", ]
 
 
 REGION_CHOICES = (
@@ -170,7 +175,7 @@ class Fishery(MetadataFields):
     #fisheries info
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="fisherys",
                                 verbose_name=_("species"))
-    fishery_areas = models.ManyToManyField(FisheryArea, related_name="species", verbose_name=_("fishery areas"))
+    fishery_areas = models.ManyToManyField(FisheryArea, related_name="fisherys", verbose_name=_("fishery areas"))
     participants = models.IntegerField(null=True, blank=True, verbose_name=_("participants"))
     start_date = models.DateTimeField(null=True, blank=True, verbose_name=_("start date of season"))
     end_date = models.DateTimeField(null=True, blank=True, verbose_name=_("end date of season"))
@@ -195,7 +200,7 @@ class Fishery(MetadataFields):
     monitoring_vms = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True, blank=True, verbose_name=_("vessel monitoring system (VMS)"))
     monitoring_comment = models.TextField(blank=True, null=True, verbose_name=_("monitoring comments"))
     # marine mammals and mitigation
-    mitigation = models.ManyToManyField(Mitigation, blank=True, related_name="mitigations", verbose_name=_("mitigation type"))
+    mitigation = models.ManyToManyField(Mitigation, blank=True, related_name="fisherys", verbose_name=_("mitigation type"))
     marine_mammals = models.ManyToManyField(MarineMammal, blank=True, related_name="fisherys", verbose_name=_("marine mammals"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
 
@@ -214,6 +219,21 @@ class Fishery(MetadataFields):
         if self.start_date:
             my_str += f' (record: {self.id})'
         return my_str
+
+    @property
+    def nafo_fishery_areas(self):
+        # nafo = Fishery.objects.all()[0].fishery_areas.all()[0].nafo_area.all()
+        fishery = self.id
+        nafo = NAFOArea.objects.filter(nafoareas__fisherys__id=fishery)
+        list_result = list(nafo.values("name"))
+        nafo_list = []
+
+        for i in list_result:
+            # nafo_list = nafo_list + ", " + (i["name"])
+            nafo_list.append(i["name"])
+
+        string = ", ".join(nafo_list)
+        return string
 
     def get_absolute_url(self):
         return reverse("fisheriescape:fishery_detail", kwargs={"pk": self.id})

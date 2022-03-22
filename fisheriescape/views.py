@@ -119,7 +119,7 @@ class MapView(FisheriescapeAccessRequired, TemplateView):
         context = super().get_context_data(**kwargs)
         context["lobster_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Lobster"))
         context["snow_crab_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Crab"))
-        context["nafo_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="NAFO"))
+        context["nafo_areas"] = serialize("geojson", models.NAFOArea.objects.filter(layer_id="NAFO"))
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
         return context
 
@@ -385,6 +385,7 @@ class FisheryDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
             'id',
             'species',
             'fishery_areas',
+            'nafo_fishery_areas|{}'.format(_("NAFO areas")),
             'participants',
             'start_date',
             'end_date',
@@ -427,7 +428,7 @@ class FisheryDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
         ]
 
         # contexts for fishery_detail maps
-        polygon_subset = models.FisheryArea.objects.filter(species=self.object) #call related manager with 'species'
+        polygon_subset = models.FisheryArea.objects.filter(fisherys=self.object) #call related manager with 'fisherys'
 
         context["fishery_polygons"] = serialize("geojson", polygon_subset)
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
