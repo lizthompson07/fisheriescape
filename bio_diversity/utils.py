@@ -9,7 +9,6 @@ import numpy as np
 from django.db.models import Q
 from django.utils import timezone
 from pandas import read_excel
-import pytz
 from django.core.exceptions import ValidationError, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import IntegrityError
 from django.http import JsonResponse, HttpResponseRedirect
@@ -2204,7 +2203,7 @@ def get_cont_from_tag(cont_tag, cont_id):
 
 def get_col_date(col_name):
     try:
-        col_date = datetime.strptime(col_name, "%Y-%b-%d").replace(tzinfo=pytz.UTC)
+        col_date = timezone.make_aware(datetime.strptime(col_name, "%Y-%b-%d"))
     except:
         col_date = False
     return col_date

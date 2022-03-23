@@ -1,6 +1,3 @@
-import pytz
-import pandas as pd
-
 from bio_diversity import models
 from bio_diversity import utils
 from bio_diversity.utils import DataParser
