@@ -426,8 +426,8 @@ class ProbeMeasurement(MetadataFields):
     sal_ppt = models.FloatField(blank=True, null=True, verbose_name="Salinity (ppt)")
     o2_percent = models.FloatField(blank=True, null=True, verbose_name="Dissolved oxygen (%)")
     o2_mgl = models.FloatField(blank=True, null=True, verbose_name="Dissolved oxygen (mg/l)")
-    sp_cond_ms = models.FloatField(blank=True, null=True, verbose_name="Specific conductance (mS)")
-    spc_ms = models.FloatField(blank=True, null=True, verbose_name="Conductivity (mS)")
+    sp_cond_ms = models.FloatField(blank=True, null=True, verbose_name="Specific conductance (µS)")
+    spc_ms = models.FloatField(blank=True, null=True, verbose_name="Conductivity (µS)")
     ph = models.FloatField(blank=True, null=True, verbose_name=" pH")
     turbidity = models.FloatField(blank=True, null=True)
 
@@ -686,8 +686,8 @@ class GCProbeMeasurement(MetadataFields):
     sal = models.FloatField(blank=True, null=True, verbose_name="salinity")
     o2_percent = models.FloatField(blank=True, null=True, verbose_name="Dissolved oxygen (%)")
     o2_mgl = models.FloatField(blank=True, null=True, verbose_name="Dissolved oxygen (mg/L)")
-    sp_cond_ms = models.FloatField(blank=True, null=True, verbose_name="Specific conductance (mS)")
-    cond_ms = models.FloatField(blank=True, null=True, verbose_name="Conductivity (mS)")
+    sp_cond_ms = models.FloatField(blank=True, null=True, verbose_name="Specific conductance (µS)")
+    cond_ms = models.FloatField(blank=True, null=True, verbose_name="Conductivity (µS)")
     tide_state = models.CharField(max_length=5, choices=TIDE_STATE_CHOICES, blank=True, null=True)
     tide_direction = models.CharField(max_length=5, choices=TIDE_DIR_CHOICES, blank=True, null=True)
     cloud_cover = models.IntegerField(blank=True, null=True, verbose_name="cloud cover (%)",
