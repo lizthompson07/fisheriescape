@@ -37,7 +37,7 @@ class TankParser(ContainerParser):
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
-        tank_id = models.Tank.objects.filter(name=row.get(self.name_key), facic_id=cleaned_data["facic_id"]).get()
+        tank_id = models.Tank.objects.filter(name=row.get(self.name_key), facic_id=cleaned_data["facic_id"]).first()
         if tank_id:
             self.cont = tank_id
             self.cont.description_en = row.get(self.desc_key)
@@ -56,7 +56,7 @@ class TroughParser(ContainerParser):
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
-        trof_id = models.Trough.objects.filter(name=row.get(self.name_key), facic_id=cleaned_data["facic_id"]).get()
+        trof_id = models.Trough.objects.filter(name=row.get(self.name_key), facic_id=cleaned_data["facic_id"]).first()
         if trof_id:
             self.cont = trof_id
             self.cont.description_en = row.get(self.desc_key)
@@ -76,15 +76,54 @@ class HeathUnitParser(ContainerParser):
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
 
-        hu_id = models.HeathUnit.objects.filter(name=row.get(self.name_key), facic_id=cleaned_data["facic_id"]).get()
-        if hu_id:
-            self.cont = hu_id
-            self.cont.description_en = row.get(self.desc_key)
-        else:
-            self.cont = models.HeathUnit(name=row.get(self.name_key),
+        if "." in row.get(self.name_key):
+            cont_list = row.get(self.name_key).split(".")
+            hu_name = cont_list[0]
+            draw_name = cont_list[1]
+            hu_id = models.HeathUnit.objects.filter(name=hu_name, facic_id=cleaned_data["facic_id"]).first()
+            if hu_id:
+                self.cont = hu_id
+                self.cont.description_en = row.get(self.desc_key)
+            else:
+                hu_id = models.HeathUnit(name=hu_name,
                                          description_en=row.get(self.desc_key),
                                          facic_id=cleaned_data["facic_id"],
                                          created_by=cleaned_data["created_by"],
                                          created_date=cleaned_data["created_date"]
                                          )
-        super(HeathUnitParser, self).row_parser(row)
+            try:
+                hu_id.clean()
+                hu_id.save()
+            except (IntegrityError, ValidationError) as err:
+                self.log_data += "{} Row {} not entered. \n".format(self.sheet_name, self.row_count)
+
+            draw_id = models.Drawer.objects.filter(name=draw_name, heat_id=hu_id).first()
+            if draw_id:
+                draw_id.description_en = row.get(self.desc_key)
+            else:
+                draw_id = models.Drawer(name=draw_name,
+                                        description_en=row.get(self.desc_key),
+                                        heat_id=hu_id,
+                                        created_by=cleaned_data["created_by"],
+                                        created_date=cleaned_data["created_date"]
+                                        )
+            try:
+                draw_id.clean()
+                draw_id.save()
+            except (IntegrityError, ValidationError) as err:
+                self.log_data += "{} Row {} not entered. \n".format(self.sheet_name, self.row_count)
+            self.row_count += 1
+
+        else:
+            hu_id = models.HeathUnit.objects.filter(name=row.get(self.name_key), facic_id=cleaned_data["facic_id"]).first()
+            if hu_id:
+                self.cont = hu_id
+                self.cont.description_en = row.get(self.desc_key)
+            else:
+                self.cont = models.HeathUnit(name=row.get(self.name_key),
+                                             description_en=row.get(self.desc_key),
+                                             facic_id=cleaned_data["facic_id"],
+                                             created_by=cleaned_data["created_by"],
+                                             created_date=cleaned_data["created_date"]
+                                             )
+            super(HeathUnitParser, self).row_parser(row)

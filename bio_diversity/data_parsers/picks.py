@@ -1,8 +1,5 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
-import pytz
-from django.core.exceptions import ValidationError
-from django.db import IntegrityError
 from django.db.models import Q
 
 from bio_diversity import models

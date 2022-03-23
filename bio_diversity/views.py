@@ -3778,11 +3778,11 @@ class TemplFormView(mixins.TemplMixin, BioCommonFormView):
 
         if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
                          "master entry", "adult collection"]:
-            template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code.replace(" ", "_"))
+            template_url = 'data_templates/{}-{}.xlsx'.format(facility_code.lower(), evnt_code.replace(" ", "_"))
         elif evnt_code in collection_evntc_list:
-            template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
+            template_url = 'data_templates/{}-collection.xlsx'.format(facility_code.lower())
         elif evnt_code in egg_dev_evntc_list:
-            template_url = 'data_templates/{}-egg_development.xlsx'.format(facility_code)
+            template_url = 'data_templates/{}-egg_development.xlsx'.format(facility_code.lower())
         else:
             template_url = 'data_templates/measuring.xlsx'
 

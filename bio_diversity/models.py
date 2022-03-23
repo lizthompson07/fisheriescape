@@ -180,7 +180,7 @@ class BioTimeModel(BioModel):
 
     @property
     def start_time(self):
-        if self.start_datetime.time() == utils.aware_min():
+        if self.start_datetime.time() == utils.aware_min().time():
             return None
         return self.start_datetime.time().strftime("%H:%M")
 
@@ -194,7 +194,7 @@ class BioTimeModel(BioModel):
     @property
     def end_time(self):
         if self.end_datetime:
-            if self.end_datetime.time() == utils.aware_min():
+            if self.end_datetime.time() == utils.aware_min().time():
                 return None
             return self.end_datetime.time().strftime("%H:%M")
         else:
@@ -2343,6 +2343,9 @@ class SubRiverCode(BioLookup):
 
     class Meta:
         unique_together = (('name', 'rive_id', 'trib_id'),)
+
+    def __str__(self):
+        return "{} - {}".format(self.rive_id.name, self.name)
 
     def clean(self):
         super(SubRiverCode, self).clean()

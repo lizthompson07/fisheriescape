@@ -1,11 +1,6 @@
-from datetime import timedelta
 
-import pytz
 from django.contrib.staticfiles import finders
-from django.db import transaction
-from django.forms import model_to_dict
 from django.test import tag
-from datetime import datetime
 
 from django.utils import timezone
 

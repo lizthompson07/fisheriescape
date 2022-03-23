@@ -1,7 +1,7 @@
 import json
 import os
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, time
 import decimal
 import math
 
@@ -9,7 +9,6 @@ import numpy as np
 from django.db.models import Q
 from django.utils import timezone
 from pandas import read_excel
-import pytz
 from django.core.exceptions import ValidationError, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import IntegrityError
 from django.http import JsonResponse, HttpResponseRedirect
@@ -91,7 +90,8 @@ class DataParser:
         for header_key in self.mandatory_keys:
             if header_key not in list(self.data):
                 # Make sure mandatory key columns exist
-                self.log_data += "Column with header \"{}\" not found in worksheet \n".format(header_key)
+                self.log_data += "Column with header \"{}\" not found in worksheet \n Headers should be on " \
+                                 "row {}".format(header_key, (self.header + 1))
                 self.success = False
         if self.success:
             for key in self.mandatory_filled_keys:
@@ -110,6 +110,9 @@ class DataParser:
         self.data = read_excel(self.cleaned_data["data_csv"], header=self.header, skiprows=self.comment_row, engine='openpyxl',
                                converters=self.converters, sheet_name=self.sheet_name)
         self.data = self.data.mask(self.data.eq('None')).dropna(how="all")
+        if self.data is None:
+            self.success = False
+            self.log_data += "\nError loading Data. Check if sheet named: {} exists.".format(self.sheet_name)
 
     def prep_data(self):
         if self.success:
@@ -193,12 +196,12 @@ def in_bio_diversity_admin_group(user):
 
 def in_bio_diversity_author_group(user):
     if user:
-        return bool(hasattr(user, "bio_user") and user.bio_user.is_author)
+        return bool(hasattr(user, "bio_user") and (user.bio_user.is_author or user.bio_user.is_admin))
 
 
 def in_bio_diversity_user_group(user):
     if user:
-        return bool(hasattr(user, "bio_user") and user.bio_user.is_user)
+        return bool(hasattr(user, "bio_user") and (user.bio_user.is_user or user.bio_user.is_admin))
 
 
 def get_comment_keywords_dict():
@@ -244,7 +247,7 @@ def toggle_help_text_edit(request, user_id):
 
 
 def aware_min():
-    return timezone.make_aware(timezone.datetime.min)
+    return timezone.make_aware(timezone.datetime(1, 1, 1, 0, 0))
 
 
 def team_list_splitter(team_str, valid_only=True):
@@ -793,9 +796,18 @@ def get_relc_from_point(shapely_geom):
 
 def get_row_date(row, get_time=False):
     try:
-        if get_time:
-            row_datetime = timezone.make_aware(datetime.strptime(row["Year"] + "-" + row["Month"] + "-" +
-                                                                 row["Day"] + "-" + row["Time"], "%Y-%b-%d-%H:%M"))
+        if get_time and nan_to_none(row["Time"]):
+            if len(row["Time"]) == 8:
+                row_datetime = timezone.make_aware(datetime.strptime(row["Year"] + "-" + row["Month"] + "-" +
+                                                                     row["Day"] + "-" + row["Time"], "%Y-%b-%d-%H:%M:%S"))
+            elif len(row["Time"]) == 6:
+                row_datetime = timezone.make_aware(datetime.strptime(row["Year"] + "-" + row["Month"] + "-" +
+                                                                     row["Day"] + "-" + row["Time"],
+                                                                     "%Y-%b-%d-%H:%M"))
+            else:
+                row_date = timezone.make_aware(
+                    datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"], "%Y-%b-%d"))
+                row_datetime = datetime.combine(row_date, time(0,0))
         else:
             row_datetime = timezone.make_aware(datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"],
                                                                  "%Y-%b-%d"))
@@ -2126,7 +2138,7 @@ def ajax_get_fields(request):
 def naive_to_aware(naive_date, naive_time=None):
     # adds null time and timezone to dates
     if not nan_to_none(naive_time):
-        naive_time = timezone.datetime.min.time()
+        naive_time = time(0, 0)
     return timezone.make_aware(datetime.combine(naive_date, naive_time))
 
 
@@ -2191,7 +2203,7 @@ def get_cont_from_tag(cont_tag, cont_id):
 
 def get_col_date(col_name):
     try:
-        col_date = datetime.strptime(col_name, "%Y-%b-%d").replace(tzinfo=pytz.UTC)
+        col_date = timezone.make_aware(datetime.strptime(col_name, "%Y-%b-%d"))
     except:
         col_date = False
     return col_date
