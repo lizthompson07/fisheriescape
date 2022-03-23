@@ -1,11 +1,9 @@
 
 import factory
 import pytz
-from django.utils import timezone
 from faker import Factory
 
-from bio_diversity import models
-from bio_diversity.static import calculation_constants
+from bio_diversity import models, calculation_constants
 
 faker = Factory.create()
 
@@ -54,7 +52,6 @@ class AnixFactory(factory.django.DjangoModelFactory):
 
     evnt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntFactory")
     contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
-    final_contx_flag = factory.lazy_attribute(lambda o: faker.boolean())
     loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
     indv_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvFactory")
     pair_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PairFactory")
@@ -77,7 +74,6 @@ class AnixFactory(factory.django.DjangoModelFactory):
         data = {
             'evnt_id': evnt.pk,
             'contx_id': contx.pk,
-            'final_contx_flag': obj.final_contx_flag,
             'loc_id': loc.pk,
             'indv_id': indv.pk,
             'pair_id': pair.pk,
@@ -126,10 +122,11 @@ class CntFactory(factory.django.DjangoModelFactory):
         model = models.Count
 
     loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
-    contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    anix_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnixFactory")
     cntc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CntcFactory")
     spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
     cnt = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
+    cnt_date = factory.lazy_attribute(lambda o: faker.date())
     est = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -138,7 +135,7 @@ class CntFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def build_valid_data(**kwargs):
         loc = LocFactory()
-        contx = ContxFactory()
+        anix = AnixFactory()
         cntc = CntcFactory()
         spec = SpecFactory()
 
@@ -147,10 +144,11 @@ class CntFactory(factory.django.DjangoModelFactory):
         # Convert the data to a dictionary to be used in testing
         data = {
             'loc_id': loc.pk,
-            'contx_id': contx.pk,
+            'anix_id': anix.pk,
             'cntc_id': cntc.pk,
             'spec_id': spec.pk,
             'cnt': obj.cnt,
+            'cnt_date': obj.cnt_date,
             'est': obj.est,
             'comments': obj.comments,
             'created_by': obj.created_by,
@@ -1743,6 +1741,39 @@ class LdscFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class MoveFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.MoveDet
+
+    anix_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnixFactory")
+    contx_start = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    contx_end = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    move_date = factory.lazy_attribute(lambda o: faker.date())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        obj = MoveFactory.build(**kwargs)
+        anix_id = AnixFactory()
+        contx_start = ContxFactory()
+        contx_end = ContxFactory()
+
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'anix_id': anix_id.pk,
+            'contx_start': contx_start.pk,
+            'contx_end': contx_end.pk,
+            'move_date': obj.move_date,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class OrgaFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Organization
@@ -2080,8 +2111,11 @@ class RelcFactory(factory.django.DjangoModelFactory):
     subr_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SubrFactory")
     min_lat = factory.lazy_attribute(lambda o: faker.random_int(0, 45))
     max_lat = factory.lazy_attribute(lambda o: faker.random_int(50, 90))
-    min_lon = factory.lazy_attribute(lambda o: faker.random_int(calculation_constants.min_long, (calculation_constants.min_long + calculation_constants.max_long) / 2))
-    max_lon = factory.lazy_attribute(lambda o: faker.random_int((calculation_constants.min_long + calculation_constants.max_long) / 2 + 5, calculation_constants.max_long))
+    min_lon = factory.lazy_attribute(lambda o: faker.random_int(calculation_constants.min_long, (
+            calculation_constants.min_long + calculation_constants.max_long) / 2))
+    max_lon = factory.lazy_attribute(lambda o: faker.random_int((calculation_constants.min_long +
+                                                                 calculation_constants.max_long) / 2 + 5,
+                                                                calculation_constants.max_long))
 
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())

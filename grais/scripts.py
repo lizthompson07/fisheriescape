@@ -3,6 +3,7 @@ from django.template.defaultfilters import date
 from django.urls import reverse
 from django.utils.translation import activate
 
+from lib.templatetags.custom_filters import nz
 from . import models
 
 
@@ -83,6 +84,7 @@ def fix_metadata():
         obj.created_by = obj.author
         obj.updated_by = obj.author
         obj.save()
+
 
 def fix_categories():
     '''
@@ -244,3 +246,16 @@ def print_bad_surfaces():
             print(f'{s.id}|{coverage}|http://dmapps{reverse("grais:surface_detail", args=[s.id])}')
 
 
+def print_collectors():
+    lines = models.Line.objects.filter(sample__season__in=[2019, 2020])
+    print("station number,station name,province,year,sample id,line id,collector tag")
+    for line in lines:
+        print("{},{},{},{},{},{},{}".format(
+            line.sample.station.id,
+            line.sample.station.station_name,
+            line.sample.station.province,
+            line.sample.season,
+            line.sample.id,
+            line.id,
+            nz(line.collector, "----")
+        ))

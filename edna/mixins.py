@@ -1,9 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
 
-from .utils import in_edna_crud_group, in_edna_admin_group
+from .utils import is_crud_user, is_admin
 
-class LoginAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+class ednaBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         if self.request.user.id:
             return True
@@ -14,24 +15,23 @@ class LoginAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = is_admin(self.request.user)
+        return context
 
-class eDNACRUDAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+class eDNACRUDAccessRequiredMixin(ednaBasicMixin):
     def test_func(self):
-        return in_edna_crud_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
+        return is_crud_user(self.request.user)
 
 
-class eDNAAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class eDNAAdminRequiredMixin(ednaBasicMixin):
     def test_func(self):
-        return in_edna_admin_group(self.request.user)
+        return is_admin(self.request.user)
 
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
+
+class SuperuserOrAdminRequiredMixin(ednaBasicMixin):
+
+    def test_func(self):
+        return self.request.user.is_superuser or is_admin(self.request.user)

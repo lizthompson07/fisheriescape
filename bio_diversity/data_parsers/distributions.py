@@ -3,9 +3,8 @@ from django.core.exceptions import ValidationError
 from django.db.models import Count as django_Count
 from django.db.models import Q
 
-from bio_diversity import models
+from bio_diversity import models, calculation_constants
 from bio_diversity import utils
-from bio_diversity.static import calculation_constants
 from bio_diversity.utils import DataParser
 
 
@@ -46,7 +45,8 @@ class DistributionParser(DataParser):
     weight_anidc_id = None
     driver_role_id = None
 
-    header = 2
+    header = 1
+    comment_row = [2]
     converters = {cont_key: str, 'Year': str, 'Month': str, 'Day': str}
     sheet_name = "Groups"
 
@@ -69,7 +69,7 @@ class DistributionParser(DataParser):
 
         # set a location
         # link to a list of containers
-        # for each container, look for the group inside, if yes, link it to the evnt + location
+        # for each container, look for the group inside, if yes, link it to the evnt + location + count
         # link all details to the location, num fish, etc.
 
         cleaned_data = self.cleaned_data
@@ -129,25 +129,58 @@ class DistributionParser(DataParser):
             self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.acclimation_key],
                                                  self.acclimation_locdc_id.pk, None)
 
-        # ----------Count and count details----------------
+        # get container row + group:
         cnt_year = None
         coll_id = None
         stok_id = None
         coll = None
+        loc_anix_pk = None
         if utils.nan_to_none(row.get(self.year_coll_key)):
             cnt_year, coll = utils.year_coll_splitter(row[self.year_coll_key])
             coll_id = utils.coll_getter(coll)
         if utils.nan_to_none(row.get(self.stok_key)):
             stok_id = models.StockCode.objects.filter(name__iexact=row[self.stok_key]).get()
 
-        cnt, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.num_key], loc_pk=loc.pk,
-                                           cnt_code="Fish Distributed", cnt_year=cnt_year, coll_id=coll_id,
-                                           stok_id=stok_id)
-        self.row_entered += cnt_entered
+        cont_list = []
+        if utils.nan_to_none(row[self.cont_key]):
+            cont_list = utils.parse_cont_strs(str(row[self.cont_key]), cleaned_data["facic_id"], row_date,
+                                              exclude_str=row.get(self.exclude_key))
+        elif utils.nan_to_none(row.get(self.trof_key)):
+            cont_list = utils.parse_trof_str(str(row[self.trof_key]), cleaned_data["facic_id"])
+
+        if cont_list:
+            for cont_id in cont_list:
+                fish_from_cont = int(float(row[self.num_key]) / len(cont_list))
+                contx, data_entered = utils.enter_contx(cont_id, cleaned_data, return_contx=True)
+                self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=contx.pk, return_sucess=True)
+                self.row_entered += data_entered
+                grp_list = utils.get_grp(utils.nan_to_none(row[self.stok_key]), cnt_year, coll, cont_id, row_date,
+                                         prog_str=utils.nan_to_none(row.get(self.prog_key)),
+                                         mark_str=utils.nan_to_none(row.get(self.mark_key)))
+                if grp_list:
+                    grp_id = grp_list[0]
+                    self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
+                    loc_anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk, contx_pk=contx.pk)
+                    loc_anix_pk = loc_anix.pk
+                    self.row_entered += anix_entered
+
+                cnt, cnt_entered = utils.enter_cnt(cleaned_data, fish_from_cont, row_date, loc_pk=loc.pk,
+                                                   anix_pk=loc_anix_pk, contx_ref_pk=contx.pk, cnt_code="Fish Distributed", cnt_year=cnt_year,
+                                                   coll_id=coll_id, stok_id=stok_id)
+                self.row_entered += cnt_entered
+        else:
+            # ----------Count and count details----------------
+            cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.num_key], row_date, loc_pk=loc.pk,
+                                               anix_pk=loc_anix_pk, cnt_code="Fish Distributed", cnt_year=cnt_year,
+                                               coll_id=coll_id, stok_id=stok_id)
+            self.row_entered += cnt_entered
 
         if utils.nan_to_none(row.get(self.prog_key)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.prog_key], "Program Group",
                                                     row[self.prog_key])
+
+        if utils.nan_to_none(row.get(self.mark_key)):
+            self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.mark_key], "Mark", row[self.mark_key])
 
         if utils.nan_to_none(row.get(self.len_key)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.len_key], self.len_anidc_id.name)
@@ -164,26 +197,6 @@ class DistributionParser(DataParser):
         if utils.nan_to_none(row.get(self.lifestage_key)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.lifestage_key],
                                                     self.lifestage_anidc_id.name, row[self.lifestage_key])
-
-        # get container row:
-        cont_list = []
-        if utils.nan_to_none(row[self.cont_key]):
-            cont_list = utils.parse_cont_strs(str(row[self.cont_key]), cleaned_data["facic_id"], row_date,
-                                              exclude_str=row.get(self.exclude_key))
-        elif utils.nan_to_none(row.get(self.trof_key)):
-            cont_list = utils.parse_trof_str(str(row[self.trof_key]), cleaned_data["facic_id"])
-
-        for cont_id in cont_list:
-            contx, data_entered = utils.enter_contx(cont_id, cleaned_data, return_contx=True)
-            self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, contx_pk=contx.pk, return_sucess=True)
-            self.row_entered += data_entered
-            grp_list = utils.get_grp(utils.nan_to_none(row[self.stok_key]), cnt_year, coll, cont_id, row_date,
-                                     prog_str=utils.nan_to_none(row.get(self.prog_key)),
-                                     mark_str=utils.nan_to_none(row.get(self.mark_key)))
-            if grp_list:
-                grp_id = grp_list[0]
-                self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
-                self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk, return_sucess=True)
 
 
 class DistributionIndvParser(DataParser):
@@ -203,6 +216,7 @@ class DistributionIndvParser(DataParser):
     temp_key = "River Temp"
     truck_temp = "Truck Temp"
     acclimation_key = "Acclimation Time (mins)"
+    mark_key = "Mark"
     lifestage_key = "Lifestage"
     len_key = "Len (cm)"
     len_key_mm = "Len (mm)"
@@ -227,7 +241,8 @@ class DistributionIndvParser(DataParser):
 
     sex_dict = calculation_constants.sex_dict
 
-    header = 2
+    header = 1
+    comment_row = [2]
     converters = {tank_key: str, trof_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
     sheet_name = "Individuals"
 
@@ -314,7 +329,8 @@ class DistributionIndvParser(DataParser):
                                                    weight=row.get(self.weight_key),
                                                    weight_kg=row.get(self.weight_key_kg),
                                                    vial=row.get(self.vial_key),
-                                                   tissue_yn=row.get(self.tissue_key)
+                                                   tissue_yn=row.get(self.tissue_key),
+                                                   mark=row.get(self.mark_key),
                                                    )
 
         if utils.nan_to_none(row.get(self.lifestage_key)):
@@ -337,5 +353,5 @@ class DistributionIndvParser(DataParser):
             indv_cnt=django_Count('animal_details', filter=Q(animal_details__indv_id__isnull=False)))
         for loc in loc_list:
             if loc.indv_cnt != 0:
-                utils.enter_cnt(cleaned_data, loc.indv_cnt, loc_pk=loc.pk, cnt_code="Fish Distributed")
+                utils.enter_cnt(cleaned_data, loc.indv_cnt, loc.loc_date, loc_pk=loc.pk, cnt_code="Fish Distributed")
 

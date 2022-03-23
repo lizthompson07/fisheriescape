@@ -14,12 +14,15 @@ urlpatterns = [
     path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),  # tested
     path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),  # tested
 
+    # user permissions
+    path('settings/users/', views.ednaUserFormsetView.as_view(), name="manage_edna_users"),
+    path('settings/users/<int:pk>/delete/', views.ednaUserHardDeleteView.as_view(), name="delete_edna_user"),
+
     path('settings/sample-types/', views.SampleTypeFormsetView.as_view(), name="manage_sample_types"),  # TODO: test
     path('settings/sample-type/<int:pk>/delete/', views.SampleTypeHardDeleteView.as_view(), name="delete_sample_type"),  # TODO: test
 
     path('settings/master-mixes/', views.MasterMixFormsetView.as_view(), name="manage_master_mixes"),
     path('settings/master-mix/<int:pk>/delete/', views.MasterMixHardDeleteView.as_view(), name="delete_master_mix"),
-
 
     # species
     path('species/', views.SpeciesListView.as_view(), name="species_list"),  # tested

@@ -35,7 +35,7 @@ class PPTAdminUser(models.Model):
         return self.user.get_full_name()
 
     class Meta:
-        ordering = ["-is_national_admin", "user__first_name", ]
+        ordering = ["-is_national_admin", "region", "user__first_name", ]
 
 
 class CSRFTheme(SimpleLookup):
@@ -415,7 +415,8 @@ class ProjectYear(models.Model):
     has_field_component = models.BooleanField(default=False, verbose_name=_("Does this project involved a field component?"))
     vehicle_needs = models.TextField(blank=True, null=True,
                                      verbose_name=_("Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
-    ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Ship (Coast Guard, charter vessel) Requirements"))
+    has_ship_needs = models.BooleanField(default=False, verbose_name=_("Ship (Coast Guard, charter vessel) Requirements?"), choices=YES_NO_CHOICES)
+    ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Description of Ship (Coast Guard, charter vessel) Requirements"))
     coip_reference_id = models.CharField(max_length=100, blank=True, null=True, verbose_name=_(
         "If this project links to a ship time request in COIP, please include the COIP application number here."))
     instrumentation = models.TextField(blank=True, null=True,
@@ -621,6 +622,14 @@ class ProjectYear(models.Model):
             if request:
                 self.modified_by = request.user
             self.save()
+
+    def start_review(self):
+        if not hasattr(self, "review"):
+            Review.objects.create(project_year=self)
+
+    def remove_review(self):
+        if hasattr(self, "review"):
+            self.review.delete()
 
     @property
     def allocated_budget(self):
@@ -992,10 +1001,13 @@ class Review(models.Model):
 
     @property
     def metadata(self):
-        my_str = get_metadata_string(self.created_at, None, self.updated_at, self.last_modified_by)
-        if self.modified_by.exists():
-            my_str += f"<br><u>Reviewed by:</u> {listrify(self.modified_by.all())}"
-        return my_str
+        try:
+            my_str = get_metadata_string(self.created_at, None, self.updated_at, self.last_modified_by)
+            if self.modified_by.exists():
+                my_str += f"<br><u>Reviewed by:</u> {listrify(self.modified_by.all())}"
+            return my_str
+        except:
+            pass
 
     def save(self, *args, **kwargs):
         self.total_score = nz(self.collaboration_score, 0) + nz(self.strategic_score, 0) + nz(self.operational_score, 0) + nz(

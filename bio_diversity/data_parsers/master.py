@@ -1,10 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-import pandas as pd
 
-from bio_diversity import models
+from bio_diversity import models, calculation_constants
 from bio_diversity import utils
-from bio_diversity.static import calculation_constants
 from bio_diversity.utils import DataParser
 
 
@@ -19,7 +17,8 @@ class MasterIndvParser(DataParser):
     sex_key = "Sex"
     lifestage_key = "Lifestage"
 
-    header = 2
+    header = 1
+    comment_row = [2]
     sheet_name = "Individual"
     converters = {tank_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
 
@@ -64,12 +63,10 @@ class MasterIndvParser(DataParser):
             indv = models.Individual.objects.filter(pit_tag=indv.pit_tag).get()
 
         tank_id = models.Tank.objects.filter(name=row[self.tank_key]).get()
-        self.row_entered += utils.enter_contx(tank_id, cleaned_data, True, indv_pk=indv.pk)
+        start_anix, end_anix, move_entered = utils.enter_move(cleaned_data, None, tank_id, row_date, indv_pk=indv.pk)
+        self.row_entered += move_entered
 
-        anix, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
-        self.row_entered += anix_entered
-
-        self.row_entered += utils.enter_bulk_indvd(anix.pk, cleaned_data, row_date,
+        self.row_entered += utils.enter_bulk_indvd(end_anix.pk, cleaned_data, row_date,
                                                    gender=row.get(self.sex_key),
                                                    lifestage=row.get(self.lifestage_key),
                                                    comments=row.get(self.comment_key))
@@ -85,7 +82,8 @@ class MasterGrpParser(DataParser):
     lifestage_key = "Lifestage"
     comment_key = "Comments"
 
-    header = 2
+    header = 1
+    comment_row = [2]
     sheet_name = "Group"
     converters = {tank_key: str, 'Year': str, 'Month': str, 'Day': str}
 
@@ -107,6 +105,7 @@ class MasterGrpParser(DataParser):
         cleaned_data = self.cleaned_data
         year, coll = utils.year_coll_splitter(row[self.year_coll_key])
         row_datetime = utils.get_row_date(row)
+        row_date = utils.get_row_date(row).date()
         comments = None
         if utils.nan_to_none(row.get(self.comment_key)):
             comments = utils.nan_to_none(row[self.comment_key])
@@ -122,7 +121,7 @@ class MasterGrpParser(DataParser):
                                                                name__icontains=row[self.mark_key]).get()
 
         grp_list = utils.get_grp(row[self.stok_key], year, coll, cont=tank_id, at_date=row_datetime,
-                                 prog_grp=prog_grp_id, grp_mark=mark_id)
+                                 prog_grp=[prog_grp_id], grp_mark=mark_id)
         if grp_list:
             grp_id = grp_list[0]
         else:
@@ -151,11 +150,11 @@ class MasterGrpParser(DataParser):
                                                  lifestage=row.get(self.lifestage_key),
                                                  comments=row.get(self.comment_key))
 
-        contx, contx_entered = utils.enter_contx(tank_id, cleaned_data, True, grp_pk=grp_id.pk, return_contx=True)
-        self.row_entered += contx_entered
+        start_anix, end_anix, move_entered = utils.enter_move(cleaned_data, None, tank_id, row_date, grp_pk=grp_id.pk)
+        self.row_entered += move_entered
 
-        cnt, cnt_entered = utils.enter_cnt(cleaned_data, utils.nan_to_none(row[self.cnt_key]), contx_pk=contx.pk,
-                                           cnt_code="Fish Count")
+        cnt, cnt_entered = utils.enter_cnt(cleaned_data, utils.nan_to_none(row[self.cnt_key]), row_datetime.date(),
+                                           anix_pk=end_anix.pk, cnt_code="Fish Count")
         self.row_entered += cnt_entered
 
         if utils.nan_to_none(row.get(self.comment_key)):

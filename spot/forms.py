@@ -49,6 +49,10 @@ class OrganizationForm(forms.ModelForm):
 
 class PersonForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['organizations'].queryset = models.Organization.objects.filter(is_active=True)
+
     class Meta:
         model = models.Person
         fields = '__all__'
@@ -63,6 +67,17 @@ class PersonForm(forms.ModelForm):
 
 
 class ProjectForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+        self.fields['DFO_technicians'].queryset = models.Person.objects.filter(is_active=True)
+        self.fields['DFO_project_authority'].queryset = models.Person.objects.filter(is_active=True)
+        self.fields['DFO_area_chief'].queryset = models.Person.objects.filter(is_active=True)
+        self.fields['DFO_aboriginal_AAA'].queryset = models.Person.objects.filter(is_active=True)
+        self.fields['DFO_resource_manager'].queryset = models.Person.objects.filter(is_active=True)
+        self.fields['first_nations_contact'].queryset = models.Person.objects.filter(is_active=True)
+        self.fields['partner_contact'].queryset = models.Person.objects.filter(is_active=True)
+        self.fields['partner'].queryset = models.Organization.objects.filter(is_active=True)
 
     class Meta:
         model = models.Project
@@ -86,7 +101,6 @@ class ProjectForm(forms.ModelForm):
             'core_component': forms.SelectMultiple(multi_select_js),
             'supportive_component': forms.SelectMultiple(attrs=multi_select_js),
             'project_purpose': forms.SelectMultiple(multi_select_js),
-            #'DFO_link': forms.Select(choices=choices.DFO_LINK, attrs=attr_chosen),
             'government_organization': forms.Select(choices=choices.GOVERNMENT_LINK, attrs=attr_chosen),
             'first_nations_contact_role': forms.Select(choices=choices.ROLE, attrs=attr_chosen),
             'agreement_database': forms.Select(choices=choices.AGREEMENT_DATABASE, attrs=attr_chosen),
@@ -95,6 +109,7 @@ class ProjectForm(forms.ModelForm):
             'lead_organization': forms.Select(choices=choices.LEAD_ORGANIZATION, attrs=attr_chosen),
             'cu_index': forms.SelectMultiple(attr_chosen),
             'cu_name': forms.Select(attr_chosen),
+            #'cu_name': forms.SelectMultiple(attr_chosen),
             'policy_program_connection': forms.Select(choices=choices.POLICY_PROGRAM, attrs=attr_chosen),
             'DFO_project_authority': forms.SelectMultiple(attr_chosen),
             'DFO_area_chief': forms.SelectMultiple(attr_chosen),
@@ -164,20 +179,26 @@ class ProjectForm(forms.ModelForm):
 
 class ObjectiveForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+        self.fields['outcomes_contact'].queryset = models.Person.objects.filter(is_active=True)
+
+
     class Meta:
         model = models.Objective
         fields = '__all__'
         widgets = {
-            'location': forms.SelectMultiple(attr_chosen),
+            'location': forms.Select(attr_chosen),
             'project': forms.HiddenInput(),
             'element_title': forms.Select(choices=choices.ELEMENT_TITLE, attrs=attr_chosen),
             'pst_requirement': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
             'sil_requirement': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
-            'species': forms.SelectMultiple(multi_select_js),
+            'species': forms.Select(attr_chosen),
             'objective_category': forms.SelectMultiple(multi_select_js),
             'outcome_barrier': forms.SelectMultiple(multi_select_js),
             'capacity_building': forms.SelectMultiple(multi_select_js),
             'outcome_deadline': forms.DateInput(),
+            'outcomes_contact': forms.Select(attr_chosen),
             'outcome_met': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
             'unique_objective': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),

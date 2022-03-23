@@ -78,6 +78,7 @@
   var $has_new_data = $("#id_has_data_component");
   var $has_travel = $("#id_has_field_component");
   var $has_lab_work = $("#id_has_lab_component");
+  var $has_ship_needs = $("#id_has_ship_needs");
   var $requires_specialized_equipment = $("#id_requires_specialized_equipment");
   var $requires_field_staff = $("#id_requires_field_staff");
 
@@ -148,6 +149,18 @@
     }
   }
 
+
+  function refreshShipSection() {
+    if ($has_ship_needs.val() === "True") {
+      $(".ship_needs_div").removeClass("gone")
+      $(".coip_reference_id_div").removeClass("gone")
+    } else {
+      $(".ship_needs_div").addClass("gone")
+      $(".coip_reference_id_div").addClass("gone")
+    }
+  }
+
+
   function refreshSpecializedEquipmentSection() {
     if ($requires_specialized_equipment.val() === "True") {
       $(".technical_service_needs_div").removeClass("gone")
@@ -157,6 +170,11 @@
       $(".mobilization_needs_div").addClass("gone")
     }
   }
+
+
+  $has_ship_needs.change(function () {
+    refreshShipSection()
+  })
 
 
   $has_new_data.change(function () {

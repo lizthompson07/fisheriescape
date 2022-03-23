@@ -17,7 +17,7 @@ from easy_pdf.views import PDFTemplateView
 
 from dm_apps.context_processor import my_envr
 from lib.functions.custom_functions import fiscal_year, truncate, listrify
-from shared_models.models import Person, FiscalYear, SubjectMatter
+from shared_models.models import Person, SubjectMatter
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
     CommonHardDeleteView, CommonListView
@@ -369,22 +369,28 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
         return context
 
 
-class CSASRequestReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
-    template_name = 'csas2/request_reviews/main.html'
+class CSASRequestReviewConsoleTemplateView(CsasAdminRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
     container_class = "container-fluid"
     home_url_name = "csas2:index"
-    h1 = gettext_lazy("CSAS Request Review Console")
     filterset_class = filters.CSASRequestFilter
     model = models.CSASRequest
+    h1 = gettext_lazy("CSAS Request Review Console")
+    template_name = 'csas2/request_reviews/main.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["is_staff"] = utils.in_csas_web_pub_group(self.request.user)
         return context
 
     def get_queryset(self):
         qs = models.CSASRequest.objects.all()
         qs = qs.annotate(search=Concat('title', Value(" "), 'translated_title', Value(" "), 'id', output_field=TextField()))
         return qs
+
+
+class CSASRequestTranslationConsoleTemplateView(CSASRequestReviewConsoleTemplateView):
+    h1 = gettext_lazy("CSAS Request Translation Console")
+    template_name = 'csas2/request_reviews/main_trans.html'
 
 
 class ProcessReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):
@@ -564,7 +570,7 @@ class CSASRequestFileDeleteView(CanModifyRequestRequiredMixin, CommonPopoutDelet
 #################
 
 class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
-    template_name = 'csas2/list.html'
+    template_name = 'csas2/process_list.html'
     filterset_class = filters.ProcessFilter
     paginate_by = 25
     home_url_name = "csas2:index"
@@ -580,10 +586,12 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'tname|{}'.format("title"), "class": "w-25", "width": ""},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
-        {"name": 'regions|{}'.format(_("regions")), "class": "", "width": ""},
+        {"name": 'regions|{}'.format(_("CSAS offices")), "class": "", "width": ""},
         {"name": 'tor_status|{}'.format(_("ToR status")), "class": "", "width": ""},
         {"name": 'chair|{}'.format(_("chair")), "class": "w-25", "width": ""},
         {"name": 'science_leads|{}'.format(_("science lead(s)")), "class": "", "width": ""},
+        {"name": 'has_peer_review_meeting|{}'.format(_("has peer review meeting?")), "class": "", "width": ""},
+        {"name": 'has_planning_meeting|{}'.format(_("has planning meeting?")), "class": "", "width": ""},
     ]
 
     def get_extra_button_dict1(self):
@@ -1007,13 +1015,13 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
     h1 = gettext_lazy("Meetings")
     sortable = False
     field_list = [
-        {"name": 'process', "class": "", "width": "400px"},
         {"name": 'tname|{}'.format("title"), "class": "", "width": "400px"},
         {"name": 'location', "class": "", "width": ""},
         {"name": 'display_dates_deluxe|{}'.format(_("dates")), "class": "", "width": ""},
         {"name": 'role|{}'.format(_("your role(s)")), "class": "", "width": ""},
+        {"name": 'is_planning', "class": "", "width": ""},
+        {"name": 'process.posting_status|{}'.format(_("Status of website posting")), "class": "", "width": "400px"},
     ]
-
 
     def get_extra_button_dict1(self):
         qs = self.filterset.qs
@@ -1023,7 +1031,6 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
             "url": reverse("csas2:meeting_report") + f"?meetings={ids}",
             "class": "btn-outline-dark",
         }
-
 
     def get_queryset(self):
         qp = self.request.GET

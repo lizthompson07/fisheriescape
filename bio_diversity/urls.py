@@ -217,6 +217,9 @@ urlpatterns = [
     path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_texts"),
     path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
     path('ajax/get_fields/', utils.ajax_get_fields, name='ajax_get_fields'),
+    path('settings/toggle-help-texts/<int:user_id>', utils.toggle_help_text_edit, name="toggle_edit_help_texts"),
+    path('settings/help-texts/<str:model_name>/<str:field_name>/', views.HelpTextPopView.as_view(),
+         name="manage_help_text"),
 
     path('create/img/', views.ImgCreate.as_view(), name="create_img"),
     path('create/img/<str:feature>/<int:feature_id>/<str:pop>/', views.ImgCreate.as_view(), name="create_img"),
@@ -310,6 +313,12 @@ urlpatterns = [
     path('create/mort/<str:iorg>/<int:pk>/', views.MortFormView.as_view(), name="create_mort"),
     path('create/mort/<str:iorg>/<int:pk>/<str:pop>/', views.MortFormView.as_view(), name="create_mort"),
 
+    path('create/move/', views.MoveCreate.as_view(), name="create_move"),
+    path('details/move/<int:pk>/', views.MoveDetails.as_view(), name="details_move"),
+    path('details/move/<str:back>/<int:back_id>/<int:pk>/', views.MoveDetails.as_view(), name="details_move"),
+    path('list/move/', views.MoveList.as_view(), name="list_move"),
+    path('update/move/<int:pk>/', views.MoveUpdate.as_view(), name="update_move"),
+    
     path('create/orga/', views.OrgaCreate.as_view(), name="create_orga"),
     path('create/orga/<str:pop>/', views.OrgaCreate.as_view(), name="create_orga"),
     path('details/orga/<int:pk>/', views.OrgaDetails.as_view(), name="details_orga"),
@@ -385,6 +394,7 @@ urlpatterns = [
     
     path('create/repr/', views.ReportFormView.as_view(), name="create_repr"),
     path('reports/facility_tank_report/', views.facility_tank_report, name="facic_tank_report"),
+    path('reports/calibration_template_file/', views.calibration_template, name="calibration_template_file"),
     path('reports/stock_code_report/', views.stock_code_report, name="stock_code_report"),
     path('reports/detail_report/', views.detail_report, name="detail_report"),
     path('reports/site_report_file/', views.site_report_file, name="site_report_file"),

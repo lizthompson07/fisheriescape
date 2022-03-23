@@ -119,7 +119,7 @@
             <text-input-cell
               type="select"
               :sample.sync="obj" :row="index"
-              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown2" @copy-double-down="copyDoubleDown2"
               field="assay"
               :col="4"
               :ref="`row_${index}_col_4`"
@@ -131,7 +131,7 @@
             <text-input-cell
               type="number"
               :sample.sync="obj" :row="index"
-              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown2" @copy-double-down="copyDoubleDown2"
               field="threshold"
               :col="5"
               :ref="`row_${index}_col_5`"
@@ -141,7 +141,7 @@
             <text-input-cell
               type="checkbox"
               :sample.sync="obj" :row="index"
-              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown2" @copy-double-down="copyDoubleDown2"
               field="is_undetermined"
               :col="6"
               :ref="`row_${index}_col_6`"
@@ -151,7 +151,7 @@
             <text-input-cell
               type="number"
               :sample.sync="obj" :row="index"
-              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown2" @copy-double-down="copyDoubleDown2"
               field="ct"
               :col="7"
               :ref="`row_${index}_col_7`"
@@ -161,7 +161,7 @@
             <text-input-cell
               type="text"
               :sample.sync="obj" :row="index"
-              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown2" @copy-double-down="copyDoubleDown2"
               field="comments"
               :col="8"
               :ref="`row_${index}_col_8`"
@@ -216,7 +216,7 @@
     },
     methods: {
       populateWells() {
-        let msg = "{% trans "What is your the first well number (e.g. A1)?" %}";
+        let msg = "{% trans "What is your the first well number (e.g. A-01)?" %}";
         let input = prompt(msg);
         if (input) {
           input = input.toUpperCase();
@@ -226,7 +226,7 @@
           let letters = ["A", "B", "C", "D", "E", "F", "G", "H",];
           for (var j = 0; j < letters.length; j++) {
             for (var i = 1; i <= 12; i++) {
-              well = `${letters[j]}${i}`;
+              well = `${letters[j]}-${String(i).padStart(2,'0')}`;
               wellArray.push(well);
             }
           }
@@ -301,15 +301,12 @@
       copyDown(obj, field, input) {
         this.unsavedChanges = true;
         // copy the value for the field into the next row
-        console.log(obj)
         let index = this.pcrAssays.indexOf(obj) + 1;
-        console.log(index)
-        console.log(this.pcrAssays[index])
         if (this.pcrAssays[index]) this.pcrAssays[index].pcr_object[field] = input;
-        console.log(this.pcrAssays[index])
         this.updatePCR(this.pcrAssays[index].pcr_object)
       },
       copyDoubleDown(pcr, field, input) {
+        console.log(pcr)
         this.unsavedChanges = true;
         // copy the value for the field into the next row
         let startingIndex = this.pcrs.indexOf(pcr) + 1;
@@ -317,6 +314,23 @@
         for (var i = startingIndex; i <= endingIndex; i++) {
           if (this.pcrs[i]) this.pcrs[i][field] = input;
           this.updatePCR(this.pcrs[i])
+        }
+      },
+      copyDown2(obj, field, input) {
+        this.unsavedChanges = true;
+        // copy the value for the field into the next row
+        let index = this.pcrAssays.indexOf(obj) + 1;
+        if (this.pcrAssays[index]) this.pcrAssays[index][field] = input;
+        this.updatePCRAssay(this.pcrAssays[index])
+      },
+      copyDoubleDown2(pcrAssay, field, input) {
+        this.unsavedChanges = true;
+        // copy the value for the field into the next row
+        let startingIndex = this.pcrAssays.indexOf(pcrAssay) + 1;
+        let endingIndex = this.pcrAssays.length - 1;
+        for (var i = startingIndex; i <= endingIndex; i++) {
+          if (this.pcrAssays[i]) this.pcrAssays[i][field] = input;
+          this.updatePCRAssay(this.pcrAssays[i])
         }
       },
       deletePCRAssay(pcrAssay) {

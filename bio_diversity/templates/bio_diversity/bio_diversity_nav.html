@@ -14,6 +14,10 @@
         <a class="dropdown-item" href="{% url 'bio_diversity:manage_help_texts' %}">
           {% trans "Help Text" %}
         </a>
+        <a class="dropdown-item" href="{% url 'bio_diversity:toggle_edit_help_texts' user.pk %}">
+            {% trans "Toggle Help Text Editing" %}{% if user.bio_user.mode == 2 %}
+                <span class="mdi mdi-check"></span> {% endif %}
+        </a>
         <a class="dropdown-item" href="{% url 'bio_diversity:manage_bio_users' %}">
           {% trans "Manage Users" %}
         </a>

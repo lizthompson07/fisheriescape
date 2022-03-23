@@ -96,16 +96,21 @@ label {
         {% paginate 75 filter.qs as filter_list %}
         <div class="row">
             <div class="col">
-                {% trans "(click on a header to sort table)" %}
+                {% trans "(click on a header to sort table alphabetically)" %}
             </div>
             <div class="col" style="text-align: center">
                 {% show_pages %}
                 <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'spot:export_project' %}?{{request.GET.urlencode}}" class="btn btn-sm btn-success">Export to .csv</a>
                 <a href="{% url 'spot:project_new' %}" class="btn btn-sm btn-primary">New Project</a>
-
+                    <button class="btn btn-secondary dropdown-toggle btn-sm btn-success" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Export to .XLSX
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a href="{% url 'spot:export_project' %}?{{request.GET.urlencode}}" class="dropdown-item">Project</a>
+                        <a href="{% url 'spot:export_project_full' %}?{{request.GET.urlencode}}" data-toggle="tooltip" data-placement="bottom" title="Includes all Objectives, Data, Reports, Methods etc" class="dropdown-item">Full Project</a>
+                    </div>
             </div>
         </div>
 
@@ -113,11 +118,7 @@ label {
             <thead>
             <tr>
                 {% for field in field_list %}
-                    {% if field == "start_year" %}
-                        <th scope="col" style="width: 100px">{% get_verbose_label my_object field %}</th>
-                    {% else %}
                         <th scope="col">{% get_verbose_label my_object field %}</th>
-                    {% endif %}
                 {% endfor %}
             </tr>
             </thead>
@@ -126,8 +127,12 @@ label {
                 {% url 'spot:project_detail' object.id as my_url %}
                 <tr href="{{ my_url }}">
                     {% for field in field_list %}
-                        {% if field == "status" %}
-                            <td style="background-color: {{ object.status.color }}">{% get_field_value object field %}</td>
+                        {% if "funding" in field %}
+                            <td>
+                            {% for fund in object.funding_year.all %}
+                                    {{ fund.funding_year }}
+                            {% endfor %}
+                                </td>
                         {% else %}
                             <td>{% get_field_value object field %}</td>
                         {% endif %}
@@ -148,6 +153,12 @@ function closeNav() {
   document.getElementById("mySidebar").style.width = "0";
   document.getElementById("main").style.marginLeft= "0";
 }
+
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+
 </script>
     </body>
+
 {% endblock content %}

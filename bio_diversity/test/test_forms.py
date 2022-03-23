@@ -1,10 +1,12 @@
 from datetime import timedelta
 
-import pytz
 
 from django.forms import model_to_dict
 from django.test import tag
 from datetime import datetime
+
+from django.utils.timezone import make_aware
+
 from bio_diversity import forms
 from bio_diversity.test import BioFactoryFloor
 from shared_models.test.common_tests import CommonTest
@@ -147,7 +149,7 @@ class TestEnvForm(CommonTest):
     def test_null_unique(self):
         instance = BioFactoryFloor.EnvFactory()
         instance.contx_id = None
-        instance.start_datetime = datetime.strptime(instance.start_datetime.strftime("%Y%m%d%H%M"), "%Y%m%d%H%M").replace(tzinfo=pytz.UTC)
+        instance.start_datetime = datetime.strptime(make_aware(instance.start_datetime.strftime("%Y%m%d%H%M"), "%Y%m%d%H%M"))
         instance.save()
         invalid_data = model_to_dict(instance)
         invalid_data["start_date"] = invalid_data["start_datetime"].date()

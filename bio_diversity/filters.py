@@ -32,7 +32,7 @@ class CntFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Count
-        fields = ["loc_id", "contx_id", "spec_id", ]
+        fields = ["loc_id", "spec_id", ]
 
 
 class CntcFilter(django_filters.FilterSet):
@@ -382,6 +382,13 @@ class LdscFilter(django_filters.FilterSet):
     class Meta:
         model = models.LocDetSubjCode
         fields = ["name", "nom", ]
+
+
+class MoveFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.MoveDet
+        fields = ["move_date"]
 
 
 class OrgaFilter(django_filters.FilterSet):

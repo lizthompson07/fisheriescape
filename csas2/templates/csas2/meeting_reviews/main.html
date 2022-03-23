@@ -53,30 +53,33 @@
         <table class="table table-sm">
           <thead>
           <tr>
-            <th class="w50">Process Id</th>
+            <th>{% trans "Meeting Link" %}</th>
+            <th>{% trans "Process Id" %}</th>
             <th>${meetingLabels.fiscal_year}</th>
             <th>${meetingLabels.start_date}</th>
             <th>${processLabels.is_posted}</th>
-            <th>${meetingLabels.name}</th>
-            <th>${meetingLabels.nom}</th>
-{#            <th class="w250">{% trans "Title" %}</th>#}
-{#            <th>{% trans "Regions" %}</th>#}
-{#            <th>${meetingLabels.status}</th>#}
-{#            <th>${meetingLabels.advice_date}</th>#}
-{#            <th>${meetingLabels.status}</th>#}
+            <th class="w-30">${meetingLabels.name}</th>
+            <th class="w-30">${meetingLabels.nom}</th>
           </tr>
           </thead>
           <tbody>
           <tr v-for="m in meetings" :key="m.id">
-            <td>${m.process}</td>
+            <td>
+              <a target="_blank" :href="`/csas-sccs/meetings/${m.id}/view/`"><span class="mdi mdi-open-in-new lead text-primary"></span></a>
+            </td>
+            <td>
+              ${m.process}
+            </td>
             <td>${m.process_object.fiscal_year}</td>
             <td><span v-html="m.display_dates"></span></td>
             <td>${m.process_object.is_posted | yesNo}</td>
             <td>
-              <input v-model="m.name" type="text" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted">
+              <textarea v-model="m.name" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted"
+                        rows="3"></textarea>
             </td>
             <td>
-              <input v-model="m.nom" type="text" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted">
+              <textarea v-model="m.nom" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted"
+                        rows="3"></textarea>
             </td>
           </tr>
           </tbody>
@@ -138,11 +141,12 @@
       getMeetings() {
         this.errorMsg = null;
         this.loadingMeetings = true;
-        this.fresh = false;
         let params = window.location.search.substring(1);
-
-        if (!params) page_size = 25;
-        else page_size = 50000;
+        if (!params) page_size = 5;
+        else {
+          page_size = 50000;
+          this.fresh = false;
+        }
 
         let endpoint = `/api/csas/meetings/?${params}&page_size=${page_size}`;
         apiService(endpoint)
@@ -205,7 +209,6 @@
     created() {
       this.getCurrentUser();
       this.getMeetings();
-      {#this.getReviewMetadata();#}
       this.getMetadata();
     },
   });

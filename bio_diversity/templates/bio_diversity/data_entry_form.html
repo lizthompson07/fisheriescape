@@ -13,8 +13,19 @@
     </div>
     <div class="card border border-dark mt-2 pt-1">
         <div class="card-body">
+            <a href="{% static 'documentation/bio_diversity/events_guide.docx'%}">{% trans "Event Entry Help Guide" %}</a>
+        </div>
+    </div>
+    <div class="card border border-dark mt-2 pt-1">
+        <div class="card-body">
             {% if allow_entry %}
-                {% if template_url %}
+                {% if filled_template_url %}
+                    <div>
+                        <p>Data Input Template:
+                            <a href={{filled_template_url}} >{{template_name}}</a>
+                        </p>
+                    </div>
+                {% elif template_url %}
                     <div>
                         <p>Data Input Template:
                             <a href="{% static template_url %}" >{{ template_name }}</a>
