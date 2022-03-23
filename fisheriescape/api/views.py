@@ -1,4 +1,5 @@
-from django_filters import FilterSet
+import django_filters
+from django_filters import rest_framework as filters
 from rest_framework import generics
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
@@ -6,7 +7,9 @@ from rest_framework.filters import SearchFilter
 from rest_framework import viewsets
 from rest_framework import mixins
 
-from .serializers import ScoreSerializer
+from rest_framework_gis.filters import GeometryFilter
+from rest_framework_gis.filterset import GeoFilterSet
+from .serializers import ScoreSerializer, ScoreFeatureSerializer
 from .. import models
 
 
@@ -16,10 +19,16 @@ from .. import models
 #     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 #     queryset = models.Entry.objects.all()
 
-class MyFilter(FilterSet):
+
+#have to have filters.Filterset also because otherwise crispy-forms doesn't have submit button
+# see https://github.com/encode/django-rest-framework/issues/3636
+
+class MyFilter(GeoFilterSet, filters.FilterSet):
+    # hexagon = GeometryFilter(field_name='hexagon', lookup_expr='contains')
+
     class Meta:
         model = models.Score
-        fields = ['species', 'site_score']
+        fields = ['species', 'week']
 
 
 ## for nested relationship
@@ -32,6 +41,21 @@ class MyFilter(FilterSet):
 class ScoreViewSet(ModelViewSet):
     queryset = models.Score.objects.all()
     serializer_class = ScoreSerializer
+    filter_backends = (filters.DjangoFilterBackend, SearchFilter, )
+    filterset_class = MyFilter
+    search_fields = ['species__english_name', 'species__french_name', 'week__week_number']
+
+
+class ScoreFeatureViewSet(ModelViewSet):
+    queryset = models.Score.objects.all()
+    serializer_class = ScoreFeatureSerializer
+
+# For TESTING
+# class ScoreViewSet(ModelViewSet):
+#     queryset = models.Species.objects.all()
+#     serializer_class = ScoreSerializer
+#     filter_backends = (filters.DjangoFilterBackend,)
+#     filterset_fields = ('english_name', 'french_name')
 
 # class ScoreListView(mixins.UpdateModelMixin,
 #                      mixins.ListModelMixin,

@@ -4,7 +4,7 @@
 <head>
   <title>Map</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="{% static 'fisheriescape/map.css' %}?version=1.0">
+  <link rel="stylesheet" type="text/css" href="{% static 'fisheriescape/map.css' %}?version=1.1">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
         integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
         crossorigin=""/>
@@ -14,13 +14,13 @@
 </head>
 <body>
 
-<div id="map3"></div>
+<div id="map4"></div>
 
 <script>
 let scoreObj = {{ hexagon_polygons | safe }};
 let mapboxApiKey = '{{ mapbox_api_key }}';
 </script>
 
-<script src="{% static 'fisheriescape/map3.js' %}?version=1.5"></script>
+<script src="{% static 'fisheriescape/map4.js' %}?version=1.1"></script>
 </body>
 </html>

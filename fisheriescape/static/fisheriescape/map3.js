@@ -129,7 +129,7 @@ function createOverlay(data, layerName, style) {
 }
 
 // this works but had to add leaflet-ajax to static - but not sure how to get filter
-$.getJSON(`http://127.0.0.1:8000/api/fisheriescape/scores/`, function(data){
+$.getJSON(`http://127.0.0.1:8000/api/fisheriescape/scores-feature/`, function(data){
     createOverlay(data, "Site Scores")
 });
 

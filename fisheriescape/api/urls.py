@@ -2,11 +2,12 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from . import views
-from .views import ScoreViewSet
+from .views import ScoreViewSet, ScoreFeatureViewSet
 
 router = DefaultRouter()
 
 router.register(r"scores", ScoreViewSet)
+router.register(r"scores-feature", ScoreFeatureViewSet)
 # router.register(r"profiles", ScoreListView)
 
 urlpatterns = [

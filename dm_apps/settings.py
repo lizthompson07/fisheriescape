@@ -149,6 +149,7 @@ INSTALLED_APPS = [
                      'rest_framework',
                      'rest_framework_gis',
                      'django_filters',
+                     'crispy_forms', #added for testing DRF filters
                      'storages',
                      'django.contrib.humanize',
                      'bootstrap4',
