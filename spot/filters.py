@@ -47,13 +47,15 @@ class ProjectFilter(django_filters.FilterSet):
     project_type = django_filters.ChoiceFilter(choices=choices.PROJECT_TYPE, lookup_expr='icontains')
     monitoring_approach = django_filters.ChoiceFilter(choices=choices.MONITORING_APPROACH, lookup_expr='icontains')
     government_organization = django_filters.ChoiceFilter(choices=choices.GOVERNMENT_LINK, lookup_expr='icontains')
+    funding_year = django_filters.ChoiceFilter(field_name='funding_year__funding_year', choices=choices.FUNDING_YEARS, lookup_expr='icontains')
+
 
     class Meta:
         model = models.Project
-        fields = ['species', 'region', 'cu_name', 'stock_management_unit', 'project_stage','ecosystem_type',
+        fields = {'species', 'region', 'cu_name', 'stock_management_unit', 'project_stage','ecosystem_type',
                   'project_type', 'project_sub_type', 'monitoring_approach',
                   'project_theme', 'core_component', 'supportive_component',
-                  'government_organization',]
+                  'government_organization', }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -14,9 +14,6 @@ from . import models
 from .mixins import SuperuserOrAdminRequiredMixin, SpotAccessRequiredMixin, SpotAdminRequiredMixin
 from dm_apps.settings import MAPBOX_API_KEY
 from . import emails
-from datetime import datetime
-from datetime import timedelta
-from openpyxl import Workbook
 from django.http import HttpResponse
 from django.db.models.deletion import ProtectedError
 
@@ -60,6 +57,7 @@ class OrganizationDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
+            'is_active',
             'name',
             'organization_type',
             'section',
@@ -138,7 +136,6 @@ class PersonListView(SpotAccessRequiredMixin, FilterView):
             'email',
             'province_state',
             'city',
-
         ]
         return context
 
@@ -150,6 +147,7 @@ class PersonDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
+            'is_active',
             'first_name',
             'last_name',
             'phone',
@@ -226,11 +224,14 @@ class ProjectListView(SpotAccessRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Project.objects.first()
         context["field_list"] = [
+            'project_number',
             'agreement_number',
             'name',
             'region',
+            'primary_river',
             'species',
             'DFO_project_authority',
+            'funding_year|Funding Years'
         ]
         return context
 
@@ -812,6 +813,7 @@ class ReportsListView(SpotAccessRequiredMixin,FilterView):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Reports.objects.first()
         context["field_list"] = [
+            'project',
             'report_timeline',
             'report_type',
             'document_name',
@@ -1365,333 +1367,6 @@ class ProjectCertifiedDeleteView(SpotAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-#EXPORT#
-##############
-def export_project(request):
-    project = models.Project.objects.all()
-    project_filter = filters.ProjectFilter(request.GET, queryset=project).qs
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=project' + str(date.today()) + '.csv'
-
-    writer = csv.writer(response, delimiter=',')
-    writer.writerow([
-        'project_number',
-        'agreement_number',
-        'agreement_history',
-        'name',
-        'project_description',
-        'start_date',
-        'end_date',
-
-        'region',
-        'ecosystem_type',
-        'primary_river',
-        'secondary_river',
-        'lake_system',
-        'watershed',
-        'management_area',
-
-        'stock_management_unit',
-        'cu_index',
-        'cu_name',
-        'species',
-        'salmon_life_stage',
-
-        'project_stage',
-        'project_type',
-        'project_sub_type',
-        'monitoring_approach',
-        'project_theme',
-        'core_component',
-        'supportive_component',
-        'project_purpose',
-        'category_comments',
-
-        'DFO_link',
-        'DFO_program_reference',
-        'government_organization',
-        'policy_program_connection',
-
-        'DFO_project_authority',
-        'DFO_area_chief',
-        'DFO_aboriginal_AAA',
-        'DFO_resource_manager',
-        'first_nation',
-        'first_nations_contact',
-        'first_nations_contact_role',
-        'DFO_technicians',
-        'contractor',
-        'contractor_contact',
-        'partner',
-        'partner_contact',
-
-        'agreement_database',
-        'agreement_comment',
-        'funding_sources',
-        'other_funding_sources',
-        'agreement_type',
-        'lead_organization',
-
-        'date_last_modified',
-        'last_modified_by',
-
-    ])
-
-    for obj in project_filter:
-        writer.writerow([
-            obj.agreement_number,
-            obj.project_number,
-            ",".join(i.name for i in obj.agreement_history.all()),
-            obj.name,
-            obj.project_description,
-            obj.start_date,
-            obj.end_date,
-
-            obj.region,
-            obj.ecosystem_type,
-            obj.primary_river,
-            ",".join(i.name for i in obj.secondary_river.all()),
-            ",".join(i.name for i in obj.lake_system.all()),
-            ",".join(i.name for i in obj.watershed.all()),
-            obj.management_area,
-
-            obj.stock_management_unit,
-            obj.cu_index,
-            obj.cu_name,
-            ",".join(i.name for i in obj.species.all()),
-            ",".join(i.name for i in obj.salmon_life_stage.all()),
-
-            obj.project_stage,
-            obj.project_type,
-            ",".join(i.name for i in obj.project_sub_type.all()),
-            obj.monitoring_approach,
-            ",".join(i.name for i in obj.project_theme.all()),
-            ",".join(i.name for i in obj.core_component.all()),
-            ",".join(i.name for i in obj.supportive_component.all()),
-            ",".join(i.name for i in obj.project_purpose.all()),
-            obj.category_comments,
-
-            obj.DFO_link,
-            obj.DFO_program_reference,
-            obj.government_organization,
-            obj.policy_program_connection,
-
-            ",".join(i.full_name for i in obj.DFO_project_authority.all()),
-            ",".join(i.full_name for i in obj.DFO_area_chief.all()),
-            ",".join(i.full_name for i in obj.DFO_aboriginal_AAA.all()),
-            ",".join(i.full_name for i in obj.DFO_resource_manager.all()),
-            obj.first_nation,
-            obj.first_nations_contact,
-            obj.first_nations_contact_role,
-            ",".join(i.full_name for i in obj.DFO_technicians.all()),
-            obj.contractor,
-            obj.contractor_contact,
-            ",".join(i.name for i in obj.partner.all()),
-            ",".join(i.full_name for i in obj.partner_contact.all()),
-
-            obj.agreement_database,
-            obj.agreement_comment,
-            ",".join(i.name for i in obj.funding_sources.all()),
-            obj.other_funding_sources,
-            obj.agreement_type,
-            obj.lead_organization,
-
-            obj.date_last_modified,
-            obj.last_modified_by,
-        ])
-
-    return response
-
-
-def export_objective(request):
-    objective = models.Objective.objects.all()
-    objective_filter = filters.ObjectiveFilter(request.GET, queryset=objective).qs
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=objective' + str(date.today()) + '.csv'
-
-    writer = csv.writer(response, delimiter=',')
-    writer.writerow([
-        'project',
-        'unique_objective',
-        'task_description',
-        'element_title',
-        'pst_requirement',
-        'location',
-        'objective_category',
-        'species',
-        'sil_requirement',
-        'expected_results',
-        'dfo_report',
-        'outcome_met',
-        'outcomes_contact',
-        'outcome_barrier',
-        'capacity_building',
-        'key_lesson',
-        'missed_opportunities',
-        'date_last_modified',
-        'last_modified_by',
-
-    ])
-
-    for obj in objective_filter:
-        writer.writerow([
-            obj.project,
-            obj.unique_objective,
-            obj.task_description,
-            obj.element_title,
-            obj.pst_requirement,
-            obj.location,
-            ",".join(i.name for i in obj.objective_category.all()),
-            obj.species,
-            obj.sil_requirement,
-            obj.expected_results,
-            obj.dfo_report,
-            obj.outcome_met,
-            obj.outcomes_contact,
-            ",".join(i.name for i in obj.outcome_barrier.all()),
-            ",".join(i.name for i in obj.capacity_building.all()),
-            obj.key_lesson,
-            obj.missed_opportunities,
-            obj.date_last_modified,
-            obj.last_modified_by
-
-        ])
-    return response
-
-
-def export_data(request):
-    data = models.Data.objects.all()
-    data_filter = filters.DataFilter(request.GET, queryset=data).qs
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=data' + str(date.today()) + '.csv'
-
-    writer = csv.writer(response, delimiter=',')
-    writer.writerow([
-        'project',
-        'species',
-        'samples_collected',
-        'samples_collected_comment',
-        'samples_collected_database',
-        'shared_drive',
-        'sample_barrier',
-        'sample_entered_database',
-        'data_quality_check',
-        'data_quality_person',
-        'barrier_data_check_entry',
-        'sample_format',
-        'data_products',
-        'data_products_database',
-        'data_products_comment',
-        'data_programs',
-        'data_communication',
-        'date_last_modified',
-        'last_modified_by',
-
-    ])
-
-    for obj in data_filter:
-        writer.writerow([
-            obj.project,
-            ",".join(i.name for i in obj.species.all()),
-            ",".join(i.name for i in obj.samples_collected.all()),
-            obj.samples_collected_comment,
-            obj.shared_drive,
-            ",".join(i.name for i in obj.sample_barrier.all()),
-            obj.sample_entered_database,
-            obj.data_quality_check,
-            obj.data_quality_person,
-            ",".join(i.name for i in obj.barrier_data_check_entry.all()),
-            ",".join(i.name for i in obj.sample_format.all()),
-            ",".join(i.name for i in obj.data_products.all()),
-            ",".join(i.name for i in obj.data_products_database.all()),
-            obj.data_products_comment,
-            ",".join(i.name for i in obj.data_programs.all()),
-            ",".join(i.name for i in obj.data_communication.all()),
-            obj.date_last_modified,
-            obj.last_modified_by,
-
-        ])
-    return response
-
-
-def export_method(request):
-    method = models.Method.objects.all()
-    data_filter = filters.MethodFilter(request.GET, queryset=method).qs
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=method' + str(date.today()) + '.csv'
-
-    writer = csv.writer(response, delimiter=',')
-    writer.writerow([
-        'field_work_method_type',
-        'planning_method_type',
-        'sample_processing_method_type',
-        'knowledge_consideration',
-        'scale_processing_location',
-        'otolith_processing_location',
-        'DNA_processing_location',
-        'heads_processing_location',
-        'instrument_data_processing_location',
-        'date_last_modified',
-        'last_modified_by',
-    ])
-
-    for obj in data_filter:
-        writer.writerow([
-            ",".join(i.name for i in obj.field_work_method_type.all()),
-            ",".join(i.name for i in obj.planning_method_type.all()),
-            ",".join(i.name for i in obj.sample_processing_method_type.all()),
-            obj.knowledge_consideration,
-            obj.scale_processing_location,
-            obj.otolith_processing_location,
-            obj.DNA_processing_location,
-            obj.heads_processing_location,
-            obj.instrument_data_processing_location,
-            obj.date_last_modified,
-            obj.last_modified_by,
-        ])
-    return response
-
-
-def export_reports(request):
-    reports = models.Reports.objects.all()
-    reports_filter = filters.ReportsFilter(request.GET, queryset=reports).qs
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=reports' + str(date.today()) + '.csv'
-
-    writer = csv.writer(response, delimiter=',')
-    writer.writerow([
-        'project',
-        'report_timeline',
-        'report_type',
-        'report_concerns',
-        'document_name',
-        'document_author',
-        'document_reference_information',
-        'document_link',
-        'published',
-        'date_last_modified',
-        'last_modified_by',
-
-    ])
-
-    for obj in reports_filter:
-        writer.writerow([
-            obj.project,
-            obj.report_timeline,
-            obj.report_type,
-            obj.report_concerns,
-            obj.document_name,
-            obj.document_author,
-            obj.document_reference_information,
-            obj.document_link,
-            obj.published,
-            obj.date_last_modified,
-            obj.last_modified_by,
-
-        ])
-    return response
-
-
 class ProjectCloneView(ProjectUpdateView):
     template_name = 'spot/project_form.html'
 
@@ -1799,159 +1474,3 @@ class SpotUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
 class SpotUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
     model = models.SpotUser
     success_url = reverse_lazy("spot:manage_spot_users")
-
-    '''
-def project_workbook(request):
-    project = models.Project.objects.all()
-    project_filter = filters.ProjectFilter(request.GET, queryset=project).qs
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    )
-    response['Content-Disposition'] = 'attachment; filename={date}-Projects.xlsx'.format(
-        date=datetime.now().strftime('%Y-%m-%d'),
-    )
-    workbook = Workbook()
-    worksheet = workbook.active
-    worksheet.title = 'Projects'
-
-    columns = [
-        'project_number',
-        'agreement_number',
-        'agreement_history',
-        'name',
-        'project_description',
-        'start_date',
-        'end_date',
-
-        'region',
-        'ecosystem_type',
-        'primary_river',
-        'secondary_river',
-        'lake_system',
-        'watershed',
-        'management_area',
-
-        'stock_management_unit',
-        'cu_index',
-        'cu_name',
-        'species',
-        'salmon_life_stage',
-
-        'project_stage',
-        'project_type',
-        'project_sub_type',
-        'monitoring_approach',
-        'project_theme',
-        'core_component',
-        'supportive_component',
-        'project_purpose',
-        'category_comments',
-
-        'DFO_link',
-        'DFO_program_reference',
-        'government_organization',
-        'policy_program_connection',
-
-        'DFO_project_authority',
-        'DFO_area_chief',
-        'DFO_aboriginal_AAA',
-        'DFO_resource_manager',
-        'first_nation',
-        'first_nations_contact',
-        'first_nations_contact_role',
-        'DFO_technicians',
-        'contractor',
-        'contractor_contact',
-        'partner',
-        'partner_contact',
-
-        'agreement_database',
-        'agreement_comment',
-        'funding_sources',
-        'other_funding_sources',
-        'agreement_type',
-        'lead_organization',
-
-        #'date_last_modified',
-        #'last_modified_by',
-
-    ]
-    row_num = 1
-
-    for col_num, column_title in enumerate(columns, 1):
-        cell = worksheet.cell(row=row_num, column=col_num)
-        cell.value = column_title
-
-    for obj in project_filter:
-        row_num += 1
-
-        row = [
-            obj.agreement_number,
-            obj.project_number,
-            ",".join(i.name for i in obj.agreement_history.all()),
-            obj.name,
-            obj.project_description,
-            obj.start_date,
-            obj.end_date,
-
-            obj.region,
-            obj.ecosystem_type,
-            obj.primary_river.name,
-            ",".join(i.name for i in obj.secondary_river.all()),
-            ",".join(i.name for i in obj.lake_system.all()),
-            ",".join(i.name for i in obj.watershed.all()),
-            obj.management_area,
-
-            obj.stock_management_unit,
-            obj.cu_index,
-            obj.cu_name.name,
-            ",".join(i.name for i in obj.species.all()),
-            ",".join(i.name for i in obj.salmon_life_stage.all()),
-
-            obj.project_stage,
-            obj.project_type,
-            ",".join(i.name for i in obj.project_sub_type.all()),
-            obj.monitoring_approach,
-            ",".join(i.name for i in obj.project_theme.all()),
-            ",".join(i.name for i in obj.core_component.all()),
-            ",".join(i.name for i in obj.supportive_component.all()),
-            ",".join(i.name for i in obj.project_purpose.all()),
-            obj.category_comments,
-
-            obj.DFO_link,
-            obj.DFO_program_reference,
-            obj.government_organization,
-            obj.policy_program_connection,
-
-            ",".join(i.full_name for i in obj.DFO_project_authority.all()),
-            ",".join(i.full_name for i in obj.DFO_area_chief.all()),
-            ",".join(i.full_name for i in obj.DFO_aboriginal_AAA.all()),
-            ",".join(i.full_name for i in obj.DFO_resource_manager.all()),
-            obj.first_nation.name,
-            obj.first_nations_contact.full_name,
-            obj.first_nations_contact_role,
-            ",".join(i.full_name for i in obj.DFO_technicians.all()),
-            obj.contractor,
-            obj.contractor_contact,
-            ",".join(i.name for i in obj.partner.all()),
-            ",".join(i.full_name for i in obj.partner_contact.all()),
-
-            obj.agreement_database,
-            obj.agreement_comment,
-            ",".join(i.name for i in obj.funding_sources.all()),
-            obj.other_funding_sources,
-            obj.agreement_type,
-            obj.lead_organization,
-
-           # obj.date_last_modified,
-           # obj.last_modified_by,
-        ]
-
-        for col_num, cell_value in enumerate(row, 1):
-            cell = worksheet.cell(row=row_num, column=col_num)
-            cell.value = cell_value
-
-    workbook.save(response)
-
-    return response
-    '''

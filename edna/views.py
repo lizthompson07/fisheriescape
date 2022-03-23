@@ -12,24 +12,43 @@ from django.shortcuts import get_object_or_404
 from django.templatetags.static import static
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.utils.timezone import utc, make_aware
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.templatetags.custom_filters import nz
 from shared_models.views import CommonTemplateView, CommonHardDeleteView, CommonFormsetView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonListView
 from . import models, forms, filters, utils
-from .mixins import LoginAccessRequiredMixin, eDNAAdminRequiredMixin
-from .utils import in_edna_admin_group
+from .mixins import ednaBasicMixin, eDNAAdminRequiredMixin, SuperuserOrAdminRequiredMixin
+from .utils import is_admin
 
 
-class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
+
+class ednaUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
+    template_name = 'edna/formset.html'
+    h1 = "Manage eDNA Users"
+    queryset = models.ednaUser.objects.all()
+    formset_class = forms.ednaUserFormset
+    success_url_name = "edna:manage_edna_users"
+    home_url_name = "edna:index"
+    delete_url_name = "edna:delete_edna_user"
+    container_class = "container bg-light curvy"
+
+
+class ednaUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
+    model = models.ednaUser
+    success_url = reverse_lazy("edna:manage_edna_users")
+
+
+
+class IndexTemplateView(ednaBasicMixin, CommonTemplateView):
     h1 = "home"
     active_page_name_crumb = "home"
     template_name = 'edna/index.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_admin"] = in_edna_admin_group(self.request.user)
+        context["is_admin"] = is_admin(self.request.user)
         return context
 
 
@@ -330,6 +349,7 @@ class CollectionDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
     template_name = 'edna/confirm_delete.html'
     container_class = "container curvy"
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    delete_protection = False
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("edna:collection_detail", args=[self.get_object().id])}
@@ -341,6 +361,7 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
     home_url_name = "edna:index"
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
     h1 = ' '
+    container_class = "container-fluid"
 
     def get_parent_crumb(self):
         return {"title": self.get_collection(), "url": reverse("edna:collection_detail", args=[self.get_collection().id])}
@@ -357,6 +378,7 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
         for row in csv_reader:
             example_obj.append(row)
         context["example_obj"] = example_obj
+        context["sample_types"] = models.SampleType.objects.all().order_by("id")
         return context
 
     def form_valid(self, form):
@@ -366,15 +388,16 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
         csv_reader = csv.DictReader(StringIO(temp_file.read().decode('utf-8')))
         for row in csv_reader:
             bottle_id = row["bottle_id"]
+            sample_type = row["sample_type"]
             site_identifier = row["site_identifier"]
             site_description = row["site_description"]
             samplers = row["samplers"]
-            datetime = dt.datetime.strptime(row["datetime"], "%Y-%m-%d %H:%S")
+            datetime = make_aware(dt.datetime.strptime(row["datetime"], "%m/%d/%Y %H:%S"), utc)
             latitude = row["latitude"]
             longitude = row["longitude"]
             comments = row["comments"]
 
-            sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, collection=my_object)
+            sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, collection=my_object, sample_type_id=sample_type)
             sample.site_identifier = site_identifier
             sample.site_description = site_description
             sample.samplers = samplers
@@ -660,6 +683,7 @@ class FiltrationBatchDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
     template_name = 'edna/confirm_delete.html'
     container_class = "container curvy"
     grandparent_crumb = {"title": gettext_lazy("Filtration Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
+    delete_protection = False
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("edna:filtration_batch_detail", args=[self.get_object().id])}
@@ -738,6 +762,7 @@ class ExtractionBatchDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
     template_name = 'edna/confirm_delete.html'
     container_class = "container curvy"
     grandparent_crumb = {"title": gettext_lazy("Extraction Batches"), "url": reverse_lazy("edna:extraction_batch_list")}
+    delete_protection = False
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("edna:extraction_batch_detail", args=[self.get_object().id])}
@@ -818,6 +843,7 @@ class PCRBatchDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
     template_name = 'edna/confirm_delete.html'
     container_class = "container curvy"
     grandparent_crumb = {"title": gettext_lazy("PCR Batches"), "url": reverse_lazy("edna:pcr_batch_list")}
+    delete_protection = False
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("edna:pcr_batch_detail", args=[self.get_object().id])}

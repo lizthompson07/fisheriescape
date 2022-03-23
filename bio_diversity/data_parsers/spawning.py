@@ -3,10 +3,9 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
 
-from bio_diversity import models
+from bio_diversity import models, calculation_constants
 from bio_diversity import utils
-from bio_diversity.static import calculation_constants
-from bio_diversity.static.calculation_constants import prio_dict
+from bio_diversity.calculation_constants import prio_dict
 from bio_diversity.utils import DataParser
 
 
@@ -42,7 +41,8 @@ class SpawningParser(DataParser):
     dest_key_m = "End Tank, M"
     prog_key = "Program"
 
-    header = 2
+    header = 1
+    comment_row = [2]
     start_grp_dict = {}
     end_grp_dict = {}
     converters = {pit_key_f: str, pit_key_m: str, dest_key_m: str, dest_key_f:str, 'Year': str, 'Month': str, 'Day': str}
@@ -141,12 +141,16 @@ class SpawningParser(DataParser):
                                                        )
 
         if utils.nan_to_none(row.get(self.dest_key_f)) and indv_female:
-            end_tank_id_f = models.Tank.objects.filter(name=row[self.dest_key_f], facic_id=cleaned_data["facic_id"]).get()
-            self.row_entered += utils.create_movement_evnt(None, end_tank_id_f, cleaned_data, row_date, indv_female.pk)
+            end_tank_id_f = models.Tank.objects.filter(name=row[self.dest_key_f],
+                                                       facic_id=cleaned_data["facic_id"]).get()
+            self.row_entered += utils.enter_move(cleaned_data, None, end_tank_id_f, row_date, indv_pk=indv_female.pk,
+                                                 return_sucess=True)
 
         if utils.nan_to_none(row.get(self.dest_key_m)) and indv_male:
-            end_tank_id_m = models.Tank.objects.filter(name=row[self.dest_key_m], facic_id=cleaned_data["facic_id"]).get()
-            self.row_entered += utils.create_movement_evnt(None, end_tank_id_m, cleaned_data, row_date, indv_male.pk)
+            end_tank_id_m = models.Tank.objects.filter(name=row[self.dest_key_m],
+                                                       facic_id=cleaned_data["facic_id"]).get()
+            self.row_entered += utils.enter_move(cleaned_data, None, end_tank_id_m, row_date, indv_pk=indv_male.pk,
+                                                 return_sucess=True)
 
         # pair
         pair = models.Pairing(start_date=row_date,
@@ -249,7 +253,7 @@ class SpawningParser(DataParser):
             anix_grp = anix_grp_qs.get()
             grp = anix_grp.grp_id
 
-        if anix_grp:
+        if anix_grp and row.get(self.prog_key):
             utils.enter_bulk_grpd(anix_grp, cleaned_data, row_date, prog_grp=row[self.prog_key])
 
     def data_cleaner(self):

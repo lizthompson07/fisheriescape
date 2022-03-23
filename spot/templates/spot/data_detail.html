@@ -32,7 +32,9 @@
     <div class="container-fluid">
 
         <h1>{{ object }}</h1>
-
+        {% if object.project %}
+            <h1>{{ object.project.name }}</h1>
+        {% endif %}
 
         <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'spot:data_edit' object.id %}">

@@ -5,18 +5,16 @@ from django.contrib.auth.models import Group
 from django.utils.translation import gettext as _
 
 
-def in_edna_admin_group(user):
-    # make sure the following group exist:
-    admin_group, created = Group.objects.get_or_create(name="edna_admin")
+def is_admin(user):
     if user:
-        return admin_group in user.groups.all()
+        return bool(hasattr(user, "edna_user") and user.edna_user.is_admin)
 
 
-def in_edna_crud_group(user):
-    # make sure the following group exist:
-    crud_group, created = Group.objects.get_or_create(name="edna_crud")
+def is_crud_user(user):
+    # nested under admin
     if user:
-        return in_edna_admin_group(user) or crud_group in user.groups.all()
+        return is_admin(user) or bool(hasattr(user, "edna_user") and user.edna_user.is_crud_user)
+
 
 
 def calc_nautical_dist(p0, p1):

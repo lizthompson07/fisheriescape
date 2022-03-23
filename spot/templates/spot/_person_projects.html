@@ -1,0 +1,100 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="">
+    <h4>
+        {% trans "Projects:" %}
+    </h4>
+</div>
+
+{% if object.DFO_project_authority.all.count == 0 and object.DFO_area_chief.all.count == 0 and object.DFO_aboriginal_AAA.all.count == 0 and object.DFO_resource_manager.all.count == 0 and object.first_nations_contact.all.count == 0 and object.DFO_technicians.all.count == 0 and object.partner_contact.all.count  == 0 %}
+    <em>
+        {% trans "This person is not part of any projects" %}
+
+    </em><br>
+{% else %}
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th style="width: 300px font size: 50px">
+                {% trans "Agreement Number" %}
+            </th>
+            <th style="width: 300px font size: 50px">
+                {% trans "Project Name" %}
+            </th>
+        </tr>
+        <tbody>
+        {% for obj in object.DFO_project_authority.all %}
+            <tr href="{% url 'spot:project_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this project">
+                <td>
+                    {{ obj.agreement_number }}
+                </td>
+                <td>
+                    {{ obj.name }}
+                </td>
+            </tr>
+        {% endfor %}
+        {% for obj in object.DFO_area_chief.all %}
+            <tr href="{% url 'spot:project_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this project">
+                <td>
+                    {{ obj.agreement_number }}
+                </td>
+                <td>
+                    {{ obj.name }}
+                </td>
+            </tr>
+        {% endfor %}
+        {% for obj in object.DFO_aboriginal_AAA.all %}
+            <tr href="{% url 'spot:project_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this project">
+                <td>
+                    {{ obj.agreement_number }}
+                </td>
+                <td>
+                    {{ obj.name }}
+                </td>
+            </tr>
+        {% endfor %}
+        {% for obj in object.DFO_resource_manager.all %}
+            <tr href="{% url 'spot:project_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this project">
+                <td>
+                    {{ obj.agreement_number }}
+                </td>
+                <td>
+                    {{ obj.name }}
+                </td>
+            </tr>
+        {% endfor %}
+        {% for obj in object.first_nations_contact.all %}
+            <tr href="{% url 'spot:project_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this project">
+                <td>
+                    {{ obj.agreement_number }}
+                </td>
+                <td>
+                    {{ obj.name }}
+                </td>
+            </tr>
+        {% endfor %}
+        {% for obj in object.DFO_technicians.all %}
+            <tr href="{% url 'spot:project_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this project">
+                <td>
+                    {{ obj.agreement_number }}
+                </td>
+                <td>
+                    {{ obj.name }}
+                </td>
+            </tr>
+        {% endfor %}
+        {% for obj in object.partner_contact.all %}
+            <tr href="{% url 'spot:project_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this project">
+                <td>
+                    {{ obj.agreement_number }}
+                </td>
+                <td>
+                    {{ obj.name }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

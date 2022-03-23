@@ -1,8 +1,7 @@
 
 from datetime import datetime
-import pytz
 import pandas as pd
-from pandas import read_excel
+from django.utils import timezone
 
 from bio_diversity import models
 from bio_diversity import utils
@@ -18,21 +17,20 @@ class DataLoggerTemperatureParser(DataParser):
         self.mandatory_keys = []
         super(DataLoggerTemperatureParser, self).load_data()
 
-    def data_reader(self, *args, **kwargs):
+    def data_reader(self):
         self.data = pd.read_csv(self.cleaned_data["data_csv"], encoding='ISO-8859-1', header=7)
         # to keep parent parser classes happy:
         self.data_dict = {}
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
-        contx, data_entered = utils.enter_trof_contx(cleaned_data["trof_id"].name, cleaned_data, final_flag=None,
-                                                     return_contx=True)
+        contx, data_entered = utils.enter_trof_contx(cleaned_data["trof_id"].name, cleaned_data, return_contx=True)
         qual_id = models.QualCode.objects.filter(name="Good").get()
         envc_id = models.EnvCode.objects.filter(name="Temperature").get()
 
         self.data["datetime"] = self.data.apply(
-            lambda row: datetime.strptime(row[self.date_key] + ", " + row[self.time_key],
-                                          "%Y-%m-%d, %H:%M:%S").replace(tzinfo=pytz.UTC), axis=1)
+            lambda row: timezone.make_aware(datetime.strptime(row[self.date_key] + ", " + row[self.time_key],
+                                          "%Y-%m-%d, %H:%M:%S")), axis=1)
 
         self.data["env"] = self.data.apply(
             lambda row: utils.enter_env(row[self.temp_key], row["datetime"].date(), cleaned_data,
@@ -66,7 +64,7 @@ class TemperatureParser(DataParser):
 
         trof_list = utils.parse_trof_str(row.get(self.trof_key), cleaned_data["facic_id"])
         for trof_id in trof_list:
-            row_contx, contx_entered = utils.enter_contx(trof_id, cleaned_data, final_flag=None, return_contx=True)
+            row_contx, contx_entered = utils.enter_contx(trof_id, cleaned_data, return_contx=True)
             self.row_entered += contx_entered
 
             self.row_entered += utils.enter_env(row[self.temp_key], row_datetime.date(), cleaned_data,

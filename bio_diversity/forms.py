@@ -1,5 +1,5 @@
 import inspect
-from datetime import date, datetime
+from datetime import date, datetime, time
 
 import pandas as pd
 from django import forms
@@ -9,13 +9,14 @@ from django.forms import modelformset_factory
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from bio_diversity.data_parsers.calibration import CalibrationParser
 from bio_diversity.data_parsers.containers import TroughParser, HeathUnitParser, TankParser
 from bio_diversity.data_parsers.distributions import DistributionIndvParser, DistributionParser
 from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser, \
     ElectrofishingParser, AdultCollectionParser
 from bio_diversity.data_parsers.feeding import FeedingParser
 from bio_diversity.data_parsers.sites import SitesParser
-from bio_diversity.static.calculation_constants import sfa_nums
+from bio_diversity.calculation_constants import sfa_nums, collection_evntc_list
 
 from bio_diversity import models
 from bio_diversity import utils
@@ -96,13 +97,13 @@ class CreateTimePrams(forms.ModelForm):
         if cleaned_data["start_time"]:
             start_time = datetime.strptime(cleaned_data["start_time"], '%H:%M').time()
         else:
-            start_time = datetime.min.time()
+            start_time = time(0, 0)
         cleaned_data["start_datetime"] = utils.naive_to_aware(cleaned_data["start_date"], start_time)
         if cleaned_data["end_date"]:
             if cleaned_data["end_time"]:
                 end_time = datetime.strptime(cleaned_data["end_time"], '%H:%M').time()
             else:
-                end_time = datetime.min.time()
+                end_time = time(0, 0)
             cleaned_data["end_datetime"] = utils.naive_to_aware(cleaned_data["end_date"], end_time)
 
         end_date = cleaned_data.get("end_date")
@@ -133,9 +134,6 @@ class AnixForm(CreatePrams):
     class Meta:
         model = models.AniDetailXref
         exclude = []
-        widgets = {
-            'final_contx_flag': forms.NullBooleanSelect()
-        }
 
 
 class AddCollFishForm(forms.Form):
@@ -228,7 +226,7 @@ class CntForm(CreatePrams):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['contx_id'].widget = forms.HiddenInput()
+        self.fields['anix_id'].widget = forms.HiddenInput()
 
 
 class CntcForm(CreatePrams):
@@ -358,7 +356,7 @@ class DataForm(CreatePrams):
                     success += parser.success
 
             # ----------------------------ELECTROFISHING-----------------------------------
-            elif cleaned_data["evntc_id"].__str__() in ["Electrofishing", "Bypass Collection", "Smolt Wheel Collection"]:
+            elif cleaned_data["evntc_id"].__str__().lower() in collection_evntc_list:
                 if cleaned_data["facic_id"].__str__() == "Coldbrook":
                     parser = ColdbrookElectrofishingParser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Mactaquac":
@@ -381,6 +379,11 @@ class DataForm(CreatePrams):
             # ---------------------------WATER QUALITY----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Water Quality Record":
                 parser = WaterQualityParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
+
+            # ---------------------------CALIBRATION----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Calibration":
+                parser = CalibrationParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
             # ---------------------------MASTER----------------------------------------
@@ -683,6 +686,8 @@ class FishToContForm(forms.Form):
 
         if grp_list:
             grp_id = grp_list[0]
+            anix, entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
+            utils.enter_cnt(cleaned_data, cleaned_data["num_fish"], cleaned_data["move_date"], anix_pk=anix.pk)
         else:
             grp_id = models.Group(spec_id=models.SpeciesCode.objects.filter(name="Salmon").get(),
                                   stok_id=cleaned_data["stok_id"],
@@ -694,18 +699,16 @@ class FishToContForm(forms.Form):
                                   )
             grp_id.clean()
             grp_id.save()
+            anix_id, entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
+            utils.enter_bulk_grpd(anix_id.pk, cleaned_data, cleaned_data["move_date"],
+                                  mark=cleaned_data["mark_id"],
+                                  prog_grp=cleaned_data["grp_prog_id"]
+                                  )
 
-        anix_id = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_anix=True)
-        utils.enter_bulk_grpd(anix_id.pk, cleaned_data, cleaned_data["move_date"],
-                              mark=cleaned_data["mark_id"],
-                              prog_grp=cleaned_data["grp_prog_id"]
-                              )
+            utils.enter_move_cnts(cleaned_data, None, self.cont, cleaned_data["move_date"],
+                                  nfish=cleaned_data["num_fish"], start_grp_id=grp_id, whole_grp=True,
+                                  set_origin_if_none=False)
 
-        # fish into tank contx
-        contx, entered = utils.enter_contx(self.cont, cleaned_data, True, grp_pk=grp_id.pk, return_contx=True)
-
-        # cnt:
-        utils.enter_cnt(cleaned_data, cleaned_data["num_fish"], contx_pk=contx.pk)
         return cleaned_data
 
 
@@ -765,6 +768,19 @@ HelpTextFormset = modelformset_factory(
     form=HelpTextForm,
     extra=1,
 )
+
+
+class HelpTextPopForm(forms.ModelForm):
+
+    class Meta:
+        model = models.HelpText
+        fields = "__all__"
+        widgets = {
+            'model': forms.HiddenInput(),
+            'field_name': forms.HiddenInput(),
+            'eng_text': forms.Textarea(attrs={"rows": 2}),
+            'fra_text': forms.Textarea(attrs={"rows": 2}),
+        }
 
 
 class ImgForm(CreatePrams):
@@ -862,7 +878,7 @@ class LocForm(CreatePrams):
         if self.cleaned_data["start_time"]:
             start_time = datetime.strptime(self.cleaned_data["start_time"], '%H:%M').time()
         else:
-            start_time = datetime.min.time()
+            start_time = datetime.time(0, 0)
         obj.loc_date = utils.naive_to_aware(self.cleaned_data["start_date"], start_time)
         obj.save()
         return obj
@@ -1019,7 +1035,7 @@ class MortForm(forms.Form):
             cont = grp.current_cont(at_date=cleaned_data["mort_date"])[0]
 
             # create contx, link to grp and samp:
-            contx, contx_entered = utils.enter_contx(cont, cleaned_data, None, return_contx=True)
+            contx, contx_entered = utils.enter_contx(cont, cleaned_data, return_contx=True)
 
             samp_anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp.pk, contx_pk=contx.pk)
 
@@ -1034,6 +1050,12 @@ class MortForm(forms.Form):
                                    scale_envelope=cleaned_data["scale_envelope"],
                                    gender=cleaned_data["indv_gender"],
                                    )
+
+
+class MoveForm(CreatePrams):
+    class Meta:
+        model = models.MoveDet
+        exclude = []
 
 
 class OrgaForm(CreatePrams):

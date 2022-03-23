@@ -39,7 +39,7 @@
           {% elif field.name == "translation_status" %}{{ object.tstatus_class|slugify }}{% endif %}
         ">
         {% block table_td %}
-          {% if "has_process" in field.name and not object.has_process and object.status == 11 %}
+          {% if "has_process" in field.name and not object.has_process and object.status == 11 or "peer_review_meeting" in field.name  or "planning_meeting" in field.name %}
             {% get_field_value object field.name safe=True as myval %}
             <span class="{{ myval|lower }} p-1">{{ myval }}</span>
           {% else %}
