@@ -27,7 +27,7 @@ from .models import FisheryArea, Hexagon, Score, NAFOArea
 # For Snow Crab.shp
 # mapping = {
 #     'layer_id': 'Fishery',
-#     'name': 'Area',
+#     'name': 'AreaID',
 #     'polygon': 'MULTIPOLYGON',
 # }
 #
@@ -43,7 +43,7 @@ from .models import FisheryArea, Hexagon, Score, NAFOArea
 ## For Lobster.shp
 # mapping = {
 #     'layer_id': 'Fishery',
-#     'name': 'Area',
+#     'name': 'AreaID',
 #     'polygon': 'MULTIPOLYGON',
 # }
 #
@@ -59,7 +59,7 @@ from .models import FisheryArea, Hexagon, Score, NAFOArea
 ## For Groundfish.shp
 # mapping = {
 #     'layer_id': 'Fishery',
-#     'name': 'Area',
+#     'name': 'AreaID',
 #     'polygon': 'MULTIPOLYGON',
 # }
 #
@@ -75,7 +75,7 @@ from .models import FisheryArea, Hexagon, Score, NAFOArea
 ## For Herring.shp
 mapping = {
     'layer_id': 'Fishery',
-    'name': 'Area',
+    'name': 'AreaID',
     'polygon': 'MULTIPOLYGON',
 }
 

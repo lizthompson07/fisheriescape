@@ -41,6 +41,7 @@ class MyFilter(GeoFilterSet, filters.FilterSet):
 class ScoreViewSet(ModelViewSet):
     queryset = models.Score.objects.all()
     serializer_class = ScoreSerializer
+    lookup_field = "id"  # change this to slug eventually?
     filter_backends = (filters.DjangoFilterBackend, SearchFilter, )
     filterset_class = MyFilter
     search_fields = ['species__english_name', 'species__french_name', 'week__week_number']

@@ -49,8 +49,8 @@ class FisheryArea(models.Model):
     def __str__(self):
         my_str = "{}".format(self.name)
 
-        if self.layer_id:
-            my_str += f' ({self.layer_id})'
+        # if self.layer_id:
+        #     my_str += f' ({self.layer_id})'
         return my_str
 
     def get_absolute_url(self):
@@ -177,6 +177,7 @@ class Fishery(MetadataFields):
                                 verbose_name=_("species"))
     fishery_areas = models.ManyToManyField(FisheryArea, related_name="fisherys", verbose_name=_("fishery areas"))
     participants = models.IntegerField(null=True, blank=True, verbose_name=_("participants"))
+    participant_detail = models.TextField(null=True, blank=True, verbose_name=_("participant detail"))
     start_date = models.DateTimeField(null=True, blank=True, verbose_name=_("start date of season"))
     end_date = models.DateTimeField(null=True, blank=True, verbose_name=_("end date of season"))
     fishery_status = models.CharField(max_length=255, null=True, blank=True, choices=STATUS_CHOICES,
@@ -185,10 +186,12 @@ class Fishery(MetadataFields):
                                     verbose_name=_("type of license"))
     management_system = models.CharField(max_length=255, null=True, blank=True, choices=MGMT_CHOICES,
                                          verbose_name=_("management system"))
+    fishery_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
     # gear information
     gear_type = models.CharField(max_length=255, null=True, blank=True, choices=GEAR_CHOICES, verbose_name=_("gear type"))
-    gear_amount = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("gear amount per participant"))
+    gear_amount = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("avg gear amount per participant"))
     gear_config = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("gear configuration"))
+    gear_soak = models.FloatField(max_length=255, null=True, blank=True, verbose_name=_("avg rope soak time"))
     gear_primary_colour = models.CharField(max_length=255, null=True, blank=True, choices=ROPE_CHOICES, verbose_name=_("gear primary colour"))
     gear_secondary_colour = models.CharField(max_length=255, null=True, blank=True, choices=ROPE_CHOICES, verbose_name=_("gear secondary colour"))
     gear_tertiary_colour = models.CharField(max_length=255, null=True, blank=True, choices=ROPE_CHOICES, verbose_name=_("gear tertiary colour"))
@@ -199,10 +202,11 @@ class Fishery(MetadataFields):
     monitoring_logbook = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True, blank=True, verbose_name=_("logbook"))
     monitoring_vms = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True, blank=True, verbose_name=_("vessel monitoring system (VMS)"))
     monitoring_comment = models.TextField(blank=True, null=True, verbose_name=_("monitoring comments"))
-    # marine mammals and mitigation
+    # mitigation
     mitigation = models.ManyToManyField(Mitigation, blank=True, related_name="fisherys", verbose_name=_("mitigation type"))
+    mitigation_comment = models.TextField(blank=True, null=True, verbose_name=_("mitigation comments"))
+    # marine mammals
     marine_mammals = models.ManyToManyField(MarineMammal, blank=True, related_name="fisherys", verbose_name=_("marine mammals"))
-    comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
 
     class Meta:
         ordering = ["start_date", "species", ]

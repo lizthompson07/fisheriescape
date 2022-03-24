@@ -278,9 +278,16 @@ class FisheryAreaDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
             'species',
             'start_date',
             'end_date',
+            'participant_detail',
             'fishery_status',
             'gear_type',
         ]
+
+        # contexts for fishery_detail maps
+        polygon_subset = models.FisheryArea.objects.filter(name=self.object) #fix this #TODO
+
+        context["fishery_polygons"] = serialize("geojson", polygon_subset)
+        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
 
         return context
 
@@ -362,10 +369,12 @@ class FisheryListView(FisheriescapeAccessRequired, CommonFilterView):
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
-        {"name": 'species', "class": "", "width": ""},
-        {"name": 'fishery_areas', "class": "", "width": ""},
         {"name": 'start_date', "class": "", "width": ""},
         {"name": 'end_date', "class": "", "width": ""},
+        {"name": 'species', "class": "", "width": ""},
+        {"name": 'fishery_areas', "class": "", "width": ""},
+        {"name": 'participants', "class": "", "width": ""},
+        {"name": 'participant_detail', "class": "", "width": ""},
         {"name": 'fishery_status', "class": "", "width": ""},
         {"name": 'gear_type', "class": "", "width": ""},
         {"name": 'management_system', "class": "", "width": ""},
@@ -389,17 +398,20 @@ class FisheryDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
             'fishery_areas',
             'nafo_fishery_areas|{}'.format(_("NAFO areas")),
             'participants',
+            'participant_detail',
             'start_date',
             'end_date',
             'fishery_status',
             'license_type',
             'management_system',
+            'fishery_comment',
             'metadata|{}'.format(_("metadata")),
         ]
         context["field_list_gear"] = [
             'gear_type',
             'gear_amount',
             'gear_config',
+            'gear_soak',
             'gear_primary_colour',
             'gear_secondary_colour',
             'gear_tertiary_colour',
@@ -414,7 +426,7 @@ class FisheryDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
         ]
         context["field_list_other"] = [
             'mitigation',
-            'comments',
+            'mitigation_comment',
         ]
 
         # contexts for _mammals.html file

@@ -54,7 +54,12 @@
                 <div class="card-body">
                     <table class="table table-sm">
                         {% for field in field_list_gear %}
-                            {% verbose_td_display instance=object field_name=field %}
+                            {% if field == "gear_soak" %}
+                                <th>{% get_verbose_label object field %}</th>
+                                <td>{% get_field_value object field %} {% trans "hrs" %}</td>
+                            {% else %}
+                                {% verbose_td_display instance=object field_name=field %}
+                            {% endif %}
                         {% endfor %}
                     </table>
                 </div>

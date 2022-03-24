@@ -43,7 +43,7 @@ class FisheryFilter(django_filters.FilterSet):
             'fishery_areas': ['exact'],
             'fishery_status': ['exact'],
             'gear_type': ['exact'],
-            'management_system': ['exact'],
+            # 'management_system': ['exact'],
 
         }
 
@@ -52,7 +52,7 @@ class FisheryFilter(django_filters.FilterSet):
             Q(start_date__lte=value) & Q(end_date__gte=value)
         )
 
-#TODO this doesn't currently work
+#TODO this doesn't currently work; and make date the first thing in the list
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filters["species__icontains"] = django_filters.CharFilter(field_name='search_term',
