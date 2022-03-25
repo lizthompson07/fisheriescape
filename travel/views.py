@@ -1533,6 +1533,8 @@ class DefaultReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
         obj = form.save(commit=False)
         obj.updated_by = self.request.user
         obj.save()
+        super().form_valid(form)
+        obj = get_object_or_404(models.DefaultReviewer, pk=obj.id)
         if not obj.special_role and \
                 not obj.sections.exists() and \
                 not obj.divisions.exists() and \
@@ -1551,6 +1553,7 @@ class DefaultReviewerCreateView(TravelADMAdminRequiredMixin, CommonCreateView):
         obj = form.save(commit=False)
         obj.created_by = self.request.user
         obj.save()
+        super().form_valid(form)
         return HttpResponseRedirect(reverse_lazy('travel:default_reviewer_list'))
 
 
