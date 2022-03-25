@@ -510,9 +510,9 @@ class EnvFactory(factory.django.DjangoModelFactory):
     env_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     envsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvscFactory")
     start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
-                                                                              tzinfo=pytz.UTC))
+                                                                              tzinfo=pytz.UTC).replace(second=0))
     end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
-                                                                            tzinfo=pytz.UTC))
+                                                                            tzinfo=pytz.UTC).replace(second=0))
     env_avg = factory.lazy_attribute(lambda o: faker.boolean())
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
     comments = factory.lazy_attribute(lambda o: faker.text())
@@ -660,9 +660,9 @@ class EnvtFactory(factory.django.DjangoModelFactory):
     duration = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
     comments = factory.lazy_attribute(lambda o: faker.text())
     start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
-                                                                              tzinfo=pytz.UTC))
+                                                                              tzinfo=pytz.UTC).replace(second=0))
     end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
-                                                                            tzinfo=pytz.UTC))
+                                                                            tzinfo=pytz.UTC).replace(second=0))
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
 
@@ -736,9 +736,9 @@ class EvntFactory(factory.django.DjangoModelFactory):
     perc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PercFactory")
     prog_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProgFactory")
     start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
-                                                                          tzinfo=pytz.UTC))
+                                                                          tzinfo=pytz.UTC).replace(second=0))
     end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
-                                                                        tzinfo=pytz.UTC))
+                                                                        tzinfo=pytz.UTC).replace(second=0))
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -1328,9 +1328,9 @@ class IndvtFactory(factory.django.DjangoModelFactory):
     dose = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
     unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
     start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
-                                                                              tzinfo=pytz.UTC))
+                                                                              tzinfo=pytz.UTC).replace(second=0))
     end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
-                                                                            tzinfo=pytz.UTC))
+                                                                            tzinfo=pytz.UTC).replace(second=0))
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
