@@ -247,7 +247,7 @@ def toggle_help_text_edit(request, user_id):
 
 
 def aware_min():
-    return timezone.make_aware(timezone.datetime(1, 1, 1, 0, 0))
+    return timezone.make_aware(timezone.datetime(1900, 1, 1, 0, 0))
 
 
 def team_list_splitter(team_str, valid_only=True):
