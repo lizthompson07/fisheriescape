@@ -1096,7 +1096,7 @@ def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=
 
     row_entered = False
     if not env_time:
-        env_time = aware_min().time()
+        env_time = time(0, 0)
 
     if not nan_to_none(env_value):
         return False

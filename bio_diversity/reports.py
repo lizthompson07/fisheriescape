@@ -1,7 +1,7 @@
 import csv
 import itertools
 import os
-from datetime import datetime
+from datetime import datetime, time
 
 from django.utils import timezone
 from bokeh.embed import components
@@ -947,13 +947,13 @@ def generate_growth_chart(plot_fish):
     x_len_data = []
     y_len_data = []
     for len_det in len_dets:
-        x_len_data.append(datetime.combine(len_det.detail_date, utils.aware_min().time()))
+        x_len_data.append(datetime.combine(len_det.detail_date, time(0, 0)))
         y_len_data.append(len_det.det_val)
 
     x_weight_data = []
     y_weight_data = []
     for weight_det in weight_dets:
-        x_weight_data.append(datetime.combine(weight_det.detail_date, utils.aware_min().time()))
+        x_weight_data.append(datetime.combine(weight_det.detail_date, time(0, 0)))
         y_weight_data.append(weight_det.det_val)
 
     x_cond_data = []
@@ -962,7 +962,7 @@ def generate_growth_chart(plot_fish):
         for len_det in len_dets:
             weight_det = weight_dets.filter(detail_date=len_det.detail_date).first()
             if weight_det:
-                x_cond_data.append(datetime.combine(len_det.detail_date, utils.aware_min().time()))
+                x_cond_data.append(datetime.combine(len_det.detail_date, time(0, 0)))
                 y_cond_data.append(utils.condition_factor(len_det.det_val, weight_det.det_val))
 
     # create a new plot

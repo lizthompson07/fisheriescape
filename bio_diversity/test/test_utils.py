@@ -36,7 +36,7 @@ class TestGrpMove(TestCase):
         self.tank = BioFactoryFloor.TankFactory()
         self.tank.facic_id = self.evnt.facic_id
         self.tank.save()
-        self.move_date = utils.naive_to_aware(datetime.now().date())
+        self.move_date = datetime.now().date()
         self.final_tank = BioFactoryFloor.TankFactory()
         self.final_tank.facic_id = self.evnt.facic_id
         self.final_tank.save()
@@ -143,7 +143,7 @@ class TestGrpMoveCnt(TestCase):
         self.tank = BioFactoryFloor.TankFactory()
         self.tank.facic_id = self.evnt.facic_id
         self.tank.save()
-        self.move_date = utils.naive_to_aware(datetime.now().date())
+        self.move_date = datetime.now()
         self.final_tank = BioFactoryFloor.TankFactory()
         self.final_tank.facic_id = self.evnt.facic_id
         self.final_tank.save()
