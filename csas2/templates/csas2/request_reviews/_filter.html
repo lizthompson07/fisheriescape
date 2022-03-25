@@ -5,6 +5,9 @@
   <form class="form " action="." method="get" id="filter-form" @change="submitForm">
     <div class="row">
       <div class="col">
+        {% bootstrap_field filter.form.request_id placeholder="" size="small" %}
+      </div>
+      <div class="col">
         {% bootstrap_field filter.form.fiscal_year placeholder="" size="small" %}
       </div>
        <div class="col">
