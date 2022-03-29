@@ -1277,6 +1277,7 @@ class GroupDet(BioDet):
                                                  group_details__grpd_valid=True,
                                                  group_details__anidc_id=self.anidc_id,
                                                  group_details__adsc_id=self.adsc_id,
+                                                 group_details__detail_date=self.detail_date,
                                                  )
             old_grpd_set = [anix.group_details.filter(detail_date__lte=self.detail_date, grpd_valid=True) for anix in anix_set]
             for old_grpd_qs in old_grpd_set:
@@ -1594,6 +1595,7 @@ class IndividualDet(BioDet):
                                                       individual_details__indvd_valid=True,
                                                       individual_details__anidc_id=self.anidc_id,
                                                       individual_details__adsc_id=self.adsc_id,
+                                                      individual_details__detail_date=self.detail_date,
                                                       )
                 old_indvd_set = [anix.individual_details.filter(detail_date__lt=self.detail_date, anidc_id=self.anidc_id, adsc_id=self.adsc_id) for anix in anix_set]
                 for old_indvd in old_indvd_set:

@@ -91,7 +91,7 @@ class DataParser:
             if header_key not in list(self.data):
                 # Make sure mandatory key columns exist
                 self.log_data += "Column with header \"{}\" not found in worksheet \n Headers should be on " \
-                                 "row {}".format(header_key, (self.header + 1))
+                                 "row {}\n".format(header_key, (self.header + 1))
                 self.success = False
         if self.success:
             for key in self.mandatory_filled_keys:
