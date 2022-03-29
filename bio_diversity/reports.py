@@ -1,7 +1,7 @@
 import csv
 import itertools
 import os
-from datetime import datetime
+from datetime import datetime, time
 
 from django.utils import timezone
 from bokeh.embed import components
@@ -237,25 +237,50 @@ def generate_stock_code_report(stok_id, coll_id, year, start_date=None, end_date
     end_date = utils.naive_to_aware(end_date)
 
     indv_qs = models.Individual.objects.all()
+    samp_qs = models.Sample.objects.filter(anix_id__isnull=False).select_related("anix_id__grp_id")
     grp_qs = models.Group.objects.filter(grp_valid=True)
+
+    len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+    weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
+    indvd_qs = models.IndividualDet.objects.all()
+    sampd_qs = models.SampleDet.objects.filter(samp_id__anix_id__isnull=False)
+
 
     if stok_id:
         indv_qs = indv_qs.filter(stok_id=stok_id)
+        samp_qs = samp_qs.filter(anix_id__grp_id__stok_id=stok_id)
         grp_qs = grp_qs.filter(stok_id=stok_id)
+        indvd_qs = indvd_qs.filter(anix_id__indv_id__stok_id=stok_id)
+        sampd_qs = sampd_qs.filter(samp_id__anix_id__grp_id__stok_id=stok_id)
+
     if coll_id:
         indv_qs = indv_qs.filter(coll_id=coll_id)
+        samp_qs = samp_qs.filter(anix_id__grp_id__coll_id=coll_id)
         grp_qs = grp_qs.filter(coll_id=coll_id)
+        indvd_qs = indvd_qs.filter(anix_id__indv_id__coll_id=coll_id)
+        sampd_qs = sampd_qs.filter(samp_id__anix_id__grp_id__coll_id=coll_id)
     if year:
         indv_qs = indv_qs.filter(indv_year=year)
+        samp_qs = samp_qs.filter(anix_id__grp_id__grp_year=year)
         grp_qs = grp_qs.filter(grp_year=year)
+        indvd_qs = indvd_qs.filter(anix_id__indv_id__indv_year=year)
+        sampd_qs = sampd_qs.filter(samp_id__anix_id__grp_id__grp_year=year)
+
+    len_indvd_qs = indvd_qs.filter(anidc_id=len_anidc_id)
+    weight_indvd_qs = indvd_qs.filter(anidc_id=weight_anidc_id)
+    len_sampd_qs = sampd_qs.filter(anidc_id=len_anidc_id)
+    weight_sampd_qs = sampd_qs.filter(anidc_id=weight_anidc_id)
 
     indv_qs = indv_qs.select_related("stok_id", "coll_id")
     grp_qs = grp_qs.select_related("stok_id", "coll_id")
 
     ws_indv = report.get_sheet("Individuals")
+    ws_samp = report.get_sheet("Samples")
     ws_grp = report.get_sheet("Groups")
+    ws_growth = report.get_sheet("Growth")
 
     ws_indv['A1'].value = "Stock: {}".format(stok_id.name)
+    ws_samp['A1'].value = "Stock: {}".format(stok_id.name)
     ws_grp['A1'].value = "Stock: {}".format(stok_id.name)
     # start writing data at row 3 in the sheet
     row_count = 3
@@ -276,7 +301,35 @@ def generate_stock_code_report(stok_id, coll_id, year, start_date=None, end_date
         item_sexd = item.individual_detail("Gender")
         if item_sexd:
             ws_indv['G' + str(row_count)].value = str(item_sexd)
-        ws_indv['H' + str(row_count)].value = str(item.indv_valid)
+        ws_indv['J' + str(row_count)].value = str(item.indv_valid)
+
+        row_count += 1
+    row_count = 3
+    for samp in samp_qs:
+        samp_grp = samp.anix_id.grp_id
+        ws_samp['A' + str(row_count)].value = samp.anix_id.evnt_id.__str__()
+        ws_samp['B' + str(row_count)].value = samp.samp_num
+        ws_samp['C' + str(row_count)].value = samp_grp.grp_year
+        ws_samp['D' + str(row_count)].value = samp_grp.coll_id.__str__()
+        ws_samp['E' + str(row_count)].value = samp_grp.prog_group(get_string=True)
+        ws_samp['F' + str(row_count)].value = samp.cont(get_string=True)
+
+        item_sampd = models.SampleDet.objects.filter(anidc_id__name="Animal Health", adsc_id__isnull=False,
+                                                     samp_id=samp).select_related("adsc_id")
+
+        sampd_str_list = [sampd.adsc_id.name for sampd in item_sampd]
+        sampd_str = ", ".join(sampd_str_list)
+        ws_samp['G' + str(row_count)].value = sampd_str
+
+        item_sexd = samp.sample_detail("Gender")
+        if item_sexd:
+            ws_samp['H' + str(row_count)].value = str(item_sexd)
+        item_lend = samp.sample_detail("Length")
+        if item_lend:
+            ws_samp['I' + str(row_count)].value = str(item_lend)
+        item_weighd = samp.sample_detail("Weight")
+        if item_weighd:
+            ws_samp['J' + str(row_count)].value = str(item_weighd)
 
         row_count += 1
 
@@ -300,6 +353,41 @@ def generate_stock_code_report(stok_id, coll_id, year, start_date=None, end_date
             cont_str = current_cont_str
         ws_grp['J' + str(row_count)].value = cont_str
 
+        row_count += 1
+
+    len_list = []
+    for det in len_indvd_qs:
+        len_list.append({"date": det.detail_date, "val": det.det_val, "indv": det.anix_id.indv_id.__str__(),
+                         "grp": None})
+    for det in len_sampd_qs:
+        len_list.append({"date": det.detail_date, "val": det.det_val, "indv": None,
+                         "grp": det.samp_id.anix_id.grp_id.__str__()})
+    len_list = sorted(len_list, key=lambda d: d['date'])
+
+    weight_list = []
+    for det in weight_indvd_qs:
+        weight_list.append({"date": det.detail_date, "val": det.det_val, "indv": det.anix_id.indv_id.__str__(),
+                            "grp":
+                                None})
+    for det in weight_sampd_qs:
+        weight_list.append({"date": det.detail_date, "val": det.det_val, "indv": None,
+                            "grp": det.samp_id.anix_id.grp_id.__str__()})
+    weight_list = sorted(weight_list, key=lambda d: d['date'])
+
+    row_count = 3
+    for item in len_list:
+        ws_growth['A' + str(row_count)].value = item["date"]
+        ws_growth['B' + str(row_count)].value = item["val"]
+        ws_growth['C' + str(row_count)].value = item["indv"]
+        ws_growth['D' + str(row_count)].value = item["grp"]
+        row_count += 1
+
+    row_count = 3
+    for item in weight_list:
+        ws_growth['G' + str(row_count)].value = item["date"]
+        ws_growth['H' + str(row_count)].value = item["val"]
+        ws_growth['I' + str(row_count)].value = item["indv"]
+        ws_growth['J' + str(row_count)].value = item["grp"]
         row_count += 1
 
     report.save_wb()
@@ -947,13 +1035,13 @@ def generate_growth_chart(plot_fish):
     x_len_data = []
     y_len_data = []
     for len_det in len_dets:
-        x_len_data.append(datetime.combine(len_det.detail_date, utils.aware_min().time()))
+        x_len_data.append(datetime.combine(len_det.detail_date, time(0, 0)))
         y_len_data.append(len_det.det_val)
 
     x_weight_data = []
     y_weight_data = []
     for weight_det in weight_dets:
-        x_weight_data.append(datetime.combine(weight_det.detail_date, utils.aware_min().time()))
+        x_weight_data.append(datetime.combine(weight_det.detail_date, time(0, 0)))
         y_weight_data.append(weight_det.det_val)
 
     x_cond_data = []
@@ -962,7 +1050,7 @@ def generate_growth_chart(plot_fish):
         for len_det in len_dets:
             weight_det = weight_dets.filter(detail_date=len_det.detail_date).first()
             if weight_det:
-                x_cond_data.append(datetime.combine(len_det.detail_date, utils.aware_min().time()))
+                x_cond_data.append(datetime.combine(len_det.detail_date, time(0, 0)))
                 y_cond_data.append(utils.condition_factor(len_det.det_val, weight_det.det_val))
 
     # create a new plot
