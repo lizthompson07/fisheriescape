@@ -1,5 +1,6 @@
 <!-- Create a navigation bar on the top (black color): "Home CSAS (Site Admin) Login/Logout ..." -->
 {% load i18n %}
+{% load static %}
 
 <li class="nav-item"><a class="nav-link" href="{% url 'bio_diversity:index' %}"> Home</a></li>
 {% for group in user.groups.all %}
@@ -26,9 +27,25 @@
         </a>
       </div>
     </li>
-
   {% endif %}
 {% endfor %}
+<li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="helpDropdown" role="button" data-toggle="dropdown"
+         aria-haspopup="true" aria-expanded="false">
+        {% trans "Documentation" %}
+      </a>
+      <div class="dropdown-menu" aria-labelledby="helpDropdown">
+        <a class="dropdown-item" href="{% static 'documentation/bio_diversity/admin_guide.docx'%}">
+          {% trans "Admin Help Guide" %}
+        </a>
+        <a class="dropdown-item" href="{% static 'documentation/bio_diversity/events_guide.docx'%}">
+          {% trans "Event Entry Guide" %}
+        </a>
+        <a class="dropdown-item" href="{% static 'documentation/bio_diversity/walkthrough_guide.docx'%}">
+          {% trans "Walkthrough Guide" %}
+        </a>
+      </div>
+</li>
 
 <!-- EXAMPLE FOR CREATING NEW TOP LEVEL MENU -->
 <!--  <li class="nav-item dropdown">
