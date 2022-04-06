@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
 
-from trapnet.utils import can_access, is_admin
+from trapnet.utils import can_access, is_admin, is_crud_user
 
 
 class TrapNetBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -23,8 +23,10 @@ class TrapNetBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
         return context
 
 
-class TrapNetAccessRequiredMixin(TrapNetBasicMixin):
-    pass
+class TrapNetCRUDRequiredMixin(TrapNetBasicMixin):
+    def test_func(self):
+        return is_crud_user(self.request.user)
+
 
 
 class TrapNetAdminRequiredMixin(TrapNetBasicMixin):
