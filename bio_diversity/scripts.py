@@ -7,6 +7,10 @@ from bio_diversity import models
 # from bio_diversity.scripts import *
 # export_fixtures(model_export, fixture_file)
 
+# to load fixtures:
+# from django.core.management import call_command
+# call_command('loaddata', 'initial_data.json')
+
 
 def export_fixtures(models_to_export, output_path=None):
     """ a simple function to export the important lookup tables. These fixtures will be used for testing and also for

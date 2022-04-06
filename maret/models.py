@@ -97,7 +97,7 @@ class Committee(models.Model):
                                         verbose_name=_("Main Topic(s) of discussion"))
     species = models.ManyToManyField(Species, blank=True, related_name="committee_species",
                                      verbose_name=_("Main species of discussion"))
-    branch = models.ForeignKey(shared_models.Branch, default=1, on_delete=models.DO_NOTHING,
+    branch = models.ForeignKey(shared_models.Branch, blank=True, null=True, default=1, on_delete=models.DO_NOTHING,
                                related_name="committee_branch", verbose_name=_("Lead DFO branch"))
     area_office = models.ManyToManyField(AreaOffice, blank=True, related_name="committee_area_office",
                                          verbose_name=_("Lead Area Office"))

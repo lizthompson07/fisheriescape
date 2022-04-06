@@ -1,7 +1,7 @@
 # from django.db import models
 
 # Create your models here.
-from datetime import datetime, timedelta 
+from datetime import datetime, timedelta, time
 import decimal
 import os
 from django.contrib.auth.models import User
@@ -180,7 +180,7 @@ class BioTimeModel(BioModel):
 
     @property
     def start_time(self):
-        if self.start_datetime.time() == utils.aware_min().time():
+        if self.start_datetime.time() == time(0, 0):
             return None
         return self.start_datetime.time().strftime("%H:%M")
 
@@ -194,7 +194,7 @@ class BioTimeModel(BioModel):
     @property
     def end_time(self):
         if self.end_datetime:
-            if self.end_datetime.time() == utils.aware_min().time():
+            if self.end_datetime.time() == time(0, 0):
                 return None
             return self.end_datetime.time().strftime("%H:%M")
         else:
@@ -1126,7 +1126,7 @@ class Group(BioModel):
         dev_qs = GroupDet.objects.filter(anix_id__grp_id=self, grpd_valid=True, anidc_id__name="Development")
         if len(dev_qs) == 1:
             dev = float(dev_qs[0] .det_val)
-            start_date = utils.naive_to_aware(dev_qs[0].detail_date).date()
+            start_date = dev_qs[0].detail_date
         degree_days = []
 
         move_set = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date).\
@@ -1277,6 +1277,7 @@ class GroupDet(BioDet):
                                                  group_details__grpd_valid=True,
                                                  group_details__anidc_id=self.anidc_id,
                                                  group_details__adsc_id=self.adsc_id,
+                                                 group_details__detail_date=self.detail_date,
                                                  )
             old_grpd_set = [anix.group_details.filter(detail_date__lte=self.detail_date, grpd_valid=True) for anix in anix_set]
             for old_grpd_qs in old_grpd_set:
@@ -1594,6 +1595,7 @@ class IndividualDet(BioDet):
                                                       individual_details__indvd_valid=True,
                                                       individual_details__anidc_id=self.anidc_id,
                                                       individual_details__adsc_id=self.adsc_id,
+                                                      individual_details__detail_date=self.detail_date,
                                                       )
                 old_indvd_set = [anix.individual_details.filter(detail_date__lt=self.detail_date, anidc_id=self.anidc_id, adsc_id=self.adsc_id) for anix in anix_set]
                 for old_indvd in old_indvd_set:
@@ -1705,7 +1707,7 @@ class Location(BioModel):
 
     @property
     def start_time(self):
-        if self.loc_date.time() == utils.aware_min().time():
+        if self.loc_date.time() == time(0, 0):
             return None
         return self.loc_date.time().strftime("%H:%M")
 

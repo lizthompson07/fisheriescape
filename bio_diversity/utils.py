@@ -91,7 +91,7 @@ class DataParser:
             if header_key not in list(self.data):
                 # Make sure mandatory key columns exist
                 self.log_data += "Column with header \"{}\" not found in worksheet \n Headers should be on " \
-                                 "row {}".format(header_key, (self.header + 1))
+                                 "row {}\n".format(header_key, (self.header + 1))
                 self.success = False
         if self.success:
             for key in self.mandatory_filled_keys:
@@ -247,7 +247,7 @@ def toggle_help_text_edit(request, user_id):
 
 
 def aware_min():
-    return timezone.make_aware(timezone.datetime(1, 1, 1, 0, 0))
+    return timezone.make_aware(timezone.datetime(1900, 1, 1, 0, 0))
 
 
 def team_list_splitter(team_str, valid_only=True):
@@ -1096,7 +1096,7 @@ def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=
 
     row_entered = False
     if not env_time:
-        env_time = aware_min().time()
+        env_time = time(0, 0)
 
     if not nan_to_none(env_value):
         return False
