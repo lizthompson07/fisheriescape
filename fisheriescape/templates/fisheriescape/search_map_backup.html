@@ -102,34 +102,59 @@
                             <div class="text-center">
                                 <p class="font-italic font-weight-bold">${filteredData.length} of ${testData.length}
                                     loaded</p>
-                                                                ${filter}
-                                                                ${this.filter.species}
+                                {#                                ${filteredData}#}
+
+{#                                                                ${testData}#}
+
                             </div>
                         </div>
-                        <table class="table table-sm">
-                            <thead>
-                            <tr>
-                                {% for field in field_list %}
-                                    <th>
-                                        {% get_verbose_label random_score field %}
-                                    </th>
-                                {% endfor %}
-                            </tr>
-                            </thead>
-                            <tbody>
+                        <div class="container">
 
-                            <tr v-for="(p, index) in filteredData">
+
+                            <div v-for="(p, index) in testData">
+{#                                    <li>${index}: ${p}</li>#}
+                                <div v-for="(skor, index) in p">
+{#                                        <li>${index}: ${skor}</li>#}
+                                    <div v-for="(more, index) in skor.properties">
+                                       <li>${index}: ${more}</li>
+                                    </div>
+                                    <hr>
+{#                                    <li>${index}</li>#}
+                            </div>
+{#                                <td>${p.id}</td>#}
+{#                                <td>${p.species}</td>#}
+{#                                <td>${p.week}</td>#}
+{#                                <td>${p.site_score}</td>#}
+{#                                <td>${p.ceu_score}</td>#}
+{#                                <td>${p.fs_score}</td>#}
+                            </div>
+
+                        </div>
+{#                        <table class="table table-sm">#}
+{#                            <thead>#}
+{#                            <tr>#}
+{#                                {% for field in field_list %}#}
+{#                                    <th>#}
+{#                                        {% get_verbose_label random_score field %}#}
+{#                                    </th>#}
+{#                                {% endfor %}#}
+{#                            </tr>#}
+{#                            </thead>#}
+{#                            <tbody>#}
+{##}
+{#                            <tr v-for="(p, index) in testData">#}
 {#                                <td>${p}</td>#}
-                                <td>${p.id}</td>
-                                <td>${p.species}</td>
-                                <td>${p.week}</td>
-                                <td>${p.site_score}</td>
-                                <td>${p.ceu_score}</td>
-                                <td>${p.fs_score}</td>
-                            </tr>
-
-                            </tbody>
-                        </table>
+{#                                <td>${index}</td>#}
+{#                                <td>${p.id}</td>#}
+{#                                <td>${p.species}</td>#}
+{#                                <td>${p.week}</td>#}
+{#                                <td>${p.site_score}</td>#}
+{#                                <td>${p.ceu_score}</td>#}
+{#                                <td>${p.fs_score}</td>#}
+{#                            </tr>#}
+{##}
+{#                            </tbody>#}
+{#                        </table>#}
 
                         <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
                             <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
@@ -158,9 +183,15 @@
 
 {% block body_js %}
     {{ block.super }}
+    <script>
+
+        {#let scoreObj = {{ hexagon_polygons | safe }};#}
+
+    </script>
 
     <script type="application/javascript">
         let scoreObj = {{ hexagon_polygons | safe }};
+
         var app = new Vue({
             el: '#app',
             delimiters: ["${", "}"],
@@ -183,13 +214,15 @@
                 weekList: [],
 
                 // map
-                center: [37.7749, -122.4194],
+                map: null,
+                center: [47.9090, -65.3525],
+
             },
             methods: {
                 getTest() {
                     apiService(`/api/fisheriescape/scores-feature/`)
                         .then(response => {
-                            console.log(response);
+                            {#console.log(response);#}
                             this.testData = response
                         })
                 },
@@ -202,7 +235,7 @@
                     if (!endpoint) {
                         endpoint = `/api/fisheriescape/scores/?`;
                         // apply filters
-                        {#if (this.filter.id) endpoint += `id=${this.filter.id}&`#}
+                        if (this.filter.id) endpoint += `id=${this.filter.id}&`
                         if (this.filter.species) endpoint += `species=${this.filter.species}&`
                         if (this.filter.week) endpoint += `week=${this.filter.week}&`
                     }
@@ -229,18 +262,9 @@
                     this.filter = {};
                     this.updateResults()
                 },
-                removeMap() {
-                if (this.map) {
-                  this.map.remove();
-                    }
-                },
                 updateResults() {
                     this.clearFilteredData();
                     this.getFilteredData();
-                },
-                refreshMap() {
-                    this.removeMap();
-                    this.setupLeafletMap();
                 },
                setupLeafletMap: function () {
                    // Create some test points and group in a layer
@@ -270,10 +294,6 @@
                        accessToken: `{{ mapbox_api_key }}`
                    });
 
-                       var container = L.DomUtil.get('maptest');
-                        if (container['_leaflet_id'] != null) {
-                          container.remove();
-                        }
                    // Create the map starting location and zoom level and tell it which layers to have
 
                    this.map = L.map('maptest', {
@@ -304,7 +324,7 @@
                         },
                         onEachFeature: function (feature, layer) {
                             myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
-                            layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Grid ID: ${feature.properties.grid_id}</br>Site Score: ${feature.properties.hexagon}`);;
+                            layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Grid ID: ${feature.properties.grid_id}</br>Site Score: ${feature.properties.site_score}`);;
                             layer.on({
                                 mouseover: showInfo,
                                 mouseout: removeInfoPolygon
@@ -312,58 +332,39 @@
                             }
                     });
 
-                    {#// Testing, this function takes in the getJSON call below and gets geoJson formatted data and makes layer#}
-                    {#function createOverlay(data, layerName, style) {#}
-                    {#  overlay = L.geoJson(data, { // Make the layer from the JSON and grab the handle.#}
-                    {#    onEachFeature: function(feature, layer) {#}
-                    {#       layer.bindPopup(`Species: ${feature.properties.species}</br>Week: ${feature.properties.week}</br>Site Score: ${feature.properties.site_score}`);#}
-                    {#       layer.on({#}
-                               {#mouseover: highlightFeature,#}
-                               {#mouseout: resetHighlight,#}
-                    {#       })#}
-                    {#    },#}
-                        {#style: gradientStyle,#}
-                        {#// filter: function(feature) {#}
-                        {#//    return feature.properties.week === 'Week 25';#}
-                        {#// }#}
-                    {#  });#}
-                    {#  overlay.addTo(this.map);#}
-                    {#  control.addOverlay(overlay, layerName); // Add the layer to the Layer Control.#}
+                    // Create test layer using filter
 
-                    var overlayObject = L.layerGroup()
-
-                    // Trying to get api filtering to work --how to get async after filter has been applied?
-                    var url = `http://127.0.0.1:8000/api/fisheriescape/scores-feature/`
-
-                    // this works but had to add leaflet-ajax to static - but not sure how to get filter
-                    $.getJSON(url, function(data){
-                        var overlayTest = L.geoJson(data, { // Make the layer from the JSON and grab the handle.
-                            onEachFeature: function (feature, layer) {
-                                layer.bindPopup(`Species: ${feature.properties.species}</br>Week: ${feature.properties.week}</br>Site Score: ${feature.properties.site_score}`);
-                            },
-                            filter: function(feature) {
-                                thingy = `Week ${this.filter.week}`
-                                return (feature.properties.week === thingy);
+                    var testObject = L.geoJSON(scoreObj, {
+                        style: function() {
+                            return {
+                                color: 'red'
                             }
-                            {#filter: function(feature) {#}
-                            {#    return feature.properties.species === this.filter.species;#}
-                        }).addTo(overlayObject)
+                        },
+                        filter: function(feature, layer) {
+                            if (feature.properties.grid_id === "BV-127") return true
+                        },
+                        onEachFeature: function (feature, layer) {
+                            myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+                            layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Grid ID: ${feature.properties.grid_id}</br>Site Score: ${feature.properties.site_score}`);;
+                            layer.on({
+                                mouseover: showInfo,
+                                mouseout: removeInfoPolygon
+                            });
+                            }
                     });
 
                    // Create basemaps variable and add basemaps desired to it as options
 
                    var baseMaps = {
                        "Light": light,
-                       "Streets": streets,
-                       {#"Site Scores": data#}
+                       "Streets": streets
                    };
 
                    // Create overlay variable and add overlays desired
 
                    var overlayMaps = {
                        "Test": tests,
-                       "Scores": scoreObject,
-                       "testy": overlayObject,
+                       "Scores": scoreObject, testObject
                    };
 
                    // Create the control layer box and add baseMaps and overlayMaps to it
@@ -380,11 +381,6 @@
             mounted() {
                 this.setupLeafletMap();
             },
-            beforeDestroy() {
-                if (this.map) {
-                  this.map.remove();
-                }
-              }
         });
 
     </script>

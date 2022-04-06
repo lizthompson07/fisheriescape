@@ -13,14 +13,6 @@ urlpatterns = [
     # MAP #
     path('map/', views.MapView.as_view(), name="map_view"),
 
-    # SPECIES #
-
-    path('species-list/', views.SpeciesListView.as_view(), name="species_list"),
-    path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),
-    path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail"),
-    path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
-    path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
-
     # FISHERY AREA #
 
     path('fisheryarea-list/', views.FisheryAreaListView.as_view(), name="fishery_area_list"),
@@ -28,6 +20,11 @@ urlpatterns = [
     path('fisheryarea/<int:pk>/view/', views.FisheryAreaDetailView.as_view(), name="fishery_area_detail"),
     # path('fisheryarea/<int:pk>/edit/', views.FisheryAreaUpdateView.as_view(), name="fishery_area_edit"),
     # path('fisheryarea/<int:pk>/delete/', views.FisheryAreaDeleteView.as_view(), name="fishery_area_delete"),
+
+    # NAFO AREA #
+
+    path('nafoarea-list/', views.NAFOAreaListView.as_view(), name="nafo_area_list"),
+    path('nafoarea/<int:pk>/view/', views.NAFOAreaDetailView.as_view(), name="nafo_area_detail"),
 
     # FISHERY #
 
@@ -54,4 +51,6 @@ urlpatterns = [
 
     path('settings/marinemammals/', views.MarineMammalFormsetView.as_view(), name="manage_marinemammals"),
     path('settings/marinemammals/<int:pk>/delete/', views.MarineMammalHardDeleteView.as_view(), name="delete_marinemammals"),
+    path('settings/species/', views.SpeciesFormsetView.as_view(), name="manage_species"),
+    path('settings/species/<int:pk>/delete/', views.SpeciesHardDeleteView.as_view(), name="delete_species"),
 ]

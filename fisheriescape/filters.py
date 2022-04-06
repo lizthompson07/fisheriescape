@@ -25,6 +25,16 @@ class FisheryAreaFilter(django_filters.FilterSet):
         }
 
 
+class NAFOAreaFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.NAFOArea
+        fields = {
+            'layer_id': ['icontains'],
+            'name': ['icontains'],
+
+        }
+
+
 class FisheryFilter(django_filters.FilterSet):
     # start_date = django_filters.DateFilter(field_name='start_date', lookup_expr='lt',
     #                                        label='Start date is before (mm/dd/yyyy):',
@@ -35,34 +45,39 @@ class FisheryFilter(django_filters.FilterSet):
     #                                                     label='Season Start Date (Between)',
     #                                                     widget=django_filters.widgets.RangeWidget(attrs=attr_fp_date))
 
-    date = django_filters.DateTimeFilter(method='date_filter', widget=forms.DateInput(attrs=attr_fp_date), label="Date of Interest")
+    date = django_filters.DateTimeFilter(method='date_filter', widget=forms.DateInput(attrs=attr_fp_date),
+                                         label="Date of Interest")
 
     class Meta:
         model = models.Fishery
-        fields = {
-            'fishery_areas': ['exact'],
-            'fishery_status': ['exact'],
-            'gear_type': ['exact'],
-            # 'management_system': ['exact'],
-
-        }
+        fields = ['date', 'species', 'fishery_areas', 'fishery_status', 'gear_type']
+        # fields = {
+        #
+        #     'species': ['exact'],
+        #     'fishery_areas': ['exact'],
+        #     'fishery_status': ['exact'],
+        #     'gear_type': ['exact'],
+        #     # 'management_system': ['exact'],
+        #
+        # }
 
     def date_filter(self, queryset, name, value):
         return models.Fishery.objects.filter(
             Q(start_date__lte=value) & Q(end_date__gte=value)
         )
 
-#TODO this doesn't currently work; and make date the first thing in the list
+    # TODO this doesn't currently work; and make date the first thing in the list
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filters["species__icontains"] = django_filters.CharFilter(field_name='search_term',
-                                                                            label="Species (any language)",
-                                                                            lookup_expr='icontains',
-                                                                            widget=forms.TextInput())
+                                                                       label="Keyword (any language)",
+                                                                       lookup_expr='icontains',
+                                                                       widget=forms.TextInput())
 
 
 class AnalysesFilter(django_filters.FilterSet):
-    week = django_filters.ModelMultipleChoiceFilter(queryset=models.Week.objects.all(), widget=forms.SelectMultiple(attrs={"class": "chosen-select-contains"}), label="Week")
+    week = django_filters.ModelMultipleChoiceFilter(queryset=models.Week.objects.all(), widget=forms.SelectMultiple(
+        attrs={"class": "chosen-select-contains"}), label="Week")
 
     class Meta:
         model = models.Analyses
@@ -72,7 +87,8 @@ class AnalysesFilter(django_filters.FilterSet):
 
         }
 
-#TODO Something like what I want a custom filter to do:
+
+# TODO Something like what I want a custom filter to do:
 # from datetime import datetime
 # my_date= request.POST.get('my_date','') # for eg. 2019-10-26
 # my_date = datetime.strptime(my_date, "%Y-%m-%d")
@@ -80,7 +96,8 @@ class AnalysesFilter(django_filters.FilterSet):
 
 
 class ScoreFilter(django_filters.FilterSet):
-    week = django_filters.ModelMultipleChoiceFilter(queryset=models.Week.objects.all(), widget=forms.SelectMultiple(attrs={"class": "chosen-select-contains"}), label="Week")
+    week = django_filters.ModelMultipleChoiceFilter(queryset=models.Week.objects.all(), widget=forms.SelectMultiple(
+        attrs={"class": "chosen-select-contains"}), label="Week")
 
     class Meta:
         model = models.Score

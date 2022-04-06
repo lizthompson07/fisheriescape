@@ -137,11 +137,11 @@
                 </div>
                 <div class="card-body">
                     <div class="btns">
-                        <a href="{% url 'fisheriescape:fishery_list' %}" class="btn my-btn btn btn-primary">Fishery List</a>
+                        <div><h5>Search by:</h5></div>
+                        <a href="{% url 'fisheriescape:fishery_list' %}" class="btn my-btn btn btn-primary">Fishery</a>
+                        <a href="{% url 'fisheriescape:fishery_area_list' %}" class="btn my-btn btn btn-primary">Fishery Area</a>
+                        <a href="{% url 'fisheriescape:nafo_area_list' %}" class="btn my-btn btn btn-primary">NAFO Area</a>
                         <a href="{% url 'fisheriescape:map_view' %}" class="btn my-btn btn btn-primary">MAP</a>
-                        <br><br>
-                        <a href="{% url 'fisheriescape:species_list' %}" class="btn my-btn btn btn-primary">Species List</a>
-                        <a href="{% url 'fisheriescape:fishery_area_list' %}" class="btn my-btn btn btn-primary">Fishery Area List</a>
 
                     </div>
                     <br>

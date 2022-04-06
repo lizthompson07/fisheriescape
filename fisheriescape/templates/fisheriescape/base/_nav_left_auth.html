@@ -11,8 +11,8 @@
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 
         <a class="dropdown-item" href="{% url 'fisheriescape:fishery_list' %}">Fishery List</a>
-        <a class="dropdown-item" href="{% url 'fisheriescape:species_list' %}">Species List</a>
         <a class="dropdown-item" href="{% url 'fisheriescape:fishery_area_list' %}">Fishery Areas List</a>
+        <a class="dropdown-item" href="{% url 'fisheriescape:nafo_area_list' %}">NAFO Areas List</a>
 
     </div>
 </li>
@@ -57,6 +57,7 @@
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 
         <a class="dropdown-item" href="{% url 'fisheriescape:manage_marinemammals' %}">Manage Marine Mammals</a>
+        <a class="dropdown-item" href="{% url 'fisheriescape:manage_species' %}">Manage Fishery Species</a>
 
 
     </div>

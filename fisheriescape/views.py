@@ -87,6 +87,7 @@ class FisheriescapeEditRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 def index(request):
     return render(request, 'fisheriescape/index.html')
 
+
 ### SETTINGS ###
 ### FORMSETS ###
 
@@ -101,9 +102,27 @@ class MarineMammalFormsetView(FisheriescapeAdminAccessRequired, CommonFormsetVie
     delete_url_name = "fisheriescape:delete_marinemammals"
     container_class = "container-fluid"
 
+
 class MarineMammalHardDeleteView(FisheriescapeAdminAccessRequired, CommonHardDeleteView):
     model = models.MarineMammal
     success_url = reverse_lazy("fisheriescape:manage_marinemammals")
+
+
+class SpeciesFormsetView(FisheriescapeAdminAccessRequired, CommonFormsetView):
+    template_name = 'fisheriescape/formset.html'
+    h1 = "Manage Fishery Species"
+    queryset = models.Species.objects.all()
+    formset_class = forms.SpeciesFormSet
+    success_url_name = "fisheriescape:manage_species"
+    home_url_name = "fisheriescape:index"
+    delete_url_name = "fisheriescape:delete_species"
+    container_class = "container-fluid"
+
+
+class SpeciesHardDeleteView(FisheriescapeAdminAccessRequired, CommonHardDeleteView):
+    model = models.Species
+    success_url = reverse_lazy("fisheriescape:manage_species")
+
 
 # #
 # # # MAP #
@@ -121,109 +140,11 @@ class MapView(FisheriescapeAccessRequired, TemplateView):
         context["snow_crab_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Crab"))
         context["herring_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Herring"))
         context["groundfish_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Groundfish"))
+        context["nafo_sub_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="NAFO Subareas"))
         context["nafo_areas"] = serialize("geojson", models.NAFOArea.objects.filter(layer_id="NAFO"))
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
         return context
 
-
-# #
-# # # SPECIES #
-# # ###########
-# #
-#
-
-
-class SpeciesListView(FisheriescapeAccessRequired, CommonFilterView):
-    template_name = "fisheriescape/list.html"
-    filterset_class = filters.SpeciesFilter
-    h1 = "Species List"
-    home_url_name = "fisheriescape:index"
-    row_object_url_name = "fisheriescape:species_detail"
-    new_btn_text = "New Species"
-
-    queryset = models.Species.objects.annotate(
-        search_term=Concat('english_name', 'french_name', 'latin_name', 'id', output_field=TextField()))
-
-    field_list = [
-        {"name": 'id', "class": "", "width": ""},
-        {"name": 'english_name', "class": "", "width": ""},
-        {"name": 'french_name', "class": "", "width": ""},
-        {"name": 'latin_name', "class": "", "width": ""},
-
-    ]
-
-    def get_new_object_url(self):
-        return reverse("fisheriescape:species_new", kwargs=self.kwargs)
-
-
-class SpeciesDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
-    model = models.Species
-    field_list = [
-        'id',
-        'english_name',
-        'french_name',
-        'latin_name',
-        'website',
-
-    ]
-    home_url_name = "fisheriescape:index"
-    parent_crumb = {"title": gettext_lazy("Species List"), "url": reverse_lazy("fisheriescape:species_list")}
-
-
-class SpeciesUpdateView(FisheriescapeAdminAccessRequired, CommonUpdateView):
-    model = models.Species
-    form_class = forms.SpeciesForm
-    template_name = 'fisheriescape/form.html'
-    cancel_text = _("Cancel")
-    home_url_name = "fisheriescape:index"
-
-    def form_valid(self, form):
-        my_object = form.save()
-        messages.success(self.request, _(f"Species record successfully updated for : {my_object}"))
-        return HttpResponseRedirect(reverse("fisheriescape:species_detail", kwargs=self.kwargs))
-
-    def get_active_page_name_crumb(self):
-        my_object = self.get_object()
-        return my_object
-
-    def get_h1(self):
-        my_object = self.get_object()
-        return my_object
-
-    def get_parent_crumb(self):
-        return {"title": str(self.get_object()),
-                "url": reverse_lazy("fisheriescape:species_detail", kwargs=self.kwargs)}
-
-    def get_grandparent_crumb(self):
-        kwargs = deepcopy(self.kwargs)
-        del kwargs["pk"]
-        return {"title": _("Species List"), "url": reverse("fisheriescape:species_list", kwargs=kwargs)}
-
-
-class SpeciesCreateView(FisheriescapeAdminAccessRequired, CommonCreateView):
-    model = models.Species
-    form_class = forms.SpeciesForm
-    template_name = 'fisheriescape/form.html'
-    home_url_name = "fisheriescape:index"
-    h1 = gettext_lazy("Add New Species")
-    parent_crumb = {"title": gettext_lazy("Species List"), "url": reverse_lazy("fisheriescape:species_list")}
-
-    def form_valid(self, form):
-        my_object = form.save()
-        messages.success(self.request, _(f"Species record successfully created for : {my_object}"))
-        return super().form_valid(form)
-
-
-class SpeciesDeleteView(FisheriescapeAdminAccessRequired, CommonDeleteView):
-    model = models.Species
-    permission_required = "__all__"
-    success_url = reverse_lazy('fisheriescape:species_list')
-    template_name = 'fisheriescape/confirm_delete.html'
-    home_url_name = "fisheriescape:index"
-    grandparent_crumb = {"title": gettext_lazy("Species List"), "url": reverse_lazy("fisheriescape:species_list")}
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("fisheriescape:species_detail", kwargs=self.kwargs)}
 
 
 # #
@@ -284,7 +205,7 @@ class FisheryAreaDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
         ]
 
         # contexts for fishery_detail maps
-        polygon_subset = models.FisheryArea.objects.filter(name=self.object) #fix this #TODO
+        polygon_subset = models.FisheryArea.objects.filter(name=self.object)
 
         context["fishery_polygons"] = serialize("geojson", polygon_subset)
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
@@ -348,6 +269,71 @@ class FisheryAreaDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
 #     def get_parent_crumb(self):
 #         return {"title": self.get_object(), "url": reverse_lazy("fisheriescape:fishery_area_detail", kwargs=self.kwargs)}
 
+# #
+# # # NAFO AREA #
+# # ###########
+# #
+#
+
+
+class NAFOAreaListView(FisheriescapeAccessRequired, CommonFilterView):
+    template_name = "fisheriescape/list.html"
+    filterset_class = filters.NAFOAreaFilter
+    h1 = "NAFO Area List"
+    home_url_name = "fisheriescape:index"
+    row_object_url_name = "fisheriescape:nafo_area_detail"
+    # new_btn_text = "New NAFO Area"
+
+    queryset = models.NAFOArea.objects.annotate(
+        search_term=Concat('name', 'id', output_field=TextField()))
+
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'layer_id', "class": "", "width": ""},
+        {"name": 'name', "class": "", "width": ""},
+    ]
+
+    # def get_new_object_url(self):
+    #     return reverse("fisheriescape:fishery_area_new", kwargs=self.kwargs)
+
+
+class NAFOAreaDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
+    model = models.NAFOArea
+    field_list = [
+        'id',
+        'layer_id',
+        'name',
+
+    ]
+    home_url_name = "fisheriescape:index"
+    parent_crumb = {"title": gettext_lazy("NAFO Area List"), "url": reverse_lazy("fisheriescape:nafo_area_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # contexts for _nafofishery.html file
+        fishery_area_lookup = models.FisheryArea.objects.filter(nafo_area=self.object)
+        fisherys_qs = models.Fishery.objects.filter(fishery_areas__in=fishery_area_lookup)
+
+        context["random_fishery"] = fisherys_qs
+        context["fishery_field_list"] = [
+            'species',
+            'fishery_areas',
+            'start_date',
+            'end_date',
+            'participant_detail',
+            'fishery_status',
+            'gear_type',
+        ]
+
+        # contexts for fishery_detail maps
+        polygon_subset = models.NAFOArea.objects.filter(name=self.object)
+
+        context["fishery_polygons"] = serialize("geojson", polygon_subset)
+        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
+
+        return context
+
 
 # #
 # # # FISHERY #
@@ -363,9 +349,13 @@ class FisheryListView(FisheriescapeAccessRequired, CommonFilterView):
     home_url_name = "fisheriescape:index"
     row_object_url_name = "fisheriescape:fishery_detail"
     new_btn_text = "New Fishery"
+    container_class = "container-fluid"
 
     queryset = models.Fishery.objects.annotate(
-        search_term=Concat('species', 'id', output_field=TextField()))
+        search_term=Concat('species__english_name', 'species__french_name',
+                           'species__latin_name', 'fishery_comment',
+                           'gear_comment', 'monitoring_comment',
+                           'mitigation_comment', output_field=TextField()))
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
@@ -442,7 +432,7 @@ class FisheryDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
         ]
 
         # contexts for fishery_detail maps
-        polygon_subset = models.FisheryArea.objects.filter(fisherys=self.object) #call related manager with 'fisherys'
+        polygon_subset = models.FisheryArea.objects.filter(fisherys=self.object)  # call related manager with 'fisherys'
 
         context["fishery_polygons"] = serialize("geojson", polygon_subset)
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
@@ -660,16 +650,35 @@ class ScoreFilterView(FisheriescapeAccessRequired, CommonFilterView):
     #     return reverse("fisheriescape:analyses_new", kwargs=self.kwargs)
 
 
-class ScoreMapView(FisheriescapeAccessRequired, TemplateView):
+# class ScoreMapView(FisheriescapeAccessRequired, TemplateView):
+#     template_name = "fisheriescape/search_map.html"
+#
+#     def get_context_data(self, **kwargs):
+#         """Return the view context data."""
+#         context = super().get_context_data(**kwargs)
+#
+#         hexagons = models.Hexagon.objects.filter(grid_id="BW-123")
+#         context["hexagon_polygons"] = serialize("geojson", hexagons)
+#         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
+#         return context
+
+
+class ScoreMapView(FisheriescapeAccessRequired, CommonTemplateView):
+    h1 = gettext_lazy("Test")
     template_name = "fisheriescape/search_map.html"
+    field_list = [
+        'id',
+        'species',
+        'week',
+        'site_score',
+        'ceu_score',
+        'fs_score'
+    ]
 
     def get_context_data(self, **kwargs):
-        """Return the view context data."""
         context = super().get_context_data(**kwargs)
-
-        hexagons = models.Hexagon.objects.filter(grid_id="BW-123")
+        hexagons = models.Hexagon.objects.all()
+        context["random_score"] = models.Score.objects.first()
         context["hexagon_polygons"] = serialize("geojson", hexagons)
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
         return context
-
-

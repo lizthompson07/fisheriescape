@@ -62,17 +62,30 @@
                             {% elif field == "gear_primary_colour" %}
                                 <tr>
                                     <th>{% get_verbose_label object field %}</th>
-                                    <td style="background-color: {{ object.gear_primary_colour }}; color: white ">{% get_field_value object field %}</td>
+                                    <td>
+                                        <table>
+                                            <td style="background-color: {{ object.gear_primary_colour }}; color: white; width: 60px; border: none ">{% get_field_value object field %}</td>
+                                        </table>
+                                    </td>
                                 </tr>
                             {% elif field == "gear_secondary_colour" %}
                                 <tr>
                                     <th>{% get_verbose_label object field %}</th>
-                                    <td style="background-color: {{ object.gear_secondary_colour }}; color: black ">{% get_field_value object field %}</td>
+                                    <td>
+                                        <table>
+                                            <td style="background-color: {{ object.gear_secondary_colour }}; color: black; width: 60px; border: none ">{% get_field_value object field %}</td>
+{#                                            <td style="border: none ">{% get_field_value object field %}</td>#}
+                                        </table>
+                                    </td>
                                 </tr>
                             {% elif field == "gear_tertiary_colour" %}
                                 <tr>
                                     <th>{% get_verbose_label object field %}</th>
-                                    <td style="background-color: {{ object.gear_tertiary_colour }}; color: black ">{% get_field_value object field %}</td>
+                                    <td>
+                                        <table>
+                                            <td style="background-color: {{ object.gear_tertiary_colour }}; color: black; width: 60px; border: none ">{% get_field_value object field %}</td>
+                                        </table>
+                                    </td>
                                 </tr>
                             {% else %}
                                 {% verbose_td_display instance=object field_name=field %}

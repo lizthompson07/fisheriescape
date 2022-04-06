@@ -56,6 +56,10 @@ function removeInfoGroundfish() {
     groundfishFishery.resetStyle(this);
 }
 
+function removeInfoNafoSub() {
+    nafoSubFishery.resetStyle(this);
+}
+
 function removeInfoNafo() {
     nafoFishery.resetStyle(this);
 }
@@ -133,6 +137,24 @@ var groundfishFishery = L.geoJSON(groundfishObj, {
         }
 });
 
+// Create NAFO Subareas polygon layer and use onEachFeature to show certain info for each feature
+
+var nafoSubFishery = L.geoJSON(nafoSubObj, {
+    style: function() {
+        return {
+            color: 'orange'
+        }
+    },
+    onEachFeature: function (feature, layer) {
+        myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+        layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
+        layer.on({
+            mouseover: showInfo,
+            mouseout: removeInfoNafoSub
+        });
+        }
+});
+
 // Create NAFO polygon layer and use onEachFeature to show certain info for each feature
 
 var nafoFishery = L.geoJSON(nafoObj, {
@@ -167,6 +189,7 @@ var overlayMaps = {
     "Snow Crab Areas": snowCrabFishery,
     "Herring Areas": herringFishery,
     "Groundfish Areas": groundfishFishery,
+    "NAFO Subareas": nafoSubFishery,
     "NAFO Areas": nafoFishery
 };
 

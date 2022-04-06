@@ -99,6 +99,7 @@ textile==4.0.1
 tinycss2==1.0.2
 tornado==6.0.4
 typing-extensions==3.7.4.3
+tzdata==2022.1 ##added for timezone testing/import
 unicodecsv==0.14.1
 Unidecode==1.2.0
 urllib3==1.26.5

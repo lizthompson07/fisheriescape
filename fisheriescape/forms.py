@@ -35,6 +35,13 @@ class SpeciesForm(forms.ModelForm):
         }
 
 
+SpeciesFormSet = modelformset_factory(
+    model=models.Species,
+    form=SpeciesForm,
+    extra=1,
+)
+
+
 class FisheryForm(forms.ModelForm):
     class Meta:
         model = models.Fishery
