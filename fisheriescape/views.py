@@ -670,6 +670,7 @@ class ScoreMapView(FisheriescapeAccessRequired, CommonTemplateView):
         'id',
         'species',
         'week',
+        'hexagon',
         'site_score',
         'ceu_score',
         'fs_score'

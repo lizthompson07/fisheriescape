@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.fields import SerializerMethodField
 from rest_framework.relations import StringRelatedField
 from rest_framework_gis.serializers import GeoFeatureModelSerializer, GeometrySerializerMethodField, GeoModelSerializer
 
@@ -12,6 +13,10 @@ class ScoreSerializer(serializers.ModelSerializer):
 
     species = StringRelatedField()
     week = StringRelatedField()
+    grid_id = SerializerMethodField()
+
+    def get_grid_id(self, obj):
+        return obj.hexagon.grid_id
 
     class Meta:
         model = Score
@@ -54,9 +59,13 @@ class ScoreFeatureSerializer(GeoFeatureModelSerializer):
     hexagon = GeometrySerializerMethodField()
     species = StringRelatedField()
     week = StringRelatedField()
+    grid_id = SerializerMethodField()
 
     def get_hexagon(self, obj):
         return obj.hexagon.polygon
+
+    def get_grid_id(self, obj):
+        return obj.hexagon.grid_id
 
     class Meta:
         model = Score

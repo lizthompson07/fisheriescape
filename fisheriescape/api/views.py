@@ -26,12 +26,12 @@ from .. import models
 # have to have filters.Filterset also because otherwise crispy-forms doesn't have submit button
 # see https://github.com/encode/django-rest-framework/issues/3636
 
-class MyFilter(GeoFilterSet, filters.FilterSet):
-    # hexagon = GeometryFilter(field_name='hexagon', lookup_expr='contains')
-
-    class Meta:
-        model = models.Score
-        fields = ['id', 'species', 'week']
+# class MyFilter(GeoFilterSet, filters.FilterSet):
+#     # hexagon = GeometryFilter(field_name='hexagon', lookup_expr='contains')
+#
+#     class Meta:
+#         model = models.Score
+#         fields = ['id', 'species', 'week']
 
 # class MyHexFilter(GeoFilterSet, filters.FilterSet):
 #     # hexagon = GeometryFilter(field_name='hexagon', lookup_expr='contains')
@@ -54,13 +54,32 @@ class MyFilter(GeoFilterSet, filters.FilterSet):
 
 # alternative that only has score info
 
+# class ScoreViewSet(ModelViewSet):
+#     queryset = models.Score.objects.all()
+#     serializer_class = ScoreSerializer
+#     # lookup_field = "id"  # change this to slug eventually?
+#     filter_backends = (filters.DjangoFilterBackend, SearchFilter,)
+#     filterset_class = MyFilter
+#     search_fields = ['species__english_name', 'species__french_name', 'week__week_number']
+
+
 class ScoreViewSet(ModelViewSet):
     queryset = models.Score.objects.all()
     serializer_class = ScoreSerializer
-    lookup_field = "id"  # change this to slug eventually?
-    filter_backends = (filters.DjangoFilterBackend, SearchFilter,)
-    filterset_class = MyFilter
-    search_fields = ['species__english_name', 'species__french_name', 'week__week_number']
+
+    def get_queryset(self):
+
+        queryset = self.queryset
+
+        species = self.request.query_params.get('species')
+        week = self.request.query_params.get('week')
+
+        #custom filters by field
+        if species is not None:
+            queryset = queryset.filter(species__english_name=species)
+        if week is not None:
+            queryset = queryset.filter(week__week_number=week)
+        return queryset
 
 
 class ScoreFeatureViewSet(ModelViewSet):
@@ -77,7 +96,7 @@ class ScoreFeatureViewSet(ModelViewSet):
 
         #custom filters by field
         if species is not None:
-            queryset = queryset.filter(species__id=species)
+            queryset = queryset.filter(species__english_name=species)
         if week is not None:
             queryset = queryset.filter(week__week_number=week)
         if site_score is not None:

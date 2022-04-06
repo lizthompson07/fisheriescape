@@ -57,10 +57,10 @@ function getColor(d) {
            d > 7  ? '#BD0026' :
            d > 5  ? '#E31A1C' :
            d > 4  ? '#FC4E2A' :
-           d > 3   ? '#FD8D3C' :
-           d > 2   ? '#FEB24C' :
-           d > 1   ? '#FED976' :
-                      '#FFEDA0';
+           d > 3  ? '#FD8D3C' :
+           d > 2  ? '#FEB24C' :
+           d > 1  ? '#FED976' :
+                    '#FFEDA0';
 }
 
 // Define polygon style
