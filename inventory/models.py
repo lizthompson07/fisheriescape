@@ -361,6 +361,12 @@ class Resource(models.Model):
                 return file.file.url
 
     @property
+    def thumbnail_filename(self):
+        for file in self.files.all():
+            if "thumbnail" in file.caption.lower() or "vignette" in file.caption.lower():
+                return file.file.file
+
+    @property
     def bounds(self):
         if self.east_bounding and self.west_bounding and self.south_bounding and self.north_bounding:
             return [

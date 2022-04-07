@@ -1,15 +1,15 @@
-import html
+from xml.dom import minidom
+from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
 
 from django.db.models import Q
-from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
-from xml.dom import minidom
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+
 from lib.functions.custom_functions import attr_error_2_none
 from lib.templatetags.custom_filters import nz
 from . import models
-from django.urls import reverse
 
 
 def prettify(elem):
@@ -744,6 +744,12 @@ def construct(my_resource, pretty=True):
     except AttributeError:
         print("no 'maintenance'")
 
+    # thumbnail
+    if my_resource.thumbnail_filename:
+        graphicOverview = SubElement(SubElement(MD_DataIdentification, 'gmd:graphicOverview'), 'gmd:MD_MaintenanceInformation')
+        MD_BrowseGraphic = SubElement(SubElement(graphicOverview, 'gmd:MD_BrowseGraphic'), 'gmd:graphicOverview')
+        charstring(MD_BrowseGraphic, 'gmd:fileName', my_resource.thumbnail_filename)
+
     # uncontrolled
     uncontrolled = KeywordGroup(my_resource, 4)
     if uncontrolled.keyword_count > 0:
@@ -912,7 +918,7 @@ def construct(my_resource, pretty=True):
         charstring(CI_OnlineResource, 'gmd:description', web_service.content_type.english_value,
                    web_service.content_type.french_value)
     if pretty:
-        return prettify(root) if not None else None # DJF: this is being added here because of a periodic failure in unit testing. Not a solution :(
+        return prettify(root) if not None else None  # DJF: this is being added here because of a periodic failure in unit testing. Not a solution :(
     else:
         return ElementTree(root) if not None else None
 
@@ -953,7 +959,6 @@ def verify(resource):
         'data_resources|',
         'web_services|',
         'distribution_formats|',
-
 
         # will check all keywords associated with resource
         '*keyword.text_value_',  # special keywords function will be called
