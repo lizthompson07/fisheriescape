@@ -1,3 +1,6 @@
+import os
+import uuid
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
@@ -5,17 +8,12 @@ from django.dispatch import receiver
 from django.template.defaultfilters import default_if_none
 from django.urls import reverse
 from django.utils import timezone
-import os
-import uuid
-
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from lib.functions.custom_functions import truncate, fiscal_year
-from lib.templatetags.custom_filters import nz
-from shared_models import models as shared_models
 from dm_apps import custom_widgets
-
+from lib.functions.custom_functions import truncate, fiscal_year
+from shared_models import models as shared_models
 # Choices for language
 from shared_models.models import SimpleLookup
 
@@ -277,6 +275,7 @@ class Resource(models.Model):
 
     fgp_url = models.URLField(blank=True, null=True, verbose_name="Link to record on FGP")
     public_url = models.URLField(blank=True, null=True, verbose_name="Link to record on Open Gov't Portal")
+    thumbnail_url = models.URLField(blank=True, null=True, verbose_name="Public URL to thumbnail image")
     fgp_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
     od_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to Open Gov't Portal")
     od_release_date = models.DateTimeField(blank=True, null=True, verbose_name="Date released to Open Gov't Portal")
@@ -356,15 +355,13 @@ class Resource(models.Model):
 
     @property
     def thumbnail(self):
-        for file in self.files.all():
-            if "thumbnail" in file.caption.lower() or "vignette" in file.caption.lower():
-                return file.file.url
+        if self.thumbnail_url:
+            return self.thumbnail_url
+        else:
+            for file in self.files.all():
+                if "thumbnail" in file.caption.lower() or "vignette" in file.caption.lower():
+                    return file.file.url
 
-    @property
-    def thumbnail_filename(self):
-        for file in self.files.all():
-            if "thumbnail" in file.caption.lower() or "vignette" in file.caption.lower():
-                return file.file.file
 
     @property
     def bounds(self):
@@ -446,6 +443,7 @@ class ResourcePerson(models.Model):
 
     def __str__(self):
         return f"{self.person} ({self.role})"
+
 
 class BoundingBox(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)

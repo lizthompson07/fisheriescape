@@ -196,6 +196,7 @@ class ResourceForm(forms.ModelForm):
             'open_data_notes',
             'fgp_url',
             'public_url',
+            'thumbnail_url',
             'analytic_software',
         ]
 

@@ -746,8 +746,7 @@ def construct(my_resource, pretty=True):
 
     # thumbnail
     if my_resource.thumbnail_filename:
-        graphicOverview = SubElement(SubElement(MD_DataIdentification, 'gmd:graphicOverview'), 'gmd:MD_MaintenanceInformation')
-        MD_BrowseGraphic = SubElement(SubElement(graphicOverview, 'gmd:MD_BrowseGraphic'), 'gmd:graphicOverview')
+        MD_BrowseGraphic = SubElement(SubElement(MD_DataIdentification, 'gmd:graphicOverview'), 'gmd:MD_BrowseGraphic')
         charstring(MD_BrowseGraphic, 'gmd:fileName', my_resource.thumbnail_filename)
 
     # uncontrolled
@@ -931,6 +930,7 @@ def verify(resource):
         'south_bounding',
         'east_bounding',
         'north_bounding',
+        'thumbnail_url',
 
         # bilingual fields
         '?title_',
