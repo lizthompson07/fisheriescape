@@ -166,6 +166,7 @@ class ResourceForm(forms.ModelForm):
             'south_bounding',
             'east_bounding',
             'north_bounding',
+            'public_url',
         ]
 
         mandatory_bilingual_fields = [
@@ -195,7 +196,6 @@ class ResourceForm(forms.ModelForm):
             'notes',
             'open_data_notes',
             'fgp_url',
-            'public_url',
             'thumbnail_url',
             'analytic_software',
         ]

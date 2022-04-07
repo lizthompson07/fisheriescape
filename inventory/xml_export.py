@@ -745,9 +745,9 @@ def construct(my_resource, pretty=True):
         print("no 'maintenance'")
 
     # thumbnail
-    if my_resource.thumbnail_filename:
+    if my_resource.thumbnail:
         MD_BrowseGraphic = SubElement(SubElement(MD_DataIdentification, 'gmd:graphicOverview'), 'gmd:MD_BrowseGraphic')
-        charstring(MD_BrowseGraphic, 'gmd:fileName', my_resource.thumbnail_filename)
+        charstring(MD_BrowseGraphic, 'gmd:fileName', my_resource.thumbnail)
 
     # uncontrolled
     uncontrolled = KeywordGroup(my_resource, 4)
