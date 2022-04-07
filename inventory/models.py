@@ -38,6 +38,7 @@ class Location(models.Model):
     location_eng = models.CharField(max_length=1000, blank=True, null=True)
     location_fre = models.CharField(max_length=1000, blank=True, null=True)
     country = models.CharField(max_length=25, choices=COUNTRY_CHOICES)
+    country_fr = models.CharField(max_length=25)
     abbrev_eng = models.CharField(max_length=25, blank=True, null=True)
     abbrev_fre = models.CharField(max_length=25, blank=True, null=True)
     uuid_gcmd = models.CharField(max_length=255, blank=True, null=True)

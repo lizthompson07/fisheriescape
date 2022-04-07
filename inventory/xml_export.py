@@ -104,7 +104,7 @@ def ci_responsible_party(resource_person):
     my_loc = attr_error_2_none(resource_person.person.organization, "location")
     charstring(ci_address, 'gmd:country',
                attr_error_2_none(my_loc, "country"),
-               attr_error_2_none(my_loc, "country"),
+               attr_error_2_none(my_loc, "country_fr"),
                )
     # email
     charstring(ci_address, 'gmd:electronicMailAddress', resource_person.person.user.email,
