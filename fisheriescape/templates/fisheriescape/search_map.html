@@ -197,6 +197,7 @@
 
                 // map
                 center: [37.7749, -122.4194],
+                bounds: [],
             },
             methods: {
                 getTest() {
@@ -289,11 +290,10 @@
                        accessToken: `{{ mapbox_api_key }}`
                    });
 
-                   // Initiate filter layer for later, has to be done here so it can be toggled on when map is initiated
+                    // Initiate filter layer for later, has to be done here so it can be toggled on when map is initiated
                    // Use FeatureGroup instead of layerGroup because featureGroup allows getBounds() method
 
                    var overlayObject = L.featureGroup()
-
                    // Create the map starting location and zoom level and tell it which layers to have
 
                    this.map = L.map('maptest', {
@@ -301,6 +301,7 @@
                        zoom: 6,
                        layers: [streets, overlayObject] //this says what to have on by default
                    });
+
 
                    // Create subfunctions for polygon layer
 
@@ -407,39 +408,112 @@
                     var getSpecies = `${this.filter.species}`
                     {#console.log(getSpecies)#}
 
-                    // this works but had to add leaflet-ajax to static - but not sure how to get filter
-                    $.getJSON(url, function(data){
-                        var overlayTest = L.geoJson(data, { // Make the layer from the JSON and grab the handle.
-                            onEachFeature: function (feature, layer) {
-                                layer.bindPopup(
-                                    `Id: ${feature.id}</br>
-                                    Grid-id: ${feature.properties.grid_id}</br>
-                                    Species: ${feature.properties.species}</br>
-                                    Week: ${feature.properties.week}</br>
-                                    Site Score: ${feature.properties.site_score}`);
-                                layer.on({
-                                    mouseover: highlightFeature,
-                                    mouseout:  function resetHighlight(e) {
-                                               overlayTest.resetStyle(e.target);
-                                               info.update();
-                                            }
-                                })
-                            },
-                            style: gradientStyle,
-                            filter: function(feature) {
-                                thingy = `Week ${getWeek}`
-                                {#console.log(thingy)#}
-                                thingy2 = `${getSpecies}`
-                                {#console.log(thingy2)#}
+                   // trying without getJSON, use method from Vue --- maybe only grab the already filtered data to reduce lag and take away need to filter in layer??
 
-                                // this works but only once you've chosen a species and a week -- add more logic or do something to show they have to pick both
-                                if (feature.properties.species && feature.properties.week) return (feature.properties.species === thingy2 && feature.properties.week === thingy);
+                   var overlayTest = new L.geoJson(this.testData, { // Make the layer from the JSON and grab the handle.
+                        onEachFeature: function (feature, layer) {
+                            layer.bindPopup(
+                                `Id: ${feature.id}</br>
+                                Grid-id: ${feature.properties.grid_id}</br>
+                                Species: ${feature.properties.species}</br>
+                                Week: ${feature.properties.week}</br>
+                                Site Score: ${feature.properties.site_score}`);
+                            layer.on({
+                                mouseover: highlightFeature,
+                                mouseout:  function resetHighlight(e) {
+                                           overlayTest.resetStyle(e.target);
+                                           info.update();
+                                        }
+                            })
+
+                        },
+                        style: gradientStyle,
+                        filter: function(feature) {
+                            thingy = `Week ${getWeek}`
+                            {#console.log(thingy)#}
+                            thingy2 = `${getSpecies}`
+                            {#console.log(thingy2)#}
+
+                            // this works but only once you've chosen a species and a week -- add more logic or do something to show they have to pick both
+                            if (feature.properties.species && feature.properties.week) return (feature.properties.species === thingy2 && feature.properties.week === thingy);
+                                {#|| (feature.properties.week) return (feature.properties.week === thingy);#}
+                        }
+                        {#filter: function(feature) {#}
+                        {#    return feature.properties.species === this.filter.species;#}
+                    }).addTo(overlayObject);
+
+                    // Don't go down this path friends, it just leads to madness.. should have realized much earlier that all that was
+                   // needed was to get the json from a Vue method instead of trying to get it the way I've done in non-vue templates
+                   // this works but because it's async, I couldn't figure out how to get the bounds of the layer that's created by it
+
+                   {##}
+{#                   var boundingNELat = []#}
+{#                   var boundingNELng = null#}
+{#                   var boundingNorthEast = L.latLng(40.712, -74.227)#}
+{#                   var boundingSouthWest = L.latLng(40.774, -74.125)#}
+{#                   var boundsForReal = L.latLngBounds(boundingSouthWest, boundingNorthEast)#}
+
+                    {#// this works but had to add leaflet-ajax to static - but not sure how to get filter#}
+                    {#$.getJSON(url, function(data){#}
+                    {#    overlayTest = new L.geoJson(data, { // Make the layer from the JSON and grab the handle.#}
+                    {#        onEachFeature: function (feature, layer) {#}
+                    {#            layer.bindPopup(#}
+                    {#                `Id: ${feature.id}</br>#}
+                    {#                Grid-id: ${feature.properties.grid_id}</br>#}
+                    {#                Species: ${feature.properties.species}</br>#}
+                    {#                Week: ${feature.properties.week}</br>#}
+                    {#                Site Score: ${feature.properties.site_score}`);#}
+                    {#            layer.on({#}
+                    {#                mouseover: highlightFeature,#}
+                    {#                mouseout:  function resetHighlight(e) {#}
+                    {#                           overlayTest.resetStyle(e.target);#}
+                    {#                           info.update();#}
+                    {#                        }#}
+                    {#            })#}
+                    {##}
+                    {#        },#}
+                    {#        style: gradientStyle,#}
+                    {#        filter: function(feature) {#}
+                    {#            thingy = `Week ${getWeek}`#}
+                                {#console.log(thingy)#}
+                    {#            thingy2 = `${getSpecies}`#}
+                                {#console.log(thingy2)#}
+                    {##}
+                    {#            // this works but only once you've chosen a species and a week -- add more logic or do something to show they have to pick both#}
+                    {#            if (feature.properties.species && feature.properties.week) return (feature.properties.species === thingy2 && feature.properties.week === thingy);#}
                                     {#|| (feature.properties.week) return (feature.properties.week === thingy);#}
-                            }
+                    {#        }#}
                             {#filter: function(feature) {#}
                             {#    return feature.properties.species === this.filter.species;#}
-                        }).addTo(overlayObject)
-                    });
+                    {#    }).addTo(overlayObject);#}
+                        {#overlayTest.on('data:loaded', function() {#}
+                        {#console.log(overlayObject.getBounds())#}
+                            {#this.map.(overlayObject.getBounds())#}
+                    {#    if (thingy !== 'Week ' && thingy2 !== '') {#}
+                            {#console.log(overlayTest.getBounds())#}
+                            {#bounding.push(overlayTest.getBounds())#}
+                            {#boundingNorthEast.push(overlayTest.getBounds().getNorthEast())#}
+                            {#boundingSouthWest.push(overlayTest.getBounds().getSouthWest())#}
+                            {#console.log(overlayTest)#}
+                            {#this.bounds = (overlayTest.getBounds())#}
+                            {#var bounding = (overlayTest.getBounds().getNorthEast());#}
+                            {#console.log(bounding.lat)#}
+                            {#console.log(bounding.lng)#}
+                            {#boundingNELat.lat = bounding.lat.toString()#}
+                            {#boundingNELat.lng = bounding.lng#}
+                            {#console.log(boundingNELat.lat)#}
+                            {#this.boundingNELng= bounding.lng#}
+                            {#console.log(bounding)#}
+                            {#var northEast = (overlayTest.getBounds().getNorthEast());#}
+                            {#    southWest = (overlayTest.getBounds().getSouthWest());#}
+                            {#bounds = L.latLngBounds(southWest, northEast)#}
+                            {#console.log(bounds)#}
+                            {#console.log(bounds.getCenter())#}
+                           {#this.map.setView(new L.LatLng(40.737, -73.923), 8);#}
+                    {#    }#}
+                    {#    console.log(overlayObject.getBounds())#}
+                    //});
+
 
                     // Add hover info control box with info
 
@@ -487,7 +561,6 @@
                    var baseMaps = {
                        "Light": light,
                        "Streets": streets,
-                       {#"Site Scores": data#}
                    };
 
                    // Create overlay variable and add overlays desired
@@ -501,7 +574,10 @@
                    // Create the control layer box and add baseMaps and overlayMaps to it
 
                    L.control.layers(baseMaps, overlayMaps).addTo(this.map);
-                   {#this.map.fitBounds(overlayObject.getBounds(), {padding: [50, 50]});#}
+
+                // check if species and week filter has been chosen and if so get the bounds of the object
+                   if (this.filter.species && this.filter.week) return this.map.fitBounds(overlayObject.getBounds(), {padding: [50, 50]});
+
                },
             },
             created() {
