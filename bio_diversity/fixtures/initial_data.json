@@ -10620,6 +10620,7 @@
     },
     {
         "fields": {
+            "cont_subj_flag": false,
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-01-29",
             "description_en": "Effective Surface Area of a container, when multiplied by water level, gives the volume.",
