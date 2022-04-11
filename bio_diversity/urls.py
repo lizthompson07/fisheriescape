@@ -479,6 +479,7 @@ urlpatterns = [
 
     path('create/tankd/', views.TankdCreate.as_view(), name="create_tankd"),
     path('details/tankd/<int:pk>/', views.TankdDetails.as_view(), name="details_tankd"),
+    path('details/tankd/<str:back>/<int:back_id>/<int:pk>/', views.TankdDetails.as_view(), name="details_tankd"),
     path('list/tankd/', views.TankdList.as_view(), name="list_tankd"),
     path('update/tankd/<int:pk>/', views.TankdUpdate.as_view(), name="update_tankd"),
 

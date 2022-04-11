@@ -10617,5 +10617,21 @@
         },
         "model": "bio_diversity.unitcode",
         "pk": 8
+    },
+    {
+        "fields": {
+            "cont_subj_flag": false,
+            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+            "created_date": "2021-01-29",
+            "description_en": "Effective Surface Area of a container, when multiplied by water level, gives the volume.",
+            "description_fr": "",
+            "max_val": 100000,
+            "min_val": 0,
+            "name": "Effective Surface Area",
+            "nom": null,
+            "unit_id": null
+        },
+        "model": "bio_diversity.containerDetcode",
+        "pk": 1
     }
 ]
