@@ -1277,7 +1277,6 @@ class GroupDet(BioDet):
                                                  group_details__grpd_valid=True,
                                                  group_details__anidc_id=self.anidc_id,
                                                  group_details__adsc_id=self.adsc_id,
-                                                 group_details__detail_date=self.detail_date,
                                                  )
             old_grpd_set = [anix.group_details.filter(detail_date__lte=self.detail_date, grpd_valid=True) for anix in anix_set]
             for old_grpd_qs in old_grpd_set:
@@ -1595,7 +1594,6 @@ class IndividualDet(BioDet):
                                                       individual_details__indvd_valid=True,
                                                       individual_details__anidc_id=self.anidc_id,
                                                       individual_details__adsc_id=self.adsc_id,
-                                                      individual_details__detail_date=self.detail_date,
                                                       )
                 old_indvd_set = [anix.individual_details.filter(detail_date__lt=self.detail_date, anidc_id=self.anidc_id, adsc_id=self.adsc_id) for anix in anix_set]
                 for old_indvd in old_indvd_set:
@@ -2377,6 +2375,27 @@ class TankDet(BioContainerDet):
 
     def __str__(self):
         return "{} - {}".format(self.tank_id.__str__(), self.contdc_id.__str__())
+
+    def save(self,  *args, **kwargs):
+        """ Need to set all earlier details with the same code to invalid"""
+        if self.det_valid:
+            old_tankd_set = TankDet.objects.filter(tank_id=self.tank_id, contdc_id=self.contdc_id, cdsc_id=self.cdsc_id,
+                                                   det_valid=True, start_date__lte=self.start_date)
+            for old_tankd in old_tankd_set:
+                if old_tankd:
+                    old_tankd = old_tankd.get()
+                    old_tankd.det_valid = False
+                    old_tankd.end_date = self.start_date
+                    old_tankd.save()
+
+            current_tankd_set = TankDet.objects.filter(tank_id=self.tank_id, contdc_id=self.contdc_id,
+                                                       cdsc_id=self.cdsc_id, det_valid=True,
+                                                       start_date__gt=self.start_date)
+            for current_tankd in current_tankd_set:
+                if current_tankd:
+                    self.det_valid = False
+
+        super(TankDet, self).save(*args, **kwargs)
 
 
 class TeamXRef(BioModel):
