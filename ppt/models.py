@@ -1263,7 +1263,7 @@ class DMA(MetadataFields):
     data_retention = models.TextField(blank=True, null=True, verbose_name=_("What is the retention policy for the data?"),
                                       help_text=_("Please refer to the DFO EOS Retention Policy for clarification."))
     backup_plan = models.TextField(blank=True, null=True, verbose_name=_("What procedures will be taken to back-up/secure the data?"))
-    cloud_costs = models.BooleanField(blank=True, null=True,
+    cloud_costs = models.TextField(blank=True, null=True,
                                       verbose_name=_("If using cloud storage, what is the estimated annual cost and who will be covering the cost? "),
                                       help_text=_(
                                           "e.g., cloud storage is estimated at $1000/yr and will be paid for under the the division manager's budget"))
