@@ -104,3 +104,9 @@ class ProjectYearFilter(django_filters.FilterSet):
     has_data_component = django_filters.BooleanFilter(field_name="has_data_component")
     has_lab_component = django_filters.BooleanFilter(field_name="has_lab_component")
     requires_abl_services = django_filters.BooleanFilter(field_name="requires_abl_services")
+
+    approval_status = django_filters.NumberFilter(field_name='review__approval_status')
+    approval_level = django_filters.NumberFilter(field_name='review__approval_level')
+    funding_status = django_filters.NumberFilter(field_name='review__funding_status')
+
+    om_cost_category = django_filters.NumberFilter(field_name='omcost__om_category')

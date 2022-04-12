@@ -152,6 +152,10 @@ var app = new Vue({
       if (this.filter.division) endpoint += `division=${this.filter.division}&`;
       if (this.filter.section) endpoint += `section=${this.filter.section}&`;
       if (this.filter.status) endpoint += `status=${this.filter.status}&`;
+      if (this.filter.approval_status) endpoint += `approval_status=${this.filter.approval_status}&`;
+      if (this.filter.approval_level) endpoint += `approval_level=${this.filter.approval_level}&`;
+      if (this.filter.funding_status) endpoint += `funding_status=${this.filter.funding_status}&`;
+      if (this.filter.om_cost_category) endpoint += `om_cost_category=${this.filter.om_cost_category}&`;
 
       if (this.filter.has_ship_needs === true || this.filter.has_ship_needs === false) endpoint += `has_ship_needs=${this.filter.has_ship_needs}&`;
       if (this.filter.requires_specialized_equipment === true || this.filter.requires_specialized_equipment === false) endpoint += `requires_specialized_equipment=${this.filter.requires_specialized_equipment}&`;

@@ -339,6 +339,23 @@
           </select>
         </div>
 
+        {# om category #}
+        <div class="form-group">
+
+          <label class="text-muted small" for="filter.om_cost_category">{% trans "Has O&M Cost Category?" %}</label>
+          <select
+            v-model="filter.om_cost_category"
+            @change="updateResults"
+            class="form-control form-control-sm" id="filter.om_cost_category"
+          >
+            <option value selected>{% trans "all" %}</option>
+            {% for cat in om_cost_categories %}
+              <option value="{{ cat.value }}">{{ cat.label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+
         <h5>
           {% trans "Columns" %}
         </h5>
