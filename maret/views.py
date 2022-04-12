@@ -426,6 +426,7 @@ class CommitteeListView(UserRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'name', "class": "", "width": ""},
         {"name": 'branch', "class": "", "width": ""},
+        {"name": 'area_office', "class": "", "width": ""},
         {"name": 'main_topic', "class": "", "width": ""},
         {"name": 'species', "class": "", "width": ""},
     ]
@@ -479,6 +480,7 @@ class CommitteeDetailView(UserRequiredMixin, CommonDetailView):
             'meeting_frequency',
             'are_tor',
             'location_of_tor',
+            'area_office',
             'main_actions',
             'comments',
         ]

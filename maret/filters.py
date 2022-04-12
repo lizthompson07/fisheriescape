@@ -69,7 +69,7 @@ class CommitteeFilter(django_filters.FilterSet):
     class Meta:
 
         model = models.Committee
-        fields = ['search_term', 'external_organization', 'external_contact', 'branch', 'division',
+        fields = ['search_term', 'external_organization', 'external_contact', 'branch', 'area_office', 'division',
                   'provincial_participation', 'first_nation_participation']
 
     def __init__(self, *args, **kwargs):
@@ -97,6 +97,11 @@ class CommitteeFilter(django_filters.FilterSet):
         self.filters['main_topic'] = django_filters.ModelMultipleChoiceFilter(
             queryset=models.DiscussionTopic.objects.all(),
             field_name='main_topic',
+            widget=forms.SelectMultiple(attrs=chosen_js),
+        )
+        self.filters['area_office'] = django_filters.ModelMultipleChoiceFilter(
+            queryset=models.AreaOffice.objects.all(),
+            field_name='area_office',
             widget=forms.SelectMultiple(attrs=chosen_js),
         )
         self.filters['species'] = django_filters.ModelMultipleChoiceFilter(

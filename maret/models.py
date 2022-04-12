@@ -82,9 +82,9 @@ class Committee(models.Model):
     meeting_frequency_choices = (
         (0, "Monthly"),
         (1, "Once a year"),
-        (2, "1-2 times per year"),
+        # (2, 1-2 times a year), # removed 12, april, 2022
         (3, "Twice a year"),
-        (4, "2-3 times per year"),
+        # (4, 2-3 times a year), # removed 12, april, 2022
         (5, "Three times a year"),
         (6, "Four times a year"),
         (7, "As needed"),
