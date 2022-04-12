@@ -74,15 +74,6 @@
           :clearable="true"
         >
         </v-select>
-
-{#                <select#}
-{#                  v-model="filter.section"#}
-{#                  @change="updateResults"#}
-{#                  class="form-control form-control-sm" id="filter.section"#}
-{#                >#}
-{#                  <option value="">{% trans "all" %}</option>#}
-{#                  <option v-for="(obj, index) in sections" :value="obj.id">${obj.full_name_en_ver1}</option>#}
-{#                </select>#}
       </div>
 
 
@@ -300,6 +291,53 @@
           </select>
         </div>
 
+        {# approval status #}
+        <div class="form-group">
+
+          <label class="text-muted small" for="filter.approval_status">{% trans "Approval status" %}</label>
+          <select
+            v-model="filter.approval_status"
+            @change="updateResults"
+            class="form-control form-control-sm" id="filter.approval_status"
+          >
+            <option value selected>{% trans "all" %}</option>
+            {% for status in approval_status_choices %}
+              <option value="{{ status.value }}">{{ status.label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+      {# approval level #}
+        <div class="form-group">
+
+          <label class="text-muted small" for="filter.approval_level">{% trans "Approval level" %}</label>
+          <select
+            v-model="filter.approval_level"
+            @change="updateResults"
+            class="form-control form-control-sm" id="filter.approval_level"
+          >
+            <option value selected>{% trans "all" %}</option>
+            {% for level in approval_level_choices %}
+              <option value="{{ level.value }}">{{ level.label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+      {# funding status #}
+        <div class="form-group">
+
+          <label class="text-muted small" for="filter.funding_status">{% trans "Funding status" %}</label>
+          <select
+            v-model="filter.funding_status"
+            @change="updateResults"
+            class="form-control form-control-sm" id="filter.funding_status"
+          >
+            <option value selected>{% trans "all" %}</option>
+            {% for status in funding_status_choices %}
+              <option value="{{ status.value }}">{{ status.label }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
         <h5>
           {% trans "Columns" %}

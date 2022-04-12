@@ -698,3 +698,13 @@ class ProjectYearModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         return Response(data)
+
+
+class ReviewModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Review
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = get_labels(self.model)
+        return Response(data)

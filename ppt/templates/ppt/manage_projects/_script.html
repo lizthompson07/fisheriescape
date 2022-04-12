@@ -63,6 +63,7 @@ var app = new Vue({
 
     projectLabels: {},
     projectYearLabels: {},
+    reviewLabels: {},
 
     // modal
     projectYear2Review: {},
@@ -357,6 +358,9 @@ var app = new Vue({
       });
       apiService(`/api/ppt/meta/models/projectyear/`).then(data => {
         this.projectYearLabels = data.labels;
+      });
+      apiService(`/api/ppt/meta/models/review/`).then(data => {
+        this.reviewLabels = data.labels;
       });
     },
     startReview(p) {

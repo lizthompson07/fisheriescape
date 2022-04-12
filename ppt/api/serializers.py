@@ -48,6 +48,14 @@ class ReviewSerializer(serializers.ModelSerializer):
     ecological_score_html = serializers.SerializerMethodField()
     scale_score_html = serializers.SerializerMethodField()
     approval_level_display = serializers.SerializerMethodField()
+    approval_status_display = serializers.SerializerMethodField()
+    funding_status_display = serializers.SerializerMethodField()
+
+    def get_funding_status_display(self, instance):
+        return instance.get_funding_status_display()
+
+    def get_approval_status_display(self, instance):
+        return instance.get_approval_status_display()
 
     def get_approval_level_display(self, instance):
         return instance.get_approval_level_display()

@@ -945,10 +945,15 @@ class StatusReport(models.Model):
 
 class Review(models.Model):
     approval_status_choices = (
-        (1, _("approved")),
-        (2, _("recommended")),
-        (0, _("not approved")),
-        (9, _("cancelled")),
+        (1, _("Approved")),
+        (2, _("Recommended")),
+        (0, _("Not approved")),
+        (9, _("Cancelled")),
+    )
+    funding_status_choices = (
+        (1, _("Fully funded")),
+        (2, _("Partially funded")),
+        (3, _("Unfunded")),
     )
     approval_level_choices = (
         (1, _("Division-level")),
@@ -956,9 +961,9 @@ class Review(models.Model):
         (3, _("National-level")),
     )
     score_choices = (
-        (3, _("high")),
-        (2, _("medium")),
-        (1, _("low")),
+        (3, _("High")),
+        (2, _("Medium")),
+        (1, _("Low")),
     )
     project_year = models.OneToOneField(ProjectYear, related_name="review", on_delete=models.CASCADE)
 
@@ -983,6 +988,7 @@ class Review(models.Model):
 
     approval_status = models.IntegerField(choices=approval_status_choices, blank=True, null=True, verbose_name=_("Approval status"))
     approval_level = models.IntegerField(choices=approval_level_choices, blank=True, null=True, verbose_name=_("level of approval"))
+    funding_status = models.IntegerField(choices=funding_status_choices, blank=True, null=True, verbose_name=_("funding status"))
 
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
     approval_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
