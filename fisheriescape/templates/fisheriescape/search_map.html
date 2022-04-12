@@ -171,6 +171,8 @@
 
     <script type="application/javascript">
         let scoreObj = {{ hexagon_polygons | safe }};
+        let lobsterObj = {{ lobster_areas | safe }};
+
         var app = new Vue({
             el: '#app',
             delimiters: ["${", "}"],
@@ -189,11 +191,13 @@
                     is_hidden: "",
                     week: "",
                     species: "",
+                    point: "",
                 },
 
                 // lists for filters
                 speciesList: [],
                 weekList: [],
+                pointList: ["point1", "point2"],
 
                 // map
                 center: [37.7749, -122.4194],
@@ -311,6 +315,10 @@
                         });
                     }
 
+                    function removeInfoLobster() {
+                        lobsterFishery.resetStyle(this);
+                        }
+
                     function removeInfoPolygon() {
                         scoreObject.resetStyle(this);
                         }
@@ -329,6 +337,24 @@
                             layer.on({
                                 mouseover: showInfo,
                                 mouseout: removeInfoPolygon
+                            });
+                            }
+                    });
+
+                    // Create Lobster polygon layer and use onEachFeature to show certain info for each feature
+
+                    var lobsterFishery = L.geoJSON(lobsterObj, {
+                        style: function() {
+                            return {
+                                color: 'blue'
+                            }
+                        },
+                        onEachFeature: function (feature, layer) {
+                            myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+                            layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
+                            layer.on({
+                                mouseover: showInfo,
+                                mouseout: removeInfoLobster
                             });
                             }
                     });
@@ -353,12 +379,12 @@
 
                     // Define colour gradient for scores
                     function getColor(d) {
-                        return d > 10 ? '#800026' :
-                               d > 7  ? '#BD0026' :
-                               d > 5  ? '#E31A1C' :
-                               d > 4  ? '#FC4E2A' :
-                               d > 3  ? '#FD8D3C' :
-                               d > 2  ? '#FEB24C' :
+                        return d > 100 ? '#800026' :
+                               d > 70  ? '#BD0026' :
+                               d > 56  ? '#E31A1C' :
+                               d > 42  ? '#FC4E2A' :
+                               d > 28  ? '#FD8D3C' :
+                               d > 14  ? '#FEB24C' :
                                d > 1  ? '#FED976' :
                                         '#FFEDA0';
                     }
@@ -541,7 +567,7 @@
                     legend.onAdd = function (map) {
 
                         var div = L.DomUtil.create('div', 'info legend'),
-                            grades = [1, 2, 3, 4, 5, 7, 10],
+                            grades = [1, 14, 28, 42, 56, 70, 100],
                             labels = [];
 
                         // loop through our density intervals and generate a label with a colored square for each interval
@@ -564,16 +590,23 @@
                    };
 
                    // Create overlay variable and add overlays desired
+                   // Uses plugin from: https://github.com/ismyrnow/leaflet-groupedlayercontrol
 
-                   var overlayMaps = {
-                       "Test": tests,
-                       "Scores": scoreObject,
-                       "testy": overlayObject,
+                   var groupedOverlays = {
+                       "Fisheriescape Scores": {
+                           "Test": tests,
+                           "Scores": scoreObject,
+                           "testy": overlayObject,
+                       },
+                       "Fishing Areas": {
+                            "Lobster Areas": lobsterFishery,
+                       }
                    };
 
                    // Create the control layer box and add baseMaps and overlayMaps to it
 
-                   L.control.layers(baseMaps, overlayMaps).addTo(this.map);
+                   {#L.control.layers(baseMaps, groupedOverlays).addTo(this.map);#}
+                   L.control.groupedLayers(baseMaps, groupedOverlays).addTo(this.map);
 
                 // check if species and week filter has been chosen and if so get the bounds of the object
                    if (this.filter.species && this.filter.week) return this.map.fitBounds(overlayObject.getBounds(), {padding: [50, 50]});
@@ -601,5 +634,6 @@
     <script type="text/javascript" src="{% static "js/clickableTableRows.js" %}?version=1.1.7"></script>
     <script type=" text/javascript" src="{% static "js/popItOut.js" %}?version=1.2.2"></script>
     <script type=" text/javascript" src="{% static "js/underDevelopment.js" %}?version=1.2.4"></script>
+
 
 {% endblock %}

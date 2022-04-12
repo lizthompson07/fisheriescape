@@ -62,6 +62,18 @@
                 </select>
             </div>
 
+            {#       Point#}
+            <div class="form-group">
+                <label class="text-muted small" for="filter.point">{% trans "Point" %}</label>
+                <select
+                        v-model="filter.point"
+                        @change="updateResults"
+                        class="form-control" id="filter.point">
+                    {#          <option value="">{% trans "all" %}</option>#}
+                    <option v-for="(obj, index) in pointList" :value="obj">${obj}</option>
+                </select>
+            </div>
+
             {# Starting Year #}
             {#      <div class="form-group">#}
             {##}

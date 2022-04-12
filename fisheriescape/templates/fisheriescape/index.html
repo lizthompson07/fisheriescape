@@ -8,13 +8,14 @@
 
     <style>
         body{
-            background-image: url({% static "/img/fisheriescape/water.jpg" %});
+            background-image: url({% static "/img/fisheriescape/whale_background.jpg" %});
             background-size: cover;
         }
 
         h1{
             text-align: center;
             color: #0824de;
+            font-family: 'Acme', sans-serif;
         }
 
         .card {
@@ -87,7 +88,10 @@
 
     <div class="container">
         <div class="jumbotron my-auto">
-            <h1>Fisheries Landscape Tool</h1>
+            <div style="text-align: center">
+                <h1 class="h1 d-inline-block">Fisheries Landscape Tool</h1>
+                <span class="badge badge-danger">in development</span>
+            </div>
         </div>
     </div>
 
@@ -106,14 +110,26 @@
     <div class="mb-3 text" style="font-size: 16px;">
       <p>
         {% blocktrans %}
-            <h3>Welcome to the Fisheries Landscape Tool.</h3>This tool is under development, but feel free to explore the database below.<br><br>
-            <ul>
-                <li><b>'Fishery List'</b> is a database of fisheries with their areas, dates, gear types, and marine mammal potential interactions.</li>
-                <li><b>'MAP'</b> is an interactive map where you can turn on and off fishing area layers and then click on the one you want to take you to the information page.</li>
-                <li><b>'Species List'</b> refers to the species fished.</li>
-                <li><b>'Fishery Area List'</b> is a list of all the fishery areas and their maps.</li>
-            </ul>
+            <div style="text-align: center">
+                <h3>Welcome to the Fisheries Landscape Tool</h3>
+                <div style="font-size: 12px"><i>This tool is under development, but feel free to explore the database below.</i></div><br><br>
+            </div>
+            <div>
+                <b>Fishery General Info</b> includes a variety of views you can use to search for fisheries information.
+                <ul>
+                    <li><b>Fishery </b> is a database of fisheries with their areas, dates, gear types, and marine mammal potential interactions.</li>
+                    <li><b>Fishery Area</b> is a list of all the fishery areas and their maps.</li>
+                    <li><b>NAFO Area</b> is a list of all the NAFO areas and their maps.</li>
+                    <li><b>MAP</b> is an interactive map where you can select and visualize different fishing layers.</li>
 
+                </ul>
+                <b>Fishery Analyses</b> includes a variety of views to visualize fisheriescape score results.
+                <ul>
+                    <li><b>Analysis Search</b> is a search for statis score maps.</li>
+                    <li><b>Score Search</b> is a text-based search for scores.</li>
+                    <li><b>Score Map</b> displays a map based on search criteria.</li>
+                </ul>
+            </div>
         {% endblocktrans %}
       </p>
     </div>
@@ -133,7 +149,7 @@
                     <h2>{% trans 'Fishery General Info' %}</h2>
                 </div>
                 <div class="card-img">
-                    <img class="mh-80" src="{% static 'img/fisheriescape/fish.jpg' %}" alt="Card image" style="width: 80%; height: 120%">
+                    <img class="mh-80" src="{% static 'img/fisheriescape/fishery_search.jpg' %}" alt="Card image" style="width: 80%; height: 120%">
                 </div>
                 <div class="card-body">
                     <div class="btns">
@@ -155,13 +171,14 @@
                     <h2>{% trans 'Fishery Analyses' %}</h2>
                 </div>
                 <div class="card-img">
-                    <img class="mh-80" src="{% static 'img/fisheriescape/analyses.png' %}" alt="Card image" style="width: 80%; height: 120%">
+                    <img class="mh-80" src="{% static 'img/fisheriescape/analyses_search.jpg' %}" alt="Card image" style="width: 80%; height: 120%">
                 </div>
                 <div class="card-body">
                     <div class="btns">
+                        <div><h5>Search by:</h5></div>
                         <a href="{% url 'fisheriescape:analyses_filter' %}" class="btn my-btn btn btn-primary">Analysis Search</a>
                         <a href="{% url 'fisheriescape:score_filter' %}" class="btn my-btn btn btn-primary">Score Search</a>
-                        <a href="{% url 'fisheriescape:score_map' %}" class="btn my-btn btn btn-primary">Test Map</a>
+                        <a href="{% url 'fisheriescape:score_map' %}" class="btn my-btn btn btn-primary">Score Map</a>
 
                     </div>
                     <br>

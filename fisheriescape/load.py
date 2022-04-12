@@ -9,20 +9,20 @@ from django.contrib.gis.utils import LayerMapping
 from .models import FisheryArea, Hexagon, Score, NAFOArea
 
 # # For NAFO_select.shp
-mapping = {
-    'layer_id': 'layer_id',
-    'name': 'Area',
-    'polygon': 'MULTIPOLYGON',
-}
-
-nafo_select_shp = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'data', 'NAFO_select.shp'),
-)
-
-
-def run(verbose=True):
-    lm = LayerMapping(NAFOArea, nafo_select_shp, mapping, transform=False)
-    lm.save(strict=True, verbose=verbose)
+# mapping = {
+#     'layer_id': 'layer_id',
+#     'name': 'Area',
+#     'polygon': 'MULTIPOLYGON',
+# }
+#
+# nafo_select_shp = os.path.abspath(
+#     os.path.join(os.path.dirname(__file__), 'data', 'NAFO_select.shp'),
+# )
+#
+#
+# def run(verbose=True):
+#     lm = LayerMapping(NAFOArea, nafo_select_shp, mapping, transform=False)
+#     lm.save(strict=True, verbose=verbose)
 #
 
 # # For NAFO_subzones.shp
@@ -105,14 +105,14 @@ def run(verbose=True):
 #     lm = LayerMapping(FisheryArea, herring_shp, mapping, transform=False)
 #     lm.save(strict=True, verbose=verbose)
 
-## For hexagons
+# # For hexagons
 # mapping = {
-#     'grid_id': 'grid_id',
+#     'grid_id': 'GRID_ID',
 #     'polygon': 'MULTIPOLYGON',
 # }
 #
 # hexagon_shp = os.path.abspath(
-#     os.path.join(os.path.dirname(__file__), 'data', 'hexagon_test_transformed.shp'),
+#     os.path.join(os.path.dirname(__file__), 'data', 'Master_Grid_4T.shp'),
 # )
 #
 #
@@ -120,16 +120,18 @@ def run(verbose=True):
 #     lm = LayerMapping(Hexagon, hexagon_shp, mapping, transform=False)
 #     lm.save(strict=True, verbose=verbose)
 
-# ## For hexagon scores from a shapefile
+## For hexagon scores from a shapefile
 # mapping = {
 #     'hexagon': {'grid_id': 'grid_id'},
 #     'species': {'english_name': 'species'},
 #     'week': {'week_number': 'week'},
-#     'site_score': 'mean_score',
+#     'site_score': 'ss',
+#     'ceu_score': 'ceu',
+#     'fs_score': 'fs',
 # }
 #
 # site_score_shp = os.path.abspath(
-#     os.path.join(os.path.dirname(__file__), 'data', 'site_score_test.shp'),
+#     os.path.join(os.path.dirname(__file__), 'data', 'FALL HERRING FINAL DF.shp'),
 # )
 #
 #

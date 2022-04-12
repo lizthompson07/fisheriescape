@@ -181,3 +181,45 @@ def import_fishery_info():
 
             cont_success += 1
         print(f'{str(cont_success)} records inserted successfully! ')
+
+
+def import_scores_info():
+    """ a simple function to import information from a csv """
+    csv_file = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), 'data', 'test_scores.csv'),
+    )
+    cont_success = 0
+    # Remove all data from Table
+    models.Score.objects.all().delete()
+
+    with open(csv_file, newline='', encoding='UTF-8') as csvfile:
+        spamreader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
+        # next(spamreader, None)  # skip the headers
+        print('Loading...')
+        # for row in spamreader:
+        #     print(row[0])
+        for row in spamreader:
+
+            # Get or create FK fields first
+            hexagon_obj, created = models.Hexagon.objects.get_or_create(
+                grid_id=str(row["Grid"].strip())
+            )
+
+            species_obj, created = models.Species.objects.get_or_create(
+                english_name=str(row["Species"].strip())
+            )
+
+            week_obj, created = models.Week.objects.get_or_create(
+                week_number=row["Week"].strip()
+            )
+            created, _ = models.Score.objects.get_or_create(
+                hexagon=hexagon_obj,
+                species=species_obj,
+                week=week_obj,
+                site_score=row["SS"].strip(),
+                ceu_score=row["CEU"].strip(),
+                fs_score=row["FS"].strip(),
+            )
+
+            cont_success += 1
+        print(f'{str(cont_success)} records inserted successfully! ')
