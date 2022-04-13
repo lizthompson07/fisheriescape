@@ -1288,6 +1288,7 @@ class DMA(MetadataFields):
 
     class Meta:
         verbose_name = _("Data Management Agreement")
+        ordering = ["project__section__division__branch__sector__region", "project__section__division", "project__section"]
 
     def get_absolute_url(self):
         return reverse('ppt:dma_detail', args=[self.id])
