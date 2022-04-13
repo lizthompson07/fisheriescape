@@ -708,3 +708,13 @@ class ReviewModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         return Response(data)
+
+
+class DMAModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.DMA
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = get_labels(self.model)
+        return Response(data)

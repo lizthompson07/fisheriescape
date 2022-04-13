@@ -78,8 +78,16 @@ class ProjectYearChildFilter(django_filters.FilterSet):
 
 class DMAFilter(django_filters.FilterSet):
     project = django_filters.NumberFilter(field_name='project')
-    fiscal_year = django_filters.NumberFilter(field_name='fiscal_year')
     title_name = django_filters.CharFilter(field_name='title', lookup_expr="icontains")
+
+    class Meta:
+        model = models.DMA
+        fields = {
+            'project__title': ['exact'],
+            'project__section__division__branch__sector__region': ['exact'],
+            'project__section__division': ['exact'],
+            'project__section': ['exact'],
+        }
 
 
 class ProjectYearFilter(django_filters.FilterSet):
