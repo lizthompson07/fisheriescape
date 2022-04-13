@@ -456,7 +456,7 @@ class CommitteeCreateView(UserRequiredMixin, CommonCreateViewHelp):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['scripts'] = ['maret/js/divisionFilter.html']
+        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/committeeForm.html']
         return context
 
 

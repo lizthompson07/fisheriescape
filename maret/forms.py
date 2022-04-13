@@ -24,6 +24,7 @@ class CommitteeForm(forms.ModelForm):
             'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
             'external_organization': forms.SelectMultiple(attrs=chosen_js),
             'external_contact': forms.SelectMultiple(attrs=chosen_js),
+
         }
 
     def __init__(self, *args, **kwargs):
