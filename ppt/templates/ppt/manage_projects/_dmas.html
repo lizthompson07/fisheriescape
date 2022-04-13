@@ -12,6 +12,8 @@
     <table class="table table-sm table-bordered">
       <thead>
       <tr>
+        <th>{% trans "Region" %}</th>
+        <th>{% trans "Section" %}</th>
         <th>${dmaLabels.title}</th>
         <th class="w-20">${dmaLabels.data_contact}</th>
         <th class="w-20">${dmaLabels.metadata_contact}</th>
@@ -20,8 +22,13 @@
       </thead>
       <tbody v-for="(d, index) in dmas">
       <tr>
+        <td>${d.region_display | nz}</td>
+        <td>${d.section_display | nz}</td>
         <td>
-          <a class="text-primary pointy" @click="goDMADetail(d)"> ${d.title} </a>
+          <a class="text-primary pointy" @click="goDMADetail(d)">
+            <span class="mdi mdi-open-in-new text-primary"></span>
+            ${d.title}
+          </a>
         </td>
         <td>${d.data_contact | nz}</td>
         <td>${d.metadata_contact | nz}</td>
