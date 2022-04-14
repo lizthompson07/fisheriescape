@@ -35,16 +35,6 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a :class="{ 'nav-link': true, 'active': showStaffList }" href="#" @click="changeTabs('staff')">
-                  {% trans "Staff List" %}
-                </a>
-              </li>
-              <li class="nav-item">
-                <a :class="{ 'nav-link': true, 'active': showFinancialSummary }" href="#" @click="changeTabs('financial')">
-                  {% trans "Financial Summary" %}
-                </a>
-              </li>
-              <li class="nav-item">
                 <a :class="{ 'nav-link': true, 'active': showReviews }" href="#" @click="changeTabs('reviews')">
                   {% trans "Reviews" %}
                 </a>
@@ -52,6 +42,16 @@
               <li class="nav-item" v-if="currentUser.is_admin || currentUser.is_rds">
                 <a :class="{ 'nav-link': true, 'active': showApprovals }" href="#" @click="changeTabs('approvals')">
                   {% trans "Approvals" %}
+                </a>
+              </li>
+              <li class="nav-item">
+                <a :class="{ 'nav-link': true, 'active': showStaffList }" href="#" @click="changeTabs('staff')">
+                  {% trans "Staff List" %}
+                </a>
+              </li>
+              <li class="nav-item">
+                <a :class="{ 'nav-link': true, 'active': showFinancialSummary }" href="#" @click="changeTabs('financial')">
+                  {% trans "Financial Summary" %}
                 </a>
               </li>
               <li class="nav-item">
@@ -86,8 +86,8 @@
           {% include "ppt/manage_projects/_project_list.html" %}
           {% include "ppt/manage_projects/_staff.html" %}
           {% include "ppt/manage_projects/_financials.html" %}
-{#          {% include "ppt/manage_projects/_reviews.html" %}#}
-{#          {% include "ppt/manage_projects/_approvals.html" %}#}
+          {% include "ppt/manage_projects/_reviews.html" %}
+          {% include "ppt/manage_projects/_approvals.html" %}
           {% include "ppt/manage_projects/_dmas.html" %}
         </div>
 

@@ -119,24 +119,25 @@
         </select>
       </div>
 
+      {# status #}
+      <div class="form-group">
+
+        <label class="text-muted small" for="filter.status">{% trans "Status" %}</label>
+        <select
+          v-model="filter.status"
+          @change="updateResults"
+          class="form-control form-control-sm" id="filter.status"
+        >
+          <option value selected>{% trans "all" %}</option>
+          {% for status in status_choices %}
+            <option value="{{ status.value }}">{{ status.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
       {#  ADVANCED FILTERS  #}
       <div v-if="showMoreFilters" class="mb-3">
-        {# status #}
-        <div class="form-group">
 
-          <label class="text-muted small" for="filter.status">{% trans "Status" %}</label>
-          <select
-            v-model="filter.status"
-            @change="updateResults"
-            class="form-control form-control-sm" id="filter.status"
-          >
-            <option value selected>{% trans "all" %}</option>
-            {% for status in status_choices %}
-              <option value="{{ status.value }}">{{ status.label }}</option>
-            {% endfor %}
-          </select>
-        </div>
 
         {# Starting Year #}
         <div class="form-group">
@@ -307,7 +308,7 @@
           </select>
         </div>
 
-      {# approval level #}
+        {# approval level #}
         <div class="form-group">
 
           <label class="text-muted small" for="filter.approval_level">{% trans "Approval level" %}</label>
@@ -323,7 +324,7 @@
           </select>
         </div>
 
-      {# funding status #}
+        {# funding status #}
         <div class="form-group">
 
           <label class="text-muted small" for="filter.funding_status">{% trans "Funding status" %}</label>

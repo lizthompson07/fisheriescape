@@ -195,7 +195,6 @@ var app = new Vue({
       endpoint += `?page_size=${pageSize}&` + this.getDMAFilterString()
       return endpoint
     },
-
     getProjectYears(endpoint, pageSize = 45) {
       this.projects_loading = true;
       if (!endpoint) endpoint = this.getProjectYearsEndpoint(pageSize)
@@ -212,6 +211,13 @@ var app = new Vue({
               this.getDMAs()
             }
           })
+    },
+    refreshProjectYear(p) {
+      apiService(`/api/ppt/project-years/${p.id}`).then(response => {
+        if (response.id) {
+          this.$set(this.projectYears, this.projectYears.indexOf(p), response)
+        }
+      })
     },
     changeTabs(name) {
       this.showProjectList = false;
@@ -423,6 +429,8 @@ var app = new Vue({
     updateReview(p) {
       apiService(`/api/ppt/reviews/${p.review.id}/`, "PUT", p.review).then(data => {
         p.review = data
+        // update the project year
+        this.refreshProjectYear(p)
       })
     },
   },

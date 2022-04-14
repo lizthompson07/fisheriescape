@@ -135,6 +135,14 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         context["review_form"] = forms.ReviewForm
         context["approval_form"] = forms.ApprovalForm
         context["review_score_rubric"] = json.dumps(get_review_score_rubric())
+        context["short_fie"] = json.dumps(get_review_score_rubric())
+        context["short_field_list"] = [
+            'id',
+            'fiscal year',
+            'title',
+            'default_funding_source',
+            'status',
+        ]
         return context
 
 
