@@ -45,7 +45,7 @@
               <td>{% get_field_value review field %}</td>
             {% endfor %}
           <td>
-            <a href="#" pop-href="{% url 'ppt:dma_review_delete' review.id %}" class="btn btn-xs btn-danger"><span class="mdi mdi-delete text-light"></span></a>
+            <a href="#" pop-href="{% url 'ppt:dma_review_delete' review.id %}" class="btn"><span class="mdi mdi-delete lead"></span></a>
           </td>
           </tr>
         {% endfor %}
