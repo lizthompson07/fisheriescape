@@ -162,31 +162,32 @@
 
 {% endblock %}
 
-    <div class="container">
-            <div class="card entry-card mb-3">
-                <div class="card-header">
-                    <h5 class="card-title"> {% trans "Score Map" %}</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-center">
-                        <div id="map3"></div>
-                    </div>
-                </div>
-            </div>
-    </div>
+{#    <div class="container">#}
+{#            <div class="card entry-card mb-3">#}
+{#                <div class="card-header">#}
+{#                    <h5 class="card-title"> {% trans "Score Map" %}</h5>#}
+{#                </div>#}
+{#                <div class="card-body">#}
+{#                    <div class="d-flex justify-content-center">#}
+{#                        <div id="map3"></div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#    </div>#}
 
 {% endblock %}
 
-{% block body_js %}
-    {{ block.super }}
-    {{ list|json_script:"test-data" }}
-    <script>
-
-        let scoreObj = {{ hexagon_polygons | safe }};
-        let mapboxApiKey = '{{ mapbox_api_key }}';
-
-    </script>
-
+{#Moved this to the REST API view/filter search#}
+{#{% block body_js %}#}
+{#    {{ block.super }}#}
+{#    {{ list|json_script:"test-data" }}#}
+{#    <script>#}
+{##}
+{#        let scoreObj = {{ hexagon_polygons | safe }};#}
+{#        let mapboxApiKey = '{{ mapbox_api_key }}';#}
+{##}
+{#    </script>#}
+{##}
     {#Remember to update version if you change css styling in base.html in order to reload!#}
-    <script src="{% static 'fisheriescape/map3.js' %}?version=2.3"></script>
-{% endblock %}
+{#    <script src="{% static 'fisheriescape/map3.js' %}?version=2.3"></script>#}
+{#{% endblock %}#}

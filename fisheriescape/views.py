@@ -83,10 +83,70 @@ class FisheriescapeEditRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-@login_required(login_url='/accounts/login/')
-def index(request):
-    return render(request, 'fisheriescape/index.html')
+class IndexView(FisheriescapeAccessRequired, CommonTemplateView):
+    h1 = "home"
+    template_name = 'fisheriescape/index.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["fisheriescape_admin"] = get_object_or_404(Group, name="fisheriescape_admin")
+        context["fisheriescape_edit"] = get_object_or_404(Group, name="fisheriescape_edit")
+        return context
+
+
+## ADMIN USER ACCESS CONTROL ##
+
+
+class UserListView(FisheriescapeAdminAccessRequired, CommonFilterView):
+    template_name = "fisheriescape/user_list.html"
+    filterset_class = filters.UserFilter
+    home_url_name = "index"
+    paginate_by = 25
+    h1 = "Fisheriescape App User List"
+    field_list = [
+        {"name": 'first_name', "class": "", "width": ""},
+        {"name": 'last_name', "class": "", "width": ""},
+        {"name": 'email', "class": "", "width": ""},
+        {"name": 'last_login|{}'.format(gettext_lazy("Last login to DM Apps")), "class": "", "width": ""},
+    ]
+    new_object_url = reverse_lazy("shared_models:user_new")
+
+    def get_queryset(self):
+        queryset = User.objects.order_by("first_name", "last_name").annotate(
+            search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
+        )
+        if self.kwargs.get("fisheriescape"):
+            queryset = queryset.filter(groups__name__icontains="fisheriescape").distinct()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["fisheriescape_admin"] = get_object_or_404(Group, name="fisheriescape_admin")
+        context["fisheriescape_edit"] = get_object_or_404(Group, name="fisheriescape_edit")
+        return context
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_fisheriescape_admin_group, login_url='/accounts/denied/')
+def toggle_user(request, pk, type):
+    my_user = User.objects.get(pk=pk)
+    fisheriescape_admin = get_object_or_404(Group, name="fisheriescape_admin")
+    fisheriescape_edit = get_object_or_404(Group, name="fisheriescape_edit")
+    if type == "admin":
+        # if the user is in the admin group, remove them
+        if fisheriescape_admin in my_user.groups.all():
+            my_user.groups.remove(fisheriescape_admin)
+        # otherwise add them
+        else:
+            my_user.groups.add(fisheriescape_admin)
+    elif type == "edit":
+        # if the user is in the edit group, remove them
+        if fisheriescape_edit in my_user.groups.all():
+            my_user.groups.remove(fisheriescape_edit)
+        # otherwise add them
+        else:
+            my_user.groups.add(fisheriescape_edit)
+    return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
 
 ### SETTINGS ###
 ### FORMSETS ###
@@ -678,9 +738,7 @@ class ScoreMapView(FisheriescapeAccessRequired, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        hexagons = models.Hexagon.objects.all()
         context["random_score"] = models.Score.objects.first()
-        context["hexagon_polygons"] = serialize("geojson", hexagons)
 
         context["lobster_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Lobster"))
         # context["snow_crab_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Crab"))

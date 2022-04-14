@@ -8,7 +8,7 @@ app_name = "fisheriescape"
 urlpatterns = [
     path('admin', admin.site.urls),
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
-    path('', views.index, name="index"),
+    path('', views.IndexView.as_view(), name="index"),
 
     # MAP #
     path('map/', views.MapView.as_view(), name="map_view"),
@@ -53,4 +53,10 @@ urlpatterns = [
     path('settings/marinemammals/<int:pk>/delete/', views.MarineMammalHardDeleteView.as_view(), name="delete_marinemammals"),
     path('settings/species/', views.SpeciesFormsetView.as_view(), name="manage_species"),
     path('settings/species/<int:pk>/delete/', views.SpeciesHardDeleteView.as_view(), name="delete_species"),
+
+    # ADMIN USERS #
+    path('settings/users/', views.UserListView.as_view(), name='user_list'),
+    path('settings/users/fisheriescape/<int:fisheriescape>/', views.UserListView.as_view(), name='user_list'),
+    path('settings/user/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
+
 ]

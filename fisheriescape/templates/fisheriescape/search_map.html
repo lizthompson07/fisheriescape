@@ -72,12 +72,6 @@
         </div>
         <div :class="{'main-opened':showSidebar, 'main-closed':!showSidebar}">
 
-{#            <div class="row container-fluid bg-light curvy">#}
-{#                <div class="col">#}
-{#                    {% include "fisheriescape/_rest_map.html" %}#}
-{#                </div>#}
-{#            </div>#}
-
             <div class="container">
                 <h5>
                     {% trans "Map" %}
@@ -170,7 +164,6 @@
     {{ block.super }}
 
     <script type="application/javascript">
-        let scoreObj = {{ hexagon_polygons | safe }};
         let lobsterObj = {{ lobster_areas | safe }};
 
         var app = new Vue({
@@ -318,28 +311,6 @@
                     function removeInfoLobster() {
                         lobsterFishery.resetStyle(this);
                         }
-
-                    function removeInfoPolygon() {
-                        scoreObject.resetStyle(this);
-                        }
-
-                    // Create polygon layer and use onEachFeature to show certain info for each feature
-
-                    var scoreObject = L.geoJSON(scoreObj, {
-                        style: function() {
-                            return {
-                                color: 'blue'
-                            }
-                        },
-                        onEachFeature: function (feature, layer) {
-                            myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
-                            layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Grid ID: ${feature.properties.grid_id}</br>Site Score: ${feature.properties.hexagon}`);;
-                            layer.on({
-                                mouseover: showInfo,
-                                mouseout: removeInfoPolygon
-                            });
-                            }
-                    });
 
                     // Create Lobster polygon layer and use onEachFeature to show certain info for each feature
 
@@ -595,7 +566,6 @@
                    var groupedOverlays = {
                        "Fisheriescape Scores": {
                            "Test": tests,
-                           "Scores": scoreObject,
                            "testy": overlayObject,
                        },
                        "Fishing Areas": {
