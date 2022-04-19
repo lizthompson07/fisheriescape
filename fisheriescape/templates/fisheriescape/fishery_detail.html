@@ -64,7 +64,11 @@
                                     <th>{% get_verbose_label object field %}</th>
                                     <td>
                                         <table>
-                                            <td style="background-color: {{ object.gear_primary_colour }}; color: white; width: 60px; border: none ">{% get_field_value object field %}</td>
+                                            {% if object.gear_primary_colour == 'Yellow' %}
+                                                <td style="background-color: {{ object.gear_primary_colour }}; color: black; width: 60px; border: none ">{% get_field_value object field %}</td>
+                                            {% else %}
+                                                <td style="background-color: {{ object.gear_primary_colour }}; color: white; width: 60px; border: none ">{% get_field_value object field %}</td>
+                                            {%  endif %}
                                         </table>
                                     </td>
                                 </tr>
@@ -83,7 +87,13 @@
                                     <th>{% get_verbose_label object field %}</th>
                                     <td>
                                         <table>
-                                            <td style="background-color: {{ object.gear_tertiary_colour }}; color: black; width: 60px; border: none ">{% get_field_value object field %}</td>
+                                            {% if object.gear_tertiary_colour == 'Black' or object.gear_tertiary_colour == 'Green' %}
+                                                <td style="background-color: {{ object.gear_tertiary_colour }}; color: white; width: 60px; border: none ">{% get_field_value object field %}</td>
+                                            {% elif object.gear_tertiary_colour == 'White' %}
+                                                <td style="background-color: {{ object.gear_tertiary_colour }}; color: black; width: 60px; border: solid 1px ">{% get_field_value object field %}</td>
+                                            {% else %}
+                                                <td style="background-color: {{ object.gear_tertiary_colour }}; color: black; width: 60px; border: none ">{% get_field_value object field %}</td>
+                                            {%  endif %}
                                         </table>
                                     </td>
                                 </tr>

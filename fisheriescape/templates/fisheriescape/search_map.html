@@ -72,7 +72,7 @@
         </div>
         <div :class="{'main-opened':showSidebar, 'main-closed':!showSidebar}">
 
-            <div class="container">
+            <div class="container-fluid bg-light curvy">
                 <h5>
                     {% trans "Map" %}
                 </h5>
@@ -82,16 +82,9 @@
                         <span class="sr-only"></span>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-7">
+                    <div class="col my-auto">
                         <div id="maptest"></div>
                     </div>
-
-                    <div class="col-4">
-                        <h5>Description</h5>
-                        <li> Fisheriescape scores are from 0 to 100 after</li>
-                    </div>
-                </div>
 
             </div>
 
@@ -348,24 +341,43 @@
                     {#  overlay.addTo(this.map);#}
                     {#  control.addOverlay(overlay, layerName); // Add the layer to the Layer Control.#}
 
+                    {#// Define colour gradient for scores#}
+                    {#function getColor(d) {#}
+                    {#    return d > 30 ? '#800026' :#}
+                    {#           d > 20  ? '#BD0026' :#}
+                    {#           d > 14  ? '#E31A1C' :#}
+                    {#           d > 10  ? '#FC4E2A' :#}
+                    {#           d > 6  ? '#FD8D3C' :#}
+                    {#           d > 3  ? '#FEB24C' :#}
+                    {#           d > 1  ? '#FED976' :#}
+                    {#                    '#FFEDA0';#}
+
                     // Define colour gradient for scores
                     function getColor(d) {
-                        return d > 100 ? '#800026' :
-                               d > 70  ? '#BD0026' :
-                               d > 56  ? '#E31A1C' :
-                               d > 42  ? '#FC4E2A' :
-                               d > 28  ? '#FD8D3C' :
-                               d > 14  ? '#FEB24C' :
-                               d > 1  ? '#FED976' :
-                                        '#FFEDA0';
+                        return d > 30 ? '#FF050B' :
+                               d > 29  ? '#FF3105' :
+                               d > 27  ? '#FF6305' :
+                               d > 25  ? '#FF9405' :
+                               d > 22  ? '#FFC605' :
+                               d > 20  ? '#FFF805' :
+                               d > 17  ? '#D4FF05' :
+                               d > 15  ? '#A3FF05' :
+                               d > 12  ? '#71FF06' :
+                               d > 9  ? '#3FFF06' :
+                               d > 6  ? '#0EFF06' :
+                               d > 3  ? '#06FF2F' :
+                               d > 2  ? '#06FF61' :
+                               d > 1  ? '#06FF93' :
+                               d > 0  ? '#06FFC4' :
+                                        '#06FFF6';
                     }
 
                     // Define polygon style
                     function gradientStyle(feature) {
                         // console.log(feature)
                         return {
-                            fillColor: getColor(feature.properties.site_score),
-                            weight: 2,
+                            fillColor: getColor(feature.properties.fs_score),
+                            weight: 0.5,
                             opacity: 1,
                             color: 'white',
                             dashArray: '3',
@@ -414,7 +426,7 @@
                                 Grid-id: ${feature.properties.grid_id}</br>
                                 Species: ${feature.properties.species}</br>
                                 Week: ${feature.properties.week}</br>
-                                Site Score: ${feature.properties.site_score}`);
+                                FS Score: ${feature.properties.fs_score}`);
                             layer.on({
                                 mouseover: highlightFeature,
                                 mouseout:  function resetHighlight(e) {
@@ -525,7 +537,7 @@
                     // method that we will use to update the control based on feature properties passed
                     info.update = function (props) {
                         this._div.innerHTML = '<h4>Fisheriescape Scores</h4>' +  (props ?
-                            '<b>' + props.species + '</b><br /> Site Score:' + props.site_score + '</b><br />' + props.week
+                            '<b>' + props.species + '</b><br /> FS Score:' + props.fs_score + '</b><br />' + props.week
                             : 'Hover over a hexagon');
                     };
 
@@ -538,7 +550,7 @@
                     legend.onAdd = function (map) {
 
                         var div = L.DomUtil.create('div', 'info legend'),
-                            grades = [1, 14, 28, 42, 56, 70, 100],
+                            grades = [0, 1, 2, 3, 6, 9, 12, 15, 17, 20, 22, 25, 27, 29, 30],
                             labels = [];
 
                         // loop through our density intervals and generate a label with a colored square for each interval

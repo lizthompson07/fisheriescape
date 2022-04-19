@@ -2,11 +2,11 @@
 
 <li class="nav-item"><a class="nav-link" href="{% url 'fisheriescape:index' %}">Fisheriescape Home</a></li>
 
-{# Fishery Landscape #}
+{# Fishery General Info #}
 <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
        aria-haspopup="true" aria-expanded="false">
-        Fishery Landscape Tables
+        Fishery General Info
     </a>
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 
@@ -21,18 +21,19 @@
  <li class="nav-item"><a class="nav-link" href="{% url 'fisheriescape:map_view' %}">MAP</a></li>
 
 
-{# Thing Two #}
-{#<li class="nav-item dropdown">#}
-{#    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"#}
-{#       aria-haspopup="true" aria-expanded="false">#}
-{#        Thing two#}
-{#    </a>#}
-{#    <div class="dropdown-menu" aria-labelledby="navbarDropdown">#}
-{##}
-{#        <a class="dropdown-item" href="{% url 'fisheriescape:index' %}">placeholder</a>#}
-{##}
-{#    </div>#}
-{#</li>#}
+{# Fisheriescape#}
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        Fisheriescape
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+        <a class="dropdown-item" href="{% url 'fisheriescape:analyses_filter' %}">Analysis Search</a>
+        <a class="dropdown-item" href="{% url 'fisheriescape:score_map' %}">Score Map</a>
+
+    </div>
+</li>
 
 
 {# Thing three #}

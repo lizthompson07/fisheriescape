@@ -142,9 +142,14 @@ def import_fishery_info():
             end_date = timezone.datetime(int(row["Year end"]), int(row["Month end"]), int(row["Day end"]),
                                          tzinfo=timezone.get_current_timezone())
 
-            # main logic for regular field types -- for FK include "_FIELDNAME on FK Table"
+            # Get or create FK fields first
+            species_obj, created = models.Species.objects.get_or_create(
+                english_name=row["Species"].strip()
+            )
+
+            # main logic for regular field types -- for FK get it first
             created, _ = models.Fishery.objects.get_or_create(
-                species_id=row["Species"].strip(),
+                species=species_obj,
                 participants=row["Participants"].strip(),
                 participant_detail=row["Participant detail"].strip(),
                 start_date=start_date,
@@ -186,7 +191,7 @@ def import_fishery_info():
 def import_scores_info():
     """ a simple function to import information from a csv """
     csv_file = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), 'data', 'test_scores.csv'),
+        os.path.join(os.path.dirname(__file__), 'data', 'Snow Crab Fisheriescape 20220413.csv'),
     )
     cont_success = 0
     # Remove all data from Table

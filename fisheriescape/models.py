@@ -236,7 +236,8 @@ class Fishery(MetadataFields):
             # nafo_list = nafo_list + ", " + (i["name"])
             nafo_list.append(i["name"])
 
-        string = ", ".join(nafo_list)
+        nafo_set = set(nafo_list)
+        string = ", ".join(nafo_set)
         return string
 
     def get_absolute_url(self):
@@ -335,8 +336,8 @@ class Score(models.Model):
                                 verbose_name=_("species"))
     week = models.ForeignKey(Week, on_delete=models.DO_NOTHING, related_name="scores",
                              verbose_name=_("week"))
-    site_score = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True, verbose_name=_("site score"))
-    ceu_score = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True, verbose_name=_("ceu score"))
+    site_score = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True, verbose_name=_("site score"))
+    ceu_score = models.DecimalField(max_digits=10, decimal_places=4, blank=True, null=True, verbose_name=_("ceu score"))
     fs_score = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True, verbose_name=_("fs score"))
 
     def __str__(self):
