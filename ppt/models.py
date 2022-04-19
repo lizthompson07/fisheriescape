@@ -1250,7 +1250,7 @@ class DMA(MetadataFields):
     metadata_tool = models.TextField(blank=True, null=True, verbose_name=_("Describe the tools or processes that will be used to create metadata"),
                                      help_text=_(
                                          "e.g., Metadata Inventory app in DM Apps, DFO Enterprise Data Hub, Federal Geospatial Portal, stand-alone file, ..."))
-    metadata_url = models.URLField(blank=True, null=True, verbose_name=_("Please provide any URLs to the metadata"),
+    metadata_url = models.CharField(blank=True, null=True, max_length=1000, verbose_name=_("Please provide any URLs to the metadata"),
                                     help_text=_("Full link to any metadata records available online, if applicable"))
     metadata_update_freq = models.IntegerField(blank=True, null=True, verbose_name=_("At what frequency should the metadata be updated? "),
                                                help_text=_("What should be the expectation for how often the metadata is updated?"), choices=frequency_choices)
