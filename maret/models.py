@@ -99,8 +99,8 @@ class Committee(models.Model):
                                      verbose_name=_("Main species of discussion"))
     branch = models.ForeignKey(shared_models.Branch, blank=True, null=True, default=1, on_delete=models.DO_NOTHING,
                                related_name="committee_branch", verbose_name=_("Lead DFO branch"))
-    area_office = models.ManyToManyField(AreaOffice, blank=True, related_name="committee_area_office",
-                                         verbose_name=_("Lead Area Office"))
+    area_office = models.ForeignKey(AreaOffice, blank=True, null=True, related_name="committee_area_office",
+                                    on_delete=models.DO_NOTHING, verbose_name=_("Lead Area Office"))
     division = models.ForeignKey(shared_models.Division, blank=True, null=True, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Division"))
 

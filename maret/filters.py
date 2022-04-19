@@ -99,11 +99,6 @@ class CommitteeFilter(django_filters.FilterSet):
             field_name='main_topic',
             widget=forms.SelectMultiple(attrs=chosen_js),
         )
-        self.filters['area_office'] = django_filters.ModelMultipleChoiceFilter(
-            queryset=models.AreaOffice.objects.all(),
-            field_name='area_office',
-            widget=forms.SelectMultiple(attrs=chosen_js),
-        )
         self.filters['species'] = django_filters.ModelMultipleChoiceFilter(
             queryset=models.Species.objects.all(),
             field_name='species',
