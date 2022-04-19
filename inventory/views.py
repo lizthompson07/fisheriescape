@@ -13,7 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -206,8 +206,17 @@ class MyResourceListView(LoginRequiredMixin, ListView):
 class ResourceDetailView(DetailView):
     model = models.Resource
 
+    def get_object(self, queryset=None):
+        if self.kwargs.get("uuid"):
+            return get_object_or_404(self.model, uuid=self.kwargs.get("uuid"))
+        return super().get_object(queryset)
+
     def dispatch(self, request, *args, **kwargs):
-        xml_export.verify(models.Resource.objects.get(pk=self.kwargs['pk']))
+        obj = self.get_object()
+        if not self.kwargs.get("uuid"):
+            return HttpResponseRedirect(reverse("inventory:resource_detail_uuid", kwargs={"uuid": obj.uuid}))
+
+        xml_export.verify(obj)
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):

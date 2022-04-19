@@ -16,7 +16,7 @@
   <div class="mb-5">
     <table class="table table-sm">
       {% for field in field_list %}
-        {% verbose_td_display object field %}
+        {% verbose_td_display object field format='html' %}
       {% endfor %}
     </table>
   </div>
@@ -46,7 +46,7 @@
         {% for review in object.reviews.all %}
           <tr pop href="{% url 'ppt:dma_review_edit'  review.id %}">
             {% for field in dma_review_field_list %}
-              <td>{% get_field_value review field %}</td>
+              <td>{% get_field_value review field format='html' %}</td>
             {% endfor %}
             <td>
               <a href="#" pop-href="{% url 'ppt:dma_review_delete' review.id %}" class="btn"><span class="mdi mdi-delete lead"></span></a>
