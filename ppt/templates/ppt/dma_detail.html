@@ -34,7 +34,11 @@
         <thead>
         <tr>
           {% for field in dma_review_field_list %}
-            <th>{% get_verbose_label object.reviews.first field %}</th>
+            {% if field == "comments" %}
+              <th class="w-40">{% get_verbose_label object.reviews.first field %}</th>
+            {% else %}
+              <th>{% get_verbose_label object.reviews.first field %}</th>
+            {% endif %}
           {% endfor %}
         </tr>
         </thead>
@@ -44,9 +48,9 @@
             {% for field in dma_review_field_list %}
               <td>{% get_field_value review field %}</td>
             {% endfor %}
-          <td>
-            <a href="#" pop-href="{% url 'ppt:dma_review_delete' review.id %}" class="btn"><span class="mdi mdi-delete lead"></span></a>
-          </td>
+            <td>
+              <a href="#" pop-href="{% url 'ppt:dma_review_delete' review.id %}" class="btn"><span class="mdi mdi-delete lead"></span></a>
+            </td>
           </tr>
         {% endfor %}
         </tbody>
