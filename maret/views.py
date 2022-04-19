@@ -831,7 +831,7 @@ class MemberCreateView(AuthorRequiredMixin, CommonPopoutCreateView):
             return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.organization.pk, ]))
 
         obj.save()
-        return HttpResponseRedirect(reverse("ihub:member_edit", args=[obj.id]))
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class MemberUpdateView(AuthorRequiredMixin, CommonPopoutUpdateView):

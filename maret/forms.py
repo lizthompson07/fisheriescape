@@ -135,6 +135,12 @@ class MemberForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['person'].required = False
 
+    def clean(self):
+        cleaned_data = super(MemberForm, self).clean()
+        if not cleaned_data["person"]:
+            self.add_error("person", _("Person is required."))
+        return cleaned_data
+
 
 class PersonForm(forms.ModelForm):
     role = forms.CharField(required=True, label=_("Role"))
@@ -144,6 +150,8 @@ class PersonForm(forms.ModelForm):
         model = ml_models.Person
         exclude = ["date_last_modified", "old_id", 'last_modified_by', 'connected_user']
         widgets = {
+            'committee': forms.Select(attrs=chosen_js),
+            'organizations': forms.Select(attrs=chosen_js),
             'notes': forms.Textarea(attrs={"rows": "3"}),
         }
 
