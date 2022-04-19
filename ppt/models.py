@@ -1258,7 +1258,7 @@ class DMA(MetadataFields):
                                           help_text=_("What justification can be provided for the above selection?"))
 
     # Archiving / Storage
-    storage_solutions = models.ManyToManyField(StorageSolution,  blank=True, verbose_name=_(
+    storage_solutions = models.ManyToManyField(StorageSolution, blank=True, verbose_name=_(
         "Which storage solution(s) will be used to house the raw field data, processed data, and all other data products?"))
     storage_solution_text = models.TextField(blank=True, null=True, verbose_name=_("Justification for selection of storage solution(s)"),
                                              help_text=_("Provide your rational for the selection(s) made above."))
@@ -1270,9 +1270,9 @@ class DMA(MetadataFields):
                                       help_text=_("Please refer to the DFO EOS Retention Policy for clarification."))
     backup_plan = models.TextField(blank=True, null=True, verbose_name=_("What procedures will be taken to back-up/secure the data?"))
     cloud_costs = models.TextField(blank=True, null=True,
-                                      verbose_name=_("If using cloud storage, what is the estimated annual cost and who will be covering the cost? "),
-                                      help_text=_(
-                                          "e.g., cloud storage is estimated at $1000/yr and will be paid for under the the division manager's budget"))
+                                   verbose_name=_("If using cloud storage, what is the estimated annual cost and who will be covering the cost? "),
+                                   help_text=_(
+                                       "e.g., cloud storage is estimated at $1000/yr and will be paid for under the the division manager's budget"))
 
     # Sharing
     had_sharing_agreements = models.BooleanField(default=False, verbose_name=_("Is the dataset subject to a data sharing agreement, MOU, etc.?"),
@@ -1327,7 +1327,7 @@ class DMAReview(MetadataFields):
     comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["fiscal_year", '-created_at']
         unique_together = [
             ('dma', 'fiscal_year'),  # there should only be a single review per year on a given DMA
         ]
