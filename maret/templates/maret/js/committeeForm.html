@@ -1,0 +1,14 @@
+<script type="application/javascript">
+    function toggleLocationOfTor(){
+        if ($('#id_are_tor').is(':checked')) {
+            $('#location_of_tor_div').show();
+        } else {
+            $('#location_of_tor_div').hide();
+        }
+    }
+    $('#location_of_tor_div').hide();
+    $("#id_are_tor").change(toggleLocationOfTor)
+
+
+
+</script>
