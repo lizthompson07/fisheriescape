@@ -426,6 +426,7 @@ class CommitteeListView(UserRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'name', "class": "", "width": ""},
         {"name": 'branch', "class": "", "width": ""},
+        {"name": 'area_office', "class": "", "width": ""},
         {"name": 'main_topic', "class": "", "width": ""},
         {"name": 'species', "class": "", "width": ""},
     ]
@@ -455,7 +456,7 @@ class CommitteeCreateView(UserRequiredMixin, CommonCreateViewHelp):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['scripts'] = ['maret/js/divisionFilter.html']
+        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/committeeForm.html']
         return context
 
 
@@ -479,6 +480,7 @@ class CommitteeDetailView(UserRequiredMixin, CommonDetailView):
             'meeting_frequency',
             'are_tor',
             'location_of_tor',
+            'area_office',
             'main_actions',
             'comments',
         ]
@@ -516,7 +518,7 @@ class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['scripts'] = ['maret/js/divisionFilter.html']
+        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/committeeForm.html']
         return context
 
 
@@ -829,7 +831,7 @@ class MemberCreateView(AuthorRequiredMixin, CommonPopoutCreateView):
             return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.organization.pk, ]))
 
         obj.save()
-        return HttpResponseRedirect(reverse("ihub:member_edit", args=[obj.id]))
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class MemberUpdateView(AuthorRequiredMixin, CommonPopoutUpdateView):

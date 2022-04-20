@@ -69,7 +69,7 @@ class CommitteeFilter(django_filters.FilterSet):
     class Meta:
 
         model = models.Committee
-        fields = ['search_term', 'external_organization', 'external_contact', 'branch', 'division',
+        fields = ['search_term', 'external_organization', 'external_contact', 'branch', 'area_office', 'division',
                   'provincial_participation', 'first_nation_participation']
 
     def __init__(self, *args, **kwargs):
