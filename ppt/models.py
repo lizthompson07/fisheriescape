@@ -1241,7 +1241,7 @@ class DMA(MetadataFields):
 
     # Identification
     title = models.CharField(max_length=1000, verbose_name=_("Title"), help_text=_("What is the title of the Data Management Agreement?"))
-    data_contact = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("Who will be the principal steward of this data?"),
+    data_contact = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("Who is the principal steward of this data?"),
                                     help_text=_("i.e., who is the primary responsible party?"))
 
     # Metadata
