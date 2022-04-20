@@ -294,7 +294,8 @@ class Project(models.Model):
 
     @property
     def region(self):
-        return self.division.branch.region
+        if self.section:
+            return self.division.branch.sector.region
 
     @property
     def division(self):

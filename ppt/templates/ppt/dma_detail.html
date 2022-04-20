@@ -12,6 +12,7 @@
   <div class="btns mb-3">
     <a class="btn btn-sm btn-warning" href="{% url 'ppt:dma_edit' object.id %}">{% trans "Edit" %}</a>
     <a class="btn btn-sm btn-danger " href="{% url 'ppt:dma_delete' object.id %}">{% trans "Delete" %}</a>
+    <a class="btn btn-sm btn-dark" href="{% url 'ppt:dma_clone' object.id %}">{% trans "Clone" %}</a>
   </div>
   <div class="mb-5">
     <table class="table table-sm">

@@ -951,6 +951,23 @@ class DMAForm(forms.ModelForm):
         }
 
 
+class DMACloneForm(forms.ModelForm):
+    class Meta:
+        model = models.DMA
+        fields = ["project"]
+        labels = {
+            'project': _("Clone to which project #?"),
+        }
+        widgets = {
+            'project': forms.Select(attrs=chosen_js)
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        project_choices = [(p.id, f"{p.id} - {p.title} ({p.region})") for p in models.Project.objects.all()]
+        self.fields["project"].choices = project_choices
+
+
 class DMAReviewForm(forms.ModelForm):
     class Meta:
         model = models.DMAReview

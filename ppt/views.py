@@ -1265,6 +1265,30 @@ class DMAUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
+class DMACloneView(DMAUpdateView):
+    template_name = 'ppt/form.html'
+    form_class = forms.DMACloneForm
+
+    def get_h1(self):
+        return _("Cloning: ") + str(self.get_object())
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = get_object_or_404(models.DMA, pk=new_obj.pk)
+        new_obj.pk = None
+        new_obj.title = f"Data management agreement for {new_obj.project.title}"
+
+        new_obj.save()
+
+        # Now we need to replicate all the related records:
+        for item in old_obj.storage_solutions.all():
+            new_obj.storage_solutions.add(item)
+
+
+
+        return HttpResponseRedirect(reverse_lazy("ppt:dma_edit", args=[new_obj.id]))
+
+
 # DMA Reviews #
 ###############
 
@@ -1527,7 +1551,6 @@ def export_project_list(request):
     return response
 
 
-
 @login_required()
 def export_py_list(request):
     qs = get_project_year_queryset(request)
@@ -1538,7 +1561,6 @@ def export_py_list(request):
         file_url = reports.generate_py(qs, site_url, "long")
     else:
         file_url = reports.generate_py(qs, site_url, "basic")
-
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
