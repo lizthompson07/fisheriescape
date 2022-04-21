@@ -938,6 +938,7 @@ def verify(resource):
         '?purpose_',
         '?geo_descr_',
         '?security_use_limitation_',
+        '?resource_constraint_',
 
         # must check for fk and attribute
         '.resource_type.code',  # both fk and code attr
@@ -977,7 +978,6 @@ def verify(resource):
         '$physical_sample_descr_',  # Physical Sample Description
         '$parameters_collected_',  # Parameters Collected
         '$sampling_method_',  # sampling method
-        '$resource_constraint_',  # resource constraint
     ]
 
     # this is where we will store the feedback
