@@ -6,13 +6,13 @@ from copy import deepcopy
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
@@ -33,7 +33,7 @@ from . import xml_export
 from .mixins import SuperuserOrAdminRequiredMixin, CustodianRequiredMixin, AdminRequiredMixin, InventoryBasicMixin
 from .utils import is_custodian_or_admin
 
-
+# USER PERMISSIONS
 class InventoryUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
     template_name = 'inventory/formset.html'
     h1 = "Manage Data Inventory Users"
@@ -50,12 +50,12 @@ class InventoryUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDelet
     success_url = reverse_lazy("inventory:manage_inventory_users")
 
 
-# RESOURCE #
-############
+# INDEX ETC
 
 class Index(InventoryBasicMixin, CommonTemplateView):
     template_name = 'inventory/index.html'
     h1 = gettext_lazy("DFO Science Data Inventory")
+    active_page_name_crumb = gettext_lazy("Home")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -71,9 +71,11 @@ class Index(InventoryBasicMixin, CommonTemplateView):
 
         return context
 
+
 class OpenDataDashboardTemplateView(InventoryBasicMixin, CommonTemplateView):
     template_name = 'inventory/open_data_dashboard.html'
-    h1= gettext_lazy("Open Data Dashboard")
+    h1 = gettext_lazy("Open Data Dashboard")
+    home_url_name = "inventory:index"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -131,6 +133,10 @@ class OpenDataDashboardTemplateView(InventoryBasicMixin, CommonTemplateView):
         # context["words"] = listrify([kw for kw in od_keywords])
 
         return context
+
+
+# RESOURCE #
+############
 
 
 class ResourceListView(FilterView):
@@ -1329,7 +1335,6 @@ class CustodianPersonUpdateView(AdminRequiredMixin, FormView):
         person = models.Person.objects.get(user_id=self.kwargs['person'])
         context['person'] = person
         return context
-
 
 
 # RESOURCE CERTIFICATION #
