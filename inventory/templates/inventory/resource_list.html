@@ -1,19 +1,46 @@
 {% extends "inventory/list.html" %}
-
 {% load humanize %}
 {% load static %}
 {% load custom_filters %}
+
 {% load verbose_names %}
+
+{% block pre_table %}
+  {% if personal %}
+    <p class="lead"><a class="btn btn-warning" href="{% url 'inventory:person_edit' user.id %}">Edit your personal details</a></p>
+  {% endif %}
+{% endblock %}
 
 {% block table_td %}
   {% if field.name == "region" %}
     {{ object.section.division.branch.region }}
   {% elif "certified" in field.name %}
+
     {% if object.certification_history.count > 0 %}
-      {{ object.certification_history.first.certification_date|naturaltime }}
+      <span class=" p-1
+      {% if now|timedelta:object.certification_history.first.certification_date < 90 %}
+       good
+      {% elif now|timedelta:object.certification_history.first.certification_date < 180 %}
+        mild-concern
+      {% elif now|timedelta:object.certification_history.first.certification_date < 270 %}
+        concern
+      {% else %}
+        bad
+      {% endif %}
+      ">    {{ object.certification_history.first.certification_date|naturaltime }}    </span>
     {% else %}
       <span class="red-font"><b>Never</b></span>
     {% endif %}
+
+
+
+
+
+    {#    {% if object.certification_history.count > 0 %}#}
+    {#      {{ object.certification_history.first.certification_date|naturaltime }}#}
+    {#    {% else %}#}
+    {#      <span class="red-font"><b>Never</b></span>#}
+    {#    {% endif %}#}
   {% elif "completeness" in field.name %}
     {{ object.completedness_rating|percentage:0 }}
   {% elif "title" in field.name %}
@@ -26,12 +53,12 @@
           <img src="{% static 'img/icons/fgp.png' %}" alt="" width="20px">
         </a>
       {% endif %}
-      {% if object.public_url %}
-        <a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip"
-           title="Open URL in the Open Government Portal">
+        {% if object.public_url %}
+          <a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip"
+             title="Open URL in the Open Government Portal">
           <img src="{% static 'img/icons/canada.png' %}" alt="" width="20px">
         </a>
-      {% endif %}
+        {% endif %}
       </span>
     {% endif %}
 
@@ -40,4 +67,5 @@
 
   {% endif %}
 {% endblock %}
+
 

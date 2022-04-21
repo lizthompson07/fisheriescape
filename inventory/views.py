@@ -6,7 +6,6 @@ from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
@@ -22,7 +21,7 @@ from easy_pdf.views import PDFTemplateView
 from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
-from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView
+from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView, CommonListView
 from . import emails
 from . import filters
 from . import forms
@@ -139,7 +138,7 @@ class OpenDataDashboardTemplateView(InventoryBasicMixin, CommonTemplateView):
 ############
 
 
-class ResourceListView(CommonFilterView):
+class ResourceListView(InventoryBasicMixin, CommonFilterView):
     filterset_class = filters.ResourceFilter
     template_name = 'inventory/resource_list.html'
     queryset = models.Resource.objects.order_by("-status", "title_eng").annotate(
@@ -151,6 +150,8 @@ class ResourceListView(CommonFilterView):
                            output_field=TextField()))
     home_url_name = "inventory:index"
     container_class = "container-fluid"
+    row_object_url_name = "inventory:resource_detail"
+    new_object_url = "inventory:resource_new"
     paginate_by = 25
     field_list = [
         {"name": 'region', "class": "", "width": ""},
@@ -162,13 +163,25 @@ class ResourceListView(CommonFilterView):
         {"name": 'completeness rating', "class": "", "width": ""},
         {"name": 'translation_needed', "class": "", "width": ""},
     ]
-    row_object_url_name = "inventory:resource_detail"
 
 
-class MyResourceListView(InventoryLoginRequiredMixin, ListView):
+class MyResourceListView(InventoryLoginRequiredMixin, CommonListView):
     model = models.Resource
-
-    template_name = 'inventory/my_resource_list.html'
+    template_name = 'inventory/resource_list.html'
+    home_url_name = "inventory:index"
+    container_class = "container-fluid"
+    row_object_url_name = "inventory:resource_detail"
+    new_object_url = "inventory:resource_new"
+    field_list = [
+        {"name": 't_title|Title', "class": ""},
+        {"name": 'status', "class": ""},
+        {"name": 'date_last_modified', "class": ""},
+        {"name": 'last_modified_by', "class": ""},
+        {"name": 'roles|Role(s)', "class": ""},
+        {"name": 'Previous time certified', "class": ""},
+        {"name": 'Completeness rating', "class": ""},
+        {"name": 'open_data|Published to Open Data', "class": ""},
+    ]
 
     def get_queryset(self):
         qs = models.Resource.objects.filter(resource_people__person_id=self.request.user.id).distinct().order_by("-date_last_modified")
@@ -176,25 +189,8 @@ class MyResourceListView(InventoryLoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        context['field_list'] = [
-            "t_title|Title",
-            "status",
-            "date_last_modified",
-            "last_modified_by",
-            # "section",
-            "roles|Role(s)",
-            "last_certification|Previous time certified",
-            "completedness_rating|Completeness rating",
-            "open_data|Published to Open Data",
-            "external_links|External links",
-        ]
-
-        context['now'] = timezone.now()
-        context['random_object'] = models.Resource.objects.first()
-
+        context["personal"] = True
         return context
-
 
 class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
     model = models.Resource
@@ -232,7 +228,7 @@ class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
         return context
 
 
-class ResourceDetailPDFView(PDFTemplateView):
+class ResourceDetailPDFView(InventoryBasicMixin, PDFTemplateView):
     def get_pdf_filename(self):
         my_object = models.Resource.objects.get(pk=self.kwargs.get("pk"))
         return f"{my_object.uuid}.pdf"
@@ -274,7 +270,7 @@ class ResourceDetailPDFView(PDFTemplateView):
         return context
 
 
-class ResourceFullDetailView(UpdateView):
+class ResourceFullDetailView(InventoryBasicMixin, UpdateView):
     model = models.Resource
     form_class = forms.ResourceForm
 
@@ -383,7 +379,7 @@ class ResourceCloneUpdateView(ResourceUpdateView):
         return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", args=[new_obj.id]))
 
 
-class ResourceCreateView(LoginRequiredMixin, CreateView):
+class ResourceCreateView(InventoryLoginRequiredMixin, CreateView):
     model = models.Resource
     form_class = forms.ResourceCreateForm
 
@@ -425,7 +421,7 @@ class ResourceDeleteView(CanModifyRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class ResourceDeleteFlagUpdateView(LoginRequiredMixin, UpdateView):
+class ResourceDeleteFlagUpdateView(InventoryLoginRequiredMixin, UpdateView):
     model = models.Resource
 
     template_name = "inventory/resource_flag_deletion.html"
@@ -460,7 +456,7 @@ class ResourceDeleteFlagUpdateView(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={"pk": self.kwargs["pk"]}))
 
 
-class ResourcePublicationFlagUpdateView(LoginRequiredMixin, UpdateView):
+class ResourcePublicationFlagUpdateView(InventoryLoginRequiredMixin, UpdateView):
     model = models.Resource
 
     template_name = "inventory/resource_flag_publication.html"
@@ -628,7 +624,7 @@ class ResourcePersonDeleteView(CanModifyRequiredMixin, DeleteView):
 ##########
 
 # this is a complicated cookie. Therefore we will not use a model view or model form and handle the clean data manually.
-class PersonCreateView(LoginRequiredMixin, FormView):
+class PersonCreateView(InventoryLoginRequiredMixin, FormView):
     template_name = 'inventory/person_form.html'
     form_class = forms.PersonCreateForm
 
@@ -690,7 +686,7 @@ class PersonCreateView(LoginRequiredMixin, FormView):
         return context
 
 
-class PersonCreateViewPopout(LoginRequiredMixin, FormView):
+class PersonCreateViewPopout(InventoryLoginRequiredMixin, FormView):
     template_name = 'inventory/person_form_popout.html'
     form_class = forms.PersonCreateForm
 
@@ -747,7 +743,7 @@ class PersonCreateViewPopout(LoginRequiredMixin, FormView):
         return context
 
 
-class PersonUpdateView(LoginRequiredMixin, FormView):
+class PersonUpdateView(InventoryLoginRequiredMixin, FormView):
     template_name = 'inventory/person_form.html'
     form_class = forms.PersonForm
 
@@ -870,7 +866,7 @@ class ResourceKeywordFilterView(CanModifyRequiredMixin, FilterView):
         return context
 
 
-class ResourceTopicCategoryFilterView(FilterView):
+class ResourceTopicCategoryFilterView(InventoryBasicMixin, FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
     queryset = models.Keyword.objects.annotate(
@@ -886,7 +882,7 @@ class ResourceTopicCategoryFilterView(FilterView):
         return context
 
 
-class ResourceCoreSubjectFilterView(FilterView):
+class ResourceCoreSubjectFilterView(InventoryBasicMixin, FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
     queryset = models.Keyword.objects.annotate(
@@ -902,7 +898,7 @@ class ResourceCoreSubjectFilterView(FilterView):
         return context
 
 
-class ResourceSpeciesFilterView(FilterView):
+class ResourceSpeciesFilterView(InventoryBasicMixin, FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
     queryset = models.Keyword.objects.annotate(
@@ -918,7 +914,7 @@ class ResourceSpeciesFilterView(FilterView):
         return context
 
 
-class ResourceLocationFilterView(FilterView):
+class ResourceLocationFilterView(InventoryBasicMixin, FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
     queryset = models.Keyword.objects.annotate(
@@ -971,7 +967,7 @@ def resource_keyword_delete(request, resource, keyword):
 # KEYWORD #
 ###########
 
-class KeywordDetailView(DetailView):
+class KeywordDetailView(InventoryBasicMixin, DetailView):
     model = models.Keyword
 
     def get_context_data(self, **kwargs):
@@ -981,7 +977,7 @@ class KeywordDetailView(DetailView):
         return context
 
 
-class KeywordUpdateView(LoginRequiredMixin, UpdateView):
+class KeywordUpdateView(InventoryLoginRequiredMixin, UpdateView):
     model = models.Keyword
     form_class = forms.KeywordForm
 
@@ -998,7 +994,7 @@ class KeywordUpdateView(LoginRequiredMixin, UpdateView):
         })
 
 
-class KeywordCreateView(LoginRequiredMixin, CreateView):
+class KeywordCreateView(InventoryLoginRequiredMixin, CreateView):
     model = models.Keyword
     form_class = forms.KeywordForm
 
@@ -1066,7 +1062,7 @@ def resource_citation_delete(request, resource, citation):
 # CITATION #
 ############
 
-class CitationDetailView(DetailView):
+class CitationDetailView(InventoryBasicMixin, DetailView):
     model = shared_models.Citation
     template_name = 'inventory/citation_detail.html'
 
@@ -1077,7 +1073,7 @@ class CitationDetailView(DetailView):
         return context
 
 
-class CitationUpdateView(LoginRequiredMixin, UpdateView):
+class CitationUpdateView(InventoryLoginRequiredMixin, UpdateView):
     model = shared_models.Citation
     form_class = forms.CitationForm
     template_name = 'inventory/citation_form.html'
@@ -1095,7 +1091,7 @@ class CitationUpdateView(LoginRequiredMixin, UpdateView):
         })
 
 
-class CitationCreateView(LoginRequiredMixin, CreateView):
+class CitationCreateView(InventoryLoginRequiredMixin, CreateView):
     model = shared_models.Citation
     form_class = forms.CitationForm
     template_name = 'inventory/citation_form.html'
@@ -1124,7 +1120,7 @@ def citation_delete(request, resource, citation):
 # PUBLICATION #
 ###############
 
-class PublicationCreateView(LoginRequiredMixin, CreateView):
+class PublicationCreateView(InventoryLoginRequiredMixin, CreateView):
     model = shared_models.Publication
     fields = "__all__"
 
@@ -1391,7 +1387,7 @@ class FileCreateView(CanModifyRequiredMixin, CreateView):
         return {'resource': resource}
 
 
-class FileDetailView(LoginRequiredMixin, UpdateView):
+class FileDetailView(InventoryLoginRequiredMixin, UpdateView):
     template_name = "inventory/file_form.html"
     model = models.File
     form_class = forms.FileForm

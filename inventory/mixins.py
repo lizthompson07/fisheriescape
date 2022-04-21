@@ -2,8 +2,10 @@ from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
+from . import models
 from .utils import is_nat_admin, is_regional_admin, is_admin, can_modify
 
 
@@ -23,6 +25,7 @@ class InventoryBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
         context["is_regional_admin"] = is_regional_admin(self.request.user)
         context["is_admin"] = is_admin(self.request.user)
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
+        context['now'] = timezone.now()
 
         return context
 
@@ -55,8 +58,18 @@ class SuperuserOrAdminRequiredMixin(InventoryBasicMixin):
 class CanModifyRequiredMixin(InventoryBasicMixin):
 
     def test_func(self):
-        resource_id = self.kwargs.get("resource") if self.kwargs.get("resource") else self.kwargs.get("pk")
-        return can_modify(self.request.user, resource_id)
+        resource_id = None
+        if self.kwargs.get("resource"):
+            resource_id = self.kwargs.get("resource")
+        else:
+            obj = self.get_object()
+            if obj._meta.model == models.Resource:
+                resource_id = obj.id
+            elif hasattr(obj, "resource"):
+                resource_id = obj.resource_id
+
+        if resource_id:
+            return can_modify(self.request.user, resource_id)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
