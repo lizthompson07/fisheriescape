@@ -4,7 +4,6 @@ import os
 from collections import OrderedDict
 from copy import deepcopy
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -23,15 +22,16 @@ from easy_pdf.views import PDFTemplateView
 from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
-from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView
+from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView
 from . import emails
 from . import filters
 from . import forms
 from . import models
 from . import reports
 from . import xml_export
-from .mixins import SuperuserOrAdminRequiredMixin, CustodianRequiredMixin, AdminRequiredMixin, InventoryBasicMixin
-from .utils import is_custodian_or_admin
+from .mixins import SuperuserOrAdminRequiredMixin, CanModifyRequiredMixin, AdminRequiredMixin, InventoryBasicMixin, InventoryLoginRequiredMixin
+from .utils import can_modify
+
 
 # USER PERMISSIONS
 class InventoryUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
@@ -139,25 +139,33 @@ class OpenDataDashboardTemplateView(InventoryBasicMixin, CommonTemplateView):
 ############
 
 
-class ResourceListView(FilterView):
+class ResourceListView(CommonFilterView):
     filterset_class = filters.ResourceFilter
-
     template_name = 'inventory/resource_list.html'
-    # queryset = models.Resource.objects.all().order_by("-status", "title_eng")
     queryset = models.Resource.objects.order_by("-status", "title_eng").annotate(
-        search_term=Concat('title_eng',
-                           Value(" "),
-                           'descr_eng',
-                           Value(" "),
-                           'purpose_eng',
-                           Value(" "),
-                           'uuid',
-                           Value(" "),
+        search_term=Concat('title_eng', Value(" "),
+                           'descr_eng', Value(" "),
+                           'purpose_eng', Value(" "),
+                           'uuid', Value(" "),
                            'odi_id',
                            output_field=TextField()))
+    home_url_name = "inventory:index"
+    container_class = "container-fluid"
+    paginate_by = 25
+    field_list = [
+        {"name": 'region', "class": "", "width": ""},
+        {"name": 't_title|{}'.format(gettext_lazy("title")), "class": "w-30", "width": ""},
+        {"name": 'resource_type', "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
+        {"name": 'section', "class": "w-15", "width": ""},
+        {"name": 'Previous time certified', "class": "", "width": ""},
+        {"name": 'completeness rating', "class": "", "width": ""},
+        {"name": 'translation_needed', "class": "", "width": ""},
+    ]
+    row_object_url_name = "inventory:resource_detail"
 
 
-class MyResourceListView(LoginRequiredMixin, ListView):
+class MyResourceListView(InventoryLoginRequiredMixin, ListView):
     model = models.Resource
 
     template_name = 'inventory/my_resource_list.html'
@@ -188,7 +196,7 @@ class MyResourceListView(LoginRequiredMixin, ListView):
         return context
 
 
-class ResourceDetailView(DetailView):
+class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
     model = models.Resource
 
     def get_object(self, queryset=None):
@@ -213,19 +221,14 @@ class ResourceDetailView(DetailView):
         context['kcount_tax'] = self.object.keywords.filter(is_taxonomic__exact=True).count()
         context['kcount_loc'] = self.object.keywords.filter(keyword_domain_id__exact=7).count()
         context['custodian_count'] = self.object.resource_people.filter(role=1).count()
+
         if self.object.completedness_rating == 1:
             context['verified'] = True
         else:
             context['verified'] = False
 
         my_resource = self.get_object()
-        user_roles = my_resource.resource_people.filter(person_id=self.request.user.id, role_id__in=[1, 2, 8, 19, 13, 10])
-
-        if user_roles.count() > 0:
-            messages.info(self.request, "As {}, you have the necessary permissions to modify this record.".format(user_roles.first().role))
-        elif in_inventory_dm_group(self.request.user):
-            messages.info(self.request, _("As an application administrator, you have the necessary permissions to modify this record."))
-        context["google_api_key"] = settings.GOOGLE_API_KEY
+        context['can_modify'] = can_modify(self.request.user, my_resource.id)
         return context
 
 
@@ -281,7 +284,7 @@ class ResourceFullDetailView(UpdateView):
         return context
 
 
-class ResourceUpdateView(CustodianRequiredMixin, UpdateView):
+class ResourceUpdateView(CanModifyRequiredMixin, UpdateView):
     model = models.Resource
     form_class = forms.ResourceForm
 
@@ -412,7 +415,7 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
-class ResourceDeleteView(CustodianRequiredMixin, DeleteView):
+class ResourceDeleteView(CanModifyRequiredMixin, DeleteView):
     model = models.Resource
     success_url = reverse_lazy('inventory:resource_list')
     success_message = 'The data resource was successfully deleted!'
@@ -494,7 +497,7 @@ class ResourcePublicationFlagUpdateView(LoginRequiredMixin, UpdateView):
 # RESOURCE PERSON #
 ###################
 
-class ResourcePersonFilterView(CustodianRequiredMixin, FilterView):
+class ResourcePersonFilterView(CanModifyRequiredMixin, FilterView):
     filterset_class = filters.PersonFilter
     template_name = "inventory/resource_person_filter.html"
 
@@ -508,9 +511,6 @@ class ResourcePersonFilterView(CustodianRequiredMixin, FilterView):
             output_field=TextField()
         ))
 
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         resource = self.kwargs['resource']
@@ -520,13 +520,10 @@ class ResourcePersonFilterView(CustodianRequiredMixin, FilterView):
         return context
 
 
-class ResourcePersonCreateView(CustodianRequiredMixin, CreateView):
+class ResourcePersonCreateView(CanModifyRequiredMixin, CreateView):
     model = models.ResourcePerson
     template_name = 'inventory/resource_person_form.html'
     form_class = forms.ResourcePersonForm
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def get_initial(self):
         resource = models.Resource.objects.get(pk=self.kwargs['resource'])
@@ -567,13 +564,10 @@ class ResourcePersonCreateView(CustodianRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ResourcePersonUpdateView(CustodianRequiredMixin, UpdateView):
+class ResourcePersonUpdateView(CanModifyRequiredMixin, UpdateView):
     model = models.ResourcePerson
     template_name = 'inventory/resource_person_form.html'
     form_class = forms.ResourcePersonForm
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.get_object().resource.id)
 
     def form_valid(self, form):
         object = form.save()
@@ -597,14 +591,11 @@ class ResourcePersonUpdateView(CustodianRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class ResourcePersonDeleteView(CustodianRequiredMixin, DeleteView):
+class ResourcePersonDeleteView(CanModifyRequiredMixin, DeleteView):
     model = models.ResourcePerson
     template_name = 'inventory/resource_person_confirm_delete.html'
     success_url = reverse_lazy('inventory:resource_person')
     success_message = 'The person has been removed from the data resource!'
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.get_object().resource.id)
 
     def delete(self, request, *args, **kwargs):
         object = models.ResourcePerson.objects.get(pk=self.kwargs["pk"])
@@ -841,18 +832,10 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
 ####################
 
 
-class ResourceKeywordUpdateView(CustodianRequiredMixin, UpdateView):
+class ResourceKeywordUpdateView(CanModifyRequiredMixin, UpdateView):
     model = models.Resource
     template_name = "inventory/resource_keyword_form.html"
     form_class = forms.ResourceKeywordForm
-
-    # queryset = models.Keyword.objects.annotate(
-    #     search_term=Concat('text_value_eng', Value(' '), 'details', output_field=TextField())).filter(
-    #     ~Q(keyword_domain_id=8) & ~Q(keyword_domain_id=6) & ~Q(keyword_domain_id=7) & Q(is_taxonomic=False)).order_by(
-    #     'text_value_eng')
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["pk"])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -870,16 +853,13 @@ class ResourceKeywordUpdateView(CustodianRequiredMixin, UpdateView):
         return context
 
 
-class ResourceKeywordFilterView(CustodianRequiredMixin, FilterView):
+class ResourceKeywordFilterView(CanModifyRequiredMixin, FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
     queryset = models.Keyword.objects.annotate(
         search_term=Concat('text_value_eng', Value(' '), 'details', output_field=TextField())).filter(
         ~Q(keyword_domain_id=8) & ~Q(keyword_domain_id=6) & ~Q(keyword_domain_id=7) & Q(is_taxonomic=False)).order_by(
         'text_value_eng')
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1045,7 +1025,7 @@ def keyword_delete(request, resource, keyword):
 # RESOURCE CITATION #
 ####################
 
-class ResourceCitationFilterView(FilterView):
+class ResourceCitationFilterView(CanModifyRequiredMixin, CommonFilterView):
     filterset_class = filters.CitationFilter
     template_name = "inventory/resource_citation_filter.html"
     queryset = shared_models.Citation.objects.annotate(
@@ -1341,7 +1321,7 @@ class CustodianPersonUpdateView(AdminRequiredMixin, FormView):
 ##########################
 
 
-class ResourceCertificationCreateView(CustodianRequiredMixin, CreateView):
+class ResourceCertificationCreateView(CanModifyRequiredMixin, CreateView):
     model = models.ResourceCertification
     template_name = 'inventory/resource_certification_form.html'
     form_class = forms.ResourceCertificationForm
@@ -1371,7 +1351,7 @@ class ResourceCertificationCreateView(CustodianRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ResourceCertificationDeleteView(CustodianRequiredMixin, DeleteView):
+class ResourceCertificationDeleteView(CanModifyRequiredMixin, DeleteView):
     model = models.ResourceCertification
     template_name = 'inventory/resource_certification_confirm_delete.html'
     success_message = "The certification event has been removed."
@@ -1389,13 +1369,10 @@ class ResourceCertificationDeleteView(CustodianRequiredMixin, DeleteView):
 # FILES #
 #########
 
-class FileCreateView(CustodianRequiredMixin, CreateView):
+class FileCreateView(CanModifyRequiredMixin, CreateView):
     template_name = "inventory/file_form.html"
     model = models.File
     form_class = forms.FileForm
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def form_valid(self, form):
         object = form.save()
@@ -1426,14 +1403,10 @@ class FileDetailView(LoginRequiredMixin, UpdateView):
         return context
 
 
-class FileUpdateView(CustodianRequiredMixin, UpdateView):
+class FileUpdateView(CanModifyRequiredMixin, UpdateView):
     template_name = "inventory/file_form.html"
     model = models.File
     form_class = forms.FileForm
-
-    def test_func(self):
-        my_object = models.File.objects.get(pk=self.kwargs["pk"])
-        return is_custodian_or_admin(self.request.user, my_object.resource_id)
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
@@ -1445,13 +1418,9 @@ class FileUpdateView(CustodianRequiredMixin, UpdateView):
         return context
 
 
-class FileDeleteView(CustodianRequiredMixin, DeleteView):
+class FileDeleteView(CanModifyRequiredMixin, DeleteView):
     template_name = "inventory/file_confirm_delete.html"
     model = models.File
-
-    def test_func(self):
-        my_object = models.File.objects.get(pk=self.kwargs["pk"])
-        return is_custodian_or_admin(self.request.user, my_object.resource_id)
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
@@ -1460,13 +1429,10 @@ class FileDeleteView(CustodianRequiredMixin, DeleteView):
 # DATA RESOURCE #
 #################
 
-class DataResourceCreateView(CustodianRequiredMixin, CreateView):
+class DataResourceCreateView(CanModifyRequiredMixin, CreateView):
     template_name = "inventory/data_resource_form.html"
     model = models.DataResource
     form_class = forms.DataResourceForm
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def form_valid(self, form):
         object = form.save()
@@ -1484,14 +1450,10 @@ class DataResourceCreateView(CustodianRequiredMixin, CreateView):
         return {'resource': resource}
 
 
-class DataResourceUpdateView(CustodianRequiredMixin, UpdateView):
+class DataResourceUpdateView(CanModifyRequiredMixin, UpdateView):
     template_name = "inventory/data_resource_form.html"
     model = models.DataResource
     form_class = forms.DataResourceForm
-
-    def test_func(self):
-        my_object = models.DataResource.objects.get(pk=self.kwargs["pk"])
-        return is_custodian_or_admin(self.request.user, my_object.resource_id)
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
@@ -1502,13 +1464,9 @@ class DataResourceUpdateView(CustodianRequiredMixin, UpdateView):
         return context
 
 
-class DataResourceDeleteView(CustodianRequiredMixin, DeleteView):
+class DataResourceDeleteView(CanModifyRequiredMixin, DeleteView):
     template_name = "inventory/data_resource_confirm_delete.html"
     model = models.DataResource
-
-    def test_func(self):
-        my_object = models.DataResource.objects.get(pk=self.kwargs["pk"])
-        return is_custodian_or_admin(self.request.user, my_object.resource_id)
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
@@ -1517,7 +1475,7 @@ class DataResourceDeleteView(CustodianRequiredMixin, DeleteView):
 @login_required(login_url='/accounts/login/')
 def data_resource_clone(request, pk):
     my_object = models.DataResource.objects.get(pk=pk)
-    if is_custodian_or_admin(request.user, my_object.resource.id):
+    if can_modify(request.user, my_object.resource.id):
         my_object.id = None
         my_object.save()
     else:
@@ -1528,13 +1486,10 @@ def data_resource_clone(request, pk):
 # WEB SERVICES #
 ################
 
-class WebServiceCreateView(CustodianRequiredMixin, CreateView):
+class WebServiceCreateView(CanModifyRequiredMixin, CreateView):
     template_name = "inventory/data_resource_form.html"
     model = models.WebService
     form_class = forms.WebServiceForm
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def form_valid(self, form):
         object = form.save()
@@ -1552,14 +1507,10 @@ class WebServiceCreateView(CustodianRequiredMixin, CreateView):
         return {'resource': resource}
 
 
-class WebServiceUpdateView(CustodianRequiredMixin, UpdateView):
+class WebServiceUpdateView(CanModifyRequiredMixin, UpdateView):
     template_name = "inventory/data_resource_form.html"
     model = models.WebService
     form_class = forms.WebServiceForm
-
-    def test_func(self):
-        my_object = models.WebService.objects.get(pk=self.kwargs["pk"])
-        return is_custodian_or_admin(self.request.user, my_object.resource_id)
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
@@ -1570,13 +1521,9 @@ class WebServiceUpdateView(CustodianRequiredMixin, UpdateView):
         return context
 
 
-class WebServiceDeleteView(CustodianRequiredMixin, DeleteView):
+class WebServiceDeleteView(CanModifyRequiredMixin, DeleteView):
     template_name = "inventory/data_resource_confirm_delete.html"
     model = models.WebService
-
-    def test_func(self):
-        my_object = models.WebService.objects.get(pk=self.kwargs["pk"])
-        return is_custodian_or_admin(self.request.user, my_object.resource_id)
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
@@ -1585,7 +1532,7 @@ class WebServiceDeleteView(CustodianRequiredMixin, DeleteView):
 @login_required(login_url='/accounts/login/')
 def web_service_clone(request, pk):
     my_object = models.WebService.objects.get(pk=pk)
-    if is_custodian_or_admin(request.user, my_object.resource.id):
+    if can_modify(request.user, my_object.resource.id):
         my_object.id = None
         my_object.save()
     else:
