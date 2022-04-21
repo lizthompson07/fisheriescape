@@ -473,3 +473,19 @@ TempFormSet = modelformset_factory(
     form=TempForm,
     extra=0,
 )
+
+
+class InventoryUserForm(forms.ModelForm):
+    class Meta:
+        model = models.InventoryUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+InventoryUserFormset = modelformset_factory(
+    model=models.InventoryUser,
+    form=InventoryUserForm,
+    extra=1,
+)

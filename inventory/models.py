@@ -15,14 +15,23 @@ from dm_apps import custom_widgets
 from lib.functions.custom_functions import truncate, fiscal_year
 from shared_models import models as shared_models
 # Choices for language
-from shared_models.models import SimpleLookup
+from shared_models.models import SimpleLookup, Region
 
-ENG = 1
-FRE = 2
-LANGUAGE_CHOICES = (
-    (ENG, 'English'),
-    (FRE, 'French'),
-)
+LANGUAGE_CHOICES = ((1, 'English'), (2, 'French'),)
+YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
+
+
+class InventoryUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="inventory_user", verbose_name=_("DM Apps user"))
+    region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="inventory_users", on_delete=models.CASCADE, blank=True,
+                               null=True)
+    is_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
 
 
 class Location(models.Model):
@@ -361,7 +370,6 @@ class Resource(models.Model):
             for file in self.files.all():
                 if "thumbnail" in file.caption.lower() or "vignette" in file.caption.lower():
                     return file.file.url
-
 
     @property
     def bounds(self):

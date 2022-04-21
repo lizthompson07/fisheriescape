@@ -7,16 +7,15 @@ from copy import deepcopy
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
@@ -24,77 +23,57 @@ from easy_pdf.views import PDFTemplateView
 from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
+from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView
 from . import emails
 from . import filters
 from . import forms
 from . import models
 from . import reports
 from . import xml_export
+from .mixins import SuperuserOrAdminRequiredMixin, CustodianRequiredMixin, AdminRequiredMixin, InventoryBasicMixin
+from .utils import is_custodian_or_admin
 
 
-# @login_required(login_url='/accounts/login/')
-# @user_passes_test(in_herring_group, login_url='/accounts/denied/')
-
-def in_inventory_dm_group(user):
-    """returns True if user is in specified group"""
-    if user:
-        return user.groups.filter(name='inventory_dm').count() > 0
-
-
-def is_custodian_or_admin(user, resource_id):
-    """returns True if user is a "custodian" in the specified resource"""
-    # print(user.id, resource_id)
-    if user.id:
-        # first, check to see if user is a dm admin
-        if in_inventory_dm_group(user):
-            return True
-        else:
-            # if the user has no associated Person in the app, automatic fail
-            try:
-                person = models.Person.objects.get(user=user)
-            except ObjectDoesNotExist:
-                return False
-            else:
-                # check to see if they are listed as custodian (role_id=1) on the specified resource id
-                # custodian (1); principal investigator (2); data manager (8); steward (19); author (13); owner (10)
-                return models.ResourcePerson.objects.filter(person=person, resource=resource_id,
-                                                            role_id__in=[1, 2, 8, 19, 13, 10]).count() > 0
+class InventoryUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
+    template_name = 'inventory/formset.html'
+    h1 = "Manage Data Inventory Users"
+    queryset = models.InventoryUser.objects.all()
+    formset_class = forms.InventoryUserFormset
+    success_url_name = "inventory:manage_inventory_users"
+    home_url_name = "inventory:index"
+    delete_url_name = "inventory:delete_inventory_user"
+    container_class = "container bg-light curvy"
 
 
-class CustodianRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["pk"])
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse("accounts:denied_access", kwargs={
-                "message": _("Sorry, only custodians and system administrators have access to this view.")}))
-        return super().dispatch(request, *args, **kwargs)
-
-
-class InventoryDMRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return in_inventory_dm_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
+class InventoryUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
+    model = models.InventoryUser
+    success_url = reverse_lazy("inventory:manage_inventory_users")
 
 
 # RESOURCE #
 ############
 
-class Index(TemplateView):
+class Index(InventoryBasicMixin, CommonTemplateView):
     template_name = 'inventory/index.html'
+    h1 = gettext_lazy("DFO Science Data Inventory")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-class OpenDataDashboardTemplateView(TemplateView):
+        published_records = models.Resource.objects.filter(fgp_publication_date__isnull=False).count()
+        context["published_records"] = published_records
+
+        flagged_4_deletion = models.Resource.objects.filter(flagged_4_deletion=True).count()
+        context["flagged_4_deletion"] = flagged_4_deletion
+
+        flagged_4_publication = models.Resource.objects.filter(flagged_4_publication=True).count()
+        context["flagged_4_publication"] = flagged_4_publication
+
+        return context
+
+class OpenDataDashboardTemplateView(InventoryBasicMixin, CommonTemplateView):
     template_name = 'inventory/open_data_dashboard.html'
+    h1= gettext_lazy("Open Data Dashboard")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1204,25 +1183,7 @@ def export_resource_xml(request, resource, publish):
 # DATA MANAGEMENT ADMIN #
 #########################
 
-class DataManagementHomeTemplateView(InventoryDMRequiredMixin, TemplateView):
-    template_name = 'inventory/dm_admin_index.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        published_records = models.Resource.objects.filter(fgp_publication_date__isnull=False).count()
-        context["published_records"] = published_records
-
-        flagged_4_deletion = models.Resource.objects.filter(flagged_4_deletion=True).count()
-        context["flagged_4_deletion"] = flagged_4_deletion
-
-        flagged_4_publication = models.Resource.objects.filter(flagged_4_publication=True).count()
-        context["flagged_4_publication"] = flagged_4_publication
-
-        return context
-
-
-class DataManagementCustodianListView(InventoryDMRequiredMixin, TemplateView):
+class DataManagementCustodianListView(AdminRequiredMixin, TemplateView):
     template_name = 'inventory/dm_custodian_list.html'
 
     def get_context_data(self, **kwargs):
@@ -1248,7 +1209,7 @@ class DataManagementCustodianListView(InventoryDMRequiredMixin, TemplateView):
         return context
 
 
-class DataManagementCustodianDetailView(InventoryDMRequiredMixin, DetailView):
+class DataManagementCustodianDetailView(AdminRequiredMixin, DetailView):
     template_name = 'inventory/dm_custodian_detail.html'
     model = models.Person
 
@@ -1282,12 +1243,12 @@ def send_certification_request(request, person):
     return HttpResponseRedirect(reverse('inventory:dm_custodian_detail', kwargs={'pk': my_person.user_id}))
 
 
-class PublishedResourcesListView(InventoryDMRequiredMixin, ListView):
+class PublishedResourcesListView(AdminRequiredMixin, ListView):
     template_name = "inventory/dm_published_resource.html"
     queryset = models.Resource.objects.filter(fgp_publication_date__isnull=False)
 
 
-class FlaggedListView(InventoryDMRequiredMixin, ListView):
+class FlaggedListView(AdminRequiredMixin, ListView):
     template_name = "inventory/dm_flagged_list.html"
 
     def get_queryset(self):
@@ -1298,17 +1259,17 @@ class FlaggedListView(InventoryDMRequiredMixin, ListView):
         return queryset
 
 
-class CertificationListView(InventoryDMRequiredMixin, ListView):
+class CertificationListView(AdminRequiredMixin, ListView):
     template_name = "inventory/dm_certification_list.html"
     queryset = models.ResourceCertification.objects.all().order_by("-certification_date")[:50]
 
 
-class ModificationListView(InventoryDMRequiredMixin, ListView):
+class ModificationListView(AdminRequiredMixin, ListView):
     template_name = "inventory/dm_modification_list.html"
     queryset = models.Resource.objects.all().order_by("-date_last_modified")[:50]
 
 
-class CustodianPersonUpdateView(InventoryDMRequiredMixin, FormView):
+class CustodianPersonUpdateView(AdminRequiredMixin, FormView):
     template_name = 'inventory/dm_custodian_form.html'
     form_class = forms.PersonCreateForm
 
@@ -1369,94 +1330,6 @@ class CustodianPersonUpdateView(InventoryDMRequiredMixin, FormView):
         context['person'] = person
         return context
 
-
-## SECTIONS
-
-class SectionListView(InventoryDMRequiredMixin, ListView):
-    template_name = "inventory/dm_section_list.html"
-    queryset = shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")
-
-
-class SectionDetailView(InventoryDMRequiredMixin, DetailView):
-    template_name = "inventory/dm_section_detail.html"
-    model = shared_models.Section
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.object.head:
-            me = models.Person.objects.get(user=self.request.user)
-            email = emails.SectionReportEmail(me, self.object.head, self.object, self.request)
-            context['email'] = email
-        context['now'] = timezone.now()
-        return context
-
-
-def send_section_report(request, section):
-    # grab a copy of the resource
-    my_section = shared_models.Section.objects.get(pk=section)
-    head = my_section.head
-    # create a new email object
-    me = models.Person.objects.get(user=request.user)
-    email = emails.SectionReportEmail(me, head, my_section, request)
-    # send the email object
-    custom_send_mail(
-        subject=email.subject,
-        html_message=email.message,
-        from_email=email.from_email,
-        recipient_list=email.to_list
-    )
-    models.Correspondence.objects.create(custodian=head.user, subject="Section head report")
-    messages.success(request, "the email has been sent and the correspondence has been logged!")
-    return HttpResponseRedirect(reverse('inventory:dm_section_detail', kwargs={'pk': section}))
-
-
-class MySectionDetailView(LoginRequiredMixin, TemplateView):
-    template_name = "inventory/my_section_detail.html"
-    model = shared_models.Section
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # grab the user
-        user_id = self.request.user.id
-        my_section = shared_models.Section.objects.filter(head_id=user_id).first()
-
-        if my_section:
-            resource_list = my_section.resources.all().order_by("title_eng")
-            context['resource_list'] = resource_list
-
-            ## NOTE if there is ever a need to have a person with two sections under them, this view will have to be modified so that a list of sections is returned to the user.
-            # Would simply have to remove the first() function from my_section
-
-            context['object'] = my_section
-            context['now'] = timezone.now()
-
-            certified_within_year = 0
-            certified_within_6_months = 0
-            for r in my_section.resources.all():
-                try:
-                    days_elapsed = (timezone.now() - r.certification_history.order_by(
-                        "-certification_date").first().certification_date).days
-                except Exception as e:
-                    print(e)
-                else:
-                    if days_elapsed < 183:  # six months
-                        certified_within_6_months = certified_within_6_months + 1
-                        certified_within_year = certified_within_year + 1
-                    elif days_elapsed < 365:
-                        certified_within_year = certified_within_year + 1
-
-            context['certified_within_6_months'] = certified_within_6_months
-            context['certified_within_year'] = certified_within_year
-
-            published_on_fgp = 0
-            for r in my_section.resources.all():
-                if r.fgp_publication_date:  # six months
-                    published_on_fgp = published_on_fgp + 1
-
-            context['published_on_fgp'] = published_on_fgp
-
-        return context
 
 
 # RESOURCE CERTIFICATION #
@@ -1718,7 +1591,7 @@ def web_service_clone(request, pk):
 # REPORTS #
 ###########
 
-class ReportSearchFormView(InventoryDMRequiredMixin, FormView):
+class ReportSearchFormView(AdminRequiredMixin, FormView):
     template_name = 'inventory/report_search.html'
     form_class = forms.ReportSearchForm
 
@@ -1818,34 +1691,34 @@ def export_open_data_resources(request):
             return response
     raise Http404
 
-
-# TEMP #
-########
-
-
-# this is a temp view DJF created to walkover the `program` field to the new `programs` field
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_inventory_dm_group, login_url='/accounts/denied/')
-def temp_formset(request, section):
-    context = {}
-    # if the formset is being submitted
-    if request.method == 'POST':
-        # choose the appropriate formset based on the `extra` arg
-        formset = forms.TempFormSet(request.POST)
-
-        if formset.is_valid():
-            formset.save()
-            # pass the specimen through the make_flags helper function to assign any QC flags
-
-            # redirect back to the observation_formset with the blind intention of getting another observation
-            return HttpResponseRedirect(reverse("inventory:formset"))
-    # otherwise the formset is just being displayed
-    else:
-        # prep the formset...for display
-        formset = forms.TempFormSet(
-            queryset=models.Resource.objects.filter(section_id=section).order_by("section")
-        )
-    context['formset'] = formset
-    context['my_object'] = models.Resource.objects.first()
-    context['field_list'] = ["title_eng", "section", "status", "descr_eng", "purpose_eng"]
-    return render(request, 'inventory/temp_formset.html', context)
+#
+# # TEMP #
+# ########
+#
+#
+# # this is a temp view DJF created to walkover the `program` field to the new `programs` field
+# @login_required(login_url='/accounts/login/')
+# @user_passes_test(in_inventory_dm_group, login_url='/accounts/denied/')
+# def temp_formset(request, section):
+#     context = {}
+#     # if the formset is being submitted
+#     if request.method == 'POST':
+#         # choose the appropriate formset based on the `extra` arg
+#         formset = forms.TempFormSet(request.POST)
+#
+#         if formset.is_valid():
+#             formset.save()
+#             # pass the specimen through the make_flags helper function to assign any QC flags
+#
+#             # redirect back to the observation_formset with the blind intention of getting another observation
+#             return HttpResponseRedirect(reverse("inventory:formset"))
+#     # otherwise the formset is just being displayed
+#     else:
+#         # prep the formset...for display
+#         formset = forms.TempFormSet(
+#             queryset=models.Resource.objects.filter(section_id=section).order_by("section")
+#         )
+#     context['formset'] = formset
+#     context['my_object'] = models.Resource.objects.first()
+#     context['field_list'] = ["title_eng", "section", "status", "descr_eng", "purpose_eng"]
+#     return render(request, 'inventory/temp_formset.html', context)
