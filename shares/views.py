@@ -39,7 +39,7 @@ class SharesAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=shares')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -57,7 +57,7 @@ class SharesAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=shares')
         return super().dispatch(request, *args, **kwargs)
 
 

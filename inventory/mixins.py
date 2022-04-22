@@ -16,7 +16,7 @@ class InventoryBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=inventory')
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -75,5 +75,5 @@ class CanModifyRequiredMixin(InventoryBasicMixin):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse("accounts:denied_access", kwargs={
-                "message": _("Sorry, only custodians and system administrators have access to this view.")}))
+                "message": _("Sorry, only custodians and system administrators have access to this view.")}) + "?app=inventory")
         return super().dispatch(request, *args, **kwargs)

@@ -192,6 +192,7 @@ class MyResourceListView(InventoryLoginRequiredMixin, CommonListView):
         context["personal"] = True
         return context
 
+
 class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
     model = models.Resource
 

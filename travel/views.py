@@ -553,7 +553,7 @@ class RequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
 
 
 @login_required(login_url='/accounts/login/')
-# @user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/')
+# @user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/?app=travel')
 def reset_request_reviewers(request, pk):
     """this function will reset the reviewers on either a trip request"""
     my_obj = models.TripRequest.objects.get(pk=pk)
@@ -829,7 +829,7 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse("accounts:denied_access", kwargs={
-                "message": _("Sorry, only ADMO administrators can verify trips that require ADM approval.")}))
+                "message": _("Sorry, only ADMO administrators can verify trips that require ADM approval.")}) + "?app=travel")
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -886,7 +886,7 @@ class TripSelectFormView(TravelAdminRequiredMixin, CommonFormView):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse("accounts:denied_access", kwargs={
-                "message": _("Sorry, only ADMO administrators can verify trips that require ADM approval.")}))
+                "message": _("Sorry, only ADMO administrators can verify trips that require ADM approval.")})  + "?app=travel")
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -927,7 +927,7 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, CommonPopoutFormView):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse("accounts:denied_access", kwargs={
-                "message": _("Sorry, only ADMO administrators can verify trips that require ADM approval.")}))
+                "message": _("Sorry, only ADMO administrators can verify trips that require ADM approval.")}) + "?app=travel")
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1171,7 +1171,7 @@ class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/?app=travel')
 def export_cfts_list(request):
     fy = request.GET.get("year")
     region = request.GET.get("region")
@@ -1195,7 +1195,7 @@ def export_cfts_list(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/?app=travel')
 def export_trip_list(request):
     fy = request.GET.get("year")
     region = request.GET.get("region")
@@ -1219,7 +1219,7 @@ def export_trip_list(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/?app=travel')
 def export_upcoming_trips(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_upcoming_trip_list(site_url)
@@ -1237,7 +1237,7 @@ def export_upcoming_trips(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_nat_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_travel_nat_admin_group, login_url='/accounts/denied/?app=travel')
 def export_request_summary(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_request_summary(site_url)
@@ -1255,7 +1255,7 @@ def export_request_summary(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/?app=travel')
 def export_request_cfts(request, trip=None, trip_request=None):
     file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
     export_file_name = f'CFTS export {timezone.now().strftime("%Y-%m-%d")}.xlsx'
@@ -1607,7 +1607,7 @@ class DefaultReviewerDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):
 #
 #
 # @login_required(login_url='/accounts/login/')
-# @user_passes_test(in_travel_nat_admin_group, login_url='/accounts/denied/')
+# @user_passes_test(in_travel_nat_admin_group, login_url='/accounts/denied/?app=travel')
 # def toggle_user(request, pk, type):
 #     my_user = get_object_or_404(User, pk=pk)
 #     admin_group, created = Group.objects.get_or_create(name="travel_admin")
