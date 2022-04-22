@@ -730,6 +730,10 @@ class ToRReviewerSerializer(serializers.ModelSerializer):
 class ProcessSerializerLITE(serializers.ModelSerializer):
     fiscal_year = serializers.StringRelatedField()
     tname = serializers.SerializerMethodField()
+    can_post_meeting = serializers.SerializerMethodField()
+
+    def get_can_post_meeting(self, instance):
+        return instance.can_post_meeting
 
     def get_tname(self, instance):
         return instance.tname
