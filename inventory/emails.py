@@ -27,7 +27,7 @@ class CertificationRequestEmail:
         # self.cc_list = [admin_email,]
 
     def load_html_template(self):
-        t = loader.get_template('inventory/email_certification_request.html')
+        t = loader.get_template('inventory/emails/email_certification_request.html')
         context = {
             'me': self.me,
             'object': self.person_object,
@@ -51,7 +51,7 @@ class FlagForDeletionEmail:
         self.to_list = [user.email for user in User.objects.filter(groups__name="inventory_dm")]
 
     def load_html_template(self, object, user):
-        t = loader.get_template('inventory/email_flagged_for_deletion.html')
+        t = loader.get_template('inventory/emails/email_flagged_for_deletion.html')
         context = {
             'object': object,
             'user': user,
@@ -74,7 +74,7 @@ class FlagForPublicationEmail:
         self.to_list = [user.email for user in User.objects.filter(groups__name="inventory_dm")]
 
     def load_html_template(self, object, user):
-        t = loader.get_template('inventory/email_flagged_for_publication.html')
+        t = loader.get_template('inventory/emails/email_flagged_for_publication.html')
         context = {
             'object': object,
             'user': user,
@@ -97,7 +97,7 @@ class AddedAsCustodianEmail:
         self.to_list = [user.email, ]
 
     def load_html_template(self, object, user):
-        t = loader.get_template('inventory/email_added_as_custodian.html')
+        t = loader.get_template('inventory/emails/email_added_as_custodian.html')
         context = {
             'object': object,
             'user': user,
@@ -120,7 +120,7 @@ class RemovedAsCustodianEmail:
         self.to_list = [user.email, ]
 
     def load_html_template(self, object, user):
-        t = loader.get_template('inventory/email_removed_as_custodian.html')
+        t = loader.get_template('inventory/emails/email_removed_as_custodian.html')
         context = {
             'object': object,
             'user': user,

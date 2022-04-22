@@ -1094,7 +1094,7 @@ def verify(resource):
 
             if field == 'certification_history':
                 cert_now_html = mark_safe(
-                    f'<a href={reverse("inventory:resource_certify", kwargs={"pk": resource.id})}>{_("certify now")}</a>')
+                    f'<a href="#" pop-href={reverse("inventory:resource_certify", args=[resource.id])}>{_("certify now")}</a>')
                 if resource.certification_history.count() == 0:
                     checklist.append(f'This record has not been certified ({cert_now_html})')
                     rating = rating - 1

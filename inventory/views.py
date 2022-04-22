@@ -22,7 +22,7 @@ from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView, CommonListView, \
-    CommonUpdateView
+    CommonUpdateView, CommonCreateView, CommonPopoutCreateView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonDeleteView
 from . import emails
 from . import filters
 from . import forms
@@ -152,7 +152,7 @@ class ResourceListView(InventoryBasicMixin, CommonFilterView):
     home_url_name = "inventory:index"
     container_class = "container-fluid"
     row_object_url_name = "inventory:resource_detail"
-    new_object_url = "inventory:resource_new"
+    new_object_url = reverse_lazy("inventory:resource_new")
     paginate_by = 25
     field_list = [
         {"name": 'region', "class": "", "width": ""},
@@ -172,7 +172,7 @@ class MyResourceListView(InventoryLoginRequiredMixin, CommonListView):
     home_url_name = "inventory:index"
     container_class = "container-fluid"
     row_object_url_name = "inventory:resource_detail"
-    new_object_url = "inventory:resource_new"
+    new_object_url = reverse_lazy("inventory:resource_new")
     field_list = [
         {"name": 't_title|Title', "class": ""},
         {"name": 'status', "class": ""},
@@ -197,6 +197,8 @@ class MyResourceListView(InventoryLoginRequiredMixin, CommonListView):
 class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
     model = models.Resource
     template_name = "inventory/resource_detail/resource_detail.html"
+    container_class = "container-fluid"
+    home_url_name = "inventory:index"
 
     def get_object(self, queryset=None):
         if self.kwargs.get("uuid"):
@@ -227,7 +229,7 @@ class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
             context['verified'] = False
 
         my_resource = self.get_object()
-        context['can_modify'] = can_modify(self.request.user, my_resource.id)
+        context['can_modify'] = can_modify(self.request.user, my_resource.id, as_dict=True)
         return context
 
 
@@ -257,27 +259,20 @@ class ResourceDetailPDFView(InventoryBasicMixin, PDFTemplateView):
         'spat_representation',
         'spat_ref_system',
         'notes',
-        # 'citations',
-        # 'keywords',
-        # 'people',
-        # 'parent',
-        # 'date_last_modified',
-        # 'last_modified_by',
     ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["object"] = models.Resource.objects.get(pk=self.kwargs.get("pk"))
         context["field_list"] = self.field_list
-        context["now"] = timezone.now()
         return context
 
 
 class ResourceUpdateView(CanModifyRequiredMixin, CommonUpdateView):
     model = models.Resource
     form_class = forms.ResourceForm
-    home_url_name = "inventory:index"
     template_name = "inventory/resource_form.html"
+    home_url_name = "inventory:index"
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("inventory:resource_detail", args=[self.get_object().id])}
@@ -288,22 +283,9 @@ class ResourceUpdateView(CanModifyRequiredMixin, CommonUpdateView):
             'date_last_modified': timezone.now(),
         }
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # get lists
-        resource_list = ['<a href="#id_parent" class="resource_insert" code="{id}" url="{url}">{text}</a>'.format(id=obj.id, text=str(obj),
-                                                                                                                  url=reverse(
-                                                                                                                      'inventory:resource_detail',
-                                                                                                                      kwargs={
-                                                                                                                          'pk': obj.id}))
-                         for obj in models.Resource.objects.all()]
-        context['resource_list'] = resource_list
-        return context
-
-
 
 class ResourceCloneUpdateView(ResourceUpdateView):
+    h1 = gettext_lazy("Cloning Record")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -331,16 +313,12 @@ class ResourceCloneUpdateView(ResourceUpdateView):
         new_obj.od_publication_date = None
         new_obj.fgp_publication_date = None
         new_obj.od_release_date = None
+        new_obj.flagged_4_deletion = False
+        new_obj.flagged_4_publication = False
         new_obj.last_revision_date = None
         new_obj.date_verified = None
         new_obj.save()
 
-        """
-    people = models.ManyToManyField(Person, through='ResourcePerson')
-    
-    
-    
-        """
         for item in old_obj.paa_items.all():
             new_obj.paa_items.add(item)
 
@@ -378,9 +356,10 @@ class ResourceCloneUpdateView(ResourceUpdateView):
         return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", args=[new_obj.id]))
 
 
-class ResourceCreateView(InventoryLoginRequiredMixin, CreateView):
+class ResourceCreateView(InventoryLoginRequiredMixin, CommonCreateView):
     model = models.Resource
-    form_class = forms.ResourceCreateForm
+    form_class = forms.ResourceForm
+    template_name = "inventory/resource_form.html"
 
     def get_initial(self):
         return {
@@ -410,36 +389,47 @@ class ResourceCreateView(InventoryLoginRequiredMixin, CreateView):
         return context
 
 
-class ResourceDeleteView(CanModifyRequiredMixin, DeleteView):
+class ResourceDeleteView(CanModifyRequiredMixin, CommonDeleteView):
     model = models.Resource
-    success_url = reverse_lazy('inventory:resource_list')
-    success_message = 'The data resource was successfully deleted!'
+    template_name = "inventory/confirm_delete.html"
+    delete_protection = False
+    home_url_name = "inventory:index"
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("inventory:resource_detail", args=[self.get_object().id])}
 
+    def get_success_url(self):
+        return reverse("inventory:index")
 
-class ResourceDeleteFlagUpdateView(InventoryLoginRequiredMixin, UpdateView):
+class ResourceDeleteFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView):
     model = models.Resource
-
-    template_name = "inventory/resource_flag_deletion.html"
     form_class = forms.ResourceFlagging
+    cancel_text = gettext_lazy("No, Forget it.")
 
-    def get_initial(self):
-        if self.object.flagged_4_deletion:
-            return {
-                'flagged_4_deletion': False,
-            }
-        else:
-            return {
-                'flagged_4_deletion': True,
-            }
+    def get_submit_text(self):
+        obj = self.get_object()
+        if obj.flagged_4_deletion:
+            return _("Yes, Unflag It!")
+        return _("Yes, Flag It!")
+
+    def get_h1(self):
+        obj = self.get_object()
+        if obj.flagged_4_deletion:
+            return _("Are you sure you want to unflag this data resource?")
+        return _("Are you sure you want to flag this data resource for deletion?")
+
+    def get_h3(self):
+        obj = self.get_object()
+        if not obj.flagged_4_deletion:
+            return _("By clicking yes below you will notify the regional data manager that this record should be deleted from the inventory.")
 
     def form_valid(self, form):
-        object = form.save()
-        if object.flagged_4_deletion:
-            email = emails.FlagForDeletionEmail(self.object, self.request.user, self.request)
+        obj = form.save(commit=False)
+        obj.flagged_4_deletion = not obj.flagged_4_deletion
+        obj.save()
+
+        if obj.flagged_4_deletion:
+            email = emails.FlagForDeletionEmail(obj, self.request.user, self.request)
             # send the email object
             custom_send_mail(
                 subject=email.subject,
@@ -447,34 +437,40 @@ class ResourceDeleteFlagUpdateView(InventoryLoginRequiredMixin, UpdateView):
                 from_email=email.from_email,
                 recipient_list=email.to_list
             )
-
-            messages.success(self.request,
-                             'The data resource has been flagged for deletion and the regional data manager has been notified!')
-        else:
-            messages.success(self.request, 'The data resource has been unflagged!')
-        return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={"pk": self.kwargs["pk"]}))
+        return super().form_valid(form)
 
 
-class ResourcePublicationFlagUpdateView(InventoryLoginRequiredMixin, UpdateView):
+class ResourcePublicationFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView):
     model = models.Resource
-
-    template_name = "inventory/resource_flag_publication.html"
     form_class = forms.ResourceFlagging
+    cancel_text = gettext_lazy("No, Forget it.")
 
-    def get_initial(self):
-        if self.object.flagged_4_publication:
-            return {
-                'flagged_4_publication': False,
-            }
-        else:
-            return {
-                'flagged_4_publication': True,
-            }
+    def get_submit_text(self):
+        obj = self.get_object()
+        if obj.flagged_4_deletion:
+            return _("Yes, Unflag It!")
+        return _("Yes, Flag It!")
+
+    def get_h1(self):
+        obj = self.get_object()
+        if obj.flagged_4_publication:
+            return _("Are you sure you want to unflag this data resource?")
+        action = "re-publication" if obj.fgp_publication_date else "publication"
+        return _(f"Are you sure you want to flag this data resource for {action}?")
+
+    def get_h3(self):
+        obj = self.get_object()
+        if not obj.flagged_4_publication:
+            return _("By clicking yes below your regional data manager will be notified and will "
+                     "contact you shortly in order to coordinate the next steps in the process")
 
     def form_valid(self, form):
-        object = form.save()
-        if object.flagged_4_publication:
-            email = emails.FlagForPublicationEmail(self.object, self.request.user, self.request)
+        obj = form.save(commit=False)
+        obj.flagged_4_publication = not obj.flagged_4_publication
+        obj.save()
+
+        if obj.flagged_4_publication:
+            email = emails.FlagForPublicationEmail(obj, self.request.user, self.request)
             # send the email object
             custom_send_mail(
                 subject=email.subject,
@@ -482,11 +478,7 @@ class ResourcePublicationFlagUpdateView(InventoryLoginRequiredMixin, UpdateView)
                 from_email=email.from_email,
                 recipient_list=email.to_list
             )
-            messages.success(self.request,
-                             'The data resource has been flagged for publication and the regional data manager has been notified!')
-        else:
-            messages.success(self.request, 'The data resource has been unflagged!')
-        return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={"pk": self.kwargs["pk"]}))
+        return super().form_valid(form)
 
 
 # RESOURCE PERSON #
@@ -1315,50 +1307,28 @@ class CustodianPersonUpdateView(AdminRequiredMixin, FormView):
 # RESOURCE CERTIFICATION #
 ##########################
 
-
-class ResourceCertificationCreateView(CanModifyRequiredMixin, CreateView):
+class ResourceCertificationCreateView(CanModifyRequiredMixin, CommonPopoutCreateView):
     model = models.ResourceCertification
-    template_name = 'inventory/resource_certification_form.html'
     form_class = forms.ResourceCertificationForm
-    success_message = "Certification successful!"
+    h1 = gettext_lazy("Do you wish to certify the following record?")
+    h3 = gettext_lazy("By clicking yes, you are confirming that all the information in this record is accurate and up-to-date.")
+    submit_text = gettext_lazy("Yes")
+    submit_btn_class = "btn-success"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        my_resource = models.Resource.objects.get(pk=self.kwargs['pk'])
-
-        context['resource'] = my_resource
-        return context
-
-    def get_initial(self):
-        return {
-            'certifying_user': self.request.user,
-            'resource': self.kwargs['pk'],
-            'certification_date': timezone.now(),
-        }
-
-    def get_success_url(self):
-        return reverse('inventory:resource_detail', kwargs={
-            'pk': self.kwargs['pk'],
-        })
+    # cancel_text = gettext_lazy("Never mind")
+    # cancel_btn_class = "btn-danger"
 
     def form_valid(self, form):
-        messages.success(self.request, self.success_message)
+        obj = form.save(commit=False)
+        obj.certifying_user = self.request.user
+        obj.resource_id = self.kwargs['resource']
+        obj.certification_date = timezone.now()
+        obj.save()
         return super().form_valid(form)
 
 
-class ResourceCertificationDeleteView(CanModifyRequiredMixin, DeleteView):
+class ResourceCertificationDeleteView(CanModifyRequiredMixin, CommonPopoutDeleteView):
     model = models.ResourceCertification
-    template_name = 'inventory/resource_certification_confirm_delete.html'
-    success_message = "The certification event has been removed."
-
-    def get_success_url(self):
-        return reverse('inventory:resource_detail', kwargs={
-            'pk': self.object.resource.id,
-        })
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 
 # FILES #
