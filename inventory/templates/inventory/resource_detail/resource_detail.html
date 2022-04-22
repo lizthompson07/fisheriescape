@@ -64,13 +64,16 @@
 
         <a class="{{ my_btn }}" href="{% url 'inventory:resource_edit' object.id %}">
           Modify Record
-        </a>
-        <a class="{{ my_btn }}" href="{% url 'inventory:resource_full_detail' object.id %}">
-          Review Full Record
+          <span class="mdi mdi-pencil ml-1"></span>
         </a>
         <a class="{{ my_btn }}" href="{% url 'inventory:resource_certify' object.id %}" data-toggle="tooltip"
            title="Click here to add a certification event to this record.">
           Certify This Record
+          <span class="mdi mdi-check-all ml-1"></span>
+        </a>
+        <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#completedness">
+          {% trans "Validate Record" %}
+          <span class="mdi mdi-eye-check ml-1"></span>
         </a>
 
         {% if object.flagged_4_deletion %}
@@ -78,33 +81,35 @@
           <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
              title="Unflag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
             Unflag for Deletion
+            <span class="mdi mdi-flag ml-1"></span>
           </a>
         {% else %}
           <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
              title="Flag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
             Flag for Deletion
+            <span class="mdi mdi-flag ml-1"></span>
           </a>
         {% endif %}
 
 
-        <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#completedness">
-          View Completeness Report
-        </a>
 
         {% if object.flagged_4_publication %}
           <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
              title="Unflag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">
             Unflag for Publication
+            <span class="mdi mdi-flag ml-1"></span>
           </a>
         {% else %}
           <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
              title="Flag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">
             Flag for {% if object.fgp_publication_date %}Re-publication{% else %}Publication{% endif %}
+            <span class="mdi mdi-flag ml-1"></span>
           </a>
         {% endif %}
         <a class="{{ my_btn }}" href="{% url 'inventory:resource_clone' object.id %}" data-toggle="tooltip"
            title="{% trans "Start a new resource, using this one as a template." %}">
           {% trans "Clone" %}
+          <span class="mdi mdi-content-copy ml-1"></span>
         </a>
         <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#hnap" title="export as HNAP xml">
           <img src="{% static 'img/icons/xml.svg' %}" alt="" width="20px">
@@ -197,41 +202,37 @@
       <div class="col-4">
         {# Basic details #}
         <h4>Basic Details</h4>
-        {% include "inventory/_resource_detail_basic.html" %}
+        {% include "inventory/resource_detail/_resource_detail_basic.html" %}
       </div>
 
       <div class="col-3">
-        {# <a href="{% url 'inventory:resource_full_detail' object.id %}"> #}
-        {# <h2>Review Full Record</h2> #}
-        {# </a> #}
-        {# <br> #}
 
         <h4 class="neighbours">People</h4>
         <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:resource_person_filter' object.id %}">
           Add a Person
         </a>
 
-        {% include "inventory/_resource_detail_people.html" %}
+        {% include "inventory/resource_detail/_resource_detail_people.html" %}
         <br>
 
         <h4 class="neighbours">Storage Files</h4>
         <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:file_create' object.id %}">
           Add a File
         </a>
-        {% include "inventory/_resource_detail_files.html" %}
+        {% include "inventory/resource_detail/_resource_detail_files.html" %}
 
         <h4 class="neighbours">Data Resources</h4>
         <a class="btn btn-sm btn-outline-primary " href="{% url 'inventory:data_resource_create' object.id %}">
           Add a Data Resource
         </a>
-        {% include "inventory/_resource_detail_data_resources.html" %}
+        {% include "inventory/resource_detail/_resource_detail_data_resources.html" %}
         <br>
 
         <h4 class="neighbours">Web Services</h4>
         <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:web_service_create' object.id %}">
           Add a Web Service
         </a>
-        {% include "inventory/_resource_detail_web_services.html" %}
+        {% include "inventory/resource_detail/_resource_detail_web_services.html" %}
         <br>
 
       </div>
@@ -276,32 +277,24 @@
             Add a Keyword
           </a>
         </div>
-        {% include "inventory/_resource_detail_keywords.html" %}
+        {% include "inventory/resource_detail/_resource_detail_keywords.html" %}
 
         <h4 class="neighbours">Citations</h4>
         <a class="btn btn-sm btn-outline-primary"
            href="{% url 'inventory:resource_citation_filter' object.id %}">
           Add a Citation
         </a>
-        {% include "inventory/_resource_detail_citations.html" %}
+        {% include "inventory/resource_detail/_resource_detail_citations.html" %}
 
         <h4>Related Records</h4>
-        {% include "inventory/_resource_detail_related.html" %}
+        {% include "inventory/resource_detail/_resource_detail_related.html" %}
 
         <h4>Certification History</h4>
-        {% include "inventory/_resource_detail_certification_history.html" %}
+        {% include "inventory/resource_detail/_resource_detail_certification_history.html" %}
 
       </div>
     </div>
   </div>
-  <div class="text-center">
-    <h5>
-      <a href="{% url 'inventory:resource_full_detail' object.id %}">
-        (click here to view the entire record)
-      </a>
-    </h5>
-  </div>
-
 
   <script type="text/javascript">
   $(".collapse-btn").click(function () {

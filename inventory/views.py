@@ -196,6 +196,7 @@ class MyResourceListView(InventoryLoginRequiredMixin, CommonListView):
 
 class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
     model = models.Resource
+    template_name = "inventory/resource_detail/resource_detail.html"
 
     def get_object(self, queryset=None):
         if self.kwargs.get("uuid"):
@@ -300,15 +301,6 @@ class ResourceUpdateView(CanModifyRequiredMixin, CommonUpdateView):
         context['resource_list'] = resource_list
         return context
 
-
-class ResourceFullDetailView(ResourceUpdateView):
-    model = models.Resource
-    form_class = forms.ResourceForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['readonly'] = True
-        return context
 
 
 class ResourceCloneUpdateView(ResourceUpdateView):

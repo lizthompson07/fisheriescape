@@ -19,7 +19,6 @@ urlpatterns = [
     path('resources/<int:pk>/view/', views.ResourceDetailView.as_view(), name="resource_detail"),
     path('resources/<str:uuid>/', views.ResourceDetailView.as_view(), name="resource_detail_uuid"),
     path('resources/<int:pk>/pdf/', views.ResourceDetailPDFView.as_view(), name="resource_pdf"),
-    path('resources/<int:pk>/full-view/', views.ResourceFullDetailView.as_view(), name="resource_full_detail"),
     path('resources/<int:pk>/edit/', views.ResourceUpdateView.as_view(), name="resource_edit"),
     path('resources/<int:pk>/clone/', views.ResourceCloneUpdateView.as_view(), name="resource_clone"),
     path('resources/<int:pk>/delete/', views.ResourceDeleteView.as_view(), name="resource_delete"),
