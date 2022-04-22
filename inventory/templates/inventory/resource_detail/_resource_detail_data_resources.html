@@ -6,12 +6,12 @@
     {% else %}
         {% for item in object.data_resources.all %}
             <li>
-                <a href="{% url 'inventory:data_resource_edit' item.id %}">
+                <a href="#" pop-href="{% url 'inventory:data_resource_edit' item.id %}">
                     {{ item }}
                 </a>
                 <br>
                 (<a href="{{ item.url }}" target="_blank">visit URL</a>)
-                <a href="{% url 'inventory:data_resource_delete' item.id %}">
+                <a href="#" pop-href="{% url 'inventory:data_resource_delete' item.id %}">
                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="delete">
                 </a>
                 <a href="{% url 'inventory:data_resource_clone' item.id %}">

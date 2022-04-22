@@ -7,12 +7,12 @@
     {% else %}
         {% for item in object.web_services.all %}
             <li>
-                <a href="{% url 'inventory:web_service_edit' item.id %}">
+                <a href="#" pop-href="{% url 'inventory:web_service_edit' item.id %}">
                     {{ item.content_type }} ({{ item.get_service_language_display }})
                 </a>
                 <br>
                 (<a href="{{ item.url }}" target="_blank">visit URL</a>)
-                <a href="{% url 'inventory:web_service_delete' item.id %}">
+                <a href="#" pop-href="{% url 'inventory:web_service_delete' item.id %}">
                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                          title="delete">
                 </a>

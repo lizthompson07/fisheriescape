@@ -404,7 +404,7 @@ class DataResource(models.Model):
         (HTTPS, HTTPS),
         (FTP, FTP),
     ]
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="data_resources")
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="data_resources" , editable=False)
     url = models.URLField()
     name_eng = models.CharField(max_length=255, verbose_name="Name (English)")
     name_fre = models.CharField(max_length=255, verbose_name="Name (French)")
@@ -423,7 +423,7 @@ class WebService(models.Model):
         (ENG, "English"),
         (FRA, "French"),
     ]
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="web_services")
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="web_services", editable=False)
     protocol = models.CharField(max_length=255, default="ESRI REST: Map Service")
     service_language = models.CharField(max_length=255, choices=SERVICE_LANGUAGE_CHOICES)
     url = models.URLField()
@@ -502,7 +502,7 @@ def file_directory_path(instance, filename):
 
 class File(models.Model):
     caption = models.CharField(max_length=255)
-    resource = models.ForeignKey(Resource, related_name="files", on_delete=models.CASCADE)
+    resource = models.ForeignKey(Resource, related_name="files", on_delete=models.CASCADE, editable=False)
     file = models.FileField(upload_to=file_directory_path)
     date_created = models.DateTimeField(default=timezone.now)
 

@@ -6,23 +6,26 @@
 {% load i18n %}
 {% load l10n %}
 
-{% block subcontent %}
-
+{% block title_area %}
   <div class="float-right">
-    {% if object.flagged_4_deletion %}
-      <p class="lead text-danger my-2"><span class="bad p-1">{% trans "Flagged for Deletion" %}</span></p>
+    {% if object.fgp_url %}
+      <a class="stop-blank mx-1" href="{{ object.fgp_url }}" data-toggle="tooltip"
+         title="Open URL in the Federal Geospatial Platform">
+        <img src="{% static 'img/icons/fgp.png' %}" alt="" width="40px">
+      </a>
     {% endif %}
-    {% if object.flagged_4_publication %}
-      <p class="lead text-success my-2"> <span class="good p-1">
-                    {% if object.fgp_publication_date %}
-                      {% trans "Flagged for Re-publication" %}
-                    {% else %}
-                      {% trans "Flagged for Publication" %}
-                    {% endif %}
-          </span></p>
+    {% if object.public_url %}
+      <a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip"
+         title="Open URL in the Open Government Portal">
+        <img src="{% static 'img/icons/canada.png' %}" alt="" width="40px">
+      </a>
     {% endif %}
   </div>
+  {{ block.super }}
 
+{% endblock %}
+
+{% block subcontent %}
 
   <div class="mb-3">
     {% with "btn btn-sm btn-outline-dark" as my_btn %}
@@ -34,7 +37,7 @@
       <a class="{{ my_btn }}" href="#" pop-href="{% url 'inventory:resource_certify' object.id %}" data-toggle="tooltip"
          title="Click here to add a certification event to this record.">
         Certify
-        <span class="mdi mdi-check-all ml-1"></span>
+        <span class="mdi mdi-trophy-award ml-1"></span>
       </a>
       <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#completedness">
         {% trans "Validate" %}
@@ -91,11 +94,39 @@
 
   </div>
 
-  <div class="alert alert-success w-75" role="alert">
-    <p class="lead p-0 m-0">
-      <span class="mdi mdi-check text-success mr-1 lead"></span> {{ can_modify.reason }}
-    </p>
-  </div>
+  {% if can_modify.can_modify %}
+
+
+    <div class="alert alert-success w-75 p-1 m-1" role="alert">
+      <p class="p-0 m-0">
+        <span class="mdi mdi-check text-success mr-1 lead"></span>
+        {{ can_modify.reason }}
+      </p>
+    </div>
+  {% endif %}
+
+  {% if object.flagged_4_deletion %}
+    <div class="alert alert-danger w-75 p-1 m-1" role="alert">
+      <p class="p-0 m-0 text-danger">
+        <span class="mdi mdi-flag text-danger mr-1 lead"></span>
+        {% trans "Flagged for Deletion" %}
+      </p>
+    </div>
+  {% endif %}
+
+  {% if object.flagged_4_publication %}
+    <div class="alert alert-primary w-75 p-1 m-1" role="alert">
+      <p class="p-0 m-0 text-primary">
+        <span class="mdi mdi-flag text-primary mr-1 lead"></span>
+        {% if object.fgp_publication_date %}
+          {% trans "Flagged for Re-publication" %}
+        {% else %}
+          {% trans "Flagged for Publication" %}
+        {% endif %}
+      </p>
+    </div>
+  {% endif %}
+
 
   {#<!-- HNAP MODAL -->#}
   <div class="modal fade" id="hnap" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
@@ -169,8 +200,7 @@
 
   <div class="row ">
     <div class="col-4">
-      {# Basic details #}
-      <h4>Basic Details</h4>
+      <h4>Basic Detail</h4>
       {% include "inventory/resource_detail/_resource_detail_basic.html" %}
     </div>
 
@@ -185,20 +215,20 @@
       <br>
 
       <h4 class="neighbours">Storage Files</h4>
-      <a class="mb-2 btn btn-xs btn-outline-primary" href="{% url 'inventory:file_create' object.id %}">
+      <a class="mb-2 btn btn-xs btn-outline-primary" href="#" pop-href="{% url 'inventory:file_create' object.id %}">
         <span class="mdi mdi-plus text-primary"></span>
       </a>
       {% include "inventory/resource_detail/_resource_detail_files.html" %}
 
       <h4 class="neighbours">Data Resources</h4>
-      <a class="mb-2 btn btn-xs btn-outline-primary" href="{% url 'inventory:data_resource_create' object.id %}">
+      <a class="mb-2 btn btn-xs btn-outline-primary" href="#" pop-href="{% url 'inventory:data_resource_create' object.id %}">
         <span class="mdi mdi-plus text-primary"></span>
       </a>
       {% include "inventory/resource_detail/_resource_detail_data_resources.html" %}
       <br>
 
       <h4 class="neighbours">Web Services</h4>
-      <a class="mb-2 btn btn-xs btn-outline-primary" href="{% url 'inventory:web_service_create' object.id %}">
+      <a class="mb-2 btn btn-xs btn-outline-primary" href="#" pop-href="{% url 'inventory:web_service_create' object.id %}">
         <span class="mdi mdi-plus text-primary"></span>
       </a>
       {% include "inventory/resource_detail/_resource_detail_web_services.html" %}

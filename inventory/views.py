@@ -401,6 +401,7 @@ class ResourceDeleteView(CanModifyRequiredMixin, CommonDeleteView):
     def get_success_url(self):
         return reverse("inventory:index")
 
+
 class ResourceDeleteFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView):
     model = models.Resource
     form_class = forms.ResourceFlagging
@@ -1334,107 +1335,51 @@ class ResourceCertificationDeleteView(CanModifyRequiredMixin, CommonPopoutDelete
 # FILES #
 #########
 
-class FileCreateView(CanModifyRequiredMixin, CreateView):
-    template_name = "inventory/file_form.html"
+class FileCreateView(CanModifyRequiredMixin, CommonPopoutCreateView):
     model = models.File
     form_class = forms.FileForm
+    h3 = gettext_lazy("NOTE: to add a thumbnail, simply upload an image and ensure the caption contains the word 'thumbnail'")
+    is_multipart_form_data = True
 
     def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", kwargs={"pk": object.resource.id}))
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        context["editable"] = True
-        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
-        context["resource"] = resource
-        return context
-
-    def get_initial(self):
-        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
-        return {'resource': resource}
+        obj = form.save(commit=False)
+        obj.resource_id = self.kwargs['resource']
+        obj.save()
+        return super().form_valid(form)
 
 
-class FileDetailView(InventoryLoginRequiredMixin, UpdateView):
-    template_name = "inventory/file_form.html"
+class FileUpdateView(CanModifyRequiredMixin, CommonPopoutUpdateView):
     model = models.File
     form_class = forms.FileForm
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        context["editable"] = False
-        return context
+    h3 = gettext_lazy("NOTE: to add a thumbnail, simply upload an image and ensure the caption contains the word 'thumbnail'")
+    is_multipart_form_data = True
 
 
-class FileUpdateView(CanModifyRequiredMixin, UpdateView):
-    template_name = "inventory/file_form.html"
+class FileDeleteView(CanModifyRequiredMixin, CommonPopoutDeleteView):
     model = models.File
-    form_class = forms.FileForm
-
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        context["editable"] = True
-        return context
-
-
-class FileDeleteView(CanModifyRequiredMixin, DeleteView):
-    template_name = "inventory/file_confirm_delete.html"
-    model = models.File
-
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
 
 # DATA RESOURCE #
 #################
 
-class DataResourceCreateView(CanModifyRequiredMixin, CreateView):
-    template_name = "inventory/data_resource_form.html"
+class DataResourceCreateView(CanModifyRequiredMixin, CommonPopoutCreateView):
     model = models.DataResource
     form_class = forms.DataResourceForm
 
     def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", kwargs={"pk": object.resource.id}))
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
-        context["resource"] = resource
-        return context
-
-    def get_initial(self):
-        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
-        return {'resource': resource}
+        obj = form.save(commit=False)
+        obj.resource_id = self.kwargs['resource']
+        obj.save()
+        return super().form_valid(form)
 
 
-class DataResourceUpdateView(CanModifyRequiredMixin, UpdateView):
-    template_name = "inventory/data_resource_form.html"
+class DataResourceUpdateView(CanModifyRequiredMixin, CommonPopoutUpdateView):
     model = models.DataResource
     form_class = forms.DataResourceForm
 
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        return context
-
-
-class DataResourceDeleteView(CanModifyRequiredMixin, DeleteView):
-    template_name = "inventory/data_resource_confirm_delete.html"
+class DataResourceDeleteView(CanModifyRequiredMixin, CommonPopoutDeleteView):
     model = models.DataResource
-
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
 
 @login_required(login_url='/accounts/login/')
@@ -1451,47 +1396,24 @@ def data_resource_clone(request, pk):
 # WEB SERVICES #
 ################
 
-class WebServiceCreateView(CanModifyRequiredMixin, CreateView):
-    template_name = "inventory/data_resource_form.html"
+class WebServiceCreateView(CanModifyRequiredMixin, CommonPopoutCreateView):
     model = models.WebService
     form_class = forms.WebServiceForm
 
     def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", kwargs={"pk": object.resource.id}))
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
-        context["resource"] = resource
-        return context
-
-    def get_initial(self):
-        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
-        return {'resource': resource}
+        obj = form.save(commit=False)
+        obj.resource_id = self.kwargs['resource']
+        obj.save()
+        return super().form_valid(form)
 
 
-class WebServiceUpdateView(CanModifyRequiredMixin, UpdateView):
-    template_name = "inventory/data_resource_form.html"
+class WebServiceUpdateView(CanModifyRequiredMixin, CommonPopoutUpdateView):
     model = models.WebService
     form_class = forms.WebServiceForm
 
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        return context
-
-
-class WebServiceDeleteView(CanModifyRequiredMixin, DeleteView):
-    template_name = "inventory/data_resource_confirm_delete.html"
+class WebServiceDeleteView(CanModifyRequiredMixin, CommonPopoutDeleteView):
     model = models.WebService
-
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
 
 @login_required(login_url='/accounts/login/')
