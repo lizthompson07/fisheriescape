@@ -18,13 +18,40 @@
 {% endblock %}
 
 {% block subcontent %}
+
+  {% include "shared_models/_generic_breadcrumbs.html" %}
+  <div class="mb-3">
+    <h2 class="">{{ h1|safe }}</h2>
+  </div>
+  {% bootstrap_messages %}
+
+  <div class="table-bordered py-3 px-2 admin-panel mb-3">
+
+    <form class="form " action="." method="get" id="filter-form" @change="submitForm">
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field filter.form.fiscal_year placeholder="" size="small" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field filter.form.lead_office placeholder="" size="small" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field filter.form.id placeholder="" size="small" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field filter.form.is_posted placeholder="" size="small" %}
+        </div>
+        <div class="col">
+          <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+          <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+        </div>
+      </div>
+    </form>
+  </div>
+
   <div id="app" v-cloak>
     <div>
-      {% include "shared_models/_generic_breadcrumbs.html" %}
-      <div class="mb-3">
-        <h2 class="">{{ h1|safe }}</h2>
-      </div>
-      {% bootstrap_messages %}
+
       <div v-if="canModify" class="alert alert-primary no-print" role="alert">
         <p class="mb-0">
           <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
@@ -32,18 +59,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-2 px-3 py-3 mx-3 table-bordered">
-        <form class="form " action="." method="get" id="filter-form" @change="submitForm">
-          {% bootstrap_field filter.form.fiscal_year placeholder="" size="small" %}
-          {% bootstrap_field filter.form.lead_office placeholder="" size="small" %}
-          {% bootstrap_field filter.form.id placeholder="" size="small" %}
-          {% bootstrap_field filter.form.is_posted placeholder="" size="small" %}
-          <div class="">
-            <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
-            <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
-          </div>
-        </form>
-      </div>
+
       <div class="col">
         <div v-if="loading" class="loading mb-3 mt-3 mt-5">
           <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
@@ -55,6 +71,7 @@
           <thead>
           <tr>
             <th>${processLabels.id}</th>
+            <th class="">${processLabels.fiscal_year}</th>
             <th>{% trans "Process" %}</th>
             <th class="w-25">${processLabels.is_posted}</th>
             <th class="w-25">{% trans "Is ToR posted on CSAS website?" %}</th>
@@ -63,6 +80,7 @@
           <tbody>
           <tr v-for="p, index in processes" :key="p.id">
             <td>${p.id}</td>
+            <td>${p.fiscal_year}</td>
             <td>
               <div class="neighbours">
                 <p class="mb-0">
@@ -296,6 +314,9 @@
       this.getCurrentUser();
       this.getProcesses();
       this.getProcessMetadata();
+      this.$nextTick(() => {
+
+      })
     },
   });
 
