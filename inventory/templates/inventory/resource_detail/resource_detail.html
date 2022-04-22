@@ -4,7 +4,7 @@
 {% load custom_filters %}
 {% load custom_tags %}
 {% load i18n %}
-
+{% load l10n %}
 
 {% block subcontent %}
 
@@ -42,7 +42,6 @@
       </a>
 
       {% if object.flagged_4_deletion %}
-
         <a class="{{ my_btn }}" href="#" pop-href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
            title="Unflag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
           Unflag for Deletion
@@ -55,8 +54,6 @@
           <span class="mdi mdi-flag ml-1"></span>
         </a>
       {% endif %}
-
-
 
       {% if object.flagged_4_publication %}
         <a class="{{ my_btn }}" href="#" pop-href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
@@ -94,20 +91,11 @@
 
   </div>
 
-  <div class="alert alert-success" role="alert">
-      <h4 class="alert-heading">
-          Well done!
-      </h4>
-      <p>
-          Aww yeah, you successfully read this important alert message. This example text is going to run a bit longer so that you can
-          see how spacing within an alert works with this kind of content.
-      </p>
-      <hr>
-      <p class="mb-0">
-          Whenever you need to, be sure to use margin utilities to keep things nice and tidy.
-      </p>
+  <div class="alert alert-success w-75" role="alert">
+    <p class="lead p-0 m-0">
+      <span class="mdi mdi-check text-success mr-1 lead"></span> {{ can_modify.reason }}
+    </p>
   </div>
-
 
   {#<!-- HNAP MODAL -->#}
   <div class="modal fade" id="hnap" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
@@ -189,29 +177,29 @@
     <div class="col-3">
 
       <h4 class="neighbours">People</h4>
-      <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:resource_person_filter' object.id %}">
-        Add a Person
+      <a class=" mb-2 btn btn-xs btn-outline-primary" href="{% url 'inventory:resource_person_filter' object.id %}">
+        <span class="mdi mdi-plus text-primary"></span>
       </a>
 
       {% include "inventory/resource_detail/_resource_detail_people.html" %}
       <br>
 
       <h4 class="neighbours">Storage Files</h4>
-      <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:file_create' object.id %}">
-        Add a File
+      <a class="mb-2 btn btn-xs btn-outline-primary" href="{% url 'inventory:file_create' object.id %}">
+        <span class="mdi mdi-plus text-primary"></span>
       </a>
       {% include "inventory/resource_detail/_resource_detail_files.html" %}
 
       <h4 class="neighbours">Data Resources</h4>
-      <a class="btn btn-sm btn-outline-primary " href="{% url 'inventory:data_resource_create' object.id %}">
-        Add a Data Resource
+      <a class="mb-2 btn btn-xs btn-outline-primary" href="{% url 'inventory:data_resource_create' object.id %}">
+        <span class="mdi mdi-plus text-primary"></span>
       </a>
       {% include "inventory/resource_detail/_resource_detail_data_resources.html" %}
       <br>
 
       <h4 class="neighbours">Web Services</h4>
-      <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:web_service_create' object.id %}">
-        Add a Web Service
+      <a class="mb-2 btn btn-xs btn-outline-primary" href="{% url 'inventory:web_service_create' object.id %}">
+        <span class="mdi mdi-plus text-primary"></span>
       </a>
       {% include "inventory/resource_detail/_resource_detail_web_services.html" %}
       <br>
@@ -253,17 +241,17 @@
 
       <h4 class="neighbours">Keywords etc.</h4>
       <div class="neighbours">
-        <a class="btn btn-sm btn-outline-primary"
+        <a class="mb-2 btn btn-xs btn-outline-primary"
            href="{% url 'inventory:resource_keyword_edit' object.id %}">
-          Add a Keyword
+          <span class="mdi mdi-plus text-primary"></span>
         </a>
       </div>
       {% include "inventory/resource_detail/_resource_detail_keywords.html" %}
 
       <h4 class="neighbours">Citations</h4>
-      <a class="btn btn-sm btn-outline-primary"
+      <a class="mb-2 btn btn-xs btn-outline-primary"
          href="{% url 'inventory:resource_citation_filter' object.id %}">
-        Add a Citation
+        <span class="mdi mdi-plus text-primary"></span>
       </a>
       {% include "inventory/resource_detail/_resource_detail_citations.html" %}
 
@@ -275,7 +263,6 @@
 
     </div>
   </div>
-  </div>
 
 
 
@@ -283,6 +270,12 @@
 
 
 {% block body_js %}
+
+  {% localize off %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  {% endlocalize %}
+
 
   <script type="text/javascript">
   $(".collapse-btn").click(function () {
@@ -299,58 +292,35 @@
   <script>
   {% if object.bounds %}
     function initialize() {
-
-      window.map = new google.maps.Map(document.getElementById('map'), {
-        mapTypeId: google.maps.MapTypeId.SATELLITE,
-        disableDefaultUI: true
+      map = new L.Map("map", {
+        center: new L.LatLng(46, -64),
+        zoom: 8,
       });
-      var infowindow = new google.maps.InfoWindow();
-      var bounds = new google.maps.LatLngBounds();
 
-      // extend bounds var
-      {% for point in object.bounds%}
-        bounds.extend(new google.maps.LatLng({{point|last}}, {{ point|first}}));
-      {% endfor %}
 
-      // Define the LatLng coordinates for the polygon's path.
       var polygonCoords = [
         {% for point in object.bounds %}
           {lat: {{point|last}}, lng: {{point|first}}},
         {% endfor %}
       ];
 
-      // Construct the stratum.
-      var color = '#ea4544';
-      var myPolygon = new google.maps.Polygon({
-        path: polygonCoords,
-        strokeColor: 'red',
-        strokeOpacity: 0.8,
-        strokeWeight: 3,
-        {#fillColor: color,#}
-        {#fillOpacity: 0.35#}
-      });
-      myPolygon.setMap(map);
-      {#bounds.extend(myPolygon.getBounds());#}
 
-      map.fitBounds(bounds);
-      // add a click event on the polygon
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map)
 
+      L.polygon([polygonCoords], {
+        color: 'red',
+      }).addTo(map);
 
-      myPolygon.setMap(map);
-      {#bounds.extend(myPolygon.getBounds());#}
-
-      map.fitBounds(bounds);
-
-      // add a click event on the polygon
-    }
-    function loadScript() {
-      var script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
-      document.body.appendChild(script);
+      map.fitBounds(polygonCoords);
     }
 
-    window.onload = loadScript();
+    $(document).ready(function () {
+      // Stuff to do as soon as the DOM is ready
+      initialize()
+
+    });
   {% endif %}
 
   </script>
