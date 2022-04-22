@@ -90,8 +90,6 @@ class ResourceForm(forms.ModelForm):
             'file_identifier',
             'uuid',
             'date_verified',
-            # 'date_last_modified',
-            # 'fgp_publication_date',
             'citations2',
             'keywords',
             'people',
@@ -100,6 +98,7 @@ class ResourceForm(forms.ModelForm):
             'completedness_rating',
             'completedness_report',
             'translation_needed',
+            'paa_items'
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
@@ -150,7 +149,7 @@ class ResourceForm(forms.ModelForm):
             'purpose_fre',
             'descr_eng',
             'descr_fre',
-            'time_start_year',
+
             'resource_constraint_eng',
             'resource_constraint_fre',
             'security_use_limitation_eng',
@@ -188,7 +187,6 @@ class ResourceForm(forms.ModelForm):
             'time_end_year',
             'additional_credit',
             'parent',
-            # 'fgp_publication_date',
         ]
 
         internal_fields = [
@@ -208,28 +206,28 @@ class ResourceForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = SECTION_CHOICES
 
-        for field_key in self.fields:
-            if field_key in mandatory_fields:
-                self.fields[field_key].label = mark_safe('<span class="red-font" data-toggle="tooltip" title="{}">{}</span>'.format(
-                    _("This is a mandatory field in the Federal Geospatial Platform (FGP)"),
-                    self.fields[field_key].label,
-                ))
-            elif field_key in mandatory_bilingual_fields:
-                self.fields[field_key].label = mark_safe('<span class="orange-font" data-toggle="tooltip" title="{}">{}</span>'.format(
-                    _("This is an optional field in the Federal Geospatial Platform (FGP), however if present, it needs to be entered "
-                      "in both English and French"),
-                    self.fields[field_key].label,
-                ))
-            elif field_key in internal_fields:
-                self.fields[field_key].label = mark_safe('<span class="purple-font" data-toggle="tooltip" title="{}">{}</span>'.format(
-                    _("This is an optional internal field (DFO only) and does not get published to the Federal Geospatial Platform (FGP)"),
-                    self.fields[field_key].label,
-                ))
-            else:
-                self.fields[field_key].label = mark_safe('<span class="green-font" data-toggle="tooltip" title="{}">{}</span>'.format(
-                    _("This is an optional field"),
-                    self.fields[field_key].label,
-                ))
+        # for field_key in self.fields:
+        #     if field_key in mandatory_fields:
+        #         self.fields[field_key].label = mark_safe('<span class="red-font" data-toggle="tooltip" title="{}">{}</span>'.format(
+        #             _("This is a mandatory field in the Federal Geospatial Platform (FGP)"),
+        #             self.fields[field_key].label,
+        #         ))
+        #     elif field_key in mandatory_bilingual_fields:
+        #         self.fields[field_key].label = mark_safe('<span class="orange-font" data-toggle="tooltip" title="{}">{}</span>'.format(
+        #             _("This is an optional field in the Federal Geospatial Platform (FGP), however if present, it needs to be entered "
+        #               "in both English and French"),
+        #             self.fields[field_key].label,
+        #         ))
+        #     elif field_key in internal_fields:
+        #         self.fields[field_key].label = mark_safe('<span class="purple-font" data-toggle="tooltip" title="{}">{}</span>'.format(
+        #             _("This is an optional internal field (DFO only) and does not get published to the Federal Geospatial Platform (FGP)"),
+        #             self.fields[field_key].label,
+        #         ))
+        #     else:
+        #         self.fields[field_key].label = mark_safe('<span class="green-font" data-toggle="tooltip" title="{}">{}</span>'.format(
+        #             _("This is an optional field"),
+        #             self.fields[field_key].label,
+        #         ))
 
         if kwargs.get("initial") and kwargs.get("initial").get("cloning"):
             # m2m

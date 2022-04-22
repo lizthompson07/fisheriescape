@@ -260,7 +260,7 @@ class Resource(models.Model):
                                                    verbose_name="Security use limitation (French)")
     security_classification = models.ForeignKey(SecurityClassification, on_delete=models.DO_NOTHING, blank=True,
                                                 null=True)
-    storage_envr_notes = models.TextField(blank=True, null=True, verbose_name="Storage notes")
+    storage_envr_notes = models.TextField(blank=True, null=True, verbose_name="Storage notes (internal)")
     distribution_formats = models.ManyToManyField(DistributionFormat, blank=True)
     data_char_set = models.ForeignKey(CharacterSet, on_delete=models.DO_NOTHING, blank=True, null=True,
                                       verbose_name="Data character set")
@@ -293,7 +293,7 @@ class Resource(models.Model):
     last_revision_date = models.DateTimeField(blank=True, null=True, verbose_name="Date of last published revision")
     open_data_notes = models.TextField(blank=True, null=True,
                                        verbose_name="Open data notes")
-    notes = models.TextField(blank=True, null=True, verbose_name="General notes")
+    notes = models.TextField(blank=True, null=True, verbose_name="General notes (internal)")
     citations2 = models.ManyToManyField(shared_models.Citation, related_name='resources', blank=True)
     keywords = models.ManyToManyField(Keyword, related_name='resources', blank=True)
     people = models.ManyToManyField(Person, through='ResourcePerson')

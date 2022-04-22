@@ -21,7 +21,8 @@ from easy_pdf.views import PDFTemplateView
 from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
-from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView, CommonListView
+from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView, CommonListView, \
+    CommonUpdateView
 from . import emails
 from . import filters
 from . import forms
@@ -271,19 +272,14 @@ class ResourceDetailPDFView(InventoryBasicMixin, PDFTemplateView):
         return context
 
 
-class ResourceFullDetailView(InventoryBasicMixin, UpdateView):
+class ResourceUpdateView(CanModifyRequiredMixin, CommonUpdateView):
     model = models.Resource
     form_class = forms.ResourceForm
+    home_url_name = "inventory:index"
+    template_name = "inventory/resource_form.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['readonly'] = True
-        return context
-
-
-class ResourceUpdateView(CanModifyRequiredMixin, UpdateView):
-    model = models.Resource
-    form_class = forms.ResourceForm
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("inventory:resource_detail", args=[self.get_object().id])}
 
     def get_initial(self):
         return {
@@ -302,6 +298,16 @@ class ResourceUpdateView(CanModifyRequiredMixin, UpdateView):
                                                                                                                           'pk': obj.id}))
                          for obj in models.Resource.objects.all()]
         context['resource_list'] = resource_list
+        return context
+
+
+class ResourceFullDetailView(ResourceUpdateView):
+    model = models.Resource
+    form_class = forms.ResourceForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['readonly'] = True
         return context
 
 
