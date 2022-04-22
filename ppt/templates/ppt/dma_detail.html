@@ -10,58 +10,127 @@
 {% block subcontent %}
 
   <div class="btns mb-3">
+    <a class="btn btn-sm btn-dark float-right" href="{% url 'ppt:dma_clone' object.id %}">{% trans "Clone" %}</a>
     <a class="btn btn-sm btn-warning" href="{% url 'ppt:dma_edit' object.id %}">{% trans "Edit" %}</a>
     <a class="btn btn-sm btn-danger " href="{% url 'ppt:dma_delete' object.id %}">{% trans "Delete" %}</a>
-    <a class="btn btn-sm btn-dark" href="{% url 'ppt:dma_clone' object.id %}">{% trans "Clone" %}</a>
   </div>
   <div class="mb-5">
-    <table class="table table-sm">
-      {% for field in field_list %}
-        {% verbose_td_display object field format='html' %}
-      {% endfor %}
-    </table>
-  </div>
 
-  <div class="mb-5">
-    <div class="float-right mb-3">
-      <a href="#" pop-href="{% url 'ppt:dma_review_new' object.id %}" class="btn btn-primary">
-        <span class="mdi mdi-plus text-light"></span>
-      </a>
-    </div>
-
-    <h4>{% trans "Reviews" %}</h4>
-    {% if object.reviews.exists %}
-      <table class="table table-sm table-hover">
-        <thead>
-        <tr>
-          {% for field in dma_review_field_list %}
+    <div class="card mb-3">
+      <div class="card-header lead">
+        {% trans "General / Identification" %}
+      </div>
+      <div class="card-body">
+        <table class="table table-sm">
+          {% for field in fields_id %}
             {% if field == "comments" %}
-              <th class="w-40">{% get_verbose_label object.reviews.first field %}</th>
+              {% verbose_td_display object field th_width="35%" format="html" %}
             {% else %}
-              <th>{% get_verbose_label object.reviews.first field %}</th>
+              {% verbose_td_display object field th_width="35%" %}
             {% endif %}
           {% endfor %}
-        </tr>
-        </thead>
-        <tbody>
-        {% for review in object.reviews.all %}
-          <tr pop href="{% url 'ppt:dma_review_edit'  review.id %}">
-            {% for field in dma_review_field_list %}
-              <td>{% get_field_value review field format='html' %}</td>
-            {% endfor %}
-            <td>
-              <a href="#" pop-href="{% url 'ppt:dma_review_delete' review.id %}" class="btn"><span class="mdi mdi-delete lead"></span></a>
-            </td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <em>{% trans "This DMA has not been reviewed." %}</em>
-    {% endif %}
-  </div>
+        </table>
+      </div>
+    </div>
 
+    <div class="card mb-3">
+      <div class="card-header lead">
+        {% trans "Metadata" %}
+      </div>
+      <div class="card-body">
+        <table class="table table-sm">
+          {% for field in fields_metadata %}
+            {% if "tool" in field or "text" in field %}
+              {% verbose_td_display object field format="html" th_width="35%" %}
+            {% else %}
+              {% verbose_td_display object field th_width="35%" %}
+            {% endif %}
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header lead">
+        {% trans "Archiving and Storage" %}
+      </div>
+      <div class="card-body">
+        <table class="table table-sm">
+          {% for field in fields_storage %}
+            {% if "storage_solutions" in field %}
+              {% verbose_td_display object field th_width="35%" %}
+            {% else %}
+              {% verbose_td_display object field format="html" th_width="35%" %}
+            {% endif %}
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header lead">
+        {% trans "Sharing" %}
+      </div>
+      <div class="card-body">
+        <table class="table table-sm">
+          {% for field in fields_sharing %}
+           {% if "had_sharing_agreements" in field %}
+              {% verbose_td_display object field th_width="35%" %}
+            {% else %}
+              {% verbose_td_display object field format="html" th_width="35%" %}
+            {% endif %}
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header lead">
+        <div class="float-right mb-3">
+          <a href="#" pop-href="{% url 'ppt:dma_review_new' object.id %}" class="btn btn-primary">
+            <span class="mdi mdi-plus text-light"></span>
+          </a>
+        </div>
+        {% trans "Reviews" %}
+      </div>
+      <div class="card-body">
+        {% if object.reviews.exists %}
+          <table class="table table-sm table-hover">
+            <thead>
+            <tr>
+              {% for field in dma_review_field_list %}
+                {% if field == "comments" %}
+                  <th class="w-40">{% get_verbose_label object.reviews.first field %}</th>
+                {% else %}
+                  <th>{% get_verbose_label object.reviews.first field %}</th>
+                {% endif %}
+              {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for review in object.reviews.all %}
+              <tr pop href="{% url 'ppt:dma_review_edit'  review.id %}">
+                {% for field in dma_review_field_list %}
+                  <td>{% get_field_value review field format='html' %}</td>
+                {% endfor %}
+                <td>
+                  <a href="#" pop-href="{% url 'ppt:dma_review_delete' review.id %}" class="btn"><span class="mdi mdi-delete lead"></span></a>
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <em>{% trans "This DMA has not been reviewed." %}</em>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
 
 
 
 {% endblock %}
+
+
+

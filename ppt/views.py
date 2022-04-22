@@ -442,7 +442,7 @@ class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateView):
     container_class = "container bg-light curvy"
 
     def get_initial(self):
-        # this is an important method to keep since it is accessed by the Form class 
+        # this is an important method to keep since it is accessed by the Form class
         # TODO: TEST ME
         return dict(project=self.get_project())
 
@@ -1237,6 +1237,36 @@ class DMADetailView(PPTLoginRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["dma_review_field_list"] = get_dma_review_field_list()
+
+        context["fields_id"] = [
+            'title',
+            'data_contact',
+            'status',
+            'comments',
+            'metadata',
+        ]
+        context["fields_metadata"] = [
+            'metadata_contact',
+            'metadata_tool',
+            'metadata_url',
+            'metadata_update_freq',
+            'metadata_freq_text',
+        ]
+        context["fields_storage"] = [
+            'storage_solutions',
+            'storage_solution_text',
+            'storage_needed',
+            'raw_data_retention',
+            'data_retention',
+            'backup_plan',
+            'cloud_costs',
+        ]
+        context["fields_sharing"] = [
+            'had_sharing_agreements',
+            'sharing_agreements_text',
+            'publication_timeframe',
+            'publishing_platforms',
+        ]
         return context
 
 
@@ -1283,8 +1313,6 @@ class DMACloneView(DMAUpdateView):
         # Now we need to replicate all the related records:
         for item in old_obj.storage_solutions.all():
             new_obj.storage_solutions.add(item)
-
-
 
         return HttpResponseRedirect(reverse_lazy("ppt:dma_edit", args=[new_obj.id]))
 
