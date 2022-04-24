@@ -567,13 +567,14 @@ class ApprovalForm(forms.ModelForm):
 
     class Meta:
         model = models.Review
-        fields = ["approval_status", "approval_level", "allocated_budget", "approver_comment", ]
+        fields = ["approval_status", "approval_level", "funding_status", "allocated_budget", "approver_comment", ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["approval_status"].widget.attrs = {"v-model": "project_year.review.approval_status"}
         self.fields["approval_level"].widget.attrs = {"v-model": "project_year.review.approval_level"}
         self.fields["allocated_budget"].widget.attrs = {"v-model": "project_year.review.allocated_budget"}
+        self.fields["funding_status"].widget.attrs = {"v-model": "project_year.review.funding_status"}
         self.fields["approver_comment"].widget.attrs = {"v-model": "project_year.review.approver_comment"}
         self.fields["approval_email_update"].widget.attrs = {"v-model": "project_year.review.approval_email_update"}
 
@@ -948,6 +949,23 @@ class DMAForm(forms.ModelForm):
         widgets = {
             'storage_solutions': forms.SelectMultiple(attrs=chosen_js),
         }
+
+
+class DMACloneForm(forms.ModelForm):
+    class Meta:
+        model = models.DMA
+        fields = ["project"]
+        labels = {
+            'project': _("Clone to which project #?"),
+        }
+        widgets = {
+            'project': forms.Select(attrs=chosen_js)
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        project_choices = [(p.id, f"{p.id} - {p.title} ({p.region})") for p in models.Project.objects.all()]
+        self.fields["project"].choices = project_choices
 
 
 class DMAReviewForm(forms.ModelForm):

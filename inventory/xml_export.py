@@ -1,15 +1,15 @@
-import html
+from xml.dom import minidom
+from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
 
 from django.db.models import Q
-from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
-from xml.dom import minidom
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+
 from lib.functions.custom_functions import attr_error_2_none
 from lib.templatetags.custom_filters import nz
 from . import models
-from django.urls import reverse
 
 
 def prettify(elem):
@@ -104,7 +104,7 @@ def ci_responsible_party(resource_person):
     my_loc = attr_error_2_none(resource_person.person.organization, "location")
     charstring(ci_address, 'gmd:country',
                attr_error_2_none(my_loc, "country"),
-               attr_error_2_none(my_loc, "country"),
+               attr_error_2_none(my_loc, "country_fr"),
                )
     # email
     charstring(ci_address, 'gmd:electronicMailAddress', resource_person.person.user.email,
@@ -744,6 +744,11 @@ def construct(my_resource, pretty=True):
     except AttributeError:
         print("no 'maintenance'")
 
+    # thumbnail
+    if my_resource.thumbnail:
+        MD_BrowseGraphic = SubElement(SubElement(MD_DataIdentification, 'gmd:graphicOverview'), 'gmd:MD_BrowseGraphic')
+        charstring(MD_BrowseGraphic, 'gmd:fileName', my_resource.thumbnail)
+
     # uncontrolled
     uncontrolled = KeywordGroup(my_resource, 4)
     if uncontrolled.keyword_count > 0:
@@ -912,7 +917,7 @@ def construct(my_resource, pretty=True):
         charstring(CI_OnlineResource, 'gmd:description', web_service.content_type.english_value,
                    web_service.content_type.french_value)
     if pretty:
-        return prettify(root) if not None else None # DJF: this is being added here because of a periodic failure in unit testing. Not a solution :(
+        return prettify(root) if not None else None  # DJF: this is being added here because of a periodic failure in unit testing. Not a solution :(
     else:
         return ElementTree(root) if not None else None
 
@@ -925,6 +930,7 @@ def verify(resource):
         'south_bounding',
         'east_bounding',
         'north_bounding',
+        'thumbnail_url',
 
         # bilingual fields
         '?title_',
@@ -932,6 +938,7 @@ def verify(resource):
         '?purpose_',
         '?geo_descr_',
         '?security_use_limitation_',
+        '?resource_constraint_',
 
         # must check for fk and attribute
         '.resource_type.code',  # both fk and code attr
@@ -954,7 +961,6 @@ def verify(resource):
         'web_services|',
         'distribution_formats|',
 
-
         # will check all keywords associated with resource
         '*keyword.text_value_',  # special keywords function will be called
 
@@ -972,7 +978,6 @@ def verify(resource):
         '$physical_sample_descr_',  # Physical Sample Description
         '$parameters_collected_',  # Parameters Collected
         '$sampling_method_',  # sampling method
-        '$resource_constraint_',  # resource constraint
     ]
 
     # this is where we will store the feedback
@@ -1089,7 +1094,7 @@ def verify(resource):
 
             if field == 'certification_history':
                 cert_now_html = mark_safe(
-                    f'<a href={reverse("inventory:resource_certify", kwargs={"pk": resource.id})}>{_("certify now")}</a>')
+                    f'<a href="#" pop-href={reverse("inventory:resource_certify", args=[resource.id])}>{_("certify now")}</a>')
                 if resource.certification_history.count() == 0:
                     checklist.append(f'This record has not been certified ({cert_now_html})')
                     rating = rating - 1

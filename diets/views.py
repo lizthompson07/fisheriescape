@@ -24,7 +24,7 @@ from .utils import can_read
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(can_read, login_url='/accounts/denied/')
+@user_passes_test(can_read, login_url='/accounts/denied/?app=diets')
 def index(request):
     return render(request, 'diets/index.html')
 

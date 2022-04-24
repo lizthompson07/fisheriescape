@@ -43,6 +43,7 @@ urlpatterns = [
     path('dmas/<int:pk>/view/', views.DMADetailView.as_view(), name="dma_detail"),
     path('dmas/<int:pk>/edit/', views.DMAUpdateView.as_view(), name="dma_edit"),
     path('dmas/<int:pk>/delete/', views.DMADeleteView.as_view(), name="dma_delete"),
+    path('dmas/<int:pk>/clone/', views.DMACloneView.as_view(), name="dma_clone"),
 
     # DMA Reviews #
     #################

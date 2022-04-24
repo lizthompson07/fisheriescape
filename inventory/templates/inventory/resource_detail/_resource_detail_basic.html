@@ -17,13 +17,11 @@
     {% verbose_td_display object "public_url" url=True %}
     {% verbose_td_display object "fgp_publication_date" %}
     {% verbose_td_display object "od_publication_date" %}
-    {% verbose_td_display object "paa_items" %}
     {% verbose_td_display object "last_revision_date" %}
     <tr>
         <th style="width: 150px">Last modification by</th>
         <td>
             {{ object.last_modified_by }}
-{#            on {{ object.date_last_modified }}#}
         </td>
     </tr>
 </table>

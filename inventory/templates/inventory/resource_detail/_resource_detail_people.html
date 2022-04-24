@@ -2,7 +2,6 @@
 <ul>
     {% for item in object.resource_people.all %}
         <li>
-
             <a href="{% url 'inventory:resource_person_edit' item.id %}">{{ item.person.user.first_name }} {{ item.person.user.last_name }}
                 - {{ item.role }}</a>&nbsp;
             <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"

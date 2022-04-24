@@ -44,7 +44,7 @@ def tea_delete(request, pk):
     elif not request.user.is_authenticated:
         return HttpResponseRedirect('/accounts/login/?next={}'.format(reverse_lazy("whalesdb:delete_tea", args=[pk, ])))
     else:
-        return HttpResponseRedirect('/accounts/denied/')
+        return HttpResponseRedirect('/accounts/denied/?app=whalesdb')
 
 
 class ReportView(CommonFormView):
@@ -723,7 +723,7 @@ class CruList(mixins.CruMixin, CommonList):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=whalesdb')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -962,7 +962,7 @@ class CommonDeleteView(UserPassesTestMixin, CommonFormMixin, DeleteView):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=whalesdb')
         return super().dispatch(request, *args, **kwargs)
 
     def get_delete_protection(self):
@@ -1112,7 +1112,7 @@ def delete_managed(request, key, pk):
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
-        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access') + "?app=whalesdb")
 
 
 class ManagedFormsetViewMixin(AdminRequiredMixin, CommonFormsetView):
