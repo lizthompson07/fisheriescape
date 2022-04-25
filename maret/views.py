@@ -470,11 +470,18 @@ class CommitteeDetailView(UserRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'name',
+            'main_topic',
+            'species',
             'branch',
             'division',
+            'area_office',
             'is_dfo_chair',
+            'external_chair',
             'dfo_liaison',
             'other_dfo_branch',
+            'other_dfo_regions',
+            'other_dfo_areas',
+            'dfo_role',
             'first_nation_participation',
             'provincial_participation',
             'meeting_frequency',
