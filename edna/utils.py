@@ -46,9 +46,8 @@ def get_sample_field_list():
 def get_collection_field_list(collection):
     my_list = [
         'name',
-        'program_description',
+        'description',
         'region',
-        'location_description',
         'province',
         'contacts',
         'dates|dates',

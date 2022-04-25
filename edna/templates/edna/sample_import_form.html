@@ -179,7 +179,9 @@
       {% csrf_token %}
       {% for field in form %}
 
-        <h2 class="red-font">WARNING: running this function will overwrite any samples with the same name unique identifier.</h2>
+        <h2 class="red-font">
+          WARNING: samples from <u>within this project</u> that have matching bottle IDs will be overwritten with the data from this CSV.
+        </h2>
         <h3>Please select the file to upload:</h3>
         {{ field }}
       {% endfor %}

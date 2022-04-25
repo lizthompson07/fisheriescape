@@ -111,8 +111,7 @@ class Assay(UnilingualSimpleLookup, MetadataFields):
 
 class Collection(UnilingualSimpleLookup, MetadataFields):
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name='edna_collections', blank=True, null=True, verbose_name=_("DFO region"))
-    program_description = models.TextField(blank=True, null=True, verbose_name=_("program description"))
-    location_description = models.TextField(blank=True, null=True, verbose_name=_("area of operation"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("program description"))
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='edna_collections', blank=True, null=True)
     contact_users = models.ManyToManyField(User, blank=True, verbose_name=_("contact DMApps user(s)"))
     contact_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("contact name"))
@@ -124,6 +123,10 @@ class Collection(UnilingualSimpleLookup, MetadataFields):
     start_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("start date"))
     end_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("end date"))
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="collections", blank=True, null=True, editable=False)
+
+    class Meta:
+        ordering = ["name", ]
+        verbose_name = _("Project")
 
     def save(self, *args, **kwargs):
         qs = self.samples.all()
@@ -194,7 +197,7 @@ class File(models.Model):
 
 
 class Sample(MetadataFields):
-    collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.CASCADE, verbose_name=_("collection"))
+    collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.CASCADE, verbose_name=_("project"))
     sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("sample type"))
     bottle_id = models.CharField(verbose_name=_("bottle ID"), blank=True, null=True, max_length=50)
     location = models.CharField(max_length=255, verbose_name=_("location"), blank=True, null=True)

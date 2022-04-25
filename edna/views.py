@@ -1,5 +1,6 @@
 import csv
 import datetime as dt
+import random
 from io import StringIO
 
 import requests
@@ -20,8 +21,6 @@ from shared_models.views import CommonTemplateView, CommonHardDeleteView, Common
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonListView
 from . import models, forms, filters, utils
 from .mixins import ednaBasicMixin, eDNAAdminRequiredMixin, SuperuserOrAdminRequiredMixin
-from .utils import is_admin
-
 
 
 class ednaUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
@@ -40,7 +39,6 @@ class ednaUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView
     success_url = reverse_lazy("edna:manage_edna_users")
 
 
-
 class IndexTemplateView(ednaBasicMixin, CommonTemplateView):
     h1 = "home"
     active_page_name_crumb = "home"
@@ -48,7 +46,12 @@ class IndexTemplateView(ednaBasicMixin, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_admin"] = is_admin(self.request.user)
+        source = "GATC"
+        random.seed()
+        txt = ""
+        for i in range(1, 9000):
+            txt += random.sample("GATC", 1)[0]
+        context["txt"] = txt
         return context
 
 
@@ -280,10 +283,10 @@ class CollectionListView(eDNAAdminRequiredMixin, CommonFilterView):
     new_btn_text = gettext_lazy("Add a New Collection")
     container_class = "container-fluid curvy"
     field_list = [
-        {"name": 'start_date|{}'.format(_("collection date")), "class": "", "width": ""},
-        {"name": 'region', "class": "", "width": ""},
         {"name": 'name', "class": "", "width": ""},
-        {"name": 'location_description', "class": "", "width": ""},
+        {"name": 'dates|{}'.format(_("collection dates")), "class": "", "width": ""},
+        {"name": 'region', "class": "", "width": ""},
+        {"name": 'description', "class": "", "width": ""},
         {"name": 'province', "class": "", "width": ""},
         {"name": 'sample_count|{}'.format(_("sample count")), "class": "", "width": ""},
         {"name": 'fiscal_year', "class": "", "width": ""},
@@ -315,7 +318,7 @@ class CollectionDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     model = models.Collection
     template_name = 'edna/collection_detail.html'
     home_url_name = "edna:index"
-    parent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    parent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
     container_class = "container-fluid"
 
     def get_field_list(self):
@@ -348,7 +351,7 @@ class CollectionDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
     success_message = 'The functional group was successfully deleted!'
     template_name = 'edna/confirm_delete.html'
     container_class = "container curvy"
-    grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    grandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
     delete_protection = False
 
     def get_parent_crumb(self):
@@ -359,7 +362,7 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
     form_class = forms.FileImportForm
     template_name = 'edna/sample_import_form.html'
     home_url_name = "edna:index"
-    grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    grandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
     h1 = ' '
     container_class = "container-fluid"
     active_page_name_crumb = gettext_lazy("Sample CSV Import")
@@ -395,8 +398,8 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
             station = row["station"]
             samplers = row["samplers"]
             datetime = make_aware(dt.datetime.strptime(row["datetime"], "%m/%d/%Y %H:%S"), utc)
-            latitude = row["latitude"]
-            longitude = row["longitude"]
+            latitude = nz(row["latitude"], None)
+            longitude = nz(row["longitude"], None)
             comments = row["comments"]
 
             sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, collection=my_object, sample_type_id=sample_type)
@@ -417,7 +420,7 @@ class SampleDataEntryTemplateView(eDNAAdminRequiredMixin, CommonDetailView):
     model = models.Collection
     template_name = 'edna/sample_data_entry.html'
     home_url_name = "edna:index"
-    grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    grandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
     h1 = ' '
     container_class = "container-fluid"
     active_page_name_crumb = gettext_lazy("Data Entry")
@@ -500,7 +503,7 @@ class SampleCreateView(eDNAAdminRequiredMixin, CommonCreateView):
     template_name = 'edna/form.html'
     home_url_name = "edna:index"
     container_class = "container curvy"
-    grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    grandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
 
     def get_cancel_url(self):
         return self.get_parent_crumb().get("url")
@@ -533,7 +536,7 @@ class SampleUpdateView(eDNAAdminRequiredMixin, CommonUpdateView):
     form_class = forms.SampleForm
     template_name = 'edna/form.html'
     home_url_name = "edna:index"
-    greatgrandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
     container_class = "container curvy"
 
     def get_parent_crumb(self):
@@ -549,7 +552,7 @@ class SampleDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
     template_name = 'edna/confirm_delete.html'
     container_class = "container curvy"
     home_url_name = "edna:index"
-    greatgrandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("edna:sample_detail", args=[self.get_object().id])}
@@ -565,7 +568,7 @@ class SampleDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     model = models.Sample
     template_name = 'edna/sample_detail.html'
     home_url_name = "edna:index"
-    grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    grandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
     container_class = "container-fluid"
     field_list = [
         'display|sample Id',
