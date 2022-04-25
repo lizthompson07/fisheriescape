@@ -142,7 +142,7 @@
             {
               title: '{{sample}}',
             }
-        ).addTo(map).bindPopup("<b>Bottle Id:</b> {{object}}");
+        ).addTo(map).bindPopup("<b>Collection = </b> {{object}}<br><b>Sample ID = </b> {{sample}}<br>");
       {% endif %}
     {% endfor %}
     if (lineCoords.length) map.fitBounds(lineCoords);

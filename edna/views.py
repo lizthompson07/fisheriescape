@@ -362,6 +362,7 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
     h1 = ' '
     container_class = "container-fluid"
+    active_page_name_crumb = gettext_lazy("Sample CSV Import")
 
     def get_parent_crumb(self):
         return {"title": self.get_collection(), "url": reverse("edna:collection_detail", args=[self.get_collection().id])}
@@ -389,8 +390,9 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
         for row in csv_reader:
             bottle_id = row["bottle_id"]
             sample_type = row["sample_type"]
-            site_identifier = row["site_identifier"]
-            site_description = row["site_description"]
+            location = row["location"]
+            site = row["site"]
+            station = row["station"]
             samplers = row["samplers"]
             datetime = make_aware(dt.datetime.strptime(row["datetime"], "%m/%d/%Y %H:%S"), utc)
             latitude = row["latitude"]
@@ -398,14 +400,16 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
             comments = row["comments"]
 
             sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, collection=my_object, sample_type_id=sample_type)
-            sample.site_identifier = site_identifier
-            sample.site_description = site_description
+            sample.location = location
+            sample.site = site
+            sample.station = station
             sample.samplers = samplers
             sample.datetime = datetime
             sample.latitude = latitude
             sample.longitude = longitude
             sample.comments = comments
             sample.save()
+
         return HttpResponseRedirect(self.get_parent_crumb()["url"])
 
 
@@ -434,32 +438,6 @@ class SampleDataEntryTemplateView(eDNAAdminRequiredMixin, CommonDetailView):
             example_obj.append(row)
         context["example_obj"] = example_obj
         return context
-
-    def form_valid(self, form):
-        my_object = self.get_collection()
-        temp_file = form.files['temp_file']
-        temp_file.seek(0)
-        csv_reader = csv.DictReader(StringIO(temp_file.read().decode('utf-8')))
-        for row in csv_reader:
-            bottle_id = row["bottle_id"]
-            site_identifier = row["site_identifier"]
-            site_description = row["site_description"]
-            samplers = row["samplers"]
-            datetime = dt.datetime.strptime(row["datetime"], "%Y-%m-%d %H:%S")
-            latitude = row["latitude"]
-            longitude = row["longitude"]
-            comments = row["comments"]
-
-            sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, collection=my_object)
-            sample.site_identifier = site_identifier
-            sample.site_description = site_description
-            sample.samplers = samplers
-            sample.datetime = datetime
-            sample.latitude = latitude
-            sample.longitude = longitude
-            sample.comments = comments
-            sample.save()
-        return HttpResponseRedirect(self.get_parent_crumb()["url"])
 
 
 # FILES #
