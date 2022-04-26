@@ -41,7 +41,7 @@ class FilterFilter(django_filters.FilterSet):
             'tube_id': ['exact'],
             'filtration_batch': ['exact'],
             'extracts': ['isnull'],
-
+            'collection': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
@@ -62,6 +62,7 @@ class DNAExtractFilter(django_filters.FilterSet):
             'extraction_number': ['exact'],
             'extraction_batch': ['exact'],
             'pcrs': ['isnull'],
+            'collection': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):

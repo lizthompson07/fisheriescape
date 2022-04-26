@@ -284,8 +284,7 @@ class Batch(models.Model):
     datetime = models.DateTimeField(default=timezone.now, verbose_name=_("date/time"))
     operators = models.ManyToManyField(User, blank=True, verbose_name=_("operator(s)"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
-    default_collection = models.ForeignKey(Collection, on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=False,
-                                           null=True)
+    default_collection = models.ForeignKey(Collection, on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=False, null=True)
 
     class Meta:
         ordering = ["datetime"]
@@ -393,6 +392,7 @@ class DNAExtract(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     extraction_batch = models.ForeignKey(ExtractionBatch, related_name='extracts', on_delete=models.CASCADE, verbose_name=_("extraction batch"))
     filter = models.ForeignKey(Filter, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='extracts', verbose_name=_("filter ID"))
+    collection = models.ForeignKey(Collection, related_name='extracts', on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=True, null=True)
     extraction_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("extraction number"), unique=True)
     start_datetime = models.DateTimeField(verbose_name=_("extraction date/time"))
     dna_extraction_protocol = models.ForeignKey(DNAExtractionProtocol, on_delete=models.DO_NOTHING, verbose_name=_("extraction protocol"))

@@ -28,7 +28,7 @@
       <p class="h3">{% trans "PCRs" %}</p>
       {#      <button @click="addPCR(null)" class="btn btn-sm btn-primary neighbours">{% trans "Add a PCR" %}</button>#}
       <add-pcr-overlay class="neighbours" @add="addPCRs"></add-pcr-overlay>
-      <extract-import-overlay class="neighbours" batch_id="{{ object.id }}" @add-extracts="addExtracts"></extract-import-overlay>
+      <extract-import-overlay class="neighbours" batch_id="{{ object.id }}" default_collection_id="{{ object.default_collection_id }} @add-extracts="addExtracts"></extract-import-overlay>
     </div>
 
 
@@ -62,7 +62,7 @@
           <th class="px-1 py-1" style="width: 110px">${pcrAssaylabels.ct}</th>
           <th class="px-1 py-1">${pcrAssaylabels.comments}</th>
           <th class="px-1 py-1" style="width: 125px">${pcrAssaylabels.result}</th>
-          <th class="px-1 py-1"  style="width: 110px">${pcrAssaylabels.edna_conc}</th>
+          <th class="px-1 py-1" style="width: 110px">${pcrAssaylabels.edna_conc}</th>
         </tr>
         </thead>
         <tbody>
@@ -196,10 +196,14 @@
   {% include "edna/components/add_pcr_overlay.html" %}
   <script type="application/javascript">
   let batchId = {{ object.id }};
+  let projectId = {{ object.default_collection_id }};
+
   var app = new Vue({
     el: '#app',
     delimiters: ["${", "}"],
     data: {
+      extractBatchId,
+      projectId,
       currentUser: null,
       //default_pcr_type: 1,
       //default_pcr_volume_ml: 1000,
@@ -226,7 +230,7 @@
           let letters = ["A", "B", "C", "D", "E", "F", "G", "H",];
           for (var j = 0; j < letters.length; j++) {
             for (var i = 1; i <= 12; i++) {
-              well = `${letters[j]}-${String(i).padStart(2,'0')}`;
+              well = `${letters[j]}-${String(i).padStart(2, '0')}`;
               wellArray.push(well);
             }
           }

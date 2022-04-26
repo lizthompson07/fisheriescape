@@ -28,7 +28,7 @@
     <div class="mb-3">
       <p class="h3">{% trans "Tubes" %}</p>
       <button @click="addExtract(null)" class="btn btn-sm btn-primary neighbours">{% trans "Add a Tube" %}</button>
-      <filter-import-overlay class="neighbours" batch_id="{{ object.id }}" @add-filters="addFilters"></filter-import-overlay>
+      <filter-import-overlay class="neighbours" batch_id="{{ object.id }}" default_collection_id="{{ object.default_collection_id }}" @add-filters="addFilters"></filter-import-overlay>
     </div>
 
     <div class="row mb-3 px-1 py-1" style="width: 30%">
@@ -178,10 +178,13 @@
 
   <script type="application/javascript">
   let extractBatchId = {{ object.id }};
+  let projectId = {{ object.default_collection_id }};
   var app = new Vue({
         el: '#app',
         delimiters: ["${", "}"],
         data: {
+          extractBatchId,
+          projectId,
           currentUser: null,
           default_dna_extraction_protocol: 1,
           extractErrorMsg: null,

@@ -689,6 +689,7 @@ class ExtractionBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
         {"name": 'id', "class": "", "width": ""},
         {"name": 'datetime', "class": "", "width": ""},
         {"name": 'operators', "class": "", "width": ""},
+        {"name": 'default_collection', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
         {"name": 'extract_count|{}'.format(gettext_lazy("Extractions")), "class": "", "width": ""},
 
@@ -768,6 +769,7 @@ class PCRBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
         {"name": 'id', "class": "", "width": ""},
         {"name": 'datetime', "class": "", "width": ""},
         {"name": 'operators', "class": "", "width": ""},
+        {"name": 'default_collection', "class": "", "width": ""},
         {"name": 'plate_id', "class": "", "width": ""},
         {"name": 'machine_number', "class": "", "width": ""},
         {"name": 'run_program', "class": "", "width": ""},
