@@ -34,6 +34,11 @@ class FilterSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
     datetime_display = serializers.SerializerMethodField()
     batch_display = serializers.SerializerMethodField()
+    collection_display = serializers.SerializerMethodField()
+
+    def get_collection_display(self, instance):
+        if instance.collection:
+            return str(instance.collection)
 
     def get_batch_display(self, instance):
         return instance.filtration_batch.datetime.strftime("%Y-%m-%d")

@@ -30,7 +30,11 @@
       <sample-import-overlay class="neighbours" batch_id="{{ object.id }}" @add-samples="addSamples"></sample-import-overlay>
     </div>
 
-    <div class="row mb-3 px-1 py-1" style="width: 30%">
+    <div class="row mb-3 px-1 py-1 w-40">
+      <div class="col">
+        <label for="">{% trans "Default project" %}</label>
+        <input type="text" class="form-control form-control-sm" value="{{ object.default_collection }}" disabled>
+      </div>
       <div class="col">
         <label for="">{% trans "Default filtration type" %}</label>
         <select v-model="default_filtration_type" class="form-control form-control-sm">
@@ -59,6 +63,7 @@
         <thead>
         <tr>
           <th class="px-1 py-1" style="width: 100px">{% trans "Filter ID" %}</th>
+          <th class="px-1 py-1" style="width: 120px">{% trans "Project" %}</th>
           <th class="px-1 py-1" style="width: 120px">{% trans "Sample ID" %}</th>
           <th class="px-1 py-1" style="width: 100px">${labels.tube_id}</th>
           <th class="px-1 py-1" style="width: 200px">${labels.filtration_type}</th>
@@ -72,7 +77,16 @@
         </thead>
         <tbody>
         <tr v-for="(obj, index) in filters" :key="obj.id">
-          <td class="px-1  py-0 text-muted" tabindex="-1">${obj.display}</td>
+          <td class="px-1  py-0 text-muted" tabindex="-1">
+            ${obj.display}
+            <span class="float-right">
+              <span class="text-primary pointy" @click="changeFilterOrder(obj, 'up')">&uarr;</span>
+              <span class="text-primary pointy" @click="changeFilterOrder(obj, 'down')">&darr;</span>
+            </span>
+          </td>
+          <td class="px-1  py-0 text-muted" tabindex="-1">
+            ${obj.collection_display}
+          </td>
           <td class="px-0 py-0">
             <text-input-cell
               type="select"
@@ -188,10 +202,13 @@
   {% include "edna/components/sample_import_overlay.html" %}
   <script type="application/javascript">
   let filterBatchId = {{ object.id }};
+  let projectId = {{ object.default_collection_id }};
   var app = new Vue({
     el: '#app',
     delimiters: ["${", "}"],
     data: {
+      filterBatchId,
+      projectId,
       currentUser: null,
       default_filtration_type: 1,
       default_filtration_volume_ml: 1000,
@@ -278,25 +295,15 @@
       addFilter(howMany) {
         if (!howMany) howMany = Number(prompt("{% trans 'How many filters do you want to add?' %}"));
         if (howMany) {
+          let startingPoint = this.filters.length
+          let order;
+          let sample;
           for (let i = 0; i < howMany; i++) {
-            this.newFilter();
+            order = i + startingPoint + 1;
+            this.newFilter(sample, order);
           }
         }
       },
-      //addAllFilters() {
-      //  howMany = 0;
-      //  for (var i = 0; i < this.sampleChoices.length; i++) {
-      //    if (!this.sampleChoices[i].has_filter) {
-      //      howMany += 1;
-      //    }
-      //  }
-      //  if (howMany) {
-      //    sampleArray = this.getQueuedSamples(howMany);
-      //    for (let i = 0; i < sampleArray.length; i++) {
-      //      this.newFilter(sampleArray[i]);
-      //    }
-      //  }
-      //},
       deleteFilter(filter) {
         userInput = confirm("{% trans 'Are you sure you want to delete this filter?' %}");
         if (userInput) {
@@ -307,11 +314,13 @@
               })
         }
       },
-      getBlankFilter(sample) {
+      getBlankFilter(sample, order) {
         let now = new Date(Date.now());
         return {
-          filtration_batch: filterBatchId,
+          filtration_batch: this.filterBatchId,
+          collection: this.projectId,
           sample: sample,
+          order: order,
           filtration_type: this.default_filtration_type,
           start_datetime: `${now.getFullYear()}-${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}`,
           duration_min: null,
@@ -337,7 +346,7 @@
       },
       getFilters() {
         this.loading = true;
-        endpoint = `/api/edna/filters/?batch=${filterBatchId}`;
+        endpoint = `/api/edna/filters/?batch=${this.filterBatchId}`;
         apiService(endpoint)
             .then(response => {
               this.loading = false;
@@ -352,34 +361,19 @@
               }
             })
       },
-      //getQueuedSamples(howMany) {
-      //  let samples = [...this.sampleChoices];
-      //  console.log(samples)
-      //  myArray = []
-      //  let result;
-      //  for (let i = 0; i < howMany; i++) {
-      //    result = "";
-      //    for (let j = 0; j < samples.length; j++) {
-      //      let sample = samples[j];
-      //      if (!sample.has_filter) {
-      //        let index = samples.indexOf(sample);
-      //        result = samples.splice(index, 1)[0].value;
-      //        break;
-      //      }
-      //    }
-      //    myArray.push(result);
-      //  }
-      //  // return the results array
-      //  return myArray;
-      //},
       addSamples(sampleArray) {
-        for (const sample of sampleArray) {
-          this.newFilter(sample);
+        let startingPoint = this.filters.length
+        let order;
+        let sample;
+        for (var i = 0; i < sampleArray.length; i++) {
+          order = i + startingPoint + 1;
+          sample = sampleArray[i]
+          this.newFilter(sample, order);
         }
       },
-      newFilter(sample) {
+      newFilter(sample, order) {
         endpoint = `/api/edna/filters/`;
-        data = this.getBlankFilter(sample)
+        data = this.getBlankFilter(sample, order)
         apiService(endpoint, "POST", data)
             .then(response => {
               if (response.id) {
@@ -387,6 +381,7 @@
                 this.filters.push(response)
                 // refresh the sample choices
                 this.getFilterMetadata();
+                this.reorderFilters();
               }
             })
       },
@@ -394,8 +389,11 @@
         endpoint = `/api/edna/filters/${filter.id}/`;
         apiService(endpoint, "GET")
             .then(response => {
+              if (!response.sample) response.sample = "";
               this.$set(this.filters, this.filters.indexOf(filter), response);
               this.unsavedChanges = false;
+              this.reorderFilters();
+              console.log(filter)
             })
       },
       updateFilter(filter) {
@@ -410,6 +408,28 @@
               } else {
                 this.unsavedChanges = false;
                 this.$set(this.filters, this.filters.indexOf(filter), response);
+              }
+            })
+      },
+      reorderFilters() {
+        this.filters.sort((a, b) => (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0))
+      },
+      changeFilterOrder(filter, direction) {
+        this.filterErrorMsg = null;
+        apiService(`/api/edna/filters/${filter.id}/?move=true`, "POST", {direction: direction})
+            .then(response => {
+              if (!response.id) {
+                this.filterErrorMsg = groomJSON(response);
+                this.getFilter(filter);
+              } else {
+                this.unsavedChanges = false;
+                if (!response.sample) response.sample = "";
+                this.$set(this.filters, this.filters.indexOf(filter), response);
+                // we changed the main filter but there is the other one with whom we swapped that needs to also be updated
+                if (direction === "up") otherFilter = this.filters[this.filters.indexOf(response) - 1]
+                else if (direction === "down") otherFilter = this.filters[this.filters.indexOf(response) + 1]
+                this.getFilter(otherFilter);
+                this.reorderFilters();
               }
             })
       },

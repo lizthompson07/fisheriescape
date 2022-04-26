@@ -1,6 +1,6 @@
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from shared_models.utils import get_labels
 from . import serializers
 from .permissions import eDNACRUDOrReadOnly
-from .. import models
+from .. import models, utils
 # USER
 #######
 from ..filters import SampleFilter, FilterFilter, DNAExtractFilter
@@ -85,7 +85,35 @@ class FilterViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = FilterFilter
 
-    # pagination_class = StandardResultsSetPagination
+    def post(self, request, pk):
+        qp = request.query_params
+        filter = get_object_or_404(models.Filter, pk=pk)
+        if qp.get("move"):
+            if utils.is_crud_user(request.user):
+                id_list = [f.id for f in filter.filtration_batch.filters.all()]
+                if request.data.get("direction") == "up":
+                    # make sure this is not the top record
+                    current_index = id_list.index(filter.id)
+                    if current_index == 0:
+                        raise ValidationError(_("This filter is already on top!"))
+                    new_index = current_index - 1
+                else:
+                    # make sure this is not the top record
+                    current_index = id_list.index(filter.id)
+                    if current_index == len(id_list) - 1:
+                        raise ValidationError(_("This filter is already on the bottom!"))
+                    new_index = current_index + 1
+
+                # swap with other filter who is currently sitting in the new_index position
+                filter.order = new_index
+                filter.save()
+                other_filter = get_object_or_404(models.Filter, pk=id_list[new_index])
+                other_filter.order = current_index
+                other_filter.save()
+
+                return Response(serializers.FilterSerializer(filter).data, status.HTTP_200_OK)
+            raise ValidationError(_("Sorry, you do not have permissions to send this email"))
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params

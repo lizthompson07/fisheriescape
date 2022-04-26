@@ -14,11 +14,11 @@ from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields
 from shared_models.utils import format_coordinates
 
-
 YES_NO_CHOICES = (
     (True, gettext("Yes")),
     (False, gettext("No")),
 )
+
 
 class ednaUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="edna_user", verbose_name=_("DM Apps user"))
@@ -284,6 +284,8 @@ class Batch(models.Model):
     datetime = models.DateTimeField(default=timezone.now, verbose_name=_("date/time"))
     operators = models.ManyToManyField(User, blank=True, verbose_name=_("operator(s)"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
+    default_collection = models.ForeignKey(Collection, on_delete=models.DO_NOTHING, verbose_name=_("default project"), blank=True,
+                                           null=True)
 
     class Meta:
         ordering = ["datetime"]
@@ -309,6 +311,7 @@ class Filter(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     filtration_batch = models.ForeignKey(FiltrationBatch, related_name='filters', on_delete=models.CASCADE, verbose_name=_("filtration batch"))
     sample = models.ForeignKey(Sample, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("sample ID"), blank=True, null=True)
+    collection = models.ForeignKey(Collection, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=True, null=True)
     tube_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("tube ID"))
     filtration_type = models.ForeignKey(FiltrationType, on_delete=models.DO_NOTHING, related_name="filters", verbose_name=_("filtration type"), default=1)
     start_datetime = models.DateTimeField(verbose_name=_("filtration date/time"))
@@ -318,11 +321,21 @@ class Filter(MetadataFields):
     filtration_ipc = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("filtration IPC"))
     comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
 
+    # calc
+    order = models.IntegerField(verbose_name=_("order"), default=0)
+
     class Meta:
-        ordering = ["sample", "id"]
+        ordering = ["filtration_batch", "order"]
 
     def __str__(self):
         return f"f{self.id}"
+
+    def save(self, *args, **kwargs):
+        # if there is a sample, the collection is known
+        if self.sample:
+            self.collection = self.sample.collection
+
+        super().save(*args, **kwargs)
 
     @property
     def display(self):
