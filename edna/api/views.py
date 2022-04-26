@@ -184,7 +184,6 @@ class DNAExtractModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         # we want to get a list of filters for which there has been no PCRs
-        data['filter_choices'] = [dict(text=item.full_display, value=item.id, has_extract=hasattr(item, 'extract')) for item in models.Filter.objects.all()]
         data['dna_extraction_protocol_choices'] = [dict(text=item.name, value=item.id) for item in models.DNAExtractionProtocol.objects.all()]
 
         return Response(data)

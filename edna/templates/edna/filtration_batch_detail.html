@@ -26,7 +26,7 @@
 
     <div class="mb-3">
       <p class="h3">{% trans "Filters" %}</p>
-      <button @click="addFilter(null)" class="btn btn-sm btn-primary neighbours">{% trans "Add a Filter" %}</button>
+      <button @click="addFilter(null)" class="btn btn-sm btn-primary neighbours">{% trans "Add a Filtration Blank" %}</button>
       <sample-import-overlay class="neighbours" batch_id="{{ object.id }}" default_collection_id="{{ object.default_collection_id }}"
                              @add-samples="addSamples"></sample-import-overlay>
     </div>
@@ -70,7 +70,6 @@
           <th rowspan="2" class="p-1" style="width: 100px">{% trans "Filter ID" %}</th>
           <th rowspan="2" class="p-1 w100px">{% trans "Sample ID" %}</th>
           <th rowspan="2" class="p-1 w100px">{% trans "Bottle ID" %}</th>
-          {#          <th rowspan="2" class="p-1" style="width: 120px">{% trans "Project ID" %}</th>#}
           <th rowspan="2" class="p-1" style="width: 100px">
             ${labels.tube_id}
             <span class="mdi mdi-calculator pointy text-primary" @click="calcDown"></span>
@@ -110,7 +109,6 @@
               type="text"
               :sample.sync="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              @calc-down="calcDown"
               field="tube_id"
               :col="1"
               :ref="`row_${index}_col_1`"

@@ -84,10 +84,14 @@ class DNAExtractSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
     datetime_display = serializers.SerializerMethodField()
     batch_display = serializers.SerializerMethodField()
-
     filter_display = serializers.SerializerMethodField()
-
     sample_display = serializers.SerializerMethodField()
+
+    filter_object = serializers.SerializerMethodField()
+
+    def get_filter_object(self, instance):
+        if instance.filter:
+            return FilterSerializer(instance.filter).data
 
     def get_sample_display(self, instance):
         if instance.filter and instance.filter.sample:
