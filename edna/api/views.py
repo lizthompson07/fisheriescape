@@ -85,35 +85,43 @@ class FilterViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = FilterFilter
 
-    def post(self, request, pk):
+    def create(self, request, *args, **kwargs):
         qp = request.query_params
-        filter = get_object_or_404(models.Filter, pk=pk)
         if qp.get("move"):
             if utils.is_crud_user(request.user):
-                id_list = [f.id for f in filter.filtration_batch.filters.all()]
-                if request.data.get("direction") == "up":
-                    # make sure this is not the top record
-                    current_index = id_list.index(filter.id)
-                    if current_index == 0:
-                        raise ValidationError(_("This filter is already on top!"))
-                    new_index = current_index - 1
-                else:
-                    # make sure this is not the top record
-                    current_index = id_list.index(filter.id)
-                    if current_index == len(id_list) - 1:
-                        raise ValidationError(_("This filter is already on the bottom!"))
-                    new_index = current_index + 1
+                direction = request.data.get("direction")
+                filter_id_list = request.data.get("filters")
+                if direction == "down":
+                    filter_id_list.reverse()
 
-                # swap with other filter who is currently sitting in the new_index position
-                filter.order = new_index
-                filter.save()
-                other_filter = get_object_or_404(models.Filter, pk=id_list[new_index])
-                other_filter.order = current_index
-                other_filter.save()
+                for id in filter_id_list:
 
-                return Response(serializers.FilterSerializer(filter).data, status.HTTP_200_OK)
-            raise ValidationError(_("Sorry, you do not have permissions to send this email"))
-        raise ValidationError(_("This endpoint cannot be used without a query param"))
+                    filter = get_object_or_404(models.Filter, pk=id)
+                    id_list = [f.id for f in filter.filtration_batch.filters.all()]
+                    current_index = None
+                    new_index = None
+                    if direction == "up":
+                        # make sure this is not the top record
+                        current_index = id_list.index(filter.id)
+                        if current_index != 0:
+                            new_index = current_index - 1
+                    elif direction == "down":
+                        # make sure this is not the top record
+                        current_index = id_list.index(filter.id)
+                        if current_index != len(id_list) - 1:
+                            new_index = current_index + 1
+
+                    # swap with other filter who is currently sitting in the new_index position
+                    if new_index is not None:
+                        filter.order = new_index
+                        filter.save()
+                        other_filter = get_object_or_404(models.Filter, pk=id_list[new_index])
+                        other_filter.order = current_index
+                        other_filter.save()
+
+            return Response(filter_id_list, status.HTTP_200_OK)
+        else:
+            return super().create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params

@@ -111,7 +111,7 @@ class Assay(UnilingualSimpleLookup, MetadataFields):
 
 class Collection(UnilingualSimpleLookup, MetadataFields):
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name='edna_collections', blank=True, null=True, verbose_name=_("DFO region"))
-    description = models.TextField(blank=True, null=True, verbose_name=_("program description"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("project description"))
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='edna_collections', blank=True, null=True)
     contact_users = models.ManyToManyField(User, blank=True, verbose_name=_("contact DMApps user(s)"))
     contact_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("contact name"))
@@ -283,8 +283,8 @@ class Sample(MetadataFields):
 class Batch(models.Model):
     datetime = models.DateTimeField(default=timezone.now, verbose_name=_("date/time"))
     operators = models.ManyToManyField(User, blank=True, verbose_name=_("operator(s)"))
-    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
     default_collection = models.ForeignKey(Collection, on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=False, null=True)
+    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
     class Meta:
         ordering = ["datetime"]
@@ -321,7 +321,7 @@ class Filter(MetadataFields):
     comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
 
     # calc
-    duration_min = models.IntegerField(verbose_name=_("filtration duration (min)"), blank=True, null=True, editable=False)
+    duration_min = models.FloatField(verbose_name=_("filtration duration (min)"), blank=True, null=True, editable=False)
     order = models.IntegerField(verbose_name=_("order"), default=0)
 
     class Meta:
@@ -337,7 +337,7 @@ class Filter(MetadataFields):
 
         if self.start_datetime and self.end_datetime:
             delta = self.end_datetime - self.start_datetime
-            self.duration_min = delta.seconds / 60
+            self.duration_min = (delta.days * 24 * 60) + (delta.seconds / 60)
 
         super().save(*args, **kwargs)
 

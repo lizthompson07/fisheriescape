@@ -88,7 +88,7 @@ Vue.component("text-input-cell", {
   methods: {
     populateNow() {
       let d = new Date();
-      this.input = `${d.getFullYear()}-${d.getMonth()}-${d.getDay()} ${d.getHours()}:${d.getMinutes()}`;
+      this.input = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${d.getHours()}:${d.getMinutes()}`;
       this.update();
     },
     focus() {
