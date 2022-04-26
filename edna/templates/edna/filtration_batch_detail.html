@@ -68,13 +68,12 @@
             </div>
           </th>
           <th rowspan="2" class="p-1" style="width: 100px">{% trans "Filter ID" %}</th>
-          <th rowspan="2" class="p-1 w150px">{% trans "Sample ID" %}</th>
+          <th rowspan="2" class="p-1 w100px">{% trans "Sample ID" %}</th>
           <th rowspan="2" class="p-1 w100px">{% trans "Bottle ID" %}</th>
           {#          <th rowspan="2" class="p-1" style="width: 120px">{% trans "Project ID" %}</th>#}
           <th rowspan="2" class="p-1" style="width: 100px">
             ${labels.tube_id}
             <span class="mdi mdi-calculator pointy text-primary" @click="calcDown"></span>
-
           </th>
           <th rowspan="2" class="p-1" style="width: 200px">${labels.filtration_type}</th>
           <th colspan="2" class="text-center p-1">yyyy-mm-dd HH:MM[:SS]</th>
@@ -97,20 +96,11 @@
           <td class="px-1  py-0 text-muted" tabindex="-1">
             ${obj.display}
           </td>
-          <td class="px-0 py-0">
-            <text-input-cell
-              type="select"
-              :sample.sync="obj" :row="index"
-              @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="sample"
-              :col="0"
-              :ref="`row_${index}_col_0`"
-              :options="sampleChoices"
-              blank_option="{% trans "Filtration blank" %}"
-              :tools_enabled="false"
-            ></text-input-cell>
+          <td class="px-1  py-0 text-muted" tabindex="-1">
+            <span v-if="obj.sample_object">${obj.sample_object.display}</span>
+            <span v-else>-----</span>
           </td>
-          <td class="px-1  py-0 text-muted greyed" tabindex="-1">
+          <td class="px-1  py-0 text-muted" tabindex="-1">
             <span v-if="obj.sample_object">${obj.sample_object.bottle_id}</span>
             <span v-else>-----</span>
 
@@ -159,7 +149,7 @@
               :now_button="true"
             ></text-input-cell>
           </td>
-          <td class="px-1  py-0 text-muted greyed" tabindex="-1"> ${obj.duration_min | floatformat}</td>
+          <td class="px-1  py-0 text-muted" tabindex="-1"> ${obj.duration_min | floatformat}</td>
 
           <td class="px-0 py-0">
             <text-input-cell
@@ -193,7 +183,7 @@
           </td>
           <td class="px-0 py-0">
             <text-input-cell
-              type="text"
+              type="textarea"
               :sample.sync="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="comments"
@@ -238,7 +228,6 @@
       filtrationTypeChoices: [],
       labels: [],
       loading: false,
-      sampleChoices: [],
       unsavedChanges: false
 
     },
@@ -385,7 +374,6 @@
         apiService(endpoint).then(data => {
           this.labels = data.labels;
           this.filtrationTypeChoices = data.filtration_type_choices;
-          this.sampleChoices = data.sample_choices;
         });
       },
       getFilters(selectedFilters) {
