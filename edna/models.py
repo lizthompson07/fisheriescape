@@ -275,8 +275,8 @@ class Sample(MetadataFields):
     @property
     def full_display(self):
         mystr = str(self)
-        if self.bottle_id:
-            mystr += f" | b{self.bottle_id}"
+        # if self.bottle_id:
+        #     mystr += f" | b{self.bottle_id}"
         return mystr
 
 
@@ -284,7 +284,7 @@ class Batch(models.Model):
     datetime = models.DateTimeField(default=timezone.now, verbose_name=_("date/time"))
     operators = models.ManyToManyField(User, blank=True, verbose_name=_("operator(s)"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
-    default_collection = models.ForeignKey(Collection, on_delete=models.DO_NOTHING, verbose_name=_("default project"), blank=True,
+    default_collection = models.ForeignKey(Collection, on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=False,
                                            null=True)
 
     class Meta:
@@ -314,14 +314,15 @@ class Filter(MetadataFields):
     collection = models.ForeignKey(Collection, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=True, null=True)
     tube_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("tube ID"))
     filtration_type = models.ForeignKey(FiltrationType, on_delete=models.DO_NOTHING, related_name="filters", verbose_name=_("filtration type"), default=1)
-    start_datetime = models.DateTimeField(verbose_name=_("filtration date/time"))
-    duration_min = models.IntegerField(verbose_name=_("filtration duration (min)"), blank=True, null=True)
+    start_datetime = models.DateTimeField(verbose_name=_("start time"))
+    end_datetime = models.DateTimeField(verbose_name=_("end time"), blank=True, null=True)
     filtration_volume_ml = models.FloatField(blank=True, null=True, verbose_name=_("volume (ml)"))
     storage_location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("filter storage location"))
     filtration_ipc = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("filtration IPC"))
     comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
 
     # calc
+    duration_min = models.IntegerField(verbose_name=_("filtration duration (min)"), blank=True, null=True, editable=False)
     order = models.IntegerField(verbose_name=_("order"), default=0)
 
     class Meta:
@@ -334,6 +335,10 @@ class Filter(MetadataFields):
         # if there is a sample, the collection is known
         if self.sample:
             self.collection = self.sample.collection
+
+        if self.start_datetime and self.end_datetime:
+            delta = self.end_datetime - self.start_datetime
+            self.duration_min = delta.seconds / 60
 
         super().save(*args, **kwargs)
 

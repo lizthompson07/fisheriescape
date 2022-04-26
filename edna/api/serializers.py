@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
+from django.utils.translation import gettext as _
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from .. import models
 
@@ -32,9 +34,15 @@ class SampleSerializer(serializers.ModelSerializer):
 
 class FilterSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
-    datetime_display = serializers.SerializerMethodField()
+    start_datetime_display = serializers.SerializerMethodField()
+    end_datetime_display = serializers.SerializerMethodField()
     batch_display = serializers.SerializerMethodField()
     collection_display = serializers.SerializerMethodField()
+    sample_object = serializers.SerializerMethodField()
+
+    def get_sample_object(self, instance):
+        if instance.sample:
+            return SampleSerializer(instance.sample).data
 
     def get_collection_display(self, instance):
         if instance.collection:
@@ -43,9 +51,13 @@ class FilterSerializer(serializers.ModelSerializer):
     def get_batch_display(self, instance):
         return instance.filtration_batch.datetime.strftime("%Y-%m-%d")
 
-    def get_datetime_display(self, instance):
+    def get_start_datetime_display(self, instance):
         if instance.start_datetime:
             return instance.start_datetime.strftime("%Y-%m-%d %H:%M")
+
+    def get_end_datetime_display(self, instance):
+        if instance.end_datetime:
+            return instance.end_datetime.strftime("%Y-%m-%d %H:%M")
 
     def get_display(self, instance):
         return str(instance)
@@ -53,6 +65,19 @@ class FilterSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Filter
         fields = "__all__"
+
+    def validate(self, attrs):
+        """
+        form validation:
+        - make that there is at least a project, project year or status report
+        """
+        start_datetime = attrs.get("start_datetime")
+        end_datetime = attrs.get("end_datetime")
+
+        if start_datetime and end_datetime and start_datetime > end_datetime:
+            msg = _('The end date must occur after the start date.')
+            raise ValidationError(msg)
+        return attrs
 
 
 class DNAExtractSerializer(serializers.ModelSerializer):

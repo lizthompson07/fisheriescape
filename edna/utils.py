@@ -45,6 +45,7 @@ def get_sample_field_list():
 
 def get_collection_field_list(collection):
     my_list = [
+        'id',
         'name',
         'description',
         'region',
@@ -62,6 +63,7 @@ def get_batch_field_list():
     my_list = [
         "datetime",
         "operators",
+        "default_collection",
     ]
     return my_list
 

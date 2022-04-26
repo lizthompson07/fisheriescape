@@ -27,14 +27,11 @@
     <div class="mb-3">
       <p class="h3">{% trans "Filters" %}</p>
       <button @click="addFilter(null)" class="btn btn-sm btn-primary neighbours">{% trans "Add a Filter" %}</button>
-      <sample-import-overlay class="neighbours" batch_id="{{ object.id }}" @add-samples="addSamples"></sample-import-overlay>
+      <sample-import-overlay class="neighbours" batch_id="{{ object.id }}" default_collection_id="{{ object.default_collection_id }}"
+                             @add-samples="addSamples"></sample-import-overlay>
     </div>
 
     <div class="row mb-3 px-1 py-1 w-40">
-      <div class="col">
-        <label for="">{% trans "Default project" %}</label>
-        <input type="text" class="form-control form-control-sm" value="{{ object.default_collection }}" disabled>
-      </div>
       <div class="col">
         <label for="">{% trans "Default filtration type" %}</label>
         <select v-model="default_filtration_type" class="form-control form-control-sm">
@@ -62,17 +59,26 @@
       <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}" style="width: 100%">
         <thead>
         <tr>
-          <th class="px-1 py-1" style="width: 100px">{% trans "Filter ID" %}</th>
-          <th class="px-1 py-1" style="width: 120px">{% trans "Project" %}</th>
-          <th class="px-1 py-1" style="width: 120px">{% trans "Sample ID" %}</th>
-          <th class="px-1 py-1" style="width: 100px">${labels.tube_id}</th>
-          <th class="px-1 py-1" style="width: 200px">${labels.filtration_type}</th>
-          <th class="px-1 py-1" style="width: 200px">${labels.start_datetime} <br>yyyy-mm-dd HH:MM[:SS]</th>
-          <th class="px-1 py-1" style="width: 110px">${labels.duration_min}</th>
-          <th class="px-1 py-1" style="width: 110px">${labels.filtration_volume_ml}</th>
-          <th class="px-1 py-1" style="width: 175px">${labels.storage_location}</th>
-          <th class="px-1 py-1" style="width: 175px">${labels.filtration_ipc}</th>
-          <th class="px-1 py-1">${labels.comments}</th>
+          <th rowspan="2" class="p-1" style="width: 100px">{% trans "Filter ID" %}</th>
+          <th rowspan="2" class="p-1 w150px">{% trans "Sample ID" %}</th>
+          <th rowspan="2" class="p-1 w100px">{% trans "Bottle ID" %}</th>
+          {#          <th rowspan="2" class="p-1" style="width: 120px">{% trans "Project ID" %}</th>#}
+          <th rowspan="2" class="p-1" style="width: 100px">
+            ${labels.tube_id}
+            <span class="mdi mdi-calculator pointy text-primary" @click="calcDown"></span>
+
+          </th>
+          <th rowspan="2" class="p-1" style="width: 200px">${labels.filtration_type}</th>
+          <th colspan="2" class="text-center p-1">yyyy-mm-dd HH:MM[:SS]</th>
+          <th rowspan="2" class="p-1" style="width: 110px">${labels.duration_min}</th>
+          <th rowspan="2" class="p-1" style="width: 110px">${labels.filtration_volume_ml}</th>
+          <th rowspan="2" class="p-1" style="width: 175px">${labels.storage_location}</th>
+          <th rowspan="2" class="p-1" style="width: 175px">${labels.filtration_ipc}</th>
+          <th rowspan="2" class="p-1">${labels.comments}</th>
+        </tr>
+        <tr>
+          <th class="p-1 w150px">${labels.start_datetime}</th>
+          <th class="p-1 w150px">${labels.end_datetime}</th>
         </tr>
         </thead>
         <tbody>
@@ -84,9 +90,6 @@
               <span class="text-primary pointy" @click="changeFilterOrder(obj, 'down')">&darr;</span>
             </span>
           </td>
-          <td class="px-1  py-0 text-muted" tabindex="-1">
-            ${obj.collection_display}
-          </td>
           <td class="px-0 py-0">
             <text-input-cell
               type="select"
@@ -97,13 +100,24 @@
               :ref="`row_${index}_col_0`"
               :options="sampleChoices"
               blank_option="{% trans "Filtration blank" %}"
+              :tools_enabled="false"
             ></text-input-cell>
           </td>
+          <td class="px-1  py-0 text-muted greyed" tabindex="-1">
+            <span v-if="obj.sample_object">${obj.sample_object.bottle_id}</span>
+            <span v-else>-----</span>
+
+          </td>
+          {#          <td class="px-1  py-0 text-muted greyed" tabindex="-1">#}
+          {#            <span class="helper text-primary" data-toggle="tooltip" :title="obj.collection_display">${obj.collection}</span>#}
+          {##}
+          {#          </td>#}
           <td class="px-0 py-0">
             <text-input-cell
               type="text"
               :sample.sync="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              @calc-down="calcDown"
               field="tube_id"
               :col="1"
               :ref="`row_${index}_col_1`"
@@ -125,21 +139,25 @@
               type="text"
               :sample.sync="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="datetime_display"
+              field="start_datetime_display"
               :col="3"
               :ref="`row_${index}_col_3`"
+              :now_button="true"
             ></text-input-cell>
           </td>
           <td class="px-0 py-0">
             <text-input-cell
-              type="number"
+              type="text"
               :sample.sync="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="duration_min"
-              :col="4"
-              :ref="`row_${index}_col_4`"
+              field="end_datetime_display"
+              :col="3"
+              :ref="`row_${index}_col_3`"
+              :now_button="true"
             ></text-input-cell>
           </td>
+          <td class="px-1  py-0 text-muted greyed" tabindex="-1"> ${obj.duration_min}</td>
+
           <td class="px-0 py-0">
             <text-input-cell
               type="number"
@@ -291,6 +309,25 @@
           this.updateFilter(this.filters[i])
         }
       },
+      calcDown() {
+        let prefix = prompt("{% trans 'What is the tube prefix? (e.g. prefix-###) ' %}")
+        if (prefix) {
+          prefix = prefix.toUpperCase();
+          let starting = prompt(`{% trans 'What is the starting tube number?' %} (e.g. ${prefix}-###)`)
+          if (starting) {
+            this.unsavedChanges = true;
+            // copy the value for the field into the next row
+            let myNumber;
+            for (var i = 0; i < this.filters.length; i++) {
+              let filter = this.filters[i];
+              myNumber = Number(starting) + i;
+              filter.tube_id = `${prefix}-${String(myNumber).padStart(3, "0")}`;
+              this.updateFilter(filter);
+            }
+
+          }
+        }
+      },
 
       addFilter(howMany) {
         if (!howMany) howMany = Number(prompt("{% trans 'How many filters do you want to add?' %}"));
@@ -399,7 +436,8 @@
       updateFilter(filter) {
         this.filterErrorMsg = null;
         endpoint = `/api/edna/filters/${filter.id}/`;
-        filter.start_datetime = filter.datetime_display
+        filter.start_datetime = filter.start_datetime_display
+        filter.end_datetime = filter.end_datetime_display
         apiService(endpoint, "PUT", filter)
             .then(response => {
               if (!response.id) {
@@ -407,6 +445,7 @@
                 this.getFilter(filter)
               } else {
                 this.unsavedChanges = false;
+                if (!response.sample) response.sample = "";
                 this.$set(this.filters, this.filters.indexOf(filter), response);
               }
             })

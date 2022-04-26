@@ -283,6 +283,7 @@ class CollectionListView(eDNAAdminRequiredMixin, CommonFilterView):
     new_btn_text = gettext_lazy("Add a New Collection")
     container_class = "container-fluid curvy"
     field_list = [
+        {"name": 'id', "class": "", "width": ""},
         {"name": 'name', "class": "", "width": ""},
         {"name": 'dates|{}'.format(_("collection dates")), "class": "", "width": ""},
         {"name": 'region', "class": "", "width": ""},
@@ -609,6 +610,7 @@ class FiltrationBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
         {"name": 'id', "class": "", "width": ""},
         {"name": 'datetime', "class": "", "width": ""},
         {"name": 'operators', "class": "", "width": ""},
+        {"name": 'default_collection', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
         {"name": 'filter_count|{}'.format(gettext_lazy("filters")), "class": "", "width": ""},
     ]

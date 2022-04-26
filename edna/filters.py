@@ -14,6 +14,8 @@ class SpeciesFilter(django_filters.FilterSet):
 
 
 class SampleFilter(django_filters.FilterSet):
+    datetime = django_filters.CharFilter(field_name="datetime", lookup_expr='contains',)
+
     class Meta:
         model = models.Sample
         fields = {

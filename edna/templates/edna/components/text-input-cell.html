@@ -25,7 +25,8 @@
          @blur="unfocus"
          ref="input"
   >
-  <div class="float-right" v-if="isFocused || hover">
+  <div class="float-right" v-if="tools_enabled && (isFocused || hover)">
+    <span v-if="now_button" class="mdi mdi-clock-outline pointy text-primary" @click="populateNow"></span>
     <span class="mdi mdi-chevron-down pointy text-primary" @click="$emit('copy-down',sample, field, input)"></span>
     <span class="mdi mdi-chevron-double-down pointy text-primary" @click="$emit('copy-double-down',sample, field, input)"></span>
   </div>
@@ -68,6 +69,14 @@ Vue.component("text-input-cell", {
       type: String,
       required: false
     },
+    tools_enabled: {
+      type: Boolean,
+      default: true
+    },
+    now_button: {
+      type: Boolean,
+      required: false
+    },
   },
   data() {
     return {
@@ -77,6 +86,11 @@ Vue.component("text-input-cell", {
     };
   },
   methods: {
+    populateNow() {
+      let d = new Date();
+      this.input = `${d.getFullYear()}-${d.getMonth()}-${d.getDay()} ${d.getHours()}:${d.getMinutes()}`;
+      this.update();
+    },
     focus() {
       this.$emit('setposition', this.row, this.col);
       this.isFocused = true;
