@@ -35,7 +35,7 @@
 
     {% else %}
 
-      <table class="table table-sm table-sm" style="width: auto">
+      <table class="table table-sm table-sm" style="width: auto;">
         <tr>
           <th class="w-25">
             {% trans "Address Letter To" %}
@@ -126,10 +126,10 @@
           </td>
         </tr>
         <tr>
-          <th style="width: 30%">
+          <th>
             {% trans "Notes" %}
           </th>
-          <td>
+          <td style="word-wrap: break-word;min-width: 160px;max-width: 160px;">
             {{ object.consultation_instructions.notes|nz:"n/a" }}
           </td>
         </tr>
