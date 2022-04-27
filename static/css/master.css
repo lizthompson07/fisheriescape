@@ -396,6 +396,10 @@
 
 
 
+.w25px {
+    width: 25px;
+}
+
 .w50px {
     width: 50px;
 }
@@ -432,7 +436,9 @@
     width: 300px;
 }
 
-
+.break-long-words {
+    overflow-wrap: break-word;
+}
 
 .greyed {
     background-color: #dddcdc;

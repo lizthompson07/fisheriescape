@@ -401,8 +401,18 @@ class DNAExtract(MetadataFields):
     extraction_plate_well = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("extraction plate well"))
     comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
 
+    # calc
+    order = models.IntegerField(verbose_name=_("order"), default=0)
+
+    def save(self, *args, **kwargs):
+        # if there is a filter, the collection is known
+        if self.filter:
+            self.collection = self.filter.collection
+
+        super().save(*args, **kwargs)
+
     class Meta:
-        ordering = ["filter", "id"]
+        ordering = ["extraction_batch", "order", "id"]
 
     def __str__(self):
         return f"x{self.id}"
@@ -467,6 +477,15 @@ class PCR(MetadataFields):
     plate_well = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate well"))
     master_mix = models.ForeignKey(MasterMix, on_delete=models.DO_NOTHING, related_name="pcrs", verbose_name=_("master mix"), blank=False, null=True)
     comments = models.TextField(null=True, blank=True, verbose_name=_(" qPCR comments"))
+
+    # calc
+    order = models.IntegerField(verbose_name=_("order"), default=0)
+
+    def save(self, *args, **kwargs):
+        # if there is a filter, the collection is known
+        if self.extract:
+            self.collection = self.extract.collection
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ["pcr_batch", "plate_well"]

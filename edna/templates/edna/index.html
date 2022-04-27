@@ -12,7 +12,6 @@
   {#  {% include "edna/_background_img.html" %}#}
   <style>
   .backdrop {
-      overflow-wrap: break-word;
       font-size: small;
       z-index: 0;
       font-family: 'Raleway', sans-serif;
@@ -31,7 +30,7 @@
 
 {% block content %}
 
-  <div class="backdrop small">
+  <div class="backdrop small break-long-words">
     {{ txt }}
   </div>
 
