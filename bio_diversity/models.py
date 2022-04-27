@@ -1,7 +1,7 @@
 # from django.db import models
 
 # Create your models here.
-from datetime import datetime, timedelta 
+from datetime import datetime, timedelta, time
 import decimal
 import os
 from django.contrib.auth.models import User
@@ -180,7 +180,7 @@ class BioTimeModel(BioModel):
 
     @property
     def start_time(self):
-        if self.start_datetime.time() == utils.aware_min().time():
+        if self.start_datetime.time() == time(0, 0):
             return None
         return self.start_datetime.time().strftime("%H:%M")
 
@@ -194,7 +194,7 @@ class BioTimeModel(BioModel):
     @property
     def end_time(self):
         if self.end_datetime:
-            if self.end_datetime.time() == utils.aware_min().time():
+            if self.end_datetime.time() == time(0, 0):
                 return None
             return self.end_datetime.time().strftime("%H:%M")
         else:
@@ -1126,7 +1126,7 @@ class Group(BioModel):
         dev_qs = GroupDet.objects.filter(anix_id__grp_id=self, grpd_valid=True, anidc_id__name="Development")
         if len(dev_qs) == 1:
             dev = float(dev_qs[0] .det_val)
-            start_date = utils.naive_to_aware(dev_qs[0].detail_date).date()
+            start_date = dev_qs[0].detail_date
         degree_days = []
 
         move_set = MoveDet.objects.filter(anix_id__grp_id=self, move_date__lte=at_date).\
@@ -1705,7 +1705,7 @@ class Location(BioModel):
 
     @property
     def start_time(self):
-        if self.loc_date.time() == utils.aware_min().time():
+        if self.loc_date.time() == time(0, 0):
             return None
         return self.loc_date.time().strftime("%H:%M")
 
@@ -2375,6 +2375,27 @@ class TankDet(BioContainerDet):
 
     def __str__(self):
         return "{} - {}".format(self.tank_id.__str__(), self.contdc_id.__str__())
+
+    def save(self,  *args, **kwargs):
+        """ Need to set all earlier details with the same code to invalid"""
+        if self.det_valid:
+            old_tankd_set = TankDet.objects.filter(tank_id=self.tank_id, contdc_id=self.contdc_id, cdsc_id=self.cdsc_id,
+                                                   det_valid=True, start_date__lte=self.start_date)
+            for old_tankd in old_tankd_set:
+                if old_tankd:
+                    old_tankd = old_tankd.get()
+                    old_tankd.det_valid = False
+                    old_tankd.end_date = self.start_date
+                    old_tankd.save()
+
+            current_tankd_set = TankDet.objects.filter(tank_id=self.tank_id, contdc_id=self.contdc_id,
+                                                       cdsc_id=self.cdsc_id, det_valid=True,
+                                                       start_date__gt=self.start_date)
+            for current_tankd in current_tankd_set:
+                if current_tankd:
+                    self.det_valid = False
+
+        super(TankDet, self).save(*args, **kwargs)
 
 
 class TeamXRef(BioModel):

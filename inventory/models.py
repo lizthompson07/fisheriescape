@@ -1,3 +1,6 @@
+import os
+import uuid
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
@@ -5,26 +8,30 @@ from django.dispatch import receiver
 from django.template.defaultfilters import default_if_none
 from django.urls import reverse
 from django.utils import timezone
-import os
-import uuid
-
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from lib.functions.custom_functions import truncate, fiscal_year
-from lib.templatetags.custom_filters import nz
-from shared_models import models as shared_models
 from dm_apps import custom_widgets
-
+from lib.functions.custom_functions import truncate, fiscal_year
+from shared_models import models as shared_models
 # Choices for language
-from shared_models.models import SimpleLookup
+from shared_models.models import SimpleLookup, Region
 
-ENG = 1
-FRE = 2
-LANGUAGE_CHOICES = (
-    (ENG, 'English'),
-    (FRE, 'French'),
-)
+LANGUAGE_CHOICES = ((1, 'English'), (2, 'French'),)
+YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
+
+
+class InventoryUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="inventory_user", verbose_name=_("DM Apps user"))
+    region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="inventory_users", on_delete=models.CASCADE, blank=True,
+                               null=True)
+    is_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
 
 
 class Location(models.Model):
@@ -38,6 +45,7 @@ class Location(models.Model):
     location_eng = models.CharField(max_length=1000, blank=True, null=True)
     location_fre = models.CharField(max_length=1000, blank=True, null=True)
     country = models.CharField(max_length=25, choices=COUNTRY_CHOICES)
+    country_fr = models.CharField(max_length=25)
     abbrev_eng = models.CharField(max_length=25, blank=True, null=True)
     abbrev_fre = models.CharField(max_length=25, blank=True, null=True)
     uuid_gcmd = models.CharField(max_length=255, blank=True, null=True)
@@ -252,7 +260,7 @@ class Resource(models.Model):
                                                    verbose_name="Security use limitation (French)")
     security_classification = models.ForeignKey(SecurityClassification, on_delete=models.DO_NOTHING, blank=True,
                                                 null=True)
-    storage_envr_notes = models.TextField(blank=True, null=True, verbose_name="Storage notes")
+    storage_envr_notes = models.TextField(blank=True, null=True, verbose_name="Storage notes (internal)")
     distribution_formats = models.ManyToManyField(DistributionFormat, blank=True)
     data_char_set = models.ForeignKey(CharacterSet, on_delete=models.DO_NOTHING, blank=True, null=True,
                                       verbose_name="Data character set")
@@ -276,6 +284,7 @@ class Resource(models.Model):
 
     fgp_url = models.URLField(blank=True, null=True, verbose_name="Link to record on FGP")
     public_url = models.URLField(blank=True, null=True, verbose_name="Link to record on Open Gov't Portal")
+    thumbnail_url = models.URLField(blank=True, null=True, verbose_name="Public URL to thumbnail image")
     fgp_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
     od_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to Open Gov't Portal")
     od_release_date = models.DateTimeField(blank=True, null=True, verbose_name="Date released to Open Gov't Portal")
@@ -284,7 +293,7 @@ class Resource(models.Model):
     last_revision_date = models.DateTimeField(blank=True, null=True, verbose_name="Date of last published revision")
     open_data_notes = models.TextField(blank=True, null=True,
                                        verbose_name="Open data notes")
-    notes = models.TextField(blank=True, null=True, verbose_name="General notes")
+    notes = models.TextField(blank=True, null=True, verbose_name="General notes (internal)")
     citations2 = models.ManyToManyField(shared_models.Citation, related_name='resources', blank=True)
     keywords = models.ManyToManyField(Keyword, related_name='resources', blank=True)
     people = models.ManyToManyField(Person, through='ResourcePerson')
@@ -355,9 +364,12 @@ class Resource(models.Model):
 
     @property
     def thumbnail(self):
-        for file in self.files.all():
-            if "thumbnail" in file.caption.lower() or "vignette" in file.caption.lower():
-                return file.file.url
+        if self.thumbnail_url:
+            return self.thumbnail_url
+        else:
+            for file in self.files.all():
+                if "thumbnail" in file.caption.lower() or "vignette" in file.caption.lower():
+                    return file.file.url
 
     @property
     def bounds(self):
@@ -392,7 +404,7 @@ class DataResource(models.Model):
         (HTTPS, HTTPS),
         (FTP, FTP),
     ]
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="data_resources")
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="data_resources" , editable=False)
     url = models.URLField()
     name_eng = models.CharField(max_length=255, verbose_name="Name (English)")
     name_fre = models.CharField(max_length=255, verbose_name="Name (French)")
@@ -411,7 +423,7 @@ class WebService(models.Model):
         (ENG, "English"),
         (FRA, "French"),
     ]
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="web_services")
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="web_services", editable=False)
     protocol = models.CharField(max_length=255, default="ESRI REST: Map Service")
     service_language = models.CharField(max_length=255, choices=SERVICE_LANGUAGE_CHOICES)
     url = models.URLField()
@@ -440,6 +452,7 @@ class ResourcePerson(models.Model):
     def __str__(self):
         return f"{self.person} ({self.role})"
 
+
 class BoundingBox(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     west_bounding = models.FloatField(blank=True, null=True)
@@ -452,9 +465,9 @@ class BoundingBox(models.Model):
 
 
 class ResourceCertification(models.Model):
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="certification_history")
-    certifying_user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-    certification_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="certification_history", editable=False)
+    certifying_user = models.ForeignKey(User, on_delete=models.DO_NOTHING, editable=False)
+    certification_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP", editable=False)
     notes = models.TextField(blank=False, null=True)
 
     class Meta:
@@ -489,7 +502,7 @@ def file_directory_path(instance, filename):
 
 class File(models.Model):
     caption = models.CharField(max_length=255)
-    resource = models.ForeignKey(Resource, related_name="files", on_delete=models.CASCADE)
+    resource = models.ForeignKey(Resource, related_name="files", on_delete=models.CASCADE, editable=False)
     file = models.FileField(upload_to=file_directory_path)
     date_created = models.DateTimeField(default=timezone.now)
 

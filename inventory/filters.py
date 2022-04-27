@@ -29,10 +29,10 @@ class ResourceFilter(django_filters.FilterSet):
                                                         lookup_expr='isnull', label=_("Published to Open Portal?"),
                                                         exclude=True,  # this will reverse the logic
                                                         )
-    odi_id = django_filters.BooleanFilter(field_name="odi_id",
-                                                       lookup_expr='isnull', label=_("Open Data Inventory?"),
-                                                       exclude=True,  # this will reverse the logic
-                                                       )
+    # odi_id = django_filters.BooleanFilter(field_name="odi_id",
+    #                                                    lookup_expr='isnull', label=_("Open Data Inventory?"),
+    #                                                    exclude=True,  # this will reverse the logic
+    #                                                    )
 
 
 

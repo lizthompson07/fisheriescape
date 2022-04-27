@@ -47,7 +47,7 @@ class iHubAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=ihub')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -66,7 +66,7 @@ class iHubEditRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=ihub')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -78,7 +78,7 @@ class SiteLoginRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=ihub')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -532,7 +532,7 @@ class NoteUpdateView(iHubEditRequiredMixin, CommonPopoutUpdateView):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_ihub_edit_group, login_url='/accounts/denied/')
+@user_passes_test(in_ihub_edit_group, login_url='/accounts/denied/?app=ihub')
 def note_delete(request, pk):
     object = models.EntryNote.objects.get(pk=pk)
     object.delete()
@@ -563,7 +563,7 @@ class EntryPersonUpdateView(iHubEditRequiredMixin, CommonPopoutUpdateView):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_ihub_edit_group, login_url='/accounts/denied/')
+@user_passes_test(in_ihub_edit_group, login_url='/accounts/denied/?app=ihub')
 def entry_person_delete(request, pk):
     object = models.EntryPerson.objects.get(pk=pk)
     object.delete()
@@ -593,7 +593,7 @@ class FileUpdateView(iHubEditRequiredMixin, CommonPopoutUpdateView):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_ihub_edit_group, login_url='/accounts/denied/')
+@user_passes_test(in_ihub_edit_group, login_url='/accounts/denied/?app=ihub')
 def file_delete(request, pk):
     object = models.File.objects.get(pk=pk)
     object.delete()
@@ -1320,7 +1320,7 @@ class UserListView(iHubAdminRequiredMixin, CommonFilterView):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/?app=ihub')
 def toggle_user(request, pk, type):
     my_user = User.objects.get(pk=pk)
     admin_group = Group.objects.get(pk=18)

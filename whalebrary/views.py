@@ -41,7 +41,7 @@ class WhalebraryAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=whalebrary')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -58,7 +58,7 @@ class WhalebraryAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=whalebrary')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -77,7 +77,7 @@ class WhalebraryEditRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=whalebrary')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -87,7 +87,7 @@ def index(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_whalebrary_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_whalebrary_admin_group, login_url='/accounts/denied/?app=whalebrary')
 def admin_tools(request):
     return render(request, 'whalebrary/_admin.html')
 
@@ -124,7 +124,7 @@ class UserListView(WhalebraryAdminAccessRequired, CommonFilterView):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_whalebrary_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_whalebrary_admin_group, login_url='/accounts/denied/?app=whalebrary')
 def toggle_user(request, pk, type):
     my_user = User.objects.get(pk=pk)
     whalebrary_admin = get_object_or_404(Group, name="whalebrary_admin")
@@ -275,7 +275,7 @@ class SpeciesFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
 
 # TODO update this with new code that's cleaner
 # TODO Decide if I want the report to also have locations
-@user_passes_test(in_whalebrary_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_whalebrary_admin_group, login_url='/accounts/denied/?app=whalebrary')
 def inventory_download(request):
     items = models.Item.objects.all()
 

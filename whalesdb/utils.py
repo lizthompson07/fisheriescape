@@ -16,7 +16,7 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse('accounts:denied_access', kwargs={
-                "message": _("Sorry, you need to be a whales admin in order to access this page.")}))
+                "message": _("Sorry, you need to be a whales admin in order to access this page.")}) + "?app=whalesdb")
         return super().dispatch(request, *args, **kwargs)
 
 

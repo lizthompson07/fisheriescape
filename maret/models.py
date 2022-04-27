@@ -82,9 +82,9 @@ class Committee(models.Model):
     meeting_frequency_choices = (
         (0, "Monthly"),
         (1, "Once a year"),
-        (2, "1-2 times per year"),
+        # (2, 1-2 times a year), # removed 12, april, 2022
         (3, "Twice a year"),
-        (4, "2-3 times per year"),
+        # (4, 2-3 times a year), # removed 12, april, 2022
         (5, "Three times a year"),
         (6, "Four times a year"),
         (7, "As needed"),
@@ -97,10 +97,10 @@ class Committee(models.Model):
                                         verbose_name=_("Main Topic(s) of discussion"))
     species = models.ManyToManyField(Species, blank=True, related_name="committee_species",
                                      verbose_name=_("Main species of discussion"))
-    branch = models.ForeignKey(shared_models.Branch, default=1, on_delete=models.DO_NOTHING,
+    branch = models.ForeignKey(shared_models.Branch, blank=True, null=True, default=1, on_delete=models.DO_NOTHING,
                                related_name="committee_branch", verbose_name=_("Lead DFO branch"))
-    area_office = models.ManyToManyField(AreaOffice, blank=True, related_name="committee_area_office",
-                                         verbose_name=_("Lead Area Office"))
+    area_office = models.ForeignKey(AreaOffice, blank=True, null=True, related_name="committee_area_office",
+                                    on_delete=models.DO_NOTHING, verbose_name=_("Lead Area Office"))
     division = models.ForeignKey(shared_models.Division, blank=True, null=True, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Division"))
 

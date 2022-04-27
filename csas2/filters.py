@@ -33,7 +33,7 @@ class PersonFilter(django_filters.FilterSet):
 
 
 class CSASRequestFilter(django_filters.FilterSet):
-    search = django_filters.CharFilter(field_name='search', lookup_expr='icontains', label=_("Title / ref number"))
+    search = django_filters.CharFilter(field_name='search', lookup_expr='icontains', label=_("Title contains OR reference number"))
     request_id = django_filters.NumberFilter(field_name='id', lookup_expr='exact')
     fiscal_year = django_filters.MultipleChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     advice_fiscal_year = django_filters.MultipleChoiceFilter(field_name='advice_fiscal_year', lookup_expr='exact')
