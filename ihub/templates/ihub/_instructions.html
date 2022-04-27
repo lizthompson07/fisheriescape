@@ -19,6 +19,14 @@
         <a class="btn btn-sm btn-primary" href="#" pop-href="{% url 'ihub:instruction_edit' object.consultation_instructions.id %}">
           {% trans "Edit Instructions" %}
         </a>
+
+        <a class="btn btn-sm btn-success" href="{% url 'ihub:consultation_instructions_pdf' %}?orgs={{ object.id }}">
+          PDF <span class="mdi mdi-file-pdf text-light"></span>
+        </a>
+        <a class="btn btn-sm btn-success" href="{% url 'ihub:consultation_instructions_xlsx' %}?orgs={{ object.id }}">
+          XLXS <span class="mdi mdi-file-excel text-light"></span>
+        </a>
+
       {% endif %}
     </div>
 
