@@ -88,6 +88,16 @@ class SpeciesSerializer(serializers.ModelSerializer):
 
 
 class WeekSerializer(serializers.ModelSerializer):
+
+    date_range_text = SerializerMethodField()
+
+    def get_date_range_text(self, obj):
+        try:
+            string = "{} to {}".format(obj.approx_start.strftime("%d-%b"), obj.approx_end.strftime("%d-%b"))
+            return string
+        except AttributeError:
+            return None
+
     class Meta:
         model = Week
         fields = "__all__"

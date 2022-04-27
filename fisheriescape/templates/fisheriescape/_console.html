@@ -9,6 +9,11 @@
             title="{% trans "Open sidebar" %}">
         <span class="mdi mdi-arrow-collapse-right"></span>
     </button>
+    <div class="my-5">
+    </div>
+    <div class="vertical lead my-5 ml-2 text-primary">
+      {% trans "Filters" %}
+    </div>
 </div>
 <div v-else class="container">
     <button class="btn btn-outline-light float-right mb-3" @click="showSidebar=false"><span
@@ -58,7 +63,7 @@
                         @change="updateResults"
                         class="form-control" id="filter.week">
                     {#          <option value="">{% trans "all" %}</option>#}
-                    <option v-for="(obj, index) in weekList" :value="obj.week_number">${obj.week_number}</option>
+                    <option v-for="(obj, index) in weekList" :value="obj.week_number">${obj.week_number} - Approx. ${obj.date_range_text}</option>
                 </select>
             </div>
 
@@ -237,12 +242,17 @@
             {#        </div>#}
             {#      </div>#}
             {##}
-            <div class="mb-0">
-                <button @click="clearFilters" class="btn btn-sm btn-warning">{% trans "Clear filters" %}</button>
-            </div>
-
-            <div class="mb-0">
-                <button @click="refreshMap" class="btn btn-sm btn-warning">{% trans "refresh Map" %}</button>
+            <div class="row">
+                <div class="col">
+                    <div class="mb-0">
+                        <button @click="clearFilters" class="btn btn-sm btn-warning">{% trans "Clear Filters" %}</button>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="mb-0">
+                        <button @click="refreshMap" class="btn btn-sm btn-warning">{% trans "Refresh Map" %}</button>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -251,5 +261,7 @@
         <h5>Description</h5>
         <hr>
         <li> Fisheriescape scores are from 0 to 100 after</li>
+        <li>Approximate dates based on 2018 dates</li>
+
     </div>
 </div>

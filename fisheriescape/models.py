@@ -246,6 +246,8 @@ class Fishery(MetadataFields):
 
 class Week(models.Model):
     week_number = models.IntegerField(validators=[MaxValueValidator(53), MinValueValidator(1)], verbose_name="week")
+    approx_start = models.DateField(blank=True, null=True, verbose_name="approx start")
+    approx_end = models.DateField(blank=True, null=True, verbose_name="approx end")
 
     class Meta:
         ordering = ["week_number"]
@@ -253,6 +255,14 @@ class Week(models.Model):
     def __str__(self):
         my_str = "Week {}".format(self.week_number)
         return my_str
+
+    @property
+    def date_range_text(self):
+        try:
+            string = "{} to {}".format(self.approx_start.strftime("%d-%b"), self.approx_end.strftime("%d-%b"))
+            return string
+        except AttributeError:
+            return None
 
 
 def image_directory_path(instance, filename):

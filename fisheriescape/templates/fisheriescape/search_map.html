@@ -1,35 +1,3 @@
-{#{% load static %}#}
-{#<!doctype html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#  <title>Map</title>#}
-{#  <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
-{#  <link rel="stylesheet" type="text/css" href="{% static 'fisheriescape/map.css' %}?version=1.1">#}
-{#  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"#}
-{#        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="#}
-{#        crossorigin=""/>#}
-{#  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"#}
-{#          integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="#}
-{#          crossorigin=""></script>#}
-{#    {% if DEBUG %}#}
-{#        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>#}
-{#    {% else %}#}
-{#        <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>#}
-{#    {% endif %}#}
-{#</head>#}
-{#<body>#}
-{##}
-{#<div id="map4"></div>#}
-{##}
-{#<script>#}
-{#let scoreObj = {{ hexagon_polygons | safe }};#}
-{#let mapboxApiKey = '{{ mapbox_api_key }}';#}
-{#</script>#}
-{##}
-{#<script src="{% static 'fisheriescape/map4.js' %}?version=1.1"></script>#}
-{#</body>#}
-{#</html>#}
-
 {% extends 'fisheriescape/base.html' %}
 {% load verbose_names %}
 {% load i18n %}
@@ -44,27 +12,6 @@
 
 
 {% block content %}
-    {#<h1>Hello </h1>#}
-    {#  <div id="app">#}
-    {##}
-    {#    <div class="card"> <!-- Loop through the tasks array, if status is 'todo' then we'll show it. -->#}
-    {#        <div class="card-content">#}
-    {#          <div class="content">#}
-    {#            {{ i.id }} <!-- Print the task's description here -->#}
-    {#              {{ test }}#}
-    {#              <h1>Hello </h1>#}
-    {#              <button @click="getTest">Click</button>#}
-    {#                  <div v-if="this.testData">#}
-    {#                      ${message}#}
-    {#                      <div v-for="obj in testData" :key="obj.pk">#}
-    {#                          ${obj.id}: ${obj.site_score}#}
-    {#                      </div>#}
-    {#                  </div>#}
-    {#          </div>#}
-    {#        </div>#}
-    {#    </div>#}
-    {#  </div>#}
-
     <div id="app" v-cloak>
 
         <div id="mySidebar" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar}">
@@ -72,21 +19,40 @@
         </div>
         <div :class="{'main-opened':showSidebar, 'main-closed':!showSidebar}">
 
-            <div class="container-fluid bg-light curvy">
-                <h5>
-                    {% trans "Map" %}
-                </h5>
-                <hr>
-                <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
-                    <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
-                        <span class="sr-only"></span>
+
+{#            <map-component>test</map-component>#}
+        <div class="container-fluid bg-light curvy">
+            <div class="row">
+                <div class="col">
+                    <h5>
+                        {% trans "Map" %}
+                    </h5>
+                    <hr>
+                </div>
+            </div>
+{#            <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">#}
+{#                <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">#}
+{#                    <span class="sr-only"></span>#}
+{#                </div>#}
+{#            </div>#}
+                <div class="row">
+                    <div class="col my-auto">
+                        <div v-if="dataReady" id="maptest">
+                            <div>Refresh Map if you already chose filters</div>
+                        </div>
+
+                        <div v-else class="loading mb-3 mt-3 text-center mt-5">
+                            <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+                                <span class="sr-only"></span>
+                            </div>
+                            <h5>Waiting for database query to finish</h5>
+                        </div>
                     </div>
                 </div>
-                    <div class="col my-auto">
-                        <div id="maptest"></div>
-                    </div>
 
-            </div>
+        </div>
+
+
 
             <div class="row container-fluid bg-light curvy">
                 <div class="col">
@@ -102,31 +68,30 @@
 {#                                                                ${filteredData}#}
                             </div>
                         </div>
-                        <table class="table table-sm">
-                            <thead>
-                            <tr>
-                                {% for field in field_list %}
-                                    <th>
-                                        {% get_verbose_label random_score field %}
-                                    </th>
-                                {% endfor %}
-                            </tr>
-                            </thead>
-                            <tbody>
-
-                            <tr v-for="(p, index) in filteredData">
-{#                                <td>${p}</td>#}
-                                <td>${p.id}</td>
-                                <td>${p.species}</td>
-                                <td>${p.week}</td>
-                                <td>${p.grid_id}</td>
-                                <td>${p.site_score}</td>
-                                <td>${p.ceu_score}</td>
-                                <td>${p.fs_score}</td>
-                            </tr>
-
-                            </tbody>
-                        </table>
+{#                        <table class="table table-sm">#}
+{#                            <thead>#}
+{#                            <tr>#}
+{#                                {% for field in field_list %}#}
+{#                                    <th>#}
+{#                                        {% get_verbose_label random_score field %}#}
+{#                                    </th>#}
+{#                                {% endfor %}#}
+{#                            </tr>#}
+{#                            </thead>#}
+{#                            <tbody>#}
+{##}
+{#                            <tr v-for="(p, index) in filteredData">#}
+{#                                <td>${p.id}</td>#}
+{#                                <td>${p.species}</td>#}
+{#                                <td>${p.week}</td>#}
+{#                                <td>${p.grid_id}</td>#}
+{#                                <td>${p.site_score}</td>#}
+{#                                <td>${p.ceu_score}</td>#}
+{#                                <td>${p.fs_score}</td>#}
+{#                            </tr>#}
+{##}
+{#                            </tbody>#}
+{#                        </table>#}
 
                         <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
                             <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
@@ -135,7 +100,7 @@
                         </div>
                         <div v-else>
                             <div class="text-center">
-                                <p class="font-italic font-weight-bold">${filteredData.length} of ${testData.count}
+                                <p class="font-italic font-weight-bold">${filteredData.length} of ${testData.length}
                                     loaded</p>
 {#                                <button v-if="next" @click="loadMoreResults" class="btn btn-primary btn-sm">#}
 {#                                    {% trans "Load more results..." %}#}
@@ -156,6 +121,8 @@
 {% block body_js %}
     {{ block.super }}
 
+{#    {% include "fisheriescape/map_component.html" %}#}
+
     <script type="application/javascript">
         let lobsterObj = {{ lobster_areas | safe }};
 
@@ -171,6 +138,7 @@
 
                 projects_loading: true,
                 help_text: true,
+                dataReady: false,
 
                 // filters
                 filter: {
@@ -194,6 +162,7 @@
                     apiService(`/api/fisheriescape/scores-feature/`)
                         .then(response => {
                             console.log(response);
+                            this.dataReady = true;
                             this.testData = response
                         })
                 },
@@ -595,15 +564,22 @@
 
                },
             },
+            async setup() {
+              await this.getTest();
+              await this.dataReady;
+              this.setupLeafletMap();
+            },
             created() {
                 this.getTest();
                 this.getFilteredData();
                 this.getFilterData();
 
             },
-            mounted() {
-                this.setupLeafletMap();
-            },
+           {#async mounted() {#}
+           {#     await this.dataReady;#}
+           {#     this.setupLeafletMap();#}
+           {##}
+           {# },#}
             beforeDestroy() {
                 if (this.map) {
                   this.map.remove();

@@ -748,4 +748,5 @@ class ScoreMapView(FisheriescapeAccessRequired, CommonTemplateView):
         # context["nafo_areas"] = serialize("geojson", models.NAFOArea.objects.filter(layer_id="NAFO"))
 
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
+
         return context

@@ -12,6 +12,7 @@ from rest_framework import mixins
 
 from rest_framework_gis.filters import GeometryFilter
 from rest_framework_gis.filterset import GeoFilterSet
+from . import pagination
 from .serializers import ScoreSerializer, ScoreFeatureSerializer, SpeciesSerializer, WeekSerializer, HexagonSerializer
 from .. import models
 
@@ -85,6 +86,7 @@ class ScoreViewSet(ModelViewSet):
 class ScoreFeatureViewSet(ModelViewSet):
     queryset = models.Score.objects.all()
     serializer_class = ScoreFeatureSerializer
+    # pagination_class = pagination.StandardResultsSetPagination
 
     def get_queryset(self):
 

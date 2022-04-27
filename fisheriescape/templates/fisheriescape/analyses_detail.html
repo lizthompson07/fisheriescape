@@ -16,7 +16,13 @@
         <div class="col-3">
             <table class="table table-sm table-striped">
                 {% for field in field_list %}
-                    {% verbose_td_display object field %}
+                    {% if field == 'week' %}
+                        {% verbose_td_display object field %}
+                        <td><b>Approx Dates</b></td>
+                        <td>{{ object.week.date_range_text }}</td>
+                    {% else %}
+                        {% verbose_td_display object field %}
+                    {% endif %}
                 {% endfor %}
             </table>
         </div>
