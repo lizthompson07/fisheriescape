@@ -27,12 +27,6 @@
               </div>
               <form class="mb-3" @change="getExtracts">
                 <div class="row">
-{#                  <div class="col">#}
-{#                    <input type="number" class="form-control" placeholder="{% trans "Sample Id" %}" v-model="filterSampleId">#}
-{#                  </div>#}
-{#                  <div class="col">#}
-{#                    <input type="number" class="form-control" placeholder="{% trans "Filter Id" %}" v-model="filterFilterId">#}
-{#                  </div>#}
                   <div class="col">
                     <input type="number" class="form-control" placeholder="{% trans "Extract Id" %}" v-model="filterExtractId">
                   </div>
@@ -40,10 +34,13 @@
                     <input type="text" class="form-control" placeholder="{% trans "Extraction Number" %}" v-model="filterExtractionNumber">
                   </div>
                   <div class="col">
-                    <select class="form-control" v-model="filterBatch">
-                      <option :value="null">{% trans "Filter by batch" %}</option>
-                      <option v-for="batch in batches" :key="batch.id" :value="batch.id">
-                        ${batch.display}
+                    <input type="text" class="form-control" placeholder="{% trans "Extraction Plate ID" %}" v-model="filterExtractionPlateId">
+                  </div>
+                  <div class="col">
+                    <select class="form-control" v-model="filterCollection" disabled>
+                      <option :value="null">{% trans "Filter by project" %}</option>
+                      <option v-for="collection in collections" :key="collection.id" :value="collection.id">
+                        ${collection.name}
                       </option>
                     </select>
                   </div>
@@ -62,9 +59,9 @@
                   <option v-for="extract in extracts" :key="extract.id" :value="extract.id">
                     ${extract.display} &emsp;||&emsp;
                     {% trans "Extraction Number" %} &rarr; ${extract.extraction_number | nz("n/a")} &emsp;||&emsp;
-                    {% trans "Batch" %} &rarr; ${extract.batch_display} ||
-                    ${extract.filter_display|nz } ||
-                    ${extract.sample_display|nz }
+                    {% trans "Extraction Plate ID" %} &rarr; ${extract.extraction_plate_id|nz } &emsp;||&emsp;
+                    {% trans "Filter" %} &rarr; ${extract.filter_display|nz } &emsp;||&emsp;
+                    {% trans "Sample" %} &rarr; ${extract.sample_display|nz }
                   </option>
                 </select>
               </div>
@@ -77,6 +74,12 @@
                 <div class="col">
                   <label for="">{% trans "# of technical replicates" %}</label>
                   <input type="number" class="form-control" placeholder="" v-model="numberOfTechReps">
+                </div>
+                <div class="col">
+                  <label for="">{% trans "Master mix" %}</label>
+                  <select name="" id="" class="form-control w-100" v-model="selectedMasterMix">
+                    <option v-for="(option, index) in masterMixChoices" :value="option.value">${option.text}</option>
+                  </select>
                 </div>
                 <div class="col">
                   <label for="">{% trans "Which assays to test?" %}</label>
@@ -108,9 +111,6 @@ Vue.component("extract-import-overlay", {
   delimiters: ["${", "}"],
   name: "extract-import-overlay",
   props: {
-    batch_id: {
-      required: true,
-    },
     default_collection_id: {
       required: true,
     }
@@ -124,17 +124,20 @@ Vue.component("extract-import-overlay", {
       selectedExtracts: [],
 
       filterUnprocessed: true,
-      {#filterSampleId: null,#}
-      {#filterFilterId: null,#}
+      filterCollection: null,
       filterExtractId: null,
       filterExtractionNumber: null,
+      filterExtractionPlateId: null,
       filterBatch: null,
       loadingExtracts: true,
       loadingBatches: true,
+      loadingCollections: true,
 
       numberOfTechReps: 3,
       selectedAssays: [],
       assayChoices: [],
+      selectedMasterMix: [],
+      masterMixChoices: [],
     };
   },
   methods: {
@@ -142,11 +145,12 @@ Vue.component("extract-import-overlay", {
       this.error = null;
       this.overlay = true;
       this.filterUnprocessed = true;
-      {#this.filterSampleId = null;#}
-      {#this.filterFilterId = null;#}
       this.filterExtractId = null;
       this.filterExtractionNumber = null;
+      this.filterExtractionPlateId = null;
       this.filterBatch = null;
+      this.filterCollection = this.default_collection_id;
+
       this.getExtracts();
     },
     importExtracts() {
@@ -154,7 +158,7 @@ Vue.component("extract-import-overlay", {
         let msg = "{% trans "You did not select any extracts to import!" %}";
         alert(msg);
       } else {
-        this.$emit("add-extracts", this.selectedExtracts, this.numberOfTechReps, this.selectedAssays)
+        this.$emit("add-extracts", this.selectedExtracts, this.numberOfTechReps, this.selectedAssays, this.selectedMasterMix)
         this.overlay = false;
       }
     },
@@ -162,10 +166,10 @@ Vue.component("extract-import-overlay", {
       this.selectedExtracts = [];
       this.loadingExtracts = true;
       let endpoint = '/api/edna/extracts/?'
-      {#if (this.filterSampleId && this.filterSampleId !== "") endpoint += `filter__sample=${this.filterSampleId}&`;#}
-      {#if (this.filterFilterId && this.filterFilterId !== "") endpoint += `filter=${this.filterFilterId}&`;#}
       if (this.filterExtractId && this.filterExtractId !== "") endpoint += `id=${this.filterExtractId}&`;
       if (this.filterExtractionNumber && this.filterExtractionNumber !== "") endpoint += `extraction_number=${this.filterExtractionNumber}&`;
+      if (this.filterExtractionPlateId && this.filterExtractionPlateId !== "") endpoint += `extraction_plate_id=${this.filterExtractionPlateId}&`;
+      if (this.filterCollection && this.filterCollection !== "") endpoint += `collection=${this.filterCollection}&`;
       if (this.filterBatch && this.filterBatch !== "") endpoint += `extraction_batch=${this.filterBatch}&`;
       if (this.filterUnprocessed) endpoint += `pcrs__isnull=true&`;
       apiService(endpoint).then(response => {
@@ -174,6 +178,14 @@ Vue.component("extract-import-overlay", {
         this.$nextTick(() => {
           this.$refs.extract_box.focus();
         });
+      });
+    },
+    getCollections() {
+      this.loadingCollections = true;
+      let endpoint = '/api/edna/collections/'
+      apiService(endpoint).then(response => {
+        this.loadingCollections = false;
+        this.collections = response;
       });
     },
     getBatches() {
@@ -189,6 +201,7 @@ Vue.component("extract-import-overlay", {
       endpoint = `/api/edna/meta/models/pcr-assay/`;
       apiService(endpoint).then(data => {
         this.assayChoices = data.assay_choices;
+        this.masterMixChoices = data.master_mix_choices;
       });
     },
 
@@ -199,6 +212,7 @@ Vue.component("extract-import-overlay", {
   created() {
     this.getBatches();
     this.getPCRMetadata();
+    this.getCollections();
   },
   computed: {
     canProceed() {

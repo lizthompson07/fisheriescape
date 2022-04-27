@@ -8,7 +8,7 @@
     <span class="mdi mdi-select-all text-light"></span>
   </button>
   <button v-if="count" class="w25px px-1 py-0 btn btn-sm btn-dark" @click="$emit('unselect-all')" data-toggle="tooltip" title="{% trans "unselect all" %}">
-    <span class="mdi mdi-close text-light"></span>
+    <span class="mdi mdi-select-off text-light"></span>
   </button>
   <button v-if="count" class="w25px px-1 py-0 btn btn-sm btn-primary" @click="$emit('move-up')" data-toggle="tooltip" title="{% trans "move up" %}">
     <span class="mdi mdi-arrow-up text-light"></span>

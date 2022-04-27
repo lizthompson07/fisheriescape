@@ -120,6 +120,7 @@ class PCRBatchForm(forms.ModelForm):
         "machine_number",
         "run_program",
         "control_status",
+        "default_collection",
         "comments",
     ]
 

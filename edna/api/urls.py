@@ -16,6 +16,7 @@ router.register(r'pcr-assays', views.PCRAssayViewSet)
 urlpatterns = [
     path("edna/", include(router.urls)),  # tested
     path("edna/user/", views.CurrentUserAPIView.as_view(), name="edna-current-user"),
+    path("edna/sample_types/", views.SampleTypeListAPIView.as_view(), name="edna-sample-types"),
 
     path("edna/meta/models/sample/", views.SampleModelMetaAPIView.as_view(), name="edna-sample-model-meta"),
     path("edna/meta/models/filter/", views.FilterModelMetaAPIView.as_view(), name="edna-filter-model-meta"),

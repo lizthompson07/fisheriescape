@@ -60,6 +60,7 @@ class DNAExtractFilter(django_filters.FilterSet):
             'filter': ['exact'],
             'filter__sample': ['exact'],
             'extraction_number': ['exact'],
+            'extraction_plate_id': ['exact'],
             'extraction_batch': ['exact'],
             'pcrs': ['isnull'],
             'collection': ['exact'],
@@ -107,6 +108,7 @@ class FiltrationBatchFilter(django_filters.FilterSet):
         model = models.FiltrationBatch
         fields = {
             'datetime': ['exact'],
+            'default_collection': ['exact'],
         }
 
 
@@ -115,6 +117,7 @@ class ExtractionBatchFilter(django_filters.FilterSet):
         model = models.ExtractionBatch
         fields = {
             'datetime': ['exact'],
+            'default_collection': ['exact'],
         }
 
 
@@ -123,4 +126,5 @@ class PCRBatchFilter(django_filters.FilterSet):
         model = models.PCRBatch
         fields = {
             'datetime': ['exact'],
+            'default_collection': ['exact'],
         }

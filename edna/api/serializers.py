@@ -39,6 +39,7 @@ class FilterSerializer(serializers.ModelSerializer):
     batch_display = serializers.SerializerMethodField()
     collection_display = serializers.SerializerMethodField()
     sample_object = serializers.SerializerMethodField()
+    has_extracts = serializers.SerializerMethodField()
 
     def get_sample_object(self, instance):
         if instance.sample:
@@ -61,6 +62,9 @@ class FilterSerializer(serializers.ModelSerializer):
 
     def get_display(self, instance):
         return str(instance)
+
+    def get_has_extracts(self, instance):
+        return instance.extracts.exists()
 
     class Meta:
         model = models.Filter
@@ -86,8 +90,16 @@ class DNAExtractSerializer(serializers.ModelSerializer):
     batch_display = serializers.SerializerMethodField()
     filter_display = serializers.SerializerMethodField()
     sample_display = serializers.SerializerMethodField()
-
     filter_object = serializers.SerializerMethodField()
+    sample_object = serializers.SerializerMethodField()
+    has_pcrs = serializers.SerializerMethodField()
+
+    def get_has_pcrs(self, instance):
+        return instance.pcrs.exists()
+
+    def get_sample_object(self, instance):
+        if instance.sample:
+            return SampleSerializer(instance.sample).data
 
     def get_filter_object(self, instance):
         if instance.filter:
@@ -134,6 +146,12 @@ class PCRSerializer(serializers.ModelSerializer):
 
     display = serializers.SerializerMethodField()
     assay_count = serializers.SerializerMethodField()
+
+    extract_object = serializers.SerializerMethodField()
+
+    def get_extract_object(self, instance):
+        if instance.extract:
+            return DNAExtractSerializer(instance.extract).data
 
     def get_assay_count(self, instance):
         return instance.assay_count
@@ -192,4 +210,10 @@ class FiltrationBatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.FiltrationBatch
+        fields = "__all__"
+
+
+class SampleTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.SampleType
         fields = "__all__"

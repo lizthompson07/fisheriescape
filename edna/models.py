@@ -199,6 +199,7 @@ class File(models.Model):
 class Sample(MetadataFields):
     collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.CASCADE, verbose_name=_("project"))
     sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("sample type"))
+    is_field_blank = models.BooleanField(default=False, verbose_name=_("is this a field blank?"))
     bottle_id = models.CharField(verbose_name=_("bottle ID"), blank=True, null=True, max_length=50)
     location = models.CharField(max_length=255, verbose_name=_("location"), blank=True, null=True)
     site = models.CharField(max_length=255, verbose_name=_("site"), blank=True, null=True)
@@ -226,6 +227,8 @@ class Sample(MetadataFields):
         return reverse("edna:sample_detail", args=[self.pk])
 
     def __str__(self):
+        if self.is_field_blank:
+            return "field blank"
         return f"s{self.id}"
 
     @property
@@ -287,13 +290,14 @@ class Batch(models.Model):
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
     class Meta:
-        ordering = ["datetime"]
+        ordering = ["-datetime"]
         abstract = True
 
 
 class FiltrationBatch(Batch):
     class Meta:
         verbose_name_plural = _("Filtration Batches")
+        ordering = ["-datetime"]
 
     def __str__(self):
         return "{} {} ({})".format(_("Filtration Batch"), self.id, self.datetime.strftime("%Y-%m-%d"))
@@ -328,6 +332,9 @@ class Filter(MetadataFields):
         ordering = ["filtration_batch", "order"]
 
     def __str__(self):
+        # if there is no sample associated with this filter, it is a filtration blank
+        if not self.sample:
+            return "filtration blank"
         return f"f{self.id}"
 
     def save(self, *args, **kwargs):
@@ -376,6 +383,7 @@ class Filter(MetadataFields):
 class ExtractionBatch(Batch):
     class Meta:
         verbose_name_plural = _("DNA Extraction Batches")
+        ordering = ["-datetime"]
 
     def __str__(self):
         return "{} {} ({})".format(_("DNA Extraction Batch"), self.id, self.datetime.strftime("%Y-%m-%d"))
@@ -392,6 +400,8 @@ class DNAExtract(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     extraction_batch = models.ForeignKey(ExtractionBatch, related_name='extracts', on_delete=models.CASCADE, verbose_name=_("extraction batch"))
     filter = models.ForeignKey(Filter, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='extracts', verbose_name=_("filter ID"))
+    # see save method
+    sample = models.ForeignKey(Sample, related_name='extracts', on_delete=models.DO_NOTHING, verbose_name=_("sample ID"), blank=True, null=True)
     collection = models.ForeignKey(Collection, related_name='extracts', on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=True, null=True)
     extraction_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("extraction number"), unique=True)
     start_datetime = models.DateTimeField(verbose_name=_("extraction date/time"))
@@ -399,6 +409,7 @@ class DNAExtract(MetadataFields):
     storage_location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("DNA storage location"))
     extraction_plate_id = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("extraction plate ID"))
     extraction_plate_well = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("extraction plate well"))
+    extraction_ipc = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("extraction IPC"))
     comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
 
     # calc
@@ -408,13 +419,18 @@ class DNAExtract(MetadataFields):
         # if there is a filter, the collection is known
         if self.filter:
             self.collection = self.filter.collection
-
+            # if the filter has a sample, we must make sure that the extraction sample is the same
+            if self.filter.sample:
+                self.sample = self.filter.sample
         super().save(*args, **kwargs)
 
     class Meta:
         ordering = ["extraction_batch", "order", "id"]
 
     def __str__(self):
+        # if there is no sample or filter associated with this extract, it is an extraction blank
+        if not self.sample and not self.filter:
+            return "extraction blank"
         return f"x{self.id}"
 
     @property
@@ -432,11 +448,6 @@ class DNAExtract(MetadataFields):
     @property
     def assay_count(self):
         return self.assays.count()
-
-    @property
-    def sample(self):
-        if self.filter:
-            return self.filter.sample
 
     @property
     def full_display(self):
@@ -458,6 +469,7 @@ class PCRBatch(Batch):
 
     class Meta:
         verbose_name_plural = _("PCR Batches")
+        ordering = ["-datetime"]
 
     def __str__(self):
         return "{} {} ({})".format(_("PCR Batch"), self.id, self.datetime.strftime("%Y-%m-%d"))
@@ -476,7 +488,6 @@ class PCR(MetadataFields):
     extract = models.ForeignKey(DNAExtract, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="pcrs", verbose_name=_("extraction ID"))
     plate_well = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate well"))
     master_mix = models.ForeignKey(MasterMix, on_delete=models.DO_NOTHING, related_name="pcrs", verbose_name=_("master mix"), blank=False, null=True)
-    comments = models.TextField(null=True, blank=True, verbose_name=_(" qPCR comments"))
 
     # calc
     order = models.IntegerField(verbose_name=_("order"), default=0)

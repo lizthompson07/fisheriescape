@@ -2,7 +2,7 @@ from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -23,6 +23,12 @@ class CurrentUserAPIView(APIView):
         serializer = serializers.UserDisplaySerializer(instance=request.user)
         data = serializer.data
         return Response(data)
+
+
+class SampleTypeListAPIView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = models.SampleType.objects.all()
+    serializer_class = serializers.SampleTypeSerializer
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
@@ -205,7 +211,6 @@ class DNAExtractViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         obj = serializer.save(created_by=self.request.user, updated_by=self.request.user)
         obj.save()
-        print(obj)
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
@@ -257,7 +262,6 @@ class PCRModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         # we want to get a list of filters for which there has been no PCRs
-        data['extract_choices'] = [dict(text=item.full_display, value=item.id) for item in models.DNAExtract.objects.all()]
         data['master_mix_choices'] = [dict(text=str(item), value=item.id) for item in models.MasterMix.objects.all()]
         return Response(data)
 
@@ -270,6 +274,7 @@ class PCRAssayModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         data['assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.all()]
+        data['master_mix_choices'] = [dict(text=str(item), value=item.id) for item in models.MasterMix.objects.all()]
         return Response(data)
 
 

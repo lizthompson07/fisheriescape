@@ -27,7 +27,7 @@
     <div class="mb-3">
       <p class="h3">{% trans "Filters" %}</p>
       <button @click="addFilter(null)" class="btn btn-sm btn-primary neighbours">{% trans "Add a Filtration Blank" %}</button>
-      <sample-import-overlay class="neighbours" batch_id="{{ object.id }}" default_collection_id="{{ object.default_collection_id }}"
+      <sample-import-overlay class="neighbours" default_collection_id="{{ object.default_collection_id }}"
                              @add-samples="addSamples"></sample-import-overlay>
     </div>
 
@@ -44,7 +44,7 @@
       </div>
     </div>
 
-    <div v-if="loading" class="loading mb-3 mt-3 mt-5">
+    <div v-if="loading0" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
         <span class="sr-only"></span>
       </div>
@@ -92,17 +92,24 @@
           <th class="p-1 w150px">${labels.end_datetime}</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody v-if="loading" class="loading mb-3 mt-3 mt-5">
+        <td>
+          <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </td>
+        </tbody>
+        <tbody v-else>
         <tr v-for="(obj, index) in filters" :key="obj.id" :class="{highlight: obj.selected}">
           <td class="p-1" tabindex="-1">
-            <input v-model='obj.selected' type="checkbox">
+            ${obj.order} &mdash; <input v-model='obj.selected' type="checkbox">
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
-            ${obj.display} (${obj.order})
+            ${obj.display}
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
             <span v-if="obj.sample_object">${obj.sample_object.display}</span>
-            <span v-else>BLANK</span>
+            <span v-else>------</span>
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
             <span v-if="obj.sample_object">${obj.sample_object.bottle_id}</span>
@@ -195,7 +202,10 @@
             ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <button class="btn py-0" @click="deleteFilter(obj)"><span class="h5 mdi mdi-delete"></span></button>
+            <button v-if="!obj.has_extracts" class="btn py-0" @click="deleteFilter(obj)"><span class="h5 mdi mdi-delete"></span></button>
+            <button v-else class="btn py-0 helper"><span class="h5 mdi mdi-delete" style="color: lightgrey" data-toggle="tooltip"
+                                                         title="{% trans "cannot delete a filter that has been extracted" %}"></span></button>
+
           </td>
         </tr>
         </tbody>
@@ -231,6 +241,7 @@
       filters: [],
       filtrationTypeChoices: [],
       labels: [],
+      loading0: true,
       loading: false,
       unsavedChanges: false
 
@@ -342,13 +353,15 @@
         for (const filter of this.selectedItems) this.deleteFilter(filter, true);
       },
       deleteFilter(filter, userInput) {
-        if (userInput === null || userInput === undefined) userInput = confirm("{% trans 'Are you sure you want to delete this filter?' %}");
-        if (userInput) {
-          let endpoint = `/api/edna/filters/${filter.id}/`;
-          apiService(endpoint, "DELETE")
-              .then(response => {
-                this.$delete(this.filters, this.filters.indexOf(filter))
-              })
+        if (!filter.has_extracts) {
+          if (userInput === null || userInput === undefined) userInput = confirm("{% trans 'Are you sure you want to delete this filter?' %}");
+          if (userInput) {
+            let endpoint = `/api/edna/filters/${filter.id}/`;
+            apiService(endpoint, "DELETE")
+                .then(response => {
+                  this.$delete(this.filters, this.filters.indexOf(filter))
+                })
+          }
         }
       },
       getBlankFilter(sample, order) {
@@ -388,6 +401,7 @@
         apiService(endpoint)
             .then(response => {
               this.loading = false;
+              this.loading0 = false;
               if (response.length && response[0].id) {
                 for (var i = 0; i < response.length; i++) {
                   response[i].selected = !!selectedItems.includes(response[i].id);
