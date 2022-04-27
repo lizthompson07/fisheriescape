@@ -10,10 +10,10 @@
   <button v-if="count" class="w25px px-1 py-0 btn btn-sm btn-dark" @click="$emit('unselect-all')" data-toggle="tooltip" title="{% trans "unselect all" %}">
     <span class="mdi mdi-select-off text-light"></span>
   </button>
-  <button v-if="count" class="w25px px-1 py-0 btn btn-sm btn-primary" @click="$emit('move-up')" data-toggle="tooltip" title="{% trans "move up" %}">
+  <button v-if="count && !disable_move" class="w25px px-1 py-0 btn btn-sm btn-primary" @click="$emit('move-up')" data-toggle="tooltip" title="{% trans "move up" %}">
     <span class="mdi mdi-arrow-up text-light"></span>
   </button>
-  <button v-if="count" class="w25px px-1 py-0 btn btn-sm btn-primary" @click="$emit('move-down')" data-toggle="tooltip" title="{% trans "move down" %}">
+  <button v-if="count && !disable_move" class="w25px px-1 py-0 btn btn-sm btn-primary" @click="$emit('move-down')" data-toggle="tooltip" title="{% trans "move down" %}">
     <span class="mdi mdi-arrow-down text-light"></span>
   </button>
   <button v-if="count" class="w25px px-1 py-0 btn btn-sm btn-danger" @click="$emit('delete-selected')" data-toggle="tooltip" title="{% trans "delete" %}">
@@ -33,6 +33,10 @@ Vue.component("select-tools", {
   props: {
     selected_items_count: {
       type: Number
+    },
+    disable_move: {
+      type: Boolean,
+      default: false,
     }
   },
   data() {

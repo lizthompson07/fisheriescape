@@ -274,6 +274,8 @@ class PCRAssayModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         data['assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.all()]
+        data['main_assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.filter(is_ipc=False)]
+        data['ipc_assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.filter(is_ipc=True)]
         data['master_mix_choices'] = [dict(text=str(item), value=item.id) for item in models.MasterMix.objects.all()]
         return Response(data)
 

@@ -146,8 +146,12 @@ class PCRSerializer(serializers.ModelSerializer):
 
     display = serializers.SerializerMethodField()
     assay_count = serializers.SerializerMethodField()
-
     extract_object = serializers.SerializerMethodField()
+    master_mix_display = serializers.SerializerMethodField()
+
+    def get_master_mix_display(self, instance):
+        if instance.master_mix:
+            return str(instance.master_mix)
 
     def get_extract_object(self, instance):
         if instance.extract:
@@ -163,12 +167,21 @@ class PCRSerializer(serializers.ModelSerializer):
 class PCRAssaySerializer(serializers.ModelSerializer):
     pcr_object = serializers.SerializerMethodField()
     result_display = serializers.SerializerMethodField()
+    assay_display = serializers.SerializerMethodField()
+
+    def get_assay_display(self, instance):
+        if instance.assay:
+            return str(instance.assay)
 
     def get_result_display(self, instance):
         return instance.get_result_display()
 
     def get_pcr_object(self, instance):
-        return PCRSerializer(instance.pcr).data
+        try:
+            if instance.pcr:
+                return PCRSerializer(instance.pcr).data
+        except:
+            pass
 
     class Meta:
         model = models.PCRAssay

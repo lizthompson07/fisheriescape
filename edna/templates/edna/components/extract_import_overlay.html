@@ -11,7 +11,7 @@
   <transition v-if="overlay" name="modal">
     <div class="modal-mask">
       <div class="modal-wrapper">
-        <div class="modal-container" style="width: 1000px">
+        <div class="modal-container">
           <div class="modal-header">
             <h4> {% trans "Import Extracts" %}</h4>
           </div>
@@ -82,13 +82,19 @@
                   </select>
                 </div>
                 <div class="col">
-                  <label for="">{% trans "Which assays to test?" %}</label>
-                  <select name="" id="" multiple="true" class="form-control w-100" style="height: 100px" v-model="selectedAssays">
-                    <option v-for="(option, index) in assayChoices" :value="option.value">${option.text}</option>
+                  <label for="">{% trans "Which main assays to test?" %}</label>
+                  <select name="" id="" multiple="true" class="form-control w-100" style="height: 100px" v-model="selectedMainAssays">
+                    <option v-for="(option, index) in mainAssayChoices" :value="option.value">${option.text}</option>
+                  </select>
+                </div>
+                <div class="col">
+                  <label for="">{% trans "Which IPC assays to test?" %}</label>
+                  <select name="" id="" multiple="true" class="form-control w-100" style="height: 100px" v-model="selectedIPCAssays">
+                    <option v-for="(option, index) in ipcAssayChoices" :value="option.value">${option.text}</option>
                   </select>
                 </div>
               </div>
-
+${selectedAssays}
 
             </div>
           </div>
@@ -134,9 +140,11 @@ Vue.component("extract-import-overlay", {
       loadingCollections: true,
 
       numberOfTechReps: 3,
-      selectedAssays: [],
-      assayChoices: [],
-      selectedMasterMix: [],
+      selectedMainAssays: [],
+      selectedIPCAssays: [],
+      mainAssayChoices: [],
+      ipcAssayChoices: [],
+      selectedMasterMix: null,
       masterMixChoices: [],
     };
   },
@@ -200,7 +208,8 @@ Vue.component("extract-import-overlay", {
       let endpoint;
       endpoint = `/api/edna/meta/models/pcr-assay/`;
       apiService(endpoint).then(data => {
-        this.assayChoices = data.assay_choices;
+        this.mainAssayChoices = data.main_assay_choices;
+        this.ipcAssayChoices = data.ipc_assay_choices;
         this.masterMixChoices = data.master_mix_choices;
       });
     },
@@ -215,8 +224,11 @@ Vue.component("extract-import-overlay", {
     this.getCollections();
   },
   computed: {
+    selectedAssays() {
+      return [...this.selectedMainAssays, ...this.selectedIPCAssays]
+    },
     canProceed() {
-      if (this.numberOfTechReps && this.selectedAssays.length) return true;
+      if (this.numberOfTechReps && this.selectedMasterMix && this.selectedAssays.length) return true;
     }
 
   }

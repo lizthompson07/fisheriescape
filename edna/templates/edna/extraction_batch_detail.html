@@ -88,8 +88,6 @@
             <button @click="populateWells" class="w25px px-1 py-0 btn btn-sm btn-dark">
               <span class="mdi mdi-calculator text-light"></span>
             </button>
-
-            {#            <button class="btn btn-xs btn-danger" @click="populateWells">{% trans "Populate!" %}</button>#}
           </th>
           <th class="px-1 py-1">${labels.comments}</th>
         </tr>
@@ -552,7 +550,7 @@
           selectedItems() {
             let myArray = [];
             for (const extract of this.extracts) {
-              if (extract.selected) myArray.push(extract)
+              if (extract.selected) myArray.push(extract);
             }
             return myArray
           }
