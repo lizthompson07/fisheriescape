@@ -35,7 +35,7 @@ class VaultAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=vault')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -52,7 +52,7 @@ class VaultAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=vault')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -71,7 +71,7 @@ class VaultEditRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=vault')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -81,7 +81,7 @@ def index(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_vault_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_vault_admin_group, login_url='/accounts/denied/?app=vault')
 def admin_tools(request):
     return render(request, 'vault/_admin.html')
 
@@ -119,7 +119,7 @@ class UserListView(VaultAdminAccessRequired, CommonFilterView):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_vault_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_vault_admin_group, login_url='/accounts/denied/?app=vault')
 def toggle_user(request, pk, type):
     my_user = User.objects.get(pk=pk)
     vault_admin = get_object_or_404(Group, name="vault_admin")

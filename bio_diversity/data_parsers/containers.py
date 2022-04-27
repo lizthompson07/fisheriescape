@@ -2,7 +2,7 @@
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
-from bio_diversity import models
+from bio_diversity import models, utils
 from bio_diversity.utils import DataParser
 
 
@@ -35,6 +35,8 @@ class ContainerParser(DataParser):
 class TankParser(ContainerParser):
     sheet_name = "Tanks"
 
+    surf_area_key = "Effective Surface Area"
+
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
         tank_id = models.Tank.objects.filter(name=row.get(self.name_key), facic_id=cleaned_data["facic_id"]).first()
@@ -49,6 +51,11 @@ class TankParser(ContainerParser):
                                     created_date=cleaned_data["created_date"]
                                     )
         super(TankParser, self).row_parser(row)
+
+        if utils.nan_to_none(row.get(self.surf_area_key)):
+            self.row_entered += utils.enter_tankd(self.cont.pk, cleaned_data, start_date=utils.aware_min(),
+                                                  det_value=row.get(self.surf_area_key), contdc_pk=None,
+                                                  contdc_str="Effective Surface Area")
 
 
 class TroughParser(ContainerParser):

@@ -48,7 +48,7 @@ class SiteLoginRequiredMixin(UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.test_func()
         if not user_test_result:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=bio_diversity')
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -2006,6 +2006,24 @@ class SubrDetails(mixins.SubrMixin, CommonDetails):
 
 class TankDetails(mixins.TankMixin, CommonContDetails):
     fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["table_list"].extend(["tankd"])
+
+        obj_set = models.TankDet.objects.filter(tank_id=self.object).distinct().select_related("contdc_id", "cdsc_id", )
+        obj_field_list = ["contdc_id", "cdsc_id", "det_value",  "det_valid", "start_date", "end_date"]
+        obj_mixin = mixins.TankdMixin
+        context["context_dict"]["tankd"] = {"div_title": "{} ".format(obj_mixin.title),
+                                            "sub_model_key": obj_mixin.key,
+                                            "objects_list": obj_set,
+                                            "field_list": obj_field_list,
+                                            "single_object": obj_mixin.model.objects.first()}
+        context["calculated_properties"] = {}
+        context["calculated_links"] = {}
+
+        return context
+
 
 
 class TankdDetails(mixins.TankdMixin, CommonDetails):

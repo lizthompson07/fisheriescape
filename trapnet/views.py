@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib import messages
 from django.db.models import TextField
 from django.db.models.functions import Concat
@@ -18,11 +17,11 @@ from . import filters
 from . import forms
 from . import models
 from . import reports
-from .mixins import TrapNetAccessRequiredMixin, TrapNetAdminRequiredMixin, SuperuserOrAdminRequiredMixin
+from .mixins import TrapNetCRUDRequiredMixin, TrapNetAdminRequiredMixin, SuperuserOrAdminRequiredMixin, TrapNetBasicMixin
 from .utils import get_sample_field_list
 
 
-class IndexTemplateView(TrapNetAccessRequiredMixin, CommonTemplateView):
+class IndexTemplateView(TrapNetBasicMixin, CommonTemplateView):
     template_name = 'trapnet/index.html'
     h1 = gettext_lazy("Home")
 
@@ -169,7 +168,7 @@ class FishingAreaHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteView)
 # SPECIES #
 ###########
 
-class SpeciesListView(TrapNetAccessRequiredMixin, CommonFilterView):
+class SpeciesListView(TrapNetBasicMixin, CommonFilterView):
     template_name = "trapnet/list.html"
     filterset_class = filters.SpeciesFilter
     queryset = models.Species.objects.annotate(
@@ -200,7 +199,7 @@ class SpeciesCreateView(TrapNetAdminRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class SpeciesDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
+class SpeciesDetailView(TrapNetBasicMixin, CommonDetailView):
     model = models.Species
     template_name = "trapnet/species_detail.html"
     field_list = [
@@ -216,11 +215,6 @@ class SpeciesDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
     ]
     home_url_name = "trapnet:index"
     parent_crumb = {"title": _("Species"), "url": reverse_lazy("trapnet:species_list")}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['google_api_key'] = settings.GOOGLE_API_KEY
-        return context
 
 
 class SpeciesUpdateView(TrapNetAdminRequiredMixin, CommonUpdateView):
@@ -254,7 +248,7 @@ class SpeciesDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
 # RIVER #
 #########
 
-class RiverListView(TrapNetAccessRequiredMixin, CommonFilterView):
+class RiverListView(TrapNetBasicMixin, CommonFilterView):
     filterset_class = filters.RiverFilter
     template_name = 'trapnet/list.html'
     new_object_url_name = "trapnet:river_new"
@@ -290,7 +284,7 @@ class RiverCreateView(TrapNetAdminRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class RiverDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
+class RiverDetailView(TrapNetBasicMixin, CommonDetailView):
     model = shared_models.River
     template_name = 'trapnet/river_detail.html'
     field_list = [
@@ -309,7 +303,6 @@ class RiverDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['google_api_key'] = settings.GOOGLE_API_KEY
         context['site_field_list'] = [
             'name',
             'stream_order',
@@ -392,7 +385,7 @@ class RiverSiteUpdateView(TrapNetAdminRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class RiverSiteDetailView(TrapNetAdminRequiredMixin, CommonDetailView):
+class RiverSiteDetailView(TrapNetBasicMixin, CommonDetailView):
     model = models.RiverSite
     home_url_name = "trapnet:index"
     grandparent_crumb = {"title": _("Rivers"), "url": reverse_lazy("trapnet:river_list")}
@@ -411,11 +404,6 @@ class RiverSiteDetailView(TrapNetAdminRequiredMixin, CommonDetailView):
 
     def get_parent_crumb(self):
         return {"title": self.get_object().river, "url": reverse("trapnet:river_detail", args=[self.get_object().river.id])}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['google_api_key'] = settings.GOOGLE_API_KEY
-        return context
 
 
 class RiverSiteDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
@@ -436,7 +424,7 @@ class RiverSiteDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
 # SAMPLE #
 ##########
 
-class SampleListView(TrapNetAccessRequiredMixin, CommonFilterView):
+class SampleListView(TrapNetBasicMixin, CommonFilterView):
     model = models.Sample
     filterset_class = filters.SampleFilter
     template_name = 'trapnet/list.html'
@@ -457,7 +445,7 @@ class SampleListView(TrapNetAccessRequiredMixin, CommonFilterView):
     ]
 
 
-class SampleUpdateView(TrapNetAccessRequiredMixin, CommonUpdateView):
+class SampleUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
     model = models.Sample
     form_class = forms.SampleForm
     template_name = 'trapnet/sample_form.html'
@@ -473,7 +461,7 @@ class SampleUpdateView(TrapNetAccessRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class SampleCreateView(TrapNetAccessRequiredMixin, CommonCreateView):
+class SampleCreateView(TrapNetCRUDRequiredMixin, CommonCreateView):
     model = models.Sample
     form_class = forms.SampleForm
     template_name = 'trapnet/sample_form.html'
@@ -489,7 +477,7 @@ class SampleCreateView(TrapNetAccessRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class SampleDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
+class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
     model = models.Sample
     template_name = 'trapnet/sample_detail.html'
     home_url_name = "trapnet:index"
@@ -517,7 +505,7 @@ class SampleDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
         return context
 
 
-class SampleDeleteView(TrapNetAccessRequiredMixin, CommonDeleteView):
+class SampleDeleteView(TrapNetCRUDRequiredMixin, CommonDeleteView):
     model = models.Sample
     template_name = 'trapnet/confirm_delete.html'
     home_url_name = "trapnet:index"
@@ -530,7 +518,7 @@ class SampleDeleteView(TrapNetAccessRequiredMixin, CommonDeleteView):
         return self.get_grandparent_crumb()["url"]
 
 
-class DataEntryVueJSView(TrapNetAccessRequiredMixin, CommonTemplateView):
+class DataEntryVueJSView(TrapNetCRUDRequiredMixin, CommonTemplateView):
     template_name = 'trapnet/data_entry.html'
     home_url_name = "trapnet:index"
     greatgrandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
@@ -567,7 +555,7 @@ class DataEntryVueJSView(TrapNetAccessRequiredMixin, CommonTemplateView):
 # SWEEPS #
 ##########
 
-class SweepCreateView(TrapNetAccessRequiredMixin, CommonCreateView):
+class SweepCreateView(TrapNetCRUDRequiredMixin, CommonCreateView):
     model = models.Sweep
     template_name = 'trapnet/form.html'
     form_class = forms.SweepForm
@@ -596,7 +584,7 @@ class SweepCreateView(TrapNetAccessRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class SweepUpdateView(TrapNetAccessRequiredMixin, CommonUpdateView):
+class SweepUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
     model = models.Sweep
     form_class = forms.SweepForm
     template_name = 'trapnet/form.html'
@@ -615,7 +603,7 @@ class SweepUpdateView(TrapNetAccessRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class SweepDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
+class SweepDetailView(TrapNetBasicMixin, CommonDetailView):
     model = models.Sweep
     template_name = 'trapnet/sweep_detail.html'
     home_url_name = "trapnet:index"
@@ -644,11 +632,12 @@ class SweepDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
         return {"title": self.get_object().sample, "url": reverse("trapnet:sample_detail", args=[self.get_object().sample.id])}
 
 
-class SweepDeleteView(TrapNetAccessRequiredMixin, CommonDeleteView):
+class SweepDeleteView(TrapNetCRUDRequiredMixin, CommonDeleteView):
     model = models.Sweep
     template_name = 'trapnet/confirm_delete.html'
     home_url_name = "trapnet:index"
     greatgrandparent_crumb = {"title": _("Sweeps"), "url": reverse_lazy("trapnet:sample_list")}
+    delete_protection = False
 
     def get_grandparent_crumb(self):
         return {"title": self.get_object().sample, "url": reverse("trapnet:sample_detail", args=[self.get_object().sample.id])}
@@ -664,7 +653,7 @@ class SweepDeleteView(TrapNetAccessRequiredMixin, CommonDeleteView):
 ################
 
 
-class ObservationListView(TrapNetAccessRequiredMixin, CommonFilterView):
+class ObservationListView(TrapNetBasicMixin, CommonFilterView):
     model = models.Observation
     filterset_class = filters.ObservationFilter
     template_name = 'trapnet/obs_list.html'
@@ -685,7 +674,7 @@ class ObservationListView(TrapNetAccessRequiredMixin, CommonFilterView):
     ]
 
 
-class ObservationUpdateView(TrapNetAccessRequiredMixin, CommonUpdateView):
+class ObservationUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
     model = models.Observation
     form_class = forms.ObservationForm
     template_name = 'trapnet/form.html'
@@ -713,7 +702,7 @@ class ObservationUpdateView(TrapNetAccessRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class ObservationDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
+class ObservationDetailView(TrapNetBasicMixin, CommonDetailView):
     model = models.Observation
     template_name = 'trapnet/obs_detail.html'
     home_url_name = "trapnet:index"
@@ -753,7 +742,7 @@ class ObservationDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
             return {"title": sweep, "url": reverse("trapnet:sweep_detail", args=[sweep.id])}
 
 
-class ObservationDeleteView(TrapNetAccessRequiredMixin, CommonDeleteView):
+class ObservationDeleteView(TrapNetCRUDRequiredMixin, CommonDeleteView):
     model = models.Observation
     template_name = 'trapnet/confirm_delete.html'
     home_url_name = "trapnet:index"
@@ -781,7 +770,7 @@ class ObservationDeleteView(TrapNetAccessRequiredMixin, CommonDeleteView):
 # FILES #
 #########
 
-class FileCreateView(TrapNetAccessRequiredMixin, CommonPopoutCreateView):
+class FileCreateView(TrapNetCRUDRequiredMixin, CommonPopoutCreateView):
     model = models.File
     form_class = forms.FileForm
     is_multipart_form_data = True
@@ -794,7 +783,7 @@ class FileCreateView(TrapNetAccessRequiredMixin, CommonPopoutCreateView):
         return super().form_valid(form)
 
 
-class FileUpdateView(TrapNetAccessRequiredMixin, CommonPopoutUpdateView):
+class FileUpdateView(TrapNetCRUDRequiredMixin, CommonPopoutUpdateView):
     model = models.File
     form_class = forms.FileForm
     is_multipart_form_data = True
@@ -805,14 +794,14 @@ class FileUpdateView(TrapNetAccessRequiredMixin, CommonPopoutUpdateView):
         return super().form_valid(form)
 
 
-class FileDeleteView(TrapNetAccessRequiredMixin, CommonPopoutDeleteView):
+class FileDeleteView(TrapNetCRUDRequiredMixin, CommonPopoutDeleteView):
     model = models.File
 
 
 # REPORTS #
 ###########
 
-class ReportSearchFormView(TrapNetAccessRequiredMixin, CommonFormView):
+class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
     template_name = 'trapnet/report_search.html'
     form_class = forms.ReportSearchForm
     h1 = " "

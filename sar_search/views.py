@@ -34,7 +34,7 @@ class SARSearchAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=sar_search')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -52,7 +52,7 @@ class SARSearchAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=sar_search')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -232,7 +232,7 @@ class RegionPolygonDeleteView(SARSearchAdminRequiredMixin, DeleteView):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/?app=sar_search')
 def manage_rp_coords(request, region_polygon):
     qs = models.RegionPolygonPoint.objects.filter(region_polygon=region_polygon)
     my_region_polygon = models.RegionPolygon.objects.get(pk=region_polygon)
@@ -262,7 +262,7 @@ def manage_rp_coords(request, region_polygon):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/?app=sar_search')
 def delete_rp_coord(request, pk):
     my_obj = models.RegionPolygonPoint.objects.get(pk=pk)
     my_obj.delete()
@@ -472,7 +472,7 @@ class RecordDeleteView(SARSearchAdminRequiredMixin, DeleteView):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/?app=sar_search')
 def manage_coords(request, record):
     qs = models.RecordPoints.objects.filter(record=record)
     my_record = models.Record.objects.get(pk=record)
@@ -509,7 +509,7 @@ def manage_coords(request, record):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/?app=sar_search')
 def delete_coord(request, pk):
     my_obj = models.RecordPoints.objects.get(pk=pk)
     my_obj.delete()
@@ -564,7 +564,7 @@ class RecordImportFileView(SARSearchAdminRequiredMixin, UpdateView):
 # SETTINGS #
 ############
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/?app=sar_search')
 def manage_taxa(request):
     qs = models.Taxon.objects.all()
     if request.method == 'POST':
@@ -589,7 +589,7 @@ def manage_taxa(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/?app=sar_search')
 def delete_taxon(request, pk):
     my_obj = models.Taxon.objects.get(pk=pk)
     my_obj.delete()
@@ -597,7 +597,7 @@ def delete_taxon(request, pk):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/?app=sar_search')
 def manage_statuses(request):
     qs = models.SpeciesStatus.objects.all()
     if request.method == 'POST':
@@ -625,7 +625,7 @@ def manage_statuses(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/?app=sar_search')
 def delete_status(request, pk):
     my_obj = models.SpeciesStatus.objects.get(pk=pk)
     my_obj.delete()
@@ -633,7 +633,7 @@ def delete_status(request, pk):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/?app=sar_search')
 def manage_schedules(request):
     qs = models.SARASchedule.objects.all()
     if request.method == 'POST':
@@ -659,7 +659,7 @@ def manage_schedules(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/?app=sar_search')
 def delete_schedule(request, pk):
     my_obj = models.SARASchedule.objects.get(pk=pk)
     my_obj.delete()
@@ -731,7 +731,7 @@ class RegionDeleteView(SARSearchAdminRequiredMixin, DeleteView):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/?app=sar_search')
 def manage_appendices(request):
     qs = models.CITESAppendix.objects.all()
     if request.method == 'POST':
@@ -757,7 +757,7 @@ def manage_appendices(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/?app=sar_search')
 def delete_appendix(request, pk):
     my_obj = models.CITESAppendix.objects.get(pk=pk)
     my_obj.delete()
@@ -765,7 +765,7 @@ def delete_appendix(request, pk):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/?app=sar_search')
 def manage_authorities(request):
     qs = models.ResponsibleAuthority.objects.all()
     if request.method == 'POST':
@@ -789,7 +789,7 @@ def manage_authorities(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/')
+@user_passes_test(in_sar_search_admin_group, login_url='/accounts/denied/?app=sar_search')
 def delete_authority(request, pk):
     my_obj = models.ResponsibleAuthority.objects.get(pk=pk)
     my_obj.delete()

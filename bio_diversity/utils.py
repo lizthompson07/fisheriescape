@@ -1091,6 +1091,51 @@ def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual
     return row_entered
 
 
+def enter_tankd(tank_pk, cleaned_data, start_date, det_value, contdc_pk, contdc_str=None, cdsc_id=None, end_date=None,
+                comments=None):
+    row_entered = False
+    start_date = naive_to_aware(start_date).date()
+    if nan_to_none(end_date):
+        end_date = naive_to_aware(end_date).date()
+    else:
+        end_date = None
+    if isinstance(det_value, float):
+        if math.isnan(det_value):
+            return False
+
+    if contdc_str:
+        contdc_pk = models.ContainerDetCode.objects.filter(name=contdc_str).get().pk
+
+    if cdsc_id:
+        tankd = models.TankDet(tank_id_id=tank_pk,
+                               contdc_id_id=contdc_pk,
+                               cdsc_id=models.ContDetSubjCode.objects.filter(name=cdsc_id).get(),
+                               det_value=det_value,
+                               start_date=start_date,
+                               end_date=end_date,
+                               comments=comments,
+                               created_by=cleaned_data["created_by"],
+                               created_date=cleaned_data["created_date"],
+                               )
+    else:
+        tankd = models.TankDet(tank_id_id=tank_pk,
+                               contdc_id_id=contdc_pk,
+                               det_value=det_value,
+                               start_date=start_date,
+                               end_date=end_date,
+                               comments=comments,
+                               created_by=cleaned_data["created_by"],
+                               created_date=cleaned_data["created_date"],
+                               )
+    try:
+        tankd.clean()
+        tankd.save()
+        row_entered = True
+    except (ValidationError, IntegrityError):
+        pass
+    return row_entered
+
+
 def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=None, contx=None, inst_id=None,
               env_time=None, avg=False, save=True, qual_id=False):
 
@@ -2139,6 +2184,8 @@ def naive_to_aware(naive_date, naive_time=None):
     # adds null time and timezone to dates
     if not nan_to_none(naive_time):
         naive_time = time(0, 0)
+    if not nan_to_none(naive_date):
+        naive_date = timezone.datetime(1900, 1, 1, 0, 0).date()
     return timezone.make_aware(datetime.combine(naive_date, naive_time))
 
 

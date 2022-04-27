@@ -13,17 +13,9 @@
 {% endblock body %}
 
 {% block header %}
-    <style>
-        body {
-            background-image: url("{% static 'img/bio_diversity/bio_diversity_bg.jpg' %}");
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-attachment: fixed;
-        }
-        .card, .jumbotron {
-            background-color: rgba(255, 255, 255, 0.7);
-        }
-    </style>
+<style>
+  {% include "bio_diversity/bio_diversity.css" %}
+ </style>
 
 {% endblock %}
 {% block left_all %}

@@ -36,8 +36,12 @@
           <input type="submit" class="btn {% block submit_btn_class %}{{ submit_btn_class|nz:"btn-warning" }}{% endblock %}"
                  value="{{ submit_text|nz:default_submit_text }}">
           {% block extra_buttons %}{% endblock %}
-          <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
-            {% trans "Close" %}
+          <a class="btn {% block cancel_btn_class %}{{ cancel_btn_class|nz:"btn-secondary" }}{% endblock %}" onclick="refreshParent(); window.close()" href="#">
+            {% if cancel_text %}
+              {{ cancel_text }}
+            {% else %}
+              {% trans "Close" %}
+            {% endif %}
           </a>
 
 

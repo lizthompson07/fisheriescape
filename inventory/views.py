@@ -4,19 +4,16 @@ import os
 from collections import OrderedDict
 from copy import deepcopy
 
-from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
@@ -24,77 +21,61 @@ from easy_pdf.views import PDFTemplateView
 from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
+from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView, CommonListView, \
+    CommonUpdateView, CommonCreateView, CommonPopoutCreateView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonDeleteView
 from . import emails
 from . import filters
 from . import forms
 from . import models
 from . import reports
 from . import xml_export
+from .mixins import SuperuserOrAdminRequiredMixin, CanModifyRequiredMixin, AdminRequiredMixin, InventoryBasicMixin, InventoryLoginRequiredMixin
+from .utils import can_modify
 
 
-# @login_required(login_url='/accounts/login/')
-# @user_passes_test(in_herring_group, login_url='/accounts/denied/')
-
-def in_inventory_dm_group(user):
-    """returns True if user is in specified group"""
-    if user:
-        return user.groups.filter(name='inventory_dm').count() > 0
-
-
-def is_custodian_or_admin(user, resource_id):
-    """returns True if user is a "custodian" in the specified resource"""
-    # print(user.id, resource_id)
-    if user.id:
-        # first, check to see if user is a dm admin
-        if in_inventory_dm_group(user):
-            return True
-        else:
-            # if the user has no associated Person in the app, automatic fail
-            try:
-                person = models.Person.objects.get(user=user)
-            except ObjectDoesNotExist:
-                return False
-            else:
-                # check to see if they are listed as custodian (role_id=1) on the specified resource id
-                # custodian (1); principal investigator (2); data manager (8); steward (19); author (13); owner (10)
-                return models.ResourcePerson.objects.filter(person=person, resource=resource_id,
-                                                            role_id__in=[1, 2, 8, 19, 13, 10]).count() > 0
+# USER PERMISSIONS
+class InventoryUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
+    template_name = 'inventory/formset.html'
+    h1 = "Manage Data Inventory Users"
+    queryset = models.InventoryUser.objects.all()
+    formset_class = forms.InventoryUserFormset
+    success_url_name = "inventory:manage_inventory_users"
+    home_url_name = "inventory:index"
+    delete_url_name = "inventory:delete_inventory_user"
+    container_class = "container bg-light curvy"
 
 
-class CustodianRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["pk"])
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse("accounts:denied_access", kwargs={
-                "message": _("Sorry, only custodians and system administrators have access to this view.")}))
-        return super().dispatch(request, *args, **kwargs)
+class InventoryUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
+    model = models.InventoryUser
+    success_url = reverse_lazy("inventory:manage_inventory_users")
 
 
-class InventoryDMRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+# INDEX ETC
 
-    def test_func(self):
-        return in_inventory_dm_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
-
-
-# RESOURCE #
-############
-
-class Index(TemplateView):
+class Index(InventoryBasicMixin, CommonTemplateView):
     template_name = 'inventory/index.html'
+    h1 = gettext_lazy("DFO Science Data Inventory")
+    active_page_name_crumb = gettext_lazy("Home")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        published_records = models.Resource.objects.filter(fgp_publication_date__isnull=False).count()
+        context["published_records"] = published_records
+
+        flagged_4_deletion = models.Resource.objects.filter(flagged_4_deletion=True).count()
+        context["flagged_4_deletion"] = flagged_4_deletion
+
+        flagged_4_publication = models.Resource.objects.filter(flagged_4_publication=True).count()
+        context["flagged_4_publication"] = flagged_4_publication
+
+        return context
 
 
-class OpenDataDashboardTemplateView(TemplateView):
+class OpenDataDashboardTemplateView(InventoryBasicMixin, CommonTemplateView):
     template_name = 'inventory/open_data_dashboard.html'
+    h1 = gettext_lazy("Open Data Dashboard")
+    home_url_name = "inventory:index"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -154,28 +135,54 @@ class OpenDataDashboardTemplateView(TemplateView):
         return context
 
 
-class ResourceListView(FilterView):
-    filterset_class = filters.ResourceFilter
+# RESOURCE #
+############
 
+
+class ResourceListView(InventoryBasicMixin, CommonFilterView):
+    filterset_class = filters.ResourceFilter
     template_name = 'inventory/resource_list.html'
-    # queryset = models.Resource.objects.all().order_by("-status", "title_eng")
     queryset = models.Resource.objects.order_by("-status", "title_eng").annotate(
-        search_term=Concat('title_eng',
-                           Value(" "),
-                           'descr_eng',
-                           Value(" "),
-                           'purpose_eng',
-                           Value(" "),
-                           'uuid',
-                           Value(" "),
+        search_term=Concat('title_eng', Value(" "),
+                           'descr_eng', Value(" "),
+                           'purpose_eng', Value(" "),
+                           'uuid', Value(" "),
                            'odi_id',
                            output_field=TextField()))
+    home_url_name = "inventory:index"
+    container_class = "container-fluid"
+    row_object_url_name = "inventory:resource_detail"
+    new_object_url = reverse_lazy("inventory:resource_new")
+    paginate_by = 25
+    field_list = [
+        {"name": 'region', "class": "", "width": ""},
+        {"name": 't_title|{}'.format(gettext_lazy("title")), "class": "w-30", "width": ""},
+        {"name": 'resource_type', "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
+        {"name": 'section', "class": "w-15", "width": ""},
+        {"name": 'Previous time certified', "class": "", "width": ""},
+        {"name": 'completeness rating', "class": "", "width": ""},
+        {"name": 'translation_needed', "class": "", "width": ""},
+    ]
 
 
-class MyResourceListView(LoginRequiredMixin, ListView):
+class MyResourceListView(InventoryLoginRequiredMixin, CommonListView):
     model = models.Resource
-
-    template_name = 'inventory/my_resource_list.html'
+    template_name = 'inventory/resource_list.html'
+    home_url_name = "inventory:index"
+    container_class = "container-fluid"
+    row_object_url_name = "inventory:resource_detail"
+    new_object_url = reverse_lazy("inventory:resource_new")
+    field_list = [
+        {"name": 't_title|Title', "class": ""},
+        {"name": 'status', "class": ""},
+        {"name": 'date_last_modified', "class": ""},
+        {"name": 'last_modified_by', "class": ""},
+        {"name": 'roles|Role(s)', "class": ""},
+        {"name": 'Previous time certified', "class": ""},
+        {"name": 'Completeness rating', "class": ""},
+        {"name": 'open_data|Published to Open Data', "class": ""},
+    ]
 
     def get_queryset(self):
         qs = models.Resource.objects.filter(resource_people__person_id=self.request.user.id).distinct().order_by("-date_last_modified")
@@ -183,31 +190,27 @@ class MyResourceListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        context['field_list'] = [
-            "t_title|Title",
-            "status",
-            "date_last_modified",
-            "last_modified_by",
-            # "section",
-            "roles|Role(s)",
-            "last_certification|Previous time certified",
-            "completedness_rating|Completeness rating",
-            "open_data|Published to Open Data",
-            "external_links|External links",
-        ]
-
-        context['now'] = timezone.now()
-        context['random_object'] = models.Resource.objects.first()
-
+        context["personal"] = True
         return context
 
 
-class ResourceDetailView(DetailView):
+class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
     model = models.Resource
+    template_name = "inventory/resource_detail/resource_detail.html"
+    container_class = "container-fluid"
+    home_url_name = "inventory:index"
+
+    def get_object(self, queryset=None):
+        if self.kwargs.get("uuid"):
+            return get_object_or_404(self.model, uuid=self.kwargs.get("uuid"))
+        return super().get_object(queryset)
 
     def dispatch(self, request, *args, **kwargs):
-        xml_export.verify(models.Resource.objects.get(pk=self.kwargs['pk']))
+        obj = self.get_object()
+        if not self.kwargs.get("uuid"):
+            return HttpResponseRedirect(reverse("inventory:resource_detail_uuid", kwargs={"uuid": obj.uuid}))
+
+        xml_export.verify(obj)
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -219,23 +222,18 @@ class ResourceDetailView(DetailView):
         context['kcount_tax'] = self.object.keywords.filter(is_taxonomic__exact=True).count()
         context['kcount_loc'] = self.object.keywords.filter(keyword_domain_id__exact=7).count()
         context['custodian_count'] = self.object.resource_people.filter(role=1).count()
+
         if self.object.completedness_rating == 1:
             context['verified'] = True
         else:
             context['verified'] = False
 
         my_resource = self.get_object()
-        user_roles = my_resource.resource_people.filter(person_id=self.request.user.id, role_id__in=[1, 2, 8, 19, 13, 10])
-
-        if user_roles.count() > 0:
-            messages.info(self.request, "As {}, you have the necessary permissions to modify this record.".format(user_roles.first().role))
-        elif in_inventory_dm_group(self.request.user):
-            messages.info(self.request, _("As an application administrator, you have the necessary permissions to modify this record."))
-        context["google_api_key"] = settings.GOOGLE_API_KEY
+        context['can_modify'] = can_modify(self.request.user, my_resource.id, as_dict=True)
         return context
 
 
-class ResourceDetailPDFView(PDFTemplateView):
+class ResourceDetailPDFView(InventoryBasicMixin, PDFTemplateView):
     def get_pdf_filename(self):
         my_object = models.Resource.objects.get(pk=self.kwargs.get("pk"))
         return f"{my_object.uuid}.pdf"
@@ -261,35 +259,23 @@ class ResourceDetailPDFView(PDFTemplateView):
         'spat_representation',
         'spat_ref_system',
         'notes',
-        # 'citations',
-        # 'keywords',
-        # 'people',
-        # 'parent',
-        # 'date_last_modified',
-        # 'last_modified_by',
     ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["object"] = models.Resource.objects.get(pk=self.kwargs.get("pk"))
         context["field_list"] = self.field_list
-        context["now"] = timezone.now()
         return context
 
 
-class ResourceFullDetailView(UpdateView):
+class ResourceUpdateView(CanModifyRequiredMixin, CommonUpdateView):
     model = models.Resource
     form_class = forms.ResourceForm
+    template_name = "inventory/resource_form.html"
+    home_url_name = "inventory:index"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['readonly'] = True
-        return context
-
-
-class ResourceUpdateView(CustodianRequiredMixin, UpdateView):
-    model = models.Resource
-    form_class = forms.ResourceForm
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("inventory:resource_detail", args=[self.get_object().id])}
 
     def get_initial(self):
         return {
@@ -297,21 +283,9 @@ class ResourceUpdateView(CustodianRequiredMixin, UpdateView):
             'date_last_modified': timezone.now(),
         }
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # get lists
-        resource_list = ['<a href="#id_parent" class="resource_insert" code="{id}" url="{url}">{text}</a>'.format(id=obj.id, text=str(obj),
-                                                                                                                  url=reverse(
-                                                                                                                      'inventory:resource_detail',
-                                                                                                                      kwargs={
-                                                                                                                          'pk': obj.id}))
-                         for obj in models.Resource.objects.all()]
-        context['resource_list'] = resource_list
-        return context
-
 
 class ResourceCloneUpdateView(ResourceUpdateView):
+    h1 = gettext_lazy("Cloning Record")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -339,16 +313,12 @@ class ResourceCloneUpdateView(ResourceUpdateView):
         new_obj.od_publication_date = None
         new_obj.fgp_publication_date = None
         new_obj.od_release_date = None
+        new_obj.flagged_4_deletion = False
+        new_obj.flagged_4_publication = False
         new_obj.last_revision_date = None
         new_obj.date_verified = None
         new_obj.save()
 
-        """
-    people = models.ManyToManyField(Person, through='ResourcePerson')
-    
-    
-    
-        """
         for item in old_obj.paa_items.all():
             new_obj.paa_items.add(item)
 
@@ -386,9 +356,10 @@ class ResourceCloneUpdateView(ResourceUpdateView):
         return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", args=[new_obj.id]))
 
 
-class ResourceCreateView(LoginRequiredMixin, CreateView):
+class ResourceCreateView(InventoryLoginRequiredMixin, CommonCreateView):
     model = models.Resource
-    form_class = forms.ResourceCreateForm
+    form_class = forms.ResourceForm
+    template_name = "inventory/resource_form.html"
 
     def get_initial(self):
         return {
@@ -418,36 +389,48 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
-class ResourceDeleteView(CustodianRequiredMixin, DeleteView):
+class ResourceDeleteView(CanModifyRequiredMixin, CommonDeleteView):
     model = models.Resource
-    success_url = reverse_lazy('inventory:resource_list')
-    success_message = 'The data resource was successfully deleted!'
+    template_name = "inventory/confirm_delete.html"
+    delete_protection = False
+    home_url_name = "inventory:index"
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("inventory:resource_detail", args=[self.get_object().id])}
+
+    def get_success_url(self):
+        return reverse("inventory:index")
 
 
-class ResourceDeleteFlagUpdateView(LoginRequiredMixin, UpdateView):
+class ResourceDeleteFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView):
     model = models.Resource
-
-    template_name = "inventory/resource_flag_deletion.html"
     form_class = forms.ResourceFlagging
+    cancel_text = gettext_lazy("No, Forget it.")
 
-    def get_initial(self):
-        if self.object.flagged_4_deletion:
-            return {
-                'flagged_4_deletion': False,
-            }
-        else:
-            return {
-                'flagged_4_deletion': True,
-            }
+    def get_submit_text(self):
+        obj = self.get_object()
+        if obj.flagged_4_deletion:
+            return _("Yes, Unflag It!")
+        return _("Yes, Flag It!")
+
+    def get_h1(self):
+        obj = self.get_object()
+        if obj.flagged_4_deletion:
+            return _("Are you sure you want to unflag this data resource?")
+        return _("Are you sure you want to flag this data resource for deletion?")
+
+    def get_h3(self):
+        obj = self.get_object()
+        if not obj.flagged_4_deletion:
+            return _("By clicking yes below you will notify the regional data manager that this record should be deleted from the inventory.")
 
     def form_valid(self, form):
-        object = form.save()
-        if object.flagged_4_deletion:
-            email = emails.FlagForDeletionEmail(self.object, self.request.user, self.request)
+        obj = form.save(commit=False)
+        obj.flagged_4_deletion = not obj.flagged_4_deletion
+        obj.save()
+
+        if obj.flagged_4_deletion:
+            email = emails.FlagForDeletionEmail(obj, self.request.user, self.request)
             # send the email object
             custom_send_mail(
                 subject=email.subject,
@@ -455,34 +438,40 @@ class ResourceDeleteFlagUpdateView(LoginRequiredMixin, UpdateView):
                 from_email=email.from_email,
                 recipient_list=email.to_list
             )
-
-            messages.success(self.request,
-                             'The data resource has been flagged for deletion and the regional data manager has been notified!')
-        else:
-            messages.success(self.request, 'The data resource has been unflagged!')
-        return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={"pk": self.kwargs["pk"]}))
+        return super().form_valid(form)
 
 
-class ResourcePublicationFlagUpdateView(LoginRequiredMixin, UpdateView):
+class ResourcePublicationFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView):
     model = models.Resource
-
-    template_name = "inventory/resource_flag_publication.html"
     form_class = forms.ResourceFlagging
+    cancel_text = gettext_lazy("No, Forget it.")
 
-    def get_initial(self):
-        if self.object.flagged_4_publication:
-            return {
-                'flagged_4_publication': False,
-            }
-        else:
-            return {
-                'flagged_4_publication': True,
-            }
+    def get_submit_text(self):
+        obj = self.get_object()
+        if obj.flagged_4_deletion:
+            return _("Yes, Unflag It!")
+        return _("Yes, Flag It!")
+
+    def get_h1(self):
+        obj = self.get_object()
+        if obj.flagged_4_publication:
+            return _("Are you sure you want to unflag this data resource?")
+        action = "re-publication" if obj.fgp_publication_date else "publication"
+        return _(f"Are you sure you want to flag this data resource for {action}?")
+
+    def get_h3(self):
+        obj = self.get_object()
+        if not obj.flagged_4_publication:
+            return _("By clicking yes below your regional data manager will be notified and will "
+                     "contact you shortly in order to coordinate the next steps in the process")
 
     def form_valid(self, form):
-        object = form.save()
-        if object.flagged_4_publication:
-            email = emails.FlagForPublicationEmail(self.object, self.request.user, self.request)
+        obj = form.save(commit=False)
+        obj.flagged_4_publication = not obj.flagged_4_publication
+        obj.save()
+
+        if obj.flagged_4_publication:
+            email = emails.FlagForPublicationEmail(obj, self.request.user, self.request)
             # send the email object
             custom_send_mail(
                 subject=email.subject,
@@ -490,17 +479,13 @@ class ResourcePublicationFlagUpdateView(LoginRequiredMixin, UpdateView):
                 from_email=email.from_email,
                 recipient_list=email.to_list
             )
-            messages.success(self.request,
-                             'The data resource has been flagged for publication and the regional data manager has been notified!')
-        else:
-            messages.success(self.request, 'The data resource has been unflagged!')
-        return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={"pk": self.kwargs["pk"]}))
+        return super().form_valid(form)
 
 
 # RESOURCE PERSON #
 ###################
 
-class ResourcePersonFilterView(CustodianRequiredMixin, FilterView):
+class ResourcePersonFilterView(CanModifyRequiredMixin, FilterView):
     filterset_class = filters.PersonFilter
     template_name = "inventory/resource_person_filter.html"
 
@@ -514,9 +499,6 @@ class ResourcePersonFilterView(CustodianRequiredMixin, FilterView):
             output_field=TextField()
         ))
 
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         resource = self.kwargs['resource']
@@ -526,13 +508,10 @@ class ResourcePersonFilterView(CustodianRequiredMixin, FilterView):
         return context
 
 
-class ResourcePersonCreateView(CustodianRequiredMixin, CreateView):
+class ResourcePersonCreateView(CanModifyRequiredMixin, CreateView):
     model = models.ResourcePerson
     template_name = 'inventory/resource_person_form.html'
     form_class = forms.ResourcePersonForm
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def get_initial(self):
         resource = models.Resource.objects.get(pk=self.kwargs['resource'])
@@ -573,13 +552,10 @@ class ResourcePersonCreateView(CustodianRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ResourcePersonUpdateView(CustodianRequiredMixin, UpdateView):
+class ResourcePersonUpdateView(CanModifyRequiredMixin, UpdateView):
     model = models.ResourcePerson
     template_name = 'inventory/resource_person_form.html'
     form_class = forms.ResourcePersonForm
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.get_object().resource.id)
 
     def form_valid(self, form):
         object = form.save()
@@ -603,14 +579,11 @@ class ResourcePersonUpdateView(CustodianRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class ResourcePersonDeleteView(CustodianRequiredMixin, DeleteView):
+class ResourcePersonDeleteView(CanModifyRequiredMixin, DeleteView):
     model = models.ResourcePerson
     template_name = 'inventory/resource_person_confirm_delete.html'
     success_url = reverse_lazy('inventory:resource_person')
     success_message = 'The person has been removed from the data resource!'
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.get_object().resource.id)
 
     def delete(self, request, *args, **kwargs):
         object = models.ResourcePerson.objects.get(pk=self.kwargs["pk"])
@@ -643,7 +616,7 @@ class ResourcePersonDeleteView(CustodianRequiredMixin, DeleteView):
 ##########
 
 # this is a complicated cookie. Therefore we will not use a model view or model form and handle the clean data manually.
-class PersonCreateView(LoginRequiredMixin, FormView):
+class PersonCreateView(InventoryLoginRequiredMixin, FormView):
     template_name = 'inventory/person_form.html'
     form_class = forms.PersonCreateForm
 
@@ -705,7 +678,7 @@ class PersonCreateView(LoginRequiredMixin, FormView):
         return context
 
 
-class PersonCreateViewPopout(LoginRequiredMixin, FormView):
+class PersonCreateViewPopout(InventoryLoginRequiredMixin, FormView):
     template_name = 'inventory/person_form_popout.html'
     form_class = forms.PersonCreateForm
 
@@ -762,7 +735,7 @@ class PersonCreateViewPopout(LoginRequiredMixin, FormView):
         return context
 
 
-class PersonUpdateView(LoginRequiredMixin, FormView):
+class PersonUpdateView(InventoryLoginRequiredMixin, FormView):
     template_name = 'inventory/person_form.html'
     form_class = forms.PersonForm
 
@@ -847,18 +820,10 @@ class PersonUpdateView(LoginRequiredMixin, FormView):
 ####################
 
 
-class ResourceKeywordUpdateView(CustodianRequiredMixin, UpdateView):
+class ResourceKeywordUpdateView(CanModifyRequiredMixin, UpdateView):
     model = models.Resource
     template_name = "inventory/resource_keyword_form.html"
     form_class = forms.ResourceKeywordForm
-
-    # queryset = models.Keyword.objects.annotate(
-    #     search_term=Concat('text_value_eng', Value(' '), 'details', output_field=TextField())).filter(
-    #     ~Q(keyword_domain_id=8) & ~Q(keyword_domain_id=6) & ~Q(keyword_domain_id=7) & Q(is_taxonomic=False)).order_by(
-    #     'text_value_eng')
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["pk"])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -876,16 +841,13 @@ class ResourceKeywordUpdateView(CustodianRequiredMixin, UpdateView):
         return context
 
 
-class ResourceKeywordFilterView(CustodianRequiredMixin, FilterView):
+class ResourceKeywordFilterView(CanModifyRequiredMixin, FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
     queryset = models.Keyword.objects.annotate(
         search_term=Concat('text_value_eng', Value(' '), 'details', output_field=TextField())).filter(
         ~Q(keyword_domain_id=8) & ~Q(keyword_domain_id=6) & ~Q(keyword_domain_id=7) & Q(is_taxonomic=False)).order_by(
         'text_value_eng')
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -896,7 +858,7 @@ class ResourceKeywordFilterView(CustodianRequiredMixin, FilterView):
         return context
 
 
-class ResourceTopicCategoryFilterView(FilterView):
+class ResourceTopicCategoryFilterView(InventoryBasicMixin, FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
     queryset = models.Keyword.objects.annotate(
@@ -912,7 +874,7 @@ class ResourceTopicCategoryFilterView(FilterView):
         return context
 
 
-class ResourceCoreSubjectFilterView(FilterView):
+class ResourceCoreSubjectFilterView(InventoryBasicMixin, FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
     queryset = models.Keyword.objects.annotate(
@@ -928,7 +890,7 @@ class ResourceCoreSubjectFilterView(FilterView):
         return context
 
 
-class ResourceSpeciesFilterView(FilterView):
+class ResourceSpeciesFilterView(InventoryBasicMixin, FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
     queryset = models.Keyword.objects.annotate(
@@ -944,7 +906,7 @@ class ResourceSpeciesFilterView(FilterView):
         return context
 
 
-class ResourceLocationFilterView(FilterView):
+class ResourceLocationFilterView(InventoryBasicMixin, FilterView):
     filterset_class = filters.KeywordFilter
     template_name = "inventory/resource_keyword_filter.html"
     queryset = models.Keyword.objects.annotate(
@@ -997,7 +959,7 @@ def resource_keyword_delete(request, resource, keyword):
 # KEYWORD #
 ###########
 
-class KeywordDetailView(DetailView):
+class KeywordDetailView(InventoryBasicMixin, DetailView):
     model = models.Keyword
 
     def get_context_data(self, **kwargs):
@@ -1007,7 +969,7 @@ class KeywordDetailView(DetailView):
         return context
 
 
-class KeywordUpdateView(LoginRequiredMixin, UpdateView):
+class KeywordUpdateView(InventoryLoginRequiredMixin, UpdateView):
     model = models.Keyword
     form_class = forms.KeywordForm
 
@@ -1024,7 +986,7 @@ class KeywordUpdateView(LoginRequiredMixin, UpdateView):
         })
 
 
-class KeywordCreateView(LoginRequiredMixin, CreateView):
+class KeywordCreateView(InventoryLoginRequiredMixin, CreateView):
     model = models.Keyword
     form_class = forms.KeywordForm
 
@@ -1051,7 +1013,7 @@ def keyword_delete(request, resource, keyword):
 # RESOURCE CITATION #
 ####################
 
-class ResourceCitationFilterView(FilterView):
+class ResourceCitationFilterView(CanModifyRequiredMixin, CommonFilterView):
     filterset_class = filters.CitationFilter
     template_name = "inventory/resource_citation_filter.html"
     queryset = shared_models.Citation.objects.annotate(
@@ -1092,7 +1054,7 @@ def resource_citation_delete(request, resource, citation):
 # CITATION #
 ############
 
-class CitationDetailView(DetailView):
+class CitationDetailView(InventoryBasicMixin, DetailView):
     model = shared_models.Citation
     template_name = 'inventory/citation_detail.html'
 
@@ -1103,7 +1065,7 @@ class CitationDetailView(DetailView):
         return context
 
 
-class CitationUpdateView(LoginRequiredMixin, UpdateView):
+class CitationUpdateView(InventoryLoginRequiredMixin, UpdateView):
     model = shared_models.Citation
     form_class = forms.CitationForm
     template_name = 'inventory/citation_form.html'
@@ -1121,7 +1083,7 @@ class CitationUpdateView(LoginRequiredMixin, UpdateView):
         })
 
 
-class CitationCreateView(LoginRequiredMixin, CreateView):
+class CitationCreateView(InventoryLoginRequiredMixin, CreateView):
     model = shared_models.Citation
     form_class = forms.CitationForm
     template_name = 'inventory/citation_form.html'
@@ -1150,7 +1112,7 @@ def citation_delete(request, resource, citation):
 # PUBLICATION #
 ###############
 
-class PublicationCreateView(LoginRequiredMixin, CreateView):
+class PublicationCreateView(InventoryLoginRequiredMixin, CreateView):
     model = shared_models.Publication
     fields = "__all__"
 
@@ -1195,25 +1157,7 @@ def export_resource_xml(request, resource, publish):
 # DATA MANAGEMENT ADMIN #
 #########################
 
-class DataManagementHomeTemplateView(InventoryDMRequiredMixin, TemplateView):
-    template_name = 'inventory/dm_admin_index.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        published_records = models.Resource.objects.filter(fgp_publication_date__isnull=False).count()
-        context["published_records"] = published_records
-
-        flagged_4_deletion = models.Resource.objects.filter(flagged_4_deletion=True).count()
-        context["flagged_4_deletion"] = flagged_4_deletion
-
-        flagged_4_publication = models.Resource.objects.filter(flagged_4_publication=True).count()
-        context["flagged_4_publication"] = flagged_4_publication
-
-        return context
-
-
-class DataManagementCustodianListView(InventoryDMRequiredMixin, TemplateView):
+class DataManagementCustodianListView(AdminRequiredMixin, TemplateView):
     template_name = 'inventory/dm_custodian_list.html'
 
     def get_context_data(self, **kwargs):
@@ -1239,7 +1183,7 @@ class DataManagementCustodianListView(InventoryDMRequiredMixin, TemplateView):
         return context
 
 
-class DataManagementCustodianDetailView(InventoryDMRequiredMixin, DetailView):
+class DataManagementCustodianDetailView(AdminRequiredMixin, DetailView):
     template_name = 'inventory/dm_custodian_detail.html'
     model = models.Person
 
@@ -1273,12 +1217,12 @@ def send_certification_request(request, person):
     return HttpResponseRedirect(reverse('inventory:dm_custodian_detail', kwargs={'pk': my_person.user_id}))
 
 
-class PublishedResourcesListView(InventoryDMRequiredMixin, ListView):
+class PublishedResourcesListView(AdminRequiredMixin, ListView):
     template_name = "inventory/dm_published_resource.html"
     queryset = models.Resource.objects.filter(fgp_publication_date__isnull=False)
 
 
-class FlaggedListView(InventoryDMRequiredMixin, ListView):
+class FlaggedListView(AdminRequiredMixin, ListView):
     template_name = "inventory/dm_flagged_list.html"
 
     def get_queryset(self):
@@ -1289,17 +1233,17 @@ class FlaggedListView(InventoryDMRequiredMixin, ListView):
         return queryset
 
 
-class CertificationListView(InventoryDMRequiredMixin, ListView):
+class CertificationListView(AdminRequiredMixin, ListView):
     template_name = "inventory/dm_certification_list.html"
     queryset = models.ResourceCertification.objects.all().order_by("-certification_date")[:50]
 
 
-class ModificationListView(InventoryDMRequiredMixin, ListView):
+class ModificationListView(AdminRequiredMixin, ListView):
     template_name = "inventory/dm_modification_list.html"
     queryset = models.Resource.objects.all().order_by("-date_last_modified")[:50]
 
 
-class CustodianPersonUpdateView(InventoryDMRequiredMixin, FormView):
+class CustodianPersonUpdateView(AdminRequiredMixin, FormView):
     template_name = 'inventory/dm_custodian_form.html'
     form_class = forms.PersonCreateForm
 
@@ -1361,276 +1305,87 @@ class CustodianPersonUpdateView(InventoryDMRequiredMixin, FormView):
         return context
 
 
-## SECTIONS
-
-class SectionListView(InventoryDMRequiredMixin, ListView):
-    template_name = "inventory/dm_section_list.html"
-    queryset = shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")
-
-
-class SectionDetailView(InventoryDMRequiredMixin, DetailView):
-    template_name = "inventory/dm_section_detail.html"
-    model = shared_models.Section
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.object.head:
-            me = models.Person.objects.get(user=self.request.user)
-            email = emails.SectionReportEmail(me, self.object.head, self.object, self.request)
-            context['email'] = email
-        context['now'] = timezone.now()
-        return context
-
-
-def send_section_report(request, section):
-    # grab a copy of the resource
-    my_section = shared_models.Section.objects.get(pk=section)
-    head = my_section.head
-    # create a new email object
-    me = models.Person.objects.get(user=request.user)
-    email = emails.SectionReportEmail(me, head, my_section, request)
-    # send the email object
-    custom_send_mail(
-        subject=email.subject,
-        html_message=email.message,
-        from_email=email.from_email,
-        recipient_list=email.to_list
-    )
-    models.Correspondence.objects.create(custodian=head.user, subject="Section head report")
-    messages.success(request, "the email has been sent and the correspondence has been logged!")
-    return HttpResponseRedirect(reverse('inventory:dm_section_detail', kwargs={'pk': section}))
-
-
-class MySectionDetailView(LoginRequiredMixin, TemplateView):
-    template_name = "inventory/my_section_detail.html"
-    model = shared_models.Section
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # grab the user
-        user_id = self.request.user.id
-        my_section = shared_models.Section.objects.filter(head_id=user_id).first()
-
-        if my_section:
-            resource_list = my_section.resources.all().order_by("title_eng")
-            context['resource_list'] = resource_list
-
-            ## NOTE if there is ever a need to have a person with two sections under them, this view will have to be modified so that a list of sections is returned to the user.
-            # Would simply have to remove the first() function from my_section
-
-            context['object'] = my_section
-            context['now'] = timezone.now()
-
-            certified_within_year = 0
-            certified_within_6_months = 0
-            for r in my_section.resources.all():
-                try:
-                    days_elapsed = (timezone.now() - r.certification_history.order_by(
-                        "-certification_date").first().certification_date).days
-                except Exception as e:
-                    print(e)
-                else:
-                    if days_elapsed < 183:  # six months
-                        certified_within_6_months = certified_within_6_months + 1
-                        certified_within_year = certified_within_year + 1
-                    elif days_elapsed < 365:
-                        certified_within_year = certified_within_year + 1
-
-            context['certified_within_6_months'] = certified_within_6_months
-            context['certified_within_year'] = certified_within_year
-
-            published_on_fgp = 0
-            for r in my_section.resources.all():
-                if r.fgp_publication_date:  # six months
-                    published_on_fgp = published_on_fgp + 1
-
-            context['published_on_fgp'] = published_on_fgp
-
-        return context
-
-
 # RESOURCE CERTIFICATION #
 ##########################
 
-
-class ResourceCertificationCreateView(CustodianRequiredMixin, CreateView):
+class ResourceCertificationCreateView(CanModifyRequiredMixin, CommonPopoutCreateView):
     model = models.ResourceCertification
-    template_name = 'inventory/resource_certification_form.html'
     form_class = forms.ResourceCertificationForm
-    success_message = "Certification successful!"
+    h1 = gettext_lazy("Do you wish to certify the following record?")
+    h3 = gettext_lazy("By clicking yes, you are confirming that all the information in this record is accurate and up-to-date.")
+    submit_text = gettext_lazy("Yes")
+    submit_btn_class = "btn-success"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        my_resource = models.Resource.objects.get(pk=self.kwargs['pk'])
-
-        context['resource'] = my_resource
-        return context
-
-    def get_initial(self):
-        return {
-            'certifying_user': self.request.user,
-            'resource': self.kwargs['pk'],
-            'certification_date': timezone.now(),
-        }
-
-    def get_success_url(self):
-        return reverse('inventory:resource_detail', kwargs={
-            'pk': self.kwargs['pk'],
-        })
+    # cancel_text = gettext_lazy("Never mind")
+    # cancel_btn_class = "btn-danger"
 
     def form_valid(self, form):
-        messages.success(self.request, self.success_message)
+        obj = form.save(commit=False)
+        obj.certifying_user = self.request.user
+        obj.resource_id = self.kwargs['resource']
+        obj.certification_date = timezone.now()
+        obj.save()
         return super().form_valid(form)
 
 
-class ResourceCertificationDeleteView(CustodianRequiredMixin, DeleteView):
+class ResourceCertificationDeleteView(CanModifyRequiredMixin, CommonPopoutDeleteView):
     model = models.ResourceCertification
-    template_name = 'inventory/resource_certification_confirm_delete.html'
-    success_message = "The certification event has been removed."
-
-    def get_success_url(self):
-        return reverse('inventory:resource_detail', kwargs={
-            'pk': self.object.resource.id,
-        })
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 
 # FILES #
 #########
 
-class FileCreateView(CustodianRequiredMixin, CreateView):
-    template_name = "inventory/file_form.html"
+class FileCreateView(CanModifyRequiredMixin, CommonPopoutCreateView):
     model = models.File
     form_class = forms.FileForm
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
+    h3 = gettext_lazy("NOTE: to add a thumbnail, simply upload an image and ensure the caption contains the word 'thumbnail'")
+    is_multipart_form_data = True
 
     def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", kwargs={"pk": object.resource.id}))
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        context["editable"] = True
-        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
-        context["resource"] = resource
-        return context
-
-    def get_initial(self):
-        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
-        return {'resource': resource}
+        obj = form.save(commit=False)
+        obj.resource_id = self.kwargs['resource']
+        obj.save()
+        return super().form_valid(form)
 
 
-class FileDetailView(LoginRequiredMixin, UpdateView):
-    template_name = "inventory/file_form.html"
+class FileUpdateView(CanModifyRequiredMixin, CommonPopoutUpdateView):
     model = models.File
     form_class = forms.FileForm
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        context["editable"] = False
-        return context
+    h3 = gettext_lazy("NOTE: to add a thumbnail, simply upload an image and ensure the caption contains the word 'thumbnail'")
+    is_multipart_form_data = True
 
 
-class FileUpdateView(CustodianRequiredMixin, UpdateView):
-    template_name = "inventory/file_form.html"
+class FileDeleteView(CanModifyRequiredMixin, CommonPopoutDeleteView):
     model = models.File
-    form_class = forms.FileForm
-
-    def test_func(self):
-        my_object = models.File.objects.get(pk=self.kwargs["pk"])
-        return is_custodian_or_admin(self.request.user, my_object.resource_id)
-
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        context["editable"] = True
-        return context
-
-
-class FileDeleteView(CustodianRequiredMixin, DeleteView):
-    template_name = "inventory/file_confirm_delete.html"
-    model = models.File
-
-    def test_func(self):
-        my_object = models.File.objects.get(pk=self.kwargs["pk"])
-        return is_custodian_or_admin(self.request.user, my_object.resource_id)
-
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
 
 # DATA RESOURCE #
 #################
 
-class DataResourceCreateView(CustodianRequiredMixin, CreateView):
-    template_name = "inventory/data_resource_form.html"
+class DataResourceCreateView(CanModifyRequiredMixin, CommonPopoutCreateView):
     model = models.DataResource
     form_class = forms.DataResourceForm
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", kwargs={"pk": object.resource.id}))
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
-        context["resource"] = resource
-        return context
-
-    def get_initial(self):
-        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
-        return {'resource': resource}
+        obj = form.save(commit=False)
+        obj.resource_id = self.kwargs['resource']
+        obj.save()
+        return super().form_valid(form)
 
 
-class DataResourceUpdateView(CustodianRequiredMixin, UpdateView):
-    template_name = "inventory/data_resource_form.html"
+class DataResourceUpdateView(CanModifyRequiredMixin, CommonPopoutUpdateView):
     model = models.DataResource
     form_class = forms.DataResourceForm
 
-    def test_func(self):
-        my_object = models.DataResource.objects.get(pk=self.kwargs["pk"])
-        return is_custodian_or_admin(self.request.user, my_object.resource_id)
 
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        return context
-
-
-class DataResourceDeleteView(CustodianRequiredMixin, DeleteView):
-    template_name = "inventory/data_resource_confirm_delete.html"
+class DataResourceDeleteView(CanModifyRequiredMixin, CommonPopoutDeleteView):
     model = models.DataResource
-
-    def test_func(self):
-        my_object = models.DataResource.objects.get(pk=self.kwargs["pk"])
-        return is_custodian_or_admin(self.request.user, my_object.resource_id)
-
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
 
 @login_required(login_url='/accounts/login/')
 def data_resource_clone(request, pk):
     my_object = models.DataResource.objects.get(pk=pk)
-    if is_custodian_or_admin(request.user, my_object.resource.id):
+    if can_modify(request.user, my_object.resource.id):
         my_object.id = None
         my_object.save()
     else:
@@ -1641,64 +1396,30 @@ def data_resource_clone(request, pk):
 # WEB SERVICES #
 ################
 
-class WebServiceCreateView(CustodianRequiredMixin, CreateView):
-    template_name = "inventory/data_resource_form.html"
+class WebServiceCreateView(CanModifyRequiredMixin, CommonPopoutCreateView):
     model = models.WebService
     form_class = forms.WebServiceForm
-
-    def test_func(self):
-        return is_custodian_or_admin(self.request.user, self.kwargs["resource"])
 
     def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", kwargs={"pk": object.resource.id}))
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
-        context["resource"] = resource
-        return context
-
-    def get_initial(self):
-        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
-        return {'resource': resource}
+        obj = form.save(commit=False)
+        obj.resource_id = self.kwargs['resource']
+        obj.save()
+        return super().form_valid(form)
 
 
-class WebServiceUpdateView(CustodianRequiredMixin, UpdateView):
-    template_name = "inventory/data_resource_form.html"
+class WebServiceUpdateView(CanModifyRequiredMixin, CommonPopoutUpdateView):
     model = models.WebService
     form_class = forms.WebServiceForm
 
-    def test_func(self):
-        my_object = models.WebService.objects.get(pk=self.kwargs["pk"])
-        return is_custodian_or_admin(self.request.user, my_object.resource_id)
 
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        return context
-
-
-class WebServiceDeleteView(CustodianRequiredMixin, DeleteView):
-    template_name = "inventory/data_resource_confirm_delete.html"
+class WebServiceDeleteView(CanModifyRequiredMixin, CommonPopoutDeleteView):
     model = models.WebService
-
-    def test_func(self):
-        my_object = models.WebService.objects.get(pk=self.kwargs["pk"])
-        return is_custodian_or_admin(self.request.user, my_object.resource_id)
-
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("inventory:resource_detail", kwargs={"pk": self.object.resource.id})
 
 
 @login_required(login_url='/accounts/login/')
 def web_service_clone(request, pk):
     my_object = models.WebService.objects.get(pk=pk)
-    if is_custodian_or_admin(request.user, my_object.resource.id):
+    if can_modify(request.user, my_object.resource.id):
         my_object.id = None
         my_object.save()
     else:
@@ -1709,7 +1430,7 @@ def web_service_clone(request, pk):
 # REPORTS #
 ###########
 
-class ReportSearchFormView(InventoryDMRequiredMixin, FormView):
+class ReportSearchFormView(AdminRequiredMixin, FormView):
     template_name = 'inventory/report_search.html'
     form_class = forms.ReportSearchForm
 
@@ -1809,34 +1530,34 @@ def export_open_data_resources(request):
             return response
     raise Http404
 
-
-# TEMP #
-########
-
-
-# this is a temp view DJF created to walkover the `program` field to the new `programs` field
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_inventory_dm_group, login_url='/accounts/denied/')
-def temp_formset(request, section):
-    context = {}
-    # if the formset is being submitted
-    if request.method == 'POST':
-        # choose the appropriate formset based on the `extra` arg
-        formset = forms.TempFormSet(request.POST)
-
-        if formset.is_valid():
-            formset.save()
-            # pass the specimen through the make_flags helper function to assign any QC flags
-
-            # redirect back to the observation_formset with the blind intention of getting another observation
-            return HttpResponseRedirect(reverse("inventory:formset"))
-    # otherwise the formset is just being displayed
-    else:
-        # prep the formset...for display
-        formset = forms.TempFormSet(
-            queryset=models.Resource.objects.filter(section_id=section).order_by("section")
-        )
-    context['formset'] = formset
-    context['my_object'] = models.Resource.objects.first()
-    context['field_list'] = ["title_eng", "section", "status", "descr_eng", "purpose_eng"]
-    return render(request, 'inventory/temp_formset.html', context)
+#
+# # TEMP #
+# ########
+#
+#
+# # this is a temp view DJF created to walkover the `program` field to the new `programs` field
+# @login_required(login_url='/accounts/login/')
+# @user_passes_test(in_inventory_dm_group, login_url='/accounts/denied/')
+# def temp_formset(request, section):
+#     context = {}
+#     # if the formset is being submitted
+#     if request.method == 'POST':
+#         # choose the appropriate formset based on the `extra` arg
+#         formset = forms.TempFormSet(request.POST)
+#
+#         if formset.is_valid():
+#             formset.save()
+#             # pass the specimen through the make_flags helper function to assign any QC flags
+#
+#             # redirect back to the observation_formset with the blind intention of getting another observation
+#             return HttpResponseRedirect(reverse("inventory:formset"))
+#     # otherwise the formset is just being displayed
+#     else:
+#         # prep the formset...for display
+#         formset = forms.TempFormSet(
+#             queryset=models.Resource.objects.filter(section_id=section).order_by("section")
+#         )
+#     context['formset'] = formset
+#     context['my_object'] = models.Resource.objects.first()
+#     context['field_list'] = ["title_eng", "section", "status", "descr_eng", "purpose_eng"]
+#     return render(request, 'inventory/temp_formset.html', context)

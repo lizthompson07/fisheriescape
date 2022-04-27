@@ -20,7 +20,7 @@ from .utils import db_connection_values_exist, get_db_connection_dict
 # if there is a verbose name, it should be the value of key 'name', otherwise None
 
 APP_DICT = {
-    'inventory': dict(name='Metadata Inventory'),
+    'inventory': dict(name='Science Data Inventory'),
     'grais': dict(name='grAIS'),
     'cruises': dict(name='Cruises'),
     'herring': dict(name='HERMAN'),

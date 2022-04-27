@@ -187,10 +187,11 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
     if isinstance(field_value, bool):
         field_value = yesno(field_value, "Yes,No,Unknown")
     try:
-        field_value = markdown.markdown(field_value) if "html" in str(format).lower() else field_value
-        field_value = mark_safe(field_value) if safe else field_value
         if field_value is None or field_value == "" or field_value == "None":
             field_value = nullmark
+        elif field_value != nullmark:
+            field_value = mark_safe(markdown.markdown(str(field_value))) if "html" in str(format).lower() else field_value
+            field_value = mark_safe(field_value) if safe else field_value
     except UnboundLocalError:
         field_value = nullmark
     return field_value
