@@ -1,93 +1,96 @@
-import os
+import csv
 
-import xlsxwriter
-from django.conf import settings
-from django.utils import timezone
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 
-from lib.templatetags.verbose_names import get_verbose_label, get_field_value
-from scuba import models
+from edna import models
 
 
-def generate_dive_log(year):
-    # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
-    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
-    target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
-    # create workbook and worksheets
-    workbook = xlsxwriter.Workbook(target_file_path)
+def generate_pcr_batch_csv(pk):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="pcr_batch_{pk}.csv"'
+    writer = csv.writer(response)
+    batch = get_object_or_404(models.PCRBatch, pk=pk)
 
-    # create formatting variables
-    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
-    header_format = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
-    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True,'border': 1, 'border_color': 'black', })
-    currency_format = workbook.add_format({'num_format': '#,##0.00'})
-    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+    writer.writerow(['batch_id', batch.id])
+    writer.writerow(['year', batch.datetime.year])
+    writer.writerow(['month', batch.datetime.month])
+    writer.writerow(['day', batch.datetime.day])
+    writer.writerow(['hour', batch.datetime.hour])
+    writer.writerow(['minute', batch.datetime.minute])
+    writer.writerow(['comments', batch.comments])
+    writer.writerow(['plate_id', batch.plate_id])
+    writer.writerow(['machine_number', batch.machine_number])
+    writer.writerow(['run_program', batch.run_program])
+    writer.writerow([])
+    writer.writerow([
+        'plate_well',
+        'extract',
+        'extraction_number',
+        'master_mix',
+        'assay',
+        'threshold',
+        'ct',
+        'comments',
+    ])
 
+    pcr_assays = models.PCRAssay.objects.filter(pcr__pcr_batch=batch)
 
-    # get the dive list
-    dives = models.Dive.objects.all()
-    if year:
-        dives = dives.filter(sample__datetime__year=year)
+    for pcr_assay in pcr_assays:
+        writer.writerow([
+            pcr_assay.pcr.plate_well,
+            pcr_assay.pcr.extract,
+            pcr_assay.pcr.extract.extraction_number if pcr_assay.pcr.extract else "",
+            pcr_assay.pcr.master_mix,
+            pcr_assay.assay,
+            pcr_assay.threshold,
+            pcr_assay.ct,
+            pcr_assay.comments,
+        ])
 
-    field_list = [
-        "datetime|Date",
-        "site|Region/Site",
-        "diver",
-        "psi_in",
-        "psi_out",
-        "start_descent",
-        "bottom_time",
-        "max_depth_ft",
-    ]
+    #
+    # for sample in sample_list:
+    #
+    #     # get the length frequencies for the sample
+    #     lfs = sample.length_frequency_objects.all().order_by("length_bin__bin_length_cm")
+    #     # get the max and min bin lengths rounded up and down, respectively
+    #     min_length = round_down(lfs.first().length_bin.bin_length_cm, 5)
+    #     max_length = round_up(lfs.last().length_bin.bin_length_cm, 5)
+    #     my_array = np.arange(min_length, max_length, 0.5).reshape(
+    #         (-1, 10))  # the minus -1 allows numpy to find the appropriate number of rows
+    #
+    #     # now, for each row of this array, we will write a new column
+    #     for row in my_array:
+    #         length_list = []
+    #         for len in row:
+    #             try:
+    #                 # if length exists for that sample, send in the recorded count
+    #                 length_list.append(models.LengthFrequency.objects.get(sample=sample, length_bin=float(len)).count)
+    #             except ObjectDoesNotExist:
+    #                 # otherwise mark a zero value
+    #                 length_list.append(0)
+    #
+    #         # we will have to turn this into a fixed width
+    #         padding_lengths = [5, 2, 2, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, ]
+    #
+    #         writer.writerow(
+    #             [
+    #                 str(sample.id).rjust(padding_lengths[0]),
+    #                 str(sample.sample_date.day).rjust(padding_lengths[1]),
+    #                 str(sample.sample_date.month).rjust(padding_lengths[2]),
+    #                 str(sample.sample_date.year).rjust(padding_lengths[3]),
+    #                 str(int(row[0])).rjust(padding_lengths[4]),
+    #                 str(length_list[0]).rjust(padding_lengths[5]),
+    #                 str(length_list[1]).rjust(padding_lengths[6]),
+    #                 str(length_list[2]).rjust(padding_lengths[7]),
+    #                 str(length_list[3]).rjust(padding_lengths[8]),
+    #                 str(length_list[4]).rjust(padding_lengths[9]),
+    #                 str(length_list[5]).rjust(padding_lengths[10]),
+    #                 str(length_list[6]).rjust(padding_lengths[11]),
+    #                 str(length_list[7]).rjust(padding_lengths[12]),
+    #                 str(length_list[8]).rjust(padding_lengths[13]),
+    #                 str(length_list[9]).rjust(padding_lengths[14]),
+    #             ])
 
-    # get_cost_comparison_dict
-
-    # define the header
-    header = [get_verbose_label(dives.first(), field) for field in field_list]
-    # header.append('Number of projects tagged')
-    title = "SCUBA Dive Log"
-
-    # define a worksheet
-    my_ws = workbook.add_worksheet(name="trip list")
-    my_ws.write(0, 0, title, title_format)
-    my_ws.write_row(2, 0, header, header_format)
-
-    i = 3
-    for dive in dives.order_by("sample__datetime"):
-        # create the col_max column to store the length of each header
-        # should be a maximum column width to 100
-        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-        j = 0
-        for field in field_list:
-
-            if "datetime" in field:
-                my_val = dive.sample.datetime.strftime("%Y-%m-%d")
-                my_ws.write(i, j, my_val, date_format)
-            elif "site" in field:
-                my_val = f"{dive.sample.site.region.name} / {dive.sample.site.name}"
-                my_ws.write(i, j, my_val, normal_format)
-            else:
-                my_val = str(get_field_value(dive, field))
-                my_ws.write(i, j, my_val, normal_format)
-
-            # adjust the width of the columns based on the max string length in each col
-            ## replace col_max[j] if str length j is bigger than stored value
-
-            # if new value > stored value... replace stored value
-            if len(str(my_val)) > col_max[j]:
-                if len(str(my_val)) < 75:
-                    col_max[j] = len(str(my_val))
-                else:
-                    col_max[j] = 75
-            j += 1
-        i += 1
-
-        # set column widths
-        for j in range(0, len(col_max)):
-            my_ws.set_column(j, j, width=col_max[j] * 1.1)
-
-    workbook.close()
-    return target_url
+    return response

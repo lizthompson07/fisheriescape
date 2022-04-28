@@ -19,7 +19,7 @@ from django.utils.translation import gettext_lazy, gettext as _
 from lib.templatetags.custom_filters import nz
 from shared_models.views import CommonTemplateView, CommonHardDeleteView, CommonFormsetView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonListView
-from . import models, forms, filters, utils
+from . import models, forms, filters, utils, reports
 from .mixins import ednaBasicMixin, eDNAAdminRequiredMixin, SuperuserOrAdminRequiredMixin
 
 
@@ -1000,6 +1000,11 @@ class ReportSearchFormView(eDNAAdminRequiredMixin, CommonFormView):
         # else:
         messages.error(self.request, "Report is not available. Please select another report.")
         return HttpResponseRedirect(reverse("edna:reports"))
+
+
+def export_pcr_batch_csv(request, pk):
+    return reports.generate_pcr_batch_csv(pk)
+
 
 
 #

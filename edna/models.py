@@ -497,7 +497,7 @@ class PCR(MetadataFields):
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ["pcr_batch", "extract__id", "id"]
+        ordering = ["plate_well", "pcr_batch", "extract__id", "id"]
 
     def __str__(self):
         return f"q{self.id}"
