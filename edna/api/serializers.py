@@ -17,6 +17,15 @@ class SampleSerializer(serializers.ModelSerializer):
     datetime_display = serializers.SerializerMethodField()
     collection_display = serializers.SerializerMethodField()
     is_deletable = serializers.SerializerMethodField()
+    sample_type_display = serializers.SerializerMethodField()
+    coordinates = serializers.SerializerMethodField()
+
+    def get_coordinates(self, instance):
+        return instance.coordinates
+
+    def get_sample_type_display(self, instance):
+        if instance.sample_type:
+            return str(instance.sample_type)
 
     def get_is_deletable(self, instance):
         return instance.is_deletable

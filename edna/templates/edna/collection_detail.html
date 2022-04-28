@@ -20,7 +20,8 @@
 
 
   <div class="btns mb-3">
-    <a href="{% url 'edna:collection_edit' object.id %}" class="btn btn-warning btn-sm"><span class="mdi mdi-pencil mr-1"></span> {% trans "Edit Project Details" %}</a>
+    <a href="{% url 'edna:collection_edit' object.id %}" class="btn btn-warning btn-sm"><span
+      class="mdi mdi-pencil mr-1"></span> {% trans "Edit Project Details" %}</a>
     <a href="#" pop-href="{% url "edna:file_new" object.id %}" class="btn btn-primary btn-sm">
       <span class="mdi mdi-file text-light mr-1"></span> {% trans "Add a Reference File" %}
     </a>
@@ -75,7 +76,7 @@
 
       </table>
     </div>
-    <div class="col-4">
+    <div class="col">
       <div id="map">
       </div>
     </div>
@@ -86,39 +87,43 @@
     <h3>{% trans "Project Log" %}</h3>
 
     {% if object.samples.exists %}
+      <table class="table  table-sm table-responsive">
 
-      <table class="table table-hover table-sm">
         <thead>
         <tr>
-          {% for field in sample_field_list %}
-            {% if field == "comment" %}
-              <th style="width: 25%">
-                {% get_verbose_label object.samples.first field %}
-              </th>
-            {% else %}
-              <th>
-                {% get_verbose_label object.samples.first field %}
-              </th>
-            {% endif %}
-          {% endfor %}
+          <th></th>
+          <th>{% trans "Sample ID" %}</th>
+          <th>${labels.sample_type}</th>
+          <th>${labels.bottle_id}</th>
+          <th>${labels.location}</th>
+          <th>${labels.site}</th>
+          <th>${labels.station}</th>
+          <th>${labels.datetime}</th>
+          <th>${labels.samplers}</th>
+          <th>{% trans "Coordinates" %}</th>
+          <th>${labels.comments}</th>
         </tr>
         </thead>
         <tbody>
-        {% for sample in object.samples.all %}
-          <tr href="{% url 'edna:sample_detail' sample.id %}">
-            {% for field in sample_field_list %}
-              <td>
-                {% get_field_value sample field display_time=True %}
-              </td>
-            {% endfor %}
-          </tr>
-        {% endfor %}
+        <tr v-for="(obj, index) in samples" :key="obj.id">
+          <td> ${index + 1}</td>
+          <td> ${obj.id}</td>
+          <td> ${obj.sample_type_display}</td>
+          <td> ${obj.bottle_id}</td>
+          <td> ${obj.location}</td>
+          <td> ${obj.site}</td>
+          <td> ${obj.station}</td>
+          <td> ${obj.datetime_display}</td>
+          <td> ${obj.samplers}</td>
+          <td> ${obj.coordinates}</td>
+          <td> ${obj.comments}</td>
+        </tr>
         </tbody>
       </table>
 
     {% else %}
 
-      <em>{% trans "This collection has no samples." %}</em>
+      <em>{% trans "This project does not have any samples yet :(" %}</em>
 
     {% endif %}
 
