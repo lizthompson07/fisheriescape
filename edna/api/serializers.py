@@ -16,6 +16,10 @@ class SampleSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
     datetime_display = serializers.SerializerMethodField()
     collection_display = serializers.SerializerMethodField()
+    is_deletable = serializers.SerializerMethodField()
+
+    def get_is_deletable(self, instance):
+        return instance.is_deletable
 
     def get_collection_display(self, instance):
         return str(instance.collection)

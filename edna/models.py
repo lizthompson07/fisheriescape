@@ -282,6 +282,10 @@ class Sample(MetadataFields):
         #     mystr += f" | b{self.bottle_id}"
         return mystr
 
+    @property
+    def is_deletable(self):
+        return not self.filters.exists() and not self.extracts.exists()
+
 
 class Batch(models.Model):
     datetime = models.DateTimeField(default=timezone.now, verbose_name=_("date/time"))

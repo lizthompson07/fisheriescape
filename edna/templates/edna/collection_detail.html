@@ -20,9 +20,21 @@
 
 
   <div class="btns mb-3">
-    <a href="{% url 'edna:collection_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
-    <a href="{% url 'edna:collection_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
-    <a href="#" pop-href="{% url "edna:file_new" object.id %}" class="btn btn-primary btn-sm ml-3">{% trans "Add a File" %}</a>
+    <a href="{% url 'edna:collection_edit' object.id %}" class="btn btn-warning btn-sm"><span class="mdi mdi-pencil mr-1"></span> {% trans "Edit Project Details" %}</a>
+    <a href="#" pop-href="{% url "edna:file_new" object.id %}" class="btn btn-primary btn-sm">
+      <span class="mdi mdi-file text-light mr-1"></span> {% trans "Add a Reference File" %}
+    </a>
+    <a href="{% url 'edna:collection_delete' object.id %}" class="btn btn-danger btn-sm">
+      <span class="mdi mdi-delete text-light mr-1"></span> {% trans "Delete" %}
+    </a>
+
+    <a href="{% url 'edna:import_samples' object.id %}" class="btn btn-sm btn-dark">
+      <span class="mdi mdi-import text-light mr-1"></span> {% trans "Import Samples from CSV" %}
+    </a>
+    <a href="{% url 'edna:sample_data_entry' object.id %}" class="btn btn-sm btn-warning">
+      <span class="mdi mdi-table"> </span> {% trans "Edit Samples" %}
+    </a>
+
 
   </div>
 
@@ -69,13 +81,9 @@
     </div>
   </div>
 
-  <div class="mb-3">
-    <div class="float-right">
-      <a href="{% url 'edna:sample_new' object.id %}" class="btn btn-sm btn-success"> {% trans "New Sample" %}</a>
-      <a href="{% url 'edna:import_samples' object.id %}" class="btn btn-sm btn-dark"> {% trans "Import Samples from CSV" %}</a>
-      <a href="{% url 'edna:sample_data_entry' object.id %}" class="btn btn-sm btn-warning"> <span class="mdi mdi-table"> </span> {% trans "Tabular Edit" %}</a>
-    </div>
-    <h3>{% trans "Field Samples" %}</h3>
+  <div id="app" class="mb-3">
+
+    <h3>{% trans "Project Log" %}</h3>
 
     {% if object.samples.exists %}
 
@@ -100,7 +108,7 @@
           <tr href="{% url 'edna:sample_detail' sample.id %}">
             {% for field in sample_field_list %}
               <td>
-                {% get_field_value sample field %}
+                {% get_field_value sample field display_time=True %}
               </td>
             {% endfor %}
           </tr>
@@ -115,6 +123,72 @@
     {% endif %}
 
   </div>
+{% endblock %}
+
+{% block body_js %}
+  {{ block.super }}
+
+  <script type="application/javascript">
+
+  let projectId = {{ object.id }};
+
+
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      projectId,
+      currentUser: null,
+      errorMsg: null,
+      samples: [],
+      labels: [],
+      loading0: true,
+      loading: false,
+    },
+    methods: {
+      getCurrentUser() {
+        let endpoint = `/api/edna/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+            })
+      },
+      getMetadata() {
+        let endpoint = `/api/edna/meta/models/sample/`;
+        apiService(endpoint).then(data => {
+          this.labels = data.labels;
+        });
+      },
+      getSamples() {
+        this.loading = true;
+        endpoint = `/api/edna/samples/?collection=${this.projectId}`;
+        apiService(endpoint)
+            .then(response => {
+              this.loading = false;
+              this.loading0 = false;
+              if (response.length && response[0].id) {
+                this.samples = response;
+              }
+            })
+      },
+
+    },
+    computed: {
+      selectedItems() {
+        let myArray = [];
+        for (const filter of this.filters) {
+          if (filter.selected) myArray.push(filter)
+        }
+        return myArray
+      }
+    },
+    created() {
+      this.getCurrentUser();
+      this.getMetadata();
+      this.getSamples();
+    },
+  });
+  </script>
 
   <script type="application/javascript">
   function initialize() {
@@ -137,7 +211,7 @@
     lineCoords = [];
     {% for sample in object.samples.all %}
       {% if sample.get_point %}
-        lineCoords.push([ {{sample.get_point.x}}, {{ sample.get_point.y }} ])
+        lineCoords.push([{{sample.get_point.x}}, {{ sample.get_point.y }}])
         L.marker([{{sample.get_point.x}}, {{ sample.get_point.y }}],
             {
               title: '{{sample}}',
@@ -154,5 +228,6 @@
 
   });
   </script>
+
 
 {% endblock %}
