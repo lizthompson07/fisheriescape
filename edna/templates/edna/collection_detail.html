@@ -82,45 +82,101 @@
     </div>
   </div>
 
-  <div id="app" class="mb-3">
+  <div id="app" class="mb-3" v-cloak>
 
     <h3>{% trans "Project Log" %}</h3>
 
     {% if object.samples.exists %}
-      <table class="table  table-sm table-responsive">
+      <table class="table table-sm table-hover table-bordered">
 
         <thead>
         <tr>
-          <th></th>
+          <th colspan="10" class="lead">{% trans "Samples" %}</th>
+          <th colspan="10" class="lead">{% trans "Filters" %}</th>
+          <th colspan="9" class="lead">{% trans "Extractions" %}</th>
+
+        </tr>
+        <tr>
+
+          {# Samples #}
           <th>{% trans "Sample ID" %}</th>
-          <th>${labels.sample_type}</th>
-          <th>${labels.bottle_id}</th>
-          <th>${labels.location}</th>
-          <th>${labels.site}</th>
-          <th>${labels.station}</th>
-          <th>${labels.datetime}</th>
-          <th>${labels.samplers}</th>
+          <th>${sampleLabels.sample_type}</th>
+          <th>${sampleLabels.bottle_id}</th>
+          <th>${sampleLabels.location}</th>
+          <th>${sampleLabels.site}</th>
+          <th>${sampleLabels.station}</th>
+          <th>${sampleLabels.datetime}</th>
+          <th>${sampleLabels.samplers}</th>
           <th>{% trans "Coordinates" %}</th>
-          <th>${labels.comments}</th>
+          <th>${sampleLabels.comments}</th>
+
+
+          {# Filters #}
+          <th>{% trans "Filter ID" %}</th>
+          <th>${filterLabels.tube_id}</th>
+          <th>${filterLabels.filtration_type}</th>
+          <th>${filterLabels.start_datetime}</th>
+          <th>${filterLabels.end_datetime}</th>
+          <th>${filterLabels.filtration_volume_ml}</th>
+          <th>${filterLabels.storage_location}</th>
+          <th>${filterLabels.filtration_ipc}</th>
+          <th>${filterLabels.comments}</th>
+          <th>${filterLabels.duration_min}</th>
+
+
+          {# Extractions #}
+          <th>{% trans "Extract ID" %}</th>
+          <th>${extractLabels.extraction_number}</th>
+          <th>${extractLabels.start_datetime}</th>
+          <th>${extractLabels.dna_extraction_protocol}</th>
+          <th>${extractLabels.storage_location}</th>
+          <th>${extractLabels.extraction_plate_id}</th>
+          <th>${extractLabels.extraction_plate_well}</th>
+          <th>${extractLabels.extraction_ipc}</th>
+          <th>${extractLabels.comments}</th>
+
         </tr>
         </thead>
-        <tbody>
-        <tr v-for="(obj, index) in samples" :key="obj.id">
-          <td> ${index + 1}</td>
-          <td> ${obj.id}</td>
-          <td> ${obj.sample_type_display}</td>
-          <td> ${obj.bottle_id}</td>
-          <td> ${obj.location}</td>
-          <td> ${obj.site}</td>
-          <td> ${obj.station}</td>
-          <td> ${obj.datetime_display}</td>
-          <td> ${obj.samplers}</td>
-          <td> ${obj.coordinates}</td>
-          <td> ${obj.comments}</td>
+
+        <tbody v-for="(sample, index) in samples" :key="sample.id">
+        <tr class="samples">
+          <td :rowspan="sample.filters.length + 1">
+            <a v-if="sample.id" :href=`/edna/samples/${sample.id}/view/` target="_blank">${sample.display}</a>
+            <span v-else>${sample.display}</span>
+          </td>
+          <td :rowspan="sample.filters.length + 1"> ${sample.sample_type_display}</td>
+          <td :rowspan="sample.filters.length + 1"> ${sample.bottle_id}</td>
+          <td :rowspan="sample.filters.length + 1"> ${sample.location}</td>
+          <td :rowspan="sample.filters.length + 1"> ${sample.site}</td>
+          <td :rowspan="sample.filters.length + 1"> ${sample.station}</td>
+          <td :rowspan="sample.filters.length + 1"> ${sample.datetime_display}</td>
+          <td :rowspan="sample.filters.length + 1"> ${sample.samplers}</td>
+          <td :rowspan="sample.filters.length + 1"> ${sample.coordinates}</td>
+          <td :rowspan="sample.filters.length + 1"> ${sample.comments}</td>
+
         </tr>
+
+        {# Filters #}
+        <tr v-for="(filter, index) in sample.filters" :key="filter.id" class="filters">
+          <td>
+            <a v-if="filter.id" :href=`/edna/filters/${filter.id}/view/` target="_blank">${filter.display}</a>
+            <span v-else>${filter.display}</span>
+          </td>
+          <td>${filter.tube_id}</td>
+          <td>${filter.filtration_type_display}</td>
+          <td>${filter.start_datetime_display}</td>
+          <td>${filter.end_datetime_display}</td>
+          <td>${filter.filtration_volume_ml}</td>
+          <td>${filter.storage_location}</td>
+          <td>${filter.filtration_ipc}</td>
+          <td>${filter.comments}</td>
+          <td>${filter.duration_min}</td>
+
+        </tr>
+
+
         </tbody>
       </table>
-
     {% else %}
 
       <em>{% trans "This project does not have any samples yet :(" %}</em>
@@ -146,7 +202,13 @@
       currentUser: null,
       errorMsg: null,
       samples: [],
-      labels: [],
+
+      sampleLabels: [],
+      filterLabels: [],
+      extractLabels: [],
+      pcrLabels: [],
+      pcrAssayLabels: [],
+
       loading0: true,
       loading: false,
     },
@@ -159,40 +221,85 @@
             })
       },
       getMetadata() {
-        let endpoint = `/api/edna/meta/models/sample/`;
-        apiService(endpoint).then(data => {
-          this.labels = data.labels;
+        apiService(`/api/edna/meta/models/sample/`).then(data => {
+          this.sampleLabels = data.labels;
+        });
+        apiService(`/api/edna/meta/models/filter/`).then(data => {
+          this.filterLabels = data.labels;
+        });
+        apiService(`/api/edna/meta/models/extract/`).then(data => {
+          this.extractLabels = data.labels;
+        });
+        apiService(`/api/edna/meta/models/pcr/`).then(data => {
+          this.pcrLabels = data.labels;
+        });
+        apiService(`/api/edna/meta/models/pcr-assay/`).then(data => {
+          this.pcrAssayLabels = data.labels;
         });
       },
       getSamples() {
         this.loading = true;
-        endpoint = `/api/edna/samples/?collection=${this.projectId}`;
-        apiService(endpoint)
-            .then(response => {
+        apiService(`/api/edna/samples/?collection=${this.projectId}`).then(response => {
+          this.samples = response;
+          for (const sample of response) {
+            sample.filters = [];
+          }
+          apiService(`/api/edna/filters/?collection=${this.projectId}`).then(response => {
+            for (const filter of response) {
+              filter.extracts = [];
+              // now we have to nest this filter under each sample under the "filters" key
+              if (!filter.sample) {
+                this.samples.push({filters: [filter]});
+              } else {
+                for (const sample of this.samples) {
+                  if (sample.id === filter.sample) {
+                    sample.filters.push(filter);
+                    break;
+                  }
+                }
+              }
+            }
+            apiService(`/api/edna/extracts/?collection=${this.projectId}`).then(response => {
+              for (const extract of response) {
+                extract.pcrs = [];
+                // now we have to nest this extract under each filter under the "extracts" key
+                if (!extract.filter) {
+                  this.samples.push({filters: [{extracts: extract}]});
+                } else {
+                  for (const sample of this.samples) {
+                    for (const filter of sample.filters) {
+                      if (filter.id === extract.filter) {
+                        filter.extracts.push(extract);
+                        break;
+                      }
+                    }
+                  }
+                }
+              }
+
               this.loading = false;
               this.loading0 = false;
-              if (response.length && response[0].id) {
-                this.samples = response;
-              }
             })
-      },
-
-    },
-    computed: {
-      selectedItems() {
-        let myArray = [];
-        for (const filter of this.filters) {
-          if (filter.selected) myArray.push(filter)
-        }
-        return myArray
+          })
+        })
       }
-    },
-    created() {
-      this.getCurrentUser();
-      this.getMetadata();
-      this.getSamples();
-    },
-  });
+
+      },
+      computed: {
+        selectedItems() {
+          let myArray = [];
+          for (const filter of this.filters) {
+            if (filter.selected) myArray.push(filter)
+          }
+          return myArray
+        }
+      },
+      created() {
+        this.getCurrentUser();
+        this.getMetadata();
+        this.getSamples();
+      },
+    });
   </script>
 
   <script type="application/javascript">

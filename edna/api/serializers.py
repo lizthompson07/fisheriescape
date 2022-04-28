@@ -54,6 +54,12 @@ class FilterSerializer(serializers.ModelSerializer):
     sample_object = serializers.SerializerMethodField()
     has_extracts = serializers.SerializerMethodField()
 
+    filtration_type_display = serializers.SerializerMethodField()
+
+    def get_filtration_type_display(self, instance):
+        if instance.filtration_type:
+            return str(instance.filtration_type)
+
     def get_sample_object(self, instance):
         if instance.sample:
             return SampleSerializer(instance.sample).data
