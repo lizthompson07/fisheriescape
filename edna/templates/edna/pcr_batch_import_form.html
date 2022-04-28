@@ -38,8 +38,18 @@
 
     <div class="mb-3 row">
       <div class="col">
-        <p class="lead">{% trans "PCR Batch Level" %}</p>
+        <p class="lead">{% trans "PCR Batch Level (Run / Plate)" %}</p>
         <table class="small">
+          <tr>
+            <th class="py-1 px-1">batch_id</th>
+            <td class="pr-3">
+              <ul>
+                <li>integer corresponding to the PCR batch ID</li>
+                <li>if this is provided, the template will be used to repopulate an existing PCR batch</li>
+                <li>if this is NOT provided, the template will be used to create a new PCR batch</li>
+              </ul>
+            </td>
+          </tr>
           <tr>
             <th class="py-1 px-1 red-font">year</th>
             <td class="pr-3">
@@ -116,7 +126,7 @@
 
       </div>
       <div class="col">
-        <p class="lead">{% trans "PCR Level" %}</p>
+        <p class="lead">{% trans "PCR Level (Well)" %}</p>
         <table class="small">
           <tr>
             <th class="py-1 px-1 red-font">plate_well</th>
@@ -171,7 +181,7 @@
       </div>
       <div class="col">
 
-        <p class="lead">{% trans "Assay Level" %}</p>
+        <p class="lead">{% trans "Assay Level (Sample)" %}</p>
         <table class="small">
           <tr>
             <th class="py-1 px-1 red-font">assay</th>

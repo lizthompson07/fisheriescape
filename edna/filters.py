@@ -56,7 +56,7 @@ class DNAExtractFilter(django_filters.FilterSet):
     class Meta:
         model = models.DNAExtract
         fields = {
-            'id': ['exact'],
+            'id': ['exact', 'gte', 'lte'],
             'filter': ['exact'],
             'filter__sample': ['exact'],
             'extraction_number': ['exact'],

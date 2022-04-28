@@ -25,14 +25,14 @@
        @keydown.down.prevent="goDown"
   >
 
-  <div class="float-right">
-    <a href="{% url 'edna:export_pcr_batch_csv' object.id %}" class="btn btn-success">
-      {% trans "Export to CSV" %} <span class="mdi mdi-export text-light ml-1"></span>
-    </a>
-    <a href="#" class="btn btn-success">
-      {% trans "Import from CSV" %} <span class="mdi mdi-import text-light ml-1"></span>
-    </a>
-  </div>
+    <div class="float-right">
+      <a href="{% url 'edna:export_pcr_batch_csv' object.id %}" class="btn btn-success">
+        {% trans "Export to CSV" %} <span class="mdi mdi-export text-light ml-1"></span>
+      </a>
+      <a href="{% url 'edna:import_pcrs' %}" class="btn btn-success">
+        {% trans "Import from CSV" %} <span class="mdi mdi-import text-light ml-1"></span>
+      </a>
+    </div>
 
     <div class="mb-3">
       <p class="h3">{% trans "PCRs" %}</p>
@@ -67,8 +67,8 @@
 
             ></select-tools>
           </th>
-          <th class="px-1 py-1" style="width: 75px">{% trans "qPCR ID" %}</th>
-          <th class="px-1 py-1" style="width: 75px">{% trans "Type" %}</th>
+          <th class="px-1 py-1 w100px">{% trans "Unique ID" %}</th>
+{#          <th class="px-1 py-1" style="width: 75px">{% trans "Type" %}</th>#}
           <th class="px-1 py-1" style="width: 130px">{% trans "Extraction ID" %}</th>
           <th class="px-1 py-1" style="width: 130px">{% trans "Extraction number" %}</th>
           <th class="px-1 py- w150px">
@@ -101,17 +101,17 @@
           <td class="p-1" tabindex="-1">
             ${index + 1} &mdash; <input v-model='obj.selected' type="checkbox">
           </td>
-          <td class="px-1 py-0 text-muted " tabindex="-1">${obj.pcr_object.display}</td>
+          <td class="px-1 py-0 text-muted " tabindex="-1">${obj.id}</td>
 
-          <td v-if="obj.pcr_object.assay_count === 1" class="px-1  py-0 text-muted" tabindex="-1">{% trans "Simplex" %}</td>
-          <td v-else class="px-1 py-0 purple-font" tabindex="-1">{% trans "Duplex" %}</td>
+{#          <td v-if="obj.pcr_object.assay_count === 1" class="px-1  py-0 text-muted" tabindex="-1">{% trans "Simplex" %}</td>#}
+{#          <td v-else class="px-1 py-0 purple-font" tabindex="-1">{% trans "Duplex" %}</td>#}
 
           <td class="px-1 text-muted">
             <span v-if="obj.pcr_object.extract">${obj.pcr_object.extract_object.display} </span>
             <span v-else>-----</span>
           </td>
 
-           <td class="px-1 text-muted">
+          <td class="px-1 text-muted">
             <span v-if="obj.pcr_object.extract">${obj.pcr_object.extract_object.extraction_number} </span>
             <span v-else>-----</span>
           </td>
@@ -187,7 +187,7 @@
         </tbody>
       </table>
       <div class="my-3">
-        <p class="lead text-muted">TOTAL: ${pcrs.length}</p>
+        <p class="lead text-muted">TOTAL: ${pcrAssays.length}</p>
       </div>
     </div>
 
