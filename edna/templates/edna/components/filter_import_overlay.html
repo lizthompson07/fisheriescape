@@ -60,11 +60,11 @@
                 </div>
               </form>
               <div class="mb-3">
+                <label for="">Filters</label>
                 <select name="" id="" multiple="true" class="form-control w-100" style="height: 200px" v-model="selectedFilters" ref="filter_box">
                   <option v-for="filter in filters" :key="filter.id" :value="filter.id">
-                    ${filter.display} &emsp;||&emsp;
-                    {% trans "Tube" %} &rarr; ${filter.tube_id | nz("n/a")} &emsp;||&emsp;
-                    {% trans "Batch" %} &rarr; ${filter.batch_display} (${filter.collection_display})
+                    ${filter.display}
+                    <span v-if="filter.tube_id">(tube ID: ${filter.tube_id })</span>
                   </option>
                 </select>
               </div>

@@ -63,12 +63,13 @@
                 </div>
               </form>
               <div class="mb-3">
+                <label for="">Samples</label>
                 <select name="" id="" multiple="true" class="form-control w-100" style="height: 200px" v-model="selectedSamples" ref="sample_box">
                   <option v-for="sample in samples" :key="sample.id" :value="sample.id">
-                    ${sample.display} &emsp;||&emsp;
-                    {% trans "Bottle" %} = ${sample.bottle_id | nz("n/a")} &emsp;||&emsp;
-                    {% trans "Project" %} = ${sample.collection_display} &emsp;||&emsp;
-                    {% trans "Date" %} = ${sample.datetime_display}
+                    ${sample.display}
+                    <span v-if="sample.bottle_id">(bottle id: ${sample.bottle_id})</span>
+                    &rarr;
+                    collection date: ${sample.datetime_display}
                   </option>
                 </select>
               </div>
