@@ -25,12 +25,14 @@ def generate_pcr_batch_csv(pk):
     writer.writerow(['run_program', batch.run_program])
     writer.writerow([])
     writer.writerow([
-        'unique_id',
-        'plate_well',
-        'extract',
+        # 'unique_id',
+        # 'extract',
         'extraction_number',
-        'master_mix',
-        'assay',
+        'extraction_plate_id',
+        'extraction_plate_well',
+        # 'master_mix',
+        # 'assay',
+        'plate_well',
         'threshold',
         'ct',
         'comments',
@@ -40,12 +42,14 @@ def generate_pcr_batch_csv(pk):
 
     for pcr_assay in pcr_assays:
         writer.writerow([
-            pcr_assay.id,
-            pcr_assay.pcr.plate_well,
-            pcr_assay.pcr.extract,
+            # pcr_assay.id,
+            # pcr_assay.pcr.extract,
             pcr_assay.pcr.extract.extraction_number if pcr_assay.pcr.extract else "",
-            pcr_assay.pcr.master_mix,
-            pcr_assay.assay.alias if pcr_assay.assay else "",
+            pcr_assay.pcr.extract.extraction_plate_id if pcr_assay.pcr.extract else "",
+            pcr_assay.pcr.extract.extraction_plate_well if pcr_assay.pcr.extract else "",
+            # pcr_assay.pcr.master_mix,
+            # pcr_assay.assay.alias if pcr_assay.assay else "",
+            pcr_assay.pcr.plate_well,
             pcr_assay.threshold,
             pcr_assay.ct,
             pcr_assay.comments,

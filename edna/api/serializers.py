@@ -112,6 +112,12 @@ class DNAExtractSerializer(serializers.ModelSerializer):
     filter_object = serializers.SerializerMethodField()
     sample_object = serializers.SerializerMethodField()
     has_pcrs = serializers.SerializerMethodField()
+    dna_extraction_protocol_display = serializers.SerializerMethodField()
+
+
+    def get_dna_extraction_protocol_display(self, instance):
+        if instance.dna_extraction_protocol:
+            return str(instance.dna_extraction_protocol)
 
     def get_has_pcrs(self, instance):
         return instance.pcrs.exists()

@@ -243,6 +243,11 @@ class PCRViewSet(viewsets.ModelViewSet):
             qs = batch.pcrs.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
+        if qp.get("collection"):
+            collection = get_object_or_404(models.Collection, pk=qp.get("collection"))
+            qs = collection.pcrs.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
         raise ValidationError(_("You need to specify a batch"))
 
     def perform_create(self, serializer):

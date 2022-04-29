@@ -11,6 +11,7 @@
       font-size: small;
   }
 
+
   #map {
       height: 300px; /* The height is 400 pixels */
       width: 100%; /* The width is the width of the web page */
@@ -72,8 +73,6 @@
             {% endif %}
           </td>
         </tr>
-
-
       </table>
     </div>
     <div class="col">
@@ -82,101 +81,116 @@
     </div>
   </div>
 
-  <div id="app" class="mb-3" v-cloak>
+  <div class="mb-3" id="app" v-cloak>
 
     <h3>{% trans "Project Log" %}</h3>
-
     {% if object.samples.exists %}
-      <table class="table table-sm table-hover table-bordered">
+
+      <table class="table table-sm table-hover table-bordered small">
 
         <thead>
         <tr>
-          <th colspan="10" class="lead">{% trans "Samples" %}</th>
-          <th colspan="10" class="lead">{% trans "Filters" %}</th>
-          <th colspan="9" class="lead">{% trans "Extractions" %}</th>
-
+          <th colspan="10" class="lead samples">{% trans "Samples" %}</th>
+          <th colspan="10" class="lead filters">{% trans "Filters" %}</th>
+          <th colspan="9" class="lead extracts">{% trans "Extractions" %}</th>
         </tr>
         <tr>
-
           {# Samples #}
-          <th>{% trans "Sample ID" %}</th>
-          <th>${sampleLabels.sample_type}</th>
-          <th>${sampleLabels.bottle_id}</th>
-          <th>${sampleLabels.location}</th>
-          <th>${sampleLabels.site}</th>
-          <th>${sampleLabels.station}</th>
-          <th>${sampleLabels.datetime}</th>
-          <th>${sampleLabels.samplers}</th>
-          <th>{% trans "Coordinates" %}</th>
-          <th>${sampleLabels.comments}</th>
-
+          <th class="samples">{% trans "Sample ID" %}</th>
+          <th class="samples">${sampleLabels.sample_type}</th>
+          <th class="samples">${sampleLabels.bottle_id}</th>
+          <th class="samples">${sampleLabels.location}</th>
+          <th class="samples">${sampleLabels.site}</th>
+          <th class="samples">${sampleLabels.station}</th>
+          <th class="samples">${sampleLabels.datetime}</th>
+          <th class="samples">${sampleLabels.samplers}</th>
+          <th class="samples">{% trans "Coordinates" %}</th>
+          <th class="samples">${sampleLabels.comments}</th>
 
           {# Filters #}
-          <th>{% trans "Filter ID" %}</th>
-          <th>${filterLabels.tube_id}</th>
-          <th>${filterLabels.filtration_type}</th>
-          <th>${filterLabels.start_datetime}</th>
-          <th>${filterLabels.end_datetime}</th>
-          <th>${filterLabels.filtration_volume_ml}</th>
-          <th>${filterLabels.storage_location}</th>
-          <th>${filterLabels.filtration_ipc}</th>
-          <th>${filterLabels.comments}</th>
-          <th>${filterLabels.duration_min}</th>
+          <th class="filters">{% trans "Filter ID" %}</th>
+          <th class="filters">${filterLabels.tube_id}</th>
+          <th class="filters">${filterLabels.filtration_type}</th>
+          <th class="filters">${filterLabels.start_datetime}</th>
+          <th class="filters">${filterLabels.end_datetime}</th>
+          <th class="filters">${filterLabels.filtration_volume_ml}</th>
+          <th class="filters">${filterLabels.storage_location}</th>
+          <th class="filters">${filterLabels.filtration_ipc}</th>
+          <th class="filters">${filterLabels.duration_min}</th>
+          <th class="filters">${filterLabels.comments}</th>
 
 
           {# Extractions #}
-          <th>{% trans "Extract ID" %}</th>
-          <th>${extractLabels.extraction_number}</th>
-          <th>${extractLabels.start_datetime}</th>
-          <th>${extractLabels.dna_extraction_protocol}</th>
-          <th>${extractLabels.storage_location}</th>
-          <th>${extractLabels.extraction_plate_id}</th>
-          <th>${extractLabels.extraction_plate_well}</th>
-          <th>${extractLabels.extraction_ipc}</th>
-          <th>${extractLabels.comments}</th>
+          <th class="extracts">{% trans "Extract ID" %}</th>
+          <th class="extracts">${extractLabels.extraction_number}</th>
+          <th class="extracts">${extractLabels.start_datetime}</th>
+          <th class="extracts">${extractLabels.dna_extraction_protocol}</th>
+          <th class="extracts">${extractLabels.storage_location}</th>
+          <th class="extracts">${extractLabels.extraction_plate_id}</th>
+          <th class="extracts">${extractLabels.extraction_plate_well}</th>
+          <th class="extracts">${extractLabels.extraction_ipc}</th>
+          <th class="extracts">${extractLabels.comments}</th>
 
         </tr>
         </thead>
+        <tbody>
+        <template v-for="(sample, index) in samples">
+          <tr class="samples">
+            <td :rowspan="sample.rowspan"><a v-if="sample.id" :href=`/edna/samples/${sample.id}/view/` target="_blank">${sample.display}</a> <span
+              v-else>${sample.display}</span></td>
+            <td :rowspan="sample.rowspan"> ${sample.sample_type_display}</td>
+            <td :rowspan="sample.rowspan"> ${sample.bottle_id}</td>
+            <td :rowspan="sample.rowspan"> ${sample.location}</td>
+            <td :rowspan="sample.rowspan"> ${sample.site}</td>
+            <td :rowspan="sample.rowspan"> ${sample.station}</td>
+            <td :rowspan="sample.rowspan"> ${sample.datetime_display}</td>
+            <td :rowspan="sample.rowspan"> ${sample.samplers}</td>
+            <td :rowspan="sample.rowspan"> ${sample.coordinates}</td>
+            <td :rowspan="sample.rowspan"> ${sample.comments}</td>
 
-        <tbody v-for="(sample, index) in samples" :key="sample.id">
-        <tr class="samples">
-          <td :rowspan="sample.filters.length + 1">
-            <a v-if="sample.id" :href=`/edna/samples/${sample.id}/view/` target="_blank">${sample.display}</a>
-            <span v-else>${sample.display}</span>
-          </td>
-          <td :rowspan="sample.filters.length + 1"> ${sample.sample_type_display}</td>
-          <td :rowspan="sample.filters.length + 1"> ${sample.bottle_id}</td>
-          <td :rowspan="sample.filters.length + 1"> ${sample.location}</td>
-          <td :rowspan="sample.filters.length + 1"> ${sample.site}</td>
-          <td :rowspan="sample.filters.length + 1"> ${sample.station}</td>
-          <td :rowspan="sample.filters.length + 1"> ${sample.datetime_display}</td>
-          <td :rowspan="sample.filters.length + 1"> ${sample.samplers}</td>
-          <td :rowspan="sample.filters.length + 1"> ${sample.coordinates}</td>
-          <td :rowspan="sample.filters.length + 1"> ${sample.comments}</td>
+          </tr>
 
-        </tr>
+          {# Filters #}
+          <template v-for="(filter, index) in sample.filters">
 
-        {# Filters #}
-        <tr v-for="(filter, index) in sample.filters" :key="filter.id" class="filters">
-          <td>
-            <a v-if="filter.id" :href=`/edna/filters/${filter.id}/view/` target="_blank">${filter.display}</a>
-            <span v-else>${filter.display}</span>
-          </td>
-          <td>${filter.tube_id}</td>
-          <td>${filter.filtration_type_display}</td>
-          <td>${filter.start_datetime_display}</td>
-          <td>${filter.end_datetime_display}</td>
-          <td>${filter.filtration_volume_ml}</td>
-          <td>${filter.storage_location}</td>
-          <td>${filter.filtration_ipc}</td>
-          <td>${filter.comments}</td>
-          <td>${filter.duration_min}</td>
+            <tr class="filters">
+              <td :rowspan="filter.rowspan">
+                <a v-if="filter.id" :href=`/edna/filters/${filter.id}/view/` target="_blank">${filter.display}</a>
+                <span v-else>${filter.display}</span>
+              </td>
+              <td :rowspan="filter.rowspan">${filter.tube_id}</td>
+              <td :rowspan="filter.rowspan">${filter.filtration_type_display}</td>
+              <td :rowspan="filter.rowspan">${filter.start_datetime_display}</td>
+              <td :rowspan="filter.rowspan">${filter.end_datetime_display}</td>
+              <td :rowspan="filter.rowspan">${filter.filtration_volume_ml}</td>
+              <td :rowspan="filter.rowspan">${filter.storage_location}</td>
+              <td :rowspan="filter.rowspan">${filter.filtration_ipc}</td>
+              <td :rowspan="filter.rowspan">${filter.duration_min}</td>
+              <td :rowspan="filter.rowspan">${filter.comments}</td>
+            </tr>
 
-        </tr>
+            <template v-for="(extract, index) in filter.extracts">
+              <tr class="extracts" style="height: 100%;">
+                <td style="height: 100px;">${extract.display}</td>
+                <td style="height: 100px;">${extract.extraction_number}</td>
+                <td style="height: 100px;">${extract.datetime_display}</td>
+                <td style="height: 100px;">${extract.dna_extraction_protocol_display}</td>
+                <td style="height: 100px;">${extract.storage_location}</td>
+                <td style="height: 100px;">${extract.extraction_plate_id}</td>
+                <td style="height: 100px;">${extract.extraction_plate_well}</td>
+                <td style="height: 100px;">${extract.extraction_ipc}</td>
+                <td style="height: 100px;">${extract.comments}</td>
+              </tr>
 
+            </template>
 
+          </template>
+
+        </template>
         </tbody>
       </table>
+
+
     {% else %}
 
       <em>{% trans "This project does not have any samples yet :(" %}</em>
@@ -185,6 +199,7 @@
 
   </div>
 {% endblock %}
+
 
 {% block body_js %}
   {{ block.super }}
@@ -243,12 +258,14 @@
           this.samples = response;
           for (const sample of response) {
             sample.filters = [];
+            sample.rowspan = 1;
           }
           apiService(`/api/edna/filters/?collection=${this.projectId}`).then(response => {
             for (const filter of response) {
               filter.extracts = [];
+              filter.rowspan = 1;
               // now we have to nest this filter under each sample under the "filters" key
-              if (!filter.sample) {
+              if (!filter.sample) { // means it is an filtration blank
                 this.samples.push({filters: [filter]});
               } else {
                 for (const sample of this.samples) {
@@ -263,43 +280,108 @@
               for (const extract of response) {
                 extract.pcrs = [];
                 // now we have to nest this extract under each filter under the "extracts" key
-                if (!extract.filter) {
-                  this.samples.push({filters: [{extracts: extract}]});
+                if (!extract.sample && !extract.filter) { // means it is an extraction blank
+                  this.samples.push(
+                      {
+                        filters: [
+                          {
+                            extracts: [extract]
+                          }
+                        ]
+                      }
+                  );
                 } else {
-                  for (const sample of this.samples) {
-                    for (const filter of sample.filters) {
-                      if (filter.id === extract.filter) {
-                        filter.extracts.push(extract);
+                  if (!extract.filter) {
+                    for (const sample of this.samples) {
+                      if (sample.id === extract.sample) {
+                        sample.filters.push({
+                          extracts: [extract]
+                        });
                         break;
+                      }
+                    }
+                  } else {
+                    for (const sample of this.samples) {
+                      for (const filter of sample.filters) {
+                        if (filter.id === extract.filter) {
+                          filter.extracts.push(extract);
+                          break;
+                        }
                       }
                     }
                   }
                 }
               }
+              apiService(`/api/edna/pcrs/?collection=${this.projectId}`).then(response => {
+                    for (const pcr of response) {
+                      pcr.pcr_assays = [];
+                      // now we have to nest this pcr under each extract under the "pcrs" key
+                      if (!pcr.extract) {
+                        this.samples.push(
+                            {
+                              filters: [
+                                {
+                                  extracts: [
+                                    {
+                                      pcrs: [pcr]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                        );
+                      } else {
+                        for (const sample of this.samples) {
+                          for (const filter of sample.filters) {
+                            for (const extract of filter.extracts) {
+                              if (extract.id === pcr.extract) {
+                                extract.pcrs.push(pcr);
+                                break;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
 
-              this.loading = false;
-              this.loading0 = false;
+
+                    // figure out formatting
+                    for (const sample of this.samples) {
+                      sample.rowspan = 1 + sample.filters.length;
+                      for (const filter of sample.filters) {
+                        sample.rowspan += filter.extracts.length;
+                        filter.rowspan = 1 + filter.extracts.length;
+                      }
+                    }
+
+                    // this should be the last thing to do
+                    this.$forceUpdate();
+                    this.loading = false;
+                    this.loading0 = false;
+
+                  }
+              )
             })
           })
         })
       }
 
-      },
-      computed: {
-        selectedItems() {
-          let myArray = [];
-          for (const filter of this.filters) {
-            if (filter.selected) myArray.push(filter)
-          }
-          return myArray
+    },
+    computed: {
+      selectedItems() {
+        let myArray = [];
+        for (const filter of this.filters) {
+          if (filter.selected) myArray.push(filter)
         }
-      },
-      created() {
-        this.getCurrentUser();
-        this.getMetadata();
-        this.getSamples();
-      },
-    });
+        return myArray
+      }
+    },
+    created() {
+      this.getCurrentUser();
+      this.getMetadata();
+      this.getSamples();
+    },
+  });
   </script>
 
   <script type="application/javascript">

@@ -17,6 +17,7 @@ from django.utils.timezone import utc, make_aware
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.templatetags.custom_filters import nz
+from shared_models.utils import get_labels
 from shared_models.views import CommonTemplateView, CommonHardDeleteView, CommonFormsetView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonListView
 from . import models, forms, filters, utils, reports
@@ -327,21 +328,13 @@ class CollectionDetailView(eDNAAdminRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        sample_field_list = [
-            'display|sample ID',
-            "sample_type",
-            'bottle_id',
-            'datetime',
-            "samplers",
-            "location",
-            "station",
-            "site",
-            'coordinates',
-            'assay_count|{}'.format(gettext_lazy("assays tested")),
-            "comments",
 
-        ]
-        context["sample_field_list"] = sample_field_list
+        context["sample_labels"] = get_labels(models.Sample)
+        context["filter_labels"] = get_labels(models.Filter)
+        context["extract_labels"] = get_labels(models.DNAExtract)
+        context["pcr_labels"] = get_labels(models.PCR)
+        context["pcr_assay_labels"] = get_labels(models.PCRAssay)
+
         return context
 
 
