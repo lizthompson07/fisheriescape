@@ -71,6 +71,7 @@ def get_batch_field_list():
 def get_pcr_batch_field_list():
     my_list = [
         "datetime",
+        "default_collection",
         "operators",
         "plate_id",
         "machine_number",

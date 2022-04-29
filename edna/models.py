@@ -491,7 +491,7 @@ class PCR(MetadataFields):
     pcr_batch = models.ForeignKey(PCRBatch, related_name='pcrs', on_delete=models.CASCADE, verbose_name=_(" qPCR batch"))
     extract = models.ForeignKey(DNAExtract, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="pcrs", verbose_name=_("extraction ID"))
     collection = models.ForeignKey(Collection, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=True, null=True)
-    plate_well = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate well"))
+    pcr_plate_well = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate well"))
     master_mix = models.ForeignKey(MasterMix, on_delete=models.DO_NOTHING, related_name="pcrs", verbose_name=_("master mix"), blank=False, null=True)
 
     def save(self, *args, **kwargs):
@@ -501,7 +501,7 @@ class PCR(MetadataFields):
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ["plate_well", "pcr_batch", "extract__id", "id"]
+        ordering = ["pcr_plate_well", "pcr_batch", "extract__id", "id"]
 
     def __str__(self):
         return f"q{self.id}"

@@ -72,7 +72,7 @@
           <th class="px-1 py-1" style="width: 130px">{% trans "Extraction ID" %}</th>
           <th class="px-1 py-1" style="width: 130px">{% trans "Extraction number" %}</th>
           <th class="px-1 py- w150px">
-            ${labels.plate_well}
+            ${labels.pcr_plate_well}
 
             <button @click="populateWells" class="w25px px-1 py-0 btn btn-sm btn-dark ml-1">
               <span class="mdi mdi-calculator text-light"></span>
@@ -121,7 +121,7 @@
               type="text"
               :sample.sync="obj.pcr_object" :row="index"
               @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="plate_well"
+              field="pcr_plate_well"
               :col="1"
               :ref="`row_${index}_col_1`"
             ></text-input-cell>
@@ -251,7 +251,7 @@
               pcr = this.pcrs[i];
               pos = startingIndex + i;
               if (pos >= wellArray.length) pos = pos % wellArray.length;
-              pcr.plate_well = wellArray[pos];
+              pcr.pcr_plate_well = wellArray[pos];
               this.updatePCR(pcr);
             }
           }

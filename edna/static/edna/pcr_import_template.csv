@@ -10,7 +10,7 @@ machine_number,GFC -MBU-123,,,,,,
 run_program,TaqPath-FAM-HEX-ANNEXT60-40cycles or TaqPath-FAM-HEX-ANNEXT60-50cycles,,,,,,
 ,,,,,,,
 ,,,,,,,
-unique_id,plate_well,extract,extraction_number,master_mix,assay,threshold,ct,comments
+unique_id,pcr_plate_well,extract,extraction_number,master_mix,assay,threshold,ct,comments
 1,A1,,r21:2935,TaqPath ProAmp,smallmouth bass,0.069203496,38.12411118,
 2,A2,x129,,TaqPath ProAmp,smallmouth bass,0.069203496,21.16767502,
 3,A3,x133,,TaqPath ProAmp,smallmouth bass,0.069203496,21.88,duplex

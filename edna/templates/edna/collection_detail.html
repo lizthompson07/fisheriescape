@@ -160,7 +160,7 @@
         <th class="pcrs">${pcrBatchLabels.machine_number}</th>
         <th class="pcrs">${pcrBatchLabels.run_program}</th>
         <th class="pcrs">${pcrBatchLabels.control_status}</th>
-        <th class="pcrs">${pcrLabels.plate_well}</th>
+        <th class="pcrs">${pcrLabels.pcr_plate_well}</th>
         <th class="pcrs">${pcrLabels.master_mix}</th>
 
         {# results #}
@@ -231,7 +231,7 @@
                 <td class="pcrs">${pcr.batch_object.machine_number}</td>
                 <td class="pcrs">${pcr.batch_object.run_program}</td>
                 <td class="pcrs">${pcr.batch_object.control_status}</td>
-                <td class="pcrs">${pcr.plate_well}</td>
+                <td class="pcrs">${pcr.pcr_plate_well}</td>
                 <td class="pcrs">${pcr.master_mix_display}</td>
 
                 <template v-for="(pcrAssay, index) in pcr.pcr_assays">

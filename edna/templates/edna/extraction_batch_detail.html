@@ -288,7 +288,6 @@
           calcDown() {
             let prefix = prompt("{% trans 'What is the extraction number prefix? (e.g. prefix:###) ' %}")
             if (prefix) {
-              prefix = prefix.toUpperCase();
               let starting = prompt(`{% trans 'What is the starting extraction number?' %} (e.g. ${prefix}:###)`)
               if (starting) {
                 this.unsavedChanges = true;
