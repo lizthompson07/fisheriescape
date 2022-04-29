@@ -12,13 +12,15 @@
   }
 
   .my-table, .my-table > thead > tr > th, .my-table > tbody > tr > td {
-      font-size: 10px;
       border: black solid 1px;
+      padding-left: 10px;
+      padding-right: 10px;
   }
 
-  .mylead {
-      font-size: large;
+  .my-table, .my-table > tbody > tr > td {
+      font-size: 10px;
   }
+
 
   #map {
       height: 300px; /* The height is 400 pixels */
@@ -95,6 +97,21 @@
 
   <div class="mb-3" id="app" v-cloak>
 
+  <div class="mb-3">
+    <div class="form-group">
+      <input id="samples" type="checkbox" v-model="viewSamples"> <label for="samples">{% trans "View Samples" %}</label>
+    </div>
+    <div class="form-group">
+      <input id="filters" type="checkbox" v-model="viewFilters"> <label for="filters">{% trans "View Filters" %}</label>
+    </div>
+    <div class="form-group">
+      <input id="extracts" type="checkbox" v-model="viewExtracts"> <label for="extracts">{% trans "View Extractions" %}</label>
+    </div>
+    <div class="form-group">
+      <input id="pcrs" type="checkbox" v-model="viewPCRs"> <label for="pcrs">{% trans "View PCRs" %}</label>
+    </div>
+  </div>
+
   <h3>{% trans "Project Log" %}</h3>
   {% if object.samples.exists %}
 
@@ -108,14 +125,15 @@
 
       <thead>
       <tr>
-        <th rowspan="2" colspan="10" class="mylead samples">{% trans "Samples" %}</th>
-        <th rowspan="2" colspan="10" class="mylead filters">{% trans "Filters" %}</th>
-        <th rowspan="2" colspan="9" class="mylead extracts">{% trans "Extractions" %}</th>
-        <th rowspan="2" colspan="6" class="mylead pcrs">{% trans "PCR" %}</th>
-        <th :colspan="assaysTested.length * 6" class="mylead assays">{% trans "Results" %}</th>
+        <th rowspan="2" colspan="10" class="lead samples">{% trans "Samples" %}</th>
+        <th rowspan="2" colspan="10" class="lead filters">{% trans "Filters" %}</th>
+        <th rowspan="2" colspan="9" class="lead extracts">{% trans "Extractions" %}</th>
+        <th rowspan="2" colspan="6" class="lead pcrs">{% trans "PCR" %}</th>
+        <th :colspan="assaysTested.length * 6" class="lead assays">{% trans "Results" %}</th>
       </tr>
       <tr>
-        <th colspan="6" v-for="(a, index) in assaysTested" class="assays">${a.name} <br><span v-html="a.species_display"></span></th>
+        <th colspan="6" v-for="(a, index) in assaysTested" class="assays text-muted" style="font-size: 12px">${a.name} <br><span
+          v-html="a.species_display"></span></th>
       </tr>
       <tr>
         {# Samples #}
@@ -190,7 +208,6 @@
           <td :rowspan="sample.rowspan"> ${sample.samplers}</td>
           <td :rowspan="sample.rowspan"> ${sample.coordinates}</td>
           <td :rowspan="sample.rowspan"> ${sample.comments}</td>
-
         </tr>
 
         {# Filters #}
@@ -214,7 +231,10 @@
 
           <template v-for="(extract, index) in filter.extracts">
             <tr class="extracts">
-              <td :rowspan="extract.rowspan" style="height: 100px;">${extract.display}</td>
+              <td :rowspan="extract.rowspan">
+                <a v-if="extract.id" :href=`/edna/extracts/${extract.id}/view/` target="_blank">${extract.display}</a>
+                <span v-else>${extract.display}</span>
+              </td>
               <td :rowspan="extract.rowspan" style="height: 100px;">${extract.extraction_number}</td>
               <td :rowspan="extract.rowspan" style="height: 100px;">${extract.datetime_display}</td>
               <td :rowspan="extract.rowspan" style="height: 100px;">${extract.dna_extraction_protocol_display}</td>
@@ -247,7 +267,7 @@
                     <td :class="{assays:pcrAssay.id, greyed:!pcrAssay.id}">${pcrAssay.comments}</td>
                   </template>
                   <template v-else>
-                    <td v-for="i in 6"></td>
+                    <td v-for="i in 6" class="greyed"></td>
                   </template>
                 </template>
               </tr>
@@ -293,6 +313,11 @@
       pcrLabels: [],
       pcrAssayLabels: [],
       assaysTested: [],
+
+      viewSamples: true,
+      viewFilters: true,
+      viewExtracts: true,
+      viewPCRs: true,
 
       loadingObject: {
         samples: true,

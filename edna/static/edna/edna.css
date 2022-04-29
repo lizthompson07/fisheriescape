@@ -12,11 +12,12 @@
 }
 
 .pcrs{
-    background-color: #cfe5cf;
+    /*background-color: #cfe5cf;*/
+    background-color: #eeefff;
 }
 
 .assays{
-    background-color: #eedbe1;
+    background-color: #eeefff;
 }
 
 .container-fluid, .container {
