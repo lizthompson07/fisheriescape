@@ -33,8 +33,8 @@ def generate_pcr_batch_csv(pk):
         'master_mix',
         'assay',
         'pcr_plate_well',
-        'threshold',
         'ct',
+        'threshold',
         'comments',
     ])
 
@@ -50,8 +50,8 @@ def generate_pcr_batch_csv(pk):
             pcr_assay.pcr.master_mix,
             pcr_assay.assay.alias if pcr_assay.assay else "",
             pcr_assay.pcr.pcr_plate_well,
-            pcr_assay.threshold,
             pcr_assay.ct,
+            pcr_assay.threshold,
             pcr_assay.comments,
         ])
 

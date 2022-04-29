@@ -37,86 +37,84 @@
     </div>
 
     <div class="">
-{#      <table class="small">#}
-{#        <thead>#}
-{#        <tr>#}
-{#          <th>{% trans "Level" %}</th>#}
-{#          <th>{% trans "Field name" %}</th>#}
-{#          <th>{% trans "Description" %}</th>#}
-{#          <th>{% trans "Mandatory?" %}</th>#}
-{#        </tr>#}
-{#        </thead>#}
-{#        <tbody>#}
-{#        <tr>#}
-{#          <td class="p-1">{% trans "PCR Run" %}</td>#}
-{#          <td class="p-1"><code>batch_id</code></td>#}
-{#          <td class="p-1">#}
-{#            <ul>#}
-{#              <li>integer corresponding to the PCR batch ID</li>#}
-{#              <li>if this is provided, the template will be used to repopulate an existing PCR batch</li>#}
-{#              <li>if this is NOT provided, the template will be used to create a new PCR batch</li>#}
-{#            </ul>#}
-{#          </td>#}
-{#          <td class="py-1 px-1 red-font">Yes</td>#}
-{#        </tr>#}
-{##}
-{#        <tr>#}
-{#          <td class="p-1">{% trans "PCR Run" %}</td>#}
-{#          <td class="p-1"><code>year</code></td>#}
-{#          <td class="p-1">#}
-{#            <ul>#}
-{#              <li>year of the PCR run as four digit integer; YYYY</li>#}
-{#            </ul>#}
-{#          </td>#}
-{#          <td class="py-1 px-1 red-font">Yes</td>#}
-{#        </tr>#}
-{# <tr>#}
-{#          <td class="p-1">{% trans "PCR Run" %}</td>#}
-{#          <td class="p-1"><code>year</code></td>#}
-{#          <td class="p-1">#}
-{#            <ul>#}
-{#              <li>year of the PCR run as four digit integer; YYYY</li>#}
-{#            </ul>#}
-{#          </td>#}
-{#          <td class="py-1 px-1 red-font">Yes</td>#}
-{#        </tr>#}
-{# <tr>#}
-{#          <td class="p-1">{% trans "PCR Run" %}</td>#}
-{#          <td class="p-1"><code>year</code></td>#}
-{#          <td class="p-1">#}
-{#            <ul>#}
-{#              <li>year of the PCR run as four digit integer; YYYY</li>#}
-{#            </ul>#}
-{#          </td>#}
-{#          <td class="py-1 px-1 red-font">Yes</td>#}
-{#        </tr>#}
-{# <tr>#}
-{#          <td class="p-1">{% trans "PCR Run" %}</td>#}
-{#          <td class="p-1"><code>year</code></td>#}
-{#          <td class="p-1">#}
-{#            <ul>#}
-{#              <li>year of the PCR run as four digit integer; YYYY</li>#}
-{#            </ul>#}
-{#          </td>#}
-{#          <td class="py-1 px-1 red-font">Yes</td>#}
-{#        </tr>#}
-{# <tr>#}
-{#          <td class="p-1">{% trans "PCR Run" %}</td>#}
-{#          <td class="p-1"><code>year</code></td>#}
-{#          <td class="p-1">#}
-{#            <ul>#}
-{#              <li>year of the PCR run as four digit integer; YYYY</li>#}
-{#            </ul>#}
-{#          </td>#}
-{#          <td class="py-1 px-1 red-font">Yes</td>#}
-{#        </tr>#}
-{##}
-{##}
-{##}
-{##}
-{#        </tbody>#}
-{#      </table>#}
-{#    </div>#}
+      <table class="small">
+        <thead>
+        <tr>
+          <th>{% trans "Level" %}</th>
+          <th>{% trans "Field name" %}</th>
+          <th>{% trans "Description" %}</th>
+          <th>{% trans "Mandatory?" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td class="p-1">{% trans "PCR Run" %}</td>
+          <td class="p-1"><code>batch_id</code></td>
+          <td class="p-1">
+            <ul>
+              <li>integer corresponding to the PCR batch ID</li>
+              <li>if this is provided, the template will be used to repopulate an existing PCR batch</li>
+              <li>if this is NOT provided, the template will be used to create a new PCR batch</li>
+            </ul>
+          </td>
+          <td class="py-1 px-1 red-font">Yes</td>
+        </tr>
+
+        <tr>
+          <td class="p-1">{% trans "PCR Run" %}</td>
+          <td class="p-1"><code>year</code></td>
+          <td class="p-1">
+            <ul>
+              <li>year of the PCR run as four digit integer; YYYY</li>
+            </ul>
+          </td>
+          <td class="py-1 px-1 red-font">Yes</td>
+        </tr>
+        <tr>
+          <td class="p-1">{% trans "PCR Run" %}</td>
+          <td class="p-1"><code>month</code></td>
+          <td class="p-1">
+            <ul>
+              <li>month of the PCR run as 1-2 digit integer; mm</li>
+            </ul>
+          </td>
+          <td class="py-1 px-1 red-font">Yes</td>
+        </tr>
+        <tr>
+          <td class="p-1">{% trans "PCR Run" %}</td>
+          <td class="p-1"><code>day</code></td>
+          <td class="p-1">
+            <ul>
+              <li>day of the PCR run as 1-2 digit integer; dd</li>
+            </ul>
+          </td>
+          <td class="py-1 px-1 red-font">Yes</td>
+        </tr>
+        <tr>
+          <td class="p-1">{% trans "PCR Run" %}</td>
+          <td class="p-1"><code>hour</code></td>
+          <td class="p-1">
+            <ul>
+              <li>hour of the PCR run as 1-2 digit integer; HH</li>
+            </ul>
+          </td>
+          <td class="py-1 px-1 red-font">Yes</td>
+        </tr>
+        <tr>
+          <td class="p-1">{% trans "PCR Run" %}</td>
+          <td class="p-1"><code>minute</code></td>
+          <td class="p-1">
+            <ul>
+              <li>minute of the PCR run as 1-2 digit integer; MM</li>
+            </ul>
+          </td>
+          <td class="py-1 px-1 red-font">Yes</td>
+        </tr>
+
+
+        </tbody>
+      </table>
+    </div>
     {#          </tbody>#}
     {#          <tr>#}
     {#            <th class="py-1 px-1 red-font">month</th>#}

@@ -999,7 +999,6 @@ def export_pcr_batch_csv(request, pk):
     return reports.generate_pcr_batch_csv(pk)
 
 
-
 #
 # @login_required()
 # def sample_log_report(request):
@@ -1037,103 +1036,186 @@ class ImportPCRView(eDNAAdminRequiredMixin, CommonFormView):
         day = None
         hour = None
         minute = None
-        wait = True
+        header_row = None
+        batch = None
+
         for row in csv.reader(StringIO(temp_file.read().decode('utf-8'))):
-            if wait:
+            if not header_row:
                 if len(row):
                     if row[0] == "batch_id":
-                        if row[1] and row[1] != "":
-                            batch = models.PCRBatch.objects.get_or_create(pk=row[1])[0]
-                        else:
-                            batch = models.PCRBatch.objects.create()
-
-                    if row[0] == "year": year = row[1] if row[1] and row[1] != "" else None
-                    if row[0] == "month": month = row[1] if row[1] and row[1] != "" else None
-                    if row[0] == "day": day = row[1] if row[1] and row[1] != "" else None
-                    if row[0] == "hour": hour = row[1] if row[1] and row[1] != "" else 12
-                    if row[0] == "minute": minute = row[1] if row[1] and row[1] != "" else 0
-                    if row[0] == "comments": batch.comments = row[1]
-                    if row[0] == "plate_id": batch.plate_id = row[1]
-                    if row[0] == "machine_number": batch.machine_number = row[1]
-                    if row[0] == "run_program": batch.run_program = row[1]
+                        try:
+                            batch = models.PCRBatch.objects.get(pk=row[1])
+                            batch.pcrs.all().delete()
+                        except:
+                            pass
+                    if batch:
+                        if row[0] == "year": year = row[1] if row[1] and row[1] != "" else None
+                        if row[0] == "month": month = row[1] if row[1] and row[1] != "" else None
+                        if row[0] == "day": day = row[1] if row[1] and row[1] != "" else None
+                        if row[0] == "hour": hour = row[1] if row[1] and row[1] != "" else 12
+                        if row[0] == "minute": minute = row[1] if row[1] and row[1] != "" else 0
+                        if row[0] == "comments": batch.comments = row[1]
+                        if row[0] == "plate_id": batch.plate_id = row[1]
+                        if row[0] == "machine_number": batch.machine_number = row[1]
+                        if row[0] == "run_program": batch.run_program = row[1]
             else:
-                extraction_number = nz(row[0], None)
+                # start by clearing all the existing pcrs in the pcr batch
+                if not batch:
+                    messages.warning(self.request, f'This file is missing a reference to a valid PCR batch ID')
+                    return HttpResponseRedirect(reverse("edna:pcr_batch_list"))
+                else:
 
+                    # construct row dict
+                    row_dict = dict()
+                    for i in range(0, len(header_row)):
+                        val = row[i] if len(row[i]) and nz(row[i], None) else None
+                        row_dict[header_row[i]] = val
 
+                    # only do something if ct value
+                    ct = row_dict["ct"]
+                    if ct:
 
+                        # start with PCR details
+                        extraction_number = row_dict["extraction_number"]
+                        master_mix = row_dict["master_mix"]
+                        assay = row_dict["assay"]
 
-                # the results
-                threshold = nz(row[6], None)
-                ct = nz(row[7], None)
-                comments = nz(row[8], None)
+                        if not extraction_number or not master_mix or not assay:
+                            messages.warning(self.request, f'This row is missing some important information and will not be imported: {row_dict}')
+                        else:
+                            # get the extract object from the extraction number
+                            extracts = models.DNAExtract.objects.filter(extraction_number__iexact=extraction_number)
+                            if not extracts.exists():
+                                messages.warning(self.request, f'cannot find extraction number: {extraction_number}')
+                            elif extracts.count() > 1:
+                                messages.warning(self.request, f'extraction number is not unique: {extraction_number}')
+                            elif batch.default_collection != extracts.first().collection:
+                                messages.warning(self.request, f'extraction number is from another project: {extraction_number}')
+                            else:
+                                extract = extracts.first()
 
-                # we should be able to get an assay from the unique_id
-                # # pcr_assay = get_object_or_404(models.PCRAssay, pk=unique_id)
-                # # pcr = pcr_assay.pcr
-                # # pcr.pcr_plate_well = pcr_plate_well
-                # # every row will correspond to a pcr assay
-                #
-                # #  let's see if we can associate an extract id
-                # # if extract:
-                # #     # prioritize the extract id field
-                # #     extracts = models.DNAExtract.objects.filter(id=extract.replace("x", ""))
-                # #     if extracts.exists():
-                # #         pcr.extract = extracts.first()
-                # #     else:
-                # #         messages.warning(self.request, f'cannot find extract id: {extract}')
-                # #     # try again with extraction number
-                # # elif extraction_number:
-                # #     extracts = models.DNAExtract.objects.filter(extraction_number__iexact=extraction_number)
-                # #     if extracts.exists():
-                # #         pcr.extract = extracts.first()
-                # #     else:
-                # #         messages.warning(self.request, f'cannot find extraction number: {extraction_number}')
-                # # # master mix
-                # # if master_mix:
-                # #     mixes = models.MasterMix.objects.filter(name__iexact=master_mix)
-                # #     if mixes.exists():
-                # #         pcr.master_mix = mixes.first()
-                # #     else:
-                # #         messages.warning(self.request, f'cannot find master mix: {master_mix}')
-                # pcr.save()
-                #
-                #
-                # # assay
-                # # if assay:
-                # #     assays = models.Assay.objects.filter(alias__iexact=assay)
-                # #     if assays.exists():
-                # #         pcr_assay.assay = assays.first()
-                # #     else:
-                # #         messages.warning(self.request, f'cannot find assay alias: {assay}')
-                #
-                # # threshold
-                # pcr_assay.threshold = threshold
-                #
-                # if ct:
-                #     if ct.lower() in ["na", "undetermined", "unknown"]:
-                #         pcr_assay.is_undetermined = True
-                #     else:
-                #         try:
-                #             ct = float(ct)
-                #         except Exception as e:
-                #             print(e)
-                #             ct = None
-                #         pcr_assay.ct = ct
-                #
-                # pcr_assay.comments = comments
-                #
-                # try:
-                #     pcr_assay.save()
-                # except Exception as e:
-                #     messages.error(self.request, e)
+                                # get the master mix
+                                mixes = models.MasterMix.objects.filter(name__iexact=master_mix)
+                                if not mixes.exists():
+                                    messages.warning(self.request, f'cannot find master mix: {master_mix}')
+                                else:
+                                    master_mix = mixes.first()
+
+                                    # get the assay
+                                    assays = models.Assay.objects.filter(alias__iexact=assay)
+                                    if not assays.exists():
+                                        messages.warning(self.request, f'cannot find assay alias: {assay}')
+                                    else:
+                                        assay = assays.first()
+
+                                        # now we can get / create the pcr object
+                                        pcr = models.PCR.objects.get_or_create(
+                                            pcr_batch=batch,
+                                            master_mix=master_mix,
+                                            extract=extract,
+                                            pcr_plate_well=row_dict["pcr_plate_well"]
+                                        )[0]
+
+                                        pcr.save() # populate the collection
+
+                                        # now finally, the assay itself
+                                        try:
+                                            ct = float(ct)
+                                            is_undetermined = False
+                                        except Exception as e:
+                                            print(e)
+                                            is_undetermined = True
+                                            ct = None
+
+                                        assay = models.PCRAssay.objects.create(
+                                            pcr=pcr,
+                                            assay=assay,
+                                            ct=ct,
+                                            is_undetermined=is_undetermined,
+                                            threshold=row_dict["threshold"]
+                                        )
 
             # if we run into the first header of the assay table, turn off the "wait" flag
             if len(row) and row[0] == "extraction_number":
-                wait = False
+                header_row = row
+        #
+        #
+        #             extraction_number = nz(row[0], None)
+        #             extraction_number = nz(row[0], None)
+        #
+        #
+        #
+        #
+        #         # the results
+        #         threshold = nz(row[6], None)
+        #         ct = nz(row[7], None)
+        #         comments = nz(row[8], None)
+        #
+        #         # we should be able to get an assay from the unique_id
+        #         # # pcr_assay = get_object_or_404(models.PCRAssay, pk=unique_id)
+        #         # # pcr = pcr_assay.pcr
+        #         # # pcr.pcr_plate_well = pcr_plate_well
+        #         # # every row will correspond to a pcr assay
+        #         #
+        #         # #  let's see if we can associate an extract id
+        #         # # if extract:
+        #         # #     # prioritize the extract id field
+        #         # #     extracts = models.DNAExtract.objects.filter(id=extract.replace("x", ""))
+        #         # #     if extracts.exists():
+        #         # #         pcr.extract = extracts.first()
+        #         # #     else:
+        #         # #         messages.warning(self.request, f'cannot find extract id: {extract}')
+        #         # #     # try again with extraction number
+        #         # # elif extraction_number:
+        #         # #     extracts = models.DNAExtract.objects.filter(extraction_number__iexact=extraction_number)
+        #         # #     if extracts.exists():
+        #         # #         pcr.extract = extracts.first()
+        #         # #     else:
+        #         # #         messages.warning(self.request, f'cannot find extraction number: {extraction_number}')
+        #         # # # master mix
+        #         # # if master_mix:
+        #         # #     mixes = models.MasterMix.objects.filter(name__iexact=master_mix)
+        #         # #     if mixes.exists():
+        #         # #         pcr.master_mix = mixes.first()
+        #         # #     else:
+        #         # #         messages.warning(self.request, f'cannot find master mix: {master_mix}')
+        #         # pcr.save()
+        #         #
+        #         #
+        #         # # assay
+        #         # # if assay:
+        #         # #     assays = models.Assay.objects.filter(alias__iexact=assay)
+        #         # #     if assays.exists():
+        #         # #         pcr_assay.assay = assays.first()
+        #         # #     else:
+        #         # #         messages.warning(self.request, f'cannot find assay alias: {assay}')
+        #         #
+        #         # # threshold
+        #         # pcr_assay.threshold = threshold
+        #         #
+        #         # if ct:
+        #         #     if ct.lower() in ["na", "undetermined", "unknown"]:
+        #         #         pcr_assay.is_undetermined = True
+        #         #     else:
+        #         #         try:
+        #         #             ct = float(ct)
+        #         #         except Exception as e:
+        #         #             print(e)
+        #         #             ct = None
+        #         #         pcr_assay.ct = ct
+        #         #
+        #         # pcr_assay.comments = comments
+        #         #
+        #         # try:
+        #         #     pcr_assay.save()
+        #         # except Exception as e:
+        #         #     messages.error(self.request, e)
+        #
 
+        #
         if year and month and day:
             batch.datetime = timezone.datetime(int(year), int(month), int(day), int(hour), int(minute), tzinfo=timezone.now().tzinfo)
-        batch.save()
-        batch.operators.add(self.request.user)
+        # batch.save()
+        # batch.operators.add(self.request.user)
 
         return HttpResponseRedirect(reverse("edna:pcr_batch_detail", args=[batch.id]))
