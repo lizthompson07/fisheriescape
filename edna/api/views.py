@@ -36,6 +36,15 @@ class CollectionViewSet(viewsets.ModelViewSet):
     permission_classes = [eDNACRUDOrReadOnly]
     queryset = models.Collection.objects.order_by("name", "start_date")
 
+    def retrieve(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("assays_tested"):
+            qs = models.Assay.objects.filter(pcrs__pcr__collection=self.get_object()).distinct()
+            return Response(serializers.AssaySerializer(qs, many=True).data, status=status.HTTP_200_OK)
+        return super().retrieve(request, *args, **kwargs)
+
+
+
 
 class FiltrationBatchViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.FiltrationBatchSerializer
@@ -282,6 +291,17 @@ class PCRAssayModelMetaAPIView(APIView):
         data['main_assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.filter(is_ipc=False)]
         data['ipc_assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.filter(is_ipc=True)]
         data['master_mix_choices'] = [dict(text=str(item), value=item.id) for item in models.MasterMix.objects.all()]
+        return Response(data)
+
+
+
+class PCRBatchModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.PCRBatch
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = get_labels(self.model)
         return Response(data)
 
 

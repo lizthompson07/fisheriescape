@@ -23,6 +23,7 @@ urlpatterns = [
     path("edna/meta/models/extract/", views.DNAExtractModelMetaAPIView.as_view(), name="edna-extract-model-meta"),
     path("edna/meta/models/pcr/", views.PCRModelMetaAPIView.as_view(), name="edna-pcr-model-meta"),
     path("edna/meta/models/pcr-assay/", views.PCRAssayModelMetaAPIView.as_view(), name="edna-pcr-assay-model-meta"),
+    path("edna/meta/models/pcr-batch/", views.PCRBatchModelMetaAPIView.as_view(), name="edna-pcr-assay-model-meta"),
     # path("edna/meta/models/species-observation/", views.SpeciesObservationModelMetaAPIView.as_view(), name="edna-pcr-model-meta"),
 
 ]

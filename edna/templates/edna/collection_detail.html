@@ -11,6 +11,14 @@
       font-size: small;
   }
 
+  .my-table, .my-table > thead > tr > th, .my-table > tbody > tr > td {
+      font-size: 10px;
+      border: black solid 1px;
+  }
+
+  .mylead {
+      font-size: large;
+  }
 
   #map {
       height: 300px; /* The height is 400 pixels */
@@ -80,138 +88,176 @@
       </div>
     </div>
   </div>
+  </div>
+  </div>
+
+
 
   <div class="mb-3" id="app" v-cloak>
 
-    <h3>{% trans "Project Log" %}</h3>
-    {% if object.samples.exists %}
+  <h3>{% trans "Project Log" %}</h3>
+  {% if object.samples.exists %}
 
-      <table class="table table-sm table-hover table-bordered small">
+    <div v-if="!ready2Show" class="loading mb-3 mt-3 mt-5">
+      <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+        <span class="sr-only"></span>
+      </div>
+    </div>
 
-        <thead>
-        <tr>
-          <th colspan="10" class="lead samples">{% trans "Samples" %}</th>
-          <th colspan="10" class="lead filters">{% trans "Filters" %}</th>
-          <th colspan="9" class="lead extracts">{% trans "Extractions" %}</th>
+    <table v-else class="my-table">
+
+      <thead>
+      <tr>
+        <th rowspan="2" colspan="10" class="mylead samples">{% trans "Samples" %}</th>
+        <th rowspan="2" colspan="10" class="mylead filters">{% trans "Filters" %}</th>
+        <th rowspan="2" colspan="9" class="mylead extracts">{% trans "Extractions" %}</th>
+        <th rowspan="2" colspan="6" class="mylead pcrs">{% trans "PCR" %}</th>
+        <th :colspan="assaysTested.length * 6" class="mylead assays">{% trans "Results" %}</th>
+      </tr>
+      <tr>
+        <th colspan="6" v-for="(a, index) in assaysTested" class="assays">${a.name}</th>
+      </tr>
+      <tr>
+        {# Samples #}
+        <th class="samples">{% trans "Sample ID" %}</th>
+        <th class="samples">${sampleLabels.sample_type}</th>
+        <th class="samples">${sampleLabels.bottle_id}</th>
+        <th class="samples">${sampleLabels.location}</th>
+        <th class="samples">${sampleLabels.site}</th>
+        <th class="samples">${sampleLabels.station}</th>
+        <th class="samples">${sampleLabels.datetime}</th>
+        <th class="samples">${sampleLabels.samplers}</th>
+        <th class="samples">{% trans "Coordinates" %}</th>
+        <th class="samples">${sampleLabels.comments}</th>
+
+        {# Filters #}
+        <th class="filters">{% trans "Filter ID" %}</th>
+        <th class="filters">${filterLabels.tube_id}</th>
+        <th class="filters">${filterLabels.filtration_type}</th>
+        <th class="filters">${filterLabels.start_datetime}</th>
+        <th class="filters">${filterLabels.end_datetime}</th>
+        <th class="filters">${filterLabels.filtration_volume_ml}</th>
+        <th class="filters">${filterLabels.storage_location}</th>
+        <th class="filters">${filterLabels.filtration_ipc}</th>
+        <th class="filters">${filterLabels.duration_min}</th>
+        <th class="filters">${filterLabels.comments}</th>
+
+
+        {# Extractions #}
+        <th class="extracts">{% trans "Extract ID" %}</th>
+        <th class="extracts">${extractLabels.extraction_number}</th>
+        <th class="extracts">${extractLabels.start_datetime}</th>
+        <th class="extracts">${extractLabels.dna_extraction_protocol}</th>
+        <th class="extracts">${extractLabels.storage_location}</th>
+        <th class="extracts">${extractLabels.extraction_plate_id}</th>
+        <th class="extracts">${extractLabels.extraction_plate_well}</th>
+        <th class="extracts">${extractLabels.extraction_ipc}</th>
+        <th class="extracts">${extractLabels.comments}</th>
+
+        {# PCR #}
+        {# batch / run #}
+        <th class="pcrs">${pcrBatchLabels.plate_id}</th>
+        <th class="pcrs">${pcrBatchLabels.machine_number}</th>
+        <th class="pcrs">${pcrBatchLabels.run_program}</th>
+        <th class="pcrs">${pcrBatchLabels.control_status}</th>
+        <th class="pcrs">${pcrLabels.plate_well}</th>
+        <th class="pcrs">${pcrLabels.master_mix}</th>
+
+        {# results #}
+        <th v-if="!assaysTested.length" class="assays">...</th>
+        <template v-for="assay in assaysTested">
+          <th class="assays">${pcrAssayLabels.threshold}</th>
+          <th class="assays">${pcrAssayLabels.ct}</th>
+          <th class="assays">${pcrAssayLabels.is_undetermined}</th>
+          <th class="assays">${pcrAssayLabels.result}</th>
+          <th class="assays">${pcrAssayLabels.edna_conc}</th>
+          <th class="assays">${pcrAssayLabels.comments}</th>
+        </template>
+
+      </tr>
+      </thead>
+      <tbody>
+      <template v-for="(sample, index) in samples">
+        <tr class="samples">
+          <td :rowspan="sample.rowspan"><a v-if="sample.id" :href=`/edna/samples/${sample.id}/view/` target="_blank">${sample.display}</a> <span
+            v-else>${sample.display}</span></td>
+          <td :rowspan="sample.rowspan"> ${sample.sample_type_display}</td>
+          <td :rowspan="sample.rowspan"> ${sample.bottle_id}</td>
+          <td :rowspan="sample.rowspan"> ${sample.location}</td>
+          <td :rowspan="sample.rowspan"> ${sample.site}</td>
+          <td :rowspan="sample.rowspan"> ${sample.station}</td>
+          <td :rowspan="sample.rowspan"> ${sample.datetime_display}</td>
+          <td :rowspan="sample.rowspan"> ${sample.samplers}</td>
+          <td :rowspan="sample.rowspan"> ${sample.coordinates}</td>
+          <td :rowspan="sample.rowspan"> ${sample.comments}</td>
+
         </tr>
-        <tr>
-          {# Samples #}
-          <th class="samples">{% trans "Sample ID" %}</th>
-          <th class="samples">${sampleLabels.sample_type}</th>
-          <th class="samples">${sampleLabels.bottle_id}</th>
-          <th class="samples">${sampleLabels.location}</th>
-          <th class="samples">${sampleLabels.site}</th>
-          <th class="samples">${sampleLabels.station}</th>
-          <th class="samples">${sampleLabels.datetime}</th>
-          <th class="samples">${sampleLabels.samplers}</th>
-          <th class="samples">{% trans "Coordinates" %}</th>
-          <th class="samples">${sampleLabels.comments}</th>
 
-          {# Filters #}
-          <th class="filters">{% trans "Filter ID" %}</th>
-          <th class="filters">${filterLabels.tube_id}</th>
-          <th class="filters">${filterLabels.filtration_type}</th>
-          <th class="filters">${filterLabels.start_datetime}</th>
-          <th class="filters">${filterLabels.end_datetime}</th>
-          <th class="filters">${filterLabels.filtration_volume_ml}</th>
-          <th class="filters">${filterLabels.storage_location}</th>
-          <th class="filters">${filterLabels.filtration_ipc}</th>
-          <th class="filters">${filterLabels.duration_min}</th>
-          <th class="filters">${filterLabels.comments}</th>
+        {# Filters #}
+        <template v-for="(filter, index) in sample.filters">
 
-
-          {# Extractions #}
-          <th class="extracts">{% trans "Extract ID" %}</th>
-          <th class="extracts">${extractLabels.extraction_number}</th>
-          <th class="extracts">${extractLabels.start_datetime}</th>
-          <th class="extracts">${extractLabels.dna_extraction_protocol}</th>
-          <th class="extracts">${extractLabels.storage_location}</th>
-          <th class="extracts">${extractLabels.extraction_plate_id}</th>
-          <th class="extracts">${extractLabels.extraction_plate_well}</th>
-          <th class="extracts">${extractLabels.extraction_ipc}</th>
-          <th class="extracts">${extractLabels.comments}</th>
-
-
-          {# Extractions #}
-          <th class="pcrs">{% trans "PCR Run ID" %}</th>
-          <th class="pcrs">${extractLabels.extraction_number}</th>
-          <th class="pcrs">${extractLabels.start_datetime}</th>
-          <th class="pcrs">${extractLabels.dna_extraction_protocol}</th>
-          <th class="pcrs">${extractLabels.storage_location}</th>
-          <th class="pcrs">${extractLabels.extraction_plate_id}</th>
-          <th class="pcrs">${extractLabels.extraction_plate_well}</th>
-          <th class="pcrs">${extractLabels.extraction_ipc}</th>
-          <th class="pcrs">${extractLabels.comments}</th>
-
-
-
-        </tr>
-        </thead>
-        <tbody>
-        <template v-for="(sample, index) in samples">
-          <tr class="samples">
-            <td :rowspan="sample.rowspan"><a v-if="sample.id" :href=`/edna/samples/${sample.id}/view/` target="_blank">${sample.display}</a> <span
-              v-else>${sample.display}</span></td>
-            <td :rowspan="sample.rowspan"> ${sample.sample_type_display}</td>
-            <td :rowspan="sample.rowspan"> ${sample.bottle_id}</td>
-            <td :rowspan="sample.rowspan"> ${sample.location}</td>
-            <td :rowspan="sample.rowspan"> ${sample.site}</td>
-            <td :rowspan="sample.rowspan"> ${sample.station}</td>
-            <td :rowspan="sample.rowspan"> ${sample.datetime_display}</td>
-            <td :rowspan="sample.rowspan"> ${sample.samplers}</td>
-            <td :rowspan="sample.rowspan"> ${sample.coordinates}</td>
-            <td :rowspan="sample.rowspan"> ${sample.comments}</td>
-
+          <tr class="filters">
+            <td :rowspan="filter.rowspan">
+              <a v-if="filter.id" :href=`/edna/filters/${filter.id}/view/` target="_blank">${filter.display}</a>
+              <span v-else>${filter.display}</span>
+            </td>
+            <td :rowspan="filter.rowspan">${filter.tube_id}</td>
+            <td :rowspan="filter.rowspan">${filter.filtration_type_display}</td>
+            <td :rowspan="filter.rowspan">${filter.start_datetime_display}</td>
+            <td :rowspan="filter.rowspan">${filter.end_datetime_display}</td>
+            <td :rowspan="filter.rowspan">${filter.filtration_volume_ml}</td>
+            <td :rowspan="filter.rowspan">${filter.storage_location}</td>
+            <td :rowspan="filter.rowspan">${filter.filtration_ipc}</td>
+            <td :rowspan="filter.rowspan">${filter.duration_min}</td>
+            <td :rowspan="filter.rowspan">${filter.comments}</td>
           </tr>
 
-          {# Filters #}
-          <template v-for="(filter, index) in sample.filters">
-
-            <tr class="filters">
-              <td :rowspan="filter.rowspan">
-                <a v-if="filter.id" :href=`/edna/filters/${filter.id}/view/` target="_blank">${filter.display}</a>
-                <span v-else>${filter.display}</span>
-              </td>
-              <td :rowspan="filter.rowspan">${filter.tube_id}</td>
-              <td :rowspan="filter.rowspan">${filter.filtration_type_display}</td>
-              <td :rowspan="filter.rowspan">${filter.start_datetime_display}</td>
-              <td :rowspan="filter.rowspan">${filter.end_datetime_display}</td>
-              <td :rowspan="filter.rowspan">${filter.filtration_volume_ml}</td>
-              <td :rowspan="filter.rowspan">${filter.storage_location}</td>
-              <td :rowspan="filter.rowspan">${filter.filtration_ipc}</td>
-              <td :rowspan="filter.rowspan">${filter.duration_min}</td>
-              <td :rowspan="filter.rowspan">${filter.comments}</td>
+          <template v-for="(extract, index) in filter.extracts">
+            <tr class="extracts">
+              <td :rowspan="extract.rowspan" style="height: 100px;">${extract.display}</td>
+              <td :rowspan="extract.rowspan" style="height: 100px;">${extract.extraction_number}</td>
+              <td :rowspan="extract.rowspan" style="height: 100px;">${extract.datetime_display}</td>
+              <td :rowspan="extract.rowspan" style="height: 100px;">${extract.dna_extraction_protocol_display}</td>
+              <td :rowspan="extract.rowspan" style="height: 100px;">${extract.storage_location}</td>
+              <td :rowspan="extract.rowspan" style="height: 100px;">${extract.extraction_plate_id}</td>
+              <td :rowspan="extract.rowspan" style="height: 100px;">${extract.extraction_plate_well}</td>
+              <td :rowspan="extract.rowspan" style="height: 100px;">${extract.extraction_ipc}</td>
+              <td :rowspan="extract.rowspan" style="height: 100px;">${extract.comments}</td>
             </tr>
 
-            <template v-for="(extract, index) in filter.extracts">
-              <tr class="extracts" style="height: 100%;">
-                <td style="height: 100px;">${extract.display}</td>
-                <td style="height: 100px;">${extract.extraction_number}</td>
-                <td style="height: 100px;">${extract.datetime_display}</td>
-                <td style="height: 100px;">${extract.dna_extraction_protocol_display}</td>
-                <td style="height: 100px;">${extract.storage_location}</td>
-                <td style="height: 100px;">${extract.extraction_plate_id}</td>
-                <td style="height: 100px;">${extract.extraction_plate_well}</td>
-                <td style="height: 100px;">${extract.extraction_ipc}</td>
-                <td style="height: 100px;">${extract.comments}</td>
+            <template v-for="(pcr, index) in extract.pcrs">
+              <tr>
+                <td class="pcrs">${pcr.batch_object.plate_id}</td>
+                <td class="pcrs">${pcr.batch_object.machine_number}</td>
+                <td class="pcrs">${pcr.batch_object.run_program}</td>
+                <td class="pcrs">${pcr.batch_object.control_status}</td>
+                <td class="pcrs">${pcr.plate_well}</td>
+                <td class="pcrs">${pcr.master_mix_display}</td>
+
+                <template v-for="(pcrAssay, index) in pcr.pcr_assays">
+                  <td class="assays">${pcrAssay.threshold}</td>
+                  <td class="assays">${pcrAssay.ct}</td>
+                  <td class="assays">${pcrAssay.is_undetermined |yesNo}</td>
+                  <td class="assays">${pcrAssay.result_display}</td>
+                  <td class="assays">${pcrAssay.edna_conc}</td>
+                  <td class="assays">${pcrAssay.comments}</td>
+                </template>
               </tr>
 
             </template>
-
           </template>
-
         </template>
-        </tbody>
-      </table>
+      </template>
+      </tbody>
+    </table>
 
 
-    {% else %}
+  {% else %}
 
-      <em>{% trans "This project does not have any samples yet :(" %}</em>
+    <em>{% trans "This project does not have any samples yet :(" %}</em>
 
-    {% endif %}
+  {% endif %}
 
-  </div>
 {% endblock %}
 
 
@@ -235,11 +281,25 @@
       sampleLabels: [],
       filterLabels: [],
       extractLabels: [],
+      pcrBatchLabels: [],
       pcrLabels: [],
       pcrAssayLabels: [],
+      assaysTested: [],
 
-      loading0: true,
-      loading: false,
+      loadingObject: {
+        samples: true,
+        filters: true,
+        extracts: true,
+        pcrs: true,
+        formatting: true,
+        sampleLabels: true,
+        filterLabels: true,
+        extractLabels: true,
+        pcrLabels: true,
+        pcrAssayLabels: true,
+        pcrBatchLabels: true,
+        assaysTested: true,
+      },
     },
     methods: {
       getCurrentUser() {
@@ -252,24 +312,38 @@
       getMetadata() {
         apiService(`/api/edna/meta/models/sample/`).then(data => {
           this.sampleLabels = data.labels;
+          this.loadingObject.sampleLabels = false;
         });
         apiService(`/api/edna/meta/models/filter/`).then(data => {
           this.filterLabels = data.labels;
+          this.loadingObject.filterLabels = false;
         });
         apiService(`/api/edna/meta/models/extract/`).then(data => {
           this.extractLabels = data.labels;
+          this.loadingObject.extractLabels = false;
         });
         apiService(`/api/edna/meta/models/pcr/`).then(data => {
           this.pcrLabels = data.labels;
+          this.loadingObject.pcrLabels = false;
         });
         apiService(`/api/edna/meta/models/pcr-assay/`).then(data => {
           this.pcrAssayLabels = data.labels;
+          this.loadingObject.pcrAssayLabels = false;
+        });
+        apiService(`/api/edna/meta/models/pcr-batch/`).then(data => {
+          this.pcrBatchLabels = data.labels;
+          this.loadingObject.pcrBatchLabels = false;
+        });
+        apiService(`/api/edna/collections/${this.projectId}/?assays_tested=true`).then(data => {
+          this.assaysTested = data;
+          this.loadingObject.assaysTested = false;
         });
       },
       getSamples() {
         this.loading = true;
         apiService(`/api/edna/samples/?collection=${this.projectId}`).then(response => {
           this.samples = response;
+          this.loadingObject.samples = false;
           for (const sample of response) {
             sample.filters = [];
             sample.rowspan = 1;
@@ -290,6 +364,7 @@
                 }
               }
             }
+            this.loadingObject.filters = false;
             apiService(`/api/edna/extracts/?collection=${this.projectId}`).then(response => {
               for (const extract of response) {
                 extract.pcrs = [];
@@ -297,20 +372,14 @@
                 if (!extract.sample && !extract.filter) { // means it is an extraction blank
                   this.samples.push(
                       {
-                        filters: [
-                          {
-                            extracts: [extract]
-                          }
-                        ]
+                        filters: [{extracts: [extract]}]
                       }
                   );
                 } else {
                   if (!extract.filter) {
                     for (const sample of this.samples) {
                       if (sample.id === extract.sample) {
-                        sample.filters.push({
-                          extracts: [extract]
-                        });
+                        sample.filters.push({extracts: [extract]});
                         break;
                       }
                     }
@@ -326,24 +395,12 @@
                   }
                 }
               }
+              this.loadingObject.extracts = false;
               apiService(`/api/edna/pcrs/?collection=${this.projectId}`).then(response => {
                     for (const pcr of response) {
-                      pcr.pcr_assays = [];
                       // now we have to nest this pcr under each extract under the "pcrs" key
                       if (!pcr.extract) {
-                        this.samples.push(
-                            {
-                              filters: [
-                                {
-                                  extracts: [
-                                    {
-                                      pcrs: [pcr]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                        );
+                        this.samples.push({filters: [{extracts: [{pcrs: [pcr]}]}]});
                       } else {
                         for (const sample of this.samples) {
                           for (const filter of sample.filters) {
@@ -358,6 +415,7 @@
                       }
                     }
 
+                    this.loadingObject.pcrs = false;
 
                     // figure out formatting
                     for (const sample of this.samples) {
@@ -365,13 +423,18 @@
                       for (const filter of sample.filters) {
                         sample.rowspan += filter.extracts.length;
                         filter.rowspan = 1 + filter.extracts.length;
+                        for (const extract of filter.extracts) {
+                          sample.rowspan += extract.pcrs.length;
+                          filter.rowspan += extract.pcrs.length;
+                          extract.rowspan = 1 + extract.pcrs.length;
+
+                        }
                       }
                     }
 
                     // this should be the last thing to do
                     this.$forceUpdate();
-                    this.loading = false;
-                    this.loading0 = false;
+                    this.loadingObject.formatting = false;
 
                   }
               )
@@ -388,6 +451,12 @@
           if (filter.selected) myArray.push(filter)
         }
         return myArray
+      },
+      ready2Show() {
+        for (const loadingObjectKey in this.loadingObject) {
+          if (this.loadingObject[loadingObjectKey]) return false;
+        }
+        return true;
       }
     },
     created() {

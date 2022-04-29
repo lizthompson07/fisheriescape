@@ -114,7 +114,6 @@ class DNAExtractSerializer(serializers.ModelSerializer):
     has_pcrs = serializers.SerializerMethodField()
     dna_extraction_protocol_display = serializers.SerializerMethodField()
 
-
     def get_dna_extraction_protocol_display(self, instance):
         if instance.dna_extraction_protocol:
             return str(instance.dna_extraction_protocol)
@@ -173,6 +172,14 @@ class PCRSerializer(serializers.ModelSerializer):
     assay_count = serializers.SerializerMethodField()
     extract_object = serializers.SerializerMethodField()
     master_mix_display = serializers.SerializerMethodField()
+    batch_object = serializers.SerializerMethodField()
+    pcr_assays = serializers.SerializerMethodField()
+
+    def get_pcr_assays(self, instance):
+        return PCRAssaySerializerLITE(instance.assays.all(), many=True).data
+
+    def get_batch_object(self, instance):
+        return PCRBatchSerializer(instance.pcr_batch).data
 
     def get_master_mix_display(self, instance):
         if instance.master_mix:
@@ -212,10 +219,21 @@ class PCRAssaySerializer(serializers.ModelSerializer):
         model = models.PCRAssay
         fields = "__all__"
 
-    # display = serializers.SerializerMethodField()
-    #
-    # def get_display(self, instance):
-    #     return str(instance)
+class PCRAssaySerializerLITE(serializers.ModelSerializer):
+    result_display = serializers.SerializerMethodField()
+    assay_display = serializers.SerializerMethodField()
+
+    def get_assay_display(self, instance):
+        if instance.assay:
+            return str(instance.assay)
+
+    def get_result_display(self, instance):
+        return instance.get_result_display()
+
+    class Meta:
+        model = models.PCRAssay
+        fields = "__all__"
+
 
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -254,4 +272,16 @@ class FiltrationBatchSerializer(serializers.ModelSerializer):
 class SampleTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.SampleType
+        fields = "__all__"
+
+
+class PCRBatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.PCRBatch
+        fields = "__all__"
+
+
+class AssaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Assay
         fields = "__all__"
