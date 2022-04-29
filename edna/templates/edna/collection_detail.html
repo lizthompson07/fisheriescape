@@ -115,7 +115,7 @@
         <th :colspan="assaysTested.length * 6" class="mylead assays">{% trans "Results" %}</th>
       </tr>
       <tr>
-        <th colspan="6" v-for="(a, index) in assaysTested" class="assays">${a.name}</th>
+        <th colspan="6" v-for="(a, index) in assaysTested" class="assays">${a.name} <br><span v-html="a.species_display"></span></th>
       </tr>
       <tr>
         {# Samples #}
@@ -235,12 +235,20 @@
                 <td class="pcrs">${pcr.master_mix_display}</td>
 
                 <template v-for="(pcrAssay, index) in pcr.pcr_assays">
-                  <td class="assays">${pcrAssay.threshold}</td>
-                  <td class="assays">${pcrAssay.ct}</td>
-                  <td class="assays">${pcrAssay.is_undetermined |yesNo}</td>
-                  <td class="assays">${pcrAssay.result_display}</td>
-                  <td class="assays">${pcrAssay.edna_conc}</td>
-                  <td class="assays">${pcrAssay.comments}</td>
+                  <template v-if="pcrAssay.id">
+                    <td :class="{assays:pcrAssay.id, greyed:!pcrAssay.id}">${pcrAssay.threshold}</td>
+                    <td :class="{assays:pcrAssay.id, greyed:!pcrAssay.id}">${pcrAssay.ct}</td>
+                    <td :class="{assays:pcrAssay.id, greyed:!pcrAssay.id}">${pcrAssay.is_undetermined |yesNo}</td>
+                    <td :class="{assays:pcrAssay.id, greyed:!pcrAssay.id}">
+                      <span v-if="pcrAssay.result === 1" class="good">${pcrAssay.result_display}</span>
+                      <span v-else class="bad">${pcrAssay.result_display}</span>
+                    </td>
+                    <td :class="{assays:pcrAssay.id, greyed:!pcrAssay.id}">${pcrAssay.edna_conc |floatformat(4)}</td>
+                    <td :class="{assays:pcrAssay.id, greyed:!pcrAssay.id}">${pcrAssay.comments}</td>
+                  </template>
+                  <template v-else>
+                    <td v-for="i in 6"></td>
+                  </template>
                 </template>
               </tr>
 
@@ -427,6 +435,30 @@
                           sample.rowspan += extract.pcrs.length;
                           filter.rowspan += extract.pcrs.length;
                           extract.rowspan = 1 + extract.pcrs.length;
+
+                          // need to make sure that pcr assays are in the correct order
+                          for (const pcr of extract.pcrs) {
+                            // we only need to do this if there are existing pcr assays.
+                            if (pcr.pcr_assays.length) {
+                              let new_pcr_assays = [];
+                              let tempObj;
+                              for (const assay of this.assaysTested) {
+                                // for each assay tested, we will want to have an object in the new array
+                                tempObj = {};
+                                for (const pcrAssay of pcr.pcr_assays) {
+                                  console.log(assay, pcrAssay)
+                                  if (assay.id === pcrAssay.assay) {
+                                    tempObj = pcrAssay;
+                                  }
+                                }
+                                new_pcr_assays.push(tempObj);
+                              }
+                              pcr.pcr_assays = new_pcr_assays;
+                            }
+
+
+                          }
+
 
                         }
                       }

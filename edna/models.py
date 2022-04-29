@@ -70,7 +70,7 @@ class Species(models.Model):
         return my_str
 
     def __str__(self):
-        return self.tcommon
+        return self.full_name
 
     class Meta:
         ordering = ['id']
@@ -84,6 +84,10 @@ class Species(models.Model):
         return "{} (<em>{}</em>)".format(self.common_name_en, self.scientific_name)
 
     @property
+    def full_name_plain_text(self):
+        return "{} ({})".format(self.common_name_en, self.scientific_name)
+
+    @property
     def formatted_scientific(self):
         return f"<em>{self.scientific_name}</em>"
 
@@ -93,9 +97,10 @@ class Assay(UnilingualSimpleLookup, MetadataFields):
                              help_text=_("This is the name that will be used to reference this assay on import spreadsheets."))
     lod = models.FloatField(blank=True, null=True, verbose_name=_("LOD value"))
     loq = models.FloatField(blank=True, null=True, verbose_name=_("LOQ value"))
+    units = models.CharField(max_length=150, blank=True, null=True, verbose_name=_("Units for LOQ and LOD"))
     a_coef = models.FloatField(blank=True, null=True, verbose_name=_("formula A coefficient"))
     b_coef = models.FloatField(blank=True, null=True, verbose_name=_("formula B coefficient"))
-    is_ipc = models.BooleanField(default=False, verbose_name=_("is this assay being used as an IPC?"))
+    is_ipc = models.BooleanField(default=False, verbose_name=_("is this assay being used as an IPC?"), choices=YES_NO_CHOICES)
     species = models.ManyToManyField(Species, verbose_name=_("species"), blank=True)
 
     def __str__(self):
@@ -107,6 +112,10 @@ class Assay(UnilingualSimpleLookup, MetadataFields):
     class Meta:
         verbose_name_plural = "Assays"
         ordering = ["name", ]
+
+    @property
+    def species_display(self):
+        return listrify(self.species.all())
 
 
 class Collection(UnilingualSimpleLookup, MetadataFields):

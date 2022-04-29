@@ -285,3 +285,8 @@ class AssaySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Assay
         fields = "__all__"
+
+    species_display = serializers.SerializerMethodField()
+
+    def get_species_display(self, instance):
+        return instance.species_display

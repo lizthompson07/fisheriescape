@@ -212,10 +212,11 @@ class AssayListView(eDNAAdminRequiredMixin, CommonListView):
     model = models.Assay
 
     field_list = [
-        {"name": 'name', "class": "", "width": ""},
         {"name": 'alias', "class": "", "width": ""},
+        {"name": 'name', "class": "", "width": ""},
         {"name": 'lod', "class": "", "width": ""},
         {"name": 'loq', "class": "", "width": ""},
+        {"name": 'units', "class": "", "width": ""},
         {"name": 'a_coef', "class": "", "width": ""},
         {"name": 'b_coef', "class": "", "width": ""},
         {"name": 'is_ipc', "class": "", "width": ""},
