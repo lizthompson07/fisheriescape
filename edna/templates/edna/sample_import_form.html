@@ -8,6 +8,7 @@
   <style>
   table, td, th {
       border: black 1px solid;
+      font-size: small;
   }
 
   .red-font {
@@ -18,9 +19,6 @@
 
   </style>
 
-  <script>
-  window.resizeTo(width = 1000, height = 800);
-  </script>
   <div class="container-fluid">
 
     <h1>
@@ -45,13 +43,12 @@
     </ul>
     <table>
       <thead>
-
-
       <tr>
         <th class="py-1 px-1 red-font">bottle_id</th>
         <th class="py-1 px-1">sample_type</th>
-        <th class="py-1 px-1">site_identifier</th>
-        <th class="py-1 px-1">site_description</th>
+        <th class="py-1 px-1 w200px">location</th>
+        <th class="py-1 px-1 w200px">site</th>
+        <th class="py-1 px-1 w250px">station</th>
         <th class="py-1 px-1">samplers</th>
         <th class="py-1 px-1 red-font">datetime</th>
         <th class="py-1 px-1 red-font">latitude</th>
@@ -82,14 +79,27 @@
         </td>
         <td class="py-1 px-1">
           <ul>
-            <li>site ID</li>
-            <li>meaningful only to client</li>
+            <li>
+              Location describes the geographic area and/or context of the study (e.g., province, National Park, Fishery Management Area, Bay Management
+              Area).
+            </li>
           </ul>
         </td>
         <td class="py-1 px-1">
           <ul>
-            <li>site description</li>
-            <li>text description of site where sample was collected</li>
+            <li>
+              sites should be relatively independent of each other, such as different systems and habitats (e.g., different lakes, rivers, ponds, marine
+              areas, order of tributary, marinas).
+            </li>
+          </ul>
+        </td>
+        <td class="py-1 px-1">
+          <ul>
+            <li>
+              Station refers to spatially distinct sampling locations within a site (i.e., spatial replicates) and are typically used to improve species
+              detection or evaluate the eDNA variation within systems or habitats (e.g., samples distributed using a grid or transect design surrounding an
+              aquaculture site, upper and lower reach of a river, locations within large open water environments)
+            </li>
           </ul>
         </td>
         <td class="py-1 px-1">
@@ -131,8 +141,9 @@
         <tr>
           <th class="py-1 px-1">bottle_id</th>
           <th class="py-1 px-1">sample_type</th>
-          <th class="py-1 px-1">site_identifier</th>
-          <th class="py-1 px-1">site_description</th>
+          <th class="py-1 px-1">location</th>
+          <th class="py-1 px-1">site</th>
+          <th class="py-1 px-1">station</th>
           <th class="py-1 px-1">samplers</th>
           <th class="py-1 px-1">datetime</th>
           <th class="py-1 px-1">latitude</th>
@@ -144,8 +155,9 @@
           <tr>
             <td class="py-1 px-1">{{ item.bottle_id }}</td>
             <td class="py-1 px-1">{{ item.sample_type }}</td>
-            <td class="py-1 px-1">{{ item.site_identifier }}</td>
-            <td class="py-1 px-1">{{ item.site_description }}</td>
+            <td class="py-1 px-1">{{ item.location }}</td>
+            <td class="py-1 px-1">{{ item.site }}</td>
+            <td class="py-1 px-1">{{ item.station }}</td>
             <td class="py-1 px-1">{{ item.samplers }}</td>
             <td class="py-1 px-1">{{ item.datetime }}</td>
             <td class="py-1 px-1">{{ item.latitude }}</td>
@@ -167,7 +179,9 @@
       {% csrf_token %}
       {% for field in form %}
 
-        <h2 class="red-font">WARNING: running this function will overwrite any samples with the same name unique identifier.</h2>
+        <h2 class="red-font">
+          WARNING: samples from <u>within this project</u> that have matching bottle IDs will be overwritten with the data from this CSV.
+        </h2>
         <h3>Please select the file to upload:</h3>
         {{ field }}
       {% endfor %}

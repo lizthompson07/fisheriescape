@@ -28,6 +28,6 @@ urlpatterns = [
 
     path('profile/', views.ProfileUpdateView.as_view(), name='profile'),
 
-    path('request-access/', views.RequestAccessFormView.as_view(), name='request_access'),
+    # path('request-access/', views.RequestAccessFormView.as_view(), name='request_access'),
 
 ]

@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib.auth.models import User
 from django.test import tag
 from django.utils import timezone
 from faker import Factory
@@ -21,7 +22,7 @@ class TestUtils(CommonTest):
     def test_auth_utils(self):
         section = SectionFactory()
         rando = self.get_and_login_user()
-        admin = self.get_and_login_user(in_group="projects_admin")
+        admin = self.get_and_login_user(in_national_admin_group=True)
         section_head = section.head
         division_head = section.division.head
         branch_head = section.division.branch.head
@@ -128,7 +129,7 @@ class TestUtils(CommonTest):
         division_head = section1.division.head
         branch_head = section1.division.branch.head
         rando = self.get_and_login_user()
-        admin = self.get_and_login_user(in_group="projects_admin")
+        admin = self.get_and_login_user(in_national_admin_group=True)
 
         self.assertIn(section1, utils.get_manageable_sections(section_head))
         self.assertIn(section1, utils.get_manageable_sections(division_head))
@@ -212,3 +213,35 @@ class TestUtils(CommonTest):
         self.assertEqual(len(data), 2)  # there should be only two funding sources
 
         # now let's do everything again to test out to project-wide function
+
+
+    @tag("utils")
+    def test_can_modify_project(self):
+        project_year = FactoryFloor.ProjectYearFactory()
+        project = project_year.project
+        # must have project leads :)
+        FactoryFloor.LeadStaffFactory(project_year=project_year)
+
+        # get the service and service coordinator
+        service_coordinator = self.get_and_login_user(is_service_coordinator=True)
+        service = service_coordinator.services.first()
+
+        # add the service to the project year
+        project_year.services.add(service)
+        self.assertTrue(utils.can_modify_project(service_coordinator, project.id))
+
+        # remove the service from the project
+        project_year.services.remove(service)
+        self.assertFalse(utils.can_modify_project(service_coordinator, project.id))
+
+        # re-add the service to the project but remove the service coordinator from their job
+        project_year.services.add(service)
+        self.assertTrue(utils.can_modify_project(service_coordinator, project.id))
+        service.coordinator = None
+        service.save()
+        self.assertFalse(utils.can_modify_project(service_coordinator, project.id))
+
+
+
+
+

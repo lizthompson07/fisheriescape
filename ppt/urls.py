@@ -43,6 +43,7 @@ urlpatterns = [
     path('dmas/<int:pk>/view/', views.DMADetailView.as_view(), name="dma_detail"),
     path('dmas/<int:pk>/edit/', views.DMAUpdateView.as_view(), name="dma_edit"),
     path('dmas/<int:pk>/delete/', views.DMADeleteView.as_view(), name="dma_delete"),
+    path('dmas/<int:pk>/clone/', views.DMACloneView.as_view(), name="dma_clone"),
 
     # DMA Reviews #
     #################
@@ -92,6 +93,10 @@ urlpatterns = [
     path('settings/csrf-client-information/', views.CSRFClientInformationFormsetView.as_view(), name="manage_csrf_client_information"),  # tested
     path('settings/csrf-client-information/<int:pk>/delete/', views.CSRFClientInformationHardDeleteView.as_view(), name="delete_csrf_client_information"),
     # tested
+
+    path('settings/services/', views.ServiceFormsetView.as_view(), name="manage_services"), # tested
+    path('settings/service/<int:pk>/delete/', views.ServiceHardDeleteView.as_view(), name="delete_service"), # tested
+
 
     path('settings/storage-solutions/', views.StorageSolutionFormsetView.as_view(), name="manage_storage_solutions"),
     path('settings/storage-solution/<int:pk>/delete/', views.StorageSolutionHardDeleteView.as_view(), name="delete_storage_solution"),

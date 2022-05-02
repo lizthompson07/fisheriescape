@@ -666,3 +666,12 @@ def populate_quicknames():
             item.nom = item.quickname_fr
         item.save()
 
+
+def transfer_abl():
+    # get/create abl service
+    abl_service = models.Service.objects.get_or_create(name="ABL")[0]
+
+    abl_pys = models.ProjectYear.objects.filter(requires_abl_services=True)
+    print(abl_pys.count())
+    for p in abl_pys:
+        p.services.add(abl_service)

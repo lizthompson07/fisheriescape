@@ -46,7 +46,7 @@ class HerringAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=herring')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -58,12 +58,12 @@ class HerringAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=herring')
         return super().dispatch(request, *args, **kwargs)
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_herring_group, login_url='/accounts/denied/')
+@user_passes_test(in_herring_group, login_url='/accounts/denied/?app=herring')
 def index(request):
     return render(request, 'herring/index.html')
 
@@ -917,11 +917,12 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
                     # now the trickier stuff:
                     # SAMPLER
                     if row.get("sampler"):
-                        sedna_sampler = row.get("sampler").lower().split(", ")  # this will be in the format [last_name, first_name]
+                        sedna_sampler = row.get("sampler").lower().split(" ")  # this will be in the format [last_name, first_name]
+
                         # look for something similar in the hermorrhage db
                         herm_sampler = models.Sampler.objects.filter(
-                            first_name__istartswith=sedna_sampler[1],
-                            last_name__iexact=sedna_sampler[0],
+                            first_name__istartswith=sedna_sampler[0].strip(),
+                            last_name__iexact=sedna_sampler[1].strip(),
                         )
                         if herm_sampler.count() == 1:
                             # bingo, we found our man

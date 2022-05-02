@@ -14,8 +14,10 @@ class NewTicketEmail(Email):
         return [admin_email, self.instance.primary_contact.email]
 
     def get_subject_fr(self):
-        return f'{self.instance.app_display} ({self.instance.get_priority_display()})'
-
+        mystr = f'{self.instance.app_display} ({self.instance.get_priority_display()})'
+        if self.instance.request_type == 8:
+            mystr += f' ** ACCESS REQUEST **'
+        return mystr
 
 class NewFollowUpEmail(Email):
     subject_en = 'A follow-up has been added to your ticket'

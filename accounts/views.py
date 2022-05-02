@@ -86,7 +86,7 @@ class CloserTemplateView(TemplateView):
 
 # This is a good one. It should be able to replace all others with the message arg.
 def access_denied(request, message=None):
-    my_url = reverse("accounts:request_access")
+    my_url = f'{reverse("tickets:bug_create")}?permission_request=true&app={request.GET.get("app")}'
     a_tag = mark_safe(
         '<a pop-href="{}" href="#" class="btn btn-sm btn-primary badge request-access-button">{}</a>'.format(my_url, _("Request access")))
     if not message:
@@ -300,37 +300,37 @@ def activate(request, uidb64, token):
     else:
         return HttpResponse('Activation link is invalid!')
 
-
-class RequestAccessFormView(LoginRequiredMixin, FormView):
-    template_name = "accounts/request_access_form_popout.html"
-    form_class = forms.RequestAccessForm
-
-    def get_initial(self):
-        user = self.request.user
-        return {
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
-            'user_id': user.id,
-        }
-
-    def form_valid(self, form):
-        context = {
-            "first_name": form.cleaned_data["first_name"],
-            "last_name": form.cleaned_data["last_name"],
-            "email": form.cleaned_data["email"],
-            "user_id": form.cleaned_data["user_id"],
-            "application": form.cleaned_data["application"],
-            "optional_comment": form.cleaned_data["optional_comment"],
-        }
-        email = emails.RequestAccessEmail(context, self.request)
-        # send the email object
-        custom_send_mail(
-            subject=email.subject,
-            html_message=email.message,
-            from_email=email.from_email,
-            recipient_list=email.to_list
-        )
-        messages.success(self.request,
-                         message="your request has been sent to the site administrator")
-        return HttpResponseRedirect(reverse('shared_models:close_me'))
+#
+# class RequestAccessFormView(LoginRequiredMixin, FormView):
+#     template_name = "accounts/request_access_form_popout.html"
+#     form_class = forms.RequestAccessForm
+#
+#     def get_initial(self):
+#         user = self.request.user
+#         return {
+#             'first_name': user.first_name,
+#             'last_name': user.last_name,
+#             'email': user.email,
+#             'user_id': user.id,
+#         }
+#
+#     def form_valid(self, form):
+#         context = {
+#             "first_name": form.cleaned_data["first_name"],
+#             "last_name": form.cleaned_data["last_name"],
+#             "email": form.cleaned_data["email"],
+#             "user_id": form.cleaned_data["user_id"],
+#             "application": form.cleaned_data["application"],
+#             "optional_comment": form.cleaned_data["optional_comment"],
+#         }
+#         email = emails.RequestAccessEmail(context, self.request)
+#         # send the email object
+#         custom_send_mail(
+#             subject=email.subject,
+#             html_message=email.message,
+#             from_email=email.from_email,
+#             recipient_list=email.to_list
+#         )
+#         messages.success(self.request,
+#                          message="your request has been sent to the site administrator")
+#         return HttpResponseRedirect(reverse('shared_models:close_me'))

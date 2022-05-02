@@ -5,13 +5,13 @@
 <div class="">
 
   <button class="btn btn-sm btn-warning" @click="openDialog">
-    <span class="mdi mdi-import mr-1"></span> {% trans "Import Samples" %}
+    <span class="mdi mdi-import"></span> {% trans "Import Samples" %}
   </button>
 
   <transition v-if="overlay" name="modal">
     <div class="modal-mask">
       <div class="modal-wrapper">
-        <div class="modal-container" style="width: 1000px">
+        <div class="modal-container" style="width: 80%">
           <div class="modal-header">
             <h4> {% trans "Import Samples" %}</h4>
           </div>
@@ -31,15 +31,26 @@
                     <input type="number" class="form-control" placeholder="{% trans "Sample Id" %}" v-model="filterSampleId">
                   </div>
                   <div class="col">
+                    <select class="form-control" v-model="filterSampleType">
+                      <option :value="null">{% trans "Filter by sample type" %}</option>
+                      <option v-for="type in sampleTypes" :key="type.id" :value="type.id">
+                        ${type.name}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col">
                     <input type="text" class="form-control" placeholder="{% trans "Location (any part)" %}" v-model="filterLocation">
                   </div>
                   <div class="col">
-                    <select class="form-control" v-model="filterCollection">
-                      <option :value="null">{% trans "Filter by collection" %}</option>
+                    <select class="form-control" v-model="filterCollection" disabled>
+                      <option :value="null">{% trans "Filter by project" %}</option>
                       <option v-for="collection in collections" :key="collection.id" :value="collection.id">
-                        ${collection.name} (${collection.date_display})
+                        ${collection.name}
                       </option>
                     </select>
+                  </div>
+                  <div class="col">
+                    <input type="date" class="form-control" placeholder="{% trans "collection date" %}" v-model="filterDate">
                   </div>
                   <div class="col-auto my-1">
                     <div class="form-check">
@@ -52,11 +63,13 @@
                 </div>
               </form>
               <div class="mb-3">
+                <label for="">Samples</label>
                 <select name="" id="" multiple="true" class="form-control w-100" style="height: 200px" v-model="selectedSamples" ref="sample_box">
                   <option v-for="sample in samples" :key="sample.id" :value="sample.id">
-                    ${sample.display} &emsp;||&emsp;
-                    {% trans "Bottle" %} &rarr; ${sample.bottle_id | nz("n/a")} &emsp;||&emsp;
-                    {% trans "Collection" %} &rarr; ${sample.collection_display}
+                    ${sample.display}
+                    <span v-if="sample.bottle_id">(bottle id: ${sample.bottle_id})</span>
+                    &rarr;
+                    collection date: ${sample.datetime_display}
                   </option>
                 </select>
               </div>
@@ -83,7 +96,7 @@ Vue.component("sample-import-overlay", {
   delimiters: ["${", "}"],
   name: "sample-import-overlay",
   props: {
-    batch_id: {
+    default_collection_id: {
       required: true,
     }
   },
@@ -93,12 +106,15 @@ Vue.component("sample-import-overlay", {
       error: null,
       samples: [],
       collections: [],
+      sampleTypes: [],
       selectedSamples: [],
 
       filterUnfiltered: true,
       filterSampleId: null,
       filterCollection: null,
       filterLocation: null,
+      filterDate: null,
+      filterSampleType: null,
       loadingSamples: true,
       loadingCollections: true,
     };
@@ -109,7 +125,9 @@ Vue.component("sample-import-overlay", {
       this.overlay = true;
       this.filterUnfiltered = true;
       this.filterSampleId = null;
-      this.filterCollection = null;
+      this.filterDate = null;
+      this.filterCollection = this.default_collection_id;
+      this.filterSampleType = null;
       this.getSamples();
     },
     importSamples() {
@@ -128,6 +146,8 @@ Vue.component("sample-import-overlay", {
       if (this.filterSampleId && this.filterSampleId !== "") endpoint += `id=${this.filterSampleId}&`;
       if (this.filterLocation && this.filterLocation !== "") endpoint += `location__icontains=${this.filterLocation}&`;
       if (this.filterCollection && this.filterCollection !== "") endpoint += `collection=${this.filterCollection}&`;
+      if (this.filterDate && this.filterDate !== "") endpoint += `datetime=${this.filterDate}&`;
+      if (this.filterSampleType && this.filterSampleType !== "") endpoint += `sample_type=${this.filterSampleType}&`;
       if (this.filterUnfiltered) endpoint += `filters__isnull=true&`;
       apiService(endpoint).then(response => {
         this.loadingSamples = false;
@@ -144,6 +164,12 @@ Vue.component("sample-import-overlay", {
         this.loadingCollections = false;
         this.collections = response;
       });
+    },
+    getSampleTypes() {
+      let endpoint = '/api/edna/sample_types/'
+      apiService(endpoint).then(response => {
+        this.sampleTypes = response;
+      });
     }
 
   },
@@ -152,6 +178,7 @@ Vue.component("sample-import-overlay", {
   },
   created() {
     this.getCollections();
+    this.getSampleTypes();
   },
   computed: {}
 });

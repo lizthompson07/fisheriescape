@@ -74,7 +74,6 @@ def in_field_group(value, arg):
             return True
     elif arg == "lab":
         if value in [
-            "requires_abl_services",
             "requires_lab_space",
             "requires_other_lab_support",
             "other_lab_support_needs",

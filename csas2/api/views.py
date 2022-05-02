@@ -195,8 +195,8 @@ class ProcessViewSet(viewsets.ModelViewSet):
         process = get_object_or_404(models.Process, pk=pk)
         if qp.get("request_posting"):
             can_modify = can_modify_process(request.user, process.id, True)
-            if not can_modify.can_modify:
-                raise ValidationError(can_modify.reason)
+            if not can_modify.get("can_modify"):
+                raise ValidationError(can_modify.get("reason"))
             elif process.is_posted:
                 raise ValidationError(_("A request to have this process posted has already occurred."))
 

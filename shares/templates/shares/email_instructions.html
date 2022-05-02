@@ -15,7 +15,9 @@
     <td>{{ object.password }}</td>
   </tr>
 </table>
-
+<p>
+  (clicking on the links will only work once you are already signed in via Windows Explorer):
+</p>
 <p>
   If you would like to change this password, unfortunately you will have to come by my office and we can change it directly on the server.
   I have added you to the following share{{ object.shares.count|pluralize }}:
@@ -29,8 +31,8 @@
   {% endfor %}
 </ul>
 
-<p>{{ object.shares.count|pluralize:"This,These" }} folder{{ object.shares.count|pluralize }} can be mapped to your desktop just like any other folder.
-  However when you enter in your credentials, <b>do not forget to include the backslash </b> in front of your username. </p>
+<p>{{ object.shares.count|pluralize:"This,These" }} folder{{ object.shares.count|pluralize }} can be mapped to your desktop just like any other folder (but currently there are some glitches with mapping, so we suggest clicking in the path bar at the top of a Windows Explorer window and typing in the network path).
+  However when you enter in your credentials, <b>do not forget to include the backslash </b> in front of your username. You will be prompted for credentials each time you restart your computer or log back onto VPN. You must be on the network at GFC or via VPN to connect to the above folder(s) </p>
 
 <p>
   {{ request.user }}<br>

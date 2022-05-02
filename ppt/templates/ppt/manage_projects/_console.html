@@ -74,15 +74,6 @@
           :clearable="true"
         >
         </v-select>
-
-{#                <select#}
-{#                  v-model="filter.section"#}
-{#                  @change="updateResults"#}
-{#                  class="form-control form-control-sm" id="filter.section"#}
-{#                >#}
-{#                  <option value="">{% trans "all" %}</option>#}
-{#                  <option v-for="(obj, index) in sections" :value="obj.id">${obj.full_name_en_ver1}</option>#}
-{#                </select>#}
       </div>
 
 
@@ -128,24 +119,25 @@
         </select>
       </div>
 
+      {# status #}
+      <div class="form-group">
+
+        <label class="text-muted small" for="filter.status">{% trans "Status" %}</label>
+        <select
+          v-model="filter.status"
+          @change="updateResults"
+          class="form-control form-control-sm" id="filter.status"
+        >
+          <option value selected>{% trans "all" %}</option>
+          {% for status in status_choices %}
+            <option value="{{ status.value }}">{{ status.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
       {#  ADVANCED FILTERS  #}
       <div v-if="showMoreFilters" class="mb-3">
-        {# status #}
-        <div class="form-group">
 
-          <label class="text-muted small" for="filter.status">{% trans "Status" %}</label>
-          <select
-            v-model="filter.status"
-            @change="updateResults"
-            class="form-control form-control-sm" id="filter.status"
-          >
-            <option value selected>{% trans "all" %}</option>
-            {% for status in status_choices %}
-              <option value="{{ status.value }}">{{ status.label }}</option>
-            {% endfor %}
-          </select>
-        </div>
 
         {# Starting Year #}
         <div class="form-group">
@@ -285,18 +277,86 @@
           </select>
         </div>
 
-
-        {# Requires ABL services #}
+        {# Services #}
         <div class="form-group">
-          <label class="text-muted small" for="filter.requires_abl_services">{% trans "Requires ABL services" %}</label>
-          <select
-            v-model="filter.requires_abl_services"
-            @change="updateResults"
-            class="form-control form-control-sm" id="filter.requires_abl_services"
+
+          <label class="text-muted small" for="filter.services">${ projectYearLabels.services }</label>
+          <v-select
+            v-model="filter.services"
+            @input="updateResults"
+            style="border-color: white"
+            id="filter.services"
+            :options="services"
+            label="text"
+            :reduce="choice => choice.value"
+            :clearable="true"
           >
-            <option value="">------</option>
-            <option :value="true">{% trans "Yes" %}</option>
-            <option :value="false">{% trans "No" %}</option>
+          </v-select>
+
+
+        </div>
+
+        {# approval status #}
+        <div class="form-group">
+
+          <label class="text-muted small" for="filter.approval_status">{% trans "Approval status" %}</label>
+          <select
+            v-model="filter.approval_status"
+            @change="updateResults"
+            class="form-control form-control-sm" id="filter.approval_status"
+          >
+            <option value selected>{% trans "all" %}</option>
+            {% for status in approval_status_choices %}
+              <option value="{{ status.value }}">{{ status.label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# approval level #}
+        <div class="form-group">
+
+          <label class="text-muted small" for="filter.approval_level">{% trans "Approval level" %}</label>
+          <select
+            v-model="filter.approval_level"
+            @change="updateResults"
+            class="form-control form-control-sm" id="filter.approval_level"
+          >
+            <option value selected>{% trans "all" %}</option>
+            {% for level in approval_level_choices %}
+              <option value="{{ level.value }}">{{ level.label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# funding status #}
+        <div class="form-group">
+
+          <label class="text-muted small" for="filter.funding_status">{% trans "Funding status" %}</label>
+          <select
+            v-model="filter.funding_status"
+            @change="updateResults"
+            class="form-control form-control-sm" id="filter.funding_status"
+          >
+            <option value selected>{% trans "all" %}</option>
+            {% for status in funding_status_choices %}
+              <option value="{{ status.value }}">{{ status.label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# om category #}
+        <div class="form-group">
+
+          <label class="text-muted small" for="filter.om_cost_category">{% trans "Has O&M Cost Category?" %}</label>
+          <select
+            v-model="filter.om_cost_category"
+            @change="updateResults"
+            class="form-control form-control-sm" id="filter.om_cost_category"
+          >
+            <option value selected>{% trans "all" %}</option>
+            {% for cat in om_cost_categories %}
+              <option value="{{ cat.value }}">{{ cat.label }}</option>
+            {% endfor %}
           </select>
         </div>
 

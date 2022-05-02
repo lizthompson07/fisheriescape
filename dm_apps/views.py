@@ -25,7 +25,7 @@ def get_app_dict(request):
 
     try:
         app_dict["inventory"] = {
-            "title": _("Metadata Inventory"),
+            "title": _("Science Data Inventory"),
             "description": _("Tool for organizing and managing regional data resources."),
             "status": "production",
             "access": "open",

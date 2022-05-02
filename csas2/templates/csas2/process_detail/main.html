@@ -69,13 +69,13 @@
         </a>
       {% endif %}
 
-      <button
-        v-if="process.can_post_meeting && !process.posting_request_date && !process.is_posted"
-        class="btn btn-sm btn-purple" :disabled="!process.can_post_meeting.can_post" @click="requestPosting"
-        data-toggle="tooltip" :title="process.can_post_meeting.reasons"
-      >
-        {% trans "Request to Post Meeting" %}
-      </button>
+{#      <button#}
+{#        v-if="process.can_post_meeting && !process.posting_request_date && !process.is_posted"#}
+{#        class="btn btn-sm btn-purple" :disabled="!process.can_post_meeting.can_post" @click="requestPosting"#}
+{#        data-toggle="tooltip" :title="process.can_post_meeting.reasons"#}
+{#      >#}
+{#        {% trans "Request to Post Meeting" %}#}
+{#      </button>#}
     </div>
 
     {% if object.tor %}
@@ -388,15 +388,15 @@
 
 
       },
-      requestPosting() {
-        let userInput = confirm("{% trans 'Are you certain you want to make a request for this process to be posted on the National CSAS website?' %}")
-        if (userInput) {
-          let endpoint = `/api/csas/processes/${processId}/?request_posting=true`;
-          apiService(endpoint, "POST").then(data => {
-            this.getProcess()
-          });
-        }
-      },
+      //requestPosting() {
+      //  let userInput = confirm("{% trans 'Are you certain you want to make a request for this process to be posted on the National CSAS website?' %}")
+      //  if (userInput) {
+      //    let endpoint = `/api/csas/processes/${processId}/?request_posting=true`;
+      //    apiService(endpoint, "POST").then(data => {
+      //      this.getProcess()
+      //    });
+      //  }
+      //},
       getCosts() {
         let endpoint = `/api/csas/process-costs/?process=${this.process.id}`;
         apiService(endpoint).then(data => {

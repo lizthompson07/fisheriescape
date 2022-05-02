@@ -243,6 +243,7 @@ invitee_role_categories = (
     (4, 'science lead'),
     (5, 'csas coordinator'),
     (6, 'science advisor'),
+    (7, 'CSAS office contact'),
 )
 
 cost_category_choices = (

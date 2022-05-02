@@ -179,6 +179,17 @@ class HelpText(HelpTextLookup):
     model = models.CharField(max_length=255, blank=True, null=True)
 
 
+class Service(SimpleLookup):
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("service coordinator"), related_name="services")
+    regions = models.ManyToManyField(shared_models.Region, related_name="services", blank=True, verbose_name=_("For which regions"))
+
+    def __str__(self):
+        mystr = self.tname
+        if self.regions.exists():
+            mystr += f" ({listrify(self.regions.all())})"
+        return mystr
+
+
 class Project(models.Model):
     # basic
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="ppt", verbose_name=_("section"))
@@ -294,7 +305,8 @@ class Project(models.Model):
 
     @property
     def region(self):
-        return self.division.branch.region
+        if self.section:
+            return self.division.branch.sector.region
 
     @property
     def division(self):
@@ -401,6 +413,7 @@ class ProjectYear(models.Model):
     priorities = models.TextField(blank=True, null=True, verbose_name=_("year-specific priorities"))
     # HTML field
     deliverables = models.TextField(blank=True, null=True, verbose_name=_("deliverables / activities"), editable=False)
+    services = models.ManyToManyField(Service, blank=True, verbose_name=_("Will any of the following services be required?"), related_name="years")
 
     # SPECIALIZED EQUIPMENT
     ########################
@@ -442,9 +455,11 @@ class ProjectYear(models.Model):
     # LAB COMPONENT
     ###############
     has_lab_component = models.BooleanField(default=False, verbose_name=_("Does this project involve laboratory work?"))
-    # maritimes only
+
+    # maritimes only - DELETE ME
     requires_abl_services = models.BooleanField(default=False, verbose_name=_(
-        "Does this project require the services of Aquatic Biotechnology Lab (ABL)?"))
+        "Does this project require the services of Aquatic Biotechnology Lab (ABL)?"), editable=False)
+
     requires_lab_space = models.BooleanField(default=False, verbose_name=_("Is laboratory space required?"))
     requires_other_lab_support = models.BooleanField(default=False, verbose_name=_(
         "Does this project require other specialized laboratory support or services (provide details below)?"))
@@ -945,10 +960,15 @@ class StatusReport(models.Model):
 
 class Review(models.Model):
     approval_status_choices = (
-        (1, _("approved")),
-        (2, _("recommended")),
-        (0, _("not approved")),
-        (9, _("cancelled")),
+        (1, _("Approved")),
+        (2, _("Recommended")),
+        (0, _("Not approved")),
+        (9, _("Cancelled")),
+    )
+    funding_status_choices = (
+        (1, _("Fully funded")),
+        (2, _("Partially funded")),
+        (3, _("Unfunded")),
     )
     approval_level_choices = (
         (1, _("Division-level")),
@@ -956,9 +976,9 @@ class Review(models.Model):
         (3, _("National-level")),
     )
     score_choices = (
-        (3, _("high")),
-        (2, _("medium")),
-        (1, _("low")),
+        (3, _("High")),
+        (2, _("Medium")),
+        (1, _("Low")),
     )
     project_year = models.OneToOneField(ProjectYear, related_name="review", on_delete=models.CASCADE)
 
@@ -983,6 +1003,7 @@ class Review(models.Model):
 
     approval_status = models.IntegerField(choices=approval_status_choices, blank=True, null=True, verbose_name=_("Approval status"))
     approval_level = models.IntegerField(choices=approval_level_choices, blank=True, null=True, verbose_name=_("level of approval"))
+    funding_status = models.IntegerField(choices=funding_status_choices, blank=True, null=True, verbose_name=_("funding status"))
 
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
     approval_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
@@ -1235,7 +1256,7 @@ class DMA(MetadataFields):
 
     # Identification
     title = models.CharField(max_length=1000, verbose_name=_("Title"), help_text=_("What is the title of the Data Management Agreement?"))
-    data_contact = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("Who will be the principal steward of this data?"),
+    data_contact = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("Who is the principal steward of this data?"),
                                     help_text=_("i.e., who is the primary responsible party?"))
 
     # Metadata
@@ -1244,7 +1265,7 @@ class DMA(MetadataFields):
     metadata_tool = models.TextField(blank=True, null=True, verbose_name=_("Describe the tools or processes that will be used to create metadata"),
                                      help_text=_(
                                          "e.g., Metadata Inventory app in DM Apps, DFO Enterprise Data Hub, Federal Geospatial Portal, stand-alone file, ..."))
-    metadata_url = models.TextField(blank=True, null=True, verbose_name=_("Please provide any URLs to the metadata"),
+    metadata_url = models.CharField(blank=True, null=True, max_length=1000, verbose_name=_("Please provide any URLs to the metadata"),
                                     help_text=_("Full link to any metadata records available online, if applicable"))
     metadata_update_freq = models.IntegerField(blank=True, null=True, verbose_name=_("At what frequency should the metadata be updated? "),
                                                help_text=_("What should be the expectation for how often the metadata is updated?"), choices=frequency_choices)
@@ -1252,7 +1273,7 @@ class DMA(MetadataFields):
                                           help_text=_("What justification can be provided for the above selection?"))
 
     # Archiving / Storage
-    storage_solutions = models.ManyToManyField(StorageSolution,  blank=True, verbose_name=_(
+    storage_solutions = models.ManyToManyField(StorageSolution, blank=True, verbose_name=_(
         "Which storage solution(s) will be used to house the raw field data, processed data, and all other data products?"))
     storage_solution_text = models.TextField(blank=True, null=True, verbose_name=_("Justification for selection of storage solution(s)"),
                                              help_text=_("Provide your rational for the selection(s) made above."))
@@ -1263,10 +1284,10 @@ class DMA(MetadataFields):
     data_retention = models.TextField(blank=True, null=True, verbose_name=_("What is the retention policy for the data?"),
                                       help_text=_("Please refer to the DFO EOS Retention Policy for clarification."))
     backup_plan = models.TextField(blank=True, null=True, verbose_name=_("What procedures will be taken to back-up/secure the data?"))
-    cloud_costs = models.BooleanField(blank=True, null=True,
-                                      verbose_name=_("If using cloud storage, what is the estimated annual cost and who will be covering the cost? "),
-                                      help_text=_(
-                                          "e.g., cloud storage is estimated at $1000/yr and will be paid for under the the division manager's budget"))
+    cloud_costs = models.TextField(blank=True, null=True,
+                                   verbose_name=_("If using cloud storage, what is the estimated annual cost and who will be covering the cost? "),
+                                   help_text=_(
+                                       "e.g., cloud storage is estimated at $1000/yr and will be paid for under the the division manager's budget"))
 
     # Sharing
     had_sharing_agreements = models.BooleanField(default=False, verbose_name=_("Is the dataset subject to a data sharing agreement, MOU, etc.?"),
@@ -1282,6 +1303,7 @@ class DMA(MetadataFields):
 
     class Meta:
         verbose_name = _("Data Management Agreement")
+        ordering = ["project__section__division__branch__sector__region", "project__section__division", "project__section"]
 
     def get_absolute_url(self):
         return reverse('ppt:dma_detail', args=[self.id])
@@ -1320,7 +1342,7 @@ class DMAReview(MetadataFields):
     comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["fiscal_year", '-created_at']
         unique_together = [
             ('dma', 'fiscal_year'),  # there should only be a single review per year on a given DMA
         ]
