@@ -456,7 +456,8 @@ class CommitteeCreateView(UserRequiredMixin, CommonCreateViewHelp):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/committeeForm.html']
+        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
+                              'maret/js/committeeForm.html']
         return context
 
 
@@ -475,6 +476,7 @@ class CommitteeDetailView(UserRequiredMixin, CommonDetailView):
             'branch',
             'division',
             'area_office',
+            'area_office_program',
             'is_dfo_chair',
             'external_chair',
             'dfo_liaison',
@@ -525,7 +527,8 @@ class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/committeeForm.html']
+        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
+                              'maret/js/committeeForm.html']
         return context
 
 
@@ -914,3 +917,10 @@ class AreaOfficesFormsetView(CommonMaretFormset):
     queryset = models.AreaOffice.objects.all()
     formset_class = forms.AreaOfficesFormSet
     success_url_name = "maret:manage_area_offices"
+
+
+class AreaOfficeProgramsFormsetView(CommonMaretFormset):
+    h1 = _("Manage Area Office Programs")
+    queryset = models.AreaOfficeProgram.objects.all()
+    formset_class = forms.AreaOfficesProgramFormSet
+    success_url_name = "maret:manage_area_office_programs"
