@@ -437,7 +437,7 @@ def get_project_year_field_list(project_year=None):
     my_list = [
         'dates|dates',
         'priorities',  # do not call the html field directly or we loose the ability to get the model's verbose name
-        'services',
+        'services|{}'.format(_("services required")),
 
         # SPECIALIZED EQUIPMENT COMPONENT
         #################################
