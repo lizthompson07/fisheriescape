@@ -17,6 +17,9 @@
 {% elif "status" in field %}
   <td v-html='projectYear.formatted_status'></td>
 
+{% elif "services" in field %}
+  <td v-html='projectYear.services'></td>
+
 {% elif field|is_markdown_field %}
   <td v-html='projectYear.{{ field }}_html'></td>
 

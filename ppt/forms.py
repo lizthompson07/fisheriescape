@@ -223,6 +223,7 @@ class ProjectYearForm(forms.ModelForm):
             # "responsibility_center": forms.Select(attrs=chosen_js),
             # "allotment_code": forms.Select(attrs=chosen_js),
             "existing_project_codes": forms.SelectMultiple(attrs=chosen_js),
+            "services": forms.SelectMultiple(attrs=chosen_js),
 
             # SPECIALIZED EQUIPMENT
             ########################
@@ -254,7 +255,6 @@ class ProjectYearForm(forms.ModelForm):
             # LAB COMPONENT
             ###############
             'has_lab_component': forms.Select(choices=YESNO_CHOICES),
-            'requires_abl_services': forms.Select(choices=YESNO_CHOICES),
             'requires_lab_space': forms.Select(choices=YESNO_CHOICES),
             'requires_other_lab_support': forms.Select(choices=YESNO_CHOICES),
             'other_lab_support_needs': forms.Textarea(attrs=row4),
@@ -972,3 +972,20 @@ class DMAReviewForm(forms.ModelForm):
     class Meta:
         model = models.DMAReview
         exclude = ["dma"]
+
+
+class ServiceForm(forms.ModelForm):
+    class Meta:
+        model = models.Service
+        fields = "__all__"
+        widgets = {
+            'coordinator': forms.Select(attrs=chosen_js),
+            'regions': forms.SelectMultiple(attrs=chosen_js),
+        }
+
+
+ServiceFormset = modelformset_factory(
+    model=models.Service,
+    form=ServiceForm,
+    extra=1,
+)

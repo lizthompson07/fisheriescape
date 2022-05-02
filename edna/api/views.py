@@ -1,8 +1,8 @@
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from shared_models.utils import get_labels
 from . import serializers
 from .permissions import eDNACRUDOrReadOnly
-from .. import models
+from .. import models, utils
 # USER
 #######
 from ..filters import SampleFilter, FilterFilter, DNAExtractFilter
@@ -25,10 +25,25 @@ class CurrentUserAPIView(APIView):
         return Response(data)
 
 
+class SampleTypeListAPIView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = models.SampleType.objects.all()
+    serializer_class = serializers.SampleTypeSerializer
+
+
 class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CollectionSerializer
     permission_classes = [eDNACRUDOrReadOnly]
     queryset = models.Collection.objects.order_by("name", "start_date")
+
+    def retrieve(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("assays_tested"):
+            qs = models.Assay.objects.filter(pcrs__pcr__collection=self.get_object()).distinct()
+            return Response(serializers.AssaySerializer(qs, many=True).data, status=status.HTTP_200_OK)
+        return super().retrieve(request, *args, **kwargs)
+
+
 
 
 class FiltrationBatchViewSet(viewsets.ModelViewSet):
@@ -85,7 +100,41 @@ class FilterViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = FilterFilter
 
-    # pagination_class = StandardResultsSetPagination
+    def create(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("move"):
+            if utils.is_crud_user(request.user):
+                direction = request.data.get("direction")
+                item_id_list = request.data.get("items")
+                if direction == "down":
+                    item_id_list.reverse()
+
+                for id in item_id_list:
+                    filter = get_object_or_404(models.Filter, pk=id)
+                    id_list = [f.id for f in filter.filtration_batch.filters.all()]
+                    current_index = None
+                    new_index = None
+                    if direction == "up":
+                        # make sure this is not the top record
+                        current_index = id_list.index(filter.id)
+                        if current_index != 0:
+                            new_index = current_index - 1
+                    elif direction == "down":
+                        # make sure this is not the top record
+                        current_index = id_list.index(filter.id)
+                        if current_index != len(id_list) - 1:
+                            new_index = current_index + 1
+
+                    # swap with other filter who is currently sitting in the new_index position
+                    if new_index is not None:
+                        filter.order = new_index
+                        filter.save()
+                        other_filter = get_object_or_404(models.Filter, pk=id_list[new_index])
+                        other_filter.order = current_index
+                        other_filter.save()
+                return Response(item_id_list, status.HTTP_200_OK)
+        else:
+            return super().create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params
@@ -113,7 +162,6 @@ class FilterModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         data['filtration_type_choices'] = [dict(text=item.name, value=item.id) for item in models.FiltrationType.objects.all()]
-        data['sample_choices'] = [dict(text=item.full_display, value=item.id) for item in models.Sample.objects.all()]
         return Response(data)
 
 
@@ -123,6 +171,42 @@ class DNAExtractViewSet(viewsets.ModelViewSet):
     queryset = models.DNAExtract.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DNAExtractFilter
+
+    def create(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("move"):
+            if utils.is_crud_user(request.user):
+                direction = request.data.get("direction")
+                item_id_list = request.data.get("items")
+                if direction == "down":
+                    item_id_list.reverse()
+
+                for id in item_id_list:
+                    extract = get_object_or_404(models.DNAExtract, pk=id)
+                    id_list = [f.id for f in extract.extraction_batch.extracts.all()]
+                    current_index = None
+                    new_index = None
+                    if direction == "up":
+                        # make sure this is not the top record
+                        current_index = id_list.index(extract.id)
+                        if current_index != 0:
+                            new_index = current_index - 1
+                    elif direction == "down":
+                        # make sure this is not the top record
+                        current_index = id_list.index(extract.id)
+                        if current_index != len(id_list) - 1:
+                            new_index = current_index + 1
+
+                    # swap with other filter who is currently sitting in the new_index position
+                    if new_index is not None:
+                        extract.order = new_index
+                        extract.save()
+                        other_extract = get_object_or_404(models.DNAExtract, pk=id_list[new_index])
+                        other_extract.order = current_index
+                        other_extract.save()
+                return Response(item_id_list, status.HTTP_200_OK)
+        else:
+            return super().create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params
@@ -149,7 +233,6 @@ class DNAExtractModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         # we want to get a list of filters for which there has been no PCRs
-        data['filter_choices'] = [dict(text=item.full_display, value=item.id, has_extract=hasattr(item, 'extract')) for item in models.Filter.objects.all()]
         data['dna_extraction_protocol_choices'] = [dict(text=item.name, value=item.id) for item in models.DNAExtractionProtocol.objects.all()]
 
         return Response(data)
@@ -167,6 +250,11 @@ class PCRViewSet(viewsets.ModelViewSet):
         if qp.get("batch"):
             batch = get_object_or_404(models.PCRBatch, pk=qp.get("batch"))
             qs = batch.pcrs.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        if qp.get("collection"):
+            collection = get_object_or_404(models.Collection, pk=qp.get("collection"))
+            qs = collection.pcrs.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         raise ValidationError(_("You need to specify a batch"))
@@ -188,7 +276,6 @@ class PCRModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         # we want to get a list of filters for which there has been no PCRs
-        data['extract_choices'] = [dict(text=item.full_display, value=item.id) for item in models.DNAExtract.objects.all()]
         data['master_mix_choices'] = [dict(text=str(item), value=item.id) for item in models.MasterMix.objects.all()]
         return Response(data)
 
@@ -201,6 +288,20 @@ class PCRAssayModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         data['assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.all()]
+        data['main_assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.filter(is_ipc=False)]
+        data['ipc_assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.filter(is_ipc=True)]
+        data['master_mix_choices'] = [dict(text=str(item), value=item.id) for item in models.MasterMix.objects.all()]
+        return Response(data)
+
+
+
+class PCRBatchModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.PCRBatch
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = get_labels(self.model)
         return Response(data)
 
 

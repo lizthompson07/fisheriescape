@@ -879,6 +879,23 @@ class CSRFClientInformationHardDeleteView(AdminRequiredMixin, CommonHardDeleteVi
     success_url = reverse_lazy("ppt:manage_csrf_client_information")
 
 
+class ServiceFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'ppt/formset.html'
+    h1 = "Manage Services"
+    queryset = models.Service.objects.all()
+    formset_class = forms.ServiceFormset
+    success_url_name = "ppt:manage_services"
+    home_url_name = "ppt:index"
+    delete_url_name = "ppt:delete_service"
+    container_class = "container-fluid bg-light curvy"
+
+class ServiceHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Service
+    success_url = reverse_lazy("ppt:manage_services")
+
+
+
+
 class PPTAdminUserFormsetView(SuperuserOrNationalAdminRequiredMixin, CommonFormsetView):
     template_name = 'ppt/formset.html'
     h1 = "Manage PPT Administrative Users"

@@ -6,7 +6,7 @@ from django.utils.translation import activate
 from ..test import FactoryFloor
 from ..test.common_tests import CommonProjectTest as CommonTest
 from shared_models.views import CommonFormsetView, CommonHardDeleteView
-from .. import views
+from .. import views, utils
 from .. import models
 from faker import Factory
 
@@ -30,6 +30,7 @@ class TestAllFormsets(CommonTest):
             "manage_csrf_sub_themes",
             "manage_csrf_priorities",
             "manage_csrf_client_information",
+            "manage_services",
         ]
 
         self.test_urls = [reverse_lazy("ppt:" + name) for name in self.test_url_names]
@@ -47,9 +48,10 @@ class TestAllFormsets(CommonTest):
             views.CSRFSubThemeFormsetView,
             views.CSRFPriorityFormsetView,
             views.CSRFClientInformationFormsetView,
+            views.ServiceFormsetView,
         ]
         self.expected_template = 'ppt/formset.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag('formsets', "view")
     def test_view_class(self):
@@ -87,10 +89,11 @@ class TestAllHardDeleteViews(CommonTest):
             {"model": models.CSRFSubTheme, "url_name": "delete_csrf_sub_theme", "view": views.CSRFSubThemeHardDeleteView},
             {"model": models.CSRFPriority, "url_name": "delete_csrf_priority", "view": views.CSRFPriorityHardDeleteView},
             {"model": models.CSRFClientInformation, "url_name": "delete_csrf_client_information", "view": views.CSRFClientInformationHardDeleteView},
+            {"model": models.Service, "url_name": "delete_service", "view": views.ServiceHardDeleteView},
         ]
         self.test_dicts = list()
 
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
         for d in self.starter_dicts:
             new_d = d
             m = d["model"]
@@ -113,6 +116,8 @@ class TestAllHardDeleteViews(CommonTest):
                 obj = FactoryFloor.CSRFPriorityFactory()
             elif m == models.CSRFClientInformation:
                 obj = FactoryFloor.CSRFClientInformationFactory()
+            elif m == models.Service:
+                obj = FactoryFloor.ServiceFactory()
             else:
                 obj = m.objects.create(name=faker.word())
             new_d["obj"] = obj
@@ -135,12 +140,11 @@ class TestAllHardDeleteViews(CommonTest):
     @tag('hard_delete', "delete")
     def test_delete(self):
         # need to be an admin user to do this
-        self.get_and_login_user(user=self.user)
         for d in self.test_dicts:
             # start off to confirm the object exists
             self.assertIn(d["obj"], type(d["obj"]).objects.all())
             # visit the url
             activate("en")
-            self.client.get(d["url"])
+            response = self.client.get(d["url"])
             # confirm the object has been deleted
             self.assertNotIn(d["obj"], type(d["obj"]).objects.all())
