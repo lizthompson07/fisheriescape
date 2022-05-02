@@ -1,6 +1,7 @@
 from copy import deepcopy
 
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from pandas import date_range
@@ -186,7 +187,12 @@ class ProjectYearViewSet(ModelViewSet):
             self.queryset = self.queryset.filter(project__is_hidden=False, status__in=[2, 3, 4])
         # if the user param is present, it means we are looking at the My Projects page.
         if qp.get("user"):
-            self.queryset = self.queryset.filter(project__section__in=get_manageable_sections(request.user)).order_by("fiscal_year", "project_id")
+            query = Q(project__section__in=get_manageable_sections(request.user))
+            # if this is also a service coordinator, make sure any project years tagged with those services show up
+            if request.user.services.exists():
+                query |= Q(services__in=request.user.services.all())
+            self.queryset = self.queryset.filter(query).order_by("fiscal_year", "project_id")
+
         return super().list(request, *args, **kwargs)
 
     def post(self, request, pk):
@@ -697,6 +703,7 @@ class ProjectYearModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = get_labels(self.model)
+        data['service_choices'] = [dict(value=item.id, text=str(item)) for item in models.Service.objects.all()]
         return Response(data)
 
 

@@ -179,6 +179,17 @@ class HelpText(HelpTextLookup):
     model = models.CharField(max_length=255, blank=True, null=True)
 
 
+class Service(SimpleLookup):
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("service coordinator"), related_name="services")
+    regions = models.ManyToManyField(shared_models.Region, related_name="services", blank=True, verbose_name=_("For which regions"))
+
+    def __str__(self):
+        mystr = self.tname
+        if self.regions.exists():
+            mystr += f" ({listrify(self.regions.all())})"
+        return mystr
+
+
 class Project(models.Model):
     # basic
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="ppt", verbose_name=_("section"))
@@ -402,6 +413,7 @@ class ProjectYear(models.Model):
     priorities = models.TextField(blank=True, null=True, verbose_name=_("year-specific priorities"))
     # HTML field
     deliverables = models.TextField(blank=True, null=True, verbose_name=_("deliverables / activities"), editable=False)
+    services = models.ManyToManyField(Service, blank=True, verbose_name=_("Will any of the following services be required?"), related_name="years")
 
     # SPECIALIZED EQUIPMENT
     ########################
@@ -443,9 +455,11 @@ class ProjectYear(models.Model):
     # LAB COMPONENT
     ###############
     has_lab_component = models.BooleanField(default=False, verbose_name=_("Does this project involve laboratory work?"))
-    # maritimes only
+
+    # maritimes only - DELETE ME
     requires_abl_services = models.BooleanField(default=False, verbose_name=_(
-        "Does this project require the services of Aquatic Biotechnology Lab (ABL)?"))
+        "Does this project require the services of Aquatic Biotechnology Lab (ABL)?"), editable=False)
+
     requires_lab_space = models.BooleanField(default=False, verbose_name=_("Is laboratory space required?"))
     requires_other_lab_support = models.BooleanField(default=False, verbose_name=_(
         "Does this project require other specialized laboratory support or services (provide details below)?"))

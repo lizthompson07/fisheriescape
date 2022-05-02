@@ -504,7 +504,7 @@ class CommonHardDeleteView(View, SingleObjectMixin, ABC):
     def get(self, request, *args, **kwargs):
         my_obj = self.get_object()
         my_obj.delete()
-        messages.error(self.request, f"{my_obj} has been successfully deleted.")
+        messages.success(self.request, f"Successfully deleted.")
 
         return HttpResponseRedirect(self.get_success_url())
 

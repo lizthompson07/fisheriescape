@@ -36,6 +36,13 @@ def in_ppt_admin_group(user):
         return in_ppt_regional_admin_group(user) or in_ppt_national_admin_group(user)
 
 
+def is_service_coordinator(user):
+    """
+    Will return True if user is ppt service coordinator
+    """
+    return user.services.exists()
+
+
 def is_management(user):
     """
         Will return True if user is in project_admin group, or if user is listed as a head of a section, division or branch
@@ -51,7 +58,7 @@ def is_management_or_admin(user):
         Will return True if user is in project_admin group, or if user is listed as a head of a section, division or branch
     """
     if user.id:
-        return in_ppt_admin_group(user) or is_management(user)
+        return in_ppt_admin_group(user) or is_management(user) or is_service_coordinator(user)
 
 
 def is_section_head(user, project):
@@ -113,6 +120,13 @@ def can_modify_project(user, project_id, return_as_dict=False):
         elif in_ppt_regional_admin_group(user) and project.section and project.section.division.branch.sector.region == user.ppt_admin_user.region:
             my_dict["reason"] = f"You can modify this record because you are a {user.ppt_admin_user.region} Regional Administrator"
             my_dict["can_modify"] = True
+
+        # check to see if service owner (if there an overlap between the services on a project year and the services for a user)
+        elif user.services.exists() and \
+                len(list(set(s.id for s in user.services.all()) & set(s.id for s in models.Service.objects.filter(years__project=project).all()))):
+            my_dict["reason"] = f"You can modify this record because you are a service coordinator for a service that is listed on a project year."
+            my_dict["can_modify"] = True
+
         # check to see if they are a section head
         elif is_section_head(user, project):
             my_dict["reason"] = "You can modify this record because it falls under your section"
@@ -146,7 +160,7 @@ def is_admin_or_project_manager(user, project):
     if user.id:
 
         # check to see if a superuser or projects_admin -- both are allow to modify projects
-        if "projects_admin" in [g.name for g in user.groups.all()]:
+        if in_ppt_admin_group(user):
             return True
 
         # check to see if they are a section head, div. manager or RDS
@@ -197,7 +211,7 @@ def get_section_choices(all=False, full_name=True, region_filter=None, division_
     else:
         my_choice_list = [(s.id, getattr(s, my_attr)) for s in
                           shared_models.Section.objects.filter(
-                              ).order_by(
+                          ).order_by(
                               "division__branch__region",
                               "division__branch",
                               "division",
@@ -423,7 +437,7 @@ def get_project_year_field_list(project_year=None):
     my_list = [
         'dates|dates',
         'priorities',  # do not call the html field directly or we loose the ability to get the model's verbose name
-        # 'deliverables',  # do not call the html field directly or we loose the ability to get the model's verbose name
+        'services',
 
         # SPECIALIZED EQUIPMENT COMPONENT
         #################################
@@ -455,7 +469,6 @@ def get_project_year_field_list(project_year=None):
         # LAB COMPONENT
         ###############
         'has_lab_component',
-        'requires_abl_services' if not project_year or project_year.has_lab_component else None,
         'requires_lab_space' if not project_year or project_year.has_lab_component else None,
         'requires_other_lab_support' if not project_year or project_year.has_lab_component else None,
         'other_lab_support_needs' if not project_year or project_year.has_lab_component else None,

@@ -391,3 +391,18 @@ class CSRFClientInformationFactory(factory.django.DjangoModelFactory):
             'name': faker.catch_phrase(),
             'description_en': faker.text(),
         }
+
+
+class ServiceFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Service
+
+    coordinator = factory.SubFactory(UserFactory)
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'coordinator': UserFactory().id,
+            'name': faker.catch_phrase(),
+        }

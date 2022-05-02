@@ -94,6 +94,10 @@ urlpatterns = [
     path('settings/csrf-client-information/<int:pk>/delete/', views.CSRFClientInformationHardDeleteView.as_view(), name="delete_csrf_client_information"),
     # tested
 
+    path('settings/services/', views.ServiceFormsetView.as_view(), name="manage_services"), # tested
+    path('settings/service/<int:pk>/delete/', views.ServiceHardDeleteView.as_view(), name="delete_service"), # tested
+
+
     path('settings/storage-solutions/', views.StorageSolutionFormsetView.as_view(), name="manage_storage_solutions"),
     path('settings/storage-solution/<int:pk>/delete/', views.StorageSolutionHardDeleteView.as_view(), name="delete_storage_solution"),
 
