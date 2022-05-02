@@ -188,7 +188,7 @@ class Interaction(models.Model):
     external_organization = models.ManyToManyField(ml_models.Organization, verbose_name=_("External Organization(s)"),
                                                    blank=True, related_name="interaction_ext_organization")
     date_of_meeting = models.DateTimeField(blank=True, null=True, default=timezone.now,
-                                           verbose_name=_("Date of Meeting"))
+                                           verbose_name=_("Date of Interaction"))
     main_topic = models.ManyToManyField(DiscussionTopic, blank=True, related_name="main_topics",
                                         verbose_name=_("Main Topic(s) of discussion"))
     species = models.ManyToManyField(Species, blank=True, related_name="species",
