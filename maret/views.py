@@ -624,10 +624,8 @@ class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
         'grouping',
         'regions',
         'sectors',
-        'orgs',
         'website',
-        'processing_plant',
-        'wharf',
+        'category',
         "metadata|{}".format(gettext_lazy("metadata")),
     ]
     home_url_name = "maret:index"
