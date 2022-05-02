@@ -70,7 +70,7 @@ PyGithub==1.53
 PyJWT==1.7.1
 pyotp==2.6.0
 pyparsing==2.4.7
-PyPDF2==1.26.0
+PyPDF2==1.27.5
 Pyphen==0.9.5
 python-bidi==0.4.2
 python-dateutil==2.8.1
