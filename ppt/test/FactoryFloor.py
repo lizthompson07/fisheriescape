@@ -105,6 +105,7 @@ class ProjectYearFactory(factory.django.DjangoModelFactory):
             'status': faker.pyint(1, 100),
             'start_date': start_date,
             'end_date': end_date,
+            'has_ship_needs': False,
         }
 
 
