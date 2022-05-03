@@ -1,7 +1,9 @@
 import math
 
-from django.contrib.auth.models import Group
+import pytz
+from django.conf import settings
 # open basic access up to anybody who is logged in
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 
@@ -14,7 +16,6 @@ def is_crud_user(user):
     # nested under admin
     if user:
         return is_admin(user) or bool(hasattr(user, "edna_user") and user.edna_user.is_crud_user)
-
 
 
 def calc_nautical_dist(p0, p1):
@@ -81,20 +82,21 @@ def get_pcr_batch_field_list():
     ]
     return my_list
 
+
 def get_assay_field_list():
     my_list = [
 
-    "sample|{}".format(_("sample")),
-    "filter|{}".format(_("filter")),
-    "pcr.extract|{}".format(_("DNA extraction")),
-    "pcr| qPCR",
-    "assay",
-    "assay.species|{}".format(_("species")),
-    "ct",
-    "threshold",
-    "comments",
-    "result",
-    "edna_conc",
+        "sample|{}".format(_("sample")),
+        "filter|{}".format(_("filter")),
+        "pcr.extract|{}".format(_("DNA extraction")),
+        "pcr| qPCR",
+        "assay",
+        "assay.species|{}".format(_("species")),
+        "ct",
+        "threshold",
+        "comments",
+        "result",
+        "edna_conc",
     ]
     return my_list
 
@@ -106,3 +108,8 @@ def get_next_bottle_id():
     if not samples.exists():
         return 1
     return samples.last().bottle_id + 1
+
+
+def get_timezone_time(dt):
+    if dt:
+        return timezone.localtime(dt)

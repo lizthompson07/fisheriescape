@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from .. import models
+from ..utils import get_timezone_time
 
 
 class UserDisplaySerializer(serializers.ModelSerializer):
@@ -35,7 +36,8 @@ class SampleSerializer(serializers.ModelSerializer):
 
     def get_datetime_display(self, instance):
         if instance.datetime:
-            return instance.datetime.strftime("%Y-%m-%d %H:%M")
+            dt = get_timezone_time(instance.datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
 
     def get_display(self, instance):
         return str(instance)

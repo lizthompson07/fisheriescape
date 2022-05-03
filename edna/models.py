@@ -229,7 +229,7 @@ class Sample(MetadataFields):
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ["id"]
+        ordering = ["datetime", "id"]
         unique_together = (("bottle_id", "collection"))
 
     def get_absolute_url(self):
@@ -477,7 +477,7 @@ class PCRBatch(Batch):
     )
     plate_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate ID"))
     machine_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR machine number"))
-    run_program = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR run program"))
+    run_program = models.CharField(max_length=255, blank=True, null=True, verbose_name=_(" qPCR run program"))
     control_status = models.IntegerField(blank=True, null=True, choices=control_status_choices, verbose_name=_("control status"))
 
     class Meta:
