@@ -75,11 +75,13 @@ class FilterSerializer(serializers.ModelSerializer):
 
     def get_start_datetime_display(self, instance):
         if instance.start_datetime:
-            return instance.start_datetime.strftime("%Y-%m-%d %H:%M")
+            dt = get_timezone_time(instance.start_datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
 
     def get_end_datetime_display(self, instance):
         if instance.end_datetime:
-            return instance.end_datetime.strftime("%Y-%m-%d %H:%M")
+            dt = get_timezone_time(instance.end_datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
 
     def get_display(self, instance):
         return str(instance)
@@ -144,7 +146,8 @@ class DNAExtractSerializer(serializers.ModelSerializer):
 
     def get_datetime_display(self, instance):
         if instance.start_datetime:
-            return instance.start_datetime.strftime("%Y-%m-%d %H:%M")
+            dt = get_timezone_time(instance.start_datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
 
     def get_display(self, instance):
         return str(instance)
