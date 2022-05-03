@@ -17,10 +17,9 @@
         $committee.hide();
         $("#id_committee").prop("required", false);
 
-        $date_of_meeting.hide();
-        $("#id_date_of_meeting").prop("required", false);
-
         // Default not hidden fields
+        $date_of_meeting.show();
+        $("#id_date_of_meeting").prop("required", false);
         $dfo_liaison.show();
         $("#id_dfo_liaison").prop("required", false);
         $dfo_role.show();
@@ -37,7 +36,6 @@
         $("#id_species").prop("required", false);
 
         if (int_type === 1 || int_type === 2 || int_type === 3 || int_type === 4) {
-            $date_of_meeting.show();
             $("#id_date_of_meeting").prop("required", true);
         }
 

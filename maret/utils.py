@@ -173,3 +173,21 @@ def ajax_get_divisions(request):
     }
 
     return JsonResponse(data)
+
+
+def ajax_get_aops(request):
+    # aops = area office programs
+    area_office_id = request.GET.get('area_office', None)
+
+    if area_office_id == '':
+        aops = models.AreaOfficeProgram.objects.all()
+    else:
+        aops = models.AreaOfficeProgram.objects.filter(area_office__pk=area_office_id)
+
+    fields = list(["{}:{}".format(aop.pk, str(aop)) for aop in aops])
+    fields.insert(0, ":---------")
+    data = {
+        'area_office_program': fields
+    }
+
+    return JsonResponse(data)
