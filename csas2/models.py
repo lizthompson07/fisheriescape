@@ -566,7 +566,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     @property
     def regions(self):
-        mystr = self.lead_office.region
+        mystr = str(self.lead_office.region)
         if self.other_offices.exists():
             mystr = f"<b><u>{mystr}</u></b>"
             mystr += f", {listrify([o for o in self.other_offices.all()])}"
@@ -839,6 +839,17 @@ class Meeting(SimpleLookup, MetadataFields):
         super().save(*args, **kwargs)
 
     @property
+    def posting_status(self):
+        # in the simple case, we just look to the process. but sometimes this might not be the meeting listed on the tor :-/
+        if hasattr(self.process, "tor") and self.process.tor.meeting == self:
+            return self.process.posting_status
+
+    @property
+    def mmmmyy(self):
+        if self.start_date:
+            return self.start_date.strftime("%B %Y")
+
+    @property
     def display(self):
         mystr = self.tname
         if self.is_planning:
@@ -853,9 +864,6 @@ class Meeting(SimpleLookup, MetadataFields):
         fy = str(self.fiscal_year) if self.fiscal_year else "TBD"
         invitee_count = self.invitees.count()
         return f"{self.process.lead_office.region} - {fy} - {self.display} ({invitee_count} invitee{pluralize(invitee_count)})"
-
-    class Meta:
-        ordering = ["-is_planning", 'start_date', ]
 
     def get_absolute_url(self):
         return reverse("csas2:meeting_detail", args=[self.pk])
@@ -947,6 +955,10 @@ class Meeting(SimpleLookup, MetadataFields):
     def email_list(self):
         invitees = self.invitees.filter(~Q(status=2)).filter(person__email__isnull=False)
         return listrify([i.person.email for i in invitees], separator=";")
+
+    @property
+    def key_invitees(self):
+        return self.invitees.filter(roles__category__in=[1, 5]).distinct()
 
 
 class MeetingNote(GenericNote):

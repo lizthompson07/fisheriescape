@@ -1,0 +1,123 @@
+{% load i18n %}
+
+<div v-if="calendarViewOn">
+
+  <div v-for="unit in calendarUnits" class="mb-5">
+    <h2>${unit.unit_name}</h2>
+
+    <table class="table table-sm table-bordered">
+      <thead>
+      <tr>
+        <th class="w-30">{% trans "Date, subject and location of meeting" %}</th>
+        <th class="w-20">{% trans "Scope and region(s)" %}</th>
+        <th class="w-15">{% trans "Contact(s)" %}</th>
+        <th class="w-20">{% trans "Details & Publications" %}</th>
+        <th class="w-15">{% trans "Status of posting on CSAS website" %}</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="m in unit.meetings" :key="m.id">
+        <td>
+          <div class="mb-3">
+            <span v-if="m.is_estimate" class="float-right highlight p-1">{% trans "Dates are approximate" %}</span>
+            <span v-html="m.display_dates"></span>
+          </div>
+          <div class="mb-3">
+            ${m.display} <a target="_blank" :href="`/csas-sccs/meetings/${m.id}/view/`"><span class="mdi mdi-open-in-new lead text-primary"></span></a>
+          </div>
+          <div class="mb-3">
+            <span>${m.location}</span>
+          </div>
+        </td>
+
+        <td>
+          <div class="mb-3">
+            <span>${m.process_object.scope_type}</span>
+          </div>
+          <div class="mb-3">
+            <span v-html="m.process_object.regions.toUpperCase()"></span>
+          </div>
+        </td>
+
+        <td>
+          <div v-for="invitee in m.key_invitees" class="mb-3">
+            <a :href="`mailto:${invitee.person_object.email}`">${invitee.person_object.full_name}</a><br>
+            <span>${invitee.roles_display}</span><br>
+            <span>${invitee.person_object.phone}</span>
+          </div>
+        </td>
+        <td>
+          <div class="mb-3">
+            <u>{% trans "Expected Publications:" %}</u><br>
+            <span v-if="m.expected_publications_en">${m.expected_publications_en}</span>
+            <span v-else class="text-danger">{% trans "None listed." %}</span>
+          </div>
+
+          <div class="mb-3">
+            <a v-if="m.process_object.tor" :href="`/csas-sccs/terms-of-reference/${m.process_object.tor}/detail/`">
+              {% trans "Terms of Reference" %}
+            </a>
+            <span v-else class="text-danger">{% trans "MISSING ToR" %}</span>
+          </div>
+
+          <div v-for="doc in m.process_object.documents" class="mb-3">
+            <a :href="`/csas-sccs/documents/${doc.id}/view/`">
+              ${doc.document_type}
+            </a>
+
+          </div>
+
+        </td>
+        <td>
+          <div class="mb-3">
+            <span v-if="m.posting_status">${m.posting_status}</span>
+            <span v-else class="text-danger">{% trans "Meeting is not linked to ToR" %}</span>
+          </div>
+        </td>
+
+      </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+
+</div>
+{##}
+{##}
+{#<table class="table table-sm" v-if="calendarViewOn">#}
+{#  <thead>#}
+{#  <tr>#}
+{#    <th>{% trans "Meeting Link" %}</th>#}
+{#    <th>{% trans "Process Id" %}</th>#}
+{#    <th>${meetingLabels.fiscal_year}</th>#}
+{#    <th>${meetingLabels.start_date}</th>#}
+{#    <th>${processLabels.is_posted}</th>#}
+{#    <th class="w-30">${meetingLabels.name}</th>#}
+{#    <th class="w-30">${meetingLabels.nom}</th>#}
+{#  </tr>#}
+{#  </thead>#}
+{#  <tbody>#}
+{#  <tr v-for="m in meetings" :key="m.id">#}
+{#    <td>#}
+{#      ${m.mmmmyy}#}
+{##}
+{#      <a target="_blank" :href="`/csas-sccs/meetings/${m.id}/view/`"><span class="mdi mdi-open-in-new lead text-primary"></span></a>#}
+{#    </td>#}
+{#    <td>#}
+{#      ${m.process}#}
+{#    </td>#}
+{#    <td>${m.process_object.fiscal_year}</td>#}
+{#    <td><span v-html="m.display_dates"></span></td>#}
+{#    <td>${m.process_object.is_posted | yesNo}</td>#}
+{#    <td>#}
+{#              <textarea v-model="m.name" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted"#}
+{#                        rows="3"></textarea>#}
+{#    </td>#}
+{#    <td>#}
+{#              <textarea v-model="m.nom" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted"#}
+{#                        rows="3"></textarea>#}
+{#    </td>#}
+{#  </tr>#}
+{#  </tbody>#}
+{#</table>#}

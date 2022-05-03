@@ -211,6 +211,14 @@ class MeetingSerializerLITE(serializers.ModelSerializer):
         return dates
 
 
+class DocumentSerializerLITE(serializers.ModelSerializer):
+    document_type = serializers.StringRelatedField()
+
+    class Meta:
+        model = models.Document
+        fields = "__all__"
+
+
 class DocumentSerializer(serializers.ModelSerializer):
     document_type = serializers.StringRelatedField()
     ttitle = serializers.SerializerMethodField()
@@ -431,6 +439,22 @@ class MeetingSerializer(serializers.ModelSerializer):
     ttime = serializers.SerializerMethodField()
     email_list = serializers.SerializerMethodField()
     process_object = serializers.SerializerMethodField()
+    mmmmyy = serializers.SerializerMethodField()
+    expected_publications_en = serializers.SerializerMethodField()
+    key_invitees = serializers.SerializerMethodField()
+    posting_status = serializers.SerializerMethodField()
+
+    def get_posting_status(self, instance):
+        return instance.posting_status
+
+    def get_key_invitees(self, instance):
+        return InviteeSerializerLITE(instance.key_invitees, many=True).data
+
+    def get_expected_publications_en(self, instance):
+        return instance.expected_publications_en
+
+    def get_mmmmyy(self, instance):
+        return instance.mmmmyy
 
     def get_process_object(self, instance):
         return ProcessSerializerLITE(instance.process).data
@@ -592,6 +616,22 @@ class AuthorSerializer(serializers.ModelSerializer):
     #     return instance.get_type_display()
 
 
+class InviteeSerializerLITE(serializers.ModelSerializer):
+    class Meta:
+        model = models.Invitee
+        fields = "__all__"
+
+    person_object = serializers.SerializerMethodField()
+    roles_display = serializers.SerializerMethodField()
+
+    def get_person_object(self, instance):
+        return PersonSerializer(instance.person).data
+
+    def get_roles_display(self, instance):
+        if instance.roles.exists():
+            return listrify(instance.roles.all())
+
+
 class InviteeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Invitee
@@ -731,6 +771,23 @@ class ProcessSerializerLITE(serializers.ModelSerializer):
     fiscal_year = serializers.StringRelatedField()
     tname = serializers.SerializerMethodField()
     can_post_meeting = serializers.SerializerMethodField()
+    scope_type = serializers.SerializerMethodField()
+    regions = serializers.SerializerMethodField()
+    tor = serializers.SerializerMethodField()
+    documents = serializers.SerializerMethodField()
+
+    def get_documents(self, instance):
+        return DocumentSerializerLITE(instance.documents.all(), many=True).data
+
+    def get_tor(self, instance):
+        if hasattr(instance, "tor"):
+            return instance.tor.id
+
+    def get_regions(self, instance):
+        return instance.regions
+
+    def get_scope_type(self, instance):
+        return instance.scope_type
 
     def get_can_post_meeting(self, instance):
         return instance.can_post_meeting

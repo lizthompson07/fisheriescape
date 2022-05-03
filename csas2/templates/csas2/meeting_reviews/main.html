@@ -23,6 +23,18 @@
 
   {% include "csas2/meeting_reviews/_filter.html" %}
   <div id="app" v-cloak>
+
+    <div class="">
+      <div class="pointy mb-5" @click="calendarViewOn = !calendarViewOn">
+        <p class="lead text-secondary" id="overview">
+          <span>{% trans "List view" %}</span>
+          <span v-if="!calendarViewOn" class="mx-2 mdi mdi-toggle-switch-off h4"></span>
+          <span v-else class="mx-2 mdi mdi-toggle-switch h4"></span>
+          <span>{% trans "Calendar view" %}</span>
+        </p>
+      </div>
+    </div>
+
     <div v-if="loadingMeetings" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
         <span class="sr-only"></span>
@@ -49,41 +61,8 @@
             <p class="font-italic text-muted">${meetings.length} {% trans "results loaded" %}</p>
           </div>
         </div>
-
-        <table class="table table-sm">
-          <thead>
-          <tr>
-            <th>{% trans "Meeting Link" %}</th>
-            <th>{% trans "Process Id" %}</th>
-            <th>${meetingLabels.fiscal_year}</th>
-            <th>${meetingLabels.start_date}</th>
-            <th>${processLabels.is_posted}</th>
-            <th class="w-30">${meetingLabels.name}</th>
-            <th class="w-30">${meetingLabels.nom}</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="m in meetings" :key="m.id">
-            <td>
-              <a target="_blank" :href="`/csas-sccs/meetings/${m.id}/view/`"><span class="mdi mdi-open-in-new lead text-primary"></span></a>
-            </td>
-            <td>
-              ${m.process}
-            </td>
-            <td>${m.process_object.fiscal_year}</td>
-            <td><span v-html="m.display_dates"></span></td>
-            <td>${m.process_object.is_posted | yesNo}</td>
-            <td>
-              <textarea v-model="m.name" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted"
-                        rows="3"></textarea>
-            </td>
-            <td>
-              <textarea v-model="m.nom" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted"
-                        rows="3"></textarea>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+        {% include "csas2/meeting_reviews/_list.html" %}
+        {% include "csas2/meeting_reviews/_calendar.html" %}
       </div>
     </div>
   </div>
@@ -121,6 +100,7 @@
       regionChoices: [],
       sectorChoices: [],
       fresh: true,
+      calendarViewOn: false,
     },
     methods: {
       getCurrentUser() {
@@ -201,10 +181,30 @@
     computed: {
       canModify() {
         return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      },
+      calendarUnits() {
+        let myObj = {};
+        let payload = [];
+        for (const meeting of this.meetings) {
+          // get the date reduced to mmmmyy
+          if (!myObj[meeting.mmmmyy]) myObj[meeting.mmmmyy] = [];
+          myObj[meeting.mmmmyy].push(meeting);
+        }
+        for (const myObjKey in myObj) {
+          payload.push({
+            unit_name: myObjKey,
+            meetings: myObj[myObjKey]
+          })
+        }
+
+        return payload
+
       }
+
     },
     filters: {
       yesNo: vueFiltersObject["yesNo"],
+      upper: vueFiltersObject["upper"],
     },
     created() {
       this.getCurrentUser();

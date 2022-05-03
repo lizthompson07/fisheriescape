@@ -1018,6 +1018,7 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'tname|{}'.format("title"), "class": "", "width": "400px"},
         {"name": 'location', "class": "", "width": ""},
         {"name": 'display_dates_deluxe|{}'.format(_("dates")), "class": "", "width": ""},
+        {"name": 'is_estimate|{}'.format(_("dates are approximate")), "class": "", "width": ""},
         {"name": 'role|{}'.format(_("your role(s)")), "class": "", "width": ""},
         {"name": 'is_planning', "class": "", "width": ""},
         {"name": 'process.posting_status|{}'.format(_("Status of website posting")), "class": "", "width": "400px"},

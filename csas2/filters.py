@@ -210,6 +210,7 @@ class MeetingFilter(django_filters.FilterSet):
             'process__lead_office': ['exact'],
             'process__status': ['exact'],
             'is_planning': ['exact'],
+            'is_estimate': ['exact'],
 
         }
 
@@ -221,6 +222,7 @@ class MeetingFilter(django_filters.FilterSet):
 
         self.filters['process'].field.widget.attrs = chosen_js
         self.filters['process__lead_office'].label = _("Lead CSAS office")
+        self.filters['is_estimate'].label = _("Are dates approximate?")
         self.filters['process__fiscal_year'] = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year of process"))
         self.filters['process__status'] = django_filters.MultipleChoiceFilter(field_name='process__status', lookup_expr='exact', choices=status_choices)
         self.filters['process__status'].field.widget.attrs = chosen_js
