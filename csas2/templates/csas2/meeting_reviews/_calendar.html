@@ -80,7 +80,7 @@
             </div>
             <div v-if="m.posting_status && m.process_object.can_post_meeting && !m.process_object.posting_request_date && !m.process_object.is_posted"
                  class="mb-3">
-              <button v-if="m.process_object.can_post_meeting.can_post" class="btn btn-sm btn-purple"  @click="requestPosting">
+              <button v-if="m.process_object.can_post_meeting.can_post" class="btn btn-sm btn-purple"  @click="requestPosting(m)">
                 {% trans "Request to Post" %}
               </button>
               <span v-else class="text-muted font-italic">${String(m.process_object.can_post_meeting.reasons)}</span>
