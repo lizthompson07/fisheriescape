@@ -19,11 +19,14 @@
       <tr v-for="m in unit.meetings" :key="m.id">
         <td>
           <div class="mb-3">
-            <span v-if="m.is_estimate" class="float-right highlight p-1">{% trans "Dates are approximate" %}</span>
-            <span v-html="m.display_dates"></span>
+
+            <span v-html="m.display_dates"></span> <span v-if="m.is_estimate" class="text-danger p-1">
+            {% trans "approximate dates only" as txt_dates %} ({{ txt_dates|upper }})
+            </span>
           </div>
           <div class="mb-3">
-            ${m.display} <a target="_blank" :href="`/csas-sccs/meetings/${m.id}/view/`"><span class="mdi mdi-open-in-new lead text-primary"></span></a>
+            <a target="_blank" :href="`/csas-sccs/meetings/${m.id}/view/`"><span class="mdi mdi-open-in-new lead text-primary mr-1"></span></a>
+            ${m.display}
           </div>
           <div class="mb-3">
             <span>${m.location}</span>
@@ -50,18 +53,19 @@
           <div class="mb-3">
             <u>{% trans "Expected Publications:" %}</u><br>
             <span v-if="m.expected_publications_en">${m.expected_publications_en}</span>
-            <span v-else class="text-danger">{% trans "None listed." %}</span>
+            <span v-else class="text-danger">{% trans "none listed" as txt_pubs %} {{ txt_pubs | upper }}</span>
           </div>
 
           <div class="mb-3">
-            <a v-if="m.process_object.tor" :href="`/csas-sccs/terms-of-reference/${m.process_object.tor}/detail/`">
+            <a v-if="m.process_object.tor" :href="`/csas-sccs/terms-of-reference/${m.process_object.tor}/detail/`" target="_blank">
               {% trans "Terms of Reference" %}
             </a>
-            <span v-else class="text-danger">{% trans "MISSING ToR" %}</span>
+            <span v-else class="text-danger">{% trans "missing terms of reference" as txt_tor %} {{ txt_tor | upper }}</span>
           </div>
 
+          <span v-if="!m.process_object.documents.length" class="text-danger">{% trans "missing documents" as txt_docs %} {{ txt_docs | upper }}</span>
           <div v-for="doc in m.process_object.documents" class="mb-3">
-            <a :href="`/csas-sccs/documents/${doc.id}/view/`">
+            <a :href="`/csas-sccs/documents/${doc.id}/view/`" target="_blank">
               ${doc.document_type}
             </a>
 
@@ -70,8 +74,18 @@
         </td>
         <td>
           <div class="mb-3">
-            <span v-if="m.posting_status">${m.posting_status}</span>
-            <span v-else class="text-danger">{% trans "Meeting is not linked to ToR" %}</span>
+            <div class="mb-3">
+              <span v-if="m.posting_status">${m.posting_status}</span>
+              <span v-else class="text-danger">{% trans "meeting not linked to terms of reference" as txt_meeting %} {{ txt_meeting | upper }}</span>
+            </div>
+            <div v-if="m.posting_status && m.process_object.can_post_meeting && !m.process_object.posting_request_date && !m.process_object.is_posted"
+                 class="mb-3">
+              <button v-if="m.process_object.can_post_meeting.can_post" class="btn btn-sm btn-purple"  @click="requestPosting">
+                {% trans "Request to Post" %}
+              </button>
+              <span v-else class="text-muted font-italic">${String(m.process_object.can_post_meeting.reasons)}</span>
+            </div>
+
           </div>
         </td>
 

@@ -495,6 +495,10 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         super().save(*args, **kwargs)
 
     @property
+    def has_tor(self):
+        return hasattr(self, "tor")
+
+    @property
     def status_display(self):
         stage = model_choices.get_process_status_lookup().get(self.status).get("stage")
         return mark_safe(f'<span class=" px-1 py-1 {stage}">{self.get_status_display()}</span>')
@@ -839,10 +843,27 @@ class Meeting(SimpleLookup, MetadataFields):
         super().save(*args, **kwargs)
 
     @property
+    def postable_meeting(self):
+        return self.process.has_tor and self.process.tor.meeting == self
+
+    @property
     def posting_status(self):
         # in the simple case, we just look to the process. but sometimes this might not be the meeting listed on the tor :-/
-        if hasattr(self.process, "tor") and self.process.tor.meeting == self:
+        if self.postable_meeting:
             return self.process.posting_status
+
+    @property
+    def is_posted(self):
+        # in the simple case, we just look to the process. but sometimes this might not be the meeting listed on the tor :-/
+        if self.postable_meeting:
+            return self.process.is_posted
+
+
+    @property
+    def can_post_meeting(self):
+        if self.postable_meeting:
+            return self.process.can_post_meeting
+        return dict(can_post=False, reasons=["This meeting is not connected to the terms of reference for this process."])
 
     @property
     def mmmmyy(self):

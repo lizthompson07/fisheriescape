@@ -25,7 +25,7 @@
   <div id="app" v-cloak>
 
     <div class="">
-      <div class="pointy mb-5" @click="calendarViewOn = !calendarViewOn">
+      <div class="pointy mb-5" @click="toggleCalendarView">
         <p class="lead text-secondary" id="overview">
           <span>{% trans "List view" %}</span>
           <span v-if="!calendarViewOn" class="mx-2 mdi mdi-toggle-switch-off h4"></span>
@@ -103,6 +103,21 @@
       calendarViewOn: false,
     },
     methods: {
+      toggleCalendarView() {
+        this.calendarViewOn = !this.calendarViewOn;
+      //  searchString = window.location.search
+      //  if (searchString === "") searchString = "?calendar_view=";
+      //  else if (searchString.search("calendar_view") < 0) searchString += "&calendar_view=";
+      //  var params = searchString.substring(1).split('&');
+      //  for (let param of params) {
+      //    if (param.split("=")[0] === "calendar_view") {
+      //      searchString = searchString.replace(param, `calendar_view=${String(this.calendarViewOn)}`);
+      //      break;
+      //    }
+      //  }
+      //  window.location.search = searchString;
+      },
+
       getCurrentUser() {
         let endpoint = `/api/csas/user/`;
         apiService(endpoint)
@@ -210,6 +225,14 @@
       this.getCurrentUser();
       this.getMeetings();
       this.getMetadata();
+
+
+      // var params = window.location.search.substring(1).split('&');
+      // for (const param of params) {
+      //   if (param.split("=")[0] === "calendar_view" && param.split("=")[1] === "true") this.calendarViewOn = true;
+      // }
+
+
     },
   });
 

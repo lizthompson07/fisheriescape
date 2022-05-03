@@ -39,13 +39,13 @@
           <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
         </p>
       </div>
-      <div v-if="meeting.is_posted && meeting.has_tor" class="alert alert-warning no-print" role="alert" style="width: 90%">
+      <div v-if="meeting.is_posted" class="alert alert-warning no-print" role="alert" style="width: 90%">
         <p class="h6">
           {% blocktrans %}
             This meeting / process has already been posted to the national CSAS website.
             Changes made to
             <span class="dotted" data-toggle="tooltip" title="Title (English and French), Location, Dates, Chair, Expected Publications (from ToR)">certain fields</span>
-            of this meeting will automatically trigger a notification email to be sent to the national CSAS team.
+            of this meeting will automatically trigger a notification email to be sent to the National CSAS team.
           {% endblocktrans %}
         </p>
       </div>
@@ -101,6 +101,22 @@
             <tr>
               <th class="text-left">{% trans "Dates" %}</th>
               <td class="text-left" v-html="meeting.display_dates"></td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Posted to CSAS website?" %}</th>
+              <td class="text-left">
+                <span class="">${meeting.is_posted|yesNo}</span>
+                <em v-if="meeting.process_object && !meeting.process_object.is_posted && meeting.process_object.posting_request_date" class=" text-muted">
+                  &mdash; {% trans "Posting request made on" %} ${meeting.process_object.posting_request_date_display}
+                </em>
+                <em v-else-if="meeting.process_object && !meeting.process_object.is_posted && meeting.process_object.can_post_meeting.can_post" class=" text-muted">
+                  &mdash; {% trans "eligible for posting" %}
+                </em>
+                <em v-else class=" text-muted">
+                  &mdash; {% trans "not eligible for posting because:" %} ${meeting.can_post_meeting.reasons | listrify}
+                </em>
+
+              </td>
             </tr>
             <tr>
               <th class="text-left">{% trans "Time" %}</th>

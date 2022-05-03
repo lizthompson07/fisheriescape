@@ -200,6 +200,7 @@ class ProcessFilter(django_filters.FilterSet):
 class MeetingFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Meeting Title contains"))
     is_posted = django_filters.ChoiceFilter(field_name="process__is_posted", label=_("Is Posted?"), lookup_expr='exact', empty_label=_("All"), choices=YES_NO_CHOICES)
+    linked_to_tor = django_filters.ChoiceFilter(field_name="tor", label=_("Linked to ToR?"), lookup_expr='isnull', empty_label=_("All"), choices=YES_NO_CHOICES)
 
     class Meta:
         model = models.Meeting

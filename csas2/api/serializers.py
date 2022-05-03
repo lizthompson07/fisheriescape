@@ -435,7 +435,6 @@ class MeetingSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
     somp_notification_date = serializers.SerializerMethodField()
     is_posted = serializers.SerializerMethodField()
-    has_tor = serializers.SerializerMethodField()
     ttime = serializers.SerializerMethodField()
     email_list = serializers.SerializerMethodField()
     process_object = serializers.SerializerMethodField()
@@ -443,6 +442,10 @@ class MeetingSerializer(serializers.ModelSerializer):
     expected_publications_en = serializers.SerializerMethodField()
     key_invitees = serializers.SerializerMethodField()
     posting_status = serializers.SerializerMethodField()
+    can_post_meeting = serializers.SerializerMethodField()
+
+    def get_can_post_meeting(self, instance):
+        return instance.can_post_meeting
 
     def get_posting_status(self, instance):
         return instance.posting_status
@@ -465,11 +468,8 @@ class MeetingSerializer(serializers.ModelSerializer):
     def get_ttime(self, instance):
         return instance.ttime
 
-    def get_has_tor(self, instance):
-        return hasattr(instance, "tor")
-
     def get_is_posted(self, instance):
-        return instance.process.is_posted
+        return instance.is_posted
 
     def get_somp_notification_date(self, instance):
         return date(instance.somp_notification_date)
@@ -775,6 +775,10 @@ class ProcessSerializerLITE(serializers.ModelSerializer):
     regions = serializers.SerializerMethodField()
     tor = serializers.SerializerMethodField()
     documents = serializers.SerializerMethodField()
+    has_tor = serializers.SerializerMethodField()
+
+    def get_has_tor(self, instance):
+        return instance.has_tor
 
     def get_documents(self, instance):
         return DocumentSerializerLITE(instance.documents.all(), many=True).data
@@ -878,11 +882,10 @@ class ProcessSerializer(serializers.ModelSerializer):
         return instance.chair
 
     def get_has_tor(self, instance):
-        return hasattr(instance, "tor")
+        return instance.has_tor
 
     def get_has_tor_meeting(self, instance):
-        if hasattr(instance, "tor"):
-            return instance.tor.meeting is not None
+        return instance.has_tor and instance.tor.meeting is not None
 
     def get_metadata(self, instance):
         return instance.metadata

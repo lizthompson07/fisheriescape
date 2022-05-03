@@ -295,7 +295,7 @@ class ProcessViewSet(viewsets.ModelViewSet):
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
-    queryset = models.Meeting.objects.all().order_by("created_at")
+    queryset = models.Meeting.objects.all()
     serializer_class = serializers.MeetingSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
     pagination_class = StandardResultsSetPagination
