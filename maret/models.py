@@ -78,6 +78,17 @@ class AreaOffice(shared_models.SimpleLookup):
     pass
 
 
+class AreaOfficeProgram(shared_models.SimpleLookup):
+    # need to make name not unique as multiple area_offices can have the same name
+    name = models.CharField(unique=False, max_length=255, verbose_name=_("name (en)"))
+
+    area_office = models.ForeignKey(AreaOffice, blank=True, null=True, default=None, on_delete=models.DO_NOTHING,
+                                    verbose_name=_("Area Office Program"))
+
+    class Meta:
+        unique_together = ['name', 'area_office']
+
+
 class Committee(models.Model):
     meeting_frequency_choices = (
         (0, "Monthly"),
@@ -101,6 +112,9 @@ class Committee(models.Model):
                                related_name="committee_branch", verbose_name=_("Lead DFO branch"))
     area_office = models.ForeignKey(AreaOffice, blank=True, null=True, related_name="committee_area_office",
                                     on_delete=models.DO_NOTHING, verbose_name=_("Lead Area Office"))
+    area_office_program = models.ForeignKey(AreaOfficeProgram, blank=True, null=True,
+                                            related_name="committee_area_office_program", on_delete=models.DO_NOTHING,
+                                            verbose_name=_("Lead Area Office Program"))
     division = models.ForeignKey(shared_models.Division, blank=True, null=True, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Division"))
 
@@ -174,7 +188,7 @@ class Interaction(models.Model):
     external_organization = models.ManyToManyField(ml_models.Organization, verbose_name=_("External Organization(s)"),
                                                    blank=True, related_name="interaction_ext_organization")
     date_of_meeting = models.DateTimeField(blank=True, null=True, default=timezone.now,
-                                           verbose_name=_("Date of Meeting"))
+                                           verbose_name=_("Date of Interaction"))
     main_topic = models.ManyToManyField(DiscussionTopic, blank=True, related_name="main_topics",
                                         verbose_name=_("Main Topic(s) of discussion"))
     species = models.ManyToManyField(Species, blank=True, related_name="species",

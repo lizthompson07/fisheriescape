@@ -29,11 +29,11 @@ class CommitteeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['name', 'main_topic', 'species', 'branch', 'division', 'area_office', 'is_dfo_chair',
-                           'external_chair', 'dfo_liaison', 'other_dfo_branch', 'other_dfo_regions', 'other_dfo_areas',
-                           'dfo_role', 'first_nation_participation', 'provincial_participation', 'external_contact',
-                           'external_organization', 'meeting_frequency', 'are_tor', 'location_of_tor',
-                           'main_actions', 'comments',
+        self.order_fields(['name', 'main_topic', 'species', 'branch', 'division', 'area_office', 'area_office_program',
+                           'is_dfo_chair', 'external_chair', 'dfo_liaison', 'other_dfo_branch', 'other_dfo_regions',
+                           'other_dfo_areas', 'dfo_role', 'first_nation_participation', 'provincial_participation',
+                           'external_contact', 'external_organization', 'meeting_frequency', 'are_tor',
+                           'location_of_tor', 'main_actions', 'comments',
                            ])
 
         branch = [(c.id, c) for c in shared_models.Branch.objects.all()]
@@ -151,7 +151,7 @@ class PersonForm(forms.ModelForm):
         exclude = ["date_last_modified", "old_id", 'last_modified_by', 'connected_user']
         widgets = {
             'committee': forms.Select(attrs=chosen_js),
-            'organizations': forms.Select(attrs=chosen_js),
+            'organizations': forms.SelectMultiple(attrs=chosen_js),
             'notes': forms.Textarea(attrs={"rows": "3"}),
         }
 
@@ -226,6 +226,19 @@ class AreaOfficeForm(forms.ModelForm):
 AreaOfficesFormSet = modelformset_factory(
     model=models.AreaOffice,
     form=AreaOfficeForm,
+    extra=3,
+)
+
+
+class AreaOfficeProgramForm(forms.ModelForm):
+    class Meta:
+        model = models.AreaOfficeProgram
+        fields = "__all__"
+
+
+AreaOfficesProgramFormSet = modelformset_factory(
+    model=models.AreaOfficeProgram,
+    form=AreaOfficeProgramForm,
     extra=3,
 )
 

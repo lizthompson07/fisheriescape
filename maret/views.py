@@ -173,6 +173,7 @@ class PersonDetailView(UserRequiredMixin, CommonDetailView):
         "language",
         "notes",
         "committee",
+        "email_block",
         "metadata|{}".format(gettext_lazy("metadata")),
     ]
     home_url_name = "maret:index"
@@ -456,7 +457,8 @@ class CommitteeCreateView(UserRequiredMixin, CommonCreateViewHelp):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/committeeForm.html']
+        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
+                              'maret/js/committeeForm.html']
         return context
 
 
@@ -470,11 +472,19 @@ class CommitteeDetailView(UserRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'name',
+            'main_topic',
+            'species',
             'branch',
             'division',
+            'area_office',
+            'area_office_program',
             'is_dfo_chair',
+            'external_chair',
             'dfo_liaison',
             'other_dfo_branch',
+            'other_dfo_regions',
+            'other_dfo_areas',
+            'dfo_role',
             'first_nation_participation',
             'provincial_participation',
             'meeting_frequency',
@@ -518,7 +528,8 @@ class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/committeeForm.html']
+        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
+                              'maret/js/committeeForm.html']
         return context
 
 
@@ -614,10 +625,8 @@ class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
         'grouping',
         'regions',
         'sectors',
-        'orgs',
         'website',
-        'processing_plant',
-        'wharf',
+        'category',
         "metadata|{}".format(gettext_lazy("metadata")),
     ]
     home_url_name = "maret:index"
@@ -907,3 +916,10 @@ class AreaOfficesFormsetView(CommonMaretFormset):
     queryset = models.AreaOffice.objects.all()
     formset_class = forms.AreaOfficesFormSet
     success_url_name = "maret:manage_area_offices"
+
+
+class AreaOfficeProgramsFormsetView(CommonMaretFormset):
+    h1 = _("Manage Area Office Programs")
+    queryset = models.AreaOfficeProgram.objects.all()
+    formset_class = forms.AreaOfficesProgramFormSet
+    success_url_name = "maret:manage_area_office_programs"
