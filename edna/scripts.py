@@ -29,3 +29,9 @@ def export_fixtures():
 def resave_extracts():
     for e in models.DNAExtract.objects.all():
         e.save()
+
+
+
+def resave_pcrs():
+    for e in models.PCR.objects.all():
+        e.save()

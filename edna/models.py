@@ -236,9 +236,10 @@ class Sample(MetadataFields):
         return reverse("edna:sample_detail", args=[self.pk])
 
     def __str__(self):
-        if self.is_field_blank:
-            return "field blank"
-        return f"s{self.id}"
+        mystr = f"s{self.id}"
+        # if self.is_field_blank:
+        #     mystr += " (field blank)"
+        return mystr
 
     @property
     def display(self):
@@ -344,11 +345,13 @@ class Filter(MetadataFields):
     class Meta:
         ordering = ["filtration_batch", "order"]
 
+    @property
+    def is_filtration_blank(self):
+        return not self.sample
+
     def __str__(self):
-        # if there is no sample associated with this filter, it is a filtration blank
-        if not self.sample:
-            return "filtration blank"
-        return f"f{self.id}"
+        mystr = f"f{self.id}"
+        return mystr
 
     def save(self, *args, **kwargs):
         # if there is a sample, the collection is known
@@ -440,11 +443,16 @@ class DNAExtract(MetadataFields):
     class Meta:
         ordering = ["extraction_batch", "order", "id"]
 
+    @property
+    def is_extraction_blank(self):
+        return not self.sample and not self.filter
+
     def __str__(self):
+        mystr = f"x{self.id}"
         # if there is no sample or filter associated with this extract, it is an extraction blank
-        if not self.sample and not self.filter:
-            return "extraction blank"
-        return f"x{self.id}"
+        # if not self.sample and not self.filter:
+        #     mystr += " (extraction blank)"
+        return mystr
 
     @property
     def display(self):
@@ -503,14 +511,23 @@ class PCR(MetadataFields):
     pcr_plate_well = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate well"))
     master_mix = models.ForeignKey(MasterMix, on_delete=models.DO_NOTHING, related_name="pcrs", verbose_name=_("master mix"), blank=False, null=True)
 
+    # calc
+    pcr_plate_well_prefix = models.CharField(max_length=1, blank=True, null=True, editable=True)
+    pcr_plate_well_suffix = models.IntegerField(blank=True, null=True, editable=True)
+
+
     def save(self, *args, **kwargs):
         # if there is a filter, the collection is known
         if self.extract:
             self.collection = self.extract.collection
+        if self.pcr_plate_well:
+            self.pcr_plate_well_prefix = self.pcr_plate_well[0]
+            self.pcr_plate_well_suffix = self.pcr_plate_well[1:]
+
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ["pcr_plate_well", "pcr_batch", "extract__id", "id"]
+        ordering = ["pcr_plate_well_prefix", "pcr_plate_well_suffix", "pcr_batch", "extract__id", "id"]
 
     def __str__(self):
         return f"q{self.id}"

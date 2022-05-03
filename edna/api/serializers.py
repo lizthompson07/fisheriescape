@@ -3,6 +3,7 @@ from django.utils.translation import gettext as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from lib.functions.custom_functions import listrify
 from .. import models
 from ..utils import get_timezone_time
 
@@ -20,6 +21,13 @@ class SampleSerializer(serializers.ModelSerializer):
     is_deletable = serializers.SerializerMethodField()
     sample_type_display = serializers.SerializerMethodField()
     coordinates = serializers.SerializerMethodField()
+    collection_time_display = serializers.SerializerMethodField()
+
+    def get_collection_time_display(self, instance):
+        if instance.datetime:
+            dt = get_timezone_time(instance.datetime)
+            mystr = f'{dt.strftime("%Y-%m-%d %H:%M")}'
+            return mystr
 
     def get_coordinates(self, instance):
         return instance.coordinates
@@ -55,8 +63,16 @@ class FilterSerializer(serializers.ModelSerializer):
     collection_display = serializers.SerializerMethodField()
     sample_object = serializers.SerializerMethodField()
     has_extracts = serializers.SerializerMethodField()
-
     filtration_type_display = serializers.SerializerMethodField()
+    info_display = serializers.SerializerMethodField()
+
+    def get_info_display(self, instance):
+        payload = list()
+        if instance.is_filtration_blank:
+            payload.append("filtration blank")
+        if instance.sample and instance.sample.is_field_blank:
+            payload.append("field blank")
+        return listrify(payload)
 
     def get_filtration_type_display(self, instance):
         if instance.filtration_type:
@@ -117,6 +133,17 @@ class DNAExtractSerializer(serializers.ModelSerializer):
     sample_object = serializers.SerializerMethodField()
     has_pcrs = serializers.SerializerMethodField()
     dna_extraction_protocol_display = serializers.SerializerMethodField()
+    info_display = serializers.SerializerMethodField()
+
+    def get_info_display(self, instance):
+        payload = list()
+        if instance.is_extraction_blank:
+            payload.append("extraction blank")
+        if instance.filter and instance.filter.is_filtration_blank:
+            payload.append("filtration blank")
+        if instance.sample and instance.sample.is_field_blank:
+            payload.append("field blank")
+        return listrify(payload)
 
     def get_dna_extraction_protocol_display(self, instance):
         if instance.dna_extraction_protocol:
@@ -224,6 +251,7 @@ class PCRAssaySerializer(serializers.ModelSerializer):
         model = models.PCRAssay
         fields = "__all__"
 
+
 class PCRAssaySerializerLITE(serializers.ModelSerializer):
     result_display = serializers.SerializerMethodField()
     assay_display = serializers.SerializerMethodField()
@@ -238,7 +266,6 @@ class PCRAssaySerializerLITE(serializers.ModelSerializer):
     class Meta:
         model = models.PCRAssay
         fields = "__all__"
-
 
 
 class CollectionSerializer(serializers.ModelSerializer):

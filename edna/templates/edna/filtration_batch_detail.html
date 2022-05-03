@@ -70,10 +70,12 @@
             ></select-tools>
 
           </th>
-          <th rowspan="2" class="p-1" style="width: 100px">{% trans "Filter ID" %}</th>
-          <th rowspan="2" class="p-1 w100px">{% trans "Sample ID" %}</th>
-          <th rowspan="2" class="p-1 w100px">{% trans "Bottle ID" %}</th>
-          <th rowspan="2" class="p-1" style="width: 100px">
+          <th rowspan="2" class="p-1 w100px">{% trans "Filter ID" %}</th>
+          <th rowspan="2" class="p-1 w150px">{% trans "Sample ID" %}</th>
+          <th rowspan="2" class="p-1 w125px">{% trans "Bottle ID" %}</th>
+          <th rowspan="2" class="p-1 w150px">{% trans "Collection time" %}</th>
+          <th rowspan="2" class="p-1 w150px">{% trans "Type" %}</th>
+          <th rowspan="2" class="p-1 w150px">
             ${labels.tube_id}
             <button @click="calcDown" class="w25px px-1 py-0 btn btn-sm btn-dark ml-1">
               <span class="mdi mdi-calculator text-light"></span>
@@ -114,7 +116,13 @@
           <td class="px-1  py-0 text-muted" tabindex="-1">
             <span v-if="obj.sample_object">${obj.sample_object.bottle_id}</span>
             <span v-else>-----</span>
-
+          </td>
+          <td class="px-1  py-0 text-muted" tabindex="-1">
+            <span v-if="obj.sample_object" v-html="obj.sample_object.collection_time_display"></span>
+            <span v-else>-----</span>
+          </td>
+          <td class="px-1  py-0 text-muted" tabindex="-1">
+            ${obj.info_display}
           </td>
           <td class="px-0 py-0">
             <text-input-cell
