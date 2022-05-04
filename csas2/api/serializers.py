@@ -855,7 +855,7 @@ class ProcessSerializer(serializers.ModelSerializer):
         return MeetingSerializerLITE(instance.meetings.filter(is_planning=False), many=True, read_only=True).data
 
     def get_can_post_meeting(self, instance):
-        return instance.can_post_meeting
+        pass
 
     def get_advice_date_display(self, instance):
         return date(instance.advice_date)
