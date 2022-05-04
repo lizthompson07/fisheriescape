@@ -66,8 +66,8 @@
       </button>
       <button
         v-if="meeting.can_post_meeting"
-        class="btn btn-sm btn-purple" :disabled="!meeting.process_object.can_post_meeting.can_post" @click="requestPosting"
-        data-toggle="tooltip" :title="meeting.process_object.can_post_meeting.reasons"
+        class="btn btn-sm btn-purple" :disabled="!meeting.can_post_meeting.can_post" @click="requestPosting"
+        data-toggle="tooltip" :title="meeting.can_post_meeting.reasons"
       >
         {% trans "Request to Post Meeting" %}
       </button>
@@ -112,7 +112,7 @@
                 <em v-else-if="meeting.process_object && !meeting.process_object.is_posted && meeting.process_object.can_post_meeting.can_post" class=" text-muted">
                   &mdash; {% trans "eligible for posting" %}
                 </em>
-                <em v-else class=" text-muted">
+                <em v-else-if="meeting.id" class=" text-muted">
                   &mdash; {% trans "not eligible for posting because:" %} ${meeting.can_post_meeting.reasons | listrify}
                 </em>
 

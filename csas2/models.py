@@ -841,7 +841,7 @@ class Meeting(SimpleLookup, MetadataFields):
         if self.has_tor:
             # return self.process.can_post_meeting
             return dict(can_post=False, reasons=["This meeting is not connected to the terms of reference for this process."])
-
+        return dict(can_post=False, reasons=[gettext("not eligible")])
     # @property
     # def can_post_meeting(self):
     #     """ stores the business rules for whether the meeting can be posted to the csas website"""
