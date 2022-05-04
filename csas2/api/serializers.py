@@ -770,12 +770,16 @@ class ToRReviewerSerializer(serializers.ModelSerializer):
 class ProcessSerializerLITE(serializers.ModelSerializer):
     fiscal_year = serializers.StringRelatedField()
     tname = serializers.SerializerMethodField()
-    can_post_meeting = serializers.SerializerMethodField()
     scope_type = serializers.SerializerMethodField()
     regions = serializers.SerializerMethodField()
     tor = serializers.SerializerMethodField()
     documents = serializers.SerializerMethodField()
     has_tor = serializers.SerializerMethodField()
+    posting_request_date_display = serializers.SerializerMethodField()
+
+    def get_posting_request_date_display(self, instance):
+        if instance.posting_request_date:
+            return f"{date(instance.posting_request_date)} ({naturaltime(instance.posting_request_date)})"
 
     def get_has_tor(self, instance):
         return instance.has_tor
@@ -792,9 +796,6 @@ class ProcessSerializerLITE(serializers.ModelSerializer):
 
     def get_scope_type(self, instance):
         return instance.scope_type
-
-    def get_can_post_meeting(self, instance):
-        return instance.can_post_meeting
 
     def get_tname(self, instance):
         return instance.tname

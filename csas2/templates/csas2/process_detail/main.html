@@ -68,14 +68,6 @@
           <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Initiate Terms of Reference (ToR)" %}
         </a>
       {% endif %}
-
-{#      <button#}
-{#        v-if="process.can_post_meeting && !process.posting_request_date && !process.is_posted"#}
-{#        class="btn btn-sm btn-purple" :disabled="!process.can_post_meeting.can_post" @click="requestPosting"#}
-{#        data-toggle="tooltip" :title="process.can_post_meeting.reasons"#}
-{#      >#}
-{#        {% trans "Request to Post Meeting" %}#}
-{#      </button>#}
     </div>
 
     {% if object.tor %}

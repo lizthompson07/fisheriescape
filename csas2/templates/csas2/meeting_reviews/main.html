@@ -105,17 +105,19 @@
     methods: {
       toggleCalendarView() {
         this.calendarViewOn = !this.calendarViewOn;
-        //  searchString = window.location.search
-        //  if (searchString === "") searchString = "?calendar_view=";
-        //  else if (searchString.search("calendar_view") < 0) searchString += "&calendar_view=";
-        //  var params = searchString.substring(1).split('&');
-        //  for (let param of params) {
-        //    if (param.split("=")[0] === "calendar_view") {
-        //      searchString = searchString.replace(param, `calendar_view=${String(this.calendarViewOn)}`);
-        //      break;
-        //    }
-        //  }
-        //  window.location.search = searchString;
+        // make sure the calendar view hidden input is in sync with the vue variable
+        $("#calendar_view").val(String(this.calendarViewOn));
+        searchString = window.location.search
+        if (searchString === "") searchString = "?calendar_view=";
+        else if (searchString.search("calendar_view") < 0) searchString += "&calendar_view=";
+        var params = searchString.substring(1).split('&');
+        for (let param of params) {
+          if (param.split("=")[0] === "calendar_view") {
+            searchString = searchString.replace(param, `calendar_view=${String(this.calendarViewOn)}`);
+            break;
+          }
+        }
+        window.location.search = searchString;
       },
       requestPosting(m) {
         let userInput = confirm("{% trans 'Are you certain you want to make a request for this meeting to be posted on the National CSAS website?' %}")
@@ -135,10 +137,6 @@
       },
       openPopout(url) {
         popitup(url, 'popoutWindow' + Date.now());
-      },
-
-      submitForm() {
-        $("#filter-form").submit()
       },
 
       getMeetings() {
@@ -235,11 +233,13 @@
       this.getMetadata();
 
 
-      // var params = window.location.search.substring(1).split('&');
-      // for (const param of params) {
-      //   if (param.split("=")[0] === "calendar_view" && param.split("=")[1] === "true") this.calendarViewOn = true;
-      // }
+      var params = window.location.search.substring(1).split('&');
+      for (const param of params) {
+        if (param.split("=")[0] === "calendar_view" && param.split("=")[1] === "true") this.calendarViewOn = true;
+      }
 
+      // make sure the calendar view hidden input is in sync with the vue variable
+      $("#calendar_view").val(String(this.calendarViewOn));
 
     },
   });

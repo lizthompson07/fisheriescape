@@ -65,7 +65,7 @@
         <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
       </button>
       <button
-        v-if="meeting.id && !meeting.is_planning && meeting.process_object.can_post_meeting && !meeting.process_object.posting_request_date && !meeting.process_object.is_posted"
+        v-if="meeting.can_post_meeting"
         class="btn btn-sm btn-purple" :disabled="!meeting.process_object.can_post_meeting.can_post" @click="requestPosting"
         data-toggle="tooltip" :title="meeting.process_object.can_post_meeting.reasons"
       >

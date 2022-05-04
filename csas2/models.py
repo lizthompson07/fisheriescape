@@ -614,28 +614,6 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         return mystr
 
     @property
-    def can_post_meeting(self):
-        """ stores the business rules for whether the meeting can be posted to the csas website"""
-        can_post = True  # start off optimistic
-        reasons = []
-        if not hasattr(self, "tor"):  # there is no TOR
-            reasons.append(gettext("ToR has not been initiated"))
-            if can_post:
-                can_post = False
-        else:
-            if not self.tor.meeting:  # there is no meeting linked to ToR
-                reasons.append(gettext("ToR has not been linked to a meeting"))
-                if can_post:
-                    can_post = False
-
-            if not self.tor.expected_document_types.exists():  # there is no TOR - expected publications
-                reasons.append(gettext("ToR does not list expected publications"))
-                if can_post:
-                    can_post = False
-
-        return dict(can_post=can_post, reasons=reasons)
-
-    @property
     def coordinator(self):
         return self.lead_office.coordinator
 
@@ -843,27 +821,48 @@ class Meeting(SimpleLookup, MetadataFields):
         super().save(*args, **kwargs)
 
     @property
-    def postable_meeting(self):
-        return self.process.has_tor and self.process.tor.meeting == self
+    def has_tor(self):
+        return hasattr(self, "tor")
 
     @property
     def posting_status(self):
         # in the simple case, we just look to the process. but sometimes this might not be the meeting listed on the tor :-/
-        if self.postable_meeting:
+        if self.has_tor:
             return self.process.posting_status
 
     @property
     def is_posted(self):
         # in the simple case, we just look to the process. but sometimes this might not be the meeting listed on the tor :-/
-        if self.postable_meeting:
+        if self.has_tor:
             return self.process.is_posted
-
 
     @property
     def can_post_meeting(self):
-        if self.postable_meeting:
-            return self.process.can_post_meeting
-        return dict(can_post=False, reasons=["This meeting is not connected to the terms of reference for this process."])
+        if self.has_tor:
+            # return self.process.can_post_meeting
+            return dict(can_post=False, reasons=["This meeting is not connected to the terms of reference for this process."])
+
+    # @property
+    # def can_post_meeting(self):
+    #     """ stores the business rules for whether the meeting can be posted to the csas website"""
+    #     can_post = True  # start off optimistic
+    #     reasons = []
+    #     if not hasattr(self, "tor"):  # there is no TOR
+    #         reasons.append(gettext("ToR has not been initiated"))
+    #         if can_post:
+    #             can_post = False
+    #     else:
+    #         if not self.tor.meeting:  # there is no meeting linked to ToR
+    #             reasons.append(gettext("ToR has not been linked to a meeting"))
+    #             if can_post:
+    #                 can_post = False
+    #
+    #         if not self.tor.expected_document_types.exists():  # there is no TOR - expected publications
+    #             reasons.append(gettext("ToR does not list expected publications"))
+    #             if can_post:
+    #                 can_post = False
+    #
+    #     return dict(can_post=can_post, reasons=reasons)
 
     @property
     def mmmmyy(self):
