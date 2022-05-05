@@ -832,16 +832,11 @@ class ProcessSerializer(serializers.ModelSerializer):
     key_meetings = serializers.SerializerMethodField()
     tor = serializers.SerializerMethodField()
     tor_status = serializers.SerializerMethodField()
-    posting_notification_date_display = serializers.SerializerMethodField()
     projects = serializers.SerializerMethodField()
 
     def get_projects(self, instance):
         from ppt.api.serializers import ProjectSerializer
         return [ProjectSerializer(p).data for p in instance.projects.all()]
-
-    def get_posting_notification_date_display(self, instance):
-        if instance.posting_notification_date:
-            return f"{date(instance.posting_notification_date)} ({naturaltime(instance.posting_notification_date)})"
 
     def get_tor_status(self, instance):
         return instance.tor_status

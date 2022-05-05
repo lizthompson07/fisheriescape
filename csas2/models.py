@@ -451,9 +451,9 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="processes", verbose_name=_("fiscal year"), editable=False)
 
     # DELETE ME
-    is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"))
-    posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"))
-    posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
+    # is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"))
+    # posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"))
+    # posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
 
     # calculated
 

@@ -67,10 +67,10 @@
 
 
       <button v-if="meeting.can_post_meeting && meeting.can_post_meeting.can_post" class="btn btn-sm btn-purple" @click="requestPosting">
-        {% trans "Request to Post Meeting" %}
+        {% trans "Submit Posting Request" %}
       </button>
       <button v-else-if="meeting.can_post_meeting" class="btn btn-sm btn-secondary" disabled data-toggle="tooltip" :title="meeting.can_post_meeting.reasons">
-        {% trans "Request to Post Meeting" %}
+        {% trans "Submit Posting Request" %}
       </button>
 
     </div>

@@ -633,6 +633,7 @@ class ProcessDetailView(LoginAccessRequiredMixin, CommonDetailView):
         context["process_field_list"] = utils.get_process_field_list(obj)
         context["meeting_field_list"] = [
             'display|{}'.format(_("title")),
+            'is_posted',
             'location',
             'display_dates|{}'.format(_("dates")),
         ]

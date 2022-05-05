@@ -113,18 +113,6 @@
               <th class="text-left">{% trans "ToR status" %}</th>
               <td class="text-left" v-html="process.tor_status"></td>
             </tr>
-
-            <tr>
-              <th class="text-left" v-html="processLabels.is_posted"></th>
-              <td class="text-left">
-                <span class="">${process.is_posted|yesNo}</span>
-                <em v-if="!process.is_posted && process.posting_request_date" class=" text-muted">
-                  &mdash; {% trans "Posting request made on" %} ${process.posting_request_date_display}
-                </em>
-              </td>
-            </tr>
-
-
             <tr>
               <th class="text-left">{% trans "Advisory process type" %}</th>
               <td class="text-left">${process.scope_type|nz}</td>
