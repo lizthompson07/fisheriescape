@@ -251,10 +251,10 @@
       this.getMeetings();
       this.getMetadata();
 
-
       var params = window.location.search.substring(1).split('&');
       for (const param of params) {
         if (param.split("=")[0] === "calendar_view" && param.split("=")[1] === "true") this.calendarViewOn = true;
+        else if (param.split("=")[0] === "calendar_view" && param.split("=")[1] === "false") this.calendarViewOn = false;
       }
 
       // make sure the calendar view hidden input is in sync with the vue variable
