@@ -214,13 +214,12 @@ class ProcessFilter(django_filters.FilterSet):
 class MeetingFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Meeting Title contains"))
     is_posted = django_filters.ChoiceFilter(field_name="process__is_posted", label=_("Is Posted?"), lookup_expr='exact', empty_label=_("All"), choices=YES_NO_CHOICES)
-    linked_to_tor = django_filters.ChoiceFilter(field_name="tor", label=_("Linked to ToR?"), lookup_expr='isnull', empty_label=_("All"), choices=YES_NO_CHOICES)
     start_date_month = django_filters.ChoiceFilter(field_name="start_date__month", label=_("Month of meeting"), empty_label=_("All"), choices=MONTH_CHOICES)
+    process_id = django_filters.NumberFilter(field_name="process_id", label=_("Process ID"))
 
     class Meta:
         model = models.Meeting
         fields = {
-            'process_id': ['exact'],
             'process__fiscal_year': ['exact'],
             'fiscal_year': ['exact'],
             'process__lead_office': ['exact'],
@@ -237,7 +236,7 @@ class MeetingFilter(django_filters.FilterSet):
         meeting_fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(meetings__isnull=False).distinct()]
         status_choices = model_choices.get_process_status_choices()
 
-        self.filters['process_id'].field.widget.attrs = chosen_js
+        # self.filters['process_id'].field.widget.attrs = chosen_js
         self.filters['process__lead_office'].label = _("Lead CSAS office")
         self.filters['is_estimate'].label = _("Are dates approximate?")
         self.filters['process__fiscal_year'] = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year of process"))

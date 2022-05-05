@@ -75,15 +75,18 @@
         <td>
           <div class="mb-3">
             <div class="mb-3">
-              <span v-if="m.posting_status">${m.posting_status}</span>
-              <span v-else class="text-danger">{% trans "meeting not linked to terms of reference" as txt_meeting %} {{ txt_meeting | upper }}</span>
+              <span class="">${m.posting_status}</span>
+              <em v-if="!m.is_posted && m.posting_request_date" class=" text-muted">
+                &mdash; {% trans "Posting request made on" %} ${m.posting_request_date_display}
+              </em>
+              <em v-else="!m.is_posted" class=" text-muted">
+                &mdash; ${m.can_post_meeting.reasons | listrify}
+              </em>
             </div>
-            <div v-if="m.posting_status && m.process_object.can_post_meeting && !m.process_object.posting_request_date && !m.process_object.is_posted"
-                 class="mb-3">
-              <button v-if="m.process_object.can_post_meeting.can_post" class="btn btn-sm btn-purple"  @click="requestPosting(m)">
-                {% trans "Request to Post" %}
+            <div v-if="m.can_post_meeting.can_post">
+              <button class="btn btn-sm btn-purple" @click="requestPosting(m)">
+                {% trans "Submit Request to Post" %}
               </button>
-              <span v-else class="text-muted font-italic">${String(m.process_object.can_post_meeting.reasons)}</span>
             </div>
 
           </div>

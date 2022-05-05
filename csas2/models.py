@@ -825,6 +825,7 @@ class Meeting(SimpleLookup, MetadataFields):
             return gettext("Posted")
         elif not self.is_planning:
             return gettext("Not posted")
+        return "n/a"
 
 
     @property

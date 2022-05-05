@@ -21,7 +21,7 @@
   </div>
   {% bootstrap_messages %}
 
-  {% include "csas2/meeting_reviews/_filter.html" %}
+  {% include "csas2/_meeting_filter.html" %}
   <div id="app" v-cloak>
 
     <div class="">
@@ -122,7 +122,7 @@
       requestPosting(m) {
         let userInput = confirm("{% trans 'Are you certain you want to make a request for this meeting to be posted on the National CSAS website?' %}")
         if (userInput) {
-          let endpoint = `/api/csas/processes/${m.process}/?request_posting=true`;
+          let endpoint = `/api/csas/meetings/${m.id}/?request_posting=true`;
           apiService(endpoint, "POST").then(data => {
             this.getMeeting(m);
           });

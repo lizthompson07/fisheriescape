@@ -114,7 +114,7 @@
                   <em v-if="!meeting.is_posted && meeting.posting_request_date" class=" text-muted">
                     &mdash; {% trans "Posting request made on" %} ${meeting.posting_request_date_display}
                   </em>
-                  <em v-else="!meeting.is_posted" class=" text-muted">
+                  <em v-else-if="!meeting.is_posted" class=" text-muted">
                     &mdash; ${meeting.can_post_meeting.reasons | listrify}
                   </em>
                 </div>

@@ -1,0 +1,39 @@
+{% load i18n %}
+{% load bootstrap4 %}
+
+<div class="table-bordered py-3 px-2 admin-panel mb-3 small">
+  <form class="form" action="." method="get" id="filter-form">
+
+
+    <div class="row">
+      <div class="col">
+        {% bootstrap_field filter.form.process__fiscal_year placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+        {% bootstrap_field filter.form.process__status placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+      </div>
+      <div class="col">
+        {% bootstrap_field filter.form.fiscal_year placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+        {% bootstrap_field filter.form.process_id placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+      </div>
+      <div class="col">
+        {% bootstrap_field filter.form.start_date_month placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+        {% bootstrap_field filter.form.is_estimate placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+      </div>
+      <div class="col">
+        {% bootstrap_field filter.form.is_planning placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+        {% bootstrap_field filter.form.process__lead_office placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+      </div>
+      <div class="col">
+        {% bootstrap_field filter.form.process__status placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+        {% bootstrap_field filter.form.search_term placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+        <input type="hidden" id="calendar_view" name="calendar_view">
+      </div>
+      <div class="col">
+        <br>
+        <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+        <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+      </div>
+    </div>
+  </form>
+
+</div>
+
