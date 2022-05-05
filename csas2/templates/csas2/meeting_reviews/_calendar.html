@@ -19,7 +19,6 @@
       <tr v-for="m in unit.meetings" :key="m.id">
         <td>
           <div class="mb-3">
-
             <span v-html="m.display_dates"></span> <span v-if="m.is_estimate" class="text-danger p-1">
             {% trans "approximate dates only" as txt_dates %} ({{ txt_dates|upper }})
             </span>
@@ -30,6 +29,9 @@
           </div>
           <div class="mb-3">
             <span>${m.location}</span>
+          </div>
+          <div class="mb-3 font-italic">
+            {% trans "Process Id:" %} ${m.process}
           </div>
         </td>
 

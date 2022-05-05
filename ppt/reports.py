@@ -8,6 +8,7 @@ from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.db.models import Q, Sum
 from django.http import HttpResponse
 from django.template.defaultfilters import pluralize, slugify, date
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from docx import Document
@@ -1345,6 +1346,112 @@ def generate_py(qs, site_url, type):
                       nz(obj.capitalcost_set.filter(amount__isnull=False).aggregate(dsum=Sum("amount"))["dsum"], 0) + \
                       nz(obj.staff_set.filter(amount__isnull=False).aggregate(dsum=Sum("amount"))["dsum"], 0)
                 my_ws.write(i, j, val, normal_format)
+            else:
+                val = str(get_field_value(obj, field))
+                my_ws.write(i, j, val, normal_format)
+
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
+
+            # if new value > stored value... replace stored value
+            if len(str(val)) > col_max[j]:
+                if len(str(val)) < 75:
+                    col_max[j] = len(str(val))
+                else:
+                    col_max[j] = 75
+            j += 1
+        i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    return target_url
+
+
+def generate_capital_cost_report(qs, site_url):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
+    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": False, 'border': 1, 'border_color': 'black', })
+    currency_format = workbook.add_format({'num_format': '#,##0.00', 'border': 1, 'border_color': 'black',})
+    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+    hyperlink_format = workbook.add_format({'border': 1, 'border_color': 'black', "font_color": "blue", "underline": True, "text_wrap": True})
+
+    header = [
+        'Fiscal year',
+        'Project',
+        'Region',
+        'Division',
+        'Section',
+        'Theme',
+        'display|Capital Cost',
+        'funding_source',
+        'amount'
+    ]
+
+    # define the header
+    title = "List of Capital Costs from the PPT"
+
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name="projects")
+    my_ws.write(0, 0, title, title_format)
+    my_ws.write_row(2, 0, header, header_format)
+
+    # create the col_max column to store the length of each header
+    # should be a maximum column width to 100
+    col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+
+    cc_qs = models.CapitalCost.objects.filter(project_year__in=qs)
+
+    i = 3
+    for obj in cc_qs:
+        j = 0
+        for field in header:
+            if "Fiscal" in field:
+                val = str(obj.project_year.fiscal_year)
+                my_ws.write(i, j, val, normal_format)
+            elif "Region" in field:
+                val = " ---"
+                if obj.project_year.project.section:
+                    val = obj.project_year.project.section.division.branch.region.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "Division" in field:
+                val = " ---"
+                if obj.project_year.project.section:
+                    val = obj.project_year.project.section.division.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "Section" in field:
+                val = " ---"
+                if obj.project_year.project.section:
+                    val = obj.project_year.project.section.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "Theme" in field:
+                val = " ---"
+                if obj.project_year.project.functional_group:
+                    val = str(obj.project_year.project.functional_group.theme)
+                my_ws.write(i, j, val, normal_format)
+            elif "amount" in field:
+                val = str(get_field_value(obj, field))
+                my_ws.write(i, j, val, currency_format)
+            elif "Project" in field:
+                val = str(obj.project_year.project)
+                my_ws.write_url(i, j,
+                                url=f'{site_url}/{reverse("ppt:project_detail", args=[obj.project_year.project.id])}?project_year={obj.project_year.id}',
+                                string=f"{val}",
+                                cell_format=hyperlink_format)
+
             else:
                 val = str(get_field_value(obj, field))
                 my_ws.write(i, j, val, normal_format)
