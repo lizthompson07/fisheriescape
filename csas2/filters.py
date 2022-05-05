@@ -220,7 +220,7 @@ class MeetingFilter(django_filters.FilterSet):
     class Meta:
         model = models.Meeting
         fields = {
-            'process': ['exact'],
+            'process_id': ['exact'],
             'process__fiscal_year': ['exact'],
             'fiscal_year': ['exact'],
             'process__lead_office': ['exact'],
@@ -237,7 +237,7 @@ class MeetingFilter(django_filters.FilterSet):
         meeting_fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(meetings__isnull=False).distinct()]
         status_choices = model_choices.get_process_status_choices()
 
-        self.filters['process'].field.widget.attrs = chosen_js
+        self.filters['process_id'].field.widget.attrs = chosen_js
         self.filters['process__lead_office'].label = _("Lead CSAS office")
         self.filters['is_estimate'].label = _("Are dates approximate?")
         self.filters['process__fiscal_year'] = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year of process"))

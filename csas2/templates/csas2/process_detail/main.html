@@ -121,13 +121,6 @@
                 <em v-if="!process.is_posted && process.posting_request_date" class=" text-muted">
                   &mdash; {% trans "Posting request made on" %} ${process.posting_request_date_display}
                 </em>
-                <em v-else-if="!process.is_posted && process.can_post_meeting.can_post" class=" text-muted">
-                  &mdash; {% trans "eligible for posting" %}
-                </em>
-                <em v-else-if="!process.is_posted && !process.can_post_meeting.can_post" class=" text-muted">
-                  &mdash; {% trans "not eligible for posting because:" %} ${process.can_post_meeting.reasons | listrify}
-                </em>
-
               </td>
             </tr>
 

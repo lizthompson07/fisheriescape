@@ -193,21 +193,7 @@ class ProcessViewSet(viewsets.ModelViewSet):
     def post(self, request, pk):
         qp = request.query_params
         process = get_object_or_404(models.Process, pk=pk)
-        if qp.get("request_posting"):
-            can_modify = can_modify_process(request.user, process.id, True)
-            if not can_modify.get("can_modify"):
-                raise ValidationError(can_modify.get("reason"))
-            elif process.is_posted:
-                raise ValidationError(_("A request to have this process posted has already occurred."))
-
-            email = emails.PostingRequestEmail(request, process)
-            email.send()
-            process.posting_request_date = timezone.now()
-            process.save()
-            msg = _("Success! Your request for a posting has been sent to the National CSAS Office.")
-            return Response(msg, status.HTTP_200_OK)
-
-        elif qp.get("link_2_ppt"):
+        if qp.get("link_2_ppt"):
             can_modify = can_modify_process(request.user, process.id, True)
             if not can_modify["can_modify"]:
                 raise ValidationError(can_modify["reason"])
@@ -306,7 +292,22 @@ class MeetingViewSet(viewsets.ModelViewSet):
     def post(self, request, pk):
         qp = request.query_params
         meeting = get_object_or_404(models.Meeting, pk=pk)
-        if qp.get("maximize_attendance"):
+
+        if qp.get("request_posting"):
+            can_modify = can_modify_process(request.user, meeting.process.id, True)
+            if not can_modify.get("can_modify"):
+                raise ValidationError(can_modify.get("reason"))
+            elif meeting.is_posted:
+                raise ValidationError(_("A request to have this process posted has already occurred."))
+
+            email = emails.PostingRequestEmail(request, meeting)
+            email.send()
+            meeting.posting_request_date = timezone.now()
+            meeting.save()
+            msg = _("Success! Your request for a posting has been sent to the National CSAS Office.")
+            return Response(msg, status.HTTP_200_OK)
+
+        elif qp.get("maximize_attendance"):
             invitees = meeting.invitees.filter(status__in=[1, ])
             for invitee in invitees:
                 invitee.maximize_attendance()

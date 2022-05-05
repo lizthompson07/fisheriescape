@@ -443,6 +443,11 @@ class MeetingSerializer(serializers.ModelSerializer):
     key_invitees = serializers.SerializerMethodField()
     posting_status = serializers.SerializerMethodField()
     can_post_meeting = serializers.SerializerMethodField()
+    posting_request_date_display = serializers.SerializerMethodField()
+
+    def get_posting_request_date_display(self, instance):
+        if instance.posting_request_date:
+            return f"{date(instance.posting_request_date)} ({naturaltime(instance.posting_request_date)})"
 
     def get_can_post_meeting(self, instance):
         return instance.can_post_meeting
@@ -775,11 +780,6 @@ class ProcessSerializerLITE(serializers.ModelSerializer):
     tor = serializers.SerializerMethodField()
     documents = serializers.SerializerMethodField()
     has_tor = serializers.SerializerMethodField()
-    posting_request_date_display = serializers.SerializerMethodField()
-
-    def get_posting_request_date_display(self, instance):
-        if instance.posting_request_date:
-            return f"{date(instance.posting_request_date)} ({naturaltime(instance.posting_request_date)})"
 
     def get_has_tor(self, instance):
         return instance.has_tor
@@ -820,7 +820,6 @@ class ProcessSerializer(serializers.ModelSerializer):
     other_offices = serializers.SerializerMethodField()
     scope_type = serializers.SerializerMethodField()
     tname = serializers.SerializerMethodField()
-    posting_request_date_display = serializers.SerializerMethodField()
     client_sectors = serializers.SerializerMethodField()
     science_leads = serializers.SerializerMethodField()
     client_leads = serializers.SerializerMethodField()
@@ -871,10 +870,6 @@ class ProcessSerializer(serializers.ModelSerializer):
 
     def get_client_sectors(self, instance):
         return instance.client_sectors
-
-    def get_posting_request_date_display(self, instance):
-        if instance.posting_request_date:
-            return f"{date(instance.posting_request_date)} ({naturaltime(instance.posting_request_date)})"
 
     def get_editors(self, instance):
         return listrify(instance.editors.all())

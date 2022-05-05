@@ -67,6 +67,7 @@ urlpatterns = [
     path('process-reviews/', views.ProcessReviewTemplateView.as_view(), name="process_reviews"),
 
     # ToR
+    path('processes/<int:process>/tor-dispatch/', views.tor_dispatch, name="tor_dispatch"),
     path('processes/<int:process>/new-tor/', views.TermsOfReferenceCreateView.as_view(), name="tor_new"),
     path('terms-of-reference/<int:pk>/detail/', views.TermsOfReferenceDetailView.as_view(), name="tor_detail"),
     path('terms-of-reference/<int:pk>/edit/', views.TermsOfReferenceUpdateView.as_view(), name="tor_edit"),

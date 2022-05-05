@@ -810,6 +810,16 @@ class ProcessPostingsVueJSView(CsasNCRStaffRequiredMixin, CommonFilterView):  # 
 # ToR #
 #######
 
+def tor_dispatch(request, process):
+    if request.method == "GET":
+        p = get_object_or_404(models.Process, pk=process)
+        if p.has_tor:
+            url = reverse("csas2:tor_edit", args=[p.tor.id])
+        else:
+            url = reverse("csas2:tor_new", args=[p.id])
+        return HttpResponseRedirect(url)
+
+
 class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
     model = models.TermsOfReference
     form_class = forms.TermsOfReferenceForm
@@ -1021,7 +1031,7 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'is_estimate|{}'.format(_("dates are approximate")), "class": "", "width": ""},
         {"name": 'role|{}'.format(_("your role(s)")), "class": "", "width": ""},
         {"name": 'is_planning', "class": "", "width": ""},
-        {"name": 'process.posting_status|{}'.format(_("Status of website posting")), "class": "", "width": "400px"},
+        {"name": 'posting_status|{}'.format(_("Status of website posting")), "class": "", "width": "400px"},
     ]
 
     def get_extra_button_dict1(self):
