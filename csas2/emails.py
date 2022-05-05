@@ -99,14 +99,14 @@ class ReviewCompleteEmail(Email):
         return [self.instance.csas_request.client.email]
 
 
-class PostedProcessEmail(Email):
+class PostedMeetingEmail(Email):
     email_template_path = 'csas2/emails/posted_process.html'
     subject_en = 'Your process has been posted to the CSAS website'
     subject_fr = "Votre processus a été publié sur le site Web du SCCS"
 
     def get_recipient_list(self):
         # should go to all emails associated with csas office
-        return self.instance.lead_office.all_emails
+        return self.instance.process.lead_office.all_emails
 
 
 class UpdatedMeetingEmail(Email):

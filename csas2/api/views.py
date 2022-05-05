@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from unidecode import unidecode
 
+from lib.functions.custom_functions import listrify
 from ppt.utils import prime_csas_activities
 from shared_models.api.serializers import PersonSerializer
 from shared_models.api.views import _get_labels, SharedModelMetadataAPIView
@@ -40,6 +41,7 @@ class CurrentUserAPIView(APIView):
         qp = request.GET
         data["is_csas_national_admin"] = utils.in_csas_national_admin_group(request.user)
         data["is_admin"] = utils.in_csas_admin_group(request.user)
+        data["is_staff"] = utils.in_csas_web_pub_group(request.user)
 
         # provide the region for which that use is an admin for, if applicable
         data["regional_admin"] = None
@@ -183,12 +185,6 @@ class ProcessViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         kwargs = dict(updated_by=self.request.user)
         obj = serializer.save(**kwargs)
-        # we do not want to send them too many emails.. only the first time
-        if obj.is_posted and not obj.posting_notification_date:
-            email = emails.PostedProcessEmail(self.request, obj)
-            email.send()
-            obj.posting_notification_date = timezone.now()
-            obj.save()
 
     def post(self, request, pk):
         qp = request.query_params
@@ -306,7 +302,38 @@ class MeetingViewSet(viewsets.ModelViewSet):
             meeting.save()
             msg = _("Success! Your request for a posting has been sent to the National CSAS Office.")
             return Response(msg, status.HTTP_200_OK)
+        elif qp.get("toggle_posting"):
+            if not utils.in_csas_web_pub_group(self.request.user):
+                raise ValidationError("You must be a CSAS staff member to do this.")
 
+            can_post = meeting.can_post_meeting
+            if not meeting.is_posted and not meeting.posting_request_date and not can_post.get("can_post"):
+                raise ValidationError(listrify(can_post.get("reasons")))
+
+            meeting.is_posted = not meeting.is_posted
+            meeting.save()
+
+            # if posted but an email was never sent, then we should send an email
+            if meeting.is_posted and not meeting.posting_notification_date:
+                email = emails.PostedMeetingEmail(request, meeting)
+                email.send()
+                meeting.posting_notification_date = timezone.now()
+                meeting.save()
+            elif not meeting.is_posted:
+                meeting.posting_notification_date = None
+                meeting.save()
+            return Response(serializers.MeetingSerializer(meeting).data, status.HTTP_200_OK)
+
+        elif qp.get("cancel_posting_request"):
+            if not utils.in_csas_web_pub_group(self.request.user):
+                raise ValidationError("You must be a CSAS staff member to do this.")
+
+            elif meeting.is_posted:
+                raise ValidationError("You cannot cancel the posting request of a meeting that is already posted")
+
+            meeting.posting_request_date = None
+            meeting.save()
+            return Response(serializers.MeetingSerializer(meeting).data, status.HTTP_200_OK)
         elif qp.get("maximize_attendance"):
             invitees = meeting.invitees.filter(status__in=[1, ])
             for invitee in invitees:

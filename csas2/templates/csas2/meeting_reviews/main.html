@@ -24,15 +24,13 @@
   {% include "csas2/_meeting_filter.html" %}
   <div id="app" v-cloak>
 
-    <div class="">
-      <div class="pointy mb-5" @click="toggleCalendarView">
-        <p class="lead text-secondary" id="overview">
-          <span>{% trans "List view" %}</span>
-          <span v-if="!calendarViewOn" class="mx-2 mdi mdi-toggle-switch-off h4"></span>
-          <span v-else class="mx-2 mdi mdi-toggle-switch h4"></span>
-          <span>{% trans "Calendar view" %}</span>
-        </p>
-      </div>
+    <div class="pointy mb-5" @click="toggleCalendarView">
+      <p class="lead text-secondary" id="overview">
+        <span>{% trans "List view" %}</span>
+        <span v-if="!calendarViewOn" class="mx-2 mdi mdi-toggle-switch-off h4"></span>
+        <span v-else class="mx-2 mdi mdi-toggle-switch h4"></span>
+        <span>{% trans "Calendar view" %}</span>
+      </p>
     </div>
 
     <div v-if="loadingMeetings" class="loading mb-3 mt-3 mt-5">
@@ -100,9 +98,29 @@
       regionChoices: [],
       sectorChoices: [],
       fresh: true,
-      calendarViewOn: false,
+      calendarViewOn: true,
     },
     methods: {
+      togglePosting(m) {
+        let msg;
+        if (m.is_posted) msg = "{% trans "Are you certain you want to unpost this meeting?" %}";
+        else msg = "{% trans "Are you certain you want to post this meeting? \n\nThe Lead Offices will receive a notification email." %}";
+        let userInput = confirm(msg);
+        if (userInput) {
+          let endpoint = `/api/csas/meetings/${m.id}/?toggle_posting=true`;
+          apiService(endpoint, "POST").then(data => {
+            if (!data.id) alert(groomJSON(data));
+            else this.getMeeting(m);
+          });
+        }
+      },
+      cancelPostingRequest(m) {
+        let endpoint = `/api/csas/meetings/${m.id}/?cancel_posting_request=true`;
+        apiService(endpoint, "POST").then(data => {
+          if (!data.id) alert(groomJSON(data));
+          else this.getMeeting(m);
+        });
+      },
       toggleCalendarView() {
         this.calendarViewOn = !this.calendarViewOn;
         // make sure the calendar view hidden input is in sync with the vue variable

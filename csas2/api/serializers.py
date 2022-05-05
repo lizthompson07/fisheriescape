@@ -434,7 +434,6 @@ class MeetingSerializer(serializers.ModelSerializer):
     length_days = serializers.SerializerMethodField()
     display = serializers.SerializerMethodField()
     somp_notification_date = serializers.SerializerMethodField()
-    is_posted = serializers.SerializerMethodField()
     ttime = serializers.SerializerMethodField()
     email_list = serializers.SerializerMethodField()
     process_object = serializers.SerializerMethodField()
@@ -444,6 +443,11 @@ class MeetingSerializer(serializers.ModelSerializer):
     posting_status = serializers.SerializerMethodField()
     can_post_meeting = serializers.SerializerMethodField()
     posting_request_date_display = serializers.SerializerMethodField()
+    posting_notification_date_display = serializers.SerializerMethodField()
+
+    def get_posting_notification_date_display(self, instance):
+        if instance.posting_notification_date:
+            return f"{date(instance.posting_notification_date)} ({naturaltime(instance.posting_notification_date)})"
 
     def get_posting_request_date_display(self, instance):
         if instance.posting_request_date:
@@ -472,9 +476,6 @@ class MeetingSerializer(serializers.ModelSerializer):
 
     def get_ttime(self, instance):
         return instance.ttime
-
-    def get_is_posted(self, instance):
-        return instance.is_posted
 
     def get_somp_notification_date(self, instance):
         return date(instance.somp_notification_date)

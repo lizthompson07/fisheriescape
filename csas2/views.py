@@ -379,18 +379,12 @@ class CSASRequestReviewConsoleTemplateView(CsasAdminRequiredMixin, CommonFilterV
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_staff"] = utils.in_csas_web_pub_group(self.request.user)
         return context
 
     def get_queryset(self):
         qs = models.CSASRequest.objects.all()
         qs = qs.annotate(search=Concat('title', Value(" "), 'translated_title', Value(" "), 'id', output_field=TextField()))
         return qs
-
-
-class CSASRequestTranslationConsoleTemplateView(CSASRequestReviewConsoleTemplateView):
-    h1 = gettext_lazy("CSAS Request Translation Console")
-    template_name = 'csas2/request_reviews/main_trans.html'
 
 
 class ProcessReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):
@@ -1122,7 +1116,7 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
 
     def get_h3(self):
         obj = self.get_object()
-        if obj.process.is_posted and hasattr(obj, "tor"):
+        if obj.is_posted and hasattr(obj, "tor"):
             mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(
                 _("This process has already been posted therefore changes to the meeting details "
                   "will automatically trigger a notification to be sent to the national CSAS team."))
@@ -1163,7 +1157,7 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
         super().form_valid(form)
 
         # now for the piece about NCR email
-        if obj.process.is_posted and hasattr(obj, "tor") and \
+        if obj.is_posted and hasattr(obj, "tor") and \
                 (old_obj.name != obj.name or old_obj.nom != obj.nom or old_obj.location != obj.location
                  or old_obj.tor_display_dates != obj.tor_display_dates or old_obj.expected_publications_en != obj.expected_publications_en):
             email = emails.UpdatedMeetingEmail(self.request, obj, old_obj)

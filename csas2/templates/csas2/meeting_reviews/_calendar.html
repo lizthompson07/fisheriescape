@@ -8,11 +8,12 @@
     <table class="table table-sm table-bordered">
       <thead>
       <tr>
-        <th class="w-30">{% trans "Date, subject and location of meeting" %}</th>
-        <th class="w-20">{% trans "Scope and region(s)" %}</th>
+        <th class="">{% trans "Date, subject and location of meeting" %}</th>
+        <th class="w-15">{% trans "Scope and region(s)" %}</th>
         <th class="w-15">{% trans "Contact(s)" %}</th>
-        <th class="w-20">{% trans "Details & Publications" %}</th>
+        <th class="w-15">{% trans "Details & Publications" %}</th>
         <th class="w-15">{% trans "Status of posting on CSAS website" %}</th>
+        <th v-if="currentUser.is_staff" class="w-15">{% trans "CSAS Staff Operations" %}</th>
       </tr>
       </thead>
       <tbody>
@@ -92,6 +93,37 @@
             </div>
 
           </div>
+        </td>
+        <td v-if="currentUser.is_staff">
+
+          <div class="pointy mb-5" @click="togglePosting(m)">
+            <p class="lead text-secondary">
+              <span v-if="!m.is_posted" class="mild-concern p-1">{% trans "Draft" %}</span>
+              <span v-else class="p-1">{% trans "Draft" %}</span>
+
+              <span v-if="!m.is_posted" class="mx-2 mdi mdi-toggle-switch-off h4"></span>
+              <span v-else class="mx-2 mdi mdi-toggle-switch h4"></span>
+
+              <span v-if="m.is_posted" class="good p-1">{% trans "Posted" %}</span>
+              <span v-else class="p-1">{% trans "Posted" %}</span>
+            </p>
+          </div>
+
+
+          <div class="mb-1" v-if="!m.is_posted && m.posting_request_date">
+            <p >
+              <mark>
+                <em class="">
+                  {% trans "Request made on " %}${m.posting_request_date_display|nz}
+                  &mdash; <span class="text-left text-primary pointy" @click="cancelPostingRequest(m)">{% trans "cancel request" %}</span>
+                </em>
+              </mark>
+            </p>
+          </div>
+          <p v-if="m.posting_notification_date">
+            {% trans "Email notification sent on" %} ${m.posting_notification_date_display}
+          </p>
+
         </td>
 
       </tr>

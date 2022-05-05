@@ -797,7 +797,7 @@ class Meeting(SimpleLookup, MetadataFields):
 
     # non-editable
     somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))
-    is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"), editable=False)
+    is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"))
     posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"), editable=False)
     posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
 
