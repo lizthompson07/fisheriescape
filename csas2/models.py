@@ -842,9 +842,9 @@ class Meeting(SimpleLookup, MetadataFields):
             if not self.process.has_tor or not self.process.tor.expected_document_types.exists():
                 reasons.append(gettext("cannot post because the CSAS Process must have a Terms of Reference with a list of expected publications"))
                 can_post = False
-            if not self.chair:
-                reasons.append(gettext("cannot post because the meeting must at least have one chairperson assigned to it"))
-                can_post = False
+            # if not self.chair:
+            #     reasons.append(gettext("cannot post because the meeting must at least have one chairperson assigned to it"))
+            #     can_post = False
             if self.is_posted:
                 reasons.append(gettext("this meeting is already posted"))
                 can_post = False
