@@ -582,7 +582,7 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
         {"name": 'regions|{}'.format(_("CSAS offices")), "class": "", "width": ""},
         {"name": 'tor_status|{}'.format(_("ToR status")), "class": "", "width": ""},
-        {"name": 'chair|{}'.format(_("chair")), "class": "w-25", "width": ""},
+        {"name": 'chair|{}'.format(_("chair(s)")), "class": "w-15", "width": ""},
         {"name": 'science_leads|{}'.format(_("science lead(s)")), "class": "", "width": ""},
         {"name": 'has_peer_review_meeting|{}'.format(_("has peer review meeting?")), "class": "", "width": ""},
         {"name": 'has_planning_meeting|{}'.format(_("has planning meeting?")), "class": "", "width": ""},

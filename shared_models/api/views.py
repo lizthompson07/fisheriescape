@@ -209,10 +209,13 @@ class SharedModelMetadataAPIView(APIView):
     def get_data(self):
         data = dict()
         model = self.get_model()
-        data['labels'] = get_labels(model)
-        for field in model._meta.get_fields():
-            if hasattr(field, "choices") and getattr(field, "choices"):
-                data[f'{field.name}_choices'] = [dict(text=c[1], value=c[0]) for c in getattr(field, "choices")]
+        if self.get_display_mode() == "choices":
+            data['choices'] = [dict(text=str(item), value=item.id) for item in model.objects.all()]
+        else:
+            data['labels'] = get_labels(model)
+            for field in model._meta.get_fields():
+                if hasattr(field, "choices") and getattr(field, "choices"):
+                    data[f'{field.name}_choices'] = [dict(text=c[1], value=c[0]) for c in getattr(field, "choices")]
         return data
 
     def get(self, request):
