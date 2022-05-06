@@ -865,7 +865,7 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
     greatgrandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
     def get_h3(self):
-        if self.get_object().process.is_posted:
+        if self.get_object().meeting and self.get_object().meeting.is_posted:
             mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
             return mark_safe(mystr)
 
