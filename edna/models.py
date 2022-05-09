@@ -9,6 +9,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 from shapely.geometry import Polygon, Point
 
+from edna.utils import get_timezone_time
 from lib.functions.custom_functions import listrify, fiscal_year
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields
@@ -307,6 +308,10 @@ class Batch(models.Model):
         ordering = ["-datetime"]
         abstract = True
 
+    @property
+    def display_time(self):
+        return get_timezone_time(self.datetime).strftime("%Y-%m-%d %H:%M")
+
 
 class FiltrationBatch(Batch):
     class Meta:
@@ -514,7 +519,6 @@ class PCR(MetadataFields):
     # calc
     pcr_plate_well_prefix = models.CharField(max_length=1, blank=True, null=True, editable=True)
     pcr_plate_well_suffix = models.IntegerField(blank=True, null=True, editable=True)
-
 
     def save(self, *args, **kwargs):
         # if there is a filter, the collection is known

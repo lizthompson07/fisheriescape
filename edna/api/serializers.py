@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.utils.translation import gettext as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -26,8 +27,7 @@ class SampleSerializer(serializers.ModelSerializer):
     def get_collection_time_display(self, instance):
         if instance.datetime:
             dt = get_timezone_time(instance.datetime)
-            mystr = f'{dt.strftime("%Y-%m-%d %H:%M")}'
-            return mystr
+            return f'{dt.strftime("%Y-%m-%d %H:%M")}<br>({naturaltime(instance.datetime)})'
 
     def get_coordinates(self, instance):
         return instance.coordinates
