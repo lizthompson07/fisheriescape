@@ -146,8 +146,7 @@ th.et {
           {% endfor %}
         </ul>
       </td>
-
-      <td class="et" style="width: 120px">{{ object.notes }}</td>
+      <td class="et" style="width: 120px">{{ object.notes|text_wrap:25 }}</td>
     </tr>
 
     {# TO Recipients   #}

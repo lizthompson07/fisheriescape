@@ -14,6 +14,8 @@ class SpeciesFilter(django_filters.FilterSet):
 
 
 class SampleFilter(django_filters.FilterSet):
+    datetime = django_filters.CharFilter(field_name="datetime", lookup_expr='contains',)
+
     class Meta:
         model = models.Sample
         fields = {
@@ -39,7 +41,7 @@ class FilterFilter(django_filters.FilterSet):
             'tube_id': ['exact'],
             'filtration_batch': ['exact'],
             'extracts': ['isnull'],
-
+            'collection': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
@@ -54,12 +56,14 @@ class DNAExtractFilter(django_filters.FilterSet):
     class Meta:
         model = models.DNAExtract
         fields = {
-            'id': ['exact'],
+            'id': ['exact', 'gte', 'lte'],
             'filter': ['exact'],
             'filter__sample': ['exact'],
             'extraction_number': ['exact'],
+            'extraction_plate_id': ['exact'],
             'extraction_batch': ['exact'],
             'pcrs': ['isnull'],
+            'collection': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
@@ -104,6 +108,7 @@ class FiltrationBatchFilter(django_filters.FilterSet):
         model = models.FiltrationBatch
         fields = {
             'datetime': ['exact'],
+            'default_collection': ['exact'],
         }
 
 
@@ -112,6 +117,7 @@ class ExtractionBatchFilter(django_filters.FilterSet):
         model = models.ExtractionBatch
         fields = {
             'datetime': ['exact'],
+            'default_collection': ['exact'],
         }
 
 
@@ -120,4 +126,5 @@ class PCRBatchFilter(django_filters.FilterSet):
         model = models.PCRBatch
         fields = {
             'datetime': ['exact'],
+            'default_collection': ['exact'],
         }

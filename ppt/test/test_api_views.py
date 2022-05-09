@@ -633,7 +633,7 @@ faker = Factory.create()
 #         self.assertEqual(len(data["results"]), 1)
 #         self.assertEqual(data["results"][0]["id"], py.id)
 #         # but if we are an admin user, we should see 2 projects
-#         self.get_and_login_user(in_group="projects_admin")
+#         self.get_and_login_user(in_national_admin_group=True)
 #         data = self.client.get(self.test_url).data
 #         self.assertEqual(len(data["results"]), 2)
 #

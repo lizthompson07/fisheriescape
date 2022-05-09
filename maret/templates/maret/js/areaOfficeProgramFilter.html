@@ -1,0 +1,67 @@
+<script type="application/javascript">
+    var interval = null;
+    // aop stands for Area Office Program
+    // branch = area office
+    // division = aop
+    function aopChange() {
+        if( $("#id_area_office").val() != 0) {
+
+            aopInterval = setInterval(function() {
+                $.ajax({
+                    type: 'GET',
+                    url: "{% url 'maret:ajax_get_aops' %}",
+                    data: {
+                        'area_office': $("#id_area_office").val()
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        // This expects the data to be an array of string elements with the aop id and its
+                        // name separated by a colon. i.e ['1:Test AOP 1', '3:Test AOP 4']
+
+                        // start by ending the interval loop so the page doesn't just constantly refresh.
+                        clearInterval(aopInterval);
+
+                        // get the currently selected aop id. The values Django assigns to
+                        // selection list is the items primary key
+                        var sel_aop_pk = 0;
+
+                        $("#area_office_program_div").hide();
+                        if($("#id_area_office").val() != 0 ) {
+                            sel_aop_pk = $("#id_area_office_program :selected").val();
+                            $("#area_office_program_div").show();
+                        }
+                        $("#id_area_office_program").empty(); // remove old options
+
+                        var sel_changed = true;
+
+                        // reload the options based on what the server sends back for the selected area office
+                        $.each(data['area_office_program'], function (key, value) {
+                            const val = value.split(":");
+                            var opt = $("<option></option>").attr("value", val[0]).text(val[1]);
+                            if( val[0] == sel_aop_pk){
+                                sel_changed=false
+                                opt.attr("selected", "");
+                            }
+                            $("#id_area_office_program").append(opt);
+                        });
+
+                        //if the aops selection changed then force a refresh to clear it from the GET/POST variables.
+                        if(sel_changed) {
+                            $("#id_area_office_program").change();
+                        }
+                    },
+                    error: function (response) {
+                        clearInterval(aopInterval);
+                        console.log(response);
+                    }
+                });
+            }, 250);
+        } else {
+            $("#area_office_program_div").hide();
+        }
+    }
+    $("#area_office_program_div").hide();
+    $("#id_area_office").change(aopChange());
+    $("#id_area_office").change(aopChange);
+
+</script>

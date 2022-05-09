@@ -95,6 +95,7 @@ urlpatterns = [
 
     # reports
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),  # tested
+    path('reports/pcr-batch-csv/<int:pk>/', views.export_pcr_batch_csv, name="export_pcr_batch_csv"),  # TODO: TEST
 
 ]
 

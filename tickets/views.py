@@ -212,7 +212,7 @@ def mark_ticket_active(request, ticket):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(is_staff, login_url='/accounts/denied/')
+@user_passes_test(is_staff, login_url='/accounts/denied/?app=tickets')
 def assign_dm(request, ticket, staff):
     my_ticket = get_object_or_404(models.Ticket, pk=ticket)
     my_staff = get_object_or_404(User, pk=staff)
@@ -298,6 +298,18 @@ class TicketCreateViewPopout(LoginRequiredMixin, CommonPopoutCreateView):
     h1 = gettext_lazy("Log a Ticket")
 
     def get_initial(self):
+        if self.request.GET.get("permission_request"):
+            app = self.request.GET.get("app")
+            subject = f"Access request from {self.request.user}"
+            if app and app != "None":
+                subject += f" for '{app}'"
+
+            return dict(
+                title=subject,
+                request_type=8,
+                app=app,
+            )
+
         return dict(
             request_type=20,
             app=self.kwargs.get("app"),  # using this as a way to talk to FormClass
@@ -309,6 +321,8 @@ class TicketCreateViewPopout(LoginRequiredMixin, CommonPopoutCreateView):
         obj.primary_contact = self.request.user
         if self.kwargs.get("app"):
             obj.app = self.kwargs.get("app")
+        elif self.request.GET.get("app"):
+            obj.app = self.request.GET.get("app")
         obj.save()
 
         # create a new email object

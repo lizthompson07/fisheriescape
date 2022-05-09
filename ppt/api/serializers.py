@@ -48,6 +48,14 @@ class ReviewSerializer(serializers.ModelSerializer):
     ecological_score_html = serializers.SerializerMethodField()
     scale_score_html = serializers.SerializerMethodField()
     approval_level_display = serializers.SerializerMethodField()
+    approval_status_display = serializers.SerializerMethodField()
+    funding_status_display = serializers.SerializerMethodField()
+
+    def get_funding_status_display(self, instance):
+        return instance.get_funding_status_display()
+
+    def get_approval_status_display(self, instance):
+        return instance.get_approval_status_display()
 
     def get_approval_level_display(self, instance):
         return instance.get_approval_level_display()
@@ -202,6 +210,12 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     project_codes = serializers.SerializerMethodField()
     project_user_choices = serializers.SerializerMethodField()
     parent_activity_choices = serializers.SerializerMethodField()
+
+    services = serializers.SerializerMethodField()
+
+    def get_services(self, instance):
+        if instance.services.exists():
+            return listrify(instance.services.all())
 
     def get_parent_activity_choices(self, instance):
         return [dict(id=obj.id, value=f"{obj.get_type_display()} - {obj}") for obj in instance.activities.filter(parent__isnull=True)]
@@ -685,6 +699,14 @@ class DMASerializer(serializers.ModelSerializer):
 
     metadata = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
+    region_display = serializers.SerializerMethodField()
+    section_display = serializers.SerializerMethodField()
+
+    def get_section_display(self, instance):
+        return str(instance.project.section)
+
+    def get_region_display(self, instance):
+        return str(instance.project.section.division.branch.sector.region)
 
     def get_status_display(self, instance):
         return instance.get_status_display()

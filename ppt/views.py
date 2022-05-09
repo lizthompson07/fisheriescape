@@ -128,9 +128,21 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         context = super().get_context_data(**kwargs)
         context["random_project"] = models.Project.objects.first()
         context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.ProjectYear.status_choices]
+        context["approval_status_choices"] = [dict(label=item[1], value=item[0]) for item in models.Review.approval_status_choices]
+        context["approval_level_choices"] = [dict(label=item[1], value=item[0]) for item in models.Review.approval_level_choices]
+        context["funding_status_choices"] = [dict(label=item[1], value=item[0]) for item in models.Review.funding_status_choices]
+        context["om_cost_categories"] = [dict(label=f"{item.get_group_display()} - {item}", value=item.id) for item in models.OMCategory.objects.all()]
         context["review_form"] = forms.ReviewForm
         context["approval_form"] = forms.ApprovalForm
         context["review_score_rubric"] = json.dumps(get_review_score_rubric())
+        context["short_fie"] = json.dumps(get_review_score_rubric())
+        context["short_field_list"] = [
+            'id',
+            'fiscal year',
+            'title',
+            'default_funding_source',
+            'status',
+        ]
         return context
 
 
@@ -430,7 +442,7 @@ class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateView):
     container_class = "container bg-light curvy"
 
     def get_initial(self):
-        # this is an important method to keep since it is accessed by the Form class 
+        # this is an important method to keep since it is accessed by the Form class
         # TODO: TEST ME
         return dict(project=self.get_project())
 
@@ -867,6 +879,23 @@ class CSRFClientInformationHardDeleteView(AdminRequiredMixin, CommonHardDeleteVi
     success_url = reverse_lazy("ppt:manage_csrf_client_information")
 
 
+class ServiceFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'ppt/formset.html'
+    h1 = "Manage Services"
+    queryset = models.Service.objects.all()
+    formset_class = forms.ServiceFormset
+    success_url_name = "ppt:manage_services"
+    home_url_name = "ppt:index"
+    delete_url_name = "ppt:delete_service"
+    container_class = "container-fluid bg-light curvy"
+
+class ServiceHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Service
+    success_url = reverse_lazy("ppt:manage_services")
+
+
+
+
 class PPTAdminUserFormsetView(SuperuserOrNationalAdminRequiredMixin, CommonFormsetView):
     template_name = 'ppt/formset.html'
     h1 = "Manage PPT Administrative Users"
@@ -1225,6 +1254,36 @@ class DMADetailView(PPTLoginRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["dma_review_field_list"] = get_dma_review_field_list()
+
+        context["fields_id"] = [
+            'title',
+            'data_contact',
+            'status',
+            'comments',
+            'metadata',
+        ]
+        context["fields_metadata"] = [
+            'metadata_contact',
+            'metadata_tool',
+            'metadata_url',
+            'metadata_update_freq',
+            'metadata_freq_text',
+        ]
+        context["fields_storage"] = [
+            'storage_solutions',
+            'storage_solution_text',
+            'storage_needed',
+            'raw_data_retention',
+            'data_retention',
+            'backup_plan',
+            'cloud_costs',
+        ]
+        context["fields_sharing"] = [
+            'had_sharing_agreements',
+            'sharing_agreements_text',
+            'publication_timeframe',
+            'publishing_platforms',
+        ]
         return context
 
 
@@ -1251,6 +1310,28 @@ class DMAUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
         obj.updated_by = self.request.user
         obj.save()
         return super().form_valid(form)
+
+
+class DMACloneView(DMAUpdateView):
+    template_name = 'ppt/form.html'
+    form_class = forms.DMACloneForm
+
+    def get_h1(self):
+        return _("Cloning: ") + str(self.get_object())
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = get_object_or_404(models.DMA, pk=new_obj.pk)
+        new_obj.pk = None
+        new_obj.title = f"Data management agreement for {new_obj.project.title}"
+
+        new_obj.save()
+
+        # Now we need to replicate all the related records:
+        for item in old_obj.storage_solutions.all():
+            new_obj.storage_solutions.add(item)
+
+        return HttpResponseRedirect(reverse_lazy("ppt:dma_edit", args=[new_obj.id]))
 
 
 # DMA Reviews #
@@ -1515,7 +1596,6 @@ def export_project_list(request):
     return response
 
 
-
 @login_required()
 def export_py_list(request):
     qs = get_project_year_queryset(request)
@@ -1526,7 +1606,6 @@ def export_py_list(request):
         file_url = reports.generate_py(qs, site_url, "long")
     else:
         file_url = reports.generate_py(qs, site_url, "basic")
-
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:

@@ -84,10 +84,11 @@ class CommitteeFilter(django_filters.FilterSet):
             field_name='external_contact',
             widget=forms.SelectMultiple(attrs=chosen_js),
         )
-        self.filters['dfo_role'] = django_filters.ModelMultipleChoiceFilter(
-            queryset=models.Committee.objects.all(),
-            field_name='dfo_role',
+        self.filters['dfo_role'] = django_filters.MultipleChoiceFilter(
+            field_name='dfo_role', lookup_expr='exact',
+            choices=models.ROLE_DFO_CHOICES,
             widget=forms.SelectMultiple(attrs=chosen_js),
+            label=_("Role of highest level DFO participant"),
         )
         self.filters['dfo_liaison'] = django_filters.ModelMultipleChoiceFilter(
             queryset=models.User.objects.all(),

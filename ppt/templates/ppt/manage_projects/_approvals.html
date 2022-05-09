@@ -1,0 +1,127 @@
+{% load verbose_names %}
+{% load i18n %}
+{% load custom_tags %}
+{% load bootstrap4 %}
+
+<div v-if="showApprovals" class="mt-5">
+
+  <div v-if="!projects_loading">
+    <div class="text-center">
+      <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
+    </div>
+  </div>
+
+  <div>
+    <table class="table table-sm">
+      <thead>
+      <tr>
+        {% for field in short_field_list %}
+          {% if "title" in field %}
+            <th @click="sort('{{ field }}')" class="clickable w-15">
+              {% get_verbose_label random_project field %}
+            </th>
+          {% elif "funding" in field or "functional" in field %}
+            <th @click="sort('{{ field }}')" class="clickable w150">
+              {% get_verbose_label random_project field %}
+            </th>
+          {% elif "fiscal" in field %}
+            <th @click="sort('{{ field }}')" class="clickable w100">
+              {% get_verbose_label random_project field %}
+            </th>
+          {% elif "status" in field %}
+            <th @click="sort('{{ field }}')" class="clickable w100">
+              {% get_verbose_label random_project field %}
+            </th>
+          {% elif "id" in field %}
+            <th @click="sort('{{ field }}')" class="clickable w75">
+              {% trans "Project Id" %}
+            </th>
+          {% else %}
+            <th @click="sort('{{ field }}')" class="clickable">
+              {% get_verbose_label random_project field %}
+            </th>
+          {% endif %}
+
+        {% endfor %}
+
+        <th class="w150"> ${reviewLabels.approval_status}</th>
+        <th class="w150"> ${reviewLabels.approval_level}</th>
+        <th class="w150"> ${reviewLabels.funding_status}</th>
+        <th class="w150"> ${reviewLabels.allocated_budget}</th>
+        <th class="w200"> ${reviewLabels.approver_comment}</th>
+
+      </tr>
+      </thead>
+      <tbody>
+      <tr
+        v-for="(p, index) in sortedProjectYears"
+        @mouseover="hover = true"
+        @mouseleave="hover = false"
+      >
+        <td>${p.project.id}</td>
+        <td>${p.display_name}</td>
+        <td>
+          <a class="text-primary pointy" @click="goProjectDetail(p)">
+            ${p.project.title}
+          </a>
+        </td>
+
+        <td>${p.project.default_funding_source}</td>
+        <td><span :class="p.status_class + ' p-1'" v-html="p.status_display"></span></td>
+
+
+        {#  field zone!!! #}
+
+        <td v-if="p.review">
+          <select @change="updateReview(p)" v-model="p.review.approval_status" class="form-control">
+            <option value selected> -----</option>
+            {% for status in approval_status_choices %}
+              <option value="{{ status.value }}">{{ status.label }}</option>
+            {% endfor %}
+          </select>
+        </td>
+        <td v-if="p.review">
+          <select @change="updateReview(p)" v-model="p.review.level_status" class="form-control">
+            <option value selected> -----</option>
+            {% for status in approval_level_choices %}
+              <option value="{{ status.value }}">{{ status.label }}</option>
+            {% endfor %}
+          </select>
+        </td>
+        <td v-if="p.review">
+          <select @change="updateReview(p)" v-model="p.review.funding_status" class="form-control">
+            <option value selected> -----</option>
+            {% for status in funding_status_choices %}
+              <option value="{{ status.value }}">{{ status.label }}</option>
+            {% endfor %}
+          </select>
+        </td>
+        <td v-if="p.review">
+          <input @change="updateReview(p)" type="number" v-model="p.review.allocated_budget" class="form-control">
+        </td>
+        <td v-if="p.review">
+          <textarea v-model="p.review.approver_comment" class="form-control w-100" id="" rows="4" @change="updateReview(p)"></textarea>
+        </td>
+
+
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
+    <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+      <span class="sr-only"></span>
+    </div>
+  </div>
+  <div v-else>
+    <div class="text-center">
+      <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
+      <button v-if="next" @click="loadMoreResults" class="btn btn-primary btn-sm">
+        {% trans "Load more results..." %}
+      </button>
+    </div>
+  </div>
+</div>
+

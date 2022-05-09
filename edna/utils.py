@@ -45,10 +45,10 @@ def get_sample_field_list():
 
 def get_collection_field_list(collection):
     my_list = [
+        'id',
         'name',
-        'program_description',
+        'description',
         'region',
-        'location_description',
         'province',
         'contacts',
         'dates|dates',
@@ -63,6 +63,7 @@ def get_batch_field_list():
     my_list = [
         "datetime",
         "operators",
+        "default_collection",
     ]
     return my_list
 
@@ -70,6 +71,7 @@ def get_batch_field_list():
 def get_pcr_batch_field_list():
     my_list = [
         "datetime",
+        "default_collection",
         "operators",
         "plate_id",
         "machine_number",

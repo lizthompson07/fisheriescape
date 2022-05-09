@@ -334,6 +334,9 @@ def generate_process_list(processes, site_url):
         'key_meetings|{}'.format(_("key meetings")),
         'doc_summary|{}'.format(_("document summary")),
         'formatted_notes|{}'.format(_("notes")),
+        'client_regions|{}'.format(_("client regions")),
+        'client_sectors|{}'.format(_("client sectors")),
+        'client_sections|{}'.format(_("client sections")),
     ]
 
     # define the header

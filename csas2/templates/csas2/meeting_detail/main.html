@@ -64,6 +64,14 @@
       <button @click="openPopout('{% url 'csas2:meeting_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
         <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
       </button>
+      <button
+        v-if="meeting.id && !meeting.is_planning && meeting.process_object.can_post_meeting && !meeting.process_object.posting_request_date && !meeting.process_object.is_posted"
+        class="btn btn-sm btn-purple" :disabled="!meeting.process_object.can_post_meeting.can_post" @click="requestPosting"
+        data-toggle="tooltip" :title="meeting.process_object.can_post_meeting.reasons"
+      >
+        {% trans "Request to Post Meeting" %}
+      </button>
+
     </div>
 
     <div class="row">
@@ -72,7 +80,7 @@
 
         <div class="mb-5">
           <table class="table table-sm">
-            <tr>
+            <tr v-if="meeting.id">
               <th class="text-left w200" v-html="meetingLabels.process"></th>
               <td class="text-left">
                 <a href="{% url 'csas2:process_detail' object.process.id %}">${ meeting.process_object.tname }</a>
@@ -210,6 +218,17 @@
       meetingLabels: {}
     },
     methods: {
+
+      requestPosting() {
+        let userInput = confirm("{% trans 'Are you certain you want to make a request for this meeting to be posted on the National CSAS website?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/processes/${this.meeting.process}/?request_posting=true`;
+          apiService(endpoint, "POST").then(data => {
+            window.location.href = "{% url 'csas2:process_detail' object.process.id %}"
+          });
+        }
+      },
+
       displayComments(invitee) {
         alert(invitee.comments);
       },

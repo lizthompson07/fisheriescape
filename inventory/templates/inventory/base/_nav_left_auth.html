@@ -1,12 +1,26 @@
 {% load i18n %}
 
-{% for group in user.groups.all %}
-    {% if group.name == "inventory_dm" %}
-        <li class="nav-item"><a class="nav-link" href="{% url 'inventory:dm_home' %}">
-            {% trans "Data Manager Admin" %}
-        </a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'inventory:report_search' %}">
-            {% trans "Reports" %}
-        </a></li>
-    {% endif %}
-{% endfor %}
+
+{% if is_admin %}
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+      {% trans "Admin" %}
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <a class="dropdown-item" href="{% url 'inventory:dm_custodian_list' %}" target="_blank">Custodian list </a>
+      <a class="dropdown-item" href="{% url 'inventory:dm_published_list' %}" target="_blank">Published resources ({{ published_records }}) </a>
+      <a class="dropdown-item" href="{% url 'inventory:dm_flagged_list' "publication" %}" target="_blank">
+        Flagged for publication ({{ flagged_4_publication }})
+      </a>
+      <a class="dropdown-item" href="{% url 'inventory:dm_flagged_list' "deletion" %}" target="_blank"> Flagged for deletion ({{ flagged_4_deletion }}) </a>
+      <a class="dropdown-item" href="{% url 'inventory:dm_certification_list' %}" target="_blank"> Most recent certifications (Top 50) </a>
+      <a class="dropdown-item" href="{% url 'inventory:dm_modification_list' %}" target="_blank"> Most recent modifications (Top 50) </a>
+      <a class="dropdown-item" href="{% url 'inventory:manage_inventory_users' %}" target="_blank">        {% trans "User Permissions" %}      </a>
+      <a class="dropdown-item" href="{% url 'inventory:report_search' %}" target="_blank">        {% trans "Reports" %}      </a>
+    </div>
+  </li>
+{% endif %}
+
+
+

@@ -12,7 +12,7 @@ class DietsBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse("accounts:denied_access"))
+            return HttpResponseRedirect(reverse("accounts:denied_access") + "?app=diets")
         return super().dispatch(request, *args, **kwargs)
 
 

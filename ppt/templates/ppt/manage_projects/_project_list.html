@@ -255,6 +255,24 @@
                   <br><b>${p.om_costs+p.salary_costs+p.capital_costs|currencyFormat}</b>
                 </div>
               </div>
+
+              {# review / approval summary #}
+              <div v-if="p.review" class="col">
+                <div class="mb-3">
+                  <span class="text-muted font-italic">${reviewLabels.approval_status}</span>
+                  <br>${p.review.approval_status_display | nz}
+                </div>
+                <div class="mb-3">
+                  <span class="text-muted font-italic">${reviewLabels.approval_level}</span>
+                  <br>${p.review.approval_level_display | nz}
+                </div>
+                <div class="mb-3">
+                  <span class="text-muted font-italic">${reviewLabels.funding_status}</span>
+                  <br>${p.review.funding_status_display | nz}
+                </div>
+
+              </div>
+
             </div>
             <div v-if="p.review" class="row mt-3">
               <div class="col">

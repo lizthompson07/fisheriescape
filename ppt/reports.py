@@ -1278,7 +1278,6 @@ def generate_py(qs, site_url, type):
                 'data_storage_plan',
                 'data_management_needs',
                 'has_lab_component',
-                'requires_abl_services',
                 'requires_lab_space',
                 'requires_other_lab_support',
                 'other_lab_support_needs',
