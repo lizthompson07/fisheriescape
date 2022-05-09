@@ -1602,10 +1602,14 @@ def export_py_list(request):
 
     site_url = my_envr(request)["SITE_FULL_URL"]
 
+    get_collab = False
+    if request.GET.get("get_collaborations"):
+        get_collab = True
+
     if request.GET.get("long"):
-        file_url = reports.generate_py(qs, site_url, "long")
+        file_url = reports.generate_py(qs, site_url, "long", get_collab)
     else:
-        file_url = reports.generate_py(qs, site_url, "basic")
+        file_url = reports.generate_py(qs, site_url, "basic", get_collab)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
