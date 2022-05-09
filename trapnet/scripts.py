@@ -579,3 +579,14 @@ def find_duplicate_scales():
     for sid in scale_ids:
         if observations.filter(scale_id_number=sid).count() > 1:
             print(f"duplicate records found for: {sid}")
+
+
+def annotate_scales():
+    # get the unique list of scale ids
+    observations = models.Observation.objects.filter(scale_id_number__isnull=False)
+
+    for o in observations:
+        o.scale_id_number += f" {o.sample.season}"
+        o.save()
+
+    find_duplicate_scales()

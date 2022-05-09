@@ -55,11 +55,16 @@ class ObservationFilter(django_filters.FilterSet):
             'id': ['exact'],
             'species': ['exact'],
             'tag_number': ['icontains'],
-            'scale_id_number': ['iexact'],
+            'scale_id_number': ['icontains'],
             'sample__site': ['exact'],
             'sample_id': ['exact'],
+            'sample__season': ['exact'],
         }
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filters["sample_id"] = django_filters.NumberFilter(field_name="sample_id", label=gettext("Sample Id"))
+        self.filters["scale_id_number__icontains"].label = gettext("Scale ID #")
+        self.filters["tag_number__icontains"].label = gettext("Tag #")
+        self.filters["sample__season"].label = gettext("Season")
