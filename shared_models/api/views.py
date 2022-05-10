@@ -30,7 +30,7 @@ def _get_labels(model):
 
 
 class UserListAPIView(ListAPIView):
-    queryset = User.objects.filter(first_name__isnull=False, last_name__isnull=False).filter(
+    queryset = User.objects.filter(first_name__isnull=False, last_name__isnull=False, is_active=True).filter(
         ~Q(first_name__exact="") & ~Q(last_name__exact="")
     ).order_by("first_name", "last_name")
     serializer_class = serializers.UserSerializer
