@@ -80,6 +80,10 @@
               </td>
             </tr>
           </table>
+          <div class="m-3">
+            <button class="btn btn-sm btn-danger" @click="deleteUser(user1Object)">DELETE THIS USER!!</button>
+          </div>
+
         </div>
 
       </div>
@@ -186,17 +190,30 @@
     },
     methods: {
       go() {
-        let endpoint = `/api/travel/users/?search_and_replace=true`;
-        apiService(endpoint, "POST", {bad_user: this.user1, good_user: this.user2}).then(data => {
-          console.log(data)
-          this.getTravelUser('user1');
-          this.getTravelUser('user2');
-        })
+        let userInput = prompt("The results of running this function are irreversible. \n\nAre you ABSOLUTELY sure that you want to transfer " +
+            "over all trips and reviews from the user on the left (red) to the user on the right (green)? " +
+            "\n\nPlease type 'yes' to continue.")
+        if (userInput.toLowerCase() === "yes") {
+          let endpoint = `/api/travel/users/?search_and_replace=true`;
+          apiService(endpoint, "POST", {bad_user: this.user1, good_user: this.user2}).then(data => {
+            console.log(data)
+            this.getTravelUser('user1');
+            this.getTravelUser('user2');
+          })
+        }
       },
       updateUser(user) {
         let endpoint = `/api/travel/users/${user.id}/`;
         apiService(endpoint, "PATCH", user).then(data => {
           user = data;
+        })
+      },
+      deleteUser(user) {
+        let endpoint = `/api/travel/users/${user.id}/`;
+        apiService(endpoint, "DELETE").then(data => {
+          this.user1 = null;
+          this.user1Object = {};
+          this.getUsers();
         })
       },
       getUsers() {
