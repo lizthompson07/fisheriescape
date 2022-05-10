@@ -154,6 +154,8 @@ class UserLoginView(PasswordResetView):
         if settings.AZURE_AD:
             return HttpResponseRedirect(reverse("accounts:azure_login")+f"?{request.META.get('QUERY_STRING')}")
         else:
+            if self.request.GET.get("next"):
+                self.request.session["next"] = self.request.GET.get("next")
             return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -179,6 +181,13 @@ class CallBack(FormView):
     invalid_token_msg = gettext_lazy("Sorry the link you used to sign in with is not valid!")
     form_class = forms.OTPForm
     template_name = 'registration/token_form.html'
+
+    def get_success_url(self):
+        if self.request.session.get('next'):
+            next = self.request.session.get('next')
+            del self.request.session['next']
+            return next
+        return super().get_success_url()
 
     @method_decorator(sensitive_post_parameters())
     @method_decorator(never_cache)
