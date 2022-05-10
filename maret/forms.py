@@ -36,6 +36,12 @@ class CommitteeForm(forms.ModelForm):
                            'location_of_tor', 'main_actions', 'comments',
                            ])
 
+        self.fields['main_topic'].widget.attrs['size'] = '6'
+        self.fields['species'].widget.attrs['size'] = '6'
+        self.fields['other_dfo_branch'].widget.attrs['size'] = '6'
+        self.fields['other_dfo_regions'].widget.attrs['size'] = '6'
+        self.fields['other_dfo_areas'].widget.attrs['size'] = '6'
+
         branch = [(c.id, c) for c in shared_models.Branch.objects.all()]
         branch.insert(0, (None, "-----"))
         self.fields['branch'].choices = branch
@@ -50,6 +56,13 @@ class CommitteeForm(forms.ModelForm):
 
 
 class InteractionForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # changes number of rows / height of multiple select widget:
+        self.fields['main_topic'].widget.attrs['size'] = '8'
+        self.fields['species'].widget.attrs['size'] = '8'
+
     class Meta:
         model = models.Interaction
         exclude = [
@@ -60,7 +73,6 @@ class InteractionForm(forms.ModelForm):
             'date_of_meeting': forms.DateInput(attrs=attr_fp_date),
             'last_modified': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
-
             'committee': forms.Select(attrs=chosen_js),
             'dfo_role': forms.Select(attrs=chosen_js),
             'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
@@ -160,6 +172,7 @@ class PersonForm(forms.ModelForm):
         self.order_fields(['designation', 'role', 'first_name', 'last_name', 'phone_1', 'phone_2', 'cell', 'email_1',
                            'email_2', 'fax', 'language', 'notes', 'committee'])
         self.fields['organizations'].label = _("Organization Membership")
+        self.fields['committee'].widget.attrs['size'] = '8'
 
         committee = [(c.id, c) for c in models.Committee.objects.all()]
         self.fields['committee'].choices = committee
