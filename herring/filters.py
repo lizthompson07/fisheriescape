@@ -14,7 +14,6 @@ class SampleFilter(django_filters.FilterSet):
         self.filters['season'].label = 'Year'
         self.filters['sampler_ref_number'].label = "Sampler ref. no."
         self.filters['experimental_net_used'].label = "Experimental?"
-        print(self.filters)
         self.filters['survey_id__icontains'].label = "Survey identifier (any part)"
 
     class Meta:

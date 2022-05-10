@@ -1209,7 +1209,7 @@ def generate_py_basic(qs, site_url):
     return target_url
 
 
-def generate_py(qs, site_url, type):
+def generate_py(qs, site_url, type, get_collaborations=False):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -1365,6 +1365,58 @@ def generate_py(qs, site_url, type):
         # set column widths
         for j in range(0, len(col_max)):
             my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    if get_collaborations:
+        collab_qs = models.Collaboration.objects.filter(project_year__in=qs)
+        collab_field_list = [
+            'project_year.project.id|Project Id',
+            'project_year.project.title|title',
+            'project_year.fiscal_year',
+            "type",
+            "organization|Collaborating organization",
+            "people|Project lead(s)",
+            "notes",
+        ]
+
+        collab_header = [get_verbose_label(collab_qs.first(), field) for field in collab_field_list]
+
+        # define a worksheet
+        collab_ws = workbook.add_worksheet(name="collaborations")
+        collab_ws.write(0, 0, title, title_format)
+        collab_ws.write_row(2, 0, collab_header, header_format)
+
+        collab_col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in collab_header]
+
+        i = 3
+        for collab in collab_qs:
+            j = 0
+            for field in collab_field_list:
+                if "project_year.project.id" in field:
+                    val = str(collab.project_year.project.id)
+                    collab_ws.write(i, j, val, normal_format)
+                elif "project_year.project.title" in field:
+                    val = str(collab.project_year.project.title)
+                    collab_ws.write(i, j, val, normal_format)
+                else:
+                    val = str(get_field_value(collab, field))
+                    collab_ws.write(i, j, val, normal_format)
+
+                # adjust the width of the columns based on the max string length in each col
+                ## replace collab_col_max[j] if str length j is bigger than stored value
+
+                # if new value > stored value... replace stored value
+                if len(str(val)) > collab_col_max[j]:
+                    if len(str(val)) < 75:
+                        collab_col_max[j] = len(str(val))
+                    else:
+                        collab_col_max[j] = 75
+                j += 1
+            i += 1
+
+            # set column widths
+            for j in range(0, len(collab_col_max)):
+                collab_ws.set_column(j, j, width=collab_col_max[j] * 1.1)
+        # end collab if
 
     workbook.close()
     return target_url
