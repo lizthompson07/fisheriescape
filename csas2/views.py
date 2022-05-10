@@ -824,11 +824,6 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
     h1 = gettext_lazy("New Terms of Reference")
 
-    def get_h3(self):
-        if self.get_process().is_posted:
-            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
-            return mark_safe(mystr)
-
     def get_initial(self):
         """ For the benefit of the form class"""
         return dict(
@@ -845,14 +840,7 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
         obj = form.save(commit=False)
         obj.process = self.get_process()
         obj.created_by = self.request.user
-
         super().form_valid(form)
-
-        # now for the piece about NCR email
-        if obj.process.is_posted and obj.meeting:
-            email = emails.UpdatedMeetingEmail(self.request, obj.meeting, obj.meeting, obj.meeting.expected_publications_en, "",
-                                               obj.meeting.expected_publications_fr, "")
-            email.send()
 
         return super().form_valid(form)
 
@@ -899,7 +887,7 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
             new_expected_publications_fr = new_meeting.expected_publications_fr
 
             # now for the piece about NCR email
-            if obj.process.is_posted and (old_meeting != new_meeting or old_expected_publications_en != new_expected_publications_en):
+            if self.get_object().meeting and self.get_object().meeting.is_posted and (old_meeting != new_meeting or old_expected_publications_en != new_expected_publications_en):
                 email = emails.UpdatedMeetingEmail(self.request, new_meeting, old_meeting, old_expected_publications_en, new_expected_publications_en,
                                                    old_expected_publications_fr, new_expected_publications_fr)
                 email.send()
@@ -1043,7 +1031,7 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
         qs = models.Meeting.objects.all()
         if qp.get("personalized"):
             qs = utils.get_related_meetings(self.request.user)
-        qs = qs.annotate(search_term=Concat(
+        qs = qs.annotate(search=Concat(
             'name',
             Value(" "),
             'nom',

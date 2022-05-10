@@ -277,12 +277,12 @@ class ProcessViewSet(viewsets.ModelViewSet):
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
-    queryset = models.Meeting.objects.all()
+    queryset = models.Meeting.objects.all().annotate(search=Concat('name', Value(" "), 'nom', output_field=TextField()))
     serializer_class = serializers.MeetingSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
     pagination_class = StandardResultsSetPagination
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    search_fields = ['name', 'nom']
+    filter_backends = [DjangoFilterBackend]
+    # search_fields = ['name', 'nom']
     filterset_class = filters.MeetingFilter
 
     def post(self, request, pk):
