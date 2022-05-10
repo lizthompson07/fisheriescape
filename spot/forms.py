@@ -2,7 +2,6 @@ from django import forms
 from django.forms import modelformset_factory
 from django.utils.translation import gettext_lazy as _
 from . import models
-from django.utils.safestring import mark_safe
 from . import choices
 
 
@@ -28,12 +27,14 @@ class OrganizationForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'organization_type': forms.Select(choices=choices.ORGANIZATION_TYPE, attrs=attr_chosen),
+            'is_active': forms.Select(choices=choices.YES_NO, attrs=attr_chosen),
             'province_state': forms.Select(choices=choices.PROVINCE_STATE_CHOICES, attrs=attr_chosen),
             'country': forms.Select(choices=choices.COUNTRY_CHOICES, attrs=attr_chosen),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }
         help_texts = {
+            'is_active': 'Is this organization currently active?',
             'name': 'Name of an Organization contributing to the completion of the project',
             'organization_type': 'Type of Organization',
             'section': 'Section, group or sub-department of the original Organization Type',
@@ -51,13 +52,14 @@ class PersonForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['organizations'].queryset = models.Organization.objects.filter(is_active=True)
+        self.fields['organizations'].queryset = models.Organization.objects.filter(is_active='Yes')
 
     class Meta:
         model = models.Person
         fields = '__all__'
         widgets = {
             'organizations': forms.SelectMultiple(attr_chosen),
+            'is_active': forms.Select(choices=choices.YES_NO, attrs=attr_chosen),
             'province_state': forms.Select(choices=choices.PROVINCE_STATE_CHOICES, attrs=attr_chosen),
             'country': forms.Select(choices=choices.COUNTRY_CHOICES, attrs=attr_chosen),
             'role': forms.Select(choices=choices.ROLE, attrs=attr_chosen),
@@ -70,53 +72,49 @@ class ProjectForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args,**kwargs)
-        self.fields['DFO_technicians'].queryset = models.Person.objects.filter(is_active=True)
-        self.fields['DFO_project_authority'].queryset = models.Person.objects.filter(is_active=True)
-        self.fields['DFO_area_chief'].queryset = models.Person.objects.filter(is_active=True)
-        self.fields['DFO_aboriginal_AAA'].queryset = models.Person.objects.filter(is_active=True)
-        self.fields['DFO_resource_manager'].queryset = models.Person.objects.filter(is_active=True)
-        self.fields['first_nations_contact'].queryset = models.Person.objects.filter(is_active=True)
-        self.fields['partner_contact'].queryset = models.Person.objects.filter(is_active=True)
-        self.fields['partner'].queryset = models.Organization.objects.filter(is_active=True)
+        self.fields['DFO_technicians'].queryset = models.Person.objects.filter(is_active='Yes')
+        self.fields['DFO_project_authority'].queryset = models.Person.objects.filter(is_active='Yes')
+        self.fields['DFO_area_chief'].queryset = models.Person.objects.filter(is_active='Yes')
+        self.fields['DFO_AAA'].queryset = models.Person.objects.filter(is_active='Yes')
+        self.fields['DFO_resource_manager'].queryset = models.Person.objects.filter(is_active='Yes')
+        self.fields['contact'].queryset = models.Person.objects.filter(is_active='Yes')
+        self.fields['partner_contact'].queryset = models.Person.objects.filter(is_active='Yes')
+        self.fields['partner'].queryset = models.Organization.objects.filter(is_active='Yes')
 
     class Meta:
         model = models.Project
         fields = '__all__'
         widgets = {
             'agreement_history': forms.SelectMultiple(attr_chosen),
-            'primary_river': forms.Select(attr_chosen),
-            'secondary_river': forms.SelectMultiple(attr_chosen),
+            'river': forms.SelectMultiple(attr_chosen),
             'lake_system': forms.SelectMultiple(attr_chosen),
             'watershed': forms.SelectMultiple(attr_chosen),
-            'ecosystem_type': forms.Select(choices=choices.ECOSYSTEM_TYPE, attrs=attr_chosen),
-            'region': forms.Select(attr_chosen),
-            'stock_management_unit': forms.Select(choices=choices.SMU_NAME, attrs=attr_chosen),
-            'species': forms.SelectMultiple(multi_select_js),
+            'ecosystem_type': forms.SelectMultiple(multi_select_js),
+            'management_area': forms.SelectMultiple(attr_chosen),
+            'hatchery_name': forms.SelectMultiple(attr_chosen),
+            'area': forms.Select(choices=choices.AREA, attrs=attr_chosen),
             'salmon_life_stage': forms.SelectMultiple(multi_select_js),
             'project_stage': forms.Select(choices=choices.PROJECT_STAGE,attrs=attr_chosen),
             'project_type': forms.Select(choices=choices.PROJECT_TYPE, attrs=attr_chosen),
             'project_sub_type': forms.SelectMultiple(multi_select_js),
-            'monitoring_approach': forms.Select(choices=choices.MONITORING_APPROACH, attrs=attr_chosen),
+            'monitoring_approach': forms.SelectMultiple(multi_select_js),
             'project_theme': forms.SelectMultiple(multi_select_js),
             'core_component': forms.SelectMultiple(multi_select_js),
             'supportive_component': forms.SelectMultiple(attrs=multi_select_js),
             'project_purpose': forms.SelectMultiple(multi_select_js),
             'government_organization': forms.Select(choices=choices.GOVERNMENT_LINK, attrs=attr_chosen),
-            'first_nations_contact_role': forms.Select(choices=choices.ROLE, attrs=attr_chosen),
+            'contact_role': forms.Select(choices=choices.ROLE, attrs=attr_chosen),
             'agreement_database': forms.Select(choices=choices.AGREEMENT_DATABASE, attrs=attr_chosen),
             'funding_sources': forms.SelectMultiple(attr_chosen),
             'agreement_type': forms.Select(choices=choices.AGREEMENT_TYPE, attrs=attr_chosen),
             'lead_organization': forms.Select(choices=choices.LEAD_ORGANIZATION, attrs=attr_chosen),
-            'cu_index': forms.SelectMultiple(attr_chosen),
-            'cu_name': forms.Select(attr_chosen),
-            #'cu_name': forms.SelectMultiple(attr_chosen),
             'policy_program_connection': forms.Select(choices=choices.POLICY_PROGRAM, attrs=attr_chosen),
             'DFO_project_authority': forms.SelectMultiple(attr_chosen),
             'DFO_area_chief': forms.SelectMultiple(attr_chosen),
-            'DFO_aboriginal_AAA': forms.SelectMultiple(attr_chosen),
+            'DFO_AAA': forms.SelectMultiple(attr_chosen),
             'DFO_resource_manager': forms.SelectMultiple(attr_chosen),
             'first_nation': forms.Select(attr_chosen),
-            'first_nations_contact': forms.Select(attr_chosen),
+            'contact': forms.Select(attr_chosen),
             'DFO_technicians': forms.SelectMultiple(attr_chosen),
             'partner': forms.SelectMultiple(attr_chosen),
             'partner_contact': forms.SelectMultiple(attr_chosen),
@@ -124,6 +122,7 @@ class ProjectForm(forms.ModelForm):
             'end_date': forms.SelectDateWidget(years=range(1950, 2050)),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
+            'DFO_tenure': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
         }
         help_texts = {
             'agreement_database': 'Primary or originating database where the agreement documentation is held',
@@ -138,17 +137,12 @@ class ProjectForm(forms.ModelForm):
             'project_description': 'Brief description of the projects location, species, goals, outcomes',
             'start_date': 'Project start date',
             'end_date': 'Project end date',
-            'region': 'Pacific Region where project is primarily taking place',
-            'primary_river': 'Chose only one primary river location- linked to Lat/Long',
-            'secondary_river': 'Chose many secondary river locations',
+            'Area': 'Pacific Area where project is primarily taking place',
+            'river': 'Chose river location- linked to Lat/Long',
             'lake_system': 'Lake system where the project is taking place',
             'ecosystem_type': 'The aquatic ecosystem type(s) where the project takes place',
             'watershed': 'Watershed that the project is located',
             'management_area': 'A large-scale ecosystem-based management unit containing different aquatic environments that are linked by geography, stock composition or environmental conditions',
-            'stock_management_unit': 'Salmon Management Unit name',
-            'cu_index': 'Conservation Unit Index that is defined by the Wild Salmon Policy',
-            'cu_name': 'Conservation Unit Name that is defined by Wild Salmon Policy',
-            'species': 'Pacific salmonid species that are involved in the project',
             'salmon_life_stage': 'Life stage of the fish that the project is targetting',
             'project_stage': 'The stage of the project that relates to the implementation timeline',
             'project_type': 'Coarse decription of the project as it relates to either population (i.e. animal-based) or habitat (i.e. environmental) science',
@@ -164,7 +158,7 @@ class ProjectForm(forms.ModelForm):
             'government_organization': 'Other Government Organizations involved in the project',
             'policy_program_connection': 'DFO Initiatives or Strategic Plans',
             'DFO_project_authority': 'Name of Project Authority',
-            'DFO_aboriginal_AAA': 'Aboriginal Affairs Advisor associated with the project',
+            'DFO_AAA': 'Aboriginal Affairs Advisor associated with the project',
             'DFO_resource_manager': 'Resource manager associated with the project',
             'first_nation': 'First Nations group associated with the project',
             'first_nations_contact': 'Primary contact for the First Nations group involved with the project',
@@ -181,8 +175,11 @@ class ObjectiveForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args,**kwargs)
-        self.fields['outcomes_contact'].queryset = models.Person.objects.filter(is_active=True)
-
+        self.fields['outcomes_contact'].queryset = models.Person.objects.filter(is_active='Yes')
+        if self.instance.pk:
+            self.fields['location'].queryset = self.instance.project.river.all()
+        else:
+            self.fields['location'].queryset = kwargs['initial']['project'].river.all()
 
     class Meta:
         model = models.Objective
@@ -193,7 +190,6 @@ class ObjectiveForm(forms.ModelForm):
             'element_title': forms.Select(choices=choices.ELEMENT_TITLE, attrs=attr_chosen),
             'pst_requirement': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
             'sil_requirement': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
-            'species': forms.Select(attr_chosen),
             'objective_category': forms.SelectMultiple(multi_select_js),
             'outcome_barrier': forms.SelectMultiple(multi_select_js),
             'capacity_building': forms.SelectMultiple(multi_select_js),
@@ -210,7 +206,6 @@ class ObjectiveForm(forms.ModelForm):
             'activity_title': 'Title of the section where the science information is sourced from in the agreement',
             'pst_requirement': 'Yes/No/Unknown',
             'location': 'System Site for the project',
-            'species': 'Target Species',
             'objective_category': 'General categorization of what type of sample outcomes are expected',
             'sil_requirement': 'Is a SIL specifically requested in the agreement?',
             'expected_results': 'Text details outlining expected results',
@@ -226,15 +221,17 @@ class ObjectiveForm(forms.ModelForm):
 
 
 class MethodForm(forms.ModelForm):
+
     class Meta:
         model = models.Method
         fields = '__all__'
         widgets = {
             'project': forms.HiddenInput(),
-            'planning_method_type': forms.SelectMultiple(multi_select_js),
-            'field_work_method_type': forms.SelectMultiple(multi_select_js),
-            'sample_processing_method_type': forms.SelectMultiple(multi_select_js),
+            'planning_method_type': forms.Select(choices=choices.PLANNING_METHOD, attrs=attr_chosen),
+            'field_work_method_type': forms.Select(choices=choices.FIELD_WORK, attrs=attr_chosen),
+            'sample_processing_method_type': forms.Select(choices=choices.SAMPLE_PROCESSING, attrs=attr_chosen),
             'knowledge_consideration': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
+            'unique_method_number': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }
@@ -252,22 +249,29 @@ class MethodForm(forms.ModelForm):
 
 
 class DataForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+        if self.instance.pk:
+            self.fields['river'].queryset = self.instance.project.river.all()
+        else:
+            self.fields['river'].queryset = kwargs['initial']['project'].river.all()
+
     class Meta:
         model = models.Data
         fields = '__all__'
         widgets = {
             'project': forms.HiddenInput(),
-            'species': forms.SelectMultiple(attr_chosen),
-            'samples_collected': forms.SelectMultiple(multi_select_js),
-            'sample_entered_database': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
-            'samples_collected_database': forms.SelectMultiple(multi_select_js),
-            'sample_barrier': forms.SelectMultiple(multi_select_js),
-            'barrier_data_check_entry': forms.SelectMultiple(multi_select_js),
-            'sample_format': forms.SelectMultiple(multi_select_js),
-            'data_products': forms.SelectMultiple(multi_select_js),
-            'data_products_database': forms.SelectMultiple(multi_select_js),
-            'data_programs': forms.SelectMultiple(multi_select_js),
-            'data_communication': forms.SelectMultiple(multi_select_js),
+            'river': forms.Select(attr_chosen),
+            'samples_collected': forms.Select(choices=choices.SAMPLE_TYPE_OUTCOMES, attrs=attr_chosen),
+            'sample_entered_database': forms.Select(choices=choices.YES_NO_FLAG, attrs=attr_chosen),
+            'samples_collected_database': forms.Select(choices=choices.DATABASE, attrs=attr_chosen),
+            'sample_barrier': forms.Select(choices=choices.SAMPLE_BARRIER, attrs=attr_chosen),
+            'barrier_data_check_entry': forms.Select(attr_chosen),
+            'sample_format': forms.Select(choices=choices.SAMPLE_FORMAT, attrs=attr_chosen),
+            'data_products': forms.Select(choices=choices.DATA_PRODUCTS, attrs=attr_chosen),
+            'data_products_database': forms.Select(choices=choices.DATABASE, attrs=attr_chosen),
+            'data_programs': forms.Select(attr_chosen),
+            'data_communication': forms.Select(attr_chosen),
             'data_quality_check': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
@@ -339,8 +343,6 @@ class SampleOutcomeForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'objective': forms.HiddenInput(),
-            'location': forms.SelectMultiple(attr_chosen),
-            'species': forms.Select(attr_chosen),
             'sampling_outcome': forms.Select(choices=choices.SAMPLE_TYPE_OUTCOMES, attrs=attr_chosen),
             'outcome_quality': forms.Select(choices=choices.DATA_QUALITY, attrs=attr_chosen),
             'outcome_delivered': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
@@ -362,8 +364,9 @@ class ReportOutcomeForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'objective': forms.HiddenInput(),
-            'reporting_outcome': forms.Select(choices=choices.OUTCOMES, attrs=attr_chosen),
+            'reporting_outcome': forms.Select(choices=choices.REPORT_OUTCOMES, attrs=attr_chosen),
             'outcome_delivered': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
+            'report_link': forms.Select(attr_chosen),
             'unique_objective_number': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
@@ -419,7 +422,8 @@ class MethodDocumentForm(forms.ModelForm):
 
         widgets = {
             'method': forms.HiddenInput(),
-            'method_document_type':forms.Select(choices=choices.METHOD_DOCUMENT, attrs=attr_chosen),
+            'method_document_type': forms.Select(choices=choices.METHOD_DOCUMENT, attrs=attr_chosen),
+            'unique_method_number': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }

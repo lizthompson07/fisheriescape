@@ -24,8 +24,8 @@ def export_project(request):
     worksheet.title = 'Projects'
 
     columns = [
-        'Project Number',
         'Agreement Number',
+        'Project Number',
 
         'Agreement History',
         'Project Name',
@@ -33,19 +33,18 @@ def export_project(request):
         'Start Date',
         'End Date',
 
-        'Region',
+        'Area',
+        'Other Species',
         'Ecosystem Type',
-        'Primary River',
-        'Secondary River(s)',
         'Lake System(s)',
         'Watershed(s)',
         'Management Area',
 
-        'Stock Management Unit',
-        'CU Index',
-        'CU Name',
-        'Target Species',
         'Salmon Life Stage',
+        'Aquaculture License Number',
+        'Water License Number',
+        'Hatchery Name',
+        'DFO Tenure',
 
         'Project Stage',
         'Project Type',
@@ -64,11 +63,12 @@ def export_project(request):
 
         'DFO Project Authority',
         'DFO Area Chief',
-        'DFO Aboriginal AAA',
+        'DFO AAA',
         'DFO Resource Manager',
+        'Funding Recipient',
         'First Nation/Tribal Council',
-        'First Nations Contact',
-        'First Nations Contact Role',
+        'Contact',
+        'Contact Role',
         'DFO Technicians/Biologists',
         'Contractors',
         'Contractor Contact',
@@ -96,6 +96,34 @@ def export_project(request):
         cell.font = Font(bold=True, size=12)
         cell.value = column_title
 
+    ##############################
+    # Rivers SHEET/HEADER #
+    river_worksheet = workbook.create_sheet("Rivers", 2)
+    river_columns = [
+        'Agreement Number',
+        'Name',
+        'Latitude',
+        'Longitude',
+        'Sub District Area',
+        'Species',
+        'Stock Management Unit',
+        'CU index',
+        'CU Name',
+        'Pop ID',
+        'DU',
+        'DU Number',
+    ]
+    row_num = 1
+    for col_num, column_title in enumerate(river_columns, 1):
+        river_worksheet.column_dimensions[get_column_letter(col_num)].width = 15
+        cell = river_worksheet.cell(row=row_num, column=col_num)
+        cell.fill = PatternFill(start_color=green, end_color=green, fill_type="solid")
+        cell.font = Font(bold=True, size=12)
+        cell.value = column_title
+
+    fund_num = 1
+    cert_num = 1
+    river_num = 1
     for obj in project_filter:
         row_num += 1
 
@@ -109,25 +137,23 @@ def export_project(request):
             obj.start_date,
             obj.end_date,
 
-            obj.region,
-            obj.ecosystem_type,
-            obj.primary_river.name if obj.primary_river.name else None,
-            ", ".join(i.name for i in obj.secondary_river.all()),
+            obj.area,
+            obj.other_species,
+            ", ".join(i.name for i in obj.ecosystem_type.all()),
             ", ".join(i.name for i in obj.lake_system.all()),
             ", ".join(i.name for i in obj.watershed.all()),
-            obj.management_area,
+            ", ".join(i.name for i in obj.management_area.all()),
 
-            obj.stock_management_unit,
-            ", ".join(i.name for i in obj.cu_index.all()),
-            obj.cu_name.name if obj.cu_name.name else None,
-            #", ".join(i.name for i in obj.cu_name.all()),
-            ", ".join(i.name for i in obj.species.all()),
             ", ".join(i.name for i in obj.salmon_life_stage.all()),
+            obj.aquaculture_license_number,
+            obj.water_license_number,
+            ", ".join(i.name for i in obj.hatchery_name.all()),
+            obj.DFO_tenure,
 
             obj.project_stage,
             obj.project_type,
             ", ".join(i.name for i in obj.project_sub_type.all()),
-            obj.monitoring_approach,
+            ", ".join(i.name for i in obj.monitoring_approach.all()),
             ", ".join(i.name for i in obj.project_theme.all()),
             ", ".join(i.name for i in obj.core_component.all()),
             ", ".join(i.name for i in obj.supportive_component.all()),
@@ -141,11 +167,12 @@ def export_project(request):
 
             ", ".join(i.full_name for i in obj.DFO_project_authority.all()),
             ", ".join(i.full_name for i in obj.DFO_area_chief.all()),
-            ", ".join(i.full_name for i in obj.DFO_aboriginal_AAA.all()),
+            ", ".join(i.full_name for i in obj.DFO_AAA.all()),
             ", ".join(i.full_name for i in obj.DFO_resource_manager.all()),
+            obj.funding_recipient,
             obj.first_nation.name if obj.first_nation else None,
-            obj.first_nations_contact.full_name if obj.first_nations_contact else None,
-            obj.first_nations_contact_role,
+            obj.contact.full_name if obj.contact else None,
+            obj.contact_role,
             ", ".join(i.full_name for i in obj.DFO_technicians.all()),
             obj.contractor,
             obj.contractor_contact,
@@ -168,6 +195,28 @@ def export_project(request):
             cell = worksheet.cell(row=row_num, column=col_num)
             cell.value = cell_value
 
+        ##########
+        # RIVERS #
+        for river_tmp in obj.river.all():
+            river_num += 1
+            river_rows = [
+                obj.agreement_number,
+                river_tmp.name if river_tmp.name else None,
+                river_tmp.latitude if river_tmp.latitude else None,
+                river_tmp.longitude if river_tmp.longitude else None,
+                river_tmp.sub_district_area if river_tmp.sub_district_area else None,
+                river_tmp.species.name if river_tmp.species else None,
+                river_tmp.stock_management_unit if river_tmp.stock_management_unit else None,
+                river_tmp.cu_index.name if river_tmp.cu_index else None,
+                river_tmp.cu_name.name if river_tmp.cu_name else None,
+                river_tmp.pop_id if river_tmp.pop_id else None,
+                river_tmp.du if river_tmp.du else None,
+                river_tmp.du_number if river_tmp.du_number else None,
+            ]
+            for col_num, cell_value in enumerate(river_rows, 1):
+                cell = river_worksheet.cell(row=river_num, column=col_num)
+                cell.value = cell_value
+
     # Funding #
     funding_worksheet = workbook.create_sheet("Funding", 1)
     funding_columns = [
@@ -179,11 +228,9 @@ def export_project(request):
         'last_modified_by',
     ]
 
-    row_num = 1
-
     for col_num, column_title in enumerate(funding_columns, 1):
         funding_worksheet.column_dimensions[get_column_letter(col_num)].width = 15
-        cell = funding_worksheet.cell(row=row_num, column=col_num)
+        cell = funding_worksheet.cell(row=fund_num, column=col_num)
         cell.fill = PatternFill(start_color=green, end_color=green, fill_type="solid")
         cell.font = Font(bold=True, size=12)
         cell.value = column_title
@@ -191,7 +238,7 @@ def export_project(request):
     for obj in project_filter:
         funding_years = models.FundingYears.objects.filter(project=obj.id)
         for fund in funding_years:
-            row_num += 1
+            fund_num += 1
             fund_rows = [
                 fund.project.agreement_number if fund.project else None,
                 fund.funding_year,
@@ -201,7 +248,34 @@ def export_project(request):
                 fund.last_modified_by.get_full_name() if fund.last_modified_by else None,
             ]
             for col_num, cell_value in enumerate(fund_rows, 1):
-                cell = funding_worksheet.cell(row=row_num, column=col_num)
+                cell = funding_worksheet.cell(row=fund_num, column=col_num)
+                cell.value = cell_value
+
+    certified_worksheet = workbook.create_sheet("Project Certified", 3)
+    certified_columns = [
+        'Agreement Number',
+        'Certified Date',
+        'Certified By',
+    ]
+    row_num = 1
+    for col_num, column_title in enumerate(certified_columns, 1):
+        certified_worksheet.column_dimensions[get_column_letter(col_num)].width = 15
+        cell = certified_worksheet.cell(row=row_num, column=col_num)
+        cell.fill = PatternFill(start_color=green, end_color=green, fill_type="solid")
+        cell.font = Font(bold=True, size=12)
+        cell.value = column_title
+
+    for obj in project_filter:
+        project_certified = models.ProjectCertified.objects.filter(project=obj.id)
+        for certified in project_certified:
+            cert_num += 1
+            cert_rows = [
+                certified.project.agreement_number if certified.project else None,
+                certified.certified_date,
+                certified.certified_by.get_full_name() if certified.certified_by else None,
+            ]
+            for col_num, cell_value in enumerate(cert_rows, 1):
+                cell = certified_worksheet.cell(row=cert_num, column=col_num)
                 cell.value = cell_value
 
     workbook.save(response)
@@ -267,7 +341,7 @@ def export_objective(request):
             obj.pst_requirement,
             obj.location.name if obj.location else None,
             ", ".join(i.name for i in obj.objective_category.all()),
-            obj.species.name if obj.species else None,
+            obj.location.species.name if obj.location else None,
             obj.sil_requirement,
             obj.expected_results,
             obj.dfo_report,
@@ -294,8 +368,9 @@ def export_objective(request):
         'Unique Objective Number',
         'Sampling Outcome',
         'Was the Sampling Outcome Met?',
-        'Were outcome reports delivered?',
+        'Were outcomes delivered?',
         'Quality of Outcome',
+        'Sample Outcome Comment',
         'date_last_modified',
         'last_modified_by',
     ]
@@ -317,8 +392,8 @@ def export_objective(request):
                 sample.unique_objective_number,
                 sample.sampling_outcome,
                 sample.outcome_delivered,
-                sample.outcome_report_delivered,
                 sample.outcome_quality,
+                sample.sample_outcome_comment,
                 sample.date_last_modified,
                 sample.last_modified_by.get_full_name() if sample.last_modified_by else None,
             ]
@@ -334,7 +409,9 @@ def export_objective(request):
         'Unique Objective Number',
         'Reporting Outcome',
         'Was the outcome deliverable met?',
-        'Report Link'
+        'Report Link',
+        'Reporting Outcome Comment',
+        'Reporting Outcome Metric',
         'date_last_modified',
         'last_modified_by',
     ]
@@ -357,6 +434,8 @@ def export_objective(request):
                 report.reporting_outcome,
                 report.outcome_delivered,
                 report.report_link.document_name if report.report_link else None,
+                report.report_outcome_comment,
+                report.reporting_outcome_metric,
                 report.date_last_modified,
                 report.last_modified_by.get_full_name() if report.last_modified_by else None,
             ]
@@ -384,6 +463,7 @@ def export_data(request):
     worksheet.title = 'Data'
     columns = [
         'Agreement Number',
+        'River',
         'Species',
         'Samples Collected',
         'Samples Collected Comment',
@@ -392,14 +472,10 @@ def export_data(request):
         'Barriers to Sample Collection',
         'Was sample collection data entered into database(s)?',
         'Was sample data quality check complete?',
-        'Person/Group responsible for data quality check?',
-        'Barriers to data checks/entry to database?',
         'Sample Format(s)',
         'Data Product(s)',
         'Data Products Database(s)',
         'Data Products Comment',
-        'Data Program(s)',
-        'How Was Data Communicated to Recipient?',
         'date_last_modified',
         'last_modified_by',
     ]
@@ -417,22 +493,19 @@ def export_data(request):
         row_num += 1
         row = [
             obj.project.agreement_number if obj.project else None,
-            ", ".join(i.name for i in obj.species.all()),
-            ", ".join(i.name for i in obj.samples_collected.all()),
+            obj.river.name if obj.river else None,
+            obj.river.species.name if obj.river else None,
+            obj.samples_collected,
             obj.samples_collected_comment,
-            ", ".join(i.name for i in obj.samples_collected_database.all()),
+            obj.samples_collected_database,
             obj.shared_drive,
-            ", ".join(i.name for i in obj.sample_barrier.all()),
+            obj.sample_barrier,
             obj.sample_entered_database,
             obj.data_quality_check,
-            obj.data_quality_person,
-            ", ".join(i.name for i in obj.barrier_data_check_entry.all()),
-            ", ".join(i.name for i in obj.sample_format.all()),
-            ", ".join(i.name for i in obj.data_products.all()),
-            ", ".join(i.name for i in obj.data_products_database.all()),
+            obj.sample_format,
+            obj.data_products,
+            obj.data_products_database,
             obj.data_products_comment,
-            ", ".join(i.name for i in obj.data_programs.all()),
-            ", ".join(i.name for i in obj.data_communication.all()),
             obj.date_last_modified,
             obj.last_modified_by.get_full_name() if obj.last_modified_by else None,
         ]
@@ -459,7 +532,8 @@ def export_method(request):
     worksheet = workbook.active
     worksheet.title = 'Method'
     columns = [
-        'Agreement Number'
+        'Agreement Number',
+        'Unique Method Number'
         'Field Work Methods Type',
         'Planning Method Type',
         'Sample Processing Method Type',
@@ -486,9 +560,10 @@ def export_method(request):
         row_num += 1
         row = [
             obj.project.agreement_number if obj.project else None,
-            ", ".join(i.name for i in obj.field_work_method_type.all()),
-            ", ".join(i.name for i in obj.planning_method_type.all()),
-            ", ".join(i.name for i in obj.sample_processing_method_type.all()),
+            obj.unique_method_number,
+            obj.field_work_method_type,
+            obj.planning_method_type,
+            obj.sample_processing_method_type,
             obj.knowledge_consideration,
             obj.scale_processing_location,
             obj.otolith_processing_location,
@@ -505,7 +580,8 @@ def export_method(request):
     method_document_worksheet = workbook.create_sheet("Method Document", 1)
 
     method_document_columns = [
-        'agreement_number',
+        'Agreement Number',
+        'Unique Method Number',
         'Method Document Type',
         'Author',
         'Year of Publication',
@@ -530,6 +606,7 @@ def export_method(request):
             row_num += 1
             method_rows = [
                 method.method.project.agreement_number if method.method.project else None,
+                method.unique_method_number,
                 method.method_document_type,
                 method.authors,
                 method.publication_year,
@@ -622,8 +699,8 @@ def export_project_full(request):
     ########################
     # PROJECT SHEET/HEADER #
     columns = [
-        'Project Number',
         'Agreement Number',
+        'Project Number',
 
         'Agreement History',
         'Project Name',
@@ -631,19 +708,18 @@ def export_project_full(request):
         'Start Date',
         'End Date',
 
-        'Region',
+        'Area',
+        'Other Species',
         'Ecosystem Type',
-        'Primary River',
-        'Secondary River(s)',
         'Lake System(s)',
         'Watershed(s)',
         'Management Area',
 
-        'Stock Management Unit',
-        'CU Index',
-        'CU Name',
-        'Target Species',
         'Salmon Life Stage',
+        'Aquaculture License Number',
+        'Water License Number',
+        'Hatchery Name',
+        'DFO Tenure',
 
         'Project Stage',
         'Project Type',
@@ -662,11 +738,12 @@ def export_project_full(request):
 
         'DFO Project Authority',
         'DFO Area Chief',
-        'DFO Aboriginal AAA',
+        'DFO AAA',
         'DFO Resource Manager',
+        'Funding Recipient',
         'First Nation/Tribal Council',
-        'First Nations Contact',
-        'First Nations Contact Role',
+        'Contact',
+        'Contact Role',
         'DFO Technicians/Biologists',
         'Contractors',
         'Contractor Contact',
@@ -682,6 +759,7 @@ def export_project_full(request):
 
         'date_last_modified',
         'last_modified_by',
+
     ]
     row_num = 1
     for col_num, column_title in enumerate(columns, 1):
@@ -709,6 +787,48 @@ def export_project_full(request):
         cell.fill = PatternFill(start_color=green, end_color=green, fill_type="solid")
         cell.font = Font(bold=True, size=12)
         cell.value = column_title
+
+    ##############################
+    # Rivers SHEET/HEADER #
+    river_worksheet = workbook.create_sheet("Rivers", 9)
+    river_columns = [
+        'Agreement Number',
+        'Name',
+        'Latitude',
+        'Longitude',
+        'Sub District Area',
+        'Species',
+        'Stock Management Unit',
+        'CU index',
+        'CU Name',
+        'Pop ID',
+        'DU',
+        'DU Number',
+    ]
+    row_num = 1
+    for col_num, column_title in enumerate(river_columns, 1):
+        river_worksheet.column_dimensions[get_column_letter(col_num)].width = 15
+        cell = river_worksheet.cell(row=row_num, column=col_num)
+        cell.fill = PatternFill(start_color=green, end_color=green, fill_type="solid")
+        cell.font = Font(bold=True, size=12)
+        cell.value = column_title
+
+    ############################
+    # PROJECT CERTIFIED HEADER #
+    certified_worksheet = workbook.create_sheet("Project Certified", 10)
+    certified_columns = [
+        'Agreement Number',
+        'Certified Date',
+        'Certified By',
+    ]
+    row_num = 1
+    for col_num, column_title in enumerate(certified_columns, 1):
+        certified_worksheet.column_dimensions[get_column_letter(col_num)].width = 15
+        cell = certified_worksheet.cell(row=row_num, column=col_num)
+        cell.fill = PatternFill(start_color=green, end_color=green, fill_type="solid")
+        cell.font = Font(bold=True, size=12)
+        cell.value = column_title
+
 
     ##########################
     # OBJECTIVE SHEET/HEADER #
@@ -752,8 +872,8 @@ def export_project_full(request):
         'Unique Objective Number',
         'Sampling Outcome',
         'Was the Sampling Outcome Met?',
-        'Were outcome reports delivered?',
         'Quality of Outcome',
+        'Sample Outcome Comment',
         'date_last_modified',
         'last_modified_by',
     ]
@@ -774,7 +894,9 @@ def export_project_full(request):
         'Unique Objective Number',
         'Reporting Outcome',
         'Was the outcome deliverable met?',
-        'Report Link'
+        'Report Link',
+        'Reporting Outcome Comment',
+        'Reporting Outcome Metric',
         'date_last_modified',
         'last_modified_by',
     ]
@@ -792,6 +914,7 @@ def export_project_full(request):
     data_worksheet = workbook.create_sheet("Data", 5)
     data_columns = [
         'Agreement Number',
+        'River',
         'Species',
         'Samples Collected',
         'Samples Collected Comment',
@@ -800,14 +923,10 @@ def export_project_full(request):
         'Barriers to Sample Collection',
         'Was sample collection data entered into database(s)?',
         'Was sample data quality check complete?',
-        'Person/Group responsible for data quality check?',
-        'Barriers to data checks/entry to database?',
         'Sample Format(s)',
         'Data Product(s)',
         'Data Products Database(s)',
         'Data Products Comment',
-        'Data Program(s)',
-        'How Was Data Communicated to Recipient?',
         'date_last_modified',
         'last_modified_by',
     ]
@@ -825,7 +944,8 @@ def export_project_full(request):
     # METHOD SHEET/HEADER #
     method_worksheet = workbook.create_sheet("Method", 6)
     method_columns = [
-        'Agreement Number'
+        'Agreement Number',
+        'Unique Method Number'
         'Field Work Methods Type',
         'Planning Method Type',
         'Sample Processing Method Type',
@@ -853,6 +973,7 @@ def export_project_full(request):
     method_document_worksheet = workbook.create_sheet("Method Document", 7)
     method_document_columns = [
         'Agreement Number',
+        'Unique Method Number'
         'Method Document Type',
         'Author',
         'Year of Publication',
@@ -903,6 +1024,9 @@ def export_project_full(request):
     sampo_num = 1
     row_num = 1
     methd_num = 1
+    river_num = 1
+    cert_num = 1
+
     for obj in project_filter:
         row_num += 1
         row = [
@@ -915,25 +1039,23 @@ def export_project_full(request):
             obj.start_date,
             obj.end_date,
 
-            obj.region,
-            obj.ecosystem_type,
-            obj.primary_river.name if obj.primary_river.name else None,
-            ", ".join(i.name for i in obj.secondary_river.all()),
+            obj.area,
+            obj.other_species,
+            ", ".join(i.name for i in obj.ecosystem_type.all()),
             ", ".join(i.name for i in obj.lake_system.all()),
             ", ".join(i.name for i in obj.watershed.all()),
-            obj.management_area,
+            ", ".join(i.name for i in obj.management_area.all()),
 
-            obj.stock_management_unit,
-            ", ".join(i.name for i in obj.cu_index.all()),
-            obj.cu_name.name if obj.cu_name else None,
-            #", ".join(i.name for i in obj.cu_name.all()),
-            ", ".join(i.name for i in obj.species.all()),
             ", ".join(i.name for i in obj.salmon_life_stage.all()),
+            obj.aquaculture_license_number,
+            obj.water_license_number,
+            ", ".join(i.name for i in obj.hatchery_name.all()),
+            obj.DFO_tenure,
 
             obj.project_stage,
             obj.project_type,
             ", ".join(i.name for i in obj.project_sub_type.all()),
-            obj.monitoring_approach,
+            ", ".join(i.name for i in obj.monitoring_approach.all()),
             ", ".join(i.name for i in obj.project_theme.all()),
             ", ".join(i.name for i in obj.core_component.all()),
             ", ".join(i.name for i in obj.supportive_component.all()),
@@ -947,11 +1069,12 @@ def export_project_full(request):
 
             ", ".join(i.full_name for i in obj.DFO_project_authority.all()),
             ", ".join(i.full_name for i in obj.DFO_area_chief.all()),
-            ", ".join(i.full_name for i in obj.DFO_aboriginal_AAA.all()),
+            ", ".join(i.full_name for i in obj.DFO_AAA.all()),
             ", ".join(i.full_name for i in obj.DFO_resource_manager.all()),
+            obj.funding_recipient,
             obj.first_nation.name if obj.first_nation else None,
-            obj.first_nations_contact.full_name if obj.first_nations_contact else None,
-            obj.first_nations_contact_role,
+            obj.contact.full_name if obj.contact else None,
+            obj.contact_role,
             ", ".join(i.full_name for i in obj.DFO_technicians.all()),
             obj.contractor,
             obj.contractor_contact,
@@ -974,6 +1097,31 @@ def export_project_full(request):
             cell = worksheet.cell(row=row_num, column=col_num)
             cell.value = cell_value
 
+        ##########
+        # RIVERS #
+        for river_tmp in obj.river.all():
+            river_num += 1
+            river_rows = [
+                obj.agreement_number,
+                river_tmp.name if river_tmp.name else None,
+                river_tmp.latitude if river_tmp.latitude else None,
+                river_tmp.longitude if river_tmp.longitude else None,
+                river_tmp.sub_district_area if river_tmp.sub_district_area else None,
+                river_tmp.species.name if river_tmp.species else None,
+                river_tmp.stock_management_unit if river_tmp.stock_management_unit else None,
+                river_tmp.cu_index.name if river_tmp.cu_index else None,
+                river_tmp.cu_name.name if river_tmp.cu_name else None,
+                river_tmp.pop_id if river_tmp.pop_id else None,
+                river_tmp.du if river_tmp.du else None,
+                river_tmp.du_number if river_tmp.du_number else None,
+
+            ]
+            for col_num, cell_value in enumerate(river_rows, 1):
+                cell = river_worksheet.cell(row=river_num, column=col_num)
+                cell.value = cell_value
+
+
+
     ##################
     # FUNDING YEARS #
     fund_num = 1
@@ -993,6 +1141,22 @@ def export_project_full(request):
                 cell = funding_worksheet.cell(row=fund_num, column=col_num)
                 cell.value = cell_value
 
+    ##########################
+    # PROJECT CERTIFIED ROWS #
+    cert_num = 1
+    for obj in project_filter:
+        project_certified = models.ProjectCertified.objects.filter(project=obj.id)
+        for certified in project_certified:
+            cert_num += 1
+            cert_rows = [
+                certified.project.agreement_number if certified.project else None,
+                certified.certified_date,
+                certified.certified_by.get_full_name() if certified.certified_by else None,
+            ]
+            for col_num, cell_value in enumerate(cert_rows, 1):
+                cell = certified_worksheet.cell(row=cert_num, column=col_num)
+                cell.value = cell_value
+
     ##################
     # OBJECTIVE ROWS #
     obj_num = 1
@@ -1009,7 +1173,7 @@ def export_project_full(request):
                 objective.pst_requirement,
                 objective.location.name if objective.location else None,
                 ", ".join(i.name for i in objective.objective_category.all()),
-                objective.species.name if objective.species else None,
+                objective.location.species.name if objective.location else None,
                 objective.sil_requirement,
                 objective.expected_results,
                 objective.dfo_report,
@@ -1039,8 +1203,8 @@ def export_project_full(request):
                     sample.unique_objective_number,
                     sample.sampling_outcome,
                     sample.outcome_delivered,
-                    sample.outcome_report_delivered,
                     sample.outcome_quality,
+                    sample.sample_outcome_comment,
                     sample.date_last_modified,
                     sample.last_modified_by.get_full_name() if sample.last_modified_by else None,
                 ]
@@ -1059,6 +1223,8 @@ def export_project_full(request):
                     report.reporting_outcome,
                     report.outcome_delivered,
                     report.report_link.document_name if report.report_link else None,
+                    report.report_outcome_comment,
+                    report.reporting_outcome_metric,
                     report.date_last_modified,
                     report.last_modified_by.get_full_name() if report.last_modified_by else None,
                 ]
@@ -1075,22 +1241,19 @@ def export_project_full(request):
             data_num += 1
             data_row = [
                 data.project.agreement_number if data.project else None,
-                ", ".join(i.name for i in data.species.all()),
-                ", ".join(i.name for i in data.samples_collected.all()),
+                data.river.name if data.river else None,
+                data.river.species.name if data.river else None,
+                data.samples_collected,
                 data.samples_collected_comment,
-                ", ".join(i.name for i in data.samples_collected_database.all()),
+                data.samples_collected_database,
                 data.shared_drive,
-                ", ".join(i.name for i in data.sample_barrier.all()),
+                data.sample_barrier,
                 data.sample_entered_database,
                 data.data_quality_check,
-                data.data_quality_person,
-                ", ".join(i.name for i in data.barrier_data_check_entry.all()),
-                ", ".join(i.name for i in data.sample_format.all()),
-                ", ".join(i.name for i in data.data_products.all()),
-                ", ".join(i.name for i in data.data_products_database.all()),
+                data.sample_format,
+                data.data_products,
+                data.data_products_database,
                 data.data_products_comment,
-                ", ".join(i.name for i in data.data_programs.all()),
-                ", ".join(i.name for i in data.data_communication.all()),
                 data.date_last_modified,
                 data.last_modified_by.get_full_name() if data.last_modified_by else None,
             ]
@@ -1107,9 +1270,10 @@ def export_project_full(request):
             meth_num += 1
             method_row = [
                 method.project.agreement_number if method.project else None,
-                ", ".join(i.name for i in method.field_work_method_type.all()),
-                ", ".join(i.name for i in method.planning_method_type.all()),
-                ", ".join(i.name for i in method.sample_processing_method_type.all()),
+                method.unique_method_number,
+                method.field_work_method_type,
+                method.planning_method_type,
+                method.sample_processing_method_type,
                 method.knowledge_consideration,
                 method.scale_processing_location,
                 method.otolith_processing_location,
@@ -1132,6 +1296,7 @@ def export_project_full(request):
                 methd_num += 1
                 method_doc_rows = [
                     method_doc.method.project.agreement_number if method_doc.method.project else None,
+                    method_doc.unique_method_number,
                     method_doc.method_document_type,
                     method_doc.authors,
                     method_doc.publication_year,
