@@ -34,6 +34,7 @@ def sign_in(request):
     sign_in_url, state = get_sign_in_url()
     # Save the expected state so we can validate in the callback
     request.session['auth_state'] = state
+    request.session['next'] = request.GET.get("next")
     # Redirect to the Azure sign-in page
     return HttpResponseRedirect(sign_in_url)
 
@@ -77,6 +78,10 @@ def callback(request):
             print("there was an error in trying to copy over the user's profile data from AAD")
 
     login(request, my_user)
+    if request.session.get('next'):
+        next = request.session.get('next')
+        del request.session['next']
+        return HttpResponseRedirect(next)
     return HttpResponseRedirect(reverse('index'))
 
 
@@ -147,7 +152,7 @@ class UserLoginView(PasswordResetView):
 
     def dispatch(self, request, *args, **kwargs):
         if settings.AZURE_AD:
-            return HttpResponseRedirect(reverse("accounts:azure_login"))
+            return HttpResponseRedirect(reverse("accounts:azure_login")+f"?{request.META.get('QUERY_STRING')}")
         else:
             return super().dispatch(request, *args, **kwargs)
 
