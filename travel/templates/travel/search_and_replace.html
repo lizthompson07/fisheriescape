@@ -5,43 +5,160 @@
 {% load verbose_names %}
 {% load custom_tags %}
 {% load i18n %}
-{% block title_area %}{% endblock %}
 
 {% block subcontent %}
   <div class="mb-5" id="app" v-cloak>
+
 
     <div v-if="loading" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
         <span class="sr-only"></span>
       </div>
     </div>
-    <div v-else class="row">
+    <div v-else class="row mb-5">
       <div class="col">
-        <v-select
-          v-model="user1"
-          @input="getTravelUser('user1')"
-          :options="users"
-          label='full_name'
-          :reduce="full_name => full_name.id"
-          :clearable="true"
-          placeholder="{% trans "Start typing to search for a user" %}"
-        ></v-select>
-
-        ${user1}
+        <div class="form-group">
+          <label for="">{% trans "Select the problematic user here" %}</label>
+          <v-select
+            v-model="user1"
+            @input="getTravelUser('user1')"
+            :options="users"
+            label='full_name'
+            :reduce="full_name => full_name.id"
+            :clearable="true"
+            placeholder="{% trans "" %}"
+          ></v-select>
+        </div>
+        <div v-if="loadinguser1" class="loading mb-3 mt-3 mt-5">
+          <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </div>
+        <div v-else-if="user1Object.id" class="card traveller-card bad">
+          <table class="table">
+            <tr>
+              <th class="w150px">First Name</th>
+              <td>${user1Object.first_name}</td>
+            </tr>
+            <tr>
+              <th>Last Name</th>
+              <td>${user1Object.last_name}</td>
+            </tr>
+            <tr>
+              <th>Email</th>
+              <td>${user1Object.email}</td>
+            </tr>
+            <tr>
+              <th>Is active user?</th>
+              <td><input type="checkbox" v-model="user1Object.is_active" @change="updateUser(user1Object)" class=""></td>
+            </tr>
+            <tr>
+              <th>Instances as traveller</th>
+              <td>
+                <ul>
+                  <li v-for="t in user1Object.travellers" :key="`travellers${t.id}`"><a :href="`/travel-plans/requests/${t.request}/view/`" target="_blank">${t.request_obj.trip_display}</a>
+                  </li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <th>Instances as request reviewer</th>
+              <td>
+                <ul>
+                  <li v-for="r in user1Object.request_reviewers" :key="`rr${r.id}`"><a :href="`/travel-plans/requests/${r.request}/view/`" target="_blank">${r.request_obj.trip_display}</a>
+                  </li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <th>Instances as trip reviewer</th>
+              <td>
+                <ul>
+                  <li v-for="r in user1Object.trip_reviewers" :key="`tr${r.id}`"><a :href="`/travel-plans/trips/${r.trip}/view/`" target="_blank">${r.trip_obj.display}</a>
+                  </li>
+                </ul>
+              </td>
+            </tr>
+          </table>
+        </div>
 
       </div>
       <div class="col">
-        <v-select
-          v-model="user2"
-          @input="getTravelUser('user2')"
-          :options="users"
-          label='full_name'
-          :reduce="full_name => full_name.id"
-          :clearable="true"
-          placeholder="{% trans "Start typing to search for a user" %}"
-        ></v-select>
-        ${user2}
+        <div class="form-group">
+          <label for="">{% trans "Select the correct user here" %}</label>
+          <v-select
+            v-model="user2"
+            @input="getTravelUser('user2')"
+            :options="users"
+            label='full_name'
+            :reduce="full_name => full_name.id"
+            :clearable="true"
+            placeholder="{% trans "" %}"
+          ></v-select>
+        </div>
+
+        <div v-if="loadinguser2" class="loading mb-3 mt-3 mt-5">
+          <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </div>
+        <div v-else-if="user2Object.id" class="card traveller-card good">
+          <table class="table">
+            <tr>
+              <th>First Name</th>
+              <td>${user2Object.first_name}</td>
+            </tr>
+            <tr>
+              <th>Last Name</th>
+              <td>${user2Object.last_name}</td>
+            </tr>
+            <tr>
+              <th>Email</th>
+              <td>${user2Object.email}</td>
+            </tr>
+            <tr>
+              <th>Is active user?</th>
+              <td><input type="checkbox" v-model="user2Object.is_active" @change="updateUser(user2Object)" class=""></td>
+            </tr>
+            <tr>
+              <th>Instances as traveller</th>
+              <td>
+                <ul>
+                  <li v-for="t in user2Object.travellers" :key="`travellers${t.id}`"><a :href="`/travel-plans/requests/${t.request}/view/`" target="_blank">${t.request_obj.trip_display}</a>
+                  </li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <th>Instances as request reviewer</th>
+              <td>
+                <ul>
+                  <li v-for="r in user2Object.request_reviewers" :key="`rr${r.id}`"><a :href="`/travel-plans/requests/${r.request}/view/`" target="_blank">${r.request_obj.trip_display}</a>
+                  </li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <th>Instances as trip reviewer</th>
+              <td>
+                <ul>
+                  <li v-for="r in user2Object.trip_reviewers" :key="`tr${r.id}`"><a :href="`/travel-plans/trips/${r.trip}/view/`" target="_blank">${r.trip_obj.display}</a>
+                  </li>
+                </ul>
+              </td>
+            </tr>
+          </table>
+        </div>
+
       </div>
+    </div>
+    <div class="text-center">
+      <button class="btn btn-lg btn-danger" @click="go" v-if="user1 && user2">
+        {% trans "Search, Replace and Deactivate" %}
+      </button>
+      <button v-else class="btn btn-lg btn-secondary disabled" disabled>
+        {% trans "Search, Replace and Deactivate" %}
+      </button>
     </div>
 
 
@@ -64,28 +181,46 @@
       user1Object: {},
       user2Object: {},
       loading: false,
-      loadingUser: false
+      loadinguser1: false,
+      loadinguser2: false
     },
     methods: {
+      go() {
+        let endpoint = `/api/travel/users/?search_and_replace=true`;
+        apiService(endpoint, "POST", {bad_user: this.user1, good_user: this.user2}).then(data => {
+          console.log(data)
+          this.getTravelUser('user1');
+          this.getTravelUser('user2');
+        })
+      },
+      updateUser(user) {
+        let endpoint = `/api/travel/users/${user.id}/`;
+        apiService(endpoint, "PATCH", user).then(data => {
+          user = data;
+        })
+      },
       getUsers() {
         this.loading = true;
-        let endpoint = `/api/shared/viewsets/users/?is_active=true&page_size=50000`;
+        let endpoint = `/api/shared/viewsets/users/?page_size=50000`;
         apiService(endpoint).then(data => {
           this.users = data.results;
           this.loading = false;
         });
       },
       getTravelUser(target) {
-        this.loadingUser = true;
+        this["loading" + target] = true;
         let endpoint = `/api/travel/users/${this[target]}/`;
         apiService(endpoint).then(data => {
           if (!data || !data.id) alert(groomJSON(data));
           else {
             this[target + "Object"] = data;
-            this.loadingUser = false;
+            this["loading" + target] = false;
           }
         });
       },
+    },
+    filters: {
+      yesNo: vueFiltersObject["yesNo"],
     },
     created() {
       this.getUsers();

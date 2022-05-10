@@ -1,5 +1,6 @@
 from gettext import gettext as _
 
+from django.contrib.auth.models import User
 from django.db.models import Q
 from django.template.defaultfilters import date, pluralize, slugify
 from django.urls import reverse
@@ -468,6 +469,32 @@ class CostViewSet(viewsets.ModelViewSet):
 class TravelUserViewSet(UserViewSet):
     serializer_class = serializers.TravelUserSerializer
 
+    def create(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("search_and_replace"):
+            if not utils.in_travel_nat_admin_group(request.user):
+                raise PermissionDenied(_("This function can only be used by national system administrators."))
+
+            good_user = get_object_or_404(User, pk=request.data.get("good_user"))
+            bad_user = get_object_or_404(User, pk=request.data.get("bad_user"))
+
+            # find all traveller instances
+            for obj in bad_user.travellers.all():
+                obj.user = good_user
+                obj.save()
+
+            # find all request reviewer instances
+            for obj in bad_user.reviewers.all():
+                obj.user = good_user
+                obj.save()
+
+            # find all trip reviewer instances
+            for obj in bad_user.trip_reviewers.all():
+                obj.user = good_user
+                obj.save()
+
+            return Response(None, status.HTTP_204_NO_CONTENT)
+        return super().create(request, *args, **kwargs)
 
 
 

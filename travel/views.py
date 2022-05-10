@@ -1569,10 +1569,9 @@ class DefaultReviewerDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):
 
 
 class SearchAndReplaceTemplateView(TravelADMAdminRequiredMixin, CommonTemplateView):
-    h1 = gettext_lazy("Search and Replace Users")
+    h1 = gettext_lazy("Search, Replace and Deactivate Users")
+    home_url_name = "travel:index"
     template_name = 'travel/search_and_replace.html'
-
-
 
 
 class TravelUserFormsetView(SuperuserOrNationalAdminRequiredMixin, CommonFormsetView):
