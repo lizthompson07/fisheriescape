@@ -111,7 +111,7 @@ class TripViewSet(viewsets.ModelViewSet):
             else:
                 qs = qs.filter(start_date__gte=timezone.now())
 
-            return qs
+            return qs.order_by("start_date")
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
