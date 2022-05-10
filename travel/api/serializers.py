@@ -8,7 +8,7 @@ from rest_framework.exceptions import ValidationError
 
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
-from shared_models.api.serializers import SectionSerializer
+from shared_models.api.serializers import SectionSerializer, UserSerializer
 from .. import models
 # from ..utils import can_modify_project
 from ..utils import get_cost_comparison
@@ -634,3 +634,14 @@ class TripSerializer(serializers.ModelSerializer):
 
     def get_trip_review_ready(self, instance):
         return instance.trip_review_ready
+
+
+class TravelUserSerializer(UserSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
+
+    traveller_instances = serializers.SerializerMethodField()
+
+    def get_traveller_instances(self, instance):
+        return TravellerSerializer(instance.travellers, many=True).data

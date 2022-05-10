@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 
 from lib.functions.custom_functions import truncate
 from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer
-from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView
+from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView, UserViewSet
 from shared_models.models import FiscalYear, Region, Division, Section, Organization
 from shared_models.utils import get_labels
 from . import serializers
@@ -463,6 +463,13 @@ class CostViewSet(viewsets.ModelViewSet):
 
 # LOOKUPS
 ##########
+
+
+class TravelUserViewSet(UserViewSet):
+    serializer_class = serializers.TravelUserSerializer
+
+
+
 
 
 class FiscalYearTravelListAPIView(FiscalYearListAPIView):

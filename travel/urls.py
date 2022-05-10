@@ -87,10 +87,11 @@ urlpatterns = [
     path('settings/default-reviewers/new/', views.DefaultReviewerCreateView.as_view(), name="default_reviewer_new"),  # tested
     path('settings/default-reviewers/<int:pk>/edit/', views.DefaultReviewerUpdateView.as_view(), name="default_reviewer_edit"),  # tested
     path('settings/default-reviewers/<int:pk>/delete/', views.DefaultReviewerDeleteView.as_view(), name="default_reviewer_delete"),  # tested
+    path('settings/search-and-replace/', views.SearchAndReplaceTemplateView.as_view(), name='search_and_replace'),  # TODO: TEST
 
-    # Admin Users
-    # path('settings/users/', views.UserListView.as_view(), name='user_list'),  # tested
-    # path('settings/users/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),  # tested
+
+
+
     # user permissions
     path('settings/users/', views.TravelUserFormsetView.as_view(), name="manage_travel_users"),
     path('settings/users/<int:pk>/delete/', views.TravelUserHardDeleteView.as_view(), name="delete_travel_user"),

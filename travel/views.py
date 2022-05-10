@@ -886,7 +886,7 @@ class TripSelectFormView(TravelAdminRequiredMixin, CommonFormView):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse("accounts:denied_access", kwargs={
-                "message": _("Sorry, only ADMO administrators can verify trips that require ADM approval.")})  + "?app=travel")
+                "message": _("Sorry, only ADMO administrators can verify trips that require ADM approval.")}) + "?app=travel")
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -1568,74 +1568,11 @@ class DefaultReviewerDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-#
-#
-# class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
-#     template_name = "travel/user_list.html"
-#     filterset_class = filters.UserFilter
-#     home_url_name = "travel:index"
-#     paginate_by = 25
-#     h1 = "Travel App User List"
-#     field_list = [
-#         {"name": 'first_name', "class": "", "width": ""},
-#         {"name": 'last_name', "class": "", "width": ""},
-#         {"name": 'email', "class": "", "width": ""},
-#         {"name": 'last_login|{}'.format(gettext_lazy("Last login to DM Apps")), "class": "", "width": ""},
-#     ]
-#     new_object_url = reverse_lazy("shared_models:user_new")
-#
-#     def get_queryset(self):
-#         queryset = User.objects.order_by("first_name", "last_name").annotate(
-#             search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
-#         )
-#         if self.request.GET.get("travel_only"):
-#             admin_group, created = Group.objects.get_or_create(name="travel_admin")
-#             adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
-#             cfo, created = Group.objects.get_or_create(name="travel_cfo_read_only")
-#             queryset = queryset.filter(groups__in=[admin_group, adm_admin_group, cfo]).distinct()
-#         return queryset
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         admin_group, created = Group.objects.get_or_create(name="travel_admin")
-#         adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
-#         cfo_group, created = Group.objects.get_or_create(name="travel_cfo_read_only")
-#         context["admin_group"] = admin_group
-#         context["adm_admin_group"] = adm_admin_group
-#         context["cfo_group"] = cfo_group
-#         return context
-#
-#
-# @login_required(login_url='/accounts/login/')
-# @user_passes_test(in_travel_nat_admin_group, login_url='/accounts/denied/?app=travel')
-# def toggle_user(request, pk, type):
-#     my_user = get_object_or_404(User, pk=pk)
-#     admin_group, created = Group.objects.get_or_create(name="travel_admin")
-#     adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
-#     cfo_group, created = Group.objects.get_or_create(name="travel_cfo_read_only")
-#     if type == "admin":
-#         # if the user is in the admin group, remove them
-#         if admin_group in my_user.groups.all():
-#             my_user.groups.remove(admin_group)
-#         # otherwise add them
-#         else:
-#             my_user.groups.add(admin_group)
-#     elif type == "adm_admin":
-#         # if the user is in the edit group, remove them
-#         if adm_admin_group in my_user.groups.all():
-#             my_user.groups.remove(adm_admin_group)
-#         # otherwise add them
-#         else:
-#             my_user.groups.add(adm_admin_group)
-#     elif type == "cfo":
-#         # if the user is in the edit group, remove them
-#         if cfo_group in my_user.groups.all():
-#             my_user.groups.remove(cfo_group)
-#         # otherwise add them
-#         else:
-#             my_user.groups.add(cfo_group)
-#
-#     return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
+class SearchAndReplaceTemplateView(TravelADMAdminRequiredMixin, CommonTemplateView):
+    h1 = gettext_lazy("Search and Replace Users")
+    template_name = 'travel/search_and_replace.html'
+
+
 
 
 class TravelUserFormsetView(SuperuserOrNationalAdminRequiredMixin, CommonFormsetView):

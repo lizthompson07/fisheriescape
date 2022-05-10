@@ -239,7 +239,7 @@ Vue.component("staff-modal", {
         } else {
           this.loadingDMAppsUsers = true;
 
-          let endpoint = `/api/shared/users/?search=${value}`;
+          let endpoint = `/api/shared/viewsets/users/?is_active=true&search=${value}`;
           apiService(endpoint).then(data => {
             this.DmAppsUsers = data.results;
             this.loadingDMAppsUsers = false;

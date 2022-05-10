@@ -14,7 +14,7 @@ class TestUserAPIListView(CommonTest):
 
     @tag("api", 'user')
     def test_url(self):
-        self.assert_correct_url("user-list", test_url_args=None, expected_url_path=f"/api/shared/users/")
+        self.assert_correct_url("user-list", test_url_args=None, expected_url_path=f"/api/shared/viewsets/users/")
 
     @tag("api", 'user')
     def test_get(self):
