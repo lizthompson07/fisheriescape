@@ -407,6 +407,10 @@ class Trip(models.Model):
         return Traveller.objects.filter(request__trip=self).filter(~Q(request__status__in=[8, 10, 22]))  # exclude any travellers from inactive requests
 
     @property
+    def traveller_count(self):
+        return self.travellers.count()
+
+    @property
     def total_cost(self):
         # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
         amt = TravellerCost.objects.filter(traveller__request__trip=self).filter(
@@ -788,6 +792,12 @@ class Traveller(models.Model):
     def long_role(self):
         if self.role or self.role_of_participant:
             mystr = f"{self.role} &mdash; {nz(self.role_of_participant, _('<em>No description of role provided.</em>'))}"
+            return mark_safe(mystr)
+
+    @property
+    def long_role_text(self):
+        if self.role or self.role_of_participant:
+            mystr = f"{self.role} --> {nz(self.role_of_participant, _('No description of role provided.'))}"
             return mark_safe(mystr)
 
     def __str__(self):
