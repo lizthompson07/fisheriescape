@@ -7,6 +7,7 @@ from shared_models.test.SharedModelsFactoryFloor import SectionFactory, UserFact
 from travel.test import FactoryFloor
 from travel.test.common_tests import CommonTravelTest as CommonTest
 from travel.views import can_modify_request
+from .FactoryFloor import TravellerFactory, ReviewerFactory, TripReviewerFactory
 from .. import utils, models
 
 
@@ -353,7 +354,6 @@ class UtilsTest(CommonTest):
         self.assertTrue(utils.is_manager_or_assistant_or_admin(branch.admin))
         self.assertTrue(utils.is_manager_or_assistant_or_admin(region.admin))
 
-
     @tag("utils")
     def test_get_requests_with_managerial_access(self):
         section1 = SectionFactory(head=UserFactory(), admin=UserFactory())
@@ -421,3 +421,29 @@ class UtilsTest(CommonTest):
     def test_cherry_pick_traveller(self):
         """ because of the complications of having a request obj in here, we will test this through the api view tests"""
         pass
+
+    @tag("utils")
+    def test_search_and_replace(self):
+        user1 = self.get_and_login_user()
+        user2 = self.get_and_login_user()
+        TravellerFactory(user=user1)
+        TravellerFactory(user=user1)
+        TravellerFactory(user=user1)
+        ReviewerFactory(user=user1)
+        ReviewerFactory(user=user1)
+        TripReviewerFactory(user=user1)
+
+        self.assertEqual(user1.travellers.count(), 3)
+        self.assertEqual(user1.reviewers.count(), 2)
+        self.assertEqual(user1.trip_reviewers.count(), 1)
+        self.assertEqual(user2.travellers.count(), 0)
+        self.assertEqual(user2.reviewers.count(), 0)
+        self.assertEqual(user2.trip_reviewers.count(), 0)
+        utils.search_and_replace(user1.id, user2.id)
+        self.assertEqual(user1.travellers.count(), 0)
+        self.assertEqual(user1.reviewers.count(), 0)
+        self.assertEqual(user1.trip_reviewers.count(), 0)
+        self.assertEqual(user2.travellers.count(), 3)
+        self.assertEqual(user2.reviewers.count(), 2)
+        self.assertEqual(user2.trip_reviewers.count(), 1)
+

@@ -1332,8 +1332,7 @@ class TestTravelUserAPIListView(CommonTest):
         self.instance = self.get_and_login_user()
         self.test_list_create_url = reverse("travel-users-list", args=None)
         self.test_detail_url = reverse("travel-users-detail", args=[self.instance.pk])
-        data_dict = FactoryFloor.UserFactory.get_valid_data()
-        self.data_json = json.dumps(data_dict)
+        self.data_json = json.dumps(FactoryFloor.UserFactory.get_valid_data())
 
     @tag("api", 'user')
     def test_url(self):
@@ -1448,15 +1447,18 @@ class TestTravelUserAPIListView(CommonTest):
         # POST - SEARCH AND CREATE
         ## we are testing the search and replace functionality in test_utils.py; here is just to check the endpoint responses as expected
         test_url = self.test_list_create_url + "?search_and_replace=true"
+        user1 = self.get_and_login_user()
+        user2 = self.get_and_login_user()
+        data_json = json.dumps(dict(good_user=user1.id, bad_user=user2.id))
         # anonymous user
         self.client.logout()
-        response = self.client.post(test_url)
+        response = self.client.post(test_url, data=data_json, content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         # random authenticated users
         self.get_and_login_user()
-        response = self.client.post(test_url)
+        response = self.client.post(test_url, data=data_json, content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         # authorized user
         self.get_and_login_user(user=self.admin_user)
-        response = self.client.get(test_url)
+        response = self.client.post(test_url, data=data_json, content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
