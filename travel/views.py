@@ -1486,7 +1486,7 @@ class ReferenceMaterialListView(TravelADMAdminRequiredMixin, CommonListView):
     row_object_url_name = "travel:ref_mat_edit"
     home_url_name = "travel:index"
     h1 = gettext_lazy("Reference Materials")
-    container_class = "container bg-light curvy"
+    container_class = "container curvy"
 
 
 class ReferenceMaterialUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
@@ -1496,7 +1496,7 @@ class ReferenceMaterialUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("travel:ref_mat_list")}
     template_name = "travel/form.html"
     is_multipart_form_data = True
-    container_class = "container bg-light curvy"
+    container_class = "container curvy"
 
     def get_delete_url(self):
         return reverse("travel:ref_mat_delete", args=[self.get_object().id])
@@ -1509,7 +1509,7 @@ class ReferenceMaterialCreateView(TravelADMAdminRequiredMixin, CommonCreateView)
     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("travel:ref_mat_list")}
     template_name = "travel/form.html"
     is_multipart_form_data = True
-    container_class = "container bg-light curvy"
+    container_class = "container curvy"
 
 
 class ReferenceMaterialDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):
@@ -1519,7 +1519,7 @@ class ReferenceMaterialDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView)
     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("travel:ref_mat_list")}
     template_name = "travel/confirm_delete.html"
     delete_protection = False
-    container_class = "container bg-light curvy"
+    container_class = "container curvy"
 
 
 # Default Reviewer Settings
@@ -1602,7 +1602,7 @@ class TravelUserFormsetView(SuperuserOrNationalAdminRequiredMixin, CommonFormset
     success_url_name = "travel:manage_travel_users"
     home_url_name = "travel:index"
     delete_url_name = "travel:delete_travel_user"
-    container_class = "container bg-light curvy"
+    container_class = "container curvy"
 
 
 class TravelUserHardDeleteView(SuperuserOrNationalAdminRequiredMixin, CommonHardDeleteView):
