@@ -17,6 +17,11 @@ from . import emails
 from . import models
 
 
+def is_adm_or_admin(user):
+    if user:
+        return bool(is_adm(user) or is_admin(user))
+
+
 def in_travel_regional_admin_group(user):
     if user:
         return bool(hasattr(user, "travel_user") and user.travel_user.region)

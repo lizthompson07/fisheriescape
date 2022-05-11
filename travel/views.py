@@ -30,9 +30,9 @@ from . import models
 from . import reports
 from . import utils
 from .mixins import TravelAccessRequiredMixin, CanModifyMixin, TravelAdminRequiredMixin, AdminOrApproverRequiredMixin, TravelADMAdminRequiredMixin, \
-    SuperuserOrNationalAdminRequiredMixin
+    SuperuserOrNationalAdminRequiredMixin, TravelAdminOrADMRequiredMixin
 from .utils import in_travel_regional_admin_group, in_travel_nat_admin_group, can_modify_request, is_approver, is_trip_approver, \
-    is_manager_or_assistant_or_admin
+    is_manager_or_assistant_or_admin, is_adm_or_admin
 
 
 def get_common_context(request):
@@ -1132,7 +1132,7 @@ class TripReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
 # REPORTS #
 ###########
 
-class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
+class ReportFormView(TravelAdminOrADMRequiredMixin, CommonFormView):
     template_name = 'travel/reports.html'
     form_class = forms.ReportSearchForm
     h1 = gettext_lazy("Reports")
@@ -1171,7 +1171,7 @@ class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/?app=travel')
+@user_passes_test(is_adm_or_admin, login_url='/accounts/denied/?app=travel')
 def export_cfts_list(request):
     fy = request.GET.get("year")
     region = request.GET.get("region")
@@ -1195,7 +1195,7 @@ def export_cfts_list(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/?app=travel')
+@user_passes_test(is_adm_or_admin, login_url='/accounts/denied/?app=travel')
 def export_trip_list(request):
     fy = request.GET.get("year")
     region = request.GET.get("region")
@@ -1219,7 +1219,7 @@ def export_trip_list(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/?app=travel')
+@user_passes_test(is_adm_or_admin, login_url='/accounts/denied/?app=travel')
 def export_upcoming_trips(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_upcoming_trip_list(site_url)
@@ -1237,7 +1237,7 @@ def export_upcoming_trips(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_nat_admin_group, login_url='/accounts/denied/?app=travel')
+@user_passes_test(is_adm_or_admin, login_url='/accounts/denied/?app=travel')
 def export_request_summary(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_request_summary(site_url)
@@ -1255,7 +1255,7 @@ def export_request_summary(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/?app=travel')
+@user_passes_test(is_adm_or_admin, login_url='/accounts/denied/?app=travel')
 def export_request_cfts(request, trip=None, trip_request=None):
     file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
     export_file_name = f'CFTS export {timezone.now().strftime("%Y-%m-%d")}.xlsx'

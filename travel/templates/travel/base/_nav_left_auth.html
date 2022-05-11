@@ -73,11 +73,12 @@
 
     </div>
   </li>
+{% endif %}
 
+{% if is_admin or is_adm_admin or is_adm %}
   <li class="nav-item"><a class="nav-link" href="{% url 'travel:reports' %}">
     {% trans "Reports" %}
   </a></li>
+
 {% endif %}
-
-
 
