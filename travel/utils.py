@@ -829,3 +829,14 @@ def search_and_replace(good_user, bad_user):
     for obj in bad_user.trip_reviewers.all():
         obj.user = good_user
         obj.save()
+
+
+
+def get_request_queryset(request):
+    qs = get_requests_with_managerial_access(request.user)
+    qp = request.query_params if hasattr(request, 'query_params') else request.GET
+
+    if qp.get("ids"):
+        ids = qp.get("ids").split(",")  # get project year list
+        qs = qs.filter(id__in=ids)  # get project year qs
+    return qs.distinct()

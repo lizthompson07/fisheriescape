@@ -8,6 +8,7 @@
     <table class="table table-sm table-bordered">
       <thead>
       <tr>
+        <th class=""></th>
         <th class="">{% trans "Date, subject and location of meeting" %}</th>
         <th class="w-15">{% trans "Scope and region(s)" %}</th>
         <th class="w-15">{% trans "Contact(s)" %}</th>
@@ -19,20 +20,39 @@
       <tbody>
       <tr v-for="m in unit.meetings" :key="m.id">
         <td>
+          <div class="">
+            <a target="_blank" :href="`/csas-sccs/meetings/${m.id}/view/`">
+              <span class="mdi mdi-open-in-new h3 text-primary mr-1"></span>
+            </a>
+          </div>
+        </td>
+        <td>
+
+
           <div class="mb-3">
+            <u>{% trans "Dates:" %}</u><br>
             <span v-html="m.display_dates"></span> <span v-if="m.is_estimate" class="text-danger p-1">
             {% trans "approximate dates only" as txt_dates %} ({{ txt_dates|upper }})
             </span>
           </div>
+
           <div class="mb-3">
-            <a target="_blank" :href="`/csas-sccs/meetings/${m.id}/view/`"><span class="mdi mdi-open-in-new lead text-primary mr-1"></span></a>
-            ${m.display}
+            <u>{% trans "English title:" %}</u><br>
+            ${m.name}
           </div>
           <div class="mb-3">
-            <span>${m.location}</span>
+            <u>{% trans "French title:" %}</u><br>
+            ${m.nom}
           </div>
-          <div class="mb-3 font-italic">
-            {% trans "Process Id:" %} ${m.process}
+          <div class="mb-3 row">
+            <div class="col">
+              <u>{% trans "Location:" %}</u><br>
+              <span>${m.location}</span>
+            </div>
+            {#            <div class="col">#}
+            {#              <u>{% trans "Process Id:" %}</u><br>#}
+            {#              ${m.process}#}
+            {#            </div>#}
           </div>
         </td>
 
@@ -108,7 +128,7 @@
 
 
           <div class="mb-1" v-if="!m.is_posted && m.posting_request_date">
-            <p >
+            <p>
               <mark>
                 <em class="">
                   {% trans "Request made on " %}${m.posting_request_date_display|nz}

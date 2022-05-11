@@ -212,7 +212,7 @@ class ProcessFilter(django_filters.FilterSet):
 
 class MeetingFilter(django_filters.FilterSet):
     search = django_filters.CharFilter(field_name='search', lookup_expr='icontains', label=_("Meeting Title contains"))
-    # is_posted = django_filters.ChoiceFilter(field_name="process__is_posted", label=_("Is Posted?"), lookup_expr='exact', empty_label=_("All"), choices=YES_NO_CHOICES)
+    posting_request_date__isnull = django_filters.BooleanFilter(field_name="posting_request_date", label=_("Has a posting request been made?"), lookup_expr='isnull', exclude=True)
     start_date_month = django_filters.ChoiceFilter(field_name="start_date__month", label=_("Month of meeting"), empty_label=_("All"), choices=MONTH_CHOICES)
     process_id = django_filters.NumberFilter(field_name="process_id", label=_("Process ID"))
 

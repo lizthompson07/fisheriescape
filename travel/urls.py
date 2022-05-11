@@ -102,6 +102,7 @@ urlpatterns = [
     path('reports/search/', views.ReportFormView.as_view(), name="reports"),  # tested
     path('reports/export-cfts-list/', views.export_cfts_list, name="export_cfts_list"),  # tested
     path('reports/trip-list/', views.export_trip_list, name="export_trip_list"),  # tested
+    path('reports/request-list/', views.export_request_list, name="export_request_list"),  # TODO: TEST ME
     path('reports/upcoming-trips/', views.export_upcoming_trips, name="export_upcoming_trips"),  # tested
     path('reports/request-summary/', views.export_request_summary, name="export_request_summary"),  # TODO: TEST
     path('reports/cfts/request/<int:trip_request>/', views.export_request_cfts, name="export_cfts_request"),  # tested

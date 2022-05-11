@@ -563,3 +563,66 @@ def generate_request_summary(site_url):
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
         utils.upload_to_azure_blob(target_file_path, f'temp/{target_file}')
     return target_url
+
+
+
+
+def generate_request_list(qs, site_url, travellers=False):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
+    ws1 = workbook.add_worksheet(name="Requests")
+    ws2 = workbook.add_worksheet(name="Travellers")
+
+    request_field_list = [
+        "fiscal_year",
+        "status_display|status",
+
+        "section",
+        "division",
+        "region",
+
+        "trip",
+        "trip.location",
+        "trip.start_date",
+        "trip.end_date",
+        "number_of_days|Number of days",
+        "travellers|Travellers (region)",
+
+        "objective_of_event",
+        "benefit_to_dfo",
+        "bta_attendees",
+        "late_justification",
+        "funding_source",
+        "needs_gov_vehicle",
+
+
+        "trip.is_adm_approval_required|ADM approval required?",
+        "processing_time",
+
+        "total_request_cost|Total cost",
+        "total_non_dfo_funding|Total non-DFO funding",
+        "total_non_dfo_funding_sources|Non-DFO funding sources",
+        "total_dfo_funding|Total DFO cost",
+        "non_res_total_cost|Total DFO cost (non RES)",
+    ]
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#D6D1C0', "align": 'normal', "text_wrap": True})
+    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, })
+    currency_format = workbook.add_format({'num_format': '#,##0.00'})
+
+
+
+    workbook.close()
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        utils.upload_to_azure_blob(target_file_path, f'temp/{target_file}')
+    return target_url

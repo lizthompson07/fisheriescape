@@ -32,7 +32,7 @@ from . import utils
 from .mixins import TravelAccessRequiredMixin, CanModifyMixin, TravelAdminRequiredMixin, AdminOrApproverRequiredMixin, TravelADMAdminRequiredMixin, \
     SuperuserOrNationalAdminRequiredMixin, TravelAdminOrADMRequiredMixin
 from .utils import in_travel_regional_admin_group, in_travel_nat_admin_group, can_modify_request, is_approver, is_trip_approver, \
-    is_manager_or_assistant_or_admin, is_adm_or_admin
+    is_manager_or_assistant_or_admin, is_adm_or_admin, get_request_queryset
 
 
 def get_common_context(request):
@@ -1206,6 +1206,26 @@ def export_trip_list(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_trip_list(fiscal_year=fy, region=region, adm=adm, from_date=from_date, to_date=to_date, site_url=site_url)
     export_file_name = f'CTMS trip list {timezone.now().strftime("%Y-%m-%d")}.xlsx'
+
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/", "||")]) + f'?blob_name=true;export_file_name={export_file_name}')
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="{export_file_name}"'
+            return response
+    raise Http404
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(is_manager_or_assistant_or_admin, login_url='/accounts/denied/?app=travel')
+def export_request_list(request):
+    qs = get_request_queryset(request)
+    site_url = my_envr(request)["SITE_FULL_URL"]
+
+    file_url = reports.generate_request_list(qs, site_url)
+    export_file_name = f'CTMS request list {timezone.now().strftime("%Y-%m-%d")}.xlsx'
 
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
         return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/", "||")]) + f'?blob_name=true;export_file_name={export_file_name}')
