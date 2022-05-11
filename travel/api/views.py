@@ -477,21 +477,7 @@ class TravelUserViewSet(UserViewSet):
 
             good_user = get_object_or_404(User, pk=request.data.get("good_user"))
             bad_user = get_object_or_404(User, pk=request.data.get("bad_user"))
-
-            # find all traveller instances
-            for obj in bad_user.travellers.all():
-                obj.user = good_user
-                obj.save()
-
-            # find all request reviewer instances
-            for obj in bad_user.reviewers.all():
-                obj.user = good_user
-                obj.save()
-
-            # find all trip reviewer instances
-            for obj in bad_user.trip_reviewers.all():
-                obj.user = good_user
-                obj.save()
+            utils.search_and_replace(good_user, bad_user)
 
             return Response(None, status.HTTP_204_NO_CONTENT)
         return super().create(request, *args, **kwargs)

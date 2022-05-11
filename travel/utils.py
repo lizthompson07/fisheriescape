@@ -5,7 +5,6 @@ from azure.storage.blob import BlockBlobService
 from decouple import config
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import Group, User
 from django.db.models import Q
 from django.template.defaultfilters import date
 from django.utils import timezone
@@ -808,3 +807,20 @@ def get_all_admins(region, branch_only=False):
     except:
         pass
     return list(set(to_list))
+
+
+def search_and_replace(good_user, bad_user):
+    # find all traveller instances
+    for obj in bad_user.travellers.all():
+        obj.user = good_user
+        obj.save()
+
+    # find all request reviewer instances
+    for obj in bad_user.reviewers.all():
+        obj.user = good_user
+        obj.save()
+
+    # find all trip reviewer instances
+    for obj in bad_user.trip_reviewers.all():
+        obj.user = good_user
+        obj.save()
