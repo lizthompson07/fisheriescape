@@ -12,7 +12,7 @@ router.register(r'trip-reviewers', views.TripReviewerViewSet)  # tested
 router.register(r'request-files', views.FileViewSet)  # tested
 router.register(r'trip-files', views.TripFileViewSet)  # tested
 router.register(r'costs', views.CostViewSet)  # tested
-router.register(r'users', views.TravelUserViewSet)  # tested
+router.register(r'users', views.TravelUserViewSet, basename="travel-users")  # tested
 
 urlpatterns = [
     path("travel/", include(router.urls)),  # tested
