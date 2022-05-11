@@ -823,9 +823,9 @@ class Traveller(models.Model):
             if tr_cost.rate_cad:
                 my_str += "{}: ${:,.2f} ({} x {:,.2f}); ".format(
                     tr_cost.cost,
+                    nz(tr_cost.amount_cad, 0),
                     nz(tr_cost.rate_cad, 0),
                     nz(tr_cost.number_of_days, 0),
-                    nz(tr_cost.amount_cad, 0),
                 )
             else:
                 my_str += "{}: ${:,.2f}; ".format(tr_cost.cost, tr_cost.amount_cad)
