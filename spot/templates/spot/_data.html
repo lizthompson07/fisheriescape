@@ -18,7 +18,7 @@
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
             <th style="width: 100px">
-                {% trans "Species" %}
+                {% trans "River" %}
             </th>
             <th style="width: 120px">
                 {% trans "Samples Collected" %}
@@ -30,26 +30,26 @@
                 {% trans "Data Products" %}
             </th>
             <th class="width: 120px">
-                {% trans "Data Products Database" %}
+                {% trans "Data Quality Check" %}
             </th>
         </tr>
         <tbody>
         {% for obj in object.project_data.all %}
             <tr href="{% url 'spot:data_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this data">
                 <td>
-                    {% for species in obj.species.all %}{{ species }}<br/>{% endfor %}
+                    {{ obj.river }}
                 </td>
                 <td>
-                    {% for samples in obj.samples_collected.all %}{{ samples }}<br/>{% endfor %}
+                    {{ obj.samples_collected }}
                 </td>
                 <td>
-                    {% for samples_database in obj.samples_collected_database.all %}{{ samples_database }}<br/>{% endfor %}
+                    {{ obj.samples_collected_database }}
                 </td>
                 <td>
-                    {% for data_products in obj.data_products.all %}{{ data_products }}<br/>{% endfor %}
+                    {{ obj.data_products }}
                 </td>
                 <td>
-                    {% for data_products_database in obj.data_products_database.all %}{{ data_products_database }}<br/>{% endfor %}
+                    {{ obj.data_quality_check }}
                 </td>
             </tr>
         {% endfor %}

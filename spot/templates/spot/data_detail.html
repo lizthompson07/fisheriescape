@@ -18,7 +18,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'spot:data_list' %}">Database List</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'spot:data_list' %}">Data List</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
         <ol class="breadcrumb">
@@ -55,9 +55,90 @@
                 <h3>
                     Detail:
                 </h3>
-
                 {% for field in field_list %}
-                    {% verbose_field_display object field %}
+                    {% if field == 'river' %}
+                        {% if object.river %}
+                            <strong>River:</strong>
+                            <table class="table table-hover table-sm" style="width: auto">
+                                <tr>
+                                    <th style="width: 120px">
+                                        {% trans "Name" %}
+                                    </th>
+                                    <th style="width: 120px">
+                                        {% trans "Species" %}
+                                    </th>
+                                     <th style="width: 120px">
+                                        {% trans "CU Index" %}
+                                    </th>
+                                    <th style="width: 120px">
+                                        {% trans "CU Name" %}
+                                    </th>
+                                    <th style="width: 120px">
+                                        {% trans "Latitude" %}
+                                    </th>
+                                    <th style="width: 120px">
+                                        {% trans "Longitude" %}
+                                    </th>
+                                    <th style="width: 120px">
+                                        {% trans "Sub District Area" %}
+                                    </th>
+                                    <th style="width: 120px">
+                                        {% trans "Stock Management Unit" %}
+                                    </th>
+                                    <th style="width: 120px">
+                                        {% trans "Pop ID" %}
+                                    </th>
+                                    <th style="width: 120px">
+                                        {% trans "DU" %}
+                                    </th>
+                                    <th style="width: 120px">
+                                        {% trans "DU Number" %}
+                                    </th>
+                                </tr>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            {{ object.river.name }}
+                                        </td>
+                                        <td>
+                                            {{ object.river.species.name }}
+                                        </td>
+                                        <td>
+                                            {{ object.river.cu_index }}
+                                        </td>
+                                        <td>
+                                            {{ object.river.cu_name }}
+                                        </td>
+                                        <td>
+                                            {{ object.river.latitude }}
+                                        </td>
+                                        <td>
+                                            {{ object.river.longitude }}
+                                        </td>
+                                        <td>
+                                            {{ object.river.sub_district_area }}
+                                        </td>
+                                        <td>
+                                            {{ object.river.stock_management_unit }}
+                                        </td>
+                                        <td>
+                                            {{ object.river.pop_id }}
+                                        </td>
+                                        <td>
+                                            {{ object.river.du }}
+                                        </td>
+                                        <td>
+                                            {{ object.river.du_number }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        {% else %}
+                            {% verbose_field_display object field %}
+                        {% endif %}
+                    {% else %}
+                        {% verbose_field_display object field %}
+                    {% endif %}
                 {% endfor %}
                 <br>
 

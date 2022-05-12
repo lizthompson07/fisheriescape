@@ -109,7 +109,7 @@ label {
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <a href="{% url 'spot:export_project' %}?{{request.GET.urlencode}}" class="dropdown-item">Project</a>
-                        <a href="{% url 'spot:export_project_full' %}?{{request.GET.urlencode}}" data-toggle="tooltip" data-placement="bottom" title="Includes all Objectives, Data, Reports, Methods etc" class="dropdown-item">Full Project</a>
+                        <a href="{% url 'spot:export_project_full' %}?{{request.GET.urlencode}}" data-toggle="tooltip" data-placement="bottom" title="Includes all Objectives, Data, Reports, Methods etc, this may take over a minute to work" class="dropdown-item">Full Project</a>
                     </div>
             </div>
         </div>
@@ -133,6 +133,18 @@ label {
                                     {{ fund.funding_year }}
                             {% endfor %}
                                 </td>
+                        {% elif "species" in field %}
+                            <td>
+                                {% for river in object.river.all %}
+                                {{ river.species }},
+                                {% endfor %}
+                            </td>
+                        {% elif "river" in field %}
+                            <td>
+                                {% for river in object.river.all %}
+                                {{ river.name }},
+                                {% endfor %}
+                            </td>
                         {% else %}
                             <td>{% get_field_value object field %}</td>
                         {% endif %}
