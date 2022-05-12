@@ -202,7 +202,6 @@ class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
 
     def get_object(self, queryset=None):
         if self.kwargs.get("uuid"):
-            print("I'm there")
             return get_object_or_404(self.model, uuid=self.kwargs.get("uuid"))
         return super().get_object(queryset)
 
