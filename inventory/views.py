@@ -214,6 +214,7 @@ class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        print("c1")
         context = super().get_context_data(**kwargs)
         context['kcount_other'] = self.object.keywords.filter(
             ~Q(keyword_domain_id=8) & ~Q(keyword_domain_id=6) & ~Q(keyword_domain_id=7) & Q(is_taxonomic=False)).count()
@@ -228,7 +229,9 @@ class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
         else:
             context['verified'] = False
 
+        print("c2")
         my_resource = self.get_object()
+        print("c3")
         context['can_modify'] = can_modify(self.request.user, my_resource.id, as_dict=True)
         return context
 

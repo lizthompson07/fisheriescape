@@ -33,22 +33,19 @@ def is_custodian(user, resource):
                                                         role_id__in=[1, 2, 8, 19, 13, 10]).count() > 0
 
 def can_modify(user, resource_id, as_dict=False):
+    resource = get_object_or_404(models.Resource, pk=resource_id)
     can_modify = False
     reason = _("You did not get clearance.")
 
-    qs = models.Resource.objects.filter(pk=resource_id)
-    if qs.exists():
-        resource = qs.first()
-
-        if is_nat_admin(user):
-            can_modify = True
-            reason = _("As an national administrator of this application, you have the necessary permissions to modify this record.")
-        elif is_regional_admin(user) and resource.section and resource.section.division.branch.sector.region == user.inventory_user.region:
-            can_modify = True
-            reason = _("As a {region} region administrator, you have the necessary permissions to modify this record.").format(region=user.inventory_user.region)
-        elif is_custodian(user, resource):
-            can_modify = True
-            reason = _("Your role on this record gives you the necessary permissions to modify this record.")
+    if is_nat_admin(user):
+        can_modify = True
+        reason = _("As an national administrator of this application, you have the necessary permissions to modify this record.")
+    elif is_regional_admin(user) and resource.section and resource.section.division.branch.sector.region == user.inventory_user.region:
+        can_modify = True
+        reason = _("As a {region} region administrator, you have the necessary permissions to modify this record.").format(region=user.inventory_user.region)
+    elif is_custodian(user, resource):
+        can_modify = True
+        reason = _("Your role on this record gives you the necessary permissions to modify this record.")
 
     if as_dict:
         payload = dict(can_modify=can_modify, reason=reason)
