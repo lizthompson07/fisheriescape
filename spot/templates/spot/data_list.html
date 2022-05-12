@@ -112,11 +112,7 @@
             <thead>
             <tr>
                 {% for field in field_list %}
-                    {% if field == "start_year" %}
-                        <th scope="col" style="width: 100px">{% get_verbose_label my_object field %}</th>
-                    {% else %}
                         <th scope="col">{% get_verbose_label my_object field %}</th>
-                    {% endif %}
                 {% endfor %}
             </tr>
             </thead>
@@ -125,11 +121,17 @@
                 {% url 'spot:data_detail' object.id as my_url %}
                 <tr href="{{ my_url }}">
                     {% for field in field_list %}
-                        {% if field == "status" %}
-                            <td style="background-color: {{ object.status.color }}">{% get_field_value object field %}</td>
-                        {% else %}
+                    {% if "species" in field %}
+                            <td>
+                                {{ object.river.species }}
+                            </td>
+                    {% elif "river" in field %}
+                            <td>
+                                {{ object.river.name }}
+                            </td>
+                    {% else %}
                             <td>{% get_field_value object field %}</td>
-                        {% endif %}
+                    {% endif %}
                     {% endfor %}
                 </tr>
             {% endfor %}

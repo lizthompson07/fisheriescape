@@ -24,9 +24,10 @@ class IndexTemplateView(SpotAccessRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         river_list = []
-        for river in models.Project.objects.all():
-            if river.primary_river and river.primary_river.name and river.primary_river.latitude and river.primary_river.longitude:
-                river_list.append([river.primary_river.name, float(river.primary_river.latitude), float(river.primary_river.longitude)])
+        for project in models.Project.objects.all():
+            for river in project.river.all():
+                if river and river.name and river.latitude and river.longitude:
+                    river_list.append([river.name, float(river.latitude), float(river.longitude)])
         context["river_markers"] = river_list
         return context
 
@@ -155,7 +156,6 @@ class PersonDetailView(SpotAccessRequiredMixin, DetailView):
             'city',
             'province_state',
             'country',
-            'address',
             'organizations',
             'role',
             'section',
@@ -217,8 +217,8 @@ class ProjectListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/project_list.html'
     filterset_class = filters.ProjectFilter
     model = models.Project
-    queryset = models.Project.objects.annotate(
-        search_term=Concat('id', 'agreement_number', 'name', 'project_description', output_field=TextField()))
+    #queryset = models.Project.objects.annotate(
+        #search_term=Concat('id', 'agreement_number', 'name', 'project_description', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -227,9 +227,9 @@ class ProjectListView(SpotAccessRequiredMixin, FilterView):
             'project_number',
             'agreement_number',
             'name',
-            'region',
-            'primary_river',
-            'species',
+            'area',
+            'river',
+            'species|Species',
             'DFO_project_authority',
             'funding_year|Funding Years'
         ]
@@ -243,10 +243,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         markers = []
-        if self.object.primary_river and self.object.primary_river.name and self.object.primary_river.latitude and self.object.primary_river.longitude:
-            prim_riv = [self.object.primary_river.name, float(self.object.primary_river.latitude), float(self.object.primary_river.longitude)]
-            markers.append(prim_riv)
-        for obj in self.object.secondary_river.all():
+        for obj in self.object.river.all():
             if obj.latitude and obj.longitude:
                 markers.append([obj.name, float(obj.latitude), float(obj.longitude)])
         context["river_markers"] = markers
@@ -259,19 +256,21 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'project_description',
             'start_date',
             'end_date',
-            'region',
+
+            'river',
+            'other_species',
+            'area',
             'ecosystem_type',
-            'primary_river',
-            'secondary_river',
             'lake_system',
             'watershed',
             'management_area',
-
-            'stock_management_unit',
-            'cu_index',
-            'cu_name',
-            'species',
             'salmon_life_stage',
+            'aquaculture_license_number',
+            'water_license_number',
+            'hatchery_name',
+            'DFO_tenure',
+
+            'project_categorization',
 
             'project_stage',
             'project_type',
@@ -283,23 +282,30 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'project_purpose',
             'category_comments',
 
+            'project_links',
+
             'DFO_link',
             'DFO_program_reference',
             'government_organization',
             'policy_program_connection',
 
+            'project_contacts',
+
             'DFO_project_authority',
             'DFO_area_chief',
-            'DFO_aboriginal_AAA',
+            'DFO_AAA',
             'DFO_resource_manager',
+            'funding_recipient',
             'first_nation',
-            'first_nations_contact',
-            'first_nations_contact_role',
+            'contact',
+            'contact_role',
             'DFO_technicians',
             'contractor',
             'contractor_contact',
             'partner',
             'partner_contact',
+
+            'costing',
 
             'agreement_database',
             'agreement_comment',
@@ -307,6 +313,8 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'other_funding_sources',
             'agreement_type',
             'lead_organization',
+
+            'funding_year',
 
             'date_last_modified',
             'last_modified_by',
@@ -358,7 +366,7 @@ class ObjectiveListView(SpotAccessRequiredMixin, FilterView):
     filterset_class = filters.ObjectiveFilter
     model = models.Objective
     queryset = models.Objective.objects.annotate(
-        search_term=Concat('project', 'id', output_field=TextField()))
+        search_term=Concat('project', 'id', 'task_description', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -367,8 +375,9 @@ class ObjectiveListView(SpotAccessRequiredMixin, FilterView):
             'project',
             'element_title',
             'activity_title',
-            'species',
+            'species|Species',
             'location',
+            'sample_outcome|Sampling Outcome'
         ]
         return context
 
@@ -381,20 +390,19 @@ class ObjectiveDetailView(SpotAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'project',
+            'unique_objective',
             'task_description',
             'element_title',
             'activity_title',
 
             'pst_requirement',
-            'location',
             'objective_category',
-            'species',
+            'location',
             'sil_requirement',
 
             'expected_results',
             'dfo_report',
 
-            'outcome_met',
             'outcomes_contact',
             'outcomes_comment',
             'outcome_barrier',
@@ -428,12 +436,15 @@ class ObjectiveCreateView(SpotAccessRequiredMixin, CreateView):
 
     def get_initial(self):
         my_project = models.Project.objects.get(pk=self.kwargs['project'])
-        objs = list(models.Objective.objects.filter(project=my_project.id))
+        objs = list(models.Objective.objects.all())
         num = 0
         for o in objs:
-            num = max(o.unique_objective)
-        num = int(num) + 1
-        num = str(num)
+            if o.unique_objective:
+                num = max(o.unique_objective)
+                num = int(num) + 1
+                num = str(num)
+            else:
+                num = None
         return {
             'project': my_project,
             'unique_objective': num,
@@ -473,7 +484,7 @@ class MethodListView(SpotAccessRequiredMixin, FilterView):
         context["my_object"] = models.Method.objects.first()
         context["field_list"] = [
             'project',
-            'planning_method_type',
+            'area|Area',
             'field_work_method_type',
             'sample_processing_method_type',
         ]
@@ -488,10 +499,12 @@ class MethodDetailView(SpotAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'project',
+            'unique_method_number',
             'planning_method_type',
             'field_work_method_type',
             'sample_processing_method_type',
             'knowledge_consideration',
+
             'scale_processing_location',
             'otolith_processing_location',
             'DNA_processing_location',
@@ -529,8 +542,18 @@ class MethodCreateView(SpotAccessRequiredMixin, CreateView):
 
     def get_initial(self):
         my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        meths = list(models.Method.objects.all())
+        num = 0
+        for o in meths:
+            if o.unique_method_number:
+                num = max(o.unique_method_number)
+                num = int(num) + 1
+                num = str(num)
+            else:
+                num = None
         return {
             'project': my_project,
+            'unique_method_number':num,
             'last_modified_by': self.request.user
         }
 
@@ -573,13 +596,13 @@ class DataListView(SpotAccessRequiredMixin, FilterView):
         context["my_object"] = models.Data.objects.first()
         context["field_list"] = [
             'project',
-            'species',
+            'river|River',
+            'species|Species',
             'samples_collected',
             'samples_collected_database',
             'sample_format',
             'data_products',
             'data_products_database',
-            'data_programs',
         ]
         return context
 
@@ -592,7 +615,7 @@ class DataDetailView(SpotAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'project',
-            'species',
+            'river',
             'samples_collected',
             'samples_collected_comment',
             'samples_collected_database',
@@ -600,15 +623,12 @@ class DataDetailView(SpotAccessRequiredMixin, DetailView):
             'sample_barrier',
             'sample_entered_database',
             'data_quality_check',
-            'data_quality_person',
-            'barrier_data_check_entry',
             'sample_format',
 
             'data_products',
             'data_products_database',
             'data_products_comment',
-            'data_programs',
-            'data_communication',
+
             'date_last_modified',
             'last_modified_by',
         ]
@@ -814,12 +834,16 @@ class ReportsListView(SpotAccessRequiredMixin,FilterView):
         context["my_object"] = models.Reports.objects.first()
         context["field_list"] = [
             'project',
+            'area|Area',
+            'river|River',
+            'species|Species',
             'report_timeline',
             'report_type',
             'document_name',
             'document_author',
             'document_reference_information',
             'document_link',
+
         ]
         return context
 
@@ -902,7 +926,7 @@ class ReportsDeleteView(SpotAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-# ObjectiveDataTypeQuality #
+# sampleoutcome #
 class SampleOutcomeCreateView(SpotAccessRequiredMixin, CreateView):
     model = models.SampleOutcome
     template_name = 'spot/sample_outcome_popout.html'
@@ -1273,6 +1297,7 @@ class MethodDocumentCreateView(SpotAccessRequiredMixin, CreateView):
         my_method = models.Method.objects.get(pk=self.kwargs['meth'])
         return {
             'method': my_method,
+            'unique_method_number': my_method.unique_method_number,
             'last_modified_by': self.request.user
         }
 
@@ -1400,8 +1425,11 @@ class ProjectCloneView(ProjectUpdateView):
         for ah in old_obj.agreement_history.all():
             new_obj.agreement_history.add(ah)
 
-        for sr in old_obj.secondary_river.all():
-            new_obj.secondary_river.add(sr)
+        for r in old_obj.river.all():
+            new_obj.river.add(r)
+
+        for es in old_obj.ecosystem_type.all():
+            new_obj.ecosystem_type.add(es)
 
         for ls in old_obj.lake_system.all():
             new_obj.lake_system.add(ls)
@@ -1409,20 +1437,23 @@ class ProjectCloneView(ProjectUpdateView):
         for ws in old_obj.watershed.all():
             new_obj.watershed.add(ws)
 
-        for ci in old_obj.cu_index.all():
-            new_obj.cu_index.add(ci)
-
-        for sp in old_obj.species.all():
-            new_obj.species.add(sp)
+        for ma in old_obj.management_area.all():
+            new_obj.management_area.add(ma)
 
         for sls in old_obj.salmon_life_stage.all():
             new_obj.salmon_life_stage.add(sls)
+
+        for hn in old_obj.hatchery_name.all():
+            new_obj.hatchery_name.add(hn)
 
         for pst in old_obj.project_sub_type.all():
             new_obj.project_sub_type.add(pst)
 
         for pt in old_obj.project_theme.all():
             new_obj.project_theme.add(pt)
+
+        for ma in old_obj.monitoring_approach.all():
+            new_obj.monitoring_approach.add(ma)
 
         for cc in old_obj.core_component.all():
             new_obj.core_component.add(cc)
@@ -1439,8 +1470,8 @@ class ProjectCloneView(ProjectUpdateView):
         for dac in old_obj.DFO_area_chief.all():
             new_obj.DFO_area_chief.add(dac)
 
-        for daa in old_obj.DFO_aboriginal_AAA.all():
-            new_obj.DFO_aboriginal_AAA.add(daa)
+        for daa in old_obj.DFO_AAA.all():
+            new_obj.DFO_AAA.add(daa)
 
         for drm in old_obj.DFO_resource_manager.all():
             new_obj.DFO_resource_manager.add(drm)
