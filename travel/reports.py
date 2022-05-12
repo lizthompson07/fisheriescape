@@ -558,13 +558,10 @@ def generate_request_summary(site_url):
         my_ws.write_row(i, 0, data_row, normal_format)
         i += 1
 
-
     workbook.close()
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
         utils.upload_to_azure_blob(target_file_path, f'temp/{target_file}')
     return target_url
-
-
 
 
 def generate_request_list(qs, site_url, travellers=False):
@@ -667,8 +664,8 @@ def generate_request_list(qs, site_url, travellers=False):
                 elif field == "trip":
                     my_val = str(get_field_value(r, field))
                     ws1.write_url(i, j,
-                                    url=f'{site_url}/{reverse("travel:request_detail", args=[r.id])}',
-                                    string=my_val)
+                                  url=f'{site_url}/{reverse("travel:request_detail", args=[r.id])}',
+                                  string=my_val)
                 else:
                     my_val = str(get_field_value(r, field))
                     ws1.write(i, j, my_val, normal_format)
@@ -728,7 +725,7 @@ def generate_request_list(qs, site_url, travellers=False):
                 my_val = t.request.section.division.tname
                 ws2.write(i, j, my_val, normal_format)
             elif "region" in field:
-                my_val = t.request.section.division.branch.sector.region.tname
+                my_val = t.request.section.division.branch.sector.region.tname if t.request.section.division.branch.sector else " ----"
                 ws2.write(i, j, my_val, normal_format)
             elif "cost" in field or "funding" in field:
                 my_val = get_field_value(t, field)
@@ -766,8 +763,6 @@ def generate_request_list(qs, site_url, travellers=False):
         # set column widths
         for j in range(0, len(col_max)):
             ws2.set_column(j, j, width=col_max[j] * 1.1)
-
-
 
     workbook.close()
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
