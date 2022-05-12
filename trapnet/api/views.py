@@ -41,12 +41,12 @@ class ObservationViewSet(ModelViewSet):
         qp = request.query_params
         if qp.get("sample"):
             sample = get_object_or_404(models.Sample, pk=qp.get("sample"))
-            qs = sample.observations.order_by("species", "-tag_number")
+            qs = sample.observations.order_by("species", "tag_number")
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         elif qp.get("sweep"):
             sweep = get_object_or_404(models.Sweep, pk=qp.get("sweep"))
-            qs = sweep.observations.order_by("species", "-tag_number")
+            qs = sweep.observations.order_by("species", "tag_number")
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         if qp.get("get_labels"):
