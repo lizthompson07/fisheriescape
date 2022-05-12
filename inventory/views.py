@@ -233,6 +233,7 @@ class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
         my_resource = self.get_object()
         print("c3")
         context['can_modify'] = can_modify(self.request.user, my_resource.id, as_dict=True)
+        print("c4")
         return context
 
 
