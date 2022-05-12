@@ -407,6 +407,10 @@ class Trip(models.Model):
         return Traveller.objects.filter(request__trip=self).filter(~Q(request__status__in=[8, 10, 22]))  # exclude any travellers from inactive requests
 
     @property
+    def traveller_count(self):
+        return self.travellers.count()
+
+    @property
     def total_cost(self):
         # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
         amt = TravellerCost.objects.filter(traveller__request__trip=self).filter(
@@ -790,6 +794,12 @@ class Traveller(models.Model):
             mystr = f"{self.role} &mdash; {nz(self.role_of_participant, _('<em>No description of role provided.</em>'))}"
             return mark_safe(mystr)
 
+    @property
+    def long_role_text(self):
+        if self.role or self.role_of_participant:
+            mystr = f"{self.role} --> {nz(self.role_of_participant, _('No description of role provided.'))}"
+            return mark_safe(mystr)
+
     def __str__(self):
         return self.smart_name
 
@@ -813,9 +823,9 @@ class Traveller(models.Model):
             if tr_cost.rate_cad:
                 my_str += "{}: ${:,.2f} ({} x {:,.2f}); ".format(
                     tr_cost.cost,
+                    nz(tr_cost.amount_cad, 0),
                     nz(tr_cost.rate_cad, 0),
                     nz(tr_cost.number_of_days, 0),
-                    nz(tr_cost.amount_cad, 0),
                 )
             else:
                 my_str += "{}: ${:,.2f}; ".format(tr_cost.cost, tr_cost.amount_cad)

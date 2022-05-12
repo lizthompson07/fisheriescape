@@ -181,3 +181,21 @@ def check_tor():
                 if not tor.objectives_en:
                     tor.objectives_en = r.rationale
             tor.save()
+
+
+
+def transfer_postings():
+    for p in models.Process.objects.filter(is_posted=True):
+
+        # first find the target meeting
+        try:
+            meeting = p.tor.meeting
+            meeting.is_posted = True
+            meeting.posting_notification_date = p.posting_notification_date
+            meeting.posting_request_date = p.posting_request_date
+            meeting.save()
+        except:
+            print(f'cannot transfer process {p.id}')
+        else:
+            print(f'success on process {p.id}')
+

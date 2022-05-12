@@ -219,6 +219,7 @@ class DNAExtractViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         obj = serializer.save(created_by=self.request.user, updated_by=self.request.user)
+        obj.start_datetime = obj.extraction_batch.datetime
         obj.save()
 
     def perform_update(self, serializer):

@@ -68,20 +68,21 @@
               @move-down="updateOrder('down')"
             ></select-tools>
           </th>
-          <th class="px-1 py-1 w125px">{% trans "Extraction ID" %}</th>
-          <th class="px-1 py-1 w100px">{% trans "Sample ID" %}</th>
-          <th class="px-1 py-1 w100px">${labels.filter}</th>
-          <th class="px-1 py-1 w100px">{% trans "Tube ID" %}</th>
+          <th class="px-1 py-1 w75px">{% trans "Extraction ID" %}</th>
+          <th class="px-1 py-1 w75px">{% trans "Sample ID" %}</th>
+          <th class="px-1 py-1 w75px">${labels.filter}</th>
+          <th class="px-1 py-1 w75px">{% trans "Tube ID" %}</th>
+          <th class="px-1 py-1 w100px">{% trans "Type" %}</th>
           <th class="px-1 py-1 w150px">
             ${labels.extraction_number}<br>
             <button @click="calcDown" class="w25px px-1 py-0 btn btn-sm btn-dark">
               <span class="mdi mdi-calculator text-light"></span>
             </button>
           </th>
-          <th class="px-1 py-1" style="width: 200px">${labels.start_datetime} <br>yyyy-mm-dd HH:MM[:SS]</th>
-          <th class="px-1 py-1" style="width: 175px">${labels.dna_extraction_protocol}</th>
-          <th class="px-1 py-1" style="width: 175px">${labels.storage_location}</th>
-          <th class="px-1 py-1" style="width: 125px">${labels.extraction_plate_id}</th>
+          <th class="px-1 py-1 w150px">${labels.start_datetime} <br>yyyy-mm-dd HH:MM[:SS]</th>
+          <th class="px-1 py-1 w150px">${labels.dna_extraction_protocol}</th>
+          <th class="px-1 py-1 w150px">${labels.storage_location}</th>
+          <th class="px-1 py-1 w150px">${labels.extraction_plate_id}</th>
           <th class="px-1 py-1 w150px">
             ${labels.extraction_plate_well}<br>
             <button @click="populateWells" class="w25px px-1 py-0 btn btn-sm btn-dark">
@@ -116,6 +117,9 @@
           <td class="px-1  py-0 text-muted" tabindex="-1">
             <span v-if="obj.filter_object">${obj.filter_object.tube_id}</span>
             <span v-else>-----</span>
+          </td>
+          <td class="px-1  py-0 text-muted" tabindex="-1">
+            ${obj.info_display}
           </td>
           <td class="px-0 py-0">
             <text-input-cell

@@ -67,14 +67,18 @@
       <a class="dropdown-item" href="{% url 'travel:manage_organizations' %}">
         {% trans "Manage Physical Locations" %}
       </a>
+      <a class="dropdown-item" href="{% url 'travel:search_and_replace' %}">
+        {% trans "Search and Replace" %}
+      </a>
 
     </div>
   </li>
+{% endif %}
 
+{% if is_admin or is_adm_admin or is_adm %}
   <li class="nav-item"><a class="nav-link" href="{% url 'travel:reports' %}">
     {% trans "Reports" %}
   </a></li>
+
 {% endif %}
-
-
 
