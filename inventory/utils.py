@@ -33,6 +33,7 @@ def is_custodian(user, resource):
                                                         role_id__in=[1, 2, 8, 19, 13, 10]).count() > 0
 
 def can_modify(user, resource_id, as_dict=False):
+    print("I'm here")
     resource = get_object_or_404(models.Resource, pk=resource_id)
     can_modify = False
     reason = _("You did not get clearance.")
