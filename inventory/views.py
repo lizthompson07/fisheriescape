@@ -229,7 +229,7 @@ class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
             context['verified'] = False
 
         my_resource = self.get_object()
-        context['can_modify'] = can_modify(self.request.user, my_resource.id, as_dict=True)
+        # context['can_modify'] = can_modify(self.request.user, my_resource.id, as_dict=True)
         return context
 
 
