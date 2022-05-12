@@ -23,7 +23,9 @@ def is_custodian(user, resource):
     if user.id:
         # if the user has no associated Person in the app, automatic fail
         try:
-            person = get_object_or_404(models.Person, user=user)
+            person, created = models.Person.objects.get_or_create(user=user)
+            if created:
+                print("creating person!!")
         except ObjectDoesNotExist:
             return False
         else:
@@ -33,7 +35,6 @@ def is_custodian(user, resource):
                                                         role_id__in=[1, 2, 8, 19, 13, 10]).count() > 0
 
 def can_modify(user, resource_id, as_dict=False):
-    print(user, resource_id, as_dict)
     resource = get_object_or_404(models.Resource, pk=resource_id)
     can_modify = False
     reason = _("You did not get clearance.")
