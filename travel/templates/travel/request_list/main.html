@@ -248,7 +248,7 @@
       },
       goReport(reportName) {
         let userInput = true;
-        if (this.count > 100) userInput = confirm(`You are about to generate a report for a large number of requests (i.e., ${this.count} requests). Are you sure you want to continue?`);
+        if (this.count > 50) userInput = confirm(`You are about to generate a report for a large number of requests (i.e., ${this.count} requests). Are you sure you want to continue? \n\n This can take up to a few minutes to process.`);
         if (userInput) {
           this.loadingReport = true;
           endpoint = this.getRequestsEndpoint(5000);
