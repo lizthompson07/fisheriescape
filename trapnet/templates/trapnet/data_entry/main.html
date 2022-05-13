@@ -1,0 +1,624 @@
+{% extends 'trapnet/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+{% load static %}
+
+{% block title_area %}{% endblock %}
+{% block crumbs %}
+
+{% endblock %}
+{% block subcontent %}
+  <style>
+  .v-select {
+      background-color: white;
+  }
+
+  .table-input {
+      width: 100%;
+      height: 25px;
+  }
+  </style>
+  {#  <div class="h3">  {% trans "Data Entry Mode for " %} {{ object }}  </div>#}
+
+  <div id="app" v-cloak
+       @keydown.up.prevent=""
+       @keydown.down.prevent=""
+       @keyup.up.prevent="moveUp"
+       @keyup.down.prevent="moveDown"
+       @keydown.right.prevent="moveRight"
+       @keydown.left.prevent="moveLeft"
+  >
+    <div class="mb-3">
+      {% include "trapnet/data_entry/_sidebar.html" %}
+
+      <div class="row">
+        {# this is a filler for the sidebar#}
+        <div v-if="showSidebar" class="col-3"></div>
+
+
+        <div class="col">
+          {% include "shared_models/_generic_breadcrumbs.html" %}
+          <div class="">
+            <div class="card" style="">
+              <div class="card-header lead">
+                <div class="float-right">
+                  <button v-if="!showSidebar" class="btn btn-sm btn-primary" @click="showSidebar=!showSidebar">
+                    {% trans "Show Sidebar" %}
+                  </button>
+                </div>
+                {% trans "Observations" %}
+              </div>
+              <div class="card-body">
+
+                <div class="alert alert-primary m-1 p-1" role="alert" v-if="!showSidebar">
+                  <p>
+                      <span class="p-3"><kbd>&rarr;</kbd> move right</span>
+                      <span class="p-3"><kbd>&larr;</kbd> move left</span>
+                      <span class="p-3"><kbd>&uarr;</kbd> move up</span>
+                      <span class="p-3"><kbd>&darr;</kbd> move down</span>
+                      <span class="p-3"><kbd>Enter</kbd> save and move down</span>
+                  </p>
+                  </div>
+
+
+                </div>
+
+                <div v-if="loading" class="loading mb-3 mt-3 text-center mt-5">
+                  <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+                    <span class="sr-only"></span>
+                  </div>
+                </div>
+                <table v-else class="table table-sm table-small-10">
+                  <thead>
+                  <tr>
+                    <th class="w25px">#</th>
+                    <th class="w75">${labels.species}</th>
+                    <th class="w75">${labels.status}</th>
+                    <th class="w75">${labels.life_stage}</th>
+                    <th class="w75">${labels.reproductive_status}</th>
+                    <th class="w75">${labels.origin}</th>
+                    <th class="w75">${labels.sex}</th>
+                    <th class="w75">${labels.fork_length}</th>
+                    <th v-if="!isElectro" class="w75">${labels.total_length}</th>
+                    <th class="w75">${labels.weight}</th>
+                    <th v-if="!isElectro" class="w75">${labels.tag_number}</th>
+                    <th v-if="!isElectro" class="w75">${labels.location_tagged}</th>
+                    <th v-if="!isElectro" class="w75">${labels.date_tagged}<br>(yyyy-mm-dd)</th>
+                    <th class="w75">${labels.scale_id_number}</th>
+                    <th v-if="!isElectro" class="w75">${labels.tags_removed}</th>
+                    <th class="w75">${labels.notes}</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="o, index in observations" :key="o.id" :class="{'mild-concern':o.id===observation.id}">
+                    <td>${index+1}</td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.species_display|nz}</td>
+                    <td v-else>
+                      <select
+                        class="table-input" required
+                        v-model="observation.species"
+                        @change="updateObservation(false, o)"
+                        @focus="lastSelectedInputRef = 'species'"
+                        :ref="`species_${o.id}`"
+                      >
+                        <option v-for="c in speciesChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.status_display|nz}</td>
+                    <td v-else>
+                      <select
+                        class="table-input" required
+                        v-model="observation.status"
+                        @change="updateObservation(false, o)"
+                        @focus="lastSelectedInputRef = 'status'"
+                        :ref="`status_${o.id}`"
+                      >
+                        <option v-for="c in statusChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+
+
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.life_stage_display|nz}</td>
+                    <td v-else>
+                      <select
+                        class="table-input" required
+                        v-model="observation.life_stage"
+                        @change="updateObservation(false, o)"
+                        @focus="lastSelectedInputRef = 'life_stage'"
+                        :ref="`life_stage_${o.id}`"
+                      >
+                        <option v-for="c in lifeStageChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+
+
+                    <td v-if="observation.id !== o.id" @click="editObservation(o, 'status')">${o.reproductive_status_display|nz}</td>
+                    <td v-else>
+                      <select
+                        class="table-input" required
+                        v-model="observation.reproductive_status"
+                        @change="updateObservation(false, o)"
+                        @focus="lastSelectedInputRef = 'reproductive_status'"
+                        :ref="`reproductive_status_${o.id}`"
+                      >
+                        <option v-for="c in reproductiveStatusChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+
+                    <td v-if="observation.id !== o.id" @click="editObservation(o, 'status')">${o.origin_display|nz}</td>
+                    <td v-else>
+                      <select
+                        class="table-input"
+                        v-model="observation.origin"
+                        @change="updateObservation(false, o)"
+                        @focus="lastSelectedInputRef = 'origin'"
+                        :ref="`origin_${o.id}`"
+                      >
+                        <option v-for="c in originChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o, 'status')">${o.sex_display|nz}</td>
+                    <td v-else>
+                      <select
+                        class="table-input"
+                        v-model="observation.sex"
+                        @change="updateObservation(false, o)"
+                        @focus="lastSelectedInputRef = 'sex'"
+                        :ref="`sex_${o.id}`"
+                      >
+                        <option v-for="c in sexChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+
+                    <td v-if="observation.id !== o.id" @click="editObservation(o, 'status')">${o.fork_length|nz}</td>
+                    <td v-else>
+                      <input
+                        type="text" class="table-input"
+                        @change="updateObservation(false, o)"
+                        v-model="observation.fork_length"
+                        @focus="lastSelectedInputRef = 'fork_length'"
+                        :ref="`fork_length_${o.id}`"
+                        @keyup.enter="moveDown"
+                      />
+                    </td>
+
+                    <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o, 'status')">${o.total_length|nz}</td>
+                    <td v-else-if="!isElectro">
+                      <input
+                        type="text" class="table-input p-0"
+                        @change="updateObservation(false, o)"
+                        v-model="observation.total_length"
+                        @focus="lastSelectedInputRef = 'total_length'"
+                        :ref="`total_length_${o.id}`"
+                        @keyup.enter="moveDown"
+
+                      />
+                    </td>
+
+                    <td v-if="observation.id !== o.id" @click="editObservation(o, 'status')">${o.weight|nz}</td>
+                    <td v-else>
+                      <input
+                        type="text" class="table-input p-0"
+                        @change="updateObservation(false, o)"
+                        v-model="observation.weight"
+                        @focus="lastSelectedInputRef = 'weight'"
+                        :ref="`weight_${o.id}`"
+                        @keyup.enter="moveDown"
+
+                      />
+                    </td>
+
+                    <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o, 'status')">${o.tag_number|nz}</td>
+                    <td v-else-if="!isElectro">
+                      <input
+                        type="text" class="table-input p-0"
+                        v-model="observation.tag_number"
+                        @change="updateObservation(false, o)"
+                        @focus="lastSelectedInputRef = 'tag_number'"
+                        :ref="`tag_number_${o.id}`"
+                        @keyup.enter="moveDown"
+
+                      />
+                    </td>
+
+                    <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o, 'status')">${o.location_tagged|nz}</td>
+                    <td v-else-if="!isElectro">
+                      <input
+                        type="text" class="table-input p-0"
+                        v-model="observation.location_tagged"
+                        @change="updateObservation(false, o)"
+                        @focus="lastSelectedInputRef = 'location_tagged'"
+                        :ref="`location_tagged_${o.id}`"
+                        @keyup.enter="moveDown"
+                      />
+                    </td>
+
+                    <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o, 'status')">${o.date_tagged_display|nz}</td>
+                    <td v-else-if="!isElectro">
+                      <input
+                        type="text" class="table-input p-0"
+                        v-model="observation.date_tagged_display"
+                        @change="updateObservation(false, o)"
+                        @focus="lastSelectedInputRef = 'date_tagged'"
+                        :ref="`date_tagged_${o.id}`"
+                        @keyup.enter="moveDown"
+
+                      />
+                    </td>
+
+                    <td v-if="observation.id !== o.id" @click="editObservation(o, 'status')">${o.scale_id_number|nz}</td>
+                    <td v-else>
+                      <input
+                        type="text" class="table-input p-0"
+                        v-model="observation.scale_id_number"
+                        @change="updateObservation(false, o)"
+                        @focus="lastSelectedInputRef = 'scale_id_number'"
+                        :ref="`scale_id_number_${o.id}`"
+                        @keyup.enter="moveDown"
+
+                      />
+                    </td>
+
+                    <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o, 'status')">${o.tags_removed|nz}</td>
+                    <td v-else-if="!isElectro">
+                      <input
+                        type="text" class="table-input p-0"
+                        v-model="observation.tags_removed"
+                        @change="updateObservation(false, o)"
+                        @focus="lastSelectedInputRef = 'tags_removed'"
+                        :ref="`tags_removed_${o.id}`"
+                        @keyup.enter="moveDown"
+
+                      />
+                    </td>
+
+                    <td v-if="observation.id !== o.id" @click="editObservation(o, 'status')">${o.notes|nz}</td>
+                    <td v-else>
+                      <input
+                        type="text" class="table-input p-0"
+                        v-model="observation.notes"
+                        @change="updateObservation(false, o)"
+                        @focus="lastSelectedInputRef = 'notes'"
+                        :ref="`notes_${o.id}`"
+                        @keyup.enter="moveDown"
+
+                      />
+                    </td>
+
+                    <td style="width: 100px;">
+                      <div v-if="observation.id !== o.id">
+                        <button class="btn btn-xs btn-warning" @click="editObservation(o)"><span class="mdi mdi-pencil"></span></button>
+                        <button class="btn btn-xs btn-success" @click="duplicateObservation(o)">
+                          <span class="mdi mdi-content-duplicate text-light"></span>
+                        </button>
+                        <button class="btn btn-xs btn-danger" @click="deleteObservation(o)">
+                          <span class="mdi mdi-close text-light"></span>
+                        </button>
+                      </div>
+
+                      <div v-else>
+                        <button class="btn btn-xs btn-success" @click="updateObservation(true)"><span class="mdi mdi-check text-light"></span></button>
+                      </div>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+  {% include "trapnet/data_entry/multiple-overlay.html" %}
+  <script type="application/javascript">
+  sampleId = {{ sample_id|safe }};
+  sweepId = {{ sweep_id|safe }};
+
+  function extractNumber(numberStr) {
+    result = ""
+    for (var i = 0; i < numberStr.length; i++) {
+      if (Number(numberStr[i]) || Number(numberStr[i]) === 0) {
+        result += numberStr[i]
+      }
+    }
+    return {number: Number(result), padding: result.length}
+  }
+
+  function extractPrefix(numberStr) {
+    result = ""
+    for (var i = 0; i < numberStr.length; i++) {
+      if (!Number(numberStr[i]) && Number(numberStr[i]) !== 0) {
+        result += numberStr[i]
+      }
+    }
+    return result
+  }
+
+
+  // register components
+  Vue.component('v-select', VueSelect.VueSelect);
+
+  // vuejs instance
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: {},
+      sample: {},
+      loading: false,
+      loadingSample: false,
+      errorMsg: null,
+      succesMsg: null,
+      successMsg: null,
+      observations: [],
+      labels: {},
+      observation: {},
+      currentObservation: {},
+      speciesChoices: [],
+      sexChoices: [],
+      originChoices: [],
+      statusChoices: [],
+      reproductiveStatusChoices: [],
+      lifeStageChoices: [],
+      lastOrigin: "2",
+      lastSpecies: null,
+      lastLocation: null,
+      lastStatus: null,
+      lastSelectedInputRef: 'fork_length',
+      showSidebar: true,
+      columns: [
+        'species',
+        'status',
+        'life_stage',
+        'reproductive_status',
+        'origin',
+        'sex',
+        'fork_length',
+        'total_length',
+        'weight',
+        'tag_number',
+        'location_tagged',
+        'date_tagged',
+        'scale_id_number',
+        'tags_removed',
+        'notes',
+      ]
+    },
+    methods: {
+      moveRight() {
+        this.showSidebar = false;
+        if (this.observations.length) {
+          let index = this.columns.indexOf(this.lastSelectedInputRef);
+          if (index <= this.columns.length - 2) {
+            this.lastSelectedInputRef = this.columns[index + 1];
+            if (!this.observation.id) {
+              this.editObservation(this.observations[0]);
+              this.$nextTick(() => {
+                let el = this.$refs[`${this.lastSelectedInputRef}_${this.observation.id}`][0];
+                if (el.type === "select-one") el.focus();
+                else el.select();
+              })
+            } else {
+              let el = this.$refs[`${this.lastSelectedInputRef}_${this.observation.id}`][0];
+              if (el.type === "select-one") el.focus();
+              else el.select();
+            }
+          } else {
+            this.lastSelectedInputRef = this.columns[0];
+            this.moveDown();
+          }
+        }
+      },
+      moveLeft() {
+        this.showSidebar = false;
+        let index = this.columns.indexOf(this.lastSelectedInputRef);
+        if (index) {
+          this.lastSelectedInputRef = this.columns[index - 1]
+          let el = this.$refs[`${this.lastSelectedInputRef}_${this.observation.id}`][0]
+          if (el.type === "select-one") el.focus();
+          else el.select();
+        } else {
+          this.lastSelectedInputRef = this.columns[this.columns.length - 1];
+          this.moveUp();
+        }
+      },
+
+
+      moveUp() {
+        if (!this.showSidebar) {
+          if (this.observation.id) {
+            // if there is no current observation, take the top from the list
+            if (this.observations.length) {
+              if (this.observation.id) {
+                let index = this.observations.indexOf(this.currentObservation) - 1;
+                if (index >= 0) this.editObservation(this.observations[index]);
+                else {
+                  this.showSidebar = true;
+                  this.getObservations();
+                }
+              }
+            }
+          }
+        }
+      },
+      moveDown() {
+        if (!this.showSidebar) {
+          // if there is no current observation, take the top from the list
+          if (this.observations.length) {
+            if (!this.observation.id) this.editObservation(this.observations[0])
+            else {
+              let index = this.observations.indexOf(this.currentObservation) + 1;
+              if (index < this.observations.length) this.editObservation(this.observations[index]);
+            }
+          }
+        }
+      },
+      getCurrentUser() {
+        let endpoint = `/api/trapnet/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+            })
+      },
+      getSample() {
+        this.loadingSample = true;
+        let endpoint = `/api/trapnet/samples/${sampleId}/`;
+        apiService(endpoint)
+            .then(response => {
+              this.sample = response;
+              this.loadingSample = false;
+            })
+      },
+      primeObservation() {
+        this.observation = {
+          sample: sampleId,
+          sweep: sweepId,
+          origin: this.lastOrigin,
+          species: this.lastSpecies,
+          location_tagged: this.lastLocation,
+          status: this.lastStatus,
+        }
+        this.$nextTick(() => {
+          this.$refs.start.$refs.search.focus()
+        })
+      },
+      getObservations() {
+        this.loading = true;
+        let endpoint;
+        if (sweepId) endpoint = `/api/trapnet/observations/?sweep=${sweepId}`;
+        else if (sampleId) endpoint = `/api/trapnet/observations/?sample=${sampleId}`;
+        apiService(endpoint).then(data => {
+          this.observations = data;
+          this.loading = false;
+          this.primeObservation();
+        });
+      },
+      editObservation(obs) {
+        this.showSidebar = false;
+        const o = JSON.parse(JSON.stringify(obs));
+        o.date_tagged = o.date_tagged_display;
+        this.observation = o;
+        this.currentObservation = obs;
+        this.$nextTick(() => {
+          let el = this.$refs[`${this.lastSelectedInputRef}_${obs.id}`][0]
+          if (el.type === "select-one") el.focus()
+          else el.select()
+
+        })
+      },
+      duplicateObservation(obs) {
+        this.observation = JSON.parse(JSON.stringify(obs));
+        this.observation.id = null;
+        this.$refs.multiple.$refs.dup.click();
+      },
+      addMultiple(instructions) {
+        const templateObservation = JSON.parse(JSON.stringify(this.observation));
+        for (var i = 0; i < instructions.totalObservations; i++) {
+          this.observation = JSON.parse(JSON.stringify(templateObservation));
+          this.observation.date_tagged = this.observation.date_tagged_display
+          if (instructions.shouldIncrement && instructions.tagPrefix !== null && instructions.startTagNumber) {
+            this.observation.tag_number = instructions.tagPrefix + String(i + instructions.startTagNumber).padStart(instructions.padding, "0")
+          }
+          this.updateObservation(true);
+        }
+
+      },
+      updateObservation(refreshObservationList, original) {
+        this.errorMsg = null;
+        this.successMsg = null;
+        let endpoint;
+        let method;
+        // set any empty strings to null
+        for (const observationKey in this.observation) if (this.observation[observationKey] === "") this.observation[observationKey] = null;
+        if (this.observation.id) {
+          endpoint = `/api/trapnet/observations/${this.observation.id}/`;
+          method = "PUT";
+        } else {
+          this.observation.sample = sampleId
+          endpoint = `/api/trapnet/observations/`;
+          method = "POST";
+        }
+        if (this.observation.date_tagged_display) this.observation.date_tagged = `${this.observation.date_tagged_display}T12:00`;
+        apiService(endpoint, method, this.observation)
+            .then(response => {
+              if (!response.id) {
+                this.errorMsg = groomJSON(response);
+                if (!this.showSidebar) alert(this.errorMsg);
+              } else {
+                // capture the memories
+                this.lastSpecies = response.species;
+                this.lastStatus = response.status;
+                this.lastOrigin = response.origin;
+                this.lastLocation = response.location_tagged;
+                if (this.observation.id) this.successMsg = "{% trans "Success! The observation was updated." %}";
+                else this.successMsg = "{% trans "Success! A new observation has been added." %}";
+                if (refreshObservationList) this.getObservations();
+                else {
+                  this.currentObservation = response;
+                  this.$set(this.observations, this.observations.indexOf(original), response);
+                }
+              }
+            })
+      },
+
+      getObservationMetadata() {
+        let endpoint = `/api/trapnet/observations/?get_labels=true`;
+        apiService(endpoint).then(data => {
+          this.labels = data.labels;
+          this.speciesChoices = data.species_choices;
+          this.sexChoices = data.sex_choices;
+          this.statusChoices = data.status_choices;
+          this.originChoices = data.origin_choices;
+          this.reproductiveStatusChoices = data.reproductive_status_choices;
+          this.lifeStageChoices = data.life_stage_choices;
+
+        });
+      },
+      deleteObservation(obs) {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this observation?' %}")
+        if (userInput) {
+          let endpoint = `/api/trapnet/observations/${obs.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.showSidebar = true;
+            this.getObservations();
+          })
+        }
+      },
+    },
+    computed: {
+      canModify() {
+        return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      },
+      isElectro() {
+        if (this.sample && this.sample.sample_type === 2) return true
+        return false
+      }
+    },
+    filters: {
+      floatformat: vueFiltersObject["floatformat"],
+      nz: vueFiltersObject["nz"],
+    },
+    created() {
+      this.getCurrentUser();
+      this.getObservations();
+      this.getSample();
+      this.getObservationMetadata();
+    },
+  });
+
+
+  </script>
+
+
+{% endblock %}
+
