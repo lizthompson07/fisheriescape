@@ -123,8 +123,7 @@ class Committee(models.Model):
     is_dfo_chair = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES,
                                        verbose_name=_("Does DFO chair/co-chair"))
 
-    external_chair = models.ForeignKey(ml_models.Person, blank=True, null=True, on_delete=models.DO_NOTHING,
-                                       verbose_name=_("External Chair"))
+    external_chair = models.ManyToManyField(ml_models.Person, blank=True, verbose_name=_("External Chair"))
     dfo_liaison = models.ManyToManyField(User, blank=True, related_name="committee_dfo_liaison",
                                          verbose_name=_("DFO liaison/secretariat"))
     other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="committee_dfo_branch",

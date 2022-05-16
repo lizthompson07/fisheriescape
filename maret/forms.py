@@ -20,7 +20,7 @@ class CommitteeForm(forms.ModelForm):
             'last_modified',
         ]
         widgets = {
-            'external_chair': forms.Select(attrs=chosen_js),
+            'external_chair': forms.SelectMultiple(attrs=chosen_js),
             'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
             'external_organization': forms.SelectMultiple(attrs=chosen_js),
             'external_contact': forms.SelectMultiple(attrs=chosen_js),
