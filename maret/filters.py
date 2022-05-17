@@ -110,9 +110,11 @@ class CommitteeFilter(django_filters.FilterSet):
         )
 
     def external_chair_contact_filter(self, queryset, name, value):
-        return queryset.filter(
-            Q(external_chair__in=value) | Q(external_contact__in=value)
-        )
+        if value:
+            qureyset = queryset.filter(
+                Q(external_chair__in=value) | Q(external_contact__in=value)
+            )
+        return queryset
 
 
 class OrganizationFilter(django_filters.FilterSet):
