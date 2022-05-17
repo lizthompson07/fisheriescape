@@ -2,6 +2,12 @@
 {% load verbose_names %}
 {% load custom_filters %}
 
+
+{% block filter %}
+  {% include "csas2/_meeting_filter.html" %}
+{% endblock %}
+
+
 {% block head %}
   {% for field in field_list %}
     {% if "role" in field.name %}

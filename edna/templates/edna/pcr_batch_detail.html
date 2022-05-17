@@ -36,7 +36,7 @@
 
     <div class="mb-3">
       <p class="h3">{% trans "PCRs" %}</p>
-      <add-pcr-overlay class="neighbours" @add="addPCRs"></add-pcr-overlay>
+      {#      <add-pcr-overlay class="neighbours" @add="addPCRs"></add-pcr-overlay>#}
       <extract-import-overlay class="neighbours" default_collection_id="{{ object.default_collection_id }}"
                               @add-extracts="addExtracts"></extract-import-overlay>
     </div>
@@ -67,16 +67,16 @@
 
             ></select-tools>
           </th>
-          <th class="px-1 py-1 w100px">{% trans "Unique ID" %}</th>
-{#          <th class="px-1 py-1" style="width: 75px">{% trans "Type" %}</th>#}
-          <th class="px-1 py-1" style="width: 130px">{% trans "Extraction ID" %}</th>
-          <th class="px-1 py-1" style="width: 130px">{% trans "Extraction number" %}</th>
+{#          <th class="px-1 py-1 w100px">{% trans "Unique ID" %}</th>#}
+          <th class="px-1 py-1 w150px"><span class="text-primary pointy" @click="sort('extraction_number')">{% trans "Extraction number" %}</span></th>
+          <th class="px-1 py-1 w150px">{% trans "Type" %}</th>
           <th class="px-1 py- w150px">
-            ${labels.pcr_plate_well}
 
-            <button @click="populateWells" class="w25px px-1 py-0 btn btn-sm btn-dark ml-1">
-              <span class="mdi mdi-calculator text-light"></span>
-            </button>
+            <span class="text-primary pointy" @click="sort('pcr_plate_well')">${labels.pcr_plate_well}</span>
+
+            {#            <button @click="populateWells" class="w25px px-1 py-0 btn btn-sm btn-dark ml-1">#}
+            {#              <span class="mdi mdi-calculator text-light"></span>#}
+            {#            </button>#}
 
           </th>
           <th class="px-1 py-1 w200px">${labels.master_mix}</th>
@@ -97,22 +97,19 @@
         </td>
         </tbody>
         <tbody v-else>
-        <tr v-for="(obj, index) in pcrAssays" :key="obj.id" :class="{highlight: obj.selected}">
+        <tr v-for="(obj, index) in sortedPCRAssays" :key="obj.id" :class="{highlight: obj.selected}">
           <td class="p-1" tabindex="-1">
             ${index + 1} &mdash; <input v-model='obj.selected' type="checkbox">
           </td>
-          <td class="px-1 py-0 text-muted " tabindex="-1">${obj.id}</td>
+{#          <td class="px-1 py-0 text-muted " tabindex="-1">${obj.id}</td>#}
 
-{#          <td v-if="obj.pcr_object.assay_count === 1" class="px-1  py-0 text-muted" tabindex="-1">{% trans "Simplex" %}</td>#}
-{#          <td v-else class="px-1 py-0 purple-font" tabindex="-1">{% trans "Duplex" %}</td>#}
 
           <td class="px-1 text-muted">
-            <span v-if="obj.pcr_object.extract">${obj.pcr_object.extract_object.display} </span>
+            <span v-if="obj.pcr_object.extract">${obj.pcr_object.extract_object.extraction_number|nz("n/a")} (${obj.pcr_object.extract_object.display}) </span>
             <span v-else>-----</span>
           </td>
-
           <td class="px-1 text-muted">
-            <span v-if="obj.pcr_object.extract">${obj.pcr_object.extract_object.extraction_number} </span>
+            <span v-if="obj.pcr_object.extract">${obj.pcr_object.extract_object.info_display|nz}</span>
             <span v-else>-----</span>
           </td>
 
@@ -222,10 +219,21 @@
       loading0: true,
       assayChoices: [],
       masterMixChoices: [],
-      unsavedChanges: false
+      unsavedChanges: false,
+      currentSort: 'pcr_plate_well',
+      currentSortDir: 'asc'
 
     },
     methods: {
+      sort(s) {
+        // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
+        //if s == current sort, reverse
+        if (s === this.currentSort) {
+          this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
+        }
+        this.currentSort = s;
+      },
+
       populateWells() {
         let msg = "{% trans "What is your the first well number (e.g. A-01)?" %}";
         let input = prompt(msg);
@@ -237,7 +245,7 @@
           let letters = ["A", "B", "C", "D", "E", "F", "G", "H",];
           for (var j = 0; j < letters.length; j++) {
             for (var i = 1; i <= 12; i++) {
-              well = `${letters[j]}-${String(i).padStart(2, '0')}`;
+              well = `${letters[j]}${String(i)}`;
               wellArray.push(well);
             }
           }
@@ -498,6 +506,26 @@
       floatformat: vueFiltersObject["floatformat"],
     },
     computed: {
+
+      sortedPCRAssays() {
+        return this.pcrAssays.sort((a, b) => {
+          let modifier = 1;
+          if (this.currentSortDir === 'desc') modifier = -1;
+          if (this.currentSort === "pcr_plate_well") {
+            if (a.pcr_object["pcr_plate_well_prefix"] < b.pcr_object["pcr_plate_well_prefix"]) return -1 * modifier;
+            if (a.pcr_object["pcr_plate_well_prefix"] > b.pcr_object["pcr_plate_well_prefix"]) return 1 * modifier;
+
+            if (a.pcr_object["pcr_plate_well_suffix"] < b.pcr_object["pcr_plate_well_suffix"]) return -1 * modifier;
+            if (a.pcr_object["pcr_plate_well_suffix"] > b.pcr_object["pcr_plate_well_suffix"]) return 1 * modifier;
+
+          } else if (this.currentSort === "extraction_number") {
+            if (a.pcr_object.extract_object["extraction_number"] < b.pcr_object.extract_object["extraction_number"]) return -1 * modifier;
+            if (a.pcr_object.extract_object["extraction_number"] > b.pcr_object.extract_object["extraction_number"]) return 1 * modifier;
+          }
+          return 0;
+        });
+      },
+
       pcrs() {
         let payload = [];
         for (const pcrAssay of this.pcrAssays) {

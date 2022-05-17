@@ -569,3 +569,24 @@ def create_river_areas():
             fa, created = FishingArea.objects.get_or_create(name=r.fishing_area_code.upper())
             r.fishing_area = fa
             r.save()
+
+
+def find_duplicate_scales():
+    # get the unique list of scale ids
+    observations = models.Observation.objects.filter(scale_id_number__isnull=False)
+    scale_ids = set([o.scale_id_number for o in observations])
+
+    for sid in scale_ids:
+        if observations.filter(scale_id_number=sid).count() > 1:
+            print(f"duplicate records found for: {sid}")
+
+
+def annotate_scales():
+    # get the unique list of scale ids
+    observations = models.Observation.objects.filter(scale_id_number__isnull=False)
+
+    for o in observations:
+        o.scale_id_number += f" {o.sample.season}"
+        o.save()
+
+    find_duplicate_scales()

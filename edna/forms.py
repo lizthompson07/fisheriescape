@@ -146,7 +146,7 @@ class PCRBatchForm(forms.ModelForm):
         model = models.PCRBatch
         fields = "__all__"
         widgets = {
-            "datetime": forms.DateInput(attrs=dict(type="date")),
+            "datetime": forms.DateTimeInput(attrs=attr_fp_date_time),
             "operators": forms.SelectMultiple(attrs=chosen_js),
         }
 

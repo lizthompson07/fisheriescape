@@ -9,6 +9,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 from shapely.geometry import Polygon, Point
 
+from edna.utils import get_timezone_time
 from lib.functions.custom_functions import listrify, fiscal_year
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields
@@ -229,16 +230,17 @@ class Sample(MetadataFields):
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ["id"]
+        ordering = ["datetime", "id"]
         unique_together = (("bottle_id", "collection"))
 
     def get_absolute_url(self):
         return reverse("edna:sample_detail", args=[self.pk])
 
     def __str__(self):
-        if self.is_field_blank:
-            return "field blank"
-        return f"s{self.id}"
+        mystr = f"s{self.id}"
+        # if self.is_field_blank:
+        #     mystr += " (field blank)"
+        return mystr
 
     @property
     def display(self):
@@ -306,6 +308,10 @@ class Batch(models.Model):
         ordering = ["-datetime"]
         abstract = True
 
+    @property
+    def display_time(self):
+        return get_timezone_time(self.datetime).strftime("%Y-%m-%d %H:%M")
+
 
 class FiltrationBatch(Batch):
     class Meta:
@@ -344,11 +350,13 @@ class Filter(MetadataFields):
     class Meta:
         ordering = ["filtration_batch", "order"]
 
+    @property
+    def is_filtration_blank(self):
+        return not self.sample
+
     def __str__(self):
-        # if there is no sample associated with this filter, it is a filtration blank
-        if not self.sample:
-            return "filtration blank"
-        return f"f{self.id}"
+        mystr = f"f{self.id}"
+        return mystr
 
     def save(self, *args, **kwargs):
         # if there is a sample, the collection is known
@@ -440,11 +448,16 @@ class DNAExtract(MetadataFields):
     class Meta:
         ordering = ["extraction_batch", "order", "id"]
 
+    @property
+    def is_extraction_blank(self):
+        return not self.sample and not self.filter
+
     def __str__(self):
+        mystr = f"x{self.id}"
         # if there is no sample or filter associated with this extract, it is an extraction blank
-        if not self.sample and not self.filter:
-            return "extraction blank"
-        return f"x{self.id}"
+        # if not self.sample and not self.filter:
+        #     mystr += " (extraction blank)"
+        return mystr
 
     @property
     def display(self):
@@ -477,7 +490,7 @@ class PCRBatch(Batch):
     )
     plate_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate ID"))
     machine_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR machine number"))
-    run_program = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR run program"))
+    run_program = models.CharField(max_length=255, blank=True, null=True, verbose_name=_(" qPCR run program"))
     control_status = models.IntegerField(blank=True, null=True, choices=control_status_choices, verbose_name=_("control status"))
 
     class Meta:
@@ -503,14 +516,22 @@ class PCR(MetadataFields):
     pcr_plate_well = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate well"))
     master_mix = models.ForeignKey(MasterMix, on_delete=models.DO_NOTHING, related_name="pcrs", verbose_name=_("master mix"), blank=False, null=True)
 
+    # calc
+    pcr_plate_well_prefix = models.CharField(max_length=1, blank=True, null=True, editable=True)
+    pcr_plate_well_suffix = models.IntegerField(blank=True, null=True, editable=True)
+
     def save(self, *args, **kwargs):
         # if there is a filter, the collection is known
         if self.extract:
             self.collection = self.extract.collection
+        if self.pcr_plate_well:
+            self.pcr_plate_well_prefix = self.pcr_plate_well[0]
+            self.pcr_plate_well_suffix = self.pcr_plate_well[1:]
+
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ["pcr_plate_well", "pcr_batch", "extract__id", "id"]
+        ordering = ["pcr_plate_well_prefix", "pcr_plate_well_suffix", "pcr_batch", "extract__id", "id"]
 
     def __str__(self):
         return f"q{self.id}"

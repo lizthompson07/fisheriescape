@@ -948,6 +948,8 @@ def get_project_year_queryset(request):
             'division',
             'section',
             'status',
+            'field_component',
+            'ship_component',
         ]
         for filter in filter_list:
             input = qp.get(filter)
@@ -988,6 +990,10 @@ def get_project_year_queryset(request):
                     qs = qs.filter(project__section__division_id=input)
                 elif filter == "section":
                     qs = qs.filter(project__section_id=input)
+                elif filter == "field_component":
+                    qs = qs.filter(has_field_component=True)
+                elif filter == "ship_component":
+                    qs = qs.filter(has_ship_needs=True)
 
         # if a regular user is making the request, show only approved projects (and not hidden projects)
         if not is_management_or_admin(request.user):

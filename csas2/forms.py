@@ -441,7 +441,7 @@ class MeetingForm(forms.ModelForm):
 
     class Meta:
         model = models.Meeting
-        exclude = ["start_date", "end_date"]
+        exclude = ["start_date", "end_date", "is_posted"]
 
 
 class DocumentForm(forms.ModelForm):

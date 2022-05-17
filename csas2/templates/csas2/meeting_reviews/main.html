@@ -21,8 +21,18 @@
   </div>
   {% bootstrap_messages %}
 
-  {% include "csas2/meeting_reviews/_filter.html" %}
+  {% include "csas2/_meeting_filter.html" %}
   <div id="app" v-cloak>
+
+    <div class="pointy mb-5" @click="toggleCalendarView">
+      <p class="lead text-secondary" id="overview">
+        <span>{% trans "List view" %}</span>
+        <span v-if="!calendarViewOn" class="mx-2 mdi mdi-toggle-switch-off h4"></span>
+        <span v-else class="mx-2 mdi mdi-toggle-switch h4"></span>
+        <span>{% trans "Calendar view" %}</span>
+      </p>
+    </div>
+
     <div v-if="loadingMeetings" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
         <span class="sr-only"></span>
@@ -49,41 +59,8 @@
             <p class="font-italic text-muted">${meetings.length} {% trans "results loaded" %}</p>
           </div>
         </div>
-
-        <table class="table table-sm">
-          <thead>
-          <tr>
-            <th>{% trans "Meeting Link" %}</th>
-            <th>{% trans "Process Id" %}</th>
-            <th>${meetingLabels.fiscal_year}</th>
-            <th>${meetingLabels.start_date}</th>
-            <th>${processLabels.is_posted}</th>
-            <th class="w-30">${meetingLabels.name}</th>
-            <th class="w-30">${meetingLabels.nom}</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="m in meetings" :key="m.id">
-            <td>
-              <a target="_blank" :href="`/csas-sccs/meetings/${m.id}/view/`"><span class="mdi mdi-open-in-new lead text-primary"></span></a>
-            </td>
-            <td>
-              ${m.process}
-            </td>
-            <td>${m.process_object.fiscal_year}</td>
-            <td><span v-html="m.display_dates"></span></td>
-            <td>${m.process_object.is_posted | yesNo}</td>
-            <td>
-              <textarea v-model="m.name" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted"
-                        rows="3"></textarea>
-            </td>
-            <td>
-              <textarea v-model="m.nom" class="form-control" placeholder="" @change="updateMeeting(m)" :disabled="m.process_object.is_posted"
-                        rows="3"></textarea>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+        {% include "csas2/meeting_reviews/_list.html" %}
+        {% include "csas2/meeting_reviews/_calendar.html" %}
       </div>
     </div>
   </div>
@@ -121,8 +98,54 @@
       regionChoices: [],
       sectorChoices: [],
       fresh: true,
+      calendarViewOn: true,
     },
     methods: {
+      togglePosting(m) {
+        let msg;
+        if (m.is_posted) msg = "{% trans "Are you certain you want to unpost this meeting?" %}";
+        else msg = "{% trans "Are you certain you want to post this meeting? \n\nThe Lead Offices will receive a notification email." %}";
+        let userInput = confirm(msg);
+        if (userInput) {
+          let endpoint = `/api/csas/meetings/${m.id}/?toggle_posting=true`;
+          apiService(endpoint, "POST").then(data => {
+            if (!data.id) alert(groomJSON(data));
+            else this.getMeeting(m);
+          });
+        }
+      },
+      cancelPostingRequest(m) {
+        let endpoint = `/api/csas/meetings/${m.id}/?cancel_posting_request=true`;
+        apiService(endpoint, "POST").then(data => {
+          if (!data.id) alert(groomJSON(data));
+          else this.getMeeting(m);
+        });
+      },
+      toggleCalendarView() {
+        this.calendarViewOn = !this.calendarViewOn;
+        // make sure the calendar view hidden input is in sync with the vue variable
+        $("#calendar_view").val(String(this.calendarViewOn));
+        searchString = window.location.search
+        if (searchString === "") searchString = "?calendar_view=";
+        else if (searchString.search("calendar_view") < 0) searchString += "&calendar_view=";
+        var params = searchString.substring(1).split('&');
+        for (let param of params) {
+          if (param.split("=")[0] === "calendar_view") {
+            searchString = searchString.replace(param, `calendar_view=${String(this.calendarViewOn)}`);
+            break;
+          }
+        }
+        window.location.search = searchString;
+      },
+      requestPosting(m) {
+        let userInput = confirm("{% trans 'Are you certain you want to make a request for this meeting to be posted on the National CSAS website?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/meetings/${m.id}/?request_posting=true`;
+          apiService(endpoint, "POST").then(data => {
+            this.getMeeting(m);
+          });
+        }
+      },
       getCurrentUser() {
         let endpoint = `/api/csas/user/`;
         apiService(endpoint)
@@ -134,15 +157,12 @@
         popitup(url, 'popoutWindow' + Date.now());
       },
 
-      submitForm() {
-        $("#filter-form").submit()
-      },
-
       getMeetings() {
         this.errorMsg = null;
         this.loadingMeetings = true;
         let params = window.location.search.substring(1);
-        if (!params) page_size = 5;
+        params = params.replace("calendar_view=true", "").replace("calendar_view=false", "")
+        if (!params || params === "") page_size = 5;
         else {
           page_size = 50000;
           this.fresh = false;
@@ -201,15 +221,45 @@
     computed: {
       canModify() {
         return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      },
+      calendarUnits() {
+        let myObj = {};
+        let payload = [];
+        for (const meeting of this.meetings) {
+          // get the date reduced to mmmmyy
+          if (!myObj[meeting.mmmmyy]) myObj[meeting.mmmmyy] = [];
+          myObj[meeting.mmmmyy].push(meeting);
+        }
+        for (const myObjKey in myObj) {
+          payload.push({
+            unit_name: myObjKey,
+            meetings: myObj[myObjKey]
+          })
+        }
+
+        return payload
+
       }
+
     },
     filters: {
       yesNo: vueFiltersObject["yesNo"],
+      upper: vueFiltersObject["upper"],
     },
     created() {
       this.getCurrentUser();
       this.getMeetings();
       this.getMetadata();
+
+      var params = window.location.search.substring(1).split('&');
+      for (const param of params) {
+        if (param.split("=")[0] === "calendar_view" && param.split("=")[1] === "true") this.calendarViewOn = true;
+        else if (param.split("=")[0] === "calendar_view" && param.split("=")[1] === "false") this.calendarViewOn = false;
+      }
+
+      // make sure the calendar view hidden input is in sync with the vue variable
+      $("#calendar_view").val(String(this.calendarViewOn));
+
     },
   });
 

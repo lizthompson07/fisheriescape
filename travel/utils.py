@@ -5,7 +5,6 @@ from azure.storage.blob import BlockBlobService
 from decouple import config
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import Group, User
 from django.db.models import Q
 from django.template.defaultfilters import date
 from django.utils import timezone
@@ -16,6 +15,11 @@ from shared_models import models as shared_models
 from shared_models.models import Branch, Division, Section
 from . import emails
 from . import models
+
+
+def is_adm_or_admin(user):
+    if user:
+        return bool(is_adm(user) or is_admin(user))
 
 
 def in_travel_regional_admin_group(user):
@@ -808,3 +812,31 @@ def get_all_admins(region, branch_only=False):
     except:
         pass
     return list(set(to_list))
+
+
+def search_and_replace(good_user, bad_user):
+    # find all traveller instances
+    for obj in bad_user.travellers.all():
+        obj.user = good_user
+        obj.save()
+
+    # find all request reviewer instances
+    for obj in bad_user.reviewers.all():
+        obj.user = good_user
+        obj.save()
+
+    # find all trip reviewer instances
+    for obj in bad_user.trip_reviewers.all():
+        obj.user = good_user
+        obj.save()
+
+
+
+def get_request_queryset(request):
+    qs = get_requests_with_managerial_access(request.user)
+    qp = request.query_params if hasattr(request, 'query_params') else request.GET
+
+    if qp.get("ids"):
+        ids = qp.get("ids").split(",")  # get project year list
+        qs = qs.filter(id__in=ids)  # get project year qs
+    return qs.distinct()
