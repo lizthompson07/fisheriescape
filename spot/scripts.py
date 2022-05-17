@@ -82,19 +82,9 @@ def import_generic(file_name, model_name, row_name):
                 )
 
 
-def import_species():
-    import_generic('drop_downs.csv', models.Species, 'Species')
-
-
-def import_new_drop_downs():
-    import_generic('drop_downs.csv', models.HatcheryName, 'Hatchery Name')
-    import_generic('drop_downs.csv', models.ManagementArea, 'Pacific Fisheries Management Area')
-    import_generic('drop_downs.csv', models.EcosystemType, 'Ecosystem Type')
-    import_generic('drop_downs.csv', models.MonitoringApproach, 'Monitoring Approach')
-
-
 def import_all():
     import_generic('lake_systems.csv', models.LakeSystem, 'lake_systems')
+    import_generic('drop_downs.csv', models.Species, 'Species')
     import_generic('rivers_finals.csv', models.CUIndex, 'FULL_CU_IN')
     import_generic('rivers_finals.csv', models.CUName, 'CU_NAME')
     import_generic('drop_downs.csv', models.FirstNations, 'First Nations')
@@ -117,6 +107,7 @@ def import_all():
     import_organization()
     import_person()
     import_project()
+    project_river()
     import_costing()
     import_objective()
     import_report()
@@ -579,23 +570,48 @@ def project_river():
             project.river.add(int(created_river.id))
 
 
+def delete_species():
+    models.River.objects.all().delete()
+    models.Species.objects.all().delete()
+
+
 def delete_restart():
-    models.Project.objects.all().delete()
-    models.Method.objects.all().delete()
-    models.Reports.objects.all().delete()
-    models.Data.objects.all().delete()
-    models.Objective.objects.all().delete()
     models.SampleOutcome.objects.all().delete()
     models.ReportOutcome.objects.all().delete()
     models.FundingYears.objects.all().delete()
     models.MethodDocument.objects.all().delete()
     models.ProjectCertified.objects.all().delete()
+    models.Method.objects.all().delete()
+    models.Reports.objects.all().delete()
+    models.Data.objects.all().delete()
+    models.Objective.objects.all().delete()
+    models.Project.objects.all().delete()
     models.River.objects.all().delete()
     models.Species.objects.all().delete()
+    models.MonitoringApproach.objects.all().delete()
+    models.EcosystemType.objects.all().delete()
+    models.HatcheryName.objects.all().delete()
+    models.ManagementArea.objects.all().delete()
+    models.SalmonLifeStage.objects.all().delete()
+    models.ProjectSubType.objects.all().delete()
+    models.ProjectTheme.objects.all().delete()
+    models.CoreComponent.objects.all().delete()
+    models.SupportiveComponent.objects.all().delete()
+    models.ProjectPurpose.objects.all().delete()
+    models.FundingSources.objects.all().delete()
+    models.ObjectiveCategory.objects.all().delete()
+    models.CapacityBuilding.objects.all().delete()
+    models.OutComeBarrier.objects.all().delete()
+    models.LakeSystem.objects.all().delete()
+    models.CUName.objects.all().delete()
+    models.CUIndex.objects.all().delete()
+    models.FirstNations.objects.all().delete()
+    models.Watershed.objects.all().delete()
+    models.Person.objects.all().delete()
+    models.Organization.objects.all().delete()
 
 
 def import_restart():
-    import_species()
     import_rivers()
     import_project()
     project_river()
