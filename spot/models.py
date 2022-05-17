@@ -122,16 +122,6 @@ class CUName(UnilingualSimpleLookup):
     pass
 
 
-class SamplesCollected(UnilingualSimpleLookup):
-    objects = models.Manager()
-    pass
-
-
-class DataCommunication(UnilingualSimpleLookup):
-    objects = models.Manager()
-    pass
-
-
 class CUIndex(UnilingualSimpleLookup):
     objects = models.Manager()
     pass
@@ -169,7 +159,7 @@ class River(models.Model):
     du_number = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("DU Number"))
 
     def __str__(self):
-        return "{} - {}".format(self.name, self.species.name)
+        return "{} - {}".format(self.name, self.species.name if self.species else None)
 
     class Meta:
         ordering = ['name']
@@ -180,7 +170,7 @@ class River(models.Model):
 
     @property
     def get_name_species(self):
-        return "{} {}".format(self.name, self.species.name)
+        return "{} {}".format(self.name, self.species.name if self.species else None)
 
 
 class Organization(models.Model):
