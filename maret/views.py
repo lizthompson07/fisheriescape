@@ -724,6 +724,7 @@ class OrganizationDeleteView(AdminRequiredMixin, CommonDeleteView):
     success_url = reverse_lazy('maret:org_list')
     home_url_name = "maret:index"
     grandparent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("maret:org_list")}
+    non_blocking_fields = ["ext_org"]
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("maret:org_detail", args=[self.get_object().id])}
@@ -741,39 +742,6 @@ class OrganizationDeleteView(AdminRequiredMixin, CommonDeleteView):
         # remove org extensions dict from this list as these will otherwise block being allowed to delete the org.
         related_names_list[:] = [d for d in related_names_list if d.get('title') != "organization extensions"]
         return related_names_list
-
-    # no easy way to modify this, copying whole function for now.
-    def get_delete_protection(self):
-        if not self.delete_protection:
-            return False
-        else:
-            # the user wants delete protection to be turned on
-
-            # go through each related field. If there is a related object, we set set a flag and exit the loop
-            field_map_dict = type(self.get_object())._meta.fields_map
-            # clear unwanted entries:
-            non_blocking_fields = ["ext_org"]
-            for field in non_blocking_fields:
-                field_map_dict.pop(field, None)
-
-            for field in field_map_dict:
-                temp_related_name = field_map_dict[field].related_name
-                if not temp_related_name:
-                    related_name = f"{field}_set"
-                elif "+" not in temp_related_name:
-                    related_name = field_map_dict[field].related_name
-                else:
-                    related_name = None
-                # the second we find a related object, we are done here.
-                try:
-                    getattr(self.get_object(), related_name)
-                except:
-                    pass
-                else:
-                    if related_name and getattr(self.get_object(), related_name).count():
-                        return True
-            # if we got to this point, delete protection should be set to false, since there are no related objects
-            return False
 
 
 class OrganizationCueCard(PDFTemplateView):
