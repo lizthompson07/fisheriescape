@@ -8,6 +8,20 @@ from . import models, utils, model_choices
 from .model_choices import request_status_choices, get_process_status_choices, tor_status_choices
 
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
+MONTH_CHOICES = [
+    (1, _("January")),
+    (2, _("February")),
+    (3, _("March")),
+    (4, _("April")),
+    (5, _("May")),
+    (6, _("June")),
+    (7, _("July")),
+    (8, _("August")),
+    (9, _("September")),
+    (10, _("October")),
+    (11, _("November")),
+    (12, _("December")),
+]
 chosen_js = {"class": "chosen-select-contains"}
 
 
@@ -192,24 +206,26 @@ class ProcessFilter(django_filters.FilterSet):
         fields = {
             'type': ['exact'],
             'status': ['exact'],
-            'is_posted': ['exact'],
             'has_peer_review_meeting': ['exact'],
         }
 
 
 class MeetingFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Meeting Title contains"))
-    is_posted = django_filters.ChoiceFilter(field_name="process__is_posted", label=_("Is Posted?"), lookup_expr='exact', empty_label=_("All"), choices=YES_NO_CHOICES)
+    search = django_filters.CharFilter(field_name='search', lookup_expr='icontains', label=_("Meeting Title contains"))
+    posting_request_date__isnull = django_filters.BooleanFilter(field_name="posting_request_date", label=_("Has a posting request been made?"), lookup_expr='isnull', exclude=True)
+    start_date_month = django_filters.ChoiceFilter(field_name="start_date__month", label=_("Month of meeting"), empty_label=_("All"), choices=MONTH_CHOICES)
+    process_id = django_filters.NumberFilter(field_name="process_id", label=_("Process ID"))
 
     class Meta:
         model = models.Meeting
         fields = {
-            'process': ['exact'],
             'process__fiscal_year': ['exact'],
             'fiscal_year': ['exact'],
             'process__lead_office': ['exact'],
             'process__status': ['exact'],
             'is_planning': ['exact'],
+            'is_estimate': ['exact'],
+            'is_posted': ['exact'],
 
         }
 
@@ -217,11 +233,14 @@ class MeetingFilter(django_filters.FilterSet):
         super().__init__(*args, **kwargs)
 
         fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(processes__isnull=False).distinct()]
+        meeting_fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(meetings__isnull=False).distinct()]
         status_choices = model_choices.get_process_status_choices()
 
-        self.filters['process'].field.widget.attrs = chosen_js
+        # self.filters['process_id'].field.widget.attrs = chosen_js
         self.filters['process__lead_office'].label = _("Lead CSAS office")
+        self.filters['is_estimate'].label = _("Are dates approximate?")
         self.filters['process__fiscal_year'] = django_filters.ChoiceFilter(field_name='process__fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year of process"))
+        self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=meeting_fy_choices, label=_("Fiscal year of meeting"))
         self.filters['process__status'] = django_filters.MultipleChoiceFilter(field_name='process__status', lookup_expr='exact', choices=status_choices)
         self.filters['process__status'].field.widget.attrs = chosen_js
 

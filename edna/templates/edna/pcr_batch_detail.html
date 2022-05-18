@@ -24,15 +24,25 @@
        @keydown.up.prevent="goUp"
        @keydown.down.prevent="goDown"
   >
+
+    <div class="float-right">
+      <a href="{% url 'edna:export_pcr_batch_csv' object.id %}" class="btn btn-success">
+        {% trans "Export to CSV" %} <span class="mdi mdi-export text-light ml-1"></span>
+      </a>
+      <a href="{% url 'edna:import_pcrs' %}" class="btn btn-success">
+        {% trans "Import from CSV" %} <span class="mdi mdi-import text-light ml-1"></span>
+      </a>
+    </div>
+
     <div class="mb-3">
       <p class="h3">{% trans "PCRs" %}</p>
-      {#      <button @click="addPCR(null)" class="btn btn-sm btn-primary neighbours">{% trans "Add a PCR" %}</button>#}
-      <add-pcr-overlay class="neighbours" @add="addPCRs"></add-pcr-overlay>
-      <extract-import-overlay class="neighbours" batch_id="{{ object.id }}" @add-extracts="addExtracts"></extract-import-overlay>
+      {#      <add-pcr-overlay class="neighbours" @add="addPCRs"></add-pcr-overlay>#}
+      <extract-import-overlay class="neighbours" default_collection_id="{{ object.default_collection_id }}"
+                              @add-extracts="addExtracts"></extract-import-overlay>
     </div>
 
 
-    <div v-if="loading" class="loading mb-3 mt-3 mt-5">
+    <div v-if="loading0" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
         <span class="sr-only"></span>
       </div>
@@ -47,85 +57,79 @@
       <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}" style="width: 100%">
         <thead>
         <tr>
-          <th class="px-1 py-1" style="width: 75px">{% trans "qPCR ID" %}</th>
-          <th class="px-1 py-1" style="width: 75px">{% trans "Type" %}</th>
-          <th class="px-1 py-1" style="width: 130px">{% trans "Extraction ID" %}</th>
-          <th class="px-1 py-1" style="width: 115px">
-            ${labels.plate_well}<br>
-            <button class="btn btn-xs btn-danger" @click="populateWells">{% trans "Populate!" %}</button>
+          <th class="p-1" style="width: 100px">
+            <select-tools
+              :selected_items_count="selectedItems.length"
+              :disable_move="true"
+              @select-all="selectAll"
+              @unselect-all="unselectAll"
+              @delete-selected="deleteSelected"
+
+            ></select-tools>
           </th>
-          <th class="px-1 py-1" style="width: 100px">${labels.master_mix}</th>
-          <th class="px-1 py-1" style="width: 100px">${labels.comments}</th>
-          <th class="px-1 py-1" style="width: 200px">${pcrAssaylabels.assay}</th>
+{#          <th class="px-1 py-1 w100px">{% trans "Unique ID" %}</th>#}
+          <th class="px-1 py-1 w150px"><span class="text-primary pointy" @click="sort('extraction_number')">{% trans "Extraction number" %}</span></th>
+          <th class="px-1 py-1 w150px">{% trans "Type" %}</th>
+          <th class="px-1 py- w150px">
+
+            <span class="text-primary pointy" @click="sort('pcr_plate_well')">${labels.pcr_plate_well}</span>
+
+            {#            <button @click="populateWells" class="w25px px-1 py-0 btn btn-sm btn-dark ml-1">#}
+            {#              <span class="mdi mdi-calculator text-light"></span>#}
+            {#            </button>#}
+
+          </th>
+          <th class="px-1 py-1 w200px">${labels.master_mix}</th>
+          <th class="px-1 py-1 w300px">${pcrAssaylabels.assay}</th>
           <th class="px-1 py-1" style="width: 100px">${pcrAssaylabels.threshold}</th>
           <th class="px-1 py-1" style="width: 100px">${pcrAssaylabels.is_undetermined}</th>
           <th class="px-1 py-1" style="width: 110px">${pcrAssaylabels.ct}</th>
           <th class="px-1 py-1">${pcrAssaylabels.comments}</th>
           <th class="px-1 py-1" style="width: 125px">${pcrAssaylabels.result}</th>
-          <th class="px-1 py-1"  style="width: 110px">${pcrAssaylabels.edna_conc}</th>
+          <th class="px-1 py-1" style="width: 110px">${pcrAssaylabels.edna_conc}</th>
         </tr>
         </thead>
-        <tbody>
-        <tr v-for="(obj, index) in pcrAssays" :key="obj.id">
-          <td class="px-1 py-0 text-muted greyed" tabindex="-1">${obj.pcr_object.display}</td>
-          <td v-if="obj.pcr_object.assay_count === 1" class="px-1  py-0 text-muted greyed" tabindex="-1">{% trans "Simplex" %}</td>
-          <td v-else class="px-1 py-0 greyed purple-font" tabindex="-1">{% trans "Duplex" %}</td>
-          <td class="px-0 py-0">
-            <text-input-cell
-              type="select"
-              :sample.sync="obj.pcr_object" :row="index"
-              @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="extract"
-              :col="0"
-              :ref="`row_${index}_col_0`"
-              :options="extractChoices"
-              blank_option="{% trans "qPCR Blank" %}"
-            ></text-input-cell>
+        <tbody v-if="loading" class="loading mb-3 mt-3 mt-5">
+        <td>
+          <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </td>
+        </tbody>
+        <tbody v-else>
+        <tr v-for="(obj, index) in sortedPCRAssays" :key="obj.id" :class="{highlight: obj.selected}">
+          <td class="p-1" tabindex="-1">
+            ${index + 1} &mdash; <input v-model='obj.selected' type="checkbox">
           </td>
+{#          <td class="px-1 py-0 text-muted " tabindex="-1">${obj.id}</td>#}
+
+
+          <td class="px-1 text-muted">
+            <span v-if="obj.pcr_object.extract">${obj.pcr_object.extract_object.extraction_number|nz("n/a")} (${obj.pcr_object.extract_object.display}) </span>
+            <span v-else>-----</span>
+          </td>
+          <td class="px-1 text-muted">
+            <span v-if="obj.pcr_object.extract">${obj.pcr_object.extract_object.info_display|nz}</span>
+            <span v-else>-----</span>
+          </td>
+
           <td class="px-0 py-0">
             <text-input-cell
               type="text"
               :sample.sync="obj.pcr_object" :row="index"
               @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="plate_well"
+              field="pcr_plate_well"
               :col="1"
               :ref="`row_${index}_col_1`"
             ></text-input-cell>
           </td>
-          <td class="px-0 py-0">
-            <text-input-cell
-              type="select"
-              :sample.sync="obj.pcr_object" :row="index"
-              @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="master_mix"
-              :col="2"
-              :ref="`row_${index}_col_2`"
-              :options="masterMixChoices"
+          <td class="px-0 py-0 text-muted">
+            ${obj.pcr_object.master_mix_display}
+          </td>
 
-            ></text-input-cell>
-          </td>
-          <td class="px-0 py-0">
-            <text-input-cell
-              type="text"
-              :sample.sync="obj.pcr_object" :row="index"
-              @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="comments"
-              :col="3"
-              :ref="`row_${index}_col_3`"
-            ></text-input-cell>
-          </td>
           {# asssays #}
-          <td class="px-0 py-0">
-            <text-input-cell
-              type="select"
-              :sample.sync="obj" :row="index"
-              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown2" @copy-double-down="copyDoubleDown2"
-              field="assay"
-              :col="4"
-              :ref="`row_${index}_col_4`"
-              :options="assayChoices"
-
-            ></text-input-cell>
+          <td class="px-0 py-0 text-muted">
+            ${obj.assay_display}
           </td>
           <td class="px-0 py-0">
             <text-input-cell
@@ -180,7 +184,7 @@
         </tbody>
       </table>
       <div class="my-3">
-        <p class="lead text-muted">TOTAL: ${pcrs.length}</p>
+        <p class="lead text-muted">TOTAL: ${pcrAssays.length}</p>
       </div>
     </div>
 
@@ -193,13 +197,17 @@
   {{ block.super }}
   {% include "edna/components/text-input-cell.html" %}
   {% include "edna/components/extract_import_overlay.html" %}
-  {% include "edna/components/add_pcr_overlay.html" %}
+  {% include "edna/components/select_tools.html" %}
   <script type="application/javascript">
   let batchId = {{ object.id }};
+  let projectId = {{ object.default_collection_id }};
+
   var app = new Vue({
     el: '#app',
     delimiters: ["${", "}"],
     data: {
+      batchId,
+      projectId,
       currentUser: null,
       //default_pcr_type: 1,
       //default_pcr_volume_ml: 1000,
@@ -208,13 +216,24 @@
       labels: [],
       pcrAssaylabels: [],
       loading: false,
-      extractChoices: [],
+      loading0: true,
       assayChoices: [],
       masterMixChoices: [],
-      unsavedChanges: false
+      unsavedChanges: false,
+      currentSort: 'pcr_plate_well',
+      currentSortDir: 'asc'
 
     },
     methods: {
+      sort(s) {
+        // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
+        //if s == current sort, reverse
+        if (s === this.currentSort) {
+          this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
+        }
+        this.currentSort = s;
+      },
+
       populateWells() {
         let msg = "{% trans "What is your the first well number (e.g. A-01)?" %}";
         let input = prompt(msg);
@@ -226,7 +245,7 @@
           let letters = ["A", "B", "C", "D", "E", "F", "G", "H",];
           for (var j = 0; j < letters.length; j++) {
             for (var i = 1; i <= 12; i++) {
-              well = `${letters[j]}-${String(i).padStart(2,'0')}`;
+              well = `${letters[j]}${String(i)}`;
               wellArray.push(well);
             }
           }
@@ -240,7 +259,7 @@
               pcr = this.pcrs[i];
               pos = startingIndex + i;
               if (pos >= wellArray.length) pos = pos % wellArray.length;
-              pcr.plate_well = wellArray[pos];
+              pcr.pcr_plate_well = wellArray[pos];
               this.updatePCR(pcr);
             }
           }
@@ -333,21 +352,23 @@
           this.updatePCRAssay(this.pcrAssays[i])
         }
       },
-      deletePCRAssay(pcrAssay) {
-        userInput = confirm("{% trans 'Are you sure you want to delete this row?' %}");
+      deletePCRAssay(pcrAssay, userInput) {
+        if (userInput === null || userInput === undefined) userInput = confirm("{% trans 'Are you sure you want to delete this row?' %}");
         if (userInput) {
           let endpoint = `/api/edna/pcr-assays/${pcrAssay.id}/`;
           apiService(endpoint, "DELETE")
               .then(response => {
-                //this.$delete(this.pcrAssays, this.pcrAssays.indexOf(pcrAssay))
-                this.getPCRAssays();
+
+                this.$delete(this.pcrAssays, this.pcrAssays.indexOf(pcrAssay))
+
               })
         }
       },
-      getBlankPCR(extract) {
-        let now = new Date(Date.now());
+      getBlankPCR(extract, mm) {
         return {
           pcr_batch: batchId,
+          master_mix: mm,
+          collection: projectId,
           extract: extract,
           comments: null,
         }
@@ -364,7 +385,6 @@
         endpoint = `/api/edna/meta/models/pcr/`;
         apiService(endpoint).then(data => {
           this.labels = data.labels;
-          this.extractChoices = data.extract_choices;
           this.masterMixChoices = data.master_mix_choices;
         });
         endpoint = `/api/edna/meta/models/pcr-assay/`;
@@ -373,36 +393,36 @@
           this.assayChoices = data.assay_choices;
         });
       },
-      getPCRAssays() {
+      getPCRAssays(selectedItems) {
         this.loading = true;
+        if (!selectedItems) selectedItems = [];
         endpoint = `/api/edna/pcr-assays/?batch=${batchId}`;
         apiService(endpoint)
             .then(response => {
               this.loading = false;
+              this.loading0 = false;
               if (response.length && response[0].id) {
                 for (var i = 0; i < response.length; i++) {
+                  response[i].selected = !!selectedItems.includes(response[i].id);
+                  if (!response[i].pcr_object) response[i].pcr_object = {};
                   if (!response[i].pcr_object.extract) response[i].pcr_object.extract = "";
                 }
                 this.pcrAssays = response;
-                this.$nextTick(() => {
-                  this.$refs.row_0_col_0[0].$refs.input.focus();
-                })
               }
             })
       },
-      addExtracts(extractArray, reps, assays) {
+      addExtracts(extractArray, reps, assays, mm) {
+        this.loading = true;
         for (const extract of extractArray) {
-          this.newPCR(extract, reps, assays);
+          this.newPCR(extract, reps, assays, mm);
         }
       },
       addPCRs(reps, assays) {
-        console.log(reps)
         this.newPCR(null, reps, assays);
       },
-      newPCR(extract, reps, assays) {
+      newPCR(extract, reps, assays, mm) {
         endpoint = `/api/edna/pcrs/`;
-        data = this.getBlankPCR(extract)
-        console.log(data)
+        data = this.getBlankPCR(extract, mm)
         for (var i = 0; i < reps; i++) {
           apiService(endpoint, "POST", data)
               .then(response => {
@@ -410,7 +430,7 @@
                   for (var j = 0; j < assays.length; j++) {
                     this.newPCRAssay(response, assays[j])
                   }
-                }
+                } else console.log(response);
               })
         }
       },
@@ -420,8 +440,10 @@
         apiService(endpoint, "POST", data)
             .then(response => {
               if (response.id) {
-                this.getPCRAssays();
-              } else {
+                response.selected = assay.selected;
+                this.pcrAssays.push(response);
+                this.reorder();
+                this.loading = false;
               }
             })
       },
@@ -429,8 +451,10 @@
         endpoint = `/api/edna/pcr-assays/${pcrAssay.id}/`;
         apiService(endpoint, "GET")
             .then(response => {
+              response.selected = pcrAssay.selected;
               this.$set(this.pcrAssays, this.pcrAssays.indexOf(pcrAssay), response);
               this.unsavedChanges = false;
+              this.reorder();
             })
       },
       updatePCR(pcr) {
@@ -447,7 +471,6 @@
             })
       },
       updatePCRAssay(pcrAssay) {
-        console.log(pcrAssay)
         this.pcrErrorMsg = null;
         endpoint = `/api/edna/pcr-assays/${pcrAssay.id}/`;
         apiService(endpoint, "PUT", pcrAssay)
@@ -461,6 +484,21 @@
               }
             })
       },
+
+      selectAll() {
+        for (const item of this.pcrAssays) item.selected = true;
+      },
+      unselectAll() {
+        for (const item of this.pcrAssays) item.selected = false;
+      },
+      deleteSelected() {
+        userInput = confirm(`{% trans 'Are you certain you want to delete the (${this.selectedItems.length}) selected PCRs?' %}'`)
+        for (const item of this.selectedItems) this.deletePCRAssay(item, true);
+      },
+      reorder() {
+        this.pcrAssays.sort((a, b) => (a.pcr_object.extract > b.pcr_object.extract) ? 1 : ((b.pcr_object.extract > a.pcr_object.extract) ? -1 : 0))
+      },
+
     },
     filters: {
       nz: vueFiltersObject["nz"],
@@ -468,6 +506,26 @@
       floatformat: vueFiltersObject["floatformat"],
     },
     computed: {
+
+      sortedPCRAssays() {
+        return this.pcrAssays.sort((a, b) => {
+          let modifier = 1;
+          if (this.currentSortDir === 'desc') modifier = -1;
+          if (this.currentSort === "pcr_plate_well") {
+            if (a.pcr_object["pcr_plate_well_prefix"] < b.pcr_object["pcr_plate_well_prefix"]) return -1 * modifier;
+            if (a.pcr_object["pcr_plate_well_prefix"] > b.pcr_object["pcr_plate_well_prefix"]) return 1 * modifier;
+
+            if (a.pcr_object["pcr_plate_well_suffix"] < b.pcr_object["pcr_plate_well_suffix"]) return -1 * modifier;
+            if (a.pcr_object["pcr_plate_well_suffix"] > b.pcr_object["pcr_plate_well_suffix"]) return 1 * modifier;
+
+          } else if (this.currentSort === "extraction_number") {
+            if (a.pcr_object.extract_object["extraction_number"] < b.pcr_object.extract_object["extraction_number"]) return -1 * modifier;
+            if (a.pcr_object.extract_object["extraction_number"] > b.pcr_object.extract_object["extraction_number"]) return 1 * modifier;
+          }
+          return 0;
+        });
+      },
+
       pcrs() {
         let payload = [];
         for (const pcrAssay of this.pcrAssays) {
@@ -480,6 +538,13 @@
           output.push(payload[i]);
         }
         return output;
+      },
+      selectedItems() {
+        let myArray = [];
+        for (const item of this.pcrAssays) {
+          if (item.selected) myArray.push(item);
+        }
+        return myArray
       }
     },
     created() {

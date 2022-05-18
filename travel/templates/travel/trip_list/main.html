@@ -20,7 +20,7 @@
 
     <div>
 
-      <div class="row container-fluid bg-light curvy">
+      <div class="row container-fluid curvy">
         <div class="col">
           <div v-if="(pageType.search('verification') > -1 || pageType.search('adm') > -1) && !trips.length && !trips_loading">
             <div class="text-center">
@@ -135,7 +135,7 @@
     delimiters: ["${", "}"],
     data: {
       count: 0,
-      currentSort: 'name',
+      currentSort: 'start_date',
       currentSortDir: 'asc',
       currentUser: {},
       hover: false,

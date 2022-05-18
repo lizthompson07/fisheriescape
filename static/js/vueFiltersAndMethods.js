@@ -45,12 +45,16 @@ vueFiltersObject = {
     if (!value || value === "0.00" || value == 0) return '---';
     return value
   },
+  upper: function (value) {
+    if (Object.prototype.toString.call(value) === "[object String]") return value.toUpperCase;
+    return value
+  },
   currencyFormat: function (value, precision = 2) {
     if (value == null) return '';
     value = accounting.formatNumber(value, precision);
     return value
   },
-  listrify: function (value, sep= ", ") {
+  listrify: function (value, sep = ", ") {
     if (!value.length) return '';
     let myStr = "";
     for (const valueElement of value) {
@@ -60,7 +64,7 @@ vueFiltersObject = {
     // remove the trailing "sep"
     sepLength = sep.length
     myStrLength = myStr.length
-    myStr = myStr.slice(0,myStrLength-sepLength)
+    myStr = myStr.slice(0, myStrLength - sepLength)
 
     return myStr
   },

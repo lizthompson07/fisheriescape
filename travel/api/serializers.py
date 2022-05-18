@@ -634,3 +634,33 @@ class TripSerializer(serializers.ModelSerializer):
 
     def get_trip_review_ready(self, instance):
         return instance.trip_review_ready
+
+
+class TravelUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "username",
+            "is_active",
+            "travellers",
+            'request_reviewers',
+            'trip_reviewers',
+        ]
+
+    request_reviewers = serializers.SerializerMethodField()
+    travellers = serializers.SerializerMethodField()
+
+    trip_reviewers = serializers.SerializerMethodField()
+
+    def get_trip_reviewers(self, instance):
+        return TripReviewerSerializer(instance.trip_reviewers, many=True).data
+
+    def get_request_reviewers(self, instance):
+        return RequestReviewerSerializer(instance.reviewers, many=True).data
+
+    def get_travellers(self, instance):
+        return TravellerSerializer(instance.travellers, many=True).data

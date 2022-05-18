@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from faker import Factory
 
 from shared_models import models as shared_models
-from shared_models.test.SharedModelsFactoryFloor import CitationFactory, ProjectFactory, UserFactory
+from shared_models.test.SharedModelsFactoryFloor import CitationFactory, ProjectFactory, UserFactory, RegionFactory
 from . import FactoryFloor
 from .. import models
 from ..test.common_tests import CommonProjectTest as CommonTest
@@ -229,7 +229,6 @@ class TestProjectYearModel(CommonTest):
             'data_storage_plan',
             'data_management_needs',
             'has_lab_component',
-            'requires_abl_services',
             'requires_lab_space',
             'requires_other_lab_support',
             'other_lab_support_needs',
@@ -307,6 +306,7 @@ class TestProjectYearModel(CommonTest):
             (1, "Draft"),
             (2, "Submitted"),
             (3, "Reviewed"),
+            (6, "Recommended"),
             (4, "Approved"),
             (5, "Not Approved"),
             (9, "Cancelled"),
@@ -775,9 +775,9 @@ class TestReviewModel(CommonTest):
     @tag('Review', 'models', 'choices')
     def test_choices_approval_scores(self):
         actual_choices = (
-            (3, _("high")),
-            (2, _("medium")),
-            (1, _("low")),
+            (3, _("High")),
+            (2, _("Medium")),
+            (1, _("Low")),
         )
         expected_choices = [field.choices for field in models.Review._meta.fields if field.name == "collaboration_score"][0]
         self.assertEqual(actual_choices, expected_choices)
@@ -793,9 +793,10 @@ class TestReviewModel(CommonTest):
     @tag('Review', 'models', 'choices')
     def test_choices_approval_status(self):
         actual_choices = (
-            (1, _("approved")),
-            (0, _("not approved")),
-            (9, _("cancelled")),
+            (1, _("Approved")),
+            (2, _("Recommended")),
+            (0, _("Not approved")),
+            (9, _("Cancelled")),
         )
         expected_choices = [field.choices for field in models.Review._meta.fields if field.name == "approval_status"][0]
         self.assertEqual(actual_choices, expected_choices)
@@ -805,9 +806,19 @@ class TestReviewModel(CommonTest):
         actual_choices = (
             (1, _("Division-level")),
             (2, _("Branch-level")),
-            (3, _("National")),
+            (3, _("National-level")),
         )
         expected_choices = [field.choices for field in models.Review._meta.fields if field.name == "approval_level"][0]
+        self.assertEqual(actual_choices, expected_choices)
+
+    @tag('Review', 'models', 'choices')
+    def test_choices_funding_status(self):
+        actual_choices = (
+            (1, _("Fully funded")),
+            (2, _("Partially funded")),
+            (3, _("Unfunded")),
+        )
+        expected_choices = [field.choices for field in models.Review._meta.fields if field.name == "funding_status"][0]
         self.assertEqual(actual_choices, expected_choices)
 
     @tag('Review', 'models', 'mandatory_fields')
@@ -961,3 +972,35 @@ class TestActivityUpdateModel(CommonTest):
     def test_mandatory_fields(self):
         fields_to_check = ['status', 'status_report', 'activity', ]
         self.assert_mandatory_fields(models.ActivityUpdate, fields_to_check)
+
+
+class TestServicesModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ServiceFactory()
+
+    @tag('Services', 'models', 'fields')
+    def test_fields(self):
+        fields_to_check = ["coordinator", "regions"]
+        self.assert_has_fields(models.Service, fields_to_check)
+
+    @tag('Services', 'models', 'inheritance')
+    def test_inheritance(self):
+        self.assert_inheritance(type(self.instance), shared_models.SimpleLookup)
+
+    @tag('Services', 'models', '12m')
+    def test_12m_user(self):
+        # a `service` that is attached to a given `user` should be accessible by the reverse name `services`
+        user = UserFactory()
+        my_instance = self.instance
+        my_instance.coordinator = user
+        my_instance.save()
+        self.assertIn(my_instance, user.services.all())
+
+    @tag('Services', 'models', 'm2m')
+    def test_m2m_region(self):
+        # a `service` that is attached to a given `region` should be accessible by the m2m field name `regions`
+        region = RegionFactory()
+        self.instance.regions.add(region)
+        self.assertEqual(self.instance.regions.count(), 1)
+        self.assertIn(region, self.instance.regions.all())

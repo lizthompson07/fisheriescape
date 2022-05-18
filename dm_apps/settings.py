@@ -55,7 +55,8 @@ GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
 SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
 # flag to know whether using in linux env
 IS_LINUX = "win" not in sys.platform.lower()
-# get the git commit number from the ENV to display on index.html
+# should concurrent logins (different sessions) be prevented?
+PREVENT_CONCURRENT_LOGINS = config("PREVENT_CONCURRENT_LOGINS", cast=bool, default=True)
 
 try:
     GIT_VERSION = subprocess.check_output(['git', "-C", BASE_DIR, 'rev-parse', '--short', 'HEAD']).decode()
@@ -192,8 +193,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'preventconcurrentlogins.middleware.PreventConcurrentLoginsMiddleware',
 ]
+
+if PREVENT_CONCURRENT_LOGINS:
+    MIDDLEWARE.append('preventconcurrentlogins.middleware.PreventConcurrentLoginsMiddleware')
 
 if USE_AZURE_APPLICATION_INSIGHT and AZURE_INSTRUMENTATION_KEY != "":
     MIDDLEWARE.append('opencensus.ext.django.middleware.OpencensusMiddleware', )
@@ -403,7 +406,6 @@ WEBPACK_LOADER = {
         'STATS_FILE': os.path.join(BASE_DIR, 'events', 'frontend', 'webpack-stats.json')
     }
 }
-
 
 CELERY_BROKER_URL = config("CELERY_BROKER_URL", cast=str, default="redis://localhost:6379")
 CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", cast=str, default="redis://localhost:6379")

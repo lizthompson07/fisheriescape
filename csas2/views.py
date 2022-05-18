@@ -379,18 +379,12 @@ class CSASRequestReviewConsoleTemplateView(CsasAdminRequiredMixin, CommonFilterV
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_staff"] = utils.in_csas_web_pub_group(self.request.user)
         return context
 
     def get_queryset(self):
         qs = models.CSASRequest.objects.all()
         qs = qs.annotate(search=Concat('title', Value(" "), 'translated_title', Value(" "), 'id', output_field=TextField()))
         return qs
-
-
-class CSASRequestTranslationConsoleTemplateView(CSASRequestReviewConsoleTemplateView):
-    h1 = gettext_lazy("CSAS Request Translation Console")
-    template_name = 'csas2/request_reviews/main_trans.html'
 
 
 class ProcessReviewTemplateView(CsasAdminRequiredMixin, CommonFilterView):
@@ -588,7 +582,7 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
         {"name": 'regions|{}'.format(_("CSAS offices")), "class": "", "width": ""},
         {"name": 'tor_status|{}'.format(_("ToR status")), "class": "", "width": ""},
-        {"name": 'chair|{}'.format(_("chair")), "class": "w-25", "width": ""},
+        {"name": 'chair|{}'.format(_("chair(s)")), "class": "w-15", "width": ""},
         {"name": 'science_leads|{}'.format(_("science lead(s)")), "class": "", "width": ""},
         {"name": 'has_peer_review_meeting|{}'.format(_("has peer review meeting?")), "class": "", "width": ""},
         {"name": 'has_planning_meeting|{}'.format(_("has planning meeting?")), "class": "", "width": ""},
@@ -633,6 +627,7 @@ class ProcessDetailView(LoginAccessRequiredMixin, CommonDetailView):
         context["process_field_list"] = utils.get_process_field_list(obj)
         context["meeting_field_list"] = [
             'display|{}'.format(_("title")),
+            'is_posted',
             'location',
             'display_dates|{}'.format(_("dates")),
         ]
@@ -810,6 +805,16 @@ class ProcessPostingsVueJSView(CsasNCRStaffRequiredMixin, CommonFilterView):  # 
 # ToR #
 #######
 
+def tor_dispatch(request, process):
+    if request.method == "GET":
+        p = get_object_or_404(models.Process, pk=process)
+        if p.has_tor:
+            url = reverse("csas2:tor_edit", args=[p.tor.id])
+        else:
+            url = reverse("csas2:tor_new", args=[p.id])
+        return HttpResponseRedirect(url)
+
+
 class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
     model = models.TermsOfReference
     form_class = forms.TermsOfReferenceForm
@@ -818,11 +823,6 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
     submit_text = gettext_lazy("Initiate ToR")
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
     h1 = gettext_lazy("New Terms of Reference")
-
-    def get_h3(self):
-        if self.get_process().is_posted:
-            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
-            return mark_safe(mystr)
 
     def get_initial(self):
         """ For the benefit of the form class"""
@@ -840,14 +840,7 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
         obj = form.save(commit=False)
         obj.process = self.get_process()
         obj.created_by = self.request.user
-
         super().form_valid(form)
-
-        # now for the piece about NCR email
-        if obj.process.is_posted and obj.meeting:
-            email = emails.UpdatedMeetingEmail(self.request, obj.meeting, obj.meeting, obj.meeting.expected_publications_en, "",
-                                               obj.meeting.expected_publications_fr, "")
-            email.send()
 
         return super().form_valid(form)
 
@@ -860,7 +853,7 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
     greatgrandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
     def get_h3(self):
-        if self.get_object().process.is_posted:
+        if self.get_object().meeting and self.get_object().meeting.is_posted:
             mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
             return mark_safe(mystr)
 
@@ -894,7 +887,7 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
             new_expected_publications_fr = new_meeting.expected_publications_fr
 
             # now for the piece about NCR email
-            if obj.process.is_posted and (old_meeting != new_meeting or old_expected_publications_en != new_expected_publications_en):
+            if self.get_object().meeting and self.get_object().meeting.is_posted and (old_meeting != new_meeting or old_expected_publications_en != new_expected_publications_en):
                 email = emails.UpdatedMeetingEmail(self.request, new_meeting, old_meeting, old_expected_publications_en, new_expected_publications_en,
                                                    old_expected_publications_fr, new_expected_publications_fr)
                 email.send()
@@ -1018,9 +1011,10 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'tname|{}'.format("title"), "class": "", "width": "400px"},
         {"name": 'location', "class": "", "width": ""},
         {"name": 'display_dates_deluxe|{}'.format(_("dates")), "class": "", "width": ""},
+        {"name": 'is_estimate|{}'.format(_("dates are approximate")), "class": "", "width": ""},
         {"name": 'role|{}'.format(_("your role(s)")), "class": "", "width": ""},
         {"name": 'is_planning', "class": "", "width": ""},
-        {"name": 'process.posting_status|{}'.format(_("Status of website posting")), "class": "", "width": "400px"},
+        {"name": 'posting_status|{}'.format(_("Status of website posting")), "class": "", "width": "400px"},
     ]
 
     def get_extra_button_dict1(self):
@@ -1037,7 +1031,7 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
         qs = models.Meeting.objects.all()
         if qp.get("personalized"):
             qs = utils.get_related_meetings(self.request.user)
-        qs = qs.annotate(search_term=Concat(
+        qs = qs.annotate(search=Concat(
             'name',
             Value(" "),
             'nom',
@@ -1110,7 +1104,7 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
 
     def get_h3(self):
         obj = self.get_object()
-        if obj.process.is_posted and hasattr(obj, "tor"):
+        if obj.is_posted and hasattr(obj, "tor"):
             mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(
                 _("This process has already been posted therefore changes to the meeting details "
                   "will automatically trigger a notification to be sent to the national CSAS team."))
@@ -1151,7 +1145,7 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
         super().form_valid(form)
 
         # now for the piece about NCR email
-        if obj.process.is_posted and hasattr(obj, "tor") and \
+        if obj.is_posted and hasattr(obj, "tor") and \
                 (old_obj.name != obj.name or old_obj.nom != obj.nom or old_obj.location != obj.location
                  or old_obj.tor_display_dates != obj.tor_display_dates or old_obj.expected_publications_en != obj.expected_publications_en):
             email = emails.UpdatedMeetingEmail(self.request, obj, old_obj)

@@ -12,7 +12,7 @@
   }
 
   #map {
-      height: 300px; /* The height is 400 pixels */
+      height: 400px; /* The height is 400 pixels */
       width: 100%; /* The width is the width of the web page */
   }
   </style>
@@ -24,16 +24,22 @@
     <a href="{% url 'edna:sample_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
   </div>
 
-  <div class="card mb-3 w-50">
-    <div class="card-header lead">
-      {% trans "Sample Detail" %}
+  <div class="row">
+    <div class="col card mb-3 w-50">
+      <div class="card-header lead">
+        {% trans "Sample Detail" %}
+      </div>
+      <div class="card-body">
+        <table class="table table-sm">
+          {% for field in field_list %}
+            {% verbose_td_display object field th_width="200px" display_time=True %}
+          {% endfor %}
+        </table>
+      </div>
     </div>
-    <div class="card-body">
-      <table class="table table-sm">
-        {% for field in field_list %}
-          {% verbose_td_display object field th_width="200px" display_time=True %}
-        {% endfor %}
-      </table>
+    <div class="col">
+      <div class="" id="map">
+      </div>
     </div>
   </div>
 

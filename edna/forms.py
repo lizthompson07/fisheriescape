@@ -71,9 +71,27 @@ class SpeciesForm(forms.ModelForm):
 
 
 class AssayForm(forms.ModelForm):
+    field_order = [
+        "alias",
+        "name",
+        "lod",
+        "loq",
+        "units",
+        "a_coef",
+        "b_coef",
+        "is_ipc",
+        "species",
+    ]
     class Meta:
         model = models.Assay
         fields = "__all__"
+        widgets = {
+            "species": forms.SelectMultiple(attrs=chosen_js),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["species"].choices = [(s.id, s.full_name_plain_text) for s in models.Species.objects.all()]
 
 
 class CollectionForm(forms.ModelForm):
@@ -120,6 +138,7 @@ class PCRBatchForm(forms.ModelForm):
         "machine_number",
         "run_program",
         "control_status",
+        "default_collection",
         "comments",
     ]
 
@@ -127,7 +146,7 @@ class PCRBatchForm(forms.ModelForm):
         model = models.PCRBatch
         fields = "__all__"
         widgets = {
-            "datetime": forms.DateInput(attrs=dict(type="date")),
+            "datetime": forms.DateTimeInput(attrs=attr_fp_date_time),
             "operators": forms.SelectMultiple(attrs=chosen_js),
         }
 

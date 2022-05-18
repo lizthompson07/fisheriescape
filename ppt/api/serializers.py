@@ -211,6 +211,12 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     project_user_choices = serializers.SerializerMethodField()
     parent_activity_choices = serializers.SerializerMethodField()
 
+    services = serializers.SerializerMethodField()
+
+    def get_services(self, instance):
+        if instance.services.exists():
+            return listrify(instance.services.all())
+
     def get_parent_activity_choices(self, instance):
         return [dict(id=obj.id, value=f"{obj.get_type_display()} - {obj}") for obj in instance.activities.filter(parent__isnull=True)]
 

@@ -277,19 +277,23 @@
           </select>
         </div>
 
-
-        {# Requires ABL services #}
+        {# Services #}
         <div class="form-group">
-          <label class="text-muted small" for="filter.requires_abl_services">{% trans "Requires ABL services" %}</label>
-          <select
-            v-model="filter.requires_abl_services"
-            @change="updateResults"
-            class="form-control form-control-sm" id="filter.requires_abl_services"
+
+          <label class="text-muted small" for="filter.services">${ projectYearLabels.services }</label>
+          <v-select
+            v-model="filter.services"
+            @input="updateResults"
+            style="border-color: white"
+            id="filter.services"
+            :options="services"
+            label="text"
+            :reduce="choice => choice.value"
+            :clearable="true"
           >
-            <option value="">------</option>
-            <option :value="true">{% trans "Yes" %}</option>
-            <option :value="false">{% trans "No" %}</option>
-          </select>
+          </v-select>
+
+
         </div>
 
         {# approval status #}

@@ -29,12 +29,18 @@ class CommitteeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['name', 'main_topic', 'species', 'branch', 'division', 'area_office', 'is_dfo_chair',
-                           'external_chair', 'dfo_liaison', 'other_dfo_branch', 'other_dfo_regions', 'other_dfo_areas',
-                           'dfo_role', 'first_nation_participation', 'provincial_participation', 'external_contact',
-                           'external_organization', 'meeting_frequency', 'are_tor', 'location_of_tor',
-                           'main_actions', 'comments',
+        self.order_fields(['name', 'main_topic', 'species', 'branch', 'division', 'area_office', 'area_office_program',
+                           'is_dfo_chair', 'external_chair', 'dfo_liaison', 'other_dfo_branch', 'other_dfo_regions',
+                           'other_dfo_areas', 'dfo_role', 'first_nation_participation', 'provincial_participation',
+                           'external_contact', 'external_organization', 'meeting_frequency', 'are_tor',
+                           'location_of_tor', 'main_actions', 'comments',
                            ])
+
+        self.fields['main_topic'].widget.attrs['size'] = '6'
+        self.fields['species'].widget.attrs['size'] = '6'
+        self.fields['other_dfo_branch'].widget.attrs['size'] = '6'
+        self.fields['other_dfo_regions'].widget.attrs['size'] = '6'
+        self.fields['other_dfo_areas'].widget.attrs['size'] = '6'
 
         branch = [(c.id, c) for c in shared_models.Branch.objects.all()]
         branch.insert(0, (None, "-----"))
@@ -50,6 +56,13 @@ class CommitteeForm(forms.ModelForm):
 
 
 class InteractionForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # changes number of rows / height of multiple select widget:
+        self.fields['main_topic'].widget.attrs['size'] = '8'
+        self.fields['species'].widget.attrs['size'] = '8'
+
     class Meta:
         model = models.Interaction
         exclude = [
@@ -60,7 +73,6 @@ class InteractionForm(forms.ModelForm):
             'date_of_meeting': forms.DateInput(attrs=attr_fp_date),
             'last_modified': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
-
             'committee': forms.Select(attrs=chosen_js),
             'dfo_role': forms.Select(attrs=chosen_js),
             'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
@@ -151,7 +163,7 @@ class PersonForm(forms.ModelForm):
         exclude = ["date_last_modified", "old_id", 'last_modified_by', 'connected_user']
         widgets = {
             'committee': forms.Select(attrs=chosen_js),
-            'organizations': forms.Select(attrs=chosen_js),
+            'organizations': forms.SelectMultiple(attrs=chosen_js),
             'notes': forms.Textarea(attrs={"rows": "3"}),
         }
 
@@ -160,6 +172,7 @@ class PersonForm(forms.ModelForm):
         self.order_fields(['designation', 'role', 'first_name', 'last_name', 'phone_1', 'phone_2', 'cell', 'email_1',
                            'email_2', 'fax', 'language', 'notes', 'committee'])
         self.fields['organizations'].label = _("Organization Membership")
+        self.fields['committee'].widget.attrs['size'] = '8'
 
         committee = [(c.id, c) for c in models.Committee.objects.all()]
         self.fields['committee'].choices = committee
@@ -226,6 +239,19 @@ class AreaOfficeForm(forms.ModelForm):
 AreaOfficesFormSet = modelformset_factory(
     model=models.AreaOffice,
     form=AreaOfficeForm,
+    extra=3,
+)
+
+
+class AreaOfficeProgramForm(forms.ModelForm):
+    class Meta:
+        model = models.AreaOfficeProgram
+        fields = "__all__"
+
+
+AreaOfficesProgramFormSet = modelformset_factory(
+    model=models.AreaOfficeProgram,
+    form=AreaOfficeProgramForm,
     extra=3,
 )
 

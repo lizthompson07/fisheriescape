@@ -1,5 +1,6 @@
 from gettext import gettext as _
 
+from django.contrib.auth.models import User
 from django.db.models import Q
 from django.template.defaultfilters import date, pluralize, slugify
 from django.urls import reverse
@@ -14,7 +15,7 @@ from rest_framework.views import APIView
 
 from lib.functions.custom_functions import truncate
 from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer
-from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView
+from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView, UserViewSet
 from shared_models.models import FiscalYear, Region, Division, Section, Organization
 from shared_models.utils import get_labels
 from . import serializers
@@ -110,7 +111,7 @@ class TripViewSet(viewsets.ModelViewSet):
             else:
                 qs = qs.filter(start_date__gte=timezone.now())
 
-            return qs
+            return qs.order_by("start_date")
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -463,6 +464,25 @@ class CostViewSet(viewsets.ModelViewSet):
 
 # LOOKUPS
 ##########
+
+
+class TravelUserViewSet(UserViewSet):
+    serializer_class = serializers.TravelUserSerializer
+
+    def create(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("search_and_replace"):
+            if not utils.in_travel_nat_admin_group(request.user):
+                raise PermissionDenied(_("This function can only be used by national system administrators."))
+
+            good_user = get_object_or_404(User, pk=request.data.get("good_user"))
+            bad_user = get_object_or_404(User, pk=request.data.get("bad_user"))
+            utils.search_and_replace(good_user, bad_user)
+
+            return Response(None, status.HTTP_204_NO_CONTENT)
+        return super().create(request, *args, **kwargs)
+
+
 
 
 class FiscalYearTravelListAPIView(FiscalYearListAPIView):

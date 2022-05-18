@@ -879,6 +879,22 @@ class CSRFClientInformationHardDeleteView(AdminRequiredMixin, CommonHardDeleteVi
     success_url = reverse_lazy("ppt:manage_csrf_client_information")
 
 
+class ServiceFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'ppt/formset.html'
+    h1 = "Manage Services"
+    queryset = models.Service.objects.all()
+    formset_class = forms.ServiceFormset
+    success_url_name = "ppt:manage_services"
+    home_url_name = "ppt:index"
+    delete_url_name = "ppt:delete_service"
+    container_class = "container-fluid bg-light curvy"
+
+
+class ServiceHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Service
+    success_url = reverse_lazy("ppt:manage_services")
+
+
 class PPTAdminUserFormsetView(SuperuserOrNationalAdminRequiredMixin, CommonFormsetView):
     template_name = 'ppt/formset.html'
     h1 = "Manage PPT Administrative Users"
@@ -1585,10 +1601,14 @@ def export_py_list(request):
 
     site_url = my_envr(request)["SITE_FULL_URL"]
 
+    get_collab = False
+    if request.GET.get("get_collaborations"):
+        get_collab = True
+
     if request.GET.get("long"):
-        file_url = reports.generate_py(qs, site_url, "long")
+        file_url = reports.generate_py(qs, site_url, "long", get_collab)
     else:
-        file_url = reports.generate_py(qs, site_url, "basic")
+        file_url = reports.generate_py(qs, site_url, "basic", get_collab)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -1691,47 +1711,15 @@ def export_project_position_allocation(request):
 
 @login_required()
 def export_capital_request_costs(request):
-    year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
-    region = request.GET.get("region")
-    division = request.GET.get("division")
-    section = request.GET.get("section")
-
-    region_name = None
-    if region:
-        region_name = shared_models.Region.objects.get(pk=region)
-
-    division_name = None
-    if division and division != 'None':
-        division_name = shared_models.Division.objects.get(pk=division)
-
-    section_name = None
-    if section and section != 'None':
-        section_name = shared_models.Section.objects.get(pk=section)
-
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="{}_{}_capital_request_costs.csv"'.format(year, region_name)
-
-    writer = csv.writer(response)
-    writer.writerow(['Project ID', 'Project Name', 'Region', 'Division', 'Section', 'Theme', 'Capital Cost', 'Amount'])
-
-    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
-                                                      project__section__division__branch__region_id=region)
-    if division and division != 'None':
-        project_years = project_years.filter(project__section__division_id=division)
-
-    if section and section != 'None':
-        project_years = project_years.filter(project__section_id=section)
-
-    # Now filter down the projects to projects that have staff with staff levels, but no staff name.
-    for p in project_years:
-        for cost in p.capitalcost_set.all():
-            proj = p.project
-            writer.writerow(
-                [proj.pk, proj.title, proj.section.division.branch.region, proj.section.division, proj.section,
-                 proj.functional_group, cost, cost.amount])
-
-    return response
+    qs = get_project_year_queryset(request)
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_capital_cost_report(qs, site_url)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="ppt capital costs.xlsx"'
+            return response
+    raise Http404
 
 
 @login_required()
