@@ -65,7 +65,7 @@
                 <tr>
                   <th class="w25px">#</th>
                   <th class="w150">${labels.species}</th>
-                  <th class="w150px">${labels.status}</th>
+                  <th class="w200">${labels.status}</th>
                   <th class="w125px">${labels.life_stage}</th>
                   <th class="w125px">${labels.reproductive_status}</th>
                   <th class="w150">${labels.origin}</th>
@@ -74,9 +74,7 @@
                   <th v-if="!isElectro" class="w100px">${labels.total_length}</th>
                   <th class="w75">${labels.weight}</th>
                   <th v-if="!isElectro" class="w75">${labels.tag_number}</th>
-                  <th v-if="!isElectro" class="w100px">${labels.location_tagged}</th>
-                  <th v-if="!isElectro" class="w125px">${labels.date_tagged}<br>(yyyy-mm-dd)</th>
-                  <th class="w75">${labels.scale_id_number}</th>
+                  <th class="w100px">${labels.scale_id_number}</th>
                   <th v-if="!isElectro" class="w75">${labels.tags_removed}</th>
                   <th class="">${labels.notes}</th>
                   <th class="w50px"></th>
@@ -217,29 +215,6 @@
                     />
                   </td>
 
-                  <td v-if="!isElectro && !o.edit">${o.location_tagged|nz}</td>
-                  <td v-else-if="!isElectro">
-                    <input
-                      type="text" class="table-input p-0"
-                      v-model="o.location_tagged"
-                      @change="updateObservation(o)"
-                      @focus="updateLastSelected('location_tagged')"
-                      :ref="`location_tagged_${o.id}`"
-                    />
-                  </td>
-
-                  <td v-if="!isElectro && !o.edit">${o.date_tagged_display|nz}</td>
-                  <td v-else-if="!isElectro">
-                    <input
-                      type="text" class="table-input p-0"
-                      v-model="o.date_tagged_display"
-                      @change="updateObservation(o)"
-                      @focus="updateLastSelected('date_tagged')"
-                      :ref="`date_tagged_${o.id}`"
-
-                    />
-                  </td>
-
                   <td v-if="!o.edit">${o.scale_id_number|nz}</td>
                   <td v-else>
                     <input
@@ -368,8 +343,6 @@
         'total_length',
         'weight',
         'tag_number',
-        'location_tagged',
-        'date_tagged',
         'scale_id_number',
         'tags_removed',
         'notes',
