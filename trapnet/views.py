@@ -519,7 +519,7 @@ class SampleDeleteView(TrapNetCRUDRequiredMixin, CommonDeleteView):
 
 
 class DataEntryVueJSView(TrapNetCRUDRequiredMixin, CommonTemplateView):
-    template_name = 'trapnet/data_entry/main.html'
+    template_name = 'trapnet/data_entry_v2/main.html'
     home_url_name = "trapnet:index"
     greatgrandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
     container_class = "container-fluid"
