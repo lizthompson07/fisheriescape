@@ -285,7 +285,7 @@ label.filter {
     transition: all .5s ease;
     /*font-family: Helvetica, Arial, sans-serif;*/
     overflow-y: auto;
-    max-height: calc(100vh - 210px);
+    max-height: calc(100vh - 110px);
 }
 
 .modal-header h3 {

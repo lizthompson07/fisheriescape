@@ -35,7 +35,16 @@
                 {% trans "Observations" %}
               </div>
               <div class="card-body">
-                <button class="float-right btn btn-sm btn-primary" @click="">
+                <overlay
+                  v-if="overlay"
+                  @close="overlay=false"
+                  @add="newObservation"
+                  :labels="labels"
+                  :choices="choices"
+                  :is_electro="isElectro"
+                  :primed_observation="primedObservation"
+                ></overlay>
+                <button class="float-right btn btn-sm btn-primary" @click="overlay=!overlay">
                   {% trans "New Observations" %}
                 </button>
                 <p>
@@ -56,7 +65,7 @@
                 <tr>
                   <th class="w25px">#</th>
                   <th class="w150">${labels.species}</th>
-                  <th class="w75">${labels.status}</th>
+                  <th class="w150px">${labels.status}</th>
                   <th class="w125px">${labels.life_stage}</th>
                   <th class="w125px">${labels.reproductive_status}</th>
                   <th class="w150">${labels.origin}</th>
@@ -265,14 +274,12 @@
                   </td>
 
                   <td>
-                    <div v-if="!o.edit">
                       <button class="btn btn-sm " @click.prevent="deleteObservation(o)">
                         <span class="mdi mdi-delete"></span>
                       </button>
-                    </div>
-                    <div v-else>
-                      <button class="btn btn-xs btn-success" @click="updateObservation(o, true)"><span class="mdi mdi-check text-light"></span></button>
-                    </div>
+{#                    <div v-else>#}
+{#                      <button class="btn btn-xs btn-success" @click="updateObservation(o, true)"><span class="mdi mdi-check text-light"></span></button>#}
+{#                    </div>#}
                   </td>
                 </tr>
                 </tbody>
@@ -283,9 +290,10 @@
         </div>
       </div>
     </div>
+
+
   </div>
 
-  <overlay></overlay>
 {% endblock %}
 
 
@@ -326,6 +334,7 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: {},
+      overlay: false,
       sample: {},
       loading: {
         observations: false,
@@ -423,16 +432,6 @@
               this.loading.sample = false;
             })
       },
-      primeObservation() {
-        return {
-          sample: sampleId,
-          sweep: sweepId,
-          origin: this.lastOrigin,
-          species: this.lastSpecies,
-          location_tagged: this.lastLocation,
-          status: this.lastStatus,
-        };
-      },
       getObservations() {
         this.loading.observations = true;
         let endpoint;
@@ -454,17 +453,17 @@
           else el.select();
         })
       },
-      addMultiple(instructions) {
-        const templateObservation = JSON.parse(JSON.stringify(this.observation));
-        for (var i = 0; i < instructions.totalObservations; i++) {
-          this.observation = JSON.parse(JSON.stringify(templateObservation));
-          this.observation.date_tagged = this.observation.date_tagged_display
-          if (instructions.shouldIncrement && instructions.tagPrefix !== null && instructions.startTagNumber) {
-            this.observation.tag_number = instructions.tagPrefix + String(i + instructions.startTagNumber).padStart(instructions.padding, "0")
-          }
-          this.updateObservation(true);
-        }
-      },
+      //addMultiple(instructions) {
+      //  const templateObservation = JSON.parse(JSON.stringify(this.observation));
+      //  for (var i = 0; i < instructions.totalObservations; i++) {
+      //    this.observation = JSON.parse(JSON.stringify(templateObservation));
+      //    this.observation.date_tagged = this.observation.date_tagged_display
+      //    if (instructions.shouldIncrement && instructions.tagPrefix !== null && instructions.startTagNumber) {
+      //      this.observation.tag_number = instructions.tagPrefix + String(i + instructions.startTagNumber).padStart(instructions.padding, "0")
+      //    }
+      //    this.updateObservation(true);
+      //  }
+      //},
       cleanObservation(obs) {
         for (const observationKey in obs) if (obs[observationKey] === "") obs[observationKey] = null;
         if (obs.date_tagged_display) obs.date_tagged = `${obs.date_tagged_display}T12:00`;
@@ -472,9 +471,16 @@
       },
 
       newObservation(obs) {
-        this.observation.sample = sampleId
-        endpoint = `/api/trapnet/observations/`;
-        method = "POST";
+        obs.sample = sampleId;
+        apiService(`/api/trapnet/observations/`, "POST", obs)
+            .then(response => {
+                // capture the memories
+                this.memory.lastSpecies = response.species;
+                this.memory.lastStatus = response.status;
+                this.memory.lastOrigin = response.origin;
+                this.memory.lastLocation = response.location_tagged;
+                this.getObservations();
+            })
       },
       updateObservation(obs, close) {
         this.errorMsg = null;
@@ -539,7 +545,17 @@
       },
       isElectro() {
         return this.sample && this.sample.sample_type === 2;
-      }
+      },
+      primedObservation() {
+        return {
+          sample: sampleId,
+          sweep: sweepId,
+          origin: this.lastOrigin,
+          species: this.lastSpecies,
+          location_tagged: this.lastLocation,
+          status: this.lastStatus,
+        };
+      },
     },
     filters: {
       floatformat: vueFiltersObject["floatformat"],

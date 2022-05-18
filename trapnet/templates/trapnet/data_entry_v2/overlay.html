@@ -2,19 +2,159 @@
 {% load i18n %}
 
 <script type="text/x-template" id="overlay-template">
-
-<div class="">
-  <transition name="modal">
-    <div class="modal-mask">
-      <div class="modal-wrapper">
-        <div class="modal-container" style="width: 600px">
-          <div class="modal-header">
-            <h4> {% trans "Multiple on Which Basis?" %}</h4>
+<transition name="modal">
+  <div class="modal-mask">
+    <div class="modal-wrapper">
+      <div class="modal-container" style="width: 50%; height: 1000px">
+        <div class="modal-header">
+          <h4 v-if="!multipleMode">
+            {% trans "New Observations" %}
+          </h4>
+          <h4 v-else="">
+            {% trans "Multiple on Which Basis?" %}
+          </h4>
+        </div>
+        <div class="modal-body">
+          <div v-if="error" class="alert alert-danger mb-3" role="alert">
+            ${error}
           </div>
-          <div class="modal-body">
-            <div v-if="error" class="alert alert-danger mb-3" role="alert">
-              ${error}
-            </div>
+
+          <div v-if="!multipleMode">
+            <form @submit.prevent="add" @keydown.esc.prevent="closeDialog">
+              <table class="side-table">
+                <tbody>
+                <tr>
+                  <th>
+                    <label for="" class="text-danger">${labels.species} (*)</label>
+                  </th>
+                  <td>
+                    <v-select
+                      ref="start"
+                      v-model="observation.species"
+                      :options="choices.speciesChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class="my-0"
+                      :clearable=false
+                      required
+                    ></v-select>
+                  </td>
+                </tr>
+                <tr>
+                  <th><label for="" class="text-danger">${labels.status} (*)</label></th>
+                  <td>
+                    <v-select
+                      v-model="observation.status"
+                      :options="choices.statusChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class=""
+                      :clearable=false
+                      required
+                    ></v-select>
+                  </td>
+                </tr>
+                <tr>
+                  <th><label for="">${labels.life_stage}</label></th>
+                  <td>
+                    <v-select
+                      v-model="observation.life_stage"
+                      :options="choices.lifeStageChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class=""
+                      :clearable=false
+
+                    ></v-select>
+                  </td>
+                </tr>
+                <tr>
+                  <th><label for="">${labels.reproductive_status}</label></th>
+                  <td>
+                    <v-select
+                      v-model="observation.reproductive_status"
+                      :options="choices.reproductiveStatusChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class=""
+                      :clearable=false
+                    ></v-select>
+                  </td>
+                </tr>
+                <tr>
+                  <th><label for="">${labels.origin}</label></th>
+                  <td>
+                    <v-select
+                      v-model="observation.origin"
+                      :options="choices.originChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class=""
+                      :clearable=false
+                    ></v-select>
+                  </td>
+                </tr>
+                <tr>
+                  <th><label for="">${labels.sex}</label></th>
+                  <td>
+                    <v-select
+                      v-model="observation.sex"
+                      :options="choices.sexChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class=""
+                      :clearable=false
+                    ></v-select>
+                  </td>
+                </tr>
+
+                <tr>
+                  <th><label for="">${labels.fork_length}</label></th>
+                  <td><input type="number" step="any" v-model="observation.fork_length" class="form-control w-100"/></td>
+                </tr>
+                <tr v-if="!is_electro">
+                  <th><label for="">${labels.total_length}</label></th>
+                  <td><input type="number" step="any" v-model="observation.total_length" class="form-control"/></td>
+                </tr>
+                <tr>
+                  <th><label for="">${labels.weight}</label></th>
+                  <td><input type="number" step="any" v-model="observation.weight" class="form-control"/></td>
+                </tr>
+                <tr v-if="!is_electro">
+                  <th><label for="">${labels.tag_number}</label></th>
+                  <td><input type="text" v-model="observation.tag_number" class="form-control"/></td>
+                </tr>
+                <tr v-if="!is_electro">
+                  <th><label for="">${labels.location_tagged}</label></th>
+                  <td><input type="text" v-model="observation.location_tagged" class="form-control"/></td>
+                </tr>
+                <tr v-if="!is_electro">
+                  <th><label for="">${labels.date_tagged} (yyyy-mm-dd)</label></th>
+                  <td><input type="text" v-model="observation.date_tagged_display" class="form-control"/></td>
+                </tr>
+                <tr>
+                  <th><label for="">${labels.scale_id_number}</label></th>
+                  <td><input type="text" v-model="observation.scale_id_number" class="form-control"/></td>
+                </tr>
+                <tr v-if="!is_electro">
+                  <th><label for="">${labels.tags_removed}</label></th>
+                  <td><input type="text" v-model="observation.tags_removed" class="form-control"/></td>
+                </tr>
+                <tr>
+                  <th><label for="">${labels.notes}</label></th>
+                  <td><input type="text" v-model="observation.notes" class="form-control"/></td>
+                </tr>
+                </tbody>
+              </table>
+
+              <div class="form-group mt-3">
+                <button type="submit" class="btn btn-sm btn-success" :disabled="!formIsComplete">{% trans "Add" %}</button>
+                <button type="button" class="btn btn-sm btn-success" @click="multipleMode=true" :disabled="!formIsComplete">{% trans "Add Mutliple" %}</button>
+                <button type="button" class="btn btn-sm btn-secondary" @click="closeDialog()"> {% trans "Cancel" %} </button>
+              </div>
+            </form>
+          </div>
+          <div v-else>
             <div v-if="!scenario">
               <div class="mb-3 text-center">
                 <button type="button" class="btn btn-primary" @click="scenario=1;">
@@ -22,7 +162,7 @@
                 </button>
               </div>
               <div class="mb-3 text-center">
-                <button type="button" class="btn btn-primary" @click="scenario=2;" :disabled="!obs.tag_number">
+                <button type="button" class="btn btn-primary" @click="scenario=2;" :disabled="!observation.tag_number">
                   {% trans "End Tag #" %}
                 </button>
               </div>
@@ -30,7 +170,7 @@
 
 
             <div v-if="scenario===1">
-              <form @submit.prevent="onSubmit">
+              <form @submit.prevent="addMultiple">
                 <div class="form-group">
                   <label for="">{% trans "How many observations would you like to add?" %}</label>
                   <input v-model="totalObservations" type="number" class="form-control" required>
@@ -46,7 +186,7 @@
               </form>
             </div>
             <div v-else-if="scenario===2">
-              <form @submit.prevent="onSubmit">
+              <form @submit.prevent="addMultiple">
                 <div class="form-group">
                   <label for="">{% trans "Tag Prefix:" %}</label>
                   <p class="lead">
@@ -75,17 +215,22 @@
             </div>
 
             <div class="mb-3 text-center">
-              <button type="button" class="btn btn-secondary" @click="closeDialog()">
-                {% trans "Cancel" %}
+              <button type="button" class="btn btn-secondary" @click="goBack">
+                {% trans "Back" %}
               </button>
             </div>
 
           </div>
+
         </div>
       </div>
+
     </div>
-  </transition>
+  </div>
+</transition>
 </div>
+
+
 </script>
 
 <script type="application/javascript">
@@ -95,79 +240,111 @@ Vue.component("overlay", {
   delimiters: ["${", "}"],
   name: "overlay",
   props: {
-    obs: {
+    labels: {
+      type: Object,
+      required: true
+    },
+    choices: {
+      type: Object,
+      required: true
+    },
+    primed_observation: {
+      type: Object,
+      required: true
+    },
+    is_electro: {
+      type: Boolean,
       required: true
     }
+
   },
   data() {
     return {
-      overlay: false,
       error: null,
       scenario: null,
       endTag: null,
       shouldIncrement: false,
       totalObservations: null,
+      observation: {},
+      multipleMode: false,
     };
   },
   methods: {
+
+
     openDialog() {
       this.error = null;
       this.overlay = true;
       this.shouldIncrement = !!this.obs.tag_number;
     },
     closeDialog() {
-      this.error = null;
-      this.overlay = false;
-      this.scenario = null;
-      this.endTag = null;
-      this.shouldIncrement = false;
-      this.totalObservations = null
+      this.$emit("close");
     },
-    onSubmit() {
+    goBack() {
+      this.multipleMode = false;
+      this.scenario = null;
+      this.totalObservations = null;
+    },
+    add() {
+      this.$emit("add", this.observation);
+      this.closeDialog();
+    },
+    addMultiple() {
       let msg = '{% trans 'Warning: by proceeding you will be creating more than 10 observations. Are you sure you want to continue?' %}'
       let proceed = true;
       if (this.totalObservations && this.totalObservations > 10) proceed = confirm(msg);
       if (proceed) {
         this.error = null;
-        returnObj = {
+        instructions = {
           shouldIncrement: this.shouldIncrement,
           totalObservations: this.totalObservations,
           tagPrefix: this.tagPrefix,
         }
-        if(this.startTagNumber) {
-          returnObj.startTagNumber = this.startTagNumber.number
-          returnObj.padding = this.startTagNumber.padding
+        if (this.startTagNumber) {
+          instructions.startTagNumber = this.startTagNumber.number
+          instructions.padding = this.startTagNumber.padding
         }
-
         if (this.endTag) {
           // we have to figure out the total number of observations based on the endTag number
           let startNumber = this.startTagNumber.number;
           let endNumber = extractNumber(this.endTag).number;
           if (endNumber < startNumber) this.error = '{% trans 'The end tag number is smaller than the start tag number' %}'
           else {
-            returnObj.shouldIncrement = true; // always for this scenario!
-            returnObj.totalObservations = endNumber - startNumber + 1;
+            instructions.shouldIncrement = true; // always for this scenario!
+            instructions.totalObservations = endNumber - startNumber + 1;
           }
         }
         if (!this.error) {
-          this.$emit("submitted", returnObj);
-          this.closeDialog();
+          for (var i = 0; i < instructions.totalObservations; i++) {
+            //this.observation.date_tagged = this.observation.date_tagged_display
+            if (instructions.shouldIncrement && instructions.tagPrefix !== null && instructions.startTagNumber) {
+              this.observation.tag_number = instructions.tagPrefix + String(i + instructions.startTagNumber).padStart(instructions.padding, "0")
+            }
+            this.add();
+          }
         }
       }
     },
 
   },
   created() {
+    this.observation = this.primed_observation;
+    this.$nextTick(() => {
+      this.$refs.start.$refs.search.focus();
+    })
   },
   computed: {
+    formIsComplete() {
+      return this.observation.species && this.observation.status;
+    },
     tagPrefix() {
-      if (this.obs.tag_number) {
-        return extractPrefix(this.obs.tag_number)
+      if (this.observation.tag_number) {
+        return extractPrefix(this.observation.tag_number)
       }
     },
     startTagNumber() {
-      if (this.obs.tag_number) {
-        return extractNumber(this.obs.tag_number)
+      if (this.observation.tag_number) {
+        return extractNumber(this.observation.tag_number)
       }
     },
     paddedStartTagNumber() {
@@ -178,3 +355,5 @@ Vue.component("overlay", {
   }
 });
 </script>
+
+
