@@ -777,7 +777,12 @@ class CapitalCost(GenericCost):
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
 
     def __str__(self):
+        return self.display
+
+    @property
+    def display(self):
         return f"{self.get_category_display()}"
+
 
     class Meta:
         ordering = ['category', ]

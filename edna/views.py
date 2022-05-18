@@ -282,7 +282,7 @@ class CollectionListView(eDNAAdminRequiredMixin, CommonFilterView):
     home_url_name = "edna:index"
     row_object_url_name = "edna:collection_detail"
     new_object_url = reverse_lazy("edna:collection_new")
-    new_btn_text = gettext_lazy("Add a New Collection")
+    new_btn_text = gettext_lazy("Add a New Project")
     container_class = "container-fluid curvy"
     field_list = [
         {"name": 'id', "class": "", "width": ""},
@@ -392,7 +392,7 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
             site = row["site"]
             station = row["station"]
             samplers = row["samplers"]
-            datetime = make_aware(dt.datetime.strptime(row["datetime"], "%m/%d/%Y %H:%S"), utc)
+            datetime = make_aware(dt.datetime.strptime(row["datetime"], "%m/%d/%Y %H:%M"), timezone=timezone.get_current_timezone())
             latitude = nz(row["latitude"], None)
             longitude = nz(row["longitude"], None)
             comments = row["comments"]

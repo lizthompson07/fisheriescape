@@ -25,6 +25,12 @@ function handleResponse(response) {
   }
 }
 
+
+function handleError(error) {
+  console.log(error);
+}
+
+
 function apiService(endpoint, method, data) {
   const config = {
     method: method || "GET",
@@ -36,8 +42,10 @@ function apiService(endpoint, method, data) {
   };
   return fetch(endpoint, config)
       .then(handleResponse)
-      .catch(error => console.log(error))
+      .catch()
 }
+
+
 
 
 function fileApiService(endpoint, method, fieldName, file) {

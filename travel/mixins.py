@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
 
 from travel import models
-from travel.utils import in_travel_regional_admin_group, in_travel_nat_admin_group, can_modify_request, is_approver, is_admin
+from travel.utils import in_travel_regional_admin_group, in_travel_nat_admin_group, can_modify_request, is_approver, is_admin, is_adm
 
 
 # This allows any logged in user to access the view
@@ -22,6 +22,7 @@ class TravelBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
         context = super().get_context_data(**kwargs)
         context["is_admin"] = in_travel_regional_admin_group(self.request.user)
         context["is_adm_admin"] = in_travel_nat_admin_group(self.request.user)
+        context["is_adm"] = is_adm(self.request.user)
         return context
 
 
@@ -29,6 +30,12 @@ class TravelBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
 class TravelAdminRequiredMixin(TravelBasicMixin):
     def test_func(self):
         return is_admin(self.request.user)
+
+
+
+class TravelAdminOrADMRequiredMixin(TravelBasicMixin):
+    def test_func(self):
+        return is_admin(self.request.user) or is_adm(self.request.user)
 
 
 class TravelADMAdminRequiredMixin(TravelBasicMixin):

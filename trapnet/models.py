@@ -519,7 +519,7 @@ class Observation(MetadataFields):
     weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
     location_tagged = models.CharField(max_length=500, blank=True, null=True)
     tag_number = models.CharField(max_length=12, blank=True, null=True, verbose_name=_("tag number"))
-    scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"))
+    scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"), unique=True)
     date_tagged = models.DateTimeField(blank=True, null=True, verbose_name="original date tagged")
     tags_removed = models.CharField(max_length=250, blank=True, null=True)
 

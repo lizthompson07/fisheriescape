@@ -190,3 +190,9 @@ table, td {
 .btn-primary {
     background-color: darkblue;
 }
+
+.btn-skyblue {
+    background-color: #f3fafd;
+    color: black;
+    border: 1px black solid;
+}

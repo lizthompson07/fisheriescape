@@ -53,10 +53,10 @@
     <a class="btn" id="request_changes" href="#id_comments" style="background-color: orange">
       {% trans "Request changes" %}
     </a>
-    <a class="btn btn-primary" href="{% url 'travel:request_detail' object.request.id %}" target="_blank">
-      {% trans "Make changes yourself" %} <span class="mdi mdi-arrow-top-right text-light"></span>
+    <a class="btn btn-primary" href="{% url 'travel:request_detail' object.request.id %}" target="_blank"
+       onclick="alert('{% trans "The request will open in a separate tab." %}')">
+      {% trans "Make changes yourself" %} <span class="mdi mdi-open-in-new text-light ml-1"></span>
     </a>
-
     <input type="submit" class="hidden">
   </div>
 {% endblock %}

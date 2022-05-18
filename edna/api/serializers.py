@@ -1,9 +1,12 @@
 from django.contrib.auth.models import User
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.utils.translation import gettext as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from lib.functions.custom_functions import listrify
 from .. import models
+from ..utils import get_timezone_time
 
 
 class UserDisplaySerializer(serializers.ModelSerializer):
@@ -19,6 +22,12 @@ class SampleSerializer(serializers.ModelSerializer):
     is_deletable = serializers.SerializerMethodField()
     sample_type_display = serializers.SerializerMethodField()
     coordinates = serializers.SerializerMethodField()
+    collection_time_display = serializers.SerializerMethodField()
+
+    def get_collection_time_display(self, instance):
+        if instance.datetime:
+            dt = get_timezone_time(instance.datetime)
+            return f'{dt.strftime("%Y-%m-%d %H:%M")}<br>({naturaltime(instance.datetime)})'
 
     def get_coordinates(self, instance):
         return instance.coordinates
@@ -35,7 +44,8 @@ class SampleSerializer(serializers.ModelSerializer):
 
     def get_datetime_display(self, instance):
         if instance.datetime:
-            return instance.datetime.strftime("%Y-%m-%d %H:%M")
+            dt = get_timezone_time(instance.datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
 
     def get_display(self, instance):
         return str(instance)
@@ -53,8 +63,16 @@ class FilterSerializer(serializers.ModelSerializer):
     collection_display = serializers.SerializerMethodField()
     sample_object = serializers.SerializerMethodField()
     has_extracts = serializers.SerializerMethodField()
-
     filtration_type_display = serializers.SerializerMethodField()
+    info_display = serializers.SerializerMethodField()
+
+    def get_info_display(self, instance):
+        payload = list()
+        if instance.is_filtration_blank:
+            payload.append("filtration blank")
+        if instance.sample and instance.sample.is_field_blank:
+            payload.append("field blank")
+        return listrify(payload)
 
     def get_filtration_type_display(self, instance):
         if instance.filtration_type:
@@ -73,11 +91,13 @@ class FilterSerializer(serializers.ModelSerializer):
 
     def get_start_datetime_display(self, instance):
         if instance.start_datetime:
-            return instance.start_datetime.strftime("%Y-%m-%d %H:%M")
+            dt = get_timezone_time(instance.start_datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
 
     def get_end_datetime_display(self, instance):
         if instance.end_datetime:
-            return instance.end_datetime.strftime("%Y-%m-%d %H:%M")
+            dt = get_timezone_time(instance.end_datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
 
     def get_display(self, instance):
         return str(instance)
@@ -113,6 +133,17 @@ class DNAExtractSerializer(serializers.ModelSerializer):
     sample_object = serializers.SerializerMethodField()
     has_pcrs = serializers.SerializerMethodField()
     dna_extraction_protocol_display = serializers.SerializerMethodField()
+    info_display = serializers.SerializerMethodField()
+
+    def get_info_display(self, instance):
+        payload = list()
+        if instance.is_extraction_blank:
+            payload.append("extraction blank")
+        if instance.filter and instance.filter.is_filtration_blank:
+            payload.append("filtration blank")
+        if instance.sample and instance.sample.is_field_blank:
+            payload.append("field blank")
+        return listrify(payload)
 
     def get_dna_extraction_protocol_display(self, instance):
         if instance.dna_extraction_protocol:
@@ -142,7 +173,8 @@ class DNAExtractSerializer(serializers.ModelSerializer):
 
     def get_datetime_display(self, instance):
         if instance.start_datetime:
-            return instance.start_datetime.strftime("%Y-%m-%d %H:%M")
+            dt = get_timezone_time(instance.start_datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
 
     def get_display(self, instance):
         return str(instance)
@@ -219,6 +251,7 @@ class PCRAssaySerializer(serializers.ModelSerializer):
         model = models.PCRAssay
         fields = "__all__"
 
+
 class PCRAssaySerializerLITE(serializers.ModelSerializer):
     result_display = serializers.SerializerMethodField()
     assay_display = serializers.SerializerMethodField()
@@ -233,7 +266,6 @@ class PCRAssaySerializerLITE(serializers.ModelSerializer):
     class Meta:
         model = models.PCRAssay
         fields = "__all__"
-
 
 
 class CollectionSerializer(serializers.ModelSerializer):

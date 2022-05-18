@@ -204,7 +204,7 @@
           <td :rowspan="sample.rowspan"> ${sample.location}</td>
           <td :rowspan="sample.rowspan"> ${sample.site}</td>
           <td :rowspan="sample.rowspan"> ${sample.station}</td>
-          <td :rowspan="sample.rowspan"> ${sample.datetime_display}</td>
+          <td :rowspan="sample.rowspan"><span v-html="sample.collection_time_display"></span></td>
           <td :rowspan="sample.rowspan"> ${sample.samplers}</td>
           <td :rowspan="sample.rowspan"> ${sample.coordinates}</td>
           <td :rowspan="sample.rowspan"> ${sample.comments}</td>
