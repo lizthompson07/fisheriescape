@@ -42,7 +42,7 @@ class DefaultReviewerFactory(factory.django.DjangoModelFactory):
 
 
 class ADMFactory(DefaultReviewerFactory):
-    expenditure_initiation_region = 5
+     special_role = 5
 
 
 class TripFactory(factory.django.DjangoModelFactory):
