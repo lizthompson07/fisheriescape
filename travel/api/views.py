@@ -216,12 +216,13 @@ class TravellerViewSet(viewsets.ModelViewSet):
             utils.clear_empty_traveller_costs(obj)
             return Response(None, status.HTTP_204_NO_CONTENT)
         elif qp.get("cherry_pick_approval"):
-            # This should only ever be performed by the ADM and on requests that are sitting with ADM
-            if utils.is_adm(request.user):
-                if obj.request.status == 14:
-                    utils.cherry_pick_traveller(obj, request=request)
+            # This should only ever be used by authorized users
+            if utils.can_cherry_pick(request.user):
+                # make sure this specific instance of cherry picking is appropriate
+                if utils.can_cherry_pick(request.user, obj.request):
+                    utils.cherry_pick_traveller(obj, request=request, comment=request.data.get("comments"))
                 else:
-                    raise ValidationError(_("This function can only be used with requests that are sitting at the ADM level."))
+                    raise PermissionDenied(_("You cannot cherry pick this traveller at this time."))
             else:
                 raise PermissionDenied(_("You do not have the permissions to cherry pick the approval"))
             return Response(None, status.HTTP_204_NO_CONTENT)

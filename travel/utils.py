@@ -718,12 +718,42 @@ def get_cost_comparison(travellers):
     return list1
 
 
+def can_cherry_pick(user, request=None):
+    """
+    Stores the business rule for whom is allow to cherry pick approve travellers. If there is no request provided, we will simply provide only the authorization portion.
+    """
+    # the user has to have the correct authorization (e.g., ADM, RDG, DG) --> basically the head of a branch, sector or region, EOS travel coordinator
+    response = user.shared_models_branches.exists() or user.shared_models_sectors.exists() or user.shared_models_regions.exists() or is_adm(user) or in_travel_nat_admin_group(user)
+
+    # there is a chance that this user may have expenditure initial for the region. we can only know this if we were supplied with a request.
+    if not response and request and hasattr(user, "travel_default_reviewers") and user.travel_default_reviewers.expenditure_initiation_region:
+        response = request.section.division.branch.sector.region == user.travel_default_reviewers.expenditure_initiation_region
+
+    # if the response is positive thus far AND there is a request supplied, we will refine the response
+    if response and request:
+        # the request has to have more than 1 traveller!
+        # criterion0 = request.travellers.count() > 1
+        # the user has to be the current reviewer for the request OR the user is the ADM and is reviewing a request at the ADM level. The latter is there in the case that someone is acting for ADM
+        criterion1 = request.current_reviewer and request.current_reviewer.user == user or (is_adm(user) and request.status == 14)
+        # request status in [17 (Pending Review), 12 (Pending Recommendation), 14 (Pending ADM Approval), 15 (Pending Expenditure Initiation)]
+        criterion2 = request.status in [17, 12, 14, 15]
+        response = criterion1 and criterion2
+
+    # return the response to the question
+    return response
+
+
 def cherry_pick_traveller(traveller, request, comment="approved / approuvé"):
-    """this is a special function that is to be used by the ADM only.
-    It is for when the ADM wants to approve a single traveller while not approving the entire delegation.
-    Validation will be handled by views"""
+    """
+    this is a special function that cuts out a traveller from an existing group request and places them into a cloned request so
+    that they can be approved ahead of the rest of the  delegation. This function should never be called without first having checked with the function called:
+    can_cherry_pick.
+    """
     trip_request = traveller.request
+
     # scenario 1: this is a single person request (yayy!!)
+    ## note this is needed especially for the ADM when he/she is looking at travellers across multiple requests. It will not be
+    ## obvious in that case who belongs to which request
     if trip_request.travellers.count() == 1:
         reviewer = trip_request.current_reviewer
         reviewer.user = request.user
@@ -831,7 +861,6 @@ def search_and_replace(good_user, bad_user):
     for obj in bad_user.trip_reviewers.all():
         obj.user = good_user
         obj.save()
-
 
 
 def get_request_queryset(request):
