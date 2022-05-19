@@ -14,9 +14,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from lib.functions.custom_functions import truncate
-from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer
+from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer, BranchSerializer
 from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView, UserViewSet
-from shared_models.models import FiscalYear, Region, Division, Section, Organization
+from shared_models.models import FiscalYear, Region, Division, Section, Organization, Branch
 from shared_models.utils import get_labels
 from . import serializers
 from .pagination import StandardResultsSetPagination
@@ -484,8 +484,6 @@ class TravelUserViewSet(UserViewSet):
         return super().create(request, *args, **kwargs)
 
 
-
-
 class FiscalYearTravelListAPIView(FiscalYearListAPIView):
 
     def get_queryset(self):
@@ -502,13 +500,27 @@ class RegionListAPIView(ListAPIView):
         return qs.distinct()
 
 
+class BranchListAPIView(ListAPIView):
+    serializer_class = BranchSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = Branch.objects.filter(divisions__sections__requests__isnull=False).distinct()
+        if self.request.query_params.get("region"):
+            qs = qs.filter(region_id=self.request.query_params.get("region"))
+        return qs.distinct()
+
+
 class DivisionListAPIView(ListAPIView):
     serializer_class = DivisionSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         qs = Division.objects.filter(sections__requests__isnull=False).distinct()
-        if self.request.query_params.get("region"):
+
+        if self.request.query_params.get("branch"):
+            qs = qs.filter(branch_id=self.request.query_params.get("branch"))
+        elif self.request.query_params.get("region"):
             qs = qs.filter(branch__region_id=self.request.query_params.get("region"))
         return qs.distinct()
 
@@ -521,6 +533,8 @@ class SectionListAPIView(ListAPIView):
         qs = Section.objects.filter(requests__isnull=False).distinct()
         if self.request.query_params.get("division"):
             qs = qs.filter(division_id=self.request.query_params.get("division"))
+        elif self.request.query_params.get("branch"):
+            qs = qs.filter(division__branch_id=self.request.query_params.get("branch"))
         elif self.request.query_params.get("region"):
             qs = qs.filter(division__branch__region_id=self.request.query_params.get("region"))
         return qs
