@@ -55,7 +55,7 @@ var app = new Vue({
     loading_costs: false,
     errorMsgCost: null,
     editCostsMode: false,
-
+    cloningTraveller: false
   },
   methods: {
     addReviewer() {
@@ -426,6 +426,48 @@ var app = new Vue({
             this.trip.non_res_total_cost = response.non_res_total_cost
           })
     },
+
+    editTraveller(traveller) {
+      this.errorMsgTraveller = null;
+      this.travellerToEdit = traveller;
+      this.travellerToEdit.start_date = this.travellerToEdit.start_date.split("T")[0]
+      this.travellerToEdit.end_date = this.travellerToEdit.end_date.split("T")[0]
+      this.$nextTick(() => {
+        this.$refs.traveller_form_starting_point.focus()
+      })
+    },
+    cancelTravellerEdit() {
+      this.getTrip();
+      this.travellerToEdit = null;
+      this.cloningTraveller = false;
+      this.firstTravellerMsg = null;
+    },
+    updateTraveller() {
+      this.errorMsgTraveller = null;
+      if (this.travellerToEdit.start_date) this.travellerToEdit.start_date += "T00:00:00.421977Z"
+      if (this.travellerToEdit.end_date) this.travellerToEdit.end_date += "T00:00:00.421977Z"
+      let endpoint;
+      let method;
+      if (!this.travellerToEdit.id) {
+        endpoint = `/api/travel/travellers/`;
+        method = "POST";
+      } else {
+        endpoint = `/api/travel/travellers/${this.travellerToEdit.id}/`;
+        method = "PATCH";
+      }
+      apiService(endpoint, method, this.travellerToEdit).then(response => {
+        if (response.id) {
+          this.travellerToEdit = null;
+          this.getTrip();
+        } else {
+          if (this.travellerToEdit.start_date) this.travellerToEdit.start_date = this.travellerToEdit.start_date.split("T")[0]
+          if (this.travellerToEdit.end_date) this.travellerToEdit.end_date = this.travellerToEdit.end_date.split("T")[0]
+          console.log(response)
+          this.errorMsgTraveller = groomJSON(response)
+        }
+      })
+    },
+
 
   },
   filters: {
