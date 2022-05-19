@@ -681,6 +681,7 @@ class TestReviewerAPIViewSet(CommonTest):
         reviewer.role = [5, 6][faker.pyint(0, 1)]
         reviewer.save()
         data_dict = FactoryFloor.ReviewerFactory.get_valid_data()
+        data_dict["user"] = FactoryFloor.ADMFactory().user.id
         data_dict["request"] = self.instance.request.id
         data_dict["order"] = self.instance.order + 1
         data_dict["status"] = closed_status
