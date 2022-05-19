@@ -19,7 +19,7 @@ from msrestazure.azure_active_directory import MSIAuthentication
 
 from dm_apps.context_processor import my_envr
 from dm_apps.utils import compare_strings
-from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import fiscal_year, truncate
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonUpdateView, CommonFormView, \
@@ -157,6 +157,10 @@ class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
     model = models.TripRequest
     template_name = 'travel/request_detail.html'
     home_url_name = "travel:index"
+
+    def get_active_page_name_crumb(self):
+        mystr = self.get_h1()
+        return truncate(mystr, 125)
 
     def get_object(self, queryset=None):
         if self.kwargs.get("uuid"):
@@ -610,6 +614,10 @@ class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
     model = models.Trip
     template_name = 'travel/trip_detail.html'
     home_url_name = "travel:index"
+
+    def get_active_page_name_crumb(self):
+        mystr = self.get_h1()
+        return truncate(mystr, 125)
 
     def get_parent_crumb(self):
         return {"title": _("Trips"), "url": reverse_lazy("travel:trip_list") + self.get_query_string()}

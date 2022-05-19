@@ -17,7 +17,7 @@
 {% endlocalize %}
 
 <script type="application/javascript">
-    Vue.component('v-select', VueSelect.VueSelect);
+Vue.component('v-select', VueSelect.VueSelect);
 var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
@@ -50,9 +50,11 @@ var app = new Vue({
     request: null,
     travellerToEdit: null,
     costLabels: {},
+    costChoices: [],
     inCostEditMode: false,
     loading_costs: false,
     errorMsgCost: null,
+    editCostsMode: false,
 
   },
   methods: {
@@ -213,27 +215,6 @@ var app = new Vue({
         this.helpText = data;
       });
     },
-    getRequestMetadata() {
-      let endpoint = `/api/travel/meta/models/request/`;
-      apiService(endpoint).then(data => {
-        this.requestLabels = data.labels;
-      });
-    },
-    getReviewerMetadata() {
-      let endpoint = `/api/travel/meta/models/trip-reviewer/`;
-      apiService(endpoint).then(data => {
-        this.reviewerLabels = data.labels;
-        this.roleChoices = data.role_choices;
-      });
-    },
-    getTravellerMetadata() {
-      let endpoint = `/api/travel/meta/models/traveller/`;
-      apiService(endpoint).then(data => {
-        this.travellerLabels = data.labels;
-        this.travellerRoleChoices = data.role_choices;
-        this.orgChoices = data.org_choices;
-      });
-    },
     getTrip() {
       this.loading = true;
       let endpoint = `/api/travel/trips/${tripId}/`;
@@ -252,12 +233,29 @@ var app = new Vue({
             })
           })
     },
-    getTripMetadata() {
-      let endpoint = `/api/travel/meta/models/trip/`;
-      apiService(endpoint).then(data => {
+    getMetadata() {
+      apiService(`/api/travel/meta/models/trip/`).then(data => {
         this.tripLabels = data.labels;
       });
+      apiService(`/api/travel/meta/models/cost/`).then(data => {
+        this.costLabels = data.labels;
+        this.costChoices = data.cost_choices;
+      });
+      apiService(`/api/travel/meta/models/request/`).then(data => {
+        this.requestLabels = data.labels;
+      });
+      apiService(`/api/travel/meta/models/trip-reviewer/`).then(data => {
+        this.reviewerLabels = data.labels;
+        this.roleChoices = data.role_choices;
+      });
+      apiService(`/api/travel/meta/models/traveller/`).then(data => {
+        this.travellerLabels = data.labels;
+        this.travellerRoleChoices = data.role_choices;
+        this.orgChoices = data.org_choices;
+      });
     },
+
+
     goRequestDetail(request) {
       let url = `/travel-plans/requests/${request.id}/view/`;
       let win = window.open(url, '_blank');
@@ -369,7 +367,64 @@ var app = new Vue({
       if (userInput === true || userInput.toLowerCase() === "yes" || userInput.toLowerCase() === "oui") {
         $("#my_form").submit()
       }
-    }
+    },
+    updateCostRowTotal(cost) {
+      cost.amount_cad = Number(cost.number_of_days) * Number(cost.rate_cad);
+    },
+    updateCost(traveller, cost) {
+      this.errorMsgCost = null;
+      let endpoint;
+      let method;
+      if (cost.rate_cad === "") cost.rate_cad = null;
+      if (cost.number_of_days === "") cost.number_of_days = null;
+      if (!cost.id) {
+        endpoint = `/api/travel/costs/`;
+        method = "POST";
+      } else {
+        endpoint = `/api/travel/costs/${cost.id}/`;
+        method = "PATCH";
+      }
+      apiService(endpoint, method, cost).then(response => {
+        if (response.id) {
+          if (traveller) {
+            this.refreshCosts(traveller);
+            this.updateTotalCost(traveller);
+            this.refreshTripCosts();
+          }
+          this.inCostEditMode = false;
+        } else {
+          this.errorMsgCost = groomJSON(response);
+        }
+      })
+    },
+    refreshCosts(traveller) {
+      this.loading_costs = true;
+      let endpoint = `/api/travel/costs/?traveller=${traveller.id}`;
+      apiService(endpoint)
+          .then(response => {
+            traveller.costs = response;
+            this.loading_costs = false;
+          })
+    },
+    updateTotalCost(traveller) {
+      let cost = 0;
+      for (var i = 0; i < traveller.costs.length; i++) {
+        cost += Number(traveller.costs[i].amount_cad);
+      }
+      traveller.total_cost = cost;
+    },
+
+    refreshTripCosts() {
+      apiService(`/api/travel/trips/${tripId}/`)
+          .then(response => {
+            this.trip.cost_comparison = response.cost_comparison;
+            this.trip.total_cost = response.total_cost
+            this.trip.total_dfo_cost = response.total_dfo_cost
+            this.trip.total_non_dfo_cost = response.total_non_dfo_cost
+            this.trip.non_res_total_cost = response.non_res_total_cost
+          })
+    },
+
   },
   filters: {
     yesNo: vueFiltersObject["yesNo"],
@@ -423,10 +478,7 @@ var app = new Vue({
   created() {
     this.getTrip();
     this.fetchDMAppsUsers();
-    this.getTripMetadata();
-    this.getRequestMetadata();
-    this.getReviewerMetadata();
-    this.getTravellerMetadata();
+    this.getMetadata();
     this.getHelpText();
   },
   mounted() {

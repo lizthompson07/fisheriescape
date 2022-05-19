@@ -19,9 +19,10 @@
     </span>
     <span v-else-if="travellerToEdit.id">{% trans "Traveller: " %} ${travellerToEdit.smart_name}</span>
     <span v-else>{% trans "New Traveller" %}</span>
-    <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
+    <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline pointy" data-toggle="popover"
           data-trigger="click" title="{% trans "Travellers" %}"
-          :data-content="helpText.travellers_header"></span>
+          :data-content="helpText.travellers_header"
+    ></span>
   </h3>
   <div class="card-body">
     <div class="card-text">
@@ -45,14 +46,20 @@
                       class="mdi mdi-pencil h4"
                       data-toggle="tooltip"
                       title="{% trans "Edit" %}"></span></button>
+
                     <button class="btn btn-sm btn-outline-dark" v-if="!isReview && canModify && !trip && !t.show_me" @click="addTraveller(t)"><span
                       class="mdi mdi-content-copy h4"
                       data-toggle="tooltip"
                       title="{% trans "Clone" %}"></span></button>
-                    <button class="btn btn-sm btn-outline-dark" v-if="canModify && !t.show_me" @click="deleteTraveller(t)"><span class="mdi mdi-delete h4"
-                                                                                                                     data-toggle="tooltip"
-                                                                                                                     title="{% trans "Remove" %}"></span>
+
+                    <button
+                      class="btn btn-sm btn-outline-dark"
+                      v-if="canModify && !t.show_me"
+                      @click="deleteTraveller(t)"
+                    >
+                      <span class="mdi mdi-delete h4" data-toggle="tooltip" title="{% trans "Remove" %}"></span>
                     </button>
+
                     <button class="btn btn-sm btn-outline-dark" v-if="canCherryPick(t) && !t.show_me" @click="cherryPickTraveller(t)"><span
                       class="mdi mdi-check-circle text-success h4"
                       data-toggle="tooltip"

@@ -137,7 +137,7 @@
 
         <div v-if="(isNCRAdmin || isReview) && trip.travellers.length" class="mb-5">
           <p class="h5" style="width: 40%">{% trans "Comparison of Traveller Costs:" %}
-          <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
+          <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline pointy" data-toggle="popover"
                   data-trigger="click" title="{% trans "Active Travellers Only" %}"
                   data-content="{% trans "Travellers on 'Draft' or 'Cancelled' trips will not be shown below." %}"></span></p>
           <table class="table table-sm table-bordered">
