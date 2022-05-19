@@ -255,6 +255,9 @@ var app = new Vue({
         this.travellerRoleChoices = data.role_choices;
         this.orgChoices = data.org_choices;
       });
+      apiService(`/api/travel/meta/models/file/`).then(data => {
+        this.fileLabels = data.labels;
+      });
     },
 
 
