@@ -132,6 +132,7 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         context["approval_level_choices"] = [dict(label=item[1], value=item[0]) for item in models.Review.approval_level_choices]
         context["funding_status_choices"] = [dict(label=item[1], value=item[0]) for item in models.Review.funding_status_choices]
         context["om_cost_categories"] = [dict(label=f"{item.get_group_display()} - {item}", value=item.id) for item in models.OMCategory.objects.all()]
+        context["activity_types"] = [dict(label=f"{item}", value=item.id) for item in models.ActivityType.objects.all()]
         context["review_form"] = forms.ReviewForm
         context["approval_form"] = forms.ApprovalForm
         context["review_score_rubric"] = json.dumps(get_review_score_rubric())
