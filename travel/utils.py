@@ -738,6 +738,8 @@ def cherry_pick_traveller(traveller, request, comment="approved / approuvé"):
         old_obj = trip_request
         new_obj = deepcopy(old_obj)
         new_obj.pk = None
+        new_obj.uuid = None
+        new_obj.add_admin_note = f"{date(timezone.now())} - This request was automatically cloned from request no. {old_obj.id} during the review process."
         new_obj.save()
 
         # copy over the reviewers

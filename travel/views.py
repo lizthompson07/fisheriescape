@@ -296,6 +296,7 @@ class TripRequestCloneUpdateView(TripRequestUpdateView):
         new_obj = form.save(commit=False)
         old_obj = models.TripRequest.objects.get(pk=new_obj.pk)
         new_obj.pk = None
+        new_obj.uuid = None
         new_obj.status = 8
         new_obj.submitted = None
         new_obj.original_submission_date = None

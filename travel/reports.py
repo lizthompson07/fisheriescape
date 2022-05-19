@@ -589,8 +589,10 @@ def generate_request_list(qs, site_url, travellers=False):
         request_field_list = [
             "fiscal_year",
             "status",
+            "travellers|Names of travellers",
+            "bta_attendees",
 
-            "section",
+            "section|section",
             "division",
             "region",
 
@@ -602,13 +604,11 @@ def generate_request_list(qs, site_url, travellers=False):
             "end_date|End date of trip",
             "trip.number_of_days|Number of days",
             "trip.traveller_count|Traveller count (trip total)",
+            "traveller_count|Traveller count (from this request)",
 
             # about this request
-            "traveller_count|Traveller count (from this request)",
-            "travellers|Names of travellers",
-            "objective_of_event",
-            "benefit_to_dfo",
-            "bta_attendees",
+            "objective_of_event|objective",
+            "benefit_to_dfo|benefits to DFO",
             "late_justification",
             "needs_gov_vehicle",
             "total_request_cost|Total cost",
@@ -691,22 +691,23 @@ def generate_request_list(qs, site_url, travellers=False):
     traveller_field_list = [
         "fiscal_year",
         "smart_name|Name",
+        "request.section|section",
+        "division",
+        "region",
+
         "trip",
+        "departure_location",
         "is_public_servant",
         "is_research_scientist",
-        "departure_location",
         "start_date",
         "end_date",
         "long_role_text|Role of traveller",
         "learning_plan",
         "notes",
-        "non_dfo_costs",
-        "non_dfo_org",
         "cost_breakdown|Cost breakdown",
         "total_cost|Total cost",
-        "request.section|section",
-        "division",
-        "region",
+        "non_dfo_costs",
+        "non_dfo_org",
 
     ]
 
