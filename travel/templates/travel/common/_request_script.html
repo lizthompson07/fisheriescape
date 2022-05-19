@@ -284,15 +284,13 @@ var app = new Vue({
             } else {
 
               this.loading = false;
+              //  if this is a draft, everything should be expended; similarily if only one traveller, he should be on display
+              if (response.status === 8 || response.travellers.length === 1) for (const traveller of response.travellers) traveller.show_me = true;
+              // otherwise set the default for all travellers to be hidden
+              else for (const traveller of response.travellers) traveller.show_me = false;
+
               this.request = response;
               // if there is one traveller, we should have that traveller on display
-              if (this.request.travellers.length === 1) {
-                this.request.travellers[0].show_me = true;
-              } else if (this.request.status === 8) {
-                for (var i = 0; i < this.request.travellers.length; i++) {
-                  this.request.travellers[i].show_me = true;
-                }
-              }
               this.getCurrentUser(response);
 
               // if this is being opened from the create form, AND there is a SINGLE traveller, we should be helpful and open up in edit mode

@@ -221,11 +221,13 @@ var app = new Vue({
       apiService(endpoint)
           .then(response => {
             this.loading = false;
+
+            // set the default for all travellers to be hidden
+            for (const traveller of response.travellers) traveller.show_me = false;
+            // however if there is one traveller, we should have that traveller on display
+            if (response.travellers.length === 1) response.travellers[0].show_me = true;
+
             this.trip = response;
-            // if there is one traveller, we should have that traveller on display
-            if (this.trip.travellers.length === 1) {
-              this.trip.travellers[0].show_me = true;
-            }
             this.getCurrentUser(response);
             this.$nextTick(() => {
               // enable popovers everywhere
