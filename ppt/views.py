@@ -1435,7 +1435,7 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("ppt:export_ppa") + f'?year={year}&section={section}&region={region}')
         elif report == 8:
             return HttpResponseRedirect(
-                reverse("ppt:export_crc") + f'?year={year}&section={section}&division={division}&region={region}')
+                reverse("ppt:export_costs") + f'?year={year}&section={section}&division={division}&region={region}')
         elif report == 9:
             return HttpResponseRedirect(
                 reverse("ppt:export_eqp") + f'?year={year}&section={section}&division={division}&region={region}')
@@ -1710,14 +1710,14 @@ def export_project_position_allocation(request):
 
 
 @login_required()
-def export_capital_request_costs(request):
+def export_costs(request):
     qs = get_project_year_queryset(request)
     site_url = my_envr(request)["SITE_FULL_URL"]
-    file_url = reports.generate_capital_cost_report(qs, site_url)
+    file_url = reports.generate_cost_report(qs, site_url)
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="ppt capital costs.xlsx"'
+            response['Content-Disposition'] = f'inline; filename="ppt project costs.xlsx"'
             return response
     raise Http404
 

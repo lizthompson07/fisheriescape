@@ -99,7 +99,7 @@ var app = new Vue({
             let reportUrl;
             if (reportName === "basic") reportUrl = `{% url 'ppt:export_py_list' %}?ids=${ids}`;
             else if (reportName === "long") reportUrl = `{% url 'ppt:export_py_list' %}?long=true&ids=${ids}`;
-            else if (reportName === "capital-costs") reportUrl = `{% url 'ppt:export_crc' %}?ids=${ids}`;
+            else if (reportName === "costs") reportUrl = `{% url 'ppt:export_costs' %}?ids=${ids}`;
             window.location.href = reportUrl;
             this.loadingReport = false;
           }
