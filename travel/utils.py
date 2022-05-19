@@ -750,7 +750,7 @@ def cherry_pick_traveller(traveller, request, comments=None):
     that they can be approved ahead of the rest of the  delegation. This function should never be called without first having checked with the function called:
     can_cherry_pick.
     """
-    if not nz(comments):
+    if not nz(comments, None):
         comments = "approved / approuvé"
     trip_request = traveller.request
 
