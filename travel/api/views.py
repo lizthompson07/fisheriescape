@@ -220,7 +220,7 @@ class TravellerViewSet(viewsets.ModelViewSet):
             if utils.can_cherry_pick(request.user):
                 # make sure this specific instance of cherry picking is appropriate
                 if utils.can_cherry_pick(request.user, obj.request):
-                    utils.cherry_pick_traveller(obj, request=request, comment=request.data.get("comments"))
+                    utils.cherry_pick_traveller(obj, request=request, comments=request.data.get("comments"))
                 else:
                     raise PermissionDenied(_("You cannot cherry pick this traveller at this time."))
             else:

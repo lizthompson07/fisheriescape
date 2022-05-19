@@ -438,7 +438,7 @@ class TestTravellerAPIViewSet(CommonTest):
         self.assertNotEqual(request.status, 14)
         response = self.client.post(f'{self.test_detail_url}?cherry_pick_approval=true')
         # we are expecting a 400 since the trip request is not in the correct status
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         # set the status of the trip to PENDING ADM and make sure there is a current reviewer ready to go
         request.status = 14
         request.save()
@@ -609,6 +609,13 @@ class TestReviewerAPIViewSet(CommonTest):
         data_json = json.dumps(data_dict)
         response = self.client.post(self.test_list_url, data=data_json, content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # check bad data
+        data_dict = FactoryFloor.ReviewerFactory.get_invalid_data()
+        data_dict["request"] = self.instance.request.id
+        data_json = json.dumps(data_dict)
+        response = self.client.post(self.test_list_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # unauthenticated users
         self.client.logout()
@@ -832,6 +839,13 @@ class TestTripReviewerAPIViewSet(CommonTest):
         data_json = json.dumps(data_dict)
         response = self.client.post(self.test_list_url, data=data_json, content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # check bad data
+        data_dict = FactoryFloor.TripReviewerFactory.get_invalid_data()
+        data_dict["trip"] = self.instance.trip.id
+        data_json = json.dumps(data_dict)
+        response = self.client.post(self.test_list_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # unauthenticated users
         self.client.logout()

@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from msrestazure.azure_active_directory import MSIAuthentication
 
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.models import Branch, Division, Section
 from . import emails
@@ -743,12 +744,14 @@ def can_cherry_pick(user, request=None):
     return response
 
 
-def cherry_pick_traveller(traveller, request, comment="approved / approuvé"):
+def cherry_pick_traveller(traveller, request, comments=None):
     """
     this is a special function that cuts out a traveller from an existing group request and places them into a cloned request so
     that they can be approved ahead of the rest of the  delegation. This function should never be called without first having checked with the function called:
     can_cherry_pick.
     """
+    if not nz(comments):
+        comments = "approved / approuvé"
     trip_request = traveller.request
 
     # scenario 1: this is a single person request (yayy!!)
@@ -757,7 +760,7 @@ def cherry_pick_traveller(traveller, request, comment="approved / approuvé"):
     if trip_request.travellers.count() == 1:
         reviewer = trip_request.current_reviewer
         reviewer.user = request.user
-        reviewer.comments = comment
+        reviewer.comments = comments
         reviewer.status = 2
         reviewer.status_date = timezone.now()
         reviewer.save()
@@ -788,7 +791,7 @@ def cherry_pick_traveller(traveller, request, comment="approved / approuvé"):
         # finally, we approved the new request at the level of the active reviewer
         reviewer = new_obj.current_reviewer
         reviewer.user = request.user
-        reviewer.comments = comment
+        reviewer.comments = comments
         reviewer.status = 2
         reviewer.status_date = timezone.now()
         reviewer.save()

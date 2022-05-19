@@ -41,6 +41,10 @@ class DefaultReviewerFactory(factory.django.DjangoModelFactory):
         }
 
 
+class ADMFactory(factory.django.DjangoModelFactory):
+    expenditure_initiation_region = 5
+
+
 class TripFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Trip
@@ -134,10 +138,29 @@ class ReviewerFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
+        # if ADM role, make sure the user is an ADM user
+        role = models.Reviewer.role_choices[faker.random_int(0, len(models.Reviewer.role_choices) - 1)][0]
+        user = UserFactory()
+        if role == 5:
+            ADMFactory(user=user)
+
         return {
             'request': TripRequestFactory().id,
-            'user': UserFactory().id,
-            'role': models.Reviewer.role_choices[faker.random_int(0, len(models.Reviewer.role_choices) - 1)][0],
+            'user': user.id,
+            'role': role,
+            'status': models.Reviewer.status_choices[faker.random_int(0, len(models.Reviewer.status_choices) - 1)][0],
+            'order': faker.pyint(1, 10),
+        }
+
+    @staticmethod
+    def get_invalid_data():
+        # if ADM role and user is not ADM, this should not validate
+        role = 5
+        user = UserFactory()
+        return {
+            'request': TripRequestFactory().id,
+            'user': user.id,
+            'role': role,
             'status': models.Reviewer.status_choices[faker.random_int(0, len(models.Reviewer.status_choices) - 1)][0],
             'order': faker.pyint(1, 10),
         }
@@ -155,11 +178,30 @@ class TripReviewerFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
+        # if ADM role, make sure the user is an ADM user
+        role = models.TripReviewer.role_choices[faker.random_int(0, len(models.TripReviewer.role_choices) - 1)][0]
+        user = UserFactory()
+        if role == 5:
+            ADMFactory(user=user)
+
         return {
             'trip': TripFactory().id,
-            'user': UserFactory().id,
-            'role': models.TripReviewer.role_choices[faker.random_int(0, len(models.TripReviewer.role_choices) - 1)][0],
+            'user': user.id,
+            'role': role,
             'status': models.TripReviewer.status_choices[faker.random_int(0, len(models.TripReviewer.status_choices) - 1)][0],
+            'order': faker.pyint(1, 10),
+        }
+
+    @staticmethod
+    def get_invalid_data():
+        # if ADM role and user is not ADM, this should not validate
+        role = 5
+        user = UserFactory()
+        return {
+            'trip': TripFactory().id,
+            'user': user.id,
+            'role': role,
+            'status': models.Reviewer.status_choices[faker.random_int(0, len(models.Reviewer.status_choices) - 1)][0],
             'order': faker.pyint(1, 10),
         }
 
