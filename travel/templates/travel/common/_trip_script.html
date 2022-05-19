@@ -402,10 +402,11 @@ var app = new Vue({
     },
     refreshCosts(traveller) {
       this.loading_costs = true;
-      let endpoint = `/api/travel/costs/?traveller=${traveller.id}`;
+      let endpoint = `/api/travel/travellers/${traveller.id}`;
       apiService(endpoint)
           .then(response => {
-            traveller.costs = response;
+            traveller.costs = response.costs;
+            traveller.cost_breakdown_html = response.cost_breakdown_html;
             this.loading_costs = false;
           })
     },
@@ -459,14 +460,36 @@ var app = new Vue({
       apiService(endpoint, method, this.travellerToEdit).then(response => {
         if (response.id) {
           this.travellerToEdit = null;
-          this.getTrip();
         } else {
           if (this.travellerToEdit.start_date) this.travellerToEdit.start_date = this.travellerToEdit.start_date.split("T")[0]
           if (this.travellerToEdit.end_date) this.travellerToEdit.end_date = this.travellerToEdit.end_date.split("T")[0]
-          console.log(response)
           this.errorMsgTraveller = groomJSON(response)
         }
       })
+    },
+    addCost(traveller) {
+      this.inCostEditMode = true;
+      traveller.costs.push({
+        traveller: traveller.id,
+        rate_cad: null,
+        number_of_days: null,
+        amount_cad: 0,
+        editMode: true,
+      })
+    },
+    addAllCosts(traveller) {
+      let endpoint = `/api/travel/travellers/${traveller.id}/?populate_all_costs=true`;
+      apiService(endpoint, "POST")
+          .then(response => {
+            this.refreshCosts(traveller);
+          })
+    },
+    clearEmptyCosts(traveller) {
+      let endpoint = `/api/travel/travellers/${traveller.id}/?clear_empty_costs=true`;
+      apiService(endpoint, "POST")
+          .then(response => {
+            this.refreshCosts(traveller);
+          })
     },
 
 
