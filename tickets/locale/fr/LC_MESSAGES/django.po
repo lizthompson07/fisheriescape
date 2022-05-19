@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-28 13:22-0400\n"
+"POT-Creation-Date: 2022-05-19 12:46-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -13,43 +13,43 @@ msgstr ""
 "Language: fr_CA\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: .\tickets\forms.py:37 .\tickets\forms.py:84
+#: .\tickets\forms.py:37 .\tickets\forms.py:76
 msgid "Application name (if applicable)"
 msgstr "Nom de l'application (le cas échéant)"
 
-#: .\tickets\forms.py:38 .\tickets\forms.py:87
+#: .\tickets\forms.py:38
 msgid "Assign ticket to"
 msgstr "Attribuer un ticket à"
 
-#: .\tickets\forms.py:85
+#: .\tickets\forms.py:77
 msgid "Description"
 msgstr "Description"
 
-#: .\tickets\forms.py:86
+#: .\tickets\forms.py:78
 msgid "Subject"
 msgstr "Sujet"
 
-#: .\tickets\forms.py:92 .\tickets\models.py:90
+#: .\tickets\forms.py:83 .\tickets\models.py:90
 msgid "Bug"
 msgstr "Bogue"
 
-#: .\tickets\forms.py:93 .\tickets\models.py:89
+#: .\tickets\forms.py:84 .\tickets\models.py:89
 msgid "App enhancement"
 msgstr "Amélioration de l'application"
 
-#: .\tickets\forms.py:94 .\tickets\models.py:77
+#: .\tickets\forms.py:85 .\tickets\models.py:77
 msgid "Process development"
 msgstr "Développement de processus"
 
-#: .\tickets\forms.py:95 .\tickets\models.py:80
+#: .\tickets\forms.py:86 .\tickets\models.py:80
 msgid "Permissions"
 msgstr "Autorisations"
 
-#: .\tickets\forms.py:96 .\tickets\models.py:87
+#: .\tickets\forms.py:87 .\tickets\models.py:87
 msgid "Report development"
 msgstr "Développement de rapport"
 
-#: .\tickets\forms.py:97 .\tickets\models.py:88
+#: .\tickets\forms.py:88 .\tickets\models.py:88
 msgid "Other"
 msgstr "Autre"
 
@@ -155,19 +155,19 @@ msgstr "nom de l'application"
 msgid "ticket assigned to"
 msgstr "ticket attribué à"
 
-#: .\tickets\models.py:102
+#: .\tickets\models.py:101
 msgid "type of request"
 msgstr "type de demande"
 
-#: .\tickets\models.py:104
+#: .\tickets\models.py:103
 msgid "priority level"
 msgstr "niveau de priorité"
 
-#: .\tickets\models.py:105
+#: .\tickets\models.py:104
 msgid "description"
 msgstr "description"
 
-#: .\tickets\models.py:175
+#: .\tickets\models.py:163
 msgid "follow up message"
 msgstr ""
 
@@ -196,10 +196,10 @@ msgstr ""
 msgid "Feedback / Bug Form"
 msgstr "Commentaires / Bugs"
 
-#: .\tickets\views.py:55
+#: .\tickets\views.py:60
 msgid "DM Apps Tickets"
 msgstr "Tickets de Applis GD"
 
-#: .\tickets\views.py:286
+#: .\tickets\views.py:298
 msgid "Log a Ticket"
 msgstr "Créer une demande"

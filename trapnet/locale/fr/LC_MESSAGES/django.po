@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-28 13:22-0400\n"
+"POT-Creation-Date: 2022-05-19 12:46-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,8 +17,20 @@ msgstr ""
 msgid "You need to specify a sample"
 msgstr ""
 
-#: .\trapnet\filters.py:65
+#: .\trapnet\filters.py:67
 msgid "Sample Id"
+msgstr ""
+
+#: .\trapnet\filters.py:68
+msgid "Scale ID #"
+msgstr ""
+
+#: .\trapnet\filters.py:69
+msgid "Tag #"
+msgstr ""
+
+#: .\trapnet\filters.py:70
+msgid "Season"
 msgstr ""
 
 #: .\trapnet\forms.py:67
@@ -511,7 +523,7 @@ msgid "TrapNET"
 msgstr ""
 
 #: .\trapnet\templates\trapnet\base\_nav_left_auth.html:4
-#: .\trapnet\views.py:27
+#: .\trapnet\views.py:26
 msgid "Home"
 msgstr ""
 
@@ -524,15 +536,15 @@ msgid "Settings"
 msgstr ""
 
 #: .\trapnet\templates\trapnet\base\_nav_left_auth.html:19
-#: .\trapnet\views.py:183 .\trapnet\views.py:195 .\trapnet\views.py:218
-#: .\trapnet\views.py:231 .\trapnet\views.py:245
+#: .\trapnet\views.py:182 .\trapnet\views.py:194 .\trapnet\views.py:217
+#: .\trapnet\views.py:225 .\trapnet\views.py:239
 msgid "Species"
 msgstr ""
 
 #: .\trapnet\templates\trapnet\base\_nav_left_auth.html:20
-#: .\trapnet\views.py:285 .\trapnet\views.py:308 .\trapnet\views.py:331
-#: .\trapnet\views.py:342 .\trapnet\views.py:356 .\trapnet\views.py:381
-#: .\trapnet\views.py:398 .\trapnet\views.py:424
+#: .\trapnet\views.py:279 .\trapnet\views.py:302 .\trapnet\views.py:324
+#: .\trapnet\views.py:335 .\trapnet\views.py:349 .\trapnet\views.py:374
+#: .\trapnet\views.py:391 .\trapnet\views.py:412
 msgid "Rivers"
 msgstr ""
 
@@ -572,46 +584,159 @@ msgstr ""
 msgid "User Permissions"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\data_entry.html:30
+#: .\trapnet\templates\trapnet\data_entry\_sidebar.html:5
+msgid "Hide"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry\_sidebar.html:8
 #: .\trapnet\templates\trapnet\obs_detail.html:20
 msgid "Edit"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\data_entry.html:31
+#: .\trapnet\templates\trapnet\data_entry\_sidebar.html:9
 #: .\trapnet\templates\trapnet\obs_detail.html:43
 #: .\trapnet\templates\trapnet\sample_detail.html:109
 msgid "New"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\data_entry.html:171
+#: .\trapnet\templates\trapnet\data_entry\_sidebar.html:150
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:143
 msgid "Add"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\data_entry.html:172
+#: .\trapnet\templates\trapnet\data_entry\_sidebar.html:151
 msgid "Save"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\data_entry.html:174
-#: .\trapnet\templates\trapnet\multiple-overlay.html:86
+#: .\trapnet\templates\trapnet\data_entry\_sidebar.html:153
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:86
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:86
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:145
 msgid "Cancel"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\data_entry.html:186
+#: .\trapnet\templates\trapnet\data_entry\main.html:46
+msgid "Show Sidebar"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry\main.html:49
+#: .\trapnet\templates\trapnet\data_entry_v2\main.html:35
 #: .\trapnet\templates\trapnet\sample_detail.html:71
 #: .\trapnet\templates\trapnet\sweep_detail.html:53
 msgid "Observations"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\data_entry.html:463
+#: .\trapnet\templates\trapnet\data_entry\main.html:563
 msgid "Success! The observation was updated."
 msgstr ""
 
-#: .\trapnet\templates\trapnet\data_entry.html:465
+#: .\trapnet\templates\trapnet\data_entry\main.html:564
 msgid "Success! A new observation has been added."
 msgstr ""
 
-#: .\trapnet\templates\trapnet\data_entry.html:490
+#: .\trapnet\templates\trapnet\data_entry\main.html:588
+#: .\trapnet\templates\trapnet\data_entry_v2\main.html:499
 msgid "Are you certain you want to delete this observation?"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:8
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:11
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:51
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:79
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:8
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:11
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:51
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:79
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:176
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:204
+msgid "Add Multiple"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:19
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:19
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:14
+msgid "Multiple on Which Basis?"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:28
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:28
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:153
+msgid "Total Observations"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:33
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:33
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:158
+msgid "End Tag #"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:42
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:42
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:167
+msgid "How many observations would you like to add?"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:47
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:47
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:172
+msgid ""
+"Since an initial tag number was provided, each addition specimen will be "
+"incremented."
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:58
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:58
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:183
+msgid "Tag Prefix:"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:64
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:64
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:189
+msgid "Starting Tag Number:"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:70
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:70
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:195
+msgid "What is the end tag number?"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:73
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:73
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:198
+msgid ""
+"\n"
+"                      This should be a numeric value. E.g., if the end tag "
+"is <code>NW1234</code>, you should enter <code>1234</code>.\n"
+"                    "
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:134
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:134
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:285
+msgid ""
+"Warning: by proceeding you will be creating more than 10 observations. Are "
+"you sure you want to continue?"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry\multiple-overlay.html:153
+#: .\trapnet\templates\trapnet\data_entry_v2\multiple-overlay.html:153
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:303
+msgid "The end tag number is smaller than the start tag number"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry_v2\main.html:48
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:11
+msgid "New Observations"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:144
+msgid "Add Mutliple"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\data_entry_v2\overlay.html:211
+msgid "Back"
 msgstr ""
 
 #: .\trapnet\templates\trapnet\form.html:36
@@ -626,74 +751,15 @@ msgstr ""
 msgid "Diadromous Team Data Entry Portal"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\index.html:23 .\trapnet\views.py:465
-#: .\trapnet\views.py:481 .\trapnet\views.py:496 .\trapnet\views.py:524
-#: .\trapnet\views.py:536 .\trapnet\views.py:575 .\trapnet\views.py:622
-#: .\trapnet\views.py:740
+#: .\trapnet\templates\trapnet\index.html:23 .\trapnet\views.py:453
+#: .\trapnet\views.py:469 .\trapnet\views.py:484 .\trapnet\views.py:512
+#: .\trapnet\views.py:524 .\trapnet\views.py:563 .\trapnet\views.py:610
+#: .\trapnet\views.py:729
 msgid "Samples"
 msgstr ""
 
 #: .\trapnet\templates\trapnet\index.html:24
 msgid "Find a Fish"
-msgstr ""
-
-#: .\trapnet\templates\trapnet\multiple-overlay.html:8
-#: .\trapnet\templates\trapnet\multiple-overlay.html:11
-#: .\trapnet\templates\trapnet\multiple-overlay.html:51
-#: .\trapnet\templates\trapnet\multiple-overlay.html:79
-msgid "Add Multiple"
-msgstr ""
-
-#: .\trapnet\templates\trapnet\multiple-overlay.html:19
-msgid "Multiple on Which Basis?"
-msgstr ""
-
-#: .\trapnet\templates\trapnet\multiple-overlay.html:28
-msgid "Total Observations"
-msgstr ""
-
-#: .\trapnet\templates\trapnet\multiple-overlay.html:33
-msgid "End Tag #"
-msgstr ""
-
-#: .\trapnet\templates\trapnet\multiple-overlay.html:42
-msgid "How many observations would you like to add?"
-msgstr ""
-
-#: .\trapnet\templates\trapnet\multiple-overlay.html:47
-msgid ""
-"Since an initial tag number was provided, each addition specimen will be "
-"incremented."
-msgstr ""
-
-#: .\trapnet\templates\trapnet\multiple-overlay.html:58
-msgid "Tag Prefix:"
-msgstr ""
-
-#: .\trapnet\templates\trapnet\multiple-overlay.html:64
-msgid "Starting Tag Number:"
-msgstr ""
-
-#: .\trapnet\templates\trapnet\multiple-overlay.html:70
-msgid "What is the end tag number?"
-msgstr ""
-
-#: .\trapnet\templates\trapnet\multiple-overlay.html:73
-msgid ""
-"\n"
-"                      This should be a numeric value. E.g., if the end tag "
-"is <code>NW1234</code>, you should enter <code>1234</code>.\n"
-"                    "
-msgstr ""
-
-#: .\trapnet\templates\trapnet\multiple-overlay.html:134
-msgid ""
-"Warning: by proceeding you will be creating more than 10 observations. Are "
-"you sure you want to continue?"
-msgstr ""
-
-#: .\trapnet\templates\trapnet\multiple-overlay.html:153
-msgid "The end tag number is smaller than the start tag number"
 msgstr ""
 
 #: .\trapnet\templates\trapnet\obs_detail.html:21
@@ -741,8 +807,8 @@ msgstr ""
 msgid "There are no observations associated with this sample."
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_detail.html:111 .\trapnet\views.py:604
-#: .\trapnet\views.py:651
+#: .\trapnet\templates\trapnet\sample_detail.html:111 .\trapnet\views.py:592
+#: .\trapnet\views.py:639
 msgid "Sweeps"
 msgstr ""
 
@@ -926,11 +992,11 @@ msgstr ""
 msgid "electrofisher settings"
 msgstr ""
 
-#: .\trapnet\utils.py:60 .\trapnet\views.py:626
+#: .\trapnet\utils.py:60 .\trapnet\views.py:614
 msgid "species caught"
 msgstr ""
 
-#: .\trapnet\utils.py:61 .\trapnet\views.py:627
+#: .\trapnet\utils.py:61 .\trapnet\views.py:615
 msgid "tags issued"
 msgstr ""
 
@@ -938,19 +1004,19 @@ msgstr ""
 msgid "metadata"
 msgstr ""
 
-#: .\trapnet\views.py:185
+#: .\trapnet\views.py:184
 msgid "Taxonomic serial number"
 msgstr ""
 
-#: .\trapnet\views.py:186
+#: .\trapnet\views.py:185
 msgid "Observations in Db"
 msgstr ""
 
-#: .\trapnet\views.py:538
+#: .\trapnet\views.py:526
 msgid "Data Entry Mode"
 msgstr ""
 
-#: .\trapnet\views.py:679
+#: .\trapnet\views.py:668
 #, fuzzy
 #| msgid "site name"
 msgid "site"

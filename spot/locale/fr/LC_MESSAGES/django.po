@@ -2,745 +2,816 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-28 13:22-0400\n"
+"POT-Creation-Date: 2022-05-19 12:46-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: POEditor.com\n"
 "Language: en\n"
 
-#: .\spot\forms.py:19
+#: .\spot\forms.py:18
 msgid "Yes"
 msgstr "Oui"
 
-#: .\spot\forms.py:20
+#: .\spot\forms.py:19
 msgid "No"
 msgstr "Non"
 
-#: .\spot\models.py:20
+#: .\spot\models.py:17
 msgid "DM Apps user"
 msgstr "Utilisateur de DM Apps"
 
-#: .\spot\models.py:21
+#: .\spot\models.py:18
 #, fuzzy
 #| msgid "Travel App Administrator"
 msgid "regional administrator?"
 msgstr "Administrateur de l'application de voyage"
 
-#: .\spot\models.py:23
+#: .\spot\models.py:19
 #, fuzzy
 #| msgid "Travel App Administrator"
 msgid "app administrator?"
 msgstr "Administrateur de l'application de voyage"
 
-#: .\spot\models.py:24
+#: .\spot\models.py:20
 #, fuzzy
 msgid "CRUD permissions?"
 msgstr "Ressources humaines"
 
-#: .\spot\models.py:165 .\spot\models.py:177 .\spot\models.py:190
-#: .\spot\models.py:510 .\spot\templates\spot\scratch\_people.html:20
+#: .\spot\models.py:34
+msgid "name"
+msgstr "nom"
+
+#: .\spot\models.py:137 .\spot\models.py:149 .\spot\models.py:179
+#: .\spot\models.py:488 .\spot\templates\spot\_rivers.html:16
+#: .\spot\templates\spot\data_detail.html:65
+#: .\spot\templates\spot\objective_detail.html:68
 msgid "Name"
 msgstr "Nom"
 
-#: .\spot\models.py:166
+#: .\spot\models.py:138
 #, fuzzy
 #| msgid "Group"
 msgid "Group Code"
 msgstr "Groupe"
 
-#: .\spot\models.py:178
+#: .\spot\models.py:150 .\spot\templates\spot\_rivers.html:28
+#: .\spot\templates\spot\data_detail.html:77
+#: .\spot\templates\spot\objective_detail.html:80
 #, fuzzy
 msgid "Latitude"
 msgstr "titre"
 
-#: .\spot\models.py:179
+#: .\spot\models.py:151 .\spot\templates\spot\_rivers.html:31
+#: .\spot\templates\spot\data_detail.html:80
+#: .\spot\templates\spot\objective_detail.html:83
 msgid "Longitude"
 msgstr ""
 
-#: .\spot\models.py:191 .\spot\models.py:227
-#, fuzzy
-#| msgid "Address: "
-msgid "Address"
-msgstr "adresse:"
-
-#: .\spot\models.py:192
-#, fuzzy
-#| msgid "Organization"
-msgid "Organization Type"
-msgstr "Organisation"
-
-#: .\spot\models.py:193 .\spot\models.py:225
-msgid "Province/State"
+#: .\spot\models.py:152 .\spot\models.py:425
+msgid "Area"
 msgstr ""
 
-#: .\spot\models.py:194 .\spot\models.py:226
-#, fuzzy
-#| msgid "Amount"
-msgid "Country"
-msgstr "Montant"
-
-#: .\spot\models.py:195 .\spot\models.py:222
-msgid "Phone"
-msgstr "Téléphone"
-
-#: .\spot\models.py:196 .\spot\models.py:224
-msgid "City"
-msgstr "Ville"
-
-#: .\spot\models.py:197 .\spot\models.py:223
-msgid "Email"
-msgstr "Courriel"
-
-#: .\spot\models.py:198
-msgid "Website"
-msgstr ""
-
-#: .\spot\models.py:199 .\spot\models.py:230
-msgid "Section"
-msgstr "Section"
-
-#: .\spot\models.py:201 .\spot\models.py:232 .\spot\models.py:292
-#: .\spot\models.py:318 .\spot\models.py:357 .\spot\models.py:377
-#: .\spot\models.py:415 .\spot\models.py:494 .\spot\models.py:515
-#: .\spot\models.py:537 .\spot\models.py:557 .\spot\models.py:576
-#: .\spot\models.py:599 .\spot\models.py:615
-msgid "date last modified"
-msgstr "date de dernière modification"
-
-#: .\spot\models.py:202 .\spot\models.py:233 .\spot\models.py:293
-#: .\spot\models.py:319 .\spot\models.py:358 .\spot\models.py:416
-#: .\spot\models.py:495 .\spot\models.py:516 .\spot\models.py:538
-#: .\spot\models.py:558 .\spot\models.py:577 .\spot\models.py:600
-#: .\spot\models.py:616
-msgid "last modified by"
-msgstr "dernièrement modifié par"
-
-#: .\spot\models.py:220
-msgid "First Name"
-msgstr "Prénom"
-
-#: .\spot\models.py:221
-msgid "Last Name"
-msgstr "Nom de famille"
-
-#: .\spot\models.py:228 .\spot\templates\spot\scratch\_people.html:23
-msgid "Organization"
-msgstr "Organisation"
-
-#: .\spot\models.py:229 .\spot\templates\spot\scratch\_people.html:26
-msgid "Role"
-msgstr "Rôle"
-
-#: .\spot\models.py:231
-#, fuzzy
-#| msgid "Other Trips"
-msgid "Other Membership"
-msgstr "Autres voyages"
-
-#: .\spot\models.py:261 .\spot\models.py:270
-#, fuzzy
-msgid "Phone 1"
-msgstr "téléphone"
-
-#: .\spot\models.py:263 .\spot\models.py:272
-msgid "E-mail 1"
-msgstr "Courriel 1"
-
-#: .\spot\models.py:279 .\spot\models.py:308 .\spot\models.py:334
-#: .\spot\models.py:392 .\spot\models.py:433
-#, fuzzy
-#| msgid "event number"
-msgid "Agreement Number"
-msgstr "numéro d'événement"
-
-#: .\spot\models.py:281
-msgid "Field Work Methods Type"
-msgstr ""
-
-#: .\spot\models.py:282 .\spot\templates\spot\_methods.html:21
-msgid "Planning Method Type"
-msgstr ""
-
-#: .\spot\models.py:283 .\spot\templates\spot\_methods.html:27
-msgid "Sample Processing Method Type"
-msgstr ""
-
-#: .\spot\models.py:284
-msgid "Traditional Ecological Knowledge Consideration"
-msgstr ""
-
-#: .\spot\models.py:286
-#, fuzzy
-msgid "Scale Processing Location"
-msgstr "URL externe"
-
-#: .\spot\models.py:287
-#, fuzzy
-#| msgid "Processing time"
-msgid "Otolith Processing Location"
-msgstr "Temps de traitement"
-
-#: .\spot\models.py:288
-#, fuzzy
-msgid "DNA Processing Location"
-msgstr "Section"
-
-#: .\spot\models.py:289
-#, fuzzy
-msgid "Heads Processing Location"
-msgstr "URL externe"
-
-#: .\spot\models.py:290
-#, fuzzy
-msgid "Instrument Data Processing Location"
-msgstr "Description"
-
-#: .\spot\models.py:309
-#, fuzzy
-msgid "Report Timeline"
-msgstr "enregistrement"
-
-#: .\spot\models.py:310 .\spot\templates\spot\_reports.html:21
-#, fuzzy
-msgid "Report Type"
-msgstr "type d'enregistrement"
-
-#: .\spot\models.py:311
-msgid "Report Limitations and Concerns"
-msgstr ""
-
-#: .\spot\models.py:312 .\spot\templates\spot\_reports.html:24
-#, fuzzy
-msgid "Document Name"
-msgstr "Prénom"
-
-#: .\spot\models.py:313 .\spot\templates\spot\_reports.html:27
-#, fuzzy
-msgid "Document Author"
-msgstr "auteur"
-
-#: .\spot\models.py:314 .\spot\templates\spot\_reports.html:30
-#, fuzzy
-#| msgid "Requester Information"
-msgid "Document Reference Information"
-msgstr "Informations sur le requérant"
-
-#: .\spot\models.py:315 .\spot\templates\spot\_method_document.html:36
-#: .\spot\templates\spot\_reports.html:33
-#, fuzzy
-msgid "Document Link"
-msgstr "Description"
-
-#: .\spot\models.py:316
-msgid "Was this report Published?"
-msgstr ""
-
-#: .\spot\models.py:335 .\spot\models.py:401 .\spot\models.py:531
-#: .\spot\templates\spot\_data.html:21
-#: .\spot\templates\spot\_objective_quality.html:21
-#: .\spot\templates\spot\_objectives.html:27
-#, fuzzy
-#| msgid "All Species "
-msgid "Species"
-msgstr "Toutes les espèces "
-
-#: .\spot\models.py:338 .\spot\templates\spot\_data.html:24
-msgid "Samples Collected"
-msgstr ""
-
-#: .\spot\models.py:339
-msgid "Samples Collected Comment"
-msgstr ""
-
-#: .\spot\models.py:341
-msgid "Sample Collected Database"
-msgstr ""
-
-#: .\spot\models.py:342
-msgid ""
-"If you have chosen one of the shared drives please specify what drive "
-"otherwise leave blank"
-msgstr ""
-
-#: .\spot\models.py:343
-msgid "Barriers to Sample Collection"
-msgstr ""
-
-#: .\spot\models.py:344
-msgid "Was sample collection data entered into database(s)?"
-msgstr ""
-
-#: .\spot\models.py:345
-msgid "Was sample data quality check complete?"
-msgstr ""
-
-#: .\spot\models.py:346
-msgid "Person/Group responsible for data quality check?"
-msgstr ""
-
-#: .\spot\models.py:347
-msgid "Barriers to data checks/entry to database?"
-msgstr ""
-
-#: .\spot\models.py:348
-#, fuzzy
-msgid "Sample Format(s)"
-msgstr "Date de début du projet"
-
-#: .\spot\models.py:350
-#, fuzzy
-msgid "Data Product(s)"
-msgstr "Mes projets"
-
-#: .\spot\models.py:351
-msgid "Data Products Database(s)"
-msgstr ""
-
-#: .\spot\models.py:352
-#, fuzzy
-msgid "Data Products Comment"
-msgstr "Rapports d'état"
-
-#: .\spot\models.py:353
-#, fuzzy
-msgid "Data Program(s)"
-msgstr "Programme"
-
-#: .\spot\models.py:354
-msgid "How Was Data Communicated to Recipient?"
-msgstr ""
-
-#: .\spot\models.py:373
-msgid "Subject"
-msgstr "Sujet"
-
-#: .\spot\models.py:374
-msgid "Comments"
-msgstr "Commentaires"
-
-#: .\spot\models.py:375
-msgid "Sent By"
-msgstr ""
-
-#: .\spot\models.py:394
-#, fuzzy
-#| msgid "OT Description:"
-msgid "Task Description"
-msgstr "Description d'heures supplémentaires:"
-
-#: .\spot\models.py:395 .\spot\templates\spot\_objectives.html:21
-#, fuzzy
-msgid "Element Title"
-msgstr "Titre de l'accord"
-
-#: .\spot\models.py:396 .\spot\templates\spot\_objectives.html:24
-#, fuzzy
-msgid "Activity Title"
-msgstr "date d'activité initiale"
-
-#: .\spot\models.py:398
-msgid "PST Requirement Identified?"
-msgstr ""
-
-#: .\spot\models.py:399 .\spot\models.py:511 .\spot\models.py:532
-#: .\spot\templates\spot\_objective_quality.html:24
-#: .\spot\templates\spot\_objectives.html:30
-msgid "Location"
-msgstr "Location"
-
-#: .\spot\models.py:400
-#, fuzzy
-msgid "Objective Category"
-msgstr "Nouvelle organisation"
-
-#: .\spot\models.py:402
-#, fuzzy
-#| msgid "Lab Equipment"
-msgid "SIL Requirement"
-msgstr "Équipement de laboratoire"
-
-#: .\spot\models.py:404
-#, fuzzy
-#| msgid "Expected Publication(s)"
-msgid "Expected Result(s)"
-msgstr "Publication(s) attendue(s)"
-
-#: .\spot\models.py:405
-msgid "Products/Reports to Provide DFO"
-msgstr ""
-
-#: .\spot\models.py:407
-msgid "Was the Sampling outcome met?"
-msgstr ""
-
-#: .\spot\models.py:408
-#, fuzzy
-msgid "Outcomes Contact"
-msgstr "Contacts du MPO"
-
-#: .\spot\models.py:409
-#, fuzzy
-#| msgid "Save comments"
-msgid "Outcome Comment"
-msgstr "Enregistrer les commentaires"
-
-#: .\spot\models.py:410
-msgid "Barrier to Achieve Outcomes(?)"
-msgstr ""
-
-#: .\spot\models.py:411
-msgid "What capacity building did this project provide?"
-msgstr ""
-
-#: .\spot\models.py:412
-msgid "Key Lessons Learned"
-msgstr ""
-
-#: .\spot\models.py:413
-msgid "Missed Opportunities"
-msgstr ""
-
-#: .\spot\models.py:432
-#, fuzzy
-msgid "Project Number"
-msgstr "Chef de projet"
-
-#: .\spot\models.py:434
-#, fuzzy
-#| msgid "Agreement Title"
-msgid "Agreement History"
-msgstr "Titre de l'accord"
-
-#: .\spot\models.py:435
-#, fuzzy
-#| msgid "Project Lead"
-msgid "Project Name"
-msgstr "Chef de projet"
-
-#: .\spot\models.py:436
-#, fuzzy
-#| msgid "role description"
-msgid "Project Description"
-msgstr "description du rôle"
-
-#: .\spot\models.py:437
-#, fuzzy
-#| msgid "Start Date"
-msgid "Starting Date"
-msgstr "Date de début"
-
-#: .\spot\models.py:438
-msgid "End Date"
-msgstr "Date de fin"
-
-#: .\spot\models.py:440
-msgid "Primary River"
-msgstr ""
-
-#: .\spot\models.py:441
-msgid "Secondary River"
-msgstr ""
-
-#: .\spot\models.py:442
-#, fuzzy
-msgid "Eco System Type"
-msgstr "Type de catégorie"
-
-#: .\spot\models.py:443
-msgid "Lake System"
-msgstr ""
-
-#: .\spot\models.py:444
-#, fuzzy
-msgid "Watershed"
-msgstr "Achat d'équipement"
-
-#: .\spot\models.py:446
-msgid "Region"
-msgstr "Région"
-
-#: .\spot\models.py:448
-#, fuzzy
-#| msgid "Data Management Home"
-msgid "Stock Management Unit"
-msgstr "Gestion de données"
-
-#: .\spot\models.py:449
-msgid "CU Index"
-msgstr ""
-
-#: .\spot\models.py:450
-#, fuzzy
-#| msgid "Name"
-msgid "CU Name"
-msgstr "Nom"
-
-#: .\spot\models.py:451
+#: .\spot\models.py:153
 #, fuzzy
 #| msgid "All Species "
 msgid "Target Species"
 msgstr "Toutes les espèces "
 
-#: .\spot\models.py:452
+#: .\spot\models.py:154 .\spot\templates\spot\_rivers.html:22
+#: .\spot\templates\spot\data_detail.html:71
+#: .\spot\templates\spot\objective_detail.html:74
+msgid "CU Index"
+msgstr ""
+
+#: .\spot\models.py:155 .\spot\templates\spot\_rivers.html:25
+#: .\spot\templates\spot\data_detail.html:74
+#: .\spot\templates\spot\objective_detail.html:77
+#, fuzzy
+#| msgid "Name"
+msgid "CU Name"
+msgstr "Nom"
+
+#: .\spot\models.py:156 .\spot\models.py:157
+#: .\spot\templates\spot\_rivers.html:37
+#: .\spot\templates\spot\data_detail.html:86
+#: .\spot\templates\spot\objective_detail.html:89
+#, fuzzy
+#| msgid "Data Management Home"
+msgid "Stock Management Unit"
+msgstr "Gestion de données"
+
+#: .\spot\models.py:158 .\spot\templates\spot\_rivers.html:43
+#: .\spot\templates\spot\data_detail.html:92
+#: .\spot\templates\spot\objective_detail.html:95
+msgid "DU"
+msgstr ""
+
+#: .\spot\models.py:159 .\spot\templates\spot\_rivers.html:46
+#: .\spot\templates\spot\data_detail.html:95
+#: .\spot\templates\spot\objective_detail.html:98
+#, fuzzy
+#| msgid "Number"
+msgid "DU Number"
+msgstr "Numéro"
+
+#: .\spot\models.py:178
+msgid "Is this organization still active?"
+msgstr ""
+
+#: .\spot\models.py:180
+#, fuzzy
+#| msgid "Address: "
+msgid "Address"
+msgstr "adresse:"
+
+#: .\spot\models.py:181
+#, fuzzy
+#| msgid "Organization"
+msgid "Organization Type"
+msgstr "Organisation"
+
+#: .\spot\models.py:182 .\spot\models.py:215
+msgid "Province/State"
+msgstr ""
+
+#: .\spot\models.py:183 .\spot\models.py:216
+#, fuzzy
+#| msgid "Amount"
+msgid "Country"
+msgstr "Montant"
+
+#: .\spot\models.py:184 .\spot\models.py:212
+msgid "Phone"
+msgstr "Téléphone"
+
+#: .\spot\models.py:185 .\spot\models.py:214
+msgid "City"
+msgstr "Ville"
+
+#: .\spot\models.py:186 .\spot\models.py:213
+msgid "Email"
+msgstr "Courriel"
+
+#: .\spot\models.py:187
+msgid "Website"
+msgstr ""
+
+#: .\spot\models.py:188 .\spot\models.py:219
+msgid "Section"
+msgstr "Section"
+
+#: .\spot\models.py:190 .\spot\models.py:221 .\spot\models.py:281
+#: .\spot\models.py:307 .\spot\models.py:338 .\spot\models.py:358
+#: .\spot\models.py:394 .\spot\models.py:472 .\spot\models.py:493
+#: .\spot\models.py:515 .\spot\models.py:538 .\spot\models.py:558
+#: .\spot\models.py:583 .\spot\models.py:600
+msgid "date last modified"
+msgstr "date de dernière modification"
+
+#: .\spot\models.py:191 .\spot\models.py:222 .\spot\models.py:282
+#: .\spot\models.py:308 .\spot\models.py:339 .\spot\models.py:395
+#: .\spot\models.py:473 .\spot\models.py:494 .\spot\models.py:516
+#: .\spot\models.py:539 .\spot\models.py:559 .\spot\models.py:584
+#: .\spot\models.py:601
+msgid "last modified by"
+msgstr "dernièrement modifié par"
+
+#: .\spot\models.py:209
+msgid "Is this person still active?"
+msgstr ""
+
+#: .\spot\models.py:210
+msgid "First Name"
+msgstr "Prénom"
+
+#: .\spot\models.py:211
+msgid "Last Name"
+msgstr "Nom de famille"
+
+#: .\spot\models.py:217
+msgid "Organization"
+msgstr "Organisation"
+
+#: .\spot\models.py:218
+msgid "Role"
+msgstr "Rôle"
+
+#: .\spot\models.py:220
+#, fuzzy
+#| msgid "Other Trips"
+msgid "Other Membership"
+msgstr "Autres voyages"
+
+#: .\spot\models.py:250 .\spot\models.py:259
+#, fuzzy
+msgid "Phone 1"
+msgstr "téléphone"
+
+#: .\spot\models.py:252 .\spot\models.py:261
+msgid "E-mail 1"
+msgstr "Courriel 1"
+
+#: .\spot\models.py:268 .\spot\models.py:297 .\spot\models.py:323
+#: .\spot\models.py:373 .\spot\models.py:412
+#: .\spot\templates\spot\_person_projects.html:21
+#, fuzzy
+#| msgid "event number"
+msgid "Agreement Number"
+msgstr "numéro d'événement"
+
+#: .\spot\models.py:269 .\spot\models.py:575
+#, fuzzy
+msgid "Unique Method Number"
+msgstr "Nouvelle entrée"
+
+#: .\spot\models.py:270
+msgid "Field Work Methods Type"
+msgstr ""
+
+#: .\spot\models.py:271
+msgid "Planning Method Type"
+msgstr ""
+
+#: .\spot\models.py:272 .\spot\templates\spot\_methods.html:24
+msgid "Sample Processing Method Type"
+msgstr ""
+
+#: .\spot\models.py:273
+msgid "Traditional Ecological Knowledge Consideration"
+msgstr ""
+
+#: .\spot\models.py:275
+#, fuzzy
+msgid "Scale Processing Location"
+msgstr "URL externe"
+
+#: .\spot\models.py:276
+#, fuzzy
+#| msgid "Processing time"
+msgid "Otolith Processing Location"
+msgstr "Temps de traitement"
+
+#: .\spot\models.py:277
+#, fuzzy
+msgid "DNA Processing Location"
+msgstr "Section"
+
+#: .\spot\models.py:278
+#, fuzzy
+msgid "Heads Processing Location"
+msgstr "URL externe"
+
+#: .\spot\models.py:279
+#, fuzzy
+msgid "Instrument Data Processing Location"
+msgstr "Description"
+
+#: .\spot\models.py:298
+#, fuzzy
+msgid "Report Timeline"
+msgstr "enregistrement"
+
+#: .\spot\models.py:299 .\spot\templates\spot\_reports.html:21
+#, fuzzy
+msgid "Report Type"
+msgstr "type d'enregistrement"
+
+#: .\spot\models.py:300
+msgid "Report Limitations and Concerns"
+msgstr ""
+
+#: .\spot\models.py:301 .\spot\templates\spot\_reports.html:24
+#, fuzzy
+msgid "Document Name"
+msgstr "Prénom"
+
+#: .\spot\models.py:302 .\spot\templates\spot\_reports.html:27
+#, fuzzy
+msgid "Document Author"
+msgstr "auteur"
+
+#: .\spot\models.py:303 .\spot\templates\spot\_reports.html:30
+#, fuzzy
+#| msgid "Requester Information"
+msgid "Document Reference Information"
+msgstr "Informations sur le requérant"
+
+#: .\spot\models.py:304 .\spot\models.py:581
+#: .\spot\templates\spot\_method_document.html:36
+#: .\spot\templates\spot\_reports.html:33
+#, fuzzy
+msgid "Document Link"
+msgstr "Description"
+
+#: .\spot\models.py:305
+msgid "Was this report Published?"
+msgstr ""
+
+#: .\spot\models.py:324 .\spot\templates\spot\_data.html:21
+#, fuzzy
+#| msgid "Reviewer"
+msgid "River"
+msgstr "Examinateur"
+
+#: .\spot\models.py:325 .\spot\templates\spot\_data.html:24
+msgid "Samples Collected"
+msgstr ""
+
+#: .\spot\models.py:326
+msgid "Samples Collected Comment"
+msgstr ""
+
+#: .\spot\models.py:327
+msgid "Sample Collected Database"
+msgstr ""
+
+#: .\spot\models.py:328
+msgid ""
+"If you have chosen one of the shared drives please specify what drive "
+"otherwise leave blank"
+msgstr ""
+
+#: .\spot\models.py:329
+msgid "Barriers to Sample Collection and Data Entry?"
+msgstr ""
+
+#: .\spot\models.py:330
+msgid "Was sample collection data entered into database(s)?"
+msgstr ""
+
+#: .\spot\models.py:331
+msgid "Was sample data quality check complete?"
+msgstr ""
+
+#: .\spot\models.py:332
+#, fuzzy
+msgid "Sample Format(s)"
+msgstr "Date de début du projet"
+
+#: .\spot\models.py:333
+#, fuzzy
+msgid "Data Product(s)"
+msgstr "Mes projets"
+
+#: .\spot\models.py:334
+msgid "Data Products Database"
+msgstr ""
+
+#: .\spot\models.py:335
+#, fuzzy
+msgid "Data Products Comment"
+msgstr "Rapports d'état"
+
+#: .\spot\models.py:354
+msgid "Subject"
+msgstr "Sujet"
+
+#: .\spot\models.py:355
+msgid "Comments"
+msgstr "Commentaires"
+
+#: .\spot\models.py:356
+msgid "Sent By"
+msgstr ""
+
+#: .\spot\models.py:375
+#, fuzzy
+#| msgid "OT Description:"
+msgid "Task Description"
+msgstr "Description d'heures supplémentaires:"
+
+#: .\spot\models.py:376 .\spot\templates\spot\_objectives.html:21
+#, fuzzy
+msgid "Element Title"
+msgstr "Titre de l'accord"
+
+#: .\spot\models.py:377 .\spot\templates\spot\_objectives.html:24
+#, fuzzy
+msgid "Activity Title"
+msgstr "date d'activité initiale"
+
+#: .\spot\models.py:379
+msgid "PST Requirement Identified?"
+msgstr ""
+
+#: .\spot\models.py:380 .\spot\models.py:489
+#: .\spot\templates\spot\_objectives.html:30
+msgid "Location"
+msgstr "Location"
+
+#: .\spot\models.py:381
+#, fuzzy
+msgid "Objective Category"
+msgstr "Nouvelle organisation"
+
+#: .\spot\models.py:382
+#, fuzzy
+#| msgid "Lab Equipment"
+msgid "SIL Requirement"
+msgstr "Équipement de laboratoire"
+
+#: .\spot\models.py:384
+#, fuzzy
+#| msgid "Expected Publication(s)"
+msgid "Expected Result(s)"
+msgstr "Publication(s) attendue(s)"
+
+#: .\spot\models.py:385
+msgid "Products/Reports to Provide DFO"
+msgstr ""
+
+#: .\spot\models.py:387
+#, fuzzy
+msgid "Outcomes Contact"
+msgstr "Contacts du MPO"
+
+#: .\spot\models.py:388
+#, fuzzy
+#| msgid "Save comments"
+msgid "Outcome Comment"
+msgstr "Enregistrer les commentaires"
+
+#: .\spot\models.py:389
+msgid "Barrier to Achieve Outcomes(?)"
+msgstr ""
+
+#: .\spot\models.py:390
+msgid "What capacity building did this project provide?"
+msgstr ""
+
+#: .\spot\models.py:391
+msgid "Key Lessons Learned"
+msgstr ""
+
+#: .\spot\models.py:392
+msgid "Missed Opportunities"
+msgstr ""
+
+#: .\spot\models.py:411
+#, fuzzy
+msgid "Project Number"
+msgstr "Chef de projet"
+
+#: .\spot\models.py:413
+#, fuzzy
+#| msgid "Agreement Title"
+msgid "Agreement History"
+msgstr "Titre de l'accord"
+
+#: .\spot\models.py:414 .\spot\templates\spot\_person_projects.html:24
+#, fuzzy
+#| msgid "Project Lead"
+msgid "Project Name"
+msgstr "Chef de projet"
+
+#: .\spot\models.py:415
+#, fuzzy
+#| msgid "role description"
+msgid "Project Description"
+msgstr "description du rôle"
+
+#: .\spot\models.py:416
+#, fuzzy
+#| msgid "Start Date"
+msgid "Starting Date"
+msgstr "Date de début"
+
+#: .\spot\models.py:417
+msgid "End Date"
+msgstr "Date de fin"
+
+#: .\spot\models.py:419
+#, fuzzy
+#| msgid "Chair(s)"
+msgid "River(s)"
+msgstr "Président(s)"
+
+#: .\spot\models.py:420
+msgid "Are there any other species to add?"
+msgstr ""
+
+#: .\spot\models.py:421
+#, fuzzy
+msgid "Eco System Type"
+msgstr "Type de catégorie"
+
+#: .\spot\models.py:422
+msgid "Lake System"
+msgstr ""
+
+#: .\spot\models.py:423
+#, fuzzy
+msgid "Watershed"
+msgstr "Achat d'équipement"
+
+#: .\spot\models.py:424
+#, fuzzy
+msgid "Pacific Region Management Area"
+msgstr "URL externe"
+
+#: .\spot\models.py:426
 msgid "Salmon Life Stage"
 msgstr ""
 
-#: .\spot\models.py:455
+#: .\spot\models.py:427
+msgid "Aquaculture License Number"
+msgstr ""
+
+#: .\spot\models.py:428
+#, fuzzy
+#| msgid "Reference"
+msgid "Water License Number"
+msgstr "Référence"
+
+#: .\spot\models.py:429
+#, fuzzy
+#| msgid "Last Name"
+msgid "Hatchery Name"
+msgstr "Nom de famille"
+
+#: .\spot\models.py:430
+#, fuzzy
+#| msgid "DFO User"
+msgid "DFO Tenure"
+msgstr "Utilisateur du MPO"
+
+#: .\spot\models.py:432
 #, fuzzy
 #| msgid "Project Title"
 msgid "Project Type"
 msgstr "Titre du projet"
 
-#: .\spot\models.py:456
+#: .\spot\models.py:433
 #, fuzzy
 #| msgid "Project Title"
 msgid "Project Sub Type"
 msgstr "Titre du projet"
 
-#: .\spot\models.py:457
+#: .\spot\models.py:434
 #, fuzzy
 #| msgid "Project Title"
 msgid "Project Theme"
 msgstr "Titre du projet"
 
-#: .\spot\models.py:458
+#: .\spot\models.py:435
 #, fuzzy
 msgid "Project Stage"
 msgstr "Personnel du projet:"
 
-#: .\spot\models.py:459
+#: .\spot\models.py:436
 msgid "Monitoring Approach"
 msgstr ""
 
-#: .\spot\models.py:460
+#: .\spot\models.py:437
 #, fuzzy
 #| msgid "New Component"
 msgid "Core Component"
 msgstr "Nouveau composant"
 
-#: .\spot\models.py:461
+#: .\spot\models.py:438
 #, fuzzy
 #| msgid "New Component"
 msgid "Supportive Component"
 msgstr "Nouveau composant"
 
-#: .\spot\models.py:462
+#: .\spot\models.py:439
 #, fuzzy
 msgid "Project Purpose"
 msgstr "Chef de projet"
 
-#: .\spot\models.py:463
+#: .\spot\models.py:440
 #, fuzzy
 #| msgid "Chair Comments"
 msgid "Category Comments"
 msgstr "Commentaires du président"
 
-#: .\spot\models.py:466
+#: .\spot\models.py:443
 msgid "Link to other DFO Programs"
 msgstr ""
 
-#: .\spot\models.py:467
+#: .\spot\models.py:444
 msgid "Linked DFO Program Project Reference"
 msgstr ""
 
-#: .\spot\models.py:468
+#: .\spot\models.py:445
 msgid "Link to other Government Departments"
 msgstr ""
 
-#: .\spot\models.py:469
+#: .\spot\models.py:446
 msgid "Policy and Program Connection"
 msgstr ""
 
-#: .\spot\models.py:473
+#: .\spot\models.py:450
 #, fuzzy
 #| msgid "DFO Project"
 msgid "DFO Project Authority"
 msgstr "Projet du MPO"
 
-#: .\spot\models.py:474
+#: .\spot\models.py:451
 msgid "DFO Area Chief"
 msgstr ""
 
-#: .\spot\models.py:475
-msgid "DFO Aboriginal AAA"
+#: .\spot\models.py:452
+msgid "DFO Aboriginal Affairs Advisor"
 msgstr ""
 
-#: .\spot\models.py:476
+#: .\spot\models.py:453
 #, fuzzy
 #| msgid "resource name"
 msgid "DFO Resource Manager"
 msgstr "nom de la ressource"
 
-#: .\spot\models.py:477
+#: .\spot\models.py:454
+#, fuzzy
+msgid "Funding Recipient"
+msgstr "Financement"
+
+#: .\spot\models.py:455
 msgid "First Nation/Tribal Council"
 msgstr ""
 
-#: .\spot\models.py:478
-msgid "First Nations Contact"
-msgstr ""
+#: .\spot\models.py:456
+#, fuzzy
+msgid "Contact"
+msgstr "Contacts du MPO"
 
-#: .\spot\models.py:479
-msgid "First Nations Contact Role"
-msgstr ""
+#: .\spot\models.py:457
+#, fuzzy
+#| msgid "Contact Type"
+msgid "Contact Role"
+msgstr "Type de contact"
 
-#: .\spot\models.py:480
+#: .\spot\models.py:458
 msgid "DFO Technicians/Biologists"
 msgstr ""
 
-#: .\spot\models.py:481
+#: .\spot\models.py:459
 #, fuzzy
 msgid "Contractors"
 msgstr "Contacts du MPO"
 
-#: .\spot\models.py:482
+#: .\spot\models.py:460
 #, fuzzy
 msgid "Contractor Contact"
 msgstr "Mis à jour sur"
 
-#: .\spot\models.py:483
+#: .\spot\models.py:461
 #, fuzzy
 msgid "Partner"
 msgstr "(Ajouter un membre)"
 
-#: .\spot\models.py:484
+#: .\spot\models.py:462
 #, fuzzy
 msgid "Partner Contact"
 msgstr "Mis à jour sur"
 
-#: .\spot\models.py:487
+#: .\spot\models.py:465
 #, fuzzy
 #| msgid "Agreement Title"
 msgid "Agreement Database"
 msgstr "Titre de l'accord"
 
-#: .\spot\models.py:488
+#: .\spot\models.py:466
 #, fuzzy
 #| msgid "Agreement Title"
 msgid "Agreement Comment"
 msgstr "Titre de l'accord"
 
-#: .\spot\models.py:489
+#: .\spot\models.py:467
 #, fuzzy
 #| msgid "Funding Source"
 msgid "Funding Sources"
 msgstr "Source de financement"
 
-#: .\spot\models.py:490
+#: .\spot\models.py:468
 msgid "If you have chosen 'Other' in funding sources above please provide them"
 msgstr ""
 
-#: .\spot\models.py:491
+#: .\spot\models.py:469
 #, fuzzy
 #| msgid "Agreement Title"
 msgid "Agreement Type"
 msgstr "Titre de l'accord"
 
-#: .\spot\models.py:492
+#: .\spot\models.py:470
 #, fuzzy
 #| msgid "Partner Organization"
 msgid "Project Lead Organization"
 msgstr "Organisation partenaire"
 
-#: .\spot\models.py:512
+#: .\spot\models.py:490
 msgid "Description"
 msgstr "Description"
 
-#: .\spot\models.py:513
+#: .\spot\models.py:491
 #, fuzzy
 #| msgid "Communication Preference"
 msgid "FN Communications"
 msgstr "Préférence de communication"
 
-#: .\spot\models.py:530 .\spot\models.py:552
+#: .\spot\models.py:509 .\spot\models.py:531
 #, fuzzy
 #| msgid "subject_en"
 msgid "Objective"
 msgstr "subject_fr"
 
-#: .\spot\models.py:533 .\spot\templates\spot\_objective_quality.html:27
+#: .\spot\models.py:510 .\spot\models.py:532
+msgid "Unique Objective Number"
+msgstr ""
+
+#: .\spot\models.py:511 .\spot\templates\spot\_sample_outcome.html:21
 msgid "Sampling Outcome"
 msgstr ""
 
-#: .\spot\models.py:534
+#: .\spot\models.py:512
 msgid "Was the Sampling Outcome Met?"
 msgstr ""
 
-#: .\spot\models.py:535
-msgid "Were outcome reports delivered?"
-msgstr ""
-
-#: .\spot\models.py:536
+#: .\spot\models.py:513
 msgid "Quality of Outcome"
 msgstr ""
 
-#: .\spot\models.py:553 .\spot\templates\spot\_objective_outcome.html:21
+#: .\spot\models.py:514
+#, fuzzy
+#| msgid "Save comments"
+msgid "Sample Outcome Comment"
+msgstr "Enregistrer les commentaires"
+
+#: .\spot\models.py:533 .\spot\templates\spot\_report_outcome.html:21
 #, fuzzy
 msgid "Reporting Outcome"
 msgstr "Liste des enregistrements"
 
-#: .\spot\models.py:554
+#: .\spot\models.py:534
 msgid "Was the outcome deliverable met?"
 msgstr ""
 
-#: .\spot\models.py:556
+#: .\spot\models.py:535
 #, fuzzy
 #| msgid "Reports"
 msgid "Report Link"
 msgstr "Rapports"
 
-#: .\spot\models.py:572
+#: .\spot\models.py:536
+#, fuzzy
+msgid "Reporting Outcome Comment"
+msgstr "Liste des enregistrements"
+
+#: .\spot\models.py:537
+#, fuzzy
+msgid "Reporting Outcome Metric"
+msgstr "Liste des enregistrements"
+
+#: .\spot\models.py:554
 msgid "project"
 msgstr "projet"
 
-#: .\spot\models.py:573 .\spot\templates\spot\_funding_years.html:21
+#: .\spot\models.py:555 .\spot\templates\spot\_funding_years.html:21
 #, fuzzy
 msgid "Funding Year"
 msgstr "Financement"
 
-#: .\spot\models.py:574
+#: .\spot\models.py:556
 #, fuzzy
 msgid "Annual Agreement Cost"
 msgstr "Ajouter un accord"
 
-#: .\spot\models.py:575
+#: .\spot\models.py:557
 #, fuzzy
 #| msgid "All Projects"
 msgid "Annual Project Cost"
 msgstr "Tous les projets"
 
-#: .\spot\models.py:591
+#: .\spot\models.py:574
 msgid "method"
 msgstr ""
 
-#: .\spot\models.py:592
-msgid "method document type"
-msgstr ""
-
-#: .\spot\models.py:593
-msgid "author"
-msgstr "auteur"
-
-#: .\spot\models.py:594
+#: .\spot\models.py:576 .\spot\templates\spot\_method_document.html:21
 #, fuzzy
-msgid "year of publication"
+msgid "Method Document Type"
+msgstr "Type d'entrée"
+
+#: .\spot\models.py:577 .\spot\templates\spot\_method_document.html:24
+msgid "Author"
+msgstr "Auteur"
+
+#: .\spot\models.py:578
+#, fuzzy
+msgid "Year of Publication"
 msgstr "Nouvelle organisation"
 
-#: .\spot\models.py:595
-msgid "title"
-msgstr "titre"
+#: .\spot\models.py:579 .\spot\templates\spot\_method_document.html:27
+msgid "Title"
+msgstr "Titre"
 
-#: .\spot\models.py:596
+#: .\spot\models.py:580 .\spot\templates\spot\_method_document.html:33
 #, fuzzy
-#| msgid "event number"
-msgid "reference number"
-msgstr "numéro d'événement"
+#| msgid "Reference"
+msgid "Reference Number"
+msgstr "Référence"
 
-#: .\spot\models.py:597
-msgid "document link"
-msgstr ""
-
-#: .\spot\models.py:614
+#: .\spot\models.py:599
 msgid "Project"
 msgstr "Projet"
 
@@ -765,7 +836,7 @@ msgid "Data Products"
 msgstr "Mes projets"
 
 #: .\spot\templates\spot\_data.html:33
-msgid "Data Products Database"
+msgid "Data Quality Check"
 msgstr ""
 
 #: .\spot\templates\spot\_data.html:60
@@ -809,29 +880,10 @@ msgstr ""
 msgid "No Method Documents have been entered"
 msgstr "Toutes les lignes de F et E vides ont été effacées."
 
-#: .\spot\templates\spot\_method_document.html:21
-#, fuzzy
-msgid "Method Document Type"
-msgstr "Type d'entrée"
-
-#: .\spot\templates\spot\_method_document.html:24
-msgid "Author"
-msgstr "Auteur"
-
-#: .\spot\templates\spot\_method_document.html:27
-msgid "Title"
-msgstr "Titre"
-
 #: .\spot\templates\spot\_method_document.html:30
 #, fuzzy
 msgid "Publication Year"
 msgstr "Nouvelle organisation"
-
-#: .\spot\templates\spot\_method_document.html:33
-#, fuzzy
-#| msgid "Reference"
-msgid "Reference Number"
-msgstr "Référence"
 
 #: .\spot\templates\spot\_method_document.html:66
 msgid "(Add Method Document)"
@@ -848,57 +900,15 @@ msgstr "Sélectionner"
 msgid "No Methods have been entered"
 msgstr "Toutes les lignes de F et E vides ont été effacées."
 
-#: .\spot\templates\spot\_methods.html:24
+#: .\spot\templates\spot\_methods.html:21
 msgid "Field Work Method Type"
 msgstr ""
 
-#: .\spot\templates\spot\_methods.html:48
+#: .\spot\templates\spot\_methods.html:42
 #, fuzzy
 #| msgid "Add Milestone"
 msgid "(Add Method)"
 msgstr "Ajouter un jalon"
-
-#: .\spot\templates\spot\_objective_outcome.html:8
-msgid "Select Report Outcome:"
-msgstr ""
-
-#: .\spot\templates\spot\_objective_outcome.html:14
-#, fuzzy
-msgid "No Report Outcomes have been entered"
-msgstr "Toutes les lignes de F et E vides ont été effacées."
-
-#: .\spot\templates\spot\_objective_outcome.html:24
-msgid "Was Outcome Deliverable Met?"
-msgstr ""
-
-#: .\spot\templates\spot\_objective_outcome.html:27
-#, fuzzy
-#| msgid "Reports"
-msgid "Report Link?"
-msgstr "Rapports"
-
-#: .\spot\templates\spot\_objective_outcome.html:48
-#, fuzzy
-msgid "(Add Outcome)"
-msgstr "(Ajouter un membre)"
-
-#: .\spot\templates\spot\_objective_quality.html:8
-msgid "Select Sample Outcome:"
-msgstr ""
-
-#: .\spot\templates\spot\_objective_quality.html:14
-#, fuzzy
-msgid "No Sample Outcomes have been entered"
-msgstr "Toutes les lignes de F et E vides ont été effacées."
-
-#: .\spot\templates\spot\_objective_quality.html:30
-msgid "Was Sampling Outcome Met?"
-msgstr ""
-
-#: .\spot\templates\spot\_objective_quality.html:54
-#, fuzzy
-msgid "(Add Sample type)"
-msgstr "(Ajouter un membre)"
 
 #: .\spot\templates\spot\_objectives.html:8
 msgid "Select an Objective:"
@@ -909,10 +919,30 @@ msgstr ""
 msgid "No Objectives have been created"
 msgstr "Toutes les lignes de F et E vides ont été effacées."
 
+#: .\spot\templates\spot\_objectives.html:27
+#: .\spot\templates\spot\_rivers.html:19
+#: .\spot\templates\spot\data_detail.html:68
+#: .\spot\templates\spot\objective_detail.html:71
+#, fuzzy
+#| msgid "All Species "
+msgid "Species"
+msgstr "Toutes les espèces "
+
 #: .\spot\templates\spot\_objectives.html:57
 #, fuzzy
 msgid "(Add an Objective)"
 msgstr "(Ajouter un membre)"
+
+#: .\spot\templates\spot\_person_projects.html:8
+#, fuzzy
+msgid "Projects:"
+msgstr "Tous les projets:"
+
+#: .\spot\templates\spot\_person_projects.html:14
+#, fuzzy
+#| msgid "Use this project as a template for a new project"
+msgid "This person is not part of any projects"
+msgstr "Utilisez ce projet comme modèle pour un nouveau projet"
 
 #: .\spot\templates\spot\_project_certified.html:13
 #, fuzzy
@@ -924,6 +954,30 @@ msgstr "vérifié par"
 #, fuzzy
 msgid "Certification Date"
 msgstr "Organisation"
+
+#: .\spot\templates\spot\_report_outcome.html:8
+msgid "Select Report Outcome:"
+msgstr ""
+
+#: .\spot\templates\spot\_report_outcome.html:14
+#, fuzzy
+msgid "No Report Outcomes have been entered"
+msgstr "Toutes les lignes de F et E vides ont été effacées."
+
+#: .\spot\templates\spot\_report_outcome.html:24
+msgid "Was Outcome Deliverable Met?"
+msgstr ""
+
+#: .\spot\templates\spot\_report_outcome.html:27
+#, fuzzy
+#| msgid "Reports"
+msgid "Report Link?"
+msgstr "Rapports"
+
+#: .\spot\templates\spot\_report_outcome.html:48
+#, fuzzy
+msgid "(Add Outcome)"
+msgstr "(Ajouter un membre)"
 
 #: .\spot\templates\spot\_reports.html:8
 #, fuzzy
@@ -941,42 +995,78 @@ msgstr "Aucun rapport"
 msgid "(Add Report)"
 msgstr "Ajouter un rapport"
 
-#: .\spot\templates\spot\data_detail.html:39
+#: .\spot\templates\spot\_rivers.html:9
+#, fuzzy
+msgid "No Rivers have been entered"
+msgstr "Toutes les lignes de F et E vides ont été effacées."
+
+#: .\spot\templates\spot\_rivers.html:34
+#: .\spot\templates\spot\data_detail.html:83
+#: .\spot\templates\spot\objective_detail.html:86
+msgid "Sub District Area"
+msgstr ""
+
+#: .\spot\templates\spot\_rivers.html:40
+#: .\spot\templates\spot\data_detail.html:89
+#: .\spot\templates\spot\objective_detail.html:92
+#, fuzzy
+msgid "Pop ID"
+msgstr "Projet"
+
+#: .\spot\templates\spot\_sample_outcome.html:8
+msgid "Select Sample Outcome:"
+msgstr ""
+
+#: .\spot\templates\spot\_sample_outcome.html:14
+#, fuzzy
+msgid "No Sample Outcomes have been entered"
+msgstr "Toutes les lignes de F et E vides ont été effacées."
+
+#: .\spot\templates\spot\_sample_outcome.html:24
+msgid "Was Sampling Outcome Met?"
+msgstr ""
+
+#: .\spot\templates\spot\_sample_outcome.html:42
+#, fuzzy
+msgid "(Add Sample type)"
+msgstr "(Ajouter un membre)"
+
+#: .\spot\templates\spot\data_detail.html:41
 #: .\spot\templates\spot\lakesystem_detail.html:34
 #: .\spot\templates\spot\meetings_detail.html:33
-#: .\spot\templates\spot\method_detail.html:39
-#: .\spot\templates\spot\objective_detail.html:39
+#: .\spot\templates\spot\method_detail.html:42
+#: .\spot\templates\spot\objective_detail.html:42
 #: .\spot\templates\spot\organization_detail.html:34
 #: .\spot\templates\spot\person_detail.html:33
-#: .\spot\templates\spot\project_detail.html:35
-#: .\spot\templates\spot\reports_detail.html:39
+#: .\spot\templates\spot\project_detail.html:50
+#: .\spot\templates\spot\reports_detail.html:42
 #: .\spot\templates\spot\river_detail.html:34
 #: .\spot\templates\spot\watershed_detail.html:34
 msgid "Edit"
 msgstr "Modifier"
 
-#: .\spot\templates\spot\data_detail.html:42
-#: .\spot\templates\spot\feedback_detail.html:33
+#: .\spot\templates\spot\data_detail.html:44
+#: .\spot\templates\spot\feedback_detail.html:35
 #: .\spot\templates\spot\funding_year_popout.html:59
 #: .\spot\templates\spot\lakesystem_detail.html:37
 #: .\spot\templates\spot\meetings_detail.html:36
-#: .\spot\templates\spot\method_detail.html:42
-#: .\spot\templates\spot\method_document_popout.html:55
-#: .\spot\templates\spot\objective_data_type_quality_popout.html:59
-#: .\spot\templates\spot\objective_detail.html:42
-#: .\spot\templates\spot\objective_outcome_popout.html:59
+#: .\spot\templates\spot\method_detail.html:45
+#: .\spot\templates\spot\method_document_popout.html:59
+#: .\spot\templates\spot\objective_detail.html:45
 #: .\spot\templates\spot\organization_detail.html:37
 #: .\spot\templates\spot\person_detail.html:36
 #: .\spot\templates\spot\project_certified_popout.html:55
-#: .\spot\templates\spot\project_detail.html:38
-#: .\spot\templates\spot\reports_detail.html:42
+#: .\spot\templates\spot\project_detail.html:53
+#: .\spot\templates\spot\report_outcome_popout.html:59
+#: .\spot\templates\spot\reports_detail.html:45
 #: .\spot\templates\spot\river_detail.html:37
+#: .\spot\templates\spot\sample_outcome_popout.html:59
 #: .\spot\templates\spot\watershed_detail.html:37
 msgid "Delete"
 msgstr "Supprimer"
 
-#: .\spot\templates\spot\data_list.html:92 .\spot\templates\spot\index.html:47
-#: .\spot\templates\spot\project_detail.html:85
+#: .\spot\templates\spot\data_list.html:92 .\spot\templates\spot\index.html:57
+#: .\spot\templates\spot\project_detail.html:161
 #, fuzzy
 #| msgid "Date"
 msgid "Data"
@@ -988,9 +1078,8 @@ msgstr "Date"
 #: .\spot\templates\spot\meetings_list.html:61
 #: .\spot\templates\spot\method_list.html:99
 #: .\spot\templates\spot\objective_list.html:101
-#: .\spot\templates\spot\organization_list.html:101
+#: .\spot\templates\spot\organization_list.html:102
 #: .\spot\templates\spot\person_list.html:105
-#: .\spot\templates\spot\project_list.html:99
 #: .\spot\templates\spot\reports_list.html:99
 #: .\spot\templates\spot\river_list.html:61
 #: .\spot\templates\spot\watershed_list.html:61
@@ -1003,7 +1092,7 @@ msgstr "(cliquez sur un en-tête pour trier le tableau)"
 #: .\spot\templates\spot\meetings_list.html:65
 #: .\spot\templates\spot\method_list.html:103
 #: .\spot\templates\spot\objective_list.html:105
-#: .\spot\templates\spot\organization_list.html:105
+#: .\spot\templates\spot\organization_list.html:106
 #: .\spot\templates\spot\person_list.html:109
 #: .\spot\templates\spot\project_list.html:103
 #: .\spot\templates\spot\reports_list.html:103
@@ -1018,7 +1107,7 @@ msgstr "afficher"
 #: .\spot\templates\spot\meetings_list.html:65
 #: .\spot\templates\spot\method_list.html:103
 #: .\spot\templates\spot\objective_list.html:105
-#: .\spot\templates\spot\organization_list.html:105
+#: .\spot\templates\spot\organization_list.html:106
 #: .\spot\templates\spot\person_list.html:109
 #: .\spot\templates\spot\project_list.html:103
 #: .\spot\templates\spot\reports_list.html:103
@@ -1039,71 +1128,72 @@ msgid "New Funding Year"
 msgstr "Financement"
 
 #: .\spot\templates\spot\funding_year_popout.html:55
-#: .\spot\templates\spot\method_document_popout.html:51
-#: .\spot\templates\spot\objective_data_type_quality_popout.html:55
-#: .\spot\templates\spot\objective_outcome_popout.html:55
+#: .\spot\templates\spot\method_document_popout.html:55
 #: .\spot\templates\spot\project_certified_popout.html:51
+#: .\spot\templates\spot\report_outcome_popout.html:55
+#: .\spot\templates\spot\sample_outcome_popout.html:55
 msgid "Submit"
 msgstr "Soumettre"
 
 #: .\spot\templates\spot\funding_year_popout.html:63
-#: .\spot\templates\spot\method_document_popout.html:59
-#: .\spot\templates\spot\objective_data_type_quality_popout.html:63
-#: .\spot\templates\spot\objective_outcome_popout.html:63
+#: .\spot\templates\spot\method_document_popout.html:63
 #: .\spot\templates\spot\project_certified_popout.html:59
+#: .\spot\templates\spot\report_outcome_popout.html:63
+#: .\spot\templates\spot\sample_outcome_popout.html:63
 msgid "Close"
 msgstr "Fermer"
 
-#: .\spot\templates\spot\index.html:22
+#: .\spot\templates\spot\index.html:32
 #, fuzzy
 msgid "Pacific Region Salmon G&C Metadata Database"
 msgstr "Contacts du MPO"
 
-#: .\spot\templates\spot\index.html:25
+#: .\spot\templates\spot\index.html:35
 msgid ""
-"Pacific region application for recording salmon G&C science project metadata"
+"Pacific region application for recording salmon G&C science project metadata "
+"(2018+)"
 msgstr ""
 
-#: .\spot\templates\spot\index.html:32
-#: .\spot\templates\spot\organization_list.html:93
+#: .\spot\templates\spot\index.html:42
+#: .\spot\templates\spot\organization_list.html:94
 msgid "Organizations"
 msgstr "Organisations"
 
-#: .\spot\templates\spot\index.html:35
+#: .\spot\templates\spot\index.html:45
 #: .\spot\templates\spot\person_list.html:93
 msgid "People"
 msgstr ""
 
-#: .\spot\templates\spot\index.html:38
+#: .\spot\templates\spot\index.html:48
 msgid "Project Tracking"
 msgstr ""
 
-#: .\spot\templates\spot\index.html:41
+#: .\spot\templates\spot\index.html:51
 #: .\spot\templates\spot\objective_list.html:93
-#: .\spot\templates\spot\project_detail.html:134
+#: .\spot\templates\spot\project_detail.html:210
 #, fuzzy
 #| msgid "subject_en"
 msgid "Objectives"
 msgstr "subject_fr"
 
-#: .\spot\templates\spot\index.html:44
+#: .\spot\templates\spot\index.html:54
 #: .\spot\templates\spot\method_list.html:93
-#: .\spot\templates\spot\project_detail.html:101
+#: .\spot\templates\spot\project_detail.html:177
 msgid "Methods"
 msgstr ""
 
-#: .\spot\templates\spot\index.html:51
+#: .\spot\templates\spot\index.html:61
 #, fuzzy
 msgid "Meetings"
 msgstr "Nouveau ou existant"
 
-#: .\spot\templates\spot\index.html:55
-#: .\spot\templates\spot\project_detail.html:118
+#: .\spot\templates\spot\index.html:65
+#: .\spot\templates\spot\project_detail.html:194
 #: .\spot\templates\spot\reports_list.html:93
 msgid "Reports"
 msgstr "Rapports"
 
-#: .\spot\templates\spot\index.html:60
+#: .\spot\templates\spot\index.html:69
 #, fuzzy
 #| msgid "Feedback / Bugs"
 msgid "Feedback"
@@ -1119,26 +1209,6 @@ msgstr "Détails du projet"
 msgid "New Method Document"
 msgstr "Nouvelle entrée"
 
-#: .\spot\templates\spot\objective_data_type_quality_popout.html:35
-#, fuzzy
-msgid "Sample Details"
-msgstr "Détails de la personne:"
-
-#: .\spot\templates\spot\objective_data_type_quality_popout.html:38
-#, fuzzy
-msgid "New Sample"
-msgstr "Nouveau personne"
-
-#: .\spot\templates\spot\objective_outcome_popout.html:35
-#, fuzzy
-msgid "Outcome Details"
-msgstr "Détails de la personne:"
-
-#: .\spot\templates\spot\objective_outcome_popout.html:38
-#, fuzzy
-msgid "New Outcome"
-msgstr "Ajouter une ressource"
-
 #: .\spot\templates\spot\project_certified_popout.html:35
 #, fuzzy
 msgid "Certification Details"
@@ -1149,11 +1219,15 @@ msgstr "Détails de la personne:"
 msgid "New Certification"
 msgstr "Nouvelle organisation"
 
-#: .\spot\templates\spot\project_detail.html:41
+#: .\spot\templates\spot\project_detail.html:56
 msgid "Certify"
 msgstr ""
 
-#: .\spot\templates\spot\project_detail.html:52
+#: .\spot\templates\spot\project_detail.html:59
+msgid "Clone"
+msgstr "Clone"
+
+#: .\spot\templates\spot\project_detail.html:70
 #, fuzzy
 msgid "Project Details"
 msgstr "Détails du projet:"
@@ -1164,75 +1238,37 @@ msgstr "Détails du projet:"
 msgid "Salmon Projects"
 msgstr "Tous les projets"
 
-#: .\spot\templates\spot\scratch\_instructions.html:6
-#: .\spot\templates\spot\scratch\_recipients.html:7
-msgid "<b class='highlight'>MISSING EMAIL</b>"
-msgstr ""
+#: .\spot\templates\spot\project_list.html:99
+#, fuzzy
+#| msgid "(click on a header to sort table)"
+msgid "(click on a header to sort table alphabetically)"
+msgstr "(cliquez sur un en-tête pour trier le tableau)"
 
-#: .\spot\templates\spot\scratch\_instructions.html:7
-#: .\spot\templates\spot\scratch\_recipients.html:8
-msgid "<b class='highlight'>MISSING ROLE</b>"
-msgstr ""
+#: .\spot\templates\spot\report_outcome_popout.html:35
+#, fuzzy
+msgid "Report Outcome Details"
+msgstr "Détails de la personne:"
 
-#: .\spot\templates\spot\scratch\_instructions.html:11
-msgid "Consultation Instructions:"
-msgstr ""
+#: .\spot\templates\spot\report_outcome_popout.html:38
+#, fuzzy
+msgid "New Report Outcome"
+msgstr "Liste des enregistrements"
 
-#: .\spot\templates\spot\scratch\_instructions.html:17
-msgid "There are no consultation instructions available for this organization"
-msgstr ""
+#: .\spot\templates\spot\sample_outcome_popout.html:35
+#, fuzzy
+msgid "Sample Details"
+msgstr "Détails de la personne:"
 
-#: .\spot\templates\spot\scratch\_instructions.html:24
-msgid "Address Letter To:"
-msgstr ""
-
-#: .\spot\templates\spot\scratch\_instructions.html:32
-msgid "Cc (on Bottom of Letter):"
-msgstr ""
-
-#: .\spot\templates\spot\scratch\_instructions.html:40
-msgid "Paper Copy:"
-msgstr ""
-
-#: .\spot\templates\spot\scratch\_instructions.html:48
-msgid "To Email Recipients:"
-msgstr ""
-
-#: .\spot\templates\spot\scratch\_instructions.html:68
-msgid "Cc Email Recipients:"
-msgstr ""
-
-#: .\spot\templates\spot\scratch\_instructions.html:93
-msgid "Edit Instructions"
-msgstr ""
-
-#: .\spot\templates\spot\scratch\_instructions.html:98
-msgid "Create Instructions"
-msgstr ""
-
-#: .\spot\templates\spot\scratch\_people.html:7
-msgid "Contacts:"
-msgstr ""
-
-#: .\spot\templates\spot\scratch\_people.html:13
-msgid "No people have been added to this entry"
-msgstr ""
-
-#: .\spot\templates\spot\scratch\_people.html:29
-msgid "Connected user?"
-msgstr ""
-
-#: .\spot\templates\spot\scratch\_people.html:68
-msgid "(Add person)"
-msgstr ""
-
-#: .\spot\templates\spot\scratch\_recipients.html:61
-msgid "Remove recipient"
-msgstr ""
+#: .\spot\templates\spot\sample_outcome_popout.html:38
+#, fuzzy
+msgid "New Sample"
+msgstr "Nouveau personne"
 
 #: .\spot\templates\spot\spot_base.html:9
-msgid "Spot"
-msgstr ""
+#, fuzzy
+#| msgid "Add G&C"
+msgid "G&C"
+msgstr "Ajouter S & C"
 
 #: .\spot\templates\spot\spot_base.html:21
 msgid "Home"
@@ -1249,14 +1285,33 @@ msgstr "Commentaires / Bugs"
 msgid "User Permissions"
 msgstr "Ressources humaines"
 
+#, fuzzy
+#~ msgid "Data Program(s)"
+#~ msgstr "Programme"
+
+#~ msgid "Region"
+#~ msgstr "Région"
+
+#~ msgid "author"
+#~ msgstr "auteur"
+
+#~ msgid "title"
+#~ msgstr "titre"
+
+#, fuzzy
+#~| msgid "event number"
+#~ msgid "reference number"
+#~ msgstr "numéro d'événement"
+
+#, fuzzy
+#~ msgid "New Outcome"
+#~ msgstr "Ajouter une ressource"
+
 #~ msgid "name (English)"
 #~ msgstr "nom (anglais)"
 
 #~ msgid "name (French)"
 #~ msgstr "nom (français)"
-
-#~ msgid "name"
-#~ msgstr "nom"
 
 #~ msgid "funding program"
 #~ msgstr "programme de financement"
@@ -1363,10 +1418,6 @@ msgstr "Ressources humaines"
 
 #~ msgid "Funding"
 #~ msgstr "Financement"
-
-#, fuzzy
-#~ msgid "Projects:"
-#~ msgstr "Tous les projets:"
 
 #, fuzzy
 #~ msgid "Start year"
@@ -1609,9 +1660,6 @@ msgstr "Ressources humaines"
 #~ msgid "Language"
 #~ msgstr "Langue"
 
-#~ msgid "Contact Type"
-#~ msgstr "Type de contact"
-
 #~ msgid "E-mail"
 #~ msgstr "Courriel"
 
@@ -1666,9 +1714,6 @@ msgstr "Ressources humaines"
 
 #~ msgid "Other Regions"
 #~ msgstr "Autres régions"
-
-#~ msgid "Chair(s)"
-#~ msgstr "Président(s)"
 
 #~ msgid "CSAS Contact(s)"
 #~ msgstr "Contact(s) du SCCS"
@@ -2219,10 +2264,6 @@ msgstr "Ressources humaines"
 
 #, fuzzy
 #~ msgid "Arctic Region Meeting List"
-#~ msgstr "URL externe"
-
-#, fuzzy
-#~ msgid "Pacific Region Meeting List"
 #~ msgstr "URL externe"
 
 #, fuzzy
@@ -2941,9 +2982,6 @@ msgstr "Ressources humaines"
 #~ msgid "Fiscal year"
 #~ msgstr "Exercice fiscal"
 
-#~ msgid "DFO User"
-#~ msgstr "Utilisateur du MPO"
-
 #~ msgid "Section head comments (visible to section head only)"
 #~ msgstr ""
 #~ "Commentaires de chef de section (visibles uniquement par la chef de "
@@ -3255,12 +3293,6 @@ msgstr "Ressources humaines"
 #~ msgid "Approve"
 #~ msgstr "Approuver"
 
-#~ msgid "Use this project as a template for a new project"
-#~ msgstr "Utilisez ce projet comme modèle pour un nouveau projet"
-
-#~ msgid "Clone"
-#~ msgstr "Clone"
-
 #~ msgid "Create a new status report for this project"
 #~ msgstr "Créer un nouveau rapport de statut pour ce projet"
 
@@ -3359,9 +3391,6 @@ msgstr "Ressources humaines"
 #, fuzzy
 #~ msgid "Grant & Contributions"
 #~ msgstr "Subventions et contributions:"
-
-#~ msgid "Add G&C"
-#~ msgstr "Ajouter S & C"
 
 #~ msgid "No G&Cs"
 #~ msgstr "Aucune de S et C"
@@ -3547,9 +3576,6 @@ msgstr "Ressources humaines"
 
 #~ msgid "n/a"
 #~ msgstr "n / a"
-
-#~ msgid "Number"
-#~ msgstr "Numéro"
 
 #~ msgid "Created By"
 #~ msgstr "Créé par"
@@ -3765,10 +3791,6 @@ msgstr "Ressources humaines"
 #~ "                "
 
 #, fuzzy
-#~ msgid "Funding type"
-#~ msgstr "Financement"
-
-#, fuzzy
 #~ msgid "Financial summary"
 #~ msgstr "Résumé financier:"
 
@@ -3865,10 +3887,6 @@ msgstr "Ressources humaines"
 
 #~ msgid "Calculated Overtime Hours:"
 #~ msgstr "Heures supplémentaires calculées:"
-
-#, fuzzy
-#~ msgid "Project ID"
-#~ msgstr "Projet"
 
 #, fuzzy
 #~ msgid "Salary Cost"
@@ -6218,9 +6236,6 @@ msgstr "Ressources humaines"
 
 #~ msgid "status date"
 #~ msgstr "date du statut"
-
-#~ msgid "Reviewer"
-#~ msgstr "Examinateur"
 
 #~ msgid "on"
 #~ msgstr "sur"
