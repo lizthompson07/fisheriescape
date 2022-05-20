@@ -18,13 +18,37 @@
 {% endblock %}
 
 {% block subcontent %}
+
+  {% include "shared_models/_generic_breadcrumbs.html" %}
+  <div class="mb-3">
+    <h2 class="">{{ h1|safe }}</h2>
+  </div>
+  {% bootstrap_messages %}
+
+  <div class="table-bordered py-3 px-2 admin-panel mb-3">
+
+    <form class="form " action="." method="get" id="filter-form" @change="submitForm">
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field filter.form.fiscal_year placeholder="" size="small" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field filter.form.lead_office placeholder="" size="small" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field filter.form.id placeholder="" size="small" %}
+        </div>
+        <div class="col">
+          <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+          <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+        </div>
+      </div>
+    </form>
+  </div>
+
   <div id="app" v-cloak>
     <div>
-      {% include "shared_models/_generic_breadcrumbs.html" %}
-      <div class="mb-3">
-        <h2 class="">{{ h1|safe }}</h2>
-      </div>
-      {% bootstrap_messages %}
+
       <div v-if="canModify" class="alert alert-primary no-print" role="alert">
         <p class="mb-0">
           <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
@@ -32,18 +56,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-2 px-3 py-3 mx-3 table-bordered">
-        <form class="form " action="." method="get" id="filter-form" @change="submitForm">
-          {% bootstrap_field filter.form.fiscal_year placeholder="" size="small" %}
-          {% bootstrap_field filter.form.lead_office placeholder="" size="small" %}
-          {% bootstrap_field filter.form.id placeholder="" size="small" %}
-          {% bootstrap_field filter.form.is_posted placeholder="" size="small" %}
-          <div class="">
-            <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
-            <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
-          </div>
-        </form>
-      </div>
+
       <div class="col">
         <div v-if="loading" class="loading mb-3 mt-3 mt-5">
           <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
@@ -55,14 +68,15 @@
           <thead>
           <tr>
             <th>${processLabels.id}</th>
+            <th class="">${processLabels.fiscal_year}</th>
             <th>{% trans "Process" %}</th>
-            <th class="w-25">${processLabels.is_posted}</th>
             <th class="w-25">{% trans "Is ToR posted on CSAS website?" %}</th>
           </tr>
           </thead>
           <tbody>
           <tr v-for="p, index in processes" :key="p.id">
             <td>${p.id}</td>
+            <td>${p.fiscal_year}</td>
             <td>
               <div class="neighbours">
                 <p class="mb-0">
@@ -140,26 +154,6 @@
 
                 </div>
               </div>
-
-            </td>
-            <td>
-              <div v-if="p.is_posted" class="mb-3">
-                <button class="btn btn-xs btn-success" @click="toggle(p)">{% trans "Posted" %}</button>
-              </div>
-              <div class="mb-1" v-else>
-                <button class="btn btn-xs btn-danger mr-3 mb-3" @click="toggle(p)"> {% trans "Not Posted" %}</button>
-                <p v-if="p.posting_request_date">
-                  <mark>
-                    <em class="">
-                      {% trans "Request made on " %}${p.posting_request_date_display|nz}
-                      &mdash; <span class="text-left text-primary pointy" @click="cancelPostingRequest(p)">{% trans "cancel request" %}</span>
-                    </em>
-                  </mark>
-                </p>
-              </div>
-              <p v-if="p.posting_notification_date">
-                {% trans "Email notification sent on" %} ${p.posting_notification_date_display}
-              </p>
 
             </td>
 
@@ -249,26 +243,14 @@
           this.processLabels = data.labels;
         });
       },
-      toggle(p) {
-        let endpoint = `/api/csas/processes/${p.id}/`;
-        apiService(endpoint, "PATCH", {is_posted: !p.is_posted}).then(data => {
-          if (!data.id) this.errors = groomJSON(data);
-          else this.getProcesses();
-        });
-      },
+
       toggleToR(tor) {
         apiService(`/api/csas/tors/${tor.id}/?toggle_posting=true`, "POST").then(data => {
           if (!data.id) this.errors = groomJSON(data);
           else this.getProcesses();
         });
       },
-      cancelPostingRequest(p) {
-        let endpoint = `/api/csas/processes/${p.id}/`;
-        apiService(endpoint, "PATCH", {posting_request_date: null}).then(data => {
-          if (!data.id) this.errors = groomJSON(data);
-          else this.getProcesses();
-        });
-      },
+
       toggleProcessCollapse(p) {
         console.log(p)
         p.collapse = !p.collapse;
@@ -296,6 +278,9 @@
       this.getCurrentUser();
       this.getProcesses();
       this.getProcessMetadata();
+      this.$nextTick(() => {
+
+      })
     },
   });
 

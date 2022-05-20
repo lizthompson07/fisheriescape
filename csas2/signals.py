@@ -28,6 +28,11 @@ def save_process_on_meeting_save(sender, instance, created, **kwargs):
     instance.process.save()
 
 
+@receiver(models.signals.post_delete, sender=Meeting)
+def save_process_on_meeting_delete(sender, instance, **kwargs):
+    instance.process.save()
+
+
 @receiver(models.signals.post_save, sender=Document)
 def save_process_on_doc_save(sender, instance, created, **kwargs):
     instance.process.save()

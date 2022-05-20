@@ -1,6 +1,7 @@
 import json
 from datetime import timedelta
 
+from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.test import tag
 from django.urls import reverse
@@ -1322,3 +1323,142 @@ class TestFAQListAPIView(CommonTest):
         self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.post(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
+
+
+class TestTravelUserAPIListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.admin_user = self.get_and_login_admin()
+        self.instance = self.get_and_login_user()
+        self.test_list_create_url = reverse("travel-users-list", args=None)
+        self.test_detail_url = reverse("travel-users-detail", args=[self.instance.pk])
+        self.data_json = json.dumps(FactoryFloor.UserFactory.get_valid_data())
+
+    @tag("api", 'user')
+    def test_url(self):
+        self.assert_correct_url("travel-users-list", test_url_args=None, expected_url_path=f"/api/travel/users/")
+        self.assert_correct_url("travel-users-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/travel/users/{self.instance.pk}/")
+
+    @tag("api", 'user')
+    def test_list_create(self):
+        # LIST
+        # anonymous user
+        self.client.logout()
+        response = self.client.get(self.test_list_create_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # random authenticated users
+        self.get_and_login_user()
+        response = self.client.get(self.test_list_create_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # CREATE
+        # anonymous user
+        self.client.logout()
+        response = self.client.post(self.test_list_create_url, data=self.data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # random authenticated users
+        self.get_and_login_user()
+        response = self.client.post(self.test_list_create_url, data=self.data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # authorized user
+        self.get_and_login_user(user=self.admin_user)
+        response = self.client.post(self.test_list_create_url, data=self.data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    @tag("api", 'user')
+    def test_detail(self):
+        # GET
+        # anonymous user
+        self.client.logout()
+        response = self.client.get(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # random authenticated users
+        self.get_and_login_user()
+        response = self.client.get(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.instance.id)
+        self.assert_dict_has_keys(response.data, ["travellers", "request_reviewers", "trip_reviewers"])
+
+        # authorized user
+        self.get_and_login_user(user=self.admin_user)
+        response = self.client.get(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.instance.id)
+
+        # PUT
+        # anonymous user
+        self.client.logout()
+        response = self.client.put(self.test_detail_url, data=self.data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # random authenticated users
+        self.get_and_login_user()
+        response = self.client.put(self.test_detail_url, data=self.data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # authorized user
+        self.get_and_login_user(user=self.admin_user)
+        response = self.client.put(self.test_detail_url, data=self.data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.instance.id)
+
+
+        # PATCH
+        # anonymous user
+        self.client.logout()
+        response = self.client.patch(self.test_detail_url, data=self.data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # random authenticated users
+        self.get_and_login_user()
+        response = self.client.patch(self.test_detail_url, data=self.data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # authorized user
+        self.get_and_login_user(user=self.admin_user)
+        response = self.client.patch(self.test_detail_url, data=self.data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.instance.id)
+
+
+        # DELETE
+        # anonymous user
+        self.client.logout()
+        response = self.client.delete(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # random authenticated users
+        self.get_and_login_user()
+        response = self.client.delete(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # authorized user
+        self.get_and_login_user(user=self.admin_user)
+        response = self.client.delete(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(User.objects.filter(pk=self.instance.pk).exists())
+
+    @tag("api", 'user')
+    def test_custom_methods(self):
+
+        # POST - SEARCH AND CREATE
+        ## we are testing the search and replace functionality in test_utils.py; here is just to check the endpoint responses as expected
+        test_url = self.test_list_create_url + "?search_and_replace=true"
+        user1 = self.get_and_login_user()
+        user2 = self.get_and_login_user()
+        data_json = json.dumps(dict(good_user=user1.id, bad_user=user2.id))
+        # anonymous user
+        self.client.logout()
+        response = self.client.post(test_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # random authenticated users
+        self.get_and_login_user()
+        response = self.client.post(test_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # authorized user
+        self.get_and_login_user(user=self.admin_user)
+        response = self.client.post(test_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

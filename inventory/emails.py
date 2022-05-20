@@ -27,44 +27,11 @@ class CertificationRequestEmail:
         # self.cc_list = [admin_email,]
 
     def load_html_template(self):
-        t = loader.get_template('inventory/email_certification_request.html')
+        t = loader.get_template('inventory/emails/email_certification_request.html')
         context = {
             'me': self.me,
             'object': self.person_object,
             'queryset': self.person_object.resource_people.filter(role=1)
-        }
-        context.update(my_envr(self.request))
-        rendered = t.render(context)
-        return rendered
-
-    def __str__(self):
-        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
-
-
-class SectionReportEmail:
-
-    def __init__(self, me, person_object, section, request):
-        self.request = request
-        self.me = me
-        self.person_object = person_object
-        self.section = section
-        self.queryset = section.resources.all().order_by("title_eng")
-        self.subject = "Your Section's Data Inventory"
-        self.message = self.load_html_template()
-        try:
-            self.from_email = me.user.email
-        except AttributeError:
-            # if the user has no email, use the default app email
-            self.from_email = from_email
-        self.to_list = [person_object.email, self.from_email]
-
-    def load_html_template(self):
-        t = loader.get_template('inventory/email_section_head_report.html')
-        context = {
-            'me': self.me,
-            'object': self.person_object,
-            'queryset': self.queryset,
-            'section': self.section,
         }
         context.update(my_envr(self.request))
         rendered = t.render(context)
@@ -84,7 +51,7 @@ class FlagForDeletionEmail:
         self.to_list = [user.email for user in User.objects.filter(groups__name="inventory_dm")]
 
     def load_html_template(self, object, user):
-        t = loader.get_template('inventory/email_flagged_for_deletion.html')
+        t = loader.get_template('inventory/emails/email_flagged_for_deletion.html')
         context = {
             'object': object,
             'user': user,
@@ -107,7 +74,7 @@ class FlagForPublicationEmail:
         self.to_list = [user.email for user in User.objects.filter(groups__name="inventory_dm")]
 
     def load_html_template(self, object, user):
-        t = loader.get_template('inventory/email_flagged_for_publication.html')
+        t = loader.get_template('inventory/emails/email_flagged_for_publication.html')
         context = {
             'object': object,
             'user': user,
@@ -130,7 +97,7 @@ class AddedAsCustodianEmail:
         self.to_list = [user.email, ]
 
     def load_html_template(self, object, user):
-        t = loader.get_template('inventory/email_added_as_custodian.html')
+        t = loader.get_template('inventory/emails/email_added_as_custodian.html')
         context = {
             'object': object,
             'user': user,
@@ -153,7 +120,7 @@ class RemovedAsCustodianEmail:
         self.to_list = [user.email, ]
 
     def load_html_template(self, object, user):
-        t = loader.get_template('inventory/email_removed_as_custodian.html')
+        t = loader.get_template('inventory/emails/email_removed_as_custodian.html')
         context = {
             'object': object,
             'user': user,

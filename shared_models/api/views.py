@@ -29,15 +29,16 @@ def _get_labels(model):
     return labels
 
 
-class UserListAPIView(ListAPIView):
+class UserViewSet(ModelViewSet):
     queryset = User.objects.filter(first_name__isnull=False, last_name__isnull=False).filter(
         ~Q(first_name__exact="") & ~Q(last_name__exact="")
     ).order_by("first_name", "last_name")
     serializer_class = serializers.UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
     pagination_class = StandardResultsSetPagination
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['first_name', 'last_name', 'email', 'id']
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ['first_name', 'last_name', 'email', 'id', ]
+    filterset_fields = ['first_name', 'last_name', 'email', 'id', 'is_active']
 
 
 class CurrentUserAPIView(APIView):
@@ -209,10 +210,13 @@ class SharedModelMetadataAPIView(APIView):
     def get_data(self):
         data = dict()
         model = self.get_model()
-        data['labels'] = get_labels(model)
-        for field in model._meta.get_fields():
-            if hasattr(field, "choices") and getattr(field, "choices"):
-                data[f'{field.name}_choices'] = [dict(text=c[1], value=c[0]) for c in getattr(field, "choices")]
+        if self.get_display_mode() == "choices":
+            data['choices'] = [dict(text=str(item), value=item.id) for item in model.objects.all()]
+        else:
+            data['labels'] = get_labels(model)
+            for field in model._meta.get_fields():
+                if hasattr(field, "choices") and getattr(field, "choices"):
+                    data[f'{field.name}_choices'] = [dict(text=c[1], value=c[0]) for c in getattr(field, "choices")]
         return data
 
     def get(self, request):

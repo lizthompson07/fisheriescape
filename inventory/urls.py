@@ -1,29 +1,32 @@
 from django.urls import path
+
 from . import views
-from django.contrib.auth import views as auth_views
 
 app_name = 'inventory'
 
 urlpatterns = [
+    # user permissions
+    path('settings/users/', views.InventoryUserFormsetView.as_view(), name="manage_inventory_users"),
+    path('settings/users/<int:pk>/delete/', views.InventoryUserHardDeleteView.as_view(), name="delete_inventory_user"),
+
+    path('', views.Index.as_view(), name="index"),
 
     # RESOURCE #
     ############
-    path('', views.Index.as_view(), name="index"),
-    path('list/', views.ResourceListView.as_view(), name="resource_list"),
-    path('my-list/', views.MyResourceListView.as_view(), name="my_resource_list"),
-    path('<int:pk>/view/', views.ResourceDetailView.as_view(), name="resource_detail"),
-    path('<int:pk>/pdf/', views.ResourceDetailPDFView.as_view(), name="resource_pdf"),
-    path('<int:pk>/full-view/', views.ResourceFullDetailView.as_view(), name="resource_full_detail"),
-    path('<int:pk>/edit/', views.ResourceUpdateView.as_view(), name="resource_edit"),
-    path('<int:pk>/clone/', views.ResourceCloneUpdateView.as_view(), name="resource_clone"),
-    path('<int:pk>/delete/', views.ResourceDeleteView.as_view(), name="resource_delete"),
-    path('new/', views.ResourceCreateView.as_view(), name="resource_new"),
-    path('<int:pk>/flag-for-deletion/', views.ResourceDeleteFlagUpdateView.as_view(), name="resource_flag_delete"),
-    path('<int:pk>/flag-for-publication/', views.ResourcePublicationFlagUpdateView.as_view(), name="resource_flag_publication"),
+    path('resources/', views.ResourceListView.as_view(), name="resource_list"),
+    path('resources/new/', views.ResourceCreateView.as_view(), name="resource_new"),
+    path('my-resources/', views.MyResourceListView.as_view(), name="my_resource_list"),
+    path('resources/<int:pk>/view/', views.ResourceDetailView.as_view(), name="resource_detail"),
+    path('resources/<str:uuid>/', views.ResourceDetailView.as_view(), name="resource_detail_uuid"),
+    path('resources/<int:pk>/pdf/', views.ResourceDetailPDFView.as_view(), name="resource_pdf"),
+    path('resources/<int:pk>/edit/', views.ResourceUpdateView.as_view(), name="resource_edit"),
+    path('resources/<int:pk>/clone/', views.ResourceCloneUpdateView.as_view(), name="resource_clone"),
+    path('resources/<int:pk>/delete/', views.ResourceDeleteView.as_view(), name="resource_delete"),
+    path('resources/<int:pk>/flag-for-deletion/', views.ResourceDeleteFlagUpdateView.as_view(), name="resource_flag_delete"),
+    path('resources/<int:pk>/flag-for-publication/', views.ResourcePublicationFlagUpdateView.as_view(), name="resource_flag_publication"),
 
     # Open Data
     path('open-data-dashboard/', views.OpenDataDashboardTemplateView.as_view(), name="open_data_dashboard"),
-
 
     # RESOURCE PERSON #
     ###################
@@ -84,7 +87,6 @@ urlpatterns = [
 
     # DATA MANAGEMENT ADMIN #
     #########################
-    path('dm-admin/', views.DataManagementHomeTemplateView.as_view(), name="dm_home"),
     path('dm-admin/custodian-list/', views.DataManagementCustodianListView.as_view(), name="dm_custodian_list"),
     path('dm-admin/custodian/<int:pk>/detail/', views.DataManagementCustodianDetailView.as_view(), name="dm_custodian_detail"),
     path('dm-admin/custodian/<int:person>/send-request-for-certification/', views.send_certification_request,
@@ -95,24 +97,14 @@ urlpatterns = [
     path('dm-admin/certifications/', views.CertificationListView.as_view(), name="dm_certification_list"),
     path('dm-admin/modifications/', views.ModificationListView.as_view(), name="dm_modification_list"),
 
-    ## SECTIONS
-    path('my-section/', views.MySectionDetailView.as_view(), name="my_section_detail"),
-    path('dm-admin/sections/list/', views.SectionListView.as_view(), name="dm_section_list"),
-    path('dm-admin/sections/detail/<int:pk>/', views.SectionDetailView.as_view(), name="dm_section_detail"),
-    # path('dm-admin/sections/edit/<int:pk>/', views.SectionUpdateView.as_view(), name="dm_section_edit"),
-    # path('dm-admin/sections/delete/<int:pk>/', views.SectionDeleteView.as_view(), name="dm_section_delete"),
-    # path('dm-admin/sections/new/', views.SectionCreateView.as_view(), name="dm_section_new"),
-    path('dm-admin/sections/<int:section>/send-section-report/', views.send_section_report, name="send_section_report_email"),
-
     # RESOURCE CERTIFICATION #
     ##########################
-    path('resource/<int:pk>/certify/', views.ResourceCertificationCreateView.as_view(), name="resource_certify"),
+    path('resource/<int:resource>/certify/', views.ResourceCertificationCreateView.as_view(), name="resource_certify"),
     path('remove-certification/<int:pk>/', views.ResourceCertificationDeleteView.as_view(), name="resource_certification_delete"),
 
     # FILES #
     #########
     path('resource/<int:resource>/file/new/', views.FileCreateView.as_view(), name='file_create'),
-    path('file/<int:pk>/view/', views.FileDetailView.as_view(), name='file_detail'),
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
 
@@ -140,12 +132,11 @@ urlpatterns = [
     path('reports/general-export/', views.export_resources, name="export_resources"),
     path('reports/open-data/', views.export_open_data_resources, name="export_open_data_resources"),
 
-
     # TEMP #
     ########
 
     #  this was used to walk over program to programs
-    path('metadata-formset/section/<int:section>/', views.temp_formset, name="formset"),
+    # path('metadata-formset/section/<int:section>/', views.temp_formset, name="formset"),
     # path('project-program-list/', views.MyTempListView.as_view(), name="my_list"),
     # path('reports/capacity-report/fy/<str:fy>/orgs/<str:orgs>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
     # path('reports/capacity-report/', views.capacity_export_spreadsheet, name="capacity_xlsx"),

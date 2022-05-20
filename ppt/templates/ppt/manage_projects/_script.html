@@ -22,12 +22,16 @@ var app = new Vue({
     showProjectList: true,
     showStaffList: false,
     showFinancialSummary: false,
+    showReviews: false,
+    showApprovals: false,
+    showDMAs: false,
 
     currentSort: 'name',
     currentSortDir: 'asc',
 
     projects_loading: true,
     staff_loading: true,
+    dma_loading: true,
     errorTooBigStaff: false,
     errorTooSmallStaff: false,
     financial_loading: true,
@@ -35,6 +39,7 @@ var app = new Vue({
     errorTooSmallFinancial: false,
     projectYears: [],
     staff: [],
+    dmas: [],
     financials: [],
     next: null,
     previous: null,
@@ -54,6 +59,7 @@ var app = new Vue({
 
     fiscalYears: [],
     tags: [],
+    services: [],
     themes: [],
     functionalGroups: [],
     fundingSources: [],
@@ -63,6 +69,8 @@ var app = new Vue({
 
     projectLabels: {},
     projectYearLabels: {},
+    reviewLabels: {},
+    dmaLabels: {},
 
     // modal
     projectYear2Review: {},
@@ -79,7 +87,6 @@ var app = new Vue({
           })
     },
     goReport(reportName) {
-      console.log(123)
       let userInput = true;
       if (this.count > 500) userInput = confirm(`You are about to generate a report for a large number of projects (i.e., ${this.count} projects). Are you sure you want to continue?`);
       if (userInput) {
@@ -92,6 +99,7 @@ var app = new Vue({
             let reportUrl;
             if (reportName === "basic") reportUrl = `{% url 'ppt:export_py_list' %}?ids=${ids}`;
             else if (reportName === "long") reportUrl = `{% url 'ppt:export_py_list' %}?long=true&ids=${ids}`;
+            else if (reportName === "capital-costs") reportUrl = `{% url 'ppt:export_crc' %}?ids=${ids}`;
             window.location.href = reportUrl;
             this.loadingReport = false;
           }
@@ -100,6 +108,10 @@ var app = new Vue({
     },
     goProjectDetail(projectYear) {
       url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
+      var win = window.open(url, '_blank');
+    },
+    goDMADetail(dma) {
+      url = `/ppt/dmas/${dma.id}/view/`;
       var win = window.open(url, '_blank');
     },
     getFilterData() {
@@ -135,7 +147,6 @@ var app = new Vue({
       if (region !== "") query += `sections__division__branch__sector__region=${region}&`
       apiService(`/api/ppt/functional-groups/${query}`).then(response => this.functionalGroups = response);
     },
-
     getFilterString() {
       let endpoint = `user=true&`
       if (this.filter.id) endpoint += `id=${this.filter.id}&`;
@@ -144,6 +155,7 @@ var app = new Vue({
       if (this.filter.fiscal_year) endpoint += `fiscal_year=${this.filter.fiscal_year}&`;
       if (this.filter.starting_fy) endpoint += `starting_fy=${this.filter.starting_fy}&`
       if (this.filter.tag) endpoint += `tag=${this.filter.tag}&`;
+      if (this.filter.services) endpoint += `services=${this.filter.services}&`;
       if (this.filter.theme) endpoint += `theme=${this.filter.theme}&`;
       if (this.filter.functional_group) endpoint += `functional_group=${this.filter.functional_group}&`;
       if (this.filter.funding_source) endpoint += `funding_source=${this.filter.funding_source}&`;
@@ -151,25 +163,40 @@ var app = new Vue({
       if (this.filter.division) endpoint += `division=${this.filter.division}&`;
       if (this.filter.section) endpoint += `section=${this.filter.section}&`;
       if (this.filter.status) endpoint += `status=${this.filter.status}&`;
+      if (this.filter.approval_status) endpoint += `approval_status=${this.filter.approval_status}&`;
+      if (this.filter.approval_level) endpoint += `approval_level=${this.filter.approval_level}&`;
+      if (this.filter.funding_status) endpoint += `funding_status=${this.filter.funding_status}&`;
+      if (this.filter.om_cost_category) endpoint += `om_cost_category=${this.filter.om_cost_category}&`;
 
       if (this.filter.has_ship_needs === true || this.filter.has_ship_needs === false) endpoint += `has_ship_needs=${this.filter.has_ship_needs}&`;
       if (this.filter.requires_specialized_equipment === true || this.filter.requires_specialized_equipment === false) endpoint += `requires_specialized_equipment=${this.filter.requires_specialized_equipment}&`;
       if (this.filter.has_field_component === true || this.filter.has_field_component === false) endpoint += `has_field_component=${this.filter.has_field_component}&`;
       if (this.filter.has_data_component === true || this.filter.has_data_component === false) endpoint += `has_data_component=${this.filter.has_data_component}&`;
       if (this.filter.has_lab_component === true || this.filter.has_lab_component === false) endpoint += `has_lab_component=${this.filter.has_lab_component}&`;
-      if (this.filter.requires_abl_services === true || this.filter.requires_abl_services === false) endpoint += `requires_abl_services=${this.filter.requires_abl_services}&`;
       return endpoint
     },
-
-    getProjectYearsEndpoint(pageSize = 45) {
+    getDMAFilterString() {
+      let endpoint = "";
+      if (this.filter.id) endpoint += `project=${this.filter.id}&`;
+      if (this.filter.title) endpoint += `project__title=${this.filter.title}&`;
+      if (this.filter.region) endpoint += `project__section__division__branch__sector__region=${this.filter.region}&`;
+      if (this.filter.division) endpoint += `project__section__division=${this.filter.division}&`;
+      if (this.filter.section) endpoint += `project__section=${this.filter.section}&`;
+      return endpoint
+    },
+    getProjectYearsEndpoint(pageSize = 25) {
       endpoint = `/api/ppt/project-years/`;
       // apply filters
       endpoint += `?page_size=${pageSize}&` + this.getFilterString()
       return endpoint
-
     },
-
-    getProjectYears(endpoint, pageSize = 45) {
+    getDMAEndpoint(pageSize = 25) {
+      endpoint = `/api/ppt/dmas/`;
+      // apply filters
+      endpoint += `?page_size=${pageSize}&` + this.getDMAFilterString()
+      return endpoint
+    },
+    getProjectYears(endpoint, pageSize = 25) {
       this.projects_loading = true;
       if (!endpoint) endpoint = this.getProjectYearsEndpoint(pageSize)
       apiService(endpoint)
@@ -182,19 +209,31 @@ var app = new Vue({
               this.count = response.count;
               this.getStaff()
               this.getFinancials()
+              this.getDMAs()
             }
           })
     },
-    changeTabs(name) {
-      this.showProjectList = false
-      this.showStaffList = false
-      this.showFinancialSummary = false
-      if (name === "project") this.showProjectList = true
-      else if (name === "staff") this.showStaffList = true
-      else if (name === "financial") this.showFinancialSummary = true
+    refreshProjectYear(p) {
+      apiService(`/api/ppt/project-years/${p.id}`).then(response => {
+        if (response.id) {
+          this.$set(this.projectYears, this.projectYears.indexOf(p), response)
+        }
+      })
     },
-
-
+    changeTabs(name) {
+      this.showProjectList = false;
+      this.showStaffList = false;
+      this.showFinancialSummary = false;
+      this.showReviews = false;
+      this.showApprovals = false;
+      this.showDMAs = false;
+      if (name === "project") this.showProjectList = true;
+      else if (name === "staff") this.showStaffList = true;
+      else if (name === "financial") this.showFinancialSummary = true;
+      else if (name === "reviews") this.showReviews = true;
+      else if (name === "approvals") this.showApprovals = true;
+      else if (name === "dmas") this.showDMAs = true;
+    },
     getStaff() {
       this.staff_loading = true;
       this.errorTooBigStaff = false
@@ -236,6 +275,16 @@ var app = new Vue({
 
             })
       }
+    },
+    getDMAs() {
+      this.dma_loading = true;
+      // first get the full list of project years
+      let endpoint1 = this.getDMAEndpoint()
+      apiService(endpoint1)
+          .then(response => {
+            this.dma_loading = false;
+            this.dmas = response;
+          })
     },
     getFinancials() {
       this.financial_loading = true;
@@ -357,6 +406,13 @@ var app = new Vue({
       });
       apiService(`/api/ppt/meta/models/projectyear/`).then(data => {
         this.projectYearLabels = data.labels;
+        this.services = data.service_choices;
+      });
+      apiService(`/api/ppt/meta/models/review/`).then(data => {
+        this.reviewLabels = data.labels;
+      });
+      apiService(`/api/ppt/meta/models/dma/`).then(data => {
+        this.dmaLabels = data.labels;
       });
     },
     startReview(p) {
@@ -375,6 +431,8 @@ var app = new Vue({
     updateReview(p) {
       apiService(`/api/ppt/reviews/${p.review.id}/`, "PUT", p.review).then(data => {
         p.review = data
+        // update the project year
+        this.refreshProjectYear(p)
       })
     },
   },

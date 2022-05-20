@@ -1,5 +1,6 @@
 import csv
 import datetime as dt
+import random
 from io import StringIO
 
 import requests
@@ -16,12 +17,11 @@ from django.utils.timezone import utc, make_aware
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.templatetags.custom_filters import nz
+from shared_models.utils import get_labels
 from shared_models.views import CommonTemplateView, CommonHardDeleteView, CommonFormsetView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonListView
-from . import models, forms, filters, utils
+from . import models, forms, filters, utils, reports
 from .mixins import ednaBasicMixin, eDNAAdminRequiredMixin, SuperuserOrAdminRequiredMixin
-from .utils import is_admin
-
 
 
 class ednaUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
@@ -40,7 +40,6 @@ class ednaUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView
     success_url = reverse_lazy("edna:manage_edna_users")
 
 
-
 class IndexTemplateView(ednaBasicMixin, CommonTemplateView):
     h1 = "home"
     active_page_name_crumb = "home"
@@ -48,7 +47,12 @@ class IndexTemplateView(ednaBasicMixin, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_admin"] = is_admin(self.request.user)
+        source = "GATC"
+        random.seed()
+        txt = ""
+        for i in range(1, 9000):
+            txt += random.sample("GATC", 1)[0]
+        context["txt"] = txt
         return context
 
 
@@ -208,10 +212,11 @@ class AssayListView(eDNAAdminRequiredMixin, CommonListView):
     model = models.Assay
 
     field_list = [
-        {"name": 'name', "class": "", "width": ""},
         {"name": 'alias', "class": "", "width": ""},
+        {"name": 'name', "class": "", "width": ""},
         {"name": 'lod', "class": "", "width": ""},
         {"name": 'loq', "class": "", "width": ""},
+        {"name": 'units', "class": "", "width": ""},
         {"name": 'a_coef', "class": "", "width": ""},
         {"name": 'b_coef', "class": "", "width": ""},
         {"name": 'is_ipc', "class": "", "width": ""},
@@ -277,13 +282,14 @@ class CollectionListView(eDNAAdminRequiredMixin, CommonFilterView):
     home_url_name = "edna:index"
     row_object_url_name = "edna:collection_detail"
     new_object_url = reverse_lazy("edna:collection_new")
-    new_btn_text = gettext_lazy("Add a New Collection")
+    new_btn_text = gettext_lazy("Add a New Project")
     container_class = "container-fluid curvy"
     field_list = [
-        {"name": 'start_date|{}'.format(_("collection date")), "class": "", "width": ""},
-        {"name": 'region', "class": "", "width": ""},
+        {"name": 'id', "class": "", "width": ""},
         {"name": 'name', "class": "", "width": ""},
-        {"name": 'location_description', "class": "", "width": ""},
+        {"name": 'dates|{}'.format(_("collection dates")), "class": "", "width": ""},
+        {"name": 'region', "class": "", "width": ""},
+        {"name": 'description', "class": "", "width": ""},
         {"name": 'province', "class": "", "width": ""},
         {"name": 'sample_count|{}'.format(_("sample count")), "class": "", "width": ""},
         {"name": 'fiscal_year', "class": "", "width": ""},
@@ -315,7 +321,7 @@ class CollectionDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     model = models.Collection
     template_name = 'edna/collection_detail.html'
     home_url_name = "edna:index"
-    parent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    parent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
     container_class = "container-fluid"
 
     def get_field_list(self):
@@ -323,21 +329,13 @@ class CollectionDetailView(eDNAAdminRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        sample_field_list = [
-            'display|sample ID',
-            "sample_type",
-            'bottle_id',
-            'datetime',
-            "samplers",
-            "location",
-            "station",
-            "site",
-            'coordinates',
-            'assay_count|{}'.format(gettext_lazy("assays tested")),
-            "comments",
 
-        ]
-        context["sample_field_list"] = sample_field_list
+        context["sample_labels"] = get_labels(models.Sample)
+        context["filter_labels"] = get_labels(models.Filter)
+        context["extract_labels"] = get_labels(models.DNAExtract)
+        context["pcr_labels"] = get_labels(models.PCR)
+        context["pcr_assay_labels"] = get_labels(models.PCRAssay)
+
         return context
 
 
@@ -348,7 +346,7 @@ class CollectionDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
     success_message = 'The functional group was successfully deleted!'
     template_name = 'edna/confirm_delete.html'
     container_class = "container curvy"
-    grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    grandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
     delete_protection = False
 
     def get_parent_crumb(self):
@@ -359,9 +357,10 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
     form_class = forms.FileImportForm
     template_name = 'edna/sample_import_form.html'
     home_url_name = "edna:index"
-    grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    grandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
     h1 = ' '
     container_class = "container-fluid"
+    active_page_name_crumb = gettext_lazy("Sample CSV Import")
 
     def get_parent_crumb(self):
         return {"title": self.get_collection(), "url": reverse("edna:collection_detail", args=[self.get_collection().id])}
@@ -389,23 +388,26 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
         for row in csv_reader:
             bottle_id = row["bottle_id"]
             sample_type = row["sample_type"]
-            site_identifier = row["site_identifier"]
-            site_description = row["site_description"]
+            location = row["location"]
+            site = row["site"]
+            station = row["station"]
             samplers = row["samplers"]
-            datetime = make_aware(dt.datetime.strptime(row["datetime"], "%m/%d/%Y %H:%S"), utc)
-            latitude = row["latitude"]
-            longitude = row["longitude"]
+            datetime = make_aware(dt.datetime.strptime(row["datetime"], "%m/%d/%Y %H:%M"), timezone=timezone.get_current_timezone())
+            latitude = nz(row["latitude"], None)
+            longitude = nz(row["longitude"], None)
             comments = row["comments"]
 
             sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, collection=my_object, sample_type_id=sample_type)
-            sample.site_identifier = site_identifier
-            sample.site_description = site_description
+            sample.location = location
+            sample.site = site
+            sample.station = station
             sample.samplers = samplers
             sample.datetime = datetime
             sample.latitude = latitude
             sample.longitude = longitude
             sample.comments = comments
             sample.save()
+
         return HttpResponseRedirect(self.get_parent_crumb()["url"])
 
 
@@ -413,7 +415,7 @@ class SampleDataEntryTemplateView(eDNAAdminRequiredMixin, CommonDetailView):
     model = models.Collection
     template_name = 'edna/sample_data_entry.html'
     home_url_name = "edna:index"
-    grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    grandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
     h1 = ' '
     container_class = "container-fluid"
     active_page_name_crumb = gettext_lazy("Data Entry")
@@ -434,32 +436,6 @@ class SampleDataEntryTemplateView(eDNAAdminRequiredMixin, CommonDetailView):
             example_obj.append(row)
         context["example_obj"] = example_obj
         return context
-
-    def form_valid(self, form):
-        my_object = self.get_collection()
-        temp_file = form.files['temp_file']
-        temp_file.seek(0)
-        csv_reader = csv.DictReader(StringIO(temp_file.read().decode('utf-8')))
-        for row in csv_reader:
-            bottle_id = row["bottle_id"]
-            site_identifier = row["site_identifier"]
-            site_description = row["site_description"]
-            samplers = row["samplers"]
-            datetime = dt.datetime.strptime(row["datetime"], "%Y-%m-%d %H:%S")
-            latitude = row["latitude"]
-            longitude = row["longitude"]
-            comments = row["comments"]
-
-            sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, collection=my_object)
-            sample.site_identifier = site_identifier
-            sample.site_description = site_description
-            sample.samplers = samplers
-            sample.datetime = datetime
-            sample.latitude = latitude
-            sample.longitude = longitude
-            sample.comments = comments
-            sample.save()
-        return HttpResponseRedirect(self.get_parent_crumb()["url"])
 
 
 # FILES #
@@ -522,7 +498,7 @@ class SampleCreateView(eDNAAdminRequiredMixin, CommonCreateView):
     template_name = 'edna/form.html'
     home_url_name = "edna:index"
     container_class = "container curvy"
-    grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    grandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
 
     def get_cancel_url(self):
         return self.get_parent_crumb().get("url")
@@ -555,7 +531,7 @@ class SampleUpdateView(eDNAAdminRequiredMixin, CommonUpdateView):
     form_class = forms.SampleForm
     template_name = 'edna/form.html'
     home_url_name = "edna:index"
-    greatgrandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
     container_class = "container curvy"
 
     def get_parent_crumb(self):
@@ -571,7 +547,7 @@ class SampleDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
     template_name = 'edna/confirm_delete.html'
     container_class = "container curvy"
     home_url_name = "edna:index"
-    greatgrandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("edna:sample_detail", args=[self.get_object().id])}
@@ -587,7 +563,7 @@ class SampleDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     model = models.Sample
     template_name = 'edna/sample_detail.html'
     home_url_name = "edna:index"
-    grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    grandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
     container_class = "container-fluid"
     field_list = [
         'display|sample Id',
@@ -628,6 +604,7 @@ class FiltrationBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
         {"name": 'id', "class": "", "width": ""},
         {"name": 'datetime', "class": "", "width": ""},
         {"name": 'operators', "class": "", "width": ""},
+        {"name": 'default_collection', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
         {"name": 'filter_count|{}'.format(gettext_lazy("filters")), "class": "", "width": ""},
     ]
@@ -706,6 +683,7 @@ class ExtractionBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
         {"name": 'id', "class": "", "width": ""},
         {"name": 'datetime', "class": "", "width": ""},
         {"name": 'operators', "class": "", "width": ""},
+        {"name": 'default_collection', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
         {"name": 'extract_count|{}'.format(gettext_lazy("Extractions")), "class": "", "width": ""},
 
@@ -785,6 +763,7 @@ class PCRBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
         {"name": 'id', "class": "", "width": ""},
         {"name": 'datetime', "class": "", "width": ""},
         {"name": 'operators', "class": "", "width": ""},
+        {"name": 'default_collection', "class": "", "width": ""},
         {"name": 'plate_id', "class": "", "width": ""},
         {"name": 'machine_number', "class": "", "width": ""},
         {"name": 'run_program', "class": "", "width": ""},
@@ -984,7 +963,7 @@ class PCRDetailView(eDNAAdminRequiredMixin, CommonDetailView):
         "sample",
         "filter",
         "extract",
-        "plate_well",
+        "pcr_plate_well",
         "master_mix",
         "comments",
         'metadata',
@@ -1015,6 +994,10 @@ class ReportSearchFormView(eDNAAdminRequiredMixin, CommonFormView):
         # else:
         messages.error(self.request, "Report is not available. Please select another report.")
         return HttpResponseRedirect(reverse("edna:reports"))
+
+
+def export_pcr_batch_csv(request, pk):
+    return reports.generate_pcr_batch_csv(pk)
 
 
 #
@@ -1049,100 +1032,191 @@ class ImportPCRView(eDNAAdminRequiredMixin, CommonFormView):
     def form_valid(self, form):
         temp_file = form.files['temp_file']
         temp_file.seek(0)
-        batch = models.PCRBatch.objects.create()
         year = None
         month = None
         day = None
         hour = None
         minute = None
-        wait = True
+        header_row = None
+        batch = None
+
         for row in csv.reader(StringIO(temp_file.read().decode('utf-8'))):
-            if wait:
-                if row[0] == "year": year = row[1] if row[1] and row[1] != "" else None
-                if row[0] == "month": month = row[1] if row[1] and row[1] != "" else None
-                if row[0] == "day": day = row[1] if row[1] and row[1] != "" else None
-                if row[0] == "hour": hour = row[1] if row[1] and row[1] != "" else 12
-                if row[0] == "minute": minute = row[1] if row[1] and row[1] != "" else 0
-                if row[0] == "comments": batch.comments = row[1]
-                if row[0] == "plate_id": batch.plate_id = row[1]
-                if row[0] == "machine_number": batch.machine_number = row[1]
-                if row[0] == "run_program": batch.run_program = row[1]
+            if not header_row:
+                if len(row):
+                    if row[0] == "batch_id":
+                        try:
+                            batch = models.PCRBatch.objects.get(pk=row[1])
+                            batch.pcrs.all().delete()
+                        except:
+                            pass
+                    if batch:
+                        if row[0] == "year": year = row[1] if row[1] and row[1] != "" else None
+                        if row[0] == "month": month = row[1] if row[1] and row[1] != "" else None
+                        if row[0] == "day": day = row[1] if row[1] and row[1] != "" else None
+                        if row[0] == "hour": hour = row[1] if row[1] and row[1] != "" else 12
+                        if row[0] == "minute": minute = row[1] if row[1] and row[1] != "" else 0
+                        if row[0] == "comments": batch.comments = row[1]
+                        if row[0] == "plate_id": batch.plate_id = row[1]
+                        if row[0] == "machine_number": batch.machine_number = row[1]
+                        if row[0] == "run_program": batch.run_program = row[1]
             else:
+                # start by clearing all the existing pcrs in the pcr batch
+                if not batch:
+                    messages.warning(self.request, f'This file is missing a reference to a valid PCR batch ID')
+                    return HttpResponseRedirect(reverse("edna:pcr_batch_list"))
+                else:
 
-                plate_well = row[0]
-                if plate_well and plate_well != "":
-                    extract = nz(row[1], None)
-                    extraction_number = nz(row[2], None)
-                    master_mix = nz(row[3], None)
-                    assay = nz(row[4], None)
-                    threshold = nz(row[5], None)
-                    ct = nz(row[6], None)
-                    comments = nz(row[7], None)
+                    # construct row dict
+                    row_dict = dict()
+                    for i in range(0, len(header_row)):
+                        val = row[i] if len(row[i]) and nz(row[i], None) else None
+                        row_dict[header_row[i]] = val
 
-                    # every row will correspond to a pcr assay
-                    pcr, created = models.PCR.objects.get_or_create(pcr_batch=batch, plate_well=plate_well)
-
-                    #  let's see if we can associate an extract id
-                    if extract:
-                        # prioritize the extract id field
-                        extracts = models.DNAExtract.objects.filter(id=extract.replace("x", ""))
-                        if extracts.exists():
-                            pcr.extract = extracts.first()
-                        else:
-                            messages.warning(self.request, f'cannot find extract id: {extract}')
-                        # try again with extraction number
-                    elif extraction_number:
-                        extracts = models.DNAExtract.objects.filter(extraction_number__iexact=extraction_number)
-                        if extracts.exists():
-                            pcr.extract = extracts.first()
-                        else:
-                            messages.warning(self.request, f'cannot find extraction number: {extraction_number}')
-                    # master mix
-                    if master_mix:
-                        mixes = models.MasterMix.objects.filter(name__iexact=master_mix)
-                        if mixes.exists():
-                            pcr.master_mix = mixes.first()
-                        else:
-                            messages.warning(self.request, f'cannot find master mix: {master_mix}')
-                    pcr.save()
-
-                    # now we create the pcr assay
-                    pa = models.PCRAssay.objects.create(pcr=pcr)
-                    # assay
-                    if assay:
-                        assays = models.Assay.objects.filter(alias__iexact=assay)
-                        if assays.exists():
-                            pa.assay = assays.first()
-                        else:
-                            messages.warning(self.request, f'cannot find assay alias: {assay}')
-
-                    # threshold
-                    pa.threshold = threshold
-
+                    # only do something if ct value
+                    ct = row_dict["ct"]
                     if ct:
-                        if ct.lower() in ["na", "undetermined", "unknown"]:
-                            pa.is_undetermined = True
+
+                        # start with PCR details
+                        extraction_number = row_dict["extraction_number"]
+                        master_mix = row_dict["master_mix"]
+                        assay = row_dict["assay"]
+
+                        if not extraction_number or not master_mix or not assay:
+                            messages.warning(self.request, f'This row is missing some important information and will not be imported: {row_dict}')
                         else:
-                            try:
-                                ct = float(ct)
-                            except Exception as e:
-                                print(e)
-                                ct = None
-                            pa.ct = ct
+                            # get the extract object from the extraction number
+                            extracts = models.DNAExtract.objects.filter(extraction_number__iexact=extraction_number)
+                            if not extracts.exists():
+                                messages.warning(self.request, f'cannot find extraction number: {extraction_number}')
+                            elif extracts.count() > 1:
+                                messages.warning(self.request, f'extraction number is not unique: {extraction_number}')
+                            elif batch.default_collection != extracts.first().collection:
+                                messages.warning(self.request, f'extraction number is from another project: {extraction_number}')
+                            else:
+                                extract = extracts.first()
 
-                    pa.comments = comments
+                                # get the master mix
+                                mixes = models.MasterMix.objects.filter(name__iexact=master_mix)
+                                if not mixes.exists():
+                                    messages.warning(self.request, f'cannot find master mix: {master_mix}')
+                                else:
+                                    master_mix = mixes.first()
 
-                    try:
-                        pa.save()
-                    except Exception as e:
-                        messages.error(self.request, e)
+                                    # get the assay
+                                    assays = models.Assay.objects.filter(alias__iexact=assay)
+                                    if not assays.exists():
+                                        messages.warning(self.request, f'cannot find assay alias: {assay}')
+                                    else:
+                                        assay = assays.first()
 
-            if row[0] == "plate_well":
-                wait = False
+                                        # now we can get / create the pcr object
+                                        pcr = models.PCR.objects.get_or_create(
+                                            pcr_batch=batch,
+                                            master_mix=master_mix,
+                                            extract=extract,
+                                            pcr_plate_well=row_dict["pcr_plate_well"]
+                                        )[0]
 
+                                        pcr.save() # populate the collection
+
+                                        # now finally, the assay itself
+                                        try:
+                                            ct = float(ct)
+                                            is_undetermined = False
+                                        except Exception as e:
+                                            print(e)
+                                            is_undetermined = True
+                                            ct = None
+
+                                        assay = models.PCRAssay.objects.create(
+                                            pcr=pcr,
+                                            assay=assay,
+                                            ct=ct,
+                                            is_undetermined=is_undetermined,
+                                            threshold=row_dict["threshold"]
+                                        )
+
+            # if we run into the first header of the assay table, turn off the "wait" flag
+            if len(row) and row[0] == "extraction_number":
+                header_row = row
+        #
+        #
+        #             extraction_number = nz(row[0], None)
+        #             extraction_number = nz(row[0], None)
+        #
+        #
+        #
+        #
+        #         # the results
+        #         threshold = nz(row[6], None)
+        #         ct = nz(row[7], None)
+        #         comments = nz(row[8], None)
+        #
+        #         # we should be able to get an assay from the unique_id
+        #         # # pcr_assay = get_object_or_404(models.PCRAssay, pk=unique_id)
+        #         # # pcr = pcr_assay.pcr
+        #         # # pcr.pcr_plate_well = pcr_plate_well
+        #         # # every row will correspond to a pcr assay
+        #         #
+        #         # #  let's see if we can associate an extract id
+        #         # # if extract:
+        #         # #     # prioritize the extract id field
+        #         # #     extracts = models.DNAExtract.objects.filter(id=extract.replace("x", ""))
+        #         # #     if extracts.exists():
+        #         # #         pcr.extract = extracts.first()
+        #         # #     else:
+        #         # #         messages.warning(self.request, f'cannot find extract id: {extract}')
+        #         # #     # try again with extraction number
+        #         # # elif extraction_number:
+        #         # #     extracts = models.DNAExtract.objects.filter(extraction_number__iexact=extraction_number)
+        #         # #     if extracts.exists():
+        #         # #         pcr.extract = extracts.first()
+        #         # #     else:
+        #         # #         messages.warning(self.request, f'cannot find extraction number: {extraction_number}')
+        #         # # # master mix
+        #         # # if master_mix:
+        #         # #     mixes = models.MasterMix.objects.filter(name__iexact=master_mix)
+        #         # #     if mixes.exists():
+        #         # #         pcr.master_mix = mixes.first()
+        #         # #     else:
+        #         # #         messages.warning(self.request, f'cannot find master mix: {master_mix}')
+        #         # pcr.save()
+        #         #
+        #         #
+        #         # # assay
+        #         # # if assay:
+        #         # #     assays = models.Assay.objects.filter(alias__iexact=assay)
+        #         # #     if assays.exists():
+        #         # #         pcr_assay.assay = assays.first()
+        #         # #     else:
+        #         # #         messages.warning(self.request, f'cannot find assay alias: {assay}')
+        #         #
+        #         # # threshold
+        #         # pcr_assay.threshold = threshold
+        #         #
+        #         # if ct:
+        #         #     if ct.lower() in ["na", "undetermined", "unknown"]:
+        #         #         pcr_assay.is_undetermined = True
+        #         #     else:
+        #         #         try:
+        #         #             ct = float(ct)
+        #         #         except Exception as e:
+        #         #             print(e)
+        #         #             ct = None
+        #         #         pcr_assay.ct = ct
+        #         #
+        #         # pcr_assay.comments = comments
+        #         #
+        #         # try:
+        #         #     pcr_assay.save()
+        #         # except Exception as e:
+        #         #     messages.error(self.request, e)
+        #
+
+        #
         if year and month and day:
             batch.datetime = timezone.datetime(int(year), int(month), int(day), int(hour), int(minute), tzinfo=timezone.now().tzinfo)
-        batch.save()
-        batch.operators.add(self.request.user)
+        # batch.save()
+        # batch.operators.add(self.request.user)
 
         return HttpResponseRedirect(reverse("edna:pcr_batch_detail", args=[batch.id]))

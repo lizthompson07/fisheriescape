@@ -78,8 +78,16 @@ class ProjectYearChildFilter(django_filters.FilterSet):
 
 class DMAFilter(django_filters.FilterSet):
     project = django_filters.NumberFilter(field_name='project')
-    fiscal_year = django_filters.NumberFilter(field_name='fiscal_year')
     title_name = django_filters.CharFilter(field_name='title', lookup_expr="icontains")
+
+    class Meta:
+        model = models.DMA
+        fields = {
+            'project__title': ['exact'],
+            'project__section__division__branch__sector__region': ['exact'],
+            'project__section__division': ['exact'],
+            'project__section': ['exact'],
+        }
 
 
 class ProjectYearFilter(django_filters.FilterSet):
@@ -90,6 +98,7 @@ class ProjectYearFilter(django_filters.FilterSet):
     staff = django_filters.CharFilter(field_name='project__staff_search_field', lookup_expr="icontains")
     fiscal_year = django_filters.NumberFilter(field_name='fiscal_year')
     tag = django_filters.NumberFilter(field_name='project__tags')
+    services = django_filters.NumberFilter(field_name='services')
     theme = django_filters.NumberFilter(field_name='project__functional_group__theme')
     functional_group = django_filters.NumberFilter(field_name='project__functional_group')
     funding_source = django_filters.NumberFilter(field_name='project__default_funding_source')
@@ -103,4 +112,9 @@ class ProjectYearFilter(django_filters.FilterSet):
     has_field_component = django_filters.BooleanFilter(field_name="has_field_component")
     has_data_component = django_filters.BooleanFilter(field_name="has_data_component")
     has_lab_component = django_filters.BooleanFilter(field_name="has_lab_component")
-    requires_abl_services = django_filters.BooleanFilter(field_name="requires_abl_services")
+
+    approval_status = django_filters.NumberFilter(field_name='review__approval_status')
+    approval_level = django_filters.NumberFilter(field_name='review__approval_level')
+    funding_status = django_filters.NumberFilter(field_name='review__funding_status')
+
+    om_cost_category = django_filters.NumberFilter(field_name='omcost__om_category')

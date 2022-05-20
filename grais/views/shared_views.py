@@ -88,7 +88,8 @@ class SpeciesListView(GraisAccessRequiredMixin, CommonFilterView):
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
-        {"name": 'tname|{}'.format("common name"), "class": "", "width": ""},
+        {"name": 'common_name', "class": "", "width": ""},
+        {"name": 'common_name_fra', "class": "", "width": ""},
         {"name": 'formatted_scientific|{}'.format("scientific name"), "class": "", "width": ""},
         {"name": 'abbrev', "class": "", "width": ""},
         {"name": 'tsn|ITIS TSN', "class": "", "width": ""},
@@ -212,7 +213,7 @@ class ReportSearchFormView(GraisAccessRequiredMixin, CommonFormView):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_access, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/?app=grais')
 def species_sample_spreadsheet_export(request, year, species_list):
     file_url = reports.generate_species_sample_spreadsheet(year, species_list)
     if os.path.exists(file_url):
@@ -224,7 +225,7 @@ def species_sample_spreadsheet_export(request, year, species_list):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_access, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/?app=grais')
 def biofouling_presence_absence_spreadsheet_export(request):
     year = request.GET["year"] if request.GET["year"] != "None" else None
     filename = "biofouling presence absence {}.csv".format(timezone.now().strftime("%Y-%m-%d"))
@@ -238,7 +239,7 @@ def biofouling_presence_absence_spreadsheet_export(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_access, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/?app=grais')
 def biofouling_station_report(request):
     file_url = reports.generate_biofouling_station_report()
 
@@ -251,28 +252,28 @@ def biofouling_station_report(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_access, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/?app=grais')
 def export_open_data_ver1(request, year=None):
     response = reports.generate_open_data_ver_1_report(year)
     return response
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_access, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/?app=grais')
 def export_open_data_ver1_dictionary(request):
     response = reports.generate_open_data_ver_1_data_dictionary()
     return response
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_access, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/?app=grais')
 def export_open_data_ver1_wms(request, year, lang):
     response = reports.generate_open_data_ver_1_wms_report(year, lang)
     return response
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_access, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/?app=grais')
 def export_gc_cpue(request):
     filename = "green crab CPUE ({}).csv".format(timezone.now().strftime("%Y-%m-%d"))
     year = request.GET["year"] if request.GET["year"] != "None" else None
@@ -285,7 +286,7 @@ def export_gc_cpue(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_access, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/?app=grais')
 def export_gc_envr(request, year):
     file_url = reports.generate_gc_envr_report(year)
 
@@ -298,7 +299,7 @@ def export_gc_envr(request, year):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_access, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/?app=grais')
 def export_gc_sites(request):
     file_url = reports.generate_gc_sites_report()
 
@@ -311,7 +312,7 @@ def export_gc_sites(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(has_grais_access, login_url='/accounts/denied/')
+@user_passes_test(has_grais_access, login_url='/accounts/denied/?app=grais')
 def export_gc_gravid_green_crabs(request):
     file_url = reports.generate_gc_gravid_green_crabs_report()
 

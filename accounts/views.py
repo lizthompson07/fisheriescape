@@ -34,6 +34,7 @@ def sign_in(request):
     sign_in_url, state = get_sign_in_url()
     # Save the expected state so we can validate in the callback
     request.session['auth_state'] = state
+    request.session['next'] = request.GET.get("next")
     # Redirect to the Azure sign-in page
     return HttpResponseRedirect(sign_in_url)
 
@@ -77,6 +78,10 @@ def callback(request):
             print("there was an error in trying to copy over the user's profile data from AAD")
 
     login(request, my_user)
+    if request.session.get('next'):
+        next = request.session.get('next')
+        del request.session['next']
+        return HttpResponseRedirect(next)
     return HttpResponseRedirect(reverse('index'))
 
 
@@ -86,7 +91,7 @@ class CloserTemplateView(TemplateView):
 
 # This is a good one. It should be able to replace all others with the message arg.
 def access_denied(request, message=None):
-    my_url = reverse("accounts:request_access")
+    my_url = f'{reverse("tickets:bug_create")}?permission_request=true&app={request.GET.get("app")}'
     a_tag = mark_safe(
         '<a pop-href="{}" href="#" class="btn btn-sm btn-primary badge request-access-button">{}</a>'.format(my_url, _("Request access")))
     if not message:
@@ -147,8 +152,10 @@ class UserLoginView(PasswordResetView):
 
     def dispatch(self, request, *args, **kwargs):
         if settings.AZURE_AD:
-            return HttpResponseRedirect(reverse("accounts:azure_login"))
+            return HttpResponseRedirect(reverse("accounts:azure_login")+f"?{request.META.get('QUERY_STRING')}")
         else:
+            if self.request.GET.get("next"):
+                self.request.session["next"] = self.request.GET.get("next")
             return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -174,6 +181,13 @@ class CallBack(FormView):
     invalid_token_msg = gettext_lazy("Sorry the link you used to sign in with is not valid!")
     form_class = forms.OTPForm
     template_name = 'registration/token_form.html'
+
+    def get_success_url(self):
+        if self.request.session.get('next'):
+            next = self.request.session.get('next')
+            del self.request.session['next']
+            return next
+        return super().get_success_url()
 
     @method_decorator(sensitive_post_parameters())
     @method_decorator(never_cache)
@@ -300,37 +314,37 @@ def activate(request, uidb64, token):
     else:
         return HttpResponse('Activation link is invalid!')
 
-
-class RequestAccessFormView(LoginRequiredMixin, FormView):
-    template_name = "accounts/request_access_form_popout.html"
-    form_class = forms.RequestAccessForm
-
-    def get_initial(self):
-        user = self.request.user
-        return {
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
-            'user_id': user.id,
-        }
-
-    def form_valid(self, form):
-        context = {
-            "first_name": form.cleaned_data["first_name"],
-            "last_name": form.cleaned_data["last_name"],
-            "email": form.cleaned_data["email"],
-            "user_id": form.cleaned_data["user_id"],
-            "application": form.cleaned_data["application"],
-            "optional_comment": form.cleaned_data["optional_comment"],
-        }
-        email = emails.RequestAccessEmail(context, self.request)
-        # send the email object
-        custom_send_mail(
-            subject=email.subject,
-            html_message=email.message,
-            from_email=email.from_email,
-            recipient_list=email.to_list
-        )
-        messages.success(self.request,
-                         message="your request has been sent to the site administrator")
-        return HttpResponseRedirect(reverse('shared_models:close_me'))
+#
+# class RequestAccessFormView(LoginRequiredMixin, FormView):
+#     template_name = "accounts/request_access_form_popout.html"
+#     form_class = forms.RequestAccessForm
+#
+#     def get_initial(self):
+#         user = self.request.user
+#         return {
+#             'first_name': user.first_name,
+#             'last_name': user.last_name,
+#             'email': user.email,
+#             'user_id': user.id,
+#         }
+#
+#     def form_valid(self, form):
+#         context = {
+#             "first_name": form.cleaned_data["first_name"],
+#             "last_name": form.cleaned_data["last_name"],
+#             "email": form.cleaned_data["email"],
+#             "user_id": form.cleaned_data["user_id"],
+#             "application": form.cleaned_data["application"],
+#             "optional_comment": form.cleaned_data["optional_comment"],
+#         }
+#         email = emails.RequestAccessEmail(context, self.request)
+#         # send the email object
+#         custom_send_mail(
+#             subject=email.subject,
+#             html_message=email.message,
+#             from_email=email.from_email,
+#             recipient_list=email.to_list
+#         )
+#         messages.success(self.request,
+#                          message="your request has been sent to the site administrator")
+#         return HttpResponseRedirect(reverse('shared_models:close_me'))

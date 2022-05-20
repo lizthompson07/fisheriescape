@@ -232,6 +232,7 @@ class CommonFormMixin(CommonMixin):
     cancel_text = _("Back")
     submit_text = _("Submit")
     submit_btn_class = "btn-warning"
+    cancel_btn_class = "btn-secondary"
     editable = True
     is_multipart_form_data = False
 
@@ -260,6 +261,9 @@ class CommonFormMixin(CommonMixin):
     def get_submit_btn_class(self):
         return self.submit_btn_class
 
+    def get_cancel_btn_class(self):
+        return self.cancel_btn_class
+
     def get_success_url(self):
         if self.success_url:
             return self.success_url
@@ -274,6 +278,7 @@ class CommonFormMixin(CommonMixin):
         context['submit_text'] = self.get_submit_text()
         context['editable'] = self.get_editable()
         context["submit_btn_class"] = self.get_submit_btn_class()
+        context["cancel_btn_class"] = self.get_cancel_btn_class()
         context["is_multipart_form_data"] = self.get_is_multipart_form_data()
 
         return context

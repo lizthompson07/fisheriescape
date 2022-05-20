@@ -446,12 +446,14 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     projects = models.ManyToManyField(Project, blank=True, related_name="csas_processes", verbose_name=_("Links to PPT Projects"))
 
     # non-editable
-    is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"))
     has_peer_review_meeting = models.BooleanField(default=False, verbose_name=_("has peer review meeting?"))
     has_planning_meeting = models.BooleanField(default=False, verbose_name=_("has planning meeting?"))
-    posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"))
-    posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="processes", verbose_name=_("fiscal year"), editable=False)
+
+    # DELETE ME
+    # is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"))
+    # posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"))
+    # posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
 
     # calculated
 
@@ -495,6 +497,10 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         super().save(*args, **kwargs)
 
     @property
+    def has_tor(self):
+        return hasattr(self, "tor")
+
+    @property
     def status_display(self):
         stage = model_choices.get_process_status_lookup().get(self.status).get("stage")
         return mark_safe(f'<span class=" px-1 py-1 {stage}">{self.get_status_display()}</span>')
@@ -512,15 +518,6 @@ class Process(SimpleLookupWithUUID, MetadataFields):
             return self.tor.get_status_display()
         except:
             return gettext("n/a")
-
-    @property
-    def posting_status(self):
-        if self.posting_request_date and not self.is_posted:
-            return gettext("Request made")
-        elif self.is_posted:
-            return gettext("Posted")
-        else:
-            return gettext("Not posted")
 
     def get_absolute_url(self):
         return reverse("csas2:process_detail", args=[self.pk])
@@ -566,7 +563,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     @property
     def regions(self):
-        mystr = self.lead_office.region
+        mystr = str(self.lead_office.region)
         if self.other_offices.exists():
             mystr = f"<b><u>{mystr}</u></b>"
             mystr += f", {listrify([o for o in self.other_offices.all()])}"
@@ -608,28 +605,6 @@ class Process(SimpleLookupWithUUID, MetadataFields):
                 mystr += f"Delta: {(timezone.now() - doc.tracking.due_date).days}\n"
             mystr += "\n\n"
         return mystr
-
-    @property
-    def can_post_meeting(self):
-        """ stores the business rules for whether the meeting can be posted to the csas website"""
-        can_post = True  # start off optimistic
-        reasons = []
-        if not hasattr(self, "tor"):  # there is no TOR
-            reasons.append(gettext("ToR has not been initiated"))
-            if can_post:
-                can_post = False
-        else:
-            if not self.tor.meeting:  # there is no meeting linked to ToR
-                reasons.append(gettext("ToR has not been linked to a meeting"))
-                if can_post:
-                    can_post = False
-
-            if not self.tor.expected_document_types.exists():  # there is no TOR - expected publications
-                reasons.append(gettext("ToR does not list expected publications"))
-                if can_post:
-                    can_post = False
-
-        return dict(can_post=can_post, reasons=reasons)
 
     @property
     def coordinator(self):
@@ -822,10 +797,13 @@ class Meeting(SimpleLookup, MetadataFields):
 
     # non-editable
     somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))
+    is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"))
+    posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"), editable=False)
+    posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
+
     # calculated
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year of meeting"),
-                                    related_name="meetings",
-                                    editable=False)
+                                    related_name="meetings", editable=False)
 
     class Meta:
         ordering = ["start_date", _("name")]
@@ -837,6 +815,52 @@ class Meeting(SimpleLookup, MetadataFields):
             self.location = 'Virtual / Virtuel'
 
         super().save(*args, **kwargs)
+
+
+    @property
+    def posting_status(self):
+        if self.posting_request_date and not self.is_posted:
+            return gettext("Requested")
+        elif self.is_posted:
+            return gettext("Posted")
+        elif not self.is_planning:
+            return gettext("Not posted")
+        return "n/a"
+
+
+    @property
+    def can_post_meeting(self):
+        """ stores the business rules for whether the meeting can be posted to the csas website"""
+        can_post = True  # start off optimistic
+        reasons = []
+
+        if self.is_planning:
+            reasons.append(gettext("cannot post a planning meeting"))
+            can_post = False
+        else:
+            # the process must have a tor started and that tor must have expected pubs listed
+            if not self.process.has_tor or not self.process.tor.expected_document_types.exists():
+                reasons.append(gettext("cannot post because the CSAS Process must have a Terms of Reference with a list of expected publications"))
+                can_post = False
+            # if not self.chair:
+            #     reasons.append(gettext("cannot post because the meeting must at least have one chairperson assigned to it"))
+            #     can_post = False
+            if self.is_posted:
+                reasons.append(gettext("this meeting is already posted"))
+                can_post = False
+            if self.posting_request_date:
+                reasons.append(gettext("a posting request has already been made for this meeting"))
+                can_post = False
+
+
+        if can_post:
+            reasons.append(gettext("This meeting is eligible for posting!"))
+        return dict(can_post=can_post, reasons=reasons)
+
+    @property
+    def mmmmyy(self):
+        if self.start_date:
+            return self.start_date.strftime("%B %Y")
 
     @property
     def display(self):
@@ -853,9 +877,6 @@ class Meeting(SimpleLookup, MetadataFields):
         fy = str(self.fiscal_year) if self.fiscal_year else "TBD"
         invitee_count = self.invitees.count()
         return f"{self.process.lead_office.region} - {fy} - {self.display} ({invitee_count} invitee{pluralize(invitee_count)})"
-
-    class Meta:
-        ordering = ["-is_planning", 'start_date', ]
 
     def get_absolute_url(self):
         return reverse("csas2:meeting_detail", args=[self.pk])
@@ -947,6 +968,10 @@ class Meeting(SimpleLookup, MetadataFields):
     def email_list(self):
         invitees = self.invitees.filter(~Q(status=2)).filter(person__email__isnull=False)
         return listrify([i.person.email for i in invitees], separator=";")
+
+    @property
+    def key_invitees(self):
+        return self.invitees.filter(roles__category__in=[1, 5]).distinct()
 
 
 class MeetingNote(GenericNote):

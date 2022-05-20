@@ -39,13 +39,13 @@
           <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
         </p>
       </div>
-      <div v-if="meeting.is_posted && meeting.has_tor" class="alert alert-warning no-print" role="alert" style="width: 90%">
+      <div v-if="meeting.is_posted" class="alert alert-warning no-print" role="alert" style="width: 90%">
         <p class="h6">
           {% blocktrans %}
             This meeting / process has already been posted to the national CSAS website.
             Changes made to
             <span class="dotted" data-toggle="tooltip" title="Title (English and French), Location, Dates, Chair, Expected Publications (from ToR)">certain fields</span>
-            of this meeting will automatically trigger a notification email to be sent to the national CSAS team.
+            of this meeting will automatically trigger a notification email to be sent to the National CSAS team.
           {% endblocktrans %}
         </p>
       </div>
@@ -64,6 +64,15 @@
       <button @click="openPopout('{% url 'csas2:meeting_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
         <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
       </button>
+
+
+      <button v-if="meeting.can_post_meeting && meeting.can_post_meeting.can_post" class="btn btn-sm btn-purple" @click="requestPosting">
+        {% trans "Submit Posting Request" %}
+      </button>
+      <button v-else-if="meeting.can_post_meeting" class="btn btn-sm btn-secondary" disabled data-toggle="tooltip" :title="meeting.can_post_meeting.reasons">
+        {% trans "Submit Posting Request" %}
+      </button>
+
     </div>
 
     <div class="row">
@@ -72,10 +81,13 @@
 
         <div class="mb-5">
           <table class="table table-sm">
-            <tr>
+            <tr v-if="meeting.id">
               <th class="text-left w200" v-html="meetingLabels.process"></th>
               <td class="text-left">
                 <a href="{% url 'csas2:process_detail' object.process.id %}">${ meeting.process_object.tname }</a>
+                <br>
+                <br>
+                (<a target="_blank" href="{% url 'csas2:tor_dispatch' object.process.id %}">{% trans "View the Terms of Reference" %} <span class="mdi mdi-open-in-new text-primary ml-1"></span></a>)
               </td>
             </tr>
             <tr>
@@ -93,6 +105,21 @@
             <tr>
               <th class="text-left">{% trans "Dates" %}</th>
               <td class="text-left" v-html="meeting.display_dates"></td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Posted to CSAS website?" %}</th>
+              <td class="text-left">
+                <div v-if="meeting.id">
+                  <span class="">${meeting.is_posted|yesNo}</span>
+                  <em v-if="!meeting.is_posted && meeting.posting_request_date" class=" text-muted">
+                    &mdash; {% trans "Posting request made on" %} ${meeting.posting_request_date_display}
+                  </em>
+                  <em v-else-if="!meeting.is_posted" class=" text-muted">
+                    &mdash; ${meeting.can_post_meeting.reasons | listrify}
+                  </em>
+                </div>
+
+              </td>
             </tr>
             <tr>
               <th class="text-left">{% trans "Time" %}</th>
@@ -210,6 +237,17 @@
       meetingLabels: {}
     },
     methods: {
+
+      requestPosting() {
+        let userInput = confirm("{% trans 'Are you certain you want to make a request for this meeting to be posted on the National CSAS website?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/meetings/${meetingId}/?request_posting=true`;
+          apiService(endpoint, "POST").then(data => {
+            this.getMeeting()
+          });
+        }
+      },
+
       displayComments(invitee) {
         alert(invitee.comments);
       },

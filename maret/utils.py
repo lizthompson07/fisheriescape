@@ -18,7 +18,7 @@ class MaretBasicRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
+            return HttpResponseRedirect('/accounts/denied/?app=maret')
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -53,7 +53,7 @@ class AdminOrSuperuserRequiredMixin(MaretBasicRequiredMixin):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse('accounts:denied_access', kwargs={
-                "message": _("Sorry, you need to be a MarET admin in order to access this page.")}))
+                "message": _("Sorry, you need to be a MarET admin in order to access this page.")}) + "?app=maret")
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -66,7 +66,7 @@ class AdminRequiredMixin(MaretBasicRequiredMixin):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse('accounts:denied_access', kwargs={
-                "message": _("Sorry, you need to be a MarET admin in order to access this page.")}))
+                "message": _("Sorry, you need to be a MarET admin in order to access this page.")}) + "?app=maret")
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -79,7 +79,7 @@ class AuthorRequiredMixin(AdminRequiredMixin):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse('accounts:denied_access', kwargs={
-                "message": _("Sorry, you need to be a MarET Author in order to access this page.")}))
+                "message": _("Sorry, you need to be a MarET Author in order to access this page.")}) + "?app=maret")
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -92,7 +92,7 @@ class UserRequiredMixin(AuthorRequiredMixin):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse('accounts:denied_access', kwargs={
-                "message": _("Sorry, you need to be a MarET User in order to access this page.")}))
+                "message": _("Sorry, you need to be a MarET User in order to access this page.")}) + "?app=maret")
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -170,6 +170,24 @@ def ajax_get_divisions(request):
     fields.insert(0, ":---------")
     data = {
         'divisions': fields
+    }
+
+    return JsonResponse(data)
+
+
+def ajax_get_aops(request):
+    # aops = area office programs
+    area_office_id = request.GET.get('area_office', None)
+
+    if area_office_id == '':
+        aops = models.AreaOfficeProgram.objects.all()
+    else:
+        aops = models.AreaOfficeProgram.objects.filter(area_office__pk=area_office_id)
+
+    fields = list(["{}:{}".format(aop.pk, str(aop)) for aop in aops])
+    fields.insert(0, ":---------")
+    data = {
+        'area_office_program': fields
     }
 
     return JsonResponse(data)

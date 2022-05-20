@@ -15,8 +15,8 @@ def is_crud_user(user):
 
 
 def can_access(user):
-    if user:
-        return is_admin(user) or is_crud_user(user)
+    if user.id:
+        return bool(hasattr(user, "trap_net_user"))
 
 
 def get_sample_field_list(sample=None):

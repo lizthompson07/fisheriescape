@@ -15,14 +15,14 @@
   Dear CSAS,
 </p>
 <p>
-  There is a request to posted the following process / meeting on the CSAS website:
+  There is a request to post the following meeting on the CSAS website:
 </p>
 <p>
-  <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.id %}">{{ object.tname }}</a>
+  <a href="{{ SITE_FULL_URL }}{% url 'csas2:meeting_detail' object.id %}">{{ object.tname }}</a>
 </p>
 
 <p>
-  Postings can be managed through the <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_postings' %}?id={{ object.id }}">following menu</a>.
+  Meeting postings can be managed through the <a href="{{ SITE_FULL_URL }}{% url 'csas2:meeting_reviews' %}?process_id={{ object.process.id }}&calendar_view=true">Meeting Review Console</a>.
 </p>
 
 <p>
