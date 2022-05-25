@@ -206,7 +206,6 @@ class MapView(FisheriescapeAccessRequired, TemplateView):
         return context
 
 
-
 # #
 # # # FISHERY AREA #
 # # ###########
