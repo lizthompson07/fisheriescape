@@ -1599,6 +1599,12 @@ def generate_cost_report(qs, site_url):
             elif "Cost type" in field:
                 val = "O&M"
                 my_ws.write(i, j, val, normal_format)
+            elif "Status" in field:
+                val = obj.project_year.get_status_display()
+                my_ws.write(i, j, val, normal_format)
+            elif "Title" in field:
+                val = obj.project_year.project.title
+                my_ws.write(i, j, val, normal_format)
             elif "Project" in field:
                 val = str(obj.project_year.project)
                 my_ws.write_url(i, j,
@@ -1672,6 +1678,12 @@ def generate_cost_report(qs, site_url):
                 my_ws.write(i, j, val, normal_format)
             elif "Cost type" in field:
                 val = obj.employee_type.get_cost_type_display()
+                my_ws.write(i, j, val, normal_format)
+            elif "Status" in field:
+                val = obj.project_year.get_status_display()
+                my_ws.write(i, j, val, normal_format)
+            elif "Title" in field:
+                val = obj.project_year.project.title
                 my_ws.write(i, j, val, normal_format)
             elif "Project" in field:
                 val = str(obj.project_year.project)
