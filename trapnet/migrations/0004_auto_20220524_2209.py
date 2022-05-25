@@ -17,14 +17,14 @@ class Migration(migrations.Migration):
             name='observation',
             options={'ordering': ['sample__arrival_date']},
         ),
-        migrations.RemoveField(
-            model_name='observation',
-            name='fork_length',
-        ),
-        migrations.RemoveField(
-            model_name='observation',
-            name='total_length',
-        ),
+        # migrations.RemoveField(
+        #     model_name='observation',
+        #     name='fork_length',
+        # ),
+        # migrations.RemoveField(
+        #     model_name='observation',
+        #     name='total_length',
+        # ),
         migrations.AddField(
             model_name='sample',
             name='is_reviewed',
