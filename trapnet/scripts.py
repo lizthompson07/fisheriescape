@@ -604,3 +604,34 @@ def populate_len():
         o.length = o.total_length
         o.length_type = 2
         o.save()
+
+
+def delete_tags_removed():
+    observations = models.Observation.objects.filter(tags_removed__isnull=False, tag_number__isnull=False)
+    for obs in observations:
+
+        # get a list of tags from the removed_tags
+        removed_tags = obs.tags_removed.split(" ")
+        # trim away any whitespace
+        removed_tags = [tag.strip() for tag in removed_tags]
+        # determine the number of digits in the tag. all the tags should have the same number of digits
+        tag_lens = len(set([len(tag) for tag in removed_tags]))
+        # the tag_lens list should only have a length of one. otherwise that means there is inconsistent lengths and that we have a problem
+        if tag_lens > 1:
+            print("cannot process these tags:", removed_tags)
+        else:
+            # we are good to proceed
+            digits = len(removed_tags[0])
+            # if the observation tag number is not the same length as the reference tag number, we'll have to do some surgery
+            if not digits == len(obs.tag_number):
+                # print(obs.tag_number, "does not conform to the format of tags removed:", removed_tags)
+                pos = len(obs.tag_number)-1
+                new_tag = f"{obs.tag_number[0]}0{obs.tag_number[-pos:]}"
+                if not digits == len(new_tag):
+                    print("still bad:", new_tag)
+                if not new_tag[1] == removed_tags[0][1]:
+                    print("still bad:", new_tag, removed_tags[0][1])
+                obs.tag_number = new_tag
+            if obs.tag_number in removed_tags:
+                print("This observation should be deleted:", obs.tag_number, removed_tags)
+

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-19 12:46-0300\n"
+"POT-Creation-Date: 2022-05-25 12:50-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -123,12 +123,12 @@ msgstr ""
 "Cette fonction ne peut être utilisée que lorsque la demande de voyage est "
 "encore à l'état de brouillon."
 
-#: .\travel\api\views.py:626
+#: .\travel\api\views.py:640
 msgid "Verify now"
 msgstr "Vérifier maintenant"
 
 #. Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
-#: .\travel\api\views.py:636
+#: .\travel\api\views.py:650
 msgid ""
 "<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip"
 "{pluralization} requiring attention!!"
@@ -137,7 +137,7 @@ msgstr ""
 "voyage{pluralization} non vérifié{pluralization} nécessitant une "
 "intervention!!"
 
-#: .\travel\api\views.py:642
+#: .\travel\api\views.py:656
 msgid ""
 "<b>ADMIN WARNING:</b> There is {unverified_trips} unverified trip requiring "
 "attention with <u>no regional lead</u>!!"
@@ -146,7 +146,7 @@ msgstr ""
 "vérifié nécessitant une attention particulière avec <u>aucun responsable "
 "régional identifié</u>!!"
 
-#: .\travel\api\views.py:645
+#: .\travel\api\views.py:659
 msgid ""
 "<b>ADMIN WARNING:</b> There are {unverified_trips} unverified trips "
 "requiring attention with <u>no regional lead</u>"
@@ -156,7 +156,7 @@ msgstr ""
 "régional identifié</u>"
 
 #. Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
-#: .\travel\api\views.py:655
+#: .\travel\api\views.py:669
 msgid ""
 "<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip"
 "{pluralization} requiring attention!!"
@@ -1121,6 +1121,7 @@ msgstr "Supprimer"
 #: .\travel\templates\travel\common\_costs.html:99
 #: .\travel\templates\travel\common\_files.html:61
 #: .\travel\templates\travel\common\_request_admin_notes_button.html:13
+#: .\travel\templates\travel\common\_travellers.html:330
 #: .\travel\templates\travel\common\_trip_admin_notes_button.html:13
 #: .\travel\templates\travel\common\_trip_files.html:61
 #: .\travel\templates\travel\request_form.html:90
@@ -1130,7 +1131,7 @@ msgstr "Sauvegarder"
 #: .\travel\templates\travel\common\_costs.html:102
 #: .\travel\templates\travel\common\_files.html:64
 #: .\travel\templates\travel\common\_request_admin_notes_button.html:14
-#: .\travel\templates\travel\common\_travellers.html:330
+#: .\travel\templates\travel\common\_travellers.html:334
 #: .\travel\templates\travel\common\_trip_admin_notes_button.html:14
 #: .\travel\templates\travel\common\_trip_files.html:64
 #: .\travel\templates\travel\request_form.html:96
@@ -1581,7 +1582,7 @@ msgstr "Nom"
 
 #: .\travel\templates\travel\common\_travellers.html:11
 #: .\travel\templates\travel\common\_travellers.html:13
-#: .\travel\templates\travel\common\_travellers.html:349
+#: .\travel\templates\travel\common\_travellers.html:353
 msgid "Add traveller"
 msgstr "Ajouter un voyageur"
 
@@ -1638,20 +1639,20 @@ msgstr ""
 msgid "Please enter address"
 msgstr "Veuillez indiquer l'adresse"
 
-#: .\travel\templates\travel\common\_travellers.html:329
+#: .\travel\templates\travel\common\_travellers.html:331
 #: .\travel\templates\travel\request_form.html:92
 msgid "Next"
 msgstr "Suivant"
 
-#: .\travel\templates\travel\common\_travellers.html:343
+#: .\travel\templates\travel\common\_travellers.html:347
 msgid "There are no travellers associated with this trip"
 msgstr "Aucun voyageur n'est lié à ce voyage"
 
-#: .\travel\templates\travel\common\_travellers.html:347
+#: .\travel\templates\travel\common\_travellers.html:351
 msgid "There are no travellers associated with this request"
 msgstr "Aucun voyageur n'est lié à cette demande"
 
-#: .\travel\templates\travel\common\_travellers.html:351
+#: .\travel\templates\travel\common\_travellers.html:355
 msgid "Click here to add your first traveller!"
 msgstr "Cliquez ici pour ajouter votre premier voyageur!"
 
@@ -2185,6 +2186,7 @@ msgstr "Statut"
 #: .\travel\templates\travel\request_list\_console.html:58
 #: .\travel\templates\travel\request_list\_console.html:71
 #: .\travel\templates\travel\request_list\_console.html:84
+#: .\travel\templates\travel\request_list\_console.html:97
 #: .\travel\templates\travel\trip_list\_console.html:29
 #: .\travel\templates\travel\trip_list\_console.html:41
 #: .\travel\templates\travel\trip_list\_console.html:53
@@ -2199,15 +2201,21 @@ msgid "Year"
 msgstr "Année"
 
 #: .\travel\templates\travel\request_list\_console.html:65
+#, fuzzy
+#| msgid "Back"
+msgid "Branch"
+msgstr "Retour"
+
+#: .\travel\templates\travel\request_list\_console.html:78
 msgid "Division"
 msgstr "Division"
 
-#: .\travel\templates\travel\request_list\_console.html:78
+#: .\travel\templates\travel\request_list\_console.html:91
 #: .\travel\templates\travel\request_list\main.html:70
 msgid "Section"
 msgstr "Section"
 
-#: .\travel\templates\travel\request_list\_console.html:90
+#: .\travel\templates\travel\request_list\_console.html:103
 #: .\travel\templates\travel\trip_list\_console.html:92
 msgid "Clear filters"
 msgstr "Effacer les filtres"
@@ -3615,9 +3623,6 @@ msgstr ""
 
 #~ msgid "Cannot delete a trip that has requests attached to it."
 #~ msgstr "Ne peut pas supprimer un voyage auquel sont attachées des demandes."
-
-#~ msgid "Back"
-#~ msgstr "Retour"
 
 #~ msgid "number of travellers (this request)"
 #~ msgstr "nombre de voyageurs (cette demande)"
