@@ -37,6 +37,7 @@ class ProjectFilter(django_filters.FilterSet):
     name = django_filters.CharFilter(label="Search Name", lookup_expr='icontains', widget=forms.TextInput())
     project_description = django_filters.CharFilter(label="Search Project Description", lookup_expr='icontains', widget=forms.TextInput())
     species = django_filters.ModelMultipleChoiceFilter(field_name='river__species', queryset=models.Species.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='Species')
+    river = django_filters.ModelMultipleChoiceFilter(queryset=models.River.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='River')
     area = django_filters.MultipleChoiceFilter(choices=choices.AREA, widget=forms.SelectMultiple(attr_chosen), lookup_expr='icontains', label='Area')
     ecosystem_type = django_filters.ModelMultipleChoiceFilter(queryset=models.EcosystemType.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='Ecosystem Type')
     project_type = django_filters.MultipleChoiceFilter(choices=choices.PROJECT_TYPE, widget=forms.SelectMultiple(attr_chosen),  lookup_expr='icontains', label='Project Type')
