@@ -149,6 +149,10 @@ class ProjectSerializer(serializers.ModelSerializer):
     start_year_display = serializers.SerializerMethodField()
     tags_display = serializers.SerializerMethodField()
     funding_sources_display = serializers.SerializerMethodField()
+    section_display = serializers.SerializerMethodField()
+
+    def get_section_display(self, instance):
+        return instance.section.full_name
 
     def get_funding_sources_display(self, instance):
         if instance.funding_sources.exists():

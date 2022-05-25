@@ -171,7 +171,6 @@
 
   <div v-else>
     <table class="table table-sm">
-
       <tbody>
       <tr
         v-for="(p, index) in sortedProjectYears"
@@ -234,6 +233,10 @@
                 <div class="mb-3">
                   <span class="text-muted font-italic">${projectLabels.funding_sources}</span>
                   <br><span v-html="p.project.funding_sources_display"></span>
+                </div>
+                <div class="mb-3">
+                  <span class="text-muted font-italic">${projectLabels.section}</span>
+                  <br><span v-html="p.project.section_display"></span>
                 </div>
               </div>
 
