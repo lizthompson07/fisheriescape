@@ -12,6 +12,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext
 from shapely.geometry import Point
 
+from dm_apps.utils import get_timezone_time
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
@@ -136,6 +137,7 @@ class Sample(MetadataFields):
     samplers = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     season = models.IntegerField(null=True, blank=True)
+
     # electro
     crew_probe = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (probe)"))
     crew_seine = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (seine)"))
@@ -346,8 +348,8 @@ class Sample(MetadataFields):
     @property
     def arrival_departure(self):
         return mark_safe(_("{arrival} &rarr; {departure} ({duration})").format(
-            arrival=self.arrival_date.strftime("%Y-%m-%d %H:%M"),
-            departure=self.departure_date.strftime("%Y-%m-%d %H:%M"),
+            arrival=get_timezone_time(self.arrival_date).strftime("%Y-%m-%d %H:%M"),
+            departure=get_timezone_time(self.departure_date).strftime("%Y-%m-%d %H:%M"),
             duration=self.duration,
         ))
 
@@ -506,6 +508,10 @@ class Maturity(CodeModel):
 
 
 class Observation(MetadataFields):
+    length_type_choices = (
+        (1, "fork"),
+        (2, "total"),
+    )
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observations")
     life_stage = models.ForeignKey(LifeStage, related_name='observations', on_delete=models.DO_NOTHING, blank=True, null=True)
     reproductive_status = models.ForeignKey(ReproductiveStatus, related_name='observations', on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -516,6 +522,10 @@ class Observation(MetadataFields):
 
     fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
     total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
+
+    length = models.FloatField(blank=True, null=True, verbose_name=_("length (mm)"))
+    length_type = models.IntegerField(blank=True, null=True, verbose_name=_("length type"), choices=length_type_choices)
+
     weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
     location_tagged = models.CharField(max_length=500, blank=True, null=True)
     tag_number = models.CharField(max_length=12, blank=True, null=True, verbose_name=_("tag number"))
@@ -540,13 +550,15 @@ class Observation(MetadataFields):
     def save(self, *args, **kwargs):
         if self.sweep:
             self.sample = self.sweep.sample
+        if self.length and not self.length_type:
+            self.length_type = 1
         return super().save(*args, **kwargs)
 
     def __str__(self):
         return str(self.species)
 
     class Meta:
-        ordering = ["sample__arrival_date", "species", "tag_number"]
+        ordering = ["sample__arrival_date"]
 
 
 def file_directory_path(instance, filename):

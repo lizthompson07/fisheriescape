@@ -17,249 +17,279 @@
       width: 100%;
       height: 25px;
   }
+
+
+  .tableFixHead {
+      overflow: auto;
+      height: 600px;
+  }
+
+  .tableFixHead thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+  }
+
+  table {
+      border-collapse: collapse;
+      width: 100%;
+  }
+
+
+  th {
+      background: #eee;
+  }
+
   </style>
   {#  <div class="h3">  {% trans "Data Entry Mode for " %} {{ object }}  </div>#}
 
   <div id="app" v-cloak
   >
-    <div class="mb-3">
-      {#      {% include "trapnet/data_entry_v2/_sidebar.html" %}#}
+  <div class="mb-3">
+    {#      {% include "trapnet/data_entry_v2/_sidebar.html" %}#}
 
-      <div class="row">
+    <div class="row">
 
-        <div class="col">
-          {% include "shared_models/_generic_breadcrumbs.html" %}
-          <div class="">
-            <div class="card" style="">
-              <div class="card-header lead">
-                {% trans "Observations" %}
+      <div class="col">
+        {% include "shared_models/_generic_breadcrumbs.html" %}
+        <div class="">
+          <div class="card" style="">
+            <div class="card-header lead">
+              {% trans "Observations" %}
+            </div>
+            <div class="card-body">
+              <overlay
+                v-if="overlay"
+                @close="overlay=false"
+                @add="newObservation"
+                :labels="labels"
+                :choices="choices"
+                :is_electro="isElectro"
+                :primed_observation="primedObservation"
+              ></overlay>
+              <button class="float-right btn btn-sm btn-primary" @click="overlay=!overlay">
+                {% trans "New Observations" %}
+              </button>
+              <p>
+                <span class="p-3"><kbd>tab</kbd> move right</span>
+                <span class="p-3"><kbd>shift+tab</kbd> move left</span>
+                <span class="p-3"><kbd>&darr; / enter</kbd> move down</span>
+                <span class="p-3"><kbd>&uarr;</kbd> move up</span>
+                <span class="p-3"><kbd>esc</kbd> close row editor </span>
+              </p>
+            </div>
+            <div v-if="isLoading" class="loading mb-3 mt-3 text-center mt-5">
+              <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+                <span class="sr-only"></span>
               </div>
-              <div class="card-body">
-                <overlay
-                  v-if="overlay"
-                  @close="overlay=false"
-                  @add="newObservation"
-                  :labels="labels"
-                  :choices="choices"
-                  :is_electro="isElectro"
-                  :primed_observation="primedObservation"
-                ></overlay>
-                <button class="float-right btn btn-sm btn-primary" @click="overlay=!overlay">
-                  {% trans "New Observations" %}
-                </button>
-                <p>
-                  <span class="p-3"><kbd>tab</kbd> move right</span>
-                  <span class="p-3"><kbd>shift+tab</kbd> move left</span>
-                  <span class="p-3"><kbd>&darr; / enter</kbd> move down</span>
-                  <span class="p-3"><kbd>&uarr;</kbd> move up</span>
-                  <span class="p-3"><kbd>esc</kbd> close row editor </span>
-                </p>
-              </div>
-              <div v-if="isLoading" class="loading mb-3 mt-3 text-center mt-5">
-                <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
-                  <span class="sr-only"></span>
-                </div>
-              </div>
-              <table v-else class="table table-sm table-small-10">
-                <thead>
-                <tr>
-                  <th class="w25px">#</th>
-                  <th class="w150">${labels.species}</th>
-                  <th class="w200">${labels.status}</th>
-                  <th class="w125px">${labels.life_stage}</th>
-                  <th class="w125px">${labels.reproductive_status}</th>
-                  <th class="w150">${labels.origin}</th>
-                  <th class="w75">${labels.sex}</th>
-                  <th class="w100px">${labels.fork_length}</th>
-                  <th v-if="!isElectro" class="w100px">${labels.total_length}</th>
-                  <th class="w75">${labels.weight}</th>
-                  <th v-if="!isElectro" class="w75">${labels.tag_number}</th>
-                  <th class="w100px">${labels.scale_id_number}</th>
-                  <th v-if="!isElectro" class="w75">${labels.tags_removed}</th>
-                  <th class="">${labels.notes}</th>
-                  <th class="w50px"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr
-                  v-for="o, index in observations"
-                  :key="o.id"
-                  :class="{'mild-concern':o.edit}"
-                  @keyup.esc="updateObservation(o, true)"
-                  @keydown.enter.prevent="moveDown(o)"
-                  @keydown.down.prevent="moveDown(o)"
-                  @keydown.up.prevent="moveUp(o)"
-                  @keydown.right.prevent="moveRight(o)"
-                  @keydown.left.prevent="moveLeft(o)"
-                  @click="editObservation(o)"
-                >
-                  <td>${index+1}</td>
-                  <td v-if="!o.edit">${o.species_display|nz}</td>
-                  <td v-else>
-                    <select
-                      class="table-input" required
-                      v-model="o.species"
-                      @change="updateObservation(o)"
-                      @focus="updateLastSelected('species')"
-                      :ref="`species_${o.id}`"
-                    >
-                      <option v-for="c in choices.speciesChoices" :value="c.value" :label="c.text"></option>
-                    </select>
-                  </td>
+            </div>
+            <div v-else>
+              <div class="table table-sm table-small-10 tableFixHead">
+                <table class="table table-sm table-small-10">
+                  <thead style="position: sticky;top: 0">
+                  <tr class="my-3">
+                    <th class="header w25px">#</th>
+                    <th class="header w150">${labels.species}</th>
+                    <th class="header w200">${labels.status}</th>
+                    <th class="header w125px">${labels.life_stage}</th>
+                    <th class="header w125px">${labels.reproductive_status}</th>
+                    <th class="header w150">${labels.origin}</th>
+                    <th class="header w100px">${labels.length}</th>
+                    <th class="header w100px">${labels.length_type}</th>
+                    <th class="w75">${labels.weight}</th>
+                    <th class="header w75">${labels.sex}</th>
+                    <th v-if="!isElectro" class="w75">${labels.tag_number}</th>
+                    <th class="w100px">${labels.scale_id_number}</th>
+                    <th v-if="!isElectro" class="w75">${labels.tags_removed}</th>
+                    <th class="">${labels.notes}</th>
+                    <th class="w50px"></th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr
+                    v-for="o, index in observations"
+                    :key="o.id"
+                    :class="{'mild-concern':o.edit}"
+                    @keyup.esc="updateObservation(o, true)"
+                    @keydown.enter.prevent="moveDown(o)"
+                    @keydown.down.prevent="moveDown(o)"
+                    @keydown.up.prevent="moveUp(o)"
+                    @keydown.right.prevent="moveRight(o)"
+                    @keydown.left.prevent="moveLeft(o)"
+                    @click="editObservation(o)"
+                  >
+                    <td>${index+1}</td>
+                    <td v-if="!o.edit">${o.species_display|nz}</td>
+                    <td v-else>
+                      <select
+                        class="table-input" required
+                        v-model="o.species"
+                        @change="updateObservation(o)"
+                        @focus="updateLastSelected('species')"
+                        :ref="`species_${o.id}`"
+                      >
+                        <option v-for="c in choices.speciesChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
 
-                  <td v-if="!o.edit">${o.status_display|nz}</td>
-                  <td v-else>
-                    <select
-                      class="table-input" required
-                      v-model="o.status"
-                      @change="updateObservation(o)"
-                      @focus="updateLastSelected('status')"
-                      :ref="`status_${o.id}`"
-                    >
-                      <option v-for="c in choices.statusChoices" :value="c.value" :label="c.text"></option>
-                    </select>
-                  </td>
-                  <td v-if="!o.edit">${o.life_stage_display|nz}</td>
-                  <td v-else>
-                    <select
-                      class="table-input" required
-                      v-model="o.life_stage"
-                      @change="updateObservation(o)"
-                      @focus="updateLastSelected('life_stage')"
-                      :ref="`life_stage_${o.id}`"
-                    >
-                      <option v-for="c in choices.lifeStageChoices" :value="c.value" :label="c.text"></option>
-                    </select>
-                  </td>
+                    <td v-if="!o.edit">${o.status_display|nz}</td>
+                    <td v-else>
+                      <select
+                        class="table-input" required
+                        v-model="o.status"
+                        @change="updateObservation(o)"
+                        @focus="updateLastSelected('status')"
+                        :ref="`status_${o.id}`"
+                      >
+                        <option v-for="c in choices.statusChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+                    <td v-if="!o.edit">${o.life_stage_display|nz}</td>
+                    <td v-else>
+                      <select
+                        class="table-input" required
+                        v-model="o.life_stage"
+                        @change="updateObservation(o)"
+                        @focus="updateLastSelected('life_stage')"
+                        :ref="`life_stage_${o.id}`"
+                      >
+                        <option v-for="c in choices.lifeStageChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
 
 
-                  <td v-if="!o.edit">${o.reproductive_status_display|nz}</td>
-                  <td v-else>
-                    <select
-                      class="table-input" required
-                      v-model="o.reproductive_status"
-                      @change="updateObservation(o)"
-                      @focus="updateLastSelected('reproductive_status')"
-                      :ref="`reproductive_status_${o.id}`"
-                    >
-                      <option v-for="c in choices.reproductiveStatusChoices" :value="c.value" :label="c.text"></option>
-                    </select>
-                  </td>
+                    <td v-if="!o.edit">${o.reproductive_status_display|nz}</td>
+                    <td v-else>
+                      <select
+                        class="table-input" required
+                        v-model="o.reproductive_status"
+                        @change="updateObservation(o)"
+                        @focus="updateLastSelected('reproductive_status')"
+                        :ref="`reproductive_status_${o.id}`"
+                      >
+                        <option v-for="c in choices.reproductiveStatusChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
 
-                  <td v-if="!o.edit">${o.origin_display|nz}</td>
-                  <td v-else>
-                    <select
-                      class="table-input"
-                      v-model="o.origin"
-                      @change="updateObservation(o)"
-                      @focus="updateLastSelected('origin')"
-                      :ref="`origin_${o.id}`"
-                    >
-                      <option v-for="c in choices.originChoices" :value="c.value" :label="c.text"></option>
-                    </select>
-                  </td>
-                  <td v-if="!o.edit">${o.sex_display|nz}</td>
-                  <td v-else>
-                    <select
-                      class="table-input"
-                      v-model="o.sex"
-                      @change="updateObservation(o)"
-                      @focus="updateLastSelected('sex')"
-                      :ref="`sex_${o.id}`"
-                    >
-                      <option v-for="c in choices.sexChoices" :value="c.value" :label="c.text"></option>
-                    </select>
-                  </td>
+                    <td v-if="!o.edit">${o.origin_display|nz}</td>
+                    <td v-else>
+                      <select
+                        class="table-input"
+                        v-model="o.origin"
+                        @change="updateObservation(o)"
+                        @focus="updateLastSelected('origin')"
+                        :ref="`origin_${o.id}`"
+                      >
+                        <option v-for="c in choices.originChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
 
-                  <td v-if="!o.edit">${o.fork_length|nz}</td>
-                  <td v-else>
-                    <input
-                      type="text" class="table-input"
-                      @change="updateObservation(o)"
-                      v-model="o.fork_length"
-                      @focus="updateLastSelected('fork_length')"
-                      :ref="`fork_length_${o.id}`"
-                    />
-                  </td>
 
-                  <td v-if="!isElectro && !o.edit">${o.total_length|nz}</td>
-                  <td v-else-if="!isElectro">
-                    <input
-                      type="text" class="table-input p-0"
-                      @change="updateObservation(o)"
-                      v-model="o.total_length"
-                      @focus="updateLastSelected('total_length')"
-                      :ref="`total_length_${o.id}`"
-                    />
-                  </td>
+                    <td v-if="!o.edit">${o.length|nz}</td>
+                    <td v-else>
+                      <input
+                        type="text" class="table-input"
+                        @change="updateObservation(o)"
+                        v-model="o.length"
+                        @focus="updateLastSelected('length')"
+                        :ref="`length_${o.id}`"
+                      />
+                    </td>
 
-                  <td v-if="!o.edit">${o.weight|nz}</td>
-                  <td v-else>
-                    <input
-                      type="text" class="table-input p-0"
-                      @change="updateObservation(o)"
-                      v-model="o.weight"
-                      @focus="updateLastSelected('weight')"
-                      :ref="`weight_${o.id}`"
-                    />
-                  </td>
+                    <td v-if="!o.edit">${o.length_type_display|nz}</td>
+                    <td v-else>
+                      <select
+                        class="table-input"
+                        v-model="o.length_type"
+                        @change="updateObservation(o)"
+                        @focus="updateLastSelected('length_type')"
+                        :ref="`length_type_${o.id}`"
+                      >
+                        <option v-for="c in choices.lengthTypeChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
 
-                  <td v-if="!isElectro && !o.edit">${o.tag_number|nz}</td>
-                  <td v-else-if="!isElectro">
-                    <input
-                      type="text" class="table-input p-0"
-                      v-model="o.tag_number"
-                      @change="updateObservation(o)"
-                      @focus="updateLastSelected('tag_number')"
-                      :ref="`tag_number_${o.id}`"
-                    />
-                  </td>
+                    <td v-if="!o.edit">${o.weight|nz}</td>
+                    <td v-else>
+                      <input
+                        type="text" class="table-input p-0"
+                        @change="updateObservation(o)"
+                        v-model="o.weight"
+                        @focus="updateLastSelected('weight')"
+                        :ref="`weight_${o.id}`"
+                      />
+                    </td>
 
-                  <td v-if="!o.edit">${o.scale_id_number|nz}</td>
-                  <td v-else>
-                    <input
-                      type="text" class="table-input p-0"
-                      v-model="o.scale_id_number"
-                      @change="updateObservation(o)"
-                      @focus="updateLastSelected('scale_id_number')"
-                      :ref="`scale_id_number_${o.id}`"
-                    />
-                  </td>
+                    <td v-if="!o.edit">${o.sex_display|nz}</td>
+                    <td v-else>
+                      <select
+                        class="table-input"
+                        v-model="o.sex"
+                        @change="updateObservation(o)"
+                        @focus="updateLastSelected('sex')"
+                        :ref="`sex_${o.id}`"
+                      >
+                        <option v-for="c in choices.sexChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
 
-                  <td v-if="!isElectro && !o.edit">${o.tags_removed|nz}</td>
-                  <td v-else-if="!isElectro">
-                    <input
-                      type="text" class="table-input p-0"
-                      v-model="o.tags_removed"
-                      @change="updateObservation(o)"
-                      @focus="updateLastSelected('tags_removed')"
-                      :ref="`tags_removed_${o.id}`"
-                    />
-                  </td>
+                    <td v-if="!isElectro && !o.edit">${o.tag_number|nz}</td>
+                    <td v-else-if="!isElectro">
+                      <input
+                        type="text" class="table-input p-0"
+                        v-model="o.tag_number"
+                        @change="updateObservation(o)"
+                        @focus="updateLastSelected('tag_number')"
+                        :ref="`tag_number_${o.id}`"
+                      />
+                    </td>
 
-                  <td v-if="!o.edit">${o.notes|nz}</td>
-                  <td v-else>
-                    <input
-                      type="text" class="table-input p-0"
-                      v-model="o.notes"
-                      @change="updateObservation(o)"
-                      @focus="updateLastSelected('notes')"
-                      :ref="`notes_${o.id}`"
-                    />
-                  </td>
+                    <td v-if="!o.edit">${o.scale_id_number|nz}</td>
+                    <td v-else>
+                      <input
+                        type="text" class="table-input p-0"
+                        v-model="o.scale_id_number"
+                        @change="updateObservation(o)"
+                        @focus="updateLastSelected('scale_id_number')"
+                        :ref="`scale_id_number_${o.id}`"
+                      />
+                    </td>
 
-                  <td>
+                    <td v-if="!isElectro && !o.edit">${o.tags_removed|nz}</td>
+                    <td v-else-if="!isElectro">
+                      <input
+                        type="text" class="table-input p-0"
+                        v-model="o.tags_removed"
+                        @change="updateObservation(o)"
+                        @focus="updateLastSelected('tags_removed')"
+                        :ref="`tags_removed_${o.id}`"
+                      />
+                    </td>
+
+                    <td v-if="!o.edit">${o.notes|nz}</td>
+                    <td v-else>
+                      <input
+                        type="text" class="table-input p-0"
+                        v-model="o.notes"
+                        @change="updateObservation(o)"
+                        @focus="updateLastSelected('notes')"
+                        :ref="`notes_${o.id}`"
+                      />
+                    </td>
+
+                    <td>
                       <button class="btn btn-sm " @click.prevent="deleteObservation(o)">
                         <span class="mdi mdi-delete"></span>
                       </button>
-{#                    <div v-else>#}
-{#                      <button class="btn btn-xs btn-success" @click="updateObservation(o, true)"><span class="mdi mdi-check text-light"></span></button>#}
-{#                    </div>#}
-                  </td>
-                </tr>
-                </tbody>
-              </table>
+                      {#                    <div v-else>#}
+                      {#                      <button class="btn btn-xs btn-success" @click="updateObservation(o, true)"><span class="mdi mdi-check text-light"></span></button>#}
+                      {#                    </div>#}
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
 
+              </div>
             </div>
           </div>
         </div>
@@ -320,6 +350,7 @@
       choices: {
         speciesChoices: [],
         sexChoices: [],
+        lengthTypeChoices: [],
         originChoices: [],
         statusChoices: [],
         reproductiveStatusChoices: [],
@@ -338,11 +369,10 @@
         'life_stage',
         'reproductive_status',
         'origin',
-        'sex',
-        'fork_length',
-        'total_length',
+        'length',
+        'length_type',
         'weight',
-        'tag_number',
+        'sex',
         'scale_id_number',
         'tags_removed',
         'notes',
@@ -445,14 +475,18 @@
 
       newObservation(obs) {
         obs.sample = sampleId;
+        obs = this.cleanObservation(obs);
         apiService(`/api/trapnet/observations/`, "POST", obs)
             .then(response => {
+              if (!response.id) alert(groomJSON(response));
+              else {
                 // capture the memories
                 this.memory.lastSpecies = response.species;
                 this.memory.lastStatus = response.status;
                 this.memory.lastOrigin = response.origin;
                 this.memory.lastLocation = response.location_tagged;
                 this.getObservations();
+              }
             })
       },
       updateObservation(obs, close) {
@@ -489,6 +523,7 @@
           this.labels = data.labels;
           this.choices.speciesChoices = data.species_choices;
           this.choices.sexChoices = data.sex_choices;
+          this.choices.lengthTypeChoices = data.length_type_choices;
           this.choices.statusChoices = data.status_choices;
           this.choices.originChoices = data.origin_choices;
           this.choices.reproductiveStatusChoices = data.reproductive_status_choices;

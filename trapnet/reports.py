@@ -99,7 +99,7 @@ def generate_obs_csv(year, fishing_areas, rivers, sites):
         if field.attname not in field_names:
             field_names.append(field.attname)
     header_row = [field for field in field_names]  # starter
-    header_row.extend(["site", "site_id"])
+    header_row.extend(["site", "site_id", "arrival_date", "departure_date"])
 
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
@@ -107,7 +107,7 @@ def generate_obs_csv(year, fishing_areas, rivers, sites):
 
     for obj in qs:
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
-        data_row.extend([obj.sample.site, obj.sample.site_id ])
+        data_row.extend([obj.sample.site, obj.sample.site_id, obj.sample.arrival_date, obj.sample.departure_date ])
         yield writer.writerow(data_row)
 
 

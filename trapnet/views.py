@@ -491,10 +491,17 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
         context['obs_field_list'] = [
             'species',
             'status',
+            'life_stage',
+            'reproductive_status',
             'origin',
+            'length',
+            'length_type',
+            'weight',
             'sex',
             'tag_number',
             'scale_id_number',
+            'tags_removed',
+            'notes',
         ]
         context['sweep_field_list'] = [
             "sweep_number",

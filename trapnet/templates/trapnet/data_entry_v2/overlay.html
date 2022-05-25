@@ -109,12 +109,21 @@
                 </tr>
 
                 <tr>
-                  <th><label for="">${labels.fork_length}</label></th>
-                  <td><input type="number" step="any" v-model="observation.fork_length" class="form-control w-100"/></td>
+                  <th><label for="">${labels.length}</label></th>
+                  <td><input type="number" step="any" v-model="observation.length" class="form-control w-100"/></td>
                 </tr>
-                <tr v-if="!is_electro">
-                  <th><label for="">${labels.total_length}</label></th>
-                  <td><input type="number" step="any" v-model="observation.total_length" class="form-control"/></td>
+                <tr>
+                  <th><label for="">${labels.length_type}</label></th>
+                  <td>
+                    <v-select
+                      v-model="observation.length_type"
+                      :options="choices.lengthTypeChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class=""
+                      :clearable=false
+                    ></v-select>
+                  </td>
                 </tr>
                 <tr>
                   <th><label for="">${labels.weight}</label></th>
