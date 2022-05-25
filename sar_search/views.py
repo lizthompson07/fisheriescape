@@ -66,12 +66,12 @@ class SARMapTemplateView(SARSearchAccessRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['records'] = models.Record.objects.all()
+        context['records'] = models.Record.objects.all().select_related("species").prefetch_related("regions", "points")
         context['google_api_key'] = settings.GOOGLE_API_KEY
 
         # start by determining with spp do not have spatial data
         non_spatial_species_list = []
-        for sp in models.Species.objects.all():
+        for sp in models.Species.objects.all().prefetch_related("records", "records__regions", "records__points"):
             spatial = False
             for record in sp.records.all():
                 #  if has been labeled as spatial, exit the loop
@@ -109,7 +109,7 @@ class SARMapTemplateView(SARSearchAccessRequiredMixin, FormView):
             )
 
             # determine which regions intersect with bbox
-            for region_polygon in models.RegionPolygon.objects.all():
+            for region_polygon in models.RegionPolygon.objects.all().select_related("region"):
                 # if the region has not already been added...
                 if region_polygon.region not in region_list:
                     if region_polygon.get_polygon():
@@ -123,7 +123,7 @@ class SARMapTemplateView(SARSearchAccessRequiredMixin, FormView):
             #             region_list.append(polygon_point.region_polygon.region)
 
             captured_species_list = []
-            for sp in models.Species.objects.all():
+            for sp in models.Species.objects.all().prefetch_related("records", "records__regions", "records__points"):
                 if sp not in non_spatial_species_list:
                     captured = False
                     for record in sp.records.all():
