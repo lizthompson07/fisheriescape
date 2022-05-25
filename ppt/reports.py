@@ -1438,7 +1438,7 @@ def generate_cost_report(qs, site_url):
     total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
     normal_format = workbook.add_format({"align": 'left', "text_wrap": False, 'border': 1, 'border_color': 'black', })
     normal_format_br = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
-    currency_format = workbook.add_format({'num_format': '#,##0.00', 'border': 1, 'border_color': 'black',})
+    currency_format = workbook.add_format({'num_format': '#,##0.00', 'border': 1, 'border_color': 'black', })
     date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
     hyperlink_format = workbook.add_format({'border': 1, 'border_color': 'black', "font_color": "blue", "underline": True, "text_wrap": True})
 
@@ -1714,3 +1714,71 @@ def generate_cost_report(qs, site_url):
 
     workbook.close()
     return target_url
+
+
+def generate_cost_descriptions():
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": False, 'border': 1, 'border_color': 'black', })
+
+
+    title = "Funding Sources"
+    fields = ['name', 'nom', 'funding_source_type', 'is_competitive', ]
+    my_ws = workbook.add_worksheet(name=title)
+    my_ws.write(0, 0, title.upper(), title_format)
+    qs = models.FundingSource.objects.all()
+    my_ws.write_row(2, 0, [get_verbose_label(qs.first(), field) for field in fields], header_format)
+    i = 3
+    for item in qs:
+        data_row = [get_field_value(item, field) for field in fields]
+        my_ws.write_row(i, 0, data_row)
+        i += 1
+
+    title = "employee types"
+    fields = ['name', 'nom', 'cost_type', 'exclude_from_rollup', ]
+    my_ws = workbook.add_worksheet(name=title)
+    my_ws.write(0, 0, title.upper(), title_format)
+    qs = models.EmployeeType.objects.all()
+    my_ws.write_row(2, 0, [get_verbose_label(qs.first(), field) for field in fields], header_format)
+    i = 3
+    for item in qs:
+        data_row = [get_field_value(item, field) for field in fields]
+        my_ws.write_row(i, 0, data_row)
+        i += 1
+
+    title = "om categories"
+    fields = ['name', 'nom', 'group' ]
+    my_ws = workbook.add_worksheet(name=title)
+    my_ws.write(0, 0, title.upper(), title_format)
+    qs = models.OMCategory.objects.all()
+    my_ws.write_row(2, 0, [get_verbose_label(qs.first(), field) for field in fields], header_format)
+    i = 3
+    for item in qs:
+        data_row = [get_field_value(item, field) for field in fields]
+        my_ws.write_row(i, 0, data_row)
+        i += 1
+
+    title = "capital cost categories"
+    my_ws = workbook.add_worksheet(name=title)
+    my_ws.write(0, 0, title.upper(), title_format)
+    qs = models.OMCategory.objects.all()
+    my_ws.write_row(2, 0, ["Name"], header_format)
+    i = 3
+    for item in models.CapitalCost.category_choices:
+        data_row = [str(item[1])]
+        my_ws.write_row(i, 0, data_row)
+        i += 1
+
+    workbook.close()
+    return target_url
+

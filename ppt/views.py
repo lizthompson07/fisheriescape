@@ -1446,6 +1446,9 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
         elif report == 11:
             return HttpResponseRedirect(
                 reverse("ppt:export_lab") + f'?year={year}&section={section}&division={division}&region={region}')
+        elif report == 12:
+            return HttpResponseRedirect(
+                reverse("ppt:export_cost_descriptions"))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ppt:reports"))
@@ -1594,6 +1597,16 @@ def export_project_list(request):
     response = reports.generate_project_list(qs)
     response['Content-Disposition'] = f'attachment; filename="project list ({timezone.now().strftime("%Y %m %d")}).csv"'
     return response
+
+
+@login_required()
+def export_cost_descriptions(request):
+    file_url = reports.generate_cost_descriptions()
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="ppt cost descriptions.xlsx"'
+            return response
 
 
 @login_required()
