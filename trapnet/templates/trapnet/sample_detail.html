@@ -16,6 +16,13 @@
 
 {% block subcontent %}
 
+  <div class="float-right">
+    {% if object.is_reviewed %}
+      <a class="btn btn-secondary" href="{% url 'trapnet:review_sample' object.id %}">Clear Reviewed Status</a>
+    {% else %}
+      <a class="btn btn-success" href="{% url 'trapnet:review_sample' object.id %}">Mark as Reviewed</a>
+    {% endif %}
+  </div>
   <div class="mb-3">
     <a class="btn btn-warning" href="{% url 'trapnet:sample_edit' object.id %}">Edit</a>
     <a class="btn btn-danger" href="{% url 'trapnet:sample_delete' object.id %}">Delete</a>

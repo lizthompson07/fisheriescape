@@ -6,6 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q
 from django.dispatch import receiver
+from django.template.defaultfilters import date
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -218,6 +219,18 @@ class Sample(MetadataFields):
 
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_created_by')
     updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_updated_by')
+
+    # non-editable
+    is_reviewed = models.BooleanField(default=False, editable=False, verbose_name=_("Has been reviewed?"))
+    reviewed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_reviewed_by')
+    reviewed_at = models.DateTimeField(blank=True, null=True, editable=False)
+
+
+    @property
+    def reviewed_status(self):
+        if not self.is_reviewed:
+            return gettext("Not reviewed")
+        return gettext("Reviewed by {user} on {time}").format(user=self.reviewed_by, time=date(self.reviewed_at))
 
     @property
     def full_wetted_width(self):
@@ -520,8 +533,8 @@ class Observation(MetadataFields):
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
 
-    fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
-    total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
+    # fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
+    # total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
 
     length = models.FloatField(blank=True, null=True, verbose_name=_("length (mm)"))
     length_type = models.IntegerField(blank=True, null=True, verbose_name=_("length type"), choices=length_type_choices)
@@ -555,7 +568,7 @@ class Observation(MetadataFields):
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.species)
+        return f"{self.species} ({self.id})"
 
     class Meta:
         ordering = ["sample__arrival_date"]

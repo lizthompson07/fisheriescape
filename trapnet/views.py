@@ -1,9 +1,11 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy, gettext as _
 
@@ -18,7 +20,7 @@ from . import forms
 from . import models
 from . import reports
 from .mixins import TrapNetCRUDRequiredMixin, TrapNetAdminRequiredMixin, SuperuserOrAdminRequiredMixin, TrapNetBasicMixin
-from .utils import get_sample_field_list
+from .utils import get_sample_field_list, is_crud_user
 
 
 class IndexTemplateView(TrapNetBasicMixin, CommonTemplateView):
@@ -442,6 +444,7 @@ class SampleListView(TrapNetBasicMixin, CommonFilterView):
         {"name": 'arrival_date|arrival', "class": "", "width": ""},
         {"name": 'duration|duration', "class": "", "width": ""},
         {"name": 'observations', "class": "", "width": ""},
+        {"name": 'is_reviewed', "class": "", "width": ""},
     ]
 
 
@@ -523,6 +526,22 @@ class SampleDeleteView(TrapNetCRUDRequiredMixin, CommonDeleteView):
 
     def get_success_url(self):
         return self.get_grandparent_crumb()["url"]
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(is_crud_user, login_url='/accounts/denied/?app=trapnet')
+def review_sample(request, pk):
+    obj = get_object_or_404(models.Sample, pk=pk)
+    if obj.is_reviewed:
+        obj.is_reviewed = False
+        obj.reviewed_by = None
+        obj.reviewed_at = None
+    else:
+        obj.is_reviewed = True
+        obj.reviewed_by = request.user
+        obj.reviewed_at = timezone.now()
+    obj.save()
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class DataEntryVueJSView(TrapNetCRUDRequiredMixin, CommonTemplateView):
@@ -721,8 +740,8 @@ class ObservationDetailView(TrapNetBasicMixin, CommonDetailView):
         'status',
         'origin',
         'sex',
-        'fork_length',
-        'total_length',
+        'length',
+        'length_type',
         'weight',
         'age',
         'location_tagged',
