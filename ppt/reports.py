@@ -1445,6 +1445,7 @@ def generate_cost_report(qs, site_url):
     header = [
         'Fiscal year',
         'Project',
+        'Status',
         'Region',
         'Division',
         'Section',
@@ -1516,6 +1517,9 @@ def generate_cost_report(qs, site_url):
                 my_ws.write(i, j, val, normal_format)
             elif "Cost type" in field:
                 val = "Capital"
+                my_ws.write(i, j, val, normal_format)
+            elif "Status" in field:
+                val = obj.project_year.get_status_display()
                 my_ws.write(i, j, val, normal_format)
             elif "Project" in field:
                 val = str(obj.project_year.project)

@@ -535,8 +535,8 @@ class Observation(MetadataFields):
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
 
-    fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
-    total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
+    # fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
+    # total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
 
     length = models.FloatField(blank=True, null=True, verbose_name=_("length (mm)"))
     length_type = models.IntegerField(blank=True, null=True, verbose_name=_("length type"), choices=length_type_choices)
