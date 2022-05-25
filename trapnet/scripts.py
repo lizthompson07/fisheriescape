@@ -593,13 +593,13 @@ def annotate_scales():
 
 
 def populate_len():
-    fl_observations = models.Observation.objects.filter(fork_length__isnull=False)
+    fl_observations = models.Observation.objects.filter(fork_length__isnull=False, length__isnull=True)
     for o in fl_observations:
         o.length = o.fork_length
         o.length_type = 1
         o.save()
 
-    tot_observations = models.Observation.objects.filter(total_length__isnull=False)
+    tot_observations = models.Observation.objects.filter(total_length__isnull=False, length__isnull=True)
     for o in tot_observations:
         o.length = o.total_length
         o.length_type = 2
