@@ -123,6 +123,12 @@ class FileForm(forms.ModelForm):
         fields = "__all__"
 
 
+class SampleFileForm(forms.ModelForm):
+    class Meta:
+        model = models.SampleFile
+        fields = "__all__"
+
+
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         # (1, "List of samples (trap data) (CSV)"),

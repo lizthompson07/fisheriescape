@@ -92,7 +92,8 @@ class Species(MetadataFields):
     common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=255, blank=True, null=True, unique=True)
-    tsn = models.IntegerField(blank=False, null=True, verbose_name="ITIS TSN", help_text=_("Integrated Taxonomic Information System (https://www.itis.gov/)"), unique=True)
+    tsn = models.IntegerField(blank=False, null=True, verbose_name="ITIS TSN", help_text=_("Integrated Taxonomic Information System (https://www.itis.gov/)"),
+                              unique=True)
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
     notes = models.TextField(max_length=255, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_spp_created_by')
@@ -120,6 +121,7 @@ class Species(MetadataFields):
     @property
     def observation_count(self):
         return self.observations.count()
+
 
 class Electrofisher(SimpleLookup):
     model_number = models.CharField(max_length=255, blank=True, null=True)
@@ -225,7 +227,6 @@ class Sample(MetadataFields):
     reviewed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_reviewed_by')
     reviewed_at = models.DateTimeField(blank=True, null=True, editable=False)
 
-
     @property
     def reviewed_status(self):
         if not self.is_reviewed:
@@ -258,7 +259,6 @@ class Sample(MetadataFields):
         else:
             return statistics.mean([self.bank_length_left, self.bank_length_right]) * statistics.mean(
                 [self.width_lower, self.width_middle, self.width_upper])
-
 
     @property
     def substrate_profile(self):
@@ -490,6 +490,8 @@ class Sex(CodeModel):
 
 class Maturity(CodeModel):
     pass
+
+
 #
 #
 # class Entry(MetadataFields):
@@ -579,10 +581,26 @@ def file_directory_path(instance, filename):
     return 'trapnet/observation_{0}/{1}'.format(instance.observation.id, filename)
 
 
+def sample_file_directory_path(instance, filename):
+    return 'trapnet/sample_{0}/{1}'.format(instance.sample.id, filename)
+
+
 class File(MetadataFields):
     observation = models.ForeignKey(Observation, related_name="files", on_delete=models.CASCADE, editable=False)
     caption = models.CharField(max_length=255)
     image = models.ImageField(upload_to=file_directory_path)
+
+    class Meta:
+        ordering = ['caption']
+
+    def __str__(self):
+        return self.caption
+
+
+class SampleFile(MetadataFields):
+    sample = models.ForeignKey(Sample, related_name="files", on_delete=models.CASCADE, editable=False)
+    caption = models.CharField(max_length=255)
+    file = models.FileField(upload_to=sample_file_directory_path)
 
     class Meta:
         ordering = ['caption']
@@ -618,6 +636,39 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
         return False
 
     new_file = instance.image
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+
+
+@receiver(models.signals.post_delete, sender=SampleFile)
+def auto_delete_sample_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+
+@receiver(models.signals.pre_save, sender=SampleFile)
+def auto_delete_sample_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = File.objects.get(pk=instance.pk).file
+    except File.DoesNotExist:
+        return False
+
+    new_file = instance.file
     if not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)

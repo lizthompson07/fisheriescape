@@ -64,6 +64,12 @@ urlpatterns = [
     path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
     path('samples/<int:pk>/review/', views.review_sample, name="review_sample"),
 
+    # SAMPLE FILES #
+    ################
+    path('samples/<int:sample>/new-file/', views.SampleFileCreateView.as_view(), name='sample_file_new'),
+    path('sample-files/<int:pk>/edit/', views.SampleFileUpdateView.as_view(), name='sample_file_edit'),
+    path('sample-files/<int:pk>/delete/', views.SampleFileDeleteView.as_view(), name='sample_file_delete'),
+
     # SWEEPS #
     ###############
     path('samples/<int:sample>/new-sweep/', views.SweepCreateView.as_view(), name='sweep_new'),

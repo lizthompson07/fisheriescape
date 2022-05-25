@@ -515,11 +515,12 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
         return context
 
 
-class SampleDeleteView(TrapNetCRUDRequiredMixin, CommonDeleteView):
+class SampleDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
     model = models.Sample
     template_name = 'trapnet/confirm_delete.html'
     home_url_name = "trapnet:index"
     grandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
+    delete_protection = False
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("trapnet:sample_detail", args=[self.get_object().id])}
@@ -822,6 +823,36 @@ class FileUpdateView(TrapNetCRUDRequiredMixin, CommonPopoutUpdateView):
 
 class FileDeleteView(TrapNetCRUDRequiredMixin, CommonPopoutDeleteView):
     model = models.File
+
+
+# SAMPLE FILES #
+################
+
+class SampleFileCreateView(TrapNetCRUDRequiredMixin, CommonPopoutCreateView):
+    model = models.SampleFile
+    form_class = forms.SampleFileForm
+    is_multipart_form_data = True
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.created_by = self.request.user
+        obj.sample = get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
+        return super().form_valid(form)
+
+
+class SampleFileUpdateView(TrapNetCRUDRequiredMixin, CommonPopoutUpdateView):
+    model = models.SampleFile
+    form_class = forms.SampleFileForm
+    is_multipart_form_data = True
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class SampleFileDeleteView(TrapNetCRUDRequiredMixin, CommonPopoutDeleteView):
+    model = models.SampleFile
 
 
 # REPORTS #

@@ -16,16 +16,16 @@
 
 {% block subcontent %}
 
-  <div class="float-right">
+  <div class="mb-3">
+    {% if not object.is_reviewed %}
+      <a class="btn btn-warning" href="{% url 'trapnet:sample_edit' object.id %}">Edit</a>
+      <a class="btn btn-danger" href="{% url 'trapnet:sample_delete' object.id %}">Delete</a>
+    {% endif %}
     {% if object.is_reviewed %}
       <a class="btn btn-secondary" href="{% url 'trapnet:review_sample' object.id %}">Clear Reviewed Status</a>
     {% else %}
       <a class="btn btn-success" href="{% url 'trapnet:review_sample' object.id %}">Mark as Reviewed</a>
     {% endif %}
-  </div>
-  <div class="mb-3">
-    <a class="btn btn-warning" href="{% url 'trapnet:sample_edit' object.id %}">Edit</a>
-    <a class="btn btn-danger" href="{% url 'trapnet:sample_delete' object.id %}">Delete</a>
   </div>
 
   <div class="row mb-5">
@@ -67,13 +67,66 @@
 
     </div>
   </div>
+
+  <div class="mb-5">
+
+    <div class="card">
+      <div class="card-header lead">
+        <div class="float-right">
+          {% if not object.is_reviewed %}
+            <a href="#" pop-href="{% url 'trapnet:sample_file_new' object.id %}" class="btn btn-sm btn-primary">{% trans "Add" %}</a>
+          {% endif %}
+        </div>
+        {% trans "Attachments" %}
+      </div>
+      <div class="card-body">
+        {% if not object.files.exists %}
+          <em>{% trans "No files have been attached to this sample." %}</em>
+        {% else %}
+          {% for file in object.files.all %}
+            <div class="mb-3">
+              <div class="row">
+                <div class="col">
+                  <div class="mb-1">
+                    {{ file.caption }}<br>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="mb-1">
+                    <span class="small">{{ file.metadata }}</span>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="btn-group" style="vertical-align: top">
+                    <a href="{{ file.file.url }}" class="btn btn-sm btn-light"><span class="mdi mdi-download mr-1"></span> {% trans "Download" %}
+                    </a>
+                    {% if not object.is_reviewed %}
+                      <a href="#" pop-href="{% url 'trapnet:sample_file_edit' file.id %}" class="btn btn-sm btn-warning"><span
+                        class="mdi mdi-pencil"></span></a>
+                      <a href="#" pop-href="{% url 'trapnet:sample_file_delete' file.id %}" class="btn btn-sm btn-danger"><span
+                        class="mdi mdi-delete text-light"></span></a>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+          {% endfor %}
+
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
   <div class="mb-5">
 
     {% if object.sample_type == 1 %}
       <div class="card">
         <div class="card-header lead">
           <div class="float-right">
-            <a class="btn btn-primary btn-sm" href="{% url 'trapnet:sample_data_entry' object.id %}">{% trans "Add / Modify" %}</a>
+            {% if not object.is_reviewed %}
+              <a class="btn btn-primary btn-sm" href="{% url 'trapnet:sample_data_entry' object.id %}">{% trans "Add / Modify" %}</a>
+            {% endif %}
           </div>
           {% trans "Observations" %}
         </div>
