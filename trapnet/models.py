@@ -523,10 +523,6 @@ class Maturity(CodeModel):
 
 
 class Observation(MetadataFields):
-    length_type_choices = (
-        (1, "fork"),
-        (2, "total"),
-    )
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observations")
     life_stage = models.ForeignKey(LifeStage, related_name='observations', on_delete=models.DO_NOTHING, blank=True, null=True)
     reproductive_status = models.ForeignKey(ReproductiveStatus, related_name='observations', on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -539,14 +535,14 @@ class Observation(MetadataFields):
     # total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
 
     length = models.FloatField(blank=True, null=True, verbose_name=_("length (mm)"))
-    length_type = models.IntegerField(blank=True, null=True, verbose_name=_("length type"), choices=length_type_choices)
+    length_type = models.IntegerField(blank=True, null=True, verbose_name=_("length type"), choices=model_choices.length_type_choices)
 
     weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
     location_tagged = models.CharField(max_length=500, blank=True, null=True)
     tag_number = models.CharField(max_length=12, blank=True, null=True, verbose_name=_("tag number"))
     scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"), unique=True)
     date_tagged = models.DateTimeField(blank=True, null=True, verbose_name="original date tagged")
-    tags_removed = models.CharField(max_length=250, blank=True, null=True)
+    # tags_removed = models.CharField(max_length=250, blank=True, null=True)
 
     # electrofishing only
     fish_size = models.IntegerField(blank=True, null=True, verbose_name=_("fish size"), choices=model_choices.fish_size_choices)
@@ -574,6 +570,13 @@ class Observation(MetadataFields):
 
     class Meta:
         ordering = ["sample__arrival_date"]
+
+    @property
+    def first_tagging(self):
+        if self.tag_number and self.status.code.lower() in ["rr", "rrl"]:
+            first_obs_qs = Observation.objects.fitler(~Q(id=self.id)).filter(tag_number=self.tag_number)
+            if first_obs_qs.exists():
+                return first_obs_qs.first()
 
 
 def file_directory_path(instance, filename):
@@ -639,7 +642,6 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     if not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
-
 
 
 @receiver(models.signals.post_delete, sender=SampleFile)

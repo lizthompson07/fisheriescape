@@ -3,10 +3,11 @@ from django.db.models import Sum, Avg
 from django.http import HttpResponse
 from django.template.defaultfilters import floatformat
 
-from dm_apps.utils import Echo
+from dm_apps.utils import Echo, get_timezone_time
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from . import models
+
 
 def generate_sample_csv(year, fishing_areas, rivers, sites):
     """Returns a generator for an HTTP Streaming Response"""
@@ -107,7 +108,69 @@ def generate_obs_csv(year, fishing_areas, rivers, sites):
 
     for obj in qs:
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
-        data_row.extend([obj.sample.site, obj.sample.site_id, obj.sample.arrival_date, obj.sample.departure_date ])
+        data_row.extend([obj.sample.site, obj.sample.site_id, obj.sample.arrival_date, obj.sample.departure_date])
+        yield writer.writerow(data_row)
+
+
+def generate_obs_csv_v1(qs):
+    """Returns a generator for an HTTP Streaming Response"""
+    random_obj = models.Observation.objects.first()
+    header_row = [
+        "River",
+        "Year",
+        "Month",
+        "Day",
+        "Time_start",
+        "Time_end",
+        "Species",
+        "TAG_ID",
+        "Status",
+        "Origin",
+        "FL",
+        "TotL",
+        "Weight",
+        "Sex",
+        "Smolt age",
+        "Scale_ID",
+        "JULIAN_DAY",
+        "First_Tag_location",
+        "First_Tag_Day",
+        "DAYS_AFTER_RT",
+    ]
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
+
+    for obj in qs:
+
+        first_tag_location = ""
+        first_tag_day = ""
+        days_after_rt = ""
+
+        data_row = [
+            obj.sample.site.river,
+            obj.sample.arrival_date.year,
+            obj.sample.arrival_date.month,
+            obj.sample.arrival_date.day,
+            get_timezone_time(obj.sample.arrival_date).strftime("%H:%M"),
+            get_timezone_time(obj.sample.departure_date).strftime("%H:%M"),
+            f"{obj.species} ({obj.life_stage})",
+            obj.tag_number,
+            obj.status,
+            obj.origin,
+            obj.length if obj.length_type == 1 else "",
+            obj.length if obj.length_type == 2 else "",
+            obj.weight,
+            obj.sex,
+            obj.river_age,
+            obj.scale_id_number,
+            obj.sample.arrival_date.timetuple().tm_yday,
+            obj.river_age,
+            first_tag_location,
+            first_tag_day,
+            days_after_rt,
+        ]
         yield writer.writerow(data_row)
 
 
@@ -203,7 +266,6 @@ def generate_entry_report(year, sites):
         'location_tagged',
         'date_tagged',
         'scale_id_number',
-        'tags_removed',
         'notes',
     ])
 
@@ -230,7 +292,6 @@ def generate_entry_report(year, sites):
                 entry.location_tagged,
                 entry.date_tagged,
                 entry.scale_id_number,
-                entry.tags_removed,
                 entry.notes,
             ])
 

@@ -66,3 +66,8 @@ age_type_choices = (
     (1, _("scale")),
     (2, _("length-frequency")),
 )
+
+length_type_choices = (
+    (1, "fork"),
+    (2, "total"),
+)

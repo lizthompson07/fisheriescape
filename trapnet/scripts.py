@@ -628,10 +628,24 @@ def delete_tags_removed():
                 pos = len(obs.tag_number)-1
                 new_tag = f"{obs.tag_number[0]}0{obs.tag_number[-pos:]}"
                 if not digits == len(new_tag):
-                    print("still bad:", new_tag)
+                    # try adding another zero
+                    pos = len(new_tag)-1
+                    new_tag = f"{new_tag[0]}0{new_tag[-pos:]}"
+                    if not digits == len(new_tag):
+                        # try adding another zero
+                        pos = len(new_tag) - 1
+                        new_tag = f"{new_tag[0]}0{new_tag[-pos:]}"
+                        if not digits == len(new_tag):
+                            print("still bad:", new_tag, "compared to:", removed_tags)
+
                 if not new_tag[1] == removed_tags[0][1]:
-                    print("still bad:", new_tag, removed_tags[0][1])
-                obs.tag_number = new_tag
+                    # print("still bad:", new_tag, "first char is different:", removed_tags)
+                    pass
+                else:
+                    obs.tag_number = new_tag
+                    obs.save()
+
             if obs.tag_number in removed_tags:
-                print("This observation should be deleted:", obs.tag_number, removed_tags)
+                print("This observation is being deleted:", obs.tag_number, removed_tags)
+                obs.delete()
 

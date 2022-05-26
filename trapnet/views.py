@@ -178,13 +178,15 @@ class SpeciesListView(TrapNetBasicMixin, CommonFilterView):
     new_object_url_name = "trapnet:species_new"
     row_object_url_name = "trapnet:species_detail"
     home_url_name = "trapnet:index"
+    paginate_by = 10
 
     field_list = [
         {"name": 'code', "class": "", "width": ""},
         {"name": 'full_name|{}'.format(_("Species")), "class": "", "width": ""},
         {"name": 'scientific_name', "class": "", "width": ""},
         {"name": 'tsn|{}'.format(_("Taxonomic serial number")), "class": "", "width": ""},
-        {"name": 'observation_count|{}'.format(_("Observations in Db")), "class": "", "width": ""},
+        {"name": 'aphia_id|{}'.format(_("WoRMS Aphia ID")), "class": "", "width": ""},
+        # {"name": 'observation_count|{}'.format(_("Observations in Db")), "class": "", "width": ""},
     ]
 
 
@@ -503,7 +505,6 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
             'sex',
             'tag_number',
             'scale_id_number',
-            'tags_removed',
             'notes',
         ]
         context['sweep_field_list'] = [
@@ -749,7 +750,6 @@ class ObservationDetailView(TrapNetBasicMixin, CommonDetailView):
         'date_tagged',
         'tag_number',
         'scale_id_number',
-        'tags_removed',
         'notes',
         'metadata',
     ]
@@ -883,6 +883,8 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("trapnet:sweep_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
         elif report == 3:
             return HttpResponseRedirect(reverse("trapnet:obs_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
+        elif report == 4:
+            return HttpResponseRedirect(reverse("trapnet:export_obs_data_v1") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
 
         # electrofishing
         elif report == 10:
@@ -941,6 +943,33 @@ def export_obs_data(request):
 
     response = StreamingHttpResponse(
         streaming_content=(reports.generate_obs_csv(year, fishing_areas, rivers, sites)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+def export_obs_data_v1(request):
+    year = request.GET.get("year")
+    fishing_areas = request.GET.get("fishing_areas")
+    rivers = request.GET.get("rivers")
+    sites = request.GET.get("sites")
+
+    filter_kwargs = {"species__scientific_name__iexact": "salmo salar"}
+    if year != "":
+        filter_kwargs["sample__season"] = year
+    if fishing_areas != "":
+        filter_kwargs["sample__site__river__fishing_area_id__in"] = fishing_areas.split(",")
+    if rivers != "":
+        filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
+    if sites != "":
+        filter_kwargs["sample__site_id__in"] = sites.split(",")
+    qs = models.Observation.objects.filter(**filter_kwargs).iterator()
+
+
+    filename = "Atlantic salmon individual observation event report ({}).csv".format(now().strftime("%Y-%m-%d"))
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_obs_csv_v1(qs)),
         content_type='text/csv',
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'

@@ -85,7 +85,6 @@
                     <th v-if="!isElectro" class="w75">${labels.location_tagged}</th>
                     <th v-if="!isElectro" class="w75">${labels.date_tagged}<br>(yyyy-mm-dd)</th>
                     <th class="w75">${labels.scale_id_number}</th>
-                    <th v-if="!isElectro" class="w75">${labels.tags_removed}</th>
                     <th class="w75">${labels.notes}</th>
                   </tr>
                   </thead>
@@ -260,19 +259,6 @@
                       />
                     </td>
 
-                    <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o, 'status')">${o.tags_removed|nz}</td>
-                    <td v-else-if="!isElectro">
-                      <input
-                        type="text" class="table-input p-0"
-                        v-model="observation.tags_removed"
-                        @change="updateObservation(false, o)"
-                        @focus="lastSelectedInputRef = 'tags_removed'"
-                        :ref="`tags_removed_${o.id}`"
-                        @keyup.enter="moveDown"
-
-                      />
-                    </td>
-
                     <td v-if="observation.id !== o.id" @click="editObservation(o, 'status')">${o.notes|nz}</td>
                     <td v-else>
                       <input
@@ -390,7 +376,6 @@
         'location_tagged',
         'date_tagged',
         'scale_id_number',
-        'tags_removed',
         'notes',
       ]
     },

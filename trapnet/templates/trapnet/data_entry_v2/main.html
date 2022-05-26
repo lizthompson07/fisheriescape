@@ -100,7 +100,6 @@
                     <th class="header w75">${labels.sex}</th>
                     <th v-if="!isElectro" class="w75">${labels.tag_number}</th>
                     <th class="w100px">${labels.scale_id_number}</th>
-                    <th v-if="!isElectro" class="w75">${labels.tags_removed}</th>
                     <th class="">${labels.notes}</th>
                     <th class="w50px"></th>
                   </tr>
@@ -254,18 +253,6 @@
                         :ref="`scale_id_number_${o.id}`"
                       />
                     </td>
-
-                    <td v-if="!isElectro && !o.edit">${o.tags_removed|nz}</td>
-                    <td v-else-if="!isElectro">
-                      <input
-                        type="text" class="table-input p-0"
-                        v-model="o.tags_removed"
-                        @change="updateObservation(o)"
-                        @focus="updateLastSelected('tags_removed')"
-                        :ref="`tags_removed_${o.id}`"
-                      />
-                    </td>
-
                     <td v-if="!o.edit">${o.notes|nz}</td>
                     <td v-else>
                       <input
@@ -374,7 +361,6 @@
         'weight',
         'sex',
         'scale_id_number',
-        'tags_removed',
         'notes',
       ]
     },

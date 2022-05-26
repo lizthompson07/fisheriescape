@@ -105,6 +105,7 @@ urlpatterns = [
     path('reports/opendata1/dictionary/', views.export_open_data_ver1_dictionary, name="od1_dictionary"),
     path('reports/opendata1/species-list/', views.export_spp_list, name="od_spp_list"),
     path('reports/opendata/wms/lang/<int:lang>/', views.export_open_data_ver1_wms, name="od1_wms"),
+    path('reports/observations/v1/', views.export_obs_data_v1, name="export_obs_data_v1"),
 
     #electro
     path('reports/electrofishing/juv_salmon_report/', views.electro_juv_salmon_report, name="electro_juv_salmon_report"),

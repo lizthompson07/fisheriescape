@@ -140,6 +140,7 @@ class ReportSearchForm(forms.Form):
         (1, "sample data export (csv)"),
         (2, "sweep data export (csv)"),
         (3, "observation data export (csv)"),
+        (4, "Atlantic salmon individual observation event report (csv)"),
 
         (None, ""),
         (None, "ELECTROFISHING"),
