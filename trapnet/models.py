@@ -228,6 +228,10 @@ class Sample(MetadataFields):
     reviewed_at = models.DateTimeField(blank=True, null=True, editable=False)
 
     @property
+    def julian_day(self):
+        return self.arrival_date.timetuple().tm_yday
+
+    @property
     def reviewed_status(self):
         if not self.is_reviewed:
             return gettext("Not reviewed")
@@ -572,9 +576,13 @@ class Observation(MetadataFields):
         ordering = ["sample__arrival_date"]
 
     @property
+    def is_recapture(self):
+        return self.status and self.status.code.lower() in ["rr", "rrl"]
+
+    @property
     def first_tagging(self):
-        if self.tag_number and self.status.code.lower() in ["rr", "rrl"]:
-            first_obs_qs = Observation.objects.fitler(~Q(id=self.id)).filter(tag_number=self.tag_number)
+        if self.tag_number and self.is_recapture:
+            first_obs_qs = Observation.objects.filter(~Q(id=self.id)).filter(tag_number=self.tag_number)
             if first_obs_qs.exists():
                 return first_obs_qs.first()
 

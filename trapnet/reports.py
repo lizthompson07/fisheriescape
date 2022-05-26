@@ -133,6 +133,7 @@ def generate_obs_csv_v1(qs):
         "Smolt age",
         "Scale_ID",
         "JULIAN_DAY",
+        "ORDINAL_DAY",
         "First_Tag_location",
         "First_Tag_Day",
         "DAYS_AFTER_RT",
@@ -144,9 +145,20 @@ def generate_obs_csv_v1(qs):
 
     for obj in qs:
 
-        first_tag_location = ""
-        first_tag_day = ""
-        days_after_rt = ""
+        first_tag_location = "NA"
+        first_tag_day = "NA"
+        days_after_rt = "NA"
+
+        if obj.is_recapture:
+            if obj.first_tagging:
+                first_tag_location = obj.first_tagging.sample.site
+                first_tag_day = obj.first_tagging.sample.arrival_date.strftime("%Y-%m-%d")
+                days_after_rt = obj.sample.arrival_date.toordinal() - obj.first_tagging.sample.arrival_date.toordinal()
+            else:
+                first_tag_location = "cannot find record of first tagging"
+                first_tag_day = "cannot find record of first tagging"
+                days_after_rt = "cannot find record of first tagging"
+
 
         data_row = [
             obj.sample.site.river,
@@ -157,15 +169,16 @@ def generate_obs_csv_v1(qs):
             get_timezone_time(obj.sample.departure_date).strftime("%H:%M"),
             f"{obj.species} ({obj.life_stage})",
             obj.tag_number,
-            obj.status,
-            obj.origin,
-            obj.length if obj.length_type == 1 else "",
-            obj.length if obj.length_type == 2 else "",
+            obj.status.code if obj.status else "NA",
+            obj.origin.code if obj.origin else "NA",
+            obj.length if obj.length_type == 1 else "NA",
+            obj.length if obj.length_type == 2 else "NA",
             obj.weight,
-            obj.sex,
+            obj.sex.code if obj.sex else "NA",
             obj.river_age,
             obj.scale_id_number,
-            obj.sample.arrival_date.timetuple().tm_yday,
+            obj.sample.julian_day,
+            obj.sample.arrival_date.toordinal(),
             obj.river_age,
             first_tag_location,
             first_tag_day,
