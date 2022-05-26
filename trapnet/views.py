@@ -874,6 +874,7 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
 
         report = int(form.cleaned_data["report"])
         year = form.cleaned_data["year"] if form.cleaned_data["year"] else ""
+        sample_type = form.cleaned_data["sample_type"] if form.cleaned_data["sample_type"] else ""
         fishing_areas = listrify(form.cleaned_data["fishing_areas"]) if len(form.cleaned_data["fishing_areas"]) > 0 else ""
         rivers = listrify(form.cleaned_data["rivers"]) if len(form.cleaned_data["rivers"]) > 0 else ""
         sites = listrify(form.cleaned_data["sites"]) if len(form.cleaned_data["sites"]) > 0 else ""
@@ -886,7 +887,7 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
         elif report == 3:
             return HttpResponseRedirect(reverse("trapnet:obs_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
         elif report == 4:
-            return HttpResponseRedirect(reverse("trapnet:export_obs_data_v1") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
+            return HttpResponseRedirect(reverse("trapnet:export_obs_data_v1") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
 
         # electrofishing
         elif report == 10:
@@ -954,6 +955,7 @@ def export_obs_data(request):
 def export_obs_data_v1(request):
     year = request.GET.get("year")
     fishing_areas = request.GET.get("fishing_areas")
+    sample_type = request.GET.get("sample_type")
     rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
 
@@ -962,6 +964,8 @@ def export_obs_data_v1(request):
         filter_kwargs["sample__season"] = year
     if fishing_areas != "":
         filter_kwargs["sample__site__river__fishing_area_id__in"] = fishing_areas.split(",")
+    if sample_type != "":
+        filter_kwargs["sample__sample_type"] = sample_type
     if rivers != "":
         filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
     if sites != "":

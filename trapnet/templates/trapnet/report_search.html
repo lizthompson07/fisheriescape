@@ -53,7 +53,7 @@
     $(".rivers_div").hide();
     $(".year_div").hide();
     $(".fishing_areas_div").hide();
-
+    $(".sample_type_div").hide();
     $("#id_report").prop('required', true);
 
   }
@@ -66,6 +66,7 @@
       $(".rivers_div").show();
       $(".year_div").show();
       $(".fishing_areas_div").show();
+      $(".sample_type_div").show();
       $("#id_sites").multiSelect();
       $("#id_rivers").multiSelect();
       if (reportChoice === '3') {
