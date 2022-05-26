@@ -159,7 +159,6 @@ def generate_obs_csv_v1(qs):
                 first_tag_day = "cannot find record of first tagging"
                 days_after_rt = "cannot find record of first tagging"
 
-
         data_row = [
             obj.sample.site.river,
             obj.sample.arrival_date.year,
@@ -168,18 +167,17 @@ def generate_obs_csv_v1(qs):
             get_timezone_time(obj.sample.arrival_date).strftime("%H:%M"),
             get_timezone_time(obj.sample.departure_date).strftime("%H:%M"),
             f"{obj.species} ({obj.life_stage})",
-            obj.tag_number,
+            nz(obj.tag_number, "NA"),
             obj.status.code if obj.status else "NA",
             obj.origin.code if obj.origin else "NA",
             obj.length if obj.length_type == 1 else "NA",
             obj.length if obj.length_type == 2 else "NA",
-            obj.weight,
+            nz(obj.weight, "NA"),
             obj.sex.code if obj.sex else "NA",
-            obj.river_age,
-            obj.scale_id_number,
-            obj.sample.julian_day,
+            nz(obj.river_age, "NA"),
+            nz(obj.scale_id_number, "NA"),
+            nz(obj.sample.julian_day, "NA"),
             obj.sample.arrival_date.toordinal(),
-            obj.river_age,
             first_tag_location,
             first_tag_day,
             days_after_rt,
