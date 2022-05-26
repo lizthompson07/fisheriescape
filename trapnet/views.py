@@ -955,7 +955,7 @@ def export_obs_data_v1(request):
     rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
 
-    filter_kwargs = {"species__scientific_name__iexact": "salmo salar"}
+    filter_kwargs = {"species__scientific_name__iexact": "salmo salar", "life_stage__name__iexact": "smolt"}
     if year != "":
         filter_kwargs["sample__season"] = year
     if fishing_areas != "":
