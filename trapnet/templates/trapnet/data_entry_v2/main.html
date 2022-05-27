@@ -89,6 +89,7 @@
                   <thead style="position: sticky;top: 0">
                   <tr class="my-3">
                     <th class="header w25px">#</th>
+                    <th class="header w150"><span class="text-primary pointy" @click="sort('id')">{% trans "Id" %}</span></th>
                     <th class="header w150">${labels.species}</th>
                     <th class="header w200">${labels.status}</th>
                     <th class="header w125px">${labels.life_stage}</th>
@@ -98,7 +99,7 @@
                     <th class="header w100px">${labels.length_type}</th>
                     <th class="w75">${labels.weight}</th>
                     <th class="header w75">${labels.sex}</th>
-                    <th v-if="!isElectro" class="w75">${labels.tag_number}</th>
+                    <th v-if="!isElectro" class="w75"><span class="text-primary pointy" @click="sort('tag_number')">${labels.tag_number}</span></th>
                     <th class="w100px">${labels.scale_id_number}</th>
                     <th class="">${labels.notes}</th>
                     <th class="w50px"></th>
@@ -106,7 +107,7 @@
                   </thead>
                   <tbody>
                   <tr
-                    v-for="o, index in observations"
+                    v-for="o, index in sortedObservations"
                     :key="o.id"
                     :class="{'mild-concern':o.edit}"
                     @keyup.esc="updateObservation(o, true)"
@@ -118,6 +119,7 @@
                     @click="editObservation(o)"
                   >
                     <td>${index+1}</td>
+                    <td>${o.id}</td>
                     <td v-if="!o.edit">${o.species_display|nz}</td>
                     <td v-else>
                       <select
@@ -362,9 +364,16 @@
         'sex',
         'scale_id_number',
         'notes',
-      ]
+      ],
+      currentSort: 'id',
+      currentSortDir: 'asc'
     },
     methods: {
+      sort(s) {
+        // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
+        if (s === this.currentSort) this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
+        this.currentSort = s;
+      },
       updateLastSelected(ref) {
         this.memory.lastSelectedInputRef = ref;
       },
@@ -393,8 +402,6 @@
           this.moveUp(obs);
         }
       },
-
-
       moveUp(obs) {
         // if there is no current observation, take the top from the list
         let index = this.observations.indexOf(obs) - 1;
@@ -442,17 +449,7 @@
           else el.select();
         })
       },
-      //addMultiple(instructions) {
-      //  const templateObservation = JSON.parse(JSON.stringify(this.observation));
-      //  for (var i = 0; i < instructions.totalObservations; i++) {
-      //    this.observation = JSON.parse(JSON.stringify(templateObservation));
-      //    this.observation.date_tagged = this.observation.date_tagged_display
-      //    if (instructions.shouldIncrement && instructions.tagPrefix !== null && instructions.startTagNumber) {
-      //      this.observation.tag_number = instructions.tagPrefix + String(i + instructions.startTagNumber).padStart(instructions.padding, "0")
-      //    }
-      //    this.updateObservation(true);
-      //  }
-      //},
+
       cleanObservation(obs) {
         for (const observationKey in obs) if (obs[observationKey] === "") obs[observationKey] = null;
         if (obs.date_tagged_display) obs.date_tagged = `${obs.date_tagged_display}T12:00`;
@@ -471,7 +468,7 @@
                 this.memory.lastStatus = response.status;
                 this.memory.lastOrigin = response.origin;
                 this.memory.lastLocation = response.location_tagged;
-                this.getObservations();
+                this.observations.push(response);
               }
             })
       },
@@ -528,6 +525,22 @@
       },
     },
     computed: {
+
+      sortedObservations() {
+        return this.observations.sort((a, b) => {
+          let modifier = 1;
+          if (this.currentSortDir === 'desc') modifier = -1;
+          if (this.currentSort === "id") {
+            if (a.id < b.id) return -1 * modifier;
+            if (a.id > b.id) return modifier;
+          } else if (this.currentSort === "tag_number") {
+            if (a.tag_number < b.tag_number) return -1 * modifier;
+            if (a.tag_number > b.tag_number) return modifier;
+          }
+          return 0;
+        });
+      },
+
       isLoading() {
         for (const loadingKey in this.loading) {
           if (!this.loading[loadingKey]) return false;
