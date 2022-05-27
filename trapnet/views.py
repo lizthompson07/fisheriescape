@@ -431,7 +431,7 @@ class RiverSiteDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
 class SampleListView(TrapNetBasicMixin, CommonFilterView):
     model = models.Sample
     filterset_class = filters.SampleFilter
-    template_name = 'trapnet/list.html'
+    template_name = 'trapnet/sample_list.html'
     queryset = models.Sample.objects.filter(site__exclude_data_from_site=False)
     new_object_url_name = "trapnet:sample_new"
     row_object_url_name = "trapnet:sample_detail"

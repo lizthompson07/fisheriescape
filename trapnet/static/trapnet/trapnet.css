@@ -61,9 +61,10 @@ h1 {
 
 
 .toolbar {
-    background-color: #dfd2f6;
+    background-color: #eae9e9;
     border: #4c4c4c 1px solid;
-    border-radius: 10px;
+    border-radius: 5px;
+    padding: 15px;
 }
 
 .toolbar2 {
