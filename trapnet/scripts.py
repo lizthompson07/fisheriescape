@@ -722,6 +722,37 @@ def import_smolt_ages():
                         if qs0.count() == freq:
                             break
                         i += 1
+                else:
+                    species = int(row["species"])
+                    life_stage_id = row["life_stage_id"]
+                    if species == 79 and life_stage_id == "1":
+                        qs = models.Observation.objects.filter(
+                            sample__site=site,
+                            sample__arrival_date=arrival_date,
+                            tag_number__isnull=True,
+                            status__code__iexact="r",
+                            river_age__isnull=True,
+                            notes__icontains=row["Comments"],
+                        )
+                        if qs.count() == 1:
+                            obs = qs.first()
+                            obs.river_age = row['Smolt.Age']
+                            obs.save()
+                    if species == 79 and life_stage_id == "2":
+                        qs = models.Observation.objects.filter(
+                            sample__site=site,
+                            sample__arrival_date=arrival_date,
+                            tag_number__isnull=True,
+                            status__code__iexact=row["Status"],
+                            river_age__isnull=True,
+                            # notes__icontains=row["Comments"],
+                            fork_length=row["ForkLength"]
+                        )
+                        if qs.count() == 1:
+                            obs = qs.first()
+                            obs.river_age = row['Smolt.Age']
+                            obs.save()
+
 
             # # deal with arrival and departure dts
             #
