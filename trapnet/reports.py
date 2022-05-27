@@ -137,6 +137,7 @@ def generate_obs_csv_v1(qs):
         "First_Tag_location",
         "First_Tag_Day",
         "DAYS_AFTER_RT",
+        "FishID",
     ]
 
     pseudo_buffer = Echo()
@@ -181,6 +182,7 @@ def generate_obs_csv_v1(qs):
             first_tag_location,
             first_tag_day,
             days_after_rt,
+            obj.id,
         ]
         yield writer.writerow(data_row)
 
