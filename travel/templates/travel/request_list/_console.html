@@ -60,6 +60,19 @@
           </select>
         </div>
 
+        {# Branch #}
+        <div class="col">
+          <label class="filter" for="filter_branch">{% trans "Branch" %}</label>
+          <select
+            v-model="filter_branch"
+            @change="updateResults"
+            class="form-control form-control-sm" id="filter_branch"
+          >
+            <option value="">{% trans "all" %}</option>
+            <option v-for="(obj, index) in branches" :value="obj.id">${obj.name}</option>
+          </select>
+        </div>
+
         {# Division #}
         <div class="col">
           <label class="filter" for="filter_division">{% trans "Division" %}</label>

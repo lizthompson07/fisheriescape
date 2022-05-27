@@ -19,9 +19,10 @@
     </span>
     <span v-else-if="travellerToEdit.id">{% trans "Traveller: " %} ${travellerToEdit.smart_name}</span>
     <span v-else>{% trans "New Traveller" %}</span>
-    <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
+    <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline pointy" data-toggle="popover"
           data-trigger="click" title="{% trans "Travellers" %}"
-          :data-content="helpText.travellers_header"></span>
+          :data-content="helpText.travellers_header"
+    ></span>
   </h3>
   <div class="card-body">
     <div class="card-text">
@@ -41,22 +42,36 @@
                 <div class="card-body">
                   <div class="float-right mb-1">
                     <span v-if="trip && !t.show_me" :class="t.request_obj.status_class + ' px-1 py-1 mr-3 h6'">${t.request_obj.status_display}</span>
-                    <button class="btn btn-sm btn-outline-dark" v-if="!isReview && canModify && !trip && !t.show_me" @click="editTraveller(t)"><span
+                    <button class="btn btn-sm btn-outline-dark"
+                            v-if="canModify && !t.show_me"
+                            @click="editTraveller(t)"><span
                       class="mdi mdi-pencil h4"
                       data-toggle="tooltip"
                       title="{% trans "Edit" %}"></span></button>
+
                     <button class="btn btn-sm btn-outline-dark" v-if="!isReview && canModify && !trip && !t.show_me" @click="addTraveller(t)"><span
                       class="mdi mdi-content-copy h4"
                       data-toggle="tooltip"
                       title="{% trans "Clone" %}"></span></button>
-                    <button class="btn btn-sm btn-outline-dark" v-if="canModify && !t.show_me" @click="deleteTraveller(t)"><span class="mdi mdi-delete h4"
-                                                                                                                     data-toggle="tooltip"
-                                                                                                                     title="{% trans "Remove" %}"></span>
+
+                    <button
+                      class="btn btn-sm btn-outline-dark"
+                      v-if="canModify && !t.show_me"
+                      @click="deleteTraveller(t)"
+                    >
+                      <span class="mdi mdi-delete h4" data-toggle="tooltip" title="{% trans "Remove" %}"></span>
                     </button>
-                    <button class="btn btn-sm btn-outline-dark" v-if="canCherryPick(t) && !t.show_me" @click="cherryPickTraveller(t)"><span
-                      class="mdi mdi-check-circle text-success h4"
-                      data-toggle="tooltip"
-                      title="{% trans "Cherry Pick" %}"></span></button>
+
+                    <button
+                      class="btn btn-sm btn-outline-dark"
+                      v-if="isReview && t.request_obj.can_cherry_pick && !t.show_me && (!request || request.travellers.length > 1)"
+                      @click="cherryPickTraveller(t)">
+                        <span
+                          class="mdi mdi-check-circle text-success h4"
+                          data-toggle="tooltip"
+                          title="{% trans "Cherry Pick" %}"
+                        ></span>
+                    </button>
 
                     <button class="btn btn-sm btn-outline-dark" v-if="!t.show_me" @click="toggleShowMe(t)" data-toggle="tooltip" title="{% trans "Expand" %}">
                       <span class="mdi mdi-arrow-collapse-down h4"></span>
@@ -89,17 +104,22 @@
 
                     <div class="mt-5">
                       <div class="float-right">
-                        <button v-if="t.show_me" @click="toggleShowMe(t)" data-toggle="tooltip" title="{% trans "Collapse" %}" class="btn btn-sm btn-outline-dark ml-3" >
+                        <button v-if="t.show_me" @click="toggleShowMe(t)" data-toggle="tooltip" title="{% trans "Collapse" %}"
+                                class="btn btn-sm btn-outline-dark ml-3">
                           <span class="mdi mdi-arrow-collapse-up h4"></span>
                         </button>
                       </div>
                       <a v-if="trip || isReview" class="btn btn-sm btn-primary" :href="`/travel-plans/requests/${t.request_obj.id}/view/`" target="_blank">
                         {% trans "Open Request in Separate Window" %}
                       </a>
-                      <button v-if="!isReview && canModify && !trip" @click="editTraveller(t)" class="btn btn-sm btn-warning">{% trans "Edit" %}</button>
+                      <button v-if="canModify" @click="editTraveller(t)" class="btn btn-sm btn-warning">{% trans "Edit" %}</button>
                       <button v-if="!isReview && canModify && !trip" @click="addTraveller(t)" class="btn btn-sm btn-dark">{% trans "Clone" %}</button>
                       <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove" %}</button>
-                      <button v-if="canCherryPick(t)" @click="cherryPickTraveller(t)" class="btn btn-sm btn-success">{% trans "Cherry Pick Approval" %}</button>
+                      <button
+                        v-if="isReview && t.request_obj.can_cherry_pick && (!request || request.travellers.length > 1)"
+                        @click="cherryPickTraveller(t)"
+                        class="btn btn-sm btn-success"
+                      >{% trans "Cherry Pick Approval" %}</button>
                     </div>
                   </div>
                 </div>
@@ -219,7 +239,7 @@
                 </label>
                 <input type="text" v-model="travellerToEdit.company_name" class="form-control form-control-sm" required>
               </div>
-              <div class="form-group" v-if="request.id && !request.trip.is_virtual">
+              <div class="form-group" v-if="request && request.id && !request.trip.is_virtual">
                 <label for="">
                   ${travellerLabels.departure_location}
                   <span v-if="helpText.departure_location" @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
@@ -306,7 +326,11 @@
               </div>
 
               <div class="float-right">
-                <button type="submit" class="btn btn-sm btn-success text-light">{% trans "Next" %}</button>
+                <button type="submit" class="btn btn-sm btn-success text-light">
+                  <span v-if="trip">{% trans "Save" %}</span>
+                  <span v-else>{% trans "Next" %}</span>
+
+                </button>
                 <button type="button" @click="cancelTravellerEdit" class="btn btn-sm btn-secondary text-light">{% trans "Cancel" %}</button>
               </div>
               <div v-if="errorMsgTraveller" class="alert alert-danger py-1 mt-3" role="alert" style="width: 80%">

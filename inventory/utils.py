@@ -23,7 +23,9 @@ def is_custodian(user, resource):
     if user.id:
         # if the user has no associated Person in the app, automatic fail
         try:
-            person = get_object_or_404(models.Person, user=user)
+            person, created = models.Person.objects.get_or_create(user=user)
+            if created:
+                print("creating person!!")
         except ObjectDoesNotExist:
             return False
         else:

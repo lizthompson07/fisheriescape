@@ -120,19 +120,20 @@
       </div>
 
       {# status #}
+      <label class="text-muted small" for="filter.status">{% trans "Status" %}</label>
       <div class="form-group">
-
-        <label class="text-muted small" for="filter.status">{% trans "Status" %}</label>
-        <select
-          v-model="filter.status"
-          @change="updateResults"
-          class="form-control form-control-sm" id="filter.status"
+        <v-select
+          v-model="filter.statuses"
+          @input="updateResults"
+          style="border-color: white"
+          id="filter.statuses"
+          :options="statuses"
+          label="text"
+          :reduce="choice => choice.value"
+          :clearable="true"
+          multiple
         >
-          <option value selected>{% trans "all" %}</option>
-          {% for status in status_choices %}
-            <option value="{{ status.value }}">{{ status.label }}</option>
-          {% endfor %}
-        </select>
+        </v-select>
       </div>
 
       {#  ADVANCED FILTERS  #}
@@ -355,6 +356,22 @@
           >
             <option value selected>{% trans "all" %}</option>
             {% for cat in om_cost_categories %}
+              <option value="{{ cat.value }}">{{ cat.label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# activity type #}
+        <div class="form-group">
+
+          <label class="text-muted small" for="filter.om_cost_category">{% trans "Activity type" %}</label>
+          <select
+            v-model="filter.activity_type"
+            @change="updateResults"
+            class="form-control form-control-sm" id="filter.activity_type"
+          >
+            <option value selected>{% trans "all" %}</option>
+            {% for cat in activity_types %}
               <option value="{{ cat.value }}">{{ cat.label }}</option>
             {% endfor %}
           </select>

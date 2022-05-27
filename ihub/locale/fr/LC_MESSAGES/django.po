@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iHub - traduction 2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-28 13:22-0400\n"
+"POT-Creation-Date: 2022-05-25 12:50-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -280,7 +280,7 @@ msgstr "Financement demandé"
 msgid "DFO Contacts"
 msgstr "Contact au MPO"
 
-#: .\ihub\reports.py:293 .\ihub\templates\ihub\_instructions.html:130
+#: .\ihub\reports.py:293 .\ihub\templates\ihub\_instructions.html:138
 #: .\ihub\templates\ihub\_members.html:25
 #: .\ihub\templates\ihub\organization_detail.html:71
 msgid "Notes"
@@ -352,39 +352,39 @@ msgstr "Créer des instructions"
 msgid "Edit Instructions"
 msgstr "Éditer les instructions"
 
-#: .\ihub\templates\ihub\_instructions.html:25
+#: .\ihub\templates\ihub\_instructions.html:33
 msgid "Consultation Instructions:"
 msgstr "Instructions de consultation:"
 
-#: .\ihub\templates\ihub\_instructions.html:32
+#: .\ihub\templates\ihub\_instructions.html:40
 msgid "There are no consultation instructions available for this organization"
 msgstr "Il n'y a pas d'instruction de consultation pour cette organisation"
 
-#: .\ihub\templates\ihub\_instructions.html:41
+#: .\ihub\templates\ihub\_instructions.html:49
 msgid "Address Letter To"
 msgstr "Envoyer une lettre papier à"
 
-#: .\ihub\templates\ihub\_instructions.html:49
+#: .\ihub\templates\ihub\_instructions.html:57
 msgid "Cc (on Bottom of Letter)"
 msgstr "Mettre en Cc (dans le bas de la lettre) :"
 
-#: .\ihub\templates\ihub\_instructions.html:57
+#: .\ihub\templates\ihub\_instructions.html:65
 msgid "Paper Copy"
 msgstr "Copie papier"
 
-#: .\ihub\templates\ihub\_instructions.html:66
+#: .\ihub\templates\ihub\_instructions.html:74
 msgid "Email \"To\" Recipients"
 msgstr "Envoyer courriel à"
 
-#: .\ihub\templates\ihub\_instructions.html:88
+#: .\ihub\templates\ihub\_instructions.html:96
 msgid "Email \"Cc\" Recipients"
 msgstr "Mettre le courriel en C.c. à"
 
-#: .\ihub\templates\ihub\_instructions.html:109
+#: .\ihub\templates\ihub\_instructions.html:117
 msgid "Email \"Cc\" Recipients (Commercial Only)"
 msgstr "Mettre en C.c. (commercial seulement)"
 
-#: .\ihub\templates\ihub\_instructions.html:138
+#: .\ihub\templates\ihub\_instructions.html:146
 msgid "Metadata"
 msgstr "Métadonnées"
 
@@ -666,7 +666,7 @@ msgstr "(Ouvrira dans un onglet séparé)"
 msgid "This contact is not part of any organizations"
 msgstr "Cette personne ne fait partie d'aucune organisation"
 
-#: .\ihub\templates\ihub\report_consultation_instructions.html:174
+#: .\ihub\templates\ihub\report_consultation_instructions.html:173
 #, python-format
 msgid ""
 "\n"
