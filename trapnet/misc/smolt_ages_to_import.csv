@@ -1,16 +1,4 @@
 id,River,Year,Month,Day,Time.Start,Time.Released,Species,species,life_stage_id,Status,Origin,Freq,ForkLength,Total.Length,Weight,Sex,Smolt.Age,Location.Tagged,Date.Tagged,Scale ID Number,tags removed,Comments
-9772,337,2003,6,17,11:00,,1731,79,1,R,,1,,,,,0,,,,,First live alevin with egg sac attached.
-10116,337,2003,6,23,16:30,,1731,79,1,R,,1,,,,,0,,,,,Alevins too many to count scattered in the debris.
-10150,337,2003,6,25,19:45,,1731,79,1,R,,1,,,,,0,,,,,Put wheel up for finish of season.  Hundreds of alevins in the debris.
-12631,334,2004,5,20,8:45,10:20,1732,79,2,MZ,,1,110,121,11.2,F,3,,,,,
-12632,334,2004,5,20,8:45,10:20,1732,79,2,MZ,,1,111,121,13.1,F,3,,,,,
-12633,334,2004,5,20,8:45,10:20,1732,79,2,MZ,,1,112,123,14.8,F,3,,,,,
-12634,334,2004,5,20,8:45,10:20,1732,79,2,MZ,,1,120,132,15.9,F,3,,,,,
-12635,334,2004,5,20,8:45,10:20,1732,79,2,MZ,,1,130,140,19.8,F,3,,,,,
-56616,336,2012,5,24,9:10,10:50,1732,79,2,RS,,1,138,150,,,3,,,,,"Adipose clipped Smolt measured, scales taken and released downstream of wheel.  Pictures on camera # 90 and 91 from May 24th, 2012 at 9:13am."
-62549,336,2014,6,6,9:10,11:00,1732,79,2,R,,1,205,,,,4,,,,,"1 Smolt >128 mm held for ASF research(205 mm!, scales taken).  Daily Smolt Total 4 Grand Total 849"
-38164,333,2008,5,27,9:15,12:00,1751,24,,MZ,,1,131,141,23.8,F,3,,,,,rainbow trout
-41763,333,2008,6,14,9:10,9:30,1751,24,,MZ,,1,132,143,24.5,M,3,,,,,
 12636,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,183,7.3,,3,,,,,sample for D.Cairns-change length to mm
 12637,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,185,7.3,,3,,,,,sample for D.Cairns-change length to mm
 12638,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,185,7.4,,3,,,,,sample for D.Cairns-change length to mm

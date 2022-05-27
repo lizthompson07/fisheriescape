@@ -753,96 +753,32 @@ def import_smolt_ages():
                             obs.river_age = row['Smolt.Age']
                             obs.save()
 
-
-            # # deal with arrival and departure dts
-            #
-            # if raw_arrival_time and "&" in raw_arrival_time:
-            #     raw_arrival_time = raw_arrival_time.split("&")[0].strip()
-            # if raw_arrival_time and ":" in raw_arrival_time:
-            #     hour = raw_arrival_time.split(":")[0]
-            #     min = raw_arrival_time.split(":")[1]
-            # else:
-            #     hour = "12"
-            #     min = "00"
-            #     comment = add_comment(comment, "Import data did not contain arrival time")
-            # arrival_dt_string = f'{row["Year"]}-{row["Month"]}-{row["Day"]} {hour}:{min}'
-            # arrival_date = make_aware(datetime.datetime.strptime(arrival_dt_string, "%Y-%m-%d %H:%M"), timezone=pytz.timezone("Canada/Atlantic"))
-            #
-            # # check to see if there is a direct hit using only year, month, day
-            # samples = models.Sample.objects.filter(
-            #     site=site,
-            #     sample_type=1,
-            #     arrival_date__year=arrival_date.year,
-            #     arrival_date__month=arrival_date.month,
-            #     arrival_date__day=arrival_date.day,
-            # )
-            #
-            # if samples.count() == 0:
-            #     print("big problem for obs id={}. no sample found for site={}, date={}/{}/{}".format(
-            #         row["id"],
-            #         site,
-            #         row["Year"],
-            #         row["Month"],
-            #         row["Day"],
-            #     ))
-            #
-            # elif samples.count() > 1:
-            #     print("small problem for obs id={}. multiple samples found for site={}, date={}/{}/{}".format(
-            #         row["id"],
-            #         site,
-            #         row["Year"],
-            #         row["Month"],
-            #         row["Day"],
-            #     ))
-            #     for s in samples:
-            #         print(s.arrival_date, row["Time.Start"])
-            #     print("going to put all observations in the first sample")
-            # if samples.exists():
-            #     # there has been  1 or more hits and we can create the observation in the db
-            #     my_obs, created = models.Entry.objects.get_or_create(
-            #         id=int(row["id"]),
-            #     )
-            #     if created:
-            #         # if there is either a date or location tagged, we will put this in the notes. We discussed this with guillaume to drop this field
-            #         location_tagged = nz(row["Location.Tagged"].strip(), None) if row["Location.Tagged"] else None
-            #         if location_tagged:
-            #             add_comment(comment, f"location tagged: {location_tagged}")
-            #
-            #         date_tagged = nz(row["Date.Tagged"].strip(), None) if row["Date.Tagged"] else None
-            #         if date_tagged:
-            #             add_comment(comment, f"date tagged: {date_tagged}")
-            #
-            #         try:
-            #             species = models.Species.objects.get(code__iexact=row["Species"]) if row["Species"] else None
-            #             status = models.Status.objects.get(code__iexact=row["Status"]) if row["Status"] else None
-            #             origin = models.Origin.objects.get(code__iexact=row["Origin"]) if row["Origin"] else None
-            #             sex = models.Sex.objects.get(code__iexact=row["Sex"]) if row["Sex"] else None
-            #         except Exception as E:
-            #             print(E)
-            #             print(
-            #                 f'Species={row["Species"]} Status={row["Status"]} '
-            #                 f'Origin={row["Origin"]} Sex={row["Sex"]}'
-            #             )
-            #         my_obs.species = species
-            #         my_obs.sample = samples.first()
-            #         my_obs.first_tag = row["First.Tag"].strip() if row["First.Tag"] else None
-            #         my_obs.last_tag = row["Last.Tag"].strip() if row["Last.Tag"] else None
-            #         my_obs.status = status
-            #         my_obs.origin = origin
-            #         my_obs.frequency = row["Freq"].strip() if row["Freq"] else None
-            #         my_obs.fork_length = row["ForkLength"].strip() if row["ForkLength"] else None
-            #         my_obs.total_length = row["Total.Length"].strip() if row["Total.Length"] else None
-            #         my_obs.weight = row["Weight"].strip() if row["Weight"] else None
-            #         my_obs.sex = sex
-            #         my_obs.smolt_age = row["Smolt.Age"].strip() if row["Smolt.Age"] else None
-            #         my_obs.scale_id_number = row["Scale ID Number"].strip() if row["Scale ID Number"] else None
-            #         my_obs.tags_removed = row["tags removed"].strip() if row["tags removed"] else None
-            #         my_obs.notes = row["Comments"].strip() if row["Comments"] else None
-            #
-            #         try:
-            #             my_obs.save()
-            #         except Exception as e:
-            #             print(e)
-            #             print(my_obs.id)
-            #
-            # i += 1
+                    if species == 24:
+                        qs = models.Observation.objects.filter(
+                            sample__site=site,
+                            sample__arrival_date=arrival_date,
+                            tag_number__isnull=True,
+                            status__code__iexact=row["Status"],
+                            river_age__isnull=True,
+                            fork_length=row["ForkLength"]
+                        )
+                        print(qs.count())
+                        if qs.count() == 1:
+                            obs = qs.first()
+                            obs.river_age = row['Smolt.Age']
+                            obs.save()
+                    elif species == 54:
+                        qs = models.Observation.objects.filter(
+                            sample__site=site,
+                            sample__arrival_date=arrival_date,
+                            tag_number__isnull=True,
+                            status__code__iexact=row["Status"],
+                            river_age__isnull=True,
+                            total_length=row["Total.Length"],
+                            weight=row["Weight"],
+                            notes__icontains=row["Comments"],
+                        )
+                        if qs.count() == 1:
+                            obs = qs.first()
+                            obs.river_age = row['Smolt.Age']
+                            obs.save()
