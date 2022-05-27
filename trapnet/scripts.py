@@ -625,11 +625,11 @@ def delete_tags_removed():
             # if the observation tag number is not the same length as the reference tag number, we'll have to do some surgery
             if not digits == len(obs.tag_number):
                 # print(obs.tag_number, "does not conform to the format of tags removed:", removed_tags)
-                pos = len(obs.tag_number)-1
+                pos = len(obs.tag_number) - 1
                 new_tag = f"{obs.tag_number[0]}0{obs.tag_number[-pos:]}"
                 if not digits == len(new_tag):
                     # try adding another zero
-                    pos = len(new_tag)-1
+                    pos = len(new_tag) - 1
                     new_tag = f"{new_tag[0]}0{new_tag[-pos:]}"
                     if not digits == len(new_tag):
                         # try adding another zero
@@ -650,15 +650,12 @@ def delete_tags_removed():
                 obs.delete()
 
 
-
-
 def import_smolt_ages():
     # open the csv we want to read
     my_target_data_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'smolt_ages_to_import.csv')
     with open(os.path.join(my_target_data_file), 'r') as csv_read_file:
 
         my_csv = csv.DictReader(csv_read_file)
-        i = 1
         for row in my_csv:
             scale_id = row["Scale ID Number"].strip()
             qs = models.Observation.objects.filter(scale_id_number=scale_id)
@@ -674,9 +671,59 @@ def import_smolt_ages():
                     obs = qs.first()
                     obs.river_age = row['Smolt.Age']
                     obs.save()
+            else:
+                # let's deal with the ones with multiple frequencies
+                freq = int(row["Freq"])
+                raw_arrival_time = row["Time.Start"]
+                raw_departure_time = row["Time.Released"]
+                if raw_arrival_time and ":" in raw_arrival_time:
+                    hour = raw_arrival_time.split(":")[0]
+                    min = raw_arrival_time.split(":")[1]
+                else:
+                    hour = "12"
+                    min = "00"
+                    comment = add_comment(comment, "Import data did not contain arrival time")
+                arrival_dt_string = f'{row["Year"]}-{row["Month"]}-{row["Day"]} {hour}:{min}'
+                if raw_departure_time and ":" in raw_departure_time:
+                    hour = raw_departure_time.split(":")[0]
+                    min = raw_departure_time.split(":")[1]
+                else:
+                    hour = "12"
+                    min = "00"
+                departure_dt_string = f'{row["Year"]}-{row["Month"]}-{row["Day"]} {hour}:{min}'
+                arrival_date = make_aware(datetime.datetime.strptime(arrival_dt_string, "%Y-%m-%d %H:%M"), timezone=pytz.timezone("Canada/Atlantic"))
+                departure_date = make_aware(datetime.datetime.strptime(departure_dt_string, "%Y-%m-%d %H:%M"), timezone=pytz.timezone("Canada/Atlantic"))
+                site = models.RiverSite.objects.get(pk=row["River"])
+
+                if freq > 1:
+                    # find out how many exist from that date
+                    qs = models.Observation.objects.filter(
+                        sample__site=site,
+                        sample__arrival_date=arrival_date,
+                        tag_number__isnull=True,
+                        status__code__iexact="r",
+                        river_age__isnull=True,
+                        length=None,
+                    )
+                    print(qs.count(), freq, qs.count() > freq)
+                    i = 1
+                    for obs in qs:
+                        obs.river_age = row['Smolt.Age']
+                        obs.save()
+                        print("updating:", i, obs.id)
+                        qs0 = models.Observation.objects.filter(
+                            sample__site=site,
+                            sample__arrival_date=arrival_date,
+                            tag_number__isnull=True,
+                            status__code__iexact="r",
+                            river_age=row['Smolt.Age'],
+                            length=None,
+                        )
+                        if qs0.count() == freq:
+                            break
+                        i += 1
 
             # # deal with arrival and departure dts
-            # raw_arrival_time = row["Time.Start"]
             #
             # if raw_arrival_time and "&" in raw_arrival_time:
             #     raw_arrival_time = raw_arrival_time.split("&")[0].strip()
