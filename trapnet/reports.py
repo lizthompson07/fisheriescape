@@ -116,7 +116,7 @@ def generate_obs_csv_v1(qs):
     """Returns a generator for an HTTP Streaming Response"""
     random_obj = models.Observation.objects.first()
     header_row = [
-        "River",
+        "Site",
         "Year",
         "Month",
         "Day",
@@ -161,7 +161,7 @@ def generate_obs_csv_v1(qs):
                 days_after_rt = "cannot find record of first tagging"
 
         data_row = [
-            obj.sample.site.river,
+            obj.sample.site,
             obj.sample.arrival_date.year,
             obj.sample.arrival_date.month,
             obj.sample.arrival_date.day,
