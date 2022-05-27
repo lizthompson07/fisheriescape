@@ -991,15 +991,15 @@ class MeetingResource(SimpleLookup, MetadataFields):
         ordering = [_("name")]
 
 
-class SoMP(MetadataFields):
-    meeting = models.OneToOneField(Meeting, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="somp", verbose_name=_("meeting"))
-
-    chair_comments = models.TextField(blank=True, null=True, verbose_name=_("post meeting chair comments"),
-                                      help_text=_("Does the chair have comments to be captured OR passed on to NCR following the peer-review meeting."))
-
-    has_media_attention = models.BooleanField(default=False, verbose_name=_("will this meeting generate media attention?"),
-                                              help_text=_("The answer to this question will be used by NCR for regular reporting on the meeting (i.e., TAB7)"))
-    media_notes = models.TextField(blank=True, null=True, verbose_name=_("status of media lines"), help_text=_("Please indicate the status of the media lines"))
+# class SoMP(MetadataFields):
+#     meeting = models.OneToOneField(Meeting, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="somp", verbose_name=_("meeting"))
+#
+#     chair_comments = models.TextField(blank=True, null=True, verbose_name=_("post meeting chair comments"),
+#                                       help_text=_("Does the chair have comments to be captured OR passed on to NCR following the peer-review meeting."))
+#
+#     has_media_attention = models.BooleanField(default=False, verbose_name=_("will this meeting generate media attention?"),
+#                                               help_text=_("The answer to this question will be used by NCR for regular reporting on the meeting (i.e., TAB7)"))
+#     media_notes = models.TextField(blank=True, null=True, verbose_name=_("status of media lines"), help_text=_("Please indicate the status of the media lines"))
 
 
 class MeetingFile(GenericFile):
