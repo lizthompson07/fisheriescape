@@ -69,7 +69,12 @@ class PostingRequestEmail(Email):
 
 class SoMPEmail(Email):
     email_template_path = 'csas2/emails/somp.html'
-    subject_en = 'The SoMP for a meeting has been posted'
+    def get_subject_en(self):
+        if self.instance.is_somp_submitted:
+            msg = 'The SoMP for a meeting has been re-submitted'
+        else:
+            msg = 'The SoMP for a meeting has been submitted'
+        return msg
 
     def get_recipient_list(self):
         return [csas_generic_email]

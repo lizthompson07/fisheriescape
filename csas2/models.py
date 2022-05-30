@@ -789,7 +789,7 @@ class Meeting(SimpleLookup, MetadataFields):
                                            help_text=_("e.g.: 9am to 4pm (Atlantic)"))
     time_description_fr = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description of meeting times (fr)"),
                                            help_text=_("e.g.: 9h à 16h (Atlantique)"))
-    chair_comments = models.TextField(blank=True, null=True, verbose_name=_("post meeting chair comments"),
+    chair_comments = models.TextField(blank=True, null=True, verbose_name=_("post-meeting chair comments"),
                                       help_text=_("Does the chair have comments to be captured OR passed on to NCR following the peer-review meeting."))
     has_media_attention = models.BooleanField(default=False, verbose_name=_("will this meeting generate media attention?"),
                                               choices=model_choices.yes_no_choices,
@@ -797,6 +797,7 @@ class Meeting(SimpleLookup, MetadataFields):
     media_notes = models.TextField(blank=True, null=True, verbose_name=_("status of media lines"), help_text=_("Please indicate the status of the media lines"))
 
     # non-editable
+    is_somp_submitted = models.BooleanField(default=False, verbose_name=_("have the SoMP been submitted?"), editable=False)
     somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))
     is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"))
     posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"), editable=False)
@@ -818,6 +819,11 @@ class Meeting(SimpleLookup, MetadataFields):
         super().save(*args, **kwargs)
 
     @property
+    def chair_comments_html(self):
+        if self.chair_comments:
+            return mark_safe(markdown(self.chair_comments))
+
+    @property
     def media_display(self):
         if self.has_media_attention:
             text = self.media_notes if self.media_notes else gettext("no further details provided.")
@@ -837,30 +843,59 @@ class Meeting(SimpleLookup, MetadataFields):
     @property
     def can_post_meeting(self):
         """ stores the business rules for whether the meeting can be posted to the csas website"""
-        can_post = True  # start off optimistic
+        can_post = [True]  # start off optimistic
         reasons = []
 
         if self.is_planning:
             reasons.append(gettext("cannot post a planning meeting"))
-            can_post = False
+            can_post.append(False)
         else:
             # the process must have a tor started and that tor must have expected pubs listed
             if not self.process.has_tor or not self.process.tor.expected_document_types.exists():
                 reasons.append(gettext("cannot post because the CSAS Process must have a Terms of Reference with a list of expected publications"))
-                can_post = False
-            # if not self.chair:
-            #     reasons.append(gettext("cannot post because the meeting must at least have one chairperson assigned to it"))
-            #     can_post = False
+                can_post.append(False)
             if self.is_posted:
                 reasons.append(gettext("this meeting is already posted"))
-                can_post = False
+                can_post.append(False)
             if self.posting_request_date:
                 reasons.append(gettext("a posting request has already been made for this meeting"))
-                can_post = False
+                can_post.append(False)
 
-        if can_post:
-            reasons.append(gettext("This meeting is eligible for posting!"))
-        return dict(can_post=can_post, reasons=reasons)
+        return dict(
+            can_post=False not in can_post, reasons=reasons
+        )
+
+    @property
+    def can_submit_somp(self):
+        """ stores the business rules for whether the meeting can be posted to the csas website"""
+        reasons = []
+        is_allowed = [True]  # start off optimistic
+
+        if self.is_planning:
+            reasons.append(gettext("SoMP can only be submitted for a peer-review meeting"))
+            is_allowed.append(False)
+        else:
+            # the meeting must be in the past
+            if self.start_date > timezone.now():
+                reasons.append(gettext("the meeting must have already taken place"))
+                is_allowed.append(False)
+            # the meeting must have linked documents
+            if not self.documents.exists():
+                reasons.append(gettext("this meeting is not linked to any documents"))
+                is_allowed.append(False)
+            # the meeting must have linked documents that are all confirmed
+            elif not self.documents.filter(is_confirmed=True).exists():
+                reasons.append(gettext("all linked documents must be confirmed before submitting"))
+                is_allowed.append(False)
+            # cannot already have been submitted
+            # if self.is_somp_submitted:
+            #     reasons.append(gettext("the SoMP have already been submitted for this meeting"))
+            #     is_allowed.append(False)
+
+        return dict(
+            is_allowed=False not in is_allowed,
+            reasons=reasons
+        )
 
     @property
     def mmmmyy(self):
@@ -1007,7 +1042,6 @@ class MeetingResource(SimpleLookup, MetadataFields):
 class MeetingFile(GenericFile):
     meeting = models.ForeignKey(Meeting, related_name="files", on_delete=models.CASCADE, editable=False)
     file = models.FileField(upload_to=meeting_directory_path)
-    is_somp = models.BooleanField(default=False, verbose_name=_("is this the SoMP?"), editable=False)
 
 
 class InviteeRole(SimpleLookup):

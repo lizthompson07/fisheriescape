@@ -627,7 +627,8 @@ class ProcessDetailView(LoginAccessRequiredMixin, CommonDetailView):
         context["process_field_list"] = utils.get_process_field_list(obj)
         context["meeting_field_list"] = [
             'display|{}'.format(_("title")),
-            'is_posted',
+            'is_posted|{}'.format(_("meeting posted?")),
+            'is_somp_submitted|{}'.format(_("SoMP submitted?")),
             'location',
             'display_dates|{}'.format(_("dates")),
         ]
@@ -1098,10 +1099,15 @@ class MeetingCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
 
 class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
     model = models.Meeting
-    form_class = forms.MeetingForm
     template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     greatgrandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_form_class(self):
+        if self.request.GET.get("somp"):
+            return forms.MeetingSoMPForm
+        return forms.MeetingForm
+
 
     def get_h3(self):
         obj = self.get_object()
@@ -1112,9 +1118,13 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
             return mark_safe(mystr)
 
     def get_initial(self):
+        payload = dict()
         obj = self.get_object()
         if obj.start_date:
-            return dict(date_range=f"{obj.start_date.strftime('%Y-%m-%d')} to {obj.end_date.strftime('%Y-%m-%d')}")
+            payload["date_range"] = f"{obj.start_date.strftime('%Y-%m-%d')} to {obj.end_date.strftime('%Y-%m-%d')}"
+        if self.request.GET.get("somp"):
+            payload["is_estimate"] = False
+        return payload
 
     def get_grandparent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
@@ -1207,13 +1217,6 @@ class MeetingFileCreateView(CanModifyProcessRequiredMixin, CommonPopoutCreateVie
         obj = form.save(commit=False)
         obj.meeting_id = self.kwargs['meeting']
         obj.save()
-        if not obj.meeting.somp_notification_date and obj.is_somp:
-            email = emails.SoMPEmail(self.request, obj)
-            email.send()
-            messages.info(self.request, _("A notification email was sent off to the national office!"))
-            meeting = obj.meeting
-            meeting.somp_notification_date = timezone.now()
-            meeting.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -1221,17 +1224,6 @@ class MeetingFileUpdateView(CanModifyProcessRequiredMixin, CommonPopoutUpdateVie
     model = models.MeetingFile
     form_class = forms.MeetingFileForm
     is_multipart_form_data = True
-
-    def form_valid(self, form):
-        obj = form.save()
-        if not obj.meeting.somp_notification_date and obj.is_somp:
-            email = emails.SoMPEmail(self.request, obj)
-            email.send()
-            messages.info(self.request, _("A notification email was sent off to the national office!"))
-            meeting = obj.meeting
-            meeting.somp_notification_date = timezone.now()
-            meeting.save()
-        return HttpResponseRedirect(self.get_success_url())
 
 
 class MeetingFileDeleteView(CanModifyProcessRequiredMixin, CommonPopoutDeleteView):

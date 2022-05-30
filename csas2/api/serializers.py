@@ -449,6 +449,14 @@ class MeetingSerializer(serializers.ModelSerializer):
     posting_request_date_display = serializers.SerializerMethodField()
     posting_notification_date_display = serializers.SerializerMethodField()
     media_display = serializers.SerializerMethodField()
+    can_submit_somp = serializers.SerializerMethodField()
+    chair_comments_html = serializers.SerializerMethodField()
+
+    def get_chair_comments_html(self, instance):
+        return instance.chair_comments_html
+
+    def get_can_submit_somp(self, instance):
+        return instance.can_submit_somp
 
     def get_media_display(self, instance):
         return instance.media_display

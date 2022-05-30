@@ -91,7 +91,6 @@ class ToRTimestampUpdateForm(forms.ModelForm):
         }
 
 
-
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
@@ -306,12 +305,6 @@ class MeetingFileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if kwargs.get("instance"):
-            meeting = kwargs.get("instance").meeting
-        else:
-            meeting = get_object_or_404(models.Meeting, pk=kwargs.get("initial").get("meeting"))
-        if meeting.is_planning:
-            del self.fields["is_somp"]
 
 
 class ProcessForm(forms.ModelForm):
@@ -441,7 +434,20 @@ class MeetingForm(forms.ModelForm):
 
     class Meta:
         model = models.Meeting
-        exclude = ["start_date", "end_date", "is_posted"]
+        exclude = ["start_date", "end_date", "is_posted", "chair_comments", ]
+
+
+class MeetingSoMPForm(forms.ModelForm):
+    field_order = [
+        "date_range",
+    ]
+    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Confirmed dates of meeting"), required=True)
+    class Meta:
+        model = models.Meeting
+        fields = ["has_media_attention", "media_notes", "chair_comments", "is_estimate"]
+        widgets = {
+            "is_estimate": forms.HiddenInput()
+        }
 
 
 class DocumentForm(forms.ModelForm):
