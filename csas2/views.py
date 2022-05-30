@@ -628,7 +628,7 @@ class ProcessDetailView(LoginAccessRequiredMixin, CommonDetailView):
         context["meeting_field_list"] = [
             'display|{}'.format(_("title")),
             'is_posted|{}'.format(_("meeting posted?")),
-            'is_somp_submitted|{}'.format(_("SoMP submitted?")),
+            'is_somp_submitted|{}'.format(_("SoMP confirmed?")),
             'location',
             'display_dates|{}'.format(_("dates")),
         ]
