@@ -34,11 +34,10 @@
   <tr>
     {% verbose_td_display object "chair_comments" to_html=True %}
   </tr>
-  <tr>
 </table>
 
 <p>
-  {% trans "Expected publications:" %}
+  <label for="">{% trans "Expected publications:" %}</label>
 </p>
 
 {% if object.documents.exists %}

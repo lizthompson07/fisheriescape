@@ -321,7 +321,7 @@
       },
 
       confirmDoc() {
-        let userInput = confirm("{% trans 'Are you certain you want to confirm this document? \n\nOnce it is confirmed, only staff from the NCR CSAS team will be able to delete it.' %}")
+        let userInput = confirm("{% trans 'Are you certain you want to confirm this document? \n\nOnce it is confirmed, it cannot be deleted.' %}")
         if (userInput) {
           let endpoint = `/api/csas/documents/${this.documentId}/?confirm=true`;
           apiService(endpoint, "POST").then(data => {

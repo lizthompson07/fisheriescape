@@ -10,7 +10,7 @@
       <span class="h5 mdi mdi-pencil text-light"></span>
     </a>
     <button v-if="meeting.can_submit_somp.is_allowed" class="btn btn-sm btn-primary py-0 px-1" @click="submitSoMP" data-toggle="tooltip"
-            title="{% trans "Submit SoMP" %}">
+            title="{% trans "Confirm SoMP" %}">
       <span class="h5 mdi mdi-postage-stamp text-light"></span>
     </button>
     <button v-else class="btn btn-sm btn-secondary py-0 px-1" disabled data-toggle="tooltip" :title="meeting.can_submit_somp.reasons">

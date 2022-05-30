@@ -239,14 +239,14 @@
       submitSoMP() {
         let msg;
         if (this.meeting.is_somp_submitted) {
-          msg = "{% trans 'Do you want to ** resubmit ** the Summary of Meeting Products (SoMP) to the National CSAS team?' %}";
+          msg = "{% trans 'Do you want to ** re-confirm ** the Summary of Meeting Products (SoMP)?' %}";
         } else {
-          msg = "{% trans 'Are you certain you want to submit the Summary of Meeting Products (SoMP) to the National CSAS team?' %}";
+          msg = "{% trans 'Are you sure you want to confirm the Summary of Meeting Products (SoMP)?' %}";
         }
         let userInput = confirm(msg);
         if (userInput) {
           if (!this.meeting.chair_comments) {
-            msg = "{% trans 'WARNING \n\nNo post meeting chair comments have been provided. Do you still want to submit the SoMP anyways?' %}";
+            msg = "{% trans 'WARNING \n\nNo post-meeting chair comments have been provided. Do you still want to submit the SoMP anyways?' %}";
             userInput = confirm(msg);
           }
           if (userInput) {
