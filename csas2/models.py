@@ -1130,15 +1130,10 @@ class Document(MetadataFields):
             )
         else:
             # is there a tentative title?
-            if not self.title_en:
+            if not self.title_en and not self.title_fr:
                 can_confirm.append(False)
                 reasons.append(
-                    gettext("Cannot confirm because there is no English tentative title")
-                )
-            if not self.title_fr:
-                can_confirm.append(False)
-                reasons.append(
-                    gettext("Cannot confirm because there is no French tentative title")
+                    gettext("Cannot confirm because there must be a tentative title")
                 )
             # is there a lead office?
             if not self.lead_office:
