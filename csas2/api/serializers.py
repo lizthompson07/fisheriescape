@@ -444,6 +444,10 @@ class MeetingSerializer(serializers.ModelSerializer):
     can_post_meeting = serializers.SerializerMethodField()
     posting_request_date_display = serializers.SerializerMethodField()
     posting_notification_date_display = serializers.SerializerMethodField()
+    media_display = serializers.SerializerMethodField()
+
+    def get_media_display(self, instance):
+        return instance.media_display
 
     def get_posting_notification_date_display(self, instance):
         if instance.posting_notification_date:

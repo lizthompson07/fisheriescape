@@ -171,8 +171,12 @@
               </td>
             </tr>
             <tr v-if="!meeting.is_planning">
-              <th class="text-left" v-html="meetingLabels.somp_notification_date"></th>
-              <td class="text-left">${meeting.somp_notification_date|nz}</td>
+              <th class="text-left" v-html="meetingLabels.chair_comments"></th>
+              <td class="text-left">${meeting.chair_comments|nz}</td>
+            </tr>
+            <tr v-if="!meeting.is_planning">
+              <th class="text-left">{% trans "Expects media attention?" %}</th>
+              <td class="text-left" v-html="meeting.media_display"></td>
             </tr>
             <tr>
               <th class="text-left">{% trans "Metadata" %}</th>

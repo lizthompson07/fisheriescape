@@ -459,7 +459,7 @@ class DocumentForm(forms.ModelForm):
         else:
             process = get_object_or_404(models.Process, pk=kwargs.get("initial").get("process"))
         # meeting_choices
-        meeting_choices = [(obj.id, f"{str(obj)}") for obj in process.meetings.all()]
+        meeting_choices = [(obj.id, f"{str(obj)}") for obj in process.meetings.filter(is_planning=False)]
         meeting_choices.insert(0, (None, "-----"))
         self.fields["meetings"].choices = meeting_choices
 

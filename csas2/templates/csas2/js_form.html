@@ -43,6 +43,7 @@
   var $is_virtual = $("#id_is_virtual");
   var $steering_committee_meeting = $("#id_create_steering_committee_meeting");
   var $keystone_meeting = $("#id_create_keystone_meeting");
+  var $has_media_attention = $("#id_has_media_attention");
 
   $(document).ready(function () {
     // Stuff to do as soon as the DOM is ready
@@ -53,6 +54,7 @@
     refreshCommitteeMeetingSection();
     refreshKeystoneMeetingSection();
     refreshFiscalYearAnnotation();
+    refreshMediaAttention();
   });
 
   function refreshMultiregionalSection() {
@@ -60,6 +62,14 @@
       $(".multiregional_text_div").removeClass("gone");
     } else {
       $(".multiregional_text_div").addClass("gone");
+    }
+  }
+
+  function refreshMediaAttention() {
+    if ($has_media_attention.val() === "True") {
+      $(".media_notes_div").removeClass("gone");
+    } else {
+      $(".media_notes_div").addClass("gone");
     }
   }
 
@@ -118,6 +128,10 @@
       $("#fy").html(fy)
     }
   }
+
+  $has_media_attention.change(function () {
+    refreshMediaAttention();
+  })
 
   $is_multiregional.change(function () {
     refreshMultiregionalSection();

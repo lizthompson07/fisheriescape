@@ -789,6 +789,12 @@ class Meeting(SimpleLookup, MetadataFields):
                                            help_text=_("e.g.: 9am to 4pm (Atlantic)"))
     time_description_fr = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description of meeting times (fr)"),
                                            help_text=_("e.g.: 9h à 16h (Atlantique)"))
+    chair_comments = models.TextField(blank=True, null=True, verbose_name=_("post meeting chair comments"),
+                                      help_text=_("Does the chair have comments to be captured OR passed on to NCR following the peer-review meeting."))
+    has_media_attention = models.BooleanField(default=False, verbose_name=_("will this meeting generate media attention?"),
+                                              choices=model_choices.yes_no_choices,
+                                              help_text=_("The answer to this question will be used by NCR for regular reporting on the meeting (i.e., TAB7)"))
+    media_notes = models.TextField(blank=True, null=True, verbose_name=_("status of media lines"), help_text=_("Please indicate the status of the media lines"))
 
     # non-editable
     somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))
@@ -810,6 +816,13 @@ class Meeting(SimpleLookup, MetadataFields):
             self.location = 'Virtual / Virtuel'
 
         super().save(*args, **kwargs)
+
+    @property
+    def media_display(self):
+        if self.has_media_attention:
+            text = self.media_notes if self.media_notes else gettext("no further details provided.")
+            return "{} - {}".format(gettext("Yes"), text)
+        return gettext("No")
 
     @property
     def posting_status(self):
@@ -991,21 +1004,10 @@ class MeetingResource(SimpleLookup, MetadataFields):
         ordering = [_("name")]
 
 
-# class SoMP(MetadataFields):
-#     meeting = models.OneToOneField(Meeting, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="somp", verbose_name=_("meeting"))
-#
-#     chair_comments = models.TextField(blank=True, null=True, verbose_name=_("post meeting chair comments"),
-#                                       help_text=_("Does the chair have comments to be captured OR passed on to NCR following the peer-review meeting."))
-#
-#     has_media_attention = models.BooleanField(default=False, verbose_name=_("will this meeting generate media attention?"),
-#                                               help_text=_("The answer to this question will be used by NCR for regular reporting on the meeting (i.e., TAB7)"))
-#     media_notes = models.TextField(blank=True, null=True, verbose_name=_("status of media lines"), help_text=_("Please indicate the status of the media lines"))
-
-
 class MeetingFile(GenericFile):
     meeting = models.ForeignKey(Meeting, related_name="files", on_delete=models.CASCADE, editable=False)
     file = models.FileField(upload_to=meeting_directory_path)
-    is_somp = models.BooleanField(default=False, verbose_name=_("is this the SoMP?"))
+    is_somp = models.BooleanField(default=False, verbose_name=_("is this the SoMP?"), editable=False)
 
 
 class InviteeRole(SimpleLookup):
@@ -1078,6 +1080,7 @@ class DocumentType(SimpleLookup):
 
 class Document(MetadataFields):
     process = models.ForeignKey(Process, on_delete=models.CASCADE, related_name="documents", editable=False, verbose_name=_("process"))
+    meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("linkage to peer-review meetings"))
     document_type = models.ForeignKey(DocumentType, on_delete=models.DO_NOTHING, verbose_name=_("document type"))
     title_en = models.CharField(max_length=255, verbose_name=_("title (English)"), blank=True, null=True)
     title_fr = models.CharField(max_length=255, verbose_name=_("title (French)"), blank=True, null=True)
@@ -1105,12 +1108,13 @@ class Document(MetadataFields):
     due_date = models.DateTimeField(null=True, blank=True, verbose_name=_("document due date"), editable=False)
     pub_number_request_date = models.DateTimeField(null=True, blank=True, verbose_name=_("date of publication number request"), editable=False)
     pub_number = models.CharField(max_length=25, verbose_name=_("publication number"), blank=True, null=True, editable=False, unique=True)
-    meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"))
     people = models.ManyToManyField(Person, verbose_name=_("authors"), editable=False, through="Author")
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.get_document_status_choices(), editable=False)
     translation_status = models.IntegerField(verbose_name=_("translation status"), choices=model_choices.get_translation_status_choices(), editable=False,
                                              default=0)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
+    is_confirmed = models.BooleanField(default=False, verbose_name=_("Has been confirmed?"), editable=False)
+
 
     class Meta:
         ordering = ["process", _("title_en")]
@@ -1147,7 +1151,7 @@ class Document(MetadataFields):
         else:
             my_str = self.title_en
         if not my_str:
-            my_str = str(self.id)
+            my_str = gettext("Untitled") + " " + str(self.document_type)
         return my_str
 
     def __str__(self):
