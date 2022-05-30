@@ -233,6 +233,10 @@ class DocumentSerializer(serializers.ModelSerializer):
     coordinator = serializers.SerializerMethodField()
     pub_number_request_date_display = serializers.SerializerMethodField()
     due_date_display = serializers.SerializerMethodField()
+    can_confirm = serializers.SerializerMethodField()
+
+    def get_can_confirm(self, instance):
+        return instance.can_confirm
 
     def get_due_date_display(self, instance):
         if instance.due_date:

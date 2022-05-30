@@ -95,7 +95,7 @@ h1 {
     color: #000000;
 }
 
-.accepted, .approved, .posted, .ok, .complete, .final {
+.accepted, .approved, .posted, .confirmed, .complete, .final {
     background-color: #d5faae;
 }
 

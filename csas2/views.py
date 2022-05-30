@@ -887,7 +887,8 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
             new_expected_publications_fr = new_meeting.expected_publications_fr
 
             # now for the piece about NCR email
-            if self.get_object().meeting and self.get_object().meeting.is_posted and (old_meeting != new_meeting or old_expected_publications_en != new_expected_publications_en):
+            if self.get_object().meeting and self.get_object().meeting.is_posted and (
+                    old_meeting != new_meeting or old_expected_publications_en != new_expected_publications_en):
                 email = emails.UpdatedMeetingEmail(self.request, new_meeting, old_meeting, old_expected_publications_en, new_expected_publications_en,
                                                    old_expected_publications_fr, new_expected_publications_fr)
                 email.send()
@@ -1308,8 +1309,10 @@ class DocumentCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
 
     def get_initial(self):
         """ For the benefit of the form class"""
+        process = get_object_or_404(models.Process, pk=self.kwargs.get("process"))
         return dict(
-            process=self.kwargs.get("process"),
+            process=process.id,
+            lead_office=process.lead_office_id,
         )
 
     def get_parent_crumb(self):

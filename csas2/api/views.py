@@ -568,6 +568,27 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 msg = _("Success! Your request for a publication number has been sent to the National CSAS Office.")
                 return Response(msg, status.HTTP_200_OK)
             raise ValidationError(_("A publication number has already been requested."))
+        elif qp.get("confirm"):
+            # make sure they have permissions needed to confirm
+            can_modify = can_modify_process(request.user, doc.process_id, return_as_dict=True)
+            if not can_modify["can_modify"]:
+                raise PermissionError(can_modify["reason"])
+            # make sure doc can be confirmed
+            can_confirm = doc.can_confirm
+            if not can_confirm["can_confirm"]:
+                raise ValidationError(can_confirm["reasons"])
+            # confirm doc
+            doc.is_confirmed = True
+            doc.save()
+            return Response(serializers.DocumentSerializer(doc).data, status.HTTP_200_OK)
+        elif qp.get("unconfirm"):
+            # make sure they have permissions needed to unconfirm
+            if not utils.in_csas_web_pub_group(request.user):
+                raise PermissionError(_("You must be a CSAS staff member to do this."))
+            doc.is_confirmed = False
+            doc.save()
+            return Response(serializers.DocumentSerializer(doc).data, status.HTTP_200_OK)
+
         elif qp.get("get_pub_number"):
             if hasattr(doc, "tracking") and doc.tracking.anticipated_posting_date:
                 year = doc.tracking.anticipated_posting_date.year

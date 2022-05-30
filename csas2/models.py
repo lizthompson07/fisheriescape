@@ -1082,6 +1082,8 @@ class Document(MetadataFields):
     process = models.ForeignKey(Process, on_delete=models.CASCADE, related_name="documents", editable=False, verbose_name=_("process"))
     meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("linkage to peer-review meetings"))
     document_type = models.ForeignKey(DocumentType, on_delete=models.DO_NOTHING, verbose_name=_("document type"))
+    lead_office = models.ForeignKey(CSASOffice, on_delete=models.DO_NOTHING, related_name="documents", verbose_name=_("lead CSAS office"),
+                                    blank=True, null=True)
     title_en = models.CharField(max_length=255, verbose_name=_("title (English)"), blank=True, null=True)
     title_fr = models.CharField(max_length=255, verbose_name=_("title (French)"), blank=True, null=True)
     title_in = models.CharField(max_length=255, verbose_name=_("title (Inuktitut)"), blank=True, null=True)
@@ -1115,17 +1117,65 @@ class Document(MetadataFields):
     old_id = models.IntegerField(blank=True, null=True, editable=False)
     is_confirmed = models.BooleanField(default=False, verbose_name=_("Has been confirmed?"), editable=False)
 
+    @property
+    def can_confirm(self):
+        can_confirm = [True]
+        reasons = list()
+
+        # is there a tentative title?
+        if self.is_confirmed:
+            can_confirm.append(False)
+            reasons.append(
+                gettext("Cannot confirm because document is already confirmed")
+            )
+        else:
+            # is there a tentative title?
+            if not self.title_en:
+                can_confirm.append(False)
+                reasons.append(
+                    gettext("Cannot confirm because there is no English tentative title")
+                )
+            if not self.title_fr:
+                can_confirm.append(False)
+                reasons.append(
+                    gettext("Cannot confirm because there is no French tentative title")
+                )
+            # is there a lead office?
+            if not self.lead_office:
+                can_confirm.append(False)
+                reasons.append(
+                    gettext("Cannot confirm because there is no lead office")
+                )
+            # is there a lead author?
+            if not self.lead_authors.exists():
+                can_confirm.append(False)
+                reasons.append(
+                    gettext("Cannot confirm because there are no lead authors")
+                )
+
+        return {
+            "can_confirm": False not in can_confirm,
+            "reasons": listrify(reasons),
+        }
+
+    @property
+    def lead_authors(self):
+        return self.authors.filter(is_lead=True)
 
     class Meta:
         ordering = ["process", _("title_en")]
 
     def save(self, *args, **kwargs):
         # set status
-        self.status = 0  # ok
+        self.status = 0  # unconfirmed
+
+        if self.is_confirmed:
+            # self.status = 20  # confirmed
+            self.status = 1  # tracking started
+
         if hasattr(self, "tracking"):
             self.pub_number = self.tracking.pub_number
             self.due_date = self.tracking.due_date
-            self.status = 1  # tracking started
 
             for obj in model_choices.document_status_dict:
                 trigger = obj.get("trigger")
