@@ -1317,6 +1317,22 @@ class DocumentCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
         obj = form.save(commit=False)
         obj.created_by = self.request.user
         obj.process = self.get_process()
+        super().form_valid(form)
+
+        lead_authors = form.cleaned_data.get("lead_authors")
+        for person in lead_authors:
+            models.Author.objects.create(
+                document=obj,
+                person_id=person,
+                is_lead=True,
+            )
+        other_authors = form.cleaned_data.get("other_authors")
+        for person in other_authors:
+            models.Author.objects.create(
+                document=obj,
+                person_id=person,
+                is_lead=False,
+            )
         return super().form_valid(form)
 
 
