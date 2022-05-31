@@ -706,7 +706,8 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
             if not ext_org:
                 ext_org = models.OrganizationExtension(organization=object)
                 ext_org.save()
-            ext_org.email.set(fields['email'])
+            # set field directly to avoid calling set on none type
+            ext_org.email = fields["email"]
             ext_org.save()
 
         return super().form_valid(form)
