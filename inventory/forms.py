@@ -59,7 +59,7 @@ class ResourceForm(forms.ModelForm):
             "od_publication_date": forms.DateInput(attrs=attr_fp_date),
             "od_release_date": forms.DateInput(attrs=attr_fp_date),
             "last_revision_date": forms.DateInput(attrs=attr_fp_date),
-            "parent": forms.SelectMultiple(attrs=chosen_js),
+            "parent": forms.Select(attrs=chosen_js),
         }
         labels = {
             "section": "DFO Section",
