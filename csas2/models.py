@@ -1117,7 +1117,8 @@ class Document(MetadataFields):
     meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("linkage to peer-review meetings"))
     document_type = models.ForeignKey(DocumentType, on_delete=models.DO_NOTHING, verbose_name=_("document type"))
     lead_office = models.ForeignKey(CSASOffice, on_delete=models.DO_NOTHING, related_name="documents", verbose_name=_("lead CSAS office"),
-                                    blank=True, null=True)
+                                    blank=True, null=True, help_text=_(
+            "The Lead CSAS office will process approvals and translation and will be listed on the cover page of the publication"))
     title_en = models.CharField(max_length=255, verbose_name=_("title (English)"), blank=True, null=True)
     title_fr = models.CharField(max_length=255, verbose_name=_("title (French)"), blank=True, null=True)
     title_in = models.CharField(max_length=255, verbose_name=_("title (Inuktitut)"), blank=True, null=True)
