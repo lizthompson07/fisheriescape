@@ -53,7 +53,7 @@
     $(".rivers_div").hide();
     $(".year_div").hide();
     $(".fishing_areas_div").hide();
-
+    $(".sample_type_div").hide();
     $("#id_report").prop('required', true);
 
   }
@@ -61,11 +61,12 @@
   function configureForm() {
     var reportChoice = $("#id_report").val();
     // masterlist count report
-    if (reportChoice === '1' || reportChoice === '2' || reportChoice === '3') {
+    if (reportChoice === '1' || reportChoice === '2' || reportChoice === '3'|| reportChoice === '4') {
       $(".sites_div").show();
       $(".rivers_div").show();
       $(".year_div").show();
       $(".fishing_areas_div").show();
+      $(".sample_type_div").show();
       $("#id_sites").multiSelect();
       $("#id_rivers").multiSelect();
       if (reportChoice === '3') {

@@ -43,6 +43,11 @@
     {{ object.sites.count }}
   {% elif "observations" in field.name %}
     {{ object.observations.count }}
+  {% elif "is_reviewed" in field.name %}
+    <span class="{% if object.is_reviewed %} good {% else %} bad {% endif %} p-1">
+    {{ object.is_reviewed|yesno }}
+    </span>
+
   {% else %}
     {{ block.super }}
   {% endif %}

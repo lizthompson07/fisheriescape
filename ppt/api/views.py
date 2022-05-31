@@ -704,6 +704,7 @@ class ProjectYearModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         data['service_choices'] = [dict(value=item.id, text=str(item)) for item in models.Service.objects.all()]
+        data['status_choices'] = [dict(text=item[1], value=item[0]) for item in models.ProjectYear.status_choices]
         return Response(data)
 
 

@@ -93,6 +93,7 @@ class DMAFilter(django_filters.FilterSet):
 class ProjectYearFilter(django_filters.FilterSet):
     is_hidden = django_filters.CharFilter(field_name='project__is_hidden')
     status = django_filters.NumberFilter(field_name='status')
+    statuses = django_filters.MultipleChoiceFilter(field_name='status', choices=models.ProjectYear.status_choices)
     title = django_filters.CharFilter(field_name='project__title', lookup_expr="icontains")
     id = django_filters.NumberFilter(field_name='project__id')
     staff = django_filters.CharFilter(field_name='project__staff_search_field', lookup_expr="icontains")
@@ -118,3 +119,4 @@ class ProjectYearFilter(django_filters.FilterSet):
     funding_status = django_filters.NumberFilter(field_name='review__funding_status')
 
     om_cost_category = django_filters.NumberFilter(field_name='omcost__om_category')
+    activity_type = django_filters.NumberFilter(field_name='project__activity_type')

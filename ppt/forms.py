@@ -857,6 +857,8 @@ class ReportSearchForm(forms.Form):
         (9, "Project Equipment summary (csv)"),
         (10, "Project Field Support Staff summary (csv)"),
         (11, "Project Lab summary (csv)"),
+        (12, "Cost descriptions (csv)"),
+
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal Year'))

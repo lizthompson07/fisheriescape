@@ -5,6 +5,7 @@ from botocore.exceptions import ClientError
 from decouple import config
 from django.conf import settings
 from django.core.mail import send_mail as django_send_mail
+from django.utils import timezone
 from python_http_client import BadRequestsError
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, Personalization
@@ -14,9 +15,9 @@ from lib.templatetags.custom_filters import nz
 
 class Echo(object):
     '''Used for file streaming'''
+
     def write(self, value):
         return value
-
 
 
 def get_azure_connection_dict():
@@ -206,3 +207,8 @@ def compare_strings(str1, str2):
         return distance(__strip_string__(str1), __strip_string__(str2))
     except AttributeError:
         return 9999
+
+
+def get_timezone_time(dt):
+    if dt:
+        return timezone.localtime(dt)

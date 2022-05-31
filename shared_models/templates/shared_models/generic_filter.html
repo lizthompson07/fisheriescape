@@ -50,7 +50,9 @@
       {% block table_header %}
         <div class="row mb-3">
           <div class="col">
-            {% trans "(click on a header to sort current page)" %}
+            {% if not paginate_by %}
+              {% trans "(click on a header to sort current page)" %}
+            {% endif %}
           </div>
           <div class="col" style="text-align: center">
             {% if paginate_by %}
@@ -89,7 +91,7 @@
       {% endblock %}
 
       {% block table %}
-        <table class="table table-sm {% if row_object_url_name %}table-hover{% endif %} {% if sortable %}sortable{% endif %}">
+        <table class="table table-sm {% if row_object_url_name %}table-hover{% endif %} {% if sortable and not paginate_by %}sortable{% endif %}">
           <thead>
           {% block head %}
             {% for field in field_list %}

@@ -61,9 +61,10 @@ h1 {
 
 
 .toolbar {
-    background-color: #dfd2f6;
+    background-color: #eae9e9;
     border: #4c4c4c 1px solid;
-    border-radius: 10px;
+    border-radius: 5px;
+    padding: 15px;
 }
 
 .toolbar2 {
@@ -254,7 +255,6 @@ label.filter {
 }
 
 
-
 /*
  * Style for modals
  */
@@ -286,7 +286,7 @@ label.filter {
     transition: all .5s ease;
     /*font-family: Helvetica, Arial, sans-serif;*/
     overflow-y: auto;
-    max-height: calc(100vh - 210px);
+    max-height: calc(100vh - 110px);
 }
 
 .modal-header h3 {
@@ -310,3 +310,27 @@ label.filter {
     -webkit-transform: scale(1.1);
     transform: scale(1.1);
 }
+
+
+.sidebar-opened {
+    position: fixed;
+    width: 20%;
+    z-index: 1;
+    overflow-y: auto;
+    max-height: calc(100vh - 150px);
+}
+
+.side-table > tbody > tr > th {
+    width: 40%;
+    padding-right: 10px;
+}
+
+.side-table > tbody > tr > td {
+}
+
+.sidebar-collapsed {
+    position: fixed;
+    width: 3%;
+    z-index: 1
+}
+
