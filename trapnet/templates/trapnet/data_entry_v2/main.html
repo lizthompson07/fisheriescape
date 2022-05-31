@@ -71,8 +71,8 @@
                 {% trans "New Observations" %}
               </button>
               <p>
-                <span class="p-3"><kbd>tab</kbd> move right</span>
-                <span class="p-3"><kbd>shift+tab</kbd> move left</span>
+                <span class="p-3"><kbd>&larr;</kbd> move left</span>
+                <span class="p-3"><kbd>&rarr;</kbd> move right</span>
                 <span class="p-3"><kbd>&darr; / enter</kbd> move down</span>
                 <span class="p-3"><kbd>&uarr;</kbd> move up</span>
                 <span class="p-3"><kbd>esc</kbd> close row editor </span>
@@ -350,7 +350,7 @@
         lastSpecies: null,
         lastLocation: null,
         lastStatus: null,
-        lastSelectedInputRef: 'fork_length',
+        lastSelectedInputRef: 'length',
       },
       columns: [
         'species',
@@ -468,6 +468,7 @@
                 this.memory.lastStatus = response.status;
                 this.memory.lastOrigin = response.origin;
                 this.memory.lastLocation = response.location_tagged;
+                response.edit = false;
                 this.observations.push(response);
               }
             })
@@ -519,7 +520,7 @@
           let endpoint = `/api/trapnet/observations/${obs.id}/`;
           apiService(endpoint, "DELETE").then(() => {
             this.showSidebar = true;
-            this.getObservations();
+            this.$delete(this.observations, this.observations.indexOf(obs))
           })
         }
       },
