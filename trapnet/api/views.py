@@ -64,9 +64,6 @@ class ObservationViewSet(ModelViewSet):
             sex_choices = [dict(text=obj.choice, value=obj.id) for obj in models.Sex.objects.all()]
             sex_choices.insert(0, dict(text="-----", value=None))
             data['sex_choices'] = sex_choices
-            length_type_choices = [dict(text=obj[1], value=obj[0]) for obj in model_choices.length_type_choices]
-            length_type_choices.insert(0, dict(text="-----", value=None))
-            data['length_type_choices'] = length_type_choices
             life_stage_choices = [dict(text=obj.choice, value=obj.id) for obj in models.LifeStage.objects.all()]
             life_stage_choices.insert(0, dict(text="-----", value=None))
             data['life_stage_choices'] = life_stage_choices

@@ -39,6 +39,7 @@ def get_sample_field_list(sample=None):
         'water_depth_display|{}'.format(_("water depth")),
 
         'rpms|{}'.format(_("RPMs")) if is_rst else None,
+        'time_released' if is_rst else None,
         'operating_condition' if is_rst else None,
         'operating_condition_comment' if is_rst else None,
         'samplers' if is_rst else None,

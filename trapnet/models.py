@@ -173,7 +173,7 @@ class Sample(MetadataFields):
     air_temp_arrival = models.FloatField(null=True, blank=True, verbose_name="air temperature on arrival(°C)")
     min_air_temp = models.FloatField(null=True, blank=True, verbose_name="minimum air temperature (°C)")
     max_air_temp = models.FloatField(null=True, blank=True, verbose_name="maximum air temperature (°C)")
-    percent_cloud_cover = models.FloatField(null=True, blank=True, verbose_name="cloud cover (0-1)", validators=[MinValueValidator(0), MaxValueValidator(1)])
+    percent_cloud_cover = models.FloatField(null=True, blank=True, verbose_name="cloud cover", validators=[MinValueValidator(0), MaxValueValidator(1)])
     precipitation_category = models.IntegerField(blank=True, null=True, choices=model_choices.precipitation_category_choices)
     precipitation_comment = models.CharField(max_length=255, blank=True, null=True)
     wind_speed = models.IntegerField(blank=True, null=True, choices=model_choices.wind_speed_choices)
@@ -205,6 +205,7 @@ class Sample(MetadataFields):
     # rst
     rpm_arrival = models.FloatField(null=True, blank=True, verbose_name="RPM at start")
     rpm_departure = models.FloatField(null=True, blank=True, verbose_name="RPM at end")
+    time_released = models.DateTimeField(verbose_name="time released", blank=True, null=True)
     operating_condition = models.IntegerField(blank=True, null=True, choices=model_choices.operating_condition_choices)
     operating_condition_comment = models.CharField(max_length=255, blank=True, null=True)
 
@@ -536,11 +537,11 @@ class Observation(MetadataFields):
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
 
     # consider deleting
-    fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"), editable=False)
-    total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"), editable=False)
+    fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
+    total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
 
-    length = models.FloatField(blank=True, null=True, verbose_name=_("length (mm)"))
-    length_type = models.IntegerField(blank=True, null=True, verbose_name=_("length type"), choices=model_choices.length_type_choices)
+    length = models.FloatField(blank=True, null=True, verbose_name=_("length (mm)"), editable=False)
+    length_type = models.IntegerField(blank=True, null=True, verbose_name=_("length type"), choices=model_choices.length_type_choices, editable=False)
 
     weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
     location_tagged = models.CharField(max_length=500, blank=True, null=True)
@@ -566,8 +567,6 @@ class Observation(MetadataFields):
     def save(self, *args, **kwargs):
         if self.sweep:
             self.sample = self.sweep.sample
-        if self.length and not self.length_type:
-            self.length_type = 1
         return super().save(*args, **kwargs)
 
     def __str__(self):

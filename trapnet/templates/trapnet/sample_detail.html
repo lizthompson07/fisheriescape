@@ -2,6 +2,8 @@
 {% load static %}
 {% load verbose_names %}
 {% load  i18n %}
+{% load custom_filters %}
+
 {% block header %}
   {{ block.super }}
   <style>
@@ -42,6 +44,16 @@
                 <tr>
                   <th class="w-35">{% get_verbose_label object "site" %}</th>
                   <td><a href="{% url 'trapnet:site_detail' object.site.id %}">{{ object.site }}</a></td>
+                </tr>
+              {% elif field == "time_released" %}
+                <tr>
+                  <th class="w-35">{% get_verbose_label object "time_released" %}</th>
+                  <td>{{ object.time_released|get_timezone_time }}</td>
+                </tr>
+              {% elif field == "percent_cloud_cover" %}
+                <tr>
+                  <th class="w-35">{% get_verbose_label object "percent_cloud_cover" %}</th>
+                  <td>{{ object.percent_cloud_cover|percentage:0 }}</td>
                 </tr>
               {% else %}
                 {% verbose_td_display object field display_time=True %}

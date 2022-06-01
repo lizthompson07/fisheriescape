@@ -95,8 +95,8 @@
                     <th class="header w125px">${labels.life_stage}</th>
                     <th class="header w125px">${labels.reproductive_status}</th>
                     <th class="header w150">${labels.origin}</th>
-                    <th class="header w100px">${labels.length}</th>
-                    <th class="header w100px">${labels.length_type}</th>
+                    <th class="header w100px">${labels.fork_length}</th>
+                    <th class="header w100px">${labels.total_length}</th>
                     <th class="w75">${labels.weight}</th>
                     <th class="header w75">${labels.sex}</th>
                     <th v-if="!isElectro" class="w75"><span class="text-primary pointy" @click="sort('tag_number')">${labels.tag_number}</span></th>
@@ -186,28 +186,26 @@
                     </td>
 
 
-                    <td v-if="!o.edit">${o.length|nz}</td>
+                    <td v-if="!o.edit">${o.fork_length|nz}</td>
                     <td v-else>
                       <input
                         type="text" class="table-input"
                         @change="updateObservation(o)"
-                        v-model="o.length"
-                        @focus="updateLastSelected('length')"
-                        :ref="`length_${o.id}`"
+                        v-model="o.fork_length"
+                        @focus="updateLastSelected('fork_length')"
+                        :ref="`fork_length_${o.id}`"
                       />
                     </td>
 
-                    <td v-if="!o.edit">${o.length_type_display|nz}</td>
+                    <td v-if="!o.edit">${o.total_length|nz}</td>
                     <td v-else>
-                      <select
-                        class="table-input"
-                        v-model="o.length_type"
+                      <input
+                        type="text" class="table-input"
                         @change="updateObservation(o)"
-                        @focus="updateLastSelected('length_type')"
-                        :ref="`length_type_${o.id}`"
-                      >
-                        <option v-for="c in choices.lengthTypeChoices" :value="c.value" :label="c.text"></option>
-                      </select>
+                        v-model="o.total_length"
+                        @focus="updateLastSelected('total_length')"
+                        :ref="`total_length_${o.id}`"
+                      />
                     </td>
 
                     <td v-if="!o.edit">${o.weight|nz}</td>
@@ -350,7 +348,7 @@
         lastSpecies: null,
         lastLocation: null,
         lastStatus: null,
-        lastSelectedInputRef: 'length',
+        lastSelectedInputRef: 'fork_length',
       },
       columns: [
         'species',
@@ -358,10 +356,11 @@
         'life_stage',
         'reproductive_status',
         'origin',
-        'length',
-        'length_type',
+        'fork_length',
+        'total_length',
         'weight',
         'sex',
+        'tag_number',
         'scale_id_number',
         'notes',
       ],
@@ -507,7 +506,6 @@
           this.labels = data.labels;
           this.choices.speciesChoices = data.species_choices;
           this.choices.sexChoices = data.sex_choices;
-          this.choices.lengthTypeChoices = data.length_type_choices;
           this.choices.statusChoices = data.status_choices;
           this.choices.originChoices = data.origin_choices;
           this.choices.reproductiveStatusChoices = data.reproductive_status_choices;

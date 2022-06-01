@@ -46,8 +46,12 @@ class SampleForm(forms.ModelForm):
             "site": forms.Select(attrs=chosen_js),
             "samplers": forms.Textarea(attrs={"rows": "2", }),
             "notes": forms.Textarea(attrs={"rows": "3", }),
+            "time_released": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
             "arrival_date": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
             "departure_date": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
+        }
+        labels = {
+            "percent_cloud_cover": "cloud cover (0-100)"
         }
 
     def __init__(self, *args, **kwargs):
@@ -55,6 +59,22 @@ class SampleForm(forms.ModelForm):
         site_choices = [(obj.id, f"{obj.river} --> {obj.name} ({nz(obj.province, 'unknown prov.')})") for obj in models.RiverSite.objects.all()]
         site_choices.insert(0, (None, "-----"))
         self.fields["site"].choices = site_choices
+
+    def clean_percent_cloud_cover(self):
+        percent_cloud_cover = self.cleaned_data['percent_cloud_cover']
+        if percent_cloud_cover % 1 != 0:
+            self.add_error('percent_cloud_cover', gettext(
+                "Must be an integer!"
+            ))
+        percent_cloud_cover /= 100
+        print(percent_cloud_cover)
+        if percent_cloud_cover > 1:
+            self.add_error('percent_cloud_cover', gettext(
+                "Must be between an integer between 0 and 100!"
+            ))
+        return percent_cloud_cover
+
+
 
     def clean(self):
         cleaned_data = super().clean()

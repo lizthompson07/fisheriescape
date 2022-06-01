@@ -606,6 +606,16 @@ def populate_len():
         o.save()
 
 
+def reverse_len():
+    len_observations = models.Observation.objects.filter(fork_length__isnull=True, total_length__isnull=True, length__isnull=False)
+    for o in len_observations:
+        if o.length_type == 1:
+            o.fork_length = o.length
+        else:
+            o.total_length = o.length
+        o.save()
+
+
 def delete_tags_removed():
     observations = models.Observation.objects.filter(tags_removed__isnull=False, tag_number__isnull=False)
     for obs in observations:
