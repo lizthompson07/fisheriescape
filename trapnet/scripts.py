@@ -607,13 +607,13 @@ def populate_len():
 
 
 def reverse_len():
-    # len_observations = models.Observation.objects.filter(fork_length__isnull=True, total_length__isnull=True, length__isnull=False)
-    # for o in len_observations:
-    #     if o.length_type == 1:
-    #         o.fork_length = o.length
-    #     else:
-    #         o.total_length = o.length
-    #     o.save()
+    len_observations = models.Observation.objects.filter(fork_length__isnull=True, total_length__isnull=True, length__isnull=False)
+    for o in len_observations:
+        if o.length_type == 1:
+            o.fork_length = o.length
+        else:
+            o.total_length = o.length
+        o.save()
 
     problem_observations_1 = models.Observation.objects.filter(fork_length__isnull=False, length__isnull=False, length_type=1)
     for o in problem_observations_1:
