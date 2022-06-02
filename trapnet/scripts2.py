@@ -334,7 +334,6 @@ def import_smolt_data():
                     elif start_tag and new_row.freq:
                         for i in range(0, new_row.freq):
                             tag = f"{start_tag_prefix}{start_tag + i}"
-                            print(tag)
                             if tag in new_row.tags_removed:
                                 print("not adding tag:", tag)
                             else:
