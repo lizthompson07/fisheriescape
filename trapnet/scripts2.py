@@ -285,10 +285,10 @@ def import_smolt_data():
     my_target_data_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'master_smolt_data_DJF_June_2022_GD.csv')
     with open(os.path.join(my_target_data_file), 'r', encoding='cp1252') as csv_read_file:
         my_csv = csv.DictReader(csv_read_file)
-        i = 1
+        row_i = 1
         for row in my_csv:
-            if i % 1000 == 0:
-                print("starting row:", i)
+            if row_i % 1000 == 0:
+                print("starting row:", row_i)
 
             for key in row:
                 row[key] = row[key].strip()
@@ -346,7 +346,7 @@ def import_smolt_data():
                         for i in range(0, new_row.freq):
                             create_obs(kwargs)
 
-            i += 1
+            row_i += 1
 
 
 def find_duplicate_scales():
