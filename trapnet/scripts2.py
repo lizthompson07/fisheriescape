@@ -204,17 +204,18 @@ def write_samples_to_table():
                     for col in row:
                         row_dict[header_row[col_count]] = col
                         col_count += 1
-                    # GET SITE
-                    site_id = convert_river_to_site(w_dict["River"])
-                    row[7] = sample.id
 
+                    # GET SITE
+                    row_dict["siteId"] = convert_river_to_site(row_dict["River"])
+                    row[1] = convert_river_to_site(row_dict["River"])
 
                     # GET SAMPLES
                     if not row_dict["sampleId"]:
-                        # sample = get_sample(row_dict)
-                        sample = None
+                        sample = get_sample(row_dict)
+                        # sample = None
                         # if there is a sample, we update the row
                         if sample:
+                            row[7] = sample.id
 
                     # GET SPECIES
                     code = row_dict["Species"]
