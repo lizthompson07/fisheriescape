@@ -241,9 +241,11 @@ def parse_row(row):
     status_id = models.Status.objects.get(code__iexact=status_code).id
 
     origin_code = row["Origin"]
-    origin_code = "ha" if origin_code.lower() == "a" else origin_code
-    origin = models.Origin.objects.get(code__iexact=origin_code) if origin_code else None
-    origin_id = origin.id if origin else None
+    if origin_code:
+        origin_code = "ha" if origin_code.lower() == "a" else origin_code
+        origin_id = models.Origin.objects.get(code__iexact=origin_code).id
+    else:
+        origin_id =  None
 
     sex = models.Sex.objects.get(code__iexact=row["Sex"]) if row["Sex"] else None
     sex_id = sex.id if sex else None
