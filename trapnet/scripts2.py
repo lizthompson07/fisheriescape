@@ -100,10 +100,6 @@ species_conversion_dict = {
     "1781": {"id": 80, "ls": 1},
     "1782": {"id": 80, "ls": 7},
     "1783": {"id": 80, "ls": 8},
-
-    # "4620": {"id": "?", "ls": "?"},
-    # "6550": {"id": "?", "ls": "?"},
-    # "341": {"id": "?", "ls": "?"},
 }
 
 
@@ -113,8 +109,7 @@ def delete_rst_data():
 
 
 def convert_river_to_site(river):
-    site_conversion_dict.get(river)
-    return id
+    return site_conversion_dict.get(river)
 
 
 def convert_sp_code_to_id(code):
@@ -132,44 +127,27 @@ def convert_sp_code_to_id(code):
         return payload
 
 
+def get_deep_sample(row_dict):
+    raw_arrival_time = row_dict["Time.Start"]
+    if raw_arrival_time and ":" in raw_arrival_time:
+        hour = raw_arrival_time.split(":")[0]
+        min = raw_arrival_time.split(":")[1]
+    else:
+        hour = "12"
+        min = "00"
+    arrival_dt_string = f'{row_dict["Year"]}-{row_dict["Month"]}-{row_dict["Day"]} {hour}:{min}'
+    arrival_date = make_aware(datetime.datetime.strptime(arrival_dt_string, "%Y-%m-%d %H:%M"), timezone=pytz.timezone("Canada/Atlantic"))
+    try:
+        sample = models.Sample.objects.get(
+            site=row_dict["siteId"],
+            arrival_date=arrival_date,
+        )
+        return sample
+    except Exception as e:
+        print("cannot find sample:", e, row_dict)
+
+
 def get_sample(row_dict):
-    # raw_arrival_time = row_dict["Time.Start"]
-    # raw_departure_time = row_dict["Time.Released"]
-    # if raw_arrival_time and ":" in raw_arrival_time:
-    #     hour = raw_arrival_time.split(":")[0]
-    #     min = raw_arrival_time.split(":")[1]
-    # else:
-    #     hour = "12"
-    #     min = "00"
-    # arrival_dt_string = f'{row_dict["Year"]}-{row_dict["Month"]}-{row_dict["Day"]} {hour}:{min}'
-    # if raw_departure_time and ":" in raw_departure_time:
-    #     hour = raw_departure_time.split(":")[0]
-    #     min = raw_departure_time.split(":")[1]
-    # else:
-    #     hour = "12"
-    #     min = "00"
-    # departure_dt_string = f'{row_dict["Year"]}-{row_dict["Month"]}-{row_dict["Day"]} {hour}:{min}'
-    # arrival_date = make_aware(datetime.datetime.strptime(arrival_dt_string, "%Y-%m-%d %H:%M"), timezone=pytz.timezone("Canada/Atlantic"))
-    # departure_date = make_aware(datetime.datetime.strptime(departure_dt_string, "%Y-%m-%d %H:%M"), timezone=pytz.timezone("Canada/Atlantic"))
-    # site = models.RiverSite.objects.get(pk=row_dict["River"])
-    # try:
-    #     sample = models.Sample.objects.get(
-    #         site=site,
-    #         arrival_date=arrival_date,
-    #     )
-    # except Exception as e:
-    #     # maybe we can find it with just the year, month, day
-    #     sample_qs = models.Sample.objects.filter(
-    #         site=site,
-    #         arrival_date__year=row_dict["Year"],
-    #         arrival_date__month=row_dict["Month"],
-    #         arrival_date__day=row_dict["Day"],
-    #     )
-    #     if sample_qs.count() == 1:
-    #         sample = sample_qs.first()
-    #     else:
-    #         print("cannot find sample:", e, row_dict, sample_qs.count(), sample_qs)
-    # finally:
     try:
         sample = models.Sample.objects.get(
             site_id=row_dict["siteId"],
@@ -177,11 +155,10 @@ def get_sample(row_dict):
             arrival_date__month=row_dict["Month"],
             arrival_date__day=row_dict["Day"],
         )
-
     except Exception as e:
-        print("cannot find sample:", e, row_dict)
-    else:
-        return sample
+        print("attempting deep dive:", e)
+        sample = get_deep_sample(row_dict)
+    return sample
 
 
 def write_samples_to_table():
@@ -198,7 +175,7 @@ def write_samples_to_table():
                 if i == 0:
                     writer.writerow(row)
                     header_row = row
-                else:
+                elif i < 100:
                     # get the row_dict
                     col_count = 0
                     for col in row:
@@ -207,7 +184,7 @@ def write_samples_to_table():
 
                     # GET SITE
                     row_dict["siteId"] = convert_river_to_site(row_dict["River"])
-                    row[1] = convert_river_to_site(row_dict["River"])
+                    row[1] = row_dict["siteId"]
 
                     # GET SAMPLES
                     if not row_dict["sampleId"]:
@@ -224,11 +201,11 @@ def write_samples_to_table():
                         species = mydict["species"]
                         life_stage = mydict.get("life_stage")
                         if species:
-                            row[9] = species
+                            row[8] = species
                         if life_stage:
-                            row[10] = life_stage
-
+                            row[9] = life_stage
                     writer.writerow(row)
+
                 # display progress
                 if i % 1000 == 0:
                     print(i)
