@@ -544,11 +544,8 @@ class Observation(MetadataFields):
     length_type = models.IntegerField(blank=True, null=True, verbose_name=_("length type"), choices=model_choices.length_type_choices, editable=False)
 
     weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
-    location_tagged = models.CharField(max_length=500, blank=True, null=True)
     tag_number = models.CharField(max_length=12, blank=True, null=True, verbose_name=_("tag number"))
     scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"), unique=True)
-    date_tagged = models.DateTimeField(blank=True, null=True, verbose_name="original date tagged")
-    # tags_removed = models.CharField(max_length=250, blank=True, null=True)
 
     # electrofishing only
     fish_size = models.IntegerField(blank=True, null=True, verbose_name=_("fish size"), choices=model_choices.fish_size_choices)

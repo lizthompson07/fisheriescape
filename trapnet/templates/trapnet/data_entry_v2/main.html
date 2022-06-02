@@ -451,7 +451,6 @@
 
       cleanObservation(obs) {
         for (const observationKey in obs) if (obs[observationKey] === "") obs[observationKey] = null;
-        if (obs.date_tagged_display) obs.date_tagged = `${obs.date_tagged_display}T12:00`;
         return obs;
       },
 
@@ -466,7 +465,6 @@
                 this.memory.lastSpecies = response.species;
                 this.memory.lastStatus = response.status;
                 this.memory.lastOrigin = response.origin;
-                this.memory.lastLocation = response.location_tagged;
                 response.edit = false;
                 this.observations.push(response);
               }
@@ -485,7 +483,6 @@
                 this.memory.lastSpecies = response.species;
                 this.memory.lastStatus = response.status;
                 this.memory.lastOrigin = response.origin;
-                this.memory.lastLocation = response.location_tagged;
                 // because of the delay in the response, there might already be another observation being edited.
                 // if we loop through and find another observation with edit === true, set close to false
                 for (const observation of this.observations) {
@@ -558,7 +555,6 @@
           sweep: sweepId,
           origin: this.lastOrigin,
           species: this.lastSpecies,
-          location_tagged: this.lastLocation,
           status: this.lastStatus,
         };
       },

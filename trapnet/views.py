@@ -752,8 +752,6 @@ class ObservationDetailView(TrapNetBasicMixin, CommonDetailView):
         'age_type',
         'river_age',
         'ocean_age',
-        'location_tagged',
-        'date_tagged',
         'tag_number',
         'scale_id_number',
         'notes',

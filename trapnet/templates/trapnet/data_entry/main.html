@@ -82,8 +82,6 @@
                     <th v-if="!isElectro" class="w75">${labels.total_length}</th>
                     <th class="w75">${labels.weight}</th>
                     <th v-if="!isElectro" class="w75">${labels.tag_number}</th>
-                    <th v-if="!isElectro" class="w75">${labels.location_tagged}</th>
-                    <th v-if="!isElectro" class="w75">${labels.date_tagged}<br>(yyyy-mm-dd)</th>
                     <th class="w75">${labels.scale_id_number}</th>
                     <th class="w75">${labels.notes}</th>
                   </tr>
@@ -221,31 +219,6 @@
                       />
                     </td>
 
-                    <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o, 'status')">${o.location_tagged|nz}</td>
-                    <td v-else-if="!isElectro">
-                      <input
-                        type="text" class="table-input p-0"
-                        v-model="observation.location_tagged"
-                        @change="updateObservation(false, o)"
-                        @focus="lastSelectedInputRef = 'location_tagged'"
-                        :ref="`location_tagged_${o.id}`"
-                        @keyup.enter="moveDown"
-                      />
-                    </td>
-
-                    <td v-if="!isElectro && observation.id !== o.id" @click="editObservation(o, 'status')">${o.date_tagged_display|nz}</td>
-                    <td v-else-if="!isElectro">
-                      <input
-                        type="text" class="table-input p-0"
-                        v-model="observation.date_tagged_display"
-                        @change="updateObservation(false, o)"
-                        @focus="lastSelectedInputRef = 'date_tagged'"
-                        :ref="`date_tagged_${o.id}`"
-                        @keyup.enter="moveDown"
-
-                      />
-                    </td>
-
                     <td v-if="observation.id !== o.id" @click="editObservation(o, 'status')">${o.scale_id_number|nz}</td>
                     <td v-else>
                       <input
@@ -373,8 +346,6 @@
         'total_length',
         'weight',
         'tag_number',
-        'location_tagged',
-        'date_tagged',
         'scale_id_number',
         'notes',
       ]
@@ -470,7 +441,6 @@
           sweep: sweepId,
           origin: this.lastOrigin,
           species: this.lastSpecies,
-          location_tagged: this.lastLocation,
           status: this.lastStatus,
         }
         this.$nextTick(() => {
@@ -491,7 +461,6 @@
       editObservation(obs) {
         this.showSidebar = false;
         const o = JSON.parse(JSON.stringify(obs));
-        o.date_tagged = o.date_tagged_display;
         this.observation = o;
         this.currentObservation = obs;
         this.$nextTick(() => {
@@ -510,7 +479,6 @@
         const templateObservation = JSON.parse(JSON.stringify(this.observation));
         for (var i = 0; i < instructions.totalObservations; i++) {
           this.observation = JSON.parse(JSON.stringify(templateObservation));
-          this.observation.date_tagged = this.observation.date_tagged_display
           if (instructions.shouldIncrement && instructions.tagPrefix !== null && instructions.startTagNumber) {
             this.observation.tag_number = instructions.tagPrefix + String(i + instructions.startTagNumber).padStart(instructions.padding, "0")
           }
@@ -533,7 +501,6 @@
           endpoint = `/api/trapnet/observations/`;
           method = "POST";
         }
-        if (this.observation.date_tagged_display) this.observation.date_tagged = `${this.observation.date_tagged_display}T12:00`;
         apiService(endpoint, method, this.observation)
             .then(response => {
               if (!response.id) {
@@ -544,7 +511,6 @@
                 this.lastSpecies = response.species;
                 this.lastStatus = response.status;
                 this.lastOrigin = response.origin;
-                this.lastLocation = response.location_tagged;
                 if (this.observation.id) this.successMsg = "{% trans "Success! The observation was updated." %}";
                 else this.successMsg = "{% trans "Success! A new observation has been added." %}";
                 if (refreshObservationList) this.getObservations();

@@ -196,3 +196,11 @@ def get_labels(model):
 def remove_nulls(my_list):
     while None in my_list:
         my_list.remove(None)
+
+
+# https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary
+class dotdict(dict):
+    """dot.notation access to dictionary attributes"""
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__

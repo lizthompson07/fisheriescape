@@ -276,8 +276,8 @@ def generate_entry_report(year, sites):
         'weight',
         'sex',
         'smolt_age',
-        'location_tagged',
-        'date_tagged',
+        # 'location_tagged',
+        # 'date_tagged',
         'scale_id_number',
         'notes',
     ])
@@ -302,8 +302,8 @@ def generate_entry_report(year, sites):
                 entry.weight,
                 entry.sex,
                 entry.smolt_age,
-                entry.location_tagged,
-                entry.date_tagged,
+                # entry.location_tagged,
+                # entry.date_tagged,
                 entry.scale_id_number,
                 entry.notes,
             ])

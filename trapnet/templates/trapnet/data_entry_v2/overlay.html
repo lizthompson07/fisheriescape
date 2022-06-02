@@ -306,7 +306,6 @@ Vue.component("overlay", {
         }
         if (!this.error) {
           for (var i = 0; i < instructions.totalObservations; i++) {
-            //this.observation.date_tagged = this.observation.date_tagged_display
             if (instructions.shouldIncrement && instructions.tagPrefix !== null && instructions.startTagNumber) {
               this.observation.tag_number = instructions.tagPrefix + String(i + instructions.startTagNumber).padStart(instructions.padding, "0")
             }

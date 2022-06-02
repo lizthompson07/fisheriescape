@@ -1,19 +1,14 @@
 import csv
 import datetime
 import os
-from random import randint
 
 import pytz
 from django.conf import settings
 from django.db import IntegrityError
-from django.utils import timezone
-from django.utils.timezone import make_aware
+from django.utils.timezone import make_aware, now
 
-from lib.templatetags.custom_filters import nz
-from shared_models.models import River, FishingArea
+from shared_models.utils import dotdict
 from . import models
-
-bad_codes = list()
 
 site_conversion_dict = {
     "Butters": 334,
@@ -210,7 +205,6 @@ def write_samples_to_table():
                 if i % 1000 == 0:
                     print(i)
 
-
                 # right the updated row to file
                 i += 1
 
@@ -235,253 +229,122 @@ def get_number_suffix(mystr):
             return int(result)
 
 
-def check_entries_2_obs():
-    for entry in models.Entry.objects.filter(
-            first_tag__isnull=False,
-            last_tag__isnull=True,
-            frequency__isnull=False
-    ):
-        if entry.frequency > 1:
-            print(entry.first_tag, entry.frequency)
-
-
 def create_obs(kwargs):
     try:
         models.Observation.objects.create(**kwargs)
-    except IntegrityError:
-        print("dealing with dup")
-        old_tag = kwargs.get("tag_number")
-        print("Duplicate tag number!! ", old_tag)
-        new_tag = f'{old_tag}.{randint(1, 1000)}'
-        kwargs["tag_number"] = new_tag
-        print("Duplicate tag number!! ", old_tag, " to ", new_tag)
-        models.Observation.objects.create(**kwargs)
+    except IntegrityError as e:
+        print(e, kwargs)
 
 
-def entries_2_obs():
-    # remove all previous observations from rst
-    models.Observation.objects.filter(sample__sample_type=1).delete()
-    now = timezone.now()
-    j = 1
-    for entry in models.Entry.objects.all():
-        if j % 1000 == 0:
-            print("starting row", j)
-        if entry.species:
-            kwargs = {
-                "sample": entry.sample,
-                "species": entry.species,
-                "status": entry.status,
-                "origin": entry.origin,
-                "sex": entry.sex,
-                "fork_length": entry.fork_length,
-                "total_length": entry.total_length,
-                "weight": entry.weight,
-                "tag_number": entry.first_tag,
-                "scale_id_number": entry.scale_id_number,
-                "tags_removed": entry.tags_removed,
-                "notes": entry.notes,
-                "created_at": now,
-            }
+def parse_row(row):
+    status_code = row["Status"].lower() if row["Status"] else "r"
+    status_id = models.Status.objects.get(code__iexact=status_code).id
 
-            # determine if this is a single observation
-            if not entry.last_tag and (entry.frequency == 1 or entry.frequency is None):
-                # this means we are dealing with a single observation
-                create_obs(kwargs)
-            else:
-                start_tag_prefix = get_prefix(entry.first_tag)
-                start_tag = get_number_suffix(entry.first_tag)
-                end_tag = get_number_suffix(entry.last_tag)
+    origin_code = row["Origin"]
+    origin_code = "ha" if origin_code.lower() == "a" else origin_code
+    origin = models.Origin.objects.get(code__iexact=origin_code) if origin_code else None
+    origin_id = origin.id if origin else None
 
-                if start_tag and end_tag:
-                    diff = end_tag - start_tag
-                    for i in range(0, diff):
-                        tag = f"{start_tag_prefix}{start_tag + i}"
-                        kwargs["tag_number"] = tag
-                        create_obs(kwargs)
-                elif start_tag and entry.frequency:
-                    for i in range(0, entry.frequency):
-                        tag = f"{start_tag_prefix}{start_tag + i}"
-                        kwargs["tag_number"] = tag
-                        create_obs(kwargs)
-                elif entry.frequency:
-                    for i in range(0, entry.frequency):
-                        create_obs(kwargs)
-                else:
-                    create_obs(kwargs)
-        j += 1
+    sex = models.Sex.objects.get(code__iexact=row["Sex"]) if row["Sex"] else None
+    sex_id = sex.id if sex else None
 
+    removed_tags = row["tags removed"].strip() if row["tags removed"] else None
+    removed_tags = [tag.strip() for tag in removed_tags.split(" ")] if removed_tags else []
 
-def comment_samples_from_matapedia():
-    for sample in models.Sample.objects.filter(site_id=338):
-        if sample.notes:
-            sample.notes += "; Data collected and owned by the Gespe'gewaq Mi'gmaq Resource Council (GMRC)."
-        else:
-            sample.notes = "Data collected and owned by the Gespe'gewaq Mi'gmaq Resource Council (GMRC)."
-        sample.save()
+    scale_id_number = row["Scale ID Number"].strip() if row["Scale ID Number"] else None
+    if scale_id_number:
+        scale_id_number += f' {row["Year"]}'
+    freq = int(row["Freq"].strip()) if row["Freq"] else 1
 
-
-def add_comment(comment, addition):
-    if addition and addition != "":
-        if not comment or comment == "":
-            comment = addition
-        else:
-            comment += f"; {addition}"
-    return comment
-
-
-def is_number_tryexcept(s):
-    """ Returns True is string is a number. https://stackoverflow.com/questions/354038/how-do-i-check-if-a-string-is-a-number-float """
-    try:
-        float(s)
-        return True
-    except (ValueError, TypeError):
-        return False
+    payload = {
+        "freq": freq,
+        "species_id": row["speciesId"],
+        "sample_id": row["sampleId"],
+        "status_id": status_id,
+        "origin_id": origin_id,
+        "sex_id": sex_id,
+        "fork_length": row["ForkLength"].strip() if row["ForkLength"] else None,
+        "total_length": row["Total.Length"].strip() if row["Total.Length"] else None,
+        "weight": row["Weight"].strip() if row["Weight"] else None,
+        "river_age": row["Smolt.Age"].strip() if row["Smolt.Age"] else None,
+        "first_tag": row["First.Tag"].strip() if row["First.Tag"] else None,
+        "last_tag": row["Last.Tag"].strip() if row["Last.Tag"] else None,
+        "scale_id_number": scale_id_number,
+        "tags_removed": removed_tags,
+        "notes": row["Comments"].strip() if row["Comments"] else None,
+    }
+    return dotdict(payload)
 
 
 def import_smolt_data():
+    # delete all observations from this datafile
+    delete_rst_data()
     # open the csv we want to read
-    my_target_data_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'master_smolt_data_GD_Jul_2021.csv')
-    with open(os.path.join(my_target_data_file), 'r') as csv_read_file:
+    my_target_data_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'master_smolt_data_DJF_June_2022_GD.csv')
+    with open(os.path.join(my_target_data_file), 'r', encoding='cp1252') as csv_read_file:
         my_csv = csv.DictReader(csv_read_file)
         i = 1
         for row in my_csv:
             if i % 1000 == 0:
-                print("starting row", i)
+                print("starting row:", i)
+
             for key in row:
-                if row[key].lower().strip() in ["na", "n/a", ""]:
+                row[key] = row[key].strip()
+                if row[key].lower() in ["na", "n/a", ""]:
                     row[key] = None
 
-            comment = ""
-            site = models.RiverSite.objects.get(pk=row["River"])
+            # only proceed is there is a species and sample
+            new_row = parse_row(row)
+            if new_row.species_id and new_row.sample_id:
+                # this is a single observation
+                kwargs = {
+                    "species_id": new_row.species_id,
+                    "sample_id": new_row.sample_id,
+                    "life_stage_id": new_row.life_stage_id,
+                    "origin_id": new_row.origin_id,
+                    "sex_id": new_row.sex_id,
+                    "fork_length": new_row.fork_length,
+                    "total_length": new_row.total_length,
+                    "weight": new_row.weight,
+                    "river_age": new_row.river_age,
+                    "scale_id_number": new_row.scale_id_number,
+                    "notes": new_row.notes,
+                    "tag_number": new_row.first_tag,
+                    "created_at": now(),
+                }
+                if new_row.freq == 1:
+                    create_obs(kwargs)
+                else:
+                    start_tag_prefix = get_prefix(new_row.first_tag)
+                    start_tag = get_number_suffix(new_row.first_tag)
+                    end_tag = get_number_suffix(new_row.last_tag)
 
-            # deal with arrival and departure dts
-            raw_arrival_time = row["Time.Start"]
+                    if start_tag and end_tag:
+                        diff = end_tag - start_tag
+                        for i in range(0, diff + 1):
+                            tag = f"{start_tag_prefix}{start_tag + i}"
+                            if tag in new_row.tags_removed:
+                                print("not adding tag:", tag)
+                            else:
+                                kwargs["tag_number"] = tag
+                                create_obs(kwargs)
 
-            if raw_arrival_time and "&" in raw_arrival_time:
-                raw_arrival_time = raw_arrival_time.split("&")[0].strip()
-            if raw_arrival_time and ":" in raw_arrival_time:
-                hour = raw_arrival_time.split(":")[0]
-                min = raw_arrival_time.split(":")[1]
-            else:
-                hour = "12"
-                min = "00"
-                comment = add_comment(comment, "Import data did not contain arrival time")
-            arrival_dt_string = f'{row["Year"]}-{row["Month"]}-{row["Day"]} {hour}:{min}'
-            arrival_date = make_aware(datetime.datetime.strptime(arrival_dt_string, "%Y-%m-%d %H:%M"), timezone=pytz.timezone("Canada/Atlantic"))
+                    elif start_tag and new_row.freq:
+                        for i in range(0, new_row.freq):
+                            tag = f"{start_tag_prefix}{start_tag + i}"
+                            print(tag)
+                            if tag in new_row.tags_removed:
+                                print("not adding tag:", tag)
+                            else:
+                                kwargs["tag_number"] = tag
+                                create_obs(kwargs)
 
-            # check to see if there is a direct hit using only year, month, day
-            samples = models.Sample.objects.filter(
-                site=site,
-                sample_type=1,
-                arrival_date__year=arrival_date.year,
-                arrival_date__month=arrival_date.month,
-                arrival_date__day=arrival_date.day,
-            )
-
-            if samples.count() == 0:
-                print("big problem for obs id={}. no sample found for site={}, date={}/{}/{}".format(
-                    row["id"],
-                    site,
-                    row["Year"],
-                    row["Month"],
-                    row["Day"],
-                ))
-
-            elif samples.count() > 1:
-                print("small problem for obs id={}. multiple samples found for site={}, date={}/{}/{}".format(
-                    row["id"],
-                    site,
-                    row["Year"],
-                    row["Month"],
-                    row["Day"],
-                ))
-                for s in samples:
-                    print(s.arrival_date, row["Time.Start"])
-                print("going to put all observations in the first sample")
-            if samples.exists():
-                # there has been  1 or more hits and we can create the observation in the db
-                my_obs, created = models.Entry.objects.get_or_create(
-                    id=int(row["id"]),
-                )
-                if created:
-                    # if there is either a date or location tagged, we will put this in the notes. We discussed this with guillaume to drop this field
-                    location_tagged = nz(row["Location.Tagged"].strip(), None) if row["Location.Tagged"] else None
-                    if location_tagged:
-                        add_comment(comment, f"location tagged: {location_tagged}")
-
-                    date_tagged = nz(row["Date.Tagged"].strip(), None) if row["Date.Tagged"] else None
-                    if date_tagged:
-                        add_comment(comment, f"date tagged: {date_tagged}")
-
-                    try:
-                        species = models.Species.objects.get(code__iexact=row["Species"]) if row["Species"] else None
-                        status = models.Status.objects.get(code__iexact=row["Status"]) if row["Status"] else None
-                        origin = models.Origin.objects.get(code__iexact=row["Origin"]) if row["Origin"] else None
-                        sex = models.Sex.objects.get(code__iexact=row["Sex"]) if row["Sex"] else None
-                    except Exception as E:
-                        print(E)
-                        print(
-                            f'Species={row["Species"]} Status={row["Status"]} '
-                            f'Origin={row["Origin"]} Sex={row["Sex"]}'
-                        )
-                    my_obs.species = species
-                    my_obs.sample = samples.first()
-                    my_obs.first_tag = row["First.Tag"].strip() if row["First.Tag"] else None
-                    my_obs.last_tag = row["Last.Tag"].strip() if row["Last.Tag"] else None
-                    my_obs.status = status
-                    my_obs.origin = origin
-                    my_obs.frequency = row["Freq"].strip() if row["Freq"] else None
-                    my_obs.fork_length = row["ForkLength"].strip() if row["ForkLength"] else None
-                    my_obs.total_length = row["Total.Length"].strip() if row["Total.Length"] else None
-                    my_obs.weight = row["Weight"].strip() if row["Weight"] else None
-                    my_obs.sex = sex
-                    my_obs.smolt_age = row["Smolt.Age"].strip() if row["Smolt.Age"] else None
-                    my_obs.scale_id_number = row["Scale ID Number"].strip() if row["Scale ID Number"] else None
-                    my_obs.tags_removed = row["tags removed"].strip() if row["tags removed"] else None
-                    my_obs.notes = row["Comments"].strip() if row["Comments"] else None
-
-                    try:
-                        my_obs.save()
-                    except Exception as e:
-                        print(e)
-                        print(my_obs.id)
+                    else:
+                        kwargs["tag_number"] = None
+                        for i in range(0, new_row.freq):
+                            create_obs(kwargs)
 
             i += 1
-
-
-def transfer_life_stage():
-    for obs in models.Observation.objects.filter(species__life_stage__isnull=False):
-        obs.life_stage_id = obs.species.life_stage_id
-        obs.save()
-
-
-def clean_up_lamprey():
-    s150 = models.Species.objects.get(code=150)  # good one
-    s151 = models.Species.objects.get(code=151)  # ammocoete
-    s152 = models.Species.objects.get(code=152)  # silver
-    life_stage_ammocoete, created = models.LifeStage.objects.get_or_create(name="ammocoete")
-    life_stage_silver, created = models.LifeStage.objects.get_or_create(name="silver")
-
-    for obs in s151.observations.all():
-        obs.species_id = s150.id
-        obs.life_stage_id = life_stage_ammocoete.id
-        obs.save()
-
-    for obs in s152.observations.all():
-        obs.species_id = s150.id
-        obs.life_stage_id = life_stage_silver.id
-        obs.save()
-
-    s151.delete()
-    s152.delete()
-
-
-def create_river_areas():
-    for r in River.objects.all():
-        if r.fishing_area_code:
-            fa, created = FishingArea.objects.get_or_create(name=r.fishing_area_code.upper())
-            r.fishing_area = fa
-            r.save()
 
 
 def find_duplicate_scales():
@@ -492,31 +355,6 @@ def find_duplicate_scales():
     for sid in scale_ids:
         if observations.filter(scale_id_number=sid).count() > 1:
             print(f"duplicate records found for: {sid}")
-
-
-def annotate_scales():
-    # get the unique list of scale ids
-    observations = models.Observation.objects.filter(scale_id_number__isnull=False)
-
-    for o in observations:
-        o.scale_id_number += f" {o.sample.season}"
-        o.save()
-
-    find_duplicate_scales()
-
-
-def populate_len():
-    fl_observations = models.Observation.objects.filter(fork_length__isnull=False, length__isnull=True)
-    for o in fl_observations:
-        o.length = o.fork_length
-        o.length_type = 1
-        o.save()
-
-    tot_observations = models.Observation.objects.filter(total_length__isnull=False, length__isnull=True)
-    for o in tot_observations:
-        o.length = o.total_length
-        o.length_type = 2
-        o.save()
 
 
 def delete_tags_removed():
@@ -561,137 +399,3 @@ def delete_tags_removed():
             if obs.tag_number in removed_tags:
                 print("This observation is being deleted:", obs.tag_number, removed_tags)
                 obs.delete()
-
-
-def import_smolt_ages():
-    # open the csv we want to read
-    my_target_data_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'smolt_ages_to_import.csv')
-    with open(os.path.join(my_target_data_file), 'r') as csv_read_file:
-
-        my_csv = csv.DictReader(csv_read_file)
-        for row in my_csv:
-            scale_id = row["Scale ID Number"].strip()
-            qs = models.Observation.objects.filter(scale_id_number=scale_id)
-            if not qs.exists():
-                scale_id = scale_id + f' {row["Year"]}'
-                qs = models.Observation.objects.filter(scale_id_number=scale_id)
-                if not qs.exists():
-                    print("cannot find scale number:", scale_id)
-                elif qs.count() > 1:
-                    print("too many results:", scale_id)
-                else:
-                    # print(f"ready to insert age for scale_id {scale_id}: {row['Smolt.Age']}")
-                    obs = qs.first()
-                    obs.river_age = row['Smolt.Age']
-                    obs.save()
-            else:
-                # let's deal with the ones with multiple frequencies
-                freq = int(row["Freq"])
-                raw_arrival_time = row["Time.Start"]
-                raw_departure_time = row["Time.Released"]
-                if raw_arrival_time and ":" in raw_arrival_time:
-                    hour = raw_arrival_time.split(":")[0]
-                    min = raw_arrival_time.split(":")[1]
-                else:
-                    hour = "12"
-                    min = "00"
-                    comment = add_comment(comment, "Import data did not contain arrival time")
-                arrival_dt_string = f'{row["Year"]}-{row["Month"]}-{row["Day"]} {hour}:{min}'
-                if raw_departure_time and ":" in raw_departure_time:
-                    hour = raw_departure_time.split(":")[0]
-                    min = raw_departure_time.split(":")[1]
-                else:
-                    hour = "12"
-                    min = "00"
-                departure_dt_string = f'{row["Year"]}-{row["Month"]}-{row["Day"]} {hour}:{min}'
-                arrival_date = make_aware(datetime.datetime.strptime(arrival_dt_string, "%Y-%m-%d %H:%M"), timezone=pytz.timezone("Canada/Atlantic"))
-                departure_date = make_aware(datetime.datetime.strptime(departure_dt_string, "%Y-%m-%d %H:%M"), timezone=pytz.timezone("Canada/Atlantic"))
-                site = models.RiverSite.objects.get(pk=row["River"])
-
-                if freq > 1:
-                    # find out how many exist from that date
-                    qs = models.Observation.objects.filter(
-                        sample__site=site,
-                        sample__arrival_date=arrival_date,
-                        tag_number__isnull=True,
-                        status__code__iexact="r",
-                        river_age__isnull=True,
-                        length=None,
-                    )
-                    print(qs.count(), freq, qs.count() > freq)
-                    i = 1
-                    for obs in qs:
-                        obs.river_age = row['Smolt.Age']
-                        obs.save()
-                        print("updating:", i, obs.id)
-                        qs0 = models.Observation.objects.filter(
-                            sample__site=site,
-                            sample__arrival_date=arrival_date,
-                            tag_number__isnull=True,
-                            status__code__iexact="r",
-                            river_age=row['Smolt.Age'],
-                            length=None,
-                        )
-                        if qs0.count() == freq:
-                            break
-                        i += 1
-                else:
-                    species = int(row["species"])
-                    life_stage_id = row["life_stage_id"]
-                    if species == 79 and life_stage_id == "1":
-                        qs = models.Observation.objects.filter(
-                            sample__site=site,
-                            sample__arrival_date=arrival_date,
-                            tag_number__isnull=True,
-                            status__code__iexact="r",
-                            river_age__isnull=True,
-                            notes__icontains=row["Comments"],
-                        )
-                        if qs.count() == 1:
-                            obs = qs.first()
-                            obs.river_age = row['Smolt.Age']
-                            obs.save()
-                    if species == 79 and life_stage_id == "2":
-                        qs = models.Observation.objects.filter(
-                            sample__site=site,
-                            sample__arrival_date=arrival_date,
-                            tag_number__isnull=True,
-                            status__code__iexact=row["Status"],
-                            river_age__isnull=True,
-                            # notes__icontains=row["Comments"],
-                            fork_length=row["ForkLength"]
-                        )
-                        if qs.count() == 1:
-                            obs = qs.first()
-                            obs.river_age = row['Smolt.Age']
-                            obs.save()
-
-                    if species == 24:
-                        qs = models.Observation.objects.filter(
-                            sample__site=site,
-                            sample__arrival_date=arrival_date,
-                            tag_number__isnull=True,
-                            status__code__iexact=row["Status"],
-                            river_age__isnull=True,
-                            fork_length=row["ForkLength"]
-                        )
-                        print(qs.count())
-                        if qs.count() == 1:
-                            obs = qs.first()
-                            obs.river_age = row['Smolt.Age']
-                            obs.save()
-                    elif species == 54:
-                        qs = models.Observation.objects.filter(
-                            sample__site=site,
-                            sample__arrival_date=arrival_date,
-                            tag_number__isnull=True,
-                            status__code__iexact=row["Status"],
-                            river_age__isnull=True,
-                            total_length=row["Total.Length"],
-                            weight=row["Weight"],
-                            notes__icontains=row["Comments"],
-                        )
-                        if qs.count() == 1:
-                            obs = qs.first()
-                            obs.river_age = row['Smolt.Age']
-                            obs.save()
