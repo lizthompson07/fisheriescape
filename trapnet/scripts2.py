@@ -79,19 +79,19 @@ species_conversion_dict = {
     "9002": {"id": 78, "ls": None},
     "9070": {"id": 76, "ls": None},
 
-    "151": {"id": 2, "ls": "am"},
-    "152": {"id": 2, "ls": "si"},
+    "151": {"id": 2, "ls": 13},
+    "152": {"id": 2, "ls": 14},
 
-    "1731": {"id": 79, "ls": "pa"},
-    "1732": {"id": 79, "ls": "sm"},
-    "1734": {"id": 79, "ls": "sa"},
+    "1731": {"id": 79, "ls": 1},
+    "1732": {"id": 79, "ls": 2},
+    "1734": {"id": 79, "ls": 4},
 
-    "1751": {"id": 24, "ls": "pa"},
-    "1752": {"id": 24, "ls": "re"},
+    "1751": {"id": 24, "ls": 1},
+    "1752": {"id": 24, "ls": 7},
 
-    "1781": {"id": 80, "ls": "pa"},
-    "1782": {"id": 80, "ls": "re"},
-    "1783": {"id": 80, "ls": "sr"},
+    "1781": {"id": 80, "ls": 1},
+    "1782": {"id": 80, "ls": 7},
+    "1783": {"id": 80, "ls": 8},
 
     # "4620": {"id": "?", "ls": "?"},
     # "6550": {"id": "?", "ls": "?"},
@@ -113,10 +113,9 @@ def convert_sp_code_to_id(code):
         id = d1["id"]
         ls = d1["ls"]
         payload = dict(
-            species=models.Species.objects.get(id=id),
+            species=id,
+            life_stage=ls,
         )
-        if ls:
-            payload["life_stage"] = models.LifeStage.objects.get(code=ls)
         return payload
 
 def get_sample(row_dict):
@@ -186,7 +185,7 @@ def write_samples_to_table():
                 if i == 0:
                     writer.writerow(row)
                     header_row = row
-                elif i < 1000:
+                else:
                     # get the row_dict
                     col_count = 0
                     for col in row:
@@ -207,10 +206,9 @@ def write_samples_to_table():
                     species = mydict["species"]
                     life_stage = mydict.get("life_stage")
                     if species:
-                        row[9] = species.id
-
+                        row[9] = species
                     if life_stage:
-                        row[10] = life_stage.id
+                        row[10] = life_stage
 
                     writer.writerow(row)
                 # display progress
