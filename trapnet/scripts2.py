@@ -10,11 +10,19 @@ from django.utils import timezone
 from django.utils.timezone import make_aware
 
 from lib.templatetags.custom_filters import nz
-from shared_models import models as shared_models
 from shared_models.models import River, FishingArea
 from . import models
 
 bad_codes = list()
+
+site_conversion_dict = {
+    "Butters": 334,
+    "Kedgwick": 336,
+    "LittleMain": 337,
+    "Matapedia": 338,
+    "Moses": 335,
+    "Upsalquitch": 333,
+}
 
 species_conversion_dict = {
     "140": {"id": 1, "ls": None},
@@ -104,6 +112,11 @@ def delete_rst_data():
     observations.delete()
 
 
+def convert_river_to_site(river):
+    site_conversion_dict.get(river)
+    return id
+
+
 def convert_sp_code_to_id(code):
     d1 = species_conversion_dict.get(code)
 
@@ -117,6 +130,7 @@ def convert_sp_code_to_id(code):
             life_stage=ls,
         )
         return payload
+
 
 def get_sample(row_dict):
     # raw_arrival_time = row_dict["Time.Start"]
@@ -156,10 +170,9 @@ def get_sample(row_dict):
     #     else:
     #         print("cannot find sample:", e, row_dict, sample_qs.count(), sample_qs)
     # finally:
-    site = models.RiverSite.objects.get(pk=row_dict["River"])
     try:
         sample = models.Sample.objects.get(
-            site=site,
+            site_id=row_dict["siteId"],
             arrival_date__year=row_dict["Year"],
             arrival_date__month=row_dict["Month"],
             arrival_date__day=row_dict["Day"],
@@ -172,7 +185,7 @@ def get_sample(row_dict):
 
 
 def write_samples_to_table():
-    my_target_read_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'master_smolt_data_GD_Jul_2021.csv')
+    my_target_read_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'master_smolt_data_GD_Jun_2022.csv')
     my_target_write_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'master_smolt_data_DJF_June_2022.csv')
     with open(os.path.join(my_target_read_file), 'r') as read_file:
         reader = csv.reader(read_file)
@@ -191,24 +204,28 @@ def write_samples_to_table():
                     for col in row:
                         row_dict[header_row[col_count]] = col
                         col_count += 1
+                    # GET SITE
+                    site_id = convert_river_to_site(w_dict["River"])
+                    row[7] = sample.id
+
 
                     # GET SAMPLES
                     if not row_dict["sampleId"]:
-                        sample = get_sample(row_dict)
-                        # sample = None
+                        # sample = get_sample(row_dict)
+                        sample = None
                         # if there is a sample, we update the row
                         if sample:
-                            row[7] = sample.id
 
                     # GET SPECIES
                     code = row_dict["Species"]
                     mydict = convert_sp_code_to_id(code)
-                    species = mydict["species"]
-                    life_stage = mydict.get("life_stage")
-                    if species:
-                        row[9] = species
-                    if life_stage:
-                        row[10] = life_stage
+                    if mydict:
+                        species = mydict["species"]
+                        life_stage = mydict.get("life_stage")
+                        if species:
+                            row[9] = species
+                        if life_stage:
+                            row[10] = life_stage
 
                     writer.writerow(row)
                 # display progress
@@ -313,24 +330,6 @@ def entries_2_obs():
                 else:
                     create_obs(kwargs)
         j += 1
-
-
-def population_parents():
-    for river in shared_models.River.objects.all():
-        if river.parent_cgndb_id:
-            # get the river, if it exists
-            try:
-                parent_river = shared_models.River.objects.get(cgndb=river.parent_cgndb_id)
-            except shared_models.River.DoesNotExist:
-                pass
-            else:
-                river.parent_river = parent_river
-                river.save()
-
-
-def resave_traps():
-    for trap in models.Sample.objects.filter(season__isnull=True):
-        trap.save()
 
 
 def comment_samples_from_matapedia():

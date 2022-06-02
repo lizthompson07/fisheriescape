@@ -62,16 +62,17 @@ class SampleForm(forms.ModelForm):
 
     def clean_percent_cloud_cover(self):
         percent_cloud_cover = self.cleaned_data['percent_cloud_cover']
-        if percent_cloud_cover % 1 != 0:
-            self.add_error('percent_cloud_cover', gettext(
-                "Must be an integer!"
-            ))
-        percent_cloud_cover /= 100
-        print(percent_cloud_cover)
-        if percent_cloud_cover > 1:
-            self.add_error('percent_cloud_cover', gettext(
-                "Must be between an integer between 0 and 100!"
-            ))
+
+        if percent_cloud_cover:
+            if percent_cloud_cover % 1 != 0:
+                self.add_error('percent_cloud_cover', gettext(
+                    "Must be an integer!"
+                ))
+            percent_cloud_cover /= 100
+            if percent_cloud_cover > 1:
+                self.add_error('percent_cloud_cover', gettext(
+                    "Must be between an integer between 0 and 100!"
+                ))
         return percent_cloud_cover
 
 
