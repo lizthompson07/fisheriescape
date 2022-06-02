@@ -164,7 +164,7 @@ def get_sample(row_dict):
 def write_samples_to_table():
     my_target_read_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'master_smolt_data_GD_Jun_2022.csv')
     my_target_write_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'master_smolt_data_DJF_June_2022.csv')
-    with open(os.path.join(my_target_read_file), 'r') as read_file:
+    with open(os.path.join(my_target_read_file), 'r', encoding='cp1252') as read_file:
         reader = csv.reader(read_file)
         with open(os.path.join(my_target_write_file), 'w', newline='') as write_file:
             writer = csv.writer(write_file)
@@ -207,9 +207,9 @@ def write_samples_to_table():
                     writer.writerow(row)
 
                 # display progress
-                # if i % 1000 == 0:
-                #     print(i)
-                print(i)
+                if i % 1000 == 0:
+                    print(i)
+
 
                 # right the updated row to file
                 i += 1
