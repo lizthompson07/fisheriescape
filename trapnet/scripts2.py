@@ -175,7 +175,7 @@ def write_samples_to_table():
                 if i == 0:
                     writer.writerow(row)
                     header_row = row
-                elif i < 100:
+                else:
                     # get the row_dict
                     col_count = 0
                     for col in row:
@@ -207,8 +207,9 @@ def write_samples_to_table():
                     writer.writerow(row)
 
                 # display progress
-                if i % 1000 == 0:
-                    print(i)
+                # if i % 1000 == 0:
+                #     print(i)
+                print(i)
 
                 # right the updated row to file
                 i += 1
