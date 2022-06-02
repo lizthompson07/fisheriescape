@@ -6,7 +6,6 @@ from random import randint
 import pytz
 from django.conf import settings
 from django.db import IntegrityError
-from django.db.models import Count
 from django.utils import timezone
 from django.utils.timezone import make_aware
 
@@ -15,11 +14,110 @@ from shared_models import models as shared_models
 from shared_models.models import River, FishingArea
 from . import models
 
+bad_codes = list()
+
+species_conversion_dict = {
+    "140": {"id": 1, "ls": None},
+    "150": {"id": 2, "ls": None},
+    "1320": {"id": 5, "ls": None},
+    "1340": {"id": 6, "ls": None},
+    "1490": {"id": 7, "ls": None},
+    "1500": {"id": 8, "ls": None},
+    "1509": {"id": 9, "ls": None},
+    "1510": {"id": 10, "ls": None},
+    "1520": {"id": 11, "ls": None},
+    "1530": {"id": 12, "ls": None},
+    "1550": {"id": 13, "ls": None},
+    "1760": {"id": 26, "ls": None},
+    "1770": {"id": 27, "ls": None},
+    "1790": {"id": 31, "ls": None},
+    "1800": {"id": 32, "ls": None},
+    "1820": {"id": 33, "ls": None},
+    "1880": {"id": 34, "ls": None},
+    "1900": {"id": 35, "ls": None},
+    "1910": {"id": 36, "ls": None},
+    "2590": {"id": 37, "ls": None},
+    "2600": {"id": 38, "ls": None},
+    "2610": {"id": 39, "ls": None},
+    "2620": {"id": 40, "ls": None},
+    "2621": {"id": 41, "ls": None},
+    "2630": {"id": 42, "ls": None},
+    "2631": {"id": 43, "ls": None},
+    "2640": {"id": 44, "ls": None},
+    "2641": {"id": 45, "ls": None},
+    "2642": {"id": 46, "ls": None},
+    "2650": {"id": 47, "ls": None},
+    "2651": {"id": 48, "ls": None},
+    "2660": {"id": 49, "ls": None},
+    "2670": {"id": 50, "ls": None},
+    "2680": {"id": 51, "ls": None},
+    "2690": {"id": 52, "ls": None},
+    "2700": {"id": 53, "ls": None},
+    "3410": {"id": 54, "ls": None},
+    "4110": {"id": 55, "ls": None},
+    "4120": {"id": 56, "ls": None},
+    "4220": {"id": 57, "ls": None},
+    "4230": {"id": 58, "ls": None},
+    "4240": {"id": 59, "ls": None},
+    "4260": {"id": 60, "ls": None},
+    "4270": {"id": 61, "ls": None},
+    "4280": {"id": 62, "ls": None},
+    "4420": {"id": 63, "ls": None},
+    "4640": {"id": 64, "ls": None},
+    "5390": {"id": 65, "ls": None},
+    "5720": {"id": 66, "ls": None},
+    "5930": {"id": 67, "ls": None},
+    "5940": {"id": 68, "ls": None},
+    "5950": {"id": 69, "ls": None},
+    "8080": {"id": 70, "ls": None},
+    "8250": {"id": 71, "ls": None},
+    "8260": {"id": 72, "ls": None},
+    "8870": {"id": 73, "ls": None},
+    "8940": {"id": 74, "ls": None},
+    "8950": {"id": 75, "ls": None},
+    "9001": {"id": 77, "ls": None},
+    "9002": {"id": 78, "ls": None},
+    "9070": {"id": 76, "ls": None},
+
+    "151": {"id": 2, "ls": "am"},
+    "152": {"id": 2, "ls": "si"},
+
+    "1731": {"id": 79, "ls": "pa"},
+    "1732": {"id": 79, "ls": "sm"},
+    "1734": {"id": 79, "ls": "sa"},
+
+    "1751": {"id": 24, "ls": "pa"},
+    "1752": {"id": 24, "ls": "re"},
+
+    "1781": {"id": 80, "ls": "pa"},
+    "1782": {"id": 80, "ls": "re"},
+    "1783": {"id": 80, "ls": "sr"},
+
+    # "4620": {"id": "?", "ls": "?"},
+    # "6550": {"id": "?", "ls": "?"},
+    # "341": {"id": "?", "ls": "?"},
+}
+
 
 def delete_rst_data():
     observations = models.Observation.objects.filter(sample__sample_type=1, sample__season__lte=2021)
     observations.delete()
 
+
+def convert_sp_code_to_id(code):
+    d1 = species_conversion_dict.get(code)
+
+    if not d1:
+        print(f'cannot find code "{code}" in species dict')
+    else:
+        id = d1["id"]
+        ls = d1["ls"]
+        payload = dict(
+            species=models.Species.objects.get(id=id),
+        )
+        if ls:
+            payload["life_stage"] = models.LifeStage.objects.get(code=ls)
+        return payload
 
 def get_sample(row_dict):
     # raw_arrival_time = row_dict["Time.Start"]
@@ -62,11 +160,11 @@ def get_sample(row_dict):
     site = models.RiverSite.objects.get(pk=row_dict["River"])
     try:
         sample = models.Sample.objects.get(
-                site=site,
-                arrival_date__year=row_dict["Year"],
-                arrival_date__month=row_dict["Month"],
-                arrival_date__day=row_dict["Day"],
-            )
+            site=site,
+            arrival_date__year=row_dict["Year"],
+            arrival_date__month=row_dict["Month"],
+            arrival_date__day=row_dict["Day"],
+        )
 
     except Exception as e:
         print("cannot find sample:", e, row_dict)
@@ -79,7 +177,7 @@ def write_samples_to_table():
     my_target_write_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'master_smolt_data_DJF_June_2022.csv')
     with open(os.path.join(my_target_read_file), 'r') as read_file:
         reader = csv.reader(read_file)
-        with open(os.path.join(my_target_write_file), 'w') as write_file:
+        with open(os.path.join(my_target_write_file), 'w', newline='') as write_file:
             writer = csv.writer(write_file)
             i = 0
             header_row = list()
@@ -88,21 +186,38 @@ def write_samples_to_table():
                 if i == 0:
                     writer.writerow(row)
                     header_row = row
-                else:
+                elif i < 1000:
                     # get the row_dict
                     col_count = 0
                     for col in row:
                         row_dict[header_row[col_count]] = col
                         col_count += 1
-                    sample = get_sample(row_dict)
-                    # if there is a sample, we update the row
-                    if sample:
-                        row[7] = sample.id
 
+                    # GET SAMPLES
+                    if not row_dict["sampleId"]:
+                        sample = get_sample(row_dict)
+                        # sample = None
+                        # if there is a sample, we update the row
+                        if sample:
+                            row[7] = sample.id
+
+                    # GET SPECIES
+                    code = row_dict["Species"]
+                    mydict = convert_sp_code_to_id(code)
+                    species = mydict["species"]
+                    life_stage = mydict.get("life_stage")
+                    if species:
+                        row[9] = species.id
+
+                    if life_stage:
+                        row[10] = life_stage.id
+
+                    writer.writerow(row)
                 # display progress
                 if i % 1000 == 0:
                     print(i)
 
+                # right the updated row to file
                 i += 1
 
 
@@ -238,155 +353,6 @@ def add_comment(comment, addition):
     return comment
 
 
-wind_dict = {
-    "calm".lower(): dict(speed=2, direction=None),
-    "Calm".lower(): dict(speed=2, direction=None),
-    "calm(increasing)".lower(): dict(speed=2, direction=None),
-    "calme".lower(): dict(speed=2, direction=None),
-    "heavy".lower(): dict(speed=5, direction=None),
-    "light".lower(): dict(speed=3, direction=None),
-    "medium".lower(): dict(speed=4, direction=None),
-    "moderate".lower(): dict(speed=4, direction=None),
-    "NA".lower(): dict(speed=1, direction=None),
-    "No wind".lower(): dict(speed=1, direction=None),
-    "no wind".lower(): dict(speed=1, direction=None),
-    "none".lower(): dict(speed=1, direction=None),
-    "slight".lower(): dict(speed=2, direction=None),
-    "slight(increasing)".lower(): dict(speed=2, direction=None),
-    "strong".lower(): dict(speed=5, direction=None),
-    "Varible wind gusts".lower(): dict(speed=6, direction=None),
-    "Windy".lower(): dict(speed=4, direction=None),
-    "windy".lower(): dict(speed=4, direction=None),
-    "little wind".lower(): dict(speed=2, direction=None),
-    "strong north".lower(): dict(speed=5, direction=1),
-    "light north".lower(): dict(speed=3, direction=1),
-    "light northerly".lower(): dict(speed=3, direction=1),
-    "moderate NE".lower(): dict(speed=4, direction=2),
-    "Moderate North East".lower(): dict(speed=4, direction=2),
-    "light NE".lower(): dict(speed=3, direction=2),
-    "slight NE".lower(): dict(speed=2, direction=2),
-    "strong NE".lower(): dict(speed=5, direction=2),
-    "strong north east".lower(): dict(speed=5, direction=2),
-    "brisk east".lower(): dict(speed=3, direction=3),
-    "Light E".lower(): dict(speed=3, direction=3),
-    "Light East".lower(): dict(speed=3, direction=3),
-    "med east".lower(): dict(speed=4, direction=3),
-    "medeast".lower(): dict(speed=4, direction=3),
-    "mod east".lower(): dict(speed=4, direction=3),
-    "Mod east".lower(): dict(speed=4, direction=3),
-    "moderate east".lower(): dict(speed=4, direction=3),
-    "moderate easterly".lower(): dict(speed=4, direction=3),
-    "slight east".lower(): dict(speed=2, direction=3),
-    "slight east ".lower(): dict(speed=2, direction=3),
-    "stong east".lower(): dict(speed=5, direction=3),
-    "strong east".lower(): dict(speed=5, direction=3),
-    "Brisk SE".lower(): dict(speed=3, direction=4),
-    "Light SE".lower(): dict(speed=3, direction=4),
-    "slight SE".lower(): dict(speed=2, direction=4),
-    "Light South".lower(): dict(speed=3, direction=5),
-    "light southerly".lower(): dict(speed=3, direction=5),
-    "moderate south".lower(): dict(speed=4, direction=5),
-    "Brisk SW".lower(): dict(speed=3, direction=6),
-    "Light SW".lower(): dict(speed=3, direction=6),
-    "Slight SW".lower(): dict(speed=2, direction=6),
-    "Brisk West".lower(): dict(speed=3, direction=7),
-    "Light W".lower(): dict(speed=3, direction=7),
-    "Light West".lower(): dict(speed=3, direction=7),
-    "light westerly".lower(): dict(speed=3, direction=7),
-    "med west".lower(): dict(speed=4, direction=7),
-    "medwest".lower(): dict(speed=4, direction=7),
-    "mod ouest".lower(): dict(speed=4, direction=7),
-    "mod west".lower(): dict(speed=4, direction=7),
-    "moderate northerly".lower(): dict(speed=4, direction=7),
-    "Moderate West".lower(): dict(speed=4, direction=7),
-    "slight west".lower(): dict(speed=2, direction=7),
-    "strong west".lower(): dict(speed=5, direction=7),
-    "strong west ".lower(): dict(speed=5, direction=7),
-    "light ouest".lower(): dict(speed=3, direction=7),
-    "Brisk NW".lower(): dict(speed=3, direction=8),
-    "calm(increasing NW)".lower(): dict(speed=2, direction=8),
-    "Calm/Light NW".lower(): dict(speed=2, direction=8),
-    "Light/strong NW".lower(): dict(speed=3, direction=8),
-    "moderate NW".lower(): dict(speed=4, direction=8),
-    "slight  NW".lower(): dict(speed=2, direction=8),
-    "slight NW".lower(): dict(speed=2, direction=8),
-    "Strong NW".lower(): dict(speed=5, direction=8),
-    "Light NW".lower(): dict(speed=3, direction=8),
-    "moderate n,w".lower(): dict(speed=4, direction=8),
-    "".lower(): dict(speed=None, direction=None),
-}
-operating_condition_dict = {
-    "70% operating": 2,
-    "bad": 2,
-    "cleaner jam": 2,
-    "cleaner jammed": 2,
-    "cleaner jammed; water overflowing holding box": 2,
-    "cleaner not working": 2,
-    "fully": 1,
-    "fully after re-launch": 1,
-    "fully operation": 1,
-    "fully operation ivan,kevin,": 1,
-    "fully operational": 1,
-    "fully operational, minimal debris in box": 1,
-    "fully operational, moved wheel into shore to catch more current and increase rpms": 1,
-    "fully operational, one branch in drum": 1,
-    "fully operational, some debris in box": 1,
-    "fully operational, very little debris in box": 1,
-    "fully operational,some debris in box": 1,
-    "fully operaton": 1,
-    "fully*": 1,
-    "good": 1,
-    "good - tire is not turning": 1,
-    "good - tire is not turning - branch is still there": 1,
-    "good - tire is not turning, branch is gone": 1,
-    "good - tire is not turning, there's a big branch that dusty took off and another branch stucked on the shaft but is doesn't seem to slow down the wheel": 1,
-    "good - wheel is slower than normal but nothing seems to block it": 1,
-    "good - wheel rpm is back to normal": 1,
-    "jam removed": 1,
-    "jammed": 2,
-    "jammed/not set": 3,
-    "na": None,
-    "no cleaner": 2,
-    "not": None,
-    "not 100%": 2,
-    "not functioning": 3,
-    "not operating": 3,
-    "not operating, wheel jammed with 4 foot log": 3,
-    "not operating, wheel jammed with a 30 foot log": 3,
-    "not set": 3,
-    "operating fully": 1,
-    "operating fully (little debris)": 1,
-    "operating fully (little small debris)": 1,
-    "operating fully (lots of small debris)": 1,
-    "operating fully (moved wheel out 1 section)": 1,
-    "operating fully (very little debris)": 1,
-    "operating fully (very little fine debris)": 1,
-    "operating fully(drum dirty)": 1,
-    "operating fully,": 1,
-    "operating fully, cleaned drum": 1,
-    "operating fully, cleaner fixed and working good": 1,
-    "operating fully, little debris in box": 1,
-    "operating fully, little debris in box cleaned drum": 1,
-    "operating fully, little debris in box drum cleaned": 1,
-    "operating fully, little debris in box,": 1,
-    "operating fully, little debris in box, cleaned drum with brush to increase rpms and reduce current in box": 1,
-    "operating fully, little debris in box, larger stick in drum": 1,
-    "slow, a big long branch is stuck in it": 2,
-    "small tree in wheel, still functioning": 2,
-    "smolt wheel was found closer to shore in less current and the lock was missing. reported to rcmp and dfo c&p. wheel reset to original position.": 3,
-    "tire don't turn": 2,
-    "trap set": 1,
-    "we took out the branch": 1,
-    "wheel is touching the bottom of the river, it's very slow": 2,
-    "wheel jammed with an 8 foot piece of pulp": 2,
-    "wheel not set last evening": 3,
-    "wheel rotating good but holding box blocked with fine debris, cleaner not working": 2,
-    "wheel turning but cleaner not working": 2,
-    "wheel up": 3,
-    "": None,
-}
-
-
 def is_number_tryexcept(s):
     """ Returns True is string is a number. https://stackoverflow.com/questions/354038/how-do-i-check-if-a-string-is-a-number-float """
     try:
@@ -394,86 +360,6 @@ def is_number_tryexcept(s):
         return True
     except (ValueError, TypeError):
         return False
-
-
-def import_trap_data():
-    # open the csv we want to read
-    my_target_data_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'smolts_trapdata_master.csv')
-    with open(os.path.join(my_target_data_file), 'r') as csv_read_file:
-        my_csv = csv.DictReader(csv_read_file)
-        for row in my_csv:
-            for key in row:
-                if row[key].lower() in ["na", "n/a", ""]:
-                    row[key] = None
-
-            comment = ""
-            site = models.RiverSite.objects.get(pk=row["River"])
-
-            # deal with arrival and departure dts
-            raw_arrival_time = row["Time_arrival"]
-            raw_departure_time = row["Time_departure"]
-
-            if raw_arrival_time and ":" in raw_arrival_time:
-                hour = raw_arrival_time.split(":")[0]
-                min = raw_arrival_time.split(":")[1]
-            else:
-                hour = "12"
-                min = "00"
-                comment = add_comment(comment, "Import data did not contain arrival time")
-            arrival_dt_string = f'{row["Year"]}-{row["Month"]}-{row["Day"]} {hour}:{min}'
-
-            if raw_departure_time and ":" in raw_departure_time:
-                hour = raw_departure_time.split(":")[0]
-                min = raw_departure_time.split(":")[1]
-            else:
-                hour = "12"
-                min = "00"
-                comment = add_comment(comment, "Import data did not contain departure time")
-            departure_dt_string = f'{row["Year"]}-{row["Month"]}-{row["Day"]} {hour}:{min}'
-            arrival_date = make_aware(datetime.datetime.strptime(arrival_dt_string, "%Y-%m-%d %H:%M"), timezone=pytz.timezone("Canada/Atlantic"))
-            departure_date = make_aware(datetime.datetime.strptime(departure_dt_string, "%Y-%m-%d %H:%M"), timezone=pytz.timezone("Canada/Atlantic"))
-            sample, created = models.Sample.objects.get_or_create(
-                site=site,
-                sample_type=1,
-                arrival_date=arrival_date,
-                departure_date=departure_date,
-            )
-
-            comment = add_comment(comment, row["Comments"])
-            cloud = None
-            if row["Cloud_cover_pcent "]:
-                cloud = nz(row["Cloud_cover_pcent "].strip().lower().replace("%", ""), None)
-                if cloud and cloud != "0":
-                    if is_number_tryexcept(cloud):
-                        cloud = int(cloud) / 100
-                    elif "no cloud" in cloud or "na" in cloud:
-                        cloud = 0
-                    elif "cloudy" in cloud:
-                        cloud = 0.5
-
-            # now that we have a sample, we can deal with the rest of the fields
-            sample.air_temp_arrival = row["Airtemp_arrival"] if row["Airtemp_arrival"] else None
-            sample.min_air_temp = row["Airtemp_min"] if row["Airtemp_min"] else None
-            sample.max_air_temp = row["Airtemp_max"] if row["Airtemp_max"] else None
-            sample.percent_cloud_cov = cloud
-            sample.precipitation_comment = row["Precipitation"] if row["Precipitation"] else None
-            sample.wind_speed = wind_dict[row["Wind"].strip().lower()]["speed"] if row["Wind"] else None
-            sample.wind_direction = wind_dict[row["Wind"].strip().lower()]["direction"] if row["Wind"] else None
-            sample.water_level_delta_m = row["Water_level"] if row["Water_level"] else None
-            sample.discharge_m3_sec = row["Discharge_m3_sec"] if row["Discharge_m3_sec"] else None
-            sample.water_temp_c = row["Water_temperature_shore"] if row["Water_temperature_shore"] else None
-            sample.water_temp_trap_c = row["VEMCO"] if row["VEMCO"] else None
-            sample.rpm_arrival = row["RPM_arrival"] if row["RPM_arrival"] else None
-            sample.rpm_departure = row["RPM_departure"] if row["RPM_departure"] else None
-            sample.operating_condition = operating_condition_dict[row["Operating_condition"].lower().strip()] if row["Operating_condition"] else None
-            sample.operating_condition_comment = row["Operating_condition"] if row["Operating_condition"] else None
-            sample.samplers = row["Crew"] if row["Crew"] else None
-            sample.notes = comment
-
-            try:
-                sample.save()
-            except Exception as E:
-                print(row["id"], E)
 
 
 def import_smolt_data():
@@ -591,34 +477,6 @@ def transfer_life_stage():
     for obs in models.Observation.objects.filter(species__life_stage__isnull=False):
         obs.life_stage_id = obs.species.life_stage_id
         obs.save()
-
-
-def clean_up_species_table():
-    # first let's get a list of duplicate TSNs
-    duplicate_tsns = list()
-
-    qs = models.Species.objects.values("tsn").order_by("tsn").distinct().annotate(dcount=Count("tsn"))
-    for obj in qs:
-        if obj["dcount"] > 1:
-            duplicate_tsns.append(obj["tsn"])
-
-    # for each TSN, we want to keep the one with the most observations as the authoritative
-    for tsn in duplicate_tsns:
-        qs = models.Species.objects.filter(tsn=tsn)
-        keeper = qs.first()  # arbitrarily set to the first in line
-        max_observations = 0
-        for sp in qs:
-            print(sp.id, sp, sp.observations.count())
-            if sp.observations.count() > max_observations:
-                keeper = sp
-        # now that we have a keeper, transfer over the other observations to that sp and delete bad spp
-        # qs = qs.filter(~Q(id=keeper.id))
-        # for sp in qs:
-        #     for obs in sp.observations.all():
-        #         obs.species_id = keeper.id
-        #         obs.save()
-        #     print(sp.observations.count())
-        # sp.delete()
 
 
 def clean_up_lamprey():
