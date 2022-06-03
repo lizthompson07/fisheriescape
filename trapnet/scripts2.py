@@ -228,6 +228,15 @@ def get_number_suffix(mystr):
         if len(result):
             return int(result)
 
+def get_number_digits(mystr):
+    if mystr:
+        result = ""
+        for char in mystr:
+            if char.isdigit():
+                result += char
+        if len(result):
+            return len(result)
+
 
 def create_obs(kwargs):
     try:
@@ -322,11 +331,14 @@ def import_smolt_data():
                     start_tag_prefix = get_prefix(new_row.first_tag)
                     start_tag = get_number_suffix(new_row.first_tag)
                     end_tag = get_number_suffix(new_row.last_tag)
+                    padding = get_number_digits(new_row.first_tag)
 
                     if start_tag and end_tag:
                         diff = end_tag - start_tag
                         for i in range(0, diff + 1):
-                            tag = f"{start_tag_prefix}{start_tag + i}"
+                            num = start_tag + i
+                            num = str(num).rjust(padding)
+                            tag = f"{start_tag_prefix}{num}"
                             if tag in new_row.tags_removed:
                                 print("not adding tag:", tag)
                             else:
@@ -335,7 +347,9 @@ def import_smolt_data():
 
                     elif start_tag and new_row.freq:
                         for i in range(0, new_row.freq):
-                            tag = f"{start_tag_prefix}{start_tag + i}"
+                            num = start_tag + i
+                            num = str(num).rjust(padding)
+                            tag = f"{start_tag_prefix}{num}"
                             if tag in new_row.tags_removed:
                                 print("not adding tag:", tag)
                             else:
