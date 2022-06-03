@@ -337,7 +337,7 @@ def import_smolt_data():
                         diff = end_tag - start_tag
                         for i in range(0, diff + 1):
                             num = start_tag + i
-                            num = str(num).rjust(padding)
+                            num = str(num).rjust(padding, "0")
                             tag = f"{start_tag_prefix}{num}"
                             if tag in new_row.tags_removed:
                                 print("not adding tag:", tag)
@@ -348,7 +348,7 @@ def import_smolt_data():
                     elif start_tag and new_row.freq:
                         for i in range(0, new_row.freq):
                             num = start_tag + i
-                            num = str(num).rjust(padding)
+                            num = str(num).rjust(padding, "0")
                             tag = f"{start_tag_prefix}{num}"
                             if tag in new_row.tags_removed:
                                 print("not adding tag:", tag)
