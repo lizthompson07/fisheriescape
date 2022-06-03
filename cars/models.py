@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 from django.utils.translation import gettext_lazy as _
 
-from shared_models.models import SimpleLookup, Region, MetadataFields, UnilingualSimpleLookup
+from shared_models.models import SimpleLookup, Region, MetadataFields, UnilingualSimpleLookup, LatLongFields
 
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
 
@@ -25,8 +25,8 @@ class VehicleType(SimpleLookup):
     pass
 
 
-class Location(UnilingualSimpleLookup):
-    address = models.TextField(blank=True, null=True, verbose_name=_("address"))
+class Location(SimpleLookup, LatLongFields):
+    address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
     city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
     postal_code = models.CharField(max_length=7, blank=True, null=True, verbose_name=_("postal code"))
 
@@ -41,7 +41,7 @@ class Vehicle(MetadataFields):
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING)
     custodian = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="vehicles")
     vehicle_type = models.ForeignKey(VehicleType, on_delete=models.DO_NOTHING)
-    reference_number = models.CharField(max_length=50, verbose_name=_("reference_number"))
+    reference_number = models.CharField(max_length=50, verbose_name=_("reference number"))
     make = models.CharField(max_length=255, verbose_name=_("make"))
     model = models.CharField(max_length=255, verbose_name=_("model"))
     year = models.PositiveIntegerField(verbose_name=_("year"))

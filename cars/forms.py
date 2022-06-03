@@ -50,7 +50,15 @@ VehicleTypeFormset = modelformset_factory(
 class LocationForm(forms.ModelForm):
     class Meta:
         model = models.Location
-        fields = "__all__"
+        fields = [
+            "name",
+            "nom",
+            "address",
+            "city",
+            "postal_code",
+            "latitude",
+            "longitude",
+        ]
 
 
 LocationFormset = modelformset_factory(

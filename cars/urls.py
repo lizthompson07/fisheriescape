@@ -16,7 +16,7 @@ urlpatterns = [
     path('settings/users/<int:pk>/delete/', views.CarsUserHardDeleteView.as_view(), name="delete_cars_user"),
 
     # vehicles
-    path('vehicles/', views.VehicleListView.as_view(), name="vehicle_list"),
+    path('fleet/', views.VehicleListView.as_view(), name="vehicle_list"),
     path('vehicles/new/', views.VehicleCreateView.as_view(), name="vehicle_new"),
     path('vehicles/<int:pk>/edit/', views.VehicleUpdateView.as_view(), name="vehicle_edit"),
     path('vehicles/<int:pk>/delete/', views.VehicleDeleteView.as_view(), name="vehicle_delete"),

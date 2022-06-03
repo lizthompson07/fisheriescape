@@ -2,7 +2,8 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy, gettext as _
 
 from cars import models, forms, filters
-from cars.mixins import CarsBasicMixin, SuperuserOrAdminRequiredMixin, CarsNationalAdminRequiredMixin, CarsRegionalAdminRequiredMixin
+from cars.mixins import CarsBasicMixin, SuperuserOrAdminRequiredMixin, CarsNationalAdminRequiredMixin, CarsRegionalAdminRequiredMixin, \
+    CanModifyVehicleRequiredMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonDeleteView, CommonDetailView, CommonUpdateView, \
     CommonFilterView, CommonCreateView
 
@@ -65,31 +66,38 @@ class LocationHardDeleteView(CarsRegionalAdminRequiredMixin, CommonHardDeleteVie
 ###########
 
 class VehicleListView(CarsBasicMixin, CommonFilterView):
-    template_name = 'cars/list.html'
+    template_name = 'cars/vehicle_list.html'
     filterset_class = filters.VehicleFilter
     new_object_url = reverse_lazy("cars:vehicle_new")
     row_object_url_name = row_ = "cars:vehicle_detail"
 
     field_list = [
-        {"name": 'name', "class": "", "width": ""},
-        {"name": 'abbreviation', "class": "", "width": ""},
-        {"name": 'tdescription|{}'.format("description"), "class": "", "width": ""},
-        {"name": 'province', "class": "", "width": ""},
-        {"name": 'transect_count|{}'.format(_("# transect")), "class": "", "width": ""},
-        {"name": 'sample_count|{}'.format(_("# outings")), "class": "", "width": ""},
+        {"name": "region", "class": ""},
+        {"name": "location", "class": ""},
+        {"name": "custodian", "class": ""},
+        {"name": "vehicle_type", "class": ""},
+        {"name": "reference_number", "class": ""},
+        {"name": "make", "class": ""},
+        {"name": "model", "class": ""},
+        {"name": "year", "class": ""},
+        {"name": "max_passengers", "class": ""},
+        {"name": "is_active", "class": ""},
+        {"name": "comments", "class": ""},
+        {"name": "thumbnail", "class": ""},
     ]
 
     def get_queryset(self):
         return models.Vehicle.objects.filter(is_active=True)
 
 
-class VehicleUpdateView(CarsBasicMixin, CommonUpdateView):
+class VehicleUpdateView(CanModifyVehicleRequiredMixin, CommonUpdateView):
     model = models.Vehicle
     form_class = forms.VehicleForm
     template_name = 'cars/form.html'
     home_url_name = "cars:index"
     parent_crumb = {"title": gettext_lazy("Vehicles"), "url": reverse_lazy("cars:vehicle_list")}
     container_class = "container curvy"
+    is_multipart_form_data = True
 
 
 class VehicleCreateView(CarsBasicMixin, CommonCreateView):
@@ -100,6 +108,7 @@ class VehicleCreateView(CarsBasicMixin, CommonCreateView):
     home_url_name = "cars:index"
     parent_crumb = {"title": gettext_lazy("Vehicles"), "url": reverse_lazy("cars:vehicle_list")}
     container_class = "container curvy"
+    is_multipart_form_data = True
 
 
 class VehicleDetailView(CarsBasicMixin, CommonDetailView):
@@ -132,7 +141,7 @@ class VehicleDetailView(CarsBasicMixin, CommonDetailView):
         return context
 
 
-class VehicleDeleteView(CarsBasicMixin, CommonDeleteView):
+class VehicleDeleteView(CanModifyVehicleRequiredMixin, CommonDeleteView):
     model = models.Vehicle
     success_url = reverse_lazy('cars:vehicle_list')
     success_message = 'The functional group was successfully deleted!'

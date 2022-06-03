@@ -43,9 +43,9 @@
               Here is some help text we can show regarding the vehicle fleet. Perhaps we'll talk about locations and other important information.
             {% endblocktrans %}
           </p>
-          <button class="btn btn-sm btn-outline-light" type="button">{% trans "View Fleet" %}</button>
-          <button class="btn btn-sm btn-outline-light" type="button">{% trans "Manage Your Vehicles" %}</button>
-          <button class="btn btn-sm btn-outline-light" type="button"><span class="mdi mdi-plus pe-1 text-light"></span>{% trans "Add a Vehicle" %}</button>
+          <a href="{% url 'cars:vehicle_list'  %}" class="btn btn-sm btn-outline-light">{% trans "View Fleet" %}</a>
+          <a href="#" class="btn btn-sm btn-outline-light">{% trans "Manage Your Vehicles" %}</a>
+          <a href="{% url 'cars:vehicle_new'  %}" class="btn btn-sm btn-outline-light"><span class="mdi mdi-plus pe-1 text-light"></span>{% trans "Add a Vehicle" %}</a>
         </div>
       </div>
       <div class="col-md-6">
@@ -56,8 +56,9 @@
               Similarly, we can provide some general text about making a reservation, managing active requests etc.
             {% endblocktrans %}
           </p>
-          <button class="btn btn-sm btn-outline-secondary" type="button">{% trans "Your Reservations" %}</button>
           <button class="btn btn-sm btn-outline-secondary" type="button"><span class="mdi mdi-plus pe-1"></span> {% trans "New Reservation" %}</button>
+        
+          <button class="btn btn-sm btn-outline-secondary" type="button">{% trans "Your Reservations" %}</button>
 
           <button type="button" class="btn btn-sm btn-outline-secondary position-relative">
             {% trans "Requests for Your Vehicles" %}

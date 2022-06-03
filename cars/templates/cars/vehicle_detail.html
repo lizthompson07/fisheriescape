@@ -16,8 +16,8 @@
   </style>
 
   <div class="btns mb-3">
-    <a href="{% url 'cars:region_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
-    <a href="{% url 'cars:region_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+    <a href="{% url 'cars:vehicle_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
+    <a href="{% url 'cars:vehicle_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
   </div>
   {##}
   <div class="mb-3 row">
@@ -32,7 +32,7 @@
       {% if not object.get_coordinates %}
         <div class="alert alert-danger lead mb-3" role="alert">
           <span class="mdi mdi-emoticon-confused-outline h3 mr-2"></span>
-          {% trans "None of the transects associated with this region contains any coordinates." %}
+          {% trans "None of the transects associated with this vehicle contains any coordinates." %}
         </div>
       {% endif %}
     </div>
@@ -44,54 +44,7 @@
     {% endlocalize %}
   {% endif %}
 
-  <div class="mb-3">
-    <div class="float-right">
-      <a href="{% url 'cars:transect_new' object.id %}" class="btn btn-sm btn-success"> {% trans "Add Transect" %}</a>
-    </div>
-    <h3>{% trans "Transects" %}</h3>
 
-
-    {% if object.transects.exists %}
-
-      <table class="table table-sm">
-        <thead>
-        <tr>
-          {% for field in transect_field_list %}
-            <th>
-              {% get_verbose_label object.transects.first field %}
-            </th>
-          {% endfor %}
-          <th>{% trans "No. of outings" %}</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for transect in object.transects.all %}
-          <tr>
-            {% for field in transect_field_list %}
-              <td>
-                {% get_field_value transect field %}
-              </td>
-            {% endfor %}
-            <td>{{ transect.samples.count }}</td>
-            <td>
-              <a href="{% url 'cars:transect_edit' transect.id %}">
-                {% trans "Edit" %} <span class="mdi mdi-pencil"></span>
-              </a>
-            </td>
-            <td>
-              <a href="{% url 'cars:transect_delete' transect.id %}">
-                {% trans "Delete" %}<span class="mdi mdi-delete"></span>
-              </a>
-            </td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-
-    {% else %}
-      <em>{% trans "This region has no transects." %}</em>
-    {% endif %}
-  </div>
 {% endblock %}
 
 

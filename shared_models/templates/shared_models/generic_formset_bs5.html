@@ -16,7 +16,6 @@
 
   {% trans "Save" as default_submit_text %}
   {% trans "Back" as default_cancel_text %}
-  {% echo request.META.HTTP_REFERER as default_cancel_url %}
   {% bootstrap_messages size='small' %}
   <form method="post" class="form" {% if is_multipart_form_data %}enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
@@ -26,7 +25,7 @@
     <div class="mt-3 mb-3">
       <input type="submit" class="btn btn-primary" value="{{ submit_text|nz:default_submit_text }}">
 
-      <a class=" btn btn-secondary" href="{{ cancel_url|nz:default_cancel_url }}">
+      <a class=" btn btn-secondary" href="{{ cancel_url }}">
         {{ cancel_text|nz:default_cancel_text }}
       </a>
     </div>
@@ -113,7 +112,7 @@
     <div class="mt-3 mb-3">
       <input type="submit" class="btn btn-primary" value="{{ submit_text|nz:default_submit_text }}">
 
-      <a class=" btn btn-secondary" href="{{ cancel_url|nz:default_cancel_url }}">
+      <a class=" btn btn-secondary" href="{{ cancel_url }}">
         {{ cancel_text|nz:default_cancel_text }}
       </a>
     </div>

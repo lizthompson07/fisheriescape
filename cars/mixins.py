@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
 
-from cars.utils import is_national_admin, is_admin, is_regional_admin
+from cars.utils import is_national_admin, is_admin, is_regional_admin, can_modify_vehicle
 
 
 class CarsBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -21,6 +21,7 @@ class CarsBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
         context = super().get_context_data(**kwargs)
         context["is_admin"] = is_admin(self.request.user)
         context["bootstrap5"] = True
+        context["sortable"] = False
         return context
 
 
@@ -32,6 +33,12 @@ class CarsNationalAdminRequiredMixin(CarsBasicMixin):
 class CarsRegionalAdminRequiredMixin(CarsBasicMixin):
     def test_func(self):
         return is_regional_admin(self.request.user)
+
+
+class CanModifyVehicleRequiredMixin(CarsBasicMixin):
+    def test_func(self):
+        vehicle = self.get_object()
+        return can_modify_vehicle(self.request.user, vehicle)
 
 
 class SuperuserOrAdminRequiredMixin(CarsBasicMixin):

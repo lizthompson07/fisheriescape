@@ -445,9 +445,9 @@ class CommonFormsetView(TemplateView, CommonFormMixin):
     cancel_url = None
 
     def get_cancel_url(self):
-        if self.get_cancel_url:
+        if self.cancel_url:
             return self.cancel_url
-        elif self.get_parent_crumb:
+        elif self.get_parent_crumb():
             return self.parent_crumb.get("url")
         elif self.home_url_name:
             return reverse(self.home_url_name)
