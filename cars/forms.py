@@ -15,7 +15,9 @@ class VehicleForm(forms.ModelForm):
     class Meta:
         model = models.Vehicle
         fields = "__all__"
-
+        widgets = {
+            "custodian": forms.Select(attrs=chosen_js)
+        }
 
 
 class CarsUserForm(forms.ModelForm):

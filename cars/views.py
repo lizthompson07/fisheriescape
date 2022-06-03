@@ -1,4 +1,5 @@
 from django.urls import reverse_lazy
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy, gettext as _
 
 from cars import models, forms, filters
@@ -70,25 +71,22 @@ class VehicleListView(CarsBasicMixin, CommonFilterView):
     filterset_class = filters.VehicleFilter
     new_object_url = reverse_lazy("cars:vehicle_new")
     row_object_url_name = row_ = "cars:vehicle_detail"
-
-    field_list = [
-        {"name": "region", "class": ""},
-        {"name": "location", "class": ""},
-        {"name": "custodian", "class": ""},
-        {"name": "vehicle_type", "class": ""},
-        {"name": "reference_number", "class": ""},
-        {"name": "make", "class": ""},
-        {"name": "model", "class": ""},
-        {"name": "year", "class": ""},
-        {"name": "max_passengers", "class": ""},
-        {"name": "is_active", "class": ""},
-        {"name": "comments", "class": ""},
-        {"name": "thumbnail", "class": ""},
-    ]
+    paginate_by = 10
 
     def get_queryset(self):
+        qp = self.request.GET
+        if qp.get("personalized"):
+            return self.request.user.vehicles.all()
         return models.Vehicle.objects.filter(is_active=True)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        qp = self.request.GET
+        if qp.get("personalized"):
+            context["personalized"] = True
+            context["filter"] = None
+            context["paginate_by"] = None
+        return context
 
 class VehicleUpdateView(CanModifyVehicleRequiredMixin, CommonUpdateView):
     model = models.Vehicle
@@ -118,27 +116,19 @@ class VehicleDetailView(CarsBasicMixin, CommonDetailView):
     parent_crumb = {"title": gettext_lazy("Vehicles"), "url": reverse_lazy("cars:vehicle_list")}
     container_class = "container curvy"
     field_list = [
-        'name',
-        'abbreviation',
-        'tdescription|{}'.format("description"),
-        'province',
-        'coordinates',
-        'transect_count|{}'.format(_("# transects")),
-        'sample_count|{}'.format(_("# outings")),
+        "region",
+        "location",
+        "custodian",
+        "vehicle_type",
+        "reference_number",
+        "make",
+        "model",
+        "year",
+        "max_passengers",
+        "is_active",
+        "comments",
     ]
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        transect_field_list = [
-            'name',
-            'old_name',
-            'starting_coordinates_ddmm|{}'.format(_("starting coordinates (0m)")),
-            'ending_coordinates_ddmm|{}'.format(_("ending coordinates (100m)")),
-            'distance|{}'.format(_("transect distance (m)")),
-
-        ]
-        context["transect_field_list"] = transect_field_list
-        return context
 
 
 class VehicleDeleteView(CanModifyVehicleRequiredMixin, CommonDeleteView):

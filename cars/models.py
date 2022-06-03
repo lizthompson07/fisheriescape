@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
 # Create your models here.
+from django.templatetags.static import static
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from shared_models.models import SimpleLookup, Region, MetadataFields, UnilingualSimpleLookup, LatLongFields
@@ -46,9 +48,23 @@ class Vehicle(MetadataFields):
     model = models.CharField(max_length=255, verbose_name=_("model"))
     year = models.PositiveIntegerField(verbose_name=_("year"))
     max_passengers = models.PositiveIntegerField(verbose_name=_("max passengers"))
-    is_active = models.BooleanField(default=True, verbose_name=_("is active"))
+    is_active = models.BooleanField(default=True, verbose_name=_("is in commission?"), choices=YES_NO_CHOICES,
+                                    help_text=_("Vehicles that are not in commission will not show up in the reservation list"))
     comments = models.TextField(verbose_name=_("comments"), blank=True, null=True)
     thumbnail = models.ImageField(blank=True, null=True, upload_to=img_file_name, verbose_name=_("thumbnail"))
+
+    def __str__(self):
+        return f"{self.year} {self.make} {self.model} ({self.reference_number})"
+
+    @property
+    def smart_image(self):
+        if self.thumbnail.name:
+            return self.thumbnail.url
+        else:
+            return static('cars/no-image-icon.png')
+
+    def get_absolute_url(self):
+        return reverse('cars:vehicle_detail', kwargs={'pk': self.id})
 
 
 class Reservation(models.Model):

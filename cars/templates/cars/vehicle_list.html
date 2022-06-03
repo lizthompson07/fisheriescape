@@ -1,21 +1,52 @@
 {% extends 'cars/list.html' %}
+{% load i18n %}
+{% load verbose_names %}
 
+{% block new_object_button %}
+  <div class="col" style="text-align: right">
+    <a href="{{ new_object_url }}" class="btn btn-outline-dark" data-toggle="tooltip" title="">
+      <span class="mdi mdi-plus "></span> {% trans "New vehicle" %}
+    </a>
+  </div>
+{% endblock %}
 
-{% block table_and_table_header %}
+{% block table %}
 
   {% for object in list %}
 
     <div class="card mb-3 w-100">
       <div class="row g-0">
         <div class="col-md-4">
-          <img src="{{ object.thumbnail.url }}" class="img-fluid rounded-start" alt="...">
+          <img src="{{ object.smart_image }}" class="img-fluid rounded-start">
         </div>
         <div class="col-md-8">
           <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit
-              longer.</p>
-            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+            <h5 class="card-title lead">{{ object }}</h5>
+            <div class="card-text">
+              <div class="row">
+                <div class="col">
+                  {% verbose_field_display object "region" %}
+                  {% verbose_field_display object "custodian" %}
+                </div>
+                <div class="col">
+                  {% verbose_field_display object "location" %}
+                  {% verbose_field_display object "max_passengers" %}
+                </div>
+                <div class="col">
+                  {% verbose_field_display object "vehicle_type" %}
+                </div>
+              </div>
+
+
+            </div>
+
+            <p class="card-text"><small class="text-muted">{{ object.metadata }}</small></p>
+
+            <div class="text-end">
+              <a href="{% url 'cars:vehicle_detail'  object.id %}" class="btn btn-sm btn-primary">{% trans "Details" %}</a>
+              <a href="#" class="btn btn-sm btn-dark">{% trans "Reserve" %}</a>
+            </div>
+
           </div>
         </div>
       </div>
