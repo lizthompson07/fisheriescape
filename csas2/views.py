@@ -945,9 +945,10 @@ class TermsOfReferenceSubmitView(TermsOfReferenceUpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_h3(self):
-        if self.get_object().process.is_posted:
-            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
-            return mark_safe(mystr)
+        # if self.get_object().process.is_posted:
+        #     mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
+        #     return mark_safe(mystr)
+        pass
 
     def get_grandparent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
