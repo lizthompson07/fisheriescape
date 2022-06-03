@@ -4,7 +4,7 @@ from django.db import models
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext
 
 from shared_models.models import SimpleLookup, Region, MetadataFields, UnilingualSimpleLookup, LatLongFields
 
@@ -81,10 +81,12 @@ class Reservation(MetadataFields):
     )
 
     vehicle = models.ForeignKey(Vehicle, on_delete=models.DO_NOTHING, blank=True, verbose_name=_("vehicle"), related_name="reservations")
+    primary_driver = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("primary driver"), related_name="vehicle_reservations", blank=True)
     start_date = models.DateTimeField(verbose_name=_("departure date"))
     end_date = models.DateTimeField(verbose_name=_("return date"))
-    primary_driver = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("primary driver"), related_name="reservations", blank=True)
+    destination = models.CharField(max_length=255, blank=False, null=True, verbose_name=_("destination"))
     other_drivers = models.ManyToManyField(User, blank=True, verbose_name=_("other drivers"))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("additional comments"))
 
     # non-editable
     status = models.IntegerField(choices=status_choices, default=1, editable=False)
@@ -96,3 +98,9 @@ class Reservation(MetadataFields):
 
     def get_absolute_url(self):
         return reverse('cars:rsvp_detail', kwargs={'pk': self.id})
+
+    class Meta:
+        ordering = ["-start_date"]
+
+    def __str__(self):
+        return gettext("Reservation for {car} by {user}").format(car=self.vehicle, user=self.primary_driver)

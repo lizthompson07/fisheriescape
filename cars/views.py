@@ -17,6 +17,10 @@ class IndexTemplateView(CarsBasicMixin, CommonTemplateView):
     active_page_name_crumb = "home"
     template_name = 'cars/index.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["requests_waiting"] = models.Reservation.objects.filter(vehicle__custodian=self.request.user, status=1).count()
+        return context
 
 # REFERENCE TABLES #
 ####################
@@ -234,17 +238,20 @@ class ReservationListView(CarsBasicMixin, CommonFilterView):
     paginate_by = 10
     field_list = [
         {"name": 'status', "class": "", "width": ""},
-        {"name": 'vehicle', "class": "", "width": ""},
         {"name": 'start_date', "class": "", "width": ""},
         {"name": 'end_date', "class": "", "width": ""},
+        {"name": 'destination', "class": "", "width": ""},
+        {"name": 'vehicle', "class": "", "width": ""},
         {"name": 'primary_driver', "class": "", "width": ""},
         {"name": 'other_drivers', "class": "", "width": ""},
     ]
 
     def get_queryset(self):
-        # qp = self.request.GET
-        # if qp.get("personalized"):
-        #     return self.request.user.rsvps.all()
+        qp = self.request.GET
+        if qp.get("personalized"):
+            return self.request.user.vehicle_reservations.all()
+        elif qp.get("my_vehicles"):
+            return models.Reservation.objects.filter(vehicle__custodian=self.request.user).order_by("status")
         return models.Reservation.objects.all()
 
     def get_context_data(self, **kwargs):
@@ -321,10 +328,14 @@ class ReservationDetailView(CarsBasicMixin, CommonDetailView):
     field_list = [
         "status",
         "vehicle",
+        "vehicle.custodian|{}".format(_("custodian")),
+        "primary_driver",
         "start_date",
         "end_date",
-        "primary_driver",
+        "destination",
         "other_drivers",
+        "comments",
+
     ]
 
 
@@ -345,5 +356,7 @@ def rsvp_action(request, pk, action):
         rsvp.status = 10
     elif action == "deny":
         rsvp.status = 20
+    elif action == "reset":
+        rsvp.status = 1
     rsvp.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

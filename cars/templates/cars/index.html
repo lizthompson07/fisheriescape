@@ -69,12 +69,12 @@
           </p>
           <a href="{% url 'cars:rsvp_new' %}" class="btn btn-sm btn-outline-secondary"><span class="mdi mdi-plus pe-1"></span> {% trans "New Reservation" %}</a>
 
-          <a href="#" class="btn btn-sm btn-outline-secondary">{% trans "Your Reservations" %}</a>
+          <a href="{% url 'cars:rsvp_list' %}?personalized=true" class="btn btn-sm btn-outline-secondary">{% trans "Your Reservations" %}</a>
 
-          <a href="#" class="btn btn-sm btn-outline-secondary position-relative">
+          <a href="{% url 'cars:rsvp_list' %}?my_vehicles=true" class="btn btn-sm btn-outline-secondary position-relative">
             {% trans "Requests for Your Vehicles" %}
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-            99+
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill {% if requests_waiting %}bg-danger{% else %}bg-primary{% endif %}">
+            {{ requests_waiting }}
             <span class="visually-hidden">{% trans "active requests" %}</span>
           </span>
           </a>
