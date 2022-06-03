@@ -245,7 +245,7 @@ def parse_row(row):
         origin_code = "ha" if origin_code.lower() == "a" else origin_code
         origin_id = models.Origin.objects.get(code__iexact=origin_code).id
     else:
-        origin_id =  None
+        origin_id = None
 
     sex = models.Sex.objects.get(code__iexact=row["Sex"]) if row["Sex"] else None
     sex_id = sex.id if sex else None
@@ -261,6 +261,7 @@ def parse_row(row):
     payload = {
         "freq": freq,
         "species_id": row["speciesId"],
+        "life_stage_id": row["lifestageId"],
         "sample_id": row["sampleId"],
         "status_id": status_id,
         "origin_id": origin_id,
@@ -275,6 +276,7 @@ def parse_row(row):
         "tags_removed": removed_tags,
         "notes": row["Comments"].strip() if row["Comments"] else None,
     }
+    print(payload)
     return dotdict(payload)
 
 
@@ -300,9 +302,10 @@ def import_smolt_data():
             if new_row.species_id and new_row.sample_id:
                 # this is a single observation
                 kwargs = {
-                    "species_id": new_row.species_id,
                     "sample_id": new_row.sample_id,
+                    "species_id": new_row.species_id,
                     "life_stage_id": new_row.life_stage_id,
+                    "status_id": new_row.status_id,
                     "origin_id": new_row.origin_id,
                     "sex_id": new_row.sex_id,
                     "fork_length": new_row.fork_length,

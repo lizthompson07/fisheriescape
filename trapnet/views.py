@@ -974,6 +974,7 @@ def export_obs_data_v1(request):
         filter_kwargs["sample__site_id__in"] = sites.split(",")
     qs = models.Observation.objects.filter(**filter_kwargs).iterator()
 
+    print(qs.count())
 
     filename = "Atlantic salmon individual observation event report ({}).csv".format(now().strftime("%Y-%m-%d"))
     response = StreamingHttpResponse(
