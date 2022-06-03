@@ -276,7 +276,6 @@ def parse_row(row):
         "tags_removed": removed_tags,
         "notes": row["Comments"].strip() if row["Comments"] else None,
     }
-    print(payload)
     return dotdict(payload)
 
 
