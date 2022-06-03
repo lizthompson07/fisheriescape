@@ -116,6 +116,7 @@ class LocationForm(forms.ModelForm):
     class Meta:
         model = models.Location
         fields = [
+            "region",
             "name",
             "nom",
             "address",
