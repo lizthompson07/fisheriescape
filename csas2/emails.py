@@ -69,6 +69,7 @@ class PostingRequestEmail(Email):
 
 class SoMPEmail(Email):
     email_template_path = 'csas2/emails/somp.html'
+
     def get_subject_en(self):
         if self.instance.is_somp_submitted:
             msg = 'The SoMP for a meeting has been re-confirm'
@@ -175,14 +176,12 @@ class ToRChangesRequestedEmail(Email):
         return self.instance.tor.process.editor_email_list
 
 
-
 class ToRPostingRequestEmail(Email):
     email_template_path = 'csas2/emails/tor_posting_request.html'
     subject_en = 'New request to post ToR !!'
 
     def get_recipient_list(self):
         return [csas_generic_email]
-
 
 
 class ToRReviewCompleteEmail(Email):

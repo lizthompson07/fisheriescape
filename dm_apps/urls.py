@@ -77,6 +77,10 @@ if settings.INSTALLED_APPS.count("ihub"):
     urlpatterns.append(
         path('api/', include('ihub.api.urls')),
     )
+# if settings.INSTALLED_APPS.count("cars"):
+#     urlpatterns.append(
+#         path('api/', include('cars.api.urls')),
+#     )
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
@@ -231,6 +235,12 @@ if settings.INSTALLED_APPS.count("res"):
                                  prefix_default_language=True)
 else:
     print("not connecting res app")
+
+if settings.INSTALLED_APPS.count("cars"):
+    urlpatterns += i18n_patterns(path('cars/', include('cars.urls')),
+                                 prefix_default_language=True)
+else:
+    print("not connecting cars app")
 
 if settings.AZURE_STORAGE_ACCOUNT_NAME == "":
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,

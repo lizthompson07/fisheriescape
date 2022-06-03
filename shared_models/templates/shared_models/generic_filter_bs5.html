@@ -1,4 +1,4 @@
-{% extends "shared_models/generic_base.html" %}
+{% extends "shared_models/generic_base_bs5.html" %}
 {% load bootstrap4 %}
 {% load i18n %}
 {% load custom_filters %}
@@ -134,16 +134,18 @@
 
     {% endblock %}
   {% else %}
-    <div>
-      <p class="lead">
-        <em>
-          {% trans "There are no items to display" %} <span class="ml-1 mdi mdi-emoticon-confused-outline"> </span>
-        </em>
-      </p>
-      {% if new_object_url %}
-        <a href="{{ new_object_url }}" class="btn btn-lg btn-primary">{{ new_btn_text|nz:default_new_btn_text }}</a>
-      {% endif %}
-    </div>
+    {% block no_results %}
+      <div>
+        <p class="lead">
+          <em>
+            {% trans "There are no items to display" %} <span class="ml-1 mdi mdi-emoticon-confused-outline"> </span>
+          </em>
+        </p>
+        {% if new_object_url %}
+          <a href="{{ new_object_url }}" class="btn btn-lg btn-primary">{{ new_btn_text|nz:default_new_btn_text }}</a>
+        {% endif %}
+      </div>
+    {% endblock %}
   {% endif %}
 
   {% block table_footer %}
