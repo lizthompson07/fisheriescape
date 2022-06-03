@@ -1,3 +1,14 @@
 .label {
     font-style: italic;
 }
+
+
+.requested {
+    background-color: #ffffc3;
+}
+.accepted, .approved {
+    background-color: #ccfacc;
+}
+.denied {
+    background-color: #ffcdcd;
+}

@@ -41,6 +41,12 @@ class CanModifyVehicleRequiredMixin(CarsBasicMixin):
         return can_modify_vehicle(self.request.user, vehicle)
 
 
+class CanModifyReservationRequiredMixin(CarsBasicMixin):
+    def test_func(self):
+        vehicle = self.get_object().vehicle
+        return can_modify_vehicle(self.request.user, vehicle)
+
+
 class SuperuserOrAdminRequiredMixin(CarsBasicMixin):
     def test_func(self):
         return self.request.user.is_superuser or is_national_admin(self.request.user)

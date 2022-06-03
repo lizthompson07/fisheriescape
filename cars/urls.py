@@ -16,11 +16,20 @@ urlpatterns = [
     path('settings/users/<int:pk>/delete/', views.CarsUserHardDeleteView.as_view(), name="delete_cars_user"),
 
     # vehicles
+    path('find-a-vehicle/', views.VehicleFinder.as_view(), name="vehicle_finder"),
     path('fleet/', views.VehicleListView.as_view(), name="vehicle_list"),
     path('vehicles/new/', views.VehicleCreateView.as_view(), name="vehicle_new"),
     path('vehicles/<int:pk>/edit/', views.VehicleUpdateView.as_view(), name="vehicle_edit"),
     path('vehicles/<int:pk>/delete/', views.VehicleDeleteView.as_view(), name="vehicle_delete"),
     path('vehicles/<int:pk>/view/', views.VehicleDetailView.as_view(), name="vehicle_detail"),
+
+    # reservations
+    path('reservations/', views.ReservationListView.as_view(), name="rsvp_list"),
+    path('reservations/new/', views.ReservationCreateView.as_view(), name="rsvp_new"),
+    path('reservations/<int:pk>/edit/', views.ReservationUpdateView.as_view(), name="rsvp_edit"),
+    path('reservations/<int:pk>/delete/', views.ReservationDeleteView.as_view(), name="rsvp_delete"),
+    path('reservations/<int:pk>/view/', views.ReservationDetailView.as_view(), name="rsvp_detail"),
+    path('reservations/<int:pk>/<str:action>/', views.rsvp_action, name="rsvp_action"),
 
 
 

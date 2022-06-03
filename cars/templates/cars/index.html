@@ -31,6 +31,7 @@
         </p>
         <button class="btn btn-primary btn-lg" type="button">{% trans "Resources" %} </button>
         <button class="btn btn-success btn-lg" type="button"><span class="mdi mdi-calendar text-light me-1"></span> {% trans "Calendar" %} </button>
+        <a href="{% url 'cars:vehicle_finder' %}" class="btn btn-warning btn-lg"><span class="mdi mdi-magnify me-1"></span> {% trans "Find a Vehicle" %} </a>
       </div>
     </div>
 
@@ -66,17 +67,17 @@
               Similarly, we can provide some general text about making a reservation, managing active requests etc.
             {% endblocktrans %}
           </p>
-          <button class="btn btn-sm btn-outline-secondary" type="button"><span class="mdi mdi-plus pe-1"></span> {% trans "New Reservation" %}</button>
+          <a href="{% url 'cars:rsvp_new' %}" class="btn btn-sm btn-outline-secondary"><span class="mdi mdi-plus pe-1"></span> {% trans "New Reservation" %}</a>
 
-          <button class="btn btn-sm btn-outline-secondary" type="button">{% trans "Your Reservations" %}</button>
+          <a href="#" class="btn btn-sm btn-outline-secondary">{% trans "Your Reservations" %}</a>
 
-          <button type="button" class="btn btn-sm btn-outline-secondary position-relative">
+          <a href="#" class="btn btn-sm btn-outline-secondary position-relative">
             {% trans "Requests for Your Vehicles" %}
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
             99+
             <span class="visually-hidden">{% trans "active requests" %}</span>
           </span>
-          </button>
+          </a>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ from django.db import models
 # Create your models here.
 from django.templatetags.static import static
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from shared_models.models import SimpleLookup, Region, MetadataFields, UnilingualSimpleLookup, LatLongFields
@@ -28,9 +29,15 @@ class VehicleType(SimpleLookup):
 
 
 class Location(SimpleLookup, LatLongFields):
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name="vehicles")
     address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
     city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
     postal_code = models.CharField(max_length=7, blank=True, null=True, verbose_name=_("postal code"))
+
+    def get_tname(self):
+        mystr = super().get_tname()
+        mystr += f" ({self.region})"
+        return mystr
 
 
 def img_file_name(instance, filename):
@@ -39,10 +46,9 @@ def img_file_name(instance, filename):
 
 
 class Vehicle(MetadataFields):
-    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING)
-    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING)
+    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="vehicles")
     custodian = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="vehicles")
-    vehicle_type = models.ForeignKey(VehicleType, on_delete=models.DO_NOTHING)
+    vehicle_type = models.ForeignKey(VehicleType, on_delete=models.DO_NOTHING, related_name="vehicles")
     reference_number = models.CharField(max_length=50, verbose_name=_("reference number"))
     make = models.CharField(max_length=255, verbose_name=_("make"))
     model = models.CharField(max_length=255, verbose_name=_("model"))
@@ -67,9 +73,26 @@ class Vehicle(MetadataFields):
         return reverse('cars:vehicle_detail', kwargs={'pk': self.id})
 
 
-class Reservation(models.Model):
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("vehicle"), related_name="reservations")
+class Reservation(MetadataFields):
+    status_choices = (
+        (1, "Requested"),
+        (10, "Approved"),
+        (20, "Denied"),
+    )
+
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.DO_NOTHING, blank=True, verbose_name=_("vehicle"), related_name="reservations")
     start_date = models.DateTimeField(verbose_name=_("departure date"))
     end_date = models.DateTimeField(verbose_name=_("return date"))
-    primary_driver = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("primary driver"), related_name="reservations")
+    primary_driver = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("primary driver"), related_name="reservations", blank=True)
     other_drivers = models.ManyToManyField(User, blank=True, verbose_name=_("other drivers"))
+
+    # non-editable
+    status = models.IntegerField(choices=status_choices, default=1, editable=False)
+    is_complete = models.BooleanField(default=False, editable=False)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.is_complete = timezone.now() > self.end_date
+
+    def get_absolute_url(self):
+        return reverse('cars:rsvp_detail', kwargs={'pk': self.id})

@@ -1,0 +1,37 @@
+{% extends 'cars/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+{% load l10n %}
+
+{% block subcontent %}
+
+  <div class="btns mb-3">
+    <a href="{% url 'cars:rsvp_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
+    <a href="{% url 'cars:rsvp_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+
+    <a href="{% url 'cars:rsvp_action' object.id 'accept' %}" class="btn btn-success btn-sm">{% trans "Accept" %}</a>
+    <a href="{% url 'cars:rsvp_action' object.id 'deny' %}" class="btn btn-danger btn-sm">{% trans "Deny" %}</a>
+
+  </div>
+
+  <div class="row mb-4">
+    <div class="col">
+      <table class="table table-sm w-75">
+        {% for field in field_list %}
+          {% if field == "status" %}
+            <tr>
+              <th>{% get_verbose_label object "status" %}</th>
+              <td><span class="{{ object.get_status_display|slugify }} p-1">{{ object.get_status_display }}</span></td>
+            </tr>
+          {% else %}
+
+            {% verbose_td_display object field %}
+          {% endif %}
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+
+{% endblock %}
+
