@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy, gettext as _
 
 from cars import models, forms, filters
 from cars.mixins import CarsBasicMixin, SuperuserOrAdminRequiredMixin, CarsNationalAdminRequiredMixin, CarsRegionalAdminRequiredMixin, \
-    CanModifyVehicleRequiredMixin, CanModifyReservationRequiredMixin
+    CanModifyVehicleRequiredMixin, CanModifyReservationRequiredMixin, CarsAdminRequiredMixin
 from cars.utils import get_dates_from_range, is_dt_intersection
 from lib.functions.custom_functions import listrify
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonDeleteView, CommonDetailView, CommonUpdateView, \
@@ -51,7 +51,7 @@ class VehicleTypeHardDeleteView(CarsNationalAdminRequiredMixin, CommonHardDelete
     success_url = reverse_lazy("cars:manage_vehicle_types")
 
 
-class LocationFormsetView(CarsRegionalAdminRequiredMixin, CommonFormsetView):
+class LocationFormsetView(CarsAdminRequiredMixin, CommonFormsetView):
     template_name = 'cars/formset.html'
     h1 = "Manage Locations"
     queryset = models.Location.objects.all()
@@ -61,7 +61,7 @@ class LocationFormsetView(CarsRegionalAdminRequiredMixin, CommonFormsetView):
     delete_url_name = "cars:delete_location"
 
 
-class LocationHardDeleteView(CarsRegionalAdminRequiredMixin, CommonHardDeleteView):
+class LocationHardDeleteView(CarsAdminRequiredMixin, CommonHardDeleteView):
     model = models.Location
     success_url = reverse_lazy("cars:manage_locations")
 

@@ -35,6 +35,11 @@ class CarsRegionalAdminRequiredMixin(CarsBasicMixin):
         return is_regional_admin(self.request.user)
 
 
+class CarsAdminRequiredMixin(CarsBasicMixin):
+    def test_func(self):
+        return is_regional_admin(self.request.user) or is_national_admin(self.request.user)
+
+
 class CanModifyVehicleRequiredMixin(CarsBasicMixin):
     def test_func(self):
         vehicle = self.get_object()
