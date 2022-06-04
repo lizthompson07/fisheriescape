@@ -3,10 +3,11 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils.translation import gettext_lazy, gettext as _
 
-from cars import models, forms, filters
+from cars import models, forms, filters, emails
 from cars.mixins import CarsBasicMixin, SuperuserOrAdminRequiredMixin, CarsNationalAdminRequiredMixin, CarsRegionalAdminRequiredMixin, \
     CanModifyVehicleRequiredMixin, CanModifyReservationRequiredMixin, CarsAdminRequiredMixin
 from cars.utils import get_dates_from_range, is_dt_intersection
+from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import listrify
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonDeleteView, CommonDetailView, CommonUpdateView, \
     CommonFilterView, CommonCreateView, CommonFormView
@@ -233,7 +234,7 @@ class VehicleDeleteView(CanModifyVehicleRequiredMixin, CommonDeleteView):
 class ReservationListView(CarsBasicMixin, CommonFilterView):
     template_name = 'cars/list.html'
     filterset_class = filters.ReservationFilter
-    new_object_url = reverse_lazy("cars:rsvp_new")
+    # new_object_url = reverse_lazy("cars:rsvp_new")
     row_object_url_name = row_ = "cars:rsvp_detail"
     paginate_by = 10
     field_list = [
@@ -269,7 +270,7 @@ class ReservationUpdateView(CanModifyReservationRequiredMixin, CommonUpdateView)
     form_class = forms.ReservationForm
     template_name = 'cars/form.html'
     home_url_name = "cars:index"
-    grandparent_crumb = {"title": gettext_lazy("Reservations"), "url": reverse_lazy("cars:rsvp_list")}
+    # grandparent_crumb = {"title": gettext_lazy("Reservations"), "url": reverse_lazy("cars:rsvp_list")}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("cars:rsvp_detail", args=[self.get_object().id])}
@@ -298,7 +299,7 @@ class ReservationCreateView(CarsBasicMixin, CommonCreateView):
     success_url = reverse_lazy('cars:rsvp_list')
     template_name = 'cars/form.html'
     home_url_name = "cars:index"
-    parent_crumb = {"title": gettext_lazy("Reservations"), "url": reverse_lazy("cars:rsvp_list")}
+    # parent_crumb = {"title": gettext_lazy("Reservations"), "url": reverse_lazy("cars:rsvp_list")}
 
     def get_initial(self):
         qp = self.request.GET
@@ -317,6 +318,10 @@ class ReservationCreateView(CarsBasicMixin, CommonCreateView):
             obj.start_date = dates[0]
             obj.end_date = dates[1]
         obj.created_by = self.request.user
+        obj = form.save(commit=True)
+        email = emails.RSVPEmail(self.request, obj)
+        # send the email object
+        email.send()
         return super().form_valid(form)
 
 
@@ -324,15 +329,15 @@ class ReservationDetailView(CarsBasicMixin, CommonDetailView):
     model = models.Reservation
     template_name = 'cars/rsvp_detail.html'
     home_url_name = "cars:index"
-    parent_crumb = {"title": gettext_lazy("Reservations"), "url": reverse_lazy("cars:rsvp_list")}
+    # parent_crumb = {"title": gettext_lazy("Reservations"), "url": reverse_lazy("cars:rsvp_list")}
     field_list = [
         "status",
         "vehicle",
         "vehicle.custodian|{}".format(_("custodian")),
+        "destination",
         "primary_driver",
         "start_date",
         "end_date",
-        "destination",
         "other_drivers",
         "comments",
 
@@ -344,7 +349,7 @@ class ReservationDeleteView(CanModifyReservationRequiredMixin, CommonDeleteView)
     success_url = reverse_lazy('cars:rsvp_list')
     success_message = 'The functional group was successfully deleted!'
     template_name = 'cars/confirm_delete.html'
-    grandparent_crumb = {"title": gettext_lazy("Reservations"), "url": reverse_lazy("cars:rsvp_list")}
+    # grandparent_crumb = {"title": gettext_lazy("Reservations"), "url": reverse_lazy("cars:rsvp_list")}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("cars:rsvp_detail", args=[self.get_object().id])}
@@ -354,9 +359,15 @@ def rsvp_action(request, pk, action):
     rsvp = get_object_or_404(models.Reservation, pk=pk)
     if action == "accept":
         rsvp.status = 10
+        rsvp.save()
+        email = emails.ApprovedEmail(request, rsvp)
+        email.send()
     elif action == "deny":
         rsvp.status = 20
+        rsvp.save()
+        email = emails.DeniedEmail(request, rsvp)
+        email.send()
     elif action == "reset":
         rsvp.status = 1
-    rsvp.save()
+        rsvp.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

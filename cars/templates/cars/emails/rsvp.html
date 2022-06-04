@@ -1,0 +1,69 @@
+{% load verbose_names %}
+{% load i18n %}
+
+<style media="screen">
+.email-table {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+    padding-left: 5px;
+    padding-right: 2px;
+}
+</style>
+
+<em>
+  *** un message français suivra
+</em>
+<br><br>
+
+{% language 'en' %}
+  <p>
+    Hello {{ object.vehicle.custodian }},
+  </p>
+  <p>
+    This is an automated message to notify you that there is a <a href="{{ SITE_FULL_URL }}{% url 'cars:rsvp_detail' object.id %}"> new reservation request</a>
+    for the {{ object.vehicle }}.
+  <p>
+  <p>
+    Here are the details:
+  </p>
+  <table class="email-table">
+    {% for field in field_list %}
+      {% verbose_td_display object field %}
+    {% endfor %}
+  </table>
+  
+{% endlanguage %}
+
+<p>
+  ********************************************************************
+</p>
+
+<p>
+  Bonjour {{ object.vehicle.custodian }},
+</p>
+{% language 'fr' %}
+  <p>
+    Ceci est un message automatisé pour vous informer qu'il y a <a href="{{ SITE_FULL_URL }}{% url 'cars:rsvp_detail' object.id %}"> une nouvelle demande de réservation </a>
+    pour le {{ object.vehicle }}.
+  </p>
+  <p>
+    Voici les détails:
+  </p>
+  <table class="email-table">
+    {% for field in field_list %}
+      {% verbose_td_display object field %}
+    {% endfor %}
+  </table>
+  <p>
+  
+  </p>
+{% endlanguage %}
+
+
+
+
+
+
+
+
