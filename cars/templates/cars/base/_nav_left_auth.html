@@ -23,6 +23,11 @@
         </a>
       </li>
       <li>
+        <a class="dropdown-item" href="{% url 'cars:rsvp_list' %}">
+          {% trans "All Reservations" %}
+        </a>
+      </li>
+      <li>
         <a class="dropdown-item" href="{% url 'cars:manage_cars_users' %}" target="_blank">
           {% trans "User Permissions" %}
         </a>
