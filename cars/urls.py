@@ -10,6 +10,10 @@ urlpatterns = [
     path('settings/vehicle-type/<int:pk>/delete/', views.VehicleTypeHardDeleteView.as_view(), name="delete_vehicle_type"),
     path('settings/locations/', views.LocationFormsetView.as_view(), name="manage_locations"),
     path('settings/location/<int:pk>/delete/', views.LocationHardDeleteView.as_view(), name="delete_location"),
+    path('settings/vehicles/', views.VehicleFormsetView.as_view(), name="manage_vehicles"),
+    path('settings/vehicle/<int:pk>/delete/', views.VehicleHardDeleteView.as_view(), name="delete_vehicle"),
+
+
 
     # user permissions
     path('settings/users/', views.CarsUserFormsetView.as_view(), name="manage_cars_users"),

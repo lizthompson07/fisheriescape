@@ -71,6 +71,21 @@ class LocationHardDeleteView(CarsAdminRequiredMixin, CommonHardDeleteView):
     success_url = reverse_lazy("cars:manage_locations")
 
 
+class VehicleFormsetView(CarsNationalAdminRequiredMixin, CommonFormsetView):
+    template_name = 'cars/formset.html'
+    h1 = "Manage Vehicles"
+    queryset = models.Vehicle.objects.all()
+    formset_class = forms.VehicleFormset
+    success_url_name = "cars:manage_vehicles"
+    home_url_name = "cars:index"
+    delete_url_name = "cars:delete_vehicle"
+    container_class = "container-fluid"
+
+class VehicleHardDeleteView(CarsNationalAdminRequiredMixin, CommonHardDeleteView):
+    model = models.Vehicle
+    success_url = reverse_lazy("cars:manage_vehicles")
+
+
 class VehicleFinder(CarsBasicMixin, CommonFormView):
     template_name = 'cars/vehicle_finder.html'
     form_class = forms.VehicleFinderForm
@@ -230,6 +245,7 @@ class VehicleCalendarView(CarsBasicMixin, CommonFilterView):
     h1 = gettext_lazy("Vehicle Calendar")
     container_class = "container-fluid"
     filterset_class = filters.VehicleFilter
+
 
 # RESERVATIONS #
 ################
