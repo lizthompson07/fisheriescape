@@ -147,7 +147,7 @@ class PersonListView(UserRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'full_name_with_title|{}'.format(_("full name")), "class": "", "width": ""},
         {"name": 'organizations', "class": "", "width": ""},
-        {"name": 'last_updated|{}'.format(_("last updated")), "class": "", "width": ""},
+        {"name": 'date_last_modified|{}'.format(_("last updated")), "class": "", "width": ""},
     ]
     new_object_url_name = "maret:person_new"
     row_object_url_name = "maret:person_detail"

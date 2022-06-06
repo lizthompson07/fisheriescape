@@ -16,12 +16,12 @@ class CommitteeForm(forms.ModelForm):
     class Meta:
         model = models.Committee
         exclude = [
-            'last_modified_by',
-            'last_modified',
+            'last_modified'
         ]
         widgets = {
             'external_chair': forms.SelectMultiple(attrs=chosen_js),
             'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
+            'last_modified_by': forms.HiddenInput(),
             'external_organization': forms.SelectMultiple(attrs=chosen_js),
             'external_contact': forms.SelectMultiple(attrs=chosen_js),
 
@@ -90,7 +90,7 @@ class OrganizationForm(forms.ModelForm):
 
     class Meta:
         model = ml_models.Organization
-        exclude = ["date_last_modified", "old_id", 'last_modified_by', 'relationship_rating', 'reserves']
+        exclude = ["date_last_modified", "old_id", 'relationship_rating', 'reserves']
         widgets = {
             # multiselects
             'grouping': forms.SelectMultiple(attrs=multi_select_js),
@@ -160,10 +160,11 @@ class PersonForm(forms.ModelForm):
 
     class Meta:
         model = ml_models.Person
-        exclude = ["date_last_modified", "old_id", 'last_modified_by', 'connected_user']
+        exclude = ["date_last_modified", "old_id",  'connected_user']
         widgets = {
             'committee': forms.Select(attrs=chosen_js),
             'organizations': forms.SelectMultiple(attrs=chosen_js),
+            'last_modified_by': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={"rows": "3"}),
         }
 
