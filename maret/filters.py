@@ -77,8 +77,9 @@ class CommitteeFilter(django_filters.FilterSet):
     class Meta:
 
         model = models.Committee
-        fields = ['search_term', 'external_organization', 'external_chair_contact', 'branch', 'area_office', 'division',
-                  'provincial_participation', 'first_nation_participation']
+        fields = ['search_term', 'external_organization', 'external_chair_contact', 'branch', 'division', 'area_office',
+                  'area_office_program', 'provincial_participation', 'first_nation_participation', 'other_dfo_branch',
+                  'other_dfo_branch', 'other_dfo_areas']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
