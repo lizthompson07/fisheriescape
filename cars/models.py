@@ -75,7 +75,7 @@ class Vehicle(MetadataFields):
 
 class Reservation(MetadataFields):
     status_choices = (
-        (1, "Requested"),
+        (1, "Tentative"),
         (10, "Approved"),
         (20, "Denied"),
     )

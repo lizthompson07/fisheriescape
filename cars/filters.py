@@ -1,5 +1,4 @@
 import django_filters
-from django.forms import HiddenInput
 from django.utils.translation import gettext
 
 from . import models
@@ -18,7 +17,6 @@ class VehicleFilter(django_filters.FilterSet):
             'max_passengers': ["gte"],
         }
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filters['max_passengers__gte'].label = gettext("Passenger capacity")
@@ -29,6 +27,12 @@ class VehicleFilter(django_filters.FilterSet):
 
 
 class ReservationFilter(django_filters.FilterSet):
+    start = django_filters.DateTimeFilter(field_name="start_date", lookup_expr='gte')
+    end = django_filters.DateTimeFilter(field_name="end_date", lookup_expr='lte')
+    location = django_filters.ModelChoiceFilter(field_name="vehicle__location", lookup_expr='exact', queryset=models.Location.objects.all())
+    vehicle_type = django_filters.ModelChoiceFilter(field_name="vehicle__vehicle_type", lookup_expr='exact', queryset=models.VehicleType.objects.all())
+    max_passengers__gte = django_filters.NumberFilter(field_name="vehicle__max_passengers__gte", lookup_expr='gte')
+
     class Meta:
         model = models.Reservation
         fields = {

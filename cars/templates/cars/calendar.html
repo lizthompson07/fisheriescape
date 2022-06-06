@@ -18,6 +18,7 @@
 
   #calendar {
       margin: 40px auto;
+      max-height: 500px;
   }
   </style>
 
@@ -28,7 +29,6 @@
 {% endblock %}
 
 {% block subcontent %}
-  {{ block.super }}
 
   {% block filter %}
     {% include 'cars/_vehicle_filter.html' %}
@@ -36,6 +36,7 @@
 
 
   {% block table_and_table_header %}
+
     <div id='calendar'></div>
 
   {% endblock %}
@@ -45,62 +46,47 @@
 {% block body_js %}
   {{ block.super }}
 
-
   <script>
-
 
   let resources = [];
   let reservations = [];
   {% for object in object_list %}
     resources.push(
         {
-          "id": "{{ object.id }}",
-          "title": "{{object}}",
+          id: "{{ object.id }}",
+          title: "{{object}}",
         }
     )
-    {% for rsvp in object.reservations.all %}
-      reservations.push(
-          {
-            "resourceId": "{{ rsvp.vehicle.id }}",
-            "title": "{{rsvp.primary_driver}}",
-            "start": "{{ rsvp.start_date|date:"Y-m-d" }}",
-            "end": "{{ rsvp.end_date|date:"Y-m-d" }}",
-            "color": "{% if rsvp.status == 1 %}yellow{% elif rsvp.status == 20 %}red{% else %}green{% endif %}",
-            "textColor": "{% if rsvp.status == 1 %}black{% else %}white{% endif %}"
-          }
-      )
-    {% endfor %}
   {% endfor %}
+  let params = window.location.search.substring(1);
+  var calendarEl = document.getElementById('calendar');
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+        timeZone: 'UTC',
+        initialView: 'resourceTimelineDay',
+        aspectRatio: 1,
+        headerToolbar: {
+          left: 'prev,next',
+          center: 'title',
+          right: 'resourceTimelineDay,resourceTimelineWeek,resourceTimelineMonth'
+        },
+        editable: false,
+        resourceAreaHeaderContent: 'Rooms',
+        resources: resources,
+        //events: reservations,
+        events: `/api/cars/reservations-for-calendar/?${params}&as_resource_list=true`,
 
-
-
-
-  function initCalendar() {
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-      timeZone: 'UTC',
-      initialView: 'resourceTimelineMonth',
-      aspectRatio: 1.5,
-      headerToolbar: {
-        left: 'prev,next',
-        center: 'title',
-        right: 'resourceTimelineDay,resourceTimelineWeek,resourceTimelineMonth'
-      },
-      editable: false,
-      resourceAreaHeaderContent: 'Rooms',
-      resources: resources,
-      events: reservations,
-    });
-    calendar.render();
-  }
-
-
-  $(document).ready(function () {
-    // Stuff to do as soon as the DOM is ready
-    initCalendar();
-  });
-
+        eventDidMount: function (info) {
+          var tooltip = new bootstrap.Tooltip(info.el, {
+            title: info.event.extendedProps.description,
+            placement: 'top',
+            trigger: 'hover',
+            container: 'body',
+            html: true
+          });
+        },
+      }
+  );
+  calendar.render();
   </script>
 
 {% endblock %}
-

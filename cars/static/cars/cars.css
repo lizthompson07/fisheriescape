@@ -3,7 +3,7 @@
 }
 
 
-.requested {
+.requested, .tentative {
     background-color: #ffffc3;
 }
 .accepted, .approved {
