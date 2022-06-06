@@ -46,7 +46,7 @@ class CalendarRSVPSerializer(serializers.ModelSerializer):
         return reverse("cars:rsvp_detail", args=[instance.id])
 
     def get_description(self, instance):
-        return f"{instance.primary_driver.get_full_name()} ({instance.get_status_display()})<br>{date(instance.end_date)} - {date(instance.start_date)}"
+        return f"{instance.primary_driver.get_full_name()} ({instance.get_status_display()})<br>{date(instance.end_date)} - {date(instance.start_date)}<br>{instance.destination}"
 
     def get_end(self, instance):
         return instance.end_date
