@@ -5,32 +5,14 @@
 {% load bootstrap5 %}
 
 {% block filter %}
-  <form class="form {% block extra_filter_classes %}{% endblock %}" action="." method="get" id="filter-form">
-    <div class="row">
-
-      <div class="col">
-        {% bootstrap_field filter.form.location placeholder="" size="small" %}
-      </div>
-      <div class="col">
-        {% bootstrap_field filter.form.vehicle_type placeholder="" size="small" %}
-      </div>
-      <div class="col">
-        {% bootstrap_field filter.form.max_passengers__gte placeholder="" size="small" %}
-      </div>
-
-      <div class="col">
-        <br>
-        <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
-        <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
-      </div>
-    </div>
-  </form>
+  {% include 'cars/_vehicle_filter.html' %}
 {% endblock %}
 
 {% block new_object_button %}
   <div class="col" style="text-align: right">
     {% if request.GET.ids %}
-      <a class="btn btn-warning" href="{% url 'cars:vehicle_finder' %}?{{ request.META|lookup:"QUERY_STRING" }}"><span class="mdi mdi-magnify"></span> {% trans "New Search" %}</a>
+      <a class="btn btn-warning" href="{% url 'cars:vehicle_finder' %}?{{ request.META|lookup:"QUERY_STRING" }}"><span
+        class="mdi mdi-magnify"></span> {% trans "New Search" %}</a>
     {% else %}
       <a href="{{ new_object_url }}" class="btn btn-outline-dark" data-toggle="tooltip" title="">
         <span class="mdi mdi-plus "></span> {% trans "New vehicle" %}
@@ -95,7 +77,8 @@
           {% trans "Your search did not return any results" %} <span class="ml-1 mdi mdi-emoticon-confused-outline"> </span>
         </em>
       </p>
-        <a class="btn btn-warning" href="{% url 'cars:vehicle_finder' %}?{{ request.META|lookup:"QUERY_STRING" }}"><span class="mdi mdi-magnify"></span> {% trans "New Search" %}</a>
+      <a class="btn btn-warning" href="{% url 'cars:vehicle_finder' %}?{{ request.META|lookup:"QUERY_STRING" }}"><span
+        class="mdi mdi-magnify"></span> {% trans "New Search" %}</a>
     </div>
   {% else %}
     {{ block.super }}

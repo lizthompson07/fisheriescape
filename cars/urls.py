@@ -18,6 +18,7 @@ urlpatterns = [
     # vehicles
     path('find-a-vehicle/', views.VehicleFinder.as_view(), name="vehicle_finder"),
     path('fleet/', views.VehicleListView.as_view(), name="vehicle_list"),
+    path('calendar/', views.VehicleCalendarView.as_view(), name="calendar"),
     path('vehicles/new/', views.VehicleCreateView.as_view(), name="vehicle_new"),
     path('vehicles/<int:pk>/edit/', views.VehicleUpdateView.as_view(), name="vehicle_edit"),
     path('vehicles/<int:pk>/delete/', views.VehicleDeleteView.as_view(), name="vehicle_delete"),

@@ -134,7 +134,7 @@ def get_app_dict(request):
     try:
         app_dict["cars"] = {
             "title": _("Vehicle RSVP"),
-            "description": _("Gulf Region Vehicle Reservation System"),
+            "description": _("Science Vehicle Reservation System"),
             "status": "dev",
             "access": "login-required",
             "url": reverse('cars:index'),

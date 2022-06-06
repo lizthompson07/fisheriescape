@@ -1,9 +1,9 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.db.models import Q
 from django.forms import modelformset_factory
 from django.utils.translation import gettext_lazy, gettext
 
-from shared_models.models import Region
 from . import models
 from .utils import is_dt_intersection, get_dates_from_range
 
@@ -30,7 +30,8 @@ class ReservationForm(forms.ModelForm):
     field_order = [
         "date_range",
     ]
-    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("What dates are you looking for?"), required=True)
+    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range),
+                                 label=gettext_lazy("What dates are you looking for?"), required=True)
 
     class Meta:
         model = models.Reservation
@@ -41,6 +42,12 @@ class ReservationForm(forms.ModelForm):
             "primary_driver": forms.Select(attrs=chosen_js),
             "other_drivers": forms.SelectMultiple(attrs=chosen_js),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(ReservationForm, self).__init__(*args, **kwargs)
+        user_qs = User.objects.filter(is_active=True).order_by("first_name", "last_name")
+        self.fields["primary_driver"].queryset = user_qs
+        self.fields["other_drivers"].queryset = user_qs
 
     def clean_primary_driver(self):
         primary_driver = self.cleaned_data['primary_driver']
@@ -75,11 +82,17 @@ class ReservationForm(forms.ModelForm):
 
 
 class VehicleFinderForm(forms.Form):
-    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("What dates are you looking for?"), required=True)
+    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range),
+                                 label=gettext_lazy("What dates are you looking for?"), required=True)
     # region = forms.ModelChoiceField(required=False, queryset=Region.objects.filter(vehicles__isnull=False).distinct(), label=gettext_lazy("Region"))
-    location = forms.ModelChoiceField(required=False, queryset=models.Location.objects.filter(vehicles__isnull=False).distinct(), label=gettext_lazy("Pick-up location"))
-    vehicle_type = forms.ModelChoiceField(required=False, queryset=models.VehicleType.objects.filter(vehicles__isnull=False).distinct(), label=gettext_lazy("Vehicle type"))
-    vehicle = forms.ModelChoiceField(required=False, queryset=models.Vehicle.objects.all(), label=gettext_lazy("Vehicle"))
+    location = forms.ModelChoiceField(required=False,
+                                      queryset=models.Location.objects.filter(vehicles__isnull=False).distinct(),
+                                      label=gettext_lazy("Pick-up location"))
+    vehicle_type = forms.ModelChoiceField(required=False,
+                                          queryset=models.VehicleType.objects.filter(vehicles__isnull=False).distinct(),
+                                          label=gettext_lazy("Vehicle type"))
+    vehicle = forms.ModelChoiceField(required=False, queryset=models.Vehicle.objects.all(),
+                                     label=gettext_lazy("Vehicle"))
     no_passengers = forms.IntegerField(required=False, label=gettext_lazy("Passenger minimum capacity"))
 
 

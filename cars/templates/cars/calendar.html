@@ -1,0 +1,106 @@
+{% extends 'cars/list.html' %}
+{% load verbose_names %}
+{% load i18n %}
+{% load l10n %}
+{% load bootstrap5 %}
+
+
+{% block header %}
+  {{ block.super }}
+  <style>
+
+  html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+      font-size: 14px;
+  }
+
+  #calendar {
+      margin: 40px auto;
+  }
+  </style>
+
+
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.11.0/main.css' rel='stylesheet'/>
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.11.0/main.js'></script>
+
+{% endblock %}
+
+{% block subcontent %}
+  {{ block.super }}
+
+  {% block filter %}
+    {% include 'cars/_vehicle_filter.html' %}
+  {% endblock %}
+
+
+  {% block table_and_table_header %}
+    <div id='calendar'></div>
+
+  {% endblock %}
+
+{% endblock %}
+
+{% block body_js %}
+  {{ block.super }}
+
+
+  <script>
+
+
+  let resources = [];
+  let reservations = [];
+  {% for object in object_list %}
+    resources.push(
+        {
+          "id": "{{ object.id }}",
+          "title": "{{object}}",
+        }
+    )
+    {% for rsvp in object.reservations.all %}
+      reservations.push(
+          {
+            "resourceId": "{{ rsvp.vehicle.id }}",
+            "title": "{{rsvp.primary_driver}}",
+            "start": "{{ rsvp.start_date|date:"Y-m-d" }}",
+            "end": "{{ rsvp.end_date|date:"Y-m-d" }}",
+            "color": "{% if rsvp.status == 1 %}yellow{% elif rsvp.status == 20 %}red{% else %}green{% endif %}",
+            "textColor": "{% if rsvp.status == 1 %}black{% else %}white{% endif %}"
+          }
+      )
+    {% endfor %}
+  {% endfor %}
+
+
+
+
+  function initCalendar() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      timeZone: 'UTC',
+      initialView: 'resourceTimelineMonth',
+      aspectRatio: 1.5,
+      headerToolbar: {
+        left: 'prev,next',
+        center: 'title',
+        right: 'resourceTimelineDay,resourceTimelineWeek,resourceTimelineMonth'
+      },
+      editable: false,
+      resourceAreaHeaderContent: 'Rooms',
+      resources: resources,
+      events: reservations,
+    });
+    calendar.render();
+  }
+
+
+  $(document).ready(function () {
+    // Stuff to do as soon as the DOM is ready
+    initCalendar();
+  });
+
+  </script>
+
+{% endblock %}
+

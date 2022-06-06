@@ -12,26 +12,18 @@
   {% echo "btn btn-outline-dark " as btn_class %}
   {% echo "btn btn-outline-secondary " as admin_btn_class %}
   <div class="container py-4">
-{#    <header class="pb-3 mb-4 border-bottom">#}
-{#      <a href="#" class="d-flex align-items-center text-dark text-decoration-none">#}
-{#        <div class="mx-3">#}
-{#          <img src="{% static '/img/icons/vehicle.png' %}" alt="" width="50px">#}
-{#        </div>#}
-{#        <span class="fs-4">{% trans "Vehicle RSVP" %}</span>#}
-{#      </a>#}
-{#    </header>#}
 
     <div class="p-5 mb-4 bg-light rounded-3">
       <div class="container-fluid py-5">
-        <h1 class="display-5 fw-bold">{% trans "Gulf Region Vehicle Reservation System" %}</h1>
+        <h1 class="display-5 fw-bold">{% trans "Science Vehicle Reservation System" %}</h1>
         <p class="col-md-8 fs-4">
           {% blocktrans %}
-            Welcome to the reservation system for the Gulf Science vehicle fleet.
+            Welcome to the reservation system for the Science vehicle fleet.
           {% endblocktrans %}
         </p>
-        <button class="btn btn-primary btn-lg" type="button">{% trans "Resources" %} </button>
-        <button class="btn btn-success btn-lg" type="button"><span class="mdi mdi-calendar text-light me-1"></span> {% trans "Calendar" %} </button>
+        <a href="{% url 'cars:calendar' %}" class="btn btn-success btn-lg"><span class="mdi mdi-calendar text-light me-1"></span> {% trans "Calendar" %} </a>
         <a href="{% url 'cars:vehicle_finder' %}" class="btn btn-warning btn-lg"><span class="mdi mdi-magnify me-1"></span> {% trans "Find a Vehicle" %} </a>
+        <button class="btn btn-primary btn-lg" type="button">{% trans "Help Resources" %} </button>
       </div>
     </div>
 

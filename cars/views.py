@@ -4,10 +4,9 @@ from django.urls import reverse_lazy, reverse
 from django.utils.translation import gettext_lazy, gettext as _
 
 from cars import models, forms, filters, emails
-from cars.mixins import CarsBasicMixin, SuperuserOrAdminRequiredMixin, CarsNationalAdminRequiredMixin, CarsRegionalAdminRequiredMixin, \
-    CanModifyVehicleRequiredMixin, CanModifyReservationRequiredMixin, CarsAdminRequiredMixin
+from cars.mixins import CarsBasicMixin, SuperuserOrAdminRequiredMixin, CarsNationalAdminRequiredMixin, CanModifyVehicleRequiredMixin, \
+    CanModifyReservationRequiredMixin, CarsAdminRequiredMixin
 from cars.utils import get_dates_from_range, is_dt_intersection
-from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import listrify
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonDeleteView, CommonDetailView, CommonUpdateView, \
     CommonFilterView, CommonCreateView, CommonFormView
@@ -22,6 +21,7 @@ class IndexTemplateView(CarsBasicMixin, CommonTemplateView):
         context = super().get_context_data(**kwargs)
         context["requests_waiting"] = models.Reservation.objects.filter(vehicle__custodian=self.request.user, status=1).count()
         return context
+
 
 # REFERENCE TABLES #
 ####################
@@ -90,10 +90,6 @@ class VehicleFinder(CarsBasicMixin, CommonFormView):
         if qp.get("id"):
             payload["vehicle"] = qp.get('id')
         return payload
-
-
-
-
 
     def form_valid(self, form):
 
@@ -200,7 +196,6 @@ class VehicleDetailView(CarsBasicMixin, CommonDetailView):
     template_name = 'cars/vehicle_detail.html'
     home_url_name = "cars:index"
     parent_crumb = {"title": gettext_lazy("Vehicles"), "url": reverse_lazy("cars:vehicle_list")}
-    container_class = "container curvy"
     field_list = [
         "region",
         "location",
@@ -227,6 +222,14 @@ class VehicleDeleteView(CanModifyVehicleRequiredMixin, CommonDeleteView):
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("cars:vehicle_detail", args=[self.get_object().id])}
 
+
+class VehicleCalendarView(CarsBasicMixin, CommonFilterView):
+    model = models.Vehicle
+    template_name = 'cars/calendar.html'
+    home_url_name = "cars:index"
+    h1 = gettext_lazy("Vehicle Calendar")
+    container_class = "container-fluid"
+    filterset_class = filters.VehicleFilter
 
 # RESERVATIONS #
 ################
@@ -278,6 +281,7 @@ class ReservationUpdateView(CanModifyReservationRequiredMixin, CommonUpdateView)
     form_class = forms.ReservationForm
     template_name = 'cars/form.html'
     home_url_name = "cars:index"
+
     # grandparent_crumb = {"title": gettext_lazy("Reservations"), "url": reverse_lazy("cars:rsvp_list")}
 
     def get_parent_crumb(self):
@@ -307,6 +311,7 @@ class ReservationCreateView(CarsBasicMixin, CommonCreateView):
     success_url = reverse_lazy('cars:rsvp_list')
     template_name = 'cars/form.html'
     home_url_name = "cars:index"
+
     # parent_crumb = {"title": gettext_lazy("Reservations"), "url": reverse_lazy("cars:rsvp_list")}
 
     def get_initial(self):
@@ -357,6 +362,7 @@ class ReservationDeleteView(CanModifyReservationRequiredMixin, CommonDeleteView)
     success_url = reverse_lazy('cars:rsvp_list')
     success_message = 'The functional group was successfully deleted!'
     template_name = 'cars/confirm_delete.html'
+
     # grandparent_crumb = {"title": gettext_lazy("Reservations"), "url": reverse_lazy("cars:rsvp_list")}
 
     def get_parent_crumb(self):

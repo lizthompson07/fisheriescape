@@ -77,10 +77,10 @@ if settings.INSTALLED_APPS.count("ihub"):
     urlpatterns.append(
         path('api/', include('ihub.api.urls')),
     )
-# if settings.INSTALLED_APPS.count("cars"):
-#     urlpatterns.append(
-#         path('api/', include('cars.api.urls')),
-#     )
+if settings.INSTALLED_APPS.count("cars"):
+    urlpatterns.append(
+        path('api/', include('cars.api.urls')),
+    )
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),

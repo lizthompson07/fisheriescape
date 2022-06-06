@@ -1,0 +1,23 @@
+{% load bootstrap5 %}
+{% load i18n %}
+
+ <form class="form {% block extra_filter_classes %}{% endblock %}" action="." method="get" id="filter-form">
+    <div class="row">
+
+      <div class="col">
+        {% bootstrap_field filter.form.location placeholder="" size="small" %}
+      </div>
+      <div class="col">
+        {% bootstrap_field filter.form.vehicle_type placeholder="" size="small" %}
+      </div>
+      <div class="col">
+        {% bootstrap_field filter.form.max_passengers__gte placeholder="" size="small" %}
+      </div>
+
+      <div class="col">
+        <br>
+        <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+        <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+      </div>
+    </div>
+  </form>
