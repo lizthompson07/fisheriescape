@@ -289,6 +289,7 @@ class PersonDeleteView(AdminRequiredMixin, CommonDeleteView):
     success_url = reverse_lazy('maret:person_list')
     home_url_name = "maret:index"
     grandparent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("maret:person_list")}
+    non_blocking_fields = ["ext_con"]
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("maret:person_detail", args=[self.get_object().id])}
