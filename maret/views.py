@@ -344,7 +344,8 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['scripts'] = ['maret/js/interactionForm.html']
+        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
+                              'maret/js/interactionForm.html']
 
         return context
 
@@ -365,7 +366,8 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['scripts'] = ['maret/js/interactionForm.html']
+        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
+                              'maret/js/interactionForm.html']
         return context
 
 
@@ -389,6 +391,13 @@ class InteractionDetailView(UserRequiredMixin, CommonDetailView):
             'date_of_meeting',
             'main_topic',
             'species',
+            'branch',
+            'division',
+            'area_office',
+            'area_office_program',
+            'other_dfo_branch',
+            'other_dfo_regions',
+            'other_dfo_areas',
             'action_items',
             'comments',
             'external_organization',
@@ -673,7 +682,6 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
         if models.Committee.objects.filter(external_organization__in=[self.object]):
             committees_qs = models.Committee.objects.filter(external_organization__in=[self.object])
             committees = [c.pk for c in committees_qs]
-
 
         return {
             'last_modified_by': self.request.user,

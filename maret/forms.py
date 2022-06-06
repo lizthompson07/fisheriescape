@@ -62,6 +62,9 @@ class InteractionForm(forms.ModelForm):
         # changes number of rows / height of multiple select widget:
         self.fields['main_topic'].widget.attrs['size'] = '8'
         self.fields['species'].widget.attrs['size'] = '8'
+        self.fields['other_dfo_branch'].widget.attrs['size'] = '6'
+        self.fields['other_dfo_regions'].widget.attrs['size'] = '6'
+        self.fields['other_dfo_areas'].widget.attrs['size'] = '6'
 
     class Meta:
         model = models.Interaction
