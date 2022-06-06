@@ -87,6 +87,7 @@ class OrganizationForm(forms.ModelForm):
     category = forms.MultipleChoiceField(required=False, label=_("Categories"))
     area = forms.MultipleChoiceField(required=False, label=_("Area(s)"))
     email = forms.EmailField(required=False, label=_("E-mail"))
+    committee = forms.MultipleChoiceField(required=False, label=_("Committees/Working Groups"))
 
     class Meta:
         model = ml_models.Organization
@@ -109,12 +110,13 @@ class OrganizationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.order_fields(['name_eng', 'category', 'grouping', 'name_ind', 'abbrev', 'email', 'address', 'mailing_address', 'city',
                            'postal_code', 'province', 'phone', 'fax', 'notes',
-                           'key_species', 'area', 'regions', 'asc_province'])
+                           'key_species', 'area', 'regions', 'asc_province', 'committee'])
 
         self.fields['area'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['category'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['orgs'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['asc_province'].widget = forms.SelectMultiple(attrs=multi_select_js)
+        self.fields['committee'].widget = forms.SelectMultiple(attrs=chosen_js)
 
         org_choices_all = [(obj.id, obj) for obj in ml_models.Organization.objects.all()]
         self.fields["orgs"].choices = org_choices_all
@@ -127,6 +129,9 @@ class OrganizationForm(forms.ModelForm):
 
         province_choices = [(p.id, p) for p in shared_models.Province.objects.all()]
         self.fields['asc_province'].choices = province_choices
+
+        self.fields['committee'].choices = [(c.id, c) for c in models.Committee.objects.all()]
+
 
 
 class MemberForm(forms.ModelForm):
@@ -162,7 +167,6 @@ class PersonForm(forms.ModelForm):
         model = ml_models.Person
         exclude = ["date_last_modified", "old_id",  'connected_user']
         widgets = {
-            'committee': forms.Select(attrs=chosen_js),
             'organizations': forms.SelectMultiple(attrs=chosen_js),
             'last_modified_by': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={"rows": "3"}),
@@ -173,10 +177,8 @@ class PersonForm(forms.ModelForm):
         self.order_fields(['designation', 'role', 'first_name', 'last_name', 'phone_1', 'phone_2', 'cell', 'email_1',
                            'email_2', 'fax', 'language', 'notes', 'committee'])
         self.fields['organizations'].label = _("Organization Membership")
-        self.fields['committee'].widget.attrs['size'] = '8'
-
-        committee = [(c.id, c) for c in models.Committee.objects.all()]
-        self.fields['committee'].choices = committee
+        self.fields['committee'].widget = forms.SelectMultiple(attrs=chosen_js)
+        self.fields['committee'].choices = [(c.id, c) for c in models.Committee.objects.all()]
 
 
 class TopicForm(forms.ModelForm):

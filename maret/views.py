@@ -602,6 +602,12 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
             ext_org.associated_provinces.set(fields['asc_province'])
             ext_org.save()
 
+        if fields['committee']:
+            for committee_pk in fields["committee"]:
+                committee = models.Committee.objects.get(pk=committee_pk)
+                committee.external_organization.add(object)
+                committee.save()
+
         return HttpResponseRedirect(reverse_lazy('maret:org_detail', kwargs={'pk': object.id}))
 
     def get_context_data(self, **kwargs):
@@ -628,7 +634,6 @@ class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
         'fax',
         'grouping',
         'regions',
-        'sectors',
         'website',
         'category',
         'date_last_modified',
@@ -665,11 +670,16 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
                 areas = [a.pk for a in ext_org.area.all()]
                 category = [c.pk for c in ext_org.category.all()]
                 asc_province = [p.pk for p in ext_org.associated_provinces.all()]
+        if models.Committee.objects.filter(external_organization__in=[self.object]):
+            committees_qs = models.Committee.objects.filter(external_organization__in=[self.object])
+            committees = [c.pk for c in committees_qs]
+
 
         return {
             'last_modified_by': self.request.user,
             'area': areas,
             'category': category,
+            'committee': committees,
             'asc_province': asc_province,
         }
 
@@ -702,18 +712,24 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
 
         if fields['asc_province']:
             if not ext_org:
-                ext_org = models.OrganizationExtension(organization=object)
+                ext_org = models.OrganizationExtension(organization=obj)
                 ext_org.save()
             ext_org.associated_provinces.set(fields['asc_province'])
             ext_org.save()
 
         if fields['email']:
             if not ext_org:
-                ext_org = models.OrganizationExtension(organization=object)
+                ext_org = models.OrganizationExtension(organization=obj)
                 ext_org.save()
             # set field directly to avoid calling set on none type
             ext_org.email = fields["email"]
             ext_org.save()
+
+        if fields['committee']:
+            for committee_pk in fields["committee"]:
+                committee = models.Committee.objects.get(pk=committee_pk)
+                committee.external_organization.add(obj)
+                committee.save()
 
         return super().form_valid(form)
 

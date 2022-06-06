@@ -158,11 +158,7 @@ class OrganizationFilter(django_filters.FilterSet):
             field_name='province',
             widget=forms.SelectMultiple(attrs=chosen_js),
         )
-        self.filters['sectors'] = django_filters.ModelMultipleChoiceFilter(
-            queryset=ml_models.Sector.objects.all(),
-            field_name='sectors',
-            widget=forms.SelectMultiple(attrs=chosen_js),
-        )
+
 
 
 class PersonFilter(django_filters.FilterSet):
