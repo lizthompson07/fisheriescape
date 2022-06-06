@@ -151,7 +151,7 @@ class Committee(models.Model):
     location_of_tor = models.TextField(blank=True, null=True, verbose_name=_("Location of terms of reference"))
     main_actions = models.TextField(default="-----", verbose_name=_("Main actions"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("Comments"))
-    last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
+    last_modified = models.DateTimeField(auto_now=True, blank=True, null=True,
                                          verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          verbose_name=_("last modified by"))
@@ -194,7 +194,7 @@ class Interaction(models.Model):
                                      verbose_name=_("Main species of discussion"))
     action_items = models.TextField(default="-----", verbose_name=_("Main actions"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("Comments"))
-    last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
+    last_modified = models.DateTimeField(auto_now=True, blank=True, null=True,
                                          verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          verbose_name=_("last modified by"))

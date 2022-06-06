@@ -174,7 +174,8 @@ class PersonDetailView(UserRequiredMixin, CommonDetailView):
         "notes",
         "committee",
         "email_block",
-        "metadata|{}".format(gettext_lazy("metadata")),
+        "date_last_modified",
+        "last_modified_by",
     ]
     home_url_name = "maret:index"
     parent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("maret:person_list")}
@@ -494,6 +495,8 @@ class CommitteeDetailView(UserRequiredMixin, CommonDetailView):
             'area_office',
             'main_actions',
             'comments',
+            "last_modified",
+            "last_modified_by",
         ]
 
         return context
@@ -628,7 +631,8 @@ class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
         'sectors',
         'website',
         'category',
-        "metadata|{}".format(gettext_lazy("metadata")),
+        'date_last_modified',
+        'last_modified_by'
     ]
     home_url_name = "maret:index"
     parent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("maret:org_list")}
