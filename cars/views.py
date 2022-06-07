@@ -164,7 +164,7 @@ class VehicleListView(CarsBasicMixin, CommonFilterView):
                 ids = qp.get("ids").split(",")
             return models.Vehicle.objects.filter(id__in=ids)
         else:
-            return models.Vehicle.objects.filter(is_active=True)
+            return models.Vehicle.objects.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -252,7 +252,7 @@ class VehicleCalendarView(CarsBasicMixin, CommonFilterView):
 
 class ReservationListView(CarsBasicMixin, CommonFilterView):
     template_name = 'cars/list.html'
-    filterset_class = filters.ReservationFilter
+    filterset_class = filters.SimpleReservationFilter
     # new_object_url = reverse_lazy("cars:rsvp_new")
     row_object_url_name = row_ = "cars:rsvp_detail"
     paginate_by = 10

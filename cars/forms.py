@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.forms import modelformset_factory
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy, gettext
 
 from . import models
@@ -27,6 +28,10 @@ class VehicleForm(forms.ModelForm):
 
 
 class ReservationForm(forms.ModelForm):
+    box1 = forms.BooleanField(required=True)
+    box2 = forms.BooleanField(required=True)
+    box3 = forms.BooleanField(required=True)
+
     field_order = [
         "date_range",
     ]
@@ -48,6 +53,14 @@ class ReservationForm(forms.ModelForm):
         user_qs = User.objects.filter(is_active=True).order_by("first_name", "last_name")
         self.fields["primary_driver"].queryset = user_qs
         self.fields["other_drivers"].queryset = user_qs
+        if kwargs.get("instance"):
+            del self.fields["box1"]
+            del self.fields["box2"]
+            del self.fields["box3"]
+        else:
+            self.fields["box1"].label = mark_safe("I have signed the <a href='https://forms-formulaires.dfo-mpo.gc.ca/Forms/FP_0024-E.pdf'>Acknowledgement of Motor Vehicle Operator Role and Responsibilities Form</a>.")
+            self.fields["box2"].label = mark_safe("I have signed off on the safe work procedure <a href='#'>Driving a Road Vehicle</a>.")
+            self.fields["box3"].label = "I have my manager's authorization to proceed."
 
     def clean_primary_driver(self):
         primary_driver = self.cleaned_data['primary_driver']

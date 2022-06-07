@@ -9,6 +9,10 @@
 .accepted, .approved {
     background-color: #ccfacc;
 }
-.denied {
+.denied{
     background-color: #ffcdcd;
+}
+
+.bad-card {
+    background-color: #ffe9e9;
 }

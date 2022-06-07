@@ -1,23 +1,24 @@
 {% load bootstrap5 %}
 {% load i18n %}
 
- <form class="form {% block extra_filter_classes %}{% endblock %}" action="." method="get" id="filter-form">
-    <div class="row">
-
-      <div class="col">
-        {% bootstrap_field filter.form.location placeholder="" size="small" %}
-      </div>
-      <div class="col">
-        {% bootstrap_field filter.form.vehicle_type placeholder="" size="small" %}
-      </div>
-      <div class="col">
-        {% bootstrap_field filter.form.max_passengers__gte placeholder="" size="small" %}
-      </div>
-
-      <div class="col">
-        <br>
-        <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
-        <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
-      </div>
+<form class="form card p-3" action="." method="get" id="filter-form">
+  <div class="row">
+    <div class="col">
+      {% bootstrap_field filter.form.reference_number__contains placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
+      {% bootstrap_field filter.form.make__icontains placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
     </div>
-  </form>
+    <div class="col">
+      {% bootstrap_field filter.form.location__region placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
+      {% bootstrap_field filter.form.model__icontains placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
+    </div>
+    <div class="col">
+      {% bootstrap_field filter.form.location placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
+      {% bootstrap_field filter.form.vehicle_type placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
+    </div>
+    <div class="col">
+      {% bootstrap_field filter.form.max_passengers__gte placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
+      {% bootstrap_field filter.form.is_active placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
+    </div>
+
+  </div>
+</form>

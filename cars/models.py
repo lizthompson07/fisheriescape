@@ -29,7 +29,7 @@ class VehicleType(SimpleLookup):
 
 
 class Location(SimpleLookup, LatLongFields):
-    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name="vehicles")
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name="vehicle_locations")
     address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
     city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
     postal_code = models.CharField(max_length=7, blank=True, null=True, verbose_name=_("postal code"))
@@ -59,6 +59,9 @@ class Vehicle(MetadataFields):
                                     help_text=_("Vehicles that are not in commission will not show up in the reservation list"))
     comments = models.TextField(verbose_name=_("comments"), blank=True, null=True)
     thumbnail = models.ImageField(blank=True, null=True, upload_to=img_file_name, verbose_name=_("thumbnail"))
+
+    class Meta:
+        ordering = ["reference_number"]
 
     def __str__(self):
         return f"{self.year} {self.make} {self.model} ({self.reference_number})"
