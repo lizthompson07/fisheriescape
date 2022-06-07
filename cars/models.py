@@ -4,8 +4,10 @@ from django.db import models
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 
+from dm_apps.utils import get_timezone_time
 from shared_models.models import SimpleLookup, Region, MetadataFields, UnilingualSimpleLookup, LatLongFields
 
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
@@ -108,3 +110,10 @@ class Reservation(MetadataFields):
 
     def __str__(self):
         return gettext("Reservation for {car} by {user}").format(car=self.vehicle, user=self.primary_driver)
+
+    @property
+    def arrival_departure(self):
+        return mark_safe(_("{arrival} &rarr; {departure}").format(
+            arrival=get_timezone_time(self.start_date).strftime("%Y-%m-%d %H:%M"),
+            departure=get_timezone_time(self.end_date).strftime("%Y-%m-%d %H:%M"),
+        ))

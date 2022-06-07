@@ -1,6 +1,9 @@
+import datetime
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils.timezone import make_aware, get_current_timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
 from cars import models, forms, filters, emails
@@ -80,6 +83,7 @@ class VehicleFormsetView(CarsNationalAdminRequiredMixin, CommonFormsetView):
     home_url_name = "cars:index"
     delete_url_name = "cars:delete_vehicle"
     container_class = "container-fluid"
+
 
 class VehicleHardDeleteView(CarsNationalAdminRequiredMixin, CommonHardDeleteView):
     model = models.Vehicle
@@ -298,25 +302,19 @@ class ReservationUpdateView(CanModifyReservationRequiredMixin, CommonUpdateView)
     template_name = 'cars/form.html'
     home_url_name = "cars:index"
 
-    # grandparent_crumb = {"title": gettext_lazy("Reservations"), "url": reverse_lazy("cars:rsvp_list")}
+    def get_initial(self):
+        qp = self.request.GET
+        payload = dict()
+        rsvp = self.get_object()
+        payload["start_date"] = rsvp.start_date.strftime("%Y-%m-%dT%H:%M")
+        payload["end_date"] = rsvp.end_date.strftime("%Y-%m-%dT%H:%M")
+        return payload
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("cars:rsvp_detail", args=[self.get_object().id])}
 
-    def get_initial(self):
-        payload = dict()
-        obj = self.get_object()
-        if obj.start_date:
-            payload["date_range"] = f"{obj.start_date.strftime('%Y-%m-%d')} to {obj.end_date.strftime('%Y-%m-%d')}"
-        return payload
-
     def form_valid(self, form):
         obj = form.save(commit=False)
-        date_range = form.cleaned_data["date_range"]
-        if date_range:
-            dates = get_dates_from_range(date_range)
-            obj.start_date = dates[0]
-            obj.end_date = dates[1]
         obj.updated_by = self.request.user
         return super().form_valid(form)
 
@@ -333,19 +331,21 @@ class ReservationCreateView(CarsBasicMixin, CommonCreateView):
     def get_initial(self):
         qp = self.request.GET
         payload = dict(primary_driver=self.request.user)
-        if qp.get("start_date") and qp.get("end_date"):
-            payload["date_range"] = f"{qp.get('start_date')} to {qp.get('end_date')}"
+        if qp.get("start_date"):
+            dt = make_aware(datetime.datetime.strptime(f'{qp.get("start_date")} 8:00', "%Y-%m-%d %H:%M"), get_current_timezone())
+            payload["start_date"] = dt.strftime("%Y-%m-%dT%H:%M")
+
+        if qp.get("end_date"):
+            dt = make_aware(datetime.datetime.strptime(f'{qp.get("end_date")} 16:00', "%Y-%m-%d %H:%M"), get_current_timezone())
+            payload["end_date"] = dt.strftime("%Y-%m-%dT%H:%M")
+
         if qp.get("vehicle"):
             payload["vehicle"] = qp.get('vehicle')
+
         return payload
 
     def form_valid(self, form):
         obj = form.save(commit=False)
-        date_range = form.cleaned_data["date_range"]
-        if date_range:
-            dates = get_dates_from_range(date_range)
-            obj.start_date = dates[0]
-            obj.end_date = dates[1]
         obj.created_by = self.request.user
         obj = form.save(commit=True)
         email = emails.RSVPEmail(self.request, obj)
@@ -365,8 +365,7 @@ class ReservationDetailView(CarsBasicMixin, CommonDetailView):
         "vehicle.custodian|{}".format(_("custodian")),
         "destination",
         "primary_driver",
-        "start_date",
-        "end_date",
+        "arrival_departure|{}".format(gettext_lazy("Arrival/departure")),
         "other_drivers",
         "comments",
 

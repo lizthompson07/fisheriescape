@@ -32,20 +32,22 @@ class ReservationForm(forms.ModelForm):
     box2 = forms.BooleanField(required=True)
     box3 = forms.BooleanField(required=True)
 
-    field_order = [
-        "date_range",
-    ]
-    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range),
-                                 label=gettext_lazy("What dates are you looking for?"), required=True)
+    # field_order = [
+    #     "date_range",
+    # ]
+    # date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range),
+    #                              label=gettext_lazy("What dates are you looking for?"), required=True)
 
     class Meta:
         model = models.Reservation
-        exclude = ["start_date", "end_date"]
-
+        # exclude = ["start_date", "end_date"]
+        fields = "__all__"
         widgets = {
             "vehicle": forms.Select(attrs=chosen_js),
             "primary_driver": forms.Select(attrs=chosen_js),
             "other_drivers": forms.SelectMultiple(attrs=chosen_js),
+            "start_date": forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            "end_date": forms.DateTimeInput(attrs={"type": "datetime-local"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -58,7 +60,8 @@ class ReservationForm(forms.ModelForm):
             del self.fields["box2"]
             del self.fields["box3"]
         else:
-            self.fields["box1"].label = mark_safe("I have signed the <a href='https://forms-formulaires.dfo-mpo.gc.ca/Forms/FP_0024-E.pdf'>Acknowledgement of Motor Vehicle Operator Role and Responsibilities Form</a>.")
+            self.fields["box1"].label = mark_safe(
+                "I have signed the <a href='https://forms-formulaires.dfo-mpo.gc.ca/Forms/FP_0024-E.pdf'>Acknowledgement of Motor Vehicle Operator Role and Responsibilities Form</a>.")
             self.fields["box2"].label = mark_safe("I have signed off on the safe work procedure <a href='#'>Driving a Road Vehicle</a>.")
             self.fields["box3"].label = "I have my manager's authorization to proceed."
 
@@ -82,9 +85,8 @@ class ReservationForm(forms.ModelForm):
         else:
             approved_reservations = vehicle.reservations.filter(status=10).filter(~Q(id=self.instance.id))
 
-        dates = get_dates_from_range(cleaned_data["date_range"])
-        start_date = dates[0]
-        end_date = dates[1]
+        start_date = cleaned_data["start_date"]
+        end_date = cleaned_data["end_date"]
 
         for r in approved_reservations:
             if is_dt_intersection(r.start_date, r.end_date, start_date, end_date):
@@ -100,13 +102,13 @@ class VehicleFinderForm(forms.Form):
     # region = forms.ModelChoiceField(required=False, queryset=Region.objects.filter(vehicles__isnull=False).distinct(), label=gettext_lazy("Region"))
     location = forms.ModelChoiceField(required=False,
                                       queryset=models.Location.objects.filter(vehicles__isnull=False).distinct(),
-                                      label=gettext_lazy("Pick-up location"))
+                                      label=gettext_lazy("Pick-up location"), help_text=gettext_lazy("leave blank for all"))
     vehicle_type = forms.ModelChoiceField(required=False,
                                           queryset=models.VehicleType.objects.filter(vehicles__isnull=False).distinct(),
-                                          label=gettext_lazy("Vehicle type"))
+                                          label=gettext_lazy("Vehicle type"), help_text=gettext_lazy("leave blank for all"))
     vehicle = forms.ModelChoiceField(required=False, queryset=models.Vehicle.objects.all(),
-                                     label=gettext_lazy("Vehicle"))
-    no_passengers = forms.IntegerField(required=False, label=gettext_lazy("Passenger minimum capacity"))
+                                     label=gettext_lazy("Vehicle"), help_text=gettext_lazy("leave blank for all"))
+    no_passengers = forms.IntegerField(required=False, label=gettext_lazy("Passenger minimum capacity"), help_text=gettext_lazy("leave blank for all"))
 
 
 class CarsUserForm(forms.ModelForm):

@@ -23,7 +23,7 @@
         </p>
         <a href="{% url 'cars:calendar' %}" class="btn btn-success btn-lg"><span class="mdi mdi-calendar text-light me-1"></span> {% trans "Calendar" %} </a>
         <a href="{% url 'cars:vehicle_finder' %}" class="btn btn-warning btn-lg"><span class="mdi mdi-magnify me-1"></span> {% trans "Find a Vehicle" %} </a>
-        <button class="btn btn-primary btn-lg" type="button">{% trans "Help Resources" %} </button>
+        <button class="btn btn-primary btn-lg" type="button" onclick="alert('Coming soon!')">{% trans "Help Resources" %} </button>
       </div>
     </div>
 
@@ -31,10 +31,11 @@
     <div class="row align-items-md-stretch mb-3">
       <div class="col-md-6">
         <div class="h-100 p-5 text-white bg-dark rounded-3">
-          <h2>{% trans "Vehicles" %}</h2>
+          <h2>{% trans "Our Vehicles" %}</h2>
           <p>
             {% blocktrans %}
-              Here is some help text we can show regarding the vehicle fleet. Perhaps we'll talk about locations and other important information.
+              Use this module to view or modify the vehicles in our fleet.
+              Any user can add a vehicle, but only vehicle custodians (and application admins) can make changes to an existing vehicle.
             {% endblocktrans %}
           </p>
           <a href="{% url 'cars:vehicle_list' %}" class="btn btn-sm btn-outline-light">{% trans "View Fleet" %}</a>
@@ -56,10 +57,11 @@
           <h2>{% trans "Reservations" %}</h2>
           <p>
             {% blocktrans %}
-              Similarly, we can provide some general text about making a reservation, managing active requests etc.
+              Use this module to view or modify existing vehicle reservations. If you are a custodian, you can also use this module to
+              see the requests for your vehicles, both current and past.
             {% endblocktrans %}
           </p>
-          <a href="{% url 'cars:rsvp_new' %}" class="btn btn-sm btn-outline-secondary"><span class="mdi mdi-plus pe-1"></span> {% trans "New Reservation" %}</a>
+          <a href="{% url 'cars:vehicle_finder' %}" class="btn btn-sm btn-outline-secondary"><span class="mdi mdi-plus pe-1"></span> {% trans "New Reservation" %}</a>
 
           <a href="{% url 'cars:rsvp_list' %}?personalized=true" class="btn btn-sm btn-outline-secondary">{% trans "Your Reservations" %}</a>
 
