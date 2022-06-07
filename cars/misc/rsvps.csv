@@ -1,0 +1,464 @@
+id,start,end,primary,other,destination
+11483,2022-05-18,2022-05-19,Charles Comeau,4 Students ,Hillsborough
+11483,2021-06-15,2021-06-15,Francis LeBlanc,,Warehouse
+11483,2021-06-17,2021-06-17,Francis LeBlanc,Nellie Gagné,SABS
+11483,2021-10-04,2021-10-04,Gabriel Goguen,,
+11483,2022-04-28,2022-04-28,Gabriel Goguen,Various Freshwater Hab. Staff,"Aulac, NB"
+11483,2022-05-02,2022-05-02,Gabriel Goguen,,"Moncton, NB"
+11483,2022-06-02,2022-06-02,Gabriel Goguen,Ethan Belliveau,"Grande-Digue, NB"
+11483,2022-06-17,2022-06-17,Gabriel Goguen,,"Loftus Auto, Moncton"
+11483,2020-08-31,2020-09-18,Katherine Landry,,port sampling
+11483,2021-09-26,2021-09-29,Luc Comeau,,"Halifax, NS"
+11483,2022-06-02,2022-06-03,Luc Savoie,Scott MacFarlane,Miramichi
+11483,2021-07-03,2021-07-04,Maxime Ouellet,Natalie Asselin,"Pointe-du-Chêne, NB"
+11483,2021-10-21,2021-10-21,Nellie Gagné,,
+11483,2022-04-06,2022-04-06,Philip Bouma,Matt Breau,"Moncton, NB"
+11483,2022-04-19,2022-04-19,Pierre-Luc Daigle,,"Cape Tormentine, NB"
+11483,2022-04-25,2022-04-25,Pierre-Luc Daigle,,"Cape Tormentine, NB"
+11483,2022-04-26,2022-04-26,Pierre-Luc Daigle,,"Cape Tormentine, NB"
+11483,2021-08-10,2021-08-12,Royce Steeves,,"Miramichi,NB"
+11483,2021-03-26,2021-03-31,Sophie LeBlanc,,garage Moncton
+11483,2022-05-09,2022-05-12,Sophie LeBlanc,,"Amherst, NS"
+11483,2020-08-26,2020-08-26,Stéphanie Côté,,"Moncton, NB - Warehouse"
+11483,2022-05-03,2022-05-04,Suncica Avlijas,,"Sackville NB, Charlo NB"
+11483,2022-06-06,2022-06-11,Suncica Avlijas,Jenna MacEachern,"Margaree Forks, NS & PEI"
+11483,2022-05-31,2022-06-01,Yves Vautour,Justin LeBlanc,Dartmouth
+11481,2020-11-17,2020-11-17,Bruno Frenette,,"Moncton, Shemogue"
+11481,2020-08-17,2020-08-20,Erica Watson,"Tamara Ledoux, Sandrine Tousignant","17: Moncton, 18-20: Caraquet/Shippagan"
+11481,2020-08-21,2020-08-21,Erica Watson,,Moncton (Garage)
+11481,2020-08-24,2020-08-24,Erica Watson,"Tamara Ledoux, Sandrine Tousignant",PEI
+11481,2020-08-26,2020-08-26,Erica Watson,,Moncton
+11481,2020-10-29,2020-10-29,Erica Watson,,warehouse and moncton
+11481,2020-11-03,2020-11-04,Erica Watson,,"coast for tire changeover, back at DFO Nov 4 at 830 AM"
+11481,2020-09-14,2020-09-17,Francis Leblanc,Nellie Gange,"Truro, NS and NB"
+11481,2020-09-27,2020-09-27,Francis Leblanc,Nellie Gagné,SABS
+11481,2020-09-28,2020-09-28,Francis Leblanc,Nellie Gagné,SABS
+11481,2020-09-29,2020-09-29,Francis Leblanc,Nellie Gagné,Grand-Barachois
+11481,2020-09-30,2020-09-30,Francis Leblanc,Nellie Gagné,Grand-Barachois
+11481,2020-10-01,2020-10-01,Francis Leblanc,Nellie Gagné,Grand-Barachois
+11481,2020-10-02,2020-10-02,Francis Leblanc,Nellie Gagné,
+11481,2020-11-05,2020-11-06,Luke Poirier,Mike Coffin,PEI
+11481,2020-08-31,2020-09-04,Michael Coffin,Kate Gingles,PEI
+11481,2020-10-23,2020-10-23,Uli Ulrich,Rejean Vienneau,Miramichi Lake
+11482,2020-09-11,2020-09-11,François Turcotte,Rachel DeJong,"Shipaggan, NB"
+11482,2021-05-10,2021-05-23,Guillaume Dauphin,,"Campbellton, NB"
+11482,2021-08-23,2021-09-03,Guillaume Dauphin,,"Campbellton, NB"
+11482,2021-09-13,2021-09-26,Guillaume Dauphin,,"Campbellton, NB"
+11482,2022-04-21,2022-06-10,Kirby Morrill,NA,"Charlo, NB Smolt Wheel work"
+11482,2021-07-21,2021-07-24,Natalie Asselin,,"Val Comeau, NB"
+11482,2021-08-03,2021-08-06,Rachel DeJong,Nicolas Rolland,"St. Andrew's, NB"
+11482,2022-06-13,2022-06-17,Stephanie Boudreau,"Eliane Aubry, Natalie Asselin","Howard's Cove, PEI"
+11482,2021-07-07,2021-07-13,Sylvie Robichaud,,"Pointe-du-Chêne, NB"
+13402,2022-06-27,2022-10-01,JF Landry,"Yves Laroques, Murray McWilliams","Souris, PEI"
+13402,2021-10-04,2021-10-08,Maxime Ouellet,Patricia Hanley,"Malpeque + Hardys Channel, PEI"
+13402,2022-05-25,2022-05-26,Renee Allain ,"Claudie Lacroix-Lepage, Liz Thompson","Shippagan, NB"
+13402,2022-05-04,2022-05-19,Renee Allain ,"Tobie Surette, Mikio Moriyasu","Shippagan, NB"
+15409,2020-08-11,2020-08-21,Bruno Comeau,Maxime Ouellet,Garage
+15409,2022-02-28,2022-03-04,Carly Weber,,"Dartmouth, NS"
+15409,2022-03-09,2022-03-09,Carly Weber,,"Memramcook, NB"
+15409,2022-01-31,2022-02-12,David Fishman,François Turcotte,Stormont NS
+15409,2022-02-15,2022-02-18,David Fishman,"Pablo Vergara, David Fishman","Dartmouth, NS"
+15409,2021-03-29,2021-03-30,Eliane Aubry,,Garage
+15409,2021-04-10,2021-04-10,Eliane Aubry,,"Saint-Jean, NB"
+15409,2021-04-17,2021-04-17,Eliane Aubry,,"Saint-Jean, NB"
+15409,2021-04-24,2021-04-24,Eliane Aubry,,"Saint-Jean, NB"
+15409,2022-05-08,2022-05-14,Eliane Aubry,,"Lévis, Québec"
+15409,2022-05-16,2022-05-22,Elizabeth Thompson,"Marie-France Robichaud, TBD","Charlottetown, PE"
+15409,2022-06-02,2022-06-03,Fabiola Akaishi,,
+15409,2022-05-23,2022-05-26,Helene Guerette,,
+15409,2022-03-17,2022-03-17,Chantal Roussel,"Janie Haché, Sylvie Robichaud","Tracadie, NB"
+15409,2020-09-08,2020-09-08,Marcel Hebert,Denis Gagnon,"Cheticamp, NS"
+15409,2020-09-10,2020-09-10,Maxime Ouellet,,"Moncton, NB"
+15409,2020-09-11,2020-09-11,Maxime Ouellet,,"Cap Pelé, NB"
+15409,2020-09-18,2020-09-18,Maxime Ouellet,,"Moncton, NB"
+15409,2020-09-21,2020-10-23,Maxime Ouellet,,"Various location, PEI"
+15409,2020-11-12,2020-11-13,Maxime Ouellet,,"Moncton, NB"
+15409,2020-11-27,2020-11-27,Maxime Ouellet,,"Moncton, NB"
+15409,2021-02-16,2021-02-18,Maxime Ouellet,,"Moncton, NB"
+15409,2021-04-29,2021-04-29,Maxime Ouellet,,"Moncton, NB"
+15409,2021-06-01,2021-08-13,Maxime Ouellet,,"Moncton, NB"
+15409,2021-09-22,2021-10-29,Maxime Ouellet,"Patricia Hanley, Bruno Comeau","Nine Miles Creek, PEI"
+15409,2022-04-12,2022-04-12,Maxime Ouellet,,"Dieppe, NB"
+15409,2022-04-25,2022-04-27,Maxime Ouellet,,"Petit Rocher, NB"
+15409,2022-04-29,2022-04-29,Maxime Ouellet,Eliane Aubry,Riverview
+15409,2022-05-06,2022-05-06,Maxime Ouellet,NA,Moncton
+15409,2022-06-06,2022-08-12,Maxime Ouellet,NA,Moncton
+15409,2022-05-04,2022-05-04,Monelle Léger,,"Skinners Pond, PE"
+15409,2021-11-01,2021-11-21,Mylene Dufour,Claudie Lacroix-Lepage,"Charlottetown, PE"
+15409,2022-05-02,2022-05-02,Mylène Dufour,"Marie-France Robichaud, TBD","Charlottetown, PE"
+15409,2020-12-14,2020-12-14,Patricia Hanley,,"Moncton, NB"
+15409,2020-12-16,2020-12-16,Patricia Hanley,,"Moncton, NB"
+15409,2021-04-15,2021-04-16,Patricia Hanley,,"Moncton, NB"
+15409,2021-05-04,2021-05-07,Patricia Hanley,,"Moncton,NB"
+15409,2022-01-18,2022-01-19,Patricia Hanley,NA,Fredericton NB
+15409,2021-09-17,2021-09-18,Rachel Dejong,,"Shippagan, NB"
+15409,2020-09-03,2020-09-03,Renee Allain,,Souris
+15409,2021-08-17,2021-09-14,Renee Allain,"Mikio Moriyasu, Katherine Landry, Stephanie Boudreau","Cheticamps, NS and Souris, PEI"
+15409,2021-05-08,2021-05-18,Stephanie Ratelle,,
+15409,2022-03-18,2022-03-26,Yves Larocque,,"Lévis, Québec"
+16428,2022-06-02,2022-06-03,Fabiola Akaishi,Robert Jones,Fredericton
+16428,2022-05-03,2022-05-03,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-05-10,2022-05-10,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-05-17,2022-05-17,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-05-18,2022-05-18,Francis LeBlanc,Valerie Belliveau,Little River
+16428,2022-05-24,2022-05-24,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-05-31,2022-05-31,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-06-07,2022-06-07,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-06-08,2022-06-08,Francis LeBlanc,Valerie Belliveau,Shediac
+16428,2022-06-14,2022-06-14,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-06-21,2022-06-21,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-06-28,2022-06-28,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-07-05,2022-07-05,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-07-12,2022-07-12,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-07-19,2022-07-19,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-07-26,2022-07-26,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-08-02,2022-08-02,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-08-09,2022-08-09,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-08-16,2022-08-16,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-08-23,2022-08-23,Francis LeBlanc,Valerie Belliveau,"Little River & Canaan River, NB"
+16428,2022-05-02,2022-05-02,Mike Goguen,,"Air Liquid, moncton"
+16428,2022-05-09,2022-05-10,Mylene roussel,,"scallop (muscle, 1or 2 day per week depending weether"
+16428,2022-05-24,2022-05-25,Mylene roussel,,"scallop (muscle, 1or 2 day per week depending weether"
+16428,2022-06-13,2022-06-13,Thomas Guyondet,,PEI
+16428,2022-04-29,2022-04-29,Valerie belliveau,,Coast Tire
+16431,2021-01-27,2021-01-27,Abby Daigle,,"Moncton, NB"
+16431,2020-11-03,2020-11-03,Bruno Comeau,,"Grande Digue, NB"
+16431,2020-11-06,2020-11-06,Bruno Comeau,,"Grande Digue, NB"
+16431,2022-05-17,2022-05-17,Bruno Comeau,Natalie Asselin,Cocagne
+16431,2021-01-18,2021-01-18,Bruno Comeau,,"Moncton, NB"
+16431,2021-04-09,2021-04-30,Bruno Comeau,,"moncton, NB"
+16431,2021-09-15,2021-09-16,Charles Comeau,Ian Luddington (FFHPP),"Saint-Quentin, NB"
+16431,2021-08-19,2021-08-19,Guillaume Dauphin,,"Fundy National Park, NB"
+16431,2020-06-06,2020-06-20,Mark Laflamme,"Doug Bliss, Amélie Robichaud","Moncton, NB (EXAMPLE)"
+16431,2022-04-25,2022-04-27,Matt Horsman,Bruno Comeau,"Petit-Rocher, NB"
+16431,2020-09-18,2020-09-18,Maxime Ouellet,,"Moncton, NB"
+16431,2020-09-21,2020-10-23,Maxime Ouellet,,"Various location, PEI"
+16431,2020-11-12,2020-11-13,Maxime Ouellet,,"Moncton, NB"
+16431,2020-11-30,2020-11-30,Maxime Ouellet,,"Moncton, NB"
+16431,2021-05-03,2021-05-03,Maxime Ouellet,,"Moncton, NB"
+16431,2021-05-03,2021-05-04,Maxime Ouellet,,"Moncton, NB"
+16431,2021-05-12,2021-05-13,Maxime Ouellet,,"Moncton, NB"
+16431,2021-06-07,2021-08-13,Maxime Ouellet,,"Moncton, NB"
+16431,2021-09-22,2021-10-29,Maxime Ouellet,"Patricia Hanley, Bruno Comeau","Nine Miles Creek, PEI"
+16431,2022-05-18,2022-05-18,Maxime Ouellet,NA,Moncton
+16431,2022-05-27,2022-05-27,Maxime Ouellet,NA,Moncton
+16431,2022-06-06,2022-08-12,Maxime Ouellet,NA,Moncton
+16431,2020-09-08,2020-09-14,Nicolas Rolland,Jenni McDermid,"Dartmouth, NS"
+16431,2021-11-16,2021-11-18,Patricia Hanley,"Eliane Aubrey, Maxime Ouellet","Halifax, NS"
+16431,2022-01-20,2022-01-20,Patricia Hanley,NA,Fredericton NB
+16431,2022-04-29,2022-04-29,Patricia Hanley,Bruno Comeau,"Riverview, NB"
+16431,2022-04-29,2022-04-29,Patricia Hanley,Bruno Comeau,"Riverview, NB"
+16431,2021-08-25,2021-09-14,Renee Allain,"Mikio Moriyasu, Katherine Landry, Stephanie Boudreau","Cheticamp, NS"
+16439,2020-08-19,2020-09-30,John Davidson,Scott Roloson,PEI
+17446,2021-11-25,2021-11-25,Carly Weber,none,"Souris, PEI"
+17446,2021-02-24,2021-02-24,Stéphanie Coté,none,Warehouse
+17446,2020-08-10,2020-11-30,Sylvie Robichaud,,"NB, PEI"
+17446,2021-04-01,2021-10-31,Sylvie Robichaud,,"NB, PEI"
+17448,2020-08-27,2020-08-28,Abby Daigle,,Field prep
+17448,2020-08-31,2020-09-18,Abby Daigle,"Bruno Comeau, Jill Hunt",Margaree River
+17448,2020-08-17,2020-08-17,Rachel Dejong,,"Pigeon Hill & Miramichi, NB"
+17448,2020-08-18,2020-08-18,Rachel Dejong,,"Escuminac (Hardwicke), NB"
+17448,2020-08-19,2020-08-19,Rachel Dejong,,"Tignish, PEI"
+17448,2020-08-25,2020-08-25,Uli Ulrich,Rejean Vienneau,Miramichi Lake
+17449,2021-07-29,2021-07-29,Chantal Gautreau,Valérie Belliveau,"Moncton, NB"
+17449,2020-08-18,2020-08-18,Curtis Dinn,,"Truro, NS"
+17449,2021-03-01,2021-03-01,Curtis Dinn,Erica Watson,Linex to drop off and pick up Truck
+17449,2022-07-10,2022-07-22,Curtis Dinn,None,Rimouski (Survey July 11-22)
+17449,2020-09-09,2020-09-11,Erica Watson,Tamara Ledoux,NB/NS
+17449,2020-09-15,2020-09-18,Erica Watson,Tamara Ledoux ,NB/PEI
+17449,2020-09-21,2020-09-25,Erica Watson,"Chantal coomber 21st & 24th, tamara 22nd & 23rd and Sandrine 25th",NB/PEI
+17449,2020-09-28,2020-10-02,Erica Watson,Tamara Ledoux,PEI/NS 
+17449,2020-10-05,2020-10-08,Erica Watson,chantal coomber,PEI/NS 
+17449,2020-11-04,2020-11-04,Erica Watson,,pick up tires at warehouse
+17449,2020-11-05,2020-11-06,Erica Watson,,Coast for tire changeover
+17449,2020-11-09,2020-11-09,Erica Watson,,Warehouse
+17449,2021-03-08,2021-03-09,Erica Watson,,Garage for side mirror replacement
+17449,2021-04-13,2021-04-14,Erica Watson,,"garage (tires/oil change), will be back by 9 AM on the 14th. "
+17449,2021-06-02,2021-06-02,Erica Watson,Curtis Dinn,Ghost gear retrieval specimen collection
+17449,2021-06-03,2021-06-04,Erica Watson,Sandrine Tousignant,"NB line deployment, sign installation and ghost gear pick up"
+17449,2021-06-08,2021-06-11,Erica Watson,sandrine Tousignant,"NB line deployment, sign installation and ghost gear pick up"
+17449,2021-06-17,2021-06-17,Erica Watson,,warehouse
+17449,2021-06-29,2021-06-30,Erica Watson,,coast tire
+17449,2021-07-06,2021-07-09,Erica Watson,Sandrine Tousignant,Sign installation and Biofouling lines in NS/NB (
+17449,2021-07-13,2021-07-16,Erica Watson,sandrine Tousignant,Sign installation and Biofouling lines in NS/NB 
+17449,2021-08-03,2021-08-04,Erica Watson,sandrine Tousignant,Eelgrass sampling in Norther NB (Day trips)
+17449,2021-08-06,2021-08-06,Erica Watson,sandrine Tousignant,"shediac, warehouse"
+17449,2021-09-07,2021-09-10,Erica Watson,Chantal Coomber,"NB/PEI/NS line retrieval, "
+17449,2021-09-20,2021-10-01,Erica Watson,"Chantal Coomber, Renee Bernier","NB/PEI/NS line retrieval, "
+17449,2021-11-04,2021-11-04,Erica Watson,none,Coast tire (tire change)
+17449,2021-11-25,2021-11-26,Erica Watson,,AutoIndulgence for cleaning
+17449,2021-12-13,2021-12-14,Erica Watson,,warehouse
+17449,2022-02-23,2022-02-23,Erica Watson,,"coast, mvi"
+17449,2022-05-09,2022-05-09,Erica Watson,,Warehouse to pick up tires
+17449,2022-05-10,2022-05-10,Erica Watson,,coast for tire change
+17449,2022-05-19,2022-05-20,Erica Watson,Noemie Brideau and Sandrine Tousignant,warehoue and bass pro
+17449,2022-05-24,2022-05-27,Erica Watson,AIS team,Biofouling depolyment pei
+17449,2022-06-07,2022-06-17,Erica Watson,AIS team,Biofouling depolyment nb/ns/pei
+17449,2022-08-29,2022-09-02,Erica Watson,AIS/ACE team,AIS retrieval and other field work
+17449,2022-09-06,2022-09-16,Erica Watson,AIS/ACE team,AIS retrieval and other field work
+17449,2022-09-26,2022-09-29,Erica Watson,AIS/ACE team,AIS retrieval and other field work
+17449,2020-12-02,2020-12-02,Francis LeBlanc,,Coast Tire to drop off AAH van
+17449,2021-11-16,2021-11-16,Jeff Clements,none,Shediac Bridge
+17449,2021-11-18,2021-11-18,Jeff Clements,none,Shediac Bridge
+17449,2021-11-30,2021-11-30,Jeff Clements,none,Shediac Bridge
+17449,2021-12-02,2021-12-02,Jeff Clements,none,Shediac Bridge
+17449,2022-03-23,2022-03-23,Jeff clements,,bouctouche
+17449,2021-08-27,2021-08-29,Joeleen Savoie,TBD,"Dalhousie, NB"
+17449,2021-08-03,2021-08-03,Karen Robertson,,warehouse
+17449,2022-05-18,2022-05-18,Logan McNeill,,warehouse
+17449,2021-03-12,2021-03-12,Luc Comeau,,Bedec
+17449,2021-03-15,2021-03-15,Luc Comeau,,Bedec
+17449,2021-03-17,2021-03-17,Luc Comeau,,Bedec
+17449,2021-03-19,2021-03-19,Luc Comeau,,Bedec
+17449,2021-03-22,2021-03-22,Luc Comeau,,Bedec
+17449,2021-03-24,2021-03-24,Luc Comeau,,Bedec
+17449,2021-03-26,2021-03-26,Luc Comeau,,Bedec
+17449,2021-03-29,2021-03-29,Luc Comeau,,Bedec
+17449,2021-04-01,2021-04-01,Luc Comeau,,Bedec
+17449,2021-04-06,2021-04-06,Luc Comeau,,Bedec
+17449,2021-04-09,2021-04-09,Luc Comeau,,Bedec
+17449,2021-04-12,2021-04-12,Luc Comeau,,Bedec
+17449,2021-04-16,2021-04-16,Luc Comeau,,Bedec
+17449,2021-04-19,2021-04-19,Luc Comeau,,Bedec
+17449,2021-04-23,2021-04-23,Luc Comeau,,Bedec
+17449,2021-04-30,2021-04-30,Luc Comeau,ACE,Bedec
+17449,2021-05-14,2021-05-14,Luc Comeau,,Bedec
+17449,2020-08-10,2020-08-14,Luke Poirier,,PEI
+17449,2022-03-22,2022-03-22,Melanie Roy,,Moncton Area
+17449,2020-09-01,2020-09-01,Michelle Maillet,,"Truro, NS"
+17449,2021-08-25,2021-08-26,Michelle Maillet,,"Eskasoni, Cape Breton"
+17449,2021-09-01,2021-09-03,Michelle Maillet,erica watson,coast tire (oil change and tires) 
+17449,2022-06-22,2022-06-24,Michelle Maillet,None,Meeting at Eskasoni in Cape Breton and sample pick up
+17449,2020-10-08,2020-10-29,Monique Niles,Mylène Roussel,Gulf Region 'Perley'
+17449,2022-05-31,2022-05-31,Monique Niles,,west point pei scallops
+17449,2021-04-29,2021-04-29,Mylene roussel,Mylene et monique,st-anne et cape-tormentine
+17449,2021-05-03,2021-05-05,Mylene roussel,Mylene et Tamara,cape-tormentin et richibucto
+17449,2021-05-10,2021-05-12,Mylene roussel,Mylene et Tamara,cape-tormentin et richibucto
+17449,2021-05-17,2021-05-19,Mylene roussel,Mylene ,cape-tormentin et richibucto
+17449,2021-05-24,2021-05-27,Mylene roussel,Mylene et Tamara,cape-tormentin et richibucto
+17449,2021-10-04,2021-10-22,Mylene roussel,Monique Niles et Tamara Ledoux,"Survey, scallop (cap-tormenetine, west point and Pictou)"
+17449,2021-10-28,2021-10-28,Mylene roussel,Monique Niles,PIctou (scallops)
+17449,2021-11-01,2021-11-01,Mylene roussel,none,pictou (scallops)
+17449,2021-11-08,2021-11-08,Mylene roussel,none,pictou (scallops)
+17449,2021-11-15,2021-11-15,Mylene roussel,none,pictou (scallops)
+17449,2021-11-22,2021-11-22,Mylene roussel,none,pictou (scallops)
+17449,2021-11-29,2021-12-01,Mylene roussel,none,pictou (scallops)
+17449,2022-03-24,2022-03-24,Mylene roussel,,bouctouche
+17449,2022-04-06,2022-05-04,Mylene roussel,Monique Niles et Tamara Ledoux,"survey, scallop (cap-tormenetine, west point )"
+17449,2022-05-16,2022-05-16,Mylene roussel,various,scallop survey
+17449,2022-10-02,2022-11-02,Mylene roussel,Monique Niles ,scallop survey
+17449,2022-11-07,2022-11-09,Mylene roussel,,pictou (scallops)
+17449,2022-11-14,2022-11-16,Mylene roussel,,pictou (scallops)
+17449,2022-11-21,2022-11-23,Mylene roussel,,pictou (scallops)
+17449,2022-11-28,2022-11-30,Mylene roussel,,pictou (scallops)
+17449,2022-12-05,2022-12-07,Mylene roussel,,pictou (scallops)
+17449,2022-12-12,2022-12-12,Mylene roussel,,pictou (scallops)
+17449,2021-08-09,2021-08-09,Renee Allain,Katherine Landry,Day trip Caraquet
+17449,2020-08-30,2020-08-31,Tamara Ledoux,Michelle Maillet,"Kouchibouguac, NB"
+17449,2021-06-21,2021-06-25,Tamara Ledoux,,"Kouchibouguac, NB"
+17449,2021-07-12,2021-07-12,Tamara Ledoux,,
+17449,2021-07-19,2021-07-23,Tamara Ledoux,,"Kouchibouguac, NB"
+17449,2021-08-16,2021-08-20,Tamara Ledoux,,"Kouchibouguac, NB"
+17449,2021-09-13,2021-09-17,Tamara Ledoux,,"Kouchibouguac, NB"
+17449,2022-05-19,2022-05-19,Tamara Ledoux,,scallop survey
+17449,2022-06-01,2022-06-03,Tamara Ledoux,None,Green crab trapping pei
+17449,2021-07-28,2021-07-28,Thomas Guyondet,,Warehouse
+17449,2022-02-15,2022-02-15,Thomas Guyondet,,"Cocagne, Meeting at Acadian Hatchery"
+17449,2021-03-30,2021-03-30,Uli Ulrich,,F'ton
+18469,2022-04-04,2022-04-05,Amelie Robichaud,,Coast Tire (Inspection/Brakes)
+18469,2022-05-24,2022-05-26,Amélie Rondeau,Matthew Hardy,"Antigonish, NS"
+18469,2022-03-22,2022-03-22,Doug Bliss,,"Moncton, NB   "
+18469,2022-04-12,2022-04-12,Doug Bliss,"Mélanie Roy, Susan Leblanc-Robichaud, Vincent Mercier","Halifax, NS"
+18469,2022-04-21,2022-04-21,Erica Watson,Tamara Ledoux,"West Point, PEI"
+18469,2022-06-08,2022-06-09,Marc Ouellette,,"Shediac, NB (GRIP, offsite)"
+18469,2022-01-21,2022-01-21,Matt Hardy,"Anne Veniot, Doug Bliss","St. Andrews, NB"
+18469,2022-03-18,2022-03-20,Matt Hardy,,PEI
+18469,2022-05-17,2022-05-20,Matthew Hardy,,"Miramichi, NB (Off-site SEC)"
+18469,2022-05-30,2022-06-03,Matthew Hardy,,TBD (Salmon meetings)
+18469,2022-03-24,2022-03-24,Maxime Ouellet,,"Charlottetown, PEI"
+18469,2022-06-07,2022-06-07,Melanie Roy,Lisa LeBlanc,"Moncton, NB"
+18469,2022-05-03,2022-05-03,Michelle Maillet,,"Charlottetown, PEI"
+18469,2022-05-04,2022-05-06,Michelle Maillet,,"Halifax, NS"
+18469,2022-04-28,2022-04-28,Suncica Avlijas,,"Aulac, NB"
+18469,2022-06-14,2022-06-16,Venitia Joseph,Marie Helen Theriault,"Basin Head, PEI"
+18476,2022-03-23,2022-03-23,David Fishman,,"Dartmouth, NS (BIO)"
+18476,2021-12-01,2021-12-02,Erica Watson,,Coast tire - wheel bearing
+18476,2022-02-23,2022-02-24,Erica Watson,,coast mvi
+18476,2022-04-05,2022-04-05,Erica Watson,,Coast tire change
+18476,2022-05-03,2022-05-03,Jeff Barrell,,Cocagne hatchery
+18476,2022-04-25,2022-04-28,Jeff Barrell,,"Salisbury (bringing boat out of storage), fieldwork"
+18476,2022-04-12,2022-04-12,Jeff Clements,,Scoudouc
+18476,2022-05-17,2022-05-21,Jeff Clements,,ACCESS/BOFEP conference - Truro
+18476,2022-05-26,2022-05-26,Jeff Clements,,Moncton / Scoudouc
+18476,2022-05-04,2022-05-06,Luc Comeau,,Halifax (Dalhousie U)
+18476,2022-01-18,2022-01-18,Luke Poirier,,PEI
+18476,2022-05-24,2022-05-24,Luke Poirier,Mike Coffin,Either Cocagne or PEI
+18476,2022-05-30,2022-06-10,Michael Coffin,Luke Poirier / Jeff Clements,Lameque - Rimouski - MontJoli / Cocagne
+18476,2022-05-11,2022-05-12,Mike Coffin,,Field work - only one of these days (TBD)
+18476,2022-05-16,2022-05-16,Mike Coffin,,PEI Field Work
+18476,2022-05-09,2022-05-09,Philip Bouma,,PEI
+18476,2022-06-13,2022-06-13,Thomas Guyondet,,Georgetown PEI
+19486,2021-09-17,2021-09-18,David Fishman,Rachel DeJong; François Turcotte,Shippagan
+19486,2021-03-29,2021-03-31,Jill Hunt,,Campbelton 
+19486,2021-04-19,2021-11-01,Jill Hunt,,Miramichi/Margaree
+19486,2022-04-15,2022-11-01,Jill Hunt,,Miramichi/Margaree
+19486,2020-10-28,2020-10-28,Rachel DeJong,,"Pictou, NS"
+19486,2020-11-02,2020-11-06,Sylvie Robichaud,,NB; PEI
+19486,2020-10-29,2020-10-29,Sylvie Robichaud,,"Hardwicke, NB"
+19493,2020-08-31,2020-08-31,Alicia Cassidy,,"Campbellton, NB"
+19493,2020-10-01,2020-10-01,Alicia Cassidy,,"Campbellton, NB"
+19493,2021-06-16,2021-06-16,Alicia Cassidy,Sophie LeBlanc,Cocagne
+19493,2021-06-17,2021-06-26,Alicia Cassidy,Sophie LeBlanc,Miramichi
+19493,2021-08-02,2021-08-20,Alicia Cassidy,"Sophie, Royce, Emma ","Miramichi Lake, Juniper "
+19493,2021-06-01,2021-06-15,Alicia Cassidy,Sophie LeBlanc,Miramichi
+19493,2021-07-21,2021-07-21,Bruno Comeau,,Wallace NS
+19493,2021-05-19,2021-05-19,Cindy Breau,,"South Esk, Miramichi"
+19493,2021-05-25,2021-05-25,Cindy Breau,Tyler Tunney,Miramichi
+19493,2022-05-11,2022-05-12,Cindy Breau,TBD,Miramichi River
+19493,2022-05-18,2022-05-18,Cindy Breau,NA,local
+19493,2022-05-24,2022-05-27,Cindy Breau,TBD,Miramichi River
+19493,2021-09-09,2021-09-09,Denis Gagnon,"Marcel, Murray, Yves",Pick up passengers at Souris terminal
+19493,2021-09-27,2021-09-27,Erica Watson,,PEI (AIS line retreival) 
+19493,2022-03-16,2022-03-16,Étienne Chiasson,,"Moncton, NB "
+19493,2021-10-01,2021-10-01,Francis LeBlanc,,Grand-Barachois
+19493,2021-10-04,2021-10-04,Francis LeBlanc,Nellie Gagné,"SABS, Grand-Barachois"
+19493,2021-10-06,2021-10-06,Francis LeBlanc,Nellie Gagné,Grand-Barachois
+19493,2022-06-07,2022-06-09,Ian Copps,,Miramichi River
+19493,2022-06-03,2022-06-03,Ian Luddington,TBD (FFHPP & P. Chamberland),Memramcook HWY Project
+19493,2022-06-06,2022-06-06,Maxime Ouellet,"Patricia Hanley, Eliane Aubry","Cocagne, NB"
+19493,2020-08-25,2020-08-26,Nicolas Rolland,David Fishman,"BIO, NS"
+19493,2021-07-26,2021-07-29,Patricia Hanley,,
+19493,2021-10-07,2021-10-22,Patricia Hanley,Eliane Aubry,"Alberton and Nine Mile Creek, PEI"
+19493,2022-04-19,2022-04-29,Rachel Dejong,,PEI
+19493,2022-05-05,2022-05-05,Royce Steeves,TBD,"Sackville, NB"
+19493,2022-05-30,2022-05-30,Royce Steeves,TBD,Miramichi River
+19493,2022-06-17,2022-06-24,Royce Steeves,TBD,"Juniper, NB"
+19493,2020-08-27,2020-08-27,Sophie LeBlanc,,"Moncton, NB"
+19493,2020-11-24,2020-11-24,Sophie LeBlanc,,Loftus; winter tires
+19493,2020-11-25,2020-11-25,Sophie LeBlanc,,Loftus; winter tires
+19493,2021-05-27,2021-05-27,Sophie LeBlanc,,Coast Tire to change tires
+19493,2022-05-20,2022-05-20,Sophie LeBlanc,,local
+19493,2020-10-05,2020-10-05,Sylvie Robichaud,"David Fishman, Yves Larocque, Murray McWilliams","Charlottetown, PE"
+19493,2020-10-06,2020-10-06,Tyler Tunney,Royce Steeves,Miramichi
+19493,2020-10-07,2020-10-07,Tyler Tunney,Royce Steeves,Miramichi
+19493,2020-10-08,2020-10-08,Tyler Tunney,Sophie LeBlanc,Miramichi
+19493,2021-05-12,2021-05-13,Tyler Tunney,,"South Esk, Miramichi"
+19493,2021-05-26,2021-05-26,Tyler Tunney,,Miramichi
+19493,2021-05-30,2021-05-30,Tyler Tunney,,Miramichi
+19494,2022-04-25,2022-10-31,Abby Daigle,,Margaree Forks
+20410,2021-07-08,2021-07-26,Alicia Cassidy,,Restigouche
+20410,2021-09-09,2021-09-27,Alicia Cassidy,,"Saint-Quentin, NB"
+20410,2021-10-12,2021-10-15,Alicia Cassidy,,Moncton
+20410,2021-08-02,2021-08-27,Alicia Cassidy,,Miramichi Lake
+20410,2022-02-07,2022-02-09,Carly Weber,"Bruno Comeau, Marie-France Robichaud","Stormont, NS"
+20410,2022-06-08,2022-06-08,Gabriel Goguen,Ethan Belliveau,"CFB Gagetown, NB"
+20410,2022-05-16,2022-05-16,Ian Copps,,"Coastal Tire Moncton, NB"
+20410,2022-05-30,2022-05-30,Ian Copps,,"Coast Tire Moncton, NB"
+20410,2022-06-06,2022-06-06,Ian Copps,,"Moncton, NB "
+20410,2022-05-04,2022-05-09,JF Landry,Tobie Surette,"Shippagan, NB"
+20410,2022-05-13,2022-05-13,Jill Hunt,,"Truro, NS"
+20410,2022-05-17,2022-05-17,Kristine Hébert,,"Moncton, NB"
+20410,2021-10-03,2021-10-03,Nathalie Brodeur,,"Truro, NS"
+20410,2022-05-10,2022-05-12,Royce Steeves,TBD-Tentative,TBD-Tentative
+20410,2022-05-19,2022-05-20,Royce Steeves,,Sackville
+20410,2022-05-24,2022-05-26,Royce Steeves,TBD-e-mail me if you need it,TBD-e-mail me if you need it
+20410,2022-05-27,2022-05-27,Royce Steeves,TBD-e-mail me if you need it,TBD-e-mail me if you need it
+20410,2022-05-31,2022-06-02,Royce Steeves,TBD-e-mail me if you need it,TBD-e-mail me if you need it
+20410,2022-06-06,2022-06-10,Royce Steeves,TBD-e-mail me if you need it,TBD-e-mail me if you need it
+20410,2022-06-14,2022-06-17,Royce Steeves,TBD-e-mail me if you need it,TBD-e-mail me if you need it
+20410,2022-06-20,2022-06-24,Royce Steeves,TBD,"Juniper, NB"
+20410,2021-06-23,2021-06-26,Royce Tyler,Tyler Tunney,Miramichi Lake
+20410,2020-05-19,2020-05-19,Sophie LeBlanc,,Coast Tire
+20410,2021-06-07,2021-06-11,Sophie LeBlanc,,Miramichi Lake
+20410,2022-04-28,2022-04-28,Sophie LeBlanc,"Tyler, Royce, Ian",Beaubassin Research Centre
+20410,2022-05-18,2022-05-18,Tyler Tunney,,
+20410,2021-05-31,2021-06-03,Uli Ulrich,Daniel,north of Nackawick
+20497,2020-08-14,2020-11-06,Matthew Horsman,,Field work
+20497,2021-07-01,2021-11-01,Matthew Horsman,,Field work
+21415,2021-03-01,2021-03-01,Erica Watson,,"Linex Moncton, Bass Pro"
+21415,2021-03-04,2021-03-04,Erica Watson,,warehouse
+21415,2021-04-08,2021-04-08,Erica Watson,,"Warehouse, local"
+21415,2021-04-16,2021-04-16,Erica Watson,,garage (tires)
+21415,2021-04-28,2021-04-28,Erica Watson,,warehouse
+21415,2021-05-12,2021-05-12,Erica Watson,Sandrine Tosignant,"Warehouse, local"
+21415,2021-05-21,2021-05-21,Erica Watson,,warehouse
+21415,2021-05-25,2021-05-28,Erica Watson,"Sandrine Tosignant, Chantal Coomber",Green crab trapping 
+21415,2021-06-17,2021-06-17,Erica Watson,,"warehouse, local"
+21415,2021-06-22,2021-06-25,Erica Watson,AIS staff TBD,green crab trapping
+21415,2021-07-19,2021-07-23,Erica Watson,Sandrine Tousignant and Jerome Legere,green crab trapping
+21415,2021-08-31,2021-08-31,Erica Watson,"Chantal Coomber, Camille's student (can't remember her name)",shediac
+21415,2021-09-03,2021-09-03,Erica Watson,,local
+21415,2021-09-14,2021-09-17,Erica Watson,"Chantal coomber, Eva Dickson",green crab trapping
+21415,2021-10-05,2021-10-05,Erica Watson,,PEI BIofouling 
+21415,2021-10-06,2021-10-06,Erica Watson,,warehouse
+21415,2021-10-07,2021-10-08,Erica Watson,Tamara Ledoux,NB
+21415,2021-10-12,2021-10-15,Erica Watson,Chantal Coomber and Tamara Ledoux,green c rab trapping
+21415,2021-11-26,2021-11-26,Erica Watson,,AutoIndulgence for cleaning
+21415,2022-03-30,2022-03-30,Erica Watson,Logan McNeill,warehouse 
+21415,2022-04-06,2022-04-06,Erica Watson,Logan McNeill,warehouse 
+21415,2022-05-01,2022-10-31,Erica Watson,,FIELDWORK
+21415,2022-05-30,2022-06-01,Erica Watson,Noemie and Sandrine,Green crab trapping
+21415,2022-06-02,2022-06-03,Erica Watson,Sandrine,Biofouing Bathurst
+21415,2022-06-27,2022-06-30,Erica Watson,AIS team,Green crab trapping
+21415,2022-07-25,2022-07-29,Erica Watson,AIS team,Green crab trapping
+21415,2022-08-22,2022-08-26,Erica Watson,AIS team,Green crab trapping
+21415,2022-09-19,2022-09-23,Erica Watson,AIS team,Green crab trapping
+21415,2022-10-03,2022-10-07,Erica Watson,AIS team,Biofouling monitoring/Lobster Biocollectors
+21415,2022-10-11,2022-10-14,Erica Watson,AIS team,Green crab trapping
+21415,2022-10-17,2022-10-21,Erica Watson,AIS team,Biofouling monitoring/Lobster Biocollectors
+21415,2022-10-25,2022-10-25,Erica Watson,Inspection due by end of October,coast
+21415,2021-10-18,2021-10-18,Francis LeBlanc,Nellie Gagné,"St Stephen, NB"
+21415,2021-10-20,2021-10-20,Francis LeBlanc,Nellie Gagné,"St Stephen, NB"
+21415,2021-10-22,2021-10-22,Francis LeBlanc,,Grand-Barachois
+21415,2021-10-25,2021-10-25,Francis LeBlanc,Nellie Gagné,SABS
+21415,2021-10-29,2021-10-29,Francis LeBlanc,,Grand-Barachois
+21415,2021-11-18,2021-11-18,Francis LeBlanc,,Warehouse
+21415,2021-07-29,2021-07-29,Jeff Barrell,,Miramichi bathymetry survey
+21415,2021-08-01,2021-08-15,Jeff Barrell,tbd,"AMP benthic fieldwork, PEI"
+21415,2021-08-16,2021-08-20,Jeff Barrell,,AMP Benthic fieldwork
+21415,2021-08-23,2021-08-27,Jeff Barrell,TBD,AMP zooplankton
+21415,2021-09-07,2021-09-10,Jeff Barrell,Mike Coffin,AMP water sampling
+21415,2021-09-20,2021-09-24,Jeff Barrell,TBD,AMP zooplankton sampling
+21415,2021-10-28,2021-10-28,Jeff Barrell,,local
+21415,2022-05-05,2022-05-06,Jeff Barrell,,Cocagne/Bouctouche
+21415,2022-05-18,2022-05-19,Jeff Barrell,Mike Coffin,Lennox Island
+21415,2022-05-24,2022-05-27,Jeff Barrell,Mike Coffin,Bouctouche
+21415,2022-06-06,2022-06-10,Jeff Barrell,TBD,Bouctouche
+21415,2022-06-20,2022-06-23,Jeff Barrell,TBD,Bouctouche
+21415,2022-07-04,2022-07-08,Jeff Barrell,TBD,Bouctouche
+21415,2022-07-18,2022-07-22,Jeff Barrell,TBD,Bouctouche
+21415,2022-08-01,2022-08-21,Jeff Barrell,AMP,AMP
+21415,2022-08-29,2022-09-02,Jeff Barrell,TBD,Bouctouche
+21415,2022-09-12,2022-09-16,Jeff Barrell,TBD,Bouctouche
+21415,2022-09-26,2022-09-30,Jeff Barrell,TBD,Bouctouche
+21415,2022-04-25,2022-04-28,Jeff Barrell,,"Salisbury (bringing boat out of storage), fieldwork"
+21415,2022-04-27,2022-04-27,Joeleen Savoie,,Aboiteau 
+21415,2022-05-17,2022-05-17,Josee Vinneau,,warehouse
+21415,2021-04-06,2021-04-06,Karen Roberston,,local
+21415,2022-04-29,2022-05-04,Logan McNeill,,Local boat maintenance
+21415,2021-11-22,2021-11-25,Luc Comeau,,Miscou
+21415,2021-12-02,2021-12-03,Luc Comeau,Luke Poirier,Cocagne and PEI
+21415,2021-12-06,2021-12-10,Luc Comeau,,Miscou
+21415,2021-12-14,2021-12-17,Luc Comeau,,Pointe-à-la-croix & Miscou
+21415,2022-01-04,2022-01-06,Luc Comeau,,Miscou
+21415,2022-01-19,2022-01-21,Luc Comeau,,Miscou
+21415,2022-03-03,2022-03-04,Luc Comeau,,Miscou
+21415,2021-11-19,2021-11-19,Luc Savoie,Can't remember the other guys name,warehouse
+21415,2021-11-08,2021-11-10,Luke Poirier,,PEI
+21415,2021-12-01,2021-12-01,Luke poirier,,warehouse and bass pro
+21415,2022-02-24,2022-02-24,Luke Poirier,,Fredricton/PEI
+21415,2022-04-08,2022-04-08,Mylene roussel,Monique Niles,IPE 
+21415,2021-07-08,2021-07-08,Tamara ledoux,,kouchibouguac
+21415,2021-07-12,2021-07-12,Tamara ledoux,,kouchibouguac
+21415,2021-09-27,2021-10-01,Tamara ledoux,,kouchibouguac
+21415,2022-04-20,2022-04-20,Tamara Ledoux,Erica Watson,warehouse trips and PEI to drop off Tam
+21415,2021-03-23,2021-03-26,Uli Ulrich,,"F'ton, Gaspereau Forks, St. John"
+21416,2022-02-27,2022-02-27,Carly Weber,Marie-France & Bruno,"Stormont, NS"
+21416,2021-09-18,2021-09-18,David Fishman,Rachel Dejong & Jenni,Shippagan. NB
+21416,2021-07-01,2021-08-07,Eliane Aubry,Natalie Asselin,Various 
+21416,2022-06-10,2022-06-18,Eliane Aubry,Stephanie Boudreau,PEI
+21416,2022-07-17,2022-07-22,Eliane Aubry,TBD,"Belledune or Pointe-Verte, NB"
+21416,2021-04-14,2021-11-30,Joeleen Savoie,-,Various 
+21416,2022-04-11,2022-11-30,Joeleen Savoie,,Various 
+21416,2022-04-14,2022-11-30,Joeleen Savoie,,Various 
+21416,2022-06-08,2022-06-09,Renee Allain,,
