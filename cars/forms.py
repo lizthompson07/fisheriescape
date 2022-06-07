@@ -146,8 +146,17 @@ LocationFormset = modelformset_factory(
     extra=1,
 )
 
+
+class VehicleShortForm(forms.ModelForm):
+    class Meta:
+        model = models.Vehicle
+        exclude = [
+            "thumbnail",
+        ]
+
+
 VehicleFormset = modelformset_factory(
     model=models.Vehicle,
-    form=VehicleForm,
+    form=VehicleShortForm,
     extra=1,
 )

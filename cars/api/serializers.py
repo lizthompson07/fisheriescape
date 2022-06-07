@@ -35,9 +35,7 @@ class CalendarRSVPSerializer(serializers.ModelSerializer):
     def get_color(self, instance):
         if instance.status == 1:
             return "yellow"
-        elif instance.status == 20:
-            return "red"
-        return "green"
+        return "red"
 
     def get_textColor(self, instance):
         return "black" if instance.status == 1 else "white"

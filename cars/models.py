@@ -33,6 +33,7 @@ class Location(SimpleLookup, LatLongFields):
     address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
     city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
     postal_code = models.CharField(max_length=7, blank=True, null=True, verbose_name=_("postal code"))
+    province = models.CharField(max_length=7, blank=True, null=True, verbose_name=_("postal code"))
 
     def get_tname(self):
         mystr = super().get_tname()
