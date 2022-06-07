@@ -43,6 +43,8 @@ def copy_over_rsvp():
                     user = None
                 else:
                     user = qs.first()
+            else:
+                user = qs.first()
 
             if user:
                 models.Reservation.objects.get_or_create(
