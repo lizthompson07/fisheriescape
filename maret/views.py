@@ -147,7 +147,7 @@ class PersonListView(UserRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'full_name_with_title|{}'.format(_("full name")), "class": "", "width": ""},
         {"name": 'organizations', "class": "", "width": ""},
-        {"name": 'last_updated|{}'.format(_("last updated")), "class": "", "width": ""},
+        {"name": 'date_last_modified|{}'.format(_("last updated")), "class": "", "width": ""},
     ]
     new_object_url_name = "maret:person_new"
     row_object_url_name = "maret:person_detail"
@@ -174,7 +174,8 @@ class PersonDetailView(UserRequiredMixin, CommonDetailView):
         "notes",
         "committee",
         "email_block",
-        "metadata|{}".format(gettext_lazy("metadata")),
+        "date_last_modified",
+        "last_modified_by",
     ]
     home_url_name = "maret:index"
     parent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("maret:person_list")}
@@ -289,6 +290,7 @@ class PersonDeleteView(AdminRequiredMixin, CommonDeleteView):
     success_url = reverse_lazy('maret:person_list')
     home_url_name = "maret:index"
     grandparent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("maret:person_list")}
+    non_blocking_fields = ["ext_con"]
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("maret:person_detail", args=[self.get_object().id])}
@@ -342,7 +344,8 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['scripts'] = ['maret/js/interactionForm.html']
+        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
+                              'maret/js/interactionForm.html']
 
         return context
 
@@ -363,7 +366,8 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['scripts'] = ['maret/js/interactionForm.html']
+        context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
+                              'maret/js/interactionForm.html']
         return context
 
 
@@ -387,6 +391,13 @@ class InteractionDetailView(UserRequiredMixin, CommonDetailView):
             'date_of_meeting',
             'main_topic',
             'species',
+            'branch',
+            'division',
+            'area_office',
+            'area_office_program',
+            'other_dfo_branch',
+            'other_dfo_regions',
+            'other_dfo_areas',
             'action_items',
             'comments',
             'external_organization',
@@ -493,6 +504,8 @@ class CommitteeDetailView(UserRequiredMixin, CommonDetailView):
             'area_office',
             'main_actions',
             'comments',
+            "last_modified",
+            "last_modified_by",
         ]
 
         return context
@@ -598,6 +611,12 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
             ext_org.associated_provinces.set(fields['asc_province'])
             ext_org.save()
 
+        if fields['committee']:
+            for committee_pk in fields["committee"]:
+                committee = models.Committee.objects.get(pk=committee_pk)
+                committee.external_organization.add(object)
+                committee.save()
+
         return HttpResponseRedirect(reverse_lazy('maret:org_detail', kwargs={'pk': object.id}))
 
     def get_context_data(self, **kwargs):
@@ -624,10 +643,10 @@ class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
         'fax',
         'grouping',
         'regions',
-        'sectors',
         'website',
         'category',
-        "metadata|{}".format(gettext_lazy("metadata")),
+        'date_last_modified',
+        'last_modified_by'
     ]
     home_url_name = "maret:index"
     parent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("maret:org_list")}
@@ -660,11 +679,15 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
                 areas = [a.pk for a in ext_org.area.all()]
                 category = [c.pk for c in ext_org.category.all()]
                 asc_province = [p.pk for p in ext_org.associated_provinces.all()]
+        if models.Committee.objects.filter(external_organization__in=[self.object]):
+            committees_qs = models.Committee.objects.filter(external_organization__in=[self.object])
+            committees = [c.pk for c in committees_qs]
 
         return {
             'last_modified_by': self.request.user,
             'area': areas,
             'category': category,
+            'committee': committees,
             'asc_province': asc_province,
         }
 
@@ -697,17 +720,24 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
 
         if fields['asc_province']:
             if not ext_org:
-                ext_org = models.OrganizationExtension(organization=object)
+                ext_org = models.OrganizationExtension(organization=obj)
                 ext_org.save()
             ext_org.associated_provinces.set(fields['asc_province'])
             ext_org.save()
 
         if fields['email']:
             if not ext_org:
-                ext_org = models.OrganizationExtension(organization=object)
+                ext_org = models.OrganizationExtension(organization=obj)
                 ext_org.save()
-            ext_org.email.set(fields['email'])
+            # set field directly to avoid calling set on none type
+            ext_org.email = fields["email"]
             ext_org.save()
+
+        if fields['committee']:
+            for committee_pk in fields["committee"]:
+                committee = models.Committee.objects.get(pk=committee_pk)
+                committee.external_organization.add(obj)
+                committee.save()
 
         return super().form_valid(form)
 
@@ -724,6 +754,7 @@ class OrganizationDeleteView(AdminRequiredMixin, CommonDeleteView):
     success_url = reverse_lazy('maret:org_list')
     home_url_name = "maret:index"
     grandparent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("maret:org_list")}
+    non_blocking_fields = ["ext_org"]
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("maret:org_detail", args=[self.get_object().id])}
@@ -735,6 +766,12 @@ class OrganizationDeleteView(AdminRequiredMixin, CommonDeleteView):
             return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.pk, ]))
 
         return super().delete(request, *args, **kwargs)
+
+    def get_related_names(self):
+        related_names_list = super(OrganizationDeleteView, self).get_related_names()
+        # remove org extensions dict from this list as these will otherwise block being allowed to delete the org.
+        related_names_list[:] = [d for d in related_names_list if d.get('title') != "organization extensions"]
+        return related_names_list
 
 
 class OrganizationCueCard(PDFTemplateView):

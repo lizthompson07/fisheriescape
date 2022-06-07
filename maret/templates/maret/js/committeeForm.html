@@ -7,8 +7,18 @@
         }
     }
 
+    function syncExternalChairContact() {
+        $('#id_external_chair').val().forEach(function (extChair) {
+            if (!$('#id_external_contact').val().includes(extChair)) {
+                $('#id_external_contact').val().push(extChair);
+            }
+        });
+
+    }
+
     toggleLocationOfTor();
     $("#id_are_tor").change(toggleLocationOfTor)
+    $("#id_external_chair").change(syncExternalChairContact)
 
 
 
