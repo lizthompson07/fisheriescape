@@ -68,7 +68,7 @@ pyasn1-modules==0.2.8
 pyasn1==0.4.8
 pycparser==2.20
 PyGithub==1.53
-PyJWT==1.7.1
+PyJWT==2.4.0
 pyotp==2.6.0
 pyparsing==2.4.7
 PyPDF2==1.27.5

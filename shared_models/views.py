@@ -198,6 +198,7 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
     # set this to false if you do not want the delete button to be greyed out if there are related objects
     delete_protection = True
     submit_text = None
+    non_blocking_fields = None
 
     def get_h1(self):
         if self.h1:
@@ -250,6 +251,11 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
 
             # go through each related field. If there is a related object, we set set a flag and exit the loop
             field_map_dict = type(self.get_object())._meta.fields_map
+
+            if self.non_blocking_fields:
+                for field in self.non_blocking_fields:
+                    field_map_dict.pop(field, None)
+
             for field in field_map_dict:
                 temp_related_name = field_map_dict[field].related_name
 

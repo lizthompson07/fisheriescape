@@ -64,9 +64,9 @@ class Organization(models.Model):
     YES_NO_BOTH_CHOICES = (
         (0, _("None")), (1, _("On-Reserve")), (2, _("Off-Reserve")), (3, _("Both"))
     )
-    name_eng = models.CharField(max_length=1000, verbose_name=_("legal name"))
-    name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"))
-    abbrev = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("abbreviation"), unique=True)
+    name_eng = models.CharField(max_length=1000, verbose_name=_("legal name"), unique=True)
+    name_ind = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("indigenous Name"), unique=True)
+    abbrev = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("abbreviation"))
     address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("street address"))
     mailing_address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("mailing address"))
     city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
