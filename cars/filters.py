@@ -36,8 +36,8 @@ class VehicleFilter(django_filters.FilterSet):
 
 
 class ReservationFilter(django_filters.FilterSet):
-    start = django_filters.DateTimeFilter(field_name="start_date", lookup_expr='gte')
-    end = django_filters.DateTimeFilter(field_name="end_date", lookup_expr='lte')
+    # start = django_filters.DateTimeFilter(field_name="start_date", lookup_expr='gte')
+    # end = django_filters.DateTimeFilter(field_name="end_date", lookup_expr='lte')
     location = django_filters.ModelChoiceFilter(field_name="vehicle__location", lookup_expr='exact', queryset=models.Location.objects.all())
     vehicle_type = django_filters.ModelChoiceFilter(field_name="vehicle__vehicle_type", lookup_expr='exact', queryset=models.VehicleType.objects.all())
     max_passengers__gte = django_filters.NumberFilter(field_name="vehicle__max_passengers__gte", lookup_expr='gte')
