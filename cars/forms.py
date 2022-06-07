@@ -134,6 +134,7 @@ class LocationForm(forms.ModelForm):
             "nom",
             "address",
             "city",
+            "province",
             "postal_code",
             "latitude",
             "longitude",
