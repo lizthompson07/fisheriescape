@@ -3,6 +3,7 @@ from django.template.defaultfilters import date
 from django.urls import reverse
 from rest_framework import serializers
 
+from dm_apps.utils import get_timezone_time
 from .. import models
 
 
@@ -47,10 +48,10 @@ class CalendarRSVPSerializer(serializers.ModelSerializer):
         return f"{instance.primary_driver.get_full_name()} ({instance.get_status_display()})<br>{date(instance.end_date)} - {date(instance.start_date)}<br>{instance.destination}"
 
     def get_end(self, instance):
-        return instance.end_date
+        return get_timezone_time(instance.end_date)
 
     def get_start(self, instance):
-        return instance.start_date
+        return get_timezone_time(instance.start_date)
 
     def get_title(self, instance):
         return instance.primary_driver.get_full_name()
