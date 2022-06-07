@@ -54,7 +54,7 @@
   let params = window.location.search.substring(1);
   var calendarEl = document.getElementById('calendar');
   var calendar = new FullCalendar.Calendar(calendarEl, {
-        timeZone: 'UTC',
+        timeZone: 'local',
         initialView: 'resourceTimelineDay',
         aspectRatio: 1,
         headerToolbar: {
