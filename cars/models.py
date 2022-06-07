@@ -49,7 +49,7 @@ class Vehicle(MetadataFields):
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="vehicles")
     custodian = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="vehicles")
     vehicle_type = models.ForeignKey(VehicleType, on_delete=models.DO_NOTHING, related_name="vehicles")
-    reference_number = models.CharField(max_length=50, verbose_name=_("reference number"))
+    reference_number = models.CharField(max_length=50, verbose_name=_("reference number"), unique=True)
     make = models.CharField(max_length=255, verbose_name=_("make"))
     model = models.CharField(max_length=255, verbose_name=_("model"))
     year = models.PositiveIntegerField(verbose_name=_("year"))
