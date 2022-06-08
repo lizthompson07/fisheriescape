@@ -244,9 +244,16 @@ def get_funding_sources(all=False):
 
 
 def get_user_fte_breakdown(user, fiscal_year_id):
-    staff_instances = models.Staff.objects.filter(user=user, project_year__fiscal_year_id=fiscal_year_id)
+    staff_instances = models.Staff.objects.filter(user=user, project_year__fiscal_year_id=fiscal_year_id)\
+        .select_related("level", "employee_type")
     my_dict = dict()
     my_dict['name'] = f"{user.last_name}, {user.first_name}"
+    employee_type_qs = staff_instances.filter(employee_type__isnull=False).values_list('employee_type__name', flat=True).distinct()
+    my_dict['employee_type'] = ", ".join(list(employee_type_qs))
+
+    level_qs = staff_instances.filter(level__isnull=False).values_list('level__name', flat=True).distinct()
+    my_dict['level'] = ", ".join(list(level_qs))
+
     my_dict['fiscal_year'] = str(shared_models.FiscalYear.objects.get(pk=fiscal_year_id))
     my_dict['draft'] = nz(staff_instances.filter(
         project_year__status=1
