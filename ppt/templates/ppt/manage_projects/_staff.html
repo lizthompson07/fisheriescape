@@ -26,6 +26,7 @@
     <table class="table table-sm table-bordered" style="width: auto">
       <thead>
       <tr>
+        <th rowspan="2">{% trans "Section" %}</th>
         <th rowspan="2">{% trans "Staff Name (registered DM Apps users only)" %}</th>
         <th rowspan="2">{% trans "Employee Type" %}</th>
         <th rowspan="2">{% trans "Level" %}</th>
@@ -40,6 +41,7 @@
       <tbody v-for="(s, index) in staff">
 
         <tr >
+          <td>${s.section}</td>
           <td>${s.name}</td>
           <td>${s.employee_type}</td>
           <td>${s.level}</td>

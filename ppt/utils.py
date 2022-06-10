@@ -254,6 +254,10 @@ def get_user_fte_breakdown(user, fiscal_year_id):
     level_qs = staff_instances.filter(level__isnull=False).values_list('level__name', flat=True).distinct()
     my_dict['level'] = ", ".join(list(level_qs))
 
+    my_dict["section"] = ""
+    if user.profile.section:
+        my_dict["section"] = "{}, {}".format(user.profile.section.name, str(user.profile.section.head or ''))
+
     my_dict['fiscal_year'] = str(shared_models.FiscalYear.objects.get(pk=fiscal_year_id))
     my_dict['draft'] = nz(staff_instances.filter(
         project_year__status=1
