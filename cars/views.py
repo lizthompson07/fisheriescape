@@ -216,8 +216,8 @@ class VehicleDetailView(CarsBasicMixin, CommonDetailView):
     home_url_name = "cars:index"
     parent_crumb = {"title": gettext_lazy("Vehicles"), "url": reverse_lazy("cars:vehicle_list")}
     field_list = [
-        "region",
-        "location",
+        "location.region|{}".format(_("region")),
+        "location.full_address|{}".format(_("location")),
         "custodian",
         "vehicle_type",
         "reference_number",
@@ -228,6 +228,7 @@ class VehicleDetailView(CarsBasicMixin, CommonDetailView):
         "is_active",
         "comments",
     ]
+    # container_class = "container-fluid"
 
 
 class VehicleDeleteView(CanModifyVehicleRequiredMixin, CommonDeleteView):
@@ -398,5 +399,8 @@ def rsvp_action(request, pk, action):
         email.send()
     elif action == "reset":
         rsvp.status = 1
+        rsvp.save()
+    elif action == "field":
+        rsvp.status = 30
         rsvp.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

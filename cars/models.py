@@ -42,6 +42,41 @@ class Location(SimpleLookup, LatLongFields):
         mystr += f" ({self.region})"
         return mystr
 
+    @property
+    def full_address(self):
+        # initial my_str with either address or None
+        if self.address:
+            my_str = self.address
+        else:
+            my_str = ""
+
+        # add city
+        if self.city:
+            if my_str:
+                my_str += "<br>"
+            my_str += self.city
+
+        # add province abbrev.
+        if self.province:
+            if my_str:
+                my_str += "<br>"
+            my_str += self.province
+
+        # add postal code
+        if self.postal_code:
+            if my_str:
+                my_str += "<br>"
+            my_str += self.postal_code
+
+        # add postal code
+        if self.get_point():
+            if my_str:
+                my_str += "<br>"
+            label = gettext("view map")
+            my_str += f'<span class="mdi mdi-map-marker text-danger lead"></span> <a target="_blank" href="https://www.google.com/maps/search/?api=1&query={self.latitude},{self.longitude}">{label}</a>'
+
+        return mark_safe(my_str)
+
 
 def img_file_name(instance, filename):
     img_name = 'cars/{}_{}'.format(instance.id, filename)
@@ -84,6 +119,7 @@ class Reservation(MetadataFields):
         (1, "Tentative"),
         (10, "Approved"),
         (20, "Denied"),
+        (30, "Field Season"),
     )
 
     vehicle = models.ForeignKey(Vehicle, on_delete=models.DO_NOTHING, blank=True, verbose_name=_("vehicle"), related_name="reservations")

@@ -36,6 +36,8 @@ class CalendarRSVPSerializer(serializers.ModelSerializer):
     def get_color(self, instance):
         if instance.status == 1:
             return "yellow"
+        elif instance.status == 30:
+            return "purple"
         return "red"
 
     def get_textColor(self, instance):
@@ -54,7 +56,7 @@ class CalendarRSVPSerializer(serializers.ModelSerializer):
         return get_timezone_time(instance.start_date)
 
     def get_title(self, instance):
-        return instance.primary_driver.get_full_name()
+        return f"{instance.primary_driver.get_full_name()} ({instance.get_status_display()})"
 
     def get_resourceId(self, instance):
         return instance.vehicle.id

@@ -193,7 +193,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
 
 
 @register.simple_tag
-def verbose_field_display(instance, field_name, format=None, display_time=False, hyperlink=None, date_format=None):
+def verbose_field_display(instance, field_name, format=None, display_time=False, hyperlink=None, date_format=None, to_html=False):
     """
     Returns a standard display block for a field based on the verbose fieldname
     """
@@ -205,10 +205,10 @@ def verbose_field_display(instance, field_name, format=None, display_time=False,
     field_value = get_field_value(instance, field_name, format=format, display_time=display_time, date_format=date_format,
                                   hyperlink=hyperlink)
 
-    # if url and field_value != "n/a":
-    #     html_block = '<p><span class="label">{}:</span><br><a href="{}">{}</a></p>'.format(verbose_name, url, field_value)
-    # else:
-    html_block = '<p><span class="label">{}:</span><br>{}</p>'.format(verbose_name, field_value)
+    if to_html:
+        field_value = tohtml(field_value)
+
+    html_block = f'<p><span class="label">{verbose_name}:</span><br>{field_value}</p>'
 
     return SafeString(html_block)
 

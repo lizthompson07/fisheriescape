@@ -19,6 +19,13 @@
               <th>{% get_verbose_label object "status" %}</th>
               <td><span class="{{ object.get_status_display|slugify }} p-1">{{ object.get_status_display }}</span></td>
             </tr>
+          {% elif field == "vehicle" %}
+            <tr>
+              <th>{% get_verbose_label object "vehicle" %}</th>
+              <td>
+                <a href="{% url 'cars:vehicle_detail' object.vehicle.id %}">{{ object.vehicle }}</a>
+              </td>
+            </tr>
           {% else %}
 
             {% verbose_td_display object field display_time=True %}
@@ -38,6 +45,11 @@
 
           <h5 class="card-title mb-3">{% trans "Do you want to reset the status of this reservation request?" %}</h5>
           <div class="card-text">
+            <a href="{% url 'cars:rsvp_action' object.id 'field' %}" class="btn btn-lg field-season float-right" data-toggle="tooltip"
+               title="mark as field season">
+              {% trans "Mark as Field Season" %}
+            </a>
+
             <a href="{% url 'cars:rsvp_action' object.id 'reset' %}" class="btn btn-lg btn-warning mild-concern" data-toggle="tooltip"
                title="{% trans "reset status to 'requested'" %}">
               <span class=" mdi mdi-refresh "></span>
@@ -48,6 +60,11 @@
 
           <h5 class="card-title mb-3">{% trans "Do you want to approve this reservation request?" %}</h5>
           <div class="card-text">
+            <a href="{% url 'cars:rsvp_action' object.id 'field' %}" class="btn btn-lg field-season float-right" data-toggle="tooltip"
+               title="mark as field season">
+              {% trans "Mark as Field Season" %}
+            </a>
+
             <a href="{% url 'cars:rsvp_action' object.id 'accept' %}" class="btn btn-lg btn-success good" data-toggle="tooltip"
                title="approve the reservation request">
               <span class="mdi mdi-check text-light"></span>
@@ -56,6 +73,8 @@
                title="deny the reservation request">
               <span class="mdi mdi-close text-light"></span>
             </a>
+
+
           </div>
 
         {% endif %}

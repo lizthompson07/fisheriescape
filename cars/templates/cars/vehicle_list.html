@@ -48,15 +48,16 @@
                 </div>
               </div>
               <div class="">
-                  {% verbose_field_display object "comments" %}
-
+                <tr>
+                  {% verbose_field_display object "comments" to_html=True %}
+                </tr>
               </div>
             </div>
 
             <p class="card-text"><small class="text-muted">{{ object.metadata }}</small></p>
 
             <div class="text-end">
-              <a href="{% url 'cars:vehicle_detail'  object.id %}" class="btn btn-sm btn-primary">{% trans "Details" %}</a>
+              <a href="{% url 'cars:vehicle_detail'  object.id %}" class="btn btn-sm btn-primary">{% trans "Manage" %}</a>
               <a href="{% url 'cars:rsvp_new' %}?vehicle={{ object.id }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
                  class="btn btn-sm btn-dark">{% trans "Reserve" %}</a>
             </div>
