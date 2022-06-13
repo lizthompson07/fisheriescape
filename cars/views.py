@@ -276,7 +276,7 @@ class ReservationListView(CarsBasicMixin, CommonFilterView):
         if qp.get("personalized"):
             return self.request.user.vehicle_reservations.all()
         elif qp.get("my_vehicles"):
-            return models.Reservation.objects.filter(vehicle__custodian=self.request.user).order_by("status")
+            return models.Reservation.objects.filter(vehicle__custodian=self.request.user, status=1).order_by("status")
         return models.Reservation.objects.all()
 
     def get_h1(self):
@@ -284,7 +284,7 @@ class ReservationListView(CarsBasicMixin, CommonFilterView):
         if qp.get("personalized"):
             return _("Your Reservations")
         elif qp.get("my_vehicles"):
-            return _("Requests for Your Vehicles")
+            return _("Pending Requests for Your Vehicles")
         return _("Reservations")
 
     def get_context_data(self, **kwargs):
@@ -292,6 +292,9 @@ class ReservationListView(CarsBasicMixin, CommonFilterView):
         qp = self.request.GET
         if qp.get("personalized"):
             context["personalized"] = True
+            context["filter"] = None
+            context["paginate_by"] = None
+        elif qp.get("my_vehicles"):
             context["filter"] = None
             context["paginate_by"] = None
         return context

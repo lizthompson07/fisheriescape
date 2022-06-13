@@ -57,7 +57,12 @@
             <p class="card-text"><small class="text-muted">{{ object.metadata }}</small></p>
 
             <div class="text-end">
-              <a href="{% url 'cars:vehicle_detail'  object.id %}" class="btn btn-sm btn-primary">{% trans "Manage" %}</a>
+              {% if object.custodian == request.user %}
+                <a href="{% url 'cars:vehicle_detail'  object.id %}" class="btn btn-sm btn-success">{% trans "Manage" %}</a>
+              {% else %}
+                <a href="{% url 'cars:vehicle_detail'  object.id %}" class="btn btn-sm btn-primary">{% trans "View Details" %}</a>
+              {% endif %}
+
               <a href="{% url 'cars:rsvp_new' %}?vehicle={{ object.id }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
                  class="btn btn-sm btn-dark">{% trans "Reserve" %}</a>
             </div>
