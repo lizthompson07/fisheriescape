@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
+from markdown import markdown
 
 from dm_apps.utils import get_timezone_time
 from shared_models.models import SimpleLookup, Region, MetadataFields, UnilingualSimpleLookup, LatLongFields
@@ -160,7 +161,6 @@ class FAQ(models.Model):
     question_fr = models.TextField(blank=True, null=True, verbose_name=_("question (fr)"))
     answer_en = models.TextField(blank=True, null=True, verbose_name=_("answer (en)"))
     answer_fr = models.TextField(blank=True, null=True, verbose_name=_("answer (fr)"))
-    order = models.IntegerField(blank=True, null=True, verbose_name=_("display order"))
 
     class Meta:
         ordering = [_('question_en'), "id"]
@@ -183,4 +183,4 @@ class FAQ(models.Model):
         # if there is no translated term, just pull from the english field
         else:
             my_str = self.answer_en
-        return my_str
+        return markdown(my_str)

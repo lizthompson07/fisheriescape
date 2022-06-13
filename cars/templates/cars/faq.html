@@ -19,7 +19,7 @@
         </h2>
         <div id="collapse{{ object.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ object.id }}" data-bs-parent="#accordionFAQ">
           <div class="accordion-body ps-5">
-            {{ object.tanswer }}
+            {{ object.tanswer|safe }}
           </div>
         </div>
       </div>
