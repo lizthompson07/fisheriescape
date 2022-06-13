@@ -141,6 +141,8 @@ class Committee(models.Model):
                                                      verbose_name=_("First Nations/Indigenous group participation?"))
     provincial_participation = models.BooleanField(default=False,
                                                    verbose_name=_("Provincial government participation?"))
+    other_federal_participation = models.BooleanField(default=False,
+                                                   verbose_name=_("Other federal department/agency participation?"))
     external_contact = models.ManyToManyField(ml_models.Person, verbose_name=_("External Contact(s)"),
                                               blank=True, related_name="committee_ext_contact")
     external_organization = models.ManyToManyField(ml_models.Organization, verbose_name=_("External Organization(s)"),

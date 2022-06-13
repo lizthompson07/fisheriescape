@@ -498,6 +498,7 @@ class CommitteeDetailView(UserRequiredMixin, CommonDetailView):
             'dfo_role',
             'first_nation_participation',
             'provincial_participation',
+            'other_federal_participation',
             'meeting_frequency',
             'are_tor',
             'location_of_tor',
@@ -673,6 +674,7 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
         areas = []
         category = []
         asc_province = []
+        committees = []
         if models.OrganizationExtension.objects.filter(organization=self.object):
             ext_org = models.OrganizationExtension.objects.get(organization=self.object)
             if ext_org:

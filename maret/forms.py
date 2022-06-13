@@ -32,8 +32,8 @@ class CommitteeForm(forms.ModelForm):
         self.order_fields(['name', 'main_topic', 'species', 'branch', 'division', 'area_office', 'area_office_program',
                            'is_dfo_chair', 'external_chair', 'dfo_liaison', 'other_dfo_branch', 'other_dfo_regions',
                            'other_dfo_areas', 'dfo_role', 'first_nation_participation', 'provincial_participation',
-                           'external_contact', 'external_organization', 'meeting_frequency', 'are_tor',
-                           'location_of_tor', 'main_actions', 'comments',
+                           'other_federal_participation', 'external_contact', 'external_organization',
+                           'meeting_frequency', 'are_tor', 'location_of_tor', 'main_actions', 'comments',
                            ])
 
         self.fields['main_topic'].widget.attrs['size'] = '6'
