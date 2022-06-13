@@ -1,5 +1,5 @@
 import django_filters
-from django.utils.translation import gettext
+from django.utils.translation import gettext, gettext_lazy
 
 from shared_models.models import Region
 from . import models
@@ -50,12 +50,14 @@ class ReservationFilter(django_filters.FilterSet):
         }
 
 
-
 class SimpleReservationFilter(django_filters.FilterSet):
-
     class Meta:
         model = models.Reservation
         fields = {
             'vehicle': ['exact'],
 
         }
+
+
+class FAQFilter(django_filters.FilterSet):
+    search = django_filters.CharFilter(field_name="search", lookup_expr='icontains', label=gettext_lazy("Search"))

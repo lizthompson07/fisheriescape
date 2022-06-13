@@ -1,5 +1,7 @@
 import datetime
 
+from django.db.models import Value, TextField
+from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
@@ -24,6 +26,22 @@ class IndexTemplateView(CarsBasicMixin, CommonTemplateView):
         context = super().get_context_data(**kwargs)
         context["requests_waiting"] = models.Reservation.objects.filter(vehicle__custodian=self.request.user, status=1).count()
         return context
+
+
+class FAQListView(CarsBasicMixin, CommonFilterView):
+    h1 = gettext_lazy("Frequently asked questions")
+    active_page_name_crumb = "FAQ"
+    template_name = 'cars/faq.html'
+    model = models.FAQ
+    filterset_class = filters.FAQFilter
+
+    def get_queryset(self):
+        qs = self.model.objects.annotate(search=Concat(
+            'question_en', Value(" "),
+            'question_fr', Value(" "),
+            'answer_en', Value(" "),
+            'answer_fr', output_field=TextField()))
+        return qs
 
 
 # REFERENCE TABLES #
@@ -88,6 +106,21 @@ class VehicleFormsetView(CarsNationalAdminRequiredMixin, CommonFormsetView):
 class VehicleHardDeleteView(CarsNationalAdminRequiredMixin, CommonHardDeleteView):
     model = models.Vehicle
     success_url = reverse_lazy("cars:manage_vehicles")
+
+
+class FAQFormsetView(CarsNationalAdminRequiredMixin, CommonFormsetView):
+    template_name = 'cars/formset.html'
+    h1 = "Manage FAQs"
+    queryset = models.FAQ.objects.all()
+    formset_class = forms.FAQFormset
+    success_url_name = "cars:manage_faqs"
+    home_url_name = "cars:index"
+    delete_url_name = "cars:delete_faq"
+
+
+class FAQHardDeleteView(CarsNationalAdminRequiredMixin, CommonHardDeleteView):
+    model = models.FAQ
+    success_url = reverse_lazy("cars:manage_faqs")
 
 
 class VehicleFinder(CarsBasicMixin, CommonFormView):

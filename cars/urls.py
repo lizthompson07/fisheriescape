@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
+    path('faq/', views.FAQListView.as_view(), name="faq"),
 
     # reference tables
     path('settings/vehicle-types/', views.VehicleTypeFormsetView.as_view(), name="manage_vehicle_types"),
@@ -12,6 +13,8 @@ urlpatterns = [
     path('settings/location/<int:pk>/delete/', views.LocationHardDeleteView.as_view(), name="delete_location"),
     path('settings/vehicles/', views.VehicleFormsetView.as_view(), name="manage_vehicles"),
     path('settings/vehicle/<int:pk>/delete/', views.VehicleHardDeleteView.as_view(), name="delete_vehicle"),
+    path('settings/faqs/', views.FAQFormsetView.as_view(), name="manage_faqs"),
+    path('settings/faq/<int:pk>/delete/', views.FAQHardDeleteView.as_view(), name="delete_faq"),
 
 
 

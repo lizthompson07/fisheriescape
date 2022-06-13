@@ -1,0 +1,31 @@
+{% extends 'cars/list.html' %}
+{% load i18n %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load bootstrap5 %}
+
+{% block table_and_table_header %}
+
+
+  <div class="accordion" id="accordionFAQ">
+    {% for object in object_list %}
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading{{ object.id }}">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ object.id }}" aria-expanded="true"
+                  aria-controls="collapse{{ object.id }}">
+            <strong>Q:</strong> &nbsp; {{ object.tquestion }}
+          </button>
+        </h2>
+        <div id="collapse{{ object.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ object.id }}" data-bs-parent="#accordionFAQ">
+          <div class="accordion-body ps-5">
+            {{ object.tanswer }}
+          </div>
+        </div>
+      </div>
+
+    {% endfor %}
+
+  </div>
+
+{% endblock %}

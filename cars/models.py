@@ -153,3 +153,34 @@ class Reservation(MetadataFields):
             arrival=get_timezone_time(self.start_date).strftime("%Y-%m-%d %H:%M"),
             departure=get_timezone_time(self.end_date).strftime("%Y-%m-%d %H:%M"),
         ))
+
+
+class FAQ(models.Model):
+    question_en = models.TextField(blank=True, null=True, verbose_name=_("question (en)"))
+    question_fr = models.TextField(blank=True, null=True, verbose_name=_("question (fr)"))
+    answer_en = models.TextField(blank=True, null=True, verbose_name=_("answer (en)"))
+    answer_fr = models.TextField(blank=True, null=True, verbose_name=_("answer (fr)"))
+    order = models.IntegerField(blank=True, null=True, verbose_name=_("display order"))
+
+    class Meta:
+        ordering = [_('question_en'), "id"]
+
+    @property
+    def tquestion(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("question_en"))):
+            my_str = "{}".format(getattr(self, str(_("question_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.question_en
+        return my_str
+
+    @property
+    def tanswer(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("answer_en"))):
+            my_str = "{}".format(getattr(self, str(_("answer_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.answer_en
+        return my_str

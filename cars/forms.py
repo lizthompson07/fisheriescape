@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy, gettext
 
 from . import models
-from .utils import is_dt_intersection, get_dates_from_range
+from .utils import is_dt_intersection
 
 attr_fp_date_time = {"class": "fp-date-time-with-seconds", "placeholder": "Select Date and Time.."}
 attr_fp_date_range = {"class": "fp-date-range", "placeholder": gettext_lazy("Click to select a range of dates..")}
@@ -174,5 +174,18 @@ class VehicleShortForm(forms.ModelForm):
 VehicleFormset = modelformset_factory(
     model=models.Vehicle,
     form=VehicleShortForm,
+    extra=1,
+)
+
+
+class FAQForm(forms.ModelForm):
+    class Meta:
+        model = models.FAQ
+        fields = "__all__"
+
+
+FAQFormset = modelformset_factory(
+    model=models.FAQ,
+    form=FAQForm,
     extra=1,
 )
