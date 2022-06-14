@@ -111,11 +111,25 @@
         }
     }
 
+    function toggleAreaOfficeProgram(){
+        let area_office_int = parseInt($("#id_area_office :selected").val(), 10);
+        if (area_office_int == 0) {
+            $('#area_office_program_div').hide();
+        } else {
+            $('#area_office_program_div').hide();
+        }
+    }
+
     $("#id_interaction_type").change(function () {
         updateFields();
     });
 
+    $("#id_area_office").change(function () {
+        toggleAreaOfficeProgram();
+    });
+
     $(document).ready(function () {
         updateFields();
+        toggleAreaOfficeProgram();
     });
 </script>
