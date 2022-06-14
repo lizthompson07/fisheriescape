@@ -1,4 +1,5 @@
 import django_filters
+from django.contrib.auth.models import User
 from django.utils.translation import gettext, gettext_lazy
 
 from shared_models.models import Region
@@ -8,7 +9,8 @@ chosen_js = {"class": "chosen-select-contains"}
 
 
 class VehicleFilter(django_filters.FilterSet):
-    # id = django_filters.MultipleChoiceFilter("id")
+    search = django_filters.CharFilter(field_name="search", lookup_expr='icontains', label=gettext_lazy("Search (model, make, reference number)"))
+
     class Meta:
         model = models.Vehicle
         fields = {
@@ -21,6 +23,7 @@ class VehicleFilter(django_filters.FilterSet):
             'max_passengers': ["gte"],
             'is_active': ["exact"],
             'reference_number': ["contains"],
+            'custodian': ["exact"],
         }
 
     def __init__(self, *args, **kwargs):
@@ -29,10 +32,8 @@ class VehicleFilter(django_filters.FilterSet):
         self.filters['location__region'].label = gettext("Region")
         self.filters['reference_number__contains'].label = gettext("Reference number")
         self.filters['location__region'].queryset = Region.objects.filter(vehicle_locations__isnull=False).distinct()
-
-        # vehicle_choices = [(v.id, str(v)) for v in models.Vehicle.objects.all()]
-        # self.filters['id'].field.choices = vehicle_choices
-        # self.filters['id'].field.widget = HiddenInput()
+        self.filters['custodian'].queryset = User.objects.filter(vehicles__isnull=False).distinct().order_by("first_name", "last_name")
+        self.filters['custodian'].field.widget.attrs = chosen_js
 
 
 class ReservationFilter(django_filters.FilterSet):
@@ -51,12 +52,29 @@ class ReservationFilter(django_filters.FilterSet):
 
 
 class SimpleReservationFilter(django_filters.FilterSet):
+    custodian = django_filters.ModelChoiceFilter(field_name="vehicle__custodian", lookup_expr='exact', queryset=Region.objects.all(),
+                                                 label=gettext_lazy("Custodian"))
+    region = django_filters.ModelChoiceFilter(field_name="location__region", lookup_expr='exact', queryset=Region.objects.all(), label=gettext_lazy("Region"))
+
     class Meta:
         model = models.Reservation
         fields = {
+            'status': ['exact'],
             'vehicle': ['exact'],
-
+            'primary_driver': ['exact'],
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters['region'].queryset = Region.objects.filter(vehicle_locations__isnull=False).distinct()
+        self.filters['custodian'].queryset = User.objects.filter(vehicles__isnull=False).distinct().order_by("first_name", "last_name")
+        self.filters['primary_driver'].queryset = User.objects.filter(vehicle_reservations__isnull=False).distinct().order_by("first_name", "last_name")
+        self.filters['custodian'].field.widget.attrs = chosen_js
+        self.filters['primary_driver'].field.widget.attrs = chosen_js
+        self.filters['vehicle'].field.widget.attrs = chosen_js
+
+        # vehicle_choices = [(v.id, str(v)) for v in models.Vehicle.objects.all()]
+        # self.filters['id'].field.choices = vehicle_choices
 
 
 class FAQFilter(django_filters.FilterSet):

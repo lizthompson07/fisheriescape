@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy, gettext as _
 from cars import models, forms, filters, emails
 from cars.mixins import CarsBasicMixin, SuperuserOrAdminRequiredMixin, CarsNationalAdminRequiredMixin, CanModifyVehicleRequiredMixin, \
     CanModifyReservationRequiredMixin, CarsAdminRequiredMixin
-from cars.utils import get_dates_from_range, is_dt_intersection
+from cars.utils import get_dates_from_range, is_dt_intersection, can_modify_vehicle
 from lib.functions.custom_functions import listrify
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonDeleteView, CommonDetailView, CommonUpdateView, \
     CommonFilterView, CommonCreateView, CommonFormView
@@ -191,6 +191,11 @@ class VehicleListView(CarsBasicMixin, CommonFilterView):
     paginate_by = 10
 
     def get_queryset(self):
+        qs = models.Vehicle.objects.annotate(search=Concat(
+            'reference_number', Value(" "),
+            'make', Value(" "),
+            'model', output_field=TextField()))
+
         qp = self.request.GET
         if qp.get("personalized"):
             return self.request.user.vehicles.all()
@@ -199,9 +204,9 @@ class VehicleListView(CarsBasicMixin, CommonFilterView):
                 ids = []
             else:
                 ids = qp.get("ids").split(",")
-            return models.Vehicle.objects.filter(id__in=ids)
+            return qs.filter(id__in=ids)
         else:
-            return models.Vehicle.objects.all()
+            return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -261,7 +266,11 @@ class VehicleDetailView(CarsBasicMixin, CommonDetailView):
         "is_active",
         "comments",
     ]
-    # container_class = "container-fluid"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["can_modify"] = can_modify_vehicle(self.request.user, self.get_object())
+        return context
 
 
 class VehicleDeleteView(CanModifyVehicleRequiredMixin, CommonDeleteView):
@@ -283,6 +292,13 @@ class VehicleCalendarView(CarsBasicMixin, CommonFilterView):
     h1 = gettext_lazy("Vehicle Calendar")
     container_class = "container-fluid"
     filterset_class = filters.VehicleFilter
+
+    def get_queryset(self):
+        qs = models.Vehicle.objects.annotate(search=Concat(
+            'reference_number', Value(" "),
+            'make', Value(" "),
+            'model', output_field=TextField()))
+        return qs
 
 
 # RESERVATIONS #
@@ -359,11 +375,8 @@ class ReservationUpdateView(CanModifyReservationRequiredMixin, CommonUpdateView)
 class ReservationCreateView(CarsBasicMixin, CommonCreateView):
     model = models.Reservation
     form_class = forms.ReservationForm
-    success_url = reverse_lazy('cars:rsvp_list')
     template_name = 'cars/form.html'
     home_url_name = "cars:index"
-
-    # parent_crumb = {"title": gettext_lazy("Reservations"), "url": reverse_lazy("cars:rsvp_list")}
 
     def get_initial(self):
         qp = self.request.GET
@@ -388,6 +401,7 @@ class ReservationCreateView(CarsBasicMixin, CommonCreateView):
         email = emails.RSVPEmail(self.request, obj)
         # send the email object
         email.send()
+        self.success_url = reverse("cars:vehicle_detail", args=[obj.vehicle.id])
         return super().form_valid(form)
 
 

@@ -35,8 +35,10 @@
   </style>
 
   <div class="btns mb-3">
-    <a href="{% url 'cars:vehicle_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
-    <a href="{% url 'cars:vehicle_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+    {% if can_modify %}
+      <a href="{% url 'cars:vehicle_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
+      <a href="{% url 'cars:vehicle_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+    {% endif %}
     <a href="{% url 'cars:rsvp_new' %}?vehicle={{ object.id }}" class="btn btn-dark btn-sm">{% trans "Reserve" %}</a>
   </div>
 

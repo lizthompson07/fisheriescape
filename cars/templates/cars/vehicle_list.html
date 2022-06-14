@@ -25,7 +25,7 @@
 
   {% for object in list %}
 
-    <div class="card mb-3 w-100 {% if not object.is_active %} bad-card {% endif %}">
+    <div class="card mb-3 w-100 p-3 {% if not object.is_active %} bad-card {% endif %}">
       <div class="row g-0">
         <div class="col-md-4">
           <img src="{{ object.smart_image }}" class="img-fluid rounded-start">
@@ -40,32 +40,45 @@
                   {% verbose_field_display object "custodian" %}
                 </div>
                 <div class="col">
-                  {% verbose_field_display object "location" %}
+                  <p>
+                    <span class="label">{% trans "Location" %}</span><br><a target="_blank" href="{{ object.location.map_url }}">{{ object.location }}</a>
+                  </p>
+
                   {% verbose_field_display object "max_passengers" %}
                 </div>
                 <div class="col">
                   {% verbose_field_display object "vehicle_type" %}
                 </div>
               </div>
+              <hr>
               <div class="">
-                <tr>
-                  {% verbose_field_display object "comments" to_html=True %}
-                </tr>
+                {% get_field_value object "comments" to_html=True %}
               </div>
             </div>
 
             <p class="card-text"><small class="text-muted">{{ object.metadata }}</small></p>
 
-            <div class="text-end">
-              {% if object.custodian == request.user %}
-                <a href="{% url 'cars:vehicle_detail'  object.id %}" class="btn btn-sm btn-success">{% trans "Manage" %}</a>
-              {% else %}
-                <a href="{% url 'cars:vehicle_detail'  object.id %}" class="btn btn-sm btn-primary">{% trans "View Details" %}</a>
-              {% endif %}
+            {% if not request.GET.ids %}
+              <div class="text-end">
+                {% if object.custodian == request.user %}
+                  <a href="{% url 'cars:vehicle_detail'  object.id %}" class="btn btn-sm btn-success">{% trans "Manage" %}</a>
+                {% else %}
+                  <a href="{% url 'cars:vehicle_detail'  object.id %}" class="btn btn-sm btn-primary">{% trans "View Details" %}</a>
+                {% endif %}
 
-              <a href="{% url 'cars:rsvp_new' %}?vehicle={{ object.id }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
-                 class="btn btn-sm btn-dark">{% trans "Reserve" %}</a>
-            </div>
+                <a href="{% url 'cars:rsvp_new' %}?vehicle={{ object.id }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                   class="btn btn-sm btn-dark">{% trans "Reserve" %}</a>
+              </div>
+            {% else %}
+              <div class="text-end">
+
+                <a href="{% url 'cars:rsvp_new' %}?vehicle={{ object.id }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                   class="btn btn btn-success">
+                  <span class="mdi mdi-check lead mr-1 text-light"></span>
+                  {% trans "Reserve Now!" %}
+                </a>
+              </div>
+            {% endif %}
 
           </div>
         </div>

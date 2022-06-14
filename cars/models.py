@@ -44,6 +44,15 @@ class Location(SimpleLookup, LatLongFields):
         return mystr
 
     @property
+    def map_url_span(self):
+        label = gettext("View map")
+        return f'<span class="mdi mdi-map-marker text-danger lead"></span> <a target="_blank" href="{self.map_url}">{label}</a>'
+
+    @property
+    def map_url(self):
+        return f"https://www.google.com/maps/search/?api=1&query={self.latitude},{self.longitude}"
+
+    @property
     def full_address(self):
         # initial my_str with either address or None
         if self.address:
@@ -60,21 +69,20 @@ class Location(SimpleLookup, LatLongFields):
         # add province abbrev.
         if self.province:
             if my_str:
-                my_str += "<br>"
+                my_str += ", "
             my_str += self.province
 
         # add postal code
         if self.postal_code:
             if my_str:
-                my_str += "<br>"
+                my_str += ", "
             my_str += self.postal_code
 
         # add postal code
         if self.get_point():
             if my_str:
                 my_str += "<br>"
-            label = gettext("view map")
-            my_str += f'<span class="mdi mdi-map-marker text-danger lead"></span> <a target="_blank" href="https://www.google.com/maps/search/?api=1&query={self.latitude},{self.longitude}">{label}</a>'
+            my_str += self.map_url_span
 
         return mark_safe(my_str)
 
