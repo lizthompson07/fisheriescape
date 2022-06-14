@@ -192,3 +192,38 @@ class FAQ(models.Model):
         else:
             my_str = self.answer_en
         return markdown(my_str)
+
+
+def ref_mat_directory_path(instance, filename):
+    return f'cars/{filename}'
+
+
+class ReferenceMaterial(SimpleLookup):
+    order = models.IntegerField(blank=True, null=True)
+    url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True)
+    url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True)
+    file_en = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (English)"), blank=True, null=True)
+    file_fr = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (French)"), blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    @property
+    def tfile(self):
+        # check to see if a french value is given
+        if getattr(self, gettext("file_en")):
+            return getattr(self, gettext("file_en"))
+        # if there is no translated term, just pull from the english field
+        else:
+            return self.file_en
+
+    @property
+    def turl(self):
+        # check to see if a french value is given
+        if getattr(self, gettext("url_en")):
+            return getattr(self, gettext("url_en"))
+        # if there is no translated term, just pull from the english field
+        else:
+            return self.url_en
+
+    class Meta:
+        ordering = ["order"]

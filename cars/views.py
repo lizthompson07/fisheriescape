@@ -14,7 +14,7 @@ from cars.mixins import CarsBasicMixin, SuperuserOrAdminRequiredMixin, CarsNatio
 from cars.utils import get_dates_from_range, is_dt_intersection, can_modify_vehicle
 from lib.functions.custom_functions import listrify
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonDeleteView, CommonDetailView, CommonUpdateView, \
-    CommonFilterView, CommonCreateView, CommonFormView
+    CommonFilterView, CommonCreateView, CommonFormView, CommonListView
 
 
 class IndexTemplateView(CarsBasicMixin, CommonTemplateView):
@@ -29,7 +29,7 @@ class IndexTemplateView(CarsBasicMixin, CommonTemplateView):
 
 
 class FAQListView(CarsBasicMixin, CommonFilterView):
-    h1 = gettext_lazy("Frequently asked questions")
+    h1 = " "
     active_page_name_crumb = "FAQ"
     template_name = 'cars/faq.html'
     model = models.FAQ
@@ -43,6 +43,10 @@ class FAQListView(CarsBasicMixin, CommonFilterView):
             'answer_fr', output_field=TextField()))
         return qs
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["refs"] = models.ReferenceMaterial.objects.all()
+        return context
 
 # REFERENCE TABLES #
 ####################
@@ -454,3 +458,57 @@ def rsvp_action(request, pk, action):
         rsvp.status = 30
         rsvp.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+# REFERENCE MATERIALS
+#####################
+
+class ReferenceMaterialListView(CarsNationalAdminRequiredMixin, CommonListView):
+    template_name = "cars/list.html"
+    model = models.ReferenceMaterial
+    field_list = [
+        {"name": "tname|{}".format(gettext_lazy("name")), "class": "", "width": ""},
+        {"name": "turl|{}".format(gettext_lazy("URL")), "class": "", "width": ""},
+        {"name": "tfile|{}".format(gettext_lazy("File")), "class": "", "width": ""},
+        {"name": "created_at", "class": "", "width": ""},
+        {"name": "updated_at", "class": "", "width": ""},
+    ]
+    new_object_url_name = "cars:ref_mat_new"
+    row_object_url_name = "cars:ref_mat_edit"
+    home_url_name = "cars:index"
+    h1 = gettext_lazy("Reference Materials")
+    container_class = "container curvy"
+
+
+class ReferenceMaterialUpdateView(CarsNationalAdminRequiredMixin, CommonUpdateView):
+    model = models.ReferenceMaterial
+    form_class = forms.ReferenceMaterialForm
+    home_url_name = "cars:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("cars:ref_mat_list")}
+    template_name = "cars/form.html"
+    is_multipart_form_data = True
+    container_class = "container curvy"
+
+    def get_delete_url(self):
+        return reverse("cars:ref_mat_delete", args=[self.get_object().id])
+
+
+class ReferenceMaterialCreateView(CarsNationalAdminRequiredMixin, CommonCreateView):
+    model = models.ReferenceMaterial
+    form_class = forms.ReferenceMaterialForm
+    home_url_name = "cars:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("cars:ref_mat_list")}
+    template_name = "cars/form.html"
+    is_multipart_form_data = True
+    container_class = "container curvy"
+
+
+class ReferenceMaterialDeleteView(CarsNationalAdminRequiredMixin, CommonDeleteView):
+    model = models.ReferenceMaterial
+    success_url = reverse_lazy('cars:ref_mat_list')
+    home_url_name = "cars:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("cars:ref_mat_list")}
+    template_name = "cars/confirm_delete.html"
+    delete_protection = False
+    container_class = "container curvy"
+

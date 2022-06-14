@@ -16,7 +16,11 @@ urlpatterns = [
     path('settings/faqs/', views.FAQFormsetView.as_view(), name="manage_faqs"),
     path('settings/faq/<int:pk>/delete/', views.FAQHardDeleteView.as_view(), name="delete_faq"),
 
-
+    # full
+    path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),
+    path('settings/reference-materials/new/', views.ReferenceMaterialCreateView.as_view(), name="ref_mat_new"),
+    path('settings/reference-materials/<int:pk>/edit/', views.ReferenceMaterialUpdateView.as_view(), name="ref_mat_edit"),
+    path('settings/reference-materials/<int:pk>/delete/', views.ReferenceMaterialDeleteView.as_view(), name="ref_mat_delete"),
 
     # user permissions
     path('settings/users/', views.CarsUserFormsetView.as_view(), name="manage_cars_users"),

@@ -61,7 +61,7 @@ class ReservationForm(forms.ModelForm):
             del self.fields["box3"]
         else:
             self.fields["box1"].label = mark_safe(
-                "I have signed the <a href='https://forms-formulaires.dfo-mpo.gc.ca/Forms/FP_0024-E.pdf'>Acknowledgement of Motor Vehicle Operator Role and Responsibilities Form</a>.")
+                "I have signed the <a target='_blank' href='https://forms-formulaires.dfo-mpo.gc.ca/Forms/FP_0024-E.pdf'>Acknowledgement of Motor Vehicle Operator Role and Responsibilities Form</a>.")
             self.fields["box2"].label = mark_safe("I have signed off on the safe work procedure <a href='#'>Driving a Road Vehicle</a>.")
             self.fields["box3"].label = "I have my manager's authorization to proceed."
 
@@ -189,3 +189,12 @@ FAQFormset = modelformset_factory(
     form=FAQForm,
     extra=1,
 )
+
+
+class ReferenceMaterialForm(forms.ModelForm):
+    class Meta:
+        model = models.ReferenceMaterial
+        fields = "__all__"
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"})
+        }

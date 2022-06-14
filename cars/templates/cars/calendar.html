@@ -11,7 +11,7 @@
 
   #calendar {
       margin: 40px auto;
-      max-height: 1000px;
+      max-height: 600px;
   }
   </style>
 
@@ -24,7 +24,7 @@
 {% block subcontent %}
 
   {% block filter %}
-        {% include 'cars/_vehicle_filter.html' %}
+    {% include 'cars/_vehicle_filter.html' %}
   {% endblock %}
 
 
@@ -48,6 +48,7 @@
         {
           id: "{{ object.id }}",
           title: "{{object}}",
+          url: "www.google.ca"
         }
     )
   {% endfor %}
@@ -65,9 +66,7 @@
         editable: false,
         resourceAreaHeaderContent: 'Vehicles',
         resources: resources,
-        //events: reservations,
         events: `/api/cars/reservations-for-calendar/?${params}&as_resource_list=true`,
-
         eventDidMount: function (info) {
           var tooltip = new bootstrap.Tooltip(info.el, {
             title: info.event.extendedProps.description,
