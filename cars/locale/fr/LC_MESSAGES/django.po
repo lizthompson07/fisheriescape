@@ -1,0 +1,507 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-14 16:15-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+#: .\cars\emails.py:19 .\cars\views.py:420
+msgid "custodian"
+msgstr ""
+
+#: .\cars\filters.py:12
+msgid "Search (model, make, reference number)"
+msgstr ""
+
+#: .\cars\filters.py:31
+msgid "Passenger capacity"
+msgstr ""
+
+#: .\cars\filters.py:32 .\cars\filters.py:57
+msgid "Region"
+msgstr ""
+
+#: .\cars\filters.py:33
+msgid "Reference number"
+msgstr ""
+
+#: .\cars\filters.py:56
+msgid "Custodian"
+msgstr ""
+
+#: .\cars\filters.py:81
+msgid "Search"
+msgstr ""
+
+#: .\cars\forms.py:12
+msgid "Click to select a range of dates.."
+msgstr ""
+
+#: .\cars\forms.py:93
+msgid "Sorry, the time requested overlaps with another approved reservation."
+msgstr ""
+
+#: .\cars\forms.py:101
+msgid "What dates are you looking for?"
+msgstr ""
+
+#: .\cars\forms.py:105
+msgid "Pick-up location"
+msgstr ""
+
+#: .\cars\forms.py:105 .\cars\forms.py:108 .\cars\forms.py:110
+#: .\cars\forms.py:111
+msgid "leave blank for all"
+msgstr ""
+
+#: .\cars\forms.py:108
+msgid "Vehicle type"
+msgstr ""
+
+#: .\cars\forms.py:110
+msgid "Vehicle"
+msgstr ""
+
+#: .\cars\forms.py:111
+msgid "Passenger minimum capacity"
+msgstr ""
+
+#: .\cars\models.py:14
+msgid "Yes"
+msgstr ""
+
+#: .\cars\models.py:14
+msgid "No"
+msgstr ""
+
+#: .\cars\models.py:18
+msgid "DM Apps user"
+msgstr ""
+
+#: .\cars\models.py:19
+msgid "regional administrator?"
+msgstr ""
+
+#: .\cars\models.py:21
+msgid "app administrator?"
+msgstr ""
+
+#: .\cars\models.py:36
+msgid "address"
+msgstr ""
+
+#: .\cars\models.py:37
+msgid "city"
+msgstr ""
+
+#: .\cars\models.py:38 .\cars\models.py:39
+msgid "postal code"
+msgstr ""
+
+#: .\cars\models.py:48
+msgid "View map"
+msgstr ""
+
+#: .\cars\models.py:99
+msgid "reference number"
+msgstr ""
+
+#: .\cars\models.py:100
+msgid "make"
+msgstr ""
+
+#: .\cars\models.py:101
+msgid "model"
+msgstr ""
+
+#: .\cars\models.py:102
+msgid "year"
+msgstr ""
+
+#: .\cars\models.py:103
+msgid "max passengers"
+msgstr ""
+
+#: .\cars\models.py:104
+msgid "is in commission?"
+msgstr ""
+
+#: .\cars\models.py:105
+msgid ""
+"Vehicles that are not in commission will not show up in the reservation list"
+msgstr ""
+
+#: .\cars\models.py:106
+msgid "comments"
+msgstr ""
+
+#: .\cars\models.py:107
+msgid "thumbnail"
+msgstr ""
+
+#: .\cars\models.py:134
+msgid "vehicle"
+msgstr ""
+
+#: .\cars\models.py:135
+msgid "primary driver"
+msgstr ""
+
+#: .\cars\models.py:136
+msgid "departure date"
+msgstr ""
+
+#: .\cars\models.py:137
+msgid "return date"
+msgstr ""
+
+#: .\cars\models.py:138
+msgid "destination"
+msgstr ""
+
+#: .\cars\models.py:139
+msgid "other drivers"
+msgstr ""
+
+#: .\cars\models.py:140
+msgid "additional comments"
+msgstr ""
+
+#: .\cars\models.py:157
+msgid "Reservation for {car} by {user}"
+msgstr ""
+
+#: .\cars\models.py:161
+msgid "{arrival} &rarr; {departure}"
+msgstr ""
+
+#: .\cars\models.py:168
+msgid "question (en)"
+msgstr ""
+
+#: .\cars\models.py:169
+msgid "question (fr)"
+msgstr ""
+
+#: .\cars\models.py:170
+msgid "answer (en)"
+msgstr ""
+
+#: .\cars\models.py:171
+msgid "answer (fr)"
+msgstr ""
+
+#: .\cars\models.py:174 .\cars\models.py:179 .\cars\models.py:180
+msgid "question_en"
+msgstr ""
+
+#: .\cars\models.py:189 .\cars\models.py:190
+msgid "answer_en"
+msgstr ""
+
+#: .\cars\models.py:203
+msgid "url (English)"
+msgstr ""
+
+#: .\cars\models.py:204
+msgid "url (French)"
+msgstr ""
+
+#: .\cars\models.py:205
+msgid "file attachment (English)"
+msgstr ""
+
+#: .\cars\models.py:206
+msgid "file attachment (French)"
+msgstr ""
+
+#: .\cars\models.py:213 .\cars\models.py:214
+msgid "file_en"
+msgstr ""
+
+#: .\cars\models.py:222 .\cars\models.py:223
+msgid "url_en"
+msgstr ""
+
+#: .\cars\templates\cars\_vehicle_filter.html:7
+msgid "Filtering Options"
+msgstr ""
+
+#: .\cars\templates\cars\_vehicle_filter.html:29
+msgid "Filter"
+msgstr ""
+
+#: .\cars\templates\cars\_vehicle_filter.html:30
+msgid "Clear"
+msgstr ""
+
+#: .\cars\templates\cars\base\_app_title.html:2
+msgid "Vehicle RSVP"
+msgstr ""
+
+#: .\cars\templates\cars\base\_nav_left_auth.html:4
+msgid "Home"
+msgstr ""
+
+#: .\cars\templates\cars\base\_nav_left_auth.html:12
+msgid "Admin"
+msgstr ""
+
+#: .\cars\templates\cars\base\_nav_left_auth.html:17
+msgid "Vehicle Types"
+msgstr ""
+
+#: .\cars\templates\cars\base\_nav_left_auth.html:22
+msgid "Locations"
+msgstr ""
+
+#: .\cars\templates\cars\base\_nav_left_auth.html:27 .\cars\views.py:235
+#: .\cars\views.py:248 .\cars\views.py:259 .\cars\views.py:286
+msgid "Vehicles"
+msgstr ""
+
+#: .\cars\templates\cars\base\_nav_left_auth.html:32
+msgid "FAQ"
+msgstr ""
+
+#: .\cars\templates\cars\base\_nav_left_auth.html:37 .\cars\views.py:479
+#: .\cars\views.py:487 .\cars\views.py:500 .\cars\views.py:510
+msgid "Reference Materials"
+msgstr ""
+
+#: .\cars\templates\cars\base\_nav_left_auth.html:42
+msgid "All Reservations"
+msgstr ""
+
+#: .\cars\templates\cars\base\_nav_left_auth.html:47
+msgid "User Permissions"
+msgstr ""
+
+#: .\cars\templates\cars\faq.html:9
+msgid "Help Resources"
+msgstr ""
+
+#: .\cars\templates\cars\faq.html:30
+msgid "Frequently asked questions"
+msgstr ""
+
+#: .\cars\templates\cars\index.html:18
+msgid "Science Vehicle Reservation System"
+msgstr ""
+
+#: .\cars\templates\cars\index.html:20
+msgid ""
+"\n"
+"            Welcome to the reservation system for the Science vehicle "
+"fleet.\n"
+"          "
+msgstr ""
+
+#: .\cars\templates\cars\index.html:24
+msgid "Calendar"
+msgstr ""
+
+#: .\cars\templates\cars\index.html:25 .\cars\views.py:133
+msgid "Find a Vehicle"
+msgstr ""
+
+#: .\cars\templates\cars\index.html:26
+msgid "Help Resources / FAQ"
+msgstr ""
+
+#: .\cars\templates\cars\index.html:34
+msgid "Our Vehicles"
+msgstr ""
+
+#: .\cars\templates\cars\index.html:36
+msgid ""
+"\n"
+"              Use this module to view or modify the vehicles in our fleet.\n"
+"              Any user can add a vehicle, but only vehicle custodians (and "
+"application admins) can make changes to an existing vehicle.\n"
+"            "
+msgstr ""
+
+#: .\cars\templates\cars\index.html:41
+msgid "View Fleet"
+msgstr ""
+
+#: .\cars\templates\cars\index.html:43
+msgid "Add a Vehicle"
+msgstr ""
+
+#: .\cars\templates\cars\index.html:47
+msgid "Manage Your Vehicles"
+msgstr ""
+
+#: .\cars\templates\cars\index.html:49 .\cars\templates\cars\index.html:73
+msgid "active requests"
+msgstr ""
+
+#: .\cars\templates\cars\index.html:57 .\cars\views.py:341
+msgid "Reservations"
+msgstr ""
+
+#: .\cars\templates\cars\index.html:59
+msgid ""
+"\n"
+"              Use this module to view or modify existing vehicle "
+"reservations. If you are a custodian, you can also use this module to\n"
+"              see the requests for your vehicles, both current and past.\n"
+"            "
+msgstr ""
+
+#: .\cars\templates\cars\index.html:64
+msgid "New Reservation"
+msgstr ""
+
+#: .\cars\templates\cars\index.html:66 .\cars\views.py:338
+msgid "Your Reservations"
+msgstr ""
+
+#: .\cars\templates\cars\index.html:70
+msgid "Requests for Your Vehicles"
+msgstr ""
+
+#: .\cars\templates\cars\report_search.html:12
+msgid "Please select a report"
+msgstr ""
+
+#: .\cars\templates\cars\rsvp_detail.html:9
+#: .\cars\templates\cars\vehicle_detail.html:39
+msgid "Edit"
+msgstr ""
+
+#: .\cars\templates\cars\rsvp_detail.html:10
+#: .\cars\templates\cars\vehicle_detail.html:40
+msgid "Delete"
+msgstr ""
+
+#: .\cars\templates\cars\rsvp_detail.html:41
+msgid "Action Console"
+msgstr ""
+
+#: .\cars\templates\cars\rsvp_detail.html:46
+msgid "Do you want to reset the status of this reservation request?"
+msgstr ""
+
+#: .\cars\templates\cars\rsvp_detail.html:50
+#: .\cars\templates\cars\rsvp_detail.html:65
+msgid "Mark as Field Season"
+msgstr ""
+
+#: .\cars\templates\cars\rsvp_detail.html:54
+msgid "reset status to 'requested'"
+msgstr ""
+
+#: .\cars\templates\cars\rsvp_detail.html:61
+msgid "Do you want to approve this reservation request?"
+msgstr ""
+
+#: .\cars\templates\cars\vehicle_detail.html:42
+#: .\cars\templates\cars\vehicle_list.html:70
+msgid "Reserve"
+msgstr ""
+
+#: .\cars\templates\cars\vehicle_detail.html:68
+msgid "Bookings for this Vehicle"
+msgstr ""
+
+#: .\cars\templates\cars\vehicle_list.html:15
+#: .\cars\templates\cars\vehicle_list.html:104
+msgid "New Search"
+msgstr ""
+
+#: .\cars\templates\cars\vehicle_list.html:18
+msgid "New vehicle"
+msgstr ""
+
+#: .\cars\templates\cars\vehicle_list.html:44
+msgid "Location"
+msgstr ""
+
+#: .\cars\templates\cars\vehicle_list.html:64
+msgid "Manage"
+msgstr ""
+
+#: .\cars\templates\cars\vehicle_list.html:66
+msgid "View Details"
+msgstr ""
+
+#: .\cars\templates\cars\vehicle_list.html:78
+msgid "Reserve Now!"
+msgstr ""
+
+#: .\cars\templates\cars\vehicle_list.html:100
+msgid "Your search did not return any results"
+msgstr ""
+
+#: .\cars\utils.py:26
+msgid "You are not logged in"
+msgstr ""
+
+#: .\cars\utils.py:29
+msgid "You do not have the permissions to modify this process"
+msgstr ""
+
+#: .\cars\utils.py:32
+msgid ""
+"You can modify this vehicle because you are a national app administrator"
+msgstr ""
+
+#: .\cars\utils.py:36
+msgid ""
+"You can modify this vehicle because you are an administrator to the region "
+"to which it belongs"
+msgstr ""
+
+#: .\cars\utils.py:39
+msgid "You are the custodian for this vehicle"
+msgstr ""
+
+#: .\cars\views.py:223
+msgid "Your Search Results"
+msgstr ""
+
+#: .\cars\views.py:261
+msgid "region"
+msgstr ""
+
+#: .\cars\views.py:262
+msgid "location"
+msgstr ""
+
+#: .\cars\views.py:296
+msgid "Vehicle Calendar"
+msgstr ""
+
+#: .\cars\views.py:340
+msgid "Pending Requests for Your Vehicles"
+msgstr ""
+
+#: .\cars\views.py:423
+msgid "Arrival/departure"
+msgstr ""
+
+#: .\cars\views.py:470
+msgid "name"
+msgstr ""
+
+#: .\cars\views.py:471
+msgid "URL"
+msgstr ""
+
+#: .\cars\views.py:472
+msgid "File"
+msgstr ""

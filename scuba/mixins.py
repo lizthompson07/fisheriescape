@@ -1,13 +1,12 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
 
-from .utils import in_scuba_crud_group, in_scuba_admin_group
+from .utils import in_scuba_crud_group, in_scuba_admin_group, in_scuba_read_only
 
 
 class ScubaBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
-        if self.request.user.id:
-            return True
+        return in_scuba_read_only(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
