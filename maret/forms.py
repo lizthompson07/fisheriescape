@@ -65,6 +65,12 @@ class InteractionForm(forms.ModelForm):
         self.fields['other_dfo_branch'].widget.attrs['size'] = '6'
         self.fields['other_dfo_regions'].widget.attrs['size'] = '6'
         self.fields['other_dfo_areas'].widget.attrs['size'] = '6'
+        self.order_fields(['description', 'interaction_type', 'dfo_role', 'dfo_liaison',
+                           'other_dfo_participants', 'branch', 'division', 'area_office', 'area_office_program',
+                           'other_dfo_branch', 'other_dfo_regions', 'other_dfo_areas', 'external_contact',
+                           'external_organization', 'date_of_meeting', 'main_topic', 'species', 'action_items',
+                           'comments'
+                           ])
 
     class Meta:
         model = models.Interaction

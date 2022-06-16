@@ -184,7 +184,7 @@ class Interaction(models.Model):
                                          verbose_name=_("DFO liaison/secretariat"))
     other_dfo_participants = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_participants",
                                                     verbose_name=_("Other DFO participants/contributors"))
-    branch = models.ForeignKey(shared_models.Branch, blank=True, null=True, default=1, on_delete=models.DO_NOTHING,
+    branch = models.ForeignKey(shared_models.Branch, blank=True, null=True, default=None, on_delete=models.DO_NOTHING,
                                related_name="interaction_branch", verbose_name=_("Lead DFO branch"))
     area_office = models.ForeignKey(AreaOffice, blank=True, null=True, related_name="interaction_area_office",
                                     on_delete=models.DO_NOTHING, verbose_name=_("Lead Area Office"))
