@@ -11,7 +11,8 @@
     -
     <a v-html="s.project_year_obj.project_title" href="#" @click="goProjectDetail(s.project_year_obj)"></a>
     (<span v-html="s.project_year_obj.project_section"></span>) &rarr;
-    <span v-html="s.duration_weeks"></span> {% trans "weeks" %}
+    <span v-html="s.duration_weeks"></span> {% trans "weeks" %}.
+    <span v-html="s.funding_source_display"></span>
   </li>
 </ul>
 </script>
