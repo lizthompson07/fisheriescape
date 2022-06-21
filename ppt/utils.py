@@ -248,11 +248,13 @@ def get_user_fte_breakdown(user, fiscal_year_id):
         .select_related("level", "employee_type")
     my_dict = dict()
     my_dict['name'] = f"{user.last_name}, {user.first_name}"
-    employee_type_qs = staff_instances.filter(employee_type__isnull=False).values_list('employee_type__name', flat=True).distinct()
-    my_dict['employee_type'] = ", ".join(list(employee_type_qs))
+    employee_type_qs = staff_instances.filter(employee_type__isnull=False).values_list('employee_type__name', flat=True)
+    # call to set is for uniqueness
+    my_dict['employee_type'] = ", ".join(list(set(employee_type_qs)))
 
-    level_qs = staff_instances.filter(level__isnull=False).values_list('level__name', flat=True).distinct()
-    my_dict['level'] = ", ".join(list(level_qs))
+    level_qs = staff_instances.filter(level__isnull=False).values_list('level__name', flat=True)
+    # call to set is for uniqueness
+    my_dict['level'] = ", ".join(list(set(level_qs)))
 
     my_dict["section"] = ""
     if user.profile.section:
