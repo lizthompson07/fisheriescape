@@ -28,7 +28,8 @@ class TestCommitteeModel(CommonTest):
     @tag("fields", "committee_model_fields")
     def test_fields(self):
         fields_to_check = ['name', 'branch', 'division', 'is_dfo_chair', 'dfo_liaison', 'other_dfo_branch',
-                           'first_nation_participation', 'municipal_participation', 'provincial_participation', 'other_federal_participation',
+                           'first_nation_participation', 'municipal_participation', 'provincial_participation',
+                           'other_federal_participation', 'other_dfo_participants',
                            'meeting_frequency', 'are_tor', 'location_of_tor', 'main_actions', 'comments',
                            'last_modified', 'last_modified_by']
         self.assert_has_fields(models.Committee, fields_to_check)

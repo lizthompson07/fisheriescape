@@ -108,15 +108,20 @@ class Committee(models.Model):
                                         verbose_name=_("Main Topic(s) of discussion"))
     species = models.ManyToManyField(Species, blank=True, related_name="committee_species",
                                      verbose_name=_("Main species of discussion"))
+    lead_region = models.ForeignKey(shared_models.Region, related_name="committee_lead_dfo_region",
+                                    blank=True, null=True, verbose_name=_("Lead DFO region"),
+                                    on_delete=models.DO_NOTHING,
+                                    )
     branch = models.ForeignKey(shared_models.Branch, blank=True, null=True, default=1, on_delete=models.DO_NOTHING,
-                               related_name="committee_branch", verbose_name=_("Lead DFO branch"))
-    area_office = models.ForeignKey(AreaOffice, blank=True, null=True, related_name="committee_area_office",
-                                    on_delete=models.DO_NOTHING, verbose_name=_("Lead Area Office"))
-    area_office_program = models.ForeignKey(AreaOfficeProgram, blank=True, null=True,
-                                            related_name="committee_area_office_program", on_delete=models.DO_NOTHING,
-                                            verbose_name=_("Lead Area Office Program"))
+                               related_name="committee_branch", verbose_name=_("Lead DFO Maritimes Region branch"),
+                               limit_choices_to={"region__name": "Maritimes"})
     division = models.ForeignKey(shared_models.Division, blank=True, null=True, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Division"))
+    area_office = models.ForeignKey(AreaOffice, blank=True, null=True, related_name="committee_area_office",
+                                    on_delete=models.DO_NOTHING, verbose_name=_("Lead Maritimes Region area office"))
+    area_office_program = models.ForeignKey(AreaOfficeProgram, blank=True, null=True,
+                                            related_name="committee_area_office_program", on_delete=models.DO_NOTHING,
+                                            verbose_name=_("Program"))
 
     # leaving this out for now because it may be a redundant filed included in the interactions model
     # role_dfo = models.IntegerField(choices=ROLE_DFO_CHOICES)
@@ -125,27 +130,37 @@ class Committee(models.Model):
 
     external_chair = models.ManyToManyField(ml_models.Person, blank=True, verbose_name=_("External Chair"))
     dfo_liaison = models.ManyToManyField(User, blank=True, related_name="committee_dfo_liaison",
-                                         verbose_name=_("DFO liaison/secretariat"))
+                                         verbose_name=_("DFO Maritimes Region liaison"))
     other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="committee_dfo_branch",
-                                              blank=True, verbose_name=_("Other participating DFO branches")
+                                              blank=True,  limit_choices_to={"region__name": "Maritimes"},
+                                              verbose_name=_("Other participating DFO Maritimes Region branches")
                                               )
     other_dfo_regions = models.ManyToManyField(shared_models.Region, related_name="committee_dfo_region",
-                                               blank=True, verbose_name=_("Other participating DFO regions")
+                                               blank=True, verbose_name=_("Other participating DFO regions"),
+                                               limit_choices_to=~models.Q(name__in=["Maritimes"]),
                                                )
     other_dfo_areas = models.ManyToManyField(AreaOffice, related_name="committee_dfo_area",
-                                             blank=True, verbose_name=_("Other participating DFO area offices")
+                                             blank=True,  verbose_name=_("Other participating DFO Maritimes Region area offices")
                                              )
+    dfo_national_sectors = models.ManyToManyField(shared_models.Sector, related_name="committee_sector",
+                                                  blank=True,
+                                                  verbose_name=_("Participating National Headquarters sectors"),
+                                                  limit_choices_to={"region__name": "National"}
+                                                  )
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=12,
                                    verbose_name="Role of highest level DFO participant")
     first_nation_participation = models.BooleanField(default=False,
                                                      verbose_name=_("Indigenous community/organization participation?"))
-    provincial_participation = models.BooleanField(default=False,
-                                                   verbose_name=_("Local/municipal government participation?"))
     municipal_participation = models.BooleanField(default=False,
+                                                   verbose_name=_("Local/municipal government participation?"))
+    provincial_participation = models.BooleanField(default=False,
                                                    verbose_name=_("Provincial government participation?"))
     other_federal_participation = models.BooleanField(default=False,
                                                    verbose_name=_("Other federal department/agency participation?"))
-    external_contact = models.ManyToManyField(ml_models.Person, verbose_name=_("External Contact(s)"),
+    other_dfo_participants = models.ManyToManyField(User, blank=True, related_name="committee_dfo_participants",
+                                                    verbose_name=_(
+                                                        "Other DFO Maritimes region participants/contributors"))
+    external_contact = models.ManyToManyField(ml_models.Person, verbose_name=_("Other external contact(s)"),
                                               blank=True, related_name="committee_ext_contact")
     external_organization = models.ManyToManyField(ml_models.Organization, verbose_name=_("External Organization(s)"),
                                                    blank=True, related_name="committee_ext_organization")
@@ -184,28 +199,40 @@ class Interaction(models.Model):
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=None,
                                    verbose_name="Role of highest level DFO participant")
     dfo_liaison = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_liaison",
-                                         verbose_name=_("DFO liaison/secretariat"))
+                                         verbose_name=_("DFO Maritimes Region liaison"))
     other_dfo_participants = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_participants",
-                                                    verbose_name=_("Other DFO participants/contributors"))
+                                                    verbose_name=_("Other DFO Maritimes region participants/contributors"))
     branch = models.ForeignKey(shared_models.Branch, blank=True, null=True, default=None, on_delete=models.DO_NOTHING,
-                               related_name="interaction_branch", verbose_name=_("Lead DFO branch"))
+                               related_name="interaction_branch", verbose_name=_("Lead DFO Maritimes branch"),
+                               limit_choices_to={"region__name": "Maritimes"})
     area_office = models.ForeignKey(AreaOffice, blank=True, null=True, related_name="interaction_area_office",
-                                    on_delete=models.DO_NOTHING, verbose_name=_("Lead Area Office"))
+                                    on_delete=models.DO_NOTHING, verbose_name=_("Lead DFO Maritimes Region area office"))
     area_office_program = models.ForeignKey(AreaOfficeProgram, blank=True, null=True,
                                             related_name="interaction_area_office_program", on_delete=models.DO_NOTHING,
-                                            verbose_name=_("Lead Area Office Program"))
+                                            verbose_name=_("Program"))
     division = models.ForeignKey(shared_models.Division, blank=True, null=True, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Division"))
     other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="interaction_dfo_branch",
-                                              blank=True, verbose_name=_("Other participating DFO branches")
+                                              blank=True, limit_choices_to={"region__name": "Maritimes"},
+                                              verbose_name=_("Other participating DFO Maritimes Region branches")
                                               )
+    lead_region = models.ForeignKey(shared_models.Region, related_name="interaction_lead_dfo_region",
+                                    blank=True, null=True, verbose_name=_("Lead DFO region"),
+                                    on_delete=models.DO_NOTHING,
+                                    )
     other_dfo_regions = models.ManyToManyField(shared_models.Region, related_name="interaction_dfo_region",
-                                               blank=True, verbose_name=_("Other participating DFO regions")
+                                               blank=True, verbose_name=_("Other participating DFO regions"),
+                                               limit_choices_to=~models.Q(name__in=["Maritimes"]),
                                                )
+    dfo_national_sectors = models.ManyToManyField(shared_models.Sector, related_name="interaction_sector",
+                                                  blank=True, verbose_name=_("Participating National Headquarters sectors"),
+                                                  limit_choices_to={"region__name": "National"}
+                                                  )
+
     other_dfo_areas = models.ManyToManyField(AreaOffice, related_name="interaction_dfo_area",
-                                             blank=True, verbose_name=_("Other participating DFO area offices")
+                                             blank=True, verbose_name=_("Other participating DFO Maritimes Region area offices")
                                              )
-    external_contact = models.ManyToManyField(ml_models.Person, verbose_name=_("External Contact(s)"),
+    external_contact = models.ManyToManyField(ml_models.Person, verbose_name=_("Other external contact(s)"),
                                               blank=True, related_name="interaction_ext_contact")
     external_organization = models.ManyToManyField(ml_models.Organization, verbose_name=_("External Organization(s)"),
                                                    blank=True, related_name="interaction_ext_organization")
