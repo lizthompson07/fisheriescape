@@ -497,6 +497,7 @@ class CommitteeDetailView(UserRequiredMixin, CommonDetailView):
             'other_dfo_areas',
             'dfo_role',
             'first_nation_participation',
+            'municipal_participation',
             'provincial_participation',
             'other_federal_participation',
             'meeting_frequency',

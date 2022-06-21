@@ -138,8 +138,10 @@ class Committee(models.Model):
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=12,
                                    verbose_name="Role of highest level DFO participant")
     first_nation_participation = models.BooleanField(default=False,
-                                                     verbose_name=_("First Nations/Indigenous group participation?"))
+                                                     verbose_name=_("Indigenous community/organization participation?"))
     provincial_participation = models.BooleanField(default=False,
+                                                   verbose_name=_("Local/municipal government participation?"))
+    municipal_participation = models.BooleanField(default=False,
                                                    verbose_name=_("Provincial government participation?"))
     other_federal_participation = models.BooleanField(default=False,
                                                    verbose_name=_("Other federal department/agency participation?"))
