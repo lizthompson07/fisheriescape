@@ -152,11 +152,11 @@ class Committee(models.Model):
     first_nation_participation = models.BooleanField(default=False,
                                                      verbose_name=_("Indigenous community/organization participation?"))
     municipal_participation = models.BooleanField(default=False,
-                                                   verbose_name=_("Local/municipal government participation?"))
+                                                  verbose_name=_("Local/municipal government participation?"))
     provincial_participation = models.BooleanField(default=False,
                                                    verbose_name=_("Provincial government participation?"))
     other_federal_participation = models.BooleanField(default=False,
-                                                   verbose_name=_("Other federal department/agency participation?"))
+                                                      verbose_name=_("Other federal department/agency participation?"))
     other_dfo_participants = models.ManyToManyField(User, blank=True, related_name="committee_dfo_participants",
                                                     verbose_name=_(
                                                         "Other DFO Maritimes region participants/contributors"))
