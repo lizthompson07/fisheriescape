@@ -192,8 +192,18 @@ class Keyword(models.Model):
     xml_block = models.TextField(blank=True, null=True)
     is_taxonomic = models.BooleanField(default=False)
 
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("text_value_eng"))):
+            my_str = "{}".format(getattr(self, str(_("text_value_eng"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.text_value_eng
+        return my_str
+
     def __str__(self):
-        return self.text_value_eng
+        return self.tname
 
     class Meta:
         ordering = ["keyword_domain", "text_value_eng"]

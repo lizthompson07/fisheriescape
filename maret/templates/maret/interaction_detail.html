@@ -62,15 +62,10 @@
                     <h5 class="card-title"> {% trans "External Organization(s)" %}</h5>
                 </div>
                 <div class="card-body">
-                    <table class="table table-sm ">
-                        <tr>
-                            <th>{% trans 'Name' %}</th>
-                        </tr>
+                    <table class="table table-hover table-sm ">
                         {% for ext_org in object.external_organization.all %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'maret:org_detail' ext_org.id %}">{{ ext_org }}</a>
-                                </td>
+                            <tr href="{% url 'maret:org_detail' ext_org.id %}">
+                                <td>{{ ext_org }}</td>
                             </tr>
                         {% endfor %}
                     </table>

@@ -6,12 +6,14 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q
 from django.dispatch import receiver
+from django.template.defaultfilters import date
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext
 from shapely.geometry import Point
 
+from dm_apps.utils import get_timezone_time
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
@@ -90,7 +92,8 @@ class Species(MetadataFields):
     common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=255, blank=True, null=True, unique=True)
-    tsn = models.IntegerField(blank=False, null=True, verbose_name="ITIS TSN", help_text=_("Integrated Taxonomic Information System (https://www.itis.gov/)"), unique=True)
+    tsn = models.IntegerField(blank=False, null=True, verbose_name="ITIS TSN", help_text=_("Integrated Taxonomic Information System (https://www.itis.gov/)"),
+                              unique=True)
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
     notes = models.TextField(max_length=255, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_spp_created_by')
@@ -119,6 +122,7 @@ class Species(MetadataFields):
     def observation_count(self):
         return self.observations.count()
 
+
 class Electrofisher(SimpleLookup):
     model_number = models.CharField(max_length=255, blank=True, null=True)
     serial_number = models.CharField(max_length=255, blank=True, null=True)
@@ -136,6 +140,7 @@ class Sample(MetadataFields):
     samplers = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     season = models.IntegerField(null=True, blank=True)
+
     # electro
     crew_probe = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (probe)"))
     crew_seine = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (seine)"))
@@ -217,6 +222,21 @@ class Sample(MetadataFields):
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_created_by')
     updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_updated_by')
 
+    # non-editable
+    is_reviewed = models.BooleanField(default=False, editable=False, verbose_name=_("Has been reviewed?"))
+    reviewed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_reviewed_by')
+    reviewed_at = models.DateTimeField(blank=True, null=True, editable=False)
+
+    @property
+    def julian_day(self):
+        return self.arrival_date.timetuple().tm_yday
+
+    @property
+    def reviewed_status(self):
+        if not self.is_reviewed:
+            return gettext("Not reviewed")
+        return gettext("Reviewed by {user} on {time}").format(user=self.reviewed_by, time=date(self.reviewed_at))
+
     @property
     def full_wetted_width(self):
         return self.get_full_wetted_width()
@@ -243,7 +263,6 @@ class Sample(MetadataFields):
         else:
             return statistics.mean([self.bank_length_left, self.bank_length_right]) * statistics.mean(
                 [self.width_lower, self.width_middle, self.width_upper])
-
 
     @property
     def substrate_profile(self):
@@ -346,8 +365,8 @@ class Sample(MetadataFields):
     @property
     def arrival_departure(self):
         return mark_safe(_("{arrival} &rarr; {departure} ({duration})").format(
-            arrival=self.arrival_date.strftime("%Y-%m-%d %H:%M"),
-            departure=self.departure_date.strftime("%Y-%m-%d %H:%M"),
+            arrival=get_timezone_time(self.arrival_date).strftime("%Y-%m-%d %H:%M"),
+            departure=get_timezone_time(self.departure_date).strftime("%Y-%m-%d %H:%M"),
             duration=self.duration,
         ))
 
@@ -475,6 +494,8 @@ class Sex(CodeModel):
 
 class Maturity(CodeModel):
     pass
+
+
 #
 #
 # class Entry(MetadataFields):
@@ -514,14 +535,19 @@ class Observation(MetadataFields):
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
 
-    fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
-    total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
+    # consider deleting
+    fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"), editable=False)
+    total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"), editable=False)
+
+    length = models.FloatField(blank=True, null=True, verbose_name=_("length (mm)"))
+    length_type = models.IntegerField(blank=True, null=True, verbose_name=_("length type"), choices=model_choices.length_type_choices)
+
     weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
     location_tagged = models.CharField(max_length=500, blank=True, null=True)
     tag_number = models.CharField(max_length=12, blank=True, null=True, verbose_name=_("tag number"))
     scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"), unique=True)
     date_tagged = models.DateTimeField(blank=True, null=True, verbose_name="original date tagged")
-    tags_removed = models.CharField(max_length=250, blank=True, null=True)
+    # tags_removed = models.CharField(max_length=250, blank=True, null=True)
 
     # electrofishing only
     fish_size = models.IntegerField(blank=True, null=True, verbose_name=_("fish size"), choices=model_choices.fish_size_choices)
@@ -540,13 +566,26 @@ class Observation(MetadataFields):
     def save(self, *args, **kwargs):
         if self.sweep:
             self.sample = self.sweep.sample
+        if self.length and not self.length_type:
+            self.length_type = 1
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.species)
+        return f"{self.species} ({self.id})"
 
     class Meta:
-        ordering = ["sample__arrival_date", "species", "tag_number"]
+        ordering = ["sample__arrival_date"]
+
+    @property
+    def is_recapture(self):
+        return self.status and self.status.code.lower() in ["rr", "rrl"]
+
+    @property
+    def first_tagging(self):
+        if self.tag_number and self.is_recapture:
+            first_obs_qs = Observation.objects.filter(~Q(id=self.id)).filter(tag_number=self.tag_number)
+            if first_obs_qs.exists():
+                return first_obs_qs.first()
 
 
 def file_directory_path(instance, filename):
@@ -554,10 +593,26 @@ def file_directory_path(instance, filename):
     return 'trapnet/observation_{0}/{1}'.format(instance.observation.id, filename)
 
 
+def sample_file_directory_path(instance, filename):
+    return 'trapnet/sample_{0}/{1}'.format(instance.sample.id, filename)
+
+
 class File(MetadataFields):
     observation = models.ForeignKey(Observation, related_name="files", on_delete=models.CASCADE, editable=False)
     caption = models.CharField(max_length=255)
     image = models.ImageField(upload_to=file_directory_path)
+
+    class Meta:
+        ordering = ['caption']
+
+    def __str__(self):
+        return self.caption
+
+
+class SampleFile(MetadataFields):
+    sample = models.ForeignKey(Sample, related_name="files", on_delete=models.CASCADE, editable=False)
+    caption = models.CharField(max_length=255)
+    file = models.FileField(upload_to=sample_file_directory_path)
 
     class Meta:
         ordering = ['caption']
@@ -593,6 +648,38 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
         return False
 
     new_file = instance.image
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+
+@receiver(models.signals.post_delete, sender=SampleFile)
+def auto_delete_sample_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+
+@receiver(models.signals.pre_save, sender=SampleFile)
+def auto_delete_sample_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = File.objects.get(pk=instance.pk).file
+    except File.DoesNotExist:
+        return False
+
+    new_file = instance.file
     if not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)

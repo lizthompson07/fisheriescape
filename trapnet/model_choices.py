@@ -36,6 +36,11 @@ operating_condition_choices = (
     (3, _("not operational")),
 )
 
+status_choices = (
+    (1, _("unreviewed")),
+    (2, _("reviewed")),
+)
+
 sample_type_choices = (
     (1, _("Rotary Screw Trap")),
     (2, _("Electrofishing")),
@@ -52,13 +57,17 @@ pulse_type_choices = (
     (3, _("Burst of pulses")),
 )
 
-
 fish_size_choices = (
-        (1, _("Fry")),
-        (2, _("Parr")),
-    )
+    (1, _("Fry")),
+    (2, _("Parr")),
+)
 
 age_type_choices = (
     (1, _("scale")),
     (2, _("length-frequency")),
+)
+
+length_type_choices = (
+    (1, "fork"),
+    (2, "total"),
 )

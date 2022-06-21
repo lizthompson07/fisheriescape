@@ -715,6 +715,20 @@ class Staff(GenericCost):
         unique_together = [('project_year', 'user'), ]
 
     @property
+    def description(self):
+        mystr = f"staff name: {self.smart_name}"
+        if self.level:
+            mystr += f" ({self.level})"
+
+        if self.student_program:
+            mystr += f"\nstudent program: {self.get_student_program_display()}"
+
+        if self.overtime_hours:
+            mystr += f"\novertime (hours): {self.overtime_hours}"
+            mystr += f"\novertime description: {self.overtime_description}"
+        return mystr
+
+    @property
     def smart_name(self):
         if self.user or self.name:
             return self.user.get_full_name() if self.user else self.name

@@ -81,7 +81,7 @@
           </select>
         </td>
         <td v-if="p.review">
-          <select @change="updateReview(p)" v-model="p.review.level_status" class="form-control">
+          <select @change="updateReview(p)" v-model="p.review.approval_level" class="form-control">
             <option value selected> -----</option>
             {% for status in approval_level_choices %}
               <option value="{{ status.value }}">{{ status.label }}</option>

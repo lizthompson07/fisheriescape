@@ -463,7 +463,7 @@ class InviteeViewSet(viewsets.ModelViewSet):
         new_chair = meeting.chair
 
         # now for the piece about NCR email
-        if meeting.process.is_posted and hasattr(meeting, "tor") and (old_chair != new_chair):
+        if meeting.is_posted and hasattr(meeting, "tor") and (old_chair != new_chair):
             email = emails.UpdatedMeetingEmail(self.request, meeting, old_chair=old_chair, new_chair=new_chair)
             email.send()
 
@@ -474,7 +474,7 @@ class InviteeViewSet(viewsets.ModelViewSet):
         new_chair = meeting.chair
 
         # now for the piece about NCR email
-        if meeting.process.is_posted and hasattr(meeting, "tor") and (old_chair != new_chair):
+        if meeting.is_posted and hasattr(meeting, "tor") and (old_chair != new_chair):
             email = emails.UpdatedMeetingEmail(self.request, meeting, old_chair=old_chair, new_chair=new_chair)
             email.send()
 

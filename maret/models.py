@@ -123,8 +123,7 @@ class Committee(models.Model):
     is_dfo_chair = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES,
                                        verbose_name=_("Does DFO chair/co-chair"))
 
-    external_chair = models.ForeignKey(ml_models.Person, blank=True, null=True, on_delete=models.DO_NOTHING,
-                                       verbose_name=_("External Chair"))
+    external_chair = models.ManyToManyField(ml_models.Person, blank=True, verbose_name=_("External Chair"))
     dfo_liaison = models.ManyToManyField(User, blank=True, related_name="committee_dfo_liaison",
                                          verbose_name=_("DFO liaison/secretariat"))
     other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="committee_dfo_branch",
@@ -152,7 +151,7 @@ class Committee(models.Model):
     location_of_tor = models.TextField(blank=True, null=True, verbose_name=_("Location of terms of reference"))
     main_actions = models.TextField(default="-----", verbose_name=_("Main actions"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("Comments"))
-    last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
+    last_modified = models.DateTimeField(auto_now=True, blank=True, null=True,
                                          verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          verbose_name=_("last modified by"))
@@ -183,6 +182,24 @@ class Interaction(models.Model):
                                          verbose_name=_("DFO liaison/secretariat"))
     other_dfo_participants = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_participants",
                                                     verbose_name=_("Other DFO participants/contributors"))
+    branch = models.ForeignKey(shared_models.Branch, blank=True, null=True, default=1, on_delete=models.DO_NOTHING,
+                               related_name="interaction_branch", verbose_name=_("Lead DFO branch"))
+    area_office = models.ForeignKey(AreaOffice, blank=True, null=True, related_name="interaction_area_office",
+                                    on_delete=models.DO_NOTHING, verbose_name=_("Lead Area Office"))
+    area_office_program = models.ForeignKey(AreaOfficeProgram, blank=True, null=True,
+                                            related_name="interaction_area_office_program", on_delete=models.DO_NOTHING,
+                                            verbose_name=_("Lead Area Office Program"))
+    division = models.ForeignKey(shared_models.Division, blank=True, null=True, on_delete=models.DO_NOTHING,
+                                 verbose_name=_("Division"))
+    other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="interaction_dfo_branch",
+                                              blank=True, verbose_name=_("Other participating DFO branches")
+                                              )
+    other_dfo_regions = models.ManyToManyField(shared_models.Region, related_name="interaction_dfo_region",
+                                               blank=True, verbose_name=_("Other participating DFO regions")
+                                               )
+    other_dfo_areas = models.ManyToManyField(AreaOffice, related_name="interaction_dfo_area",
+                                             blank=True, verbose_name=_("Other participating DFO area offices")
+                                             )
     external_contact = models.ManyToManyField(ml_models.Person, verbose_name=_("External Contact(s)"),
                                               blank=True, related_name="interaction_ext_contact")
     external_organization = models.ManyToManyField(ml_models.Organization, verbose_name=_("External Organization(s)"),
@@ -195,7 +212,7 @@ class Interaction(models.Model):
                                      verbose_name=_("Main species of discussion"))
     action_items = models.TextField(default="-----", verbose_name=_("Main actions"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("Comments"))
-    last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
+    last_modified = models.DateTimeField(auto_now=True, blank=True, null=True,
                                          verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          verbose_name=_("last modified by"))
