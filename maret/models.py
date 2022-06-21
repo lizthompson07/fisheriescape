@@ -172,6 +172,7 @@ class Interaction(models.Model):
         (6, "Ministerial correspondence"),
         (7, "Deputy Minister correspondence"),
         (8, "Maritimes Region correspondence "),
+        (9, "Conference or workshop "),
     )
 
     description = models.CharField(max_length=255, default="N/A", verbose_name="Short Description")
