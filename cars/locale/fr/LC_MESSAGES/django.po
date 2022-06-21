@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-14 16:15-0300\n"
+"POT-Creation-Date: 2022-06-21 16:13-0300\n"
 "PO-Revision-Date: 2022-06-21 16:08-0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"Last-Translator: \n"
-"Language-Team: \n"
 "X-Generator: Poedit 2.4.2\n"
 "Language: fr\n"
 
@@ -294,7 +294,7 @@ msgstr "Permissions des utilisateurs"
 
 # David - Can we remove the word "help" and just use Resources / FAQ? Thanks
 #: .\cars\templates\cars\faq.html:9
-msgid "Help Resources"
+msgid "Resources"
 msgstr "Ressources"
 
 #: .\cars\templates\cars\faq.html:30
@@ -325,7 +325,7 @@ msgid "Find a Vehicle"
 msgstr "Trouver un véhicule"
 
 #: .\cars\templates\cars\index.html:26
-msgid "Help Resources / FAQ"
+msgid "Resources / FAQ"
 msgstr "Ressources / FAQ"
 
 #: .\cars\templates\cars\index.html:34
