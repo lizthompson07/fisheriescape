@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-21 16:13-0300\n"
+"POT-Creation-Date: 2022-06-22 11:33-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -408,7 +408,7 @@ msgstr "Personne"
 
 #: .\bio_diversity\forms.py:567 .\bio_diversity\forms.py:1154
 #: .\bio_diversity\mixins.py:480 .\bio_diversity\models.py:807
-#: .\bio_diversity\models.py:1967
+#: .\bio_diversity\models.py:1967 .\maret\models.py:124 .\maret\models.py:212
 msgid "Program"
 msgstr ""
 
@@ -1169,8 +1169,8 @@ msgstr ""
 #: .\bio_diversity\models.py:2246 .\bio_diversity\models.py:2279
 #: .\ios2\templates\ios2\_instruments.html:73
 #: .\ios2\templates\ios2\_moorings.html:69
-#: .\ios2\templates\ios2\_services.html:49 .\maret\models.py:153
-#: .\maret\models.py:214
+#: .\ios2\templates\ios2\_services.html:49 .\maret\models.py:172
+#: .\maret\models.py:246
 msgid "Comments"
 msgstr "Commentaires"
 
@@ -1408,18 +1408,18 @@ msgid "From Parent Group"
 msgstr ""
 
 #: .\bio_diversity\models.py:1325 .\cruises\models.py:101
-#: .\maret\models.py:246 .\shared_models\models.py:101
+#: .\maret\models.py:278 .\shared_models\models.py:101
 msgid "English text"
 msgstr "Texte en anglais"
 
 #: .\bio_diversity\models.py:1326 .\cruises\models.py:102
-#: .\maret\models.py:247 .\shared_models\models.py:102
+#: .\maret\models.py:279 .\shared_models\models.py:102
 msgid "French text"
 msgstr "Texte en français"
 
 #: .\bio_diversity\models.py:1331 .\bio_diversity\models.py:1332
-#: .\cruises\models.py:106 .\cruises\models.py:107 .\maret\models.py:251
-#: .\maret\models.py:252 .\shared_models\models.py:106
+#: .\cruises\models.py:106 .\cruises\models.py:107 .\maret\models.py:283
+#: .\maret\models.py:284 .\shared_models\models.py:106
 #: .\shared_models\models.py:107
 msgid "eng_text"
 msgstr "fra_text"
@@ -3982,7 +3982,7 @@ msgstr ""
 msgid "Search organizations (name, province, etc...)"
 msgstr ""
 
-#: .\maret\filters.py:139 .\maret\forms.py:91
+#: .\maret\filters.py:139 .\maret\forms.py:99
 #: .\maret\templates\maret\organization_detail.html:90
 msgid "Area(s)"
 msgstr ""
@@ -4010,46 +4010,46 @@ msgstr ""
 msgid "Click to select a date.."
 msgstr ""
 
-#: .\maret\forms.py:53
+#: .\maret\forms.py:55
 msgid "DFO liaison/secretariat is required"
 msgstr ""
 
-#: .\maret\forms.py:89 .\maret\templates\maret\organization_detail.html:99
+#: .\maret\forms.py:97 .\maret\templates\maret\organization_detail.html:99
 msgid "Associated Province(s)"
 msgstr ""
 
-#: .\maret\forms.py:90 .\maret\templates\maret\organization_detail.html:62
+#: .\maret\forms.py:98 .\maret\templates\maret\organization_detail.html:62
 #, fuzzy
 #| msgid "category"
 msgid "Categories"
 msgstr "catégorie"
 
-#: .\maret\forms.py:92
+#: .\maret\forms.py:100
 #, fuzzy
 #| msgid "Email"
 msgid "E-mail"
 msgstr "Courriel"
 
-#: .\maret\forms.py:93 .\maret\forms.py:167
+#: .\maret\forms.py:101 .\maret\forms.py:175
 msgid "Committees/Working Groups"
 msgstr ""
 
-#: .\maret\forms.py:151
+#: .\maret\forms.py:159
 msgid "Select a contact"
 msgstr ""
 
-#: .\maret\forms.py:161
+#: .\maret\forms.py:169
 msgid "Person is required."
 msgstr ""
 
-#: .\maret\forms.py:166 .\maret\templates\maret\_members.html:26
+#: .\maret\forms.py:174 .\maret\templates\maret\_members.html:26
 #: .\maret\templates\maret\person_detail.html:48
 #, fuzzy
 #| msgid "Project"
 msgid "Role"
 msgstr "Projet"
 
-#: .\maret\forms.py:182
+#: .\maret\forms.py:190
 #, fuzzy
 msgid "Organization Membership"
 msgstr "Organisations"
@@ -4062,31 +4062,24 @@ msgstr ""
 msgid "Name of committee/Working Group"
 msgstr ""
 
-#: .\maret\models.py:108 .\maret\models.py:210
+#: .\maret\models.py:108 .\maret\models.py:242
 msgid "Main Topic(s) of discussion"
 msgstr ""
 
-#: .\maret\models.py:110 .\maret\models.py:212
+#: .\maret\models.py:110 .\maret\models.py:244
 msgid "Main species of discussion"
 msgstr ""
 
-#: .\maret\models.py:112 .\maret\models.py:186
-msgid "Lead DFO branch"
+#: .\maret\models.py:112 .\maret\models.py:220
+#, fuzzy
+msgid "Lead DFO region"
+msgstr "Secteurs du MPO"
+
+#: .\maret\models.py:116
+msgid "Lead DFO Maritimes Region branch"
 msgstr ""
 
-#: .\maret\models.py:114 .\maret\models.py:188
-#, fuzzy
-#| msgid "All Species "
-msgid "Lead Area Office"
-msgstr "Toutes les espèces "
-
-#: .\maret\models.py:117 .\maret\models.py:191
-#, fuzzy
-#| msgid "All Species "
-msgid "Lead Area Office Program"
-msgstr "Toutes les espèces "
-
-#: .\maret\models.py:119 .\maret\models.py:193
+#: .\maret\models.py:119 .\maret\models.py:214
 #: .\publications\templates\publications\pub_detail.html:60
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:80
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:95
@@ -4094,73 +4087,93 @@ msgstr "Toutes les espèces "
 msgid "Division"
 msgstr "Division"
 
-#: .\maret\models.py:124
+#: .\maret\models.py:121
+msgid "Lead Maritimes Region area office"
+msgstr ""
+
+#: .\maret\models.py:129
 msgid "Does DFO chair/co-chair"
 msgstr ""
 
-#: .\maret\models.py:126
+#: .\maret\models.py:131
 #, fuzzy
 #| msgid "External Links"
 msgid "External Chair"
 msgstr "Liens externes"
 
-#: .\maret\models.py:128 .\maret\models.py:182
-msgid "DFO liaison/secretariat"
+#: .\maret\models.py:133 .\maret\models.py:202
+msgid "DFO Maritimes Region liaison"
 msgstr ""
 
-#: .\maret\models.py:130 .\maret\models.py:195
-msgid "Other participating DFO branches"
+#: .\maret\models.py:136 .\maret\models.py:217
+msgid "Other participating DFO Maritimes Region branches"
 msgstr ""
 
-#: .\maret\models.py:133 .\maret\models.py:198
+#: .\maret\models.py:139 .\maret\models.py:224
 msgid "Other participating DFO regions"
 msgstr ""
 
-#: .\maret\models.py:136 .\maret\models.py:201
-msgid "Other participating DFO area offices"
+#: .\maret\models.py:143 .\maret\models.py:233
+msgid "Other participating DFO Maritimes Region area offices"
 msgstr ""
 
-#: .\maret\models.py:141
-msgid "First Nations/Indigenous group participation?"
+#: .\maret\models.py:147 .\maret\models.py:228
+msgid "Participating National Headquarters sectors"
 msgstr ""
 
-#: .\maret\models.py:143
+#: .\maret\models.py:153
+msgid "Indigenous community/organization participation?"
+msgstr ""
+
+#: .\maret\models.py:155
+msgid "Local/municipal government participation?"
+msgstr ""
+
+#: .\maret\models.py:157
 msgid "Provincial government participation?"
 msgstr ""
 
-#: .\maret\models.py:144 .\maret\models.py:203
+#: .\maret\models.py:159
+msgid "Other federal department/agency participation?"
+msgstr ""
+
+#: .\maret\models.py:162 .\maret\models.py:204
+msgid "Other DFO Maritimes region participants/contributors"
+msgstr ""
+
+#: .\maret\models.py:163 .\maret\models.py:235
 #, fuzzy
 #| msgid "External Links"
-msgid "External Contact(s)"
+msgid "Other external contact(s)"
 msgstr "Liens externes"
 
-#: .\maret\models.py:146 .\maret\models.py:205
+#: .\maret\models.py:165 .\maret\models.py:237
 #: .\maret\templates\maret\committee_detail.html:63
 #: .\maret\templates\maret\interaction_detail.html:62
 #, fuzzy
 msgid "External Organization(s)"
 msgstr "Organisations"
 
-#: .\maret\models.py:148
+#: .\maret\models.py:167
 #, fuzzy
 msgid "Meeting frequency"
 msgstr "description (ang)"
 
-#: .\maret\models.py:150
+#: .\maret\models.py:169
 msgid "Are there terms of reference?"
 msgstr ""
 
-#: .\maret\models.py:151
+#: .\maret\models.py:170
 msgid "Location of terms of reference"
 msgstr ""
 
-#: .\maret\models.py:152 .\maret\models.py:213
+#: .\maret\models.py:171 .\maret\models.py:245
 #, fuzzy
 #| msgid "Transactions"
 msgid "Main actions"
 msgstr "Transactions"
 
-#: .\maret\models.py:155 .\maret\models.py:216 .\sar_search\models.py:225
+#: .\maret\models.py:174 .\maret\models.py:248 .\sar_search\models.py:225
 #: .\sar_search\models.py:327 .\shared_models\models.py:191
 #: .\shared_models\models.py:217 .\shared_models\models.py:248
 #: .\shared_models\models.py:292 .\shared_models\models.py:328
@@ -4168,7 +4181,7 @@ msgstr "Transactions"
 msgid "date last modified"
 msgstr "date de dernière modification"
 
-#: .\maret\models.py:157 .\maret\models.py:218 .\sar_search\models.py:226
+#: .\maret\models.py:176 .\maret\models.py:250 .\sar_search\models.py:226
 #: .\sar_search\models.py:328 .\shared_models\models.py:192
 #: .\shared_models\models.py:218 .\shared_models\models.py:249
 #: .\shared_models\models.py:293 .\shared_models\models.py:329
@@ -4176,17 +4189,21 @@ msgstr "date de dernière modification"
 msgid "last modified by"
 msgstr "dernièrement modifié par"
 
-#: .\maret\models.py:184
-msgid "Other DFO participants/contributors"
+#: .\maret\models.py:206
+msgid "Lead DFO Maritimes branch"
 msgstr ""
 
-#: .\maret\models.py:208
+#: .\maret\models.py:209
+msgid "Lead DFO Maritimes Region area office"
+msgstr ""
+
+#: .\maret\models.py:240
 #, fuzzy
 #| msgid "Location"
 msgid "Date of Interaction"
 msgstr "Location"
 
-#: .\maret\models.py:236
+#: .\maret\models.py:268
 msgid "Committee / Working Group Membership"
 msgstr ""
 
@@ -4280,8 +4297,8 @@ msgid "Last modified"
 msgstr "dernière modification"
 
 #: .\maret\templates\maret\_members.html:32 .\maret\views.py:236
-#: .\maret\views.py:301 .\maret\views.py:697 .\maret\views.py:765
-#: .\maret\views.py:876 .\maret\views.py:898 .\maret\views.py:911
+#: .\maret\views.py:301 .\maret\views.py:704 .\maret\views.py:772
+#: .\maret\views.py:883 .\maret\views.py:905 .\maret\views.py:918
 msgid "This record can only be modified through iHub"
 msgstr ""
 
@@ -4294,7 +4311,8 @@ msgid "Main"
 msgstr ""
 
 #: .\maret\templates\maret\base\_nav_left_auth.html:14
-#: .\maret\templates\maret\index.html:27 .\maret\views.py:377
+#: .\maret\templates\maret\index.html:27
+#: .\maret\templates\maret\person_detail.html:111 .\maret\views.py:377
 #, fuzzy
 #| msgid "Settings"
 msgid "Interactions"
@@ -4308,8 +4326,8 @@ msgid "Committees"
 msgstr "Commentaires"
 
 #: .\maret\templates\maret\base\_nav_left_auth.html:20
-#: .\maret\templates\maret\index.html:29 .\maret\views.py:582
-#: .\maret\views.py:652 .\maret\views.py:666 .\maret\views.py:756
+#: .\maret\templates\maret\index.html:29 .\maret\views.py:588
+#: .\maret\views.py:658 .\maret\views.py:672 .\maret\views.py:763
 #, fuzzy
 msgid "Organizations"
 msgstr "Organisations"
@@ -4322,24 +4340,24 @@ msgstr "Organisations"
 msgid "Contacts"
 msgstr "Contacts du MPO"
 
-#: .\maret\templates\maret\base\_nav_left_auth.html:36 .\maret\views.py:952
+#: .\maret\templates\maret\base\_nav_left_auth.html:36 .\maret\views.py:959
 #, fuzzy
 #| msgid "All Species "
 msgid "Manage Area Offices"
 msgstr "Toutes les espèces "
 
-#: .\maret\templates\maret\base\_nav_left_auth.html:39 .\maret\views.py:959
+#: .\maret\templates\maret\base\_nav_left_auth.html:39 .\maret\views.py:966
 #, fuzzy
 #| msgid "All Species "
 msgid "Manage Area Office Programs"
 msgstr "Toutes les espèces "
 
-#: .\maret\templates\maret\base\_nav_left_auth.html:42 .\maret\views.py:938
+#: .\maret\templates\maret\base\_nav_left_auth.html:42 .\maret\views.py:945
 #, fuzzy
 msgid "Manage Organization Categories"
 msgstr "Organisations"
 
-#: .\maret\templates\maret\base\_nav_left_auth.html:45 .\maret\views.py:931
+#: .\maret\templates\maret\base\_nav_left_auth.html:45 .\maret\views.py:938
 #, fuzzy
 #| msgid "All Species "
 msgid "Manage Species"
@@ -4621,31 +4639,31 @@ msgstr "Section"
 msgid "New Interaction"
 msgstr "Location"
 
-#: .\maret\views.py:415
+#: .\maret\views.py:417
 msgid "Committee"
 msgstr ""
 
-#: .\maret\views.py:427 .\maret\views.py:458 .\maret\views.py:460
-#: .\maret\views.py:479 .\maret\views.py:518 .\maret\views.py:531
-#: .\maret\views.py:533
+#: .\maret\views.py:429 .\maret\views.py:460 .\maret\views.py:462
+#: .\maret\views.py:481 .\maret\views.py:524 .\maret\views.py:537
+#: .\maret\views.py:539
 msgid "Committees / Working Groups"
 msgstr ""
 
-#: .\maret\views.py:584
+#: .\maret\views.py:590
 #, fuzzy
 msgid "New Organization"
 msgstr "Organisations"
 
-#: .\maret\views.py:864
+#: .\maret\views.py:871
 #, fuzzy
 msgid "New Organization Member"
 msgstr "Organisations"
 
-#: .\maret\views.py:923
+#: .\maret\views.py:930
 msgid "Manage Discussion Topics"
 msgstr ""
 
-#: .\maret\views.py:945
+#: .\maret\views.py:952
 #, fuzzy
 #| msgid "All Species "
 msgid "Manage Areas"
@@ -6208,6 +6226,16 @@ msgstr "développement"
 #: .\templates\index_OLD.html:133
 msgid "Region Specific Applications"
 msgstr ""
+
+#, fuzzy
+#~| msgid "All Species "
+#~ msgid "Lead Area Office"
+#~ msgstr "Toutes les espèces "
+
+#, fuzzy
+#~| msgid "All Species "
+#~ msgid "Lead Area Office Program"
+#~ msgstr "Toutes les espèces "
 
 #, fuzzy
 #~| msgid "Metadata Inventory"

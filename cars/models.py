@@ -16,8 +16,7 @@ YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
 
 class CarsUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="cars_user", verbose_name=_("DM Apps user"))
-    region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="cars_users", on_delete=models.CASCADE, blank=True,
-                               null=True)
+    region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="cars_users", on_delete=models.CASCADE, blank=True, null=True)
     is_admin = models.BooleanField(default=False, verbose_name=_("app administrator?"), choices=YES_NO_CHOICES)
 
     def __str__(self):
@@ -93,9 +92,9 @@ def img_file_name(instance, filename):
 
 
 class Vehicle(MetadataFields):
-    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="vehicles")
-    custodian = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="vehicles")
-    vehicle_type = models.ForeignKey(VehicleType, on_delete=models.DO_NOTHING, related_name="vehicles")
+    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="vehicles", verbose_name=_("location"))
+    custodian = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="vehicles", verbose_name=_("custodian"))
+    vehicle_type = models.ForeignKey(VehicleType, on_delete=models.DO_NOTHING, related_name="vehicles", verbose_name=_("vehicle type"))
     reference_number = models.CharField(max_length=50, verbose_name=_("reference number"), unique=True)
     make = models.CharField(max_length=255, verbose_name=_("make"))
     model = models.CharField(max_length=255, verbose_name=_("model"))

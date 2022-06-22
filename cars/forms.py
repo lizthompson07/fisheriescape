@@ -61,14 +61,14 @@ class ReservationForm(forms.ModelForm):
             del self.fields["box3"]
         else:
             self.fields["box1"].label = mark_safe(
-                "I have signed the <a target='_blank' href='https://forms-formulaires.dfo-mpo.gc.ca/Forms/FP_0024-E.pdf'>Acknowledgement of Motor Vehicle Operator Role and Responsibilities Form</a>.")
-            self.fields["box2"].label = mark_safe("I have signed off on the safe work procedure <a href='#'>Driving a Road Vehicle</a>.")
-            self.fields["box3"].label = "I have my manager's authorization to proceed."
+                gettext("I have signed the <a target='_blank' href='{url}'>Acknowledgement of Motor Vehicle Operator Role and Responsibilities Form</a>.").format(url="https://forms-formulaires.dfo-mpo.gc.ca/Forms/FP_0024-E.pdf"))
+            self.fields["box2"].label = mark_safe(gettext("I have signed off on the safe work procedure <a href='{url}'>Driving a Road Vehicle</a>.").format(url="#"))
+            self.fields["box3"].label = gettext("I have my manager's authorization to proceed.")
 
     def clean_primary_driver(self):
         primary_driver = self.cleaned_data['primary_driver']
         if not primary_driver:
-            raise forms.ValidationError("You must select a primary driver!")
+            raise forms.ValidationError(gettext("You must select a primary driver!"))
         return primary_driver
 
     def clean(self):

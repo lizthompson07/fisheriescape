@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-21 16:13-0300\n"
+"POT-Creation-Date: 2022-06-22 11:33-0300\n"
 "PO-Revision-Date: 2022-06-21 16:08-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Generator: Poedit 2.4.2\n"
 "Language: fr\n"
 
-#: .\cars\emails.py:19 .\cars\views.py:420
+#: .\cars\emails.py:19 .\cars\models.py:96 .\cars\views.py:420
 msgid "custodian"
 msgstr "gardien de véhicules"
 
@@ -49,6 +49,26 @@ msgstr "Recherche"
 #: .\cars\forms.py:12
 msgid "Click to select a range of dates.."
 msgstr "Cliquez pour sélectionner une intervalle de dates.."
+
+#: .\cars\forms.py:64
+msgid ""
+"I have signed the <a target='_blank' href='{url}'>Acknowledgement of Motor "
+"Vehicle Operator Role and Responsibilities Form</a>."
+msgstr ""
+
+#: .\cars\forms.py:65
+msgid ""
+"I have signed off on the safe work procedure <a href='{url}'>Driving a Road "
+"Vehicle</a>."
+msgstr ""
+
+#: .\cars\forms.py:66
+msgid "I have my manager's authorization to proceed."
+msgstr ""
+
+#: .\cars\forms.py:71
+msgid "You must select a primary driver!"
+msgstr ""
 
 #: .\cars\forms.py:93
 msgid "Sorry, the time requested overlaps with another approved reservation."
@@ -95,146 +115,156 @@ msgstr "Utilisateur de Applis GD"
 msgid "regional administrator?"
 msgstr "administrateur régional ?"
 
-#: .\cars\models.py:21
+#: .\cars\models.py:20
 msgid "app administrator?"
 msgstr "administrateur de l'application ?"
 
-#: .\cars\models.py:36
+#: .\cars\models.py:35
 msgid "address"
 msgstr "adresse"
 
-#: .\cars\models.py:37
+#: .\cars\models.py:36
 msgid "city"
 msgstr "ville"
 
-#: .\cars\models.py:38 .\cars\models.py:39
+#: .\cars\models.py:37 .\cars\models.py:38
 msgid "postal code"
 msgstr "code postale"
 
-#: .\cars\models.py:48
+#: .\cars\models.py:47
 msgid "View map"
 msgstr "Voir la carte"
 
-#: .\cars\models.py:99
+#: .\cars\models.py:95 .\cars\views.py:262
+msgid "location"
+msgstr "emplacement"
+
+#: .\cars\models.py:97
+#, fuzzy
+#| msgid "Vehicle type"
+msgid "vehicle type"
+msgstr "Type de véhicule"
+
+#: .\cars\models.py:98
 msgid "reference number"
 msgstr "numéro de référence"
 
-#: .\cars\models.py:100
+#: .\cars\models.py:99
 msgid "make"
 msgstr "marque"
 
-#: .\cars\models.py:101
+#: .\cars\models.py:100
 msgid "model"
 msgstr "modèle"
 
-#: .\cars\models.py:102
+#: .\cars\models.py:101
 msgid "year"
 msgstr "année"
 
-#: .\cars\models.py:103
+#: .\cars\models.py:102
 msgid "max passengers"
 msgstr "passagers max"
 
-#: .\cars\models.py:104
+#: .\cars\models.py:103
 msgid "is in commission?"
 msgstr "est en service ?"
 
-#: .\cars\models.py:105
+#: .\cars\models.py:104
 msgid ""
 "Vehicles that are not in commission will not show up in the reservation list"
 msgstr ""
 "Les véhicules qui ne sont pas en service n'apparaîtront pas dans la liste "
 "des réservations"
 
-#: .\cars\models.py:106
+#: .\cars\models.py:105
 msgid "comments"
 msgstr "commentaires"
 
-#: .\cars\models.py:107
+#: .\cars\models.py:106
 msgid "thumbnail"
 msgstr "vignette"
 
-#: .\cars\models.py:134
+#: .\cars\models.py:133
 msgid "vehicle"
 msgstr "véhicule"
 
-#: .\cars\models.py:135
+#: .\cars\models.py:134
 msgid "primary driver"
 msgstr "nom du conducteur"
 
-#: .\cars\models.py:136
+#: .\cars\models.py:135
 msgid "departure date"
 msgstr "date de départ"
 
-#: .\cars\models.py:137
+#: .\cars\models.py:136
 msgid "return date"
 msgstr "date de retour"
 
-#: .\cars\models.py:138
+#: .\cars\models.py:137
 msgid "destination"
 msgstr "destination"
 
-#: .\cars\models.py:139
+#: .\cars\models.py:138
 msgid "other drivers"
 msgstr "autres conducteurs"
 
-#: .\cars\models.py:140
+#: .\cars\models.py:139
 msgid "additional comments"
 msgstr "commentaires supplémentaires"
 
-#: .\cars\models.py:157
+#: .\cars\models.py:156
 msgid "Reservation for {car} by {user}"
 msgstr "Réservation de {car} par {user}"
 
-#: .\cars\models.py:161
+#: .\cars\models.py:160
 msgid "{arrival} &rarr; {departure}"
 msgstr "{arrival} &rarr; {departure}"
 
-#: .\cars\models.py:168
+#: .\cars\models.py:167
 msgid "question (en)"
 msgstr "question (an)"
 
-#: .\cars\models.py:169
+#: .\cars\models.py:168
 msgid "question (fr)"
 msgstr "question (fr)"
 
-#: .\cars\models.py:170
+#: .\cars\models.py:169
 msgid "answer (en)"
 msgstr "réponse (an)"
 
-#: .\cars\models.py:171
+#: .\cars\models.py:170
 msgid "answer (fr)"
 msgstr "réponse (fr)"
 
-#: .\cars\models.py:174 .\cars\models.py:179 .\cars\models.py:180
+#: .\cars\models.py:173 .\cars\models.py:178 .\cars\models.py:179
 msgid "question_en"
 msgstr "question_fr"
 
-#: .\cars\models.py:189 .\cars\models.py:190
+#: .\cars\models.py:188 .\cars\models.py:189
 msgid "answer_en"
 msgstr "answer_fr"
 
-#: .\cars\models.py:203
+#: .\cars\models.py:202
 msgid "url (English)"
 msgstr "url (anglais)"
 
-#: .\cars\models.py:204
+#: .\cars\models.py:203
 msgid "url (French)"
 msgstr "url (français)"
 
-#: .\cars\models.py:205
+#: .\cars\models.py:204
 msgid "file attachment (English)"
 msgstr "pièce jointe (anglais)"
 
-#: .\cars\models.py:206
+#: .\cars\models.py:205
 msgid "file attachment (French)"
 msgstr "pièce jointe (français)"
 
-#: .\cars\models.py:213 .\cars\models.py:214
+#: .\cars\models.py:212 .\cars\models.py:213
 msgid "file_en"
 msgstr "file_fr"
 
-#: .\cars\models.py:222 .\cars\models.py:223
+#: .\cars\models.py:221 .\cars\models.py:222
 msgid "url_en"
 msgstr "url_fr"
 
@@ -503,10 +533,6 @@ msgstr "Vos résultats de recherche"
 #: .\cars\views.py:261
 msgid "region"
 msgstr "région"
-
-#: .\cars\views.py:262
-msgid "location"
-msgstr "emplacement"
 
 #: .\cars\views.py:296
 msgid "Vehicle Calendar"
