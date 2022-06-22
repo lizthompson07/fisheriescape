@@ -69,10 +69,21 @@ class PostingRequestEmail(Email):
 
 class SoMPEmail(Email):
     email_template_path = 'csas2/emails/somp.html'
-    subject_en = 'The SoMP for a meeting has been posted'
+
+    def get_subject_en(self):
+        if self.instance.is_somp_submitted:
+            msg = 'The SoMP for a meeting has been re-confirm'
+        else:
+            msg = 'The SoMP for a meeting has been confirmed'
+        return msg
 
     def get_recipient_list(self):
-        return [csas_generic_email]
+        payload = [csas_generic_email]
+        payload.extend(self.instance.process.lead_office.all_emails)
+        for doc in self.instance.process.documents.all():
+            if doc.lead_office:
+                payload.extend(doc.lead_office.all_emails)
+        return list(set(payload))
 
 
 class NewRequestEmail(Email):
@@ -165,14 +176,12 @@ class ToRChangesRequestedEmail(Email):
         return self.instance.tor.process.editor_email_list
 
 
-
 class ToRPostingRequestEmail(Email):
     email_template_path = 'csas2/emails/tor_posting_request.html'
     subject_en = 'New request to post ToR !!'
 
     def get_recipient_list(self):
         return [csas_generic_email]
-
 
 
 class ToRReviewCompleteEmail(Email):

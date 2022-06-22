@@ -243,3 +243,12 @@ def text_wrap(text, width=70):
     https://github.com/xhtml2pdf/xhtml2pdf/issues/379
     """
     return ' '.join(wrap(text, width))
+
+
+@register.filter
+def get_timezone_time(dt):
+    try:
+        from dm_apps.utils import get_timezone_time
+        return get_timezone_time(dt)
+    except:
+        return dt

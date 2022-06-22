@@ -79,7 +79,7 @@ def get_verbose_label(instance, field_name, crop_html=False):
 
 @register.simple_tag
 def get_field_value(instance, field_name, format=None, display_time=False, hyperlink=None, nullmark="---", date_format="%Y-%m-%d",
-                    safe=False):
+                    safe=False, to_html=False):
     """
     :param instance: an instance of a model
     :param field_name: string of a field name, property name etc.
@@ -189,11 +189,15 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
             field_value = mark_safe(field_value) if safe else field_value
     except UnboundLocalError:
         field_value = nullmark
+
+    if to_html:
+        field_value = tohtml(field_value)
+
     return field_value
 
 
 @register.simple_tag
-def verbose_field_display(instance, field_name, format=None, display_time=False, hyperlink=None, date_format=None):
+def verbose_field_display(instance, field_name, format=None, display_time=False, hyperlink=None, date_format=None, to_html=False):
     """
     Returns a standard display block for a field based on the verbose fieldname
     """
@@ -205,10 +209,10 @@ def verbose_field_display(instance, field_name, format=None, display_time=False,
     field_value = get_field_value(instance, field_name, format=format, display_time=display_time, date_format=date_format,
                                   hyperlink=hyperlink)
 
-    # if url and field_value != "n/a":
-    #     html_block = '<p><span class="label">{}:</span><br><a href="{}">{}</a></p>'.format(verbose_name, url, field_value)
-    # else:
-    html_block = '<p><span class="label">{}:</span><br>{}</p>'.format(verbose_name, field_value)
+    if to_html:
+        field_value = tohtml(field_value)
+
+    html_block = f'<p><span class="label">{verbose_name}:</span><br>{field_value}</p>'
 
     return SafeString(html_block)
 

@@ -426,6 +426,7 @@ class EntryDetailView(SiteLoginRequiredMixin, CommonDetailView):
             'organizations',
             'status',
             'is_faa_required',
+            'is_faa_issued',
             'sectors',
             'entry_type',
             'initial_date',

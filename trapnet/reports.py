@@ -116,7 +116,7 @@ def generate_obs_csv_v1(qs):
     """Returns a generator for an HTTP Streaming Response"""
     random_obj = models.Observation.objects.first()
     header_row = [
-        "River",
+        "Site",
         "Year",
         "Month",
         "Day",
@@ -161,7 +161,7 @@ def generate_obs_csv_v1(qs):
                 days_after_rt = "cannot find record of first tagging"
 
         data_row = [
-            obj.sample.site.river,
+            obj.sample.site,
             obj.sample.arrival_date.year,
             obj.sample.arrival_date.month,
             obj.sample.arrival_date.day,
@@ -171,8 +171,8 @@ def generate_obs_csv_v1(qs):
             nz(obj.tag_number, "NA"),
             obj.status.code if obj.status else "NA",
             obj.origin.code if obj.origin else "NA",
-            obj.length if obj.length_type == 1 else "NA",
-            obj.length if obj.length_type == 2 else "NA",
+            obj.fork_length if obj.fork_length else "NA",
+            obj.total_length if obj.total_length else "NA",
             nz(obj.weight, "NA"),
             obj.sex.code if obj.sex else "NA",
             nz(obj.river_age, "NA"),
@@ -276,8 +276,8 @@ def generate_entry_report(year, sites):
         'weight',
         'sex',
         'smolt_age',
-        'location_tagged',
-        'date_tagged',
+        # 'location_tagged',
+        # 'date_tagged',
         'scale_id_number',
         'notes',
     ])
@@ -302,8 +302,8 @@ def generate_entry_report(year, sites):
                 entry.weight,
                 entry.sex,
                 entry.smolt_age,
-                entry.location_tagged,
-                entry.date_tagged,
+                # entry.location_tagged,
+                # entry.date_tagged,
                 entry.scale_id_number,
                 entry.notes,
             ])

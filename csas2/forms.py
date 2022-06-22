@@ -91,7 +91,6 @@ class ToRTimestampUpdateForm(forms.ModelForm):
         }
 
 
-
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
@@ -306,12 +305,6 @@ class MeetingFileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if kwargs.get("instance"):
-            meeting = kwargs.get("instance").meeting
-        else:
-            meeting = get_object_or_404(models.Meeting, pk=kwargs.get("initial").get("meeting"))
-        if meeting.is_planning:
-            del self.fields["is_somp"]
 
 
 class ProcessForm(forms.ModelForm):
@@ -441,10 +434,37 @@ class MeetingForm(forms.ModelForm):
 
     class Meta:
         model = models.Meeting
-        exclude = ["start_date", "end_date", "is_posted"]
+        exclude = ["start_date", "end_date", "is_posted", "chair_comments", ]
+
+
+class MeetingSoMPForm(forms.ModelForm):
+    field_order = [
+        "date_range",
+    ]
+    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Confirmed dates of meeting"), required=True)
+
+    class Meta:
+        model = models.Meeting
+        fields = ["has_media_attention", "media_notes", "chair_comments", "is_estimate"]
+        widgets = {
+            "is_estimate": forms.HiddenInput()
+        }
 
 
 class DocumentForm(forms.ModelForm):
+    lead_authors = forms.MultipleChoiceField(
+        help_text=gettext_lazy("Upon submitting this form, these individuals will automatically be added as lead authors to the document"),
+        label=gettext_lazy("Lead authors"),
+        widget=forms.SelectMultiple(attrs=chosen_js),
+        required=False,
+    )
+    other_authors = forms.MultipleChoiceField(
+        help_text=gettext_lazy("Upon submitting this form, these individuals will automatically be added as other authors to the document."),
+        label=gettext_lazy("Other authors"),
+        widget=forms.SelectMultiple(attrs=chosen_js),
+        required=False,
+    )
+
     class Meta:
         model = models.Document
         fields = "__all__"
@@ -459,11 +479,14 @@ class DocumentForm(forms.ModelForm):
         else:
             process = get_object_or_404(models.Process, pk=kwargs.get("initial").get("process"))
         # meeting_choices
-        meeting_choices = [(obj.id, f"{str(obj)}") for obj in process.meetings.all()]
+        meeting_choices = [(obj.id, f"{str(obj)}") for obj in process.meetings.filter(is_planning=False)]
         meeting_choices.insert(0, (None, "-----"))
         self.fields["meetings"].choices = meeting_choices
 
         if not kwargs.get("instance"):
+            person_choices = [(p.id, f"{p} ({p.email})") for p in Person.objects.all()]
+            self.fields["lead_authors"].choices = person_choices
+            self.fields["other_authors"].choices = person_choices
             del self.fields["year"]
             del self.fields["pages"]
             del self.fields["url_en"]
@@ -476,6 +499,9 @@ class DocumentForm(forms.ModelForm):
             del self.fields["ekme_gcdocs_fr"]
             del self.fields["lib_cat_en"]
             del self.fields["lib_cat_fr"]
+        else:
+            del self.fields["lead_authors"]
+            del self.fields["other_authors"]
 
     def clean_meetings(self):
         meetings = self.cleaned_data['meetings']

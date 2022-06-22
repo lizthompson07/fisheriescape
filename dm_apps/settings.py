@@ -152,6 +152,7 @@ INSTALLED_APPS = [
                      'storages',
                      'django.contrib.humanize',
                      'bootstrap4',
+                     'bootstrap5',
                      'el_pagination',
                      'debug_toolbar',
                      'webpack_loader',

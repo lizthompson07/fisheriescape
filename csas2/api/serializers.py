@@ -233,6 +233,10 @@ class DocumentSerializer(serializers.ModelSerializer):
     coordinator = serializers.SerializerMethodField()
     pub_number_request_date_display = serializers.SerializerMethodField()
     due_date_display = serializers.SerializerMethodField()
+    can_confirm = serializers.SerializerMethodField()
+
+    def get_can_confirm(self, instance):
+        return instance.can_confirm
 
     def get_due_date_display(self, instance):
         if instance.due_date:
@@ -444,6 +448,18 @@ class MeetingSerializer(serializers.ModelSerializer):
     can_post_meeting = serializers.SerializerMethodField()
     posting_request_date_display = serializers.SerializerMethodField()
     posting_notification_date_display = serializers.SerializerMethodField()
+    media_display = serializers.SerializerMethodField()
+    can_submit_somp = serializers.SerializerMethodField()
+    chair_comments_html = serializers.SerializerMethodField()
+
+    def get_chair_comments_html(self, instance):
+        return instance.chair_comments_html
+
+    def get_can_submit_somp(self, instance):
+        return instance.can_submit_somp
+
+    def get_media_display(self, instance):
+        return instance.media_display
 
     def get_posting_notification_date_display(self, instance):
         if instance.posting_notification_date:

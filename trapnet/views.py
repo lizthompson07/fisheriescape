@@ -465,6 +465,10 @@ class SampleUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
         obj.updated_by = self.request.user
         return super().form_valid(form)
 
+    def get_initial(self):
+        obj = self.get_object()
+        if obj.percent_cloud_cover:
+            return dict(percent_cloud_cover=obj.percent_cloud_cover*100)
 
 class SampleCreateView(TrapNetCRUDRequiredMixin, CommonCreateView):
     model = models.Sample
@@ -499,8 +503,8 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
             'life_stage',
             'reproductive_status',
             'origin',
-            'length',
-            'length_type',
+            'fork_length',
+            'total_length',
             'weight',
             'sex',
             'tag_number',
@@ -742,14 +746,12 @@ class ObservationDetailView(TrapNetBasicMixin, CommonDetailView):
         'status',
         'origin',
         'sex',
-        'length',
-        'length_type',
+        'fork_length',
+        'total_length',
         'weight',
         'age_type',
         'river_age',
         'ocean_age',
-        'location_tagged',
-        'date_tagged',
         'tag_number',
         'scale_id_number',
         'notes',
@@ -971,7 +973,6 @@ def export_obs_data_v1(request):
     if sites != "":
         filter_kwargs["sample__site_id__in"] = sites.split(",")
     qs = models.Observation.objects.filter(**filter_kwargs).iterator()
-
 
     filename = "Atlantic salmon individual observation event report ({}).csv".format(now().strftime("%Y-%m-%d"))
     response = StreamingHttpResponse(

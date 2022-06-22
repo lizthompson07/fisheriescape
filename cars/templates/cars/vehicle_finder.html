@@ -1,0 +1,11 @@
+{% extends 'cars/form.html' %}
+{% load verbose_names %}
+{% load i18n %}
+{% load l10n %}
+
+
+{% block title_area %}
+  <div class="mb-3">
+    <h1><span class="mdi mdi-magnify"></span> {{ h1|safe }}</h1>
+  </div>
+{% endblock %}

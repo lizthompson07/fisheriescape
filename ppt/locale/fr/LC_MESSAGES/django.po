@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-25 12:50-0300\n"
+"POT-Creation-Date: 2022-06-22 11:33-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -169,35 +169,35 @@ msgstr "Commencer un examen"
 msgid "send an email update to project leads"
 msgstr "Date de fin du projet"
 
-#: .\ppt\forms.py:862 .\ppt\templates\ppt\explore_projects\_console.html:69
+#: .\ppt\forms.py:864 .\ppt\templates\ppt\explore_projects\_console.html:69
 #: .\ppt\templates\ppt\manage_projects\_console.html:82
 #: .\ppt\templates\ppt\project_detail\_submit.html:15
 msgid "Fiscal Year"
 msgstr "Exercice fiscal"
 
-#: .\ppt\forms.py:863
+#: .\ppt\forms.py:865
 #, fuzzy
 #| msgid "Region"
 msgid "DFO Region"
 msgstr "Région"
 
-#: .\ppt\forms.py:864
+#: .\ppt\forms.py:866
 #, fuzzy
 #| msgid "Division"
 msgid "DFO Division"
 msgstr "Division"
 
-#: .\ppt\forms.py:865
+#: .\ppt\forms.py:867
 #, fuzzy
 #| msgid "Section"
 msgid "DFO Section"
 msgstr "Section"
 
-#: .\ppt\forms.py:903
+#: .\ppt\forms.py:905
 msgid "Enter new publication name here"
 msgstr ""
 
-#: .\ppt\forms.py:959
+#: .\ppt\forms.py:961
 #, fuzzy
 msgid "Clone to which project #?"
 msgstr "Cloner le projet"
@@ -3424,17 +3424,17 @@ msgstr ""
 msgid "Project Planning Reports"
 msgstr "Planification de projets (Science)"
 
-#: .\ppt\views.py:1475 .\ppt\views.py:1518 .\ppt\views.py:1546
+#: .\ppt\views.py:1478 .\ppt\views.py:1521 .\ppt\views.py:1549
 msgid "Warning: There are no lead staff on this project!!"
 msgstr ""
 
-#: .\ppt\views.py:1479 .\ppt\views.py:1499
+#: .\ppt\views.py:1482 .\ppt\views.py:1502
 msgid ""
 "Warning: project lead's profile information is missing in DM Apps (position "
 "title)"
 msgstr ""
 
-#: .\ppt\views.py:1482 .\ppt\views.py:1501
+#: .\ppt\views.py:1485 .\ppt\views.py:1504
 msgid ""
 "Warning: project lead's profile information is missing in DM Apps (phone "
 "number)"

@@ -24,23 +24,14 @@ class ObservationSerializer(serializers.ModelSerializer):
     sex_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     origin_display = serializers.SerializerMethodField()
-    date_tagged_display = serializers.SerializerMethodField()
     life_stage_display = serializers.SerializerMethodField()
     reproductive_status_display = serializers.SerializerMethodField()
-    length_type_display = serializers.SerializerMethodField()
-
-    def get_length_type_display(self, instance):
-        return instance.get_length_type_display()
 
     def get_reproductive_status_display(self, instance):
         return str(instance.reproductive_status) if instance.reproductive_status else None
 
     def get_life_stage_display(self, instance):
         return str(instance.life_stage) if instance.life_stage else None
-
-    def get_date_tagged_display(self, instance):
-        if instance.date_tagged:
-            return instance.date_tagged.strftime("%Y-%m-%d")
 
     def get_origin_display(self, instance):
         return str(instance.origin) if instance.origin else None
@@ -70,14 +61,6 @@ class ObservationSerializer(serializers.ModelSerializer):
         sweep = attrs.get("sweep")
         if not sample and not sweep:
             msg = _('You must supply either a sample or a sweep!')
-            raise ValidationError(msg)
-
-        # make sure if there is a length, that a length type is also given
-        length = attrs.get("length")
-        length_type = attrs.get("length_type")
-
-        if length_type and not length:
-            msg = _('If you supply a length type, you must also supply a length.')
             raise ValidationError(msg)
 
         return attrs

@@ -114,6 +114,10 @@
           </tr>
           <tr>
             <th style="width: 40%">{% trans "Total DFO cost (excluding research scientists)" %}</th>
+            <td>${trip.non_res_total_cost_with_drafts|floatformat}  <span v-if="trip.non_res_total_cost_with_drafts">({% trans "excluding any non-DFO funding" %})</span></td>
+          </tr>
+          <tr>
+            <th style="width: 40%">{% trans "Total Submitted DFO cost (excluding research scientists, excluding drafts)" %}</th>
             <td>${trip.non_res_total_cost|floatformat}  <span v-if="trip.non_res_total_cost">({% trans "excluding any non-DFO funding" %})</span></td>
           </tr>
           <tr>

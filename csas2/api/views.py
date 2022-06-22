@@ -8,7 +8,7 @@ from django.utils.timezone import utc, make_aware
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -302,6 +302,26 @@ class MeetingViewSet(viewsets.ModelViewSet):
             meeting.save()
             msg = _("Success! Your request for a posting has been sent to the National CSAS Office.")
             return Response(msg, status.HTTP_200_OK)
+
+        if qp.get("submit_somp"):
+            can_modify = can_modify_process(request.user, meeting.process.id, True)
+            if not can_modify.get("can_modify"):
+                raise PermissionDenied(can_modify.get("reason"))
+            can_submit = meeting.can_submit_somp
+            if not can_submit["is_allowed"]:
+                raise ValidationError(can_submit["reasons"])
+            # proceed!
+            email = emails.SoMPEmail(self.request, meeting)
+            email.send()
+
+            meeting.is_somp_submitted = True
+            meeting.somp_notification_date = timezone.now()
+            meeting.save()
+
+            # meeting.is_somp_submitted = False
+            # meeting.somp_notification_date = None
+            return Response(serializers.MeetingSerializer(meeting).data, status.HTTP_200_OK)
+
         elif qp.get("toggle_posting"):
             if not utils.in_csas_web_pub_group(self.request.user):
                 raise ValidationError("You must be a CSAS staff member to do this.")
@@ -552,14 +572,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
     def post(self, request, pk):
         qp = request.query_params
         doc = get_object_or_404(models.Document, pk=pk)
-        if qp.get("meeting"):
-            meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
-            if doc.meetings.filter(id=meeting.id).exists():
-                doc.meetings.remove(meeting)
-            else:
-                doc.meetings.add(meeting)
-            return Response(None, status.HTTP_204_NO_CONTENT)
-        elif qp.get("request_pub_number"):
+        if qp.get("request_pub_number"):
             if not doc.pub_number_request_date and not doc.pub_number:
                 email = emails.PublicationNumberRequestEmail(request, doc)
                 email.send()
@@ -568,6 +581,27 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 msg = _("Success! Your request for a publication number has been sent to the National CSAS Office.")
                 return Response(msg, status.HTTP_200_OK)
             raise ValidationError(_("A publication number has already been requested."))
+        elif qp.get("confirm"):
+            # make sure they have permissions needed to confirm
+            can_modify = can_modify_process(request.user, doc.process_id, return_as_dict=True)
+            if not can_modify["can_modify"]:
+                raise PermissionDenied(can_modify["reason"])
+            # make sure doc can be confirmed
+            can_confirm = doc.can_confirm
+            if not can_confirm["can_confirm"]:
+                raise ValidationError(can_confirm["reasons"])
+            # confirm doc
+            doc.is_confirmed = True
+            doc.save()
+            return Response(serializers.DocumentSerializer(doc).data, status.HTTP_200_OK)
+        elif qp.get("unconfirm"):
+            # make sure they have permissions needed to unconfirm
+            if not utils.in_csas_web_pub_group(request.user):
+                raise PermissionDenied(_("You must be a CSAS staff member to do this."))
+            doc.is_confirmed = False
+            doc.save()
+            return Response(serializers.DocumentSerializer(doc).data, status.HTTP_200_OK)
+
         elif qp.get("get_pub_number"):
             if hasattr(doc, "tracking") and doc.tracking.anticipated_posting_date:
                 year = doc.tracking.anticipated_posting_date.year

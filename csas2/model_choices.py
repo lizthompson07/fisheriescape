@@ -162,9 +162,9 @@ note_type_choices = (
 
 
 document_status_dict = (
-    dict(trigger=None, stage="ok", text=_("OK"), value=0),
+    dict(trigger=None, stage="awaiting-changes", text=_("Unconfirmed"), value=0),
+    dict(trigger=None, stage="confirmed", text=_("Confirmed"), value=1),
     ####################
-    dict(trigger=None, stage="preparation", text=_("Tracking initiated"), value=1),
     dict(trigger="submission_date", stage="preparation", text=_("Submitted by author"), value=2),
     ####################
     dict(trigger="date_chair_sent", stage="review", text=_("Under review by chair"), value=3),

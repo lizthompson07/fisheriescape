@@ -48,8 +48,35 @@
       </div>
       <div v-if="canModify" class="mb-3">
         <a class="btn btn-sm btn-warning" href="{% url 'csas2:document_edit' object.id %}">{% trans "Edit" %}</a>
-        <a class="btn btn-sm btn-danger" href="{% url 'csas2:document_delete' object.id %}">{% trans "Delete" %}</a>
-        <button v-if="!document.tracking" class="btn btn-sm btn-dark ml-3" @click="primeTracking">{% trans "Start Tracking" %}</button>
+
+
+        <a v-if="currentUser.is_staff || !document.is_confirmed" class="btn btn-sm btn-danger"
+           href="{% url 'csas2:document_delete' object.id %}">{% trans "Delete" %}</a>
+        <button v-else class="btn btn-sm btn-danger disabled" disabled data-toggle="tooltip"
+                title="{% trans "Confirmed documents can only be deleted by NCR staff members." %}">{% trans "Delete" %}</button>
+
+
+        <button v-if="document.id && !document.tracking" class="btn btn-sm btn-dark ml-3" @click="primeTracking">{% trans "Start Tracking" %}</button>
+
+        <span v-if="document.id && !document.is_confirmed">
+          <button v-if="document.can_confirm.can_confirm" class="btn btn-sm btn-purple" @click="confirmDoc">
+            <span class="mdi mdi-check text-light mr-1"></span> {% trans "Confirm This Document" %}
+          </button>
+          <button v-else class="btn btn-sm btn-secondary" disabled data-toggle="tooltip" :title="document.can_confirm.reasons">
+            <span class="mdi mdi-check text-light mr-1"></span> {% trans "Confirm This Document" %}
+          </button>
+        </span>
+        <span v-else>
+          <button v-if="currentUser.is_staff" class="btn btn-sm btn-dark" @click="unconfirmDoc">
+            <span class="mdi mdi-cancel text-light mr-1"></span> {% trans "Cancel Confirmation" %}
+          </button>
+{#          <button v-else class="btn btn-sm btn-secondary" disabled data-toggle="tooltip"#}
+{#                  :title="'{% trans "Only NCR CSAS staff members can cancel the confirmation status of a document" %}'">#}
+{#            <span class="mdi mdi-cancel text-light mr-1"></span> {% trans "Remove Confirmation" %}#}
+{#          </button>#}
+        </span>
+
+
       </div>
 
       <div class="row mb-5">
@@ -157,7 +184,7 @@
               <td v-else>---</td>
             </tr>
             <tr>
-              <th>{% trans "Linked meetings" %}</th>
+              <th class="text-left" v-html="documentLabels.meetings"></th>
               <td>
                 {% if object.meetings.exists %}
                   {% for obj in object.meetings.all %}
@@ -277,7 +304,6 @@
             this.document.tracking.due_date_display = data.due_date.split("T")[0];
             this.updateTracking({})
           } else {
-            console.log(data)
             this.dueDateError = data[0];
           }
         });
@@ -290,6 +316,27 @@
             console.log(data)
             this.pubNumberConfirmationMsg = data;
             this.getDocument()
+          });
+        }
+      },
+
+      confirmDoc() {
+        let userInput = confirm("{% trans 'Are you certain you want to confirm this document? \n\nOnce it is confirmed, it cannot be deleted.' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/documents/${this.documentId}/?confirm=true`;
+          apiService(endpoint, "POST").then(data => {
+            if (!data.id) alert(groomJSON(data));
+            else this.document = data;
+          });
+        }
+      },
+      unconfirmDoc() {
+        let userInput = confirm("{% trans 'Are you certain you want to cancel the confirmation status of this document?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/documents/${this.documentId}/?unconfirm=true`;
+          apiService(endpoint, "POST").then(data => {
+            if (!data.id) alert(groomJSON(data));
+            else this.document = data;
           });
         }
       },
@@ -324,10 +371,11 @@
           this.notes = data;
         });
       },
-      getAuthors() {
+      getAuthors(refreshDoc = false) {
         let endpoint = `/api/csas/authors/?document=${this.document.id}`;
         apiService(endpoint).then(data => {
           this.authors = data;
+          if (refreshDoc) this.getDocument();
         });
       },
       getDocument(update_notes) {

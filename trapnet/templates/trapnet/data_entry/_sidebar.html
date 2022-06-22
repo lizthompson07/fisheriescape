@@ -120,14 +120,6 @@
             <th><label for="">${labels.tag_number}</label></th>
             <td><input type="text" v-model="observation.tag_number" class="form-control"/></td>
           </tr>
-          <tr v-if="!isElectro">
-            <th><label for="">${labels.location_tagged}</label></th>
-            <td><input type="text" v-model="observation.location_tagged" class="form-control"/></td>
-          </tr>
-          <tr v-if="!isElectro">
-            <th><label for="">${labels.date_tagged} (yyyy-mm-dd)</label></th>
-            <td><input type="text" v-model="observation.date_tagged_display" class="form-control"/></td>
-          </tr>
           <tr>
             <th><label for="">${labels.scale_id_number}</label></th>
             <td><input type="text" v-model="observation.scale_id_number" class="form-control"/></td>

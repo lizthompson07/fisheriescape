@@ -6,9 +6,13 @@
 
 {#{% bootstrap_css %} <!-- loading version 4.1.1 -->#}
 
-
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+{% if bootstrap5 %}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+{% else %}
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+{% endif %}
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/css/medium-editor.min.css" type="text/css" media="screen"
       charset="utf-8">
 
@@ -32,50 +36,46 @@
 {# Special JS library CSS files   #}
 <link rel="stylesheet" href="{% static "js/chosen/chosen.css" %}">
 <link rel="stylesheet" href="{% static "css/MaterialDesign-Webfont-master/css/materialdesignicons.min.css" %}">
-{#<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/6.7.96/css/materialdesignicons.min.css">#}
 
-{#    Medium-editor https://github.com/yabwe/medium-editor#}
-{#<link rel="stylesheet" href="{% static 'js/medium-editor-master/dist/css/medium-editor.min.css' %}">#}
-{#<link rel="stylesheet" href="{% static 'js/medium-editor-master/dist/css/themes/beagle.min.css' %}">#}
-{#    Medium-editor-tables   https://github.com/yabwe/medium-editor#}
-{#<link rel="stylesheet" href="{% static 'js/medium-editor-tables-master/dist/css/medium-editor-tables.min.css' %}">#}
-{#  This one is needed for the buttons in medium-editor-tables #}
 <link rel="stylesheet" href="{% static 'widgEditor_1.0.1/css/widgEditor.css' %}">
 
 <link rel="stylesheet" href="{% static 'lou-multi-select-e052211/css/multi-select.css' %}" media="screen" type="text/css">
 <link rel="stylesheet" href="//cdn.materialdesignicons.com/5.3.45/css/materialdesignicons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 <style>
-    .chosen-container-single .chosen-single {
-        height: 30px;
-        background: -webkit-gradient(linear, left top, left bottom);
-        background: linear-gradient(#ffffff, #ffffff);
-    }
-    .mdi{
-      color: black;
-    }
-    .chosen-container-multi .chosen-choices {
-        border-radius: 5px;
+.chosen-container-single .chosen-single {
+    height: 30px;
+    background: -webkit-gradient(linear, left top, left bottom);
+    background: linear-gradient(#ffffff, #ffffff);
+}
 
-    }
+.mdi {
+    color: black;
+}
 
-    body {
-        padding-top: 45px;
-    }
+.chosen-container-multi .chosen-choices {
+    border-radius: 5px;
 
-    .ms-container {
-        width: 100%;
-    }
+}
 
-    label {
-        font-weight: bold;
-    }
+body {
+    padding-top: 45px;
+}
 
-    table.sortable > thead > tr > th {
-        color: blue;
-        text-decoration: underline;
-        font-weight: normal;
-        cursor: pointer;
-    }
+.ms-container {
+    width: 100%;
+}
+
+label {
+    font-weight: bold;
+}
+
+table.sortable > thead > tr > th {
+    color: blue;
+    text-decoration: underline;
+    font-weight: normal;
+    cursor: pointer;
+}
 
 </style>

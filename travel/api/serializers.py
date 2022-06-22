@@ -589,6 +589,7 @@ class TripSerializer(serializers.ModelSerializer):
     lead = serializers.StringRelatedField()
     metadata = serializers.SerializerMethodField()
     non_res_total_cost = serializers.SerializerMethodField()
+    non_res_total_cost_with_drafts = serializers.SerializerMethodField()
     registration_deadline = serializers.SerializerMethodField()
     requests = TripRequestSerializerLITE(many=True, read_only=True)
     reviewers = TripReviewerSerializer(many=True, read_only=True)
@@ -633,6 +634,9 @@ class TripSerializer(serializers.ModelSerializer):
 
     def get_non_res_total_cost(self, instance):
         return instance.non_res_total_cost
+
+    def get_non_res_total_cost_with_drafts(self, instance):
+        return instance.non_res_total_cost_with_drafts
 
     def get_registration_deadline(self, instance):
         return date(instance.registration_deadline)

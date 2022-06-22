@@ -61,16 +61,18 @@
       {% else %}
         <a class="btn btn-sm btn-danger" href="{% url 'csas2:meeting_delete' object.id %}">{% trans "Delete" %}</a>
       {% endif %}
-      <button @click="openPopout('{% url 'csas2:meeting_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
+
+      <span v-if="meeting.id && !meeting.is_planning">
+        <button v-if="meeting.can_post_meeting.can_post" class="btn btn-sm btn-purple" @click="requestPosting">
+          {% trans "Submit Posting Request" %}
+        </button>
+        <button v-else class="btn btn-sm btn-secondary" disabled data-toggle="tooltip" :title="meeting.can_post_meeting.reasons">
+          {% trans "Submit Posting Request" %}
+        </button>
+      </span>
+
+      <button @click="openPopout('{% url 'csas2:meeting_file_new' object.id %}')" class="btn btn-outline-dark btn-sm">
         <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
-      </button>
-
-
-      <button v-if="meeting.can_post_meeting && meeting.can_post_meeting.can_post" class="btn btn-sm btn-purple" @click="requestPosting">
-        {% trans "Submit Posting Request" %}
-      </button>
-      <button v-else-if="meeting.can_post_meeting" class="btn btn-sm btn-secondary" disabled data-toggle="tooltip" :title="meeting.can_post_meeting.reasons">
-        {% trans "Submit Posting Request" %}
       </button>
 
     </div>
@@ -87,7 +89,8 @@
                 <a href="{% url 'csas2:process_detail' object.process.id %}">${ meeting.process_object.tname }</a>
                 <br>
                 <br>
-                (<a target="_blank" href="{% url 'csas2:tor_dispatch' object.process.id %}">{% trans "View the Terms of Reference" %} <span class="mdi mdi-open-in-new text-primary ml-1"></span></a>)
+                (<a target="_blank" href="{% url 'csas2:tor_dispatch' object.process.id %}">{% trans "View the Terms of Reference" %} <span
+                class="mdi mdi-open-in-new text-primary ml-1"></span></a>)
               </td>
             </tr>
             <tr>
@@ -134,20 +137,7 @@
               <th class="text-left">{% trans "Distinct attendees" %}</th>
               <td class="text-left" v-html="attendeeCount"></td>
             </tr>
-            <tr>
-              <th>{% trans "Linked documents" %}</th>
-              <td>
-                {% if object.documents.exists %}
-                  {% for obj in object.documents.all %}
-                    <div>
-                      <a href="{% url 'csas2:document_detail' obj.id %}">{{ obj }}</a>
-                    </div>
-                  {% endfor %}
-                {% else %}
-                  <em>{% trans "There are no documents linked to this meeting." %}</em>
-                {% endif %}
-              </td>
-            </tr>
+
             <tr>
               <th>
                 {% trans "Files" %}
@@ -170,10 +160,6 @@
                 {% endif %}
               </td>
             </tr>
-            <tr v-if="!meeting.is_planning">
-              <th class="text-left" v-html="meetingLabels.somp_notification_date"></th>
-              <td class="text-left">${meeting.somp_notification_date|nz}</td>
-            </tr>
             <tr>
               <th class="text-left">{% trans "Metadata" %}</th>
               <td class="text-left" v-html="meeting.metadata"></td>
@@ -188,13 +174,16 @@
 
     </div>
 
-
     <div class="mb-5">
       {% include "csas2/meeting_detail/_invitees.html" %}
     </div>
 
     <div class="mb-5">
       {% include "csas2/meeting_detail/_resources.html" %}
+    </div>
+
+    <div v-if="meeting.id && !meeting.is_planning" class="mb-5">
+      {% include "csas2/meeting_detail/_somp.html" %}
     </div>
 
   </div>
@@ -243,8 +232,30 @@
         if (userInput) {
           let endpoint = `/api/csas/meetings/${meetingId}/?request_posting=true`;
           apiService(endpoint, "POST").then(data => {
-            this.getMeeting()
+            this.getMeeting();
           });
+        }
+      },
+      submitSoMP() {
+        let msg;
+        if (this.meeting.is_somp_submitted) {
+          msg = "{% trans 'Do you want to ** re-confirm ** the Summary of Meeting Products (SoMP)?' %}";
+        } else {
+          msg = "{% trans 'Are you sure you want to confirm the Summary of Meeting Products (SoMP)?' %}";
+        }
+        let userInput = confirm(msg);
+        if (userInput) {
+          if (!this.meeting.chair_comments) {
+            msg = "{% trans 'WARNING \n\nNo post-meeting chair comments have been provided. Do you still want to submit the SoMP anyways?' %}";
+            userInput = confirm(msg);
+          }
+          if (userInput) {
+            let endpoint = `/api/csas/meetings/${meetingId}/?submit_somp=true`;
+            apiService(endpoint, "POST").then(data => {
+              if (!data.id) alert(groomJSON(data));
+              else this.getMeeting();
+            });
+          }
         }
       },
 
