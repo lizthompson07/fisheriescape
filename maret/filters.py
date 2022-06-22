@@ -78,7 +78,7 @@ class CommitteeFilter(django_filters.FilterSet):
 
         model = models.Committee
         fields = ['search_term', 'external_organization', 'external_chair_contact', 'branch', 'division', 'area_office',
-                  'area_office_program', 'provincial_participation', 'first_nation_participation', 'other_dfo_branch',
+                  'area_office_program', 'municipal_participation', 'provincial_participation', 'other_federal_participation', 'first_nation_participation', 'other_dfo_branch',
                   'other_dfo_branch', 'other_dfo_areas']
 
     def __init__(self, *args, **kwargs):

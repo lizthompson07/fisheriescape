@@ -41,6 +41,7 @@ var app = new Vue({
     staff: [],
     staff_type_summary: [],
     staff_level_summary: [],
+    staff_funding_summary: [],
     dmas: [],
     financials: [],
     next: null,
@@ -281,6 +282,7 @@ var app = new Vue({
                         this.staff = response.results;
                         this.staff_level_summary = response.level_summary;
                         this.staff_type_summary = response.type_summary;
+                        this.staff_funding_summary = response.funding_summary;
                       })
                 }
               }

@@ -43,7 +43,7 @@
                     <table class="table table-sm">
                         {% for field in field_list %}
                             {% if field == "committee" %}
-                             {% elif field == "phone_1" %}
+                            {% elif field == "phone_1" %}
                                 <tr>
                                     <th class="w-25"> {% trans "Role" %} </th>
                                     <td>
@@ -101,6 +101,20 @@
                         {% for obj in object.committee_ext_contact.all %}
                             <tr href="{% url 'maret:committee_detail' obj.id %}">
                                 <td>{{ obj.name }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            <div class="card entry-card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Interactions" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover table-sm ">
+                        {% for obj in object.interaction_ext_contact.all %}
+                            <tr href="{% url 'maret:interaction_detail' obj.id %}">
+                                <td>{{ obj.description }}, {{ obj.get_interaction_type_display }}: {{obj.date_of_meeting|date:'d F, Y' }} </td>
                             </tr>
                         {% endfor %}
                     </table>
