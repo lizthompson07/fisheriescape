@@ -244,9 +244,27 @@ def get_funding_sources(all=False):
 
 
 def get_user_fte_breakdown(user, fiscal_year_id):
-    staff_instances = models.Staff.objects.filter(user=user, project_year__fiscal_year_id=fiscal_year_id)
+    staff_instances = models.Staff.objects.filter(user=user, project_year__fiscal_year_id=fiscal_year_id)\
+        .select_related("level", "employee_type", "funding_source")
     my_dict = dict()
     my_dict['name'] = f"{user.last_name}, {user.first_name}"
+    employee_type_qs = staff_instances.filter(employee_type__isnull=False).values_list('employee_type__name', flat=True)
+    # call to set is for uniqueness
+    my_dict['employee_type'] = ", ".join(list(set(employee_type_qs)))
+
+    level_qs = staff_instances.filter(level__isnull=False).values_list('level__name', flat=True)
+    # call to set is for uniqueness
+    my_dict['level'] = ", ".join(list(set(level_qs)))
+
+    funding_qs = staff_instances.filter(funding_source__isnull=False)
+    funding_list = [staff.funding_source.__str__() for staff in funding_qs]
+    # call to set is for uniqueness
+    my_dict['funding'] = ", ".join(list(set(funding_list)))
+
+    my_dict["section"] = ""
+    if user.profile.section:
+        my_dict["section"] = "{}, {}".format(user.profile.section.name, str(user.profile.section.head or ''))
+
     my_dict['fiscal_year'] = str(shared_models.FiscalYear.objects.get(pk=fiscal_year_id))
     my_dict['draft'] = nz(staff_instances.filter(
         project_year__status=1
