@@ -111,7 +111,7 @@
         apiService(endpoint)
             .then(response => {
               this.fte_table_loading = false;
-              this.fte_table = response;
+              this.fte_table = response.results;
             })
       },
 
