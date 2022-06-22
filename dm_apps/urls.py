@@ -73,19 +73,19 @@ if settings.INSTALLED_APPS.count("publications"):
     urlpatterns.append(
         path('api/', include('publications.api.urls')),
     )
+
 if settings.INSTALLED_APPS.count("ihub"):
     urlpatterns.append(
         path('api/', include('ihub.api.urls')),
     )
-<<<<<<< HEAD
+
 if settings.INSTALLED_APPS.count("cars"):
     urlpatterns.append(
         path('api/', include('cars.api.urls')),
-=======
+    )
 if settings.INSTALLED_APPS.count("sar_search"):
     urlpatterns.append(
         path('api/', include('sar_search.api.urls')),
->>>>>>> 3a79d6fef2e3f27a28a653b632c9cb34e14f4e1b
     )
 
 urlpatterns += i18n_patterns(
