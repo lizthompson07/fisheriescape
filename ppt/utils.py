@@ -252,17 +252,26 @@ def get_user_fte_breakdown(user, fiscal_year_id, staff_instance_qs=None, fiscal_
     my_dict = dict()
     my_dict['name'] = f"{user.last_name}, {user.first_name}"
     employee_type_qs = staff_instances.filter(employee_type__isnull=False).values_list('employee_type__name', flat=True)
-    # call to set is for uniqueness
-    my_dict['employee_type'] = ", ".join(list(set(employee_type_qs)))
+    if employee_type_qs:
+        # call to set is for uniqueness
+        my_dict['employee_type'] = ", ".join(list(set(employee_type_qs)))
+    else:
+        my_dict['employee_type'] = ""
 
     level_qs = staff_instances.filter(level__isnull=False).values_list('level__name', flat=True)
-    # call to set is for uniqueness
-    my_dict['level'] = ", ".join(list(set(level_qs)))
+    if level_qs:
+        # call to set is for uniqueness
+        my_dict['level'] = ", ".join(list(set(level_qs)))
+    else:
+        my_dict['level'] = ""
 
     funding_qs = staff_instances.filter(funding_source__isnull=False)
     funding_list = [staff.funding_source.__str__() for staff in funding_qs]
     # call to set is for uniqueness
-    my_dict['funding'] = ", ".join(list(set(funding_list)))
+    if funding_list:
+        my_dict['funding'] = ", ".join(list(set(funding_list)))
+    else:
+        my_dict['funding'] = ""
 
     my_dict["section"] = ""
     if user.profile.section:
