@@ -568,5 +568,5 @@ class iHubUserForm(forms.ModelForm):
 iHubUserFormset = modelformset_factory(
     model=models.iHubUser,
     form=iHubUserForm,
-    extra=10,
+    extra=1,
 )
