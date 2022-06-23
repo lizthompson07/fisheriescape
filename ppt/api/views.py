@@ -68,7 +68,10 @@ class FTEBreakdownAPIView(APIView):
                     data.append(get_user_fte_breakdown(my_user, fiscal_year_id=fy.id))
             else:
                 data = get_user_fte_breakdown(my_user, fiscal_year_id=request.query_params.get("year"))
-            return Response(data, status.HTTP_200_OK)
+            response_dict = {
+                'results': data
+            }
+            return Response(response_dict, status.HTTP_200_OK)
         else:
             if not request.query_params.get("year"):
                 return Response({"error": "must supply a fiscal year"}, status.HTTP_400_BAD_REQUEST)
@@ -76,12 +79,19 @@ class FTEBreakdownAPIView(APIView):
             data = list()
             ids = request.query_params.get("ids").split(",")
             year = request.query_params.get("year")
+            fiscal_year = shared_models.FiscalYear.objects.get(pk=year)
             # now we need a user list for any users in the above list
-            users = User.objects.filter(staff_instances2__project_year_id__in=ids).distinct().order_by("last_name")
+            users = User.objects.filter(staff_instances2__project_year_id__in=ids).distinct().order_by("last_name")\
+                .select_related("profile", "profile__section")
 
             for u in users:
-                my_dict = get_user_fte_breakdown(u, fiscal_year_id=year)
-                staff_instances = models.Staff.objects.filter(user=u, project_year__fiscal_year_id=year).distinct()
+                staff_instances = models.Staff.objects.filter(user=u, project_year__fiscal_year_id=year).distinct() \
+                    .select_related("user", "employee_type", "level", "funding_source", "project_year",
+                                    "project_year__project", "project_year__fiscal_year",
+                                    "project_year__project__section")
+                my_dict = get_user_fte_breakdown(u, fiscal_year_id=year, staff_instance_qs=staff_instances,
+                                                 fiscal_year=fiscal_year)
+
                 my_dict["staff_instances"] = serializers.StaffSerializer(staff_instances, many=True).data
                 data.append(my_dict)
 

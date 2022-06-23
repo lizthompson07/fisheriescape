@@ -243,9 +243,12 @@ def get_funding_sources(all=False):
     return [(fs.id, str(fs)) for fs in models.FundingSource.objects.all()]
 
 
-def get_user_fte_breakdown(user, fiscal_year_id):
-    staff_instances = models.Staff.objects.filter(user=user, project_year__fiscal_year_id=fiscal_year_id)\
-        .select_related("level", "employee_type", "funding_source")
+def get_user_fte_breakdown(user, fiscal_year_id, staff_instance_qs=None, fiscal_year=None):
+    if staff_instance_qs:
+        staff_instances = staff_instance_qs
+    else:
+        staff_instances = models.Staff.objects.filter(user=user, project_year__fiscal_year_id=fiscal_year_id)\
+            .select_related("project_year", "level", "employee_type", "funding_source")
     my_dict = dict()
     my_dict['name'] = f"{user.last_name}, {user.first_name}"
     employee_type_qs = staff_instances.filter(employee_type__isnull=False).values_list('employee_type__name', flat=True)
@@ -265,7 +268,10 @@ def get_user_fte_breakdown(user, fiscal_year_id):
     if user.profile.section:
         my_dict["section"] = "{}, {}".format(user.profile.section.name, str(user.profile.section.head or ''))
 
-    my_dict['fiscal_year'] = str(shared_models.FiscalYear.objects.get(pk=fiscal_year_id))
+    if fiscal_year:
+        my_dict['fiscal_year'] = str(fiscal_year)
+    else:
+        my_dict['fiscal_year'] = str(shared_models.FiscalYear.objects.get(pk=fiscal_year_id))
     my_dict['draft'] = nz(staff_instances.filter(
         project_year__status=1
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
