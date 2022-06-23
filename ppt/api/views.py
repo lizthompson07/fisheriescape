@@ -133,12 +133,7 @@ class FTEBreakdownAPIView(APIView):
                 funding_summary = pd.DataFrame(df['funding'].str.split(', ').explode().value_counts())
                 funding_summary = funding_summary.join(funding_df)
                 funding_summary = funding_summary.reset_index().to_dict('records')
-                print(
-                    type(data),
-                type(type_summary),
-                type(level_summary),
-                type(funding_summary),
-                )
+
                 response_dict = {
                     'results': data,
                     'type_summary': type_summary,
