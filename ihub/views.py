@@ -26,7 +26,7 @@ from . import filters
 from . import forms
 from . import models
 from . import reports
-from .mixins import iHubBasicMixin, iHubEditRequiredMixin, iHubAdminRequiredMixin
+from .mixins import iHubBasicMixin, iHubEditRequiredMixin, iHubAdminRequiredMixin, SuperuserOrAdminRequiredMixin
 from .utils import get_date_range_overlap, in_ihub_edit_group, in_ihub_admin_group
 
 
@@ -1244,53 +1244,18 @@ class RelationshipRatingHardDeleteView(iHubAdminRequiredMixin, CommonHardDeleteV
     success_url = reverse_lazy("ihub:manage_ratings")
 
 
-class UserListView(iHubAdminRequiredMixin, CommonFilterView):
-    template_name = "ihub/user_list.html"
-    filterset_class = filters.UserFilter
-
-    def get_queryset(self):
-        queryset = User.objects.order_by("first_name", "last_name").annotate(
-            search_term=Concat('first_name', Value(""), 'last_name', output_field=TextField())
-        )
-
-        if self.kwargs.get("ihub"):
-            queryset = queryset.filter(groups__in=[18, 35])
-
-        return queryset
-
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context["field_list"] = [
-            "first_name",
-            "last_name",
-            "last_login",
-        ]
-        context["my_object"] = User.objects.first()
-        context["admin_group"] = Group.objects.get(pk=18)
-        context["edit_group"] = Group.objects.get(pk=35)
-
-        return context
+class iHubUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
+    template_name = 'ihub/formset.html'
+    h1 = "Manage iHub Users"
+    queryset = models.iHubUser.objects.all()
+    formset_class = forms.iHubUserFormset
+    success_url_name = "ihub:manage_ihub_users"
+    home_url_name = "ihub:index"
+    delete_url_name = "ihub:delete_ihub_user"
+    container_class = "container bg-light curvy"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/?app=ihub')
-def toggle_user(request, pk, type):
-    my_user = User.objects.get(pk=pk)
-    admin_group = Group.objects.get(pk=18)
-    edit_group = Group.objects.get(pk=35)
-    if type == "admin":
-        # if the user is in the admin group, remove them
-        if admin_group in my_user.groups.all():
-            my_user.groups.remove(admin_group)
-        # otherwise add them
-        else:
-            my_user.groups.add(admin_group)
-    elif type == "edit":
-        # if the user is in the edit group, remove them
-        if edit_group in my_user.groups.all():
-            my_user.groups.remove(edit_group)
-        # otherwise add them
-        else:
-            my_user.groups.add(edit_group)
+class iHubUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
+    model = models.iHubUser
+    success_url = reverse_lazy("ihub:manage_ihub_users")
 
-    return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))

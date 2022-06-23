@@ -106,13 +106,6 @@ class FTEBreakdownAPIView(APIView):
                 'level_summary': level_summary,
                 'funding_summary': funding_summary
             }
-            print(response_dict)
-            print(
-                type(data),
-                type(type_summary),
-                type(level_summary),
-                type(funding_summary),
-            )
 
             return Response(response_dict, status.HTTP_200_OK)
 

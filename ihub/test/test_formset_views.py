@@ -73,7 +73,7 @@ class TestOrgFormset(CommonTest):
             views.OrganizationFormsetView,
         ]
         self.expected_template = 'ihub/organization_formset.html'
-        self.user = self.get_and_login_user(in_group="ihub_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag('formsets', "view")
     def test_view_class(self):
@@ -109,7 +109,7 @@ class TestAllHardDeleteViews(CommonTest):
         ]
         self.test_dicts = list()
 
-        self.user = self.get_and_login_user(in_group="ihub_admin")
+        self.user = self.get_and_login_user(is_admin=True)
         for d in self.starter_dicts:
             new_d = d
             m = d["model"]
