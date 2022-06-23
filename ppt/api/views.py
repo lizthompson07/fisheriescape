@@ -98,6 +98,7 @@ class FTEBreakdownAPIView(APIView):
             df = pd.DataFrame(data)
             type_summary = None
             level_summary = None
+            funding_summary = None
             if 'employee_type' in df.columns:
                 # sum FTE weeks based on type
                 type_df = df.copy()
@@ -107,6 +108,7 @@ class FTEBreakdownAPIView(APIView):
                 # count FTE weeks based on type
                 type_summary = pd.DataFrame(df['employee_type'].str.split(', ').explode().value_counts())
                 type_summary = type_summary.join(type_df)
+                type_summary = type_summary.reset_index().to_dict('records')
 
             if 'level' in df.columns:
                 # sum FTE weeks based on type
@@ -118,11 +120,7 @@ class FTEBreakdownAPIView(APIView):
                 # count FTE weeks based on type
                 level_summary = pd.DataFrame(df['level'].str.split(', ').explode().value_counts())
                 level_summary = level_summary.join(level_df)
-            response_dict = {
-                'results': data,
-                'type_summary': type_summary.reset_index().to_dict('records'),
-                'level_summary': level_summary.reset_index().to_dict('records')
-            }
+                level_summary = level_summary.reset_index().to_dict('records')
 
             if 'funding' in df.columns:
                 # sum FTE weeks based on type
@@ -134,11 +132,13 @@ class FTEBreakdownAPIView(APIView):
                 # count FTE weeks based on type
                 funding_summary = pd.DataFrame(df['funding'].str.split(', ').explode().value_counts())
                 funding_summary = funding_summary.join(funding_df)
+                funding_summary = funding_summary.reset_index().to_dict('records')
+
             response_dict = {
                 'results': data,
-                'type_summary': type_summary.reset_index().to_dict('records'),
-                'level_summary': level_summary.reset_index().to_dict('records'),
-                'funding_summary': funding_summary.reset_index().to_dict('records')
+                'type_summary': type_summary,
+                'level_summary': level_summary,
+                'funding_summary': funding_summary
             }
 
             return Response(response_dict, status.HTTP_200_OK)
