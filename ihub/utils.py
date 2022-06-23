@@ -1,8 +1,18 @@
-
 from collections import namedtuple
 from datetime import datetime
 
 from django.utils import timezone
+
+
+def in_ihub_admin_group(user):
+    if user:
+        return bool(hasattr(user, "ihub_user") and user.ihub_user.is_admin)
+
+
+def in_ihub_edit_group(user):
+    """this group includes the admin group so there is no need to add an admin to this group"""
+    if user:
+        return in_ihub_admin_group(user) or bool(hasattr(user, "ihub_user") and user.ihub_user.is_crud_user)
 
 
 def get_date_range_overlap(d0_start, d0_end, d1_start, d1_end):
@@ -21,4 +31,3 @@ def get_date_range_overlap(d0_start, d0_end, d1_start, d1_end):
     delta = (earliest_end - latest_start).days + 1
     overlap = max(0, delta)
     return overlap
-

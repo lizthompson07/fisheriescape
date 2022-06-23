@@ -4,7 +4,6 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
 from django.db.models import TextField, Value
 from django.db.models.functions import Concat
@@ -27,62 +26,15 @@ from . import filters
 from . import forms
 from . import models
 from . import reports
-from .utils import get_date_range_overlap
+from .mixins import iHubBasicMixin, iHubEditRequiredMixin, iHubAdminRequiredMixin
+from .utils import get_date_range_overlap, in_ihub_edit_group, in_ihub_admin_group
 
 
 def get_ind_organizations():
     return ml_models.Organization.objects.filter(grouping__is_indigenous=True).distinct()
 
 
-def in_ihub_admin_group(user):
-    if user:
-        return user.groups.filter(name='ihub_admin').count() != 0
-
-
-class iHubAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return in_ihub_admin_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/?app=ihub')
-        return super().dispatch(request, *args, **kwargs)
-
-
-def in_ihub_edit_group(user):
-    """this group includes the admin group so there is no need to add an admin to this group"""
-    if user:
-        if in_ihub_admin_group(user) or user.groups.filter(name='ihub_edit').count() != 0:
-            return True
-
-
-class iHubEditRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return in_ihub_edit_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/?app=ihub')
-        return super().dispatch(request, *args, **kwargs)
-
-
-class SiteLoginRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return True
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/?app=ihub')
-        return super().dispatch(request, *args, **kwargs)
-
-
-class IndexTemplateView(SiteLoginRequiredMixin, CommonTemplateView):
+class IndexTemplateView(iHubBasicMixin, CommonTemplateView):
     template_name = 'ihub/index.html'
     h1 = gettext_lazy("home")
 
@@ -94,7 +46,7 @@ class IndexTemplateView(SiteLoginRequiredMixin, CommonTemplateView):
 # PERSON #
 ##########
 
-class PersonListView(SiteLoginRequiredMixin, CommonFilterView):
+class PersonListView(iHubBasicMixin, CommonFilterView):
     template_name = 'ihub/person_list.html'
     filterset_class = filters.PersonFilter
     model = ml_models.Person
@@ -115,7 +67,7 @@ class PersonListView(SiteLoginRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
 
-class PersonDetailView(SiteLoginRequiredMixin, CommonDetailView):
+class PersonDetailView(iHubBasicMixin, CommonDetailView):
     model = ml_models.Person
     template_name = 'ihub/person_detail.html'
     field_list = [
@@ -209,7 +161,7 @@ class PersonDeleteView(iHubAdminRequiredMixin, CommonDeleteView):
 # ORGANIZATION #
 ################
 
-class OrganizationListView(SiteLoginRequiredMixin, CommonFilterView):
+class OrganizationListView(iHubBasicMixin, CommonFilterView):
     template_name = 'ihub/organization_list.html'
     filterset_class = filters.OrganizationFilter
     queryset = get_ind_organizations().annotate(
@@ -238,7 +190,7 @@ class OrganizationListView(SiteLoginRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
 
-class OrganizationDetailView(SiteLoginRequiredMixin, CommonDetailView):
+class OrganizationDetailView(iHubBasicMixin, CommonDetailView):
     model = ml_models.Organization
     template_name = 'ihub/organization_detail.html'
     field_list = [
@@ -371,12 +323,12 @@ class MemberUpdateView(iHubEditRequiredMixin, CommonPopoutUpdateView):
     form_class = forms.MemberForm
     width = 1000
     height = 800
-    
+
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.last_modified_by = self.request.user
         return super().form_valid(form)
-    
+
     def get_initial(self):
         return {
             'last_modified_by': self.request.user,
@@ -390,7 +342,7 @@ class MemberDeleteView(iHubAdminRequiredMixin, CommonPopoutDeleteView):
 # ENTRY #
 #########
 
-class EntryListView(SiteLoginRequiredMixin, CommonFilterView):
+class EntryListView(iHubBasicMixin, CommonFilterView):
     template_name = "ihub/entry_list.html"
     model = models.Entry
     filterset_class = filters.EntryFilter
@@ -411,7 +363,7 @@ class EntryListView(SiteLoginRequiredMixin, CommonFilterView):
     open_row_in_new_tab = True
 
 
-class EntryDetailView(SiteLoginRequiredMixin, CommonDetailView):
+class EntryDetailView(iHubBasicMixin, CommonDetailView):
     model = models.Entry
     home_url_name = "ihub:index"
     parent_crumb = {"title": gettext_lazy("Entries"), "url": reverse_lazy("ihub:entry_list")}
@@ -674,7 +626,7 @@ class ConsultationRoleDeleteView(iHubAdminRequiredMixin, CommonPopoutDeleteView)
 # REPORTS #
 ###########
 
-class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
+class ReportSearchFormView(iHubBasicMixin, FormView):
     template_name = 'ihub/report_search.html'
     form_class = forms.ReportSearchForm
 
