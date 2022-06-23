@@ -98,7 +98,8 @@ class FTEBreakdownAPIView(APIView):
             df = pd.DataFrame(data)
             type_summary = None
             level_summary = None
-            if 'employee_type' in df.columns:
+            funding_summary = None
+            if 'employee_type' in df.columns and not df.empty:
                 # sum FTE weeks based on type
                 type_df = df.copy()
                 type_df = type_df.assign(employee_type=type_df['employee_type'].str.split(', ')).explode('employee_type')
@@ -107,8 +108,9 @@ class FTEBreakdownAPIView(APIView):
                 # count FTE weeks based on type
                 type_summary = pd.DataFrame(df['employee_type'].str.split(', ').explode().value_counts())
                 type_summary = type_summary.join(type_df)
+                type_summary = type_summary.reset_index().to_dict('records')
 
-            if 'level' in df.columns:
+            if 'level' in df.columns and not df.empty:
                 # sum FTE weeks based on type
                 level_df = df.copy()
                 level_df = level_df.assign(level=level_df['level'].str.split(', ')).explode(
@@ -118,13 +120,9 @@ class FTEBreakdownAPIView(APIView):
                 # count FTE weeks based on type
                 level_summary = pd.DataFrame(df['level'].str.split(', ').explode().value_counts())
                 level_summary = level_summary.join(level_df)
-            response_dict = {
-                'results': data,
-                'type_summary': type_summary.reset_index().to_dict('records'),
-                'level_summary': level_summary.reset_index().to_dict('records')
-            }
+                level_summary = level_summary.reset_index().to_dict('records')
 
-            if 'funding' in df.columns:
+            if 'funding' in df.columns and not df.empty:
                 # sum FTE weeks based on type
                 funding_df = df.copy()
                 funding_df = funding_df.assign(level=funding_df['funding'].str.split(', ')).explode(
@@ -134,11 +132,13 @@ class FTEBreakdownAPIView(APIView):
                 # count FTE weeks based on type
                 funding_summary = pd.DataFrame(df['funding'].str.split(', ').explode().value_counts())
                 funding_summary = funding_summary.join(funding_df)
+                funding_summary = funding_summary.reset_index().to_dict('records')
+
             response_dict = {
                 'results': data,
-                'type_summary': type_summary.reset_index().to_dict('records'),
-                'level_summary': level_summary.reset_index().to_dict('records'),
-                'funding_summary': funding_summary.reset_index().to_dict('records')
+                'type_summary': type_summary,
+                'level_summary': level_summary,
+                'funding_summary': funding_summary
             }
 
             return Response(response_dict, status.HTTP_200_OK)
