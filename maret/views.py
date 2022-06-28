@@ -960,6 +960,19 @@ class AreaOfficesFormsetView(CommonMaretFormset):
     queryset = models.AreaOffice.objects.all()
     formset_class = forms.AreaOfficesFormSet
     success_url_name = "maret:manage_area_offices"
+    delete_url_name = "maret:delete_area_office"
+
+
+class AreaOfficesDeleteView(AdminRequiredMixin, CommonDeleteView):
+    model = models.AreaOffice
+    template_name = 'maret/confirm_delete.html'
+    success_url = reverse_lazy("maret:manage_area_offices")
+    home_url_name = "maret:index"
+    grandparent_crumb = {"title": gettext_lazy("Area Offices"), "url": reverse_lazy("maret:manage_area_offices")}
+    non_blocking_fields = []
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("maret:manage_area_offices")}
 
 
 class AreaOfficeProgramsFormsetView(CommonMaretFormset):
@@ -967,3 +980,16 @@ class AreaOfficeProgramsFormsetView(CommonMaretFormset):
     queryset = models.AreaOfficeProgram.objects.all()
     formset_class = forms.AreaOfficesProgramFormSet
     success_url_name = "maret:manage_area_office_programs"
+    delete_url_name = "maret:delete_area_office_program"
+
+
+class AreaOfficeProgramsDeleteView(AdminRequiredMixin, CommonDeleteView):
+    model = models.AreaOfficeProgram
+    template_name = 'maret/confirm_delete.html'
+    success_url = reverse_lazy("maret:manage_area_office_programs")
+    home_url_name = "maret:index"
+    grandparent_crumb = {"title": gettext_lazy("Area Office Programs"), "url": reverse_lazy("maret:manage_area_office_programs")}
+    non_blocking_fields = []
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("maret:manage_area_office_programs")}

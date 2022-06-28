@@ -67,11 +67,11 @@ class InteractionForm(forms.ModelForm):
         self.fields['other_dfo_branch'].widget.attrs['size'] = '6'
         self.fields['other_dfo_regions'].widget.attrs['size'] = '6'
         self.fields['other_dfo_areas'].widget.attrs['size'] = '6'
-        self.order_fields(['description', 'interaction_type', 'date_of_meeting', 'main_topic', 'species', 'lead_region',
+        self.order_fields(['description', 'interaction_type', 'committee', 'date_of_meeting', 'main_topic', 'species', 'lead_region',
                            'branch', 'division', 'area_office', 'area_office_program', 'other_dfo_branch',
                            'other_dfo_areas', 'other_dfo_regions', 'dfo_national_sectors', 'dfo_role',
                            'external_contact', 'external_organization', 'dfo_liaison', 'other_dfo_participants',
-                            'action_items', 'comments'
+                           'action_items', 'comments'
                            ])
 
     class Meta:
@@ -91,6 +91,18 @@ class InteractionForm(forms.ModelForm):
             'external_organization': forms.SelectMultiple(attrs=chosen_js),
             'external_contact': forms.SelectMultiple(attrs=chosen_js),
         }
+
+    def clean(self):
+        cleaned_data = super(InteractionForm, self).clean()
+        # fill in interaction detail from working group/committees when available
+        if cleaned_data["committee"]:
+            committee = cleaned_data["committee"]
+            cleaned_data["main_topic"] = committee.main_topic.all()
+            cleaned_data["species"] = committee.species.all()
+            cleaned_data["main_topic"] = committee.main_topic
+            cleaned_data["main_topic"] = committee.main_topic
+
+            return cleaned_data
 
 
 class OrganizationForm(forms.ModelForm):
