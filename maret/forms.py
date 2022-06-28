@@ -44,10 +44,6 @@ class CommitteeForm(forms.ModelForm):
         self.fields['other_dfo_regions'].widget.attrs['size'] = '6'
         self.fields['other_dfo_areas'].widget.attrs['size'] = '6'
 
-        branch = [(c.id, c) for c in shared_models.Branch.objects.all()]
-        branch.insert(0, (None, "-----"))
-        self.fields['branch'].choices = branch
-
     def clean(self):
         cleaned_data = super().clean()
 
