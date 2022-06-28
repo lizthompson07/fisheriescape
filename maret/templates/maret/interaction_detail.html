@@ -38,7 +38,7 @@
                                 {# only include committee field if interaction is type committee/working group: #}
                                 {% if object.interaction_type == 4 %}
                                     <tr>
-                                        <td>{% get_verbose_label object field %}</td>
+                                        <th>{% get_verbose_label object field %}</th>
                                         <td>
                                             {% if object.committee.id %}
                                                 <a href="{% url 'maret:committee_detail' object.committee.id %}">{% get_field_value object field %}</a>

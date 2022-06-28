@@ -349,6 +349,21 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
 
         return context
 
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+
+        if obj.interaction_type == 4:
+            committee = obj.committee
+            obj.main_topic = committee.main_topic.all()
+            obj.species = committee.species.all()
+            obj.lead_region = committee.lead_region
+            obj.branch = committee.branch
+            obj.division = committee.division
+            obj.area_office = committee.area_office
+            obj.area_office_program = committee.area_office_program
+        obj.save()
+        return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': obj.id}))
+
 
 class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
     model = models.Interaction
@@ -369,6 +384,22 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
         context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
                               'maret/js/interactionForm.html']
         return context
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+
+        if obj.interaction_type == 4:
+            committee = obj.committee
+            obj.main_topic.set(committee.main_topic.all())
+            obj.species.set(committee.species.all())
+            obj.lead_region = committee.lead_region
+            obj.branch = committee.branch
+            obj.division = committee.division
+            obj.area_office = committee.area_office
+            obj.area_office_program = committee.area_office_program
+        obj.save()
+        return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': obj.id}))
+
 
 
 class InteractionDetailView(UserRequiredMixin, CommonDetailView):

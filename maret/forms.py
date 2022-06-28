@@ -88,18 +88,6 @@ class InteractionForm(forms.ModelForm):
             'external_contact': forms.SelectMultiple(attrs=chosen_js),
         }
 
-    def clean(self):
-        cleaned_data = super(InteractionForm, self).clean()
-        # fill in interaction detail from working group/committees when available
-        if cleaned_data["committee"]:
-            committee = cleaned_data["committee"]
-            cleaned_data["main_topic"] = committee.main_topic.all()
-            cleaned_data["species"] = committee.species.all()
-            cleaned_data["main_topic"] = committee.main_topic
-            cleaned_data["main_topic"] = committee.main_topic
-
-            return cleaned_data
-
 
 class OrganizationForm(forms.ModelForm):
     asc_province = forms.MultipleChoiceField(required=False, label=_("Associated Province(s)"))
