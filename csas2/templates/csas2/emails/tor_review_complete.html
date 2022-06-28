@@ -22,8 +22,9 @@
   </p>
   <p>
     This is an automated message to notify you that the terms of reference review is complete for the process entitled,
-    <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.process.id %}">{{ object.process.tname }}</a>,
-    has been added to the national CSAS website.
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.process.id %}">{{ object.process.tname }}</a>.
+    The terms of reference are now ready to be posted to the national CSAS website. This can be achieved by clicking the purple button at the top-right
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.id %}">here</a>.
   </p>
 {% endlanguage %}
 
@@ -40,8 +41,9 @@
 {% language 'fr' %}
   <p>
     Ceci est un message automatisé pour vous informer que l'examen du cadre de référence pour le processus intitulé,
-    <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.process.id %}">{{ object.process.tname }}</a>,
-    a été ajouté au site Web national du SCCS.
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.process.id %}">{{ object.process.tname }}</a>.
+    Le cadre de référence est maintenant prêt à être affiché sur le site Web national du SCCS. Ceci peut être réalisé en cliquant sur le bouton violet en haut à
+    droite <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.id %}">ici</a>.
   </p>
 {% endlanguage %}
 
