@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.utils import timezone
 from django.db import models
 
@@ -32,6 +33,9 @@ ROLE_DFO_CHOICES = (
     (11, "Minister"),
     (12, "Unknown"),
 )
+
+Q_HIDE_BRANCHES = (~Q(name__contains="SORTING") &
+                   ~Q(name__icontains="Fisheries Management, Resource and Aboriginal Fisheries Management"))
 
 
 class MaretUser(models.Model):
@@ -114,7 +118,7 @@ class Committee(models.Model):
                                     )
     branch = models.ForeignKey(shared_models.Branch, blank=True, null=True, default=1, on_delete=models.DO_NOTHING,
                                related_name="committee_branch", verbose_name=_("Lead DFO Maritimes Region branch"),
-                               limit_choices_to={"region__name": "Maritimes"})
+                               limit_choices_to=Q(region__name="Maritimes") & Q_HIDE_BRANCHES)
     division = models.ForeignKey(shared_models.Division, blank=True, null=True, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Division"))
     area_office = models.ForeignKey(AreaOffice, blank=True, null=True, related_name="committee_area_office",
@@ -132,7 +136,7 @@ class Committee(models.Model):
     dfo_liaison = models.ManyToManyField(User, blank=True, related_name="committee_dfo_liaison",
                                          verbose_name=_("DFO Maritimes Region liaison"))
     other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="committee_dfo_branch",
-                                              blank=True,  limit_choices_to={"region__name": "Maritimes"},
+                                              blank=True,  limit_choices_to=Q(region__name="Maritimes") & Q_HIDE_BRANCHES,
                                               verbose_name=_("Other participating DFO Maritimes Region branches")
                                               )
     other_dfo_regions = models.ManyToManyField(shared_models.Region, related_name="committee_dfo_region",
@@ -204,7 +208,7 @@ class Interaction(models.Model):
                                                     verbose_name=_("Other DFO Maritimes region participants/contributors"))
     branch = models.ForeignKey(shared_models.Branch, blank=True, null=True, default=None, on_delete=models.DO_NOTHING,
                                related_name="interaction_branch", verbose_name=_("Lead DFO Maritimes branch"),
-                               limit_choices_to={"region__name": "Maritimes"})
+                               limit_choices_to=Q(region__name="Maritimes") & Q_HIDE_BRANCHES)
     area_office = models.ForeignKey(AreaOffice, blank=True, null=True, related_name="interaction_area_office",
                                     on_delete=models.DO_NOTHING, verbose_name=_("Lead DFO Maritimes Region area office"))
     area_office_program = models.ForeignKey(AreaOfficeProgram, blank=True, null=True,
@@ -213,7 +217,7 @@ class Interaction(models.Model):
     division = models.ForeignKey(shared_models.Division, blank=True, null=True, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Division"))
     other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="interaction_dfo_branch",
-                                              blank=True, limit_choices_to={"region__name": "Maritimes"},
+                                              blank=True, limit_choices_to=Q(region__name="Maritimes") & Q_HIDE_BRANCHES,
                                               verbose_name=_("Other participating DFO Maritimes Region branches")
                                               )
     lead_region = models.ForeignKey(shared_models.Region, related_name="interaction_lead_dfo_region",
