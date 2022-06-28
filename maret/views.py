@@ -235,7 +235,7 @@ class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
         if obj.locked_by_ihub:
             messages.error(self.request, _("This record can only be modified through iHub"))
             return HttpResponseRedirect(reverse("maret:person_detail", args=[obj.pk, ]))
-
+        obj.last_modified_by = self.request.user
         obj.save()
 
         ext_con = None

@@ -187,7 +187,6 @@ class PersonForm(forms.ModelForm):
         exclude = ["date_last_modified", "old_id",  'connected_user']
         widgets = {
             'organizations': forms.SelectMultiple(attrs=chosen_js),
-            'last_modified_by': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={"rows": "3"}),
         }
 
