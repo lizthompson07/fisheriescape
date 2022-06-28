@@ -232,7 +232,7 @@ class Interaction(models.Model):
     other_dfo_areas = models.ManyToManyField(AreaOffice, related_name="interaction_dfo_area",
                                              blank=True, verbose_name=_("Other participating DFO Maritimes Region area offices")
                                              )
-    external_contact = models.ManyToManyField(ml_models.Person, verbose_name=_("Other external contact(s)"),
+    external_contact = models.ManyToManyField(ml_models.Person, verbose_name=_("External contact(s)"),
                                               blank=True, related_name="interaction_ext_contact")
     external_organization = models.ManyToManyField(ml_models.Organization, verbose_name=_("External Organization(s)"),
                                                    blank=True, related_name="interaction_ext_organization")
