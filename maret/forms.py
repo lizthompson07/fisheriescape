@@ -24,7 +24,7 @@ class CommitteeForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
             'external_organization': forms.SelectMultiple(attrs=chosen_js),
             'external_contact': forms.SelectMultiple(attrs=chosen_js),
-
+            'other_dfo_participants': forms.SelectMultiple(attrs=chosen_js)
         }
 
     def __init__(self, *args, **kwargs):
@@ -43,10 +43,6 @@ class CommitteeForm(forms.ModelForm):
         self.fields['other_dfo_branch'].widget.attrs['size'] = '6'
         self.fields['other_dfo_regions'].widget.attrs['size'] = '6'
         self.fields['other_dfo_areas'].widget.attrs['size'] = '6'
-
-        branch = [(c.id, c) for c in shared_models.Branch.objects.all()]
-        branch.insert(0, (None, "-----"))
-        self.fields['branch'].choices = branch
 
     def clean(self):
         cleaned_data = super().clean()
@@ -67,11 +63,11 @@ class InteractionForm(forms.ModelForm):
         self.fields['other_dfo_branch'].widget.attrs['size'] = '6'
         self.fields['other_dfo_regions'].widget.attrs['size'] = '6'
         self.fields['other_dfo_areas'].widget.attrs['size'] = '6'
-        self.order_fields(['description', 'interaction_type', 'date_of_meeting', 'main_topic', 'species', 'lead_region',
+        self.order_fields(['description', 'interaction_type', 'committee', 'date_of_meeting', 'main_topic', 'species', 'lead_region',
                            'branch', 'division', 'area_office', 'area_office_program', 'other_dfo_branch',
                            'other_dfo_areas', 'other_dfo_regions', 'dfo_national_sectors', 'dfo_role',
                            'external_contact', 'external_organization', 'dfo_liaison', 'other_dfo_participants',
-                            'action_items', 'comments'
+                           'action_items', 'comments'
                            ])
 
     class Meta:
@@ -179,7 +175,6 @@ class PersonForm(forms.ModelForm):
         exclude = ["date_last_modified", "old_id",  'connected_user']
         widgets = {
             'organizations': forms.SelectMultiple(attrs=chosen_js),
-            'last_modified_by': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={"rows": "3"}),
         }
 

@@ -235,7 +235,7 @@ class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
         if obj.locked_by_ihub:
             messages.error(self.request, _("This record can only be modified through iHub"))
             return HttpResponseRedirect(reverse("maret:person_detail", args=[obj.pk, ]))
-
+        obj.last_modified_by = self.request.user
         obj.save()
 
         ext_con = None
@@ -349,6 +349,21 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
 
         return context
 
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+
+        if obj.interaction_type == 4:
+            committee = obj.committee
+            obj.main_topic = committee.main_topic.all()
+            obj.species = committee.species.all()
+            obj.lead_region = committee.lead_region
+            obj.branch = committee.branch
+            obj.division = committee.division
+            obj.area_office = committee.area_office
+            obj.area_office_program = committee.area_office_program
+        obj.save()
+        return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': obj.id}))
+
 
 class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
     model = models.Interaction
@@ -369,6 +384,22 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
         context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
                               'maret/js/interactionForm.html']
         return context
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+
+        if obj.interaction_type == 4:
+            committee = obj.committee
+            obj.main_topic.set(committee.main_topic.all())
+            obj.species.set(committee.species.all())
+            obj.lead_region = committee.lead_region
+            obj.branch = committee.branch
+            obj.division = committee.division
+            obj.area_office = committee.area_office
+            obj.area_office_program = committee.area_office_program
+        obj.save()
+        return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': obj.id}))
+
 
 
 class InteractionDetailView(UserRequiredMixin, CommonDetailView):
@@ -960,6 +991,19 @@ class AreaOfficesFormsetView(CommonMaretFormset):
     queryset = models.AreaOffice.objects.all()
     formset_class = forms.AreaOfficesFormSet
     success_url_name = "maret:manage_area_offices"
+    delete_url_name = "maret:delete_area_office"
+
+
+class AreaOfficesDeleteView(AdminRequiredMixin, CommonDeleteView):
+    model = models.AreaOffice
+    template_name = 'maret/confirm_delete.html'
+    success_url = reverse_lazy("maret:manage_area_offices")
+    home_url_name = "maret:index"
+    grandparent_crumb = {"title": gettext_lazy("Area Offices"), "url": reverse_lazy("maret:manage_area_offices")}
+    non_blocking_fields = []
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("maret:manage_area_offices")}
 
 
 class AreaOfficeProgramsFormsetView(CommonMaretFormset):
@@ -967,3 +1011,16 @@ class AreaOfficeProgramsFormsetView(CommonMaretFormset):
     queryset = models.AreaOfficeProgram.objects.all()
     formset_class = forms.AreaOfficesProgramFormSet
     success_url_name = "maret:manage_area_office_programs"
+    delete_url_name = "maret:delete_area_office_program"
+
+
+class AreaOfficeProgramsDeleteView(AdminRequiredMixin, CommonDeleteView):
+    model = models.AreaOfficeProgram
+    template_name = 'maret/confirm_delete.html'
+    success_url = reverse_lazy("maret:manage_area_office_programs")
+    home_url_name = "maret:index"
+    grandparent_crumb = {"title": gettext_lazy("Area Office Programs"), "url": reverse_lazy("maret:manage_area_office_programs")}
+    non_blocking_fields = []
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("maret:manage_area_office_programs")}

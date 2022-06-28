@@ -51,7 +51,7 @@
                     <table class="table table-sm table-hover">
                         {% for interaction in object.committee_interactions.all %}
                             <tr href="{% url 'maret:interaction_detail' interaction.id %}">
-                                <td>{{ interaction.description }}</td>
+                                <td>{{ interaction }}</td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -66,7 +66,7 @@
                     <table class="table table-hover table-sm">
                         {% for ext_org in object.external_organization.all %}
                             <tr href="{% url 'maret:org_detail' ext_org.id %}">
-                                <td>{{ ext_org.name_eng }}</td>
+                                <td>{{ ext_org }}</td>
                             </tr>
                         {% endfor %}
                     </table>
