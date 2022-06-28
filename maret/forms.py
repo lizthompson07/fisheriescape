@@ -24,7 +24,7 @@ class CommitteeForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
             'external_organization': forms.SelectMultiple(attrs=chosen_js),
             'external_contact': forms.SelectMultiple(attrs=chosen_js),
-
+            'other_dfo_participants': forms.SelectMultiple(attrs=chosen_js)
         }
 
     def __init__(self, *args, **kwargs):
