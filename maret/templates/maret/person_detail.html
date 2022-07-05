@@ -61,35 +61,53 @@
                 </div>
             </div>
         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
         <div class="col-5">
             <div class="card entry-card mb-3">
                 <div class="card-header">
                     <h5 class="card-title"> {% trans "Organization Membership:" %}</h5>
                 </div>
                 <div class="card-body">
-                    <ul>
-                        {% for member in object.memberships.all %}
-                            <li>
-                                <!-- This code is problematic since an org can have many groupings and only 1 might be
-                                indigenous -->
-                                {% if member.organization.is_indigenous %}
-                                    <a href="{% url 'maret:org_detail'  member.organization.id %}">{{ member.organization }}</a>
-                                    &rarr;
-                                    {% if member.role %}{{ member.role|nz:"(missing role)" }}{% else %}
-                                        {{ "<em>missing role</em>"|safe }}{% endif %}
-                                {% else %}
-                                    {{ member.organization }}
-                                    {% if member.role %}{{ member.role|nz:"(missing role)" }}{% else %}
-                                        {{ "<em>missing role</em>"|safe }}{% endif %}
-                                    - {% trans "(Will open in Master List in separate tab)" %}
-                                {% endif %}
-                            </li>
-                        {% empty %}
-                            <em>
-                                {% trans "This contact is not part of any organizations" %}
-                            </em>
-                        {% endfor %}
-                    </ul>
+                    {% if object.memberships.count == 0 %}
+                        <em>
+                            {% trans "This contact is not part of any organizations" %}
+                        </em><br>
+                    {% else %}
+                        <table class="table table-hover table-sm" style="width: auto">
+                            <tr>
+                                <th class="w-25"> {% trans "Organization" %} </th>
+                                <th class="w-25"> {% trans "Role" %} </th>
+                                <th class="w-25"> {% trans "Notes" %} </th>
+                                <th class="w-25"> {% trans "Last modified" %} </th>
+                            </tr>
+                            <tbody>
+                            {% for obj in object.memberships.all %}
+                                <tr href="{% url 'maret:org_detail' obj.organization.id %}">
+                                    <td>
+                                        {{ obj.organization.name_eng|nz:"" }}
+                                    </td>
+                                    <td>
+                                        {{ obj.role|nz }}
+                                    </td>
+                                    <td>{{ obj.notes|nz:"" }}</td>
+                                    <td>{{ obj.date_last_modified|date:"Y-m-d" }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
                 </div>
             </div>
             <div class="card entry-card mb-3">

@@ -141,7 +141,6 @@ class PersonListView(UserRequiredMixin, CommonFilterView):
             'first_name', Value(' '),
             'last_name', Value(' '),
             'designation', Value(' '),
-            'ext_con__role', Value(' '),
             'notes', Value(' '),
             output_field=TextField()))
     field_list = [
@@ -201,12 +200,6 @@ class PersonCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
 
         ext_con = None
         fields = form.cleaned_data
-        if fields['role']:
-            if not ext_con:
-                ext_con = models.ContactExtension(contact=object)
-                ext_con.save()
-            ext_con.role = fields['role']
-            ext_con.save()
 
         return HttpResponseRedirect(reverse_lazy('maret:person_detail', kwargs={'pk': object.id}))
 
@@ -219,15 +212,9 @@ class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
     h1 = gettext_lazy("Contact")
 
     def get_initial(self):
-        role = None
-        if models.ContactExtension.objects.filter(contact=self.object):
-            ext_cont = models.ContactExtension.objects.get(contact=self.object)
-            if ext_cont:
-                role = ext_cont.role
 
         return {
             'last_modified_by': self.request.user,
-            'role': role,
         }
 
     def form_valid(self, form):
@@ -243,13 +230,6 @@ class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
             ext_con = models.ContactExtension.objects.get(contact=obj)
 
         fields = form.cleaned_data
-        if fields['role']:
-            if not ext_con:
-                ext_con = models.ContactExtension(contact=obj)
-                ext_con.save()
-            ext_con.role = fields['role']
-            ext_con.save()
-
         if fields['committee']:
             for com_id in fields['committee']:
                 com = models.Committee.objects.get(id=com_id)
