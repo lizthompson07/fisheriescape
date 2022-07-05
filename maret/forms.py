@@ -50,6 +50,11 @@ class CommitteeForm(forms.ModelForm):
         if cleaned_data["dfo_liaison"] is None:
             self.add_error('dfo_liaison', _("DFO liaison/secretariat is required"))
 
+        # sync these fields:
+        if cleaned_data["external_chair"].exists():
+            cleaned_data["external_contact"] = (cleaned_data["external_contact"] |
+                                                cleaned_data["external_chair"]).distinct()
+
         return cleaned_data
 
 
