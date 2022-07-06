@@ -6,9 +6,15 @@
     <h3>
       {% trans "Approver Queue" %}
     </h3>
-    <p v-if="!tor.submission_date" class="lead text-danger">
+    <ul v-if="!tor.submission_date" class="lead text-danger">
+      <li>
+
       {% trans "The approval process will begin once the ToR is submitted." %}
-    </p>
+      </li>
+      <li>
+        {% trans "Before the approval process is started, the steering committee should have seen and agreed to the ToR." %}
+      </li>
+    </ul>
     <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/GuidePol/Approval-Approbation-Pol-eng.html" %}" target="_blank">
       {% trans "CSAS Policy on Review and Approval of Documents" %}
     </a>
@@ -126,7 +132,7 @@
           </p>
         </div>
 
-        <div v-if="canEditReviewers" class="mt-3">
+        <div v-if="canEditReviewers && ![35,40,50].includes(tor.status)" class="mt-3">
           <button @click="addReviewer" class="btn btn-sm btn-success text-light">
             <span class="mdi mdi-plus text-light mr-1"></span>{% trans "Add an approver" %}
           </button>

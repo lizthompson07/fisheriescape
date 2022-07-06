@@ -797,13 +797,12 @@ class ToRReviewerSerializer(serializers.ModelSerializer):
         return instance.user.get_full_name() if instance.user else None
 
     def validate(self, attrs):
-        # Check if the ToR is submitted and that there are other approvers in the queue
-        role = attrs.get("role")
 
-        # if there is a submission date and there are no other approvers, that's a problem..
         if self.instance:
             tor = self.instance.tor
-            if tor.submission_date and not tor.reviewers.filter(~Q(id=self.instance.id)).filter(role=1).exists():
+            role = attrs.get("role")
+            # if trying to change to reviewer, and there is a submission date and there are no other approvers, that's a problem..
+            if role == 2 and tor.submission_date and not tor.reviewers.filter(~Q(id=self.instance.id)).filter(role=1).exists():
                 msg = gettext('There has to be at least one approver in the queue!')
                 raise ValidationError(msg)
         return attrs

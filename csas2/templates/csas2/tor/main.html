@@ -10,10 +10,6 @@
 {% block subcontent %}
   <div id="app" v-cloak>
 
-    <div class="float-right" v-if="canModify">
-      <button v-if="tor.status === 30" class="btn btn-lg btn-danger" @click="resumeReview">{% trans "Resume the Review" %}</button>
-      <button v-else-if="tor.status === 35" class="btn btn-lg btn-purple" @click="postToR">{% trans "Request for Posting" %}</button>
-    </div>
 
     <div class="btns mb-5">
       <a v-if="tor.submission_date && canUnsubmit" class="btn btn-sm btn-primary" href="{% url 'csas2:tor_submit' object.id %}">
@@ -23,7 +19,6 @@
         {% trans "Submit" %}
       </a>
       <span v-else data-toggle="tooltip" :title="canSubmit.reason"><a class="btn btn-sm btn-primary disabled" href="#">{% trans "Submit" %}</a></span>
-
 
       <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:tor_edit' object.id %}">{% trans "Edit" %}</a>
 
@@ -40,8 +35,11 @@
             <a class="dropdown-item" href="{% url 'csas2:tor_html' object.id %}?lang=fr">{% trans "HTML (fr)" %}</a>
           </div>
         </div>
+      </div>
 
-
+      <div class="neighbours" v-if="canModify">
+        <button v-if="tor.status === 30" class="btn btn-sm btn-danger" @click="resumeReview">{% trans "Resume the Review" %}</button>
+        <button v-else-if="tor.status === 35" class="btn btn-sm btn-purple" @click="postToR">{% trans "Request for Posting" %}</button>
       </div>
 
     </div>

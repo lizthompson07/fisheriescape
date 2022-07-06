@@ -160,8 +160,20 @@ class UpdatedMeetingEmail(Email):
 
 class ToRReviewAwaitingEmail(Email):
     email_template_path = 'csas2/emails/tor_review_awaiting.html'
-    subject_en = "Terms of reference awaiting your review"
-    subject_fr = "cadre de référence attend votre avis"
+
+    def get_subject_en(self):
+        if self.instance.role == 1:
+            mystr = "FOR APPROVAL: Terms of reference"
+        else:
+            mystr = "FOR REVIEW: Terms of reference"
+        return mystr
+
+    def get_subject_fr(self):
+        if self.instance.role == 1:
+            mystr = "POUR APPROBATION : Cadre de référence"
+        else:
+            mystr = "POUR ÉVALUATION : Cadre de référence"
+        return mystr
 
     def get_recipient_list(self):
         return [self.instance.user.email, ]
@@ -169,8 +181,8 @@ class ToRReviewAwaitingEmail(Email):
 
 class ToRChangesRequestedEmail(Email):
     email_template_path = 'csas2/emails/tor_changes_requested.html'
-    subject_en = "Changes to ToR required"
-    subject_fr = "modifications au cadre de référence sont nécessaires"
+    subject_en = "Changes to Terms of Reference requested"
+    subject_fr = "Modifications au cadre de référence sont nécessaires"
 
     def get_recipient_list(self):
         return self.instance.tor.process.editor_email_list
@@ -186,7 +198,7 @@ class ToRPostingRequestEmail(Email):
 
 class ToRReviewCompleteEmail(Email):
     email_template_path = 'csas2/emails/tor_review_complete.html'
-    subject_en = 'ToR review is complete'
+    subject_en = 'ToR approval is complete'
     subject_fr = "l'examen du cadre de référence est terminé"
 
     def get_recipient_list(self):

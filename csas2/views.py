@@ -909,12 +909,6 @@ class TermsOfReferenceSubmitView(TermsOfReferenceUpdateView):
         else:
             return _("Do you wish to submit the following Terms of Reference?")
 
-    def get_h3(self):
-        my_object = self.get_object()
-        if not my_object.submission_date:
-            msg = _("Before the approval process is started, the steering committee should have seen and agreed to the ToR.")
-            return format_html("<span class='text-danger'>{}</span><br><br>", msg)
-
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("csas2:tor_detail", args=[self.get_object().id])}
 
