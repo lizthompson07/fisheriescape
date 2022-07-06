@@ -288,18 +288,15 @@ def can_modify_tor(user, tor_id, return_as_dict=False):
         return my_dict if return_as_dict else my_dict["can_modify"]
 
 
-def can_modify_tor_reviewer(user, tor_reviewer_id):
-    """
-    if the tor is submitted, the only person who can modify the tor reviewer is the reviewer himself.
-    Otherwise it is the same rules as can_modify_tor
-    """
-    if user.id:
-        tor_reviewer = get_object_or_404(models.ToRReviewer, pk=tor_reviewer_id)
-        tor = tor_reviewer.tor
-        if not tor.submission_date:
-            return can_modify_tor(user, tor.id)
-        else:
-            return tor_reviewer.user_id == user.id
+# def can_modify_tor_reviewer(user, tor_reviewer_id):
+#     """
+#     if the tor is submitted, the only person who can modify the tor reviewer is the reviewer himself.
+#     Otherwise it is the same rules as can_modify_tor
+#     """
+#     if user.id:
+#         tor_reviewer = get_object_or_404(models.ToRReviewer, pk=tor_reviewer_id)
+#         tor = tor_reviewer.tor
+#         return can_modify_tor(user, tor.id) or tor_reviewer.user_id == user.id
 
 
 def can_unsubmit_tor(user, tor_id):

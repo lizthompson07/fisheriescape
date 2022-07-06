@@ -2,14 +2,18 @@
 {% load i18n %}
 
 <div class="card mb-2">
-  <h3 class="card-header bg-outline-dark">
-    {#    <div class="float-right" v-if="canModify">#}
-    {#      <button class="btn btn-sm btn-primary">#}
-    {#        <span class="mdi mdi-plus text-light"></span> {% trans "Modify" %}#}
-    {#      </button>#}
-    {#    </div>#}
-    {% trans "Reviewer Queue" %}
-  </h3>
+  <div class="card-header bg-outline-dark">
+    <h3>
+      {% trans "Approver Queue" %}
+    </h3>
+    <p v-if="!tor.submission_date" class="lead text-danger">
+      {% trans "The approval process will begin once the ToR is submitted." %}
+    </p>
+    <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/GuidePol/Approval-Approbation-Pol-eng.html" %}" target="_blank">
+      {% trans "CSAS Policy on Review and Approval of Documents" %}
+    </a>
+
+  </div>
   <div class="card-body">
     <div class="card-text">
       <div v-if="loadingReviewers" class="loading mb-3 mt-3 text-center mt-5">
@@ -25,6 +29,7 @@
             <tr>
               <th></th>
               <th class="w-25">${ reviewerLabels.user }</th>
+              <th>${ reviewerLabels.role }</th>
               <th>${ reviewerLabels.status }</th>
               <th>${ reviewerLabels.decision }</th>
               <th>${ reviewerLabels.decision_date }</th>
@@ -38,6 +43,7 @@
               <td></td>
               <td>${item.user_display|nz }</td>
               <td><span :class="item.status_class + ' px-1 py-1'">${item.status_display }</span></td>
+              <td>${item.role_display|nz }</td>
               <td>${item.decision_display|nz }</td>
               <td>${item.decision_date_display |nz }</td>
               <td v-if="item.comments_html" v-html="item.comments_html"></td>
@@ -49,16 +55,21 @@
             <tbody v-else>
             <tr v-for="(item, index) in reviewers" :key="item.id">
               <td>
-                <button class="btn btn-xs" v-if="index!==0" @click="moveReviewer(item, 'up')"><span class="mdi mdi-arrow-up-bold-circle-outline h5"></span>
-                </button>
-                <span v-else style="margin-right: 39px"></span>
+                <div v-if="tor.status && tor.status === 10">
+                  <button class="btn btn-xs" v-if="index!==0" @click="moveReviewer(item, 'up')">
+                    <span class="mdi mdi-arrow-up-bold-circle-outline h5"></span>
+                  </button>
+                  <span v-else style="margin-right: 37px"></span>
 
-                <button class="btn btn-xs " v-if="index!==reviewers.length-1" @click="moveReviewer(item, 'down')"><span
-                  class="mdi mdi-arrow-down-bold-circle-outline h5"></span></button>
+                  <button class="btn btn-xs " v-if="index!==reviewers.length-1" @click="moveReviewer(item, 'down')">
+                    <span class="mdi mdi-arrow-down-bold-circle-outline h5"></span>
+                  </button>
+                </div>
+              </td>
               <td>
                 <v-select
-                  class="w-100"
                   v-model="item.user"
+                  class="w-100"
                   id="id_user"
                   @input="updateReviewer(item)"
                   :options="dmAppsUsers"
@@ -66,6 +77,22 @@
                   :reduce="full_name => full_name.id"
                   :clearable="false"
                   placeholder="{% trans "Start typing to search for a user" %}"
+                  :disabled="!item.can_be_modified"
+                >
+                </v-select>
+              </td>
+              <td>
+                <v-select
+                  v-model="item.role"
+                  class="w-100"
+                  id="id_role"
+                  @input="updateReviewer(item)"
+                  :options="roleChoices"
+                  label='text'
+                  :reduce="text => text.value"
+                  :clearable="false"
+                  placeholder=""
+                  :disabled="!item.can_be_modified"
                 >
                 </v-select>
               </td>
@@ -77,6 +104,7 @@
 
               <td style="width:75px">
                 <button
+                  v-if="item.can_be_modified"
                   @click="deleteReviewer(item)"
                   class="btn btn-sm btn-outline-dark py-0 px-1" data-toggle="tooltip" title="{% trans "Delete" %}">
                   <span class="mdi mdi-delete text-dark"></span>
@@ -88,7 +116,7 @@
           </table>
         </div>
         <div v-else>
-          <em>{% trans "No reviewers have been added to this Terms of Reference." %}</em>
+          <em>{% trans "No approvers have been added to this Terms of Reference." %}</em>
         </div>
 
         <div v-if="errorReviewer" class="alert alert-danger py-1 mt-3 w-75" role="alert">
@@ -98,13 +126,11 @@
           </p>
         </div>
 
-
         <div v-if="canEditReviewers" class="mt-3">
           <button @click="addReviewer" class="btn btn-sm btn-success text-light">
-            <span class="mdi mdi-plus text-light"></span>{% trans "Add reviewer" %}
+            <span class="mdi mdi-plus text-light mr-1"></span>{% trans "Add an approver" %}
           </button>
         </div>
-
 
       </div>
     </div>

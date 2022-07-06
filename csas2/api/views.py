@@ -974,8 +974,20 @@ class ToRReviewerViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["tor"]
 
+    def perform_destroy(self, instance):
+        # don't delete if there are no other approvers and the tor is submitted
+        tor = instance.tor
+        if tor.submission_date and not tor.reviewers.filter(~Q(id=instance.id)).filter(role=1).exists():
+            msg = _('There has to be at least one approver in the queue!')
+            raise ValidationError(msg)
+        super().perform_destroy(instance)
+
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        obj = serializer.save(created_by=self.request.user)
+        # if the review is underway, the status should go directly to queued (20)!
+        if obj.tor.status == 20:
+            obj.status = 20
+            obj.save()
 
     def perform_update(self, serializer):
         obj = serializer.save(updated_by=self.request.user)
