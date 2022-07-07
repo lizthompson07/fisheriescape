@@ -1,0 +1,58 @@
+[
+    {
+        "fields": {
+            "description": null,
+            "mitigation_type": ""
+        },
+        "model": "fisheriescape.mitigation",
+        "pk": 7
+    },
+    {
+        "fields": {
+            "description": null,
+            "mitigation_type": "Approach Distances"
+        },
+        "model": "fisheriescape.mitigation",
+        "pk": 5
+    },
+    {
+        "fields": {
+            "description": null,
+            "mitigation_type": "Closures"
+        },
+        "model": "fisheriescape.mitigation",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "description": null,
+            "mitigation_type": "Gear Modification"
+        },
+        "model": "fisheriescape.mitigation",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "description": null,
+            "mitigation_type": "Gear Restriction"
+        },
+        "model": "fisheriescape.mitigation",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "description": null,
+            "mitigation_type": "Seasonal Change"
+        },
+        "model": "fisheriescape.mitigation",
+        "pk": 8
+    },
+    {
+        "fields": {
+            "description": null,
+            "mitigation_type": "Seasonal Changes"
+        },
+        "model": "fisheriescape.mitigation",
+        "pk": 2
+    }
+]

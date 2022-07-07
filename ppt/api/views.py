@@ -81,7 +81,7 @@ class FTEBreakdownAPIView(APIView):
             year = request.query_params.get("year")
             fiscal_year = shared_models.FiscalYear.objects.get(pk=year)
             # now we need a user list for any users in the above list
-            users = User.objects.filter(staff_instances2__project_year_id__in=ids).distinct().order_by("last_name")\
+            users = User.objects.filter(staff_instances2__project_year_id__in=ids).distinct().order_by("last_name") \
                 .select_related("profile", "profile__section")
 
             for u in users:

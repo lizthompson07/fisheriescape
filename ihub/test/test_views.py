@@ -16,7 +16,7 @@ class TestConsultationInstructionCreateView(CommonTest):
         self.instance = FactoryFloor.OrganizationFactory()
         self.test_url = reverse_lazy('ihub:instruction_new', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_form.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("ConsultationInstruction", "instruction_new", "view")
     def test_view_class(self):
@@ -39,7 +39,7 @@ class TestConsultationInstructionDeleteView(CommonTest):
         self.instance = FactoryFloor.ConsultationInstructionFactory()
         self.test_url = reverse_lazy('ihub:instruction_delete', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="ihub_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("ConsultationInstruction", "instruction_delete", "view")
     def test_view_class(self):
@@ -65,7 +65,7 @@ class TestConsultationInstructionUpdateView(CommonTest):
         self.instance = FactoryFloor.ConsultationInstructionFactory()
         self.test_url = reverse_lazy('ihub:instruction_edit', args=[self.instance.pk, ])
         self.expected_template = 'ihub/instruction_form.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("ConsultationInstruction", "instruction_edit", "view")
     def test_view_class(self):
@@ -89,7 +89,7 @@ class TestConsultationRoleCreateView(CommonTest):
         self.instance2 = FactoryFloor.OrganizationMemberFactory()
         self.test_url = reverse_lazy('ihub:consultee_new', args=[self.instance1.pk, self.instance2.pk, ])
         self.expected_template = 'shared_models/generic_popout_form.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("ConsultationRole", "consultee_new", "view")
     def test_view_class(self):
@@ -112,7 +112,7 @@ class TestConsultationRoleDeleteView(CommonTest):
         self.instance = FactoryFloor.ConsultationRoleFactory()
         self.test_url = reverse_lazy('ihub:consultee_delete', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="ihub_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("ConsultationRole", "consultee_delete", "view")
     def test_view_class(self):
@@ -138,7 +138,7 @@ class TestConsultationRoleUpdateView(CommonTest):
         self.instance = FactoryFloor.ConsultationRoleFactory()
         self.test_url = reverse_lazy('ihub:consultee_edit', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_form.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("ConsultationRole", "consultee_edit", "view")
     def test_view_class(self):
@@ -160,7 +160,7 @@ class TestEntryCreateView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('ihub:entry_new')
         self.expected_template = 'ihub/form.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("Entry", "entry_new", "view")
     def test_view_class(self):
@@ -188,7 +188,7 @@ class TestEntryDeleteView(CommonTest):
         self.instance = FactoryFloor.EntryFactory()
         self.test_url = reverse_lazy('ihub:entry_delete', args=[self.instance.pk, ])
         self.expected_template = 'ihub/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="ihub_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Entry", "entry_delete", "view")
     def test_view_class(self):
@@ -265,7 +265,7 @@ class TestEntryNoteCreateView(CommonTest):
         self.instance = FactoryFloor.EntryFactory()
         self.test_url = reverse_lazy('ihub:note_new', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_form.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("EntryNote", "note_new", "view")
     def test_view_class(self):
@@ -288,7 +288,7 @@ class TestEntryNoteUpdateView(CommonTest):
         self.instance = FactoryFloor.EntryNoteFactory()
         self.test_url = reverse_lazy('ihub:note_edit', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_form.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("EntryNote", "note_edit", "view")
     def test_view_class(self):
@@ -311,7 +311,7 @@ class TestEntryPersonCreateView(CommonTest):
         self.instance = FactoryFloor.EntryPersonFactory()
         self.test_url = reverse_lazy('ihub:ep_new', args=[self.instance.pk, ])
         self.expected_template = 'ihub/entry_person_form_popout.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("EntryPerson", "ep_new", "view")
     def test_view_class(self):
@@ -333,7 +333,7 @@ class TestEntryPersonDeleteView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.EntryPersonFactory()
         self.test_url = reverse_lazy('ihub:ep_delete', args=[self.instance.pk, ])
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("EntryPerson", "ep_delete", "access")
     def test_view(self):
@@ -350,7 +350,7 @@ class TestEntryPersonUpdateView(CommonTest):
         self.instance = FactoryFloor.EntryPersonFactory()
         self.test_url = reverse_lazy('ihub:ep_edit', args=[self.instance.pk, ])
         self.expected_template = 'ihub/entry_person_form_popout.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("EntryPerson", "ep_edit", "view")
     def test_view_class(self):
@@ -373,7 +373,7 @@ class TestEntryUpdateView(CommonTest):
         self.instance = FactoryFloor.EntryFactory()
         self.test_url = reverse_lazy('ihub:entry_edit', args=[self.instance.pk, ])
         self.expected_template = 'ihub/form.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("Entry", "entry_edit", "view")
     def test_view_class(self):
@@ -419,7 +419,7 @@ class TestOrganizationCreateView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('ihub:org_new')
         self.expected_template = 'ihub/form.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("Organization", "org_new", "view")
     def test_view_class(self):
@@ -442,7 +442,7 @@ class TestOrganizationDeleteView(CommonTest):
         self.instance = FactoryFloor.OrganizationFactory()
         self.test_url = reverse_lazy('ihub:org_delete', args=[self.instance.pk, ])
         self.expected_template = 'ihub/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="ihub_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Organization", "org_delete", "view")
     def test_view_class(self):
@@ -517,7 +517,7 @@ class TestOrganizationMemberCreateView(CommonTest):
         self.instance = FactoryFloor.OrganizationFactory()
         self.test_url = reverse_lazy('ihub:member_new', args=[self.instance.pk, ])
         self.expected_template = 'ihub/member_form_popout.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("OrganizationMember", "member_new", "view")
     def test_view_class(self):
@@ -540,7 +540,7 @@ class TestOrganizationMemberDeleteView(CommonTest):
         self.instance = FactoryFloor.OrganizationMemberFactory()
         self.test_url = reverse_lazy('ihub:member_delete', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="ihub_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("OrganizationMember", "member_delete", "view")
     def test_view_class(self):
@@ -566,7 +566,7 @@ class TestOrganizationMemberUpdateView(CommonTest):
         self.instance = FactoryFloor.OrganizationMemberFactory()
         self.test_url = reverse_lazy('ihub:member_edit', args=[self.instance.pk, ])
         self.expected_template = 'ihub/member_form_popout.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("OrganizationMember", "member_edit", "view")
     def test_view_class(self):
@@ -589,7 +589,7 @@ class TestOrganizationUpdateView(CommonTest):
         self.instance = FactoryFloor.OrganizationFactory()
         self.test_url = reverse_lazy('ihub:org_edit', args=[self.instance.pk, ])
         self.expected_template = 'ihub/form.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("Organization", "org_edit", "view")
     def test_view_class(self):
@@ -614,7 +614,7 @@ class TestPersonCreateView(CommonTest):
         self.test_url1 = reverse_lazy('ihub:person_new_pop')
         self.expected_template = 'ihub/form.html'
         self.expected_template1 = 'shared_models/generic_popout_form.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("Person", "person_new", "view")
     def test_view_class(self):
@@ -643,7 +643,7 @@ class TestPersonDeleteView(CommonTest):
         self.instance = FactoryFloor.PersonFactory()
         self.test_url = reverse_lazy('ihub:person_delete', args=[self.instance.pk, ])
         self.expected_template = 'ihub/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="ihub_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Person", "person_delete", "view")
     def test_view_class(self):
@@ -722,7 +722,7 @@ class TestPersonUpdateView(CommonTest):
         self.test_url1 = reverse_lazy('ihub:person_edit_pop', args=[self.instance.pk, ])
         self.expected_template = 'ihub/form.html'
         self.expected_template1 = 'shared_models/generic_popout_form.html'
-        self.user = self.get_and_login_user(in_group="ihub_edit")
+        self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("Person", "person_form", "view")
     def test_view_class(self):

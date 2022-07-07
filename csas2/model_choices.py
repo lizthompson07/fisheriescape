@@ -79,7 +79,7 @@ tor_status_choices = (
     (10, _("Draft")),
     (20, _("Under review")),
     (30, _("Awaiting changes")),
-    (35, _("Reviewed")),
+    (35, _("Approved")),
     (40, _("Awaiting posting")),
     (50, _("Posted")),
 )
@@ -87,6 +87,11 @@ tor_status_choices = (
 tor_review_decision_choices = (
     (1, _("Accept")),
     (2, _("Request changes")),
+)
+
+tor_review_role_choices = (
+    (1, _("Approver")),
+    (2, _("Reviewer")),
 )
 
 tor_review_status_choices = (

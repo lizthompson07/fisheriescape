@@ -13,37 +13,6 @@ from .. import views
 # python manage.py test fisheriescape.test --tag species_new
 
 
-class TestSpeciesDetailView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.SpeciesFactory()
-        self.test_url = reverse_lazy('fisheriescape:species_detail', args=[self.instance.pk, ])
-        self.expected_template = 'fisheriescape/species_detail.html'
-        self.user = self.get_and_login_user(in_group="fisheriescape_admin")
-
-    @tag("Species", "species_detail", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.SpeciesDetailView, CommonDetailView)
-        self.assert_inheritance(views.SpeciesDetailView, views.FisheriescapeAdminAccessRequired)
-
-    @tag("Species", "species_detail", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Species", "species_detail", "context")
-    def test_context(self):
-        context_vars = [
-            "field_list",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
-    @tag("Species", "species_detail", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("fisheriescape:species_detail", f"/en/fisheriescape/species/{self.instance.pk}/view/", [self.instance.pk])
-
-
 class TestFisheryAreaDetailView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -68,6 +37,8 @@ class TestFisheryAreaDetailView(CommonTest):
             "field_list",
             "random_fishery",
             "fishery_field_list",
+            "fishery_polygons",
+            "mapbox_api_key",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
@@ -99,9 +70,13 @@ class TestFisheryDetailView(CommonTest):
     def test_context(self):
         context_vars = [
             "field_list",
+            "field_list_gear",
+            "field_list_monitoring",
+            "field_list_other",
             "random_mammals",
             "mammals_field_list",
             "fishery_polygons",
+            "mapbox_api_key",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
@@ -109,3 +84,69 @@ class TestFisheryDetailView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("fisheriescape:fishery_detail", f"/en/fisheriescape/fishery/{self.instance.pk}/view/", [self.instance.pk])
+
+
+class TestNAFOAreaDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.NAFOAreaFactory()
+        self.test_url = reverse_lazy('fisheriescape:nafo_area_detail', args=[self.instance.pk, ])
+        self.expected_template = 'fisheriescape/nafoarea_detail.html'
+        self.user = self.get_and_login_user(in_group="fisheriescape_admin")
+
+    @tag("NAFOArea", "nafo_area_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.NAFOAreaDetailView, CommonDetailView)
+        self.assert_inheritance(views.NAFOAreaDetailView, views.FisheriescapeAdminAccessRequired)
+
+    @tag("NAFOArea", "nafo_area_detail", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("NAFOArea", "nafo_area_detail", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+            "random_fishery",
+            "fishery_field_list",
+            "fishery_polygons",
+            "mapbox_api_key",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("NAFOArea", "nafo_area_detail", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("fisheriescape:nafo_area_detail", f"/en/nafoarea/{self.instance.pk}/view/", [self.instance.pk])
+
+
+class TestAnalysesDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.AnalysesFactory()
+        self.test_url = reverse_lazy('fisheriescape:analyses_detail', args=[self.instance.pk, ])
+        self.expected_template = 'fisheriescape/analyses_detail.html'
+        self.user = self.get_and_login_user(in_group="fisheriescape_admin")
+
+    @tag("Analyses", "analyses_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.AnalysesDetailView, CommonDetailView)
+        self.assert_inheritance(views.AnalysesDetailView, views.FisheriescapeAdminAccessRequired)
+
+    @tag("Analyses", "analyses_detail", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Analyses", "analyses_detail", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("Analyses", "analyses_detail", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("fisheriescape:analyses_detail", f"/en/analyses/{self.instance.pk}/view/", [self.instance.pk])

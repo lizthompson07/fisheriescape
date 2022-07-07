@@ -19,10 +19,13 @@
 <script>
 let lobsterObj = {{ lobster_areas | safe }};
 let snowCrabObj = {{ snow_crab_areas | safe }};
+let herringObj = {{ herring_areas | safe }};
+let groundfishObj = {{ groundfish_areas | safe }};
+let nafoSubObj = {{ nafo_sub_areas | safe }};
 let nafoObj = {{ nafo_areas | safe }};
 let mapboxApiKey = '{{ mapbox_api_key }}';
 </script>
 
-<script src="{% static 'fisheriescape/map.js' %}?version=1.1"></script>
+<script src="{% static 'fisheriescape/map.js' %}?version=1.9"></script>
 </body>
 </html>

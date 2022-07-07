@@ -116,6 +116,7 @@ class EntryForm(forms.ModelForm):
             raise forms.ValidationError("You must select at least one sector!")
         return sectors
 
+
 class NoteForm(forms.ModelForm):
     class Meta:
         model = models.EntryNote
@@ -551,5 +552,21 @@ class RelationshipRatingForm(forms.ModelForm):
 RelationshipRatingFormSet = modelformset_factory(
     model=ml_models.RelationshipRating,
     form=RelationshipRatingForm,
+    extra=1,
+)
+
+
+class iHubUserForm(forms.ModelForm):
+    class Meta:
+        model = models.iHubUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+iHubUserFormset = modelformset_factory(
+    model=models.iHubUser,
+    form=iHubUserForm,
     extra=1,
 )

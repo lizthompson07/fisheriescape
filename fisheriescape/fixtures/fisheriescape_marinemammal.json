@@ -1,1 +1,377 @@
-[{"model": "fisheriescape.marinemammal", "pk": 1, "fields": {"english_name": "North Atlantic Right Whale", "english_name_short": "NARW", "french_name": "Baleine noire de l'Atlantique Nord", "french_name_short": "BNAN", "latin_name": "Eubalaena glacialis", "sara_status": "Endangered", "cosewic_status": "Endangered", "website": "https://species-registry.canada.ca/index-en.html#/species/780-298"}}, {"model": "fisheriescape.marinemammal", "pk": 2, "fields": {"english_name": "Common Minke Whale North Atlantic subspecies", "english_name_short": "Minke", "french_name": "Petit rorqual de la sous-espèce de l'Atlantique Nord", "french_name_short": "Petit rorqual", "latin_name": "Balaenoptera acutorostrata acutorostrata", "sara_status": "No Status", "cosewic_status": "Not at Risk", "website": "https://species-registry.canada.ca/index-en.html#/species/894-0"}}]
+[
+    {
+        "fields": {
+            "cosewic_status": "Not at Risk",
+            "english_name": "Atlantic white-sided dolphin",
+            "english_name_short": null,
+            "french_name": "Dauphin \u00e0 flancs blancs",
+            "french_name_short": null,
+            "latin_name": "Lagenorhynchus acutus",
+            "population": "Atlantic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/339-0"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 17
+    },
+    {
+        "fields": {
+            "cosewic_status": "Endangered",
+            "english_name": "Beluga",
+            "english_name_short": "Beluga",
+            "french_name": "B\u00e9luga",
+            "french_name_short": "B\u00e9luga",
+            "latin_name": "Delphinapterus leucas",
+            "population": "St. Lawrence Estuary",
+            "sara_status": "Endangered",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/102-111"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 12
+    },
+    {
+        "fields": {
+            "cosewic_status": "Endangered",
+            "english_name": "Blue Whale",
+            "english_name_short": null,
+            "french_name": "Baleine bleu",
+            "french_name_short": null,
+            "latin_name": "Balaenoptera musculus",
+            "population": "Atlantic",
+            "sara_status": "Endangered",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/717-81"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 6
+    },
+    {
+        "fields": {
+            "cosewic_status": "Not at Risk",
+            "english_name": "Common bottlenose dolphin",
+            "english_name_short": null,
+            "french_name": "Grand dauphin commun",
+            "french_name_short": null,
+            "latin_name": "Tursiops truncatus",
+            "population": "Atlantic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/338-0"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 19
+    },
+    {
+        "fields": {
+            "cosewic_status": "Not at Risk",
+            "english_name": "Common Minke Whale",
+            "english_name_short": "Minke",
+            "french_name": "Petit rorqual",
+            "french_name_short": "Petit rorqual",
+            "latin_name": "Balaenoptera acutorostrata",
+            "population": "North Atlantic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/894-0"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 9
+    },
+    {
+        "fields": {
+            "cosewic_status": "Not at Risk",
+            "english_name": "Cuvier's beaked whale",
+            "english_name_short": null,
+            "french_name": "Baleine \u00e0 bec de Cuvier",
+            "french_name_short": null,
+            "latin_name": "Ziphius cavirostris",
+            "population": "Atlantic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/354-0"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "cosewic_status": "Special Concern",
+            "english_name": "Fin Whale",
+            "english_name_short": null,
+            "french_name": "Rorqual commun",
+            "french_name_short": null,
+            "latin_name": "Balaenoptera physalus",
+            "population": "Atlantic",
+            "sara_status": "Special Concern",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/874-592"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 7
+    },
+    {
+        "fields": {
+            "cosewic_status": "Not at Risk",
+            "english_name": "Grey seal",
+            "english_name_short": null,
+            "french_name": "Phoque gris de l'Atlantique",
+            "french_name_short": null,
+            "latin_name": "Halichoerus grypus",
+            "population": "Atlantic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/599-0"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 23
+    },
+    {
+        "fields": {
+            "cosewic_status": "Special Concern",
+            "english_name": "Harbour Porpoise",
+            "english_name_short": null,
+            "french_name": "Marsouin commun",
+            "french_name_short": null,
+            "latin_name": "Phocoena phocoena",
+            "population": "Northwest Atlantic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/147-130"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 15
+    },
+    {
+        "fields": {
+            "cosewic_status": "Not at Risk",
+            "english_name": "Harbour seal",
+            "english_name_short": null,
+            "french_name": "Phoque commun",
+            "french_name_short": null,
+            "latin_name": "Phoca vitulina concolor",
+            "population": "Atlantic / Eastern Arctic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/595-0"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 22
+    },
+    {
+        "fields": {
+            "cosewic_status": "No Status",
+            "english_name": "Harp seal",
+            "english_name_short": null,
+            "french_name": "Phoque du Groenland",
+            "french_name_short": null,
+            "latin_name": "Pagophilus groenlandicus",
+            "population": "Atlantic",
+            "sara_status": "No Status",
+            "website": "https://www.dfo-mpo.gc.ca/species-especes/profiles-profils/harpseal-phoquegroenland-eng.html"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 24
+    },
+    {
+        "fields": {
+            "cosewic_status": "Not at Risk",
+            "english_name": "Hooded seal",
+            "english_name_short": null,
+            "french_name": "Phoque \u00e0 capuchon",
+            "french_name_short": null,
+            "latin_name": "Cystophora cristata",
+            "population": "Atlantic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/345-0"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 25
+    },
+    {
+        "fields": {
+            "cosewic_status": "Not at Risk",
+            "english_name": "Humpback Whale",
+            "english_name_short": "Humpback",
+            "french_name": "Baleine \u00e0 bosse",
+            "french_name_short": "Baleine \u00e0 bosse",
+            "latin_name": "Megaptera novaeangliae",
+            "population": "Western North Atlantic",
+            "sara_status": "Not at Risk",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/160-531"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 8
+    },
+    {
+        "fields": {
+            "cosewic_status": "Special Concern",
+            "english_name": "Killer whale",
+            "english_name_short": "Killer Whale",
+            "french_name": "\u00c9paulard",
+            "french_name_short": "\u00c9paulard",
+            "latin_name": "Orcinus orca",
+            "population": "Northwest Atlantic / Eastern Arctic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/598-6"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 13
+    },
+    {
+        "fields": {
+            "cosewic_status": "Endangered",
+            "english_name": "Leatherback sea turtle",
+            "english_name_short": null,
+            "french_name": "Tortue luth",
+            "french_name_short": null,
+            "latin_name": "Dermochelys coriacea",
+            "population": "Atlantic",
+            "sara_status": "Endangered",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/1191-861"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 26
+    },
+    {
+        "fields": {
+            "cosewic_status": "Endangered",
+            "english_name": "Loggerhead sea turtle",
+            "english_name_short": null,
+            "french_name": "Tortues caouanes",
+            "french_name_short": null,
+            "latin_name": "Caretta caretta",
+            "population": "Atlantic",
+            "sara_status": "Endangered",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/1090-753"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 27
+    },
+    {
+        "fields": {
+            "cosewic_status": "Not at Risk",
+            "english_name": "Long-finned Pilot Whale",
+            "english_name_short": null,
+            "french_name": "Globic\u00e9phale commun",
+            "french_name_short": null,
+            "latin_name": "Globicephala melas",
+            "population": "Atlantic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/358-0"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 14
+    },
+    {
+        "fields": {
+            "cosewic_status": "Endangered",
+            "english_name": "North Atlantic Right Whale",
+            "english_name_short": "NARW",
+            "french_name": "Baleine noire de l'Atlantique nord",
+            "french_name_short": "BNAN",
+            "latin_name": "Eubalaena glacialis",
+            "population": "North Atlantic",
+            "sara_status": "Endangered",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/780-298"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 10
+    },
+    {
+        "fields": {
+            "cosewic_status": "Endangered",
+            "english_name": "Northern bottlenose whale",
+            "english_name_short": "Bottlenose",
+            "french_name": "Hyp\u00e9roodon de l'Atlantique nord",
+            "french_name_short": "Hyp\u00e9roodon",
+            "latin_name": "Hyperoodon ampullatus",
+            "population": "Scotian Shelf",
+            "sara_status": "Endangered",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/162-299"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "cosewic_status": "Not at Risk",
+            "english_name": "Risso's dolphin",
+            "english_name_short": null,
+            "french_name": "Dauphin de Risso",
+            "french_name_short": null,
+            "latin_name": "Grampus griseus",
+            "population": "Atlantic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/342-0"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 21
+    },
+    {
+        "fields": {
+            "cosewic_status": "Endangered",
+            "english_name": "Sei Whale",
+            "english_name_short": null,
+            "french_name": "Rorqual bor\u00e9al",
+            "french_name_short": null,
+            "latin_name": "Balaenoptera borealis",
+            "population": "Atlantic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/754-836"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 11
+    },
+    {
+        "fields": {
+            "cosewic_status": "Not at Risk",
+            "english_name": "Short-beaked common dolphin",
+            "english_name_short": null,
+            "french_name": "Dauphin commun \u00e0 bec court",
+            "french_name_short": null,
+            "latin_name": "Delphinus delphis",
+            "population": "Atlantic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/338-0"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 18
+    },
+    {
+        "fields": {
+            "cosewic_status": "Special Concern",
+            "english_name": "Sowerby's beaked whale",
+            "english_name_short": null,
+            "french_name": "Baleine \u00e0 bec de Sowerby",
+            "french_name_short": null,
+            "latin_name": "Mesoplodon bidens",
+            "population": "Atlantic",
+            "sara_status": "Special Concern",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/169-432"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 5
+    },
+    {
+        "fields": {
+            "cosewic_status": "Not at Risk",
+            "english_name": "Sperm Whale",
+            "english_name_short": null,
+            "french_name": "Cachalot",
+            "french_name_short": null,
+            "latin_name": "Physeter macrocephalus",
+            "population": "Atlantic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/362-0"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 16
+    },
+    {
+        "fields": {
+            "cosewic_status": "Not at Risk",
+            "english_name": "White-beaked dolphin",
+            "english_name_short": null,
+            "french_name": "Dauphin \u00e0 bec blanc",
+            "french_name_short": null,
+            "latin_name": "Lagenorhynchus albirostris",
+            "population": "Atlantic",
+            "sara_status": "No Status",
+            "website": "https://species-registry.canada.ca/index-en.html#/species/550-0"
+        },
+        "model": "fisheriescape.marinemammal",
+        "pk": 20
+    }
+]
