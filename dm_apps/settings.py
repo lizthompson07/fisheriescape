@@ -170,6 +170,7 @@ INSTALLED_APPS = [
 GEODJANGO = config("GEODJANGO", cast=bool, default=False)
 if not GEODJANGO:
     INSTALLED_APPS.remove('django.contrib.gis')
+    INSTALLED_APPS.remove('rest_framework_gis')
     try:
         INSTALLED_APPS.remove('spring_cleanup')
         print("turning off spring cleanup app because geodjango is not enabled")
