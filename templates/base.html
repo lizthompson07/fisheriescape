@@ -143,9 +143,9 @@
 
 {# I moved the jquery import here because if it's "include" from another file #}
 {# the jquery_import block can't be overriden by an extending template -Patrick 2020/03/04 #}
+{# I had to change this to jquery (non min version to get leaflet DRF test to work -Liz 2022/03/14#}
 {% block jquery_import %}
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-          integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 {% endblock %}
 
 {% include "_base_js.html" %}

@@ -12,7 +12,8 @@ faker = Faker()
 # Example how to run with keyword tags
 # python manage.py test fisheriescape.test --tag models
 
-#TODO self.instance doesn't call anything
+
+# TODO self.instance doesn't call anything
 class TestFisheryAreaModel(CommonTest):
     def setUp(self):
         super().setUp()
@@ -23,10 +24,20 @@ class TestFisheryAreaModel(CommonTest):
         fields_to_check = [
             "layer_id",
             "name",
+            "nafo_area",
+            "region",
             "polygon",
         ]
         self.assert_has_fields(models.FisheryArea, fields_to_check)
-        
+
+    @tag('FisheryArea', 'models', 'm2m')
+    def test_m2m_NAFOArea(self):
+        # a `my_model` that is attached to a given `NAFOArea` should be accessible by the m2m field name `NAFOAreas`
+        NAFOArea = FactoryFloor.NAFOAreaFactory()
+        self.instance.NAFOAreas.add(NAFOArea)
+        self.assertEqual(self.instance.NAFOAreas.count(), 1)
+        self.assertIn(NAFOArea, self.instance.NAFOAreas.all())
+
     @tag('FisheryArea', 'models', 'unique_together')
     def test_unique_together(self):
         expected_unique_together = (('name', 'layer_id'),)
@@ -50,6 +61,32 @@ class TestFisheryAreaModel(CommonTest):
         self.assert_mandatory_fields(models.FisheryArea, fields_to_check)
 
 
+class TestNAFOAreaModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.NAFOAreaFactory()
+
+    @tag('NAFOArea', 'models', 'fields')
+    def test_fields(self):
+        fields_to_check = [
+            "layer_id",
+            "name",
+            "polygon",
+        ]
+        self.assert_has_fields(models.NAFOArea, fields_to_check)
+
+    @tag('NAFOArea', 'models', 'unique_together')
+    def test_unique_together(self):
+        expected_unique_together = (('name', 'layer_id'),)
+        actual_unique_together = models.NAFOArea._meta.unique_together
+        self.assertEqual(expected_unique_together, actual_unique_together)
+
+    @tag('NAFOArea', 'models', 'mandatory_fields')
+    def test_mandatory_fields(self):
+        fields_to_check = ['polygon', ]
+        self.assert_mandatory_fields(models.NAFOArea, fields_to_check)
+
+
 class TestMarineMammalModel(CommonTest):
     def setUp(self):
         super().setUp()
@@ -63,6 +100,9 @@ class TestMarineMammalModel(CommonTest):
             "french_name",
             "french_name_short",
             "latin_name",
+            "population",
+            "sara_status",
+            "cosewic_status",
             "website",
         ]
         self.assert_has_fields(models.MarineMammal, fields_to_check)
@@ -105,11 +145,30 @@ class TestFisheryModel(CommonTest):
     def test_fields(self):
         fields_to_check = [
             "species",
+            "participants",
+            "participant_detail",
             "start_date",
             "end_date",
             "gear_type",
+            "gear_amount",
+            "gear_config",
+            "gear_soak",
+            "gear_primary_colour",
+            "gear_secondary_colour",
+            "gear_tertiary_colour",
+            "gear_comment",
+            "monitoring_aso",
+            "monitoring_dockside",
+            "monitoring_logbook",
+            "monitoring_vms",
+            "monitoring_comment",
+            "mitigation_comment",
         ]
         self.assert_has_fields(models.Fishery, fields_to_check)
+
+    @tag('Fishery', 'models', 'props')
+    def test_props(self):
+        self.assert_has_props(models.Fishery, ["nafo_fishery_areas"])
 
     @tag('Fishery', 'models', 'm2m')
     def test_m2m_marine_mammal(self):
@@ -127,15 +186,73 @@ class TestFisheryModel(CommonTest):
         self.assertEqual(self.instance.fishery_areas.count(), 1)
         self.assertIn(fishery_areas, self.instance.fishery_areas.all())
 
+    @tag('Fishery', 'models', 'm2m')
+    def test_m2m_mitigation(self):
+        # a `my_model` that is attached to a given `mitigation` should be accessible by the m2m field name `mitigation`
+        mitigation = FactoryFloor.MitigationFactory()
+        self.instance.mitigation.add(mitigation)
+        self.assertEqual(self.instance.mitigation.count(), 1)
+        self.assertIn(mitigation, self.instance.mitigation.all())
+
     @tag('Fishery', 'models', 'choices')
     def test_choices_fishery_status(self):
         actual_choices = (
             ("Active", "Active"),
-            ("Inactive", "Inactive"),
             ("Experimental", "Experimental"),
+            ("Inactive", "Inactive"),
             ("Unknown", "Unknown"),
         )
         expected_choices = [field.choices for field in models.Fishery._meta.fields if field.name == "fishery_status"][0]
+        self.assertEqual(actual_choices, expected_choices)
+
+    @tag('Fishery', 'models', 'choices')
+    def test_choices_license_type(self):
+        actual_choices = (
+            ("Multi", "Multi Species"),
+            ("Single", "Single Species"),
+        )
+        expected_choices = [field.choices for field in models.Fishery._meta.fields if field.name == "license_type"][0]
+        self.assertEqual(actual_choices, expected_choices)
+
+    @tag('Fishery', 'models', 'choices')
+    def test_choices_management_system(self):
+        actual_choices = (
+            ("Effort Control", "Effort Control"),
+            ("Quota - Competitive", "Quota - Competitive"),
+            ("Quota - Individual", "Quota - Individual"),
+        )
+        expected_choices = [field.choices for field in models.Fishery._meta.fields if field.name == "management_system"][0]
+        self.assertEqual(actual_choices, expected_choices)
+
+    @tag('Fishery', 'models', 'choices')
+    def test_choices_gear_type(self):
+        actual_choices = (
+            ("Gillnets", "Gillnets"),
+            ("Longlines", "Longlines"),
+            ("Pots / Traps", "Pots / Traps"),
+            ("Set Gillnet", "Set Gillnet"),
+        )
+        expected_choices = [field.choices for field in models.Fishery._meta.fields if field.name == "gear_type"][0]
+        self.assertEqual(actual_choices, expected_choices)
+
+    @tag('Fishery', 'models', 'choices')
+    def test_choices_gear_primary_colour(self):
+        actual_choices = (
+            ("", "---------"),
+            ("Blue", "Blue"),
+            ("Black", "Black"),
+            ("Red", "Red"),
+            ("Yellow", "Yellow"),
+            ("White", "White"),
+            ("Purple", "Purple"),
+            ("Orange", "Orange"),
+            ("Green", "Green"),
+            ("Grey", "Grey"),
+            ("Brown", "Brown"),
+            ("Pink", "Pink"),
+            ("Red/White Pattern", "Red/White Pattern"),
+        )
+        expected_choices = [field.choices for field in models.Fishery._meta.fields if field.name == "gear_primary_colour"][0]
         self.assertEqual(actual_choices, expected_choices)
 
     @tag('Fishery', 'models', 'mandatory_fields')
