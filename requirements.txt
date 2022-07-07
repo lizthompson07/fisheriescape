@@ -30,7 +30,7 @@ django-storages==1.10.1
 django-storages[azure]
 django-tracking2==0.5.0
 django-webpack-loader==0.7.0
-Django==3.2.13
+Django==3.2.14
 djangorestframework-csv==2.1.0
 djangorestframework==3.13.1 #updated from 3.12.2
 djangorestframework-gis==0.18
