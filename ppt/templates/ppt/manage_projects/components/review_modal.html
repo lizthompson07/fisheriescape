@@ -31,6 +31,28 @@
               <h3>
                 <span>{% trans "Approval Form" %}</span>
               </h3>
+              <a class="btn btn-primary" href="#financials" data-toggle="collapse">Financial Info</a>
+
+              <table class="table table-sm table-hover collapse" id="financials">
+                <thead>
+                  <th>Financial Details</th>
+                  <th>Amount</th>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Capital Costs</td>
+                    <td>${project_year.capital_costs|currencyFormat}</td>
+                  </tr>
+                  <tr>
+                    <td>Salary Costs</td>
+                    <td>${project_year.salary_costs|currencyFormat}</td>
+                  </tr>
+                  <tr>
+                    <td>O&M Costs</td>
+                    <td>${project_year.om_costs|currencyFormat}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
             <br>
 
