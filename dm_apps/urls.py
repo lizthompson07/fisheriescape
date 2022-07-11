@@ -78,6 +78,10 @@ if settings.INSTALLED_APPS.count("ihub"):
     urlpatterns.append(
         path('api/', include('ihub.api.urls')),
     )
+if settings.INSTALLED_APPS.count("fisheriescape"):
+    urlpatterns.append(
+        path('api/', include('fisheriescape.api.urls')),
+    )
 
 if settings.INSTALLED_APPS.count("cars"):
     urlpatterns.append(

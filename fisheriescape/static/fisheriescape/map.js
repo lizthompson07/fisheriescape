@@ -48,6 +48,18 @@ function removeInfoCrab() {
     snowCrabFishery.resetStyle(this);
 }
 
+function removeInfoHerring() {
+    herringFishery.resetStyle(this);
+}
+
+function removeInfoGroundfish() {
+    groundfishFishery.resetStyle(this);
+}
+
+function removeInfoNafoSub() {
+    nafoSubFishery.resetStyle(this);
+}
+
 function removeInfoNafo() {
     nafoFishery.resetStyle(this);
 }
@@ -89,23 +101,77 @@ var snowCrabFishery = L.geoJSON(snowCrabObj, {
         }
 });
 
+// Create Herring polygon layer and use onEachFeature to show certain info for each feature
+
+var herringFishery = L.geoJSON(herringObj, {
+    style: function() {
+        return {
+            color: 'red'
+        }
+    },
+    onEachFeature: function (feature, layer) {
+        myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+        layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
+        layer.on({
+            mouseover: showInfo,
+            mouseout: removeInfoHerring
+        });
+        }
+});
+
+// Create Groundfish polygon layer and use onEachFeature to show certain info for each feature
+
+var groundfishFishery = L.geoJSON(groundfishObj, {
+    style: function() {
+        return {
+            color: 'grey'
+        }
+    },
+    onEachFeature: function (feature, layer) {
+        myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+        layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
+        layer.on({
+            mouseover: showInfo,
+            mouseout: removeInfoGroundfish
+        });
+        }
+});
+
+// Create NAFO Subareas polygon layer and use onEachFeature to show certain info for each feature
+
+var nafoSubFishery = L.geoJSON(nafoSubObj, {
+    style: function() {
+        return {
+            color: 'orange'
+        }
+    },
+    onEachFeature: function (feature, layer) {
+        myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+        layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
+        layer.on({
+            mouseover: showInfo,
+            mouseout: removeInfoNafoSub
+        });
+        }
+});
+
 // Create NAFO polygon layer and use onEachFeature to show certain info for each feature
 
-// var nafoFishery = L.geoJSON(nafoObj, {
-//     style: function() {
-//         return {
-//             color: 'green'
-//         }
-//     },
-//     onEachFeature: function (feature, layer) {
-//         myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
-//         layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
-//         layer.on({
-//             mouseover: showInfo,
-//             mouseout: removeInfoNafo
-//         });
-//         }
-// });
+var nafoFishery = L.geoJSON(nafoObj, {
+    style: function() {
+        return {
+            color: 'green'
+        }
+    },
+    onEachFeature: function (feature, layer) {
+        myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+        layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}`);
+        layer.on({
+            mouseover: showInfo,
+            mouseout: removeInfoNafo
+        });
+        }
+});
 
 
 // Create basemaps variable and add basemaps desired to it as options
@@ -121,7 +187,10 @@ var overlayMaps = {
     "Test": tests,
     "Lobster Areas": lobsterFishery,
     "Snow Crab Areas": snowCrabFishery,
-    // "NAFO Areas": nafoFishery
+    "Herring Areas": herringFishery,
+    "Groundfish Areas": groundfishFishery,
+    "NAFO Subareas": nafoSubFishery,
+    "NAFO Areas": nafoFishery
 };
 
 // Create the control layer box and add baseMaps and overlayMaps to it

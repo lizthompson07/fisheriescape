@@ -24,8 +24,8 @@ table, td, th, tr {
   {{ object.comments_html|safe }}
 </p>
 <p>
-  Please address these changes and then re-submit the ToR to continue with the approval process.
-  You can click <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">HERE</a> to access the ToR
+  Once these changes have been addressed, you can resume the approval process by clicking on the red button at the top of
+  <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">Terms of Reference</a> detail page.
 </p>
 
 <hr>
@@ -37,8 +37,8 @@ table, td, th, tr {
   {{ object.comments_html|safe }}
 </p>
 <p>
-  Veuillez adresser ces modifications, puis soumettez à nouveau votre cadre de référence pour poursuivre le processus d'approbation.
-  Vous pouvez cliquer <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">ICI</a> pour accéder le cadre de référence.
+  Une fois ces modifications sont traitées, vous pouvez reprendre le processus d'approbation en cliquant sur le bouton rouge en haut du
+   page de détail du <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">cadre de référence</a>.
 </p>
 
 

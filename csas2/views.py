@@ -10,6 +10,7 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.timezone import make_aware, utc
 from django.utils.translation import gettext_lazy, gettext as _
@@ -897,10 +898,9 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
 
 
 class TermsOfReferenceSubmitView(TermsOfReferenceUpdateView):
-    template_name = 'csas2/tor_submit.html'
+    template_name = 'csas2/form.html'
     form_class = forms.ToRTimestampUpdateForm
     submit_text = gettext_lazy("Proceed")
-    h2 = None
 
     def get_h1(self):
         my_object = self.get_object()
@@ -924,31 +924,9 @@ class TermsOfReferenceSubmitView(TermsOfReferenceUpdateView):
         else:
             obj.submit()
 
-        # No matter what business was done, we will call this function to sort through reviewer and request statuses
         utils.tor_approval_seeker(obj, self.request)
-        # utils.manage_trip_warning(my_object.trip, self.request)
-
-        # return HttpResponseRedirect(reverse("travel:request_detail", kwargs=self.kwargs) + self.get_query_string())
-
-        #
-        # if obj.submission_date:
-        #     obj.submission_date = None
-        # else:
-        #     obj.submission_date = timezone.now()
-        # obj.save()
-        #
-        # # # if the request was just submitted, send an email
-        # # if obj.submission_date:
-        # #     if not obj.office.disable_request_notifications:
-        # #         email = emails.NewRequestEmail(self.request, obj)
-        # #         email.send()
         return HttpResponseRedirect(self.get_success_url())
 
-    def get_h3(self):
-        # if self.get_object().process.is_posted:
-        #     mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(posted_meeting_msg)
-        #     return mark_safe(mystr)
-        pass
 
     def get_grandparent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().process.id),

@@ -15,7 +15,7 @@ from markdown import markdown
 from textile import textile
 
 from csas2 import model_choices, utils
-from csas2.model_choices import tor_review_status_choices, tor_review_decision_choices
+from csas2.model_choices import tor_review_status_choices, tor_review_decision_choices, tor_review_role_choices
 from csas2.utils import get_quarter
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import percentage
@@ -735,6 +735,7 @@ class TermsOfReference(MetadataFields):
 class ToRReviewer(MetadataFields):
     tor = models.ForeignKey(TermsOfReference, on_delete=models.CASCADE, related_name="reviewers")
     order = models.IntegerField(null=True, verbose_name=_("process order"))
+    role = models.IntegerField(verbose_name=_("role"), choices=tor_review_role_choices)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="tor_reviews", verbose_name=_("user"))
     decision = models.IntegerField(verbose_name=_("decision"), choices=tor_review_decision_choices, blank=True, null=True)
     decision_date = models.DateTimeField(verbose_name=_("date"), blank=True, null=True)
@@ -755,7 +756,7 @@ class ToRReviewer(MetadataFields):
         super().save(*args, **kwargs)
 
     class Meta:
-        unique_together = ['tor', 'user', ]
+        # unique_together = ['tor', 'user', ]
         ordering = ['tor', 'order', ]
         verbose_name = _("ToR reviewer")
 
@@ -765,6 +766,10 @@ class ToRReviewer(MetadataFields):
             return textile(self.comments)
         else:
             return "---"
+
+    @property
+    def can_be_modified(self):
+        return self.status in [10, 20] and self.tor.status != 50
 
 
 class ProcessNote(GenericNote):

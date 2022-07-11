@@ -1,7 +1,7 @@
 {% load static %}
 <style>
     body {
-        background-image: url("{% static "/img/fisheriescape/water.jpg" %}");
+        background-image: url("{% static "/img/fisheriescape/whale_background.jpg" %}");
         background-repeat: no-repeat;
         background-size: cover;
         background-attachment: fixed;
@@ -28,4 +28,78 @@
         color: red;
         font-style: italic;
     }
+
+
+    .card-header {
+        background-color: #041d70;
+        color: white;
+    }
+
+/*For side bar  https://www.w3schools.com/howto/howto_js_collapse_sidebar.asp */
+/* The sidebar menu */
+@media screen {
+    .sidebar-opened {
+        height: 100%; /* 100% Full-height */
+        width: 350px; /* 0 width - change this with JavaScript */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Stay on top */
+        top: 0;
+        left: 0;
+        background-color: #e2e2e2;
+        overflow-y: auto;
+        padding-top: 60px; /* Place content 60px from the top */
+        transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .sidebar-opened-sm {
+        height: 100%; /* 100% Full-height */
+        width: 225px; /* 0 width - change this with JavaScript */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Stay on top */
+        top: 0;
+        left: 0;
+        /*background-color: #e2e2e2;*/
+        overflow-y: auto;
+        padding-top: 60px; /* Place content 60px from the top */
+        transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .sidebar-closed {
+        height: 100%; /* 100% Full-height */
+        width: 50px; /* 0 width - change this with JavaScript */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Stay on top */
+        top: 0;
+        left: 0;
+        background-color: #e2e2e2;
+        /*overflow-x: hidden; !* Disable horizontal scroll *!*/
+        padding-top: 60px; /* Place content 60px from the top */
+        transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.95);
+
+    }
+
+    /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+    .main-opened {
+        transition: margin-left .5s; /* If you want a transition effect */
+        margin-left: 350px;
+        padding: 20px;
+    }
+
+    .main-opened-sm {
+        transition: margin-left .5s; /* If you want a transition effect */
+        margin-left: 225px;
+        padding: 20px;
+    }
+
+    .main-closed {
+        transition: margin-left .5s; /* If you want a transition effect */
+        margin-left: 20px; /* If you want a transition effect */
+        padding: 20px;
+    }
+
+}
+
 </style>

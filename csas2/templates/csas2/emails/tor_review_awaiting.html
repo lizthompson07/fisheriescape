@@ -18,8 +18,8 @@
 <p>
     Hello {{ object.user }},
     <br><br>
-    A CSAS Terms of Reference is awaiting your review in the DM Apps - CSAS Tracking Tool.
-    Please click <a href="{{SITE_FULL_URL}}{% url 'csas2:tor_detail' object.tor.id %}">HERE</a> to review the ToR.
+    A Canadian Science Advisory Secretariat (CSAS) Terms of Reference is awaiting your {% if object.role == 1 %} approval {% else %} review {% endif %} in the DM Apps - CSAS Tracking Tool.
+    Please click <a href="{{SITE_FULL_URL}}{% url 'csas2:tor_detail' object.tor.id %}">HERE</a> to review the Terms of Reference.
 </p>
 
   <hr>
@@ -27,10 +27,10 @@
 {% endlanguage %}
 {% language 'fr' %}
 <p>
-    {{ object.user }} :
+    Bonjour {{ object.user }} :
     <br><br>
-    Une cadre de référence attend votre examen dans l'application DM Apps - SCAS outil de suivi.
-    Veuillez cliquer <a href="{{SITE_FULL_URL}}{% url 'csas2:tor_detail' object.tor.id %}">ICI</a> pour examiner le cadre de reference.
+    Une cadre de référence attend votre {% if object.role == 1 %} approbation {% else %} evaluation {% endif %} dans l'outil de suivi SCAS de l’Applis GD.
+    Veuillez cliquer <a href="{{SITE_FULL_URL}}{% url 'csas2:tor_detail' object.tor.id %}">ICI</a> pour consulter le cadre de reference.
 </p>
 {% endlanguage %}
 
