@@ -333,9 +333,11 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
         obj = form.save(commit=False)
 
         if obj.interaction_type == 4:
+            # need to get an id to set the many to many fields
+            obj.save()
             committee = obj.committee
-            obj.main_topic = committee.main_topic.all()
-            obj.species = committee.species.all()
+            obj.main_topic.set(committee.main_topic.all())
+            obj.species.set(committee.species.all())
             obj.lead_region = committee.lead_region
             obj.branch = committee.branch
             obj.division = committee.division
