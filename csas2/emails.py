@@ -89,7 +89,7 @@ class SoMPEmail(Email):
 class NewRequestEmail(Email):
     email_template_path = 'csas2/emails/new_request.html'
     subject_en = 'A new CSAS request has been submitted'
-    subject_fr = "Une nouvelle demande de SCCS a été soumise"
+    subject_fr = "Une nouvelle demande de SCAS a été soumise"
 
     def get_recipient_list(self):
         # should go to all emails associated with csas office
@@ -113,7 +113,7 @@ class ReviewCompleteEmail(Email):
 class PostedMeetingEmail(Email):
     email_template_path = 'csas2/emails/posted_process.html'
     subject_en = 'Your process has been posted to the CSAS website'
-    subject_fr = "Votre processus a été publié sur le site Web du SCCS"
+    subject_fr = "Votre processus a été publié sur le site Web du SCAS"
 
     def get_recipient_list(self):
         # should go to all emails associated with csas office
@@ -208,7 +208,7 @@ class ToRReviewCompleteEmail(Email):
 class PostedToREmail(Email):
     email_template_path = 'csas2/emails/tor_posted.html'
     subject_en = 'Your ToR has been posted to the CSAS website'
-    subject_fr = "Votre cadre de référence a été publié sur le site Web du SCCS"
+    subject_fr = "Votre cadre de référence a été publié sur le site Web du SCAS"
 
     def get_recipient_list(self):
         return self.instance.process.editor_email_list
