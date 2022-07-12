@@ -70,7 +70,12 @@
           </tbody>
         </table>
       {% else %}
-        <em>{% trans "There are no documents linked to this meeting." %}</em>
+        <br>
+        <br>
+        <em class="h6">
+          {% trans "There are no documents linked to this meeting. Document can be added through the Process detail page or by clicking" %}
+          <a href="{% url 'csas2:document_new' object.process.id %}">{% trans "HERE" %}</a>
+        </em>
       {% endif %}
     </td>
   </tr>
