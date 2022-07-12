@@ -19,7 +19,7 @@ class SarSeachCurrentUserAPIView(APIView):
 # Records api view
 ############################
 class SarSearchAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
     model = None
     model_instances = None
 
@@ -44,8 +44,10 @@ class PointsAPIView(SarSearchAPIView):
 
         if request.query_params.get("limit"):
             record_num = int(request.query_params.get("limit"))
-            self.model_instances = self.model_instances[:record_num]
-
+            if record_num < 0:
+                self.model_instances = None
+            else:
+                self.model_instances = self.model_instances[:record_num]
         serializer = serializers.RecordDisplaySerializer(instance=self.model_instances, many=True)
         data = serializer.data
         return Response(data)
@@ -60,8 +62,11 @@ class PolygonsAPIView(SarSearchAPIView):
         super().get(request)
         self.model_instances = self.model_instances.filter(record_type__in=[2, 3])
         if request.query_params.get("limit"):
-            record_num = request.query_params.get("limit")
-            self.model_instances = self.model_instances[:record_num]
+            record_num = int(request.query_params.get("limit"))
+            if record_num < 0:
+                self.model_instances = None
+            else:
+                self.model_instances = self.model_instances[:record_num]
         serializer = serializers.RecordDisplaySerializer(instance=self.model_instances, many=True)
         data = serializer.data
         return Response(data)
@@ -74,7 +79,12 @@ class SpeciesAPIView(SarSearchAPIView):
 
     def get(self, request):
         super().get(request)
-
+        if request.query_params.get("limit"):
+            record_num = int(request.query_params.get("limit"))
+            if record_num < 0:
+                self.model_instances = None
+            else:
+                self.model_instances = self.model_instances[:record_num]
         serializer = serializers.SpeciesDisplaySerializer(instance=self.model_instances, many=True)
         data = serializer.data
         return Response(data)
