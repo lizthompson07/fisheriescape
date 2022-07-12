@@ -1,0 +1,19 @@
+{% extends "maret/maret_list.html" %}
+{% load static %}
+{% load custom_filters %}
+{% load verbose_names %}
+
+
+{% block table_td %}
+  {% if field.name == "area" %}
+    {%  for area in object.ext_org.area.all %}
+      {{ area.name }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+  {% elif field.name == "category" %}
+    {%  for category in object.ext_org.category.all %}
+      {{ category.name }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+  {% else %}
+    {% get_field_value object field.name safe=True %}
+  {% endif %}
+{% endblock %}

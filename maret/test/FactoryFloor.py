@@ -122,7 +122,6 @@ class ContactExtensionFactory(factory.django.DjangoModelFactory):
         model = models.ContactExtension
 
     contact = factory.SubFactory(i_factory.PersonFactory)
-    role = factory.lazy_attribute(lambda o: faker.text())
 
     @staticmethod
     def get_valid_data():
@@ -131,7 +130,6 @@ class ContactExtensionFactory(factory.django.DjangoModelFactory):
         return {
             "first_name": con_ext.contact.first_name,
             "last_name": con_ext.contact.last_name,
-            "role": con_ext.role,
         }
 
 
