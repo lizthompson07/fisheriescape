@@ -566,7 +566,7 @@ class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateView):
 # Organization
 #######################################################
 class OrganizationListView(UserRequiredMixin, CommonFilterView):
-    template_name = 'maret/maret_list.html'
+    template_name = 'maret/organization_list.html'
     queryset = ml_models.Organization.objects.all().distinct().annotate(
         search_term=Concat(
             'name_eng', Value(" "),
