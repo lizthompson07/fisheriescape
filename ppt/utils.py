@@ -535,6 +535,8 @@ def get_review_field_list():
         'approval_level',
         'approver_comment',
         'allocated_budget',
+        'allocated_salary',
+        'allocated_capital',
         'metadata',
     ]
     return my_list

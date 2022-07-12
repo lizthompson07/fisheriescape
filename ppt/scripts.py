@@ -218,6 +218,8 @@ def fetch_project_data():
         new_py.updated_at = old_p.date_last_modified
         new_py.modified_by = old_p.last_modified_by
         new_py.allocated_budget = old_p.allocated_budget
+        new_py.allocated_salary = old_p.allocated_salary
+        new_py.allocated_capital = old_p.allocated_capital
 
         if old_p.submitted:
             new_py.submitted = old_p.date_last_modified
@@ -465,6 +467,8 @@ def from_project_to_reviewer():
                 project_year=new_py,
             )
             review.allocated_budget = new_py.allocated_budget
+            review.allocated_salary = new_py.allocated_salary
+            review.allocated_capital = new_py.allocated_capital
             review.approval_status = old_p.approved  # will be 1, 0 , None
             review.approval_notification_email_sent = old_p.notification_email_sent
             review.general_comment = old_p.meeting_notes

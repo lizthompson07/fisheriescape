@@ -39,9 +39,17 @@
             <th @click="sort('{{ field }}')" style="width: 100px" class="clickable">
               {% get_verbose_label random_project field %}
             </th>
-          {% elif "allocated" in field %}
+          {% elif "allocated_budget" in field %}
             <th @click="sort('{{ field }}')" style="width: 100px" class="clickable" v-if="showColumnAllocation">
-              {% trans "Allocation" %}
+              {% trans "O&M Allocation" %}
+            </th>
+          {% elif "allocated_salary" in field %}
+            <th @click="sort('{{ field }}')" style="width: 100px" class="clickable" v-if="showColumnSalaryAllocation">
+              {% trans "Salary Allocation" %}
+            </th>
+          {% elif "allocated_capital" in field %}
+            <th @click="sort('{{ field }}')" style="width: 100px" class="clickable" v-if="showColumnCapitalAllocation">
+              {% trans "Capital Allocation" %}
             </th>
           {% elif "id" in field %}
             <th @click="sort('{{ field }}')" style="width: 75px" class="clickable">
@@ -108,6 +116,16 @@
 
         <td v-if="showColumnAllocation">
           <span v-if="p.review">${p.review.allocated_budget | nz(0) | currencyFormat | zero2NullMark}</span>
+          <span v-else>---</span>
+        </td>
+
+        <td v-if="showColumnSalaryAllocation">
+          <span v-if="p.review">${p.review.allocated_salary | nz(0) | currencyFormat | zero2NullMark}</span>
+          <span v-else>---</span>
+        </td>
+
+        <td v-if="showColumnCapitalAllocation">
+          <span v-if="p.review">${p.review.allocated_capital | nz(0) | currencyFormat | zero2NullMark}</span>
           <span v-else>---</span>
         </td>
 
