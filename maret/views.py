@@ -342,7 +342,7 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
             self.object.area_office = committee.area_office
             self.object.area_office_program = committee.area_office_program
             self.object.save()
-        return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': obj.id}))
+        return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': self.object.id}))
 
 
 class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
@@ -379,7 +379,7 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
                 self.object.area_office = committee.area_office
                 self.object.area_office_program = committee.area_office_program
                 self.object.save()
-            return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': obj.id}))
+            return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': self.object.id}))
 
 
 
