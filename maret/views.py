@@ -366,21 +366,19 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
         return context
 
     def form_valid(self, form):
-        def form_valid(self, form):
-            res = super(InteractionUpdateView, self).form_valid(form)
-            self.object = form.save()
-            if self.object.interaction_type == 4:
-                committee = self.object.committee
-                self.object.main_topic.set(committee.main_topic.all())
-                self.object.species.set(committee.species.all())
-                self.object.lead_region = committee.lead_region
-                self.object.branch = committee.branch
-                self.object.division = committee.division
-                self.object.area_office = committee.area_office
-                self.object.area_office_program = committee.area_office_program
-                self.object.save()
-            return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': self.object.id}))
-
+        res = super(InteractionUpdateView, self).form_valid(form)
+        self.object = form.save()
+        if self.object.interaction_type == 4:
+            committee = self.object.committee
+            self.object.main_topic.set(committee.main_topic.all())
+            self.object.species.set(committee.species.all())
+            self.object.lead_region = committee.lead_region
+            self.object.branch = committee.branch
+            self.object.division = committee.division
+            self.object.area_office = committee.area_office
+            self.object.area_office_program = committee.area_office_program
+            self.object.save()
+        return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': self.object.id}))
 
 
 class InteractionDetailView(UserRequiredMixin, CommonDetailView):
