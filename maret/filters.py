@@ -158,7 +158,16 @@ class OrganizationFilter(django_filters.FilterSet):
             field_name='province',
             widget=forms.SelectMultiple(attrs=chosen_js),
         )
-
+        self.filters['committee'] = django_filters.ModelMultipleChoiceFilter(
+            queryset=models.Committee.objects.all(),
+            field_name='committee_ext_organization',
+            widget=forms.SelectMultiple(attrs=chosen_js),
+        )
+        self.filters['members'] = django_filters.ModelMultipleChoiceFilter(
+            queryset=ml_models.Person.objects.all(),
+            field_name='members__person',
+            widget=forms.SelectMultiple(attrs=chosen_js),
+        )
 
 
 class PersonFilter(django_filters.FilterSet):

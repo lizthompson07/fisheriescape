@@ -141,7 +141,6 @@ class PersonListView(UserRequiredMixin, CommonFilterView):
             'first_name', Value(' '),
             'last_name', Value(' '),
             'designation', Value(' '),
-            'ext_con__role', Value(' '),
             'notes', Value(' '),
             output_field=TextField()))
     field_list = [
@@ -201,12 +200,6 @@ class PersonCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
 
         ext_con = None
         fields = form.cleaned_data
-        if fields['role']:
-            if not ext_con:
-                ext_con = models.ContactExtension(contact=object)
-                ext_con.save()
-            ext_con.role = fields['role']
-            ext_con.save()
 
         return HttpResponseRedirect(reverse_lazy('maret:person_detail', kwargs={'pk': object.id}))
 
@@ -219,15 +212,9 @@ class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
     h1 = gettext_lazy("Contact")
 
     def get_initial(self):
-        role = None
-        if models.ContactExtension.objects.filter(contact=self.object):
-            ext_cont = models.ContactExtension.objects.get(contact=self.object)
-            if ext_cont:
-                role = ext_cont.role
 
         return {
             'last_modified_by': self.request.user,
-            'role': role,
         }
 
     def form_valid(self, form):
@@ -243,13 +230,6 @@ class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
             ext_con = models.ContactExtension.objects.get(contact=obj)
 
         fields = form.cleaned_data
-        if fields['role']:
-            if not ext_con:
-                ext_con = models.ContactExtension(contact=obj)
-                ext_con.save()
-            ext_con.role = fields['role']
-            ext_con.save()
-
         if fields['committee']:
             for com_id in fields['committee']:
                 com = models.Committee.objects.get(id=com_id)
@@ -321,7 +301,7 @@ class InteractionListView(UserRequiredMixin, CommonFilterView):
         {"name": 'description', "class": "", "width": ""},
         {"name": 'interaction_type', "class": "", "width": ""},
         {"name": 'date_of_meeting', "class": "", "width": ""},
-        {"name": 'main_topics', "class": "", "width": ""},
+        {"name": 'main_topic', "class": "", "width": ""},
         {"name": 'species', "class": "", "width": ""},
     ]
     new_object_url_name = "maret:interaction_new"
@@ -350,19 +330,19 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
         return context
 
     def form_valid(self, form):
-        obj = form.save(commit=False)
-
-        if obj.interaction_type == 4:
-            committee = obj.committee
-            obj.main_topic = committee.main_topic.all()
-            obj.species = committee.species.all()
-            obj.lead_region = committee.lead_region
-            obj.branch = committee.branch
-            obj.division = committee.division
-            obj.area_office = committee.area_office
-            obj.area_office_program = committee.area_office_program
-        obj.save()
-        return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': obj.id}))
+        res = super(InteractionCreateView, self).form_valid(form)
+        self.object = form.save()
+        if self.object.interaction_type == 4:
+            committee = self.object.committee
+            self.object.main_topic.set(committee.main_topic.all())
+            self.object.species.set(committee.species.all())
+            self.object.lead_region = committee.lead_region
+            self.object.branch = committee.branch
+            self.object.division = committee.division
+            self.object.area_office = committee.area_office
+            self.object.area_office_program = committee.area_office_program
+            self.object.save()
+        return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': self.object.id}))
 
 
 class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
@@ -386,20 +366,19 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
         return context
 
     def form_valid(self, form):
-        obj = form.save(commit=False)
-
-        if obj.interaction_type == 4:
-            committee = obj.committee
-            obj.main_topic.set(committee.main_topic.all())
-            obj.species.set(committee.species.all())
-            obj.lead_region = committee.lead_region
-            obj.branch = committee.branch
-            obj.division = committee.division
-            obj.area_office = committee.area_office
-            obj.area_office_program = committee.area_office_program
-        obj.save()
-        return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': obj.id}))
-
+        res = super(InteractionUpdateView, self).form_valid(form)
+        self.object = form.save()
+        if self.object.interaction_type == 4:
+            committee = self.object.committee
+            self.object.main_topic.set(committee.main_topic.all())
+            self.object.species.set(committee.species.all())
+            self.object.lead_region = committee.lead_region
+            self.object.branch = committee.branch
+            self.object.division = committee.division
+            self.object.area_office = committee.area_office
+            self.object.area_office_program = committee.area_office_program
+            self.object.save()
+        return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': self.object.id}))
 
 
 class InteractionDetailView(UserRequiredMixin, CommonDetailView):
