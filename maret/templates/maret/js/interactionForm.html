@@ -12,15 +12,21 @@
         let $external_organization = $("#external_organization_div");
         let $main_topic = $("#main_topic_div");
         let $species = $("#species_div");
+        let $branch = $("#branch_div");
+        let $division = $("#division_div");
+        let $area_office = $("#area_office_div");
+        let $area_office_program = $("#area_office_program_div");
+        let $other_dfo_branch = $("#other_dfo_branch_div");
+        let $other_dfo_regions = $("#other_dfo_regions_div");
+        let $other_dfo_areas = $("#other_dfo_areas_div");
 
         // Default hiden fields
         $committee.hide();
         $("#id_committee").prop("required", false);
 
-        $date_of_meeting.hide();
-        $("#id_date_of_meeting").prop("required", false);
-
         // Default not hidden fields
+        $date_of_meeting.show();
+        $("#id_date_of_meeting").prop("required", false);
         $dfo_liaison.show();
         $("#id_dfo_liaison").prop("required", false);
         $dfo_role.show();
@@ -35,9 +41,18 @@
         $("#id_main_topic").prop("required", false);
         $species.show();
         $("#id_species").prop("required", false);
+        $branch.show();
+        $("#id_branch").prop("required", false);
+        $area_office.show();
+        $("#id_area_office").prop("required", false);
+        $other_dfo_regions.show();
+        $("#id_other_dfo_regions").prop("required", false);
+        $other_dfo_branch.show();
+        $("#id_other_dfo_branch").prop("required", false);
+        $other_dfo_areas.show();
+        $("#id_other_dfo_areas").prop("required", false);
 
         if (int_type === 1 || int_type === 2 || int_type === 3 || int_type === 4) {
-            $date_of_meeting.show();
             $("#id_date_of_meeting").prop("required", true);
         }
 
@@ -45,7 +60,7 @@
             $committee.show();
             $("#id_committee").prop("required", true);
 
-            $dfo_role.hide();
+            $dfo_role.show();
             $("#id_dfo_role").prop("required", false);
 
             $dfo_liaison.hide();
@@ -65,17 +80,74 @@
 
             $species.hide();
             $("#id_species").prop("required", false);
+
+            $branch.hide();
+            $("#id_branch").prop("required", false);
+
+            $division.hide();
+            $("#id_division").prop("required", false);
+
+            $area_office.hide();
+            $("#id_area_office").prop("required", false);
+
+            $area_office_program.hide();
+            $("#id_area_office_program").prop("required", false);
+
+            $other_dfo_regions.hide();
+            $("#id_other_dfo_regions").prop("required", false);
+
+            $other_dfo_branch.hide();
+            $("#id_other_dfo_branch").prop("required", false);
+
+            $other_dfo_areas.hide();
+            $("#id_other_dfo_areas").prop("required", false);
         } else if (int_type === 5) {
             $committee.show();
             $("#id_committee").prop("required", true);
         }
     }
 
+    function toggleAreaOfficeProgram(){
+        let area_office_int = parseInt($("#id_area_office :selected").val(), 10) || 0;
+        if (area_office_int == 0) {
+            $('#area_office_program_div').hide();
+        } else {
+            $('#area_office_program_div').show();
+        }
+    }
+    function toggleDivision(){
+        let division_int = parseInt($("#id_division :selected").val(), 10) || 0;
+        if (division_int == 0) {
+            $('#division_div').hide();
+        } else {
+            $('#division_div').show();
+        }
+    }
+
+    function toggleNHQSectors(){
+        let region_array = $("#id_other_dfo_regions :selected").map(function(i, el) {
+            return $(el).text();
+        }).get();
+        if (region_array.includes("National")) {
+            $('#dfo_national_sectors_div').show();
+        } else {
+            $('#dfo_national_sectors_div').hide();
+        }
+    }
+
     $("#id_interaction_type").change(function () {
         updateFields();
+        toggleAreaOfficeProgram();
+        toggleDivision();
+    });
+
+    $("#id_other_dfo_regions").change(function () {
+            toggleNHQSectors();
     });
 
     $(document).ready(function () {
         updateFields();
+        toggleAreaOfficeProgram();
+        toggleNHQSectors();
     });
 </script>

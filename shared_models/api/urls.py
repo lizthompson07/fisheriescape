@@ -9,15 +9,12 @@ router.register(r'sectors', views.SectorViewSet)
 router.register(r'branches', views.BranchViewSet)
 router.register(r'divisions', views.DivisionViewSet)
 router.register(r'sections', views.SectionViewSet)
+router.register(r'users', views.UserViewSet)
 
 urlpatterns = [
     path("viewsets/", include(router.urls)),  # tested
 
     path("current-user/", views.CurrentUserAPIView.as_view(), name="current-user"),  # tested
-
-    # this should probably be moved to the shared models API, when created
-    path("users/", views.UserListAPIView.as_view(), name="user-list"),
-
 
     # lookups
     path("fiscal-years/", views.FiscalYearListAPIView.as_view(), name="fiscal-year-list"),

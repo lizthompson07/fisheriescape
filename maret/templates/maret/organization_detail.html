@@ -67,13 +67,21 @@
                                     </td>
                                 </tr>
                                 {% verbose_td_display object field %}
-                            {% elif field == "orgs" %}
+                            {% elif field == "category" %}
                                 <tr>
                                     <th class="w-25"> {% get_verbose_label instance=object field_name=field %} </th>
                                     <td>
-                                        {% for org in object.orgs.all %}
-                                            <a href="{% url 'maret:org_detail' org.id %}" target="_blank">{{ org }}</a>
-                                            <br>
+                                        {% for ext_org in object.ext_org.all %}
+                                            {{ ext_org.category.all|join:", " }}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% elif field == "email" %}
+                                <tr>
+                                    <th class="w-25"> {% get_verbose_label instance=object field_name=field %} </th>
+                                    <td>
+                                        {% for ext_org in object.ext_org.all %}
+                                            {{ ext_org.email }}
                                         {% endfor %}
                                     </td>
                                 </tr>

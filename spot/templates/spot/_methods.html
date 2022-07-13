@@ -18,9 +18,6 @@
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
             <th style="width: 120px">
-                {% trans "Planning Method Type" %}
-            </th>
-            <th style="width: 120px">
                 {% trans "Field Work Method Type" %}
             </th>
              <th style="width: 120px">
@@ -31,13 +28,10 @@
         {% for obj in object.project_method.all %}
             <tr href="{% url 'spot:meth_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this method">
                 <td>
-                    {% for planning_method_type in obj.planning_method_type.all %}{{ planning_method_type }}<br/>{% endfor %}
+                    {{ obj.field_work_method_type }}
                 </td>
                 <td>
-                    {% for field_work_method_type in obj.field_work_method_type.all %}{{ field_work_method_type }}<br/>{% endfor %}
-                </td>
-                <td>
-                    {% for sample_processing_method_type in obj.sample_processing_method_type.all %}{{ sample_processing_method_type }}<br/>{% endfor %}
+                    {{ obj.sample_processing_method_type }}
                 </td>
             </tr>
         {% endfor %}

@@ -558,6 +558,212 @@ def generate_request_summary(site_url):
         my_ws.write_row(i, 0, data_row, normal_format)
         i += 1
 
+    workbook.close()
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        utils.upload_to_azure_blob(target_file_path, f'temp/{target_file}')
+    return target_url
+
+
+def generate_request_list(qs, site_url, travellers=False):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path, dict(remove_timezone=True))
+    ws1 = workbook.add_worksheet(name="Requests")
+    ws2 = workbook.add_worksheet(name="Travellers")
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#D6D1C0', "align": 'normal', "text_wrap": False})
+    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": False, 'num_format': '$#,##0'})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": False, })
+    currency_format = workbook.add_format({'num_format': '#,##0.00'})
+    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+
+    if qs.exists():
+        request_field_list = [
+            "fiscal_year",
+            "status",
+            "travellers|Names of travellers",
+            "bta_attendees",
+
+            "section|section",
+            "division",
+            "region",
+
+            # about the trip
+            "trip",
+            "trip.location",
+            "trip.is_adm_approval_required|ADM approval required?",
+            "start_date|Start date of trip",
+            "end_date|End date of trip",
+            "trip.number_of_days|Number of days",
+            "trip.traveller_count|Traveller count (trip total)",
+            "traveller_count|Traveller count (from this request)",
+
+            # about this request
+            "objective_of_event|objective",
+            "benefit_to_dfo|benefits to DFO",
+            "late_justification",
+            "needs_gov_vehicle",
+            "total_request_cost|Total cost",
+            "total_non_dfo_funding|Total non-DFO funding",
+            "total_non_dfo_funding_sources|Non-DFO funding sources",
+            "total_dfo_funding|Total DFO cost",
+            "funding_source",
+            "current_reviewer|Current reviewer",
+            "processing_time|Processing time",
+        ]
+
+        # define the header
+        header = [get_verbose_label(qs.first(), field) for field in request_field_list]
+
+        # title = gettext("CTMS Requests")
+        # define a worksheet
+        # ws1.write(0, 0, title, title_format)
+        ws1.write_row(0, 0, header, header_format)
+
+        i = 1
+        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+        for r in qs:
+            # create the col_max column to store the length of each header
+            # should be a maximum column width to 100
+            j = 0
+            for field in request_field_list:
+                if "travellers" in field:
+                    my_val = r.name_search
+                    ws1.write(i, j, my_val, normal_format)
+                elif "current_reviewer" in field:
+                    my_val = " ----"
+                    if r.current_reviewer:
+                        my_val = str(r.current_reviewer.user)
+                    ws1.write(i, j, my_val, normal_format)
+                elif "status" in field:
+                    my_val = r.get_status_display()
+                    ws1.write(i, j, my_val, normal_format)
+                elif "division" in field:
+                    my_val = r.section.division.tname
+                    ws1.write(i, j, my_val, normal_format)
+                elif "cost" in field or "funding" in field:
+                    my_val = get_field_value(r, field)
+                    ws1.write(i, j, my_val, currency_format)
+                elif "fiscal_year" in field:
+                    my_val = str(get_field_value(r, field))
+                    ws1.write(i, j, my_val, normal_format)
+                elif "date" in field or "deadline" in field:
+                    my_val = getattr(r.trip, field.split("|")[0])
+                    if my_val:
+                        ws1.write_datetime(i, j, my_val, date_format)
+                    else:
+                        ws1.write(i, j, my_val, normal_format)
+                elif field == "trip":
+                    my_val = str(get_field_value(r, field))
+                    ws1.write_url(i, j,
+                                  url=f'{site_url}/{reverse("travel:request_detail", args=[r.id])}',
+                                  string=my_val)
+                else:
+                    my_val = str(get_field_value(r, field))
+                    ws1.write(i, j, my_val, normal_format)
+
+                # adjust the width of the columns based on the max string length in each col
+                ## replace col_max[j] if str length j is bigger than stored value
+
+                # if new value > stored value... replace stored value
+                if len(str(my_val)) > col_max[j]:
+                    if len(str(my_val)) < 75:
+                        col_max[j] = len(str(my_val))
+                    else:
+                        col_max[j] = 75
+                j += 1
+            i += 1
+
+            # set column widths
+            for j in range(0, len(col_max)):
+                ws1.set_column(j, j, width=col_max[j] * 1.1)
+
+    travellers = models.Traveller.objects.filter(request__in=qs)
+
+    traveller_field_list = [
+        "fiscal_year",
+        "smart_name|Name",
+        "request.section|section",
+        "division",
+        "region",
+
+        "trip",
+        "departure_location",
+        "is_public_servant",
+        "is_research_scientist",
+        "start_date",
+        "end_date",
+        "long_role_text|Role of traveller",
+        "learning_plan",
+        "notes",
+        "cost_breakdown|Cost breakdown",
+        "total_cost|Total cost",
+        "non_dfo_costs",
+        "non_dfo_org",
+
+    ]
+
+    # define the header
+    header = [get_verbose_label(travellers.first(), field) for field in traveller_field_list]
+    ws2.write_row(0, 0, header, header_format)
+
+    i = 1
+    col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+    for t in travellers:
+        # create the col_max column to store the length of each header
+        # should be a maximum column width to 100
+        j = 0
+        for field in traveller_field_list:
+            if "division" in field:
+                my_val = t.request.section.division.tname
+                ws2.write(i, j, my_val, normal_format)
+            elif "region" in field:
+                my_val = t.request.section.division.branch.sector.region.tname if t.request.section.division.branch.sector else " ----"
+                ws2.write(i, j, my_val, normal_format)
+            elif "cost" in field or "funding" in field:
+                my_val = get_field_value(t, field)
+                ws2.write(i, j, my_val, currency_format)
+            elif "fiscal_year" in field:
+                my_val = str(get_field_value(t.request, field))
+                ws2.write(i, j, my_val, normal_format)
+            elif "date" in field or "deadline" in field:
+                my_val = getattr(t, field)
+                if my_val:
+                    ws2.write_datetime(i, j, my_val, date_format)
+                else:
+                    ws2.write(i, j, my_val, normal_format)
+            elif field == "trip":
+                my_val = str(t.request.trip)
+                ws2.write_url(i, j,
+                              url=f'{site_url}/{reverse("travel:request_detail", args=[t.request.id])}',
+                              string=my_val)
+            else:
+                my_val = str(get_field_value(t, field))
+                ws2.write(i, j, my_val, normal_format)
+
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
+
+            # if new value > stored value... replace stored value
+            if len(str(my_val)) > col_max[j]:
+                if len(str(my_val)) < 75:
+                    col_max[j] = len(str(my_val))
+                else:
+                    col_max[j] = 75
+            j += 1
+        i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            ws2.set_column(j, j, width=col_max[j] * 1.1)
 
     workbook.close()
     if settings.AZURE_STORAGE_ACCOUNT_NAME:

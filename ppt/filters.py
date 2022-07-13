@@ -93,11 +93,13 @@ class DMAFilter(django_filters.FilterSet):
 class ProjectYearFilter(django_filters.FilterSet):
     is_hidden = django_filters.CharFilter(field_name='project__is_hidden')
     status = django_filters.NumberFilter(field_name='status')
+    statuses = django_filters.MultipleChoiceFilter(field_name='status', choices=models.ProjectYear.status_choices)
     title = django_filters.CharFilter(field_name='project__title', lookup_expr="icontains")
     id = django_filters.NumberFilter(field_name='project__id')
     staff = django_filters.CharFilter(field_name='project__staff_search_field', lookup_expr="icontains")
     fiscal_year = django_filters.NumberFilter(field_name='fiscal_year')
     tag = django_filters.NumberFilter(field_name='project__tags')
+    services = django_filters.NumberFilter(field_name='services')
     theme = django_filters.NumberFilter(field_name='project__functional_group__theme')
     functional_group = django_filters.NumberFilter(field_name='project__functional_group')
     funding_source = django_filters.NumberFilter(field_name='project__default_funding_source')
@@ -111,10 +113,10 @@ class ProjectYearFilter(django_filters.FilterSet):
     has_field_component = django_filters.BooleanFilter(field_name="has_field_component")
     has_data_component = django_filters.BooleanFilter(field_name="has_data_component")
     has_lab_component = django_filters.BooleanFilter(field_name="has_lab_component")
-    requires_abl_services = django_filters.BooleanFilter(field_name="requires_abl_services")
 
     approval_status = django_filters.NumberFilter(field_name='review__approval_status')
     approval_level = django_filters.NumberFilter(field_name='review__approval_level')
     funding_status = django_filters.NumberFilter(field_name='review__funding_status')
 
     om_cost_category = django_filters.NumberFilter(field_name='omcost__om_category')
+    activity_type = django_filters.NumberFilter(field_name='project__activity_type')

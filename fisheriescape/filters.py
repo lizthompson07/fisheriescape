@@ -17,8 +17,20 @@ class FisheryAreaFilter(django_filters.FilterSet):
     class Meta:
         model = models.FisheryArea
         fields = {
+            'layer_id': ['icontains'],
             'name': ['icontains'],
+            'nafo_area': ['exact'],
             'region': ['exact'],
+
+        }
+
+
+class NAFOAreaFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.NAFOArea
+        fields = {
+            'layer_id': ['icontains'],
+            'name': ['icontains'],
 
         }
 
@@ -33,33 +45,69 @@ class FisheryFilter(django_filters.FilterSet):
     #                                                     label='Season Start Date (Between)',
     #                                                     widget=django_filters.widgets.RangeWidget(attrs=attr_fp_date))
 
-    date = django_filters.DateTimeFilter(method='date_filter', widget=forms.DateInput(attrs=attr_fp_date), label="Date of Interest")
+    date = django_filters.DateTimeFilter(method='date_filter', widget=forms.DateInput(attrs=attr_fp_date),
+                                         label="Date of Interest")
 
     class Meta:
         model = models.Fishery
-        fields = {
-            'fishery_areas': ['exact'],
-            'fishery_status': ['exact'],
-            'gear_type': ['exact'],
-
-        }
+        fields = ['date', 'species', 'fishery_areas', 'fishery_status', 'gear_type']
+        # fields = {
+        #
+        #     'species': ['exact'],
+        #     'fishery_areas': ['exact'],
+        #     'fishery_status': ['exact'],
+        #     'gear_type': ['exact'],
+        #     # 'management_system': ['exact'],
+        #
+        # }
 
     def date_filter(self, queryset, name, value):
         return models.Fishery.objects.filter(
             Q(start_date__lte=value) & Q(end_date__gte=value)
         )
 
-#TODO this doesn't currently work
+    # TODO this doesn't currently work; and make date the first thing in the list
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filters["species__icontains"] = django_filters.CharFilter(field_name='search_term',
-                                                                            label="Species (any language)",
-                                                                            lookup_expr='icontains',
-                                                                            widget=forms.TextInput())
+                                                                       label="Keyword (any language)",
+                                                                       lookup_expr='icontains',
+                                                                       widget=forms.TextInput())
 
 
-#TODO Something like what I want a custom filter to do:
+class AnalysesFilter(django_filters.FilterSet):
+    week = django_filters.ModelMultipleChoiceFilter(queryset=models.Week.objects.all(), widget=forms.SelectMultiple(
+        attrs={"class": "chosen-select-contains"}), label="Week")
+
+    class Meta:
+        model = models.Analyses
+        fields = {
+            'species': ['exact'],
+            'type': ['exact'],
+
+        }
+
+
+# TODO Something like what I want a custom filter to do:
 # from datetime import datetime
 # my_date= request.POST.get('my_date','') # for eg. 2019-10-26
 # my_date = datetime.strptime(my_date, "%Y-%m-%d")
 # date_between = Fishery.objects.filter(start_date__lt=my_date, end_date__gt=my_date).order_by('start_date')
+
+
+class ScoreFilter(django_filters.FilterSet):
+    week = django_filters.ModelMultipleChoiceFilter(queryset=models.Week.objects.all(), widget=forms.SelectMultiple(
+        attrs={"class": "chosen-select-contains"}), label="Week")
+
+    class Meta:
+        model = models.Score
+        fields = {
+            'hexagon': ['exact'],
+            'species': ['exact'],
+
+        }
+
+
+class UserFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label=_("Name contains"), lookup_expr='icontains',
+                                            widget=forms.TextInput())

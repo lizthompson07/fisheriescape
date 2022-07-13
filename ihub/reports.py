@@ -15,9 +15,19 @@ from . import models
 from .utils import get_date_range_overlap
 
 
+def get_target_dir():
+    dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
+    
+    if not os.path.exists(dir):
+        print(f"{dir} does not exist. Creating...")
+        os.makedirs(dir)
+    
+    return dir
+
+
 def generate_capacity_spreadsheet(orgs, sectors, from_date, to_date):
     # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
+    target_dir = get_target_dir()
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
     target_file_path = os.path.join(target_dir, target_file)
     target_url = os.path.join(settings.MEDIA_ROOT, 'ihub', 'temp', target_file)
@@ -215,7 +225,7 @@ def generate_capacity_spreadsheet(orgs, sectors, from_date, to_date):
 
 def generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_types, entry_note_statuses):
     # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
+    target_dir = get_target_dir()
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
     target_file_path = os.path.join(target_dir, target_file)
     target_url = os.path.join(settings.MEDIA_ROOT, 'ihub', 'temp', target_file)
@@ -461,7 +471,7 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_t
 def generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, report_title, from_date, to_date, entry_note_types,
                                           entry_note_statuses):
     # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
+    target_dir = get_target_dir()
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
     target_file_path = os.path.join(target_dir, target_file)
     target_url = os.path.join(settings.MEDIA_ROOT, 'ihub', 'temp', target_file)
@@ -613,7 +623,7 @@ def generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, 
 
 def consultation_instructions_export_spreadsheet(orgs=None):
     # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
+    target_dir = get_target_dir()
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
     target_file_path = os.path.join(target_dir, target_file)
     target_url = os.path.join(settings.MEDIA_ROOT, 'ihub', 'temp', target_file)
@@ -815,7 +825,8 @@ def generate_consultation_report(orgs, sectors, statuses, from_date, to_date, en
             "letter sent",
             "Response Requested by",
             "Proponent",
-            "FAA triggered (Yes/No)",
+            "FAA Required? (Yes/No)",
+            "FAA Issued? (Yes/No)",
             "Comments",
         ]
 
@@ -847,6 +858,7 @@ def generate_consultation_report(orgs, sectors, statuses, from_date, to_date, en
                 e.response_requested_by.strftime("%m/%d/%Y") if e.response_requested_by else " ---",
                 e.proponent,
                 yesno(e.is_faa_required, "yes,no,no"),
+                yesno(e.is_faa_issued, "yes,no,no"),
                 notes.replace("\\r\\n", "\r\n"),
             ]
 

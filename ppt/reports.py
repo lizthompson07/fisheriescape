@@ -8,6 +8,7 @@ from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.db.models import Q, Sum
 from django.http import HttpResponse
 from django.template.defaultfilters import pluralize, slugify, date
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from docx import Document
@@ -1208,7 +1209,7 @@ def generate_py_basic(qs, site_url):
     return target_url
 
 
-def generate_py(qs, site_url, type):
+def generate_py(qs, site_url, type, get_collaborations=False):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -1278,7 +1279,6 @@ def generate_py(qs, site_url, type):
                 'data_storage_plan',
                 'data_management_needs',
                 'has_lab_component',
-                'requires_abl_services',
                 'requires_lab_space',
                 'requires_other_lab_support',
                 'other_lab_support_needs',
@@ -1366,5 +1366,419 @@ def generate_py(qs, site_url, type):
         for j in range(0, len(col_max)):
             my_ws.set_column(j, j, width=col_max[j] * 1.1)
 
+    if get_collaborations:
+        collab_qs = models.Collaboration.objects.filter(project_year__in=qs)
+        collab_field_list = [
+            'project_year.project.id|Project Id',
+            'project_year.project.title|title',
+            'project_year.fiscal_year',
+            "type",
+            "organization|Collaborating organization",
+            "people|Project lead(s)",
+            "notes",
+        ]
+
+        collab_header = [get_verbose_label(collab_qs.first(), field) for field in collab_field_list]
+
+        # define a worksheet
+        collab_ws = workbook.add_worksheet(name="collaborations")
+        collab_ws.write(0, 0, title, title_format)
+        collab_ws.write_row(2, 0, collab_header, header_format)
+
+        collab_col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in collab_header]
+
+        i = 3
+        for collab in collab_qs:
+            j = 0
+            for field in collab_field_list:
+                if "project_year.project.id" in field:
+                    val = str(collab.project_year.project.id)
+                    collab_ws.write(i, j, val, normal_format)
+                elif "project_year.project.title" in field:
+                    val = str(collab.project_year.project.title)
+                    collab_ws.write(i, j, val, normal_format)
+                else:
+                    val = str(get_field_value(collab, field))
+                    collab_ws.write(i, j, val, normal_format)
+
+                # adjust the width of the columns based on the max string length in each col
+                ## replace collab_col_max[j] if str length j is bigger than stored value
+
+                # if new value > stored value... replace stored value
+                if len(str(val)) > collab_col_max[j]:
+                    if len(str(val)) < 75:
+                        collab_col_max[j] = len(str(val))
+                    else:
+                        collab_col_max[j] = 75
+                j += 1
+            i += 1
+
+            # set column widths
+            for j in range(0, len(collab_col_max)):
+                collab_ws.set_column(j, j, width=collab_col_max[j] * 1.1)
+        # end collab if
+
     workbook.close()
     return target_url
+
+
+def generate_cost_report(qs, site_url):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
+    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": False, 'border': 1, 'border_color': 'black', })
+    normal_format_br = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
+    currency_format = workbook.add_format({'num_format': '#,##0.00', 'border': 1, 'border_color': 'black', })
+    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+    hyperlink_format = workbook.add_format({'border': 1, 'border_color': 'black', "font_color": "blue", "underline": True, "text_wrap": True})
+
+    header = [
+        'Fiscal year',
+        'Project',
+        'Title',
+        'Status',
+        'Region',
+        'Division',
+        'Section',
+        'Functional group',
+        'Theme',
+        'Cost type',
+        'Category',
+        'Funding source',
+        'Description',
+        'Amount'
+    ]
+
+    # define the header
+    title = "List of Project Costs from the PPT"
+
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name="projects")
+    my_ws.write(0, 0, title, title_format)
+    my_ws.write_row(2, 0, header, header_format)
+
+    # create the col_max column to store the length of each header
+    # should be a maximum column width to 100
+    col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+
+    i = 3
+    cc_qs = models.CapitalCost.objects.filter(project_year__in=qs)
+    for obj in cc_qs:
+        j = 0
+        for field in header:
+            if "Fiscal" in field:
+                val = str(obj.project_year.fiscal_year)
+                my_ws.write(i, j, val, normal_format)
+            elif "Region" in field:
+                val = " ---"
+                if obj.project_year.project.section:
+                    val = obj.project_year.project.section.division.branch.region.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "Division" in field:
+                val = " ---"
+                if obj.project_year.project.section:
+                    val = obj.project_year.project.section.division.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "Section" in field:
+                val = " ---"
+                if obj.project_year.project.section:
+                    val = obj.project_year.project.section.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "Theme" in field:
+                val = " ---"
+                if obj.project_year.project.functional_group:
+                    val = str(obj.project_year.project.functional_group.theme)
+                my_ws.write(i, j, val, normal_format)
+            elif "Functional" in field:
+                val = " ---"
+                if obj.project_year.project.functional_group:
+                    val = str(obj.project_year.project.functional_group)
+                my_ws.write(i, j, val, normal_format)
+            elif "Amount" in field:
+                val = obj.amount
+                my_ws.write(i, j, val, currency_format)
+            elif "Category" in field:
+                val = obj.display
+                my_ws.write(i, j, val, normal_format)
+            elif "Description" in field:
+                val = obj.description
+                my_ws.write(i, j, val, normal_format)
+            elif "Funding" in field:
+                val = str(obj.funding_source)
+                my_ws.write(i, j, val, normal_format)
+            elif "Cost type" in field:
+                val = "Capital"
+                my_ws.write(i, j, val, normal_format)
+            elif "Status" in field:
+                val = obj.project_year.get_status_display()
+                my_ws.write(i, j, val, normal_format)
+            elif "Title" in field:
+                val = obj.project_year.project.title
+                my_ws.write(i, j, val, normal_format)
+            elif "Project" in field:
+                val = str(obj.project_year.project)
+                my_ws.write_url(i, j,
+                                url=f'{site_url}/{reverse("ppt:project_detail", args=[obj.project_year.project.id])}?project_year={obj.project_year.id}',
+                                string=f"{val}",
+                                cell_format=hyperlink_format)
+
+            else:
+                val = str(get_field_value(obj, field))
+                my_ws.write(i, j, val, normal_format)
+
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
+
+            # if new value > stored value... replace stored value
+            if len(str(val)) > col_max[j]:
+                if len(str(val)) < 75:
+                    col_max[j] = len(str(val))
+                else:
+                    col_max[j] = 75
+            j += 1
+        i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    om_qs = models.OMCost.objects.filter(project_year__in=qs)
+    for obj in om_qs:
+        j = 0
+        for field in header:
+            if "Fiscal" in field:
+                val = str(obj.project_year.fiscal_year)
+                my_ws.write(i, j, val, normal_format)
+            elif "Region" in field:
+                val = " ---"
+                if obj.project_year.project.section:
+                    val = obj.project_year.project.section.division.branch.region.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "Division" in field:
+                val = " ---"
+                if obj.project_year.project.section:
+                    val = obj.project_year.project.section.division.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "Section" in field:
+                val = " ---"
+                if obj.project_year.project.section:
+                    val = obj.project_year.project.section.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "Functional" in field:
+                val = " ---"
+                if obj.project_year.project.functional_group:
+                    val = str(obj.project_year.project.functional_group)
+                my_ws.write(i, j, val, normal_format)
+            elif "Theme" in field:
+                val = " ---"
+                if obj.project_year.project.functional_group:
+                    val = str(obj.project_year.project.functional_group.theme)
+                my_ws.write(i, j, val, normal_format)
+            elif "Amount" in field:
+                val = obj.amount
+                my_ws.write(i, j, val, currency_format)
+            elif "Category" in field:
+                val = str(obj.om_category)
+                my_ws.write(i, j, val, normal_format)
+            elif "Description" in field:
+                val = obj.description
+                my_ws.write(i, j, val, normal_format)
+            elif "Funding" in field:
+                val = str(obj.funding_source)
+                my_ws.write(i, j, val, normal_format)
+            elif "Cost type" in field:
+                val = "O&M"
+                my_ws.write(i, j, val, normal_format)
+            elif "Status" in field:
+                val = obj.project_year.get_status_display()
+                my_ws.write(i, j, val, normal_format)
+            elif "Title" in field:
+                val = obj.project_year.project.title
+                my_ws.write(i, j, val, normal_format)
+            elif "Project" in field:
+                val = str(obj.project_year.project)
+                my_ws.write_url(i, j,
+                                url=f'{site_url}/{reverse("ppt:project_detail", args=[obj.project_year.project.id])}?project_year={obj.project_year.id}',
+                                string=f"{val}",
+                                cell_format=hyperlink_format)
+
+            else:
+                val = str(get_field_value(obj, field))
+                my_ws.write(i, j, val, normal_format)
+
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
+
+            # if new value > stored value... replace stored value
+            if len(str(val)) > col_max[j]:
+                if len(str(val)) < 75:
+                    col_max[j] = len(str(val))
+                else:
+                    col_max[j] = 75
+            j += 1
+        i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    salary_qs = models.Staff.objects.filter(project_year__in=qs).filter(Q(employee_type__exclude_from_rollup=False) | Q(overtime_hours__gt=0))
+    for obj in salary_qs:
+        j = 0
+        for field in header:
+            if "Fiscal" in field:
+                val = str(obj.project_year.fiscal_year)
+                my_ws.write(i, j, val, normal_format)
+            elif "Region" in field:
+                val = " ---"
+                if obj.project_year.project.section:
+                    val = obj.project_year.project.section.division.branch.region.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "Division" in field:
+                val = " ---"
+                if obj.project_year.project.section:
+                    val = obj.project_year.project.section.division.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "Section" in field:
+                val = " ---"
+                if obj.project_year.project.section:
+                    val = obj.project_year.project.section.tname
+                my_ws.write(i, j, val, normal_format)
+            elif "Functional" in field:
+                val = " ---"
+                if obj.project_year.project.functional_group:
+                    val = str(obj.project_year.project.functional_group)
+                my_ws.write(i, j, val, normal_format)
+            elif "Theme" in field:
+                val = " ---"
+                if obj.project_year.project.functional_group:
+                    val = str(obj.project_year.project.functional_group.theme)
+                my_ws.write(i, j, val, normal_format)
+            elif "Amount" in field:
+                val = obj.amount
+                my_ws.write(i, j, val, currency_format)
+            elif "Category" in field:
+                val = str(obj.employee_type)
+                my_ws.write(i, j, val, normal_format)
+            elif "Description" in field:
+                val = obj.description
+                my_ws.write(i, j, val, normal_format_br)
+            elif "Funding" in field:
+                val = str(obj.funding_source)
+                my_ws.write(i, j, val, normal_format)
+            elif "Cost type" in field:
+                val = obj.employee_type.get_cost_type_display()
+                my_ws.write(i, j, val, normal_format)
+            elif "Status" in field:
+                val = obj.project_year.get_status_display()
+                my_ws.write(i, j, val, normal_format)
+            elif "Title" in field:
+                val = obj.project_year.project.title
+                my_ws.write(i, j, val, normal_format)
+            elif "Project" in field:
+                val = str(obj.project_year.project)
+                my_ws.write_url(i, j,
+                                url=f'{site_url}/{reverse("ppt:project_detail", args=[obj.project_year.project.id])}?project_year={obj.project_year.id}',
+                                string=f"{val}",
+                                cell_format=hyperlink_format)
+
+            else:
+                val = str(get_field_value(obj, field))
+                my_ws.write(i, j, val, normal_format)
+
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
+
+            # if new value > stored value... replace stored value
+            if len(str(val)) > col_max[j]:
+                if len(str(val)) < 75:
+                    col_max[j] = len(str(val))
+                else:
+                    col_max[j] = 75
+            j += 1
+        i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    return target_url
+
+
+def generate_cost_descriptions():
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": False, 'border': 1, 'border_color': 'black', })
+
+
+    title = "Funding Sources"
+    fields = ['name', 'nom', 'funding_source_type', 'is_competitive', ]
+    my_ws = workbook.add_worksheet(name=title)
+    my_ws.write(0, 0, title.upper(), title_format)
+    qs = models.FundingSource.objects.all()
+    my_ws.write_row(2, 0, [get_verbose_label(qs.first(), field) for field in fields], header_format)
+    i = 3
+    for item in qs:
+        data_row = [get_field_value(item, field) for field in fields]
+        my_ws.write_row(i, 0, data_row)
+        i += 1
+
+    title = "employee types"
+    fields = ['name', 'nom', 'cost_type', 'exclude_from_rollup', ]
+    my_ws = workbook.add_worksheet(name=title)
+    my_ws.write(0, 0, title.upper(), title_format)
+    qs = models.EmployeeType.objects.all()
+    my_ws.write_row(2, 0, [get_verbose_label(qs.first(), field) for field in fields], header_format)
+    i = 3
+    for item in qs:
+        data_row = [get_field_value(item, field) for field in fields]
+        my_ws.write_row(i, 0, data_row)
+        i += 1
+
+    title = "om categories"
+    fields = ['name', 'nom', 'group' ]
+    my_ws = workbook.add_worksheet(name=title)
+    my_ws.write(0, 0, title.upper(), title_format)
+    qs = models.OMCategory.objects.all()
+    my_ws.write_row(2, 0, [get_verbose_label(qs.first(), field) for field in fields], header_format)
+    i = 3
+    for item in qs:
+        data_row = [get_field_value(item, field) for field in fields]
+        my_ws.write_row(i, 0, data_row)
+        i += 1
+
+    title = "capital cost categories"
+    my_ws = workbook.add_worksheet(name=title)
+    my_ws.write(0, 0, title.upper(), title_format)
+    qs = models.OMCategory.objects.all()
+    my_ws.write_row(2, 0, ["Name"], header_format)
+    i = 3
+    for item in models.CapitalCost.category_choices:
+        data_row = [str(item[1])]
+        my_ws.write_row(i, 0, data_row)
+        i += 1
+
+    workbook.close()
+    return target_url
+

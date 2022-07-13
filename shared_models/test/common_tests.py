@@ -26,6 +26,19 @@ def setup_view(view, request, *args, **kwargs):
     return view
 
 
+def get_random_admin_user(user=None):
+    if not user:
+        user = UserFactory()
+    case = faker.pyint(1, 3)
+    if case == 1:  # travel
+        TravelUser.objects.create(user=user, is_national_admin=True)
+    elif case == 2:  # csas
+        CSASAdminUser.objects.create(user=user, is_national_admin=True)
+    elif case == 3:  # PPT
+        PPTAdminUser.objects.create(user=user, is_national_admin=True)
+    return user
+
+
 ###########################################################################################
 # Common Test for all views, this includes checking that a view is accessible or provides
 # a redirect if permissions are required to access a view
@@ -59,13 +72,7 @@ class CommonTest(TestCase):
             user.save()
 
         if in_national_admin_group:
-            case = faker.pyint(1, 3)
-            if case == 1:  # travel
-                TravelUser.objects.create(user=user, is_national_admin=True)
-            elif case == 2:  # csas
-                CSASAdminUser.objects.create(user=user, is_national_admin=True)
-            elif case == 3:  # csas
-                PPTAdminUser.objects.create(user=user, is_national_admin=True)
+            user = get_random_admin_user(user)
         return user
 
     def assert_user_access_denied(self, test_url, user, locales=('en', 'fr'), expected_code=302,

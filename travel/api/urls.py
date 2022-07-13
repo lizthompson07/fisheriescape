@@ -12,6 +12,7 @@ router.register(r'trip-reviewers', views.TripReviewerViewSet)  # tested
 router.register(r'request-files', views.FileViewSet)  # tested
 router.register(r'trip-files', views.TripFileViewSet)  # tested
 router.register(r'costs', views.CostViewSet)  # tested
+router.register(r'users', views.TravelUserViewSet, basename="travel-users")  # tested
 
 urlpatterns = [
     path("travel/", include(router.urls)),  # tested
@@ -23,6 +24,7 @@ urlpatterns = [
     # lookups
     path("travel/fiscal-years/", views.FiscalYearTravelListAPIView.as_view(), name="travel-fiscal-year-list"),
     path("travel/regions/", views.RegionListAPIView.as_view(), name="travel-region-list"),
+    path("travel/branches/", views.BranchListAPIView.as_view(), name="travel-branch-list"),
     path("travel/divisions/", views.DivisionListAPIView.as_view(), name="travel-division-list"),
     path("travel/sections/", views.SectionListAPIView.as_view(), name="travel-section-list"),
 

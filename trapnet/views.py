@@ -1,9 +1,11 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy, gettext as _
 
@@ -18,7 +20,7 @@ from . import forms
 from . import models
 from . import reports
 from .mixins import TrapNetCRUDRequiredMixin, TrapNetAdminRequiredMixin, SuperuserOrAdminRequiredMixin, TrapNetBasicMixin
-from .utils import get_sample_field_list
+from .utils import get_sample_field_list, is_crud_user
 
 
 class IndexTemplateView(TrapNetBasicMixin, CommonTemplateView):
@@ -176,13 +178,15 @@ class SpeciesListView(TrapNetBasicMixin, CommonFilterView):
     new_object_url_name = "trapnet:species_new"
     row_object_url_name = "trapnet:species_detail"
     home_url_name = "trapnet:index"
+    paginate_by = 10
 
     field_list = [
         {"name": 'code', "class": "", "width": ""},
         {"name": 'full_name|{}'.format(_("Species")), "class": "", "width": ""},
         {"name": 'scientific_name', "class": "", "width": ""},
         {"name": 'tsn|{}'.format(_("Taxonomic serial number")), "class": "", "width": ""},
-        {"name": 'observation_count|{}'.format(_("Observations in Db")), "class": "", "width": ""},
+        {"name": 'aphia_id|{}'.format(_("WoRMS Aphia ID")), "class": "", "width": ""},
+        # {"name": 'observation_count|{}'.format(_("Observations in Db")), "class": "", "width": ""},
     ]
 
 
@@ -427,7 +431,7 @@ class RiverSiteDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
 class SampleListView(TrapNetBasicMixin, CommonFilterView):
     model = models.Sample
     filterset_class = filters.SampleFilter
-    template_name = 'trapnet/list.html'
+    template_name = 'trapnet/sample_list.html'
     queryset = models.Sample.objects.filter(site__exclude_data_from_site=False)
     new_object_url_name = "trapnet:sample_new"
     row_object_url_name = "trapnet:sample_detail"
@@ -442,6 +446,7 @@ class SampleListView(TrapNetBasicMixin, CommonFilterView):
         {"name": 'arrival_date|arrival', "class": "", "width": ""},
         {"name": 'duration|duration', "class": "", "width": ""},
         {"name": 'observations', "class": "", "width": ""},
+        {"name": 'is_reviewed', "class": "", "width": ""},
     ]
 
 
@@ -460,6 +465,10 @@ class SampleUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
         obj.updated_by = self.request.user
         return super().form_valid(form)
 
+    def get_initial(self):
+        obj = self.get_object()
+        if obj.percent_cloud_cover:
+            return dict(percent_cloud_cover=obj.percent_cloud_cover*100)
 
 class SampleCreateView(TrapNetCRUDRequiredMixin, CommonCreateView):
     model = models.Sample
@@ -491,10 +500,16 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
         context['obs_field_list'] = [
             'species',
             'status',
+            'life_stage',
+            'reproductive_status',
             'origin',
+            'fork_length',
+            'total_length',
+            'weight',
             'sex',
             'tag_number',
             'scale_id_number',
+            'notes',
         ]
         context['sweep_field_list'] = [
             "sweep_number",
@@ -505,11 +520,12 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
         return context
 
 
-class SampleDeleteView(TrapNetCRUDRequiredMixin, CommonDeleteView):
+class SampleDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
     model = models.Sample
     template_name = 'trapnet/confirm_delete.html'
     home_url_name = "trapnet:index"
     grandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
+    delete_protection = False
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("trapnet:sample_detail", args=[self.get_object().id])}
@@ -518,8 +534,24 @@ class SampleDeleteView(TrapNetCRUDRequiredMixin, CommonDeleteView):
         return self.get_grandparent_crumb()["url"]
 
 
+@login_required(login_url='/accounts/login/')
+@user_passes_test(is_crud_user, login_url='/accounts/denied/?app=trapnet')
+def review_sample(request, pk):
+    obj = get_object_or_404(models.Sample, pk=pk)
+    if obj.is_reviewed:
+        obj.is_reviewed = False
+        obj.reviewed_by = None
+        obj.reviewed_at = None
+    else:
+        obj.is_reviewed = True
+        obj.reviewed_by = request.user
+        obj.reviewed_at = timezone.now()
+    obj.save()
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
 class DataEntryVueJSView(TrapNetCRUDRequiredMixin, CommonTemplateView):
-    template_name = 'trapnet/data_entry.html'
+    template_name = 'trapnet/data_entry_v2/main.html'
     home_url_name = "trapnet:index"
     greatgrandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
     container_class = "container-fluid"
@@ -717,12 +749,11 @@ class ObservationDetailView(TrapNetBasicMixin, CommonDetailView):
         'fork_length',
         'total_length',
         'weight',
-        'age',
-        'location_tagged',
-        'date_tagged',
+        'age_type',
+        'river_age',
+        'ocean_age',
         'tag_number',
         'scale_id_number',
-        'tags_removed',
         'notes',
         'metadata',
     ]
@@ -798,6 +829,36 @@ class FileDeleteView(TrapNetCRUDRequiredMixin, CommonPopoutDeleteView):
     model = models.File
 
 
+# SAMPLE FILES #
+################
+
+class SampleFileCreateView(TrapNetCRUDRequiredMixin, CommonPopoutCreateView):
+    model = models.SampleFile
+    form_class = forms.SampleFileForm
+    is_multipart_form_data = True
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.created_by = self.request.user
+        obj.sample = get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
+        return super().form_valid(form)
+
+
+class SampleFileUpdateView(TrapNetCRUDRequiredMixin, CommonPopoutUpdateView):
+    model = models.SampleFile
+    form_class = forms.SampleFileForm
+    is_multipart_form_data = True
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class SampleFileDeleteView(TrapNetCRUDRequiredMixin, CommonPopoutDeleteView):
+    model = models.SampleFile
+
+
 # REPORTS #
 ###########
 
@@ -815,6 +876,7 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
 
         report = int(form.cleaned_data["report"])
         year = form.cleaned_data["year"] if form.cleaned_data["year"] else ""
+        sample_type = form.cleaned_data["sample_type"] if form.cleaned_data["sample_type"] else ""
         fishing_areas = listrify(form.cleaned_data["fishing_areas"]) if len(form.cleaned_data["fishing_areas"]) > 0 else ""
         rivers = listrify(form.cleaned_data["rivers"]) if len(form.cleaned_data["rivers"]) > 0 else ""
         sites = listrify(form.cleaned_data["sites"]) if len(form.cleaned_data["sites"]) > 0 else ""
@@ -826,6 +888,8 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("trapnet:sweep_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
         elif report == 3:
             return HttpResponseRedirect(reverse("trapnet:obs_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
+        elif report == 4:
+            return HttpResponseRedirect(reverse("trapnet:export_obs_data_v1") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
 
         # electrofishing
         elif report == 10:
@@ -884,6 +948,35 @@ def export_obs_data(request):
 
     response = StreamingHttpResponse(
         streaming_content=(reports.generate_obs_csv(year, fishing_areas, rivers, sites)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+def export_obs_data_v1(request):
+    year = request.GET.get("year")
+    fishing_areas = request.GET.get("fishing_areas")
+    sample_type = request.GET.get("sample_type")
+    rivers = request.GET.get("rivers")
+    sites = request.GET.get("sites")
+
+    filter_kwargs = {"species__scientific_name__istartswith": "salmo", "life_stage__name__iexact": "smolt"}
+    if year != "":
+        filter_kwargs["sample__season"] = year
+    if fishing_areas != "":
+        filter_kwargs["sample__site__river__fishing_area_id__in"] = fishing_areas.split(",")
+    if sample_type != "":
+        filter_kwargs["sample__sample_type"] = sample_type
+    if rivers != "":
+        filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
+    if sites != "":
+        filter_kwargs["sample__site_id__in"] = sites.split(",")
+    qs = models.Observation.objects.filter(**filter_kwargs).iterator()
+
+    filename = "Atlantic salmon individual observation event report ({}).csv".format(now().strftime("%Y-%m-%d"))
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_obs_csv_v1(qs)),
         content_type='text/csv',
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'

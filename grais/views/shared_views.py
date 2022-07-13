@@ -88,7 +88,8 @@ class SpeciesListView(GraisAccessRequiredMixin, CommonFilterView):
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
-        {"name": 'tname|{}'.format("common name"), "class": "", "width": ""},
+        {"name": 'common_name', "class": "", "width": ""},
+        {"name": 'common_name_fra', "class": "", "width": ""},
         {"name": 'formatted_scientific|{}'.format("scientific name"), "class": "", "width": ""},
         {"name": 'abbrev', "class": "", "width": ""},
         {"name": 'tsn|ITIS TSN', "class": "", "width": ""},

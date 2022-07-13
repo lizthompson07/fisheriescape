@@ -5,7 +5,7 @@
 <div class="">
 
   <button class="btn btn-sm btn-warning" @click="openDialog">
-    <span class="mdi mdi-import mr-1"></span> {% trans "Import Filters" %}
+    <span class="mdi mdi-import"></span> {% trans "Import Filters" %}
   </button>
 
   <transition v-if="overlay" name="modal">
@@ -41,6 +41,14 @@
                       </option>
                     </select>
                   </div>
+                  <div class="col">
+                    <select class="form-control" v-model="filterCollection" disabled>
+                      <option :value="null">{% trans "Filter by project" %}</option>
+                      <option v-for="collection in collections" :key="collection.id" :value="collection.id">
+                        ${collection.name}
+                      </option>
+                    </select>
+                  </div>
                   <div class="col-auto my-1">
                     <div class="form-check">
                       <input class="form-check-input" type="checkbox" id="unfiltered_only" v-model="filterUnextracted">
@@ -52,11 +60,11 @@
                 </div>
               </form>
               <div class="mb-3">
+                <label for="">Filters</label>
                 <select name="" id="" multiple="true" class="form-control w-100" style="height: 200px" v-model="selectedFilters" ref="filter_box">
                   <option v-for="filter in filters" :key="filter.id" :value="filter.id">
-                    ${filter.display} &emsp;||&emsp;
-                    {% trans "Tube" %} &rarr; ${filter.tube_id | nz("n/a")} &emsp;||&emsp;
-                    {% trans "Batch" %} &rarr; ${filter.batch_display}
+                    ${filter.display}
+                    <span v-if="filter.tube_id">(tube ID: ${filter.tube_id })</span>
                   </option>
                 </select>
               </div>
@@ -83,7 +91,7 @@ Vue.component("filter-import-overlay", {
   delimiters: ["${", "}"],
   name: "filter-import-overlay",
   props: {
-    batch_id: {
+    default_collection_id: {
       required: true,
     }
   },
@@ -93,12 +101,14 @@ Vue.component("filter-import-overlay", {
       error: null,
       filters: [],
       batches: [],
+      collections: [],
       selectedFilters: [],
 
       filterUnextracted: true,
       filterFilterId: null,
       filterTubeId: null,
       filterBatch: null,
+      filterCollection: null,
       loadingFilters: true,
       loadingBatches: true,
     };
@@ -111,6 +121,7 @@ Vue.component("filter-import-overlay", {
       this.filterFilterId = null;
       this.filterTubeId = null;
       this.filterBatch = null;
+      this.filterCollection = this.default_collection_id;
       this.getFilters();
     },
     importFilters() {
@@ -129,6 +140,7 @@ Vue.component("filter-import-overlay", {
       if (this.filterFilterId && this.filterFilterId !== "") endpoint += `id=${this.filterFilterId}&`;
       if (this.filterTubeId && this.filterTubeId !== "") endpoint += `tube_id=${this.filterTubeId}&`;
       if (this.filterBatch && this.filterBatch !== "") endpoint += `filtration_batch=${this.filterBatch}&`;
+      if (this.filterCollection && this.filterCollection !== "") endpoint += `collection=${this.filterCollection}&`;
       if (this.filterUnextracted) endpoint += `extracts__isnull=true&`;
       apiService(endpoint).then(response => {
         this.loadingFilters = false;
@@ -145,14 +157,23 @@ Vue.component("filter-import-overlay", {
         this.loadingBatches = false;
         this.batches = response;
       });
+    },
+    getCollections() {
+      this.loadingCollections = true;
+      let endpoint = '/api/edna/collections/'
+      apiService(endpoint).then(response => {
+        this.loadingCollections = false;
+        this.collections = response;
+      });
     }
-
   },
   filters: {
     nz: vueFiltersObject["nz"],
   },
+
   created() {
     this.getBatches();
+    this.getCollections();
   },
   computed: {}
 });

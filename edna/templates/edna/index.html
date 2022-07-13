@@ -5,15 +5,40 @@
 
 {% block header %}
   {{ block.super }}
-  {% include "edna/_background_img.html" %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100&display=swap" rel="stylesheet">
+
+  {#  {% include "edna/_background_img.html" %}#}
+  <style>
+  .backdrop {
+      font-size: small;
+      z-index: 0;
+      font-family: 'Raleway', sans-serif;
+  }
+
+  .overlay {
+      z-index: 1;
+      position: fixed;
+      top: 10%;
+      left: 20%;
+
+  }
+
+  </style>
 {% endblock %}
 
 {% block content %}
 
+  <div class="backdrop small break-long-words">
+    {{ txt }}
+  </div>
+
+
   {% echo "btn btn-outline-dark " as btn_class %}
   {% echo "btn btn-outline-secondary " as admin_btn_class %}
   <br>
-  <div class="container bg-light curvy mb-3 mt-5 shadowbox">
+  <div class="container bg-light curvy shadowbox overlay">
     <div class="float-left">
       <img src="{% static 'edna/Edna_Krabappel.png' %}" alt="" width="200px">
     </div>
@@ -26,8 +51,8 @@
       </h3>
     </div>
     <div class="mb-5"></div>
-    <div class="text-right">
-      <a href="{% url 'edna:collection_list' %}" class="btn btn-primary">{% trans "Collections" %}</a>
+    <div class="">
+      <a href="{% url 'edna:collection_list' %}" class="btn btn-primary">{% trans "Projects" %}</a>
       <div class="btn-group">
         <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
                 aria-expanded="false">
@@ -46,21 +71,21 @@
           {% trans "Find a Sample" %}
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="{% url 'edna:sample_list'  %}">{% trans "Field" %}</a>
-          <a class="dropdown-item" href="{% url 'edna:filter_list'  %}">{% trans "Filtration" %}</a>
-          <a class="dropdown-item" href="{% url 'edna:extract_list'  %}">{% trans "Extraction" %}</a>
-          <a class="dropdown-item" href="{% url 'edna:pcr_list'  %}">{% trans "qPCR" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:sample_list' %}">{% trans "Field" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:filter_list' %}">{% trans "Filtration" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:extract_list' %}">{% trans "Extraction" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:pcr_list' %}">{% trans "qPCR" %}</a>
         </div>
       </div>
 
 
-      <a href="{% static 'edna/edna_sampling_fieldsheet.docx' %}" class="btn btn-outline-primary"><span
-        class="mdi mdi-file-document mr-1 text-primary"></span>{% trans "Download eDNA Fieldsheet" %}</a>
     </div>
+      <a href="{% static 'edna/edna_sampling_fieldsheet.docx' %}" class="float-right"><span
+        class="mdi mdi-file-document mr-1 text-primary"></span>{% trans "Download eDNA Fieldsheet" %}
+      </a>
   </div>
 
 
-  </div>
 
 
 {% endblock %}

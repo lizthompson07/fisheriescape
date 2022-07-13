@@ -95,6 +95,7 @@ class DefaultReviewer(MetadataFields):
     def get_absolute_url(self):
         return reverse('travel:default_reviewer_list')
 
+
 class NJCRates(SimpleLookup):
     amount = models.FloatField()
     last_modified = models.DateTimeField(blank=True, null=True)
@@ -407,33 +408,45 @@ class Trip(models.Model):
         return Traveller.objects.filter(request__trip=self).filter(~Q(request__status__in=[8, 10, 22]))  # exclude any travellers from inactive requests
 
     @property
-    def total_cost(self):
+    def traveller_count(self):
+        return self.travellers.count()
+
+
+    def get_good_travellers(self):
         # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
-        amt = TravellerCost.objects.filter(traveller__request__trip=self).filter(
-            ~Q(traveller__request__status__in=[10, 22, 8])).aggregate(dsum=Sum("amount_cad"))["dsum"]
+        return Traveller.objects.filter(request__trip=self).filter(~Q(request__status__in=[10, 22, 8]))
+
+    @property
+    def total_cost(self):
+        good_travellers = self.get_good_travellers()
+        amt = TravellerCost.objects.filter(traveller__in=good_travellers).aggregate(dsum=Sum("amount_cad"))["dsum"]
         return nz(amt, 0)
 
     @property
     def total_non_dfo_cost(self):
-        # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
-        amt = Traveller.objects.filter(request__trip=self).filter(
-            ~Q(request__status__in=[10, 22, 8])).aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
+        good_travellers = self.get_good_travellers()
+        amt = good_travellers.aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
         return nz(amt, 0)
 
     @property
     def total_dfo_cost(self):
-        # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
         total = self.total_cost
         non_dfo = self.total_non_dfo_cost
         return total - non_dfo
 
     @property
     def non_res_total_cost(self):
-        # exclude requests that are denied (id=10), cancelled (id=22)
-        dfo = TravellerCost.objects.filter(traveller__request__trip=self, traveller__is_research_scientist=False).filter(
-            ~Q(traveller__request__status__in=[10, 22])).aggregate(dsum=Sum("amount_cad"))["dsum"]
-        non_dfo = Traveller.objects.filter(request__trip=self, is_research_scientist=False).filter(
-            ~Q(request__status__in=[10, 22, 8])).aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
+        non_res_good_travellers = self.get_good_travellers().filter(is_research_scientist=False)
+        dfo = TravellerCost.objects.filter(traveller__in=non_res_good_travellers).aggregate(dsum=Sum("amount_cad"))["dsum"]
+        non_dfo = non_res_good_travellers.aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
+        return nz(dfo, 0) - nz(non_dfo, 0)
+
+    @property
+    def non_res_total_cost_with_drafts(self):
+        # just repeat the 'non_res_total_cost' prop but include draft requests
+        non_res_good_travellers = Traveller.objects.filter(request__trip=self, is_research_scientist=False).filter(~Q(request__status__in=[10, 22]))
+        dfo = TravellerCost.objects.filter(traveller__in=non_res_good_travellers).aggregate(dsum=Sum("amount_cad"))["dsum"]
+        non_dfo = non_res_good_travellers.aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
         return nz(dfo, 0) - nz(non_dfo, 0)
 
     @property
@@ -790,6 +803,12 @@ class Traveller(models.Model):
             mystr = f"{self.role} &mdash; {nz(self.role_of_participant, _('<em>No description of role provided.</em>'))}"
             return mark_safe(mystr)
 
+    @property
+    def long_role_text(self):
+        if self.role or self.role_of_participant:
+            mystr = f"{self.role} --> {nz(self.role_of_participant, _('No description of role provided.'))}"
+            return mark_safe(mystr)
+
     def __str__(self):
         return self.smart_name
 
@@ -813,9 +832,9 @@ class Traveller(models.Model):
             if tr_cost.rate_cad:
                 my_str += "{}: ${:,.2f} ({} x {:,.2f}); ".format(
                     tr_cost.cost,
+                    nz(tr_cost.amount_cad, 0),
                     nz(tr_cost.rate_cad, 0),
                     nz(tr_cost.number_of_days, 0),
-                    nz(tr_cost.amount_cad, 0),
                 )
             else:
                 my_str += "{}: ${:,.2f}; ".format(tr_cost.cost, tr_cost.amount_cad)

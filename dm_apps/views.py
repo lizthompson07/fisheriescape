@@ -132,6 +132,19 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["cars"] = {
+            "title": _("Vehicle RSVP"),
+            "description": _("Science Vehicle Reservation System"),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('cars:index'),
+            "icon_path": 'img/icons/vehicle.png',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
         app_dict["cruises"] = {
             "title": _("Cruises"),
             "description": _("Collection of regional cruise metadata and oceanographic data."),

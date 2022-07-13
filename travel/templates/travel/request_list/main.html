@@ -14,7 +14,7 @@
     </h1>
     <h1 v-else>{% trans "Your Associated Requests" %}</h1>
     <div>
-      <div class="row container-fluid bg-light curvy">
+      <div class="row container-fluid curvy">
         <div class="col">
           <div>
             <div>
@@ -42,8 +42,18 @@
               </div>
             </div>
             <div v-else>
-              <div class="float-right">
-                <a class="mb-3 btn btn-sm btn-success" href="{% url 'travel:request_new' %}">{% trans "New Request" %}</a>
+              <div class="float-right btn-group mb-3">
+                <button v-if="loadingReport" class="btn btn-sm btn-outline-secondary" type="button">
+                  <div class="spinner-border p-0" style="width: 1rem; height: 1rem;" role="status">
+                    <span class="sr-only"></span>
+                  </div>
+                </button>
+                <button v-else class="btn btn-sm btn-outline-secondary" type="button" @click="goReport('requests')">
+                    {% trans "Export" %}
+                </button>
+                <a class="btn btn-sm btn-success" href="{% url 'travel:request_new' %}">{% trans "New Request" %}</a>
+
+
               </div>
               <div>
                 <div class="text-center">
@@ -118,6 +128,7 @@
     delimiters: ["${", "}"],
     data: {
       count: 0,
+      loadingReport: false,
       currentSort: 'name',
       currentSortDir: 'asc',
       currentUser: {},
@@ -133,12 +144,14 @@
       filter_fiscal_year: "",
       filter_status: "",
       filter_region: "",
+      filter_branch: "",
       filter_division: "",
       filter_section: "",
 
       // dropdowns
       fiscalYears: [],
       regions: [],
+      branches: [],
       divisions: [],
       sections: [],
 
@@ -150,6 +163,7 @@
         this.filter_fiscal_year = "";
         this.filter_status = "";
         this.filter_region = "";
+        this.filter_branch = "";
         this.filter_division = "";
         this.filter_section = "";
         this.updateResults()
@@ -172,6 +186,9 @@
 
         var query = "";
         if (this.filter_region && this.filter_region !== "") query = `?region=${this.filter_region}`
+        apiService(`/api/travel/branches/${query}`).then(response => this.branches = response)
+
+        if (this.filter_branch && this.filter_branch !== "") query = `?branch=${this.filter_branch}`
         apiService(`/api/travel/divisions/${query}`).then(response => this.divisions = response)
 
         if (this.filter_division && this.filter_division !== "") query = `?division=${this.filter_division}`
@@ -183,6 +200,21 @@
         apiService(endpoint).then(data => {
           this.requestLabels = data.labels;
         });
+      },
+      getRequestsEndpoint(pageSize = 25) {
+        endpoint = `/api/travel/requests/`;
+        // apply filters
+        endpoint += `?page_size=${pageSize}&all=true&` + this.getFilterString()
+        return endpoint
+      },
+      getFilterString() {
+        return `search=${this.filter_search}&` +
+            `status=${this.filter_status}&` +
+            `fiscal_year=${this.filter_fiscal_year}&` +
+            `section__division__branch__region=${this.filter_region}&` +
+            `section__division=${this.filter_division}&` +
+            `section=${this.filter_section}&` +
+            `status=${this.filter_status}&`
       },
       getRequests(endpoint) {
         this.showSearchLanding = false;
@@ -219,8 +251,25 @@
         let win;
         if (this.pageType.search("all") > -1) win = window.open(url, '_blank');
         else window.location.href = url;
-
-
+      },
+      goReport(reportName) {
+        let userInput = true;
+        if (this.count > 50) userInput = confirm(`You are about to generate a report for a large number of requests (i.e., ${this.count} requests). Are you sure you want to continue? \n\n This can take up to a few minutes to process.`);
+        if (userInput) {
+          this.loadingReport = true;
+          endpoint = this.getRequestsEndpoint(5000);
+          apiService(endpoint).then(response => {
+            if (response.results) {
+              let ids = [];
+              for (const result of response.results) ids.push(result.id);
+              let reportUrl;
+              if (reportName === "requests") reportUrl = `{% url 'travel:export_request_list' %}?ids=${ids}`;
+              // else if (reportName === "travellers") reportUrl = `{% url 'travel:export_request_list' %}?ids=${ids}&travellers=true`;
+              window.location.href = reportUrl;
+              this.loadingReport = false;
+            }
+          })
+        }
       },
       loadMoreResults() {
         if (this.next) {

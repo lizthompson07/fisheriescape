@@ -1,6 +1,8 @@
 from copy import deepcopy
 
+import pandas as pd
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from pandas import date_range
@@ -21,7 +23,7 @@ from . import serializers
 from .. import models, stat_holidays, emails
 from ..filters import ProjectYearChildFilter, ProjectYearFilter, DMAFilter
 from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project, \
-    get_manageable_sections, multiple_financial_project_year_summary_data, is_section_head
+    get_manageable_sections, multiple_financial_project_year_summary_data, is_section_head, get_staff_summary
 from ..utils import is_management_or_admin
 
 
@@ -66,7 +68,10 @@ class FTEBreakdownAPIView(APIView):
                     data.append(get_user_fte_breakdown(my_user, fiscal_year_id=fy.id))
             else:
                 data = get_user_fte_breakdown(my_user, fiscal_year_id=request.query_params.get("year"))
-            return Response(data, status.HTTP_200_OK)
+            response_dict = {
+                'results': data
+            }
+            return Response(response_dict, status.HTTP_200_OK)
         else:
             if not request.query_params.get("year"):
                 return Response({"error": "must supply a fiscal year"}, status.HTTP_400_BAD_REQUEST)
@@ -74,16 +79,35 @@ class FTEBreakdownAPIView(APIView):
             data = list()
             ids = request.query_params.get("ids").split(",")
             year = request.query_params.get("year")
+            fiscal_year = shared_models.FiscalYear.objects.get(pk=year)
             # now we need a user list for any users in the above list
-            users = User.objects.filter(staff_instances2__project_year_id__in=ids).distinct().order_by("last_name")
+            users = User.objects.filter(staff_instances2__project_year_id__in=ids).distinct().order_by("last_name") \
+                .select_related("profile", "profile__section")
 
             for u in users:
-                my_dict = get_user_fte_breakdown(u, fiscal_year_id=year)
-                staff_instances = models.Staff.objects.filter(user=u, project_year__fiscal_year_id=year).distinct()
+                staff_instances = models.Staff.objects.filter(user=u, project_year__fiscal_year_id=year).distinct() \
+                    .select_related("user", "employee_type", "level", "funding_source", "project_year",
+                                    "project_year__project", "project_year__fiscal_year",
+                                    "project_year__project__section")
+                my_dict = get_user_fte_breakdown(u, fiscal_year_id=year, staff_instance_qs=staff_instances,
+                                                 fiscal_year=fiscal_year)
+
                 my_dict["staff_instances"] = serializers.StaffSerializer(staff_instances, many=True).data
                 data.append(my_dict)
 
-            return Response(data, status.HTTP_200_OK)
+            df = pd.DataFrame(data)
+            type_summary = get_staff_summary(df, "employee_type")
+            level_summary = get_staff_summary(df, "level")
+            funding_summary = get_staff_summary(df, "funding")
+
+            response_dict = {
+                'results': data,
+                'type_summary': type_summary,
+                'level_summary': level_summary,
+                'funding_summary': funding_summary
+            }
+
+            return Response(response_dict, status.HTTP_200_OK)
 
 
 class FinancialsAPIView(APIView):
@@ -186,7 +210,12 @@ class ProjectYearViewSet(ModelViewSet):
             self.queryset = self.queryset.filter(project__is_hidden=False, status__in=[2, 3, 4])
         # if the user param is present, it means we are looking at the My Projects page.
         if qp.get("user"):
-            self.queryset = self.queryset.filter(project__section__in=get_manageable_sections(request.user)).order_by("fiscal_year", "project_id")
+            query = Q(project__section__in=get_manageable_sections(request.user))
+            # if this is also a service coordinator, make sure any project years tagged with those services show up
+            if request.user.services.exists():
+                query |= Q(services__in=request.user.services.all())
+            self.queryset = self.queryset.filter(query).order_by("fiscal_year", "project_id")
+
         return super().list(request, *args, **kwargs)
 
     def post(self, request, pk):
@@ -697,6 +726,8 @@ class ProjectYearModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = get_labels(self.model)
+        data['service_choices'] = [dict(value=item.id, text=str(item)) for item in models.Service.objects.all()]
+        data['status_choices'] = [dict(text=item[1], value=item[0]) for item in models.ProjectYear.status_choices]
         return Response(data)
 
 

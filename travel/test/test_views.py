@@ -3,16 +3,14 @@ from datetime import timedelta
 from django.test import tag
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.utils.translation import activate
 from easy_pdf.views import PDFTemplateView
 from faker import Faker
 
-from shared_models.test.SharedModelsFactoryFloor import UserFactory
-from shared_models.views import CommonListView, CommonUpdateView, CommonCreateView, CommonFilterView, CommonFormView, CommonTemplateView, CommonDetailView, \
+from shared_models.views import CommonListView, CommonUpdateView, CommonCreateView, CommonFormView, CommonTemplateView, CommonDetailView, \
     CommonDeleteView
 from travel.test import FactoryFloor
 from travel.test.common_tests import CommonTravelTest as CommonTest
-from .. import views, models, utils
+from .. import views, models
 
 faker = Faker()
 
@@ -316,7 +314,6 @@ class TestReportFormView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("travel:reports", f"/en/travel-plans/reports/search/")
-
 
 
 class TestTripCancelUpdateView(CommonTest):
@@ -985,3 +982,24 @@ class TestUpcomingTripsReportView(CommonTest):
         self.assert_good_response(self.test_url1)
         self.assert_non_public_view(test_url=self.test_url1, user=self.user)
 
+
+class TestSearchAndReplaceTemplateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('travel:search_and_replace', args=None)
+        self.expected_template = 'travel/search_and_replace.html'
+        self.user = self.get_and_login_admin()
+
+    @tag("SearchAndReplace", "search_and_replace", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.SearchAndReplaceTemplateView, CommonTemplateView)
+
+    @tag("SearchAndReplace", "search_and_replace", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("SearchAndReplace", "search_and_replace", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:search_and_replace", f"/en/travel-plans/settings/search-and-replace/")

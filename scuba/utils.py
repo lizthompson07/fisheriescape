@@ -1,6 +1,12 @@
 import math
 
 
+def in_scuba_read_only(user):
+    if user:
+        return bool(hasattr(user, "scuba_user"))
+
+
+
 def in_scuba_admin_group(user):
     if user:
         return bool(hasattr(user, "scuba_user") and user.scuba_user.is_admin)

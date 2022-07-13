@@ -1,17 +1,17 @@
-bottle_id,sample_type,site_identifier,site_description,samplers,datetime,latitude,longitude,comments
-100,1,Site 993,Miramichi Lake,Jane Doe,8/21/2020 12:30,46.463301,-66.989402,Rainy
-101,1,Site 993,Miramichi Lake,Jane Doe,8/21/2020 12:47,46.459786,-66.967846,
-102,1,Site 993,Miramichi Lake,Jane Doe,8/21/2020 12:47,46.459786,-66.967846,
-103,1,Site 993,Miramichi Lake,Jane Doe,8/21/2020 12:47,46.459786,-66.967846,
-105,1,site 17,Lake Brook,Michael Smith,8/21/2020 13:05,46.463684,-66.964937,
-106,1,site 17,Lake Brook,Michael Smith,8/21/2020 13:05,46.463684,-66.964937,
-107,1,site 17,Lake Brook,Michael Smith,8/21/2020 13:05,46.463684,-66.964937,
-108,1,Site 994,Miramichi Lake,Michael Smith,8/21/2020 10:45,46.462735,-66.965679,
-109,1,Site 994,Miramichi Lake,Michael Smith,8/21/2020 10:45,46.462735,-66.965679,
-110,1,Site 994,Miramichi Lake,Michael Smith,8/21/2020 10:45,46.462735,-66.965679,
-111,1,Site 5,SMW River,JFK,8/26/2020 10:35,46.507534,-66.949769,Water temp : 18C
-112,1,Site 5,SMW River,JFK,8/26/2020 10:35,46.507534,-66.949769,Water temp : 18C
-113,1,Site 5,SMW River,JFK,8/26/2020 10:35,46.507534,-66.949769,Water temp : 18C
-114,1,Site 14,SMW River,JFK,8/26/2020 12:25,46.54391,-66.85485,Water temp : 18C
-115,1,Site 14,SMW River,JFK,8/26/2020 12:25,46.54391,-66.85485,Water temp : 18C
-117,1,Site 14,SMW River,JFK,8/26/2020 12:25,46.54391,-66.85485,Water temp : 18C
+bottle_id,sample_type,location,site,station,samplers,datetime,latitude,longitude,comments
+100,1,Fundy National Park,Tracey Lake,1,Jane Doe,8/21/2020 12:30,46.463301,-66.989402,Rainy
+101,1,Fundy National Park,Tracey Lake,1,Jane Doe,8/21/2020 12:47,46.459786,-66.967846,
+102,1,Fundy National Park,Tracey Lake,2,Jane Doe,8/21/2020 12:47,46.459786,-66.967846,
+103,1,Fundy National Park,Tracey Lake,2,Jane Doe,8/21/2020 12:47,46.459786,-66.967846,
+105,1,Fundy National Park,Tracey Lake,3,Michael Smith,8/21/2020 13:05,46.463684,-66.964937,
+106,1,Fundy National Park,Tracey Lake,3,Michael Smith,8/21/2020 13:05,46.463684,-66.964937,
+107,1,Fundy National Park,Tracey Lake,4,Michael Smith,8/21/2020 13:05,46.463684,-66.964937,
+108,1,Fundy National Park,Tracey Lake,4,Michael Smith,8/21/2020 10:45,46.462735,-66.965679,
+109,1,Fundy National Park,Bennett Lake,1,Michael Smith,8/21/2020 10:45,46.462735,-66.965679,
+110,1,Fundy National Park,Bennett Lake,1,Michael Smith,8/21/2020 10:45,46.462735,-66.965679,
+111,1,Fundy National Park,Bennett Lake,2,JFK,8/26/2020 10:35,46.507534,-66.949769,Water temp : 18C
+112,1,Fundy National Park,Bennett Lake,2,JFK,8/26/2020 10:35,46.507534,-66.949769,Water temp : 18C
+113,1,Fundy National Park,Bennett Lake,3,JFK,8/26/2020 10:35,46.507534,-66.949769,Water temp : 18C
+114,1,Fundy National Park,Bennett Lake,3,JFK,8/26/2020 12:25,46.54391,-66.85485,Water temp : 18C
+115,1,Fundy National Park,Bennett Lake,4,JFK,8/26/2020 12:25,46.54391,-66.85485,Water temp : 18C
+117,1,Fundy National Park,Bennett Lake,4,JFK,8/26/2020 12:25,46.54391,-66.85485,Water temp : 18C

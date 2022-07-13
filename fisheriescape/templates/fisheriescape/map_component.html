@@ -1,0 +1,390 @@
+{% load i18n %}
+{% load bootstrap4 %}
+{% load custom_filters %}
+{% load static %}
+<!-- template for the modal component -->
+<script type="text/x-template" id="map-component-template">
+ <div class="row container-fluid bg-light curvy">
+    <h5>
+        {% trans "Map" %}
+    </h5>
+    <hr>
+    <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
+        <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+            <span class="sr-only"></span>
+        </div>
+    </div>
+        <div class="col my-auto">
+            <div id="maptest"></div>
+        </div>
+
+    </div>
+</script>
+
+<script type="application/javascript">
+Vue.component("map-component", {
+    template: "#map-component-template",
+    name: "map-component",
+    delimiters: ["${", "}"],
+    props: {
+        testData: {
+            type: Array,
+            required: true,
+        },
+        projects_loading: {
+            type: Boolean,
+            required: true,
+        }
+    },
+    data: {
+
+      },
+    methods: {
+        setupLeafletMap: function () {
+           // Create some test points and group in a layer
+
+           var point1 = L.marker([48.76, -60.87]).bindPopup('Test 1'),
+               point2 = L.marker([48.30, -63.68]).bindPopup('Test 2');
+
+           var tests = L.layerGroup([point1, point2]);
+
+           // Create variable for different base maps
+
+           var light = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+               attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+               maxZoom: 18,
+               id: 'mapbox/light-v10',
+               tileSize: 512,
+               zoomOffset: -1,
+               accessToken: `{{ mapbox_api_key }}`
+           });
+
+           var streets = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+               attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+               maxZoom: 18,
+               id: 'mapbox/streets-v11',
+               tileSize: 512,
+               zoomOffset: -1,
+               accessToken: `{{ mapbox_api_key }}`
+           });
+
+            // Initiate filter layer for later, has to be done here so it can be toggled on when map is initiated
+           // Use FeatureGroup instead of layerGroup because featureGroup allows getBounds() method
+
+           var overlayObject = L.featureGroup()
+           // Create the map starting location and zoom level and tell it which layers to have
+
+           this.map = L.map('maptest', {
+               center: [48.46, -61.95],
+               zoom: 6,
+               layers: [streets, overlayObject] //this says what to have on by default
+           });
+
+
+           // Create subfunctions for polygon layer
+
+            function showInfo() {
+                this.setStyle({
+                    'fillColor': '#689ae9'
+                });
+            }
+
+            function removeInfoLobster() {
+                lobsterFishery.resetStyle(this);
+                }
+
+            // Create Lobster polygon layer and use onEachFeature to show certain info for each feature
+
+            var lobsterFishery = L.geoJSON(lobsterObj, {
+                style: function() {
+                    return {
+                        color: 'blue'
+                    }
+                },
+                onEachFeature: function (feature, layer) {
+                    myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+                    layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
+                    layer.on({
+                        mouseover: showInfo,
+                        mouseout: removeInfoLobster
+                    });
+                    }
+            });
+
+            {#// Testing, this function takes in the getJSON call below and gets geoJson formatted data and makes layer#}
+            {#function createOverlay(data, layerName, style) {#}
+            {#  overlay = L.geoJson(data, { // Make the layer from the JSON and grab the handle.#}
+            {#    onEachFeature: function(feature, layer) {#}
+            {#       layer.bindPopup(`Species: ${feature.properties.species}</br>Week: ${feature.properties.week}</br>Site Score: ${feature.properties.site_score}`);#}
+            {#       layer.on({#}
+                       {#mouseover: highlightFeature,#}
+                       {#mouseout: resetHighlight,#}
+            {#       })#}
+            {#    },#}
+                {#style: gradientStyle,#}
+                {#// filter: function(feature) {#}
+                {#//    return feature.properties.week === 'Week 25';#}
+                {#// }#}
+            {#  });#}
+            {#  overlay.addTo(this.map);#}
+            {#  control.addOverlay(overlay, layerName); // Add the layer to the Layer Control.#}
+
+            {#// Define colour gradient for scores#}
+            {#function getColor(d) {#}
+            {#    return d > 30 ? '#800026' :#}
+            {#           d > 20  ? '#BD0026' :#}
+            {#           d > 14  ? '#E31A1C' :#}
+            {#           d > 10  ? '#FC4E2A' :#}
+            {#           d > 6  ? '#FD8D3C' :#}
+            {#           d > 3  ? '#FEB24C' :#}
+            {#           d > 1  ? '#FED976' :#}
+            {#                    '#FFEDA0';#}
+
+            // Define colour gradient for scores
+            function getColor(d) {
+                return d > 30 ? '#FF050B' :
+                       d > 29  ? '#FF3105' :
+                       d > 27  ? '#FF6305' :
+                       d > 25  ? '#FF9405' :
+                       d > 22  ? '#FFC605' :
+                       d > 20  ? '#FFF805' :
+                       d > 17  ? '#D4FF05' :
+                       d > 15  ? '#A3FF05' :
+                       d > 12  ? '#71FF06' :
+                       d > 9  ? '#3FFF06' :
+                       d > 6  ? '#0EFF06' :
+                       d > 3  ? '#06FF2F' :
+                       d > 2  ? '#06FF61' :
+                       d > 1  ? '#06FF93' :
+                       d > 0  ? '#06FFC4' :
+                                '#06FFF6';
+            }
+
+            // Define polygon style
+            function gradientStyle(feature) {
+                // console.log(feature)
+                return {
+                    fillColor: getColor(feature.properties.fs_score),
+                    weight: 0.5,
+                    opacity: 1,
+                    color: 'white',
+                    dashArray: '3',
+                    fillOpacity: 0.7
+                };
+            }
+
+            // Highlight the hexagon on mouseover
+            function highlightFeature(e) {
+                var layer = e.target;
+
+                layer.setStyle({
+                    weight: 5,
+                    color: '#666',
+                    dashArray: '',
+                    fillOpacity: 0.7
+                });
+
+                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                    layer.bringToFront();
+                }
+                info.update(layer.feature.properties);
+            }
+
+            // Reset Highlight on mouseout -- had to move this inside getJSON
+            {#function resetHighlight(e) {#}
+            {#   overlayTest.resetStyle(e.target);#}
+            {#   info.update();#}
+
+            // Trying to get api filtering to work --how to get async after filter has been applied?
+            var url = `http://127.0.0.1:8000/api/fisheriescape/scores-feature/`
+
+           // getting really close! just need to pass the filter to a new var outside the getJSON; need async get after filter is updated?
+            var getWeek = `${this.filter.week}`
+            {#console.log(getWeek)#}
+
+            var getSpecies = `${this.filter.species}`
+            {#console.log(getSpecies)#}
+
+           // trying without getJSON, use method from Vue --- maybe only grab the already filtered data to reduce lag and take away need to filter in layer??
+
+           var overlayTest = new L.geoJson(this.testData, { // Make the layer from the JSON and grab the handle.
+                onEachFeature: function (feature, layer) {
+                    layer.bindPopup(
+                        `Id: ${feature.id}</br>
+                        Grid-id: ${feature.properties.grid_id}</br>
+                        Species: ${feature.properties.species}</br>
+                        Week: ${feature.properties.week}</br>
+                        FS Score: ${feature.properties.fs_score}`);
+                    layer.on({
+                        mouseover: highlightFeature,
+                        mouseout:  function resetHighlight(e) {
+                                   overlayTest.resetStyle(e.target);
+                                   info.update();
+                                }
+                    })
+
+                },
+                style: gradientStyle,
+                filter: function(feature) {
+                    thingy = `Week ${getWeek}`
+                    {#console.log(thingy)#}
+                    thingy2 = `${getSpecies}`
+                    {#console.log(thingy2)#}
+
+                    // this works but only once you've chosen a species and a week -- add more logic or do something to show they have to pick both
+                    if (feature.properties.species && feature.properties.week) return (feature.properties.species === thingy2 && feature.properties.week === thingy);
+                        {#|| (feature.properties.week) return (feature.properties.week === thingy);#}
+                }
+                {#filter: function(feature) {#}
+                {#    return feature.properties.species === this.filter.species;#}
+            }).addTo(overlayObject);
+
+            // Don't go down this path friends, it just leads to madness.. should have realized much earlier that all that was
+           // needed was to get the json from a Vue method instead of trying to get it the way I've done in non-vue templates
+           // this works but because it's async, I couldn't figure out how to get the bounds of the layer that's created by it
+
+           {##}
+        {#                   var boundingNELat = []#}
+        {#                   var boundingNELng = null#}
+        {#                   var boundingNorthEast = L.latLng(40.712, -74.227)#}
+        {#                   var boundingSouthWest = L.latLng(40.774, -74.125)#}
+        {#                   var boundsForReal = L.latLngBounds(boundingSouthWest, boundingNorthEast)#}
+
+            {#// this works but had to add leaflet-ajax to static - but not sure how to get filter#}
+            {#$.getJSON(url, function(data){#}
+            {#    overlayTest = new L.geoJson(data, { // Make the layer from the JSON and grab the handle.#}
+            {#        onEachFeature: function (feature, layer) {#}
+            {#            layer.bindPopup(#}
+            {#                `Id: ${feature.id}</br>#}
+            {#                Grid-id: ${feature.properties.grid_id}</br>#}
+            {#                Species: ${feature.properties.species}</br>#}
+            {#                Week: ${feature.properties.week}</br>#}
+            {#                Site Score: ${feature.properties.site_score}`);#}
+            {#            layer.on({#}
+            {#                mouseover: highlightFeature,#}
+            {#                mouseout:  function resetHighlight(e) {#}
+            {#                           overlayTest.resetStyle(e.target);#}
+            {#                           info.update();#}
+            {#                        }#}
+            {#            })#}
+            {##}
+            {#        },#}
+            {#        style: gradientStyle,#}
+            {#        filter: function(feature) {#}
+            {#            thingy = `Week ${getWeek}`#}
+                        {#console.log(thingy)#}
+            {#            thingy2 = `${getSpecies}`#}
+                        {#console.log(thingy2)#}
+            {##}
+            {#            // this works but only once you've chosen a species and a week -- add more logic or do something to show they have to pick both#}
+            {#            if (feature.properties.species && feature.properties.week) return (feature.properties.species === thingy2 && feature.properties.week === thingy);#}
+                            {#|| (feature.properties.week) return (feature.properties.week === thingy);#}
+            {#        }#}
+                    {#filter: function(feature) {#}
+                    {#    return feature.properties.species === this.filter.species;#}
+            {#    }).addTo(overlayObject);#}
+                {#overlayTest.on('data:loaded', function() {#}
+                {#console.log(overlayObject.getBounds())#}
+                    {#this.map.(overlayObject.getBounds())#}
+            {#    if (thingy !== 'Week ' && thingy2 !== '') {#}
+                    {#console.log(overlayTest.getBounds())#}
+                    {#bounding.push(overlayTest.getBounds())#}
+                    {#boundingNorthEast.push(overlayTest.getBounds().getNorthEast())#}
+                    {#boundingSouthWest.push(overlayTest.getBounds().getSouthWest())#}
+                    {#console.log(overlayTest)#}
+                    {#this.bounds = (overlayTest.getBounds())#}
+                    {#var bounding = (overlayTest.getBounds().getNorthEast());#}
+                    {#console.log(bounding.lat)#}
+                    {#console.log(bounding.lng)#}
+                    {#boundingNELat.lat = bounding.lat.toString()#}
+                    {#boundingNELat.lng = bounding.lng#}
+                    {#console.log(boundingNELat.lat)#}
+                    {#this.boundingNELng= bounding.lng#}
+                    {#console.log(bounding)#}
+                    {#var northEast = (overlayTest.getBounds().getNorthEast());#}
+                    {#    southWest = (overlayTest.getBounds().getSouthWest());#}
+                    {#bounds = L.latLngBounds(southWest, northEast)#}
+                    {#console.log(bounds)#}
+                    {#console.log(bounds.getCenter())#}
+                   {#this.map.setView(new L.LatLng(40.737, -73.923), 8);#}
+            {#    }#}
+            {#    console.log(overlayObject.getBounds())#}
+            //});
+
+
+            // Add hover info control box with info
+
+            var info = L.control({position: 'bottomleft'});
+
+            info.onAdd = function (map) {
+                this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+                this.update();
+                return this._div;
+            };
+
+            // method that we will use to update the control based on feature properties passed
+            info.update = function (props) {
+                this._div.innerHTML = '<h4>Fisheriescape Scores</h4>' +  (props ?
+                    '<b>' + props.species + '</b><br /> FS Score:' + props.fs_score + '</b><br />' + props.week
+                    : 'Hover over a hexagon');
+            };
+
+            info.addTo(this.map);
+
+            // Custom Legend
+
+            var legend = L.control({position: 'bottomright'});
+
+            legend.onAdd = function (map) {
+
+                var div = L.DomUtil.create('div', 'info legend'),
+                    grades = [0, 1, 2, 3, 6, 9, 12, 15, 17, 20, 22, 25, 27, 29, 30],
+                    labels = [];
+
+                // loop through our density intervals and generate a label with a colored square for each interval
+                for (var i = 0; i < grades.length; i++) {
+                    div.innerHTML +=
+                        '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+                        grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+                }
+
+                return div;
+            };
+
+            legend.addTo(this.map);
+
+           // Create basemaps variable and add basemaps desired to it as options
+
+           var baseMaps = {
+               "Light": light,
+               "Streets": streets,
+           };
+
+           // Create overlay variable and add overlays desired
+           // Uses plugin from: https://github.com/ismyrnow/leaflet-groupedlayercontrol
+
+           var groupedOverlays = {
+               "Fisheriescape Scores": {
+                   "Test": tests,
+                   "testy": overlayObject,
+               },
+               "Fishing Areas": {
+                    "Lobster Areas": lobsterFishery,
+               }
+           };
+
+           // Create the control layer box and add baseMaps and overlayMaps to it
+
+           {#L.control.layers(baseMaps, groupedOverlays).addTo(this.map);#}
+           L.control.groupedLayers(baseMaps, groupedOverlays).addTo(this.map);
+
+        // check if species and week filter has been chosen and if so get the bounds of the object
+           if (this.filter.species && this.filter.week) return this.map.fitBounds(overlayObject.getBounds(), {padding: [50, 50]});
+
+        },
+        },
+    mounted() {
+      this.setupLeafletMap();
+    }
+});
+</script>

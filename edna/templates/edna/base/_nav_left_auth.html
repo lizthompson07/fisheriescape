@@ -5,15 +5,11 @@
 </a></li>
 
 {% if is_admin %}
-  <li class="nav-item">
-    <a class="nav-link" href="{% url 'edna:reports' %}">
-      {% trans "Reports" %}
-    </a>
-  </li>
+
   <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
        aria-haspopup="true" aria-expanded="false">
-      {% trans "Settings" %}
+      {% trans "Reference Tables" %}
     </a>
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
       <a class="dropdown-item" href="{% url 'edna:species_list' %}">
@@ -37,11 +33,21 @@
       <a class="dropdown-item" href="{% url 'edna:manage_master_mixes' %}">
         {% trans "Master Mixes" %}
       </a>
-      <a class="dropdown-item" href="{% url 'edna:manage_edna_users' %}" target="_blank">
-        {% trans "User Permissions" %}
-      </a>
+
 
     </div>
+  </li>
+
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'edna:reports' %}">
+      {% trans "Reports" %}
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'edna:manage_edna_users' %}" target="_blank">
+      {% trans "User Permissions" %}
+    </a>
   </li>
 {% endif %}
 

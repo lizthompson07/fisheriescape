@@ -68,14 +68,6 @@
           <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Initiate Terms of Reference (ToR)" %}
         </a>
       {% endif %}
-
-{#      <button#}
-{#        v-if="process.can_post_meeting && !process.posting_request_date && !process.is_posted"#}
-{#        class="btn btn-sm btn-purple" :disabled="!process.can_post_meeting.can_post" @click="requestPosting"#}
-{#        data-toggle="tooltip" :title="process.can_post_meeting.reasons"#}
-{#      >#}
-{#        {% trans "Request to Post Meeting" %}#}
-{#      </button>#}
     </div>
 
     {% if object.tor %}
@@ -121,25 +113,6 @@
               <th class="text-left">{% trans "ToR status" %}</th>
               <td class="text-left" v-html="process.tor_status"></td>
             </tr>
-
-            <tr>
-              <th class="text-left" v-html="processLabels.is_posted"></th>
-              <td class="text-left">
-                <span class="">${process.is_posted|yesNo}</span>
-                <em v-if="!process.is_posted && process.posting_request_date" class=" text-muted">
-                  &mdash; {% trans "Posting request made on" %} ${process.posting_request_date_display}
-                </em>
-                <em v-else-if="!process.is_posted && process.can_post_meeting.can_post" class=" text-muted">
-                  &mdash; {% trans "eligible for posting" %}
-                </em>
-                <em v-else-if="!process.is_posted && !process.can_post_meeting.can_post" class=" text-muted">
-                  &mdash; {% trans "not eligible for posting because:" %} ${process.can_post_meeting.reasons | listrify}
-                </em>
-
-              </td>
-            </tr>
-
-
             <tr>
               <th class="text-left">{% trans "Advisory process type" %}</th>
               <td class="text-left">${process.scope_type|nz}</td>
@@ -273,7 +246,21 @@
           {% for obj in object.meetings.all %}
             <tr @click="followLink('{% url 'csas2:meeting_detail' obj.id %}')" class="pointy">
               {% for field in meeting_field_list %}
-                <td>{% get_field_value obj field safe=True %}</td>
+                {% if "somp" in field %}
+                  {% if obj.is_planning %}
+                    <td>---</td>
+                  {% else %}
+                    <td><span class="p-1 {% if obj.is_somp_submitted %}good{% else %}bad {% endif %}">{% get_field_value obj field safe=True %}</span></td>
+                  {% endif %}
+                {% elif "posted" in field %}
+                  {% if obj.is_planning %}
+                    <td>---</td>
+                  {% else %}
+                    <td><span class="p-1 {% if obj.is_posted %}good{% else %}bad {% endif %}">{% get_field_value obj field safe=True %}</span></td>
+                  {% endif %}
+                {% else %}
+                  <td>{% get_field_value obj field safe=True %}</td>
+                {% endif %}
               {% endfor %}
             </tr>
           {% endfor %}
@@ -298,17 +285,12 @@
       </div>
 
       {% if object.documents.exists %}
-
         <table class="table table-hover table-sm">
           <thead>
           <tr>
-            <th rowspan="2" class="w400">{% trans "Title" %}</th>
-            <th rowspan="2">{% trans "Type" %}</th>
-            <th rowspan="2">{% trans "Status" %}</th>
-            <th v-if="keystoneMeetings.length" class="text-center" :colspan="keystoneMeetings.length">{% trans "Meeting Linkages" %}</th>
-          </tr>
-          <tr>
-            <th v-for="m, index in keystoneMeetings" :key="m.id" class="text-center text-muted">${m.display}</th>
+            <th class="w-50">{% trans "Title" %}</th>
+            <th>{% trans "Type" %}</th>
+            <th>{% trans "Status" %}</th>
           </tr>
           </thead>
           <tbody>
@@ -316,13 +298,6 @@
             <td>${d.ttitle}</td>
             <td>${d.document_type}</td>
             <td v-html="d.status_display"></td>
-            <td v-for="m, index in keystoneMeetings" :key="m.id" class="text-center">
-              <button v-if="d.meetings.includes(m.id)" @click="toggleMeetingLinkage(d, m, $event)" class="btn my-0 py-0"><span
-                class="py-0 my-0 mdi mdi-checkbox-marked-outline"></span></button>
-              <button v-else @click="toggleMeetingLinkage(d, m, $event)" class="btn my-0 py-0"><span class="py-0 my-0 mdi mdi-checkbox-blank-outline"></span>
-              </button>
-            </td>
-
           </tr>
           </tbody>
         </table>
@@ -447,16 +422,6 @@
       },
       goDocumentDetail(document) {
         window.location.href = `/csas-sccs/documents/${document.id}/view/`;
-      },
-      toggleMeetingLinkage(doc, meeting, event) {
-        console.log(event)
-        // stop propagation of window change
-        event.stopPropagation()
-        let endpoint = `/api/csas/documents/${doc.id}/?meeting=${meeting.id}`;
-        apiService(endpoint, "POST")
-            .then(response => {
-              this.getDocuments()
-            })
       },
       getDocuments() {
         this.loadingDocs = true;

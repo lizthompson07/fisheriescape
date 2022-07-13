@@ -100,7 +100,7 @@ class TestAdminStaffFilterView(CommonTest):
         self.instance = FactoryFloor.StaffFactory()
         self.test_url = reverse_lazy('ppt:admin_staff_list')
         self.expected_template = 'ppt/admin_staff_list.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("AdminStaff", "admin_staff_list", "view")
     def test_view_class(self):
@@ -125,7 +125,7 @@ class TestAdminStaffUpdateView(CommonTest):
         self.test_url = reverse_lazy('ppt:admin_staff_edit', args=[self.instance.pk, ])
         self.test_url1 = reverse_lazy('ppt:admin_staff_edit', args=[self.instance.pk, "?hello_kitty=true"])
         self.expected_template = 'ppt/admin_staff_form.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("AdminStaff", "admin_staff_edit", "view")
     def test_view_class(self):
@@ -241,7 +241,7 @@ class TestFunctionalGroupCreateView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('ppt:group_new')
         self.expected_template = 'ppt/form.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("FunctionalGroup", "group_new", "view")
     def test_view_class(self):
@@ -269,7 +269,7 @@ class TestFunctionalGroupDeleteView(CommonTest):
         self.instance = FactoryFloor.FunctionalGroupFactory()
         self.test_url = reverse_lazy('ppt:group_delete', args=[self.instance.pk, ])
         self.expected_template = 'ppt/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("FunctionalGroup", "group_delete", "view")
     def test_view_class(self):
@@ -300,7 +300,7 @@ class TestFunctionalGroupListView(CommonTest):
         self.instance = FactoryFloor.FunctionalGroupFactory()
         self.test_url = reverse_lazy('ppt:group_list')
         self.expected_template = 'ppt/list.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("FunctionalGroup", "group_list", "view")
     def test_view_class(self):
@@ -324,7 +324,7 @@ class TestFunctionalGroupUpdateView(CommonTest):
         self.instance = FactoryFloor.FunctionalGroupFactory()
         self.test_url = reverse_lazy('ppt:group_edit', args=[self.instance.pk, ])
         self.expected_template = 'ppt/form.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("FunctionalGroup", "group_edit", "view")
     def test_view_class(self):
@@ -585,7 +585,7 @@ class TestProjectManageTemplateView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('ppt:manage_projects')
         self.expected_template = 'ppt/manage_projects/main.html'
-        self.user1 = self.get_and_login_user(in_group="projects_admin")
+        self.user1 = self.get_and_login_user(in_national_admin_group=True)
         self.user2 = FactoryFloor.ProjectFactory().section.head
 
     @tag("Project", "manage_projects", "view")
@@ -802,7 +802,7 @@ class TestReferenceMaterialCreateView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('ppt:ref_mat_new')
         self.expected_template = 'ppt/form.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("ReferenceMaterial", "ref_mat_new", "view")
     def test_view_class(self):
@@ -830,7 +830,7 @@ class TestReferenceMaterialDeleteView(CommonTest):
         self.instance = FactoryFloor.ReferenceMaterialFactory()
         self.test_url = reverse_lazy('ppt:ref_mat_delete', args=[self.instance.pk, ])
         self.expected_template = 'ppt/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("ReferenceMaterial", "ref_mat_delete", "view")
     def test_view_class(self):
@@ -861,7 +861,7 @@ class TestReferenceMaterialListView(CommonTest):
         self.instance = FactoryFloor.ReferenceMaterialFactory()
         self.test_url = reverse_lazy('ppt:ref_mat_list')
         self.expected_template = 'ppt/list.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("ReferenceMaterial", "ref_mat_list", "view")
     def test_view_class(self):
@@ -885,7 +885,7 @@ class TestReferenceMaterialUpdateView(CommonTest):
         self.instance = FactoryFloor.ReferenceMaterialFactory()
         self.test_url = reverse_lazy('ppt:ref_mat_edit', args=[self.instance.pk, ])
         self.expected_template = 'ppt/form.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("ReferenceMaterial", "ref_mat_edit", "view")
     def test_view_class(self):
@@ -912,7 +912,7 @@ class TestReportSearchFormView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('ppt:reports')
         self.expected_template = 'ppt/report_search.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("ReportSearch", "reports", "view")
     def test_view_class(self):
@@ -941,7 +941,7 @@ class TestManagementSearchFormView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('ppt:management_reports', args=('pop',))
         self.expected_template = 'ppt/management_search.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.user = self.get_and_login_user(in_national_admin_group=True)
 
     @tag("reports", "view")
     def test_view_class(self):
@@ -1126,64 +1126,6 @@ class TestStatusReportUpdateView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("ppt:report_edit", f"/en/ppt/status-reports/{self.instance.pk}/edit/", [self.instance.pk])
-
-
-class TestToggleUserView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = UserFactory()
-        self.test_url_good = reverse_lazy('ppt:toggle_user', args=[self.instance.pk, "admin"])
-        self.test_url_bad = reverse_lazy('ppt:toggle_user', args=[self.instance.pk, "bar"])
-        self.user = self.get_and_login_user(in_group="projects_admin")
-
-    @tag("ToggleUser", "toggle_user", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url_good)
-        self.assert_non_public_view(test_url=self.test_url_good, user=self.user, expected_code=302)
-
-    @tag("ToggleUser", "toggle_user", "submit")
-    def test_post(self):
-        admin_group = get_object_or_404(Group, name="projects_admin")
-        self.assertNotIn(admin_group, self.instance.groups.all())
-        response = self.client.post(self.test_url_good)
-        self.assertIn(admin_group, self.instance.groups.all())
-        response = self.client.post(self.test_url_good)
-        self.assertNotIn(admin_group, self.instance.groups.all())
-
-    @tag("ToggleUser", "toggle_user", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("ppt:toggle_user", f"/en/ppt/settings/user/{self.instance.pk}/toggle/admin/", [self.instance.pk, "admin"])
-
-
-class TestUserListView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.test_url = reverse_lazy('ppt:user_list')
-        self.expected_template = 'ppt/user_list.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
-
-    @tag("User", "user_list", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.UserListView, CommonFilterView)
-        self.assert_inheritance(views.UserListView, views.AdminRequiredMixin)
-
-    @tag("User", "user_list", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("User", "user_list", "context")
-    def test_context(self):
-        context_vars = [
-            "admin_group",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
-    @tag("User", "user_list", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("ppt:user_list", f"/en/ppt/settings/users/")
 
 
 @tag("Reports", "sar_workplan")

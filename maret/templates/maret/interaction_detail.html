@@ -35,14 +35,17 @@
                     <table class="table table-sm ">
                         {% for field in field_list %}
                             {% if field == "committee" %}
-                                <tr>
-                                    <td>{% get_verbose_label object field %}</td>
-                                    <td>
-                                        {% if object.committee.id %}
-                                            <a href="{% url 'maret:committee_detail' object.committee.id %}">{% get_field_value object field %}</a>
-                                        {% endif %}
-                                    </td>
-                                </tr>
+                                {# only include committee field if interaction is type committee/working group: #}
+                                {% if object.interaction_type == 4 %}
+                                    <tr>
+                                        <th>{% get_verbose_label object field %}</th>
+                                        <td>
+                                            {% if object.committee.id %}
+                                                <a href="{% url 'maret:committee_detail' object.committee.id %}">{% get_field_value object field %}</a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endif %}
 
                             {% else %}
                                 {% verbose_td_display object field %}
@@ -59,15 +62,10 @@
                     <h5 class="card-title"> {% trans "External Organization(s)" %}</h5>
                 </div>
                 <div class="card-body">
-                    <table class="table table-sm ">
-                        <tr>
-                            <th>{% trans 'Name' %}</th>
-                        </tr>
+                    <table class="table table-hover table-sm ">
                         {% for ext_org in object.external_organization.all %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'maret:org_detail' ext_org.id %}">{{ ext_org }}</a>
-                                </td>
+                            <tr href="{% url 'maret:org_detail' ext_org.id %}">
+                                <td>{{ ext_org }}</td>
                             </tr>
                         {% endfor %}
                     </table>

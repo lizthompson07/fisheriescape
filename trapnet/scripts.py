@@ -569,3 +569,236 @@ def create_river_areas():
             fa, created = FishingArea.objects.get_or_create(name=r.fishing_area_code.upper())
             r.fishing_area = fa
             r.save()
+
+
+def find_duplicate_scales():
+    # get the unique list of scale ids
+    observations = models.Observation.objects.filter(scale_id_number__isnull=False)
+    scale_ids = set([o.scale_id_number for o in observations])
+
+    for sid in scale_ids:
+        if observations.filter(scale_id_number=sid).count() > 1:
+            print(f"duplicate records found for: {sid}")
+
+
+def annotate_scales():
+    # get the unique list of scale ids
+    observations = models.Observation.objects.filter(scale_id_number__isnull=False)
+
+    for o in observations:
+        o.scale_id_number += f" {o.sample.season}"
+        o.save()
+
+    find_duplicate_scales()
+
+
+def populate_len():
+    fl_observations = models.Observation.objects.filter(fork_length__isnull=False, length__isnull=True)
+    for o in fl_observations:
+        o.length = o.fork_length
+        o.length_type = 1
+        o.save()
+
+    tot_observations = models.Observation.objects.filter(total_length__isnull=False, length__isnull=True)
+    for o in tot_observations:
+        o.length = o.total_length
+        o.length_type = 2
+        o.save()
+
+
+def reverse_len():
+    len_observations = models.Observation.objects.filter(fork_length__isnull=True, total_length__isnull=True, length__isnull=False)
+    for o in len_observations:
+        if o.length_type == 1:
+            o.fork_length = o.length
+        else:
+            o.total_length = o.length
+        o.save()
+
+    problem_observations_1 = models.Observation.objects.filter(fork_length__isnull=False, length__isnull=False, length_type=1)
+    for o in problem_observations_1:
+        if o.length != o.fork_length:
+            print("bad observation", o.id)
+    problem_observations_2 = models.Observation.objects.filter(total_length__isnull=False, length__isnull=False, length_type=2)
+    for o in problem_observations_2:
+        if o.length != o.total_length:
+            print("bad observation", o.id)
+
+
+
+def delete_tags_removed():
+    observations = models.Observation.objects.filter(tags_removed__isnull=False, tag_number__isnull=False)
+    for obs in observations:
+
+        # get a list of tags from the removed_tags
+        removed_tags = obs.tags_removed.split(" ")
+        # trim away any whitespace
+        removed_tags = [tag.strip() for tag in removed_tags]
+        # determine the number of digits in the tag. all the tags should have the same number of digits
+        tag_lens = len(set([len(tag) for tag in removed_tags]))
+        # the tag_lens list should only have a length of one. otherwise that means there is inconsistent lengths and that we have a problem
+        if tag_lens > 1:
+            print("cannot process these tags:", removed_tags)
+        else:
+            # we are good to proceed
+            digits = len(removed_tags[0])
+            # if the observation tag number is not the same length as the reference tag number, we'll have to do some surgery
+            if not digits == len(obs.tag_number):
+                # print(obs.tag_number, "does not conform to the format of tags removed:", removed_tags)
+                pos = len(obs.tag_number) - 1
+                new_tag = f"{obs.tag_number[0]}0{obs.tag_number[-pos:]}"
+                if not digits == len(new_tag):
+                    # try adding another zero
+                    pos = len(new_tag) - 1
+                    new_tag = f"{new_tag[0]}0{new_tag[-pos:]}"
+                    if not digits == len(new_tag):
+                        # try adding another zero
+                        pos = len(new_tag) - 1
+                        new_tag = f"{new_tag[0]}0{new_tag[-pos:]}"
+                        if not digits == len(new_tag):
+                            print("still bad:", new_tag, "compared to:", removed_tags)
+
+                if not new_tag[1] == removed_tags[0][1]:
+                    # print("still bad:", new_tag, "first char is different:", removed_tags)
+                    pass
+                else:
+                    obs.tag_number = new_tag
+                    obs.save()
+
+            if obs.tag_number in removed_tags:
+                print("This observation is being deleted:", obs.tag_number, removed_tags)
+                obs.delete()
+
+
+def import_smolt_ages():
+    # open the csv we want to read
+    my_target_data_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'smolt_ages_to_import.csv')
+    with open(os.path.join(my_target_data_file), 'r') as csv_read_file:
+
+        my_csv = csv.DictReader(csv_read_file)
+        for row in my_csv:
+            scale_id = row["Scale ID Number"].strip()
+            qs = models.Observation.objects.filter(scale_id_number=scale_id)
+            if not qs.exists():
+                scale_id = scale_id + f' {row["Year"]}'
+                qs = models.Observation.objects.filter(scale_id_number=scale_id)
+                if not qs.exists():
+                    print("cannot find scale number:", scale_id)
+                elif qs.count() > 1:
+                    print("too many results:", scale_id)
+                else:
+                    # print(f"ready to insert age for scale_id {scale_id}: {row['Smolt.Age']}")
+                    obs = qs.first()
+                    obs.river_age = row['Smolt.Age']
+                    obs.save()
+            else:
+                # let's deal with the ones with multiple frequencies
+                freq = int(row["Freq"])
+                raw_arrival_time = row["Time.Start"]
+                raw_departure_time = row["Time.Released"]
+                if raw_arrival_time and ":" in raw_arrival_time:
+                    hour = raw_arrival_time.split(":")[0]
+                    min = raw_arrival_time.split(":")[1]
+                else:
+                    hour = "12"
+                    min = "00"
+                    comment = add_comment(comment, "Import data did not contain arrival time")
+                arrival_dt_string = f'{row["Year"]}-{row["Month"]}-{row["Day"]} {hour}:{min}'
+                if raw_departure_time and ":" in raw_departure_time:
+                    hour = raw_departure_time.split(":")[0]
+                    min = raw_departure_time.split(":")[1]
+                else:
+                    hour = "12"
+                    min = "00"
+                departure_dt_string = f'{row["Year"]}-{row["Month"]}-{row["Day"]} {hour}:{min}'
+                arrival_date = make_aware(datetime.datetime.strptime(arrival_dt_string, "%Y-%m-%d %H:%M"), timezone=pytz.timezone("Canada/Atlantic"))
+                departure_date = make_aware(datetime.datetime.strptime(departure_dt_string, "%Y-%m-%d %H:%M"), timezone=pytz.timezone("Canada/Atlantic"))
+                site = models.RiverSite.objects.get(pk=row["River"])
+
+                if freq > 1:
+                    # find out how many exist from that date
+                    qs = models.Observation.objects.filter(
+                        sample__site=site,
+                        sample__arrival_date=arrival_date,
+                        tag_number__isnull=True,
+                        status__code__iexact="r",
+                        river_age__isnull=True,
+                        length=None,
+                    )
+                    print(qs.count(), freq, qs.count() > freq)
+                    i = 1
+                    for obs in qs:
+                        obs.river_age = row['Smolt.Age']
+                        obs.save()
+                        print("updating:", i, obs.id)
+                        qs0 = models.Observation.objects.filter(
+                            sample__site=site,
+                            sample__arrival_date=arrival_date,
+                            tag_number__isnull=True,
+                            status__code__iexact="r",
+                            river_age=row['Smolt.Age'],
+                            length=None,
+                        )
+                        if qs0.count() == freq:
+                            break
+                        i += 1
+                else:
+                    species = int(row["species"])
+                    life_stage_id = row["life_stage_id"]
+                    if species == 79 and life_stage_id == "1":
+                        qs = models.Observation.objects.filter(
+                            sample__site=site,
+                            sample__arrival_date=arrival_date,
+                            tag_number__isnull=True,
+                            status__code__iexact="r",
+                            river_age__isnull=True,
+                            notes__icontains=row["Comments"],
+                        )
+                        if qs.count() == 1:
+                            obs = qs.first()
+                            obs.river_age = row['Smolt.Age']
+                            obs.save()
+                    if species == 79 and life_stage_id == "2":
+                        qs = models.Observation.objects.filter(
+                            sample__site=site,
+                            sample__arrival_date=arrival_date,
+                            tag_number__isnull=True,
+                            status__code__iexact=row["Status"],
+                            river_age__isnull=True,
+                            # notes__icontains=row["Comments"],
+                            fork_length=row["ForkLength"]
+                        )
+                        if qs.count() == 1:
+                            obs = qs.first()
+                            obs.river_age = row['Smolt.Age']
+                            obs.save()
+
+                    if species == 24:
+                        qs = models.Observation.objects.filter(
+                            sample__site=site,
+                            sample__arrival_date=arrival_date,
+                            tag_number__isnull=True,
+                            status__code__iexact=row["Status"],
+                            river_age__isnull=True,
+                            fork_length=row["ForkLength"]
+                        )
+                        print(qs.count())
+                        if qs.count() == 1:
+                            obs = qs.first()
+                            obs.river_age = row['Smolt.Age']
+                            obs.save()
+                    elif species == 54:
+                        qs = models.Observation.objects.filter(
+                            sample__site=site,
+                            sample__arrival_date=arrival_date,
+                            tag_number__isnull=True,
+                            status__code__iexact=row["Status"],
+                            river_age__isnull=True,
+                            total_length=row["Total.Length"],
+                            weight=row["Weight"],
+                            notes__icontains=row["Comments"],
+                        )
+                        if qs.count() == 1:
+                            obs = qs.first()
+                            obs.river_age = row['Smolt.Age']
+                            obs.save()

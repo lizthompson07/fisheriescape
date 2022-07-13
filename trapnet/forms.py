@@ -5,7 +5,7 @@ from django.utils.translation import gettext, gettext_lazy
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.models import River, FishingArea
-from . import models
+from . import models, model_choices
 
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
 attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
@@ -46,8 +46,12 @@ class SampleForm(forms.ModelForm):
             "site": forms.Select(attrs=chosen_js),
             "samplers": forms.Textarea(attrs={"rows": "2", }),
             "notes": forms.Textarea(attrs={"rows": "3", }),
+            "time_released": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
             "arrival_date": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
             "departure_date": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
+        }
+        labels = {
+            "percent_cloud_cover": "cloud cover (0-100)"
         }
 
     def __init__(self, *args, **kwargs):
@@ -55,6 +59,23 @@ class SampleForm(forms.ModelForm):
         site_choices = [(obj.id, f"{obj.river} --> {obj.name} ({nz(obj.province, 'unknown prov.')})") for obj in models.RiverSite.objects.all()]
         site_choices.insert(0, (None, "-----"))
         self.fields["site"].choices = site_choices
+
+    def clean_percent_cloud_cover(self):
+        percent_cloud_cover = self.cleaned_data['percent_cloud_cover']
+
+        if percent_cloud_cover:
+            if percent_cloud_cover % 1 != 0:
+                self.add_error('percent_cloud_cover', gettext(
+                    "Must be an integer!"
+                ))
+            percent_cloud_cover /= 100
+            if percent_cloud_cover > 1:
+                self.add_error('percent_cloud_cover', gettext(
+                    "Must be between an integer between 0 and 100!"
+                ))
+        return percent_cloud_cover
+
+
 
     def clean(self):
         cleaned_data = super().clean()
@@ -123,6 +144,12 @@ class FileForm(forms.ModelForm):
         fields = "__all__"
 
 
+class SampleFileForm(forms.ModelForm):
+    class Meta:
+        model = models.SampleFile
+        fields = "__all__"
+
+
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         # (1, "List of samples (trap data) (CSV)"),
@@ -134,6 +161,7 @@ class ReportSearchForm(forms.Form):
         (1, "sample data export (csv)"),
         (2, "sweep data export (csv)"),
         (3, "observation data export (csv)"),
+        (4, "Atlantic salmon individual observation event report (csv)"),
 
         (None, ""),
         (None, "ELECTROFISHING"),
@@ -153,6 +181,7 @@ class ReportSearchForm(forms.Form):
     leave_blank_text = gettext_lazy("leave blank for all")
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year", help_text=leave_blank_text)
+    sample_type = forms.ChoiceField(required=False, label="Sample type", help_text=leave_blank_text)
     fishing_areas = forms.MultipleChoiceField(required=False, label="Fishing areas", help_text=leave_blank_text)
     rivers = forms.MultipleChoiceField(required=False, label="Rivers", help_text=leave_blank_text)
     sites = forms.MultipleChoiceField(required=False, label="Sites", help_text=leave_blank_text)
@@ -168,6 +197,10 @@ class ReportSearchForm(forms.Form):
         fa_choices = [(obj.id, str(obj)) for obj in FishingArea.objects.all()]
         self.fields['fishing_areas'].choices = fa_choices
         self.fields['fishing_areas'].widget.attrs = chosen_js
+
+        sample_type_choices = list(model_choices.sample_type_choices)
+        sample_type_choices.insert(0, (None, "-----"))
+        self.fields['sample_type'].choices = sample_type_choices
 
 
 class StatusForm(forms.ModelForm):

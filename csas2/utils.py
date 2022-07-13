@@ -258,13 +258,6 @@ def can_modify_process(user, process_id, return_as_dict=False):
         elif in_csas_web_pub_group(user):
             my_dict["reason"] = _("You can modify this record because you are a NCR web & pub staff member")
             my_dict["can_modify"] = True
-        # are they a regional administrator?
-        elif in_csas_regional_admin_group(user) and hasattr(user, "csas_admin_user") and (
-                user.csas_admin_user.region == process.lead_office.region or
-                process.other_offices.filter(region=user.csas_admin_user.region).exists()
-        ):
-            my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
-            my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]
 
 
@@ -295,18 +288,15 @@ def can_modify_tor(user, tor_id, return_as_dict=False):
         return my_dict if return_as_dict else my_dict["can_modify"]
 
 
-def can_modify_tor_reviewer(user, tor_reviewer_id):
-    """
-    if the tor is submitted, the only person who can modify the tor reviewer is the reviewer himself.
-    Otherwise it is the same rules as can_modify_tor
-    """
-    if user.id:
-        tor_reviewer = get_object_or_404(models.ToRReviewer, pk=tor_reviewer_id)
-        tor = tor_reviewer.tor
-        if not tor.submission_date:
-            return can_modify_tor(user, tor.id)
-        else:
-            return tor_reviewer.user_id == user.id
+# def can_modify_tor_reviewer(user, tor_reviewer_id):
+#     """
+#     if the tor is submitted, the only person who can modify the tor reviewer is the reviewer himself.
+#     Otherwise it is the same rules as can_modify_tor
+#     """
+#     if user.id:
+#         tor_reviewer = get_object_or_404(models.ToRReviewer, pk=tor_reviewer_id)
+#         tor = tor_reviewer.tor
+#         return can_modify_tor(user, tor.id) or tor_reviewer.user_id == user.id
 
 
 def can_unsubmit_tor(user, tor_id):

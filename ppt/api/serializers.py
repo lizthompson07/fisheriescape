@@ -149,6 +149,10 @@ class ProjectSerializer(serializers.ModelSerializer):
     start_year_display = serializers.SerializerMethodField()
     tags_display = serializers.SerializerMethodField()
     funding_sources_display = serializers.SerializerMethodField()
+    section_display = serializers.SerializerMethodField()
+
+    def get_section_display(self, instance):
+        return instance.section.full_name
 
     def get_funding_sources_display(self, instance):
         if instance.funding_sources.exists():
@@ -210,6 +214,12 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     project_codes = serializers.SerializerMethodField()
     project_user_choices = serializers.SerializerMethodField()
     parent_activity_choices = serializers.SerializerMethodField()
+
+    services = serializers.SerializerMethodField()
+
+    def get_services(self, instance):
+        if instance.services.exists():
+            return listrify(instance.services.all())
 
     def get_parent_activity_choices(self, instance):
         return [dict(id=obj.id, value=f"{obj.get_type_display()} - {obj}") for obj in instance.activities.filter(parent__isnull=True)]

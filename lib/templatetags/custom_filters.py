@@ -1,3 +1,5 @@
+from textwrap import wrap
+
 import textile
 from django import template
 from django.utils.safestring import mark_safe
@@ -230,3 +232,23 @@ def timedelta_duration_days(td):
     seconds_str = f'{seconds}s' if seconds and not hours_str else ''
 
     return f'{days_str}'
+
+
+@register.filter
+def text_wrap(text, width=70):
+    """
+    The used PDF libs don't allow CSS word-wrap, so to split long words (e.g. urls)
+    we wrap the text by lines and join them with spaces to have multiple lines. See:
+    https://github.com/nigma/django-easy-pdf/issues/65
+    https://github.com/xhtml2pdf/xhtml2pdf/issues/379
+    """
+    return ' '.join(wrap(text, width))
+
+
+@register.filter
+def get_timezone_time(dt):
+    try:
+        from dm_apps.utils import get_timezone_time
+        return get_timezone_time(dt)
+    except:
+        return dt

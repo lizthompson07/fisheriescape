@@ -35,6 +35,23 @@ class FisheryAreaFactory(factory.django.DjangoModelFactory):
         }
 
 
+class NAFOAreaFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.NAFOArea
+
+    layer_id = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    polygon = get_multipolygon()
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'layer_id': faker.catch_phrase(),
+            'name': faker.catch_phrase(),
+            'polygon': get_multipolygon(),
+        }
+
+
 class SpeciesFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Species
@@ -45,6 +62,19 @@ class SpeciesFactory(factory.django.DjangoModelFactory):
     def get_valid_data():
         return {
             'english_name': faker.catch_phrase(),
+        }
+
+
+class WeekFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Week
+
+    week_number = factory.lazy_attribute(lambda o: faker.pyint(1, 53))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'week_number': faker.pyint(1, 53),
         }
 
 
@@ -72,3 +102,65 @@ class FisheryFactory(factory.django.DjangoModelFactory):
         return {
             'species': SpeciesFactory().id,
         }
+
+
+class AnalysesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Analyses
+
+    species = factory.SubFactory(SpeciesFactory)
+    week = factory.SubFactory(WeekFactory)
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'species': SpeciesFactory().id,
+            'week': WeekFactory().id,
+        }
+
+
+class MitigationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Mitigation
+
+    mitigation_type = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'mitigation_type': faker.catch_phrase(),
+        }
+
+
+class HexagonFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Hexagon
+
+    polygon = get_multipolygon()
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'polygon': get_multipolygon(),
+        }
+
+
+class ScoreFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Score
+
+    hexagon = factory.SubFactory(HexagonFactory)
+    species = factory.SubFactory(SpeciesFactory)
+    week = factory.SubFactory(WeekFactory)
+    fs_score = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'hexagon': HexagonFactory().id,
+            'species': SpeciesFactory().id,
+            'week': WeekFactory().id,
+            'fs_score': faker.pyfloat(positive=True),
+        }
+
+

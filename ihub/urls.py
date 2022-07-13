@@ -121,7 +121,8 @@ urlpatterns = [
     path('settings/relationship-ratings/', views.RelationshipRatingFormsetView.as_view(), name="manage_ratings"),  # TESTED
     path('settings/relationship-rating/<int:pk>/delete/', views.RelationshipRatingHardDeleteView.as_view(), name="delete_rating"),  # TESTED
 
-    path('settings/users/', views.UserListView.as_view(), name='user_list'),
-    path('settings/users/ihub/<int:ihub>/', views.UserListView.as_view(), name='user_list'),
-    path('settings/user/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
+    # user permissions
+    path('settings/users/', views.iHubUserFormsetView.as_view(), name="manage_ihub_users"),
+    path('settings/users/<int:pk>/delete/', views.iHubUserHardDeleteView.as_view(), name="delete_ihub_user"),
+
 ]

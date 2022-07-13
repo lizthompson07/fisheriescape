@@ -1,4 +1,5 @@
 import django_filters
+from django.db.models import Q
 
 from django_filters.filters import OrderingFilter
 from django import forms
@@ -66,11 +67,19 @@ class CommitteeFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label=_("Search Committee Name"),
                                             lookup_expr='icontains', widget=forms.TextInput())
 
+    external_chair_contact = django_filters.ModelMultipleChoiceFilter(
+        queryset=ml_models.Person.objects.all(),
+        method='external_chair_contact_filter',
+        label=_('External chair or contact'),
+        widget=forms.SelectMultiple(attrs=chosen_js),
+    )
+
     class Meta:
 
         model = models.Committee
-        fields = ['search_term', 'external_organization', 'external_contact', 'branch', 'area_office', 'division',
-                  'provincial_participation', 'first_nation_participation']
+        fields = ['search_term', 'external_organization', 'external_chair_contact', 'branch', 'division', 'area_office',
+                  'area_office_program', 'municipal_participation', 'provincial_participation', 'other_federal_participation', 'first_nation_participation', 'other_dfo_branch',
+                  'other_dfo_branch', 'other_dfo_areas']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -79,15 +88,11 @@ class CommitteeFilter(django_filters.FilterSet):
             field_name='external_organization',
             widget=forms.SelectMultiple(attrs=chosen_js),
         )
-        self.filters['external_contact'] = django_filters.ModelMultipleChoiceFilter(
-            queryset=ml_models.Person.objects.all(),
-            field_name='external_contact',
+        self.filters['dfo_role'] = django_filters.MultipleChoiceFilter(
+            field_name='dfo_role', lookup_expr='exact',
+            choices=models.ROLE_DFO_CHOICES,
             widget=forms.SelectMultiple(attrs=chosen_js),
-        )
-        self.filters['dfo_role'] = django_filters.ModelMultipleChoiceFilter(
-            queryset=models.Committee.objects.all(),
-            field_name='dfo_role',
-            widget=forms.SelectMultiple(attrs=chosen_js),
+            label=_("Role of highest level DFO participant"),
         )
         self.filters['dfo_liaison'] = django_filters.ModelMultipleChoiceFilter(
             queryset=models.User.objects.all(),
@@ -104,6 +109,13 @@ class CommitteeFilter(django_filters.FilterSet):
             field_name='species',
             widget=forms.SelectMultiple(attrs=chosen_js),
         )
+
+    def external_chair_contact_filter(self, queryset, name, value):
+        if value:
+            qureyset = queryset.filter(
+                Q(external_chair__in=value) | Q(external_contact__in=value)
+            )
+        return queryset
 
 
 class OrganizationFilter(django_filters.FilterSet):
@@ -146,9 +158,14 @@ class OrganizationFilter(django_filters.FilterSet):
             field_name='province',
             widget=forms.SelectMultiple(attrs=chosen_js),
         )
-        self.filters['sectors'] = django_filters.ModelMultipleChoiceFilter(
-            queryset=ml_models.Sector.objects.all(),
-            field_name='sectors',
+        self.filters['committee'] = django_filters.ModelMultipleChoiceFilter(
+            queryset=models.Committee.objects.all(),
+            field_name='committee_ext_organization',
+            widget=forms.SelectMultiple(attrs=chosen_js),
+        )
+        self.filters['members'] = django_filters.ModelMultipleChoiceFilter(
+            queryset=ml_models.Person.objects.all(),
+            field_name='members__person',
             widget=forms.SelectMultiple(attrs=chosen_js),
         )
 

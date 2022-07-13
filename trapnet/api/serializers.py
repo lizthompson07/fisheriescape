@@ -24,7 +24,6 @@ class ObservationSerializer(serializers.ModelSerializer):
     sex_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     origin_display = serializers.SerializerMethodField()
-    date_tagged_display = serializers.SerializerMethodField()
     life_stage_display = serializers.SerializerMethodField()
     reproductive_status_display = serializers.SerializerMethodField()
 
@@ -33,10 +32,6 @@ class ObservationSerializer(serializers.ModelSerializer):
 
     def get_life_stage_display(self, instance):
         return str(instance.life_stage) if instance.life_stage else None
-
-    def get_date_tagged_display(self, instance):
-        if instance.date_tagged:
-            return instance.date_tagged.strftime("%Y-%m-%d")
 
     def get_origin_display(self, instance):
         return str(instance.origin) if instance.origin else None
@@ -67,6 +62,7 @@ class ObservationSerializer(serializers.ModelSerializer):
         if not sample and not sweep:
             msg = _('You must supply either a sample or a sweep!')
             raise ValidationError(msg)
+
         return attrs
 
 

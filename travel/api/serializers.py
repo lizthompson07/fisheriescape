@@ -11,7 +11,7 @@ from lib.templatetags.custom_filters import nz
 from shared_models.api.serializers import SectionSerializer
 from .. import models
 # from ..utils import can_modify_project
-from ..utils import get_cost_comparison
+from ..utils import get_cost_comparison, can_cherry_pick, is_adm
 
 
 class UserDisplaySerializer(serializers.ModelSerializer):
@@ -166,6 +166,11 @@ class TripRequestSerializerLITE(serializers.ModelSerializer):
     trip = TripSerializerLITE(read_only=True)
     trip_display = serializers.SerializerMethodField()
     fiscal_year = serializers.StringRelatedField()
+    can_cherry_pick = serializers.SerializerMethodField()
+
+    def get_can_cherry_pick(self, instance):
+        if self.context.get("request"):
+            return can_cherry_pick(self.context["request"].user, instance)
 
     def get_created_by(self, instance):
         if instance.created_by:
@@ -246,7 +251,7 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
 
     def get_request_obj(self, instance):
         if instance.request:
-            return TripRequestSerializerLITE(instance.request, read_only=True).data
+            return TripRequestSerializerLITE(instance.request, read_only=True, context=self.context).data
 
     def get_role_display(self, instance):
         return instance.get_role_display()
@@ -266,6 +271,18 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
 
     def get_user_display(self, instance):
         return instance.user.get_full_name() if instance.user else None
+
+    def validate(self, attrs):
+        """
+        form validation:
+        - if someone is being set as ADM, make sure it checks out!
+        """
+        user = attrs.get("user")
+        role = attrs.get("role")
+        if role == 5 and not is_adm(user):
+            msg = _('This user cannot be set to the ADM role.')
+            raise ValidationError(msg)
+        return attrs
 
 
 class CostSerializer(serializers.ModelSerializer):
@@ -318,7 +335,7 @@ class TravellerSerializer(serializers.ModelSerializer):
         return instance.non_dfo_costs_html
 
     def get_request_obj(self, instance):
-        return TripRequestSerializerLITE(instance.request).data
+        return TripRequestSerializerLITE(instance.request, context=self.context).data
 
     def get_role_display(self, instance):
         return str(instance.role)
@@ -421,6 +438,12 @@ class TripRequestSerializer(serializers.ModelSerializer):
     travellers_from_other_requests = serializers.SerializerMethodField()
     trip = TripSerializerLITE(read_only=True)
     trip_display = serializers.SerializerMethodField()
+
+    can_cherry_pick = serializers.SerializerMethodField()
+
+    def get_can_cherry_pick(self, instance):
+        if self.context.get("request"):
+            return can_cherry_pick(self.context["request"].user, instance)
 
     def get_admin_notes_html(self, instance):
         return instance.admin_notes_html
@@ -534,6 +557,19 @@ class TripReviewerSerializer(serializers.ModelSerializer):
     def get_user_display(self, instance):
         return instance.user.get_full_name() if instance.user else None
 
+    def validate(self, attrs):
+        """
+        form validation:
+        - if someone is being set as ADM, make sure it checks out!
+        """
+        user = attrs.get("user")
+        role = attrs.get("role")
+        if role == 5 and not is_adm(user):
+            msg = _('This user cannot be set to the ADM role.')
+            raise ValidationError(msg)
+        return attrs
+
+
 
 class TripSerializer(serializers.ModelSerializer):
     class Meta:
@@ -553,6 +589,7 @@ class TripSerializer(serializers.ModelSerializer):
     lead = serializers.StringRelatedField()
     metadata = serializers.SerializerMethodField()
     non_res_total_cost = serializers.SerializerMethodField()
+    non_res_total_cost_with_drafts = serializers.SerializerMethodField()
     registration_deadline = serializers.SerializerMethodField()
     requests = TripRequestSerializerLITE(many=True, read_only=True)
     reviewers = TripReviewerSerializer(many=True, read_only=True)
@@ -598,6 +635,9 @@ class TripSerializer(serializers.ModelSerializer):
     def get_non_res_total_cost(self, instance):
         return instance.non_res_total_cost
 
+    def get_non_res_total_cost_with_drafts(self, instance):
+        return instance.non_res_total_cost_with_drafts
+
     def get_registration_deadline(self, instance):
         return date(instance.registration_deadline)
 
@@ -630,7 +670,37 @@ class TripSerializer(serializers.ModelSerializer):
         return instance.total_non_dfo_funding_sources
 
     def get_travellers(self, instance):
-        return TravellerSerializer(instance.travellers, many=True, read_only=True).data
+        return TravellerSerializer(instance.travellers, many=True, read_only=True, context=self.context).data
 
     def get_trip_review_ready(self, instance):
         return instance.trip_review_ready
+
+
+class TravelUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "username",
+            "is_active",
+            "travellers",
+            'request_reviewers',
+            'trip_reviewers',
+        ]
+
+    request_reviewers = serializers.SerializerMethodField()
+    travellers = serializers.SerializerMethodField()
+
+    trip_reviewers = serializers.SerializerMethodField()
+
+    def get_trip_reviewers(self, instance):
+        return TripReviewerSerializer(instance.trip_reviewers, many=True).data
+
+    def get_request_reviewers(self, instance):
+        return RequestReviewerSerializer(instance.reviewers, many=True).data
+
+    def get_travellers(self, instance):
+        return TravellerSerializer(instance.travellers, many=True).data

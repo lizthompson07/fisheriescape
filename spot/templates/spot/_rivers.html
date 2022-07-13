@@ -1,0 +1,91 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+
+{% if project.river.all.count == 0 %}
+    <em>
+        {% trans "No Rivers have been entered" %}
+    </em><br>
+{% else %}
+    <strong>River(s):</strong>
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th style="width: 120px">
+                {% trans "Name" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Species" %}
+            </th>
+             <th style="width: 120px">
+                {% trans "CU Index" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "CU Name" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Latitude" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Longitude" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Sub District Area" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Stock Management Unit" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Pop ID" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "DU" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "DU Number" %}
+            </th>
+        </tr>
+        <tbody>
+        {% for river in project.river.all %}
+            <tr>
+                <td>
+                    {{ river.name }}
+                </td>
+                <td>
+                    {{ river.species.name }}
+                </td>
+                <td>
+                    {{ river.cu_index }}
+                </td>
+                <td>
+                    {{ river.cu_name }}
+                </td>
+                <td>
+                    {{ river.latitude }}
+                </td>
+                <td>
+                    {{ river.longitude }}
+                </td>
+                <td>
+                    {{ river.sub_district_area }}
+                </td>
+                <td>
+                    {{ river.stock_management_unit }}
+                </td>
+                <td>
+                    {{ river.pop_id }}
+                </td>
+                <td>
+                    {{ river.du }}
+                </td>
+                <td>
+                    {{ river.du_number }}
+                </td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+

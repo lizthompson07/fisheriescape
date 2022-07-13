@@ -62,6 +62,7 @@
             <th>${processLabels.status}</th>
             <th>${processLabels.advice_date}</th>
             <th>${processLabels.status}</th>
+            <th>{% trans "Expected publication types" %}</th>
           </tr>
           </thead>
           <tbody>
@@ -87,6 +88,19 @@
                 label="text"
                 :clearable="false"
                 class="bg-light w-100"
+              >
+              </v-select>
+            </td>
+            <td>
+              <v-select
+                v-model="p.tor.expected_document_types"
+                @input="updateToR(p)"
+                :options="docTypeChoices"
+                :reduce="choice => choice.value"
+                label="text"
+                :clearable="false"
+                class="bg-light w-100"
+                multiple
               >
               </v-select>
             </td>
@@ -122,6 +136,7 @@
       loadingProcesses: false,
       processes: [],
       processLabels: {},
+      torLabels: {},
       reviewLabels: {},
       errorMsg: null,
       statusChoices: [],
@@ -130,6 +145,7 @@
       fyChoices: [],
       regionChoices: [],
       sectorChoices: [],
+      docTypeChoices: [],
       fresh: true,
     },
     methods: {
@@ -196,6 +212,12 @@
           else this.getProcess(process);
         });
       },
+      updateToR(process) {
+        apiService(`/api/csas/tors/${process.tor.id}/`, "PUT", process.tor).then(data => {
+          if (!data.id) alert(groomJSON(data));
+          else this.getProcess(process);
+        });
+      },
       getMetadata() {
         apiService(`/api/csas/meta/models/process/`).then(data => {
           this.processLabels = data.labels;
@@ -203,6 +225,12 @@
           this.regionChoices = data.region_choices;
           this.sectorChoices = data.sector_choices;
           this.fyChoices = data.fy_choices;
+        });
+        apiService(`/api/csas/model-metas/?app_name=csas2&model_name=TermsOfReference`).then(data => {
+          this.torLabels = data.labels;
+        });
+        apiService(`/api/csas/model-metas/?app_name=csas2&model_name=DocumentType&as_choices=true`).then(data => {
+          this.docTypeChoices = data.choices;
         });
       },
     },
@@ -217,7 +245,6 @@
     created() {
       this.getCurrentUser();
       this.getProcesses();
-      {#this.getReviewMetadata();#}
       this.getMetadata();
     },
   });

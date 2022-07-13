@@ -16,29 +16,33 @@ class CommitteeForm(forms.ModelForm):
     class Meta:
         model = models.Committee
         exclude = [
-            'last_modified_by',
-            'last_modified',
+            'last_modified'
         ]
         widgets = {
-            'external_chair': forms.Select(attrs=chosen_js),
+            'external_chair': forms.SelectMultiple(attrs=chosen_js),
             'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
+            'last_modified_by': forms.HiddenInput(),
             'external_organization': forms.SelectMultiple(attrs=chosen_js),
             'external_contact': forms.SelectMultiple(attrs=chosen_js),
-
+            'other_dfo_participants': forms.SelectMultiple(attrs=chosen_js)
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['name', 'main_topic', 'species', 'branch', 'division', 'area_office', 'is_dfo_chair',
-                           'external_chair', 'dfo_liaison', 'other_dfo_branch', 'other_dfo_regions', 'other_dfo_areas',
-                           'dfo_role', 'first_nation_participation', 'provincial_participation', 'external_contact',
-                           'external_organization', 'meeting_frequency', 'are_tor', 'location_of_tor',
+        self.order_fields(['name', 'main_topic', 'species', 'lead_region', 'branch', 'division', 'area_office',
+                           'area_office_program', 'other_dfo_branch', 'other_dfo_areas', 'other_dfo_regions',
+                           'dfo_national_sectors', 'dfo_role', 'is_dfo_chair', 'external_chair', 'external_contact',
+                           'external_organization', 'dfo_liaison', 'other_dfo_participants',
+                           'first_nation_participation', 'municipal_participation', 'provincial_participation',
+                           'other_federal_participation', 'meeting_frequency', 'are_tor', 'location_of_tor',
                            'main_actions', 'comments',
                            ])
 
-        branch = [(c.id, c) for c in shared_models.Branch.objects.all()]
-        branch.insert(0, (None, "-----"))
-        self.fields['branch'].choices = branch
+        self.fields['main_topic'].widget.attrs['size'] = '6'
+        self.fields['species'].widget.attrs['size'] = '6'
+        self.fields['other_dfo_branch'].widget.attrs['size'] = '6'
+        self.fields['other_dfo_regions'].widget.attrs['size'] = '6'
+        self.fields['other_dfo_areas'].widget.attrs['size'] = '6'
 
     def clean(self):
         cleaned_data = super().clean()
@@ -46,10 +50,31 @@ class CommitteeForm(forms.ModelForm):
         if cleaned_data["dfo_liaison"] is None:
             self.add_error('dfo_liaison', _("DFO liaison/secretariat is required"))
 
+        # sync external chair / external contact fields:
+        if cleaned_data["external_chair"].exists():
+            cleaned_data["external_contact"] = (cleaned_data["external_contact"] |
+                                                cleaned_data["external_chair"]).distinct()
+
         return cleaned_data
 
 
 class InteractionForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # changes number of rows / height of multiple select widget:
+        self.fields['main_topic'].widget.attrs['size'] = '8'
+        self.fields['species'].widget.attrs['size'] = '8'
+        self.fields['other_dfo_branch'].widget.attrs['size'] = '6'
+        self.fields['other_dfo_regions'].widget.attrs['size'] = '6'
+        self.fields['other_dfo_areas'].widget.attrs['size'] = '6'
+        self.order_fields(['description', 'interaction_type', 'committee', 'date_of_meeting', 'main_topic', 'species', 'lead_region',
+                           'branch', 'division', 'area_office', 'area_office_program', 'other_dfo_branch',
+                           'other_dfo_areas', 'other_dfo_regions', 'dfo_national_sectors', 'dfo_role',
+                           'external_contact', 'external_organization', 'dfo_liaison', 'other_dfo_participants',
+                           'action_items', 'comments'
+                           ])
+
     class Meta:
         model = models.Interaction
         exclude = [
@@ -60,7 +85,6 @@ class InteractionForm(forms.ModelForm):
             'date_of_meeting': forms.DateInput(attrs=attr_fp_date),
             'last_modified': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
-
             'committee': forms.Select(attrs=chosen_js),
             'dfo_role': forms.Select(attrs=chosen_js),
             'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
@@ -75,10 +99,11 @@ class OrganizationForm(forms.ModelForm):
     category = forms.MultipleChoiceField(required=False, label=_("Categories"))
     area = forms.MultipleChoiceField(required=False, label=_("Area(s)"))
     email = forms.EmailField(required=False, label=_("E-mail"))
+    committee = forms.MultipleChoiceField(required=False, label=_("Committees/Working Groups"))
 
     class Meta:
         model = ml_models.Organization
-        exclude = ["date_last_modified", "old_id", 'last_modified_by', 'relationship_rating', 'reserves']
+        exclude = ["date_last_modified", "old_id", 'relationship_rating', 'reserves']
         widgets = {
             # multiselects
             'grouping': forms.SelectMultiple(attrs=multi_select_js),
@@ -97,12 +122,13 @@ class OrganizationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.order_fields(['name_eng', 'category', 'grouping', 'name_ind', 'abbrev', 'email', 'address', 'mailing_address', 'city',
                            'postal_code', 'province', 'phone', 'fax', 'notes',
-                           'key_species', 'area', 'regions', 'asc_province'])
+                           'key_species', 'area', 'regions', 'asc_province', 'committee'])
 
         self.fields['area'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['category'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['orgs'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['asc_province'].widget = forms.SelectMultiple(attrs=multi_select_js)
+        self.fields['committee'].widget = forms.SelectMultiple(attrs=chosen_js)
 
         org_choices_all = [(obj.id, obj) for obj in ml_models.Organization.objects.all()]
         self.fields["orgs"].choices = org_choices_all
@@ -115,6 +141,9 @@ class OrganizationForm(forms.ModelForm):
 
         province_choices = [(p.id, p) for p in shared_models.Province.objects.all()]
         self.fields['asc_province'].choices = province_choices
+
+        self.fields['committee'].choices = [(c.id, c) for c in models.Committee.objects.all()]
+
 
 
 class MemberForm(forms.ModelForm):
@@ -143,26 +172,23 @@ class MemberForm(forms.ModelForm):
 
 
 class PersonForm(forms.ModelForm):
-    role = forms.CharField(required=True, label=_("Role"))
     committee = forms.MultipleChoiceField(required=False, label=_("Committees/Working Groups"))
 
     class Meta:
         model = ml_models.Person
-        exclude = ["date_last_modified", "old_id", 'last_modified_by', 'connected_user']
+        exclude = ["date_last_modified", "old_id",  'connected_user']
         widgets = {
-            'committee': forms.Select(attrs=chosen_js),
-            'organizations': forms.Select(attrs=chosen_js),
+            'organizations': forms.SelectMultiple(attrs=chosen_js),
             'notes': forms.Textarea(attrs={"rows": "3"}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['designation', 'role', 'first_name', 'last_name', 'phone_1', 'phone_2', 'cell', 'email_1',
+        self.order_fields(['designation', 'first_name', 'last_name', 'phone_1', 'phone_2', 'cell', 'email_1',
                            'email_2', 'fax', 'language', 'notes', 'committee'])
         self.fields['organizations'].label = _("Organization Membership")
-
-        committee = [(c.id, c) for c in models.Committee.objects.all()]
-        self.fields['committee'].choices = committee
+        self.fields['committee'].widget = forms.SelectMultiple(attrs=chosen_js)
+        self.fields['committee'].choices = [(c.id, c) for c in models.Committee.objects.all()]
 
 
 class TopicForm(forms.ModelForm):
@@ -226,6 +252,19 @@ class AreaOfficeForm(forms.ModelForm):
 AreaOfficesFormSet = modelformset_factory(
     model=models.AreaOffice,
     form=AreaOfficeForm,
+    extra=3,
+)
+
+
+class AreaOfficeProgramForm(forms.ModelForm):
+    class Meta:
+        model = models.AreaOfficeProgram
+        fields = "__all__"
+
+
+AreaOfficesProgramFormSet = modelformset_factory(
+    model=models.AreaOfficeProgram,
+    form=AreaOfficeProgramForm,
     extra=3,
 )
 

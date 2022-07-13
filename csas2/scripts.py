@@ -9,7 +9,7 @@ from django.utils.timezone import make_aware
 from pytz import utc
 
 from csas2 import models
-from csas2.models import CSASRequest, CSASRequestReview, Process
+from csas2.models import CSASRequest, CSASRequestReview, Process, Document
 from shared_models.models import Section, Region
 
 
@@ -21,6 +21,11 @@ def resave_requests():
 def resave_processes():
     for p in Process.objects.all():
         p.save()
+
+
+def resave_docs():
+    for d in Document.objects.all():
+        d.save()
 
 
 def clean_up_reviews():
@@ -181,3 +186,21 @@ def check_tor():
                 if not tor.objectives_en:
                     tor.objectives_en = r.rationale
             tor.save()
+
+
+
+def transfer_postings():
+    for p in models.Process.objects.filter(is_posted=True):
+
+        # first find the target meeting
+        try:
+            meeting = p.tor.meeting
+            meeting.is_posted = True
+            meeting.posting_notification_date = p.posting_notification_date
+            meeting.posting_request_date = p.posting_request_date
+            meeting.save()
+        except:
+            print(f'cannot transfer process {p.id}')
+        else:
+            print(f'success on process {p.id}')
+

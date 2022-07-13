@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+import pandas as pd
 from django.db.models import Sum, Q
 from django.utils.translation import gettext as _, gettext_lazy
 
@@ -36,6 +37,13 @@ def in_ppt_admin_group(user):
         return in_ppt_regional_admin_group(user) or in_ppt_national_admin_group(user)
 
 
+def is_service_coordinator(user):
+    """
+    Will return True if user is ppt service coordinator
+    """
+    return user.services.exists()
+
+
 def is_management(user):
     """
         Will return True if user is in project_admin group, or if user is listed as a head of a section, division or branch
@@ -51,7 +59,7 @@ def is_management_or_admin(user):
         Will return True if user is in project_admin group, or if user is listed as a head of a section, division or branch
     """
     if user.id:
-        return in_ppt_admin_group(user) or is_management(user)
+        return in_ppt_admin_group(user) or is_management(user) or is_service_coordinator(user)
 
 
 def is_section_head(user, project):
@@ -113,6 +121,13 @@ def can_modify_project(user, project_id, return_as_dict=False):
         elif in_ppt_regional_admin_group(user) and project.section and project.section.division.branch.sector.region == user.ppt_admin_user.region:
             my_dict["reason"] = f"You can modify this record because you are a {user.ppt_admin_user.region} Regional Administrator"
             my_dict["can_modify"] = True
+
+        # check to see if service owner (if there an overlap between the services on a project year and the services for a user)
+        elif user.services.exists() and \
+                len(list(set(s.id for s in user.services.all()) & set(s.id for s in models.Service.objects.filter(years__project=project).all()))):
+            my_dict["reason"] = f"You can modify this record because you are a service coordinator for a service that is listed on a project year."
+            my_dict["can_modify"] = True
+
         # check to see if they are a section head
         elif is_section_head(user, project):
             my_dict["reason"] = "You can modify this record because it falls under your section"
@@ -146,7 +161,7 @@ def is_admin_or_project_manager(user, project):
     if user.id:
 
         # check to see if a superuser or projects_admin -- both are allow to modify projects
-        if "projects_admin" in [g.name for g in user.groups.all()]:
+        if in_ppt_admin_group(user):
             return True
 
         # check to see if they are a section head, div. manager or RDS
@@ -197,7 +212,7 @@ def get_section_choices(all=False, full_name=True, region_filter=None, division_
     else:
         my_choice_list = [(s.id, getattr(s, my_attr)) for s in
                           shared_models.Section.objects.filter(
-                              ).order_by(
+                          ).order_by(
                               "division__branch__region",
                               "division__branch",
                               "division",
@@ -229,11 +244,44 @@ def get_funding_sources(all=False):
     return [(fs.id, str(fs)) for fs in models.FundingSource.objects.all()]
 
 
-def get_user_fte_breakdown(user, fiscal_year_id):
-    staff_instances = models.Staff.objects.filter(user=user, project_year__fiscal_year_id=fiscal_year_id)
+def get_user_fte_breakdown(user, fiscal_year_id, staff_instance_qs=None, fiscal_year=None):
+    if staff_instance_qs:
+        staff_instances = staff_instance_qs
+    else:
+        staff_instances = models.Staff.objects.filter(user=user, project_year__fiscal_year_id=fiscal_year_id)\
+            .select_related("project_year", "level", "employee_type", "funding_source")
     my_dict = dict()
     my_dict['name'] = f"{user.last_name}, {user.first_name}"
-    my_dict['fiscal_year'] = str(shared_models.FiscalYear.objects.get(pk=fiscal_year_id))
+    employee_type_qs = staff_instances.filter(employee_type__isnull=False).values_list('employee_type__name', flat=True)
+    if employee_type_qs:
+        # call to set is for uniqueness
+        my_dict['employee_type'] = ", ".join(list(set(employee_type_qs)))
+    else:
+        my_dict['employee_type'] = ""
+
+    level_qs = staff_instances.filter(level__isnull=False).values_list('level__name', flat=True)
+    if level_qs:
+        # call to set is for uniqueness
+        my_dict['level'] = ", ".join(list(set(level_qs)))
+    else:
+        my_dict['level'] = ""
+
+    funding_qs = staff_instances.filter(funding_source__isnull=False)
+    funding_list = [staff.funding_source.__str__() for staff in funding_qs]
+    # call to set is for uniqueness
+    if funding_list:
+        my_dict['funding'] = ", ".join(list(set(funding_list)))
+    else:
+        my_dict['funding'] = ""
+
+    my_dict["section"] = ""
+    if user.profile.section:
+        my_dict["section"] = "{}, {}".format(user.profile.section.name, str(user.profile.section.head or ''))
+
+    if fiscal_year:
+        my_dict['fiscal_year'] = str(fiscal_year)
+    else:
+        my_dict['fiscal_year'] = str(shared_models.FiscalYear.objects.get(pk=fiscal_year_id))
     my_dict['draft'] = nz(staff_instances.filter(
         project_year__status=1
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
@@ -423,7 +471,7 @@ def get_project_year_field_list(project_year=None):
     my_list = [
         'dates|dates',
         'priorities',  # do not call the html field directly or we loose the ability to get the model's verbose name
-        # 'deliverables',  # do not call the html field directly or we loose the ability to get the model's verbose name
+        'services|{}'.format(_("services required")),
 
         # SPECIALIZED EQUIPMENT COMPONENT
         #################################
@@ -455,7 +503,6 @@ def get_project_year_field_list(project_year=None):
         # LAB COMPONENT
         ###############
         'has_lab_component',
-        'requires_abl_services' if not project_year or project_year.has_lab_component else None,
         'requires_lab_space' if not project_year or project_year.has_lab_component else None,
         'requires_other_lab_support' if not project_year or project_year.has_lab_component else None,
         'other_lab_support_needs' if not project_year or project_year.has_lab_component else None,
@@ -935,6 +982,8 @@ def get_project_year_queryset(request):
             'division',
             'section',
             'status',
+            'field_component',
+            'ship_component',
         ]
         for filter in filter_list:
             input = qp.get(filter)
@@ -975,8 +1024,33 @@ def get_project_year_queryset(request):
                     qs = qs.filter(project__section__division_id=input)
                 elif filter == "section":
                     qs = qs.filter(project__section_id=input)
+                elif filter == "field_component":
+                    qs = qs.filter(has_field_component=True)
+                elif filter == "ship_component":
+                    qs = qs.filter(has_ship_needs=True)
 
         # if a regular user is making the request, show only approved projects (and not hidden projects)
         if not is_management_or_admin(request.user):
             qs = qs.filter(project__is_hidden=False, status__in=[2, 3, 4])
     return qs.distinct()
+
+
+def get_staff_summary(staff_df, summary_type, summary_cols=['summary_col', 'draft', 'submitted_unapproved', 'approved']):
+    output_summary = None
+    if summary_type in staff_df.columns and not staff_df.empty:
+        # sum FTE weeks based on type
+        summary_df = staff_df.copy()
+        # split any summary type value into two rows: PC-02, PC-03 becomes two rows: [PC-02], [PC-03]
+        summary_df = summary_df.assign(summary_col=summary_df[summary_type].str.split(', ')).explode(summary_type)
+        # spliting the rows creates a list col, extract values from this:
+        summary_df['summary_col'] = summary_df['summary_col'].apply(', '.join)
+        summary_df = summary_df[summary_cols]
+        summary_df = summary_df.groupby('summary_col').sum()
+
+        # count FTE weeks based on type
+        output_summary = pd.DataFrame(staff_df[summary_type].str.split(', ').explode().value_counts())
+
+        output_summary = output_summary.join(summary_df)
+        output_summary = output_summary.fillna('')
+        output_summary = output_summary.reset_index().to_dict('records')
+    return output_summary

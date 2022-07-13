@@ -44,12 +44,20 @@ urlpatterns = [
     path('committee/<int:pk>/delete/', views.CommitteeDeleteView.as_view(), name="committee_delete"),
 
     path('manage/area_offices/', views.AreaOfficesFormsetView.as_view(), name="manage_area_offices"),
+    path('manage/area_offices/<int:pk>/delete/', views.AreaOfficesDeleteView.as_view(), name="delete_area_office"),
+
+    path('manage/area_office_programs/', views.AreaOfficeProgramsFormsetView.as_view(),
+         name="manage_area_office_programs"),
+    path('manage/area_office_programs/<int:pk>/delete/', views.AreaOfficeProgramsDeleteView.as_view(),
+         name="delete_area_office_program"),
+
     path('manage/areas/', views.AreaFormsetView.as_view(), name="manage_areas"),
     path('manage/topics/', views.TopicFormsetView.as_view(), name="manage_topics"),
     path('manage/species/', views.SpeciesFormsetView.as_view(), name="manage_species"),
     path('manage/org_categories/', views.OrgCategoriesFormsetView.as_view(), name="manage_org_categories"),
 
     path('ajax/get_divisions/', utils.ajax_get_divisions, name='ajax_get_divisions'),
+    path('ajax/get_aops/', utils.ajax_get_aops, name='ajax_get_aops'),
 
     # Reporting #
     #############

@@ -1,5 +1,6 @@
 from gettext import gettext as _
 
+from django.contrib.auth.models import User
 from django.db.models import Q
 from django.template.defaultfilters import date, pluralize, slugify
 from django.urls import reverse
@@ -13,9 +14,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from lib.functions.custom_functions import truncate
-from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer
-from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView
-from shared_models.models import FiscalYear, Region, Division, Section, Organization
+from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer, BranchSerializer
+from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView, UserViewSet
+from shared_models.models import FiscalYear, Region, Division, Section, Organization, Branch
 from shared_models.utils import get_labels
 from . import serializers
 from .pagination import StandardResultsSetPagination
@@ -110,7 +111,7 @@ class TripViewSet(viewsets.ModelViewSet):
             else:
                 qs = qs.filter(start_date__gte=timezone.now())
 
-            return qs
+            return qs.order_by("start_date")
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -215,12 +216,13 @@ class TravellerViewSet(viewsets.ModelViewSet):
             utils.clear_empty_traveller_costs(obj)
             return Response(None, status.HTTP_204_NO_CONTENT)
         elif qp.get("cherry_pick_approval"):
-            # This should only ever be performed by the ADM and on requests that are sitting with ADM
-            if utils.is_adm(request.user):
-                if obj.request.status == 14:
-                    utils.cherry_pick_traveller(obj, request=request)
+            # This should only ever be used by authorized users
+            if utils.can_cherry_pick(request.user):
+                # make sure this specific instance of cherry picking is appropriate
+                if utils.can_cherry_pick(request.user, obj.request):
+                    utils.cherry_pick_traveller(obj, request=request, comments=request.data.get("comments"))
                 else:
-                    raise ValidationError(_("This function can only be used with requests that are sitting at the ADM level."))
+                    raise PermissionDenied(_("You cannot cherry pick this traveller at this time."))
             else:
                 raise PermissionDenied(_("You do not have the permissions to cherry pick the approval"))
             return Response(None, status.HTTP_204_NO_CONTENT)
@@ -465,6 +467,23 @@ class CostViewSet(viewsets.ModelViewSet):
 ##########
 
 
+class TravelUserViewSet(UserViewSet):
+    serializer_class = serializers.TravelUserSerializer
+
+    def create(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("search_and_replace"):
+            if not utils.in_travel_nat_admin_group(request.user):
+                raise PermissionDenied(_("This function can only be used by national system administrators."))
+
+            good_user = get_object_or_404(User, pk=request.data.get("good_user"))
+            bad_user = get_object_or_404(User, pk=request.data.get("bad_user"))
+            utils.search_and_replace(good_user, bad_user)
+
+            return Response(None, status.HTTP_204_NO_CONTENT)
+        return super().create(request, *args, **kwargs)
+
+
 class FiscalYearTravelListAPIView(FiscalYearListAPIView):
 
     def get_queryset(self):
@@ -481,13 +500,27 @@ class RegionListAPIView(ListAPIView):
         return qs.distinct()
 
 
+class BranchListAPIView(ListAPIView):
+    serializer_class = BranchSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = Branch.objects.filter(divisions__sections__requests__isnull=False).distinct()
+        if self.request.query_params.get("region"):
+            qs = qs.filter(region_id=self.request.query_params.get("region"))
+        return qs.distinct()
+
+
 class DivisionListAPIView(ListAPIView):
     serializer_class = DivisionSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         qs = Division.objects.filter(sections__requests__isnull=False).distinct()
-        if self.request.query_params.get("region"):
+
+        if self.request.query_params.get("branch"):
+            qs = qs.filter(branch_id=self.request.query_params.get("branch"))
+        elif self.request.query_params.get("region"):
             qs = qs.filter(branch__region_id=self.request.query_params.get("region"))
         return qs.distinct()
 
@@ -500,6 +533,8 @@ class SectionListAPIView(ListAPIView):
         qs = Section.objects.filter(requests__isnull=False).distinct()
         if self.request.query_params.get("division"):
             qs = qs.filter(division_id=self.request.query_params.get("division"))
+        elif self.request.query_params.get("branch"):
+            qs = qs.filter(division__branch_id=self.request.query_params.get("branch"))
         elif self.request.query_params.get("region"):
             qs = qs.filter(division__branch__region_id=self.request.query_params.get("region"))
         return qs

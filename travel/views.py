@@ -19,7 +19,7 @@ from msrestazure.azure_active_directory import MSIAuthentication
 
 from dm_apps.context_processor import my_envr
 from dm_apps.utils import compare_strings
-from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import fiscal_year, truncate
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonUpdateView, CommonFormView, \
@@ -30,9 +30,9 @@ from . import models
 from . import reports
 from . import utils
 from .mixins import TravelAccessRequiredMixin, CanModifyMixin, TravelAdminRequiredMixin, AdminOrApproverRequiredMixin, TravelADMAdminRequiredMixin, \
-    SuperuserOrNationalAdminRequiredMixin
+    SuperuserOrNationalAdminRequiredMixin, TravelAdminOrADMRequiredMixin
 from .utils import in_travel_regional_admin_group, in_travel_nat_admin_group, can_modify_request, is_approver, is_trip_approver, \
-    is_manager_or_assistant_or_admin
+    is_manager_or_assistant_or_admin, is_adm_or_admin, get_request_queryset
 
 
 def get_common_context(request):
@@ -157,6 +157,10 @@ class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
     model = models.TripRequest
     template_name = 'travel/request_detail.html'
     home_url_name = "travel:index"
+
+    def get_active_page_name_crumb(self):
+        mystr = self.get_h1()
+        return truncate(mystr, 125)
 
     def get_object(self, queryset=None):
         if self.kwargs.get("uuid"):
@@ -292,6 +296,7 @@ class TripRequestCloneUpdateView(TripRequestUpdateView):
         new_obj = form.save(commit=False)
         old_obj = models.TripRequest.objects.get(pk=new_obj.pk)
         new_obj.pk = None
+        new_obj.uuid = None
         new_obj.status = 8
         new_obj.submitted = None
         new_obj.original_submission_date = None
@@ -611,6 +616,10 @@ class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
     template_name = 'travel/trip_detail.html'
     home_url_name = "travel:index"
 
+    def get_active_page_name_crumb(self):
+        mystr = self.get_h1()
+        return truncate(mystr, 125)
+
     def get_parent_crumb(self):
         return {"title": _("Trips"), "url": reverse_lazy("travel:trip_list") + self.get_query_string()}
 
@@ -886,7 +895,7 @@ class TripSelectFormView(TravelAdminRequiredMixin, CommonFormView):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse("accounts:denied_access", kwargs={
-                "message": _("Sorry, only ADMO administrators can verify trips that require ADM approval.")})  + "?app=travel")
+                "message": _("Sorry, only ADMO administrators can verify trips that require ADM approval.")}) + "?app=travel")
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -1132,7 +1141,7 @@ class TripReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
 # REPORTS #
 ###########
 
-class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
+class ReportFormView(TravelAdminOrADMRequiredMixin, CommonFormView):
     template_name = 'travel/reports.html'
     form_class = forms.ReportSearchForm
     h1 = gettext_lazy("Reports")
@@ -1171,7 +1180,7 @@ class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/?app=travel')
+@user_passes_test(is_adm_or_admin, login_url='/accounts/denied/?app=travel')
 def export_cfts_list(request):
     fy = request.GET.get("year")
     region = request.GET.get("region")
@@ -1195,7 +1204,7 @@ def export_cfts_list(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/?app=travel')
+@user_passes_test(is_adm_or_admin, login_url='/accounts/denied/?app=travel')
 def export_trip_list(request):
     fy = request.GET.get("year")
     region = request.GET.get("region")
@@ -1219,7 +1228,27 @@ def export_trip_list(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/?app=travel')
+@user_passes_test(is_manager_or_assistant_or_admin, login_url='/accounts/denied/?app=travel')
+def export_request_list(request):
+    qs = get_request_queryset(request)
+    site_url = my_envr(request)["SITE_FULL_URL"]
+
+    file_url = reports.generate_request_list(qs, site_url)
+    export_file_name = f'CTMS request list {timezone.now().strftime("%Y-%m-%d")}.xlsx'
+
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/", "||")]) + f'?blob_name=true;export_file_name={export_file_name}')
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="{export_file_name}"'
+            return response
+    raise Http404
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(is_adm_or_admin, login_url='/accounts/denied/?app=travel')
 def export_upcoming_trips(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_upcoming_trip_list(site_url)
@@ -1237,7 +1266,7 @@ def export_upcoming_trips(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_nat_admin_group, login_url='/accounts/denied/?app=travel')
+@user_passes_test(is_adm_or_admin, login_url='/accounts/denied/?app=travel')
 def export_request_summary(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_request_summary(site_url)
@@ -1255,7 +1284,7 @@ def export_request_summary(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_regional_admin_group, login_url='/accounts/denied/?app=travel')
+@user_passes_test(is_adm_or_admin, login_url='/accounts/denied/?app=travel')
 def export_request_cfts(request, trip=None, trip_request=None):
     file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
     export_file_name = f'CFTS export {timezone.now().strftime("%Y-%m-%d")}.xlsx'
@@ -1466,7 +1495,7 @@ class ReferenceMaterialListView(TravelADMAdminRequiredMixin, CommonListView):
     row_object_url_name = "travel:ref_mat_edit"
     home_url_name = "travel:index"
     h1 = gettext_lazy("Reference Materials")
-    container_class = "container bg-light curvy"
+    container_class = "container curvy"
 
 
 class ReferenceMaterialUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
@@ -1476,7 +1505,7 @@ class ReferenceMaterialUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("travel:ref_mat_list")}
     template_name = "travel/form.html"
     is_multipart_form_data = True
-    container_class = "container bg-light curvy"
+    container_class = "container curvy"
 
     def get_delete_url(self):
         return reverse("travel:ref_mat_delete", args=[self.get_object().id])
@@ -1489,7 +1518,7 @@ class ReferenceMaterialCreateView(TravelADMAdminRequiredMixin, CommonCreateView)
     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("travel:ref_mat_list")}
     template_name = "travel/form.html"
     is_multipart_form_data = True
-    container_class = "container bg-light curvy"
+    container_class = "container curvy"
 
 
 class ReferenceMaterialDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):
@@ -1499,7 +1528,7 @@ class ReferenceMaterialDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView)
     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("travel:ref_mat_list")}
     template_name = "travel/confirm_delete.html"
     delete_protection = False
-    container_class = "container bg-light curvy"
+    container_class = "container curvy"
 
 
 # Default Reviewer Settings
@@ -1568,74 +1597,10 @@ class DefaultReviewerDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-#
-#
-# class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
-#     template_name = "travel/user_list.html"
-#     filterset_class = filters.UserFilter
-#     home_url_name = "travel:index"
-#     paginate_by = 25
-#     h1 = "Travel App User List"
-#     field_list = [
-#         {"name": 'first_name', "class": "", "width": ""},
-#         {"name": 'last_name', "class": "", "width": ""},
-#         {"name": 'email', "class": "", "width": ""},
-#         {"name": 'last_login|{}'.format(gettext_lazy("Last login to DM Apps")), "class": "", "width": ""},
-#     ]
-#     new_object_url = reverse_lazy("shared_models:user_new")
-#
-#     def get_queryset(self):
-#         queryset = User.objects.order_by("first_name", "last_name").annotate(
-#             search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
-#         )
-#         if self.request.GET.get("travel_only"):
-#             admin_group, created = Group.objects.get_or_create(name="travel_admin")
-#             adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
-#             cfo, created = Group.objects.get_or_create(name="travel_cfo_read_only")
-#             queryset = queryset.filter(groups__in=[admin_group, adm_admin_group, cfo]).distinct()
-#         return queryset
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         admin_group, created = Group.objects.get_or_create(name="travel_admin")
-#         adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
-#         cfo_group, created = Group.objects.get_or_create(name="travel_cfo_read_only")
-#         context["admin_group"] = admin_group
-#         context["adm_admin_group"] = adm_admin_group
-#         context["cfo_group"] = cfo_group
-#         return context
-#
-#
-# @login_required(login_url='/accounts/login/')
-# @user_passes_test(in_travel_nat_admin_group, login_url='/accounts/denied/?app=travel')
-# def toggle_user(request, pk, type):
-#     my_user = get_object_or_404(User, pk=pk)
-#     admin_group, created = Group.objects.get_or_create(name="travel_admin")
-#     adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
-#     cfo_group, created = Group.objects.get_or_create(name="travel_cfo_read_only")
-#     if type == "admin":
-#         # if the user is in the admin group, remove them
-#         if admin_group in my_user.groups.all():
-#             my_user.groups.remove(admin_group)
-#         # otherwise add them
-#         else:
-#             my_user.groups.add(admin_group)
-#     elif type == "adm_admin":
-#         # if the user is in the edit group, remove them
-#         if adm_admin_group in my_user.groups.all():
-#             my_user.groups.remove(adm_admin_group)
-#         # otherwise add them
-#         else:
-#             my_user.groups.add(adm_admin_group)
-#     elif type == "cfo":
-#         # if the user is in the edit group, remove them
-#         if cfo_group in my_user.groups.all():
-#             my_user.groups.remove(cfo_group)
-#         # otherwise add them
-#         else:
-#             my_user.groups.add(cfo_group)
-#
-#     return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
+class SearchAndReplaceTemplateView(TravelADMAdminRequiredMixin, CommonTemplateView):
+    h1 = gettext_lazy("Search, Replace and Deactivate Users")
+    home_url_name = "travel:index"
+    template_name = 'travel/search_and_replace.html'
 
 
 class TravelUserFormsetView(SuperuserOrNationalAdminRequiredMixin, CommonFormsetView):
@@ -1646,7 +1611,7 @@ class TravelUserFormsetView(SuperuserOrNationalAdminRequiredMixin, CommonFormset
     success_url_name = "travel:manage_travel_users"
     home_url_name = "travel:index"
     delete_url_name = "travel:delete_travel_user"
-    container_class = "container bg-light curvy"
+    container_class = "container curvy"
 
 
 class TravelUserHardDeleteView(SuperuserOrNationalAdminRequiredMixin, CommonHardDeleteView):

@@ -62,6 +62,13 @@ urlpatterns = [
     path('samples/<int:pk>/view/', views.SampleDetailView.as_view(), name="sample_detail"),
     path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
     path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
+    path('samples/<int:pk>/review/', views.review_sample, name="review_sample"),
+
+    # SAMPLE FILES #
+    ################
+    path('samples/<int:sample>/new-file/', views.SampleFileCreateView.as_view(), name='sample_file_new'),
+    path('sample-files/<int:pk>/edit/', views.SampleFileUpdateView.as_view(), name='sample_file_edit'),
+    path('sample-files/<int:pk>/delete/', views.SampleFileDeleteView.as_view(), name='sample_file_delete'),
 
     # SWEEPS #
     ###############
@@ -98,6 +105,7 @@ urlpatterns = [
     path('reports/opendata1/dictionary/', views.export_open_data_ver1_dictionary, name="od1_dictionary"),
     path('reports/opendata1/species-list/', views.export_spp_list, name="od_spp_list"),
     path('reports/opendata/wms/lang/<int:lang>/', views.export_open_data_ver1_wms, name="od1_wms"),
+    path('reports/observations/v1/', views.export_obs_data_v1, name="export_obs_data_v1"),
 
     #electro
     path('reports/electrofishing/juv_salmon_report/', views.electro_juv_salmon_report, name="electro_juv_salmon_report"),

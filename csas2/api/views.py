@@ -8,7 +8,7 @@ from django.utils.timezone import utc, make_aware
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from unidecode import unidecode
 
+from lib.functions.custom_functions import listrify
 from ppt.utils import prime_csas_activities
 from shared_models.api.serializers import PersonSerializer
 from shared_models.api.views import _get_labels, SharedModelMetadataAPIView
@@ -40,6 +41,7 @@ class CurrentUserAPIView(APIView):
         qp = request.GET
         data["is_csas_national_admin"] = utils.in_csas_national_admin_group(request.user)
         data["is_admin"] = utils.in_csas_admin_group(request.user)
+        data["is_staff"] = utils.in_csas_web_pub_group(request.user)
 
         # provide the region for which that use is an admin for, if applicable
         data["regional_admin"] = None
@@ -183,31 +185,11 @@ class ProcessViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         kwargs = dict(updated_by=self.request.user)
         obj = serializer.save(**kwargs)
-        # we do not want to send them too many emails.. only the first time
-        if obj.is_posted and not obj.posting_notification_date:
-            email = emails.PostedProcessEmail(self.request, obj)
-            email.send()
-            obj.posting_notification_date = timezone.now()
-            obj.save()
 
     def post(self, request, pk):
         qp = request.query_params
         process = get_object_or_404(models.Process, pk=pk)
-        if qp.get("request_posting"):
-            can_modify = can_modify_process(request.user, process.id, True)
-            if not can_modify.get("can_modify"):
-                raise ValidationError(can_modify.get("reason"))
-            elif process.is_posted:
-                raise ValidationError(_("A request to have this process posted has already occurred."))
-
-            email = emails.PostingRequestEmail(request, process)
-            email.send()
-            process.posting_request_date = timezone.now()
-            process.save()
-            msg = _("Success! Your request for a posting has been sent to the National CSAS Office.")
-            return Response(msg, status.HTTP_200_OK)
-
-        elif qp.get("link_2_ppt"):
+        if qp.get("link_2_ppt"):
             can_modify = can_modify_process(request.user, process.id, True)
             if not can_modify["can_modify"]:
                 raise ValidationError(can_modify["reason"])
@@ -295,18 +277,84 @@ class ProcessViewSet(viewsets.ModelViewSet):
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
-    queryset = models.Meeting.objects.all().order_by("-created_at")
+    queryset = models.Meeting.objects.all().annotate(search=Concat('name', Value(" "), 'nom', output_field=TextField()))
     serializer_class = serializers.MeetingSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
     pagination_class = StandardResultsSetPagination
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    search_fields = ['name', 'nom']
+    filter_backends = [DjangoFilterBackend]
+    # search_fields = ['name', 'nom']
     filterset_class = filters.MeetingFilter
 
     def post(self, request, pk):
         qp = request.query_params
         meeting = get_object_or_404(models.Meeting, pk=pk)
-        if qp.get("maximize_attendance"):
+
+        if qp.get("request_posting"):
+            can_modify = can_modify_process(request.user, meeting.process.id, True)
+            if not can_modify.get("can_modify"):
+                raise ValidationError(can_modify.get("reason"))
+            elif meeting.is_posted:
+                raise ValidationError(_("A request to have this process posted has already occurred."))
+
+            email = emails.PostingRequestEmail(request, meeting)
+            email.send()
+            meeting.posting_request_date = timezone.now()
+            meeting.save()
+            msg = _("Success! Your request for a posting has been sent to the National CSAS Office.")
+            return Response(msg, status.HTTP_200_OK)
+
+        if qp.get("submit_somp"):
+            can_modify = can_modify_process(request.user, meeting.process.id, True)
+            if not can_modify.get("can_modify"):
+                raise PermissionDenied(can_modify.get("reason"))
+            can_submit = meeting.can_submit_somp
+            if not can_submit["is_allowed"]:
+                raise ValidationError(can_submit["reasons"])
+            # proceed!
+            email = emails.SoMPEmail(self.request, meeting)
+            email.send()
+
+            meeting.is_somp_submitted = True
+            meeting.somp_notification_date = timezone.now()
+            meeting.save()
+
+            # meeting.is_somp_submitted = False
+            # meeting.somp_notification_date = None
+            return Response(serializers.MeetingSerializer(meeting).data, status.HTTP_200_OK)
+
+        elif qp.get("toggle_posting"):
+            if not utils.in_csas_web_pub_group(self.request.user):
+                raise ValidationError("You must be a CSAS staff member to do this.")
+
+            can_post = meeting.can_post_meeting
+            if not meeting.is_posted and not meeting.posting_request_date and not can_post.get("can_post"):
+                raise ValidationError(listrify(can_post.get("reasons")))
+
+            meeting.is_posted = not meeting.is_posted
+            meeting.save()
+
+            # if posted but an email was never sent, then we should send an email
+            if meeting.is_posted and not meeting.posting_notification_date:
+                email = emails.PostedMeetingEmail(request, meeting)
+                email.send()
+                meeting.posting_notification_date = timezone.now()
+                meeting.save()
+            elif not meeting.is_posted:
+                meeting.posting_notification_date = None
+                meeting.save()
+            return Response(serializers.MeetingSerializer(meeting).data, status.HTTP_200_OK)
+
+        elif qp.get("cancel_posting_request"):
+            if not utils.in_csas_web_pub_group(self.request.user):
+                raise ValidationError("You must be a CSAS staff member to do this.")
+
+            elif meeting.is_posted:
+                raise ValidationError("You cannot cancel the posting request of a meeting that is already posted")
+
+            meeting.posting_request_date = None
+            meeting.save()
+            return Response(serializers.MeetingSerializer(meeting).data, status.HTTP_200_OK)
+        elif qp.get("maximize_attendance"):
             invitees = meeting.invitees.filter(status__in=[1, ])
             for invitee in invitees:
                 invitee.maximize_attendance()
@@ -435,7 +483,7 @@ class InviteeViewSet(viewsets.ModelViewSet):
         new_chair = meeting.chair
 
         # now for the piece about NCR email
-        if meeting.process.is_posted and hasattr(meeting, "tor") and (old_chair != new_chair):
+        if meeting.is_posted and hasattr(meeting, "tor") and (old_chair != new_chair):
             email = emails.UpdatedMeetingEmail(self.request, meeting, old_chair=old_chair, new_chair=new_chair)
             email.send()
 
@@ -446,7 +494,7 @@ class InviteeViewSet(viewsets.ModelViewSet):
         new_chair = meeting.chair
 
         # now for the piece about NCR email
-        if meeting.process.is_posted and hasattr(meeting, "tor") and (old_chair != new_chair):
+        if meeting.is_posted and hasattr(meeting, "tor") and (old_chair != new_chair):
             email = emails.UpdatedMeetingEmail(self.request, meeting, old_chair=old_chair, new_chair=new_chair)
             email.send()
 
@@ -524,14 +572,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
     def post(self, request, pk):
         qp = request.query_params
         doc = get_object_or_404(models.Document, pk=pk)
-        if qp.get("meeting"):
-            meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
-            if doc.meetings.filter(id=meeting.id).exists():
-                doc.meetings.remove(meeting)
-            else:
-                doc.meetings.add(meeting)
-            return Response(None, status.HTTP_204_NO_CONTENT)
-        elif qp.get("request_pub_number"):
+        if qp.get("request_pub_number"):
             if not doc.pub_number_request_date and not doc.pub_number:
                 email = emails.PublicationNumberRequestEmail(request, doc)
                 email.send()
@@ -540,6 +581,27 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 msg = _("Success! Your request for a publication number has been sent to the National CSAS Office.")
                 return Response(msg, status.HTTP_200_OK)
             raise ValidationError(_("A publication number has already been requested."))
+        elif qp.get("confirm"):
+            # make sure they have permissions needed to confirm
+            can_modify = can_modify_process(request.user, doc.process_id, return_as_dict=True)
+            if not can_modify["can_modify"]:
+                raise PermissionDenied(can_modify["reason"])
+            # make sure doc can be confirmed
+            can_confirm = doc.can_confirm
+            if not can_confirm["can_confirm"]:
+                raise ValidationError(can_confirm["reasons"])
+            # confirm doc
+            doc.is_confirmed = True
+            doc.save()
+            return Response(serializers.DocumentSerializer(doc).data, status.HTTP_200_OK)
+        elif qp.get("unconfirm"):
+            # make sure they have permissions needed to unconfirm
+            if not utils.in_csas_web_pub_group(request.user):
+                raise PermissionDenied(_("You must be a CSAS staff member to do this."))
+            doc.is_confirmed = False
+            doc.save()
+            return Response(serializers.DocumentSerializer(doc).data, status.HTTP_200_OK)
+
         elif qp.get("get_pub_number"):
             if hasattr(doc, "tracking") and doc.tracking.anticipated_posting_date:
                 year = doc.tracking.anticipated_posting_date.year
@@ -912,8 +974,20 @@ class ToRReviewerViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["tor"]
 
+    def perform_destroy(self, instance):
+        # don't delete if there are no other approvers and the tor is submitted
+        tor = instance.tor
+        if tor.submission_date and not tor.reviewers.filter(~Q(id=instance.id)).filter(role=1).exists():
+            msg = _('There has to be at least one approver in the queue!')
+            raise ValidationError(msg)
+        super().perform_destroy(instance)
+
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        obj = serializer.save(created_by=self.request.user)
+        # if the review is underway, the status should go directly to queued (20)!
+        if obj.tor.status == 20:
+            obj.status = 20
+            obj.save()
 
     def perform_update(self, serializer):
         obj = serializer.save(updated_by=self.request.user)

@@ -5,17 +5,22 @@ from azure.storage.blob import BlockBlobService
 from decouple import config
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import Group, User
 from django.db.models import Q
 from django.template.defaultfilters import date
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from msrestazure.azure_active_directory import MSIAuthentication
 
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.models import Branch, Division, Section
 from . import emails
 from . import models
+
+
+def is_adm_or_admin(user):
+    if user:
+        return bool(is_adm(user) or is_admin(user))
 
 
 def in_travel_regional_admin_group(user):
@@ -714,16 +719,48 @@ def get_cost_comparison(travellers):
     return list1
 
 
-def cherry_pick_traveller(traveller, request, comment="approved / approuvé"):
-    """this is a special function that is to be used by the ADM only.
-    It is for when the ADM wants to approve a single traveller while not approving the entire delegation.
-    Validation will be handled by views"""
+def can_cherry_pick(user, request=None):
+    """
+    Stores the business rule for whom is allow to cherry pick approve travellers. If there is no request provided, we will simply provide only the authorization portion.
+    """
+    # the user has to have the correct authorization (e.g., ADM, RDG, DG) --> basically the head of a branch, sector or region, EOS travel coordinator
+    response = user.shared_models_branches.exists() or user.shared_models_sectors.exists() or user.shared_models_regions.exists() or is_adm(user) or in_travel_nat_admin_group(user)
+
+    # there is a chance that this user may have expenditure initial for the region. we can only know this if we were supplied with a request.
+    if not response and request and hasattr(user, "travel_default_reviewers") and user.travel_default_reviewers.expenditure_initiation_region:
+        response = request.section.division.branch.sector.region == user.travel_default_reviewers.expenditure_initiation_region
+
+    # if the response is positive thus far AND there is a request supplied, we will refine the response
+    if response and request:
+        # the request has to have more than 1 traveller!
+        # criterion0 = request.travellers.count() > 1
+        # the user has to be the current reviewer for the request OR the user is the ADM and is reviewing a request at the ADM level. The latter is there in the case that someone is acting for ADM
+        criterion1 = request.current_reviewer and request.current_reviewer.user == user or (is_adm(user) and request.status == 14)
+        # request status in [17 (Pending Review), 12 (Pending Recommendation), 14 (Pending ADM Approval), 15 (Pending Expenditure Initiation)]
+        criterion2 = request.status in [17, 12, 14, 15]
+        response = criterion1 and criterion2
+
+    # return the response to the question
+    return response
+
+
+def cherry_pick_traveller(traveller, request, comments=None):
+    """
+    this is a special function that cuts out a traveller from an existing group request and places them into a cloned request so
+    that they can be approved ahead of the rest of the  delegation. This function should never be called without first having checked with the function called:
+    can_cherry_pick.
+    """
+    if not nz(comments, None):
+        comments = "approved / approuvé"
     trip_request = traveller.request
+
     # scenario 1: this is a single person request (yayy!!)
+    ## note this is needed especially for the ADM when he/she is looking at travellers across multiple requests. It will not be
+    ## obvious in that case who belongs to which request
     if trip_request.travellers.count() == 1:
         reviewer = trip_request.current_reviewer
         reviewer.user = request.user
-        reviewer.comments = comment
+        reviewer.comments = comments
         reviewer.status = 2
         reviewer.status_date = timezone.now()
         reviewer.save()
@@ -734,6 +771,8 @@ def cherry_pick_traveller(traveller, request, comment="approved / approuvé"):
         old_obj = trip_request
         new_obj = deepcopy(old_obj)
         new_obj.pk = None
+        new_obj.uuid = None
+        new_obj.add_admin_note = f"{date(timezone.now())} - This request was automatically cloned from request no. {old_obj.id} during the review process."
         new_obj.save()
 
         # copy over the reviewers
@@ -752,7 +791,7 @@ def cherry_pick_traveller(traveller, request, comment="approved / approuvé"):
         # finally, we approved the new request at the level of the active reviewer
         reviewer = new_obj.current_reviewer
         reviewer.user = request.user
-        reviewer.comments = comment
+        reviewer.comments = comments
         reviewer.status = 2
         reviewer.status_date = timezone.now()
         reviewer.save()
@@ -808,3 +847,30 @@ def get_all_admins(region, branch_only=False):
     except:
         pass
     return list(set(to_list))
+
+
+def search_and_replace(good_user, bad_user):
+    # find all traveller instances
+    for obj in bad_user.travellers.all():
+        obj.user = good_user
+        obj.save()
+
+    # find all request reviewer instances
+    for obj in bad_user.reviewers.all():
+        obj.user = good_user
+        obj.save()
+
+    # find all trip reviewer instances
+    for obj in bad_user.trip_reviewers.all():
+        obj.user = good_user
+        obj.save()
+
+
+def get_request_queryset(request):
+    qs = get_requests_with_managerial_access(request.user)
+    qp = request.query_params if hasattr(request, 'query_params') else request.GET
+
+    if qp.get("ids"):
+        ids = qp.get("ids").split(",")  # get project year list
+        qs = qs.filter(id__in=ids)  # get project year qs
+    return qs.distinct()

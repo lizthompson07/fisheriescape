@@ -77,30 +77,14 @@
                      <table class="table table-sm table-bordered" style="width: auto">
                         <h2><u>Project Information</u></h2>
                          {% for field in field_list %}
-
-                         <tr>
-                            {% if field == 'salmon_life_stage' %}
-                                <tr>
-                                    {% verbose_field_display object field %}
-                                </tr>
+                            {% if field == 'project_categorization' %}
                                 <br><h2><u>Project Categorization</u></h2><br>
-                            {% elif field == 'category_comments' %}
-                                <tr>
-                                    {% verbose_field_display object field %}
-                                </tr>
+                            {% elif field == 'project_links' %}
                                 <br><h2><u>Project Links</u></h2><br>
-                            {% elif field == 'policy_program_connection' %}
-                                <tr>
-                                    {% verbose_field_display object field %}
-                                </tr>
+                            {% elif field == 'project_contacts' %}
                                 <br><h2><u>Project Contacts</u></h2><br>
-
-                            {% elif field == 'lead_organization' %}
-                                <tr>
-                                    {% verbose_field_display object field %}
-                                </tr>
+                            {% elif field == 'funding_year' %}
                                 <br>{% include "spot/_funding_years.html" %}<br>
-
                             {% elif field == 'DFO_project_authority' %}
                                 <strong>DFO Project Authority:</strong><br>
                                 <ul>
@@ -154,14 +138,15 @@
                                     <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
                                     {% endfor %}
                                  </ul>
-                                <br><h2><u>Costing</u></h2><br>
+                            {% elif field == 'costing' %}
+                                <br><h2><u>Agreement Source & Costing</u></h2><br>
+                            {% elif field == 'river' %}
+                                {% include "spot/_rivers.html" %}<br>
                             {% else %}
                                 <tr>
                                     {% verbose_field_display object field %}
                                 </tr>
                             {% endif %}
-
-                             </tr>
                         {% endfor %}
 
                         <br>
@@ -237,6 +222,7 @@
         </div>
 
     </div>
+</div>
 {% endblock content %}
 
 {% block body_js %}
@@ -272,4 +258,3 @@
     </script>
   {% endlocalize %}
 {% endblock %}
-

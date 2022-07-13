@@ -17,7 +17,7 @@ from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHar
 from . import models, forms, filters, reports
 
 
-class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
+class IndexTemplateView(ScubaBasicMixin, CommonTemplateView):
     h1 = "home"
     active_page_name_crumb = "home"
     template_name = 'scuba/index.html'
@@ -292,7 +292,7 @@ class TransectDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
 # SAMPLES #
 ###########
 
-class SampleListView(ScubaCRUDAccessRequiredMixin, CommonFilterView):
+class SampleListView(ScubaBasicMixin, CommonFilterView):
     model = models.Sample
     template_name = 'scuba/list.html'
     filterset_class = filters.SampleFilter
@@ -333,7 +333,7 @@ class SampleCreateView(ScubaCRUDAccessRequiredMixin, CommonCreateView):
     container_class = "container curvy"
 
 
-class SampleDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
+class SampleDetailView(ScubaBasicMixin, CommonDetailView):
     model = models.Sample
     template_name = 'scuba/sample_detail.html'
     home_url_name = "scuba:index"
@@ -450,7 +450,7 @@ class DiveDeleteView(ScubaCRUDAccessRequiredMixin, CommonDeleteView):
         return {"title": self.get_object().sample, "url": reverse_lazy("scuba:sample_detail", args=[self.get_object().sample.id])}
 
 
-class DiveDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
+class DiveDetailView(ScubaBasicMixin, CommonDetailView):
     model = models.Dive
     template_name = 'scuba/dive_detail.html'
     home_url_name = "scuba:index"
