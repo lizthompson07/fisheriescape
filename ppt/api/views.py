@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+import numpy as np
 import pandas as pd
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -257,6 +258,64 @@ class ProjectYearViewSet(ModelViewSet):
             serializer = serializers.OMCostSerializer(instance=project_year.omcost_set.all(), many=True)
             return Response(serializer.data, status.HTTP_200_OK)
         raise ValidationError(_("This endpoint cannot be used without a query param"))
+
+
+class StaffingAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not request.query_params.get("year"):
+            return Response({"error": "must supply a fiscal year"}, status.HTTP_400_BAD_REQUEST)
+
+        si_data = list()
+        ids = request.query_params.get("ids").split(",")
+        py_qs = models.ProjectYear.objects.filter(id__in=ids)
+        year = request.query_params.get("year")
+        fiscal_year = shared_models.FiscalYear.objects.get(pk=year)
+        staff_instances = models.Staff.objects.filter(project_year_id__in=ids).distinct() \
+            .select_related("user", "employee_type", "level", "funding_source", "project_year",
+                            "project_year__project", "project_year__fiscal_year",
+                            "project_year__project__section")
+
+        staff_df = pd.DataFrame.from_records(staff_instances.values("funding_source__funding_source_type", "level_id__name",
+                                                                    "employee_type__name", "duration_weeks",
+                                                                    "project_year__status"))
+        # convert choice to string
+        staff_df["funding_source"] = staff_df["funding_source__funding_source_type"].map(dict(
+            models.FundingSource.funding_source_type_choices)).apply(''.join)
+
+        staff_df["draft"] = np.where(staff_df["project_year__status"] == 1, staff_df["duration_weeks"], np.nan)
+        staff_df["submitted_unapproved"] = np.where(staff_df["project_year__status"].isin([2, 3, 6]),
+                                                    staff_df["duration_weeks"], np.nan)
+        staff_df["approved"] = np.where(staff_df["project_year__status"] == 4, staff_df["duration_weeks"], np.nan)
+
+        type_summary = get_staff_summary(staff_df, "employee_type__name")
+        level_summary = get_staff_summary(staff_df, "level_id__name")
+        funding_summary = get_staff_summary(staff_df, "funding_source")
+
+        # now we need a user list for any users in the above list
+        users = User.objects.filter(staff_instances2__project_year_id__in=ids).distinct().order_by("last_name") \
+            .select_related("profile", "profile__section")
+        data = []
+        for u in users:
+            staff_instances = models.Staff.objects.filter(user=u, project_year__fiscal_year_id=year).distinct() \
+                .select_related("user", "employee_type", "level", "funding_source", "project_year",
+                                "project_year__project", "project_year__fiscal_year",
+                                "project_year__project__section")
+            my_dict = get_user_fte_breakdown(u, fiscal_year_id=year, staff_instance_qs=staff_instances,
+                                             fiscal_year=fiscal_year)
+
+            my_dict["staff_instances"] = serializers.StaffSerializer(staff_instances, many=True).data
+            data.append(my_dict)
+
+        response_dict = {
+            'results': data,
+            'type_summary': type_summary,
+            'level_summary': level_summary,
+            'funding_summary': funding_summary
+        }
+
+        return Response(response_dict, status.HTTP_200_OK)
 
 
 class StaffViewSet(ModelViewSet):

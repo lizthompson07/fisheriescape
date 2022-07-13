@@ -1037,22 +1037,25 @@ def get_project_year_queryset(request):
     return qs.distinct()
 
 
-def get_staff_summary(staff_df, summary_type, summary_cols=['summary_col', 'draft', 'submitted_unapproved', 'approved']):
+def get_staff_summary(staff_df, summary_type, summary_cols=None):
+    if summary_cols is None:
+        summary_cols = ['draft', 'submitted_unapproved', 'approved'] + [summary_type]
     output_summary = None
     if summary_type in staff_df.columns and not staff_df.empty:
         # sum FTE weeks based on type
         summary_df = staff_df.copy()
-        # split any summary type value into two rows: PC-02, PC-03 becomes two rows: [PC-02], [PC-03]
-        summary_df = summary_df.assign(summary_col=summary_df[summary_type].str.split(', ')).explode(summary_type)
-        # spliting the rows creates a list col, extract values from this:
-        summary_df['summary_col'] = summary_df['summary_col'].apply(', '.join)
         summary_df = summary_df[summary_cols]
-        summary_df = summary_df.groupby('summary_col').sum()
+        summary_df.loc[:, summary_type] = summary_df[summary_type].fillna(value="---")
+        summary_df = summary_df.groupby(summary_type).sum()
 
-        # count FTE weeks based on type
-        output_summary = pd.DataFrame(staff_df[summary_type].str.split(', ').explode().value_counts())
+        # count occurences of summary type based off original df
+        output_df = staff_df.copy()
+        output_df.loc[:, summary_type] = output_df[summary_type].fillna(value="---")
+        output_summary = pd.DataFrame(output_df[summary_type].value_counts())
 
         output_summary = output_summary.join(summary_df)
         output_summary = output_summary.fillna('')
+        output_summary.rename(columns={summary_type: 'count'}, inplace=True)
+
         output_summary = output_summary.reset_index().to_dict('records')
     return output_summary
