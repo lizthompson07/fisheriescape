@@ -279,7 +279,7 @@ class StaffingAPIView(APIView):
 
         staff_df = pd.DataFrame.from_records(staff_instances.values("funding_source__funding_source_type", "level_id__name",
                                                                     "employee_type__name", "duration_weeks",
-                                                                    "project_year__status"))
+                                                                    "project_year__status", "user"))
         # convert choice to string
         staff_df["funding_source"] = staff_df["funding_source__funding_source_type"].map(dict(
             models.FundingSource.funding_source_type_choices)).apply(''.join)
@@ -292,6 +292,7 @@ class StaffingAPIView(APIView):
         type_summary = get_staff_summary(staff_df, "employee_type__name")
         level_summary = get_staff_summary(staff_df, "level_id__name")
         funding_summary = get_staff_summary(staff_df, "funding_source")
+        user_df = pd.DataFrame(get_staff_summary(staff_df, "user", na_value="TDB"))
 
         # now we need a user list for any users in the above list
         users = User.objects.filter(staff_instances2__project_year_id__in=ids).distinct().order_by("last_name") \
@@ -302,10 +303,12 @@ class StaffingAPIView(APIView):
                 .select_related("user", "employee_type", "level", "funding_source", "project_year",
                                 "project_year__project", "project_year__fiscal_year",
                                 "project_year__project__section")
+            filtered_si = staff_instances.filter(project_year__in=py_qs).distinct()
             my_dict = get_user_fte_breakdown(u, fiscal_year_id=year, staff_instance_qs=staff_instances,
-                                             fiscal_year=fiscal_year)
+                                             fiscal_year=fiscal_year, filtered_si_qs=filtered_si)
 
             my_dict["staff_instances"] = serializers.StaffSerializer(staff_instances, many=True).data
+            my_dict["filtered_staff_instances"] = serializers.StaffSerializer(filtered_si, many=True).data
             data.append(my_dict)
 
         response_dict = {

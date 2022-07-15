@@ -244,7 +244,7 @@ def get_funding_sources(all=False):
     return [(fs.id, str(fs)) for fs in models.FundingSource.objects.all()]
 
 
-def get_user_fte_breakdown(user, fiscal_year_id, staff_instance_qs=None, fiscal_year=None):
+def get_user_fte_breakdown(user, fiscal_year_id, staff_instance_qs=None, fiscal_year=None, filtered_si_qs=None):
     if staff_instance_qs:
         staff_instances = staff_instance_qs
     else:
@@ -287,13 +287,29 @@ def get_user_fte_breakdown(user, fiscal_year_id, staff_instance_qs=None, fiscal_
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
     my_dict['submitted_unapproved'] = nz(staff_instances.filter(
-        project_year__status__in=[2, 3]
+        project_year__status__in=[2, 3, 6]
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
     my_dict['approved'] = nz(staff_instances.filter(
         project_year__status=4
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
+    if filtered_si_qs:
+        my_dict['filtered_draft'] = nz(filtered_si_qs.filter(
+            project_year__status=1
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
+
+        my_dict['filtered_submitted_unapproved'] = nz(filtered_si_qs.filter(
+            project_year__status__in=[2, 3, 6]
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
+
+        my_dict['filtered_approved'] = nz(filtered_si_qs.filter(
+            project_year__status=4
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
+    else:
+        my_dict['filtered_draft'] = None
+        my_dict['filtered_submitted_unapproved'] = None
+        my_dict['filtered_approved'] = None
     return my_dict
 
 
@@ -1037,7 +1053,8 @@ def get_project_year_queryset(request):
     return qs.distinct()
 
 
-def get_staff_summary(staff_df, summary_type, summary_cols=None):
+def get_staff_summary(staff_df, summary_type, summary_cols=None, na_value="---"):
+    # Selects classified FTE week columns and performs a group by with the summary type column.
     if summary_cols is None:
         summary_cols = ['draft', 'submitted_unapproved', 'approved'] + [summary_type]
     output_summary = None
@@ -1045,12 +1062,12 @@ def get_staff_summary(staff_df, summary_type, summary_cols=None):
         # sum FTE weeks based on type
         summary_df = staff_df.copy()
         summary_df = summary_df[summary_cols]
-        summary_df.loc[:, summary_type] = summary_df[summary_type].fillna(value="---")
+        summary_df.loc[:, summary_type] = summary_df[summary_type].fillna(value=na_value)
         summary_df = summary_df.groupby(summary_type).sum()
 
         # count occurences of summary type based off original df
         output_df = staff_df.copy()
-        output_df.loc[:, summary_type] = output_df[summary_type].fillna(value="---")
+        output_df.loc[:, summary_type] = output_df[summary_type].fillna(value=na_value)
         output_summary = pd.DataFrame(output_df[summary_type].value_counts())
 
         output_summary = output_summary.join(summary_df)
