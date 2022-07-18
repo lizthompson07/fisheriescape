@@ -413,6 +413,10 @@ var app = new Vue({
       staff.showRelatedProjects = !staff.showRelatedProjects
       this.$forceUpdate()
     },
+    toggleShowFilteredProjects(staff) {
+      staff.showFilteredProjects = !staff.showFilteredProjects
+      this.$forceUpdate()
+    },
     generateReports(url, tag) {
       window.open(url + "?" + this.getFilterString(), tag, 'toolbar=0,status=0,height=500,width=600');
     },

@@ -129,9 +129,17 @@
           <td>${s.name}</td>
           <td>${s.employee_type}</td>
           <td>${s.level}</td>
-          <td class="text-center">${s.draft | floatformat | zero2NullMark } / ${s.filtered_draft | floatformat | zero2NullMark }</td>
-          <td class="text-center">${s.submitted_unapproved| floatformat | zero2NullMark} / ${s.filtered_submitted_unapproved| floatformat | zero2NullMark}</td>
-          <td class="text-center">${s.approved| floatformat | zero2NullMark} / ${s.filteredapproved| floatformat | zero2NullMark}</td>
+          <td class="text-center">${s.filtered_draft | floatformat | zero2NullMark } / ${s.draft | floatformat | zero2NullMark }</td>
+          <td class="text-center">${s.filtered_submitted_unapproved| floatformat | zero2NullMark} / ${s.submitted_unapproved| floatformat | zero2NullMark} </td>
+          <td class="text-center">${s.filteredapproved| floatformat | zero2NullMark} / ${s.approved| floatformat | zero2NullMark} </td>
+          <td>
+            <button v-if="s.showFilteredProjects" @click="toggleShowFilteredProjects(s)" class="btn btn-sm btn-warning py-0 px-1">
+              <span>  {% trans "hide filtered projects" %} </span>
+            </button>
+            <button v-else @click="toggleShowFilteredProjects(s)" class="btn btn-sm btn-success py-0 px-1">
+              <span>  {% trans "show filtered projects" %} </span>
+            </button>
+          </td>
           <td>
             <button v-if="s.showRelatedProjects" @click="toggleShowProjects(s)" class="btn btn-sm btn-warning py-0 px-1">
               <span>  {% trans "hide projects" %} </span>
@@ -140,10 +148,16 @@
               <span>  {% trans "show projects" %} </span>
             </button>
           </td>
+
         </tr>
         <tr v-if="s.showRelatedProjects">
           <td colspan="7">
             <staff-table :staff="s"></staff-table>
+          </td>
+        </tr>
+        <tr v-if="s.showFilteredProjects">
+          <td colspan="7">
+            <staff-filtered-table :staff="s"></staff-filtered-table>
           </td>
         </tr>
 
