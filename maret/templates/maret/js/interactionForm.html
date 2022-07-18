@@ -7,6 +7,7 @@
         let $date_of_meeting = $("#date_of_meeting_div");
         let $dfo_liaison = $("#dfo_liaison_div");
         let $dfo_role = $("#dfo_role_div");
+        let lead_region = $("#lead_region_div");
         let $other_dfo_participants = $("#other_dfo_participants_div");
         let $external_contact = $("#external_contact_div");
         let $external_organization = $("#external_organization_div");
@@ -32,6 +33,8 @@
         $dfo_role.show();
         $("#id_dfo_role").prop("required", false);
         $other_dfo_participants.show();
+        $("#id_lead_region").prop("required", false);
+        lead_region.show();
         $("#id_other_dfo_participants").prop("required", false);
         $external_contact.show();
         $("#id_external_contact").prop("required", false);
@@ -63,11 +66,14 @@
             $dfo_role.show();
             $("#id_dfo_role").prop("required", false);
 
+            lead_region.hide();
+            $("#id_lead_region").prop("required", false);
+
             $dfo_liaison.hide();
             $("#dfo_liaison").prop("required", false);
 
             $other_dfo_participants.hide();
-            $("id_other_dfo_participants").prop("required", false);
+            $("#id_other_dfo_participants").prop("required", false);
 
             $external_contact.hide();
             $("#id_external_contact").prop("required", false);
