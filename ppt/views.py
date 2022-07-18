@@ -117,6 +117,8 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         'lead_staff',
         'status',
         'allocated_budget',
+        'allocated_salary',
+        'allocated_capital',
         'review_score_percentage',
         'last_modified',
         'om_costs',

@@ -48,6 +48,8 @@
         <th class="w150"> ${reviewLabels.approval_level}</th>
         <th class="w150"> ${reviewLabels.funding_status}</th>
         <th class="w150"> ${reviewLabels.allocated_budget}</th>
+        <th class="w150"> ${reviewLabels.allocated_salary}</th>
+        <th class="w150"> ${reviewLabels.allocated_capital}</th>
         <th class="w200"> ${reviewLabels.approver_comment}</th>
 
       </tr>
@@ -98,6 +100,12 @@
         </td>
         <td v-if="p.review">
           <input @change="updateReview(p)" type="number" v-model="p.review.allocated_budget" class="form-control">
+        </td>
+        <td v-if="p.review">
+          <input @change="updateReview(p)" type="number" v-model="p.review.allocated_salary" class="form-control">
+        </td>
+        <td v-if="p.review">
+          <input @change="updateReview(p)" type="number" v-model="p.review.allocated_capital" class="form-control">
         </td>
         <td v-if="p.review">
           <textarea v-model="p.review.approver_comment" class="form-control w-100" id="" rows="4" @change="updateReview(p)"></textarea>

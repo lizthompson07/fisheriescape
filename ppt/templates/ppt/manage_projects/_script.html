@@ -54,6 +54,8 @@ var app = new Vue({
     },
 
     showColumnAllocation: false,
+    showColumnSalaryAllocation: false,
+    showColumnCapitalAllocation: false,
     showColumnLeads: true,
     showColumnHidden: true,
     showColumnScore: false,
@@ -275,7 +277,7 @@ var app = new Vue({
                     pyIds.push(response.results[i].id)
                   }
 
-                  let endpoint2 = `/api/ppt/fte-breakdown/?year=${this.filter.fiscal_year}&ids=${pyIds}`;
+                  let endpoint2 = `/api/ppt/staffing/?year=${this.filter.fiscal_year}&ids=${pyIds}`;
                   apiService(endpoint2)
                       .then(response => {
                         this.staff_loading = false;
@@ -409,6 +411,10 @@ var app = new Vue({
     },
     toggleShowProjects(staff) {
       staff.showRelatedProjects = !staff.showRelatedProjects
+      this.$forceUpdate()
+    },
+    toggleShowFilteredProjects(staff) {
+      staff.showFilteredProjects = !staff.showFilteredProjects
       this.$forceUpdate()
     },
     generateReports(url, tag) {
