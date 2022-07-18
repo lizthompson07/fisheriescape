@@ -25,7 +25,7 @@ class RecordDisplaySerializer(serializers.ModelSerializer):
         if instance.record_type == 1:
             return instance.all_points()
         elif instance.record_type in [2, 3]:
-            return instance.get_polygon()
+            return instance.all_points()
 
 
 class SpeciesDisplaySerializer(serializers.ModelSerializer):
