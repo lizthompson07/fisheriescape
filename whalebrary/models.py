@@ -126,18 +126,18 @@ class Item(models.Model):
     @property
     def lent_out_quantities(self):
         """find all category=3 (lent out) transactions"""
-        return self.transactions.filter(category=3)
+        return self.transactions.filter(category=3, return_tracker=False)
         # same as:
         # return Transaction.objects.filter(item=self, category=3)
 
     def get_oh_quantity(self, location=None):
         """find total quantity for item regardless of location"""
         if not location:
-            purchase_qty = sum([item.quantity for item in self.transactions.filter(category=1)])
+            purchase_qty = sum([item.quantity for item in self.transactions.filter(category__in=[1, 4])])
             removed_quantity = sum([item.quantity for item in self.transactions.filter(category__in=[2, 3])])
             qty = purchase_qty - removed_quantity
         else:
-            purchase_qty = sum([item.quantity for item in self.transactions.filter(category=1, location=location)])
+            purchase_qty = sum([item.quantity for item in self.transactions.filter(category__in=[1, 4], location=location)])
             removed_quantity = sum(
                 [item.quantity for item in self.transactions.filter(category__in=[2, 3], location=location)])
             qty = purchase_qty - removed_quantity
@@ -559,6 +559,8 @@ class Transaction(models.Model):
     quantity = models.FloatField(null=True, blank=True, verbose_name=_("quantity"), validators=[MinValueValidator(0)])
     category = models.ForeignKey(TransactionCategory, on_delete=models.DO_NOTHING, related_name="transactions",
                                  verbose_name=_("transaction category"))
+    # track which 'lent' transactions have been voided/returned
+    return_tracker = models.BooleanField(default=False, verbose_name=_("Voided"))
     # can use for who lent to, etc
     comments = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("comments"))
     # auditing

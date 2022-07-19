@@ -414,6 +414,7 @@ class ItemTransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
         {"name": 'item', "class": "", "width": ""},
         {"name": 'quantity', "class": "", "width": ""},
         {"name": 'category', "class": "", "width": ""},
+        {"name": 'return_tracker', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
         {"name": 'audits', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
@@ -604,13 +605,42 @@ class LocationDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView):
 
 
 def lending_return_item(request, transaction):
-    """simple function to change item status from lend to return"""
+    """simple function to create return transaction"""
+    # First get the transaction that indicates the 'lend' and toggle boolean to indicate return
     my_return = models.Transaction.objects.get(pk=transaction)
-    my_return.category_id = 4
+    my_return.return_tracker = True
     my_return.save()
+
+    # Second create a new transaction that shows the return
+    my_user = request.user
+    my_transaction = models.Transaction.objects.create(
+        item=my_return.item,
+        quantity=my_return.quantity,
+        category=TransactionCategory.objects.get(id=4),
+        location=my_return.location,
+        created_by=my_user
+    )
+    my_transaction.save()
+
     messages.success(request, "Items returned")
     return HttpResponseRedirect(reverse_lazy(
         'shared_models:close_me'))  # TODO Ideally want to have a confirm step using 'confirm_status_change.html'
+
+
+def transfer_item_to_new_location(request, item):
+    """
+    Transfer items from one location to another and create transaction records.
+    """
+    # First transaction to transfer out
+    my_item = models.Item.objects.get(pk=item)
+    my_user = request.user
+
+    out_transaction = models.Transaction.objects.create(
+        item=my_item,
+        category=TransactionCategory.objects.get(id=5),
+        created_by=my_user
+    )
+    pass
 
 
 # TODO create the location lend out function
@@ -641,6 +671,7 @@ class TransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
         {"name": 'item', "class": "", "width": ""},
         {"name": 'quantity', "class": "", "width": ""},
         {"name": 'category', "class": "", "width": ""},
+        {"name": 'return_tracker', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
         {"name": 'audits', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
@@ -661,6 +692,7 @@ class TransactionDetailView(WhalebraryAccessRequired, CommonDetailView):
         'item',
         'quantity',
         'category',
+        'return_tracker',
         'comments',
         'audits',
         'location',
@@ -753,6 +785,25 @@ class TransactionLendCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     def get_initial(self):
         return {'item': self.kwargs.get('pk'),
                 'category': TransactionCategory.objects.get(id=3),
+                'created_by': self.request.user
+                }
+
+
+class TransactionTransferCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
+    model = models.Transaction
+    form_class = forms.TransactionForm2
+    template_name = 'shared_models/generic_popout_form.html'
+    home_url_name = "whalebrary:index"
+    submit_text = "Transfer"
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Transaction record successfully created for : {my_object}"))
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+
+    def get_initial(self):
+        return {'item': self.kwargs.get('pk'),
+                'category': TransactionCategory.objects.get(id=5),
                 'created_by': self.request.user
                 }
 
