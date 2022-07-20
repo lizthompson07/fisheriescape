@@ -267,32 +267,38 @@ class StaffingAPIView(APIView):
         if not request.query_params.get("year"):
             return Response({"error": "must supply a fiscal year"}, status.HTTP_400_BAD_REQUEST)
 
-        si_data = list()
-        ids = request.query_params.get("ids").split(",")
-        py_qs = models.ProjectYear.objects.filter(id__in=ids)
-        year = request.query_params.get("year")
-        fiscal_year = shared_models.FiscalYear.objects.get(pk=year)
-        staff_instances = models.Staff.objects.filter(project_year_id__in=ids).distinct() \
+        staff_instances = models.Staff.objects \
             .select_related("user", "employee_type", "level", "funding_source", "project_year",
                             "project_year__project", "project_year__fiscal_year",
                             "project_year__project__section")
+        ids = []
+        if request.query_params.get("ids"):
+            ids = request.query_params.get("ids").split(",")
+            staff_instances = staff_instances.filter(project_year_id__in=ids).distinct()
+        py_qs = models.ProjectYear.objects.filter(id__in=ids)
+        year = request.query_params.get("year")
+        fiscal_year = shared_models.FiscalYear.objects.get(pk=year)
 
         staff_df = pd.DataFrame.from_records(staff_instances.values("funding_source__funding_source_type", "level_id__name",
                                                                     "employee_type__name", "duration_weeks",
                                                                     "project_year__status", "user"))
-        # convert choice to string
-        staff_df["funding_source"] = staff_df["funding_source__funding_source_type"].map(dict(
-            models.FundingSource.funding_source_type_choices)).apply(''.join)
 
-        staff_df["draft"] = np.where(staff_df["project_year__status"] == 1, staff_df["duration_weeks"], np.nan)
-        staff_df["submitted_unapproved"] = np.where(staff_df["project_year__status"].isin([2, 3, 6]),
-                                                    staff_df["duration_weeks"], np.nan)
-        staff_df["approved"] = np.where(staff_df["project_year__status"] == 4, staff_df["duration_weeks"], np.nan)
+        type_summary = []
+        level_summary = []
+        funding_summary = []
+        if len(staff_df):
+            # convert choice to string
+            staff_df["funding_source"] = staff_df["funding_source__funding_source_type"].map(dict(
+                models.FundingSource.funding_source_type_choices)).apply(''.join)
 
-        type_summary = get_staff_summary(staff_df, "employee_type__name")
-        level_summary = get_staff_summary(staff_df, "level_id__name")
-        funding_summary = get_staff_summary(staff_df, "funding_source")
-        user_df = pd.DataFrame(get_staff_summary(staff_df, "user", na_value="TDB"))
+            staff_df["draft"] = np.where(staff_df["project_year__status"] == 1, staff_df["duration_weeks"], np.nan)
+            staff_df["submitted_unapproved"] = np.where(staff_df["project_year__status"].isin([2, 3, 6]),
+                                                        staff_df["duration_weeks"], np.nan)
+            staff_df["approved"] = np.where(staff_df["project_year__status"] == 4, staff_df["duration_weeks"], np.nan)
+
+            type_summary = get_staff_summary(staff_df, "employee_type__name")
+            level_summary = get_staff_summary(staff_df, "level_id__name")
+            funding_summary = get_staff_summary(staff_df, "funding_source")
 
         # now we need a user list for any users in the above list
         users = User.objects.filter(staff_instances2__project_year_id__in=ids).distinct().order_by("last_name") \
