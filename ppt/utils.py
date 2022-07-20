@@ -360,6 +360,9 @@ def financial_project_summary_data(project):
             my_dict["salary"] = 0
             my_dict["om"] = 0
             my_dict["capital"] = 0
+            my_dict["allocated_salary"] = 0
+            my_dict["allocated_om"] = 0
+            my_dict["allocated_capital"] = 0
 
             # first calc for staff
             for staff in models.Staff.objects.filter(funding_source=fs, project_year__project=project):
@@ -379,6 +382,13 @@ def financial_project_summary_data(project):
                 my_dict["capital"] += nz(cost.amount, 0)
 
             my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+
+            # allocated funds:
+            for review in models.Review.objects.filter(project_year__project=project):
+                my_dict["allocated_salary"] += review.allocated_salary
+                my_dict["allocated_om"] += review.allocated_budget
+                my_dict["allocated_capital"] += review.allocated_capital
+            my_dict["alloated_total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
 
             my_list.append(my_dict)
 
@@ -401,6 +411,9 @@ def multiple_financial_project_year_summary_data(project_years):
         my_dict["salary"] = 0
         my_dict["om"] = 0
         my_dict["capital"] = 0
+        my_dict["allocated_salary"] = 0
+        my_dict["allocated_om"] = 0
+        my_dict["allocated_capital"] = 0
 
         for py in project_years:
             # first calc for staff
@@ -421,6 +434,13 @@ def multiple_financial_project_year_summary_data(project_years):
                 my_dict["capital"] += nz(cost.amount, 0)
 
             my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+
+            # allocated funds:
+            if hasattr(py, "review"):
+                my_dict["allocated_salary"] = py.review.allocated_salary
+                my_dict["allocated_om"] = py.review.allocated_budget
+                my_dict["allocated_capital"] = py.review.allocated_capital
+            my_dict["allocated_total"] = my_dict["allocated_salary"] + my_dict["allocated_om"] + my_dict["allocated_capital"]
 
         my_list.append(my_dict)
 
