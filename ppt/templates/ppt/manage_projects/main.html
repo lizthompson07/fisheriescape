@@ -96,7 +96,12 @@
     </div>
 
     <modal v-if="showReviewModal" @close="closeModal" :project_year="projectYear2Review" :approval_form="approvalModal"></modal>
-
+    <salary-allocation-modal v-if="showModal.salary_allocation" @close="closeModal" :year="projectYear2Review"
+                        :my_object="objectToEdit"></salary-allocation-modal>
+    <om-allocation-modal v-if="showModal.om_allocation" @close="closeModal" :year="projectYear2Review"
+                        :my_object="objectToEdit"></om-allocation-modal>
+    <capital-allocation-modal v-if="showModal.capital_allocation" @close="closeModal" :year="projectYear2Review"
+                        :my_object="objectToEdit"></capital-allocation-modal>
   </div>
 
 

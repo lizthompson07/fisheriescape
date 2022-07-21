@@ -2,6 +2,9 @@
 
 {% include "ppt/manage_projects/components/staff_projects_list.html" %}
 {% include "ppt/manage_projects/components/review_modal.html" %}
+{% include "ppt/project_detail/components/salary_allocation_modal.html" %}
+{% include "ppt/project_detail/components/om_allocation_modal.html" %}
+{% include "ppt/project_detail/components/capital_allocation_modal.html" %}
 
 <script type="application/javascript">
 Vue.component('v-select', VueSelect.VueSelect);
@@ -82,8 +85,15 @@ var app = new Vue({
 
     // modal
     projectYear2Review: {},
+    objectToEdit: {},
     showReviewModal: false,
     approvalModal: false,
+    showModal: {
+      salary_allocation: false,
+      om_allocation: false,
+      capital_allocation: false,
+    },
+
   },
   methods: {
     getCurrentUser() {
@@ -395,8 +405,15 @@ var app = new Vue({
         this.projectYear2Review.review.approval_email_update = true
       }
     },
-
+    openModal(obj, which) {
+      projectYear2Review = obj;
+      this.objectToEdit = obj;
+      this.showModal[which] = true;
+    },
     closeModal(updatedProjectYear) {
+      for (const showModalKey in this.showModal) {
+        this.showModal[showModalKey] = false;
+      }
       if (updatedProjectYear) {
 
         let endpoint = `/api/ppt/project-years/${updatedProjectYear.id}/`;

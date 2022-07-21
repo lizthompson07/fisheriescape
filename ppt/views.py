@@ -137,6 +137,9 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         context["activity_types"] = [dict(label=f"{item}", value=item.id) for item in models.ActivityType.objects.all()]
         context["review_form"] = forms.ReviewForm
         context["approval_form"] = forms.ApprovalForm
+        context["capital_allocation_form"] = forms.CapitalAllocationForm
+        context["salary_allocation_form"] = forms.SalaryAllocationForm
+        context["om_allocation_form"] = forms.OMAllocationForm
         context["review_score_rubric"] = json.dumps(get_review_score_rubric())
         context["short_fie"] = json.dumps(get_review_score_rubric())
         context["short_field_list"] = [

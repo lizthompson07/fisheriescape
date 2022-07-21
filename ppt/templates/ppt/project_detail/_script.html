@@ -340,14 +340,6 @@ var app = new Vue({
           })
     },
 
-    openSalaryAllocationModal(salaryAllocation) {
-      if (!salaryAllocation) {
-        this.showNewSalaryAllocationModal = true;
-      } else {
-        this.salaryAllocationToEdit = salaryAllocation;
-        this.showOldSalaryAllocationModal = true;
-      }
-    },
     // O&M Allocations
     getOMAllocations(yearId) {
       this.om_allocation_loading = true;
@@ -357,15 +349,6 @@ var app = new Vue({
             this.om_allocation_loading = false;
             this.om_allocations = response.results;
           })
-    },
-      
-    openOMAllocationModal(omAllocation) {
-      if (!omAllocation) {
-        this.showNewOMAllocationModal = true;
-      } else {
-        this.omAllocationToEdit = omAllocation;
-        this.showOldOMAllocationModal = true;
-      }
     },
 
     // Capital Allocations
@@ -379,15 +362,6 @@ var app = new Vue({
           })
     },
 
-    openCapitalAllocationModal(capitalAllocation) {
-      if (!capitalAllocation) {
-        this.showNewCapitalAllocationModal = true;
-      } else {
-        this.capitalAllocationToEdit = capitalAllocation;
-        this.showOldCapitalAllocationModal = true;
-      }
-    },
-      
     // DMAs
     getDMAs() {
       this.dma_loading = true;

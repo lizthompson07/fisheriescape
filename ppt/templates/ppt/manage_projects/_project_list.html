@@ -114,21 +114,6 @@
           <span :class="p.status_class + ' p-1'" v-html="p.status_display"></span>
         </td>
 
-        <td v-if="showColumnAllocation">
-          <span v-if="p.review">${p.review.allocated_budget | nz(0) | currencyFormat | zero2NullMark}</span>
-          <span v-else>---</span>
-        </td>
-
-        <td v-if="showColumnSalaryAllocation">
-          <span v-if="p.review">${p.review.allocated_salary | nz(0) | currencyFormat | zero2NullMark}</span>
-          <span v-else>---</span>
-        </td>
-
-        <td v-if="showColumnCapitalAllocation">
-          <span v-if="p.review">${p.review.allocated_capital | nz(0) | currencyFormat | zero2NullMark}</span>
-          <span v-else>---</span>
-        </td>
-
         <td v-if="showColumnScore">
           <span v-if="p.review">${p.review_score_percentage}</span>
           <span v-else>---</span>
@@ -147,6 +132,22 @@
         <td v-if="showColumnCapital">
           <span>${p.capital_costs|currencyFormat}</span>
         </td>
+
+         <td v-if="showColumnAllocation">
+          <span v-if="p.review">${p.review.allocated_budget | nz(0) | currencyFormat | zero2NullMark}</span>
+          <span v-else>---</span>
+        </td>
+
+        <td v-if="showColumnSalaryAllocation">
+          <span v-if="p.review">${p.review.allocated_salary | nz(0) | currencyFormat | zero2NullMark}</span>
+          <span v-else>---</span>
+        </td>
+
+        <td v-if="showColumnCapitalAllocation">
+          <span v-if="p.review">${p.review.allocated_capital | nz(0) | currencyFormat | zero2NullMark}</span>
+          <span v-else>---</span>
+        </td>
+
         <td v-if="isAdminOrMgmt && showColumnHidden">
           <span v-if="p.project.is_hidden" class="red-font">{% trans "Yes" %}</span>
           <span v-else>{% trans "No" %}</span>
@@ -162,7 +163,16 @@
           <button v-else-if="p.submitted && p.status != 4" @click="submitProjectYear(p, 'unsubmit')" class="px-1 {{ btn_class }} btn-danger">
             {% trans "Un-submit" %}
           </button>
+          <div v-else>
+            <button @click="openModal(p, 'salary_allocation')" class="px-1 {{ btn_class }} btn-success">
+              {% trans "Add Salary" %}
+            </button>
+            <button @click="openModal(p, 'om_allocation')" class="px-1 {{ btn_class }} btn-success">
+              {% trans "Add O&M" %}
+            </button>
+          </div>
         </td>
+
 
         <td class="w90">
           <button v-if="p.status != 4 && p.review && p.review.id" @click="openReviewModal(p)"
@@ -171,6 +181,9 @@
           </button>
           <button v-else-if="p.status != 4" @click="openReviewModal(p)" class="px-1 {{ btn_class }} btn-info">
             {% trans "Start review" %}
+          </button>
+          <button v-else @click="openModal(p, 'capital_allocation')" class="px-1 {{ btn_class }} btn-success">
+            {% trans "Add Capital" %}
           </button>
         </td>
 
