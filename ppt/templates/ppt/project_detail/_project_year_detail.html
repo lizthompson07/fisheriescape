@@ -26,6 +26,19 @@
     <span class="mdi mdi-content-copy text-white"></span>
     {% trans "Clone" %}
   </button>
+  <button v-if="projectYear.submitted && projectYear.status != 4"
+          class="btn btn-sm btn-danger py-0 px-1 no-print"
+          @click="submitProjectYear(projectYear, 'unsubmit')"
+        >
+    {% trans "Click to un-submit" %}
+  </button>
+  <button v-else-if="!projectYear.submitted"
+          class="btn btn-sm btn-success py-0 px-1 no-print"
+          @click="submitProjectYear(projectYear, 'submit')"
+        >
+    {% trans "Click to submit" %}
+  </button>
+
 </div>
 
 {# OVERVIEW #}
