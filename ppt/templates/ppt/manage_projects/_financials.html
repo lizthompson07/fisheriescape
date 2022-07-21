@@ -26,6 +26,9 @@
         <th class="w150">
           {% trans "Funding source" %}
         </th>
+        <th class="w150">
+          {% trans "Number of project years" %}
+        </th>
         <th v-if="showColumnSalary" class="w150">
           {% trans "Salary (excluding FTE)" %}
         </th>
@@ -55,6 +58,7 @@
       <tr v-for="(fs, index) in financials" :class="fs.type.toLowerCase()">
         <td>${fs.type}</td>
         <td>${fs.name}</td>
+        <td>${fs.py_count}</td>
         <td v-if="showColumnSalary">${fs.salary |currencyFormat|zero2NullMark}</td>
         <td v-if="showColumnOM">${fs.om|currencyFormat|zero2NullMark}</td>
         <td v-if="showColumnCapital">${fs.capital|currencyFormat|zero2NullMark}</td>
@@ -67,6 +71,7 @@
 
       <tr>
         <td class="font-weight-bold">{% trans "TOTAL" %}</td>
+        <td class="font-weight-bold">---</td>
         <td class="font-weight-bold">---</td>
         <td v-if="showColumnSalary" class="font-weight-bold">${financial_totals.salary |currencyFormat|zero2NullMark}</td>
         <td v-if="showColumnOM" class="font-weight-bold">${financial_totals.om|currencyFormat|zero2NullMark}</td>

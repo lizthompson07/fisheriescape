@@ -368,46 +368,48 @@ class StaffViewSet(ModelViewSet):
             )
 
 
-class OMCostViewSet(ModelViewSet):
+class CostAllocationViewSet(ModelViewSet):
+    permission_classes = [permissions.CanModifyOrReadOnly]
+    pagination_class = pagination.StandardResultsSetPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ProjectYearChildFilter
+
+    def perform_create(self, serializer):
+        obj = serializer.save()
+        obj.project_year.update_modified_by(self.request.user)
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        instance.project_year.update_modified_by(self.request.user)
+
+    def perform_update(self, serializer):
+        obj = serializer.save()
+        obj.project_year.update_modified_by(self.request.user)
+
+
+class OMCostViewSet(CostAllocationViewSet):
     serializer_class = serializers.OMCostSerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
     queryset = models.OMCost.objects.all()
-    pagination_class = pagination.StandardResultsSetPagination
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = ProjectYearChildFilter
-
-    def perform_create(self, serializer):
-        obj = serializer.save()
-        obj.project_year.update_modified_by(self.request.user)
-
-    def perform_destroy(self, instance):
-        super().perform_destroy(instance)
-        instance.project_year.update_modified_by(self.request.user)
-
-    def perform_update(self, serializer):
-        obj = serializer.save()
-        obj.project_year.update_modified_by(self.request.user)
 
 
-class CapitalCostViewSet(ModelViewSet):
+class CapitalCostViewSet(CostAllocationViewSet):
     serializer_class = serializers.CapitalCostSerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
     queryset = models.CapitalCost.objects.all()
-    pagination_class = pagination.StandardResultsSetPagination
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = ProjectYearChildFilter
 
-    def perform_create(self, serializer):
-        obj = serializer.save()
-        obj.project_year.update_modified_by(self.request.user)
 
-    def perform_destroy(self, instance):
-        super().perform_destroy(instance)
-        instance.project_year.update_modified_by(self.request.user)
+class SalaryAllocationViewSet(CostAllocationViewSet):
+    serializer_class = serializers.SalaryAllocationSerializer
+    queryset = models.SalaryAllocation.objects.all()
 
-    def perform_update(self, serializer):
-        obj = serializer.save()
-        obj.project_year.update_modified_by(self.request.user)
+
+class OMAllocationViewSet(CostAllocationViewSet):
+    serializer_class = serializers.OMAllocationSerializer
+    queryset = models.OMAllocation.objects.all()
+
+
+class CapitalAllocationViewSet(CostAllocationViewSet):
+    serializer_class = serializers.CapitalAllocationSerializer
+    queryset = models.CapitalAllocation.objects.all()
 
 
 class ActivityViewSet(ModelViewSet):

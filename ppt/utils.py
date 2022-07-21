@@ -408,6 +408,7 @@ def multiple_financial_project_year_summary_data(project_years):
         my_dict = dict()
         my_dict["type"] = fs.get_funding_source_type_display()
         my_dict["name"] = str(fs)
+        my_dict["py_count"] = 0
         my_dict["salary"] = 0
         my_dict["om"] = 0
         my_dict["capital"] = 0
@@ -425,6 +426,7 @@ def multiple_financial_project_year_summary_data(project_years):
                     elif staff.employee_type.cost_type == 2:
                         my_dict["om"] += nz(staff.amount, 0)
 
+
             # O&M costs
             for cost in models.OMCost.objects.filter(funding_source=fs, project_year=py):
                 my_dict["om"] += nz(cost.amount, 0)
@@ -435,11 +437,13 @@ def multiple_financial_project_year_summary_data(project_years):
 
             my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
 
-            # allocated funds:
-            if hasattr(py, "review"):
-                my_dict["allocated_salary"] = py.review.allocated_salary
-                my_dict["allocated_om"] = py.review.allocated_budget
-                my_dict["allocated_capital"] = py.review.allocated_capital
+            # allocated funds and count pys if py is part of funding group
+            if fs in py.get_funding_sources():
+                my_dict["py_count"] += 1
+                if hasattr(py, "review"):
+                    my_dict["allocated_salary"] += py.review.allocated_salary
+                    my_dict["allocated_om"] += py.review.allocated_budget
+                    my_dict["allocated_capital"] += py.review.allocated_capital
             my_dict["allocated_total"] = my_dict["allocated_salary"] + my_dict["allocated_om"] + my_dict["allocated_capital"]
 
         my_list.append(my_dict)
@@ -623,6 +627,15 @@ def get_om_field_list():
 def get_capital_field_list():
     my_list = [
         'category',
+        'description',
+        'funding_source',
+        'amount',
+    ]
+    return my_list
+
+
+def get_allocation_field_list():
+    my_list = [
         'description',
         'funding_source',
         'amount',

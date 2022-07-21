@@ -2,6 +2,9 @@
 {% include "ppt/project_detail/components/staff_modal.html" %}
 {% include "ppt/project_detail/components/om_cost_modal.html" %}
 {% include "ppt/project_detail/components/capital_cost_modal.html" %}
+{% include "ppt/project_detail/components/salary_allocation_modal.html" %}
+{% include "ppt/project_detail/components/om_allocation_modal.html" %}
+{% include "ppt/project_detail/components/capital_allocation_modal.html" %}
 {% include "ppt/project_detail/components/activity_modal.html" %}
 {% include "ppt/project_detail/components/collaboration_modal.html" %}
 {% include "ppt/project_detail/components/file_modal.html" %}
@@ -42,7 +45,10 @@ var app = new Vue({
     showModal: {
       staff: false,
       om_cost: false,
-      capital_cost: false,
+      capital_cost: false, 
+      salary_allocation: false,
+      om_allocation: false,
+      capital_allocation: false,
       activity: false,
       collaboration: false,
       status_report: false,
@@ -72,6 +78,27 @@ var app = new Vue({
     capitalCostToEdit: {},
     showNewCapitalCostModal: false,
     showOldCapitalCostModal: false,
+
+    // salary allocations
+    salary_allocation_loading: false,
+    salary_allocations: [], 
+    salaryAllocationToEdit: {},
+    showNewSalaryAllocationModal: false,
+    showOldSalaryAllocationModal: false,
+      
+    // om allocations
+    om_allocation_loading: false,
+    om_allocations: [], 
+    omAllocationToEdit: {},
+    showNewOMAllocationModal: false,
+    showOldOMAllocationModal: false,
+      
+    // capital allocations
+    capital_allocation_loading: false,
+    capital_allocations: [], 
+    capitalAllocationToEdit: {},
+    showNewCapitalAllocationModal: false,
+    showOldCapitalAllocationModal: false,
 
     // activities
     activity_loading: false,
@@ -142,6 +169,9 @@ var app = new Vue({
             this.getStaff(yearId)
             this.getOMCosts(yearId)
             this.getCapitalCosts(yearId)
+            this.getSalaryAllocations(yearId)
+            this.getOMAllocations(yearId)
+            this.getCapitalAllocations(yearId)
             this.getActivities(yearId)
             this.getCollaborations(yearId)
             this.getStatusReports(yearId)
@@ -298,7 +328,66 @@ var app = new Vue({
         this.showOldCapitalCostModal = true;
       }
     },
+      
+    // Salary Allocations
+    getSalaryAllocations(yearId) {
+      this.salary_allocation_loading = true;
+      let endpoint = `/api/ppt/salary-allocations/?project_year=${yearId}&page_size=5000`;
+      apiService(endpoint)
+          .then(response => {
+            this.salary_allocation_loading = false;
+            this.salary_allocations = response.results;
+          })
+    },
 
+    openSalaryAllocationModal(salaryAllocation) {
+      if (!salaryAllocation) {
+        this.showNewSalaryAllocationModal = true;
+      } else {
+        this.salaryAllocationToEdit = salaryAllocation;
+        this.showOldSalaryAllocationModal = true;
+      }
+    },
+    // O&M Allocations
+    getOMAllocations(yearId) {
+      this.om_allocation_loading = true;
+      let endpoint = `/api/ppt/om-allocations/?project_year=${yearId}&page_size=5000`;
+      apiService(endpoint)
+          .then(response => {
+            this.om_allocation_loading = false;
+            this.om_allocations = response.results;
+          })
+    },
+      
+    openOMAllocationModal(omAllocation) {
+      if (!omAllocation) {
+        this.showNewOMAllocationModal = true;
+      } else {
+        this.omAllocationToEdit = omAllocation;
+        this.showOldOMAllocationModal = true;
+      }
+    },
+
+    // Capital Allocations
+    getCapitalAllocations(yearId) {
+      this.capital_allocation_loading = true;
+      let endpoint = `/api/ppt/capital-allocations/?project_year=${yearId}&page_size=5000`;
+      apiService(endpoint)
+          .then(response => {
+            this.capital_allocation_loading = false;
+            this.capital_allocations = response.results;
+          })
+    },
+
+    openCapitalAllocationModal(capitalAllocation) {
+      if (!capitalAllocation) {
+        this.showNewCapitalAllocationModal = true;
+      } else {
+        this.capitalAllocationToEdit = capitalAllocation;
+        this.showOldCapitalAllocationModal = true;
+      }
+    },
+      
     // DMAs
     getDMAs() {
       this.dma_loading = true;

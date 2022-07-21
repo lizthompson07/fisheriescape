@@ -40,8 +40,13 @@
 
     <staff-modal v-if="showModal.staff" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></staff-modal>
     <om-cost-modal v-if="showModal.om_cost" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></om-cost-modal>
-    <capital-cost-modal v-if="showModal.capital_cost" @close="closeModals(projectYear)" :year="projectYear"
-                        :my_object="objectToEdit"></capital-cost-modal>
+    <capital-cost-modal v-if="showModal.capital_cost" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></capital-cost-modal>
+    <salary-allocation-modal v-if="showModal.salary_allocation" @close="closeModals(projectYear)" :year="projectYear"
+                        :my_object="objectToEdit"></salary-allocation-modal>
+    <om-allocation-modal v-if="showModal.om_allocation" @close="closeModals(projectYear)" :year="projectYear"
+                        :my_object="objectToEdit"></om-allocation-modal>
+    <capital-allocation-modal v-if="showModal.capital_allocation" @close="closeModals(projectYear)" :year="projectYear"
+                        :my_object="objectToEdit"></capital-allocation-modal>
     <activity-modal v-if="showModal.activity" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></activity-modal>
     <collaboration-modal v-if="showModal.collaboration" @close="closeModals(projectYear)" :year="projectYear"
                          :my_object="objectToEdit"></collaboration-modal>

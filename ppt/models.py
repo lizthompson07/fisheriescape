@@ -367,6 +367,18 @@ class Project(models.Model):
             for item in year.capitalcost_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
                     my_list.append(item.funding_source)
+
+            for item in year.salaryallocation_set.all():
+                if item.funding_source and item.amount and item.amount > 0:
+                    my_list.append(item.funding_source)
+
+            for item in year.omallocation_set.all():
+                if item.funding_source and item.amount and item.amount > 0:
+                    my_list.append(item.funding_source)
+
+            for item in year.capitalallocation_set.all():
+                if item.funding_source and item.amount and item.amount > 0:
+                    my_list.append(item.funding_source)
             return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
 
     @property
@@ -533,6 +545,20 @@ class ProjectYear(models.Model):
         return my_list
 
     @property
+    def allocations(self):
+        om_qry = self.omallocation_set
+        capital_qry = self.capitalallocation_set
+        staff_qry = self.salaryallocation_set
+        my_list = []
+        if om_qry.exists():
+            my_list.extend([c for c in om_qry.all()])
+        if capital_qry.exists():
+            my_list.extend([c for c in capital_qry.all()])
+        if staff_qry.exists():
+            my_list.extend([c for c in staff_qry.all()])
+        return my_list
+
+    @property
     def om_costs(self):
         return nz(self.omcost_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
 
@@ -543,6 +569,18 @@ class ProjectYear(models.Model):
     @property
     def capital_costs(self):
         return nz(self.capitalcost_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
+
+    @property
+    def om_allocations(self):
+        return nz(self.omallocation_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
+
+    @property
+    def salary_allocations(self):
+        return nz(self.salaryallocation_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
+
+    @property
+    def capital_allocations(self):
+        return nz(self.capitalallocations_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
 
     def add_all_om_costs(self):
         for obj in OMCategory.objects.all():
@@ -614,6 +652,18 @@ class ProjectYear(models.Model):
         for item in self.capitalcost_set.all():
             if item.funding_source and item.amount and item.amount > 0:
                 my_list.append(item.funding_source)
+
+        for item in self.salaryallocation_set.all():
+            if item.funding_source and item.amount and item.amount > 0:
+                my_list.append(item.funding_source)
+
+        for item in self.omallocation_set.all():
+            if item.funding_source and item.amount and item.amount > 0:
+                my_list.append(item.funding_source)
+
+        for item in self.capitalallocation_set.all():
+            if item.funding_source and item.amount and item.amount > 0:
+                my_list.append(item.funding_source)
         return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
 
     @property
@@ -675,12 +725,45 @@ class GenericCost(models.Model):
     amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        if not self.amount: self.amount = 0
-
+        if not self.amount:
+            self.amount = 0
         super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
+
+
+class OMAllocation(GenericCost):
+    # not actually a cost, but uses same fields
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+
+    def __str__(self):
+        return f"{self.funding_source}"
+
+    class Meta:
+        ordering = ['funding_source', ]
+
+
+class CapitalAllocation(GenericCost):
+    # not actually a cost, but uses same fields
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+
+    def __str__(self):
+        return f"{self.funding_source}"
+
+    class Meta:
+        ordering = ['funding_source', ]
+
+
+class SalaryAllocation(GenericCost):
+    # not actually a cost, but uses same fields
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+
+    def __str__(self):
+        return f"{self.funding_source}"
+
+    class Meta:
+        ordering = ['funding_source', ]
 
 
 class EmployeeType(SimpleLookup):

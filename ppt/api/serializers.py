@@ -419,6 +419,35 @@ class CapitalCostSerializer(serializers.ModelSerializer):
         return instance.project_year_id
 
 
+class AllocationSerializer(serializers.ModelSerializer):
+    funding_source_display = serializers.SerializerMethodField()
+    project_year_id = serializers.SerializerMethodField()
+
+    def get_funding_source_display(self, instance):
+        return str(instance.funding_source)
+
+    def get_project_year_id(self, instance):
+        return instance.project_year_id
+
+
+class SalaryAllocationSerializer(AllocationSerializer):
+    class Meta:
+        model = models.SalaryAllocation
+        fields = "__all__"
+
+
+class OMAllocationSerializer(AllocationSerializer):
+    class Meta:
+        model = models.OMAllocation
+        fields = "__all__"
+
+
+class CapitalAllocationSerializer(AllocationSerializer):
+    class Meta:
+        model = models.CapitalAllocation
+        fields = "__all__"
+
+
 class ActivitySerializer(serializers.ModelSerializer):
     target_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
     target_start_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
