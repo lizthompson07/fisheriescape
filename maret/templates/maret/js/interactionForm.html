@@ -134,11 +134,13 @@
         let region_array = $("#id_other_dfo_regions :selected").map(function(i, el) {
             return $(el).text();
         }).get();
-        if (region_array.includes("National")) {
+        if (region_array.includes("National") || ($("#id_lead_region :selected").text() == "National")) {
             $('#dfo_national_sectors_div').show();
         } else {
             $('#dfo_national_sectors_div').hide();
         }
+
+
     }
 
     $("#id_interaction_type").change(function () {
@@ -148,6 +150,10 @@
     });
 
     $("#id_other_dfo_regions").change(function () {
+            toggleNHQSectors();
+    });
+
+    $("#id_lead_region").change(function () {
             toggleNHQSectors();
     });
 
