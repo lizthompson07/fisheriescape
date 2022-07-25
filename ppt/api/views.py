@@ -111,26 +111,6 @@ class FTEBreakdownAPIView(APIView):
             return Response(response_dict, status.HTTP_200_OK)
 
 
-class StaffingAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        # if there are no project year ids, return help text:
-        if not request.query_params.get("ids"):
-            return Response({"error": "must project year ids: url/?ids=1,2,3"}, status.HTTP_400_BAD_REQUEST)
-
-        ids = request.query_params.get("ids").split(",")
-        staff_instances_qs = models.Staff.objects.filter(project_year_id__in=ids).distinct() \
-            .select_related("user", "employee_type", "level", "funding_source", "project_year",
-                            "project_year__project", "project_year__fiscal_year",
-                            "project_year__project__section")
-        staff_instances = serializers.StaffSerializer(staff_instances_qs, many=True).data
-        response_dict = {
-            'results': staff_instances
-        }
-        return Response(response_dict, status.HTTP_200_OK)
-
-
 class FinancialsAPIView(APIView):
     permissions = [IsAuthenticated]
 
