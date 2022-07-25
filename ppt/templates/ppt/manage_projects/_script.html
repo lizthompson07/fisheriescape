@@ -31,6 +31,7 @@ var app = new Vue({
 
     currentSort: 'name',
     currentSortDir: 'asc',
+    currentSortTable: "",
 
     projects_loading: true,
     staff_loading: true,
@@ -367,13 +368,14 @@ var app = new Vue({
     comingSoon() {
       alert("this feature is coming soon!")
     },
-    sort(s) {
+    sort(s, table="sortedProjectYears") {
       // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
       //if s == current sort, reverse
       if (s === this.currentSort) {
         this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
       }
       this.currentSort = s;
+      this.currentSortTable = table;
     },
     clearProjectYears() {
       this.projectYears = []
@@ -485,25 +487,45 @@ var app = new Vue({
   computed: {
 
     sortedProjectYears() {
-      return this.projectYears.sort((a, b) => {
-        let modifier = 1;
-        if (this.currentSortDir === 'desc') modifier = -1;
+      if (this.currentSortTable !== "sortedProjectYears"){
+          return this.projectYears;
+      }
+      else {
+          return this.projectYears.sort((a, b) => {
+              let modifier = 1;
+              if (this.currentSortDir === 'desc') modifier = -1;
 
-        if (this.currentSort && this.currentSort.search("fiscal") > -1) {
-          if (a["fiscal_year"] < b["fiscal_year"]) return -1 * modifier;
-          if (a["fiscal_year"] > b["fiscal_year"]) return 1 * modifier;
-        } else if (this.currentSort === "id") {
-          if (a["project"]["id"] < b["project"]["id"]) return -1 * modifier;
-          if (a["project"]["id"] > b["project"]["id"]) return 1 * modifier;
-        } else if (this.projectYears[0][this.currentSort] == null) {
-          if (a["project"][this.currentSort] < b["project"][this.currentSort]) return -1 * modifier;
-          if (a["project"][this.currentSort] > b["project"][this.currentSort]) return 1 * modifier;
-        } else {
-          if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
-          if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
-        }
-        return 0;
-      });
+              if (this.currentSort && this.currentSort.search("fiscal") > -1) {
+                  if (a["fiscal_year"] < b["fiscal_year"]) return -1 * modifier;
+                  if (a["fiscal_year"] > b["fiscal_year"]) return 1 * modifier;
+              } else if (this.currentSort === "id") {
+                  if (a["project"]["id"] < b["project"]["id"]) return -1 * modifier;
+                  if (a["project"]["id"] > b["project"]["id"]) return 1 * modifier;
+              } else if (this.projectYears[0][this.currentSort] == null) {
+                  if (a["project"][this.currentSort] < b["project"][this.currentSort]) return -1 * modifier;
+                  if (a["project"][this.currentSort] > b["project"][this.currentSort]) return 1 * modifier;
+              } else {
+                  if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+                  if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+              }
+              return 0;
+          });
+      }
+    },
+
+    sorted_staff_level_summary() {
+              if (this.currentSortTable !== "sorted_staff_level_summary"){
+          return this.staff_level_summary;
+      }
+      else {
+          return this.staff_level_summary.sort((a, b) => {
+              let modifier = 1;
+              if (this.currentSortDir === 'desc') modifier = -1;
+              if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+              if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+              return 0;
+          });
+      }
     },
 
     financial_totals() {
