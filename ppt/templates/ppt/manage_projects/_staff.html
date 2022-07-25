@@ -1,5 +1,4 @@
 {% load i18n %}
-
 <div v-if="showStaffList" class="mt-5">
 
   <div v-if="staff_loading" class="loading mb-3 mt-3 text-center mt-5">
@@ -107,7 +106,7 @@
       </h4>
     </div>
 
-    <table class="table table-sm table-bordered" style="width: auto">
+    <table id="staffing-details" class="table table-sm table-bordered" style="width: auto">
       <thead>
       <tr>
         <th rowspan="2">{% trans "Section" %}</th>
@@ -165,3 +164,4 @@
     </table>
   </div>
 </div>
+

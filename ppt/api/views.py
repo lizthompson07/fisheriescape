@@ -313,7 +313,7 @@ class StaffingAPIView(APIView):
             my_dict = get_user_fte_breakdown(u, fiscal_year_id=year, staff_instance_qs=user_si,
                                              fiscal_year=fiscal_year, filtered_si_qs=filtered_si)
 
-            my_dict["staff_instances"] = serializers.StaffSerializer(staff_instances, many=True).data
+            my_dict["staff_instances"] = serializers.StaffSerializer(user_si, many=True).data
             my_dict["filtered_staff_instances"] = serializers.StaffSerializer(filtered_si, many=True).data
             data.append(my_dict)
         # need to add on the empty positions:
@@ -324,7 +324,7 @@ class StaffingAPIView(APIView):
             approved_weeks = si.duration_weeks if si.project_year.status == 4 else 0
             my_dict = {
                 "name": "---",
-                "employ_type": si.employee_type.name,
+                "employee_type": si.employee_type.name,
                 "level": si.level.name,
                 "funding": si.funding_source.name,
                 "section": "",
@@ -335,8 +335,8 @@ class StaffingAPIView(APIView):
                 "filtered_draft": draft_weeks,
                 "filtered_submitted_unapproved": submitted_weeks,
                 "filtered_approved": approved_weeks,
-                "staff_instances": serializers.StaffSerializer(si).data,
-                "filtered_staff_instances": serializers.StaffSerializer(si).data,
+                "staff_instances": serializers.StaffSerializer([si], many=True).data,
+                "filtered_staff_instances": serializers.StaffSerializer([si], many=True).data,
             }
             data.append(my_dict)
 
