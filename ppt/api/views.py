@@ -305,16 +305,39 @@ class StaffingAPIView(APIView):
             .select_related("profile", "profile__section")
         data = []
         for u in users:
-            staff_instances = models.Staff.objects.filter(user=u, project_year__fiscal_year_id=year).distinct() \
+            user_si = models.Staff.objects.filter(user=u, project_year__fiscal_year_id=year).distinct() \
                 .select_related("user", "employee_type", "level", "funding_source", "project_year",
                                 "project_year__project", "project_year__fiscal_year",
                                 "project_year__project__section")
-            filtered_si = staff_instances.filter(project_year__in=py_qs).distinct()
-            my_dict = get_user_fte_breakdown(u, fiscal_year_id=year, staff_instance_qs=staff_instances,
+            filtered_si = user_si.filter(project_year__in=py_qs).distinct()
+            my_dict = get_user_fte_breakdown(u, fiscal_year_id=year, staff_instance_qs=user_si,
                                              fiscal_year=fiscal_year, filtered_si_qs=filtered_si)
 
             my_dict["staff_instances"] = serializers.StaffSerializer(staff_instances, many=True).data
             my_dict["filtered_staff_instances"] = serializers.StaffSerializer(filtered_si, many=True).data
+            data.append(my_dict)
+        # need to add on the empty positions:
+        empty_si = staff_instances.filter(user__isnull=True)
+        for si in empty_si:
+            draft_weeks = si.duration_weeks if si.project_year.status == 1 else 0
+            submitted_weeks = si.duration_weeks if si.project_year.status in [2, 3, 6] else 0
+            approved_weeks = si.duration_weeks if si.project_year.status == 4 else 0
+            my_dict = {
+                "name": "---",
+                "employ_type": si.employee_type.name,
+                "level": si.level.name,
+                "funding": si.funding_source.name,
+                "section": "",
+                "fiscal_year": year,
+                "draft": draft_weeks,
+                "submitted_unapproved": submitted_weeks,
+                "approved": approved_weeks,
+                "filtered_draft": draft_weeks,
+                "filtered_submitted_unapproved": submitted_weeks,
+                "filtered_approved": approved_weeks,
+                "staff_instances": serializers.StaffSerializer(si).data,
+                "filtered_staff_instances": serializers.StaffSerializer(si).data,
+            }
             data.append(my_dict)
 
         response_dict = {
