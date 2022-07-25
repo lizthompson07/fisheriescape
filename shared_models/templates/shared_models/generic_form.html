@@ -19,7 +19,11 @@
         {% for field in form %}
           {% block form_field %}
             <div id="{{ field.name }}_div">
-              {% bootstrap_field field placeholder="" %}
+              {% if field.field.required %}
+                {% bootstrap_field field placeholder="" label_class="required" %}
+              {% else %}}
+                {% bootstrap_field field placeholder="" %}
+              {% endif %}
             </div>
           {% endblock %}
         {% endfor %}
