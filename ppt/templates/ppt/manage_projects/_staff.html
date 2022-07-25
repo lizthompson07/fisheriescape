@@ -131,7 +131,7 @@
           <td>${s.level}</td>
           <td class="text-center">${s.filtered_draft | floatformat | zero2NullMark } / ${s.draft | floatformat | zero2NullMark }</td>
           <td class="text-center">${s.filtered_submitted_unapproved| floatformat | zero2NullMark} / ${s.submitted_unapproved| floatformat | zero2NullMark} </td>
-          <td class="text-center">${s.filteredapproved| floatformat | zero2NullMark} / ${s.approved| floatformat | zero2NullMark} </td>
+          <td class="text-center">${s.filtered_approved| floatformat | zero2NullMark} / ${s.approved| floatformat | zero2NullMark} </td>
           <td>
             <button v-if="s.showFilteredProjects" @click="toggleShowFilteredProjects(s)" class="btn btn-sm btn-warning py-0 px-1">
               <span>  {% trans "hide filtered projects" %} </span>

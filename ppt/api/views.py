@@ -287,7 +287,7 @@ class StaffingAPIView(APIView):
         level_summary = []
         funding_summary = []
         if len(staff_df):
-            # convert choice to string
+            # convert choice fields to strings
             staff_df["funding_source"] = staff_df["funding_source__funding_source_type"].map(dict(
                 models.FundingSource.funding_source_type_choices)).apply(''.join)
 
