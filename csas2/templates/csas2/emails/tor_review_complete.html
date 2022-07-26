@@ -41,11 +41,11 @@
 </p>
 {% language 'fr' %}
   <p>
-    Il s'agit d'un message automatisé pour vous informer que l'approbation de l'examen du cadre de référence est terminée pour le processus intitulé
+    Il s'agit d'un message automatisé pour vous informer que l'approbation du cadre de référence est terminée pour le processus intitulé
     <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.process.id %}">{{ object.process.tname }}</a>.
-    Une fois les versions anglaise et française sont terminées, cliquez sur le bouton violet en haut de
+    Une fois que les versions française et anglaise seront finales, vous pouvez cliquer sur le bouton violet en haut de
      <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.id %}">cette page</a>
-     pour faire une demande de publication sur le calendrier en ligne du Secrétariat canadien des avis scientifique (SCAS).
+     pour faire une demande de publication sur le calendrier en ligne du Secrétariat canadien des avis scientifiques (SCAS).
   </p>
 {% endlanguage %}
 
