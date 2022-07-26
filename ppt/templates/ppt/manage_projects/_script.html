@@ -407,8 +407,8 @@ var app = new Vue({
         this.projectYear2Review.review.approval_email_update = true
       }
     },
-    openModal(obj, which) {
-      projectYear2Review = obj;
+    openModal(obj, py, which) {
+      this.projectYear2Review = py;
       this.objectToEdit = obj;
       this.showModal[which] = true;
     },

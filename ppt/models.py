@@ -580,7 +580,7 @@ class ProjectYear(models.Model):
 
     @property
     def capital_allocations(self):
-        return nz(self.capitalallocations_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
+        return nz(self.capitalallocation_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
 
     def add_all_om_costs(self):
         for obj in OMCategory.objects.all():

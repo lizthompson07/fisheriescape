@@ -213,6 +213,9 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     om_costs = serializers.SerializerMethodField()
     salary_costs = serializers.SerializerMethodField()
     capital_costs = serializers.SerializerMethodField()
+    om_allocations = serializers.SerializerMethodField()
+    salary_allocations = serializers.SerializerMethodField()
+    capital_allocations = serializers.SerializerMethodField()
     project_codes = serializers.SerializerMethodField()
     project_user_choices = serializers.SerializerMethodField()
     parent_activity_choices = serializers.SerializerMethodField()
@@ -241,6 +244,15 @@ class ProjectYearSerializer(serializers.ModelSerializer):
 
     def get_om_costs(self, instance):
         return instance.om_costs
+    
+    def get_capital_allocations(self, instance):
+        return instance.capital_allocations
+
+    def get_salary_allocations(self, instance):
+        return instance.salary_allocations
+
+    def get_om_allocations(self, instance):
+        return instance.om_allocations
 
     def get_status_class(self, instance):
         return slugify(instance.get_status_display())
