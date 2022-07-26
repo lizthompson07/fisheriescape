@@ -513,19 +513,64 @@ var app = new Vue({
       }
     },
 
-    sorted_staff_level_summary() {
-              if (this.currentSortTable !== "sorted_staff_level_summary"){
+    sortedStaffLevelSummary() {
+        if (this.currentSortTable !== "sortedStaffLevelSummary"){
           return this.staff_level_summary;
-      }
-      else {
-          return this.staff_level_summary.sort((a, b) => {
-              let modifier = 1;
-              if (this.currentSortDir === 'desc') modifier = -1;
-              if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
-              if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
-              return 0;
-          });
-      }
+        }
+        else {
+            return this.staff_level_summary.sort((a, b) => {
+                let modifier = 1;
+                if (this.currentSortDir === 'desc') modifier = -1;
+                if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+                if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+                return 0;
+            });
+        }
+    },
+
+    sortedStaffTypeSummary() {
+        if (this.currentSortTable !== "sortedStaffTypeSummary"){
+          return this.staff_type_summary;
+        }
+        else {
+            return this.staff_type_summary.sort((a, b) => {
+                let modifier = 1;
+                if (this.currentSortDir === 'desc') modifier = -1;
+                if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+                if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+                return 0;
+            });
+        }
+    },
+
+    sortedStaffFundingSummary() {
+        if (this.currentSortTable !== "sortedStaffFundingSummary"){
+          return this.staff_funding_summary;
+        }
+        else {
+            return this.staff_funding_summary.sort((a, b) => {
+                let modifier = 1;
+                if (this.currentSortDir === 'desc') modifier = -1;
+                if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+                if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+                return 0;
+            });
+        }
+    },
+
+    sortedStaff() {
+        if (this.currentSortTable !== "sortedStaff"){
+          return this.staff;
+        }
+        else {
+            return this.staff.sort((a, b) => {
+                let modifier = 1;
+                if (this.currentSortDir === 'desc') modifier = -1;
+                if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+                if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+                return 0;
+            });
+        }
     },
 
     financial_totals() {

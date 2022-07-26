@@ -28,20 +28,20 @@
         Staffing Summary
       </h4>
     </div>
-    <table class="table table-sm table-bordered" style="width: auto">
+    <table class="table table-sm" style="width: auto">
       <thead>
       <tr>
-        <th @click="sort('index', 'sorted_staff_level_summary')" rowspan="2" class="text-center">{% trans "Level" %}</th>
-        <th @click="sort('count', 'sorted_staff_level_summary')" rowspan="2" style="width: 5%;" class="text-center">{% trans "Count" %}</th>
+        <th @click="sort('index', 'sortedStaffLevelSummary')" rowspan="2" class="text-center clickable">{% trans "Level" %}</th>
+        <th @click="sort('count', 'sortedStaffLevelSummary')" rowspan="2" style="width: 5%;" class="text-center clickable">{% trans "Count" %}</th>
         <th colspan="3" class="text-center">{% trans "FTE (weeks)" %}</th>
       </tr>
       <tr>
-        <th @click="sort('draft', 'sorted_staff_level_summary')" style="width: 20%;" class="text-center">{% trans "Draft" %}</th>
-        <th @click="sort('submitted_unapproved', 'sorted_staff_level_summary')" style="width: 20%;" class="text-center">{% trans "Submitted, Unapproved" %}</th>
-        <th @click="sort('approved', 'sorted_staff_level_summary')" style="width: 20%;" class="text-center">{% trans "Approved" %}</th>
+        <th @click="sort('draft', 'sortedStaffLevelSummary')" style="width: 20%;" class="text-center clickable">{% trans "Draft" %}</th>
+        <th @click="sort('submitted_unapproved', 'sortedStaffLevelSummary')" style="width: 20%;" class="text-center clickable">{% trans "Submitted, Unapproved" %}</th>
+        <th @click="sort('approved', 'sortedStaffLevelSummary')" style="width: 20%;" class="text-center clickable">{% trans "Approved" %}</th>
       </tr>
       </thead>
-      <tbody v-for="(row, index) in sorted_staff_level_summary">
+      <tbody v-for="(row, index) in sortedStaffLevelSummary">
         <tr >
           <td class="text-center">${row.index}</td>
           <td class="text-center">${row.count}</td>
@@ -52,20 +52,25 @@
       </tbody>
     </table>
 
-    <table class="table table-sm table-bordered" style="width: auto">
+    <table class="table table-sm" style="width: auto">
       <thead>
            <tr>
-        <th rowspan="2" class="text-center">{% trans "Employee Type" %}</th>
-        <th rowspan="2" style="width: 5%;" class="text-center">{% trans "Count" %}</th>
+        <th @click="sort('index', 'sortedStaffTypeSummary')" rowspan="2" class="text-center clickable">
+          {% trans "Employee Type" %}</th>
+        <th @click="sort('count', 'sortedStaffTypeSummary')" rowspan="2" style="width: 5%;" class="text-center clickable">
+          {% trans "Count" %}</th>
         <th colspan="3" class="text-center">{% trans "FTE (weeks)" %}</th>
       </tr>
       <tr>
-        <th style="width: 20%;" class="text-center">{% trans "Draft" %}</th>
-        <th style="width: 20%;" class="text-center">{% trans "Submitted, Unapproved" %}</th>
-        <th style="width: 20%;" class="text-center">{% trans "Approved" %}</th>
+        <th @click="sort('draft', 'sortedStaffTypeSummary')" style="width: 20%;" class="text-center clickable">
+          {% trans "Draft" %}</th>
+        <th @click="sort('submitted_unapproved', 'sortedStaffTypeSummary')" style="width: 20%;" class="text-center clickable">
+          {% trans "Submitted, Unapproved" %}</th>
+        <th @click="sort('approved', 'sortedStaffTypeSummary')" style="width: 20%;" class="text-center clickable">
+          {% trans "Approved" %}</th>
       </tr>
       </thead>
-      <tbody v-for="(row, index) in staff_type_summary">
+      <tbody v-for="(row, index) in sortedStaffTypeSummary">
         <tr >
           <td class="text-center">${row.index}</td>
           <td class="text-center">${row.count}</td>
@@ -75,21 +80,28 @@
         </tr>
       </tbody>
     </table>
-    <table class="table table-sm table-bordered" style="width: auto">
+    <table class="table table-sm" style="width: auto">
       <thead>
            <tr>
-        <th rowspan="2" class="text-center">{% trans "Funding Type" %}</th>
+        <th @click="sort('index', 'sortedStaffFundingSummary')" rowspan="2" class="text-center clickable">
+          {% trans "Funding Type" %}</th>
+        <th @click="sort('count', 'sortedStaffFundingSummary')" rowspan="2" style="width: 5%;" class="text-center clickable">
+          {% trans "Count" %}</th>
         <th colspan="3" class="text-center">{% trans "FTE (weeks)" %}</th>
       </tr>
       <tr>
-        <th style="width: 20%;" class="text-center">{% trans "Draft" %}</th>
-        <th style="width: 20%;" class="text-center">{% trans "Submitted, Unapproved" %}</th>
-        <th style="width: 20%;" class="text-center">{% trans "Approved" %}</th>
+        <th @click="sort('draft', 'sortedStaffFundingSummary')" style="width: 20%;" class="text-center clickable">
+          {% trans "Draft" %}</th>
+        <th @click="sort('submitted_unapproved', 'sortedStaffFundingSummary')" style="width: 20%;" class="text-center clickable">
+          {% trans "Submitted, Unapproved" %}</th>
+        <th @click="sort('approved', 'sortedStaffFundingSummary')" style="width: 20%;" class="text-center clickable">
+          {% trans "Approved" %}</th>
       </tr>
       </thead>
-      <tbody v-for="(row, index) in staff_funding_summary">
+      <tbody v-for="(row, index) in sortedStaffFundingSummary">
         <tr >
           <td class="text-center">${row.index}</td>
+          <td class="text-center">${row.count}</td>
           <td class="text-center">${row.draft}</td>
           <td class="text-center">${row.submitted_unapproved}</td>
           <td class="text-center">${row.approved}</td>
@@ -106,22 +118,27 @@
       </h4>
     </div>
 
-    <table id="staffing-details" class="table table-sm table-bordered" style="width: auto">
+    <table id="staffing-details" class="table table-sm" style="width: auto">
       <thead>
       <tr>
-        <th rowspan="2">{% trans "Section" %}</th>
-        <th rowspan="2">{% trans "Staff Name (registered DM Apps users only)" %}</th>
-        <th rowspan="2">{% trans "Employee Type" %}</th>
-        <th rowspan="2">{% trans "Level" %}</th>
+        <th @click="sort('section', 'sortedStaff')" rowspan="2" class="clickable">{% trans "Section" %}</th>
+        <th @click="sort('name', 'sortedStaff')" rowspan="2" class="clickable">
+          {% trans "Staff Name (registered DM Apps users only)" %}</th>
+        <th @click="sort('employee_type', 'sortedStaff')" rowspan="2" class="clickable">
+          {% trans "Employee Type" %}</th>
+        <th @click="sort('level', 'sortedStaff')" rowspan="2" class="clickable">{% trans "Level" %}</th>
         <th colspan="3" class="text-center">{% trans "FTE (weeks, filtered/all)" %}</th>
       </tr>
       <tr>
-        <th style="width: 20%;" class="text-center">{% trans "Draft" %}</th>
-        <th style="width: 20%;" class="text-center">{% trans "Submitted, Unapproved" %}</th>
-        <th style="width: 20%;" class="text-center">{% trans "Approved" %}</th>
+        <th @click="sort('filtered_draft', 'sortedStaff')" style="width: 20%;" class="text-center clickable">
+          {% trans "Draft" %}</th>
+        <th @click="sort('filtered_submitted_unapproved', 'sortedStaff')" style="width: 20%;" class="text-center clickable">
+          {% trans "Submitted, Unapproved" %}</th>
+        <th @click="sort('filtered_approved', 'sortedStaff')" style="width: 20%;" class="text-center clickable">
+          {% trans "Approved" %}</th>
       </tr>
       </thead>
-      <tbody v-for="(s, index) in staff">
+      <tbody v-for="(s, index) in sortedStaff">
 
         <tr >
           <td>${s.section}</td>
