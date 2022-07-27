@@ -43,17 +43,25 @@
             <th style="width: 100px" v-if="showColumnScore">
               {% trans "Review score" %}
             </th>
-          {% elif "allocated_budget" in field %}
-            <th @click="sort('{{ field }}')" style="width: 100px" class="clickable" v-if="showColumnAllocation">
-              {% trans "O&M Allocation" %}
-            </th>
           {% elif "id" in field %}
             <th @click="sort('{{ field }}')" style="width: 75px" class="clickable">
               {% trans "Project Id" %}
             </th>
-          {% elif "last_modified" in field %}
+         {% elif "last_modified" in field %}
             <th style="width: 100px" v-if="showColumnLastModified">
               {% trans "Last Modified" %}
+            </th>
+          {% elif "om_allocations" in field %}
+            <th @click="sort('{{ field }}')" style="width: 100px" class="clickable" v-if="showColumnOM">
+              {% trans "O&M Allocations" %}
+            </th>
+          {% elif "salary_allocations" in field %}
+            <th @click="sort('{{ field }}')" style="width: 100px" class="clickable" v-if="showColumnSalary">
+              {% trans "Salary Allocations" %}
+            </th>
+          {% elif "capital_allocations" in field %}
+            <th @click="sort('{{ field }}')" style="width: 100px" class="clickable" v-if="showColumnCapital">
+              {% trans "Capital Allocations" %}
             </th>
           {% elif field == 'om_costs' %}
             <th style="width: 100px" v-if="showColumnOM" @click="sort('{{ field }}')" class="clickable">
@@ -118,25 +126,37 @@
         <td v-if="showColumnOM">
           <span>${p.om_costs|currencyFormat}</span>
         </td>
+        <td v-if="showColumnOM">
+          <div v-if="p.submitted && p.status == 4">
+            <div>${p.om_allocations | nz(0) | currencyFormat | zero2NullMark}</div>
+            <button @click="openModal(null, p, 'om_allocation')" class="px-1 small-btn-text btn btn-sm btn-success">
+              {% trans "Add O&M" %}
+            </button>
+          </div>
+          <span v-else>---</span>
+        </td>
         <td v-if="showColumnSalary">
           <span>${p.salary_costs|currencyFormat}</span>
+        </td>
+        <td v-if="showColumnSalary">
+          <div v-if="p.submitted && p.status == 4">
+            <div>${p.salary_allocations | nz(0) | currencyFormat | zero2NullMark}</div>
+            <button @click="openModal(null, p, 'salary_allocation')" class="px-1 small-btn-text btn btn-sm btn-success">
+              {% trans "Add Salary" %}
+            </button>
+          </div>
+          <span v-else>---</span>
         </td>
         <td v-if="showColumnCapital">
           <span>${p.capital_costs|currencyFormat}</span>
         </td>
-
-         <td v-if="showColumnAllocation">
-          <span v-if="p.review">${p.om_allocations | nz(0) | currencyFormat | zero2NullMark}</span>
-          <span v-else>---</span>
-        </td>
-
-        <td v-if="showColumnSalaryAllocation">
-          <span v-if="p.review">${p.salary_allocations | nz(0) | currencyFormat | zero2NullMark}</span>
-          <span v-else>---</span>
-        </td>
-
-        <td v-if="showColumnCapitalAllocation">
-          <span v-if="p.review">${p.capital_allocations | nz(0) | currencyFormat | zero2NullMark}</span>
+        <td v-if="showColumnCapital">
+          <div v-if="p.submitted && p.status == 4">
+            <div>${p.capital_allocations | nz(0) | currencyFormat | zero2NullMark}</div>
+            <button @click="openModal(null, p, 'capital_allocation')" class="px-1 small-btn-text btn btn-sm btn-success">
+              {% trans "Add Capital" %}
+            </button>
+          </div>
           <span v-else>---</span>
         </td>
 
@@ -155,14 +175,7 @@
           <button v-else-if="p.submitted && p.status != 4" @click="submitProjectYear(p, 'unsubmit')" class="px-1 {{ btn_class }} btn-danger">
             {% trans "Un-submit" %}
           </button>
-          <div v-else>
-            <button @click="openModal(null, p, 'salary_allocation')" class="px-1 {{ btn_class }} btn-success">
-              {% trans "Add Salary" %}
-            </button>
-            <button @click="openModal(null, p, 'om_allocation')" class="px-1 {{ btn_class }} btn-success">
-              {% trans "Add O&M" %}
-            </button>
-          </div>
+
         </td>
 
 
@@ -173,9 +186,6 @@
           </button>
           <button v-else-if="p.status != 4" @click="openReviewModal(p)" class="px-1 {{ btn_class }} btn-info">
             {% trans "Start review" %}
-          </button>
-          <button v-else @click="openModal(null, p, 'capital_allocation')" class="px-1 {{ btn_class }} btn-success">
-            {% trans "Add Capital" %}
           </button>
         </td>
 
