@@ -701,14 +701,6 @@ class ProjectYear(models.Model):
         return self.review.allocated_budget if hasattr(self, "review") else None
 
     @property
-    def allocated_salary(self):
-        return self.review.allocated_salary if hasattr(self, "review") else None
-
-    @property
-    def allocated_capital(self):
-        return self.review.allocated_capital if hasattr(self, "review") else None
-
-    @property
     def review_score_percentage(self):
         if hasattr(self, "review"):
             return percentage(self.review.score_as_percent, 0)
@@ -1115,9 +1107,7 @@ class Review(models.Model):
     approval_level = models.IntegerField(choices=approval_level_choices, blank=True, null=True, verbose_name=_("level of approval"))
     funding_status = models.IntegerField(choices=funding_status_choices, blank=True, null=True, verbose_name=_("funding status"))
 
-    allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated O&M"))
-    allocated_salary = models.FloatField(blank=True, null=True, verbose_name=_("Allocated salary"))
-    allocated_capital = models.FloatField(blank=True, null=True, verbose_name=_("Allocated capital"))
+    allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
     approval_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
     review_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
     approver_comment = models.TextField(blank=True, null=True, verbose_name=_("Approver comments (shared with project leads)"))

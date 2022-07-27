@@ -47,14 +47,6 @@
             <th @click="sort('{{ field }}')" style="width: 100px" class="clickable" v-if="showColumnAllocation">
               {% trans "O&M Allocation" %}
             </th>
-          {% elif "allocated_salary" in field %}
-            <th @click="sort('{{ field }}')" style="width: 100px" class="clickable" v-if="showColumnSalaryAllocation">
-              {% trans "Salary Allocation" %}
-            </th>
-          {% elif "allocated_capital" in field %}
-            <th @click="sort('{{ field }}')" style="width: 100px" class="clickable" v-if="showColumnCapitalAllocation">
-              {% trans "Capital Allocation" %}
-            </th>
           {% elif "id" in field %}
             <th @click="sort('{{ field }}')" style="width: 75px" class="clickable">
               {% trans "Project Id" %}

@@ -103,7 +103,8 @@ class ProjectYearFilter(django_filters.FilterSet):
     services = django_filters.NumberFilter(field_name='services')
     theme = django_filters.NumberFilter(field_name='project__functional_group__theme')
     functional_group = django_filters.NumberFilter(field_name='project__functional_group')
-    funding_source = django_filters.NumberFilter(method='funding_source_filter', field_name='project__default_funding_source')
+    funding_source = django_filters.NumberFilter(method='funding_source_filter',
+                                                 field_name='project__default_funding_source')
     region = django_filters.NumberFilter(field_name='project__section__division__branch__sector__region')
     division = django_filters.NumberFilter(field_name='project__section__division')
     section = django_filters.NumberFilter(field_name='project__section')

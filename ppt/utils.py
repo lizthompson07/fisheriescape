@@ -385,10 +385,8 @@ def financial_project_summary_data(project):
 
             # allocated funds:
             for review in models.Review.objects.filter(project_year__project=project):
-                my_dict["allocated_salary"] += review.allocated_salary
                 my_dict["allocated_om"] += review.allocated_budget
-                my_dict["allocated_capital"] += review.allocated_capital
-            my_dict["alloated_total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+            my_dict["alloated_total"] =  my_dict["om"]
 
             my_list.append(my_dict)
 
@@ -441,10 +439,8 @@ def multiple_financial_project_year_summary_data(project_years):
             if fs in py.get_funding_sources():
                 my_dict["py_count"] += 1
                 if hasattr(py, "review"):
-                    my_dict["allocated_salary"] += py.review.allocated_salary
                     my_dict["allocated_om"] += py.review.allocated_budget
-                    my_dict["allocated_capital"] += py.review.allocated_capital
-            my_dict["allocated_total"] = my_dict["allocated_salary"] + my_dict["allocated_om"] + my_dict["allocated_capital"]
+            my_dict["allocated_total"] = my_dict["allocated_om"]
 
         my_list.append(my_dict)
 
@@ -575,8 +571,6 @@ def get_review_field_list():
         'approval_level',
         'approver_comment',
         'allocated_budget',
-        'allocated_salary',
-        'allocated_capital',
         'metadata',
     ]
     return my_list
