@@ -126,5 +126,8 @@ class ProjectYearFilter(django_filters.FilterSet):
         out_qs = self.queryset.filter(Q(project__default_funding_source=value) |
                                       Q(omcost__funding_source=value) |
                                       Q(staff__funding_source=value) |
-                                      Q(capitalcost__funding_source=value)).distinct()
+                                      Q(capitalcost__funding_source=value) |
+                                      Q(omallocation__funding_source=value) |
+                                      Q(salaryallocation__funding_source=value) |
+                                      Q(capitalallocation__funding_source=value)).distinct()
         return out_qs
