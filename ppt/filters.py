@@ -1,5 +1,6 @@
 import django_filters
 from django import forms
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from shared_models import models as shared_models
@@ -102,7 +103,7 @@ class ProjectYearFilter(django_filters.FilterSet):
     services = django_filters.NumberFilter(field_name='services')
     theme = django_filters.NumberFilter(field_name='project__functional_group__theme')
     functional_group = django_filters.NumberFilter(field_name='project__functional_group')
-    funding_source = django_filters.NumberFilter(field_name='project__default_funding_source')
+    funding_source = django_filters.NumberFilter(method='funding_source_filter', field_name='project__default_funding_source')
     region = django_filters.NumberFilter(field_name='project__section__division__branch__sector__region')
     division = django_filters.NumberFilter(field_name='project__section__division')
     section = django_filters.NumberFilter(field_name='project__section')
@@ -120,3 +121,10 @@ class ProjectYearFilter(django_filters.FilterSet):
 
     om_cost_category = django_filters.NumberFilter(field_name='omcost__om_category')
     activity_type = django_filters.NumberFilter(field_name='project__activity_type')
+
+    def funding_source_filter(self, queryset, name, value):
+        out_qs = self.queryset.filter(Q(project__default_funding_source=value) |
+                                      Q(omcost__funding_source=value) |
+                                      Q(staff__funding_source=value) |
+                                      Q(capitalcost__funding_source=value)).distinct()
+        return out_qs
