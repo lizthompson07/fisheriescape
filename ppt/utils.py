@@ -439,7 +439,8 @@ def multiple_financial_project_year_summary_data(project_years):
             if fs in py.get_funding_sources():
                 my_dict["py_count"] += 1
                 if hasattr(py, "review"):
-                    my_dict["allocated_om"] += py.review.allocated_budget
+                    if py.review.allocated_budget:
+                        my_dict["allocated_om"] += py.review.allocated_budget
             my_dict["allocated_total"] = my_dict["allocated_om"]
 
         my_list.append(my_dict)

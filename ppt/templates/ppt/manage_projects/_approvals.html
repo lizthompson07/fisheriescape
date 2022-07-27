@@ -100,19 +100,19 @@
         </td>
         <td v-if="p.review">
           <p>${p.om_allocations | nz(0) | currencyFormat | zero2NullMark}</p>
-          <button @click="openModal(null, p, 'om_allocation')" class="px-1 {{ btn_class }} btn btn-sm btn-primary">
+          <button v-if="p.status==4" @click="openModal(null, p, 'om_allocation', true)" class="px-1 {{ btn_class }} btn btn-sm btn-primary">
             {% trans "Add O&M" %}
           </button>
         </td>
         <td v-if="p.review">
           <p>${p.salary_allocations | nz(0) | currencyFormat | zero2NullMark}</p>
-          <button @click="openModal(null, p, 'salary_allocation')" class="px-1 {{ btn_class }} btn btn-sm btn-primary">
+          <button v-if="p.status==4" @click="openModal(null, p, 'salary_allocation', true)" class="px-1 {{ btn_class }} btn btn-sm btn-primary">
             {% trans "Add Salary" %}
           </button>
         </td>
         <td v-if="p.review">
           <p>${p.capital_allocations | nz(0) | currencyFormat | zero2NullMark}</p>
-          <button @click="openModal(null, p, 'capital_allocation')" class="px-1 {{ btn_class }} btn btn-sm btn-primary">
+          <button v-if="p.status==4" @click="openModal(null, p, 'capital_allocation', true)" class="px-1 {{ btn_class }} btn btn-sm btn-primary">
             {% trans "Add Capital" %}
           </button>
         </td>
