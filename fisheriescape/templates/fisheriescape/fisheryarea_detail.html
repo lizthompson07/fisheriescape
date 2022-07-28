@@ -1,4 +1,5 @@
 {% extends "fisheriescape/base.html" %}
+{% load i18n %}
 {% load static %}
 {% load verbose_names %}
 
@@ -13,20 +14,63 @@
     </div>
 
     <div class="row">
-        <div class="col-3">
-            <table class="table table-sm table-striped">
-            {% for field in field_list %}
-               {% verbose_td_display object field %}
-            {% endfor %}
-            </table>
+        <div class="col-4">
+
+            {#Fishery Area Info Card#}
+            <div class="card entry-card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Fishery Area Info" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        {% for field in field_list %}
+                           {% verbose_td_display object field %}
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-8">
+
+            {#Map Card#}
+            <div class="card entry-card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Map" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-center">
+                        <div id="map2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card entry-card mb-3 mt-3">
+                <div class="card-header">
+                    <h5 class="card-title"> {% trans "Fishery Seasons" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% include "fisheriescape/_fishery.html" %}
+                </div>
+            </div>
         </div>
 
     </div>
-    <br>
-    <br>
 
-     <div class="col-12">
-            {% include "fisheriescape/_fishery.html" %}
-     </div>
+{% endblock %}
+
+{% block body_js %}
+    {{ block.super }}
+    <script>
+
+        let polygonObj = {{ fishery_polygons | safe }};
+        let mapboxApiKey = '{{ mapbox_api_key }}';
+
+    </script>
+
+{#Remember to update version if you change css styling in base.html in order to reload!#}
+    <script src="{% static 'fisheriescape/map2.js' %}?version=1.4"></script>
 
 {% endblock %}

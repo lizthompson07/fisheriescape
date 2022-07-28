@@ -15,7 +15,7 @@ from markdown import markdown
 from textile import textile
 
 from csas2 import model_choices, utils
-from csas2.model_choices import tor_review_status_choices, tor_review_decision_choices
+from csas2.model_choices import tor_review_status_choices, tor_review_decision_choices, tor_review_role_choices
 from csas2.utils import get_quarter
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import percentage
@@ -450,11 +450,6 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     has_planning_meeting = models.BooleanField(default=False, verbose_name=_("has planning meeting?"))
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="processes", verbose_name=_("fiscal year"), editable=False)
 
-    # DELETE ME
-    # is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"))
-    # posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"))
-    # posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
-
     # calculated
 
     class Meta:
@@ -740,6 +735,7 @@ class TermsOfReference(MetadataFields):
 class ToRReviewer(MetadataFields):
     tor = models.ForeignKey(TermsOfReference, on_delete=models.CASCADE, related_name="reviewers")
     order = models.IntegerField(null=True, verbose_name=_("process order"))
+    role = models.IntegerField(verbose_name=_("role"), choices=tor_review_role_choices)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="tor_reviews", verbose_name=_("user"))
     decision = models.IntegerField(verbose_name=_("decision"), choices=tor_review_decision_choices, blank=True, null=True)
     decision_date = models.DateTimeField(verbose_name=_("date"), blank=True, null=True)
@@ -760,7 +756,7 @@ class ToRReviewer(MetadataFields):
         super().save(*args, **kwargs)
 
     class Meta:
-        unique_together = ['tor', 'user', ]
+        # unique_together = ['tor', 'user', ]
         ordering = ['tor', 'order', ]
         verbose_name = _("ToR reviewer")
 
@@ -770,6 +766,10 @@ class ToRReviewer(MetadataFields):
             return textile(self.comments)
         else:
             return "---"
+
+    @property
+    def can_be_modified(self):
+        return self.status in [10, 20] and self.tor.status != 50
 
 
 class ProcessNote(GenericNote):
@@ -794,8 +794,15 @@ class Meeting(SimpleLookup, MetadataFields):
                                            help_text=_("e.g.: 9am to 4pm (Atlantic)"))
     time_description_fr = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description of meeting times (fr)"),
                                            help_text=_("e.g.: 9h à 16h (Atlantique)"))
+    chair_comments = models.TextField(blank=True, null=True, verbose_name=_("post-meeting chair comments"),
+                                      help_text=_("Does the chair have comments to be captured OR passed on to NCR following the peer-review meeting."))
+    has_media_attention = models.BooleanField(default=False, verbose_name=_("will this meeting generate media attention?"),
+                                              choices=model_choices.yes_no_choices,
+                                              help_text=_("The answer to this question will be used by NCR for regular reporting on the meeting (i.e., TAB7)"))
+    media_notes = models.TextField(blank=True, null=True, verbose_name=_("status of media lines"), help_text=_("Please indicate the status of the media lines"))
 
     # non-editable
+    is_somp_submitted = models.BooleanField(default=False, verbose_name=_("have the SoMP been submitted?"), editable=False)
     somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))
     is_posted = models.BooleanField(default=False, verbose_name=_("is meeting posted on CSAS website?"))
     posting_request_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Date of posting request"), editable=False)
@@ -816,6 +823,17 @@ class Meeting(SimpleLookup, MetadataFields):
 
         super().save(*args, **kwargs)
 
+    @property
+    def chair_comments_html(self):
+        if self.chair_comments:
+            return mark_safe(markdown(self.chair_comments))
+
+    @property
+    def media_display(self):
+        if self.has_media_attention:
+            text = self.media_notes if self.media_notes else gettext("no further details provided.")
+            return "{} - {}".format(gettext("Yes"), text)
+        return gettext("No")
 
     @property
     def posting_status(self):
@@ -827,35 +845,62 @@ class Meeting(SimpleLookup, MetadataFields):
             return gettext("Not posted")
         return "n/a"
 
-
     @property
     def can_post_meeting(self):
         """ stores the business rules for whether the meeting can be posted to the csas website"""
-        can_post = True  # start off optimistic
+        can_post = [True]  # start off optimistic
         reasons = []
 
         if self.is_planning:
             reasons.append(gettext("cannot post a planning meeting"))
-            can_post = False
+            can_post.append(False)
         else:
             # the process must have a tor started and that tor must have expected pubs listed
             if not self.process.has_tor or not self.process.tor.expected_document_types.exists():
                 reasons.append(gettext("cannot post because the CSAS Process must have a Terms of Reference with a list of expected publications"))
-                can_post = False
-            # if not self.chair:
-            #     reasons.append(gettext("cannot post because the meeting must at least have one chairperson assigned to it"))
-            #     can_post = False
+                can_post.append(False)
             if self.is_posted:
                 reasons.append(gettext("this meeting is already posted"))
-                can_post = False
+                can_post.append(False)
             if self.posting_request_date:
                 reasons.append(gettext("a posting request has already been made for this meeting"))
-                can_post = False
+                can_post.append(False)
 
+        return dict(
+            can_post=False not in can_post, reasons=reasons
+        )
 
-        if can_post:
-            reasons.append(gettext("This meeting is eligible for posting!"))
-        return dict(can_post=can_post, reasons=reasons)
+    @property
+    def can_submit_somp(self):
+        """ stores the business rules for whether the meeting can be posted to the csas website"""
+        reasons = []
+        is_allowed = [True]  # start off optimistic
+
+        if self.is_planning:
+            reasons.append(gettext("SoMP can only be submitted for a peer-review meeting"))
+            is_allowed.append(False)
+        else:
+            # the meeting must be in the past
+            if self.start_date > timezone.now():
+                reasons.append(gettext("the meeting must have already taken place"))
+                is_allowed.append(False)
+            # the meeting must have linked documents
+            if not self.documents.exists():
+                reasons.append(gettext("this meeting is not linked to any documents"))
+                is_allowed.append(False)
+            # the meeting must have linked documents that are all confirmed
+            elif not self.documents.filter(is_confirmed=True).exists():
+                reasons.append(gettext("all linked documents must be confirmed before submitting"))
+                is_allowed.append(False)
+            # cannot already have been submitted
+            # if self.is_somp_submitted:
+            #     reasons.append(gettext("the SoMP have already been submitted for this meeting"))
+            #     is_allowed.append(False)
+
+        return dict(
+            is_allowed=False not in is_allowed,
+            reasons=reasons
+        )
 
     @property
     def mmmmyy(self):
@@ -1002,7 +1047,6 @@ class MeetingResource(SimpleLookup, MetadataFields):
 class MeetingFile(GenericFile):
     meeting = models.ForeignKey(Meeting, related_name="files", on_delete=models.CASCADE, editable=False)
     file = models.FileField(upload_to=meeting_directory_path)
-    is_somp = models.BooleanField(default=False, verbose_name=_("is this the SoMP?"))
 
 
 class InviteeRole(SimpleLookup):
@@ -1075,7 +1119,11 @@ class DocumentType(SimpleLookup):
 
 class Document(MetadataFields):
     process = models.ForeignKey(Process, on_delete=models.CASCADE, related_name="documents", editable=False, verbose_name=_("process"))
+    meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("linkage to peer-review meetings"))
     document_type = models.ForeignKey(DocumentType, on_delete=models.DO_NOTHING, verbose_name=_("document type"))
+    lead_office = models.ForeignKey(CSASOffice, on_delete=models.DO_NOTHING, related_name="documents", verbose_name=_("lead CSAS office"),
+                                    blank=True, null=True, help_text=_(
+            "The Lead CSAS office will process approvals and translation and will be listed on the cover page of the publication"))
     title_en = models.CharField(max_length=255, verbose_name=_("title (English)"), blank=True, null=True)
     title_fr = models.CharField(max_length=255, verbose_name=_("title (French)"), blank=True, null=True)
     title_in = models.CharField(max_length=255, verbose_name=_("title (Inuktitut)"), blank=True, null=True)
@@ -1102,23 +1150,67 @@ class Document(MetadataFields):
     due_date = models.DateTimeField(null=True, blank=True, verbose_name=_("document due date"), editable=False)
     pub_number_request_date = models.DateTimeField(null=True, blank=True, verbose_name=_("date of publication number request"), editable=False)
     pub_number = models.CharField(max_length=25, verbose_name=_("publication number"), blank=True, null=True, editable=False, unique=True)
-    meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"))
     people = models.ManyToManyField(Person, verbose_name=_("authors"), editable=False, through="Author")
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.get_document_status_choices(), editable=False)
     translation_status = models.IntegerField(verbose_name=_("translation status"), choices=model_choices.get_translation_status_choices(), editable=False,
                                              default=0)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
+    is_confirmed = models.BooleanField(default=False, verbose_name=_("Has been confirmed?"), editable=False)
+
+    @property
+    def can_confirm(self):
+        can_confirm = [True]
+        reasons = list()
+
+        # is there a tentative title?
+        if self.is_confirmed:
+            can_confirm.append(False)
+            reasons.append(
+                gettext("Cannot confirm because document is already confirmed")
+            )
+        else:
+            # is there a tentative title?
+            if not self.title_en and not self.title_fr:
+                can_confirm.append(False)
+                reasons.append(
+                    gettext("Cannot confirm because there must be a tentative title")
+                )
+            # is there a lead office?
+            if not self.lead_office:
+                can_confirm.append(False)
+                reasons.append(
+                    gettext("Cannot confirm because there is no lead office")
+                )
+            # is there a lead author?
+            if not self.lead_authors.exists():
+                can_confirm.append(False)
+                reasons.append(
+                    gettext("Cannot confirm because there are no lead authors")
+                )
+
+        return {
+            "can_confirm": False not in can_confirm,
+            "reasons": listrify(reasons),
+        }
+
+    @property
+    def lead_authors(self):
+        return self.authors.filter(is_lead=True)
 
     class Meta:
         ordering = ["process", _("title_en")]
 
     def save(self, *args, **kwargs):
         # set status
-        self.status = 0  # ok
+        self.status = 0  # unconfirmed
+
+        if self.is_confirmed:
+            # self.status = 20  # confirmed
+            self.status = 1  # tracking started
+
         if hasattr(self, "tracking"):
             self.pub_number = self.tracking.pub_number
             self.due_date = self.tracking.due_date
-            self.status = 1  # tracking started
 
             for obj in model_choices.document_status_dict:
                 trigger = obj.get("trigger")
@@ -1144,7 +1236,7 @@ class Document(MetadataFields):
         else:
             my_str = self.title_en
         if not my_str:
-            my_str = str(self.id)
+            my_str = gettext("Untitled") + " " + str(self.document_type)
         return my_str
 
     def __str__(self):

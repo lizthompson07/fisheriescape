@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+import pandas as pd
 from django.db.models import Sum, Q
 from django.utils.translation import gettext as _, gettext_lazy
 
@@ -243,23 +244,72 @@ def get_funding_sources(all=False):
     return [(fs.id, str(fs)) for fs in models.FundingSource.objects.all()]
 
 
-def get_user_fte_breakdown(user, fiscal_year_id):
-    staff_instances = models.Staff.objects.filter(user=user, project_year__fiscal_year_id=fiscal_year_id)
+def get_user_fte_breakdown(user, fiscal_year_id, staff_instance_qs=None, fiscal_year=None, filtered_si_qs=None):
+    if staff_instance_qs:
+        staff_instances = staff_instance_qs
+    else:
+        staff_instances = models.Staff.objects.filter(user=user, project_year__fiscal_year_id=fiscal_year_id)\
+            .select_related("project_year", "level", "employee_type", "funding_source")
     my_dict = dict()
     my_dict['name'] = f"{user.last_name}, {user.first_name}"
-    my_dict['fiscal_year'] = str(shared_models.FiscalYear.objects.get(pk=fiscal_year_id))
+    employee_type_qs = staff_instances.filter(employee_type__isnull=False).values_list('employee_type__name', flat=True)
+    if employee_type_qs:
+        # call to set is for uniqueness
+        my_dict['employee_type'] = ", ".join(list(set(employee_type_qs)))
+    else:
+        my_dict['employee_type'] = ""
+
+    level_qs = staff_instances.filter(level__isnull=False).values_list('level__name', flat=True)
+    if level_qs:
+        # call to set is for uniqueness
+        my_dict['level'] = ", ".join(list(set(level_qs)))
+    else:
+        my_dict['level'] = ""
+
+    funding_qs = staff_instances.filter(funding_source__isnull=False)
+    funding_list = [staff.funding_source.__str__() for staff in funding_qs]
+    # call to set is for uniqueness
+    if funding_list:
+        my_dict['funding'] = ", ".join(list(set(funding_list)))
+    else:
+        my_dict['funding'] = ""
+
+    my_dict["section"] = ""
+    if user.profile.section:
+        my_dict["section"] = "{}, {}".format(user.profile.section.name, str(user.profile.section.head or ''))
+
+    if fiscal_year:
+        my_dict['fiscal_year'] = str(fiscal_year)
+    else:
+        my_dict['fiscal_year'] = str(shared_models.FiscalYear.objects.get(pk=fiscal_year_id))
     my_dict['draft'] = nz(staff_instances.filter(
         project_year__status=1
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
     my_dict['submitted_unapproved'] = nz(staff_instances.filter(
-        project_year__status__in=[2, 3]
+        project_year__status__in=[2, 3, 6]
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
     my_dict['approved'] = nz(staff_instances.filter(
         project_year__status=4
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
+    if filtered_si_qs:
+        my_dict['filtered_draft'] = nz(filtered_si_qs.filter(
+            project_year__status=1
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
+
+        my_dict['filtered_submitted_unapproved'] = nz(filtered_si_qs.filter(
+            project_year__status__in=[2, 3, 6]
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
+
+        my_dict['filtered_approved'] = nz(filtered_si_qs.filter(
+            project_year__status=4
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
+    else:
+        my_dict['filtered_draft'] = None
+        my_dict['filtered_submitted_unapproved'] = None
+        my_dict['filtered_approved'] = None
     return my_dict
 
 
@@ -501,6 +551,8 @@ def get_review_field_list():
         'approval_level',
         'approver_comment',
         'allocated_budget',
+        'allocated_salary',
+        'allocated_capital',
         'metadata',
     ]
     return my_list
@@ -999,3 +1051,28 @@ def get_project_year_queryset(request):
         if not is_management_or_admin(request.user):
             qs = qs.filter(project__is_hidden=False, status__in=[2, 3, 4])
     return qs.distinct()
+
+
+def get_staff_summary(staff_df, summary_type, summary_cols=None, na_value="---"):
+    # Selects classified FTE week columns and performs a group by with the summary type column.
+    if summary_cols is None:
+        summary_cols = ['draft', 'submitted_unapproved', 'approved'] + [summary_type]
+    output_summary = None
+    if summary_type in staff_df.columns and not staff_df.empty:
+        # sum FTE weeks based on type
+        summary_df = staff_df.copy()
+        summary_df = summary_df[summary_cols]
+        summary_df.loc[:, summary_type] = summary_df[summary_type].fillna(value=na_value)
+        summary_df = summary_df.groupby(summary_type).sum()
+
+        # count occurences of summary type based off original df
+        output_df = staff_df.copy()
+        output_df.loc[:, summary_type] = output_df[summary_type].fillna(value=na_value)
+        output_summary = pd.DataFrame(output_df[summary_type].value_counts())
+
+        output_summary = output_summary.join(summary_df)
+        output_summary = output_summary.fillna('')
+        output_summary.rename(columns={summary_type: 'count'}, inplace=True)
+
+        output_summary = output_summary.reset_index().to_dict('records')
+    return output_summary

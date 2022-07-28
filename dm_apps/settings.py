@@ -148,10 +148,13 @@ INSTALLED_APPS = [
                      'django.contrib.gis',
                      'preventconcurrentlogins',
                      'rest_framework',
+                     'rest_framework_gis',
                      'django_filters',
+                     'crispy_forms', #added for testing DRF filters
                      'storages',
                      'django.contrib.humanize',
                      'bootstrap4',
+                     'bootstrap5',
                      'el_pagination',
                      'debug_toolbar',
                      'webpack_loader',
@@ -167,6 +170,7 @@ INSTALLED_APPS = [
 GEODJANGO = config("GEODJANGO", cast=bool, default=False)
 if not GEODJANGO:
     INSTALLED_APPS.remove('django.contrib.gis')
+    INSTALLED_APPS.remove('rest_framework_gis')
     try:
         INSTALLED_APPS.remove('spring_cleanup')
         print("turning off spring cleanup app because geodjango is not enabled")

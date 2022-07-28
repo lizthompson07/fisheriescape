@@ -117,6 +117,8 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         'lead_staff',
         'status',
         'allocated_budget',
+        'allocated_salary',
+        'allocated_capital',
         'review_score_percentage',
         'last_modified',
         'om_costs',
@@ -132,6 +134,7 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         context["approval_level_choices"] = [dict(label=item[1], value=item[0]) for item in models.Review.approval_level_choices]
         context["funding_status_choices"] = [dict(label=item[1], value=item[0]) for item in models.Review.funding_status_choices]
         context["om_cost_categories"] = [dict(label=f"{item.get_group_display()} - {item}", value=item.id) for item in models.OMCategory.objects.all()]
+        context["activity_types"] = [dict(label=f"{item}", value=item.id) for item in models.ActivityType.objects.all()]
         context["review_form"] = forms.ReviewForm
         context["approval_form"] = forms.ApprovalForm
         context["review_score_rubric"] = json.dumps(get_review_score_rubric())
@@ -1435,7 +1438,7 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("ppt:export_ppa") + f'?year={year}&section={section}&region={region}')
         elif report == 8:
             return HttpResponseRedirect(
-                reverse("ppt:export_crc") + f'?year={year}&section={section}&division={division}&region={region}')
+                reverse("ppt:export_costs") + f'?year={year}&section={section}&division={division}&region={region}')
         elif report == 9:
             return HttpResponseRedirect(
                 reverse("ppt:export_eqp") + f'?year={year}&section={section}&division={division}&region={region}')
@@ -1445,6 +1448,9 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
         elif report == 11:
             return HttpResponseRedirect(
                 reverse("ppt:export_lab") + f'?year={year}&section={section}&division={division}&region={region}')
+        elif report == 12:
+            return HttpResponseRedirect(
+                reverse("ppt:export_cost_descriptions"))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ppt:reports"))
@@ -1596,6 +1602,16 @@ def export_project_list(request):
 
 
 @login_required()
+def export_cost_descriptions(request):
+    file_url = reports.generate_cost_descriptions()
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="ppt cost descriptions.xlsx"'
+            return response
+
+
+@login_required()
 def export_py_list(request):
     qs = get_project_year_queryset(request)
 
@@ -1710,14 +1726,14 @@ def export_project_position_allocation(request):
 
 
 @login_required()
-def export_capital_request_costs(request):
+def export_costs(request):
     qs = get_project_year_queryset(request)
     site_url = my_envr(request)["SITE_FULL_URL"]
-    file_url = reports.generate_capital_cost_report(qs, site_url)
+    file_url = reports.generate_cost_report(qs, site_url)
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="ppt capital costs.xlsx"'
+            response['Content-Disposition'] = f'inline; filename="ppt project costs.xlsx"'
             return response
     raise Http404
 

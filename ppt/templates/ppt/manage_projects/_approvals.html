@@ -48,6 +48,8 @@
         <th class="w150"> ${reviewLabels.approval_level}</th>
         <th class="w150"> ${reviewLabels.funding_status}</th>
         <th class="w150"> ${reviewLabels.allocated_budget}</th>
+        <th class="w150"> ${reviewLabels.allocated_salary}</th>
+        <th class="w150"> ${reviewLabels.allocated_capital}</th>
         <th class="w200"> ${reviewLabels.approver_comment}</th>
 
       </tr>
@@ -81,7 +83,7 @@
           </select>
         </td>
         <td v-if="p.review">
-          <select @change="updateReview(p)" v-model="p.review.level_status" class="form-control">
+          <select @change="updateReview(p)" v-model="p.review.approval_level" class="form-control">
             <option value selected> -----</option>
             {% for status in approval_level_choices %}
               <option value="{{ status.value }}">{{ status.label }}</option>
@@ -98,6 +100,12 @@
         </td>
         <td v-if="p.review">
           <input @change="updateReview(p)" type="number" v-model="p.review.allocated_budget" class="form-control">
+        </td>
+        <td v-if="p.review">
+          <input @change="updateReview(p)" type="number" v-model="p.review.allocated_salary" class="form-control">
+        </td>
+        <td v-if="p.review">
+          <input @change="updateReview(p)" type="number" v-model="p.review.allocated_capital" class="form-control">
         </td>
         <td v-if="p.review">
           <textarea v-model="p.review.approver_comment" class="form-control w-100" id="" rows="4" @change="updateReview(p)"></textarea>

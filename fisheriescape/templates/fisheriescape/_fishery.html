@@ -3,13 +3,8 @@
 {% load i18n %}
 {% load verbose_names %}
 
-<div class="">
-    <h3>
-        {% trans "Fishery Seasons:" %}
-    </h3>
-</div>
 
-{% if object.species.count == 0 %}
+{% if object.fisherys.count == 0 %}
     <em>
         {% trans "No fishery seasons have been added to this area" %}
     </em><br>
@@ -24,7 +19,7 @@
             {% endfor %}
         </tr>
         <tbody>
-        {% for obj in object.species.all %}
+        {% for obj in object.fisherys.all %}
             <tr>
             {% for field in fishery_field_list %}
                 {% if field == "species" %}

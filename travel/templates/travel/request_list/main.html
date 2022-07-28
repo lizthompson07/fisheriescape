@@ -144,12 +144,14 @@
       filter_fiscal_year: "",
       filter_status: "",
       filter_region: "",
+      filter_branch: "",
       filter_division: "",
       filter_section: "",
 
       // dropdowns
       fiscalYears: [],
       regions: [],
+      branches: [],
       divisions: [],
       sections: [],
 
@@ -161,6 +163,7 @@
         this.filter_fiscal_year = "";
         this.filter_status = "";
         this.filter_region = "";
+        this.filter_branch = "";
         this.filter_division = "";
         this.filter_section = "";
         this.updateResults()
@@ -183,6 +186,9 @@
 
         var query = "";
         if (this.filter_region && this.filter_region !== "") query = `?region=${this.filter_region}`
+        apiService(`/api/travel/branches/${query}`).then(response => this.branches = response)
+
+        if (this.filter_branch && this.filter_branch !== "") query = `?branch=${this.filter_branch}`
         apiService(`/api/travel/divisions/${query}`).then(response => this.divisions = response)
 
         if (this.filter_division && this.filter_division !== "") query = `?division=${this.filter_division}`

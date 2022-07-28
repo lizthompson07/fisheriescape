@@ -29,6 +29,23 @@ NULL_YES_NO_CHOICES = (
     (0, _("No")),
 )
 
+YES_NO_CHOICES = (
+    (True, "Yes"),
+    (False, "No"),
+)
+
+
+class iHubUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="ihub_user", verbose_name=_("DM Apps user"))
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator?"), choices=YES_NO_CHOICES)
+    is_crud_user = models.BooleanField(default=False, verbose_name=_("Edit permissions?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
+
 
 class EntryType(SimpleLookup):
     color = models.CharField(max_length=25, blank=True, null=True)
@@ -66,6 +83,7 @@ class Entry(models.Model):
     response_requested_by = models.DateTimeField(verbose_name=_("response requested by"), blank=True, null=True)
     anticipated_end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
     is_faa_required = models.BooleanField(null=True, blank=True, verbose_name=_("is an FAA required?"))
+    is_faa_issued = models.BooleanField(null=True, blank=True, verbose_name=_("has an FAA been issued?"))
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
                                related_name="entries")
     sectors = models.ManyToManyField(ml_models.Sector, blank=True, related_name="entries", verbose_name=_("DFO sectors"))

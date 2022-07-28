@@ -23,6 +23,10 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'run_chunk_pageviews': {
         'task': 'chunk_pageviews',
-        'schedule': 60 * 60,  # Execute every 5 seconds
+        'schedule': 60 * 60,  # Execute every hour
+    },
+    'run_resave_open_rsvps': {
+        'task': 'resave_open_rsvps',
+        'schedule': 60 * 60 * 12,  # execute every 12 hours
     },
 }

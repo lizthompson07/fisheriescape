@@ -82,6 +82,8 @@ class ProjectForm(forms.ModelForm):
             'meeting_notes',
             'programs',
             "allocated_budget",
+            "allocated_salary",
+            "allocated_capital",
         ]
         widgets = {
             "title": forms.Textarea(attrs={"rows": "3"}),
@@ -209,6 +211,8 @@ class ProjectYearForm(forms.ModelForm):
         exclude = [
             # 'project',
             "allocated_budget",
+            "allocated_salary",
+            "allocated_capital",
             "approval_notification_email_sent",
             "review_notification_email_sent",
             "modified_by",
@@ -525,7 +529,8 @@ class ReviewForm(forms.ModelForm):
 
     class Meta:
         model = models.Review
-        exclude = ["project_year", "approval_status", "approval_level", "allocated_budget", "approver_comment"]
+        exclude = ["project_year", "approval_status", "approval_level", "allocated_budget", "allocated_salary",
+                   "allocated_capital", "approver_comment"]
         widgets = {
             "general_comment": forms.Textarea(attrs=comment_row3),
             "comments_for_staff": forms.Textarea(attrs=comment_row3),
@@ -567,13 +572,16 @@ class ApprovalForm(forms.ModelForm):
 
     class Meta:
         model = models.Review
-        fields = ["approval_status", "approval_level", "funding_status", "allocated_budget", "approver_comment", ]
+        fields = ["approval_status", "approval_level", "funding_status", "allocated_budget", "allocated_salary",
+                  "allocated_capital", "approver_comment", ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["approval_status"].widget.attrs = {"v-model": "project_year.review.approval_status"}
         self.fields["approval_level"].widget.attrs = {"v-model": "project_year.review.approval_level"}
         self.fields["allocated_budget"].widget.attrs = {"v-model": "project_year.review.allocated_budget"}
+        self.fields["allocated_salary"].widget.attrs = {"v-model": "project_year.review.allocated_salary"}
+        self.fields["allocated_capital"].widget.attrs = {"v-model": "project_year.review.allocated_capital"}
         self.fields["funding_status"].widget.attrs = {"v-model": "project_year.review.funding_status"}
         self.fields["approver_comment"].widget.attrs = {"v-model": "project_year.review.approver_comment"}
         self.fields["approval_email_update"].widget.attrs = {"v-model": "project_year.review.approval_email_update"}
@@ -857,6 +865,8 @@ class ReportSearchForm(forms.Form):
         (9, "Project Equipment summary (csv)"),
         (10, "Project Field Support Staff summary (csv)"),
         (11, "Project Lab summary (csv)"),
+        (12, "Cost descriptions (csv)"),
+
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal Year'))

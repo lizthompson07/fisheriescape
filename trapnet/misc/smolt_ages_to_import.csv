@@ -1,0 +1,44 @@
+id,River,Year,Month,Day,Time.Start,Time.Released,Species,species,life_stage_id,Status,Origin,Freq,ForkLength,Total.Length,Weight,Sex,Smolt.Age,Location.Tagged,Date.Tagged,Scale ID Number,tags removed,Comments
+12636,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,183,7.3,,3,,,,,sample for D.Cairns-change length to mm
+12637,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,185,7.3,,3,,,,,sample for D.Cairns-change length to mm
+12638,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,185,7.4,,3,,,,,sample for D.Cairns-change length to mm
+12639,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,195,8.6,,3,,,,,sample for D.Cairns-change length to mm
+12640,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,196,8.9,,3,,,,,sample for D.Cairns-change length to mm
+12641,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,205,8.6,,3,,,,,sample for D.Cairns-change length to mm
+12642,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,226,13.3,,3,,,,,sample for D.Cairns-change length to mm
+12643,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,245,14.2,,3,,,,,sample for D.Cairns-change length to mm
+12644,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,268,23.7,,3,,,,,sample for D.Cairns-change length to mm
+12784,334,2004,5,21,8:50,10:15,3410,54,,MZ,,1,,209,10.1,,3,,,,,sample for D.Cairns-changed length to mm
+12785,334,2004,5,21,8:50,10:15,3410,54,,MZ,,1,,245,16.9,,3,,,,,sample for D.Cairns-changed length to mm
+12912,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,195,10.1,,3,,,,,changed length to mm
+12913,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,203,11.4,,3,,,,,changed length to mm
+12914,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,261,21.1,,3,,,,,changed length to mm
+12645,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,220,9.9,,4,,,,,sample for D.Cairns-change length to mm
+12646,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,255,20.4,,4,,,,,sample for D.Cairns-change length to mm
+12786,334,2004,5,21,8:50,10:15,3410,54,,MZ,,1,,250,16.4,,4,,,,,sample for D.Cairns-changed length to mm
+12787,334,2004,5,21,8:50,10:15,3410,54,,MZ,,1,,290,26.1,,4,,,,,sample for D.Cairns-changed length to mm
+12915,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,265,22.3,,4,,,,,changed length to mm
+12916,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,285,27.3,,4,,,,,changed length to mm
+12647,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,238,14,,5,,,,,sample for D.Cairns-change length to mm
+12648,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,261,18.6,,5,,,,,sample for D.Cairns-change length to mm
+12649,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,275,25.7,,5,,,,,sample for D.Cairns-change length to mm
+12650,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,305,35.1,,5,,,,,sample for D.Cairns-change length to mm
+12788,334,2004,5,21,8:50,10:15,3410,54,,MZ,,1,,274,23.9,,5,,,,,sample for D.Cairns-changed length to mm
+12917,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,262,24.7,,5,,,,,changed length to mm
+12918,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,265,28.5,,5,,,,,changed length to mm
+12919,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,275,29.8,,5,,,,,changed length to mm
+12789,334,2004,5,21,8:50,10:15,3410,54,,MZ,,1,,240,16.3,,6,,,,,sample for D.Cairns-changed length to mm
+12790,334,2004,5,21,8:50,10:15,3410,54,,MZ,,1,,405,87.6,,6,,,,,sample for D.Cairns-changed length to mm
+12920,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,248,19,,6,,,,,changed length to mm
+12921,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,260,18.9,,6,,,,,changed length to mm
+12922,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,285,32,,6,,,,,changed length to mm
+12923,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,295,31.7,,6,,,,,changed length to mm
+12924,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,345,50.6,,6,,,,,changed length to mm
+12925,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,395,96.2,,6,,,,,changed length to mm
+12651,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,250,18.1,,7,,,,,sample for D.Cairns-change length to mm
+12652,334,2004,5,20,8:45,10:20,3410,54,,MZ,,1,,415,88.8,,7,,,,,sample for D.Cairns-change length to mm
+12926,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,302,34.9,,7,,,,,changed length to mm
+12927,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,315,43.2,,7,,,,,changed length to mm
+12928,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,265,25.2,,8,,,,,changed length to mm
+12929,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,330,49.3,,8,,,,,changed length to mm
+12930,334,2004,5,22,8:40,10:15,3410,54,,MZ,,1,,400,78.4,,10,,,,,changed length to mm

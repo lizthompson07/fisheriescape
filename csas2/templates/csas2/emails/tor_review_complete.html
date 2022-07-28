@@ -21,9 +21,11 @@
     Hello,
   </p>
   <p>
-    This is an automated message to notify you that the terms of reference review is complete for the process entitled,
-    <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.process.id %}">{{ object.process.tname }}</a>,
-    has been added to the national CSAS website.
+    This is an automated message to notify you that the Terms of Reference approval is complete for the process entitled,
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.process.id %}">{{ object.process.tname }}</a>.
+    Once the English and French versions are complete, click the purple button at the top of
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.id %}">this page</a>
+    to request to post to the Canadian Science Advisory Secretariat (CSAS) online calendar.
   </p>
 {% endlanguage %}
 
@@ -39,9 +41,11 @@
 </p>
 {% language 'fr' %}
   <p>
-    Ceci est un message automatisé pour vous informer que l'examen du cadre de référence pour le processus intitulé,
-    <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.process.id %}">{{ object.process.tname }}</a>,
-    a été ajouté au site Web national du SCCS.
+    Il s'agit d'un message automatisé pour vous informer que l'approbation du cadre de référence est terminée pour le processus intitulé
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.process.id %}">{{ object.process.tname }}</a>.
+    Une fois que les versions française et anglaise seront finales, vous pouvez cliquer sur le bouton violet en haut de
+     <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.id %}">cette page</a>
+     pour faire une demande de publication sur le calendrier en ligne du Secrétariat canadien des avis scientifiques (SCAS).
   </p>
 {% endlanguage %}
 

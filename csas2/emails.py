@@ -69,16 +69,27 @@ class PostingRequestEmail(Email):
 
 class SoMPEmail(Email):
     email_template_path = 'csas2/emails/somp.html'
-    subject_en = 'The SoMP for a meeting has been posted'
+
+    def get_subject_en(self):
+        if self.instance.is_somp_submitted:
+            msg = 'The SoMP for a meeting has been re-confirm'
+        else:
+            msg = 'The SoMP for a meeting has been confirmed'
+        return msg
 
     def get_recipient_list(self):
-        return [csas_generic_email]
+        payload = [csas_generic_email]
+        payload.extend(self.instance.process.lead_office.all_emails)
+        for doc in self.instance.process.documents.all():
+            if doc.lead_office:
+                payload.extend(doc.lead_office.all_emails)
+        return list(set(payload))
 
 
 class NewRequestEmail(Email):
     email_template_path = 'csas2/emails/new_request.html'
     subject_en = 'A new CSAS request has been submitted'
-    subject_fr = "Une nouvelle demande de SCCS a été soumise"
+    subject_fr = "Une nouvelle demande de SCAS a été soumise"
 
     def get_recipient_list(self):
         # should go to all emails associated with csas office
@@ -102,7 +113,7 @@ class ReviewCompleteEmail(Email):
 class PostedMeetingEmail(Email):
     email_template_path = 'csas2/emails/posted_process.html'
     subject_en = 'Your process has been posted to the CSAS website'
-    subject_fr = "Votre processus a été publié sur le site Web du SCCS"
+    subject_fr = "Votre processus a été publié sur le site Web du SCAS"
 
     def get_recipient_list(self):
         # should go to all emails associated with csas office
@@ -149,8 +160,20 @@ class UpdatedMeetingEmail(Email):
 
 class ToRReviewAwaitingEmail(Email):
     email_template_path = 'csas2/emails/tor_review_awaiting.html'
-    subject_en = "Terms of reference awaiting your review"
-    subject_fr = "cadre de référence attend votre avis"
+
+    def get_subject_en(self):
+        if self.instance.role == 1:
+            mystr = "FOR APPROVAL: Terms of reference"
+        else:
+            mystr = "FOR REVIEW: Terms of reference"
+        return mystr
+
+    def get_subject_fr(self):
+        if self.instance.role == 1:
+            mystr = "POUR APPROBATION : Cadre de référence"
+        else:
+            mystr = "POUR ÉVALUATION : Cadre de référence"
+        return mystr
 
     def get_recipient_list(self):
         return [self.instance.user.email, ]
@@ -158,12 +181,11 @@ class ToRReviewAwaitingEmail(Email):
 
 class ToRChangesRequestedEmail(Email):
     email_template_path = 'csas2/emails/tor_changes_requested.html'
-    subject_en = "Changes to ToR required"
-    subject_fr = "modifications au cadre de référence sont nécessaires"
+    subject_en = "Changes to Terms of Reference requested"
+    subject_fr = "Modifications au cadre de référence sont nécessaires"
 
     def get_recipient_list(self):
         return self.instance.tor.process.editor_email_list
-
 
 
 class ToRPostingRequestEmail(Email):
@@ -174,10 +196,9 @@ class ToRPostingRequestEmail(Email):
         return [csas_generic_email]
 
 
-
 class ToRReviewCompleteEmail(Email):
     email_template_path = 'csas2/emails/tor_review_complete.html'
-    subject_en = 'ToR review is complete'
+    subject_en = 'ToR approval is complete'
     subject_fr = "l'examen du cadre de référence est terminé"
 
     def get_recipient_list(self):
@@ -187,7 +208,7 @@ class ToRReviewCompleteEmail(Email):
 class PostedToREmail(Email):
     email_template_path = 'csas2/emails/tor_posted.html'
     subject_en = 'Your ToR has been posted to the CSAS website'
-    subject_fr = "Votre cadre de référence a été publié sur le site Web du SCCS"
+    subject_fr = "Votre cadre de référence a été publié sur le site Web du SCAS"
 
     def get_recipient_list(self):
         return self.instance.process.editor_email_list

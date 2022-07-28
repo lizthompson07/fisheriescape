@@ -95,6 +95,7 @@ class DefaultReviewer(MetadataFields):
     def get_absolute_url(self):
         return reverse('travel:default_reviewer_list')
 
+
 class NJCRates(SimpleLookup):
     amount = models.FloatField()
     last_modified = models.DateTimeField(blank=True, null=True)
@@ -410,34 +411,42 @@ class Trip(models.Model):
     def traveller_count(self):
         return self.travellers.count()
 
+
+    def get_good_travellers(self):
+        # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
+        return Traveller.objects.filter(request__trip=self).filter(~Q(request__status__in=[10, 22, 8]))
+
     @property
     def total_cost(self):
-        # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
-        amt = TravellerCost.objects.filter(traveller__request__trip=self).filter(
-            ~Q(traveller__request__status__in=[10, 22, 8])).aggregate(dsum=Sum("amount_cad"))["dsum"]
+        good_travellers = self.get_good_travellers()
+        amt = TravellerCost.objects.filter(traveller__in=good_travellers).aggregate(dsum=Sum("amount_cad"))["dsum"]
         return nz(amt, 0)
 
     @property
     def total_non_dfo_cost(self):
-        # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
-        amt = Traveller.objects.filter(request__trip=self).filter(
-            ~Q(request__status__in=[10, 22, 8])).aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
+        good_travellers = self.get_good_travellers()
+        amt = good_travellers.aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
         return nz(amt, 0)
 
     @property
     def total_dfo_cost(self):
-        # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
         total = self.total_cost
         non_dfo = self.total_non_dfo_cost
         return total - non_dfo
 
     @property
     def non_res_total_cost(self):
-        # exclude requests that are denied (id=10), cancelled (id=22)
-        dfo = TravellerCost.objects.filter(traveller__request__trip=self, traveller__is_research_scientist=False).filter(
-            ~Q(traveller__request__status__in=[10, 22])).aggregate(dsum=Sum("amount_cad"))["dsum"]
-        non_dfo = Traveller.objects.filter(request__trip=self, is_research_scientist=False).filter(
-            ~Q(request__status__in=[10, 22, 8])).aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
+        non_res_good_travellers = self.get_good_travellers().filter(is_research_scientist=False)
+        dfo = TravellerCost.objects.filter(traveller__in=non_res_good_travellers).aggregate(dsum=Sum("amount_cad"))["dsum"]
+        non_dfo = non_res_good_travellers.aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
+        return nz(dfo, 0) - nz(non_dfo, 0)
+
+    @property
+    def non_res_total_cost_with_drafts(self):
+        # just repeat the 'non_res_total_cost' prop but include draft requests
+        non_res_good_travellers = Traveller.objects.filter(request__trip=self, is_research_scientist=False).filter(~Q(request__status__in=[10, 22]))
+        dfo = TravellerCost.objects.filter(traveller__in=non_res_good_travellers).aggregate(dsum=Sum("amount_cad"))["dsum"]
+        non_dfo = non_res_good_travellers.aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
         return nz(dfo, 0) - nz(non_dfo, 0)
 
     @property

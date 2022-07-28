@@ -9,7 +9,7 @@ from django.utils.timezone import make_aware
 from pytz import utc
 
 from csas2 import models
-from csas2.models import CSASRequest, CSASRequestReview, Process
+from csas2.models import CSASRequest, CSASRequestReview, Process, Document
 from shared_models.models import Section, Region
 
 
@@ -21,6 +21,11 @@ def resave_requests():
 def resave_processes():
     for p in Process.objects.all():
         p.save()
+
+
+def resave_docs():
+    for d in Document.objects.all():
+        d.save()
 
 
 def clean_up_reviews():

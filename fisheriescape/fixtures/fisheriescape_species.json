@@ -1,1 +1,52 @@
-[{"model": "fisheriescape.species", "pk": 13, "fields": {"english_name": "American Lobster", "french_name": "Homard", "latin_name": "Homarus americanus", "website": "https://www.dfo-mpo.gc.ca/species-especes/profiles-profils/american-lobster-homard-eng.html"}}, {"model": "fisheriescape.species", "pk": 14, "fields": {"english_name": "Snow Crab", "french_name": "Crabe des neiges (Atlantique)", "latin_name": "Chionoecetes opilio", "website": "https://www.dfo-mpo.gc.ca/species-especes/profiles-profils/snow-crab-crabe-neiges-atl-eng.html"}}, {"model": "fisheriescape.species", "pk": 15, "fields": {"english_name": "Witch Flounder", "french_name": null, "latin_name": "Glyptocephalus cynoglossus", "website": null}}]
+[
+    {
+        "fields": {
+            "english_name": "American Lobster",
+            "french_name": "Homard",
+            "latin_name": "Homarus americanus",
+            "website": "https://www.dfo-mpo.gc.ca/species-especes/profiles-profils/american-lobster-homard-eng.html"
+        },
+        "model": "fisheriescape.species",
+        "pk": 13
+    },
+    {
+        "fields": {
+            "english_name": "Atlantic Halibut",
+            "french_name": null,
+            "latin_name": null,
+            "website": null
+        },
+        "model": "fisheriescape.species",
+        "pk": 17
+    },
+    {
+        "fields": {
+            "english_name": "Atlantic Herring",
+            "french_name": "Hareng de l'Atlantique",
+            "latin_name": "Clupea harengus harengus",
+            "website": "https://www.dfo-mpo.gc.ca/fisheries-peches/sustainable-durable/fisheries-peches/herring-hareng-eng.html"
+        },
+        "model": "fisheriescape.species",
+        "pk": 16
+    },
+    {
+        "fields": {
+            "english_name": "Snow Crab",
+            "french_name": "Crabe des neiges (Atlantique)",
+            "latin_name": "Chionoecetes opilio",
+            "website": "https://www.dfo-mpo.gc.ca/species-especes/profiles-profils/snow-crab-crabe-neiges-atl-eng.html"
+        },
+        "model": "fisheriescape.species",
+        "pk": 14
+    },
+    {
+        "fields": {
+            "english_name": "Witch Flounder",
+            "french_name": null,
+            "latin_name": "Glyptocephalus cynoglossus",
+            "website": null
+        },
+        "model": "fisheriescape.species",
+        "pk": 15
+    }
+]

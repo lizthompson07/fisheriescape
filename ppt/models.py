@@ -651,6 +651,14 @@ class ProjectYear(models.Model):
         return self.review.allocated_budget if hasattr(self, "review") else None
 
     @property
+    def allocated_salary(self):
+        return self.review.allocated_salary if hasattr(self, "review") else None
+
+    @property
+    def allocated_capital(self):
+        return self.review.allocated_capital if hasattr(self, "review") else None
+
+    @property
     def review_score_percentage(self):
         if hasattr(self, "review"):
             return percentage(self.review.score_as_percent, 0)
@@ -713,6 +721,20 @@ class Staff(GenericCost):
     class Meta:
         ordering = ['-is_lead', 'employee_type', 'level']
         unique_together = [('project_year', 'user'), ]
+
+    @property
+    def description(self):
+        mystr = f"staff name: {self.smart_name}"
+        if self.level:
+            mystr += f" ({self.level})"
+
+        if self.student_program:
+            mystr += f"\nstudent program: {self.get_student_program_display()}"
+
+        if self.overtime_hours:
+            mystr += f"\novertime (hours): {self.overtime_hours}"
+            mystr += f"\novertime description: {self.overtime_description}"
+        return mystr
 
     @property
     def smart_name(self):
@@ -1010,7 +1032,9 @@ class Review(models.Model):
     approval_level = models.IntegerField(choices=approval_level_choices, blank=True, null=True, verbose_name=_("level of approval"))
     funding_status = models.IntegerField(choices=funding_status_choices, blank=True, null=True, verbose_name=_("funding status"))
 
-    allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
+    allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated O&M"))
+    allocated_salary = models.FloatField(blank=True, null=True, verbose_name=_("Allocated salary"))
+    allocated_capital = models.FloatField(blank=True, null=True, verbose_name=_("Allocated capital"))
     approval_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
     review_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
     approver_comment = models.TextField(blank=True, null=True, verbose_name=_("Approver comments (shared with project leads)"))

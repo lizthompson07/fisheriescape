@@ -264,6 +264,8 @@ class TestProjectYearModel(CommonTest):
             "submit",
             "unsubmit",
             "allocated_budget",
+            "allocated_salary",
+            "allocated_capital",
             "review_score_percentage",
             "review_score_fraction",
         ])
@@ -729,6 +731,8 @@ class TestReviewModel(CommonTest):
             'approval_status',
             'approval_level',
             'allocated_budget',
+            'allocated_salary',
+            'allocated_capital',
             'approval_notification_email_sent',
             'review_notification_email_sent',
             'approver_comment',

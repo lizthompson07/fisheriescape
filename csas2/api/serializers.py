@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
+from django.db.models import Q
 from django.template.defaultfilters import date, pluralize, slugify
 from django.utils.translation import gettext, get_language, activate
 from rest_framework import serializers
@@ -233,6 +234,10 @@ class DocumentSerializer(serializers.ModelSerializer):
     coordinator = serializers.SerializerMethodField()
     pub_number_request_date_display = serializers.SerializerMethodField()
     due_date_display = serializers.SerializerMethodField()
+    can_confirm = serializers.SerializerMethodField()
+
+    def get_can_confirm(self, instance):
+        return instance.can_confirm
 
     def get_due_date_display(self, instance):
         if instance.due_date:
@@ -444,6 +449,18 @@ class MeetingSerializer(serializers.ModelSerializer):
     can_post_meeting = serializers.SerializerMethodField()
     posting_request_date_display = serializers.SerializerMethodField()
     posting_notification_date_display = serializers.SerializerMethodField()
+    media_display = serializers.SerializerMethodField()
+    can_submit_somp = serializers.SerializerMethodField()
+    chair_comments_html = serializers.SerializerMethodField()
+
+    def get_chair_comments_html(self, instance):
+        return instance.chair_comments_html
+
+    def get_can_submit_somp(self, instance):
+        return instance.can_submit_somp
+
+    def get_media_display(self, instance):
+        return instance.media_display
 
     def get_posting_notification_date_display(self, instance):
         if instance.posting_notification_date:
@@ -746,6 +763,10 @@ class ToRReviewerSerializer(serializers.ModelSerializer):
     status_class = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     user_display = serializers.SerializerMethodField()
+    can_be_modified = serializers.SerializerMethodField()
+
+    def get_can_be_modified(self, instance):
+        return instance.can_be_modified
 
     def get_decision_date_annotation(self, instance):
         return naturaltime(instance.decision_date)
@@ -769,8 +790,22 @@ class ToRReviewerSerializer(serializers.ModelSerializer):
     def get_status_display(self, instance):
         return instance.get_status_display()
 
+    def get_role_display(self, instance):
+        return instance.get_role_display()
+
     def get_user_display(self, instance):
         return instance.user.get_full_name() if instance.user else None
+
+    def validate(self, attrs):
+
+        if self.instance:
+            tor = self.instance.tor
+            role = attrs.get("role")
+            # if trying to change to reviewer, and there is a submission date and there are no other approvers, that's a problem..
+            if role == 2 and tor.submission_date and not tor.reviewers.filter(~Q(id=self.instance.id)).filter(role=1).exists():
+                msg = gettext('There has to be at least one approver in the queue!')
+                raise ValidationError(msg)
+        return attrs
 
 
 class ProcessSerializerLITE(serializers.ModelSerializer):

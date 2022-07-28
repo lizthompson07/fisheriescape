@@ -149,6 +149,10 @@ class ProjectSerializer(serializers.ModelSerializer):
     start_year_display = serializers.SerializerMethodField()
     tags_display = serializers.SerializerMethodField()
     funding_sources_display = serializers.SerializerMethodField()
+    section_display = serializers.SerializerMethodField()
+
+    def get_section_display(self, instance):
+        return instance.section.full_name
 
     def get_funding_sources_display(self, instance):
         if instance.funding_sources.exists():
@@ -200,6 +204,8 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     default_funding_source_id = serializers.SerializerMethodField()
     formatted_status = serializers.SerializerMethodField()
     allocated_budget = serializers.SerializerMethodField()
+    allocated_salary = serializers.SerializerMethodField()
+    allocated_capital = serializers.SerializerMethodField()
     review_score_percentage = serializers.SerializerMethodField()
     review_score_fraction = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
@@ -250,6 +256,12 @@ class ProjectYearSerializer(serializers.ModelSerializer):
 
     def get_allocated_budget(self, instance):
         return instance.allocated_budget
+
+    def get_allocated_salary(self, instance):
+        return instance.allocated_salary
+
+    def get_allocated_capital(self, instance):
+        return instance.allocated_capital
 
     def get_display_name(self, instance):
         return str(instance.fiscal_year)

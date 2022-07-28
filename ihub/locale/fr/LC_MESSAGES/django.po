@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iHub - traduction 2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-28 13:22-0400\n"
+"POT-Creation-Date: 2022-06-22 11:33-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -71,7 +71,7 @@ msgstr "Instructions de consultations (Liste de courriels)"
 msgid "Consultation Report (xlsx)"
 msgstr "Rôles de consultation"
 
-#: .\ihub\forms.py:169 .\ihub\forms.py:177 .\ihub\models.py:201
+#: .\ihub\forms.py:169 .\ihub\forms.py:177 .\ihub\models.py:202
 msgid "Internal"
 msgstr "Note interne"
 
@@ -79,7 +79,7 @@ msgstr "Note interne"
 msgid "Internal (** for internal reports only)"
 msgstr ""
 
-#: .\ihub\forms.py:171 .\ihub\models.py:200
+#: .\ihub\forms.py:171 .\ihub\models.py:201
 msgid "Follow-up (*)"
 msgstr "Suivi (*)"
 
@@ -139,128 +139,132 @@ msgstr "Fin de l'activité"
 msgid "is an FAA required?"
 msgstr ""
 
-#: .\ihub\models.py:69 .\ihub\models.py:210 .\ihub\reports.py:192
+#: .\ihub\models.py:69
+msgid "has an FAA been issued?"
+msgstr ""
+
+#: .\ihub\models.py:70 .\ihub\models.py:211 .\ihub\reports.py:192
 #: .\ihub\reports.py:436
 msgid "status"
 msgstr "Statut"
 
-#: .\ihub\models.py:71
+#: .\ihub\models.py:72
 msgid "DFO sectors"
 msgstr "Division du MPO"
 
-#: .\ihub\models.py:73 .\ihub\reports.py:202 .\ihub\reports.py:446
+#: .\ihub\models.py:74 .\ihub\reports.py:202 .\ihub\reports.py:446
 msgid "Entry Type"
 msgstr "Type de saisie"
 
-#: .\ihub\models.py:74
+#: .\ihub\models.py:75
 msgid "regions"
 msgstr "régions"
 
-#: .\ihub\models.py:75
+#: .\ihub\models.py:76
 msgid "response deadline"
 msgstr ""
 
-#: .\ihub\models.py:79
+#: .\ihub\models.py:80
 msgid "funding program"
 msgstr "Programme de financement"
 
-#: .\ihub\models.py:80
+#: .\ihub\models.py:81
 msgid "fiscal year/multiyear"
 msgstr "Année(s) fiscale(s)"
 
-#: .\ihub\models.py:81
+#: .\ihub\models.py:82
 msgid "is funding needed?"
 msgstr "Financement nécessaire?"
 
-#: .\ihub\models.py:83
+#: .\ihub\models.py:84
 msgid "funding purpose"
 msgstr "But du financement"
 
-#: .\ihub\models.py:84
+#: .\ihub\models.py:85
 msgid "funding requested"
 msgstr "Financement demandé"
 
-#: .\ihub\models.py:85
+#: .\ihub\models.py:86
 msgid "funding approved"
 msgstr "Financement approuvé"
 
-#: .\ihub\models.py:86
+#: .\ihub\models.py:87
 msgid "amount transferred"
 msgstr "Montant transféré"
 
-#: .\ihub\models.py:87
+#: .\ihub\models.py:88
 msgid "amount lapsed"
 msgstr "Montant non utilisé"
 
-#: .\ihub\models.py:89
+#: .\ihub\models.py:90
 msgid "does any funding need to be recovered?"
 msgstr "Est-ce que du financement doit être récupéré?"
 
-#: .\ihub\models.py:92
+#: .\ihub\models.py:93
 msgid "date last modified"
 msgstr "Dernière modification"
 
-#: .\ihub\models.py:93
+#: .\ihub\models.py:94
 msgid "date created"
 msgstr "Crée le"
 
-#: .\ihub\models.py:94
+#: .\ihub\models.py:95
 msgid "last modified by"
 msgstr "Dernière modification par"
 
-#: .\ihub\models.py:95
+#: .\ihub\models.py:96
 msgid "created by"
 msgstr "Crée par"
 
-#: .\ihub\models.py:156
+#: .\ihub\models.py:157
 msgid "Lead"
 msgstr "Responsable"
 
-#: .\ihub\models.py:157
+#: .\ihub\models.py:158
 msgid "Contact"
 msgstr "Contact"
 
-#: .\ihub\models.py:158
+#: .\ihub\models.py:159
 msgid "Support"
 msgstr "En support"
 
-#: .\ihub\models.py:161
+#: .\ihub\models.py:162
 msgid "User"
 msgstr "Utilisateur"
 
-#: .\ihub\models.py:162
+#: .\ihub\models.py:163
 msgid "name"
 msgstr "nom"
 
-#: .\ihub\models.py:164
+#: .\ihub\models.py:165
 msgid "role"
 msgstr "rôle"
 
-#: .\ihub\models.py:197
+#: .\ihub\models.py:198
 msgid "Action"
 msgstr "Action"
 
-#: .\ihub\models.py:198
+#: .\ihub\models.py:199
 msgid "Next step"
 msgstr "Prochaine étape"
 
-#: .\ihub\models.py:199
+#: .\ihub\models.py:200
 msgid "Comment"
 msgstr "Commentaire"
 
-#: .\ihub\models.py:208
+#: .\ihub\models.py:209
 msgid "author"
 msgstr "auteur"
 
-#: .\ihub\models.py:243
+#: .\ihub\models.py:244
 msgid "caption"
 msgstr "légende"
 
-#: .\ihub\models.py:245
+#: .\ihub\models.py:246
 msgid "file"
 msgstr "fichier"
 
-#: .\ihub\models.py:246
+#: .\ihub\models.py:247
 msgid "date uploaded"
 msgstr "mis en ligne le"
 
@@ -280,7 +284,7 @@ msgstr "Financement demandé"
 msgid "DFO Contacts"
 msgstr "Contact au MPO"
 
-#: .\ihub\reports.py:293 .\ihub\templates\ihub\_instructions.html:130
+#: .\ihub\reports.py:293 .\ihub\templates\ihub\_instructions.html:138
 #: .\ihub\templates\ihub\_members.html:25
 #: .\ihub\templates\ihub\organization_detail.html:71
 msgid "Notes"
@@ -352,39 +356,39 @@ msgstr "Créer des instructions"
 msgid "Edit Instructions"
 msgstr "Éditer les instructions"
 
-#: .\ihub\templates\ihub\_instructions.html:25
+#: .\ihub\templates\ihub\_instructions.html:33
 msgid "Consultation Instructions:"
 msgstr "Instructions de consultation:"
 
-#: .\ihub\templates\ihub\_instructions.html:32
+#: .\ihub\templates\ihub\_instructions.html:40
 msgid "There are no consultation instructions available for this organization"
 msgstr "Il n'y a pas d'instruction de consultation pour cette organisation"
 
-#: .\ihub\templates\ihub\_instructions.html:41
+#: .\ihub\templates\ihub\_instructions.html:49
 msgid "Address Letter To"
 msgstr "Envoyer une lettre papier à"
 
-#: .\ihub\templates\ihub\_instructions.html:49
+#: .\ihub\templates\ihub\_instructions.html:57
 msgid "Cc (on Bottom of Letter)"
 msgstr "Mettre en Cc (dans le bas de la lettre) :"
 
-#: .\ihub\templates\ihub\_instructions.html:57
+#: .\ihub\templates\ihub\_instructions.html:65
 msgid "Paper Copy"
 msgstr "Copie papier"
 
-#: .\ihub\templates\ihub\_instructions.html:66
+#: .\ihub\templates\ihub\_instructions.html:74
 msgid "Email \"To\" Recipients"
 msgstr "Envoyer courriel à"
 
-#: .\ihub\templates\ihub\_instructions.html:88
+#: .\ihub\templates\ihub\_instructions.html:96
 msgid "Email \"Cc\" Recipients"
 msgstr "Mettre le courriel en C.c. à"
 
-#: .\ihub\templates\ihub\_instructions.html:109
+#: .\ihub\templates\ihub\_instructions.html:117
 msgid "Email \"Cc\" Recipients (Commercial Only)"
 msgstr "Mettre en C.c. (commercial seulement)"
 
-#: .\ihub\templates\ihub\_instructions.html:138
+#: .\ihub\templates\ihub\_instructions.html:146
 msgid "Metadata"
 msgstr "Métadonnées"
 
@@ -486,7 +490,7 @@ msgstr "Accueil"
 
 #: .\ihub\templates\ihub\base\_nav_left_auth.html:8
 #: .\ihub\templates\ihub\index.html:27 .\ihub\views.py:409 .\ihub\views.py:417
-#: .\ihub\views.py:455 .\ihub\views.py:469 .\ihub\views.py:502
+#: .\ihub\views.py:456 .\ihub\views.py:470 .\ihub\views.py:503
 msgid "Entries"
 msgstr "Entrées"
 
@@ -666,7 +670,7 @@ msgstr "(Ouvrira dans un onglet séparé)"
 msgid "This contact is not part of any organizations"
 msgstr "Cette personne ne fait partie d'aucune organisation"
 
-#: .\ihub\templates\ihub\report_consultation_instructions.html:174
+#: .\ihub\templates\ihub\report_consultation_instructions.html:173
 #, python-format
 msgid ""
 "\n"
@@ -794,7 +798,7 @@ msgstr "Nom complet"
 msgid "last updated"
 msgstr "dernière mise à jour"
 
-#: .\ihub\views.py:133 .\ihub\views.py:275 .\ihub\views.py:435
+#: .\ihub\views.py:133 .\ihub\views.py:275 .\ihub\views.py:436
 msgid "metadata"
 msgstr "Métadonnées"
 
@@ -818,11 +822,11 @@ msgstr "Nouvelle organisation"
 msgid "New Organization Member"
 msgstr "Nouveau membre de l'organisation"
 
-#: .\ihub\views.py:471
+#: .\ihub\views.py:472
 msgid "New Entry"
 msgstr "Nouvelle entrée"
 
-#: .\ihub\views.py:488
+#: .\ihub\views.py:489
 msgid ""
 "The entry has been submitted and an email has been sent to the Indigenous "
 "Hub Coordinator!"
@@ -830,23 +834,23 @@ msgstr ""
 "L'entrée à été soumise et un courriel a été envoyé au coordonnateur du Hub "
 "RPA!"
 
-#: .\ihub\views.py:539
+#: .\ihub\views.py:540
 msgid "The note has been successfully deleted from the entry."
 msgstr "La note a été supprimée de l'entrée avec succès."
 
-#: .\ihub\views.py:550
+#: .\ihub\views.py:551
 msgid "New Entry Person"
 msgstr "Ajouter une personne"
 
-#: .\ihub\views.py:570
+#: .\ihub\views.py:571
 msgid "The person has been successfully deleted from the entry."
 msgstr "La personne a été supprimée de l'entrée avec succès."
 
-#: .\ihub\views.py:600
+#: .\ihub\views.py:601
 msgid "The file has been successfully deleted from the entry."
 msgstr "Le fichier a été supprimé de l'entrée avec succès."
 
-#: .\ihub\views.py:681
+#: .\ihub\views.py:682
 msgid "Engagement Update Log – Government of Canada"
 msgstr "Mise à jour de la mobilisation - Gouvernement du Canada"
 

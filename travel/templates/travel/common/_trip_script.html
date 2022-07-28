@@ -6,6 +6,7 @@
   var tripId = {{ trip.id }};
   let travellerDeleteMsg = "{% trans "You are about to remove this traveller from the request? This action is irreversible!! \n\nIf you proceed with this action, an administrative note will automatically be added to this request in order to record this transaction and an email notification will be sent to the traveller. \n\nPlease type 'yes' to confirm:" %}";
   let travellerCherryPickMsg = "{% trans "You are about to approve this traveller as a one-off from the entire delegation. Are you certain you wish to proceed? \n\nPlease type 'yes' to confirm:" %}";
+  let travellerCherryPickCommentMsg = "{% trans "Please provide your approval comments here:" %}";
   let approveAllTravellersMsg = "{% trans "You are about to APPROVE all ELIGIBLE travellers on this trip. Are you certain you wish to proceed? \n\nPlease type 'yes' to confirm:" %}";
   let denyAllTravellersMsg = "{% trans "You are about to DENY all ELIGIBLE travellers on this trip. Are you certain you wish to proceed? \n\nPlease type 'yes' to confirm:" %}";
   let tripReviewerResetMsg = "{% trans 'Are you sure you want to reset the reviewers? This will undo any changes that you have made to the reviewer list and process order.' %}";
@@ -17,7 +18,7 @@
 {% endlocalize %}
 
 <script type="application/javascript">
-    Vue.component('v-select', VueSelect.VueSelect);
+Vue.component('v-select', VueSelect.VueSelect);
 var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
@@ -50,10 +51,12 @@ var app = new Vue({
     request: null,
     travellerToEdit: null,
     costLabels: {},
+    costChoices: [],
     inCostEditMode: false,
     loading_costs: false,
     errorMsgCost: null,
-
+    editCostsMode: false,
+    cloningTraveller: false
   },
   methods: {
     addReviewer() {
@@ -165,12 +168,13 @@ var app = new Vue({
       var userInput = false;
       userInput = prompt(travellerCherryPickMsg);
       if (userInput === true || userInput.toLowerCase() === "yes" || userInput.toLowerCase() === "oui") {
-        let endpoint = `/api/travel/travellers/${traveller.id}/?cherry_pick_approval=true`;
-        apiService(endpoint, "POST")
-            .then(response => {
-              console.log(response);
-              this.getTrip();
-            })
+        let comments = prompt(travellerCherryPickCommentMsg, _default = "approved / approuvé");
+        if (comments.trim()) {
+          apiService(`/api/travel/travellers/${traveller.id}/?cherry_pick_approval=true`, "POST", {comments: comments})
+              .then(response => {
+                this.getTrip();
+              })
+        }
       }
     },
     enablePopovers() {
@@ -213,38 +217,19 @@ var app = new Vue({
         this.helpText = data;
       });
     },
-    getRequestMetadata() {
-      let endpoint = `/api/travel/meta/models/request/`;
-      apiService(endpoint).then(data => {
-        this.requestLabels = data.labels;
-      });
-    },
-    getReviewerMetadata() {
-      let endpoint = `/api/travel/meta/models/trip-reviewer/`;
-      apiService(endpoint).then(data => {
-        this.reviewerLabels = data.labels;
-        this.roleChoices = data.role_choices;
-      });
-    },
-    getTravellerMetadata() {
-      let endpoint = `/api/travel/meta/models/traveller/`;
-      apiService(endpoint).then(data => {
-        this.travellerLabels = data.labels;
-        this.travellerRoleChoices = data.role_choices;
-        this.orgChoices = data.org_choices;
-      });
-    },
     getTrip() {
       this.loading = true;
       let endpoint = `/api/travel/trips/${tripId}/`;
       apiService(endpoint)
           .then(response => {
             this.loading = false;
+
+            // set the default for all travellers to be hidden
+            for (const traveller of response.travellers) traveller.show_me = false;
+            // however if there is one traveller, we should have that traveller on display
+            if (response.travellers.length === 1) response.travellers[0].show_me = true;
+
             this.trip = response;
-            // if there is one traveller, we should have that traveller on display
-            if (this.trip.travellers.length === 1) {
-              this.trip.travellers[0].show_me = true;
-            }
             this.getCurrentUser(response);
             this.$nextTick(() => {
               // enable popovers everywhere
@@ -252,12 +237,32 @@ var app = new Vue({
             })
           })
     },
-    getTripMetadata() {
-      let endpoint = `/api/travel/meta/models/trip/`;
-      apiService(endpoint).then(data => {
+    getMetadata() {
+      apiService(`/api/travel/meta/models/trip/`).then(data => {
         this.tripLabels = data.labels;
       });
+      apiService(`/api/travel/meta/models/cost/`).then(data => {
+        this.costLabels = data.labels;
+        this.costChoices = data.cost_choices;
+      });
+      apiService(`/api/travel/meta/models/request/`).then(data => {
+        this.requestLabels = data.labels;
+      });
+      apiService(`/api/travel/meta/models/trip-reviewer/`).then(data => {
+        this.reviewerLabels = data.labels;
+        this.roleChoices = data.role_choices;
+      });
+      apiService(`/api/travel/meta/models/traveller/`).then(data => {
+        this.travellerLabels = data.labels;
+        this.travellerRoleChoices = data.role_choices;
+        this.orgChoices = data.org_choices;
+      });
+      apiService(`/api/travel/meta/models/file/`).then(data => {
+        this.fileLabels = data.labels;
+      });
     },
+
+
     goRequestDetail(request) {
       let url = `/travel-plans/requests/${request.id}/view/`;
       let win = window.open(url, '_blank');
@@ -348,10 +353,6 @@ var app = new Vue({
             })
       }
     },
-    canCherryPick(traveller) {
-      // if their request status is 14 &&  they are ADM && they are the active reviewer
-      return this.isADM && this.isCurrentReviewer && traveller.request_obj.status == 14;
-    },
     reviewSubmit() {
       let userInput = false;
       if (!this.isADM) userInput = true;
@@ -369,7 +370,129 @@ var app = new Vue({
       if (userInput === true || userInput.toLowerCase() === "yes" || userInput.toLowerCase() === "oui") {
         $("#my_form").submit()
       }
-    }
+    },
+    updateCostRowTotal(cost) {
+      cost.amount_cad = Number(cost.number_of_days) * Number(cost.rate_cad);
+    },
+    updateCost(traveller, cost) {
+      this.errorMsgCost = null;
+      let endpoint;
+      let method;
+      if (cost.rate_cad === "") cost.rate_cad = null;
+      if (cost.number_of_days === "") cost.number_of_days = null;
+      if (!cost.id) {
+        endpoint = `/api/travel/costs/`;
+        method = "POST";
+      } else {
+        endpoint = `/api/travel/costs/${cost.id}/`;
+        method = "PATCH";
+      }
+      apiService(endpoint, method, cost).then(response => {
+        if (response.id) {
+          if (traveller) {
+            this.refreshCosts(traveller);
+            this.updateTotalCost(traveller);
+            this.refreshTripCosts();
+          }
+          this.inCostEditMode = false;
+        } else {
+          this.errorMsgCost = groomJSON(response);
+        }
+      })
+    },
+    refreshCosts(traveller) {
+      this.loading_costs = true;
+      let endpoint = `/api/travel/travellers/${traveller.id}`;
+      apiService(endpoint)
+          .then(response => {
+            traveller.costs = response.costs;
+            traveller.cost_breakdown_html = response.cost_breakdown_html;
+            this.loading_costs = false;
+          })
+    },
+    updateTotalCost(traveller) {
+      let cost = 0;
+      for (var i = 0; i < traveller.costs.length; i++) {
+        cost += Number(traveller.costs[i].amount_cad);
+      }
+      traveller.total_cost = cost;
+    },
+
+    refreshTripCosts() {
+      apiService(`/api/travel/trips/${tripId}/`)
+          .then(response => {
+            this.trip.cost_comparison = response.cost_comparison;
+            this.trip.total_cost = response.total_cost
+            this.trip.total_dfo_cost = response.total_dfo_cost
+            this.trip.total_non_dfo_cost = response.total_non_dfo_cost
+            this.trip.non_res_total_cost = response.non_res_total_cost
+          })
+    },
+
+    editTraveller(traveller) {
+      this.errorMsgTraveller = null;
+      this.travellerToEdit = traveller;
+      this.travellerToEdit.start_date = this.travellerToEdit.start_date.split("T")[0]
+      this.travellerToEdit.end_date = this.travellerToEdit.end_date.split("T")[0]
+      this.$nextTick(() => {
+        this.$refs.traveller_form_starting_point.focus()
+      })
+    },
+    cancelTravellerEdit() {
+      this.getTrip();
+      this.travellerToEdit = null;
+      this.cloningTraveller = false;
+      this.firstTravellerMsg = null;
+    },
+    updateTraveller() {
+      this.errorMsgTraveller = null;
+      if (this.travellerToEdit.start_date) this.travellerToEdit.start_date += "T00:00:00.421977Z"
+      if (this.travellerToEdit.end_date) this.travellerToEdit.end_date += "T00:00:00.421977Z"
+      let endpoint;
+      let method;
+      if (!this.travellerToEdit.id) {
+        endpoint = `/api/travel/travellers/`;
+        method = "POST";
+      } else {
+        endpoint = `/api/travel/travellers/${this.travellerToEdit.id}/`;
+        method = "PATCH";
+      }
+      apiService(endpoint, method, this.travellerToEdit).then(response => {
+        if (response.id) {
+          this.travellerToEdit = null;
+        } else {
+          if (this.travellerToEdit.start_date) this.travellerToEdit.start_date = this.travellerToEdit.start_date.split("T")[0]
+          if (this.travellerToEdit.end_date) this.travellerToEdit.end_date = this.travellerToEdit.end_date.split("T")[0]
+          this.errorMsgTraveller = groomJSON(response)
+        }
+      })
+    },
+    addCost(traveller) {
+      this.inCostEditMode = true;
+      traveller.costs.push({
+        traveller: traveller.id,
+        rate_cad: null,
+        number_of_days: null,
+        amount_cad: 0,
+        editMode: true,
+      })
+    },
+    addAllCosts(traveller) {
+      let endpoint = `/api/travel/travellers/${traveller.id}/?populate_all_costs=true`;
+      apiService(endpoint, "POST")
+          .then(response => {
+            this.refreshCosts(traveller);
+          })
+    },
+    clearEmptyCosts(traveller) {
+      let endpoint = `/api/travel/travellers/${traveller.id}/?clear_empty_costs=true`;
+      apiService(endpoint, "POST")
+          .then(response => {
+            this.refreshCosts(traveller);
+          })
+    },
+
+
   },
   filters: {
     yesNo: vueFiltersObject["yesNo"],
@@ -423,10 +546,7 @@ var app = new Vue({
   created() {
     this.getTrip();
     this.fetchDMAppsUsers();
-    this.getTripMetadata();
-    this.getRequestMetadata();
-    this.getReviewerMetadata();
-    this.getTravellerMetadata();
+    this.getMetadata();
     this.getHelpText();
   },
   mounted() {

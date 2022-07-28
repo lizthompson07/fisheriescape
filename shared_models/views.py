@@ -198,6 +198,7 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
     # set this to false if you do not want the delete button to be greyed out if there are related objects
     delete_protection = True
     submit_text = None
+    non_blocking_fields = None
 
     def get_h1(self):
         if self.h1:
@@ -250,6 +251,11 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
 
             # go through each related field. If there is a related object, we set set a flag and exit the loop
             field_map_dict = type(self.get_object())._meta.fields_map
+
+            if self.non_blocking_fields:
+                for field in self.non_blocking_fields:
+                    field_map_dict.pop(field, None)
+
             for field in field_map_dict:
                 temp_related_name = field_map_dict[field].related_name
 
@@ -442,6 +448,15 @@ class CommonFormsetView(TemplateView, CommonFormMixin):
     pre_display_fields = ["id", ]
     post_display_fields = None
     random_object = None
+    cancel_url = None
+
+    def get_cancel_url(self):
+        if self.cancel_url:
+            return self.cancel_url
+        elif self.get_parent_crumb():
+            return self.parent_crumb.get("url")
+        elif self.home_url_name:
+            return reverse(self.home_url_name)
 
     # override this if there are authorization requirements
     def get_queryset(self):
@@ -471,6 +486,7 @@ class CommonFormsetView(TemplateView, CommonFormMixin):
         context['random_object'] = self.get_random_object()
         context['delete_url_name'] = self.delete_url_name
         context['container_class'] = self.container_class
+        context["cancel_url"] = self.get_cancel_url()
 
         context.update(super().get_common_context())
         # overwrite the existing field list to take just the fields being passed in by the formset / form

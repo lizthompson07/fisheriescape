@@ -3,10 +3,11 @@ from django.db.models import Sum, Avg
 from django.http import HttpResponse
 from django.template.defaultfilters import floatformat
 
-from dm_apps.utils import Echo
+from dm_apps.utils import Echo, get_timezone_time
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from . import models
+
 
 def generate_sample_csv(year, fishing_areas, rivers, sites):
     """Returns a generator for an HTTP Streaming Response"""
@@ -99,7 +100,7 @@ def generate_obs_csv(year, fishing_areas, rivers, sites):
         if field.attname not in field_names:
             field_names.append(field.attname)
     header_row = [field for field in field_names]  # starter
-    header_row.extend(["site", "site_id"])
+    header_row.extend(["site", "site_id", "arrival_date", "departure_date"])
 
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
@@ -107,7 +108,82 @@ def generate_obs_csv(year, fishing_areas, rivers, sites):
 
     for obj in qs:
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
-        data_row.extend([obj.sample.site, obj.sample.site_id ])
+        data_row.extend([obj.sample.site, obj.sample.site_id, obj.sample.arrival_date, obj.sample.departure_date])
+        yield writer.writerow(data_row)
+
+
+def generate_obs_csv_v1(qs):
+    """Returns a generator for an HTTP Streaming Response"""
+    random_obj = models.Observation.objects.first()
+    header_row = [
+        "Site",
+        "Year",
+        "Month",
+        "Day",
+        "Time_start",
+        "Time_end",
+        "Species",
+        "TAG_ID",
+        "Status",
+        "Origin",
+        "FL",
+        "TotL",
+        "Weight",
+        "Sex",
+        "Smolt age",
+        "Scale_ID",
+        "JULIAN_DAY",
+        "ORDINAL_DAY",
+        "First_Tag_location",
+        "First_Tag_Day",
+        "DAYS_AFTER_RT",
+        "FishID",
+    ]
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    yield writer.writerow(header_row)
+
+    for obj in qs:
+
+        first_tag_location = "NA"
+        first_tag_day = "NA"
+        days_after_rt = "NA"
+
+        if obj.is_recapture:
+            if obj.first_tagging:
+                first_tag_location = obj.first_tagging.sample.site
+                first_tag_day = obj.first_tagging.sample.arrival_date.strftime("%Y-%m-%d")
+                days_after_rt = obj.sample.arrival_date.toordinal() - obj.first_tagging.sample.arrival_date.toordinal()
+            else:
+                first_tag_location = "cannot find record of first tagging"
+                first_tag_day = "cannot find record of first tagging"
+                days_after_rt = "cannot find record of first tagging"
+
+        data_row = [
+            obj.sample.site,
+            obj.sample.arrival_date.year,
+            obj.sample.arrival_date.month,
+            obj.sample.arrival_date.day,
+            get_timezone_time(obj.sample.arrival_date).strftime("%H:%M"),
+            get_timezone_time(obj.sample.departure_date).strftime("%H:%M"),
+            f"{obj.species} ({obj.life_stage})",
+            nz(obj.tag_number, "NA"),
+            obj.status.code if obj.status else "NA",
+            obj.origin.code if obj.origin else "NA",
+            obj.fork_length if obj.fork_length else "NA",
+            obj.total_length if obj.total_length else "NA",
+            nz(obj.weight, "NA"),
+            obj.sex.code if obj.sex else "NA",
+            nz(obj.river_age, "NA"),
+            nz(obj.scale_id_number, "NA"),
+            nz(obj.sample.julian_day, "NA"),
+            obj.sample.arrival_date.toordinal(),
+            first_tag_location,
+            first_tag_day,
+            days_after_rt,
+            obj.id,
+        ]
         yield writer.writerow(data_row)
 
 
@@ -200,10 +276,9 @@ def generate_entry_report(year, sites):
         'weight',
         'sex',
         'smolt_age',
-        'location_tagged',
-        'date_tagged',
+        # 'location_tagged',
+        # 'date_tagged',
         'scale_id_number',
-        'tags_removed',
         'notes',
     ])
 
@@ -227,10 +302,9 @@ def generate_entry_report(year, sites):
                 entry.weight,
                 entry.sex,
                 entry.smolt_age,
-                entry.location_tagged,
-                entry.date_tagged,
+                # entry.location_tagged,
+                # entry.date_tagged,
                 entry.scale_id_number,
-                entry.tags_removed,
                 entry.notes,
             ])
 

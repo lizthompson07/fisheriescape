@@ -39,6 +39,9 @@ var app = new Vue({
     errorTooSmallFinancial: false,
     projectYears: [],
     staff: [],
+    staff_type_summary: [],
+    staff_level_summary: [],
+    staff_funding_summary: [],
     dmas: [],
     financials: [],
     next: null,
@@ -46,9 +49,13 @@ var app = new Vue({
     count: 0,
 
     // filters
-    filter: {},
+    filter: {
+      statuses: []
+    },
 
     showColumnAllocation: false,
+    showColumnSalaryAllocation: false,
+    showColumnCapitalAllocation: false,
     showColumnLeads: true,
     showColumnHidden: true,
     showColumnScore: false,
@@ -60,6 +67,7 @@ var app = new Vue({
     fiscalYears: [],
     tags: [],
     services: [],
+    statuses: [],
     themes: [],
     functionalGroups: [],
     fundingSources: [],
@@ -99,7 +107,7 @@ var app = new Vue({
             let reportUrl;
             if (reportName === "basic") reportUrl = `{% url 'ppt:export_py_list' %}?ids=${ids}`;
             else if (reportName === "long") reportUrl = `{% url 'ppt:export_py_list' %}?long=true&ids=${ids}`;
-            else if (reportName === "capital-costs") reportUrl = `{% url 'ppt:export_crc' %}?ids=${ids}`;
+            else if (reportName === "costs") reportUrl = `{% url 'ppt:export_costs' %}?ids=${ids}`;
             window.location.href = reportUrl;
             this.loadingReport = false;
           }
@@ -162,11 +170,16 @@ var app = new Vue({
       if (this.filter.region) endpoint += `region=${this.filter.region}&`;
       if (this.filter.division) endpoint += `division=${this.filter.division}&`;
       if (this.filter.section) endpoint += `section=${this.filter.section}&`;
+
+      if (this.filter.statuses.length) for (const status of this.filter.statuses) endpoint += `statuses=${status}&`;
+
+
       if (this.filter.status) endpoint += `status=${this.filter.status}&`;
       if (this.filter.approval_status) endpoint += `approval_status=${this.filter.approval_status}&`;
       if (this.filter.approval_level) endpoint += `approval_level=${this.filter.approval_level}&`;
       if (this.filter.funding_status) endpoint += `funding_status=${this.filter.funding_status}&`;
       if (this.filter.om_cost_category) endpoint += `om_cost_category=${this.filter.om_cost_category}&`;
+      if (this.filter.activity_type) endpoint += `activity_type=${this.filter.activity_type}&`;
 
       if (this.filter.has_ship_needs === true || this.filter.has_ship_needs === false) endpoint += `has_ship_needs=${this.filter.has_ship_needs}&`;
       if (this.filter.requires_specialized_equipment === true || this.filter.requires_specialized_equipment === false) endpoint += `requires_specialized_equipment=${this.filter.requires_specialized_equipment}&`;
@@ -264,11 +277,14 @@ var app = new Vue({
                     pyIds.push(response.results[i].id)
                   }
 
-                  let endpoint2 = `/api/ppt/fte-breakdown/?year=${this.filter.fiscal_year}&ids=${pyIds}`;
+                  let endpoint2 = `/api/ppt/staffing/?year=${this.filter.fiscal_year}&ids=${pyIds}`;
                   apiService(endpoint2)
                       .then(response => {
                         this.staff_loading = false;
-                        this.staff = response;
+                        this.staff = response.results;
+                        this.staff_level_summary = response.level_summary;
+                        this.staff_type_summary = response.type_summary;
+                        this.staff_funding_summary = response.funding_summary;
                       })
                 }
               }
@@ -397,6 +413,10 @@ var app = new Vue({
       staff.showRelatedProjects = !staff.showRelatedProjects
       this.$forceUpdate()
     },
+    toggleShowFilteredProjects(staff) {
+      staff.showFilteredProjects = !staff.showFilteredProjects
+      this.$forceUpdate()
+    },
     generateReports(url, tag) {
       window.open(url + "?" + this.getFilterString(), tag, 'toolbar=0,status=0,height=500,width=600');
     },
@@ -407,6 +427,7 @@ var app = new Vue({
       apiService(`/api/ppt/meta/models/projectyear/`).then(data => {
         this.projectYearLabels = data.labels;
         this.services = data.service_choices;
+        this.statuses = data.status_choices;
       });
       apiService(`/api/ppt/meta/models/review/`).then(data => {
         this.reviewLabels = data.labels;

@@ -246,7 +246,21 @@
           {% for obj in object.meetings.all %}
             <tr @click="followLink('{% url 'csas2:meeting_detail' obj.id %}')" class="pointy">
               {% for field in meeting_field_list %}
-                <td>{% get_field_value obj field safe=True %}</td>
+                {% if "somp" in field %}
+                  {% if obj.is_planning %}
+                    <td>---</td>
+                  {% else %}
+                    <td><span class="p-1 {% if obj.is_somp_submitted %}good{% else %}bad {% endif %}">{% get_field_value obj field safe=True %}</span></td>
+                  {% endif %}
+                {% elif "posted" in field %}
+                  {% if obj.is_planning %}
+                    <td>---</td>
+                  {% else %}
+                    <td><span class="p-1 {% if obj.is_posted %}good{% else %}bad {% endif %}">{% get_field_value obj field safe=True %}</span></td>
+                  {% endif %}
+                {% else %}
+                  <td>{% get_field_value obj field safe=True %}</td>
+                {% endif %}
               {% endfor %}
             </tr>
           {% endfor %}
@@ -271,17 +285,12 @@
       </div>
 
       {% if object.documents.exists %}
-
         <table class="table table-hover table-sm">
           <thead>
           <tr>
-            <th rowspan="2" class="w400">{% trans "Title" %}</th>
-            <th rowspan="2">{% trans "Type" %}</th>
-            <th rowspan="2">{% trans "Status" %}</th>
-            <th v-if="keystoneMeetings.length" class="text-center" :colspan="keystoneMeetings.length">{% trans "Meeting Linkages" %}</th>
-          </tr>
-          <tr>
-            <th v-for="m, index in keystoneMeetings" :key="m.id" class="text-center text-muted">${m.display}</th>
+            <th class="w-50">{% trans "Title" %}</th>
+            <th>{% trans "Type" %}</th>
+            <th>{% trans "Status" %}</th>
           </tr>
           </thead>
           <tbody>
@@ -289,13 +298,6 @@
             <td>${d.ttitle}</td>
             <td>${d.document_type}</td>
             <td v-html="d.status_display"></td>
-            <td v-for="m, index in keystoneMeetings" :key="m.id" class="text-center">
-              <button v-if="d.meetings.includes(m.id)" @click="toggleMeetingLinkage(d, m, $event)" class="btn my-0 py-0"><span
-                class="py-0 my-0 mdi mdi-checkbox-marked-outline"></span></button>
-              <button v-else @click="toggleMeetingLinkage(d, m, $event)" class="btn my-0 py-0"><span class="py-0 my-0 mdi mdi-checkbox-blank-outline"></span>
-              </button>
-            </td>
-
           </tr>
           </tbody>
         </table>
@@ -420,16 +422,6 @@
       },
       goDocumentDetail(document) {
         window.location.href = `/csas-sccs/documents/${document.id}/view/`;
-      },
-      toggleMeetingLinkage(doc, meeting, event) {
-        console.log(event)
-        // stop propagation of window change
-        event.stopPropagation()
-        let endpoint = `/api/csas/documents/${doc.id}/?meeting=${meeting.id}`;
-        apiService(endpoint, "POST")
-            .then(response => {
-              this.getDocuments()
-            })
       },
       getDocuments() {
         this.loadingDocs = true;

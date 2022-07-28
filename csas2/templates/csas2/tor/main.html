@@ -10,19 +10,16 @@
 {% block subcontent %}
   <div id="app" v-cloak>
 
-    <div class="float-right" v-if="canModify">
-      <button v-if="tor.status === 30" class="btn btn-lg btn-danger" @click="resumeReview">{% trans "Resume the Review" %}</button>
-      <button v-else-if="tor.status === 35" class="btn btn-lg btn-purple" @click="postToR">{% trans "Request for Posting" %}</button>
-    </div>
 
     <div class="btns mb-5">
-      <a v-if="canUnsubmit" class="btn btn-sm btn-primary" href="{% url 'csas2:tor_submit' object.id %}">
-        {% if object.submission_date %}
-          {% trans "Un-submit" %}
-        {% else %}
-          {% trans "Submit" %}
-        {% endif %}
+      <a v-if="tor.submission_date && canUnsubmit" class="btn btn-sm btn-primary" href="{% url 'csas2:tor_submit' object.id %}">
+        {% trans "Un-submit" %}
       </a>
+      <a v-else-if="canSubmit.allowed" class="btn btn-sm btn-primary" href="{% url 'csas2:tor_submit' object.id %}">
+        {% trans "Submit" %}
+      </a>
+      <span v-else data-toggle="tooltip" :title="canSubmit.reason"><a class="btn btn-sm btn-primary disabled" href="#">{% trans "Submit" %}</a></span>
+
       <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:tor_edit' object.id %}">{% trans "Edit" %}</a>
 
       <div class="neighbours">
@@ -38,8 +35,11 @@
             <a class="dropdown-item" href="{% url 'csas2:tor_html' object.id %}?lang=fr">{% trans "HTML (fr)" %}</a>
           </div>
         </div>
+      </div>
 
-
+      <div class="neighbours" v-if="canModify">
+        <button v-if="tor.status === 30" class="btn btn-sm btn-danger" @click="resumeReview">{% trans "Resume the Review" %}</button>
+        <button v-else-if="tor.status === 35" class="btn btn-sm btn-purple" @click="postToR">{% trans "Request for Posting" %}</button>
       </div>
 
     </div>
@@ -140,6 +140,7 @@
       reviewerLabels: {},
 
       decisionChoices: [],
+      roleChoices: [],
 
       errorReviewer: null
     },
@@ -170,6 +171,7 @@
         apiService(`/api/csas/model-metas/?app_name=csas2&model_name=ToRReviewer`).then(data => {
           this.reviewerLabels = data.labels;
           this.decisionChoices = data.decision_choices
+          this.roleChoices = data.role_choices
         });
       },
       getToR() {
@@ -189,8 +191,16 @@
         this.reviewers.push({
           tor: this.tor.id,
           order: this.reviewers.length + 1,
+          role: 1,
           status: 10,
+          can_be_modified: true,
         })
+      },
+      getReviewer(reviewer) {
+        apiService(`/api/csas/tor-reviewers/${reviewer.id}/`, "GET")
+            .then(response => {
+              if (response.id) this.$set(this.reviewers, this.reviewers.indexOf(reviewer), response);
+            })
       },
       updateReviewer(reviewer) {
         this.errorReviewer = null;
@@ -198,7 +208,10 @@
           apiService(`/api/csas/tor-reviewers/${reviewer.id}/`, "PUT", reviewer)
               .then(response => {
                 if (response.id) reviewer = response;
-                else this.errorReviewer = groomJSON(response);
+                else {
+                  alert(groomJSON(response));
+                  this.getReviewer(reviewer);
+                }
               })
         } else {
           apiService(`/api/csas/tor-reviewers/`, "POST", reviewer)
@@ -215,7 +228,10 @@
           userInput = confirm("{% trans "Are you sure you want to remove this reviewer?" %}");
           if (userInput) {
             apiService(`/api/csas/tor-reviewers/${reviewer.id}/`, "DELETE")
-                .then(response => this.$delete(this.reviewers, this.reviewers.indexOf(reviewer)))
+                .then(response => {
+                  if (response) alert(groomJSON(response));
+                  else this.$delete(this.reviewers, this.reviewers.indexOf(reviewer));
+                })
           }
         } else this.$delete(this.reviewers, this.reviewers.indexOf(reviewer))
       },
@@ -275,7 +291,21 @@
       },
       canEditReviewers() {
         // return this.canModify && !this.tor.submisison_date
-        return Boolean(this.tor && this.canModify && !this.tor.submission_date)
+        return Boolean(this.tor && this.canModify)
+      },
+      canSubmit() {
+        let payload = {
+          allowed: false,
+          reason: "{% trans "You must have at least one approver in the approval queue before submitting the ToR." %}"
+        };
+        for (const reviewer of this.reviewers) {
+          if (reviewer.role === 1 && reviewer.id) {
+            payload.allowed = true;
+            payload.reason = null;
+            break;
+          }
+        }
+        return payload;
       },
       showReviewerForm() {
         // tor status must == under review and the current user must be the reviewer

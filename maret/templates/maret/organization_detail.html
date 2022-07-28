@@ -76,6 +76,15 @@
                                         {% endfor %}
                                     </td>
                                 </tr>
+                            {% elif field == "email" %}
+                                <tr>
+                                    <th class="w-25"> {% get_verbose_label instance=object field_name=field %} </th>
+                                    <td>
+                                        {% for ext_org in object.ext_org.all %}
+                                            {{ ext_org.email }}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
                             {% elif field == "regions" %}
                                <tr>
                                     <th class="w-25"> {%  trans "Area(s)" %} </th>

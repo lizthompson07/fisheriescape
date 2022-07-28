@@ -1,0 +1,57 @@
+{% load i18n %}
+
+<li class="nav-item"><a class="nav-link" href="{% url 'cars:index' %}">
+  {% trans "Home" %}
+</a></li>
+
+{% if is_admin %}
+
+
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      {% trans "Admin" %}
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <li>
+        <a class="dropdown-item" href="{% url 'cars:manage_vehicle_types' %}">
+          {% trans "Vehicle Types" %}
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="{% url 'cars:manage_locations' %}">
+          {% trans "Locations" %}
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="{% url 'cars:manage_vehicles' %}">
+          {% trans "Vehicles" %}
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="{% url 'cars:manage_faqs' %}">
+          {% trans "FAQ" %}
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="{% url 'cars:ref_mat_list' %}">
+          {% trans "Reference Materials" %}
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="{% url 'cars:rsvp_list' %}">
+          {% trans "All Reservations" %}
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="{% url 'cars:manage_cars_users' %}" target="_blank">
+          {% trans "User Permissions" %}
+        </a>
+      </li>
+    </ul>
+  </li>
+{% endif %}
+
+
+
+
+

@@ -1,0 +1,62 @@
+{% extends 'cars/list.html' %}
+{% load i18n %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load bootstrap5 %}
+
+{% block subcontent %}
+  <div class="mb-5">
+    <h1>{% trans "Resources" %}</h1>
+    <div class="mt-3">
+      <div class="mb-2 pl-3">
+        {% for ref in refs %}
+          {% if ref.tfile %}
+            <div class="mb-1">
+              <span class="mdi mdi-link text-dark mr-1" style="font-size: large"></span>
+              <a href="{{ ref.tfile.url }}" target="_blank" class="lead"> {{ ref.tname }} </a>
+            </div>
+          {% elif ref.turl %}
+            <div class="mb-1">
+              <span class="mdi mdi-link text-dark mr-1" style="font-size: large"></span>
+              <a href="{{ ref.turl }}" target="_blank" class="lead"> {{ ref.tname }} </a>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <h1> {% trans "Frequently asked questions" %} </h1>
+  </div>
+  {{ block.super }}
+
+{% endblock %}
+
+
+
+{% block table_and_table_header %}
+
+
+  <div class="accordion" id="accordionFAQ">
+    {% for object in object_list %}
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading{{ object.id }}">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ object.id }}" aria-expanded="true"
+                  aria-controls="collapse{{ object.id }}">
+            <strong>Q:</strong> &nbsp; {{ object.tquestion }}
+          </button>
+        </h2>
+        <div id="collapse{{ object.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ object.id }}" data-bs-parent="#accordionFAQ">
+          <div class="accordion-body ps-5">
+            {{ object.tanswer|safe }}
+          </div>
+        </div>
+      </div>
+
+    {% endfor %}
+
+  </div>
+
+{% endblock %}

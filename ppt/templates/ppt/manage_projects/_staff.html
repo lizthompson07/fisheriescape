@@ -23,11 +23,98 @@
     </p>
   </div>
   <div v-else class="">
+    {# start of summary stats #}
+    <div>
+      <h4>
+        Staffing Summary
+      </h4>
+    </div>
     <table class="table table-sm table-bordered" style="width: auto">
       <thead>
       <tr>
-        <th rowspan="2">{% trans "Staff Name (registered DM Apps users only)" %}</th>
+        <th rowspan="2" class="text-center">{% trans "Level" %}</th>
+        <th rowspan="2" style="width: 5%;" class="text-center">{% trans "Count" %}</th>
         <th colspan="3" class="text-center">{% trans "FTE (weeks)" %}</th>
+      </tr>
+      <tr>
+        <th style="width: 20%;" class="text-center">{% trans "Draft" %}</th>
+        <th style="width: 20%;" class="text-center">{% trans "Submitted, Unapproved" %}</th>
+        <th style="width: 20%;" class="text-center">{% trans "Approved" %}</th>
+      </tr>
+      </thead>
+      <tbody v-for="(row, index) in staff_level_summary">
+        <tr >
+          <td class="text-center">${row.index}</td>
+          <td class="text-center">${row.count}</td>
+          <td class="text-center">${row.draft}</td>
+          <td class="text-center">${row.submitted_unapproved}</td>
+          <td class="text-center">${row.approved}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="table table-sm table-bordered" style="width: auto">
+      <thead>
+           <tr>
+        <th rowspan="2" class="text-center">{% trans "Employee Type" %}</th>
+        <th rowspan="2" style="width: 5%;" class="text-center">{% trans "Count" %}</th>
+        <th colspan="3" class="text-center">{% trans "FTE (weeks)" %}</th>
+      </tr>
+      <tr>
+        <th style="width: 20%;" class="text-center">{% trans "Draft" %}</th>
+        <th style="width: 20%;" class="text-center">{% trans "Submitted, Unapproved" %}</th>
+        <th style="width: 20%;" class="text-center">{% trans "Approved" %}</th>
+      </tr>
+      </thead>
+      <tbody v-for="(row, index) in staff_type_summary">
+        <tr >
+          <td class="text-center">${row.index}</td>
+          <td class="text-center">${row.count}</td>
+          <td class="text-center">${row.draft}</td>
+          <td class="text-center">${row.submitted_unapproved}</td>
+          <td class="text-center">${row.approved}</td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="table table-sm table-bordered" style="width: auto">
+      <thead>
+           <tr>
+        <th rowspan="2" class="text-center">{% trans "Funding Type" %}</th>
+        <th colspan="3" class="text-center">{% trans "FTE (weeks)" %}</th>
+      </tr>
+      <tr>
+        <th style="width: 20%;" class="text-center">{% trans "Draft" %}</th>
+        <th style="width: 20%;" class="text-center">{% trans "Submitted, Unapproved" %}</th>
+        <th style="width: 20%;" class="text-center">{% trans "Approved" %}</th>
+      </tr>
+      </thead>
+      <tbody v-for="(row, index) in staff_funding_summary">
+        <tr >
+          <td class="text-center">${row.index}</td>
+          <td class="text-center">${row.draft}</td>
+          <td class="text-center">${row.submitted_unapproved}</td>
+          <td class="text-center">${row.approved}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    {# end of summary stats #}
+
+
+   <div>
+      <h4>
+        Staffing Details
+      </h4>
+    </div>
+
+    <table class="table table-sm table-bordered" style="width: auto">
+      <thead>
+      <tr>
+        <th rowspan="2">{% trans "Section" %}</th>
+        <th rowspan="2">{% trans "Staff Name (registered DM Apps users only)" %}</th>
+        <th rowspan="2">{% trans "Employee Type" %}</th>
+        <th rowspan="2">{% trans "Level" %}</th>
+        <th colspan="3" class="text-center">{% trans "FTE (weeks, filtered/all)" %}</th>
       </tr>
       <tr>
         <th style="width: 20%;" class="text-center">{% trans "Draft" %}</th>
@@ -38,10 +125,21 @@
       <tbody v-for="(s, index) in staff">
 
         <tr >
+          <td>${s.section}</td>
           <td>${s.name}</td>
-          <td class="text-center">${s.draft | floatformat | zero2NullMark }</td>
-          <td class="text-center">${s.submitted_unapproved| floatformat | zero2NullMark}</td>
-          <td class="text-center">${s.approved| floatformat | zero2NullMark}</td>
+          <td>${s.employee_type}</td>
+          <td>${s.level}</td>
+          <td class="text-center">${s.filtered_draft | floatformat | zero2NullMark } / ${s.draft | floatformat | zero2NullMark }</td>
+          <td class="text-center">${s.filtered_submitted_unapproved| floatformat | zero2NullMark} / ${s.submitted_unapproved| floatformat | zero2NullMark} </td>
+          <td class="text-center">${s.filteredapproved| floatformat | zero2NullMark} / ${s.approved| floatformat | zero2NullMark} </td>
+          <td>
+            <button v-if="s.showFilteredProjects" @click="toggleShowFilteredProjects(s)" class="btn btn-sm btn-warning py-0 px-1">
+              <span>  {% trans "hide filtered projects" %} </span>
+            </button>
+            <button v-else @click="toggleShowFilteredProjects(s)" class="btn btn-sm btn-success py-0 px-1">
+              <span>  {% trans "show filtered projects" %} </span>
+            </button>
+          </td>
           <td>
             <button v-if="s.showRelatedProjects" @click="toggleShowProjects(s)" class="btn btn-sm btn-warning py-0 px-1">
               <span>  {% trans "hide projects" %} </span>
@@ -50,10 +148,16 @@
               <span>  {% trans "show projects" %} </span>
             </button>
           </td>
+
         </tr>
         <tr v-if="s.showRelatedProjects">
-          <td colspan="4">
+          <td colspan="7">
             <staff-table :staff="s"></staff-table>
+          </td>
+        </tr>
+        <tr v-if="s.showFilteredProjects">
+          <td colspan="7">
+            <staff-filtered-table :staff="s"></staff-filtered-table>
           </td>
         </tr>
 

@@ -351,6 +351,9 @@ class Record(models.Model):
             return {"x": my_polygon.centroid.coords[0][0],
                     "y": my_polygon.centroid.coords[0][1]}
 
+    def all_points(self):
+        if self.points.count() > 0:
+            return [(point.latitude_n, point.longitude_w) for point in self.points.all()]
 
 #
 # @receiver(models.signals.post_delete, sender=Record)

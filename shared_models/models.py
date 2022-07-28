@@ -30,8 +30,7 @@ class SimpleLookup(models.Model):
     name = models.CharField(unique=True, max_length=255, verbose_name=_("name (en)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (fr)"))
 
-    @property
-    def tname(self):
+    def get_tname(self):
         # check to see if a french value is given
         if getattr(self, str(_("name"))):
             my_str = "{}".format(getattr(self, str(_("name"))))
@@ -39,6 +38,10 @@ class SimpleLookup(models.Model):
         else:
             my_str = self.name
         return my_str
+
+    @property
+    def tname(self):
+        return self.get_tname()
 
     def __str__(self):
         return self.tname

@@ -132,12 +132,13 @@ urlpatterns = [
     path('reports/sar-workplan/', views.export_sar_workplan, name="export_sar_workplan"),
     path('reports/regional-staff-allocation/', views.export_regional_staff_allocation, name="export_rsa"),
     path('reports/project-position-allocation/', views.export_project_position_allocation, name="export_ppa"),  # TODO: test
-    path('reports/project-capital-request-costs/', views.export_capital_request_costs, name="export_crc"),  # TODO: test
+    path('reports/project-capital-request-costs/', views.export_costs, name="export_costs"),  # TODO: test
     path('reports/project-equpiment-summary/', views.export_equipment_summary, name="export_eqp"),
     path('reports/project-field-staff-summary/', views.export_field_staff_summary, name="export_staff"),
     path('reports/project-lab-summary/', views.export_lab_summary, name="export_lab"),
 
     path('reports/project-basic/', views.export_py_list, name="export_py_list"),  # TODO: test
+    path('reports/cost-descriptions/', views.export_cost_descriptions, name="export_cost_descriptions"),  # TODO: test
 
 
     # special

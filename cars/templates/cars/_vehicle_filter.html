@@ -1,0 +1,37 @@
+{% load bootstrap5 %}
+{% load i18n %}
+
+<p>
+  <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false"
+          aria-controls="collapseExample">
+    <span class="mdi mdi-filter mr-1 text-light"></span> {% trans "Filtering Options" %}
+  </button>
+</p>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+    <form class="form" action="." method="get" id="">
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field filter.form.search placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
+          {% bootstrap_field filter.form.vehicle_type placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field filter.form.custodian placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
+          {% bootstrap_field filter.form.max_passengers__gte placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field filter.form.location placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
+          {% bootstrap_field filter.form.is_active placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field filter.form.location__region placeholder="" size="small" form_group_class="mb-2" label_class="mb-0" %}
+          <div class="mt-4 float-right">
+            <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+            <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
