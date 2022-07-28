@@ -122,10 +122,16 @@ label {
                 {% url 'spot:obj_detail' object.id as my_url %}
                 <tr href="{{ my_url }}">
                     {% for field in field_list %}
-                        {% if "outcome" in field %}
+                        {% if "sample_outcome" in field %}
                             <td>
                             {% for sample in object.sample_outcome.all %}
                                 {{ sample.sampling_outcome }},
+                            {% endfor %}
+                                </td>
+                        {% elif "report_outcome" in field %}
+                            <td>
+                            {% for sample in object.report_outcome.all %}
+                                {{ sample.reporting_outcome }},
                             {% endfor %}
                                 </td>
                         {% elif "species" in field %}

@@ -37,6 +37,21 @@ class UnilingualSimpleLookup(models.Model):
         return self.name
 
 
+class StockManagementUnit(UnilingualSimpleLookup):
+    objects =models.Manager()
+    pass
+
+
+class SubDistrictArea(UnilingualSimpleLookup):
+    objects =models.Manager()
+    pass
+
+
+class DU(UnilingualSimpleLookup):
+    objects =models.Manager()
+    pass
+
+
 class MonitoringApproach(UnilingualSimpleLookup):
     objects =models.Manager()
     pass
@@ -149,13 +164,13 @@ class River(models.Model):
     name = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Name"))
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("Latitude"))
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("Longitude"))
-    sub_district_area = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Area"))
+    sub_district_area = models.ForeignKey(SubDistrictArea, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Area"))
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, default=None, null=True, blank=True, related_name='river_species', verbose_name=_("Target Species"))
     cu_index = models.ForeignKey(CUIndex, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("CU Index"))
     cu_name = models.ForeignKey(CUName, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("CU Name"))
-    stock_management_unit = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Stock Management Unit"))
-    pop_id = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Stock Management Unit"))
-    du = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("DU"))
+    stock_management_unit = models.ForeignKey(StockManagementUnit, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Stock Management Unit"))
+    popid = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Stock Management Unit"))
+    du = models.ForeignKey(DU, null=True, on_delete=models.DO_NOTHING, blank=True, verbose_name=_("DU"))
     du_number = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("DU Number"))
 
     def __str__(self):
@@ -270,7 +285,6 @@ class Method(models.Model):
     field_work_method_type = models.CharField(max_length=255, null=True, default=None, blank=True, verbose_name=_("Field Work Methods Type"))
     planning_method_type = models.CharField(max_length=255, null=True, default=None, blank=True, verbose_name=_("Planning Method Type"))
     sample_processing_method_type = models.CharField(max_length=255, null=True, default=None, blank=True, verbose_name=_("Sample Processing Method Type"))
-    knowledge_consideration = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Traditional Ecological Knowledge Consideration"))
 
     scale_processing_location = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Scale Processing Location"))
     otolith_processing_location = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Otolith Processing Location"))
@@ -373,23 +387,16 @@ class Objective(models.Model):
     project = models.ForeignKey('Project', default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='project_objective', verbose_name=_("Agreement Number"))
     unique_objective = models.CharField(max_length=255, blank=True, null=True)
     task_description = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Task Description"))
-    element_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Element Title"))
+    element_title = models.TextField(max_length=255, blank=True, null=True, verbose_name=_("Element Title"))
     activity_title = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Activity Title"))
 
     pst_requirement = models.CharField(max_length=255, default=None,  blank=True, null=True, verbose_name=_("PST Requirement Identified?"))
     location = models.ForeignKey(River, blank=True, default=None, on_delete=models.DO_NOTHING, null=True, verbose_name=_("Location"))
     objective_category = models.ManyToManyField(ObjectiveCategory, default=None, blank=True, verbose_name=_("Objective Category"))
     sil_requirement = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("SIL Requirement"))
-
     expected_results = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Expected Result(s)"))
     dfo_report = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Products/Reports to Provide DFO"))
-
-    outcomes_contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_objective', verbose_name=_("Outcomes Contact"))
     outcomes_comment = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Outcome Comment"))
-    outcome_barrier = models.ManyToManyField(OutComeBarrier, default=None, blank=True, verbose_name=_("Barrier to Achieve Outcomes(?)"))
-    capacity_building = models.ManyToManyField(CapacityBuilding, default=None, blank=True, verbose_name=_("What capacity building did this project provide?"))
-    key_lesson = models.TextField(max_length=1000, null=True, blank=True, verbose_name=_("Key Lessons Learned"))
-    missed_opportunities = models.TextField(max_length=1000, null=True, blank=True, verbose_name=_("Missed Opportunities"))
 
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -421,8 +428,9 @@ class Project(models.Model):
     ecosystem_type = models.ManyToManyField(EcosystemType, default=None, blank=True, verbose_name=_("Eco System Type"))
     lake_system = models.ManyToManyField(LakeSystem, default=None, related_name='project', blank=True, verbose_name=_("Lake System"))
     watershed = models.ManyToManyField(Watershed, default=None, blank=True, related_name='proeject', verbose_name=_("Watershed"))
-    management_area = models.ManyToManyField(ManagementArea, blank=True, verbose_name=_("Pacific Region Management Area"))
     area = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Area"))
+    other_site_info = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Other Site Information"))
+
     salmon_life_stage = models.ManyToManyField(SalmonLifeStage, default=None, blank=True, verbose_name=_("Salmon Life Stage"))
     aquaculture_license_number = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Aquaculture License Number"))
     water_license_number = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Water License Number"))
@@ -443,14 +451,14 @@ class Project(models.Model):
     DFO_link = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=_("Link to other DFO Programs"))
     DFO_program_reference = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("Linked DFO Program Project Reference"))
     government_organization = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Link to other Government Departments"))
-    policy_program_connection = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Policy and Program Connection"))
+    policy_connection = models.TextField(max_length=5000, null=True, blank=True, verbose_name=_("Policy Connections"))
 
 
     # PEOPLE & ORGANIZATIONS
     DFO_project_authority = models.ManyToManyField(Person, blank=True, related_name='DFO_project_authority', verbose_name=_("DFO Project Authority"))
-    DFO_area_chief = models.ManyToManyField(Person, blank=True, related_name='DFO_area_chief', verbose_name=_("DFO Area Chief"))
-    DFO_AAA = models.ManyToManyField(Person, blank=True, related_name='DFO_aboriginal_AAA', verbose_name=_("DFO Aboriginal Affairs Advisor"))
-    DFO_resource_manager = models.ManyToManyField(Person, blank=True, related_name='DFO_resource_manager', verbose_name=_("DFO Resource Manager"))
+    DFO_area_chief = models.ManyToManyField(Person, blank=True, related_name='DFO_area_chief', verbose_name=_("DFO Area Chief or Manager"))
+    DFO_IAA = models.ManyToManyField(Person, blank=True, related_name='DFO_aboriginal_AAA', verbose_name=_("DFO Indigenous Affairs Advisor"))
+    DFO_resource_manager = models.ManyToManyField(Person, blank=True, related_name='DFO_resource_manager', verbose_name=_("DFO Resource Manager/Fisheries Manager"))
     funding_recipient = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Funding Recipient"))
     first_nation = models.ForeignKey(FirstNations, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='tribal_council', verbose_name=_("First Nation/Tribal Council"))
     contact = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='first_nations_contact', verbose_name=_("Contact"))
@@ -467,7 +475,7 @@ class Project(models.Model):
     funding_sources = models.ManyToManyField(FundingSources, blank=True, verbose_name=_("Funding Sources"))
     other_funding_sources = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("If you have chosen 'Other' in funding sources above please provide them"))
     agreement_type = models.CharField(max_length=255, blank=True, null=True, verbose_name=_('Agreement Type'))
-    lead_organization = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Project Lead Organization"))
+    lead_organization = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Project Lead Organization/Program"))
 
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -529,12 +537,14 @@ class SampleOutcome(models.Model):
 class ReportOutcome(models.Model):
     objects = models.Manager()
     objective = models.ForeignKey(Objective, default=None, on_delete=models.CASCADE, null=True, blank=True, related_name='report_outcome', verbose_name=_("Objective"))
+    site = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Site"))
     unique_objective_number = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Unique Objective Number"))
     reporting_outcome = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Reporting Outcome"))
     outcome_delivered = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Was the outcome deliverable met?"))
     report_link = models.ForeignKey(Reports, on_delete=models.DO_NOTHING, default=None, blank=True, null=True, verbose_name=_("Report Link"))
     report_outcome_comment = models.TextField(max_length=5000, default=None, null=True, blank=True, verbose_name=_("Reporting Outcome Comment"))
     reporting_outcome_metric = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_("Reporting Outcome Metric"))
+
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
@@ -555,6 +565,7 @@ class FundingYears(models.Model):
     funding_year = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Funding Year"))
     agreement_cost = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Annual Agreement Cost"))
     project_cost = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Annual Project Cost"))
+    costing_comment = models.TextField(max_length=5000, default=None, null=True, blank=True, verbose_name=_("Comment"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 

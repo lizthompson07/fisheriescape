@@ -23,6 +23,21 @@
              <th style="width: 120px">
                 {% trans "Sample Processing Method Type" %}
             </th>
+            <th style="width: 120px">
+                {% trans "Scale Processing Location" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Otolith Processing Location" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "DNA Processing Location" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Heads Processing Location" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Instrument Processing Location" %}
+            </th>
         </tr>
         <tbody>
         {% for obj in object.project_method.all %}
@@ -32,6 +47,21 @@
                 </td>
                 <td>
                     {{ obj.sample_processing_method_type }}
+                </td>
+                <td>
+                    {{ obj.scale_processing_location }}
+                </td>
+                <td>
+                    {{ obj.otolith_processing_location }}
+                </td>
+                <td>
+                    {{ obj.DNA_processing_location }}
+                </td>
+                <td>
+                    {{ obj.heads_processing_location }}
+                </td>
+                <td>
+                    {{ obj.instrument_data_processing_location }}
                 </td>
             </tr>
         {% endfor %}
