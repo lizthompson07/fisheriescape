@@ -46,6 +46,7 @@
         <th class="w-50">${omCostLabels.description}</th>
         <th class="w150">${omCostLabels.funding_source}</th>
         <th class="w150">${omCostLabels.amount}</th>
+        <th class="w150">${omCostLabels.allocated_amount}</th>
       </tr>
       </thead>
       <tbody>
@@ -62,6 +63,10 @@
         <td>
           <span v-if="item.amount == 0||!item.amount" class="major-error py-1 px-1">${item.amount | currencyFormat}</span>
           <span v-else>${item.amount | currencyFormat}</span>
+        </td>
+        <td>
+            <span v-if="item.allocated_amount == 0||!item.allocated_amount" class="major-error py-1 px-1">${item.allocated_amount | currencyFormat}</span>
+            <span v-else>${item.allocated_amount | currencyFormat}</span>
         </td>
         <td class="to-the-right" v-if="canModify">
           <button @click="openModal(item, 'om_cost')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>

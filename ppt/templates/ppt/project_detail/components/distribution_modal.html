@@ -1,0 +1,140 @@
+{% load i18n %}
+{% load bootstrap4 %}
+{% load custom_filters %}
+{% load project_filters %}
+{% load static %}
+<!-- template for the modal component -->
+<script type="text/x-template" id="distribution-modal-template">
+<transition name="modal">
+  <div class="modal-mask">
+    <div class="modal-wrapper">
+      <div class="modal-container">
+        <div class="modal-header">
+          <slot name="header">
+            <h3>
+              <span>{% trans "Distribution" %}</span>
+            </h3>
+            <div v-if="errors" class="alert alert-danger" role="alert">
+              <h4 class="alert-heading">
+                {% trans "The form has a few errors:" %}
+              </h4>
+              <hr>
+              <span v-html="errors"></span>
+            </div>
+          </slot>
+        </div>
+        <div class="modal-body">
+          <slot name="body">
+            <div>
+              <span v-if="fundsAvailable >= 0">
+                There are ${fundsAvailable | currencyFormat} of ${allocation.amount | currencyFormat} to distribute.
+              </span>
+              <span v-else class="major-error">
+                There are ${fundsAvailable | currencyFormat} of ${allocation.amount | currencyFormat} to distribute.
+              </span>
+            </div>
+            <table class="table table-sm w-75">
+              <thead>
+                <th>Category</th>
+                <th v-if="allocation_type='staff'">Name</th>
+                <th v-if="allocation_type='staff'">Level</th>
+                <th>Funding Source</th>
+                <th>Amount Requested</th>
+                <th>Allocation</th>
+              </thead>
+              <tbody>
+                <tr v-for="c in costs">
+                  <td>${c.category_display}</td>
+                  <td v-if="allocation_type='staff'">${c.smart_name}</td>
+                  <td v-if="allocation_type='staff'">${c.level_display}</td>
+
+                  <td>${c.funding_source_display}</td>
+                  <td>${c.amount}</td>
+                  <td v-if="c.allocated_source === null || c.allocated_source === allocation.id">
+                    <input type="number" v-model="c.allocated_amount" @change="updateCost(c)">
+                  </td>
+                  <td v-else>${c.allocated_amount}</td>
+
+                </tr>
+              </tbody>
+            </table>
+
+          </slot>
+        </div>
+        <div class="modal-footer">
+          <slot name="footer">
+            <button class="btn btn-secondary" @click="$emit('close')" id="closeBtn" type="button">
+              {% trans "Close" %}
+            </button>
+          </slot>
+        </div>
+      </div>
+    </div>
+  </div>
+</transition>
+</script>
+
+
+<script type="application/javascript">
+Vue.component("distribution-modal", {
+  template: "#distribution-modal-template",
+  delimiters: ["${", "}"],
+  props: {
+    allocation: {
+      type: Object,
+      required: true,
+    },
+    costs: {
+      type: Array,
+      required: true
+    },
+    allocation_type:{
+      type: String,
+      required: true
+    },
+  },
+  data() {
+    return {
+      currentUser: null,
+      DmAppsUsers: [],
+      loadingDMAppsUsers: false,
+      isACRDP: false,
+      isCSRF: false,
+      original_user: null,
+      errors: null,
+    }
+  },
+  methods: {
+    onSubmit() {
+      this.errors = null
+    },
+    getCurrentUser() {
+      let endpoint = `/api/ppt/user/`;
+      apiService(endpoint)
+          .then(response => {
+            this.currentUser = response;
+          })
+    },
+    updateCost(cost) {
+      cost.allocated_source = this.allocation.id;
+      apiService(`/api/ppt/${this.allocation_type}/${cost.id}/`, "PUT", cost).then(data => {
+        cost = data
+      })
+    },
+  },
+  computed: {
+    created() {
+      this.getCurrentUser();
+    },
+    fundsAvailable: function() {
+      let distributedFunds = 0
+      for (let i = 0; i < this.costs.length; i++) {
+        if (this.costs[i].allocated_source === this.allocation.id) {
+          distributedFunds += parseInt(this.costs[i].allocated_amount);
+        }
+      }
+      return this.allocation.amount - distributedFunds
+    }
+  },
+})
+</script>

@@ -41,15 +41,17 @@
       <thead>
       {% get_staff_field_list as staff_field_list %}
       {% for field in staff_field_list %}
-          {% if field == "amount" %}
-        <th v-if="canModify">
+        {% if field == "amount" %}
+          <th v-if="canModify">
             {% trans "Approx. ammount (CAD)" %}
-        </th>
-          {% else %}
-        <th>
+          </th>
+        {% elif "distributed_amount" in field %}
+          <th v-if="canModify">{% trans "Distributed amount" %}</th>
+        {% else %}
+          <th>
             {% get_verbose_label random_staff field %}
-        </th>
-          {% endif %}
+          </th>
+        {% endif %}
       {% endfor %}
       </thead>
       <tbody>
@@ -80,6 +82,11 @@
             <td>${s.employee_type_display | nz}</td>
           {% elif "student" in field %}
             <td>${s.student_program_display | nz}</td>
+          {% elif "allocated_amount" in field %}
+            <td v-if="canModify">
+              <span v-if="s.allocated_amount == 0||!s.allocated_amount" class="major-error py-1 px-1">${s.allocated_amount | currencyFormat}</span>
+              <span v-else>${s.allocated_amount | currencyFormat}</span>
+            </td>
           {% elif "amount" in field %}
             <td v-if="canModify">${s.amount | currencyFormat}</td>
           {% elif "duration" in field %}

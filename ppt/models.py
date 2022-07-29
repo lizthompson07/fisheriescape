@@ -726,7 +726,7 @@ class GenericCost(models.Model):
         abstract = True
 
 
-class OMAllocation(GenericCost):
+class GenericAllocation(GenericCost):
     # not actually a cost, but uses same fields
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
 
@@ -734,29 +734,29 @@ class OMAllocation(GenericCost):
         return f"{self.funding_source}"
 
     class Meta:
+        abstract = True
         ordering = ['funding_source', ]
 
 
-class CapitalAllocation(GenericCost):
-    # not actually a cost, but uses same fields
-    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
-
-    def __str__(self):
-        return f"{self.funding_source}"
-
-    class Meta:
-        ordering = ['funding_source', ]
+class OMAllocation(GenericAllocation):
+    @property
+    def distributed_amount(self):
+        amt_dict = OMCost.objects.filter(allocated_source=self).aggregate(Sum('allocated_amount'))
+        return amt_dict["allocated_amount__sum"]
 
 
-class SalaryAllocation(GenericCost):
-    # not actually a cost, but uses same fields
-    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+class CapitalAllocation(GenericAllocation):
+    @property
+    def distributed_amount(self):
+        amt_dict = CapitalCost.objects.filter(allocated_source=self).aggregate(Sum('allocated_amount'))
+        return amt_dict["allocated_amount__sum"]
 
-    def __str__(self):
-        return f"{self.funding_source}"
 
-    class Meta:
-        ordering = ['funding_source', ]
+class SalaryAllocation(GenericAllocation):
+    @property
+    def distributed_amount(self):
+        amt_dict = Staff.objects.filter(allocated_source=self).aggregate(Sum('allocated_amount'))
+        return amt_dict["allocated_amount__sum"]
 
 
 class EmployeeType(SimpleLookup):
@@ -792,9 +792,15 @@ class Staff(GenericCost):
     role = models.TextField(blank=True, null=True, verbose_name=_("role in the project"))  # CSRF
     expertise = models.TextField(blank=True, null=True, verbose_name=_("key expertise"))  # CSRF
 
-    allocated_amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
+    allocated_amount = models.FloatField(default=0, verbose_name=_("amount allocated (CAD)"), blank=True, null=True)
     allocated_source = models.ForeignKey(SalaryAllocation, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          verbose_name=_("Allocation Source"))
+
+    def save(self, *args, **kwargs):
+        if not self.allocated_amount:
+            self.allocated_amount = 0
+            self.allocated_source = None
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.smart_name
@@ -864,12 +870,18 @@ class OMCost(GenericCost):
     om_category = models.ForeignKey(OMCategory, on_delete=models.DO_NOTHING, related_name="om_costs", verbose_name=_("category"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
 
-    allocated_amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
+    allocated_amount = models.FloatField(default=0, verbose_name=_("amount allocated (CAD)"), blank=True, null=True)
     allocated_source = models.ForeignKey(OMAllocation, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          verbose_name=_("Allocation Source"))
     @property
     def category_type(self):
         return self.om_category.get_group_display()
+
+    def save(self, *args, **kwargs):
+        if not self.allocated_amount:
+            self.allocated_amount = 0
+            self.allocated_source = None
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.om_category}"
@@ -888,9 +900,15 @@ class CapitalCost(GenericCost):
     category = models.IntegerField(choices=category_choices, verbose_name=_("category"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
 
-    allocated_amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
+    allocated_amount = models.FloatField(default=0, verbose_name=_("amount allocated (CAD)"), blank=True, null=True)
     allocated_source = models.ForeignKey(CapitalAllocation, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          verbose_name=_("Allocation Source"))
+
+    def save(self, *args, **kwargs):
+        if not self.allocated_amount:
+            self.allocated_amount = 0
+            self.allocated_source = None
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.display

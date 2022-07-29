@@ -426,6 +426,7 @@ class CapitalCostSerializer(serializers.ModelSerializer):
 class AllocationSerializer(serializers.ModelSerializer):
     funding_source_display = serializers.SerializerMethodField()
     project_year_id = serializers.SerializerMethodField()
+    distributed_amount = serializers.SerializerMethodField()
 
     def get_funding_source_display(self, instance):
         return str(instance.funding_source)
@@ -433,6 +434,8 @@ class AllocationSerializer(serializers.ModelSerializer):
     def get_project_year_id(self, instance):
         return instance.project_year_id
 
+    def get_distributed_amount(self, instance):
+        return instance.distributed_amount
 
 class SalaryAllocationSerializer(AllocationSerializer):
     class Meta:

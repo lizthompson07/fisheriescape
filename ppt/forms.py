@@ -417,7 +417,7 @@ class OMCostForm(forms.ModelForm):
 
 
 class CapitalCostForm(forms.ModelForm):
-    field_order = ["category", "funding_source", "description", "amount"]
+    field_order = ["category", "funding_source", "description", "amount", "allocated_amount", "allocated_source"]
 
     class Meta:
         model = models.CapitalCost
@@ -426,6 +426,8 @@ class CapitalCostForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["amount"].widget.attrs = {"v-model": "capital_cost.amount"}
+        self.fields["allocated_amount"].widget.attrs = {"v-model": "capital_cost.allocated_amount"}
+        self.fields["allocated_source"].widget.attrs = {"v-model": "capital_cost.allocated_source"}
         self.fields["funding_source"].widget.attrs = {"v-model": "capital_cost.funding_source"}
         self.fields["description"].widget.attrs = {"v-model": "capital_cost.description"}
         self.fields["category"].widget.attrs = {"v-model": "capital_cost.category"}

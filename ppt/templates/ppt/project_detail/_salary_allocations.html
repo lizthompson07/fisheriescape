@@ -38,9 +38,13 @@
       <thead>
       {% get_allocation_field_list as salary_field_list %}
       {% for field in salary_field_list %}
-        <th>
-          {% get_verbose_label random_salary_allocation field %}
-        </th>
+        {% if "distributed_amount" in field %}
+          <th>{% trans "Distributed amount" %}</th>
+        {% else %}
+          <th>
+            {% get_verbose_label random_capital_allocation field %}
+          </th>
+        {% endif %}
       {% endfor %}
       </thead>
       <tbody>
@@ -52,6 +56,11 @@
               <span v-else-if="isBBase(item.funding_source_display)" class="b-base py-1 px-1">${item.funding_source_display | nz }</span>
               <span v-else-if="isCBase(item.funding_source_display)" class="c-base py-1 px-1">${item.funding_source_display | nz }</span>
               <span v-else>${item.funding_source_display | nz }</span>
+            </td>
+          {% elif "distributed_amount" in field %}
+            <td>
+              <span v-if="item.distributed_amount == 0||!item.distributed_amount" class="major-error py-1 px-1">${item.distributed_amount | currencyFormat}</span>
+              <span v-else>${item.distributed_amount | currencyFormat}</span>
             </td>
           {% elif "amount" in field %}
             <td>
@@ -65,6 +74,8 @@
         <td class="to-the-right" v-if="canModify">
           <button @click="openModal(item, 'salary_allocation')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteObject(item, 'salary-allocations', salary_allocations)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
+          <button @click="openDistributionModal(item, 'distribution', 'staff')" class="{{ btn_class_2 }} no-print"><span>Distribute</span></button>
+
         </td>
       </tr>
       </tbody>

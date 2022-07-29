@@ -590,6 +590,7 @@ def get_staff_field_list():
         # 'overtime_description',
         # 'student_program',
         'amount',
+        'allocated_amount',
     ]
     return my_list
 
@@ -616,6 +617,8 @@ def get_om_field_list():
         'description',
         'funding_source',
         'amount',
+        'allocated_amount',
+
     ]
     return my_list
 
@@ -626,6 +629,7 @@ def get_capital_field_list():
         'description',
         'funding_source',
         'amount',
+        'allocated_amount',
     ]
     return my_list
 
@@ -635,6 +639,7 @@ def get_allocation_field_list():
         'description',
         'funding_source',
         'amount',
+        'distributed_amount',
     ]
     return my_list
 
