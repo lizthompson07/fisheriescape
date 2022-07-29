@@ -958,7 +958,7 @@ def export_project_full(request):
                 river_tmp.stock_management_unit.name if river_tmp.stock_management_unit else None,
                 river_tmp.cu_index.name if river_tmp.cu_index else None,
                 river_tmp.cu_name.name if river_tmp.cu_name else None,
-                river_tmp.pop_id if river_tmp.pop_id else None,
+                river_tmp.popid if river_tmp.popid else None,
                 river_tmp.du.name if river_tmp.du else None,
                 river_tmp.du_number if river_tmp.du_number else None,
 
@@ -1570,7 +1570,7 @@ def export_project(request):
                 river_tmp.stock_management_unit.name if river_tmp.stock_management_unit else None,
                 river_tmp.cu_index.name if river_tmp.cu_index else None,
                 river_tmp.cu_name.name if river_tmp.cu_name else None,
-                river_tmp.pop_id if river_tmp.pop_id else None,
+                river_tmp.popid if river_tmp.popid else None,
                 river_tmp.du.name if river_tmp.du else None,
                 river_tmp.du_number if river_tmp.du_number else None,
             ]

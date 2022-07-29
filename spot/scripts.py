@@ -585,7 +585,12 @@ def delete_species():
     models.Species.objects.all().delete()
 
 
+def delete_restart_2():
+    models.SampleOutcome.objects.all().delete()
+
+
 def delete_restart():
+    '''
     models.SampleOutcome.objects.all().delete()
     models.ReportOutcome.objects.all().delete()
     models.FundingYears.objects.all().delete()
@@ -596,7 +601,8 @@ def delete_restart():
     models.Data.objects.all().delete()
     models.Objective.objects.all().delete()
     models.Project.objects.all().delete()
-    models.River.objects.all().delete()
+    '''
+    #models.River.objects.all().delete()
     models.Species.objects.all().delete()
     models.MonitoringApproach.objects.all().delete()
     models.EcosystemType.objects.all().delete()
@@ -619,9 +625,9 @@ def delete_restart():
     models.Watershed.objects.all().delete()
     models.Person.objects.all().delete()
     models.Organization.objects.all().delete()
-    models.StockManagementUnit.objects.all().delete()
-    models.SubDistrictArea.objects.all().delete()
-    models.DU.objects.all().delete()
+    #models.StockManagementUnit.objects.all().delete()
+    #models.SubDistrictArea.objects.all().delete()
+    #models.DU.objects.all().delete()
 
 
 def import_restart():

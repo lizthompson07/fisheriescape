@@ -157,12 +157,12 @@ class MeetingsFilter(django_filters.FilterSet):
 
 class ReportsFilter(django_filters.FilterSet):
     area = django_filters.MultipleChoiceFilter(field_name='project__area', choices=choices.AREA, widget=forms.SelectMultiple(attr_chosen), lookup_expr='icontains', label='Area')
-    river = django_filters.ModelMultipleChoiceFilter(field_name='river', queryset=models.River.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='River')
-    species = django_filters.ModelMultipleChoiceFilter(field_name='river__species', queryset=models.Species.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='Species')
-    cu_name = django_filters.ModelMultipleChoiceFilter(field_name='river__cu_name', queryset=models.CUName.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='CU Name')
-    sub_district_area = django_filters.ModelMultipleChoiceFilter(field_name='river__sub_district_area', queryset=models.SubDistrictArea.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='Stock Management Area')
-    smu = django_filters.ModelMultipleChoiceFilter(field_name='river__stock_management_unit', queryset=models.StockManagementUnit.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='Stock Management Area')
-    du = django_filters.ModelMultipleChoiceFilter(field_name='river__du', queryset=models.DU.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='DU')
+    river = django_filters.ModelMultipleChoiceFilter(field_name='project__river', queryset=models.River.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='River')
+    species = django_filters.ModelMultipleChoiceFilter(field_name='project__river__species', queryset=models.Species.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='Species')
+    cu_name = django_filters.ModelMultipleChoiceFilter(field_name='project__river__cu_name', queryset=models.CUName.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='CU Name')
+    sub_district_area = django_filters.ModelMultipleChoiceFilter(field_name='project__river__sub_district_area', queryset=models.SubDistrictArea.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='Stock Management Area')
+    smu = django_filters.ModelMultipleChoiceFilter(field_name='project__river__stock_management_unit', queryset=models.StockManagementUnit.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='Stock Management Area')
+    du = django_filters.ModelMultipleChoiceFilter(field_name='project__river__du', queryset=models.DU.objects.all(), widget=forms.SelectMultiple(attr_chosen), label='DU')
     project_type = django_filters.MultipleChoiceFilter(field_name='project__project_type', choices=choices.PROJECT_TYPE, widget=forms.SelectMultiple(attr_chosen),  lookup_expr='icontains', label='Project Type')
     project_theme = django_filters.ModelMultipleChoiceFilter(field_name='project__project_theme', queryset=models.ProjectTheme.objects.all(), widget=forms.SelectMultiple(attr_chosen))
     core_component = django_filters.ModelMultipleChoiceFilter(field_name='project__core_component', queryset=models.CoreComponent.objects.all(), widget=forms.SelectMultiple(attr_chosen))
