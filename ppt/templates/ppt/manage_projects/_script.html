@@ -5,6 +5,7 @@
 {% include "ppt/project_detail/components/salary_allocation_modal.html" %}
 {% include "ppt/project_detail/components/om_allocation_modal.html" %}
 {% include "ppt/project_detail/components/capital_allocation_modal.html" %}
+{% include "ppt/project_detail/components/capital_distribution_modal.html" %}
 
 <script type="application/javascript">
 Vue.component('v-select', VueSelect.VueSelect);
@@ -84,6 +85,8 @@ var app = new Vue({
     // modal
     projectYear2Review: {},
     p2Update: {},
+    allocation2Distribute: {},
+    costs2Fund: {},
     objectToEdit: {},
     showReviewModal: false,
     approvalModal: false,
@@ -91,6 +94,7 @@ var app = new Vue({
       salary_allocation: false,
       om_allocation: false,
       capital_allocation: false,
+      capital_distribution: false,
     },
 
   },

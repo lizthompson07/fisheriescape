@@ -581,6 +581,7 @@ def get_staff_field_list():
     my_list = [
         'smart_name|{}'.format(_("name")),
         'funding_source',
+        'is_primary_lead',
         'is_lead',
         'employee_type',
         'level',

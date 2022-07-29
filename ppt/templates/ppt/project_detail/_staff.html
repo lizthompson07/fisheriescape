@@ -57,12 +57,15 @@
         {% for field in staff_field_list %}
           {% if "smart_name" in field %}
             <td>${s.smart_name| nz}</td>
-          {% elif "lead" in field %}
+          {% elif "is_lead" in field %}
             <td>
             <span v-if="s.is_lead" class="good p-1">${s.is_lead | yesNo}</span>
             <span v-else class="p-1">${s.is_lead | yesNo}</span>
-
-
+            </td>
+          {% elif "is_primary_lead" in field %}
+            <td>
+            <span v-if="s.is_primary_lead" class="good p-1">${s.is_lead | yesNo}</span>
+            <span v-else class="p-1">${s.is_primary_lead | yesNo}</span>
             </td>
           {% elif "funding_source" in field %}
             <td>

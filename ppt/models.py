@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
+from django.core.exceptions import ValidationError
 from markdown import markdown
 from textile import textile
 
@@ -778,6 +779,7 @@ class Staff(GenericCost):
     ]
     employee_type = models.ForeignKey(EmployeeType, on_delete=models.DO_NOTHING, verbose_name=_("employee type"))
     is_lead = models.BooleanField(default=False, verbose_name=_("project lead"), choices=((True, _("yes")), (False, _("no"))))
+    is_primary_lead = models.BooleanField(default=False, verbose_name=_("primary project lead"), choices=((True, _("yes")), (False, _("no"))))
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"),
                              related_name="staff_instances2")
     name = models.CharField(max_length=255, verbose_name=_("Person name (leave blank if user is selected)"), blank=True, null=True)
@@ -790,11 +792,15 @@ class Staff(GenericCost):
     role = models.TextField(blank=True, null=True, verbose_name=_("role in the project"))  # CSRF
     expertise = models.TextField(blank=True, null=True, verbose_name=_("key expertise"))  # CSRF
 
+    allocated_amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
+    allocated_source = models.ForeignKey(SalaryAllocation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("Allocation Source"))
+
     def __str__(self):
         return self.smart_name
 
     class Meta:
-        ordering = ['-is_lead', 'employee_type', 'level']
+        ordering = ['-is_primary_lead', '-is_lead', 'employee_type', 'level']
         unique_together = [('project_year', 'user'), ]
 
     @property
@@ -817,6 +823,12 @@ class Staff(GenericCost):
             return self.user.get_full_name() if self.user else self.name
         else:
             return "---"
+
+    def clean(self, *args, **kwargs):
+        if self.is_primary_lead:
+            if Staff.objects.filter(is_primary_lead=True, project_year=self.project_year).count():
+                raise ValidationError("There can only be one primary lead per project year.")
+        super(Staff, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         if self.user:
@@ -852,6 +864,9 @@ class OMCost(GenericCost):
     om_category = models.ForeignKey(OMCategory, on_delete=models.DO_NOTHING, related_name="om_costs", verbose_name=_("category"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
 
+    allocated_amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
+    allocated_source = models.ForeignKey(OMAllocation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("Allocation Source"))
     @property
     def category_type(self):
         return self.om_category.get_group_display()
@@ -873,13 +888,16 @@ class CapitalCost(GenericCost):
     category = models.IntegerField(choices=category_choices, verbose_name=_("category"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
 
+    allocated_amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
+    allocated_source = models.ForeignKey(CapitalAllocation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("Allocation Source"))
+
     def __str__(self):
         return self.display
 
     @property
     def display(self):
         return f"{self.get_category_display()}"
-
 
     class Meta:
         ordering = ['category', ]

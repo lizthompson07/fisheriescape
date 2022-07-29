@@ -4,7 +4,7 @@
 {% load project_filters %}
 {% load static %}
 <!-- template for the modal component -->
-<script type="text/x-template" id="capital-allocation-modal-template">
+<script type="text/x-template" id="capital-distribution-modal-template">
 <transition name="modal">
   <div class="modal-mask">
     <div class="modal-wrapper">
@@ -12,8 +12,7 @@
         <div class="modal-header">
           <slot name="header">
             <h3>
-              <span v-if="!my_object">{% trans "New Capital Allocation" %}</span>
-              <span v-else>{% trans "Edit Capital Allocation" %}</span>
+              <span>{% trans "Capital Distribution" %}</span>
             </h3>
             <div v-if="errors" class="alert alert-danger" role="alert">
               <h4 class="alert-heading">
@@ -27,7 +26,32 @@
         <form method="post" @submit.prevent="onSubmit" class="form" enctype="multipart/form-data">
           <div class="modal-body">
             <slot name="body">
-              {% bootstrap_form capital_allocation_form size='small' %}
+              <div>
+                <span v-if="fundsAvailable">
+                  There are ${fundsAvailable | currencyFormat} of ${allocation.amount | currencyFormat} to distribute.
+                </span>
+                <span v-else>
+                  All  ${allocation.amount | currencyFormat} of funds have been distributed.
+                </span>
+              </div>
+              <table class="table table-sm w-75">
+                <thead>
+                  <th>Category</th>
+                  <th>Funding Source</th>
+                  <th>Amount Requested</th>
+                  <th>Allocation</th>
+                </thead>
+                <tbody>
+                  <tr v-for="c in costs">
+                    <td>${c.category_display}</td>
+                    <td>${c.funding_source_display}</td>
+                    <td>${c.amount}</td>
+                    <td>${c.allocated_amount}</td>
+                    <td>${c.allocated_source}</td>
+                  </tr>
+                </tbody>
+              </table>
+
             </slot>
           </div>
           <div class="modal-footer">
@@ -47,17 +71,17 @@
 
 
 <script type="application/javascript">
-Vue.component("capital-allocation-modal", {
-  template: "#capital-allocation-modal-template",
+Vue.component("capital-distribution-modal", {
+  template: "#capital-distribution-modal-template",
   delimiters: ["${", "}"],
   props: {
-    year: {
+    allocation: {
       type: Object,
       required: true,
     },
-    my_object: {
-      type: Object,
-      required: false,
+    costs: {
+      type: Array,
+      required: true
     },
   },
   data() {
@@ -69,34 +93,11 @@ Vue.component("capital-allocation-modal", {
       isCSRF: false,
       original_user: null,
       errors: null,
-      capital_allocation: {
-        funding_source: this.year.default_funding_source_id,
-        description: "",
-        amount: 0,
-      },
     }
   },
   methods: {
     onSubmit() {
       this.errors = null
-      if (this.my_object) {
-        let endpoint = `/api/ppt/capital-allocations/${this.my_object.id}/`;
-        apiService(endpoint, "PATCH", this.capital_allocation).then(response => {
-          if (response.id) this.$emit('close')
-          else {
-                        this.errors = groomJSON(response);
-          }
-        })
-      } else {
-        let endpoint = `/api/ppt/capital-allocations/`;
-        this.capital_allocation.project_year = this.year.id
-        apiService(endpoint, "POST", this.capital_allocation).then(response => {
-          if (response.id) this.$emit('close')
-          else {
-                        this.errors = groomJSON(response);
-          }
-        })
-      }
     },
     getCurrentUser() {
       let endpoint = `/api/ppt/user/`;
@@ -106,20 +107,13 @@ Vue.component("capital-allocation-modal", {
           })
     },
   },
-  computed: {},
-  created() {
-    this.getCurrentUser();
-    if (this.year.project.default_funding_source && this.year.project.default_funding_source.toLowerCase().search("acrdp") > -1) {
-      this.isACRDP = true;
+  computed: {
+    created() {
+      this.getCurrentUser();
+    },
+    fundsAvailable: function() {
+      return this.allocation.amount
     }
-    if (this.year.project.default_funding_source && this.year.project.default_funding_source.toLowerCase().search("csrf") > -1) {
-      this.isCSRF = true;
-    }
-    this.$nextTick(() => {
-      if (this.my_object && this.my_object.id) {
-        this.capital_allocation = this.my_object
-      }
-    })
   },
-});
+})
 </script>

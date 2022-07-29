@@ -353,6 +353,7 @@ class StaffForm(forms.ModelForm):
         "name",
         "employee_type",
         "is_lead",
+        "is_primary_lead",
         "funding_source",
         "amount",
         "level",
@@ -376,6 +377,7 @@ class StaffForm(forms.ModelForm):
         self.fields["amount"].widget.attrs = {"v-model": "staff.amount", ":disabled": "disableAmountField"}
         self.fields["funding_source"].widget.attrs = {"v-model": "staff.funding_source"}
         self.fields["is_lead"].widget.attrs = {"v-model": "staff.is_lead", "@change": "adjustStaffFields", }
+        self.fields["is_primary_lead"].widget.attrs = {"v-model": "staff.is_primary_lead", "@change": "adjustStaffFields", }
 
         self.fields["employee_type"].widget.attrs = {"v-model": "staff.employee_type", "@change": "adjustStaffFields"}
         self.fields["level"].widget.attrs = {"v-model": "staff.level", ":disabled": "disableLevelField"}

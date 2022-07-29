@@ -5,6 +5,7 @@
 {% include "ppt/project_detail/components/salary_allocation_modal.html" %}
 {% include "ppt/project_detail/components/om_allocation_modal.html" %}
 {% include "ppt/project_detail/components/capital_allocation_modal.html" %}
+{% include "ppt/project_detail/components/capital_distribution_modal.html" %}
 {% include "ppt/project_detail/components/activity_modal.html" %}
 {% include "ppt/project_detail/components/collaboration_modal.html" %}
 {% include "ppt/project_detail/components/file_modal.html" %}
@@ -42,6 +43,8 @@ var app = new Vue({
     project_financials_loading: false,
 
     objectToEdit: {},
+    allocation2Distribute: {},
+    costs2Fund: [],
     showModal: {
       staff: false,
       om_cost: false,
@@ -49,6 +52,7 @@ var app = new Vue({
       salary_allocation: false,
       om_allocation: false,
       capital_allocation: false,
+      capital_distribution: false,
       activity: false,
       collaboration: false,
       status_report: false,
@@ -266,6 +270,17 @@ var app = new Vue({
       this.objectToEdit = obj;
       this.showModal[which] = true;
     },
+
+    openDistributionModal(allocation, which, type) {
+      this.allocation2Distribute = allocation;
+      let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
+      apiService(endpoint)
+          .then(response => {
+            this.costs2Fund = response.results;
+          })
+      this.showModal[which] = true;
+    },
+
 
     // O&M
     getOMCosts(yearId) {
