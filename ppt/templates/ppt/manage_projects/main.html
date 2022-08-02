@@ -102,8 +102,9 @@
                         :my_object="objectToEdit"></om-allocation-modal>
     <capital-allocation-modal v-if="showModal.capital_allocation" @close="closeModal" :year="projectYear2Review"
                         :my_object="objectToEdit"></capital-allocation-modal>
-    <capital-distribution-modal v-if="showModal.capital_distribution" @close="closeModal" :allocation="allocation2Distribute"
-                        :costs="costs2Fund"></capital-distribution-modal>
+    <distribution-modal v-if="showModal.distribution" @close="closeModal" :allocation="allocation2Distribute"
+                        :costs="costs2Fund" :allocation_type="type2distribute"></distribution-modal>
+
   </div>
 
 

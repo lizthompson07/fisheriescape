@@ -491,12 +491,14 @@ var app = new Vue({
         this.showModal[showModalKey] = false;
       }
       this.objectToEdit = {}
+      this.allocation2Distribute = {}
+      this.costs2Fund = []
+      this.type2distribute = ""
       if (projectYear) {
         this.$nextTick(() => {
           this.getProjectYear(projectYear.id)
           this.getProjectFinancials(projectYear.project.id)
           this.getCurrentUser(projectYear.project.id)
-
         })
       }
     },

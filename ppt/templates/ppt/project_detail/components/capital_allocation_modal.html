@@ -32,6 +32,7 @@
           </div>
           <div class="modal-footer">
             <slot name="footer">
+              <button class="btn btn-primary" id="saveDistBtn">{% trans "Save and distribute" %}</button>
               <button class="btn btn-primary" id="saveBtn">{% trans "Save" %}</button>
               <button class="btn btn-secondary" @click="$emit('close')" id="closeBtn" type="button">
                 {% trans "Close" %}
