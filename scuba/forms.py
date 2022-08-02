@@ -138,7 +138,7 @@ class SectionForm(forms.ModelForm):
                                                       "step": "0.01", "class": klass}
         self.fields["percent_cobble"].widget.attrs = {"v-model": "sectionToEdit.percent_cobble", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
                                                       "step": "0.01", "class": klass}
-        self.fields["percent_pebble"].widget.attrs = {"v-model": "sectionToEdit.percent_pebble", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
+        self.fields["percent_boulder"].widget.attrs = {"v-model": "sectionToEdit.percent_boulder", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
                                                       "step": "0.01", "class": klass}
         self.fields["comment"].widget.attrs = {"v-model": "sectionToEdit.comment", "@change": "unsavedSectionWork=true", "row": 3, "class": klass}
 
