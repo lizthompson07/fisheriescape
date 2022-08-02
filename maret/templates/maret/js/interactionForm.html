@@ -1,7 +1,7 @@
 <script type="application/javascript">
 
     function updateFields() {
-        let int_type = parseInt($("#id_interaction_type :selected").val(), 10);
+        let is_committee = $("#id_is_committee :selected").val() == "True";
 
         let $committee = $("#committee_div");
         let $date_of_meeting = $("#date_of_meeting_div");
@@ -55,11 +55,7 @@
         $other_dfo_areas.show();
         $("#id_other_dfo_areas").prop("required", false);
 
-        if (int_type === 1 || int_type === 2 || int_type === 3 || int_type === 4) {
-            $("#id_date_of_meeting").prop("required", true);
-        }
-
-        if (int_type === 4) {
+        if (is_committee) {
             $committee.show();
             $("#id_committee").prop("required", true);
 
@@ -107,9 +103,6 @@
 
             $other_dfo_areas.hide();
             $("#id_other_dfo_areas").prop("required", false);
-        } else if (int_type === 5) {
-            $committee.show();
-            $("#id_committee").prop("required", true);
         }
     }
 
@@ -143,7 +136,7 @@
 
     }
 
-    $("#id_interaction_type").change(function () {
+    $("#id_is_committee").change(function () {
         updateFields();
         toggleAreaOfficeProgram();
         toggleDivision();

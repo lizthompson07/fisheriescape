@@ -185,19 +185,26 @@ class Committee(models.Model):
 
 class Interaction(models.Model):
     interaction_type_choices = (
-        (1, "Minister meeting"),
-        (2, "Deputy Minister meeting"),
-        (3, "Maritimes Region ad hoc meeting"),
-        (4, "Committee / Working Group meeting"),
+        # (1, "Minister meeting"), # Removed 2022-08-02
+        # (2, "Deputy Minister meeting"), # Removed 2022-08-02
+        # (3, "Maritimes Region ad hoc meeting"), # Removed 2022-08-02
+        # (4, "Committee / Working Group meeting"), # Removed 2022-08-02
         # (5, "Committee / Working Group correspondence"), # Removed 2021-11-16
-        (6, "Ministerial correspondence"),
-        (7, "Deputy Minister correspondence"),
-        (8, "Maritimes Region correspondence "),
-        (9, "Conference or workshop "),
+        # (6, "Ministerial correspondence"), # Removed 2022-08-02
+        # (7, "Deputy Minister correspondence"), # Removed 2022-08-02
+        # (8, "Maritimes Region correspondence "), # Removed 2022-08-02
+        # (9, "Conference or workshop "), # Removed 2022-08-02
+        (10, "Email or other written correspondence "),
+        (11, "In-person meeting"),
+        (12, "Hybrid meeting"),
+        (13, "Virtual or phone meeting "),
+        (14, "Conference or workshop "),
+
     )
 
     description = models.CharField(max_length=255, default="N/A", verbose_name="Short Description")
-    interaction_type = models.IntegerField(choices=interaction_type_choices, default=None)
+    interaction_type = models.IntegerField(choices=interaction_type_choices, blank=True, null=True, default=None)
+    is_committee = models.BooleanField(default=False, verbose_name=_("Committee or Working Group"), choices=YES_NO_CHOICES)
     committee = models.ForeignKey(Committee, blank=True, null=True, on_delete=models.DO_NOTHING,
                                   verbose_name="Committee / Working Group", related_name="committee_interactions")
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=None,

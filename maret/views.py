@@ -332,7 +332,7 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     def form_valid(self, form):
         super(InteractionCreateView, self).form_valid(form)
         self.object = form.save()
-        if self.object.interaction_type == 4:
+        if self.object.is_committee or self.object.interaction_type == 4:
             committee = self.object.committee
             self.object.main_topic.set(committee.main_topic.all())
             self.object.external_contact.set(committee.external_contact.all())
@@ -370,7 +370,7 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
     def form_valid(self, form):
         super(InteractionUpdateView, self).form_valid(form)
         self.object = form.save()
-        if self.object.interaction_type == 4:
+        if self.object.is_committee or self.object.interaction_type == 4:
             committee = self.object.committee
             self.object.main_topic.set(committee.main_topic.all())
             self.object.species.set(committee.species.all())
@@ -398,6 +398,7 @@ class InteractionDetailView(UserRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'interaction_type',
+            'is_committee',
             'committee',
             'dfo_role',
             'dfo_liaison',
