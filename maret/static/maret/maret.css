@@ -266,3 +266,8 @@ label.filter {
     -webkit-transform: scale(1.1);
     transform: scale(1.1);
 }
+
+label.required::after {
+    content: ' *';
+    color: red;
+}
