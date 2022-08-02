@@ -8,22 +8,34 @@
 {% block form_field %}
     <div id="{{ field.name }}_div">
         {% if field.name in help_text_dict %}
-            {% bootstrap_label field.label %}
+            {% if field.field.required %}
+                {% bootstrap_label field.label label_class="required" %}
+            {% else %}
+                {% bootstrap_label field.label %}
+            {% endif %}
             <span class="mdi mdi-help-circle-outline h6" data-toggle="popover" title="{{ field.label }}"
-                  data-content="{{ help_text_dict|lookup:field.name }}" data-trigger="hover"></span>
+                data-content="{{ help_text_dict|lookup:field.name }}" data-trigger="hover"></span>
 
             {% if manage_help_url %}
-                <a class='mdi mdi-plus-box h6 ml-1' pop-href='{% url manage_help_url model_name field.name %}'></a>
+                  <a class='mdi mdi-plus-box h6 ml-1' pop-href='{% url manage_help_url model_name field.name %}'></a>
             {% endif %}
 
             {% bootstrap_field field placeholder="" show_label=False %}
         {% elif not field.is_hidden and manage_help_url %}
             {# if the "is_hidden" attribute is true then don't show the help label #}
-            {% bootstrap_label field.label %}
+            {% if field.field.required %}
+                {% bootstrap_label field.label label_class="required" %}
+            {% else %}
+                {% bootstrap_label field.label %}
+            {% endif %}
             <a class='mdi mdi-plus-box h6 ml-1' pop-href='{% url manage_help_url model_name field.name %}'></a>
             {% bootstrap_field field placeholder="" show_label=False %}
         {% else %}
-            {% bootstrap_field field placeholder="" %}
+            {% if field.field.required %}
+                {% bootstrap_field field placeholder="" label_class="required" %}
+            {% else %}
+                {% bootstrap_field field placeholder="" %}
+            {% endif %}
         {% endif %}
     </div>
 {% endblock %}
