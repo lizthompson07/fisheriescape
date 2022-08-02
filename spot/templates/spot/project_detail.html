@@ -71,10 +71,10 @@
                     </button>
                   </h2>
                 </div>
-                  <div id="collapseOne" class="collapse show" aria-labelledby="headingOne">
+                  <div id="collapseOne" class="collapse" aria-labelledby="headingOne">
                  <div class="card-body">
                 <div class="col">
-                     <table class="table table-sm table-bordered" style="width: auto">
+                     <table class="table table-sm table-bordered" style="width: 100">
                         <h2><u>Project Information</u></h2>
                          {% for field in field_list %}
                             {% if field == 'project_categorization' %}
@@ -162,7 +162,7 @@
                     </button>
                   </h2>
                 </div>
-                <div id="collapseThree" class="collapse show" aria-labelledby="headingThree">
+                <div id="collapseThree" class="collapse" aria-labelledby="headingThree">
                  <div class="card-body">
                 <div>
                      {% include "spot/_data.html" %}
@@ -178,7 +178,7 @@
                         </button>
                       </h2>
                     </div>
-                    <div id="collapseFour" class="collapse show" aria-labelledby="headingFour">
+                    <div id="collapseFour" class="collapse" aria-labelledby="headingFour">
                      <div class="card-body">
                     <div>
                          {% include "spot/_methods.html" %}
@@ -195,7 +195,7 @@
                         </button>
                       </h2>
                     </div>
-                    <div id="collapseFive" class="collapse show" aria-labelledby="headingFive">
+                    <div id="collapseFive" class="collapse" aria-labelledby="headingFive">
                      <div class="card-body">
                     <div>
                          {% include "spot/_reports.html" %}
@@ -207,11 +207,11 @@
                     <div class="card-header" id="headingSix">
                       <h2 class="mb-0">
                         <button class="btn btn-link" data-toggle="collapse" data-target="#collapseSix" aria-expanded="true" aria-controls="collapseSix">
-                          {% trans "Objectives" %}
+                          {% trans "Activities & Outcomes" %}
                         </button>
                       </h2>
                     </div>
-                    <div id="collapseSix" class="collapse show" aria-labelledby="headingSix">
+                    <div id="collapseSix" class="collapse" aria-labelledby="headingSix">
                      <div class="card-body">
                     <div>
                          {% include "spot/_objectives.html" %}

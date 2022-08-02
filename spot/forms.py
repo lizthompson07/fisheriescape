@@ -75,7 +75,7 @@ class ProjectForm(forms.ModelForm):
         self.fields['DFO_technicians'].queryset = models.Person.objects.filter(is_active='Yes')
         self.fields['DFO_project_authority'].queryset = models.Person.objects.filter(is_active='Yes')
         self.fields['DFO_area_chief'].queryset = models.Person.objects.filter(is_active='Yes')
-        self.fields['DFO_AAA'].queryset = models.Person.objects.filter(is_active='Yes')
+        self.fields['DFO_IAA'].queryset = models.Person.objects.filter(is_active='Yes')
         self.fields['DFO_resource_manager'].queryset = models.Person.objects.filter(is_active='Yes')
         self.fields['contact'].queryset = models.Person.objects.filter(is_active='Yes')
         self.fields['partner_contact'].queryset = models.Person.objects.filter(is_active='Yes')
@@ -108,10 +108,9 @@ class ProjectForm(forms.ModelForm):
             'funding_sources': forms.SelectMultiple(attr_chosen),
             'agreement_type': forms.Select(choices=choices.AGREEMENT_TYPE, attrs=attr_chosen),
             'lead_organization': forms.Select(choices=choices.LEAD_ORGANIZATION, attrs=attr_chosen),
-            'policy_program_connection': forms.Select(choices=choices.POLICY_PROGRAM, attrs=attr_chosen),
             'DFO_project_authority': forms.SelectMultiple(attr_chosen),
             'DFO_area_chief': forms.SelectMultiple(attr_chosen),
-            'DFO_AAA': forms.SelectMultiple(attr_chosen),
+            'DFO_IAA': forms.SelectMultiple(attr_chosen),
             'DFO_resource_manager': forms.SelectMultiple(attr_chosen),
             'first_nation': forms.Select(attr_chosen),
             'contact': forms.Select(attr_chosen),
@@ -138,7 +137,7 @@ class ProjectForm(forms.ModelForm):
             'start_date': 'Project start date',
             'end_date': 'Project end date',
             'Area': 'Pacific Area where project is primarily taking place',
-            'river': 'Chose river location- linked to Lat/Long',
+            'river': 'Please choose River-Species combination. This will result in CU, SMU and DU being assigned. If River is unknown, please choose: Unknown. ',
             'lake_system': 'Lake system where the project is taking place',
             'ecosystem_type': 'The aquatic ecosystem type(s) where the project takes place',
             'watershed': 'Watershed that the project is located',
@@ -156,9 +155,9 @@ class ProjectForm(forms.ModelForm):
             'DFO_link': 'Linkage with other DFO projects (data is collected for or resources shared)',
             'DFO_program_reference': 'Specific reference number and type for program listed above',
             'government_organization': 'Other Government Organizations involved in the project',
-            'policy_program_connection': 'DFO Initiatives or Strategic Plans',
+            'policy_connection': 'DFO Initiatives or Strategic Plans',
             'DFO_project_authority': 'Name of Project Authority',
-            'DFO_AAA': 'Aboriginal Affairs Advisor associated with the project',
+            'DFO_IAA': 'Aboriginal Affairs Advisor associated with the project',
             'DFO_resource_manager': 'Resource manager associated with the project',
             'first_nation': 'First Nations group associated with the project',
             'first_nations_contact': 'Primary contact for the First Nations group involved with the project',
@@ -270,7 +269,7 @@ class DataForm(forms.ModelForm):
             'sample_format': forms.Select(choices=choices.SAMPLE_FORMAT, attrs=attr_chosen),
             'data_products': forms.Select(choices=choices.DATA_PRODUCTS, attrs=attr_chosen),
             'data_products_database': forms.Select(choices=choices.DATABASE, attrs=attr_chosen),
-            'data_programs': forms.Select(attr_chosen),
+
             'data_communication': forms.Select(attr_chosen),
             'data_quality_check': forms.Select(choices=choices.YES_NO_UNKNOWN, attrs=attr_chosen),
             'last_modified_by': forms.HiddenInput(),
@@ -289,7 +288,6 @@ class DataForm(forms.ModelForm):
             'data_products': 'Intermediate or final data product that can be produced from all or part sample collections',
             'data_products_database': 'Databases or shared drives where any partial or fully-analyzed data is stored',
             'data_products_comment': 'Open Text',
-            'data_programs': 'Software used in the analysis of any data at any stage in the sample collection or data analysis process of the project',
         }
 
 

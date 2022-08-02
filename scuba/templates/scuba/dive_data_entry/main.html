@@ -342,7 +342,7 @@
               percent_gravel: 0,
               percent_hard: 0,
               percent_mud: 0,
-              percent_pebble: 0,
+              percent_boulder: 0,
               percent_sand: 0,
             }
 
@@ -529,7 +529,7 @@
               Number(this.sectionToEdit.percent_algae) +
               Number(this.sectionToEdit.percent_gravel) +
               Number(this.sectionToEdit.percent_cobble) +
-              Number(this.sectionToEdit.percent_pebble)) * 100).toFixed() + "%"
+              Number(this.sectionToEdit.percent_boulder)) * 100).toFixed() + "%"
           if (myString === "99%") myString = "100%"
           return myString
         },
