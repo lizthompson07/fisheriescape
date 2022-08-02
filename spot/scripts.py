@@ -3,7 +3,7 @@ import csv
 import os
 from dm_apps import settings
 from . import models
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 
 def import_watershed():
@@ -25,9 +25,6 @@ def import_rivers():
     with open(path) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            if row['SYSTEM_SITE'] == "":
-                continue
-
             if row['SPECIES_QUALIFIED'] and row['SPECIES_QUALIFIED'] != "":
                 species_tmp, _ = models.Species.objects.get_or_create(name=row['SPECIES_QUALIFIED'])
             else:
@@ -43,6 +40,21 @@ def import_rivers():
             else:
                 cu_name_tmp = None
 
+            if row['DU'] and row['DU'] != "":
+                du_name_tmp, _ = models.DU.objects.get_or_create(name=row['DU'])
+            else:
+                du_name_tmp = None
+
+            if row['SMU'] and row['SMU'] != "":
+                SMU_name_tmp, _ = models.StockManagementUnit.objects.get_or_create(name=row['SMU'])
+            else:
+                SMU_name_tmp = None
+
+            if row['AREA'] and row['AREA'] != "":
+                area_name_tmp, _ = models.SubDistrictArea.objects.get_or_create(name=row['AREA'])
+            else:
+                area_name_tmp = None
+
             if row['X_LONGT'] == "Unknown":
                 long_tmp = None
             else:
@@ -53,17 +65,26 @@ def import_rivers():
             else:
                 lat_tmp = row['Y_LAT']
 
+            if row['POP_ID'] == "Unknown":
+                pop_tmp = None
+            else:
+                pop_tmp = row['POP_ID']
+
+            if models.River.objects.filter(name=row['SYSTEM_SITE'], sub_district_area_id=int(area_name_tmp.id), species_id=int(species_tmp.id), popid=pop_tmp):
+                continue
+
+
             created, _ = models.River.objects.get_or_create(
                 name=row['SYSTEM_SITE'],
                 longitude=long_tmp,
                 latitude=lat_tmp,
-                sub_district_area=row['AREA'],
+                sub_district_area_id=int(area_name_tmp.id) if species_tmp else None,
                 species_id=int(species_tmp.id) if species_tmp else None,
                 cu_index_id=int(cu_index_tmp.id) if cu_index_tmp else None,
                 cu_name_id=int(cu_name_tmp.id) if cu_name_tmp else None,
-                stock_management_unit=row['SMU'],
-                pop_id=row['POP_ID'],
-                du=row['DU'],
+                stock_management_unit_id=int(SMU_name_tmp.id) if SMU_name_tmp else None,
+                popid=pop_tmp,
+                du_id=int(du_name_tmp.id) if du_name_tmp else None,
                 du_number=row['DU Number'],
 
             )
@@ -218,7 +239,7 @@ def import_project():
                 DFO_tenure=row['DFO Tenure'],
                 DFO_program_reference=row['Linked DFO Program Project Reference'],
                 government_organization=row['Links to other Government Departments'],
-                policy_program_connection=row['Policy and Program Connections'],
+                policy_connection=row['Policy and Program Connections'],
                 first_nation_id=int(first_nations_tmp.id) if first_nations_tmp else None,
                 contact_id=int(contact_tmp.id) if contact_tmp else None,
                 contact_role=row['Contact Role'],
@@ -229,6 +250,7 @@ def import_project():
                 other_funding_sources=row['Other Funding Sources'],
                 agreement_type=row['Agreement Type'],
                 lead_organization=row['Lead Organization'],
+                #other_site_info=row['other site info],
             )
             many_var(row['Agreement History'], created.agreement_history, models.Project)
             many_var(row['Hatchery Name'], created.hatchery_name, models.HatcheryName)
@@ -244,10 +266,9 @@ def import_project():
             many_var(row['Lake System'], created.lake_system, models.LakeSystem)
             many_var(row['Watershed Name'], created.watershed, models.Watershed)
             many_var(row['Partners'], created.partner, models.Organization)
-            many_var(row['DFO Management Area'], created.management_area, models.ManagementArea)
             first_last(row['DFO Project Authority'], created.DFO_project_authority)
             first_last(row['Area Chief'], created.DFO_area_chief)
-            first_last(row['DFO Aboriginal Affairs Advisor'], created.DFO_AAA)
+            first_last(row['DFO Aboriginal Affairs Advisor'], created.DFO_IAA)
             first_last(row['DFO Resource manager'], created.DFO_resource_manager)
             first_last(row['DFO Biologists or Technicians'], created.DFO_technicians)
             first_last(row['Partners Primary Contact'], created.partner_contact)
@@ -275,17 +296,6 @@ def import_objective():
                 else:
                     river_tmp = None
 
-            if row['Outcome contact'] and row['Outcome contact'] != "":
-                tmp_whole_name = row['Outcome contact'].split(' ')
-                tmp_first_name = tmp_whole_name[0].strip()
-                if len(tmp_whole_name) > 1:
-                    tmp_last_name = tmp_whole_name[1].strip()
-                else:
-                    tmp_last_name = None
-                outcome_contact_tmp, _ = models.Person.objects.get_or_create(first_name=tmp_first_name, last_name=tmp_last_name)
-            else:
-                outcome_contact_tmp = None
-
             created, _ = models.Objective.objects.get_or_create(
                 project_id=int(project_tmp.id),
                 location_id=int(river_tmp.id) if river_tmp else None,
@@ -297,14 +307,9 @@ def import_objective():
                 sil_requirement=row['SIL_requirement'],
                 expected_results=row['Expected Results'],
                 dfo_report=row['Products/Reports to provide to DFO'],
-                outcomes_contact_id=int(outcome_contact_tmp.id) if outcome_contact_tmp else None,
                 outcomes_comment=row['Outcomes Comment'],
-                key_lesson=row['Key Lessons learned'],
-                missed_opportunities=row['Missed opportunities?'],
             )
-            many_var(row['Barrieres to Achieving outcomes?'], created.outcome_barrier, models.OutComeBarrier)
             many_var(row['Objective_Category'], created.objective_category, models.ObjectiveCategory)
-            many_var(row['What capacity building did this project provide? (1-AH)'], created.capacity_building, models.CapacityBuilding)
 
 
 def import_report():
@@ -398,7 +403,6 @@ def import_method():
                 DNA_processing_location=row['DNA Processing Location'],
                 heads_processing_location=row['Heads Processing Location'],
                 instrument_data_processing_location=row['Instrument Data Processing Location'],
-                knowledge_consideration=row['IK Considered'],
                 #unique_method_number=row['Unique ID'],
             )
 
@@ -499,6 +503,7 @@ def import_reporting_outcome():
                 objective_id=int(object_tmp.id),
                 reporting_outcome=row['Reporting_Outcome'],
                 unique_objective_number=row['Index'],
+                #site=row['Site'],
                 outcome_delivered=row['Reporting Met'],
                 report_outcome_comment=row['Comment'],
                 reporting_outcome_metric=row['Metric'],
@@ -541,7 +546,7 @@ def output_select():
         for row in reader:
             if row.values() == "" or row.values() is None:
                 continue
-            print("('" + row['Sample Processing Type'] + "','" + row['Sample Processing Type'] + "')," )
+            print("('" + row['Outcomes Category'] + "','" + row['Outcomes Category'] + "')," )
 
 
 def project_river():
@@ -561,11 +566,16 @@ def project_river():
             else:
                 species_tmp = None
 
+            if row['Sub-District Area'] and row['Sub-District Area'] != "":
+                sub_tmp, _ = models.SubDistrictArea.objects.get_or_create(name=row['Sub-District Area'])
+            else:
+                sub_tmp = None
+
             created_river, _ = models.River.objects.get_or_create(
                 name=row['River_Site'],
                 species_id=int(species_tmp.id) if species_tmp else None,
-                sub_district_area=row['Sub-District Area'],
-                pop_id=row['popID']
+                sub_district_area_id=int(sub_tmp.id) if sub_tmp else None,
+                popid=row['popID']
             )
             project.river.add(int(created_river.id))
 
@@ -575,7 +585,12 @@ def delete_species():
     models.Species.objects.all().delete()
 
 
+def delete_restart_2():
+    models.SampleOutcome.objects.all().delete()
+
+
 def delete_restart():
+    '''
     models.SampleOutcome.objects.all().delete()
     models.ReportOutcome.objects.all().delete()
     models.FundingYears.objects.all().delete()
@@ -586,7 +601,8 @@ def delete_restart():
     models.Data.objects.all().delete()
     models.Objective.objects.all().delete()
     models.Project.objects.all().delete()
-    models.River.objects.all().delete()
+    '''
+    #models.River.objects.all().delete()
     models.Species.objects.all().delete()
     models.MonitoringApproach.objects.all().delete()
     models.EcosystemType.objects.all().delete()
@@ -609,6 +625,9 @@ def delete_restart():
     models.Watershed.objects.all().delete()
     models.Person.objects.all().delete()
     models.Organization.objects.all().delete()
+    #models.StockManagementUnit.objects.all().delete()
+    #models.SubDistrictArea.objects.all().delete()
+    #models.DU.objects.all().delete()
 
 
 def import_restart():
@@ -655,3 +674,44 @@ def add_is_active_org():
 
             organization.is_active=row['Is Active']
             organization.save()
+
+
+def update_rivers():
+    path = os.path.join('/Users/orpenr/Desktop/import', 'rivers_finals.csv')
+    with open(path) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row.values() == "" or row.values() is None:
+                continue
+            try:
+                river = models.River.objects.get(name=row['SYSTEM_SITE'].strip(),  )
+            except ObjectDoesNotExist:
+                continue
+
+            river.is_active=row['Is Active']
+            river.save()
+
+
+def delete_data():
+    models.River.objects.all().delete()
+
+
+def load_river_data():
+    path = os.path.join('/Users/orpenr/Desktop/import', 'rivers_finals.csv')
+    with open(path) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row.values() == "" or row.values() is None:
+                continue
+            models.StockManagementUnit.objects.get_or_create(name=row['SMU'].strip())
+            models.DU.objects.get_or_create(name=row['DU'].strip())
+            models.SubDistrictArea.objects.get_or_create(name=row['AREA'].strip())
+
+
+def delete_river_data():
+    for z in models.Project.objects.all():
+        z.river.all().delete()
+    for x in models.Data.objects.all():
+        x.river = None
+    for y in models.Objective.objects.all():
+        y.location = None

@@ -26,6 +26,9 @@
             <th style="width: 120px">
                 {% trans "Project Cost" %}
             </th>
+            <th style="width: 120px">
+                {% trans "Comment" %}
+            </th>
         </tr>
         <tbody>
         {% for obj in object.funding_year.all %}
@@ -38,6 +41,9 @@
                 </td>
                 <td>
                     {{ obj.project_cost }}
+                </td>
+                <td>
+                    {{ obj.costing_comment }}
                 </td>
 
             </tr>

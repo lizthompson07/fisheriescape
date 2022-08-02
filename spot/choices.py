@@ -3,26 +3,29 @@ from django.utils.translation import gettext_lazy as _
 
 
 YES_NO_UNKNOWN = (
+    ('', ''),
     ('Yes', 'Yes'),
     ('No', 'No'),
     ('Unknown', 'Unknown'),
     ('Not Applicable', 'Not Applicable')
 )
 
-YES_NO = (
+YES_NO_FLAG = (
+    ('', ''),
     ('Yes', 'Yes'),
     ('No', 'No'),
     ('Flag for archive', 'Flag for archive'),
     ('Flag for scanning', 'Flag for scanning'),
-
 )
 
-YES_NO_FLAG = (
+YES_NO = (
+    ('', ''),
     ('Yes', 'Yes'),
     ('No', 'No'),
 )
 
 AGREEMENT_DATABASE = (
+    ('', ''),
     ('APGIS', 'APGIS'),
     ('AAROM Shared Drive', 'AAROM Shared Drive'),
     ('South Coast Shared Drive', 'South Coast Shared Drive'),
@@ -37,6 +40,7 @@ AGREEMENT_DATABASE = (
 )
 
 AGREEMENT_TYPE = (
+    ('', ''),
     ('Primary Agreement', 'Primary Agreement'),
     ('Amendment', 'Amendment'),
     ('First Nations Treaty Agreement', 'First Nations Treaty Agreement'),
@@ -48,6 +52,7 @@ AGREEMENT_TYPE = (
 )
 
 LEAD_ORGANIZATION = (
+    ('', ''),
     ('First Nations', 'First Nations'),
     ('Stewardship Society', 'Stewardship Society'),
     ('DFO', 'DFO'),
@@ -58,6 +63,7 @@ LEAD_ORGANIZATION = (
 )
 
 AREA = (
+    ('', ''),
     ("YTRA", "YTRA"),
     ("NCA", "NCA"),
     ("SCA", "SCA"),
@@ -65,6 +71,7 @@ AREA = (
 
 
 PROJECT_STAGE = (
+    ('', ''),
     ('Proposed', 'Proposed'),
     ('Planning', 'Planning'),
     ('Pilot', 'Pilot'),
@@ -77,12 +84,14 @@ PROJECT_STAGE = (
 )
 
 PROJECT_TYPE = (
+    ('', ''),
     ('Population Science', 'Population Science'),
     ('Habitat Science', 'Habitat Science'),
     ('Infrastructure', 'Infrastructure'),
 )
 
 GOVERNMENT_LINK = (
+    ('', ''),
     ('Municipality', 'Municipality'),
     ('Province of British Columbia', 'Province of British Columbia'),
     ('Yukon Territory', 'Yukon Territory'),
@@ -96,6 +105,7 @@ GOVERNMENT_LINK = (
 )
 
 ROLE = (
+    ('', ''),
     ('Chief', 'Chief'),
     ('Biologist', 'Biologist'),
     ('Aquatics Manager', 'Aquatics Manager'),
@@ -110,11 +120,13 @@ ROLE = (
 )
 
 COUNTRY_CHOICES = (
+    ('', ''),
     ('Canada', 'Canada'),
     ('United States of America', 'United States of America'),
 )
 
 PROVINCE_STATE_CHOICES = (
+    ('', ''),
     ('Alberta', 'Alberta'),
     ('British Columbia', 'British Columbia'),
     ('Manitoba', 'Manitoba'),
@@ -134,6 +146,7 @@ PROVINCE_STATE_CHOICES = (
 )
 
 ORGANIZATION_TYPE = (
+    ('', ''),
     ('First Nation', 'First Nation'),
     ('Company', 'Company'),
     ('Government', 'Government'),
@@ -142,6 +155,7 @@ ORGANIZATION_TYPE = (
 )
 
 PLANNING_METHOD = (
+    ('', ''),
     ('Feasibility Study', 'Feasibility Study'),
     ('Project Design', 'Project Design'),
     ('Resouce Allocation', 'Resouce Allocation'),
@@ -153,6 +167,7 @@ PLANNING_METHOD = (
 )
 
 FIELD_WORK = (
+    ('', ''),
     ('Stream Walks', 'Stream Walks'),
     ('Microtrolling', 'Microtrolling'),
     ('Boat', 'Boat'),
@@ -220,6 +235,7 @@ FIELD_WORK = (
 )
 
 SAMPLE_PROCESSING = (
+    ('', ''),
     ('Scales', 'Scales'),
     ('Otoliths', 'Otoliths'),
     ('DNA', 'DNA'),
@@ -232,6 +248,7 @@ SAMPLE_PROCESSING = (
 )
 
 DATA_ENTRY = (
+    ('', ''),
     ('Direct entry into computer', 'Direct entry into computer'),
     ('Direct entry into database', 'Direct entry into database'),
     ('Direct entry into database', 'Paper, Followed by Entry into Computer'),
@@ -241,6 +258,7 @@ DATA_ENTRY = (
 )
 
 METHOD_DOCUMENT = (
+    ('', ''),
     ('Program Document', 'Program Document'),
     ('Administration Document', 'Administration Document'),
     ('Conference - Conference paper/abstract', 'Conference - Conference paper/abstract'),
@@ -260,6 +278,7 @@ METHOD_DOCUMENT = (
 
 
 DATABASE = (
+    ('', ''),
     ('ADF&G Zander ', 'ADF&G Zander '),
     ('PSMFC CWT', 'PSMFC CWT'),
     ('ADF&G Rergion 1', 'ADF&G Rergion 1'),
@@ -292,6 +311,7 @@ DATABASE = (
 )
 
 SAMPLE_BARRIER = (
+    ('', ''),
     ('Weather', 'Weather'),
     ('Site Access', 'Site Access'),
     ('Equipment Failure', 'Equipment Failure'),
@@ -304,6 +324,7 @@ SAMPLE_BARRIER = (
 )
 
 DATA_BARRIER = (
+    ('', ''),
     ('No Person Available', 'No Person Available'),
     ('Sample Data Requires More Work Before it can be Entered into Database', 'Sample Data Requires More Work Before it can be Entered into Database'),
     ('Person Available but Lack of Training', 'Person Available but Lack of Training'),
@@ -317,6 +338,7 @@ DATA_BARRIER = (
 )
 
 SAMPLE_FORMAT = (
+    ('', ''),
     ('Excel', 'Excel'),
     ('Paper', 'Paper'),
     ('Log Books', 'Log Books'),
@@ -331,6 +353,7 @@ SAMPLE_FORMAT = (
 )
 
 DATA_PRODUCTS = (
+    ('', ''),
     ('Relative Abundance', 'Relative Abundance'),
     ('Escapement Estimate - expanded/final', 'Escapement Estimate - expanded/final'),
     ('Escapement Estimate -unexpanded/preliminary', 'Escapement Estimate -unexpanded/preliminary'),
@@ -356,6 +379,7 @@ DATA_PRODUCTS = (
 )
 
 DATA_COMMUNICATION = (
+    ('', ''),
     ('Presentations', 'Presentations'),
     ('Workshops', 'Workshops'),
     ('Reports', 'Reports'),
@@ -367,6 +391,7 @@ DATA_COMMUNICATION = (
 )
 
 REPORT_TIMELINE = (
+    ('', ''),
     ('Progress Report', 'Progress Report'),
     ('Final Report', 'Final Report'),
     ('Not Applicable', 'Not Applicable'),
@@ -374,6 +399,7 @@ REPORT_TIMELINE = (
 )
 
 REPORT_TYPE = (
+    ('', ''),
     ('Annual Funding Report', 'Annual Funding Report'),
     ('Final Funding Report', 'Final Funding Report'),
     ('Stream Summary', 'Stream Summary'),
@@ -395,6 +421,7 @@ REPORT_TYPE = (
 )
 
 KEY_ELEMENT = (
+    ('', ''),
     ('A', 'A'),
     ('B', 'B'),
     ('C', 'B'),
@@ -403,6 +430,7 @@ KEY_ELEMENT = (
 )
 
 ACTIVITY_NUMBER = (
+    ('', ''),
     ('1', '1'),
     ('2', '2'),
     ('3', '3'),
@@ -427,90 +455,121 @@ ACTIVITY_NUMBER = (
 )
 
 SAMPLE_TYPE_OUTCOMES = (
-   ('Adipose clips', 'Adipose clips'),
-   ('Administration', 'Administration'),
-   ('Auxillary Appendage Clips', 'Auxillary Appendage Clips'),
-   ('Biodata-Unspecified', 'Biodata-Unspecified'),
-   ('Water Samples-Biotoxin', 'Water Samples-Biotoxin'),
-   ('Brood Collection', 'Brood Collection'),
-   ('Catch Count', 'Catch Count'),
-   ('Catch Effort', 'Catch Effort'),
-   ('Counts', 'Counts'),
-   ('Coded Wire Tag Recovery', 'Coded Wire Tag Recovery'),
-   ('Coded Wire Tagging', 'Coded Wire Tagging'),
-   ('Egg Collection', 'Egg Collection'),
-   ('Enhancement-Unspecified', 'Enhancement-Unspecified'),
-   ('Fin Clips', 'Fin Clips'),
-   ('Fish Health Condition', 'Fish Health Condition'),
-   ('Length', 'Length'),
-   ('Mark/Tagging-Unspecified', 'Mark/Tagging-Unspecified'),
-   ('Not Specified', 'Not Specified'),
-   ('Otoliths', 'Otoliths'),
-   ('PIT Tagging', 'PIT Tagging'),
-   ('Scales', 'Scales'),
-   ('Sea Lice Count', 'Sea Lice Count'),
-   ('Secondary Marks', 'Secondary Marks'),
-   ('Sex', 'Sex'),
-   ('Spaghetti Tagging', 'Spaghetti Tagging'),
-   ('Species Identification', 'Species Identification'),
-   ('Tag Recovery-Unspecified', 'Tag Recovery-Unspecified'),
-   ('Tissue Collection-Unspecified', 'Tissue Collection-Unspecified'),
-   ('Tissue Collection-DNA', 'Tissue Collection-DNA'),
-   ('Unknown', 'Unknown'),
-   ('Weight', 'Weight'),
-   ('Predation', 'Predation'),
-   ('Dissolved Oxygen', 'Dissolved Oxygen'),
-   ('Water Samples-eDNA', 'Water Samples-eDNA'),
-   ('Water Samples-Unspecified', 'Water Samples-Unspecified'),
-   ('Forestry Data-Unspecified', 'Forestry Data-Unspecified'),
-   ('Habitat Condition-General', 'Habitat Condition-General'),
-   ('Habitat Use', 'Habitat Use'),
-   ('Hydrology-Discharge/Flow', 'Hydrology-Discharge/Flow'),
-   ('Water Samples-Toxicology', 'Water Samples-Toxicology'),
-   ('Water Temperature', 'Water Temperature'),
-   ('Land Use Planning', 'Land Use Planning'),
-   ('Restoration Activities', 'Restoration Activities'),
-   ('Water Samples-Microscopic Examination', 'Water Samples-Microscopic Examination'),
-   ('Incubation Data', 'Incubation Data'),
-   ('Enhancement Targets', 'Enhancement Targets'),
-   ('Egg Characteristics', 'Egg Characteristics'),
-   ('Other', 'Other'),
+    ('', ''),
+    ('Adipose clips', 'Adipose clips'),
+    ('Administration', 'Administration'),
+    ('Auxillary Appendage Clips', 'Auxillary Appendage Clips'),
+    ('Biodata-Unspecified', 'Biodata-Unspecified'),
+    ('Water Samples-Biotoxin', 'Water Samples-Biotoxin'),
+    ('Brood Collection', 'Brood Collection'),
+    ('Catch Count', 'Catch Count'),
+    ('Catch Effort', 'Catch Effort'),
+    ('Counts', 'Counts'),
+    ('Coded Wire Tag Recovery', 'Coded Wire Tag Recovery'),
+    ('Coded Wire Tagging', 'Coded Wire Tagging'),
+    ('Egg Collection', 'Egg Collection'),
+    ('Enhancement-Unspecified', 'Enhancement-Unspecified'),
+    ('Fin Clips', 'Fin Clips'),
+    ('Fish Health Condition', 'Fish Health Condition'),
+    ('Length', 'Length'),
+    ('Mark/Tagging-Unspecified', 'Mark/Tagging-Unspecified'),
+    ('Not Specified', 'Not Specified'),
+    ('Otoliths', 'Otoliths'),
+    ('PIT Tagging', 'PIT Tagging'),
+    ('Scales', 'Scales'),
+    ('Sea Lice Count', 'Sea Lice Count'),
+    ('Secondary Marks', 'Secondary Marks'),
+    ('Sex', 'Sex'),
+    ('Spaghetti Tagging', 'Spaghetti Tagging'),
+    ('Species Identification', 'Species Identification'),
+    ('Tag Recovery-Unspecified', 'Tag Recovery-Unspecified'),
+    ('Tissue Collection-Unspecified', 'Tissue Collection-Unspecified'),
+    ('Tissue Collection-DNA', 'Tissue Collection-DNA'),
+    ('Unknown', 'Unknown'),
+    ('Weight', 'Weight'),
+    ('Predation', 'Predation'),
+    ('Dissolved Oxygen', 'Dissolved Oxygen'),
+    ('Water Samples-eDNA', 'Water Samples-eDNA'),
+    ('Water Samples-Unspecified', 'Water Samples-Unspecified'),
+    ('Forestry Data-Unspecified', 'Forestry Data-Unspecified'),
+    ('Habitat Condition-General', 'Habitat Condition-General'),
+    ('Habitat Use', 'Habitat Use'),
+    ('Hydrology-Discharge/Flow', 'Hydrology-Discharge/Flow'),
+    ('Water Samples-Toxicology', 'Water Samples-Toxicology'),
+    ('Water Temperature', 'Water Temperature'),
+    ('Land Use Planning', 'Land Use Planning'),
+    ('Restoration Activities', 'Restoration Activities'),
+    ('Water Samples-Microscopic Examination', 'Water Samples-Microscopic Examination'),
+    ('Incubation Data', 'Incubation Data'),
+    ('Enhancement Targets', 'Enhancement Targets'),
+    ('Egg Characteristics', 'Egg Characteristics'),
+    ('Other', 'Other'),
 )
 
+# Outcomes category, drop downs column V
 REPORT_OUTCOMES = (
-    ('Submitted samples', 'Submitted samples'),
-    ('Summarized data', 'Summarized data'),
-    ('Raw Data', 'Raw Data'),
-    ('Stream Inspection Log', 'Stream Inspection Log'),
-    ('Analyzed data - non-expanded estimates', 'Analyzed data - non-expanded estimates'),
-    ('Analyzed data - expanded estimates', 'Analyzed data - expanded estimates'),
-    ('Analyzed data - other', 'Analyzed data - other'),
+    ('', ''),
+    ('Analyzed Data - expanded estimates', 'Analyzed Data - expanded estimates'),
+    ('Analyzed Data - non-expanded estimates', 'Analyzed Data - non-expanded estimates'),
+    ('Analyzed Data - Other', 'Analyzed Data - Other'),
     ('Annual Stream Report', 'Annual Stream Report'),
-    ('Report document', 'Report document'),
-    ('Summary of Activities', 'Summary of Activities'),
+    ('Assessment Activity', 'Assessment Activity'),
+    ('Feedback - Barrier to Achieving Outcome', 'Feedback - Barrier to Achieving Outcome'),
+    ('Biological Activity', 'Biological Activity'),
+    ('Classroom Activity', 'Classroom Activity'),
+    ('Communication Activity', 'Communication Activity'),
+    ('Data Entry - General', 'Data Entry - General'),
+    ('Habitat Activity', 'Habitat Activity'),
+    ('Event Activity', 'Event Activity'),
+    ('Workshop Activity', 'Workshop Activity'),
+    ('Indigenous Activity', 'Indigenous Activity'),
+    ('Indigenous Knowledge', 'Indigenous Knowledge'),
+    ('Jobs - Staff Maintained', 'Jobs - Staff Maintained'),
+    ('Feedback - Key Lessons Learned (by DFO)', 'Feedback - Key Lessons Learned (by DFO)'),
+    ('Maintenance Activity', 'Maintenance Activity'),
     ('Meeting Summary', 'Meeting Summary'),
-    ('Live Collection', 'Live Collection'),
+    ('Feedback - Missed Opportunity (by DFO)', 'Feedback - Missed Opportunity (by DFO)'),
+    ('Monitoring Actitivty', 'Monitoring Actitivty'),
+    ('Jobs - New Staff', 'Jobs - New Staff'),
     ('Other', 'Other'),
-    ('Events/Clinics/Workshops held', 'Events/Clinics/Workshops held'),
-    ('School events', 'School events'),
-    ('New Staff Trained', 'New Staff Trained'),
-    ('Staff Maintained', 'Staff Maintained'),
-    ('Biological activities performed', 'Biological activities performed'),
-    ('Habitat activities performed', 'Habitat activities performed'),
-    ('Infrastructure activities performed', 'Infrastructure activities performed'),
-    ('General Outcome Metric', 'General Outcome Metric'),
-    ('Habitat Restored', 'Habitat Restored'),
-    ('Instream Habitat Treated', 'Instream Habitat Treated'),
-    ('Metres Surveyed', 'Metres Surveyed'),
-    ('Monitoring Effort', 'Monitoring Effort'),
-    ('Metric on staff maintained', 'Metric on staff maintained'),
-    ('Metric on stream activities that were complete', 'Metric on stream activities that were complete'),
-    ('Metric on techincal capactity improved', 'Metric on techincal capactity improved'),
+    ('Outreach Activity', 'Outreach Activity'),
+    ('Partner Activity', 'Partner Activity'),
+    ('Planning Activity', 'Planning Activity'),
+    ('Production Numbers (Hatchery)', 'Production Numbers (Hatchery)'),
+    ('Public Activity', 'Public Activity'),
+    ('Raw Data', 'Raw Data'),
+    ('Report Document', 'Report Document'),
+    ('School Activity', 'School Activity'),
+    ('Jobs - Staff Trained', 'Jobs - Staff Trained'),
+    ('Stream Inspection Log', 'Stream Inspection Log'),
+    ('Submitted Samples', 'Submitted Samples'),
+    ('Summarized Data', 'Summarized Data'),
+    ('Summary of Activities', 'Summary of Activities'),
+    ('Tour Activity', 'Tour Activity'),
+    ('Unknown', 'Unknown'),
+    ('Volunteer Activity', 'Volunteer Activity'),
     ('Year End Narrative Report', 'Year End Narrative Report'),
-    ('Metric on volunteer activities', 'Metric on volunteer activities'),
+    ('Enhancement Activity', 'Enhancement Activity'),
+    ('Catch Activity', 'Catch Activity'),
+    ('Aquaculture Activity', 'Aquaculture Activity'),
+    ('Administrative Activity', 'Administrative Activity'),
+    ('Cultural Activity', 'Cultural Activity'),
+    ('Educational Activity', 'Educational Activity'),
+    ('Hatchery Activity', 'Hatchery Activity'),
+    ('Infrastructure Activity', 'Infrastructure Activity'),
+    ('Feedback - Improved Community Capacity', 'Feedback - Improved Community Capacity'),
+    ('Riparian Restoration Activity', 'Riparian Restoration Activity'),
+    ('Nearshore and Marine Restoration Activity', 'Nearshore and Marine Restoration Activity'),
+    ('Instream Structure', 'Instream Structure'),
+    ('Estuarine Restoration Activity', 'Estuarine Restoration Activity'),
+    ('Fish Passage Activity', 'Fish Passage Activity'),
+    ('Floodplain Connectivity Activity', 'Floodplain Connectivity Activity'),
+    ('Site Detail', 'Site Detail'),
+
 )
 
 CAPACITY = (
+    ('', ''),
     ('NEW TRAINING', 'New Training'),
     ('NEW STAFF INTEREST', 'New staff interest'),
     ('VOLUNTEERS SHOWED INTEREST', 'Volunteers showed interest'),
@@ -523,6 +582,7 @@ CAPACITY = (
 )
 
 DATA_QUALITY = (
+    ('', ''),
     ('Level 1 (Very High Quality)', 'Level 1 (Very High Quality)'),
     ('LEVEL 2 (High Quality)', 'LEVEL 2 (High Quality)'),
     ('Level 3 (Good Quality)', 'Level 3 (Good Quality)'),
@@ -533,6 +593,7 @@ DATA_QUALITY = (
 )
 
 OUTCOME_BARRIER = (
+    ('', ''),
     ('Site Access', 'Site Access'),
     ('Equipment Failure', 'Equipment Failure'),
     ('Equipment not Available', 'Equipment not Available'),
@@ -542,6 +603,7 @@ OUTCOME_BARRIER = (
 )
 
 SUBJECT = (
+    ('', ''),
     ('People', 'People'),
     ('Projects', 'Projects'),
     ('Objectives', 'Objectives'),
@@ -552,6 +614,7 @@ SUBJECT = (
 )
 
 FN_COMMUNICATIONS = (
+    ('', ''),
     ('Presentations', 'Presentations'),
     ('Workshops', 'Workshops'),
     ('Reports', 'Reports'),
@@ -562,6 +625,7 @@ FN_COMMUNICATIONS = (
 )
 
 ELEMENT_TITLE = (
+    ('', ''),
     ('Aquatic Resource Management and Stewardship', 'Aquatic Resource Management and Stewardship'),
     ('Food, Social and Ceremonial (FSC) Fisheries Manangement', 'Food, Social and Ceremonial (FSC) Fisheries Manangement'),
     ('Economic Opportunities', 'Economic Opportunities'),
@@ -573,6 +637,7 @@ ELEMENT_TITLE = (
 )
 
 FUNDING_YEARS = (
+    ('', ''),
     ('2017', '2017'),
     ('2018', '2018'),
     ('2019', '2019'),
@@ -610,6 +675,7 @@ FUNDING_YEARS = (
 )
 
 POLICY_PROGRAM = (
+    ('', ''),
     ('Strategic Species At Risk Act (SARA) Recovery Plans', 'Strategic Species At Risk Act (SARA) Recovery Plans'),
     ('COSEWIC Assessed Populations', 'COSEWIC Assessed Populations'),
     ('WSP Implementation', 'WSP Implementation'),
