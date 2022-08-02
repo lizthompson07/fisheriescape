@@ -20,6 +20,7 @@ class InteractionFactory(factory.django.DjangoModelFactory):
 
     description = factory.lazy_attribute(lambda o: faker.text())
     interaction_type = factory.lazy_attribute(lambda o: faker.pyint(1, 3))
+    is_committee = factory.lazy_attribute(lambda o: faker.bool())
     committee = factory.SubFactory("maret.test.FactoryFloor.CommitteeFactory")
     dfo_role = factory.lazy_attribute(lambda o: faker.pyint(1, 11))
     other_dfo_participants = factory.SubFactory(UserFactory)
