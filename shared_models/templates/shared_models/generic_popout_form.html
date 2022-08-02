@@ -22,7 +22,11 @@
 
       {% block form_fields %}
         {% for field in form %}
-          {% bootstrap_field field placeholder="" %}
+          {% if field.field.required %}
+            {% bootstrap_field field placeholder="" label_class="required" %}
+          {% else %}
+            {% bootstrap_field field placeholder="" %}
+          {% endif %}
         {% endfor %}
       {% endblock %}
 
