@@ -96,12 +96,15 @@
     </div>
 
     <modal v-if="showReviewModal" @close="closeModal" :project_year="projectYear2Review" :approval_form="approvalModal"></modal>
-    <salary-allocation-modal v-if="showModal.salary_allocation" @close="closeModal" :year="projectYear2Review"
-                        :my_object="objectToEdit"></salary-allocation-modal>
-    <om-allocation-modal v-if="showModal.om_allocation" @close="closeModal" :year="projectYear2Review"
-                        :my_object="objectToEdit"></om-allocation-modal>
-    <capital-allocation-modal v-if="showModal.capital_allocation" @close="closeModal" :year="projectYear2Review"
-                        :my_object="objectToEdit"></capital-allocation-modal>
+   <salary-allocation-modal v-if="showModal.salary_allocation" @submit-allocation="submitModalAllocation"
+                              @close="closeModal" :year="allocationProjectYear" :errors="modalErrors"
+                              :parent_allocation="modalAllocation"></salary-allocation-modal>
+    <om-allocation-modal v-if="showModal.om_allocation" @submit-allocation="submitModalAllocation"
+                              @close="closeModal" :year="allocationProjectYear" :errors="modalErrors"
+                              :parent_allocation="modalAllocation"></om-allocation-modal>
+    <capital-allocation-modal v-if="showModal.capital_allocation" @submit-allocation="submitModalAllocation"
+                              @close="closeModal" :year="allocationProjectYear" :errors="modalErrors"
+                              :parent_allocation="modalAllocation"></capital-allocation-modal>
     <distribution-modal v-if="showModal.distribution" @close="closeModal" :allocation="allocation2Distribute"
                         :costs="costs2Fund" :allocation_type="type2distribute"></distribution-modal>
 

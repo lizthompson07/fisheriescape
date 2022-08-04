@@ -129,7 +129,7 @@
         <td v-if="showColumnOM">
           <div v-if="p.submitted && p.status == 4">
             <div>${p.om_allocations | nz(0) | currencyFormat | zero2NullMark}</div>
-            <button @click="openModal(null, p, 'om_allocation', true)" class="px-1 small-btn-text btn btn-sm btn-success">
+            <button @click="openAllocationModal(null, p, 'om_allocation')" class="px-1 small-btn-text btn btn-sm btn-success">
               {% trans "Add O&M" %}
             </button>
           </div>
@@ -141,7 +141,7 @@
         <td v-if="showColumnSalary">
           <div v-if="p.submitted && p.status == 4">
             <div>${p.salary_allocations | nz(0) | currencyFormat | zero2NullMark}</div>
-            <button @click="openModal(null, p, 'salary_allocation', true)" class="px-1 small-btn-text btn btn-sm btn-success">
+            <button @click="openAllocationModal(null, p, 'salary_allocation')" class="px-1 small-btn-text btn btn-sm btn-success">
               {% trans "Add Salary" %}
             </button>
           </div>
@@ -153,7 +153,7 @@
         <td v-if="showColumnCapital">
           <div v-if="p.submitted && p.status == 4">
             <div>${p.capital_allocations | nz(0) | currencyFormat | zero2NullMark}</div>
-            <button @click="openModal(null, p, 'capital_allocation', true)" class="px-1 small-btn-text btn btn-sm btn-success">
+            <button @click="openAllocationModal(null, p, 'capital_allocation')" class="px-1 small-btn-text btn btn-sm btn-success">
               {% trans "Add Capital" %}
             </button>
           </div>

@@ -52,7 +52,7 @@
       <tbody>
       <tr v-for="(item, index) in om_costs">
         <td>${item.category_type|nz}</td>
-        <td>${item.om_category_display|nz}</td>
+        <td>${item.category_display|nz}</td>
         <td>${item.description|nz}</td>
         <td>
           <span v-if="isABase(item.funding_source_display)" class="a-base py-1 px-1">${item.funding_source_display | nz }</span>

@@ -35,6 +35,7 @@
             </div>
             <table class="table table-sm w-75">
               <thead>
+                <th v-if="allocation_type=='om-costs'">Category Type</th>
                 <th v-if="allocation_type!='staff'">Category</th>
                 <th v-if="allocation_type=='staff'">Name</th>
                 <th v-if="allocation_type=='staff'">Level</th>
@@ -44,6 +45,7 @@
               </thead>
               <tbody>
                 <tr v-for="c in costs">
+                  <td v-if="allocation_type=='om-costs'">${c.category_type}</td>
                   <td v-if="allocation_type!='staff'">${c.category_display}</td>
                   <td v-if="allocation_type=='staff'">${c.smart_name}</td>
                   <td v-if="allocation_type=='staff'">${c.level_display}</td>

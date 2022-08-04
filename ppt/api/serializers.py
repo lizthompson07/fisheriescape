@@ -383,7 +383,7 @@ class OMCostSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     funding_source_display = serializers.SerializerMethodField()
-    om_category_display = serializers.SerializerMethodField()
+    category_display = serializers.SerializerMethodField()
     project_year_id = serializers.SerializerMethodField()
     category_type = serializers.SerializerMethodField()
     project_id = serializers.SerializerMethodField()
@@ -394,7 +394,7 @@ class OMCostSerializer(serializers.ModelSerializer):
     def get_funding_source_display(self, instance):
         return str(instance.funding_source)
 
-    def get_om_category_display(self, instance):
+    def get_category_display(self, instance):
         return instance.om_category.tname
 
     def get_project_year_id(self, instance):
