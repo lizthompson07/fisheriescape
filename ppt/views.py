@@ -116,14 +116,14 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         'functional_group',
         'lead_staff',
         'status',
-        'allocated_budget',
-        'allocated_salary',
-        'allocated_capital',
         'review_score_percentage',
         'last_modified',
         'om_costs',
+        'om_allocations',
         'salary_costs',
+        'salary_allocations',
         'capital_costs',
+        'capital_allocations',
     ]
 
     def get_context_data(self, **kwargs):
@@ -137,6 +137,9 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         context["activity_types"] = [dict(label=f"{item}", value=item.id) for item in models.ActivityType.objects.all()]
         context["review_form"] = forms.ReviewForm
         context["approval_form"] = forms.ApprovalForm
+        context["capital_allocation_form"] = forms.CapitalAllocationForm
+        context["salary_allocation_form"] = forms.SalaryAllocationForm
+        context["om_allocation_form"] = forms.OMAllocationForm
         context["review_score_rubric"] = json.dumps(get_review_score_rubric())
         context["short_fie"] = json.dumps(get_review_score_rubric())
         context["short_field_list"] = [
@@ -269,6 +272,15 @@ class ProjectDetailView(PPTLoginRequiredMixin, CommonDetailView):
 
         context["capital_cost_form"] = forms.CapitalCostForm
         context["random_capital_cost"] = models.CapitalCost.objects.first()
+
+        context["salary_allocation_form"] = forms.SalaryAllocationForm
+        context["random_salary_allocation"] = models.SalaryAllocation.objects.first()
+
+        context["om_allocation_form"] = forms.OMAllocationForm
+        context["random_om_allocation"] = models.OMAllocation.objects.first()
+
+        context["capital_allocation_form"] = forms.CapitalAllocationForm
+        context["random_capital_allocation"] = models.CapitalAllocation.objects.first()
 
         context["activity_form"] = forms.ActivityForm(initial=dict(project=project))
         context["random_activity"] = models.Activity.objects.first()

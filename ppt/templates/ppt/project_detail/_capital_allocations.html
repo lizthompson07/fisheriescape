@@ -6,15 +6,15 @@
 
 <div class="mb-5">
   <div class="mb-2 neighbours">
-    <p class="lead">{% trans "Capital Costs" %}</p>
+    <p class="lead">{% trans "Capital Allocations" %}</p>
   </div>
-  <div v-if="!capital_cost_loading" class="mb-3 neighbours">
-    <button @click="openModal(null, 'capital_cost')" class="{{ btn_class_1 }} no-print" v-if="canModify">
-      <span class="mdi mdi-plus"></span> {% trans "Add Capital Cost" %}
+  <div v-if="!capital_allocation_loading" class="mb-3 neighbours">
+    <button @click="openAllocationModal(null, 'capital_allocation')" class="{{ btn_class_1 }} no-print" v-if="canModify">
+      <span class="mdi mdi-plus"></span> {% trans "Add Capital Allocation" %}
     </button>
   </div>
 
-  <div v-if="capital_cost_loading">
+  <div v-if="capital_allocation_loading">
     <button class="btn btn-primary no-print" type="button" disabled>
       <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
       <span class="sr-only">Loading...</span>
@@ -25,10 +25,10 @@
   <div v-else>
 
     <div
-      v-if="!capital_costs.length"
+      v-if="!capital_allocations.length"
       class="font-italic"
     >
-      {% trans "No capital costs have been added to this year of the project" %}
+      {% trans "No capital allocations have been added to this year of the project" %}
     </div>
 
     <table
@@ -36,15 +36,19 @@
       class="table table-sm w-75"
     >
       <thead>
-      {% get_capital_field_list as capital_field_list %}
+      {% get_allocation_field_list as capital_field_list %}
       {% for field in capital_field_list %}
-        <th>
-          {% get_verbose_label random_capital_cost field %}
-        </th>
+        {% if "distributed_amount" in field %}
+          <th>{% trans "Distributed amount" %}</th>
+        {% else %}
+          <th>
+            {% get_verbose_label random_capital_allocation field %}
+          </th>
+        {% endif %}
       {% endfor %}
       </thead>
       <tbody>
-      <tr v-for="(item, index) in capital_costs">
+      <tr v-for="(item, index) in capital_allocations">
         {% for field in capital_field_list %}
           {% if "funding_source" in field %}
             <td>
@@ -53,12 +57,10 @@
               <span v-else-if="isCBase(item.funding_source_display)" class="c-base py-1 px-1">${item.funding_source_display | nz }</span>
               <span v-else>${item.funding_source_display | nz }</span>
             </td>
-          {% elif "category" in field %}
-            <td>${item.category_display | nz }</td>
-          {% elif "allocated_amount" in field %}
+          {% elif "distributed_amount" in field %}
             <td>
-              <span v-if="item.allocated_amount == 0||!item.allocated_amount" class="major-error py-1 px-1">${item.allocated_amount | currencyFormat}</span>
-              <span v-else>${item.allocated_amount | currencyFormat}</span>
+              <span v-if="item.distributed_amount == 0||!item.distributed_amount" class="major-error py-1 px-1">${item.distributed_amount | currencyFormat}</span>
+              <span v-else>${item.distributed_amount | currencyFormat}</span>
             </td>
           {% elif "amount" in field %}
             <td>
@@ -70,8 +72,9 @@
           {% endif %}
         {% endfor %}
         <td class="to-the-right" v-if="canModify">
-          <button @click="openModal(item, 'capital_cost')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
-          <button @click="deleteObject(item, 'capital-costs', capital_costs)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
+          <button @click="openAllocationModal(item, 'capital_allocation')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
+          <button @click="deleteObject(item, 'capital-allocations', capital_allocations)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
+          <button @click="openDistributionModal(item, 'capital-costs')" class="{{ btn_class_2 }} no-print"><span>Distribute</span></button>
         </td>
       </tr>
       </tbody>

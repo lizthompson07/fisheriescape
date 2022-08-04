@@ -2,6 +2,10 @@
 
 {% include "ppt/manage_projects/components/staff_projects_list.html" %}
 {% include "ppt/manage_projects/components/review_modal.html" %}
+{% include "ppt/project_detail/components/salary_allocation_modal.html" %}
+{% include "ppt/project_detail/components/om_allocation_modal.html" %}
+{% include "ppt/project_detail/components/capital_allocation_modal.html" %}
+{% include "ppt/project_detail/components/distribution_modal.html" %}
 
 <script type="application/javascript">
 Vue.component('v-select', VueSelect.VueSelect);
@@ -28,6 +32,7 @@ var app = new Vue({
 
     currentSort: 'name',
     currentSortDir: 'asc',
+    currentSortTable: "",
 
     projects_loading: true,
     staff_loading: true,
@@ -53,9 +58,6 @@ var app = new Vue({
       statuses: []
     },
 
-    showColumnAllocation: false,
-    showColumnSalaryAllocation: false,
-    showColumnCapitalAllocation: false,
     showColumnLeads: true,
     showColumnHidden: true,
     showColumnScore: false,
@@ -82,8 +84,23 @@ var app = new Vue({
 
     // modal
     projectYear2Review: {},
+    p2Update: {},
+    allocation2Distribute: {},
+    costs2Fund: [],
+    type2distribute: "",
+    allocationProjectYear: {},
+    modalAllocation: {},
+    modalErrors: null,
+    objectToEdit: {},
     showReviewModal: false,
     approvalModal: false,
+    showModal: {
+      salary_allocation: false,
+      om_allocation: false,
+      capital_allocation: false,
+      distribution: false,
+    },
+
   },
   methods: {
     getCurrentUser() {
@@ -357,13 +374,14 @@ var app = new Vue({
     comingSoon() {
       alert("this feature is coming soon!")
     },
-    sort(s) {
+    sort(s, table="sortedProjectYears") {
       // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
       //if s == current sort, reverse
       if (s === this.currentSort) {
         this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
       }
       this.currentSort = s;
+      this.currentSortTable = table;
     },
     clearProjectYears() {
       this.projectYears = []
@@ -395,19 +413,89 @@ var app = new Vue({
         this.projectYear2Review.review.approval_email_update = true
       }
     },
+    openAllocationModal(existingAllocation, py, which) {
+      this.allocationProjectYear = py;
+      this.modalAllocation = existingAllocation;
+      this.modalErrors = null;
+      this.showModal[which] = true;
+    },
+
+    submitModalAllocation(allocationOptions) {
+      let childAllocation = allocationOptions.allocation;
+      let which = allocationOptions.which;
+      let type = allocationOptions.type;
+      let distribute = allocationOptions.distrubute;
+      let distrubutionCosts = allocationOptions.distrubutionCosts;
+
+      if (this.modalAllocation) {
+        let endpoint = `/api/ppt/${type}/${this.modalAllocation.id}/`;
+        apiService(endpoint, "PATCH", childAllocation).then(response => {
+          if (response.id) {
+              this.modalAllocation = response;
+              if (distribute){
+                  this.showModal[which] = false;
+                  this.openDistributionModal(this.modalAllocation, distrubutionCosts);
+              } else {
+                this.closeModal(this.allocationProjectYear);
+              }
+          }
+          else {
+            this.modalErrors = groomJSON(response);
+          }
+        })
+      } else {
+        let endpoint = `/api/ppt/${type}/`;
+        childAllocation.project_year = this.allocationProjectYear.id
+        apiService(endpoint, "POST", childAllocation).then(response => {
+          if (response.id) {
+            this.modalAllocation = response;
+            if (distribute){
+              this.showModal[which] = false;
+              this.openDistributionModal(this.modalAllocation, distrubutionCosts);
+            } else {
+              this.closeModal(this.allocationProjectYear);
+            }
+          }
+          else {
+            this.modalErrors = groomJSON(response);
+          }
+        })
+      }
+    },
+
+    openDistributionModal(allocation, type) {
+      this.allocation2Distribute = allocation;
+      this.type2distribute = type;
+      let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
+      apiService(endpoint)
+          .then(response => {
+              if (type === "staff") {
+                this.costs2Fund = response;
+              } else {
+                this.costs2Fund = response.results;
+              }
+          })
+      this.showModal['distribution'] = true;
+    },
 
     closeModal(updatedProjectYear) {
-      if (updatedProjectYear) {
+      for (const showModalKey in this.showModal) {
+        this.showModal[showModalKey] = false;
+      }
+      this.showReviewModal = false;
+      this.approvalModal = false;
 
+      if (updatedProjectYear) {
         let endpoint = `/api/ppt/project-years/${updatedProjectYear.id}/`;
         apiService(endpoint, "GET")
             .then(response => {
               this.$set(this.projectYears, this.projectYears.indexOf(updatedProjectYear), response);
             })
       }
-      this.showReviewModal = false;
-      this.approvalModal = false;
-
+      if (Object.keys(this.p2Update).length) {
+        this.updateReview(this.p2Update)
+        this.p2Update = {}
+      }
     },
     toggleShowProjects(staff) {
       staff.showRelatedProjects = !staff.showRelatedProjects
@@ -468,25 +556,90 @@ var app = new Vue({
   computed: {
 
     sortedProjectYears() {
-      return this.projectYears.sort((a, b) => {
-        let modifier = 1;
-        if (this.currentSortDir === 'desc') modifier = -1;
+      if (this.currentSortTable !== "sortedProjectYears"){
+          return this.projectYears;
+      }
+      else {
+          return this.projectYears.sort((a, b) => {
+              let modifier = 1;
+              if (this.currentSortDir === 'desc') modifier = -1;
 
-        if (this.currentSort && this.currentSort.search("fiscal") > -1) {
-          if (a["fiscal_year"] < b["fiscal_year"]) return -1 * modifier;
-          if (a["fiscal_year"] > b["fiscal_year"]) return 1 * modifier;
-        } else if (this.currentSort === "id") {
-          if (a["project"]["id"] < b["project"]["id"]) return -1 * modifier;
-          if (a["project"]["id"] > b["project"]["id"]) return 1 * modifier;
-        } else if (this.projectYears[0][this.currentSort] == null) {
-          if (a["project"][this.currentSort] < b["project"][this.currentSort]) return -1 * modifier;
-          if (a["project"][this.currentSort] > b["project"][this.currentSort]) return 1 * modifier;
-        } else {
-          if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
-          if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+              if (this.currentSort && this.currentSort.search("fiscal") > -1) {
+                  if (a["fiscal_year"] < b["fiscal_year"]) return -1 * modifier;
+                  if (a["fiscal_year"] > b["fiscal_year"]) return 1 * modifier;
+              } else if (this.currentSort === "id") {
+                  if (a["project"]["id"] < b["project"]["id"]) return -1 * modifier;
+                  if (a["project"]["id"] > b["project"]["id"]) return 1 * modifier;
+              } else if (this.projectYears[0][this.currentSort] == null) {
+                  if (a["project"][this.currentSort] < b["project"][this.currentSort]) return -1 * modifier;
+                  if (a["project"][this.currentSort] > b["project"][this.currentSort]) return 1 * modifier;
+              } else {
+                  if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+                  if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+              }
+              return 0;
+          });
+      }
+    },
+
+    sortedStaffLevelSummary() {
+        if (this.currentSortTable !== "sortedStaffLevelSummary"){
+          return this.staff_level_summary;
         }
-        return 0;
-      });
+        else {
+            return this.staff_level_summary.sort((a, b) => {
+                let modifier = 1;
+                if (this.currentSortDir === 'desc') modifier = -1;
+                if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+                if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+                return 0;
+            });
+        }
+    },
+
+    sortedStaffTypeSummary() {
+        if (this.currentSortTable !== "sortedStaffTypeSummary"){
+          return this.staff_type_summary;
+        }
+        else {
+            return this.staff_type_summary.sort((a, b) => {
+                let modifier = 1;
+                if (this.currentSortDir === 'desc') modifier = -1;
+                if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+                if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+                return 0;
+            });
+        }
+    },
+
+    sortedStaffFundingSummary() {
+        if (this.currentSortTable !== "sortedStaffFundingSummary"){
+          return this.staff_funding_summary;
+        }
+        else {
+            return this.staff_funding_summary.sort((a, b) => {
+                let modifier = 1;
+                if (this.currentSortDir === 'desc') modifier = -1;
+                if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+                if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+                return 0;
+            });
+        }
+    },
+
+    sortedStaff() {
+        if (this.currentSortTable !== "sortedStaff"){
+          return this.staff;
+        }
+        else {
+            return this.staff.sort((a, b) => {
+                let modifier = 1;
+                if (this.currentSortDir === 'desc') modifier = -1;
+                if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+                if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+                return 0;
+            });
+        }
     },
 
     financial_totals() {
@@ -495,6 +648,10 @@ var app = new Vue({
         om: 0,
         capital: 0,
         total: 0,
+        allocated_salary: 0,
+        allocated_om: 0,
+        allocated_capital: 0,
+        allocated_total: 0,
       }
       if (this.financials) {
         for (var i = 0; i < this.financials.length; i++) {
@@ -502,6 +659,10 @@ var app = new Vue({
           myObj.om += this.financials[i].om
           myObj.capital += this.financials[i].capital
           myObj.total += this.financials[i].total
+          myObj.allocated_salary += this.financials[i].allocated_salary
+          myObj.allocated_om += this.financials[i].allocated_om
+          myObj.allocated_capital += this.financials[i].allocated_capital
+          myObj.allocated_total += this.financials[i].allocated_total
         }
       }
       return myObj
