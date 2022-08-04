@@ -360,6 +360,9 @@ def financial_project_summary_data(project):
             my_dict["salary"] = 0
             my_dict["om"] = 0
             my_dict["capital"] = 0
+            my_dict["allocated_salary"] = 0
+            my_dict["allocated_om"] = 0
+            my_dict["allocated_capital"] = 0
 
             # first calc for staff
             for staff in models.Staff.objects.filter(funding_source=fs, project_year__project=project):
@@ -380,6 +383,11 @@ def financial_project_summary_data(project):
 
             my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
 
+            # allocated funds:
+            for review in models.Review.objects.filter(project_year__project=project):
+                my_dict["allocated_om"] += review.allocated_budget
+            my_dict["alloated_total"] =  my_dict["om"]
+
             my_list.append(my_dict)
 
     return my_list
@@ -398,9 +406,13 @@ def multiple_financial_project_year_summary_data(project_years):
         my_dict = dict()
         my_dict["type"] = fs.get_funding_source_type_display()
         my_dict["name"] = str(fs)
+        my_dict["py_count"] = 0
         my_dict["salary"] = 0
         my_dict["om"] = 0
         my_dict["capital"] = 0
+        my_dict["allocated_salary"] = 0
+        my_dict["allocated_om"] = 0
+        my_dict["allocated_capital"] = 0
 
         for py in project_years:
             # first calc for staff
@@ -412,6 +424,7 @@ def multiple_financial_project_year_summary_data(project_years):
                     elif staff.employee_type.cost_type == 2:
                         my_dict["om"] += nz(staff.amount, 0)
 
+
             # O&M costs
             for cost in models.OMCost.objects.filter(funding_source=fs, project_year=py):
                 my_dict["om"] += nz(cost.amount, 0)
@@ -421,6 +434,14 @@ def multiple_financial_project_year_summary_data(project_years):
                 my_dict["capital"] += nz(cost.amount, 0)
 
             my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+
+            # allocated funds and count pys if py is part of funding group
+            if fs in py.get_funding_sources():
+                my_dict["py_count"] += 1
+                if hasattr(py, "review"):
+                    if py.review.allocated_budget:
+                        my_dict["allocated_om"] += py.review.allocated_budget
+            my_dict["allocated_total"] = my_dict["allocated_om"]
 
         my_list.append(my_dict)
 
@@ -551,8 +572,6 @@ def get_review_field_list():
         'approval_level',
         'approver_comment',
         'allocated_budget',
-        'allocated_salary',
-        'allocated_capital',
         'metadata',
     ]
     return my_list
@@ -562,6 +581,7 @@ def get_staff_field_list():
     my_list = [
         'smart_name|{}'.format(_("name")),
         'funding_source',
+        'is_primary_lead',
         'is_lead',
         'employee_type',
         'level',
@@ -570,6 +590,7 @@ def get_staff_field_list():
         # 'overtime_description',
         # 'student_program',
         'amount',
+        'allocated_amount',
     ]
     return my_list
 
@@ -596,6 +617,8 @@ def get_om_field_list():
         'description',
         'funding_source',
         'amount',
+        'allocated_amount',
+
     ]
     return my_list
 
@@ -606,6 +629,17 @@ def get_capital_field_list():
         'description',
         'funding_source',
         'amount',
+        'allocated_amount',
+    ]
+    return my_list
+
+
+def get_allocation_field_list():
+    my_list = [
+        'description',
+        'funding_source',
+        'amount',
+        'distributed_amount',
     ]
     return my_list
 
@@ -1067,6 +1101,7 @@ def get_staff_summary(staff_df, summary_type, summary_cols=None, na_value="---")
 
         # count occurences of summary type based off original df
         output_df = staff_df.copy()
+        output_df = output_df.drop_duplicates(subset=['user', summary_type])
         output_df.loc[:, summary_type] = output_df[summary_type].fillna(value=na_value)
         output_summary = pd.DataFrame(output_df[summary_type].value_counts())
 

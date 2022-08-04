@@ -40,8 +40,18 @@
 
     <staff-modal v-if="showModal.staff" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></staff-modal>
     <om-cost-modal v-if="showModal.om_cost" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></om-cost-modal>
-    <capital-cost-modal v-if="showModal.capital_cost" @close="closeModals(projectYear)" :year="projectYear"
-                        :my_object="objectToEdit"></capital-cost-modal>
+    <capital-cost-modal v-if="showModal.capital_cost" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></capital-cost-modal>
+    <salary-allocation-modal v-if="showModal.salary_allocation" @submit-allocation="submitModalAllocation"
+                              @close="closeModals(projectYear)" :year="projectYear" :errors="modalErrors"
+                              :parent_allocation="modalAllocation"></salary-allocation-modal>
+    <om-allocation-modal v-if="showModal.om_allocation" @submit-allocation="submitModalAllocation"
+                              @close="closeModals(projectYear)" :year="projectYear" :errors="modalErrors"
+                              :parent_allocation="modalAllocation"></om-allocation-modal>
+    <capital-allocation-modal v-if="showModal.capital_allocation" @submit-allocation="submitModalAllocation"
+                              @close="closeModals(projectYear)" :year="projectYear" :errors="modalErrors"
+                              :parent_allocation="modalAllocation"></capital-allocation-modal>
+    <distribution-modal v-if="showModal.distribution" @close="closeModals(projectYear)" :allocation="allocation2Distribute"
+                        :costs="costs2Fund" :allocation_type="type2distribute"></distribution-modal>
     <activity-modal v-if="showModal.activity" @close="closeModals(projectYear)" :year="projectYear" :my_object="objectToEdit"></activity-modal>
     <collaboration-modal v-if="showModal.collaboration" @close="closeModals(projectYear)" :year="projectYear"
                          :my_object="objectToEdit"></collaboration-modal>

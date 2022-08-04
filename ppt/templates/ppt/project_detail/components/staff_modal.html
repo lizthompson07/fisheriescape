@@ -201,6 +201,7 @@ Vue.component("staff-modal", {
         user: null,
         funding_source: this.year.default_funding_source_id,
         is_lead: false,
+        is_primary_lead: false,
         employee_type: null,
         level: null,
         duration_weeks: null,
@@ -399,6 +400,8 @@ Vue.component("staff-modal", {
         // there is an annoying thing that has to happen to convert the html to js to pythonese...
         if (this.staff.is_lead) this.staff.is_lead = "True"
         else this.staff.is_lead = "False"
+        if (this.staff.is_primary_lead) this.staff.is_primary_lead = "True"
+        else this.staff.is_primary_lead = "False"
       }
       this.original_user = this.staff.user
       this.adjustStaffFields()
