@@ -24,7 +24,16 @@
                 {% trans "Was Outcome Deliverable Met?" %}
             </th>
             <th style="width: 120px">
+                {% trans "Site" %}
+            </th>
+            <th style="width: 120px">
                 {% trans "Report Link?" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Comment" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Metric" %}
             </th>
         </tr>
         <tbody>
@@ -37,7 +46,16 @@
                     {{ obj.outcome_delivered }}
                 </td>
                 <td>
+                    {{ obj.site }}
+                </td>
+                <td>
                     {{ obj.report_link.document_name }}
+                </td>
+                <td>
+                    {{ obj.report_outcome_comment }}
+                </td>
+                <td>
+                    {{ obj.reporting_outcome_metric }}
                 </td>
             </tr>
         {% endfor %}

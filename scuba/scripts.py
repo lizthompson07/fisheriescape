@@ -299,7 +299,7 @@ def digest_data():
             algae = float(row['Al']) if is_number_tryexcept(row['Al']) else 0
             gravel = float(row['Gr']) if is_number_tryexcept(row['Gr']) else 0
             cobble = float(row['Co']) if is_number_tryexcept(row['Co']) else 0
-            pebble = float(row['Ca']) if is_number_tryexcept(row['Ca']) else 0
+            boulder = float(row['Ca']) if is_number_tryexcept(row['Ca']) else 0
 
             try:
                 section, created = models.Section.objects.get_or_create(
@@ -314,7 +314,7 @@ def digest_data():
                     percent_algae=algae,
                     percent_gravel=gravel,
                     percent_cobble=cobble,
-                    percent_pebble=pebble,
+                    percent_boulder=boulder,
                 )
             except IntegrityError as E:
                 section = models.Section.objects.get(

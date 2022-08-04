@@ -18,6 +18,9 @@
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
             <th>
+                {% trans "Reporting Outcome" %}
+            </th>
+            <th>
                 {% trans "Report Type" %}
             </th>
             <th style="width: 120px">
@@ -36,6 +39,9 @@
         <tbody>
         {% for obj in object.project_report.all %}
             <tr href="{% url 'spot:reports_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this report">
+                <td>
+                    {{ obj.report_type }}
+                </td>
                 <td>
                     {{ obj.report_type }}
                 </td>

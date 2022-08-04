@@ -240,7 +240,7 @@ class TestSectionModel(CommonTest):
             'percent_algae',
             'percent_gravel',
             'percent_cobble',
-            'percent_pebble',
+            'percent_boulder',
             'comment',
         ]
         self.assert_has_fields(models.Section, fields_to_check)

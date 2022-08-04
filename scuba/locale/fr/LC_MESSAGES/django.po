@@ -305,7 +305,7 @@ msgid "cobble [0-1]"
 msgstr "cobble [0-1]"
 
 #: .\scuba\models.py:310
-msgid "pebble [0-1]"
+msgid "boulder [0-1]"
 msgstr "caillou [0-1]"
 
 #: .\scuba\models.py:333
@@ -333,7 +333,7 @@ msgid "cobble"
 msgstr "cobble"
 
 #: .\scuba\models.py:339
-msgid "pebble"
+msgid "boulder"
 msgstr "caillou"
 
 #: .\scuba\models.py:352 .\scuba\test\test_models.py:337
@@ -791,9 +791,6 @@ msgstr "Rapports"
 
 #~ msgid "% cobble"
 #~ msgstr "% cobble"
-
-#~ msgid "% pebble"
-#~ msgstr "% caillou"
 
 #~ msgid "certainty rating"
 #~ msgstr "cote de certitude"

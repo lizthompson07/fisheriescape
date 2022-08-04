@@ -307,7 +307,7 @@ class Section(MetadataFields):
     percent_hard = models.FloatField(default=0, verbose_name=_("hard [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     percent_gravel = models.FloatField(default=0, verbose_name=_("gravel [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     percent_cobble = models.FloatField(default=0, verbose_name=_("cobble [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_pebble = models.FloatField(default=0, verbose_name=_("pebble [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_boulder = models.FloatField(default=0, verbose_name=_("boulder [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 
     def __str__(self):
@@ -327,7 +327,7 @@ class Section(MetadataFields):
             "algae",
             "gravel",
             "cobble",
-            "pebble",
+            "boulder",
         ]
         substrates_string = [
             gettext("sand"),
@@ -336,7 +336,7 @@ class Section(MetadataFields):
             gettext("algae"),
             gettext("gravel"),
             gettext("cobble"),
-            gettext("pebble"),
+            gettext("boulder"),
         ]
         for substrate in substrates:
             attr = getattr(self, f"percent_{substrate}")
