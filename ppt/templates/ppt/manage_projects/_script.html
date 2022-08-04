@@ -418,7 +418,7 @@ var app = new Vue({
           this.p2Update = py
       }
     },
-    openDistributionModal(allocation, which, type) {
+    openDistributionModal(allocation, type) {
       this.allocation2Distribute = allocation;
       this.type2distribute = type;
       let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
@@ -430,7 +430,7 @@ var app = new Vue({
                 this.costs2Fund = response.results;
               }
           })
-      this.showModal[which] = true;
+      this.showModal['distribution'] = true;
     },
     closeModal(updatedProjectYear) {
       for (const showModalKey in this.showModal) {

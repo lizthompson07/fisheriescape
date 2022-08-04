@@ -35,18 +35,18 @@
             </div>
             <table class="table table-sm w-75">
               <thead>
-                <th>Category</th>
-                <th v-if="allocation_type='staff'">Name</th>
-                <th v-if="allocation_type='staff'">Level</th>
+                <th v-if="allocation_type!='staff'">Category</th>
+                <th v-if="allocation_type=='staff'">Name</th>
+                <th v-if="allocation_type=='staff'">Level</th>
                 <th>Funding Source</th>
                 <th>Amount Requested</th>
                 <th>Allocation</th>
               </thead>
               <tbody>
                 <tr v-for="c in costs">
-                  <td>${c.category_display}</td>
-                  <td v-if="allocation_type='staff'">${c.smart_name}</td>
-                  <td v-if="allocation_type='staff'">${c.level_display}</td>
+                  <td v-if="allocation_type!='staff'">${c.category_display}</td>
+                  <td v-if="allocation_type=='staff'">${c.smart_name}</td>
+                  <td v-if="allocation_type=='staff'">${c.level_display}</td>
 
                   <td>${c.funding_source_display}</td>
                   <td>${c.amount}</td>

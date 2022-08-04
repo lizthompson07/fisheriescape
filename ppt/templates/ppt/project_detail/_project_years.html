@@ -45,7 +45,11 @@
                         :my_object="objectToEdit"></salary-allocation-modal>
     <om-allocation-modal v-if="showModal.om_allocation" @close="closeModals(projectYear)" :year="projectYear"
                         :my_object="objectToEdit"></om-allocation-modal>
-    <capital-allocation-modal v-if="showModal.capital_allocation" @close="closeModals(projectYear)" :year="projectYear"
+    <capital-allocation-modal v-if="showModal.capital_allocation"
+                              @submit-allocation="submitModalAllocation"
+                              @distribute="openDistributionModal(objectToEdit, 'capital-costs')"
+                              @close="closeModals(projectYear)" :year="projectYear" :errors="modalErrors"
+                              :parent_allocation="modalAllocation"
                         :my_object="objectToEdit"></capital-allocation-modal>
     <distribution-modal v-if="showModal.distribution" @close="closeModals(projectYear)" :allocation="allocation2Distribute"
                         :costs="costs2Fund" :allocation_type="type2distribute"></distribution-modal>

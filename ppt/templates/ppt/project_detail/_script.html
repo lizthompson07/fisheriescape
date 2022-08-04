@@ -42,10 +42,13 @@ var app = new Vue({
     project_financials: [],
     project_financials_loading: false,
 
+    //modals
     objectToEdit: {},
     allocation2Distribute: {},
     costs2Fund: [],
     type2distribute: "",
+    modalAllocation: {},
+    modalErrors: null,
     showModal: {
       staff: false,
       om_cost: false,
@@ -272,19 +275,66 @@ var app = new Vue({
       this.showModal[which] = true;
     },
 
-    openDistributionModal(allocation, which, type) {
+    openAllocationModal(existingAllocation, which) {
+      this.modalAllocation = existingAllocation;
+      this.modalErrors = null;
+      this.showModal[which] = true;
+    },
+
+    submitModalAllocation(allocationOptions) {
+      let childAllocation = allocationOptions.allocation;
+      let which = allocationOptions.which;
+      let type = allocationOptions.type;
+      let distribute = allocationOptions.distrubute;
+      let distrubutionCosts = allocationOptions.distrubutionCosts;
+
+      if (this.modalAllocation) {
+        let endpoint = `/api/ppt/${type}/${this.modalAllocation.id}/`;
+        apiService(endpoint, "PATCH", childAllocation).then(response => {
+          if (response.id) {
+              this.modalAllocation = response;
+              this.closeModals(this.projectYear);
+              console.log(this.showModal);
+
+              if (distribute){
+                  this.openDistributionModal(this.modalAllocation, distrubutionCosts);
+              }
+          }
+          else {
+            this.modalErrors = groomJSON(response);
+          }
+        })
+      } else {
+        let endpoint = `/api/ppt/${type}/`;
+        childAllocation.project_year = this.projectYear.id
+        apiService(endpoint, "POST", childAllocation).then(response => {
+          if (response.id) {
+            this.modalAllocation = response;
+            this.closeModals(this.projectYear);
+            if (distribute){
+                  this.openDistributionModal(this.modalAllocation, distrubutionCosts);
+            }
+          }
+          else {
+            this.modalErrors = groomJSON(response);
+          }
+        })
+      }
+    },
+
+    openDistributionModal(allocation, type) {
       this.allocation2Distribute = allocation;
       this.type2distribute = type;
       let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
       apiService(endpoint)
           .then(response => {
-              if (type == "staff") {
+              if (type === "staff") {
                 this.costs2Fund = response;
               } else {
                 this.costs2Fund = response.results;
               }
           })
-      this.showModal[which] = true;
+      this.showModal['distribution'] = true;
     },
 
 
@@ -502,6 +552,7 @@ var app = new Vue({
         })
       }
     },
+
     goProjectYearEdit(projectYearId) {
       window.location.href = `/ppt/project-years/${projectYearId}/edit/`
     },

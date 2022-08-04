@@ -12,7 +12,7 @@
         <div class="modal-header">
           <slot name="header">
             <h3>
-              <span v-if="!my_object">{% trans "New Capital Allocation" %}</span>
+              <span v-if="!parent_allocation">{% trans "New Capital Allocation" %}</span>
               <span v-else>{% trans "Edit Capital Allocation" %}</span>
             </h3>
             <div v-if="errors" class="alert alert-danger" role="alert">
@@ -32,7 +32,7 @@
           </div>
           <div class="modal-footer">
             <slot name="footer">
-              <button class="btn btn-primary" id="saveDistBtn">{% trans "Save and distribute" %}</button>
+              <button class="btn btn-primary" id="saveDistBtn" @click="setDistribute">{% trans "Save and distribute" %}</button>
               <button class="btn btn-primary" id="saveBtn">{% trans "Save" %}</button>
               <button class="btn btn-secondary" @click="$emit('close')" id="closeBtn" type="button">
                 {% trans "Close" %}
@@ -56,10 +56,11 @@ Vue.component("capital-allocation-modal", {
       type: Object,
       required: true,
     },
-    my_object: {
+    parent_allocation: {
       type: Object,
       required: false,
     },
+    errors: null,
   },
   data() {
     return {
@@ -68,8 +69,8 @@ Vue.component("capital-allocation-modal", {
       loadingDMAppsUsers: false,
       isACRDP: false,
       isCSRF: false,
+      distribute: false,
       original_user: null,
-      errors: null,
       capital_allocation: {
         funding_source: this.year.default_funding_source_id,
         description: "",
@@ -79,25 +80,13 @@ Vue.component("capital-allocation-modal", {
   },
   methods: {
     onSubmit() {
-      this.errors = null
-      if (this.my_object) {
-        let endpoint = `/api/ppt/capital-allocations/${this.my_object.id}/`;
-        apiService(endpoint, "PATCH", this.capital_allocation).then(response => {
-          if (response.id) this.$emit('close')
-          else {
-                        this.errors = groomJSON(response);
-          }
-        })
-      } else {
-        let endpoint = `/api/ppt/capital-allocations/`;
-        this.capital_allocation.project_year = this.year.id
-        apiService(endpoint, "POST", this.capital_allocation).then(response => {
-          if (response.id) this.$emit('close')
-          else {
-                        this.errors = groomJSON(response);
-          }
-        })
-      }
+      this.$emit('submit-allocation', {
+        allocation: this.capital_allocation,
+        which: 'capital_allocation',
+        type: 'capital-allocations',
+        distrubute: this.distribute,
+        distrubutionCosts: 'capital-costs',
+      })
     },
     getCurrentUser() {
       let endpoint = `/api/ppt/user/`;
@@ -106,6 +95,9 @@ Vue.component("capital-allocation-modal", {
             this.currentUser = response;
           })
     },
+    setDistribute: function () {
+                this.distribute = true;
+            }
   },
   computed: {},
   created() {
@@ -117,8 +109,8 @@ Vue.component("capital-allocation-modal", {
       this.isCSRF = true;
     }
     this.$nextTick(() => {
-      if (this.my_object && this.my_object.id) {
-        this.capital_allocation = this.my_object
+      if (this.parent_allocation && this.parent_allocation.id) {
+        this.capital_allocation = this.parent_allocation
       }
     })
   },

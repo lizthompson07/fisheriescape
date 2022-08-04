@@ -74,7 +74,7 @@
         <td class="to-the-right" v-if="canModify">
           <button @click="openModal(item, 'salary_allocation')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteObject(item, 'salary-allocations', salary_allocations)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
-          <button @click="openDistributionModal(item, 'distribution', 'staff')" class="{{ btn_class_2 }} no-print"><span>Distribute</span></button>
+          <button @click="openDistributionModal(item, 'staff')" class="{{ btn_class_2 }} no-print"><span>Distribute</span></button>
 
         </td>
       </tr>
