@@ -9,7 +9,7 @@
     <p class="lead">{% trans "Salary Allocations" %}</p>
   </div>
   <div v-if="!salary_allocation_loading" class="mb-3 neighbours">
-    <button @click="openModal(null, 'salary_allocation')" class="{{ btn_class_1 }} no-print" v-if="canModify">
+    <button @click="openAllocationModal(null, 'salary_allocation')" class="{{ btn_class_1 }} no-print" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Salary Allocation" %}
     </button>
   </div>
@@ -72,7 +72,7 @@
           {% endif %}
         {% endfor %}
         <td class="to-the-right" v-if="canModify">
-          <button @click="openModal(item, 'salary_allocation')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
+          <button @click="openAllocationModal(item, 'salary_allocation')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteObject(item, 'salary-allocations', salary_allocations)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
           <button @click="openDistributionModal(item, 'staff')" class="{{ btn_class_2 }} no-print"><span>Distribute</span></button>
 

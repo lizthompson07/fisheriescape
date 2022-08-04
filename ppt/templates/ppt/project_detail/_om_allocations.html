@@ -9,7 +9,7 @@
     <p class="lead">{% trans "O&M Allocations" %}</p>
   </div>
   <div v-if="!om_allocation_loading" class="mb-3 neighbours">
-    <button @click="openModal(null, 'om_allocation')" class="{{ btn_class_1 }} no-print" v-if="canModify">
+    <button @click="openAllocationModal(null, 'om_allocation')" class="{{ btn_class_1 }} no-print" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add O&M Allocation" %}
     </button>
   </div>
@@ -72,7 +72,7 @@
           {% endif %}
         {% endfor %}
         <td class="to-the-right" v-if="canModify">
-          <button @click="openModal(item, 'om_allocation')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
+          <button @click="openAllocationModal(item, 'om_allocation')" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteObject(item, 'om-allocations', om_allocations)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
           <button @click="openDistributionModal(item, 'om-costs')" class="{{ btn_class_2 }} no-print"><span>Distribute</span></button>
 

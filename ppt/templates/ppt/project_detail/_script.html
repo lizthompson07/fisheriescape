@@ -293,11 +293,11 @@ var app = new Vue({
         apiService(endpoint, "PATCH", childAllocation).then(response => {
           if (response.id) {
               this.modalAllocation = response;
-              this.closeModals(this.projectYear);
-              console.log(this.showModal);
-
               if (distribute){
+                  this.showModal[which] = false;
                   this.openDistributionModal(this.modalAllocation, distrubutionCosts);
+              } else {
+                this.closeModals(this.projectYear);
               }
           }
           else {
@@ -310,9 +310,11 @@ var app = new Vue({
         apiService(endpoint, "POST", childAllocation).then(response => {
           if (response.id) {
             this.modalAllocation = response;
-            this.closeModals(this.projectYear);
             if (distribute){
-                  this.openDistributionModal(this.modalAllocation, distrubutionCosts);
+              this.showModal[which] = false;
+              this.openDistributionModal(this.modalAllocation, distrubutionCosts);
+            } else {
+              this.closeModals(this.projectYear);
             }
           }
           else {
@@ -541,6 +543,8 @@ var app = new Vue({
         this.showModal[showModalKey] = false;
       }
       this.objectToEdit = {}
+      this.modalAllocation = {}
+      this.modalErrors = null
       this.allocation2Distribute = {}
       this.costs2Fund = []
       this.type2distribute = ""
