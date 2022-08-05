@@ -279,7 +279,7 @@ class StaffingAPIView(APIView):
         year = request.query_params.get("year")
         fiscal_year = shared_models.FiscalYear.objects.get(pk=year)
 
-        staff_df = pd.DataFrame.from_records(staff_instances.values("funding_source__funding_source_type", "level_id__name",
+        staff_df = pd.DataFrame.from_records(staff_instances.values("funding_source__funding_source_type", "level__name",
                                                                     "employee_type__name", "duration_weeks",
                                                                     "project_year__status", "user"))
 
@@ -297,7 +297,7 @@ class StaffingAPIView(APIView):
             staff_df["approved"] = np.where(staff_df["project_year__status"] == 4, staff_df["duration_weeks"], np.nan)
 
             type_summary = get_staff_summary(staff_df, "employee_type__name")
-            level_summary = get_staff_summary(staff_df, "level_id__name")
+            level_summary = get_staff_summary(staff_df, "level__name")
             funding_summary = get_staff_summary(staff_df, "funding_source")
 
         # now we need a user list for any users in the above list
@@ -324,9 +324,9 @@ class StaffingAPIView(APIView):
             approved_weeks = si.duration_weeks if si.project_year.status == 4 else 0
             my_dict = {
                 "name": "---",
-                "employee_type": si.employee_type.name,
-                "level": si.level.name,
-                "funding": si.funding_source.name,
+                "employee_type": si.employee_type.name if si.employee_type else "",
+                "level": si.level.name if si.level else "",
+                "funding": si.funding_source.name if si.funding_source else "",
                 "section": "",
                 "fiscal_year": year,
                 "draft": draft_weeks,
