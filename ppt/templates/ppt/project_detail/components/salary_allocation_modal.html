@@ -4,7 +4,7 @@
 {% load project_filters %}
 {% load static %}
 <!-- template for the modal component -->
-<script type="text/x-template" id="capital-cost-modal-template">
+<script type="text/x-template" id="salary-allocation-modal-template">
 <transition name="modal">
   <div class="modal-mask">
     <div class="modal-wrapper">
@@ -12,8 +12,8 @@
         <div class="modal-header">
           <slot name="header">
             <h3>
-              <span v-if="!my_object">{% trans "New Capital Cost" %}</span>
-              <span v-else>{% trans "Edit Capital Cost" %}</span>
+              <span v-if="!parent_allocation">{% trans "New Salary Allocation" %}</span>
+              <span v-else>{% trans "Edit Salary Allocation" %}</span>
             </h3>
             <div v-if="errors" class="alert alert-danger" role="alert">
               <h4 class="alert-heading">
@@ -27,12 +27,13 @@
         <form method="post" @submit.prevent="onSubmit" class="form" enctype="multipart/form-data">
           <div class="modal-body">
             <slot name="body">
-              {% bootstrap_form capital_cost_form size='small' %}
+              {% bootstrap_form salary_allocation_form size='small' %}
             </slot>
           </div>
           <div class="modal-footer">
             <slot name="footer">
-              <button class="btn btn-primary" id="closeBtn">{% trans "Save" %}</button>
+              <button class="btn btn-primary" id="saveDistBtn" @click="setDistribute">{% trans "Save and distribute" %}</button>
+              <button class="btn btn-primary" id="saveBtn">{% trans "Save" %}</button>
               <button class="btn btn-secondary" @click="$emit('close')" id="closeBtn" type="button">
                 {% trans "Close" %}
               </button>
@@ -47,18 +48,19 @@
 
 
 <script type="application/javascript">
-Vue.component("capital-cost-modal", {
-  template: "#capital-cost-modal-template",
+Vue.component("salary-allocation-modal", {
+  template: "#salary-allocation-modal-template",
   delimiters: ["${", "}"],
   props: {
     year: {
       type: Object,
       required: true,
     },
-    my_object: {
+    parent_allocation: {
       type: Object,
       required: false,
     },
+    errors: null,
   },
   data() {
     return {
@@ -67,39 +69,24 @@ Vue.component("capital-cost-modal", {
       loadingDMAppsUsers: false,
       isACRDP: false,
       isCSRF: false,
+      distribute: false,
       original_user: null,
-      errors: null,
-      capital_cost: {
+      salary_allocation: {
         funding_source: this.year.default_funding_source_id,
-        category: "",
         description: "",
         amount: 0,
-        allocated_amount: 0,
-        allocated_source: null,
       },
     }
   },
   methods: {
     onSubmit() {
-      this.errors = null
-      if (this.my_object) {
-        let endpoint = `/api/ppt/capital-costs/${this.my_object.id}/`;
-        apiService(endpoint, "PATCH", this.capital_cost).then(response => {
-          if (response.id) this.$emit('close')
-          else {
-                        this.errors = groomJSON(response);
-          }
-        })
-      } else {
-        let endpoint = `/api/ppt/capital-costs/`;
-        this.capital_cost.project_year = this.year.id
-        apiService(endpoint, "POST", this.capital_cost).then(response => {
-          if (response.id) this.$emit('close')
-          else {
-                        this.errors = groomJSON(response);
-          }
-        })
-      }
+      this.$emit('submit-allocation', {
+        allocation: this.salary_allocation,
+        which: 'salary_allocation',
+        type: 'salary-allocations',
+        distrubute: this.distribute,
+        distrubutionCosts: 'staff',
+      });
     },
     getCurrentUser() {
       let endpoint = `/api/ppt/user/`;
@@ -108,6 +95,9 @@ Vue.component("capital-cost-modal", {
             this.currentUser = response;
           })
     },
+    setDistribute: function () {
+      this.distribute = true;
+    }
   },
   computed: {},
   created() {
@@ -119,8 +109,8 @@ Vue.component("capital-cost-modal", {
       this.isCSRF = true;
     }
     this.$nextTick(() => {
-      if (this.my_object && this.my_object.id) {
-        this.capital_cost = this.my_object
+      if (this.parent_allocation && this.parent_allocation.id) {
+        this.salary_allocation = this.parent_allocation
       }
     })
   },
