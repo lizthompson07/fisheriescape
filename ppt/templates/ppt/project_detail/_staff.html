@@ -84,8 +84,7 @@
             <td>${s.student_program_display | nz}</td>
           {% elif "allocated_amount" in field %}
             <td v-if="canModify">
-              <span v-if="s.allocated_amount == 0||!s.allocated_amount" class="major-error py-1 px-1">${s.allocated_amount | currencyFormat}</span>
-              <span v-else>${s.allocated_amount | currencyFormat}</span>
+              <span>${s.allocated_amount | currencyFormat}</span>
             </td>
           {% elif "amount" in field %}
             <td v-if="canModify">${s.amount | currencyFormat}</td>
