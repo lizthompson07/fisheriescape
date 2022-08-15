@@ -703,7 +703,7 @@ def consultation_instructions_export_spreadsheet(orgs=None):
             j += 1
 
         my_ws.write_row(i, 0, data_row, normal_format)
-
+        i += 1
     # set column widths
     for j in range(0, len(col_max)):
         my_ws.set_column(j, j, width=col_max[j] * 1.1)

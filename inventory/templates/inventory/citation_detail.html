@@ -13,15 +13,15 @@
                 <li class="breadcrumb-item"><a href="{{ home_url }}">Home</a></li>
                 <li class="breadcrumb-item"><a
                         href="{% url 'inventory:resource_detail' resource.id %}">{{ resource.truncated_title }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ object.title_eng }}</li>
+                <li class="breadcrumb-item active" aria-current="page">{{ object.tname }}</li>
             </ol>
         </nav>
 
         <br>
         {% if object.title_eng %}
-            <h1>{{ object.title_eng|title }}</h1>
+            <h1>{{ object.name|title }}</h1>
         {% else %}
-            <h1>{{ object.title_fre|title }}</h1>
+            <h1>{{ object.nom|title }}</h1>
         {% endif %}
         <p>
 
@@ -34,18 +34,18 @@
         </p>
 
 
-        {% verbose_field_display object "title_eng" %}
-        {% verbose_field_display object "title_fre" %}
+        {% verbose_field_display object "name" %}
+        {% verbose_field_display object "nom" %}
         {% verbose_field_display object "authors" %}
         {% verbose_field_display object "year" %}
         {% verbose_field_display object "pub_number" %}
         {% verbose_field_display object "publication" %}
         {% verbose_field_display object "series" %}
         {% verbose_field_display object "region" %}
-        {% verbose_field_display object "url_eng" hyperlink=True %}
-        {% verbose_field_display object "url_fre" hyperlink=True %}
-        {% verbose_field_display object "abstract_eng" %}
-        {% verbose_field_display object "abstract_fre" %}
+        {% verbose_field_display object "url_en" hyperlink=True %}
+        {% verbose_field_display object "url_fr" hyperlink=True %}
+        {% verbose_field_display object "abstract_en" %}
+        {% verbose_field_display object "abstract_fr" %}
 
 
         <br>
