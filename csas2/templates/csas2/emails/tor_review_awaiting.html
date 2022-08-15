@@ -2,36 +2,99 @@
 {% load i18n %}
 
 <style media="screen">
-    table, td, th, tr {
-        border: solid 1px black;
-        text-align: left;
-        margin-right: 15px;
-    }
+table, td, th, tr {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+}
+
+button {
+    border-radius: 10px;
+}
+
+button a {
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+}
 </style>
 
 <em>
-    *** un message français suivra
+  *** un message français suivra
 </em>
 <br><br>
 
 {% language 'en' %}
-<p>
+  <p>
     Hello {{ object.user }},
     <br><br>
-    A Canadian Science Advisory Secretariat (CSAS) Terms of Reference is awaiting your {% if object.role == 1 %} approval {% else %} review {% endif %} in the DM Apps - CSAS Tracking Tool.
-    Please click <a href="{{SITE_FULL_URL}}{% url 'csas2:tor_detail' object.tor.id %}">HERE</a> to review the Terms of Reference.
-</p>
+    A Canadian Science Advisory Secretariat (CSAS) Terms of Reference is awaiting your {% if object.role == 1 %} approval {% else %} review {% endif %} in the
+    DM Apps - CSAS Tracking Tool.
+  </p>
+
+  <table>
+    <tr>
+      <th>Title</th>
+      <td>{{ object.tor.process.tname }}</td>
+    </tr>
+    <tr>
+      <th>Type</th>
+      <td>{{ object.tor.process.scope_type }}</td>
+    </tr>
+  </table>
+  <br>
+
+  <button class=”button” style="background-color: #01c020">
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">
+      Click here to review the Terms of Reference!
+    </a>
+  </button>
+  <p>
+    <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/GuidePol/Approval-Approbation-Pol-eng.html" %}">
+      CSAS Policy on Review and Approval of Documents
+    </a>
+  </p>
 
   <hr>
 
 {% endlanguage %}
 {% language 'fr' %}
-<p>
+  <p>
     Bonjour {{ object.user }} :
     <br><br>
     Une cadre de référence attend votre {% if object.role == 1 %} approbation {% else %} evaluation {% endif %} dans l'outil de suivi SCAS de l’Applis GD.
-    Veuillez cliquer <a href="{{SITE_FULL_URL}}{% url 'csas2:tor_detail' object.tor.id %}">ICI</a> pour consulter le cadre de reference.
-</p>
+  </p>
+
+  <table>
+    <tr>
+      <th>Title</th>
+      <td>{{ object.tor.process.tname }}</td>
+    </tr>
+    <tr>
+      <th>Type</th>
+      <td>{{ object.tor.process.scope_type }}</td>
+    </tr>
+  </table>
+  <br>
+
+  <br>
+  <button class=”button” style="background-color: #01c020">
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">
+      Cliquer ici pour consulter le cadre de reference !
+    </a>
+  </button>
+
+  <p>
+    <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/guidepol/approval-approbation-pol-fra.html" %}">
+      SCAS politique sur l’examen et l’approbation de documents
+    </a>
+  </p>
+
 {% endlanguage %}
 
 
