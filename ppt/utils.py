@@ -1101,7 +1101,9 @@ def get_staff_summary(staff_df, summary_type, summary_cols=None, na_value="---")
 
         # count occurences of summary type based off original df
         output_df = staff_df.copy()
-        output_df = output_df.drop_duplicates(subset=['user', summary_type])
+        # hideous drop duplicates to make Nan's distinct
+        output_df[(~output_df.duplicated(subset=['user', summary_type])) | (output_df[['user', summary_type]].isnull().any(axis=1))]
+
         output_df.loc[:, summary_type] = output_df[summary_type].fillna(value=na_value)
         output_summary = pd.DataFrame(output_df[summary_type].value_counts())
 
