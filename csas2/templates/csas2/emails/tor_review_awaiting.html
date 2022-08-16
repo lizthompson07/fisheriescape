@@ -2,27 +2,27 @@
 {% load i18n %}
 
 <style media="screen">
-table, td, th, tr {
+
+
+.email-table > tbody > tr > th, .email-table > tbody > tr > td {
     border: solid 1px black;
     text-align: left;
     margin-right: 15px;
     padding: 10px;
 }
 
-button {
-    border-radius: 10px;
-}
 
-button a {
+.button-a {
     padding: 8px 12px;
+    border: 1px solid #01c020;
     border-radius: 10px;
-    font-family: Arial, Helvetica, sans-serif;
     font-size: 14px;
     color: #ffffff;
     text-decoration: none;
     font-weight: bold;
     display: inline-block;
 }
+
 </style>
 
 <em>
@@ -38,7 +38,7 @@ button a {
     DM Apps - CSAS Tracking Tool.
   </p>
 
-  <table>
+  <table class="email-table">
     <tr>
       <th>Title</th>
       <td>{{ object.tor.process.tname }}</td>
@@ -48,6 +48,7 @@ button a {
       <td>{{ object.tor.process.scope_type }}</td>
     </tr>
   </table>
+
   <br>
   <button class=”button” style="background-color: #01c020">
     <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">
@@ -72,7 +73,7 @@ button a {
 
   <table>
     <tr>
-      <th>Title</th>
+      <th>Titre</th>
       <td>{{ object.tor.process.tname }}</td>
     </tr>
     <tr>
@@ -82,11 +83,26 @@ button a {
   </table>
   <br>
   <br>
-  <button class=”button” style="background-color: #01c020">
-    <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">
-      Cliquer ici pour consulter le cadre de reference !
-    </a>
-  </button>
+
+
+
+  <table width="100%" cellspacing="0" cellpadding="0">
+    <tr>
+      <td>
+        <table cellspacing="0" cellpadding="0">
+          <tr>
+            <td class=”button” bgcolor="#01c020">
+              <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}" target="_blank" class="button-a">
+                Cliquer ici pour consulter le cadre de reference !
+              </a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+
 
   <p>
     <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/guidepol/approval-approbation-pol-fra.html" %}">
