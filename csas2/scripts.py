@@ -204,3 +204,23 @@ def transfer_postings():
         else:
             print(f'success on process {p.id}')
 
+
+
+def resave_tor_reviewers():
+    for p in models.Process.objects.filter(is_posted=True):
+
+        # first find the target meeting
+        try:
+            meeting = p.tor.meeting
+            meeting.is_posted = True
+            meeting.posting_notification_date = p.posting_notification_date
+            meeting.posting_request_date = p.posting_request_date
+            meeting.save()
+        except:
+            print(f'cannot transfer process {p.id}')
+        else:
+            print(f'success on process {p.id}')
+
+
+
+

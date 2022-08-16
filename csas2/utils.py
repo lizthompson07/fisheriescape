@@ -520,6 +520,9 @@ def end_tor_review_process(tor):
         reviewer.status = 10  # DRAFT
         reviewer.decision = None
         reviewer.decision_date = None
+        reviewer.review_started = None
+        reviewer.review_completed = None
+        reviewer.reminder_sent = None
         reviewer.save()
 
 

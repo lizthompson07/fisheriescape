@@ -35,8 +35,8 @@ button a {
     Hello {{ object.user }},
     <br><br>
     This is a friendly reminder that a CSAS Terms of Reference has been awaiting your {% if object.role == 1 %} approval {% else %} review {% endif %}
-    for {{ td.days }} days. Per the <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/GuidePol/Approval-Approbation-Pol-eng.html" %}">policy</a>,
-    the review/approval is to be completed within 10 days following receipt.
+    for {{ object.review_duration }} days. Per the <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/GuidePol/Approval-Approbation-Pol-eng.html" %}">policy</a>,
+    the review/approval is to be completed within ten days following receipt.
   </p>
   <table>
     <tr>
@@ -68,9 +68,9 @@ button a {
     Bonjour {{ object.user }} :
     <br><br>
     Ceci est un rappel amical qu'une cadre de référence du CSAS attend votre {% if object.role == 1 %} approbation {% else %} révision {% endif %}
-    pendant {{ td.days }} jours. Conformément à
+    pendant {{ object.review_duration }} jours. Conformément à
     <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/guidepol/approval-approbation-pol-fra.html" %}">la politique</a>,
-    l'examen/l'approbation doit être effectuée au cours des 10 jours suivant la réception.
+    l'examen/l'approbation doit être effectuée au cours des dix jours suivant la réception.
   </p>
   <table>
     <tr>

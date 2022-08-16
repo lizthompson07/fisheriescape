@@ -8,9 +8,9 @@ from .models import ToRReviewer
 @shared_task(name="tor_reviewer_reminder_email")
 def tor_reviewer_reminder_email():
     # get all reviewers whose status are pending (30) and whose decisions are null
-    lazy_reviewers = ToRReviewer.objects.filter(decision__isnull=True, status=30)
+    lazy_reviewers = ToRReviewer.objects.filter(review_started__isnull=False, review_completed__isnull=True)
     for r in lazy_reviewers:
-        td = timezone.now() - r.updated_at
+        td = timezone.now() - r.review_started
         if td.days >= 5:
             send_email = False
             # they are in the warning zone...

@@ -18,7 +18,7 @@
       <a v-else-if="canSubmit.allowed" class="btn btn-sm btn-primary" href="{% url 'csas2:tor_submit' object.id %}">
         {% trans "Submit" %}
       </a>
-      <span v-else data-toggle="tooltip" :title="canSubmit.reason"><a class="btn btn-sm btn-primary disabled" href="#">{% trans "Submit" %}</a></span>
+      {#      <span v-else data-toggle="tooltip" :title="canSubmit.reason"><a class="btn btn-sm btn-primary disabled" href="#">{% trans "Submit" %}</a></span>#}
 
       <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:tor_edit' object.id %}">{% trans "Edit" %}</a>
 
@@ -310,16 +310,24 @@
       canSubmit() {
         let payload = {
           allowed: false,
-          reason: "{% trans "You must have at least one approver in the approval queue before submitting the ToR." %}"
+          reason: "{% trans "You do not have the necessary permisions to submit this ToR." %}"
         };
-        for (const reviewer of this.reviewers) {
-          if (reviewer.role === 1 && reviewer.id) {
-            payload.allowed = true;
-            payload.reason = null;
-            break;
+
+        if (this.canEditReviewers) {
+          payload = {
+            allowed: false,
+            reason: "{% trans "You must have at least one approver in the approval queue before submitting the ToR." %}"
+          };
+          for (const reviewer of this.reviewers) {
+            if (reviewer.role === 1 && reviewer.id) {
+              payload.allowed = true;
+              payload.reason = null;
+              break;
+            }
           }
         }
         return payload;
+
       },
       showReviewerForm() {
         // tor status must == under review and the current user must be the reviewer

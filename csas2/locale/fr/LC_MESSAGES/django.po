@@ -1177,7 +1177,7 @@ msgid "Connected CSAS requests"
 msgstr "Demandes SCAS connectées"
 
 #: .\csas2\models.py:445
-msgid "Target date for to provide Science advice"
+msgid "Target date to provide Science advice"
 msgstr "date pour fournir l'avis scientifique"
 
 #: .\csas2\models.py:446
