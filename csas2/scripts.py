@@ -207,19 +207,20 @@ def transfer_postings():
 
 
 def resave_tor_reviewers():
-    for p in models.Process.objects.filter(is_posted=True):
+    reviewers = models.ToRReviewer.objects.filter(status__in=[30, 40], review_started__isnull=True, review_completed__isnull=True)
 
-        # first find the target meeting
-        try:
-            meeting = p.tor.meeting
-            meeting.is_posted = True
-            meeting.posting_notification_date = p.posting_notification_date
-            meeting.posting_request_date = p.posting_request_date
-            meeting.save()
-        except:
-            print(f'cannot transfer process {p.id}')
-        else:
-            print(f'success on process {p.id}')
+    for r in reviewers:
+        # if the status is pending (30), they will have a start and no end
+        if r.status == 30:
+            r.review_started = r.updated_at
+            r.save()
+        # if the status is complete (40), they will have a start and an end
+        elif r.status == 40:
+            r.review_started = r.updated_at
+            r.review_completed = r.updated_at + timezone.timedelta(days=1)
+            r.save()
+
+
 
 
 
