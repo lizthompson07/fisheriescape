@@ -217,7 +217,7 @@ class PostedToREmail(Email):
 
 class ToRReviewTerminatedEmail(Email):
     email_template_path = 'csas2/emails/tor_review_terminated.html'
-    subject_en = 'Your review has been skipped'
+    subject_en = 'Your review has been withdrawn'
     subject_fr = "Votre évaluation a été ignoré"
 
     def get_recipient_list(self):
