@@ -981,6 +981,9 @@ class ToRReviewerViewSet(viewsets.ModelViewSet):
             msg = _('There has to be at least one approver in the queue!')
             raise ValidationError(msg)
         super().perform_destroy(instance)
+        if instance.status == 30:
+            email = emails.ToRReviewTerminatedEmail(self.request, instance)
+            email.send()
 
     def perform_create(self, serializer):
         obj = serializer.save(created_by=self.request.user)

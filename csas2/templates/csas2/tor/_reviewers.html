@@ -110,7 +110,7 @@
 
               <td style="width:75px">
                 <button
-                  v-if="item.can_be_modified"
+                  v-if="item.can_be_modified || item.status === 30 "
                   @click="deleteReviewer(item)"
                   class="btn btn-sm btn-outline-dark py-0 px-1" data-toggle="tooltip" title="{% trans "Delete" %}">
                   <span class="mdi mdi-delete text-dark"></span>

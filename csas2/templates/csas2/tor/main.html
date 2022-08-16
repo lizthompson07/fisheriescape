@@ -225,7 +225,12 @@
       },
       deleteReviewer(reviewer) {
         if (reviewer.id) {
-          userInput = confirm("{% trans "Are you sure you want to remove this reviewer?" %}");
+          let msg ="{% trans "Are you sure you want to remove this reviewer?" %}"
+          if(reviewer.status === 30 ) {
+              msg += "\n\n{% trans "WARNING: This reviewer's status is 'pending'. If you choose to continue, they will receive a notification message to inform them about this change." %}";
+          }
+          let userInput = confirm(msg);
+
           if (userInput) {
             apiService(`/api/csas/tor-reviewers/${reviewer.id}/`, "DELETE")
                 .then(response => {
