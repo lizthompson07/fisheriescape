@@ -225,9 +225,9 @@
       },
       deleteReviewer(reviewer) {
         if (reviewer.id) {
-          let msg ="{% trans "Are you sure you want to remove this reviewer?" %}"
-          if(reviewer.status === 30 ) {
-              msg += "\n\n{% trans "WARNING: This reviewer's status is 'pending'. If you choose to continue, they will receive a notification message to inform them about this change." %}";
+          let msg = "{% trans "Are you sure you want to remove this reviewer?" %}"
+          if (reviewer.status === 30) {
+            msg += "\n\n{% trans "WARNING: This reviewer's status is 'pending'. If you choose to continue, they will receive a notification message to inform them about this change." %}";
           }
           let userInput = confirm(msg);
 
@@ -238,11 +238,16 @@
                   else {
                     this.$delete(this.reviewers, this.reviewers.indexOf(reviewer));
                     // if the deleted reviewer was 'pending' we'll need to refresh all the reviewers
-                    if(reviewer.status === 30) this.getToR();
+                    if (reviewer.status === 30) this.getToR();
                   }
                 })
           }
         } else this.$delete(this.reviewers, this.reviewers.indexOf(reviewer))
+      },
+      isNextReviewer(reviewer) {
+        let index = this.reviewers.indexOf(reviewer);
+        let prev = this.reviewers[index - 1]
+        return prev && prev.status === 30;
       },
       submitCurrentReviewerForm(reviewer) {
         apiService(`/api/csas/tor-reviewers/${reviewer.id}/`, "PUT", reviewer)
@@ -279,7 +284,7 @@
           r = this.reviewers[i]
           if (r.status === 4 || r.status === 20) r.order = i;
           else r.order = i - 1000;
-          this.updateReviewer(this.reviewers[i])
+          if (r.can_be_modified) this.updateReviewer(this.reviewers[i]);
         }
       },
 
