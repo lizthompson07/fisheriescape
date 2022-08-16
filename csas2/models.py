@@ -749,26 +749,30 @@ class ToRReviewer(MetadataFields):
     review_completed = models.DateTimeField(verbose_name=_("review completed"), blank=True, null=True, editable=False)
 
     def save(self, *args, **kwargs):
-        if self.decision:
-            self.decision_date = timezone.now()
-            if self.decision == 1:  # review decision = approve
-                self.status = 40
-            elif self.decision == 2:  # review decision = request changes
-                tor = self.tor
-                tor.status = 30
-                tor.save()
+        # if the decision is "approved" set the status of the reviewer to 'complete' (40)
+        if self.decision == 1:
+            self.status = 40
+            # populate a decision date if not already there. (this is a safeguard for losing decision dates in the case of post-approval saving)
+            if not self.decision_date:
+                self.decision_date = timezone.now()
+        # if the decision is "request changes" set the status of the TOR to "awaiting changes" (30); do not populate a decision date
+        elif self.decision == 2:  # review decision = request changes
+            tor = self.tor
+            tor.status = 30
+            tor.save()
         else:
             self.decision_date = None
 
+        # if the reviewer status is "pending" (30) and there is no starting date, this is the starting moment!
         if self.status == 30 and not self.review_started:
             self.review_started = timezone.now()
+        # if the reviewer status is "complete" (40) and there is no completion date, this is the completion moment!
         elif self.status == 40 and not self.review_completed:
             self.review_completed = timezone.now()
 
         super().save(*args, **kwargs)
 
     class Meta:
-        # unique_together = ['tor', 'user', ]
         ordering = ['tor', 'order', ]
         verbose_name = _("ToR reviewer")
 
