@@ -742,6 +742,9 @@ class ToRReviewer(MetadataFields):
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
     status = models.IntegerField(verbose_name=_("status"), default=10, choices=tor_review_status_choices)
 
+    # non-editable
+    reminder_sent = models.DateTimeField(verbose_name=_("reminder sent date"), blank=True, null=True, editable=False)
+
     def save(self, *args, **kwargs):
         if self.decision:
             self.decision_date = timezone.now()

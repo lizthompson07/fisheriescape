@@ -33,7 +33,8 @@
           <table class="table table-sm">
             <thead>
             <tr>
-              <th class="w-10"></th>
+              <th class="w-10" v-if="![35,40,50].includes(tor.status)"></th>
+              <th v-else></th>
               <th class="w-20">${ reviewerLabels.user }</th>
               <th class="w-15">${ reviewerLabels.role }</th>
               <th class="w-10">${ reviewerLabels.status }</th>
