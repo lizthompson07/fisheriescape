@@ -764,6 +764,15 @@ class ToRReviewerSerializer(serializers.ModelSerializer):
     status_display = serializers.SerializerMethodField()
     user_display = serializers.SerializerMethodField()
     can_be_modified = serializers.SerializerMethodField()
+    review_duration = serializers.SerializerMethodField()
+
+    role_display = serializers.SerializerMethodField()
+
+    def get_role_display(self, instance):
+        return instance.get_role_display()
+
+    def get_review_duration(self, instance):
+        return instance.review_duration
 
     def get_can_be_modified(self, instance):
         return instance.can_be_modified

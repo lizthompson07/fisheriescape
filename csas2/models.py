@@ -1,4 +1,5 @@
 from datetime import timedelta
+from math import floor
 from uuid import uuid4
 
 from django.contrib.auth.models import User
@@ -442,7 +443,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
                                      help_text=_("A list of non-CSAS staff with permissions to edit the process, meetings and documents"))
 
     csas_requests = models.ManyToManyField(CSASRequest, blank=True, related_name="processes", verbose_name=_("Connected CSAS requests"))
-    advice_date = models.DateTimeField(verbose_name=_("Target date for to provide Science advice"), blank=True, null=True)
+    advice_date = models.DateTimeField(verbose_name=_("Target date to provide Science advice"), blank=True, null=True)
     projects = models.ManyToManyField(Project, blank=True, related_name="csas_processes", verbose_name=_("Links to PPT Projects"))
 
     # non-editable
@@ -744,6 +745,8 @@ class ToRReviewer(MetadataFields):
 
     # non-editable
     reminder_sent = models.DateTimeField(verbose_name=_("reminder sent date"), blank=True, null=True, editable=False)
+    review_started = models.DateTimeField(verbose_name=_("review started"), blank=True, null=True, editable=False)
+    review_completed = models.DateTimeField(verbose_name=_("review completed"), blank=True, null=True, editable=False)
 
     def save(self, *args, **kwargs):
         if self.decision:
@@ -756,12 +759,29 @@ class ToRReviewer(MetadataFields):
                 tor.save()
         else:
             self.decision_date = None
+
+        if self.status == 30 and not self.review_started:
+            self.review_started = timezone.now()
+        elif self.status == 40 and not self.review_completed:
+            self.review_completed = timezone.now()
+
         super().save(*args, **kwargs)
 
     class Meta:
         # unique_together = ['tor', 'user', ]
         ordering = ['tor', 'order', ]
         verbose_name = _("ToR reviewer")
+
+    @property
+    def review_duration(self):
+        td = None
+        if self.review_started and self.review_completed:
+            td = self.review_completed - self.review_started
+        elif self.review_started:
+            td = timezone.now() - self.review_started
+        if td:
+            # return the total number of days
+            return floor((td.seconds + (td.days * 24 * 60 * 60)) / (24 * 60 * 60))
 
     @property
     def comments_html(self):

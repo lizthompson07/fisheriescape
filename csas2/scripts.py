@@ -204,3 +204,24 @@ def transfer_postings():
         else:
             print(f'success on process {p.id}')
 
+
+
+def resave_tor_reviewers():
+    reviewers = models.ToRReviewer.objects.filter(status__in=[30, 40], review_started__isnull=True, review_completed__isnull=True)
+
+    for r in reviewers:
+        # if the status is pending (30), they will have a start and no end
+        if r.status == 30:
+            r.review_started = r.updated_at
+            r.save()
+        # if the status is complete (40), they will have a start and an end
+        elif r.status == 40:
+            r.review_started = r.updated_at
+            r.review_completed = r.updated_at + timezone.timedelta(days=1)
+            r.save()
+
+
+
+
+
+
