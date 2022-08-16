@@ -1,0 +1,86 @@
+{% load verbose_names %}
+{% load i18n %}
+
+<style media="screen">
+table, td, th, tr {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+}
+
+button {
+    border-radius: 10px;
+}
+
+button a {
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+}
+</style>
+
+<em>
+  *** un message français suivra
+</em>
+
+{% language 'en' %}
+
+  <p>
+    Hello {{ object.user }},
+    <br><br>
+    This is an automated message to inform you that your review for the below CSAS Terms of Reference has been skipped.
+  </p>
+
+  <table>
+    <tr>
+      <th>Title</th>
+      <td>
+        <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.tor.process.id %}">
+          {{ object.tor.process.tname }}
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <th>Type</th>
+      <td>{{ object.tor.process.scope_type }}</td>
+    </tr>
+  </table>
+  <br>
+
+  <hr>
+
+{% endlanguage %}
+{% language 'fr' %}
+  <p>
+    Bonjour {{ object.user }} :
+    <br><br>
+    Ceci est un message automatisé pour vous informer que votre évaluation pour la cadre de référence du SCAS ci-dessous a été ignoré.
+  </p>
+
+  <table>
+    <tr>
+      <th>Titre</th>
+      <td>
+        <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.tor.process.id %}">
+          {{ object.tor.process.tname }}
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <th>Type</th>
+      <td>{{ object.tor.process.scope_type }}</td>
+    </tr>
+  </table>
+  <br>
+
+
+{% endlanguage %}
+
+
+
+

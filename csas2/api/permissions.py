@@ -134,4 +134,9 @@ class CanModifyToRReviewerOrReadOnly(permissions.BasePermission):
                 is_current_reviewer = False
                 if obj.tor.current_reviewer:
                     is_current_reviewer = obj.tor.current_reviewer.user == request.user
-                return is_current_reviewer or (can_modify and obj.can_be_modified)
+
+                # three ways to get object permissions:
+                # 1) you are the current reviewer
+                # 2) you can edit records and the record is editable or
+                # 3) you can edit records and you are trying to delete a reviewer whose status is 'pending' (i.e. skipping)
+                return is_current_reviewer or (can_modify and obj.can_be_modified) or (can_modify and obj.status == 30 and request.method == "DELETE")

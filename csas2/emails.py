@@ -212,3 +212,12 @@ class PostedToREmail(Email):
 
     def get_recipient_list(self):
         return self.instance.process.editor_email_list
+
+
+class ToRReviewTerminatedEmail(Email):
+    email_template_path = 'csas2/emails/tor_review_terminated.html'
+    subject_en = 'Your review has been skipped'
+    subject_fr = "Votre évaluation a été ignoré"
+
+    def get_recipient_list(self):
+        return [self.instance.user.email, ]

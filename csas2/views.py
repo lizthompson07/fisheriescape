@@ -905,9 +905,9 @@ class TermsOfReferenceSubmitView(TermsOfReferenceUpdateView):
     def get_h1(self):
         my_object = self.get_object()
         if my_object.submission_date:
-            return _("Do you wish to un-submit the following Terms of Reference?")
+            return _("Do you wish to un-submit this Terms of Reference?")
         else:
-            return _("Do you wish to submit the following Terms of Reference?")
+            return _("Do you wish to submit this Terms of Reference?")
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("csas2:tor_detail", args=[self.get_object().id])}
