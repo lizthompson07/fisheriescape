@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.translation import gettext as _
 
 from dm_apps.emails import Email
@@ -251,4 +252,5 @@ class ToRReviewReminderEmail(Email):
         context = dict()
         context["object"] = self.instance
         context["td"] = self.td
+        context["SITE_FULL_URL"] = settings.SITE_FULL_URL
         return context

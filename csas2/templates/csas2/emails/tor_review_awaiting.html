@@ -6,6 +6,7 @@ table, td, th, tr {
     border: solid 1px black;
     text-align: left;
     margin-right: 15px;
+    padding: 10px;
 }
 
 button {
@@ -48,7 +49,6 @@ button a {
     </tr>
   </table>
   <br>
-
   <button class=”button” style="background-color: #01c020">
     <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">
       Click here to review the Terms of Reference!
@@ -81,7 +81,6 @@ button a {
     </tr>
   </table>
   <br>
-
   <br>
   <button class=”button” style="background-color: #01c020">
     <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">
