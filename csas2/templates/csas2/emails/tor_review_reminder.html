@@ -6,6 +6,7 @@ table, td, th, tr {
     border: solid 1px black;
     text-align: left;
     margin-right: 15px;
+    padding: 10px;
 }
 
 button {
@@ -34,9 +35,8 @@ button a {
     Hello {{ object.user }},
     <br><br>
     This is a friendly reminder that a CSAS Terms of Reference has been awaiting your {% if object.role == 1 %} approval {% else %} review {% endif %}
-    for approximately {{ td.days }} days. Please complete your review without further delay.
+    for {{ td.days }} days. Please complete your review without further delay.
   </p>
-
   <table>
     <tr>
       <th>Title</th>
@@ -47,6 +47,12 @@ button a {
       <td>{{ object.tor.process.scope_type }}</td>
     </tr>
   </table>
+  <br>
+  <button class=”button” style="background-color: #01c020">
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">
+      Click here to review the Terms of Reference!
+    </a>
+  </button>
   <p>
     <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/GuidePol/Approval-Approbation-Pol-eng.html" %}">
       CSAS Policy on Review and Approval of Documents
@@ -61,11 +67,11 @@ button a {
     Bonjour {{ object.user }} :
     <br><br>
     Ceci est un rappel amical qu'une cadre de référence du CSAS attend votre {% if object.role == 1 %} approbation {% else %} révision {% endif %}
-    pendant environ {{ td.days }} jours. Veuillez terminer votre évaluation sans plus tarder.
+    pendant {{ td.days }} jours. Veuillez terminer votre évaluation sans plus tarder.
   </p>
   <table>
     <tr>
-      <th>Title</th>
+      <th>Titre</th>
       <td>{{ object.tor.process.tname }}</td>
     </tr>
     <tr>
@@ -73,7 +79,12 @@ button a {
       <td>{{ object.tor.process.scope_type }}</td>
     </tr>
   </table>
-
+  <br>
+  <button class=”button” style="background-color: #01c020">
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">
+      Cliquer ici pour consulter le cadre de reference !
+    </a>
+  </button>
   <p>
     <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/guidepol/approval-approbation-pol-fra.html" %}">
       SCAS politique sur l’examen et l’approbation de documents

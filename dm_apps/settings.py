@@ -57,6 +57,8 @@ SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
 IS_LINUX = "win" not in sys.platform.lower()
 # should concurrent logins (different sessions) be prevented?
 PREVENT_CONCURRENT_LOGINS = config("PREVENT_CONCURRENT_LOGINS", cast=bool, default=True)
+# it is best to get this information direction from an HTTP request object however this is not always possible, e.g. in the context of a celery task.
+SITE_FULL_URL = config("SITE_FULL_URL", cast=str, default="")
 
 try:
     GIT_VERSION = subprocess.check_output(['git', "-C", BASE_DIR, 'rev-parse', '--short', 'HEAD']).decode()
@@ -150,7 +152,7 @@ INSTALLED_APPS = [
                      'rest_framework',
                      'rest_framework_gis',
                      'django_filters',
-                     'crispy_forms', #added for testing DRF filters
+                     'crispy_forms',  # added for testing DRF filters
                      'storages',
                      'django.contrib.humanize',
                      'bootstrap4',
