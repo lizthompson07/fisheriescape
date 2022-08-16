@@ -981,9 +981,12 @@ class ToRReviewerViewSet(viewsets.ModelViewSet):
             msg = _('There has to be at least one approver in the queue!')
             raise ValidationError(msg)
         super().perform_destroy(instance)
+
+        # if the status of the reviewer being deleted is 'pending' (30) we should be polite and inform them. Then we will have to move onto the next reviewer
         if instance.status == 30:
             email = emails.ToRReviewTerminatedEmail(self.request, instance)
             email.send()
+            utils.tor_approval_seeker(tor, self.request)
 
     def perform_create(self, serializer):
         obj = serializer.save(created_by=self.request.user)

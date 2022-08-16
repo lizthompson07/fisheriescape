@@ -235,7 +235,11 @@
             apiService(`/api/csas/tor-reviewers/${reviewer.id}/`, "DELETE")
                 .then(response => {
                   if (response) alert(groomJSON(response));
-                  else this.$delete(this.reviewers, this.reviewers.indexOf(reviewer));
+                  else {
+                    this.$delete(this.reviewers, this.reviewers.indexOf(reviewer));
+                    // if the deleted reviewer was 'pending' we'll need to refresh all the reviewers
+                    if(reviewer.status === 30) this.getToR();
+                  }
                 })
           }
         } else this.$delete(this.reviewers, this.reviewers.indexOf(reviewer))
