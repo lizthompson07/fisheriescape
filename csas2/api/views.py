@@ -933,9 +933,11 @@ class ToRViewSet(viewsets.ModelViewSet):
         elif qp.get("resume_review"):
             # reset the decision of the current reviewer
             current_reviewer = tor.current_reviewer
-            current_reviewer.decision = None
-            current_reviewer.decision_date = None
-            current_reviewer.save()
+            # there is a weird scenario where the reviewer who requested changes aas since been deleted :(
+            if current_reviewer:
+                current_reviewer.decision = None
+                current_reviewer.decision_date = None
+                current_reviewer.save()
 
             # return the status of the ToR to UNDER REVIEW (20)
             tor.status = 20
