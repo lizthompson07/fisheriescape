@@ -149,6 +149,20 @@ class GenericReviewer(MetadataFields):
         # update the parent status (e.g., tor status or request status) to reflect the fact that there are changes awaiting
         pass
 
+    def reset(self):
+        self.status = 10  # DRAFT
+        self.decision = None
+        self.decision_date = None
+        self.review_started = None
+        self.review_completed = None
+        self.reminder_sent = None
+        self.save()
+
+    def queue(self):
+        self.status = 20  # QUEUED
+        self.decision_date = None
+        self.save()
+
     @property
     def review_duration(self):
         td = None
@@ -255,7 +269,7 @@ class CSASRequest(MetadataFields):
     tags = models.ManyToManyField(SubjectMatter, blank=True, verbose_name=_("keyword tags"), limit_choices_to={"is_csas_request_tag": True})
 
     # non-editable fields
-    status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
+    status = models.IntegerField(default=10, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
     submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("submission date"), editable=False)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
     uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid4, verbose_name=_("unique identifier"))
@@ -276,7 +290,7 @@ class CSASRequest(MetadataFields):
         return self.title
 
     def withdraw(self):
-        self.status = 6
+        self.status = 99
         self.save()
 
     def save(self, *args, **kwargs):
@@ -304,29 +318,27 @@ class CSASRequest(MetadataFields):
         # if there is a process, the request the request MUST have been approved.
         if self.id and self.processes.exists():
             if self.processes.filter(status=100).count() == self.processes.all().count():
-                self.status = 5  # fulfilled
+                self.status = 80  # fulfilled
             elif self.processes.filter(status=90).count() == self.processes.all().count():
-                self.status = 6  # withdrawn
+                self.status = 99  # withdrawn
             else:
-                self.status = 11  # accepted
+                self.status = 70  # accepted
         else:
             # if the request is not submitted, it should automatically be in draft
             if not self.submission_date:
-                self.status = 1  # draft
+                self.status = 10  # draft
             else:
                 # if the status is set to withdrawn, we do nothing more.
-                if self.status != 6:
+                if self.status != 99:
                     # look at the review to help determine the status
-                    self.status = 1  # draft
-                    if self.submission_date:
-                        self.status = 2  # submitted
-                    if self.files.filter(is_approval=True).exists():
-                        self.status = 3  # approved
+                    self.status = 20  # under review by client
+                    # if all the client reviewers have approved the request AND there is at least one approval, it is ready for csas team
+                    if self.reviewers.filter(status=40, role=1).exists() and self.reviewers.filter(status=40).count() == self.reviewers.all().count():
+                        self.status = 30  # Ready for CSAS review
                     if hasattr(self, "review") and self.review.id:
-                        self.status = 4  # under review
+                        self.status = 40  # under review
                         if self.review.decision:
-                            self.status = self.review.decision + 10
-
+                            self.status = self.review.decision + 40
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):

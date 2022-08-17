@@ -22,17 +22,20 @@ language_choices = (
 )
 
 request_status_choices = (
-    (1, _("Draft")),
-    (2, _("Submitted")),  # client submits request
-    (3, _("Ready for review")),  # signed PDF uploaded (should only be temporary while approval mod. not in app)
-    (4, _("Under review")),  # review is created by coordinator
-    (5, _("Fulfilled")),
-    (6, _("Withdrawn")),
+    (10, _("Draft")),
+    (20, _("Under client review")),  # client submits request
+    (30, _("Ready for CSAS review")),  # client review is complete
+    (40, _("Under CSAS review")),  # review is created by coordinator
 
-    # all status below here should correspond to review decision choice + 10
-    (11, _("Reviewed")),  # coordinator approves
-    (12, _("Flagged")),  # client (coordinator) withdraws
-    (13, _("Re-scoping")),  # coordinator want to rescope the request
+    # all status below here should correspond to review decision choice + 40
+    (41, _("Reviewed")),  # coordinator approves
+    (42, _("Flagged")),  # client (coordinator) withdraws
+    (43, _("Re-scoping")),  # coordinator want to rescope the request
+
+    (70, _("Accepted")),
+    (80, _("Fulfilled")),
+    (99, _("Withdrawn")),
+
 )
 
 request_decision_choices = (

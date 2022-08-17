@@ -160,7 +160,7 @@ class UpdatedMeetingEmail(Email):
 
 
 class ToRReviewAwaitingEmail(Email):
-    email_template_path = 'csas2/emails/tor_review_awaiting.html'
+    email_template_path = 'csas2/emails/tor/review_awaiting.html'
 
     def get_subject_en(self):
         if self.instance.role == 1:
@@ -181,7 +181,7 @@ class ToRReviewAwaitingEmail(Email):
 
 
 class ToRChangesRequestedEmail(Email):
-    email_template_path = 'csas2/emails/tor_changes_requested.html'
+    email_template_path = 'csas2/emails/tor/changes_requested.html'
     subject_en = "Changes to Terms of Reference requested"
     subject_fr = "Modifications au cadre de référence sont nécessaires"
 
@@ -190,7 +190,7 @@ class ToRChangesRequestedEmail(Email):
 
 
 class ToRPostingRequestEmail(Email):
-    email_template_path = 'csas2/emails/tor_posting_request.html'
+    email_template_path = 'csas2/emails/tor/posting_request.html'
     subject_en = 'New request to post ToR !!'
 
     def get_recipient_list(self):
@@ -198,7 +198,7 @@ class ToRPostingRequestEmail(Email):
 
 
 class ToRReviewCompleteEmail(Email):
-    email_template_path = 'csas2/emails/tor_review_complete.html'
+    email_template_path = 'csas2/emails/tor/review_complete.html'
     subject_en = 'ToR approval is complete'
     subject_fr = "l'examen du cadre de référence est terminé"
 
@@ -207,7 +207,7 @@ class ToRReviewCompleteEmail(Email):
 
 
 class PostedToREmail(Email):
-    email_template_path = 'csas2/emails/tor_posted.html'
+    email_template_path = 'csas2/emails/tor/posted.html'
     subject_en = 'Your ToR has been posted to the CSAS website'
     subject_fr = "Votre cadre de référence a été publié sur le site Web du SCAS"
 
@@ -216,7 +216,7 @@ class PostedToREmail(Email):
 
 
 class ToRReviewTerminatedEmail(Email):
-    email_template_path = 'csas2/emails/tor_review_terminated.html'
+    email_template_path = 'csas2/emails/tor/review_terminated.html'
     subject_en = 'Your review has been withdrawn'
     subject_fr = "Votre évaluation a été ignoré"
 
@@ -225,7 +225,7 @@ class ToRReviewTerminatedEmail(Email):
 
 
 class ToRReviewReminderEmail(Email):
-    email_template_path = 'csas2/emails/tor_review_reminder.html'
+    email_template_path = 'csas2/emails/tor/review_reminder.html'
 
     def get_subject_en(self):
         if self.instance.role == 1:
@@ -254,3 +254,34 @@ class ToRReviewReminderEmail(Email):
         context["td"] = self.td
         context["SITE_FULL_URL"] = settings.SITE_FULL_URL
         return context
+
+
+
+class RequestReviewCompleteEmail(Email):
+    email_template_path = 'csas2/emails/csas_request_reviews/review_complete.html'
+    subject_en = 'CSAS request approval is complete'
+    subject_fr = "l'examen de la demande de SCAS est terminée"
+
+    def get_recipient_list(self):
+        return [self.instance.csas_request.client.email]
+
+
+class RequestReviewAwaitingEmail(Email):
+    email_template_path = 'csas2/emails/csas_request_reviews/review_awaiting.html'
+
+    def get_subject_en(self):
+        if self.instance.role == 1:
+            mystr = "FOR APPROVAL: CSAS Request"
+        else:
+            mystr = "FOR RECOMMENDATION: CSAS Request"
+        return mystr
+
+    def get_subject_fr(self):
+        if self.instance.role == 1:
+            mystr = "POUR APPROBATION : Demande de SCAS"
+        else:
+            mystr = "POUR RECOMMANDATION : Demande de SCAS"
+        return mystr
+
+    def get_recipient_list(self):
+        return [self.instance.user.email, ]

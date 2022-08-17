@@ -517,13 +517,7 @@ def end_tor_review_process(tor):
 
     # set all reviewers to draft
     for reviewer in tor.reviewers.all():
-        reviewer.status = 10  # DRAFT
-        reviewer.decision = None
-        reviewer.decision_date = None
-        reviewer.review_started = None
-        reviewer.review_completed = None
-        reviewer.reminder_sent = None
-        reviewer.save()
+        reviewer.reset()
 
 
 def start_tor_review_process(tor):
@@ -535,9 +529,7 @@ def start_tor_review_process(tor):
 
     # set everyone to being queued
     for reviewer in tor.reviewers.all():
-        reviewer.status = 20  # QUEUED
-        reviewer.decision_date = None
-        reviewer.save()
+        reviewer.queue()
 
 
 def tor_approval_seeker(tor, request):
@@ -566,4 +558,55 @@ def tor_approval_seeker(tor, request):
             tor.status = 35
             tor.save()
             email = emails.ToRReviewCompleteEmail(request, tor)
+            email.send()
+
+
+def end_request_review_process(request):
+    """this should be used when a project is unsubmitted. It will change over all reviewers' statuses to Pending"""
+    request.submission_date = None
+    request.status = 1  # set status to DRAFT
+    request.save()
+
+    # set all reviewers to draft
+    for reviewer in request.reviewers.all():
+        reviewer.reset()
+
+
+def start_request_review_process(request):
+    """this should be used when a tor is submitted. It will change over all reviewers' statuses to queued
+    """
+    request.submission_date = timezone.now()
+    request.status = 20  # under review
+    request.save()
+
+    # set everyone to being queued
+    for reviewer in request.reviewers.all():
+        reviewer.queue()
+
+
+def request_approval_seeker(request, csas_request):
+    """
+    This method is meant to seek approvals via email + set reviewer statuses.
+    """
+    # only look for a next reviewer if we are still UNDER REVIEW (4)
+    if csas_request.status == 4:
+        next_reviewer = None
+        # look through all the reviewers... see if we can decide on who the next reviewer should be...
+        for reviewer in csas_request.reviewers.all():
+            # if the reviewer's status is set to QUEUED (20) or PENDING (30), they will be our next selection
+            # we should then exit the loop and set the next_reviewer var
+            if reviewer.status in [20, 30]:
+                next_reviewer = reviewer
+                break
+        # if there is a next reviewer, set their status to pending and send them an email
+        if next_reviewer:
+            next_reviewer.status = 30  # pending
+            next_reviewer.save()
+            email = emails.RequestReviewAwaitingEmail(request, next_reviewer)
+            email.send()
+
+        # if there is no next reviewer,
+        else:
+            csas_request.save()  # the save method should deal with setting the status.
+            email = emails.RequestReviewCompleteEmail(request, csas_request)
             email.send()
