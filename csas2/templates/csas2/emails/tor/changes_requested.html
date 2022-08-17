@@ -1,0 +1,48 @@
+{% load verbose_names %}
+{% load i18n %}
+<style media="screen">
+table, td, th, tr {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+}
+
+.comments {
+{#color: #ff9700;#} font-style: italic;
+}
+</style>
+
+<em>
+  *** un message français suivra
+</em>
+<br><br>
+
+<p>
+  The following changes are being requested from {{ object.user }}:
+</p>
+<p class="comments">
+  {{ object.comments_html|safe }}
+</p>
+<p>
+  Once these changes have been addressed, you can resume the approval process by clicking on the red button at the top of
+  <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">Terms of Reference</a> detail page.
+</p>
+
+<hr>
+
+<p>
+  Les modifications suivantes sont demandées par {{ object.user }}:
+</p>
+<p class="comments">
+  {{ object.comments_html|safe }}
+</p>
+<p>
+  Une fois que ces modifications seront traitées, vous pouvez reprendre le processus d'approbation en cliquant sur le bouton rouge en haut de la
+   page d'information du <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">cadre de référence</a>.
+</p>
+
+
+
+
+
+
