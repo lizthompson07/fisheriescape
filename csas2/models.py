@@ -456,6 +456,11 @@ class CSASRequest(MetadataFields):
     def coordinator(self):
         return self.office.coordinator
 
+    @property
+    def current_reviewer(self):
+        """Send back the first reviewer whose status is 'pending' """
+        return self.reviewers.filter(status=30).first()
+
 
 class CSASRequestNote(GenericNote):
     ''' a note pertaining to a csas request'''

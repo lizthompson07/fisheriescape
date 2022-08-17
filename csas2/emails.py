@@ -256,7 +256,6 @@ class ToRReviewReminderEmail(Email):
         return context
 
 
-
 class RequestReviewCompleteEmail(Email):
     email_template_path = 'csas2/emails/csas_request_reviews/review_complete.html'
     subject_en = 'CSAS request approval is complete'
@@ -285,3 +284,21 @@ class RequestReviewAwaitingEmail(Email):
 
     def get_recipient_list(self):
         return [self.instance.user.email, ]
+
+
+class RequestReviewTerminatedEmail(Email):
+    email_template_path = 'csas2/emails/csas_request_reviews/review_terminated.html'
+    subject_en = 'Your review has been withdrawn'
+    subject_fr = "Votre évaluation a été ignoré"
+
+    def get_recipient_list(self):
+        return [self.instance.user.email, ]
+
+
+class RequestChangesRequestedEmail(Email):
+    email_template_path = 'csas2/emails/csas_request_reviews/changes_requested.html'
+    subject_en = "Changes to CSAS request requested"
+    subject_fr = "Modifications à la demande de SCAS sont nécessaires"
+
+    def get_recipient_list(self):
+        return [self.instance.csas_request.client.email]

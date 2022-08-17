@@ -24,7 +24,7 @@ from shared_models.models import Person, Language, Region, FiscalYear, SubjectMa
 from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission, CanModifyRequestReviewOrReadOnly, \
-    CanModifyToROrReadOnly, CanModifyToRReviewerOrReadOnly
+    CanModifyToROrReadOnly, CanModifyToRReviewerOrReadOnly, CanModifyRequestReviewerOrReadOnly
 from .. import models, emails, model_choices, utils, filters
 # USER
 #######
@@ -1002,4 +1002,40 @@ class ToRReviewerViewSet(viewsets.ModelViewSet):
         # if the decisions is to request changes, this would be the moment to send out an email!
         if obj.decision == 2:
             email = emails.ToRChangesRequestedEmail(self.request, obj)
+            email.send()
+
+
+class RequestReviewerViewSet(viewsets.ModelViewSet):
+    queryset = models.RequestReviewer.objects.all()
+    serializer_class = serializers.RequestReviewerSerializer
+    permission_classes = [CanModifyRequestReviewerOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["csas_request"]
+
+    def perform_destroy(self, instance):
+        # don't delete if there are no other approvers and the tor is submitted
+        csas_request = instance.csas_request
+        if csas_request.submission_date and not csas_request.reviewers.filter(~Q(id=instance.id)).filter(role=1).exists():
+            msg = _('There has to be at least one approver in the queue!')
+            raise ValidationError(msg)
+        super().perform_destroy(instance)
+
+        # if the status of the reviewer being deleted is 'pending' (30) we should be polite and inform them. Then we will have to move onto the next reviewer
+        if instance.status == 30:
+            email = emails.RequestReviewTerminatedEmail(self.request, instance)
+            email.send()
+            utils.request_approval_seeker(csas_request, self.request)
+
+    def perform_create(self, serializer):
+        obj = serializer.save(created_by=self.request.user)
+        # if the client review is underway, the status should go directly to queued (20)!
+        if obj.csas_request.status == 20:
+            obj.status = 20
+            obj.save()
+
+    def perform_update(self, serializer):
+        obj = serializer.save(updated_by=self.request.user)
+        # if the decisions is to request changes, this would be the moment to send out an email!
+        if obj.decision == 2:
+            email = emails.RequestChangesRequestedEmail(self.request, obj)
             email.send()

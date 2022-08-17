@@ -33,21 +33,17 @@ button a {
   <p>
     Hello {{ object.user }},
     <br><br>
-    This is an automated message to inform you that your review for the below CSAS Terms of Reference has been withdrawn.
+    This is an automated message to inform you that your review for the below CSAS Request has been withdrawn.
   </p>
 
   <table>
     <tr>
       <th>Title</th>
       <td>
-        <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.tor.process.id %}">
-          {{ object.tor.process.tname }}
+        <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.csas_request.id %}">
+          {{ object.csas_request.title }}
         </a>
       </td>
-    </tr>
-    <tr>
-      <th>Type</th>
-      <td>{{ object.tor.process.scope_type }}</td>
     </tr>
   </table>
   <br>
@@ -59,21 +55,17 @@ button a {
   <p>
     Bonjour {{ object.user }} :
     <br><br>
-    Ceci est un message automatisé pour vous informer que votre évaluation pour la cadre de référence du SCAS ci-dessous a été ignoré.
+    Ceci est un message automatisé pour vous informer que votre évaluation pour la demande du SCAS ci-dessous a été ignoré.
   </p>
 
   <table>
     <tr>
       <th>Titre</th>
       <td>
-        <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.tor.process.id %}">
-          {{ object.tor.process.tname }}
+        <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.csas_request.id %}">
+          {{ object.csas_request.title }}
         </a>
       </td>
-    </tr>
-    <tr>
-      <th>Type</th>
-      <td>{{ object.tor.process.scope_type }}</td>
     </tr>
   </table>
   <br>

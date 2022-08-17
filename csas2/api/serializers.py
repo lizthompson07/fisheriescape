@@ -768,9 +768,6 @@ class ToRReviewerSerializer(serializers.ModelSerializer):
 
     role_display = serializers.SerializerMethodField()
 
-    def get_role_display(self, instance):
-        return instance.get_role_display()
-
     def get_review_duration(self, instance):
         return instance.review_duration
 
@@ -812,6 +809,69 @@ class ToRReviewerSerializer(serializers.ModelSerializer):
             role = attrs.get("role")
             # if trying to change to reviewer, and there is a submission date and there are no other approvers, that's a problem..
             if role == 2 and tor.submission_date and not tor.reviewers.filter(~Q(id=self.instance.id)).filter(role=1).exists():
+                msg = gettext('There has to be at least one approver in the queue!')
+                raise ValidationError(msg)
+        return attrs
+
+
+
+class RequestReviewerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.RequestReviewer
+        fields = "__all__"
+
+    comments_html = serializers.SerializerMethodField()
+    decision_display = serializers.SerializerMethodField()
+    decision_date_display = serializers.SerializerMethodField()
+    decision_date_annotation = serializers.SerializerMethodField()
+    status_class = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    user_display = serializers.SerializerMethodField()
+    can_be_modified = serializers.SerializerMethodField()
+    review_duration = serializers.SerializerMethodField()
+
+    role_display = serializers.SerializerMethodField()
+
+    def get_role_display(self, instance):
+        return instance.get_role_display()
+
+    def get_review_duration(self, instance):
+        return instance.review_duration
+
+    def get_can_be_modified(self, instance):
+        return instance.can_be_modified
+
+    def get_decision_date_annotation(self, instance):
+        return naturaltime(instance.decision_date)
+
+    def get_comments_html(self, instance):
+        return instance.comments_html
+
+    def get_decision_display(self, instance):
+        return instance.get_decision_display()
+
+    def get_status_class(self, instance):
+        lang = get_language()
+        activate("en")
+        mystr = slugify(instance.get_status_display())
+        activate(lang)
+        return mystr
+
+    def get_decision_date_display(self, instance):
+        return date(instance.decision_date)
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_user_display(self, instance):
+        return instance.user.get_full_name() if instance.user else None
+
+    def validate(self, attrs):
+        if self.instance:
+            csas_request = self.instance.csas_request
+            role = attrs.get("role")
+            # if trying to change to reviewer, and there is a submission date and there are no other approvers, that's a problem..
+            if role == 2 and csas_request.submission_date and not csas_request.reviewers.filter(~Q(id=self.instance.id)).filter(role=1).exists():
                 msg = gettext('There has to be at least one approver in the queue!')
                 raise ValidationError(msg)
         return attrs
