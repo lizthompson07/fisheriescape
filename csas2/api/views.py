@@ -49,8 +49,12 @@ class CurrentUserAPIView(APIView):
             data["regional_admin"] = [office.region_id for office in request.user.csas_offices.all()]
 
         if qp.get("request"):
-            data["can_modify"] = utils.can_modify_request(request.user, qp.get("request"), return_as_dict=True)
-            data["is_client"] = utils.is_client(request.user, qp.get("request"))
+            csas_request = get_object_or_404(models.CSASRequest, pk=qp.get("request"))
+            data["can_modify"] = utils.can_modify_request(request.user, csas_request.id, return_as_dict=True)
+            data["is_client"] = utils.is_client(request.user, csas_request.id)
+            data["can_unsubmit"] = utils.can_unsubmit_request(request.user, csas_request.id)
+            if csas_request.current_reviewer and csas_request.current_reviewer.user == request.user:
+                data["reviewer"] = serializers.RequestReviewerSerializer(csas_request.current_reviewer).data
         elif qp.get("process"):
             data["can_modify"] = utils.can_modify_process(request.user, qp.get("process"), return_as_dict=True)
         elif qp.get("document"):
@@ -90,6 +94,23 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
                 csas_request.withdraw()
                 return Response(serializers.CSASRequestSerializer(csas_request).data, status.HTTP_200_OK)
             raise ValidationError(_("Sorry, you do not have permissions to withdraw this request"))
+        elif qp.get("approval_seeker"):
+            utils.request_approval_seeker(csas_request, request)
+            return Response(None, status.HTTP_204_NO_CONTENT)
+        elif qp.get("resume_review"):
+            # reset the decision of the current reviewer
+            current_reviewer = csas_request.current_reviewer
+            # there is a weird scenario where the reviewer who requested changes aas since been deleted :(
+            if current_reviewer:
+                current_reviewer.decision = None
+                current_reviewer.decision_date = None
+                current_reviewer.save()
+
+            # return the status of the request to UNDER REVIEW (20)
+            csas_request.status = 20
+            csas_request.save()
+            utils.request_approval_seeker(csas_request, request)
+            return Response(None, status.HTTP_204_NO_CONTENT)
         raise ValidationError(_("This endpoint cannot be used without a query param"))
 
 

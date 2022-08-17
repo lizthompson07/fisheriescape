@@ -514,7 +514,7 @@ class CSASRequestFile(GenericFile):
 
 
 class RequestReviewer(GenericReviewer):
-    csas_request = models.ForeignKey(CSASRequest, related_name="reviewers", on_delete=models.CASCADE, editable=False)
+    csas_request = models.ForeignKey(CSASRequest, related_name="reviewers", on_delete=models.CASCADE)
     role = models.IntegerField(verbose_name=_("role"), choices=request_review_role_choices)
 
 

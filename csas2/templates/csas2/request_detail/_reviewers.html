@@ -1,0 +1,154 @@
+{% load custom_filters %}
+{% load i18n %}
+
+<div class="card mb-2">
+  <div class="card-header bg-outline-dark">
+    <h3>
+      {% trans "Approver Queue" %}
+    </h3>
+    <ul v-if="!request.submission_date" class="lead text-danger">
+      <li>
+        {% trans "The approval process will begin once the CSAS Request is submitted." %}
+      </li>
+    </ul>
+    <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/GuidePol/Approval-Approbation-Pol-eng.html" %}" target="_blank">
+      {% trans "CSAS Policy on Review and Approval of Documents" %}
+    </a>
+
+  </div>
+  <div class="card-body">
+    <div class="card-text">
+      <div v-if="loadingReviewers" class="loading mb-3 mt-3 text-center mt-5">
+        <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+      </div>
+      <div v-else class="w-100">
+
+        <div v-if="reviewers.length">
+          <table class="table table-sm">
+            <thead>
+            <tr>
+              <th class="w-10" v-if="request.status < 30"></th>
+              <th v-else></th>
+
+              <th class="w-20">${ reviewerLabels.user }</th>
+              <th class="w-15">${ reviewerLabels.role }</th>
+              <th class="w-10">${ reviewerLabels.status }</th>
+              <th class="w-10">${ reviewerLabels.decision }</th>
+              <th class="w-15">${ reviewerLabels.decision_date }</th>
+              <th class="w-35">${ reviewerLabels.comments }</th>
+            </tr>
+            </thead>
+
+            {# display body #}
+            <tbody v-if="!canModify">
+            <tr v-for="item in reviewers" :key="item.id">
+              <td></td>
+              <td>${item.user_display|nz }</td>
+              <td>${item.role_display|nz }</td>
+              <td>
+                <span :class="item.status_class + ' px-1 py-1'">${item.status_display }</span>
+              </td>
+              <td>
+                ${item.decision_display }
+                {# if the status is pending or complete, show the duration of the review #}
+                <span v-if="[30,40].includes(item.status)" class="mdi mdi-clock-outline helper text-primary"
+                      data-toggle="tooltip" :title="`{% trans "Review duration:" %} ${item.review_duration} {% trans "days" %}`"
+                ></span>
+                <span v-else> --- </span>
+              </td>
+              <td>${item.decision_date_display |nz }</td>
+              <td v-if="item.comments_html" v-html="item.comments_html"></td>
+              <td v-else>---</td>
+            </tr>
+            </tbody>
+
+            {# editable body #}
+            <tbody v-else>
+            <tr v-for="(item, index) in reviewers" :key="item.id">
+              <td>
+                <div v-if="item.can_be_modified">
+                  <button class="btn btn-xs" v-if="index!==0 && !isNextReviewer(item)" @click="moveReviewer(item, 'up')">
+                    <span class="mdi mdi-arrow-up-bold-circle-outline h5"></span>
+                  </button>
+                  <span v-else style="margin-right: 37px"></span>
+
+                  <button class="btn btn-xs " v-if="index!==reviewers.length-1" @click="moveReviewer(item, 'down')">
+                    <span class="mdi mdi-arrow-down-bold-circle-outline h5"></span>
+                  </button>
+                </div>
+              </td>
+              <td>
+                <v-select
+                  v-model="item.user"
+                  class="w-100"
+                  id="id_user"
+                  @input="updateReviewer(item)"
+                  :options="dmAppsUsers"
+                  label='full_name'
+                  :reduce="full_name => full_name.id"
+                  :clearable="false"
+                  placeholder="{% trans "Start typing to search for a user" %}"
+                  :disabled="!item.can_be_modified"
+                >
+                </v-select>
+              </td>
+              <td>
+                <v-select
+                  v-model="item.role"
+                  class="w-100"
+                  id="id_role"
+                  @input="updateReviewer(item)"
+                  :options="roleChoices"
+                  label='text'
+                  :reduce="text => text.value"
+                  :clearable="false"
+                  placeholder=""
+                  :disabled="!item.can_be_modified"
+                >
+                </v-select>
+              </td>
+              <td>
+                <span :class="item.status_class + ' px-1 py-1'">${item.status_display }</span>
+              </td>
+              <td>
+                ${item.decision_display }
+                {# if the status is pending or complete, show the duration of the review #}
+                <span v-if="[30,40].includes(item.status)" class="mdi mdi-clock-outline helper text-primary"
+                      data-toggle="tooltip" :title="`{% trans "Review duration:" %} ${item.review_duration} {% trans "days" %}`"
+                ></span>
+                <span v-else> --- </span>
+              </td>
+              <td>${item.decision_date_display |nz }</td>
+              <td v-if="item.comments_html" v-html="item.comments_html"></td>
+              <td v-else>---</td>
+
+              <td style="width:75px">
+                <button
+                  v-if="item.can_be_modified || item.status === 30 "
+                  @click="deleteReviewer(item)"
+                  class="btn btn-sm btn-outline-dark py-0 px-1" data-toggle="tooltip" title="{% trans "Delete" %}">
+                  <span class="mdi mdi-delete text-dark"></span>
+                </button>
+              </td>
+            </tr>
+            </tbody>
+
+          </table>
+        </div>
+        <div v-else>
+          <em>{% trans "No approvers or recommenders have been added to this CSAS Request." %}</em>
+        </div>
+
+        <div v-if="canModify && request.status <= 30" class="mt-3">
+          <button @click="addReviewer" class="btn btn-sm btn-success text-light">
+            <span class="mdi mdi-plus text-light mr-1"></span>{% trans "Add an approver" %}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+

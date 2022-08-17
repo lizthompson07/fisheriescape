@@ -301,6 +301,20 @@ def can_unsubmit_tor(user, tor_id):
         return bool(can_modify_process(user, tor.process.id) and tor.status not in [40, 50])
 
 
+def can_unsubmit_request(user, request_id):
+    if user.id:
+        r = get_object_or_404(models.CSASRequest, pk=request_id)
+        # if national admin, they can always un-submit
+        if in_csas_national_admin_group(user):
+            return True
+        # are they a national administrator?
+        elif in_csas_web_pub_group(user):
+            return True
+        # otherwise, the must be allowed to edit the process and the tor status must not be downstream (i.e., greater than) 30 ("Ready for CSAS review")
+        return bool(can_modify_request(user, request_id) and r.status <= 30)
+
+
+
 def get_request_field_list(csas_request, user):
     my_list = [
         'id|{}'.format(_("request Id")),
