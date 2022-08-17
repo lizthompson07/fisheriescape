@@ -36,8 +36,8 @@
               <th class="w-10" v-if="![35,40,50].includes(tor.status)"></th>
               <th v-else></th>
               <th class="w-20">${ reviewerLabels.user }</th>
-              <th class="w-15">${ reviewerLabels.status }</th>
-              <th class="w-10">${ reviewerLabels.role }</th>
+              <th class="w-15">${ reviewerLabels.role }</th>
+              <th class="w-10">${ reviewerLabels.status }</th>
               <th class="w-10">${ reviewerLabels.decision }</th>
               <th class="w-15">${ reviewerLabels.decision_date }</th>
               <th class="w-35">${ reviewerLabels.comments }</th>
@@ -49,10 +49,10 @@
             <tr v-for="item in reviewers" :key="item.id">
               <td></td>
               <td>${item.user_display|nz }</td>
+              <td>${item.role_display|nz }</td>
               <td>
                 <span :class="item.status_class + ' px-1 py-1'">${item.status_display }</span>
               </td>
-              <td>${item.role_display|nz }</td>
               <td>
                 ${item.decision_display }
                 {# if the status is pending or complete, show the duration of the review #}
