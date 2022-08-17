@@ -16,7 +16,7 @@ from markdown import markdown
 from textile import textile
 
 from csas2 import model_choices, utils
-from csas2.model_choices import tor_review_status_choices, tor_review_decision_choices, tor_review_role_choices
+from csas2.model_choices import tor_review_role_choices, request_review_role_choices, review_status_choices, review_decision_choices
 from csas2.utils import get_quarter
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import percentage
@@ -103,6 +103,73 @@ class GenericNote(MetadataFields):
     def last_modified(self):
         by = self.updated_by if self.updated_by else self.created_by
         return mark_safe(f"{date(self.updated_at)} &mdash; {by}")
+
+
+class GenericReviewer(MetadataFields):
+    order = models.IntegerField(null=True, verbose_name=_("process order"))
+    role = models.IntegerField(verbose_name=_("role"))
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="%(class)s_reviews", verbose_name=_("user"))
+    decision = models.IntegerField(verbose_name=_("decision"), choices=review_decision_choices, blank=True, null=True)
+    decision_date = models.DateTimeField(verbose_name=_("date"), blank=True, null=True)
+    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
+    status = models.IntegerField(verbose_name=_("status"), default=10, choices=review_status_choices)
+
+    # non-editable
+    reminder_sent = models.DateTimeField(verbose_name=_("reminder sent date"), blank=True, null=True, editable=False)
+    review_started = models.DateTimeField(verbose_name=_("review started"), blank=True, null=True, editable=False)
+    review_completed = models.DateTimeField(verbose_name=_("review completed"), blank=True, null=True, editable=False)
+
+    def save(self, *args, **kwargs):
+        # if the decision is "approved" set the status of the reviewer to 'complete' (40)
+        if self.decision == 1:
+            self.status = 40
+            # populate a decision date if not already there. (this is a safeguard for losing decision dates in the case of post-approval saving)
+            if not self.decision_date:
+                self.decision_date = timezone.now()
+        # if the decision is "request changes" set the status of the TOR to "awaiting changes" (30); do not populate a decision date
+        elif self.decision == 2:  # review decision = request changes
+            self.update_parent_status()  # this will have to be defined by each reviewer model class
+        else:
+            self.decision_date = None
+
+        # if the reviewer status is "pending" (30) and there is no starting date, this is the starting moment!
+        if self.status == 30 and not self.review_started:
+            self.review_started = timezone.now()
+        # if the reviewer status is "complete" (40) and there is no completion date, this is the completion moment!
+        elif self.status == 40 and not self.review_completed:
+            self.review_completed = timezone.now()
+
+        super().save(*args, **kwargs)
+
+    class Meta:
+        abstract = True
+        ordering = ['order', ]
+
+    def update_parent_status(self):
+        # update the parent status (e.g., tor status or request status) to reflect the fact that there are changes awaiting
+        pass
+
+    @property
+    def review_duration(self):
+        td = None
+        if self.review_started and self.review_completed:
+            td = self.review_completed - self.review_started
+        elif self.review_started:
+            td = timezone.now() - self.review_started
+        if td:
+            # return the total number of days
+            return floor((td.seconds + (td.days * 24 * 60 * 60)) / (24 * 60 * 60))
+
+    @property
+    def comments_html(self):
+        if self.comments:
+            return textile(self.comments)
+        else:
+            return "---"
+
+    @property
+    def can_be_modified(self):
+        return self.status in [10, 20]
 
 
 class CSASOffice(models.Model):
@@ -429,6 +496,11 @@ class CSASRequestFile(GenericFile):
     file = models.FileField(upload_to=request_directory_path)
 
 
+class RequestReviewer(GenericReviewer):
+    csas_request = models.ForeignKey(CSASRequest, related_name="reviewers", on_delete=models.CASCADE, editable=False)
+    role = models.IntegerField(verbose_name=_("role"), choices=request_review_role_choices)
+
+
 class Process(SimpleLookupWithUUID, MetadataFields):
     name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (fr)"))
@@ -733,70 +805,18 @@ class TermsOfReference(MetadataFields):
         return self.reviewers.filter(status=30).first()
 
 
-class ToRReviewer(MetadataFields):
+class ToRReviewer(GenericReviewer):
     tor = models.ForeignKey(TermsOfReference, on_delete=models.CASCADE, related_name="reviewers")
-    order = models.IntegerField(null=True, verbose_name=_("process order"))
     role = models.IntegerField(verbose_name=_("role"), choices=tor_review_role_choices)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="tor_reviews", verbose_name=_("user"))
-    decision = models.IntegerField(verbose_name=_("decision"), choices=tor_review_decision_choices, blank=True, null=True)
-    decision_date = models.DateTimeField(verbose_name=_("date"), blank=True, null=True)
-    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
-    status = models.IntegerField(verbose_name=_("status"), default=10, choices=tor_review_status_choices)
-
-    # non-editable
-    reminder_sent = models.DateTimeField(verbose_name=_("reminder sent date"), blank=True, null=True, editable=False)
-    review_started = models.DateTimeField(verbose_name=_("review started"), blank=True, null=True, editable=False)
-    review_completed = models.DateTimeField(verbose_name=_("review completed"), blank=True, null=True, editable=False)
-
-    def save(self, *args, **kwargs):
-        # if the decision is "approved" set the status of the reviewer to 'complete' (40)
-        if self.decision == 1:
-            self.status = 40
-            # populate a decision date if not already there. (this is a safeguard for losing decision dates in the case of post-approval saving)
-            if not self.decision_date:
-                self.decision_date = timezone.now()
-        # if the decision is "request changes" set the status of the TOR to "awaiting changes" (30); do not populate a decision date
-        elif self.decision == 2:  # review decision = request changes
-            tor = self.tor
-            tor.status = 30
-            tor.save()
-        else:
-            self.decision_date = None
-
-        # if the reviewer status is "pending" (30) and there is no starting date, this is the starting moment!
-        if self.status == 30 and not self.review_started:
-            self.review_started = timezone.now()
-        # if the reviewer status is "complete" (40) and there is no completion date, this is the completion moment!
-        elif self.status == 40 and not self.review_completed:
-            self.review_completed = timezone.now()
-
-        super().save(*args, **kwargs)
-
-    class Meta:
-        ordering = ['tor', 'order', ]
-        verbose_name = _("ToR reviewer")
-
-    @property
-    def review_duration(self):
-        td = None
-        if self.review_started and self.review_completed:
-            td = self.review_completed - self.review_started
-        elif self.review_started:
-            td = timezone.now() - self.review_started
-        if td:
-            # return the total number of days
-            return floor((td.seconds + (td.days * 24 * 60 * 60)) / (24 * 60 * 60))
-
-    @property
-    def comments_html(self):
-        if self.comments:
-            return textile(self.comments)
-        else:
-            return "---"
 
     @property
     def can_be_modified(self):
         return self.status in [10, 20] and self.tor.status != 50
+
+    def update_parent_status(self):
+        tor = self.tor
+        tor.status = 30
+        tor.save()
 
 
 class ProcessNote(GenericNote):

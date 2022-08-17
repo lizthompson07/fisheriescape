@@ -84,22 +84,27 @@ tor_status_choices = (
     (50, _("Posted")),
 )
 
-tor_review_decision_choices = (
+review_decision_choices = (
     (1, _("Accept")),
     (2, _("Request changes")),
+)
+
+review_status_choices = (
+    (10, _("Draft")),
+    (20, _("Queued")),
+    (30, _("Pending")),
+    (40, _("Complete")),
 )
 
 tor_review_role_choices = (
     (1, _("Approver")),
     (2, _("Reviewer")),
 )
+request_review_role_choices = (
+    (1, _("Approver")),
+    (2, _("Reviewer")),
+)
 
-tor_review_status_choices = (
-        (10, _("Draft")),
-        (20, _("Queued")),
-        (30, _("Pending")),
-        (40, _("Complete")),
-    )
 
 def get_process_status_choices():
     return [(item["value"], item["text"]) for item in process_status_dict]
