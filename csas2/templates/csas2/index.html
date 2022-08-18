@@ -12,18 +12,36 @@
   {% echo "btn btn-outline-dark " as btn_class %}
   {% echo "btn btn-outline-secondary " as admin_btn_class %}
   <br>
-  <div class="container bg-light curvy mb-3 mt-5 shadowbox">
+  <div class="container bg-light curvy mb-3 mt-5 shadowbox" id="app" v-cloak>
     <div class="float-left">
     </div>
     <div class="">
-      <h1 class="text-center mt-3 mb-3">
+      <h1 class="text-center my-3">
         {% trans "Canadian Science Advisory Secretariat" %}
       </h1>
-      <h3 class="text-center text-muted">
+      <h3 class="text-center text-muted my-3">
         {% trans "DFO Science Tracking Tool" %}
       </h3>
+
+      <div class="text-center my-3" v-if="currentUser.action_items">
+        {% echo "<span class=''>${currentUser.action_items}</span>" as html_insert %}
+        <a href="" class="btn btn-purple btn-lg shadowbox">
+          <span v-if="actionItems > 1">
+            {% blocktrans %}
+              There are {{ html_insert }} items awaiting your action
+            {% endblocktrans %}
+          </span>
+          <span v-else>
+            {% blocktrans %}
+              There is {{ html_insert }} item awaiting your action
+            {% endblocktrans %}
+          </span>
+          <span class="mdi mdi-clipboard-text-multiple-outline ml-1 lead text-white"></span>
+        </a>
+      </div>
+
+
     </div>
-    <div class="mb-5"></div>
     <div class="text-center">
       <div class="text-center">
         <div class="neighbours mx-1 my-3">
@@ -106,3 +124,41 @@
 {% endblock %}
 
 
+
+{% block body_js %}
+  {{ block.super }}
+
+  <script type="application/javascript">
+  var requestId = "{{ object.id }}"
+
+  // vuejs instance
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: {},
+    },
+    methods: {
+      getCurrentUser() {
+        let endpoint = `/api/csas/user/?index=true`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+            })
+      },
+
+    },
+    computed: {},
+    filters: {
+      yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
+    },
+    created() {
+      this.getCurrentUser();
+    },
+  });
+
+
+  </script>
+
+{% endblock %}

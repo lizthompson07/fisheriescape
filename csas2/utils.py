@@ -659,3 +659,26 @@ def request_approval_seeker(csas_request, request):
             csas_request.save()  # the save method should deal with setting the status.
             email = emails.RequestReviewCompleteEmail(request, csas_request)
             email.send()
+
+
+def get_action_items(user):
+    """ gimme a user and I'll return any outstanding item that require that user's action
+        Returns a dict object
+    """
+
+    tor_qs = user.torreviewer_reviews.filter(status=30)
+    request_qs = user.requestreviewer_reviews.filter(status=30)
+    payload = dict(
+        tor_reviews=tor_qs,
+        request_reviews=request_qs,
+        count=tor_qs.count() + request_qs.count(),
+    )
+    return payload
+
+
+
+
+
+
+
+

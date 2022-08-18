@@ -70,6 +70,8 @@ class CurrentUserAPIView(APIView):
             data["can_unsubmit"] = utils.can_unsubmit_tor(request.user, tor.id)
             if tor.current_reviewer and tor.current_reviewer.user == request.user:
                 data["reviewer"] = serializers.ToRReviewerSerializer(tor.current_reviewer).data
+        elif qp.get("index"):
+            data["action_items"] = utils.get_action_items(request.user)["count"]
         return Response(data)
 
 
