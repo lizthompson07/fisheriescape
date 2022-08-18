@@ -1,4 +1,5 @@
 import os
+from copy import deepcopy
 from datetime import datetime
 from datetime import timedelta
 
@@ -527,6 +528,8 @@ class CSASRequestCloneUpdateView(CSASRequestUpdateView):
 
     def form_valid(self, form):
         new_obj = form.save(commit=False)
+        old_obj = models.CSASRequest.objects.get(pk=new_obj.pk)
+
         new_obj.pk = None
         new_obj.status = 1
         new_obj.submission_date = None
@@ -535,6 +538,16 @@ class CSASRequestCloneUpdateView(CSASRequestUpdateView):
         new_obj.ref_number = None
         new_obj.created_by = self.request.user
         new_obj.save()
+
+        # for each reviewer of old request, clone into new request...
+        for old_reviewer in old_obj.reviewers.all():
+            new_reviewer = deepcopy(old_reviewer)
+            new_reviewer.csas_request = new_obj
+            new_reviewer.pk = None
+            new_reviewer.comments = None
+            new_reviewer.save()
+            new_reviewer.reset()
+
         return HttpResponseRedirect(reverse_lazy("csas2:request_detail", args=[new_obj.id]))
 
 
