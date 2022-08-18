@@ -280,9 +280,9 @@ class RequestReviewAwaitingEmail(Email):
 
     def get_subject_fr(self):
         if self.instance.role == 1:
-            mystr = "POUR APPROBATION : Demande de SCAS"
+            mystr = "POUR APPROBATION : Une demande de SCAS"
         else:
-            mystr = "POUR RECOMMANDATION : Demande de SCAS"
+            mystr = "POUR RECOMMANDATION : Une demande de SCAS"
         return mystr
 
     def get_recipient_list(self):
@@ -305,3 +305,36 @@ class RequestChangesRequestedEmail(Email):
 
     def get_recipient_list(self):
         return [self.instance.csas_request.client.email]
+
+
+
+class RequestReviewReminderEmail(Email):
+    email_template_path = 'csas2/emails/csas_request_reviews/review_reminder.html'
+
+    def get_subject_en(self):
+        if self.instance.role == 1:
+            mystr = "FOR APPROVAL (LATE): CSAS Request"
+        else:
+            mystr = "FOR RECOMMENDATION (LATE): CSAS Request"
+        return mystr
+
+    def get_subject_fr(self):
+        if self.instance.role == 1:
+            mystr = "POUR APPROBATION (EN RETARD) : Une demande de SCAS"
+        else:
+            mystr = "POUR RECOMMANDATION (EN RETARD) : Une demande de SCAS"
+        return mystr
+
+    def get_recipient_list(self):
+        return [self.instance.user.email, ]
+
+    def __init__(self, instance=None, td=None):
+        self.instance = instance
+        self.td = td
+
+    def get_context_data(self):
+        context = dict()
+        context["object"] = self.instance
+        context["td"] = self.td
+        context["SITE_FULL_URL"] = settings.SITE_FULL_URL
+        return context
