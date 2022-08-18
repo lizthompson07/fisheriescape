@@ -57,19 +57,15 @@
 
       <div class="mb-3">
 
-        <span v-if="canModify">
-              <a v-if="request.submission_date" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
-                {% trans "Un-Submit" %}
-              </a>
-              <a v-else-if="request.is_complete" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
-                {% trans "Submit" %}
-              </a>
-              <span v-else class="helper" data-toggle="tooltip" title="{% trans "All fields are mandatory before approvals and submission" %}">
-                <a class="btn btn-sm btn-primary disabled" href="{% url 'csas2:request_submit' object.id %}">
-                  {% trans "Submit" %}
-                </a>
-              </span>
-            </span>
+        <a v-if="request.submission_date && canUnsubmit" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
+          {% trans "Un-Submit" %}
+        </a>
+        <a v-else-if="canSubmit.allowed" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
+          {% trans "Submit" %}
+        </a>
+        <span v-else data-toggle="tooltip" :title="canSubmit.reason" class="helper"><a class="btn btn-sm btn-primary disabled"
+                                                                                       href="#">{% trans "Submit" %}</a></span>
+
 
         <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
 
@@ -558,19 +554,25 @@
       canSubmit() {
         let payload = {
           allowed: false,
-          reason: "{% trans "You do not have the necessary permisions to submit this ToR." %}"
+          reason: "{% trans "All fields are mandatory before approvals and submission" %}."
         };
-
-        if (this.canModify) {
+        if (this.request.is_complete) {
           payload = {
             allowed: false,
-            reason: "{% trans "You must have at least one approver in the approval queue before submitting the ToR." %}"
+            reason: "{% trans "You do not have the necessary permissions to submit this request." %}"
           };
-          for (const reviewer of this.reviewers) {
-            if (reviewer.role === 1 && reviewer.id) {
-              payload.allowed = true;
-              payload.reason = null;
-              break;
+
+          if (this.canModify) {
+            payload = {
+              allowed: false,
+              reason: "{% trans "You must have at least one approver in the approval queue before submitting the request." %}"
+            };
+            for (const reviewer of this.reviewers) {
+              if (reviewer.role === 1 && reviewer.id) {
+                payload.allowed = true;
+                payload.reason = null;
+                break;
+              }
             }
           }
         }

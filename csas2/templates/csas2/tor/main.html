@@ -18,7 +18,7 @@
       <a v-else-if="canSubmit.allowed" class="btn btn-sm btn-primary" href="{% url 'csas2:tor_submit' object.id %}">
         {% trans "Submit" %}
       </a>
-      {#      <span v-else data-toggle="tooltip" :title="canSubmit.reason"><a class="btn btn-sm btn-primary disabled" href="#">{% trans "Submit" %}</a></span>#}
+      <span v-else data-toggle="tooltip" :title="canSubmit.reason" class="helper"><a class="btn btn-sm btn-primary disabled" href="#">{% trans "Submit" %}</a></span>
 
       <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:tor_edit' object.id %}">{% trans "Edit" %}</a>
 
@@ -310,7 +310,7 @@
       canSubmit() {
         let payload = {
           allowed: false,
-          reason: "{% trans "You do not have the necessary permisions to submit this ToR." %}"
+          reason: "{% trans "You do not have the necessary permissions to submit this ToR." %}"
         };
 
         if (this.canEditReviewers) {
