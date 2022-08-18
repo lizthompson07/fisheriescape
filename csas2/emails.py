@@ -89,8 +89,8 @@ class SoMPEmail(Email):
 
 class NewRequestEmail(Email):
     email_template_path = 'csas2/emails/new_request.html'
-    subject_en = 'A new CSAS request has been submitted'
-    subject_fr = "Une nouvelle demande de SCAS a été soumise"
+    subject_en = 'CSAS request submitted for client approvals'
+    subject_fr = "Une demande de SCAS a été soumise pour des approbations côté client"
 
     def get_recipient_list(self):
         # should go to all emails associated with csas office
@@ -258,8 +258,8 @@ class ToRReviewReminderEmail(Email):
 
 class RequestReviewCompleteEmail(Email):
     email_template_path = 'csas2/emails/csas_request_reviews/review_complete.html'
-    subject_en = 'CSAS Request approval complete'
-    subject_fr = "l'examen de la demande de SCAS est terminée"
+    subject_en = 'CSAS Request approvals complete'
+    subject_fr = "Les approbations d'une demande de SCAS a été terminée"
 
     def get_recipient_list(self):
         payload = [self.instance.client.email]

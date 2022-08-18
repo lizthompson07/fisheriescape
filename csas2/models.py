@@ -119,6 +119,9 @@ class GenericReviewer(MetadataFields):
     review_started = models.DateTimeField(verbose_name=_("review started"), blank=True, null=True, editable=False)
     review_completed = models.DateTimeField(verbose_name=_("review completed"), blank=True, null=True, editable=False)
 
+    def __str__(self):
+        return f"{self.user.get_full_name()} ({self.get_role_display()})"
+
     def save(self, *args, **kwargs):
         # if the decision is "approved" set the status of the reviewer to 'complete' (40)
         if self.decision == 1:

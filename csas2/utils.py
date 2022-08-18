@@ -161,16 +161,16 @@ def can_modify_request(user, request_id, return_as_dict=False):
         elif is_creator(user, request_id=csas_request.id) and (not csas_request.submission_date or csas_request.status == 25):
             my_dict["reason"] = _("You can modify this record because you are the record creator")
             my_dict["can_modify"] = True
-        # check to see if they are the coordinator
-        elif is_request_coordinator(user, request_id=csas_request.id):
+        # check to see if they are the coordinator and the request status is upstream of 70 (accepted)
+        elif is_request_coordinator(user, request_id=csas_request.id) and not csas_request.has_process:
             my_dict["reason"] = _("You can modify this record because you are the CSAS coordinator for this region")
             my_dict["can_modify"] = True
-        # check to see if they are an advisor
-        elif is_request_advisor(user, request_id=csas_request.id):
+        # check to see if they are an advisor and the request status is upstream of 70 (accepted)
+        elif is_request_advisor(user, request_id=csas_request.id) and not csas_request.has_process:
             my_dict["reason"] = _("You can modify this record because you a CSAS Science advisor in this region")
             my_dict["can_modify"] = True
-        # check to see if they are an administrator
-        elif is_request_administrator(user, request_id=csas_request.id):
+        # check to see if they are an administrator and the request status is upstream of 70 (accepted)
+        elif is_request_administrator(user, request_id=csas_request.id) and not csas_request.has_process:
             my_dict["reason"] = _("You can modify this record because you a CSAS Science administrator in this region")
             my_dict["can_modify"] = True
         # are they a national administrator?
@@ -336,6 +336,9 @@ def can_unsubmit_tor(user, tor_id):
 def can_unsubmit_request(user, request_id):
     if user.id:
         r = get_object_or_404(models.CSASRequest, pk=request_id)
+        # nobody can unsubmit a request that has an associated process
+        if r.has_process:
+            return False
         # if national admin, they can always un-submit
         if in_csas_national_admin_group(user):
             return True

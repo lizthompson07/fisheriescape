@@ -37,7 +37,6 @@ request_status_choices = (
     (70, _("Accepted")),
     (80, _("Fulfilled")),
     (99, _("Withdrawn")),
-
 )
 
 request_decision_choices = (
@@ -107,7 +106,7 @@ tor_review_role_choices = (
 )
 request_review_role_choices = (
     (1, _("Approver")),
-    (2, _("Reviewer")),
+    (2, _("Recommender")),
 )
 
 

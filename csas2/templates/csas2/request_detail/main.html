@@ -14,106 +14,116 @@
 
 {% block header %}
   {{ block.super }}
-
+  <style>
+  .notepad {
+      height: 500px;
+  }
+  </style>
 {% endblock %}
 
 {% block subcontent %}
   <div id="app" v-cloak>
 
-    <div v-if="canModify && request.review && request.review.id" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar}">
-      {% include "csas2/request_detail/_review.html" %}
+  <div v-if="canModify && request.review && request.review.id" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar}">
+    {% include "csas2/request_detail/_review.html" %}
+  </div>
+
+  <div>
+    {% include "shared_models/_generic_breadcrumbs.html" %}
+    <div class="mb-3">
+      <h2 class="">{{ h1|safe }}</h2>
+      <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>
+    </div>
+    {% bootstrap_messages %}
+
+    <div v-if="canModify" class="alert alert-primary no-print" role="alert">
+      <p class="mb-0">
+        <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
+      </p>
     </div>
 
-    <div>
-      {% include "shared_models/_generic_breadcrumbs.html" %}
-      <div class="mb-3">
-        <h2 class="">{{ h1|safe }}</h2>
-        <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>
+    <div v-if="(canModify || isClient) && request.status ===  42" class="alert alert-danger no-print py-3" role="alert">
+      <p class="">
+        <span class="h4 mdi mdi-exclamation mr-3"></span>
+        <span class="h4">{% trans "Regional CSAS staff have recommended that this request be <b>withdrawn</b>." %}</span>
+        <button @click="withdrawRequest" class="btn btn-danger float-right">{% trans "Withdraw This Request" %}</button>
+      </p>
+    </div>
+
+    <div class="mb-3 float-right" v-if="canModify && request.status >= 30 && request.status !== 99">
+      <button v-if="!request.review" class="btn btn-sm btn-dark" @click="primeReview">
+        {% trans "Start a Review" %}
+      </button>
+      <a v-if="!request.has_process" class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">
+        {% trans "Initiate a Process" %}
+      </a>
+    </div>
+
+    <div class="mb-3" v-if="request.id">
+
+      <a v-if="request.submission_date && canUnsubmit" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
+        {% trans "Un-Submit" %}
+      </a>
+      <a v-else-if="canSubmit.allowed" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
+        {% trans "Submit" %}
+      </a>
+      <span v-else-if="!request.submission_date" data-toggle="tooltip" :title="canSubmit.reason" class="helper"><a class="btn btn-sm btn-primary disabled"
+                                                                                                                   href="#">{% trans "Submit" %}</a></span>
+
+
+      <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
+
+      <button
+        v-if="canWithdraw"
+        @click="withdrawRequest" class="btn btn-sm btn-severe">{% trans "Withdraw This Request" %}
+      </button>
+      <a
+        v-else-if="canModify && canSubmit.allowed"
+        class="btn btn-sm btn-danger"
+        href="{% url 'csas2:request_delete' object.id %}">
+        {% trans "Delete" %}
+      </a>
+
+
+      <a class="btn btn-sm btn-secondary"
+         data-toggle="tooltip" title="{% trans "Click here to clone this request into a new request" %}"
+         href="{% url 'csas2:request_clone' object.id %}">{% trans "Clone Me" %}
+      </a>
+
+      {#   DJF AUG 2022 - WE ARE GOING TO TRY HIDING THESE FEATURES TO SEE IF THEY ARE MISSED   #}
+      {#      <button v-if="canModify" @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">#}
+      {#        <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}#}
+      {#      </button>#}
+      {#      {% if object.status >= 20 %}#}
+      {#        <a href="{% url 'csas2:request_pdf' %}?csas_requests={{ object.id }}" class="btn btn-outline-dark btn-sm ml-3">#}
+      {#          <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}#}
+      {#        </a>#}
+      {#      {% endif %}#}
+
+    </div>
+
+
+    <div v-if="loadingRequest" class="loading mb-3 mt-3 mt-5">
+      <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+        <span class="sr-only"></span>
       </div>
-      {% bootstrap_messages %}
+    </div>
+    <div v-else>
 
-      <div v-if="canModify" class="alert alert-primary no-print" role="alert">
-        <p class="mb-0">
-          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
-        </p>
+      <div class="w-75 my-4">
+        {% include "csas2/request_detail/_reviewer_form.html" %}
       </div>
+      <div class="row my-4">
 
-      <div v-if="(canModify || isClient) && request.status ===  42" class="alert alert-danger no-print py-5" role="alert">
-        <p class="">
-          <span class="h4 mdi mdi-exclamation mr-3"></span>
-          <span class="h4">{% trans "Regional CSAS staff have recommended that this request be <b>withdrawn</b>." %}</span>
-          <button @click="withdrawRequest" class="btn btn-danger float-right">{% trans "Withdraw This Request" %}</button>
-        </p>
-      </div>
-
-      <div class="mb-3 float-right" v-if="canModify && request.status >= 30 && request.status !== 99">
-        <button v-if="!request.review" class="btn btn-sm btn-dark" @click="primeReview">
-          {% trans "Start a Review" %}
-        </button>
-        <a v-if="!request.has_process" class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">
-          {% trans "Initiate a Process" %}
-        </a>
-      </div>
-
-      <div class="mb-3">
-
-        <a v-if="request.submission_date && canUnsubmit" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
-          {% trans "Un-Submit" %}
-        </a>
-        <a v-else-if="canSubmit.allowed" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
-          {% trans "Submit" %}
-        </a>
-        <span v-else data-toggle="tooltip" :title="canSubmit.reason" class="helper"><a class="btn btn-sm btn-primary disabled"
-                                                                                       href="#">{% trans "Submit" %}</a></span>
-
-
-        <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
-
-        <a v-if="canModify && !canWithdraw" class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
-
-        <button
-          v-if="canWithdraw"
-          @click="withdrawRequest" class="btn btn-sm btn-severe">{% trans "Withdraw This Request" %}
-        </button>
-
-        <a class="btn btn-sm btn-secondary helper"
-           data-toggle="tooltip" title="{% trans "Click here to clone this request into a new request" %}"
-           href="{% url 'csas2:request_clone' object.id %}">{% trans "Clone Me" %}</a>
-        <button v-if="canModify" @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
-          <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
-        </button>
-        {% if object.status >= 20 %}
-          <a href="{% url 'csas2:request_pdf' %}?csas_requests={{ object.id }}" class="btn btn-outline-dark btn-sm ml-3">
-            <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
-          </a>
-        {% endif %}
-
-      </div>
-
-
-      <div v-if="loadingRequest" class="loading mb-3 mt-3 mt-5">
-        <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
-          <span class="sr-only"></span>
+        <div class="col">
+          <div v-if="canModify" class="text-right">
+            <button v-if="request.status === 25" class="btn btn-lg btn-danger ml-5" @click="resumeReview">{% trans "Resume the Review" %}</button>
+          </div>
         </div>
       </div>
-      <div v-else class="row">
+
+      <div class="row">
         <div class="col">
-
-          <div class="w-75 my-4">
-            {% include "csas2/request_detail/_reviewer_form.html" %}
-          </div>
-          <div class="row my-4">
-            <div class="col-6">
-              <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify"
-                        :current_user="currentUser"></note-pad>
-            </div>
-            <div class="col">
-              <div v-if="canModify" class="text-right">
-                <button v-if="request.status === 25" class="btn btn-lg btn-danger ml-5" @click="resumeReview">{% trans "Resume the Review" %}</button>
-              </div>
-            </div>
-          </div>
-
           <h3>{% trans "Request Detail" %}</h3>
           <table class="table table-sm">
             <tr>
@@ -183,7 +193,7 @@
               <td class="text-left" v-html="request.funding_display"></td>
             </tr>
             <tr>
-              <th class="text-left">{% trans "Client prioritization?" %}</th>
+              <th class="text-left">{% trans "Client prioritization and rationale" %}</th>
               <td class="text-left" v-html="request.prioritization_display"></td>
             </tr>
             <tr>
@@ -198,29 +208,29 @@
               <th class="text-left" v-html="requestLabels.uuid"></th>
               <td class="text-left" v-html="request.uuid"></td>
             </tr>
-            <tr>
-              <th>
-                {% trans "Files" %}
-              </th>
-              <td>
-                {% if object.files.exists %}
-                  {% for file in object.files.all %}
-                    <div>
-                      <a href="{{ file.file.url }}">{{ file.caption }}</a> (uploaded on: {{ file.date_created|date:"F d Y" }})
-                      <button class="btn" @click="openPopout('{% url 'csas2:request_file_edit' file.id %}')" class="ml-3">
-                        <span class="mdi mdi-pencil" style="font-size: large"></span>
-                      </button>
-                      <button class="btn" @click="openPopout('{% url 'csas2:request_file_delete' file.id %}')">
-                        <span class="mdi mdi-delete" style="font-size: large"></span>
-                      </button>
-                    </div>
-                  {% endfor %}
-                {% else %}
-                  <em>{% trans "There are no files attached to this request." %}</em>
-                {% endif %}
-              </td>
-            </tr>
-            {# files #}
+            {#   DJF AUG 2022 - WE ARE GOING TO TRY HIDING THIS FEATURE TO SEE IF THEY ARE MISSED   #}
+            {#            <tr>#}
+            {#              <th>#}
+            {#                {% trans "Files" %}#}
+            {#              </th>#}
+            {#              <td>#}
+            {#                {% if object.files.exists %}#}
+            {#                  {% for file in object.files.all %}#}
+            {#                    <div>#}
+            {#                      <a href="{{ file.file.url }}">{{ file.caption }}</a> (uploaded on: {{ file.date_created|date:"F d Y" }})#}
+            {#                      <button class="btn" @click="openPopout('{% url 'csas2:request_file_edit' file.id %}')" class="ml-3">#}
+            {#                        <span class="mdi mdi-pencil" style="font-size: large"></span>#}
+            {#                      </button>#}
+            {#                      <button class="btn" @click="openPopout('{% url 'csas2:request_file_delete' file.id %}')">#}
+            {#                        <span class="mdi mdi-delete" style="font-size: large"></span>#}
+            {#                      </button>#}
+            {#                    </div>#}
+            {#                  {% endfor %}#}
+            {#                {% else %}#}
+            {#                  <em>{% trans "There are no files attached to this request." %}</em>#}
+            {#                {% endif %}#}
+            {#              </td>#}
+            {#            </tr>#}
             <tr>
               <th>
                 {% trans "Connected processes" %}
@@ -243,11 +253,15 @@
             </tr>
           </table>
         </div>
+        <div class="col-4">
+          <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify"
+                    :current_user="currentUser"></note-pad>
+        </div>
       </div>
 
       <div class="mt-5" v-if="request.review && reviewLabels.is_valid">
         <div>
-          <p class="lead">{% trans "Review" %}</p>
+          <p class="h3">{% trans "CSAS Review" %}</p>
         </div>
 
         <table class="table table-sm">
@@ -283,10 +297,10 @@
 
         </table>
       </div>
-    </div>
 
-    <div class="mb-5">
-      {% include "csas2/request_detail/_reviewers.html" %}
+      <div class="mb-5">
+        {% include "csas2/request_detail/_reviewers.html" %}
+      </div>
     </div>
 
   </div>
@@ -385,7 +399,7 @@
         });
       },
       withdrawRequest() {
-        userInput = confirm("{% trans "Are you sure you want to withdraw this request?" %}")
+        userInput = confirm("{% trans "Are you sure you want to withdraw this request?" %}\n\n{% trans 'WARNING: This action cannot be reversed.' %}")
         if (userInput) {
           this.errors = null;
           let endpoint = `/api/csas/requests/${this.request.id}/?withdraw=true;`;

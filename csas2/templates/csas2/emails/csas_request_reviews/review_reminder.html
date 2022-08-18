@@ -25,8 +25,8 @@
   <p>
     Hello {{ object.user }},
     <br><br>
-    A Canadian Science Advisory Secretariat (CSAS) Request is awaiting your {% if object.role == 1 %} approval {% else %} recommendation {% endif %} in the
-    DM Apps - CSAS Tracking Tool.
+    This is a friendly reminder that a CSAS Request has been awaiting your {% if object.role == 1 %} approval {% else %} recommendation {% endif %}
+    for {{ object.review_duration }} days. This request will not be considered or reviewed until approvals are completed.
   </p>
 
   <p><b>Title:</b><br>{{ object.csas_request.title }}</p>
@@ -41,7 +41,7 @@
           <tr>
             <td class=”button” bgcolor="#01c020">
               <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.csas_request.id %}" target="_blank" class="button-a">
-                Click here to review the Request!
+                Click here to review the request!
               </a>
             </td>
           </tr>
@@ -50,6 +50,7 @@
     </tr>
   </table>
 
+
   <hr>
 
 {% endlanguage %}
@@ -57,7 +58,8 @@
   <p>
     Bonjour {{ object.user }} :
     <br><br>
-    Une demande de SCAS attend votre {% if object.role == 1 %} approbation {% else %} recommandation {% endif %} dans l'outil de suivi SCAS de l’Applis GD.
+    Ceci est un rappel amical qu'une demande du SCAS attend votre {% if object.role == 1 %} approbation {% else %} recommandation {% endif %}
+    pendant {{ object.review_duration }} jours. Cette demande ne sera pas considerée ni évaluée avant que les approbations sont terminées.
   </p>
 
   <p><b>Titre:</b><br>{{ object.csas_request.title }}</p>

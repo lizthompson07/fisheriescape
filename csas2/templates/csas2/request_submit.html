@@ -15,8 +15,9 @@
     <div v-if="request.id && !request.submission_date" class="mt-5 mb-5" v-cloak>
 
       <p class="h4">
-        {% blocktrans %}
-          Once this request is submitted, you will not be able to un-submit it.
+        {% blocktrans with object.office.region as office %}
+          By submitted this request, you will commence approvals.
+          Once approvals are complete, the request will be automatically forwarded to the {{ office }} CSAS Office.
         {% endblocktrans %}
       </p>
       <div class="form-check mb-5 text-left">
@@ -28,8 +29,8 @@
 
       <p class="h4">
         {% blocktrans %}
-          Once this request is submitted, you will not be able to delete it. Modification can occur during the review
-          process if requested by an approver or recommender.
+          Once this request is submitted for approvals, you will not be able to delete it.
+          Modification can occur during the review process if requested by an approver or recommender.
         {% endblocktrans %}
       </p>
       <div class="form-check mb-5 text-left">
@@ -42,7 +43,7 @@
 
       <p class="h4">
         {% blocktrans %}
-          The request can be withdrawn at any point during the client review process however this action is irreversible.
+          The request can be withdrawn at any point during approvals however withdrawal is irreversible.
         {% endblocktrans %}
       </p>
       <div class="form-check mb-5 text-left">
@@ -54,9 +55,18 @@
 
       <p class="h4">
         {% blocktrans %}
-          The appropriate authority (e.g., director) has been listed as an approver in the approval queue.
+          The appropriate authority (e.g., director) has been listed as an approver in the approval queue:
         {% endblocktrans %}
       </p>
+      <ol>
+        {% for reviewer in object.reviewers.all %}
+          <li>
+            <span class="{% if reviewer.role == 1 %}font-weight-bold{% endif %}"> {{ reviewer }} </span>
+          </li>
+        {% endfor %}
+
+      </ol>
+
       <div class="form-check mb-5 text-left">
         <input class="form-check-input h1" type="checkbox" value="" id="confirmation4" v-model="userConfirmed4">
         <label class="form-check-label text-danger" for="confirmation4">
@@ -66,8 +76,7 @@
 
       <p class="h4">
         {% blocktrans %}
-          The regional CSAS review will commence only once the approvers and recommenders have finished their review.
-          When the review is finished, your regional CSAS office will be notified.
+          The regional CSAS review will commence after approvals are completed.
         {% endblocktrans %}
       </p>
       <div class="form-check mb-5 text-left">
