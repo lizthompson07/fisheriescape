@@ -25,8 +25,8 @@
 
       <div class="text-center my-3" v-if="currentUser.action_items">
         {% echo "<span class=''>${currentUser.action_items}</span>" as html_insert %}
-        <a href="" class="btn btn-purple btn-lg shadowbox">
-          <span v-if="actionItems > 1">
+        <a href="{% url 'csas2:action_list' %}" class="btn btn-purple btn-lg shadowbox">
+          <span v-if="currentUser.action_items > 1">
             {% blocktrans %}
               There are {{ html_insert }} items awaiting your action
             {% endblocktrans %}

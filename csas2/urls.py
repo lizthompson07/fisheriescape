@@ -5,6 +5,10 @@ from . import views
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
+    # to-do
+    path('my-actions/', views.ActionListTemplateView.as_view(), name="action_list"),
+    path('my-todo-list/', views.ToDoListTemplateView.as_view(), name="todo_list"),
+
     # settings
 
 
@@ -96,9 +100,6 @@ urlpatterns = [
     path('documents/<int:pk>/view/', views.DocumentDetailView.as_view(), name="document_detail"),
     path('documents/<int:pk>/edit/', views.DocumentUpdateView.as_view(), name="document_edit"),
     path('documents/<int:pk>/delete/', views.DocumentDeleteView.as_view(), name="document_delete"),
-
-    # to-do
-    path('my-todo-list/', views.ToDoListTemplateView.as_view(), name="todo_list"),
 
     # reports
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),

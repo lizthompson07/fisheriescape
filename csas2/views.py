@@ -1380,6 +1380,17 @@ class ToDoListTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     h1 = gettext_lazy("To Do List")
 
 
+class ActionListTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
+    template_name = 'csas2/action_list.html'
+    home_url_name = "csas2:index"
+    h1 = gettext_lazy("Action Central")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object"] = utils.get_action_items(self.request.user)
+        return context
+
+
 # reports #
 ###########
 

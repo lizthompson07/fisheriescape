@@ -814,6 +814,16 @@ class ToRReviewerSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class ToRReviewerSerializerFull(ToRReviewerSerializer):
+    tor_object = serializers.SerializerMethodField()
+    process_object = serializers.SerializerMethodField()
+
+    def get_tor_object(self, instance):
+        return ToRSerializer(instance.tor).data
+
+    def get_process_object(self, instance):
+        return ProcessSerializerLITE(instance.tor.process).data
+
 
 class RequestReviewerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -875,6 +885,13 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
                 msg = gettext('There has to be at least one approver in the queue!')
                 raise ValidationError(msg)
         return attrs
+
+
+class RequestReviewerSerializerFull(RequestReviewerSerializer):
+    request_object = serializers.SerializerMethodField()
+
+    def get_request_object(self, instance):
+        return CSASRequestSerializer(instance.csas_request).data
 
 
 class ProcessSerializerLITE(serializers.ModelSerializer):

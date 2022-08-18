@@ -72,6 +72,11 @@ class CurrentUserAPIView(APIView):
                 data["reviewer"] = serializers.ToRReviewerSerializer(tor.current_reviewer).data
         elif qp.get("index"):
             data["action_items"] = utils.get_action_items(request.user)["count"]
+        elif qp.get("actions"):
+            items = utils.get_action_items(request.user)
+            data["request_reviewers"] = serializers.RequestReviewerSerializerFull(items["request_reviewers"], many=True).data
+            data["tor_reviewers"] = serializers.ToRReviewerSerializerFull(items["tor_reviewers"], many=True).data
+            data["withdrawals"] = serializers.CSASRequestSerializer(items["withdrawals"], many=True).data
         return Response(data)
 
 
