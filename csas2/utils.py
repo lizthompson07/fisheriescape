@@ -154,11 +154,11 @@ def can_modify_request(user, request_id, return_as_dict=False):
         my_dict["reason"] = _("You do not have the permissions to modify this request")
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
         # check to see if they are the client
-        if is_client(user, request_id=csas_request.id) and not csas_request.submission_date:
+        if is_client(user, request_id=csas_request.id) and (not csas_request.submission_date or csas_request.status == 25):
             my_dict["reason"] = _("You can modify this record because you are the request client")
             my_dict["can_modify"] = True
-        # check to see if they are the client
-        elif is_creator(user, request_id=csas_request.id) and not csas_request.submission_date:
+        # check to see if they are the creator
+        elif is_creator(user, request_id=csas_request.id) and (not csas_request.submission_date or csas_request.status == 25):
             my_dict["reason"] = _("You can modify this record because you are the record creator")
             my_dict["can_modify"] = True
         # check to see if they are the coordinator
@@ -186,6 +186,38 @@ def can_modify_request(user, request_id, return_as_dict=False):
         #     my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
         #     my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]
+
+
+def can_withdraw_request(user, request_id, return_as_dict=False):
+    """
+    returns True if user has permissions to withdraw a request
+    The answer of this question will depend on the business rules...
+    """
+    my_dict = dict(is_allowed=False, reason=_("You are not logged in"))
+
+    if user.id:
+        my_dict["reason"] = _("You do not have the permissions to withdrawn this request")
+        csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
+        # has it already been withdrawn?
+        if csas_request.status == 10:
+            my_dict["reason"] = _("cannot withdraw draft.")
+        elif csas_request.status == 70:
+            my_dict["reason"] = _("cannot withdraw accepted.")
+        elif csas_request.status == 80:
+            my_dict["reason"] = _("cannot withdraw fulfilled.")
+        elif csas_request.status == 99:
+            my_dict["reason"] = _("already withdrawn.")
+        else:
+            # check to see if they can already modify it
+            if can_modify_request(user, request_id):
+                my_dict["reason"] = _("You can withdraw this record because you can modify it.")
+                my_dict["is_allowed"] = True
+            # check to see if they are the client
+            elif is_client(user, request_id=csas_request.id) and (csas_request.status < 30 or csas_request.status == 42):
+                my_dict["reason"] = _("You are the client and the status is in the right place")
+                my_dict["is_allowed"] = True
+
+        return my_dict if return_as_dict else my_dict["is_allowed"]
 
 
 def can_modify_request_review(user, request_id, return_as_dict=False):
@@ -312,7 +344,6 @@ def can_unsubmit_request(user, request_id):
             return True
         # otherwise, the must be allowed to edit the process and the tor status must not be downstream (i.e., greater than) 30 ("Ready for CSAS review")
         return bool(can_modify_request(user, request_id) and r.status <= 30)
-
 
 
 def get_request_field_list(csas_request, user):

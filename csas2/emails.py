@@ -258,11 +258,14 @@ class ToRReviewReminderEmail(Email):
 
 class RequestReviewCompleteEmail(Email):
     email_template_path = 'csas2/emails/csas_request_reviews/review_complete.html'
-    subject_en = 'CSAS request approval is complete'
+    subject_en = 'CSAS Request approval complete'
     subject_fr = "l'examen de la demande de SCAS est terminée"
 
     def get_recipient_list(self):
-        return [self.instance.client.email]
+        payload = [self.instance.client.email]
+        if not self.instance.office.disable_request_notifications:
+            payload.extend(self.instance.office.all_emails)
+        return payload
 
 
 class RequestReviewAwaitingEmail(Email):

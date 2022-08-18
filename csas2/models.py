@@ -128,7 +128,7 @@ class GenericReviewer(MetadataFields):
                 self.decision_date = timezone.now()
         # if the decision is "request changes" set the status of the TOR to "awaiting changes" (30); do not populate a decision date
         elif self.decision == 2:  # review decision = request changes
-            self.update_parent_status()  # this will have to be defined by each reviewer model class
+            self.update_parent_status_on_changes_requested()  # this will have to be defined by each reviewer model class
         else:
             self.decision_date = None
 
@@ -145,7 +145,7 @@ class GenericReviewer(MetadataFields):
         abstract = True
         ordering = ['order', ]
 
-    def update_parent_status(self):
+    def update_parent_status_on_changes_requested(self):
         # update the parent status (e.g., tor status or request status) to reflect the fact that there are changes awaiting
         pass
 
@@ -192,7 +192,7 @@ class CSASOffice(models.Model):
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("science advisors"), related_name="csas_offices_advisors")
     administrators = models.ManyToManyField(User, blank=True, verbose_name=_("administrators"), related_name="csas_offices_administrators")
     generic_email = models.EmailField(verbose_name=_("generic email address"), blank=True, null=True)
-    disable_request_notifications = models.BooleanField(default=False, verbose_name=_("disable notifications of new requests?"), choices=YES_NO_CHOICES)
+    disable_request_notifications = models.BooleanField(default=False, verbose_name=_("disable notifications from new requests?"), choices=YES_NO_CHOICES)
     no_staff_emails = models.BooleanField(default=False, verbose_name=_("do not send emails directly to office staff?"), choices=YES_NO_CHOICES)
     ppt_default_section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_offices",
                                             verbose_name=_("default section for PPT"),
@@ -335,7 +335,7 @@ class CSASRequest(MetadataFields):
                 self.status = 10  # draft
             else:
                 # if the status is set to withdrawn, we do nothing more.
-                if self.status != 99:
+                if self.status not in [99, 25]:
                     # look at the review to help determine the status
                     self.status = 20  # under review by client
                     # if all the client reviewers have approved the request AND there is at least one approval, it is ready for csas team
@@ -522,6 +522,15 @@ class CSASRequestFile(GenericFile):
 class RequestReviewer(GenericReviewer):
     csas_request = models.ForeignKey(CSASRequest, related_name="reviewers", on_delete=models.CASCADE)
     role = models.IntegerField(verbose_name=_("role"), choices=request_review_role_choices)
+
+    @property
+    def can_be_modified(self):
+        return self.status in [10, 20] and self.csas_request.status <= 30
+
+    def update_parent_status_on_changes_requested(self):
+        r = self.csas_request
+        r.status = 25
+        r.save()
 
 
 class Process(SimpleLookupWithUUID, MetadataFields):
@@ -836,7 +845,7 @@ class ToRReviewer(GenericReviewer):
     def can_be_modified(self):
         return self.status in [10, 20] and self.tor.status != 50
 
-    def update_parent_status(self):
+    def update_parent_status_on_changes_requested(self):
         tor = self.tor
         tor.status = 30
         tor.save()

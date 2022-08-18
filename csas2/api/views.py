@@ -51,6 +51,7 @@ class CurrentUserAPIView(APIView):
         if qp.get("request"):
             csas_request = get_object_or_404(models.CSASRequest, pk=qp.get("request"))
             data["can_modify"] = utils.can_modify_request(request.user, csas_request.id, return_as_dict=True)
+            data["can_withdraw"] = utils.can_withdraw_request(request.user, csas_request.id, return_as_dict=True)
             data["is_client"] = utils.is_client(request.user, csas_request.id)
             data["can_unsubmit"] = utils.can_unsubmit_request(request.user, csas_request.id)
             if csas_request.current_reviewer and csas_request.current_reviewer.user == request.user:
@@ -90,7 +91,7 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         csas_request = get_object_or_404(models.CSASRequest, pk=pk)
         if qp.get("withdraw"):
-            if utils.is_client(request.user, pk) or utils.can_modify_request(request.user, pk, True):
+            if utils.can_withdraw_request(request.user, pk):
                 csas_request.withdraw()
                 return Response(serializers.CSASRequestSerializer(csas_request).data, status.HTTP_200_OK)
             raise ValidationError(_("Sorry, you do not have permissions to withdraw this request"))

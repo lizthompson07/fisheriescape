@@ -42,7 +42,7 @@
             </thead>
 
             {# display body #}
-            <tbody v-if="!canModify">
+            <tbody v-if="!canModify || request.status >= 30">
             <tr v-for="item in reviewers" :key="item.id">
               <td></td>
               <td>${item.user_display|nz }</td>

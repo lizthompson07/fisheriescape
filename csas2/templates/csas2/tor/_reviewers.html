@@ -45,7 +45,7 @@
             </thead>
 
             {# display body #}
-            <tbody v-if="!canEditReviewers">
+            <tbody v-if="!canEditReviewers || tor.status >= 35">
             <tr v-for="item in reviewers" :key="item.id">
               <td></td>
               <td>${item.user_display|nz }</td>

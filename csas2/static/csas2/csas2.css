@@ -284,6 +284,12 @@ label.filter {
     background-color: #08830d;
 }
 
+.btn-severe {
+    background-color: #600104;
+    color: white;
+}
+
+
 .btn-purple {
     background-color: #b64aff;
     color: white;

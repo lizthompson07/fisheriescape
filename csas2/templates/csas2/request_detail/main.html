@@ -38,26 +38,24 @@
         </p>
       </div>
 
-      <div v-if="(canModify || isClient) && request.status ===  12" class="alert alert-danger no-print" role="alert">
+      <div v-if="(canModify || isClient) && request.status ===  42" class="alert alert-danger no-print py-5" role="alert">
         <p class="">
-          <span class="h5 mdi mdi-exclamation mr-3"></span>
-          <span class="h5">{% trans "Regional CSAS staff have recommended that this request be <b>withdrawn</b>." %}</span>
+          <span class="h4 mdi mdi-exclamation mr-3"></span>
+          <span class="h4">{% trans "Regional CSAS staff have recommended that this request be <b>withdrawn</b>." %}</span>
           <button @click="withdrawRequest" class="btn btn-danger float-right">{% trans "Withdraw This Request" %}</button>
         </p>
       </div>
 
-      <div class="mb-3 float-right">
-        {% if object.submission_date %}
-          <button v-if="!request.review" class="btn btn-sm btn-dark" @click="primeReview">{% trans "Start a Review" %}</button>
-          {% if not object.processes.exists %}
-            <a v-if="canModify" class="btn btn-sm btn-dark"
-               href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Initiate a Process" %}</a>
-          {% endif %}
-        {% endif %}
+      <div class="mb-3 float-right" v-if="canModify && request.status >= 30 && request.status !== 99">
+        <button v-if="!request.review" class="btn btn-sm btn-dark" @click="primeReview">
+          {% trans "Start a Review" %}
+        </button>
+        <a v-if="!request.has_process" class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">
+          {% trans "Initiate a Process" %}
+        </a>
       </div>
 
       <div class="mb-3">
-        <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
 
         <span v-if="canModify">
               <a v-if="request.submission_date" class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
@@ -73,19 +71,27 @@
               </span>
             </span>
 
-        <a v-if="canModify" class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
+        <a v-if="canModify" class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
+
+        <a v-if="canModify && !canWithdraw" class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
+
+        <button
+          v-if="canWithdraw"
+          @click="withdrawRequest" class="btn btn-sm btn-severe">{% trans "Withdraw This Request" %}
+        </button>
+
         <a class="btn btn-sm btn-secondary helper"
            data-toggle="tooltip" title="{% trans "Click here to clone this request into a new request" %}"
            href="{% url 'csas2:request_clone' object.id %}">{% trans "Clone Me" %}</a>
         <button v-if="canModify" @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
           <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
         </button>
-        {% if object.status >= 2 %}
-
+        {% if object.status >= 20 %}
           <a href="{% url 'csas2:request_pdf' %}?csas_requests={{ object.id }}" class="btn btn-outline-dark btn-sm ml-3">
             <span class="mdi mdi-file-pdf mr-1"></span>{% trans "Export to PDF" %}
           </a>
         {% endif %}
+
       </div>
 
 
@@ -104,6 +110,11 @@
             <div class="col-6">
               <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify"
                         :current_user="currentUser"></note-pad>
+            </div>
+            <div class="col">
+              <div v-if="canModify" class="text-right">
+                <button v-if="request.status === 25" class="btn btn-lg btn-danger ml-5" @click="resumeReview">{% trans "Resume the Review" %}</button>
+              </div>
             </div>
           </div>
 
@@ -446,7 +457,7 @@
         return prev && prev.status === 30;
       },
       resumeReview() {
-        apiService(`/api/csas/csas-requests/${this.requestId}/?resume_review=true`, "POST")
+        apiService(`/api/csas/requests/${this.requestId}/?resume_review=true`, "POST")
             .then(response => {
               window.location.reload();
             })
@@ -526,8 +537,14 @@
       canModify() {
         return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
       },
+      canWithdraw() {
+        return this.currentUser.can_withdraw && this.currentUser.can_withdraw.is_allowed;
+      },
       isClient() {
         return this.currentUser.is_client;
+      },
+      isAdmin() {
+        return this.currentUser.is_admin || this.currentUser.is_staff;
       },
 
 

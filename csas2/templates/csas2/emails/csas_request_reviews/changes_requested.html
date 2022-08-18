@@ -18,27 +18,27 @@ table, td, th, tr {
 <br><br>
 
 <p>
-  The following changes are being requested from {{ object.user }}:
+  Changes are being requested to the CSAS Request entitled "{{ object.csas_request.title }}" from {{ object.user }}:
 </p>
 <p class="comments">
   {{ object.comments_html|safe }}
 </p>
 <p>
   Once these changes have been addressed, you can resume the approval process by clicking on the red button at the top of
-  <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">Terms of Reference</a> detail page.
+  <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.csas_request.id %}">CSAS Request</a> detail page.
 </p>
 
 <hr>
 
 <p>
-  Les modifications suivantes sont demandées par {{ object.user }}:
+  Des modifications à le demande de SCAS entitulé «{{ object.csas_request.title }}» sont demandées par {{ object.user }}:
 </p>
 <p class="comments">
   {{ object.comments_html|safe }}
 </p>
 <p>
   Une fois que ces modifications seront traitées, vous pouvez reprendre le processus d'approbation en cliquant sur le bouton rouge en haut de la
-   page d'information du <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}">cadre de référence</a>.
+  page d'information de la <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.csas_request.id %}">demande de SCAS</a>.
 </p>
 
 
