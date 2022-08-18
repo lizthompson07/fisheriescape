@@ -598,12 +598,12 @@ def start_request_review_process(request):
         reviewer.queue()
 
 
-def request_approval_seeker(request, csas_request):
+def request_approval_seeker(csas_request, request):
     """
     This method is meant to seek approvals via email + set reviewer statuses.
     """
-    # only look for a next reviewer if we are still UNDER REVIEW (4)
-    if csas_request.status == 4:
+    # only look for a next reviewer if we are still UNDER CLIENT REVIEW (20)
+    if csas_request.status == 20:
         next_reviewer = None
         # look through all the reviewers... see if we can decide on who the next reviewer should be...
         for reviewer in csas_request.reviewers.all():
@@ -612,6 +612,7 @@ def request_approval_seeker(request, csas_request):
             if reviewer.status in [20, 30]:
                 next_reviewer = reviewer
                 break
+
         # if there is a next reviewer, set their status to pending and send them an email
         if next_reviewer:
             next_reviewer.status = 30  # pending

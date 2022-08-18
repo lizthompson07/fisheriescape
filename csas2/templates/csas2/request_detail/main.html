@@ -96,6 +96,18 @@
       </div>
       <div v-else class="row">
         <div class="col">
+
+          <div class="w-75 my-4">
+            {% include "csas2/request_detail/_reviewer_form.html" %}
+          </div>
+          <div class="row my-4">
+            <div class="col-6">
+              <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify"
+                        :current_user="currentUser"></note-pad>
+            </div>
+          </div>
+
+          <h3>{% trans "Request Detail" %}</h3>
           <table class="table table-sm">
             <tr>
               <th class="text-left w250" v-html="requestLabels.fiscal_year"></th>
@@ -224,16 +236,6 @@
             </tr>
           </table>
         </div>
-        {# Notes #}
-        <div class="col-4">
-          <note-pad v-if="request.id" parent_name="request" :parent_id="request.id" :notes="notes" @update-notes="getNotes" :is_admin="canModify"
-                    :current_user="currentUser"></note-pad>
-
-          <div class="">
-            {% include "csas2/request_detail/_reviewer_form.html" %}
-          </div>
-
-        </div>
       </div>
 
       <div class="mt-5" v-if="request.review && reviewLabels.is_valid">
@@ -275,6 +277,7 @@
         </table>
       </div>
     </div>
+
     <div class="mb-5">
       {% include "csas2/request_detail/_reviewers.html" %}
     </div>
@@ -430,7 +433,7 @@
         apiService(`/api/csas/request-reviewers/${reviewer.id}/`, "PUT", reviewer)
             .then(response => {
               if (response.id) {
-                apiService(`/api/csas/csas-requests/${this.requestId}/?approval_seeker=true`, "POST")
+                apiService(`/api/csas/requests/${this.requestId}/?approval_seeker=true`, "POST")
                     .then(response => {
                       window.location.reload();
                     })

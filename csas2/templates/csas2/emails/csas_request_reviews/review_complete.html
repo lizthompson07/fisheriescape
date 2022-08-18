@@ -22,7 +22,7 @@
   </p>
   <p>
     This is an automated message to notify you that the CSAS Request approval is complete for the request entitled,
-    <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.csas_request.id %}">{{ object.csas_request.title }}</a>.
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.id %}">{{ object.title }}</a>.
   </p>
 {% endlanguage %}
 
@@ -39,7 +39,7 @@
 {% language 'fr' %}
   <p>
     Il s'agit d'un message automatisé pour vous informer que l'approbation de la demandes de SCAS intitulé
-    <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.csas_request.id %}">{{ object.csas_request.title }}</a> est terminée.
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.id %}">{{ object.title }}</a> est terminée.
   </p>
 {% endlanguage %}
 

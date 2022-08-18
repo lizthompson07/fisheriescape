@@ -488,11 +488,17 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.updated_by = self.request.user
-        if obj.submission_date:
-            obj.submission_date = None
+
+        is_submitted = True if obj.submission_date else False
+
+        # if submitted, then unsubmit but only if admin or owner
+        if is_submitted:
+            if utils.can_unsubmit_request(self.request.user, obj.id):
+                obj.unsubmit()
         else:
-            obj.submission_date = timezone.now()
-        obj.save()
+            obj.submit()
+
+        utils.request_approval_seeker(obj, self.request)
 
         # if the request was just submitted, send an email
         if obj.submission_date:

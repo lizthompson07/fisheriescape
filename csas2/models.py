@@ -293,6 +293,12 @@ class CSASRequest(MetadataFields):
         self.status = 99
         self.save()
 
+    def unsubmit(self):
+        utils.end_request_review_process(self)
+
+    def submit(self):
+        utils.start_request_review_process(self)
+
     def save(self, *args, **kwargs):
 
         # request fiscal year

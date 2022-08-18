@@ -262,7 +262,7 @@ class RequestReviewCompleteEmail(Email):
     subject_fr = "l'examen de la demande de SCAS est terminée"
 
     def get_recipient_list(self):
-        return [self.instance.csas_request.client.email]
+        return [self.instance.client.email]
 
 
 class RequestReviewAwaitingEmail(Email):
