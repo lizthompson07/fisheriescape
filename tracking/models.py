@@ -122,3 +122,6 @@ class Email(models.Model):
     sent_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='email_sent_by')
     send_method = models.CharField(blank=True, null=True, editable=False, max_length=100)
     msg_id = models.CharField(blank=True, null=True, editable=False, max_length=100)
+
+    class Meta(object):
+        ordering = ('-sent_at',)

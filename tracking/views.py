@@ -16,6 +16,7 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.http import StreamingHttpResponse, HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.timezone import now
 
@@ -414,7 +415,6 @@ class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return context
 
 
-
 class EmailFilter(django_filters.FilterSet):
     class Meta:
         model = Email
@@ -428,9 +428,11 @@ class EmailFilter(django_filters.FilterSet):
 
 class EmailLogListView(SuperuserRequiredMixin, CommonFilterView):
     model = Email
+    h1 = "Email Log"
     filterset_class = EmailFilter
     template_name = 'shared_models/generic_filter.html'
-    home_url_name = "tracking:tracking-dashboard"
+    home_url_name = "index"
+    parent_crumb = {"title": "tracking dashboard", "url": reverse_lazy("tracking:tracking-dashboard")}
     container_class = "container-fluid small"
     paginate_by = 100
     field_list = [
