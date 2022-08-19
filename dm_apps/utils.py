@@ -180,7 +180,7 @@ def custom_send_mail(subject=None, html_message=None, from_email=None, recipient
             print(e.response['Error']['Message'])
         else:
             msg_id = response['MessageId']
-            print(f"Email sent! Message ID: {msg_id}"),
+            # print(f"Email sent! Message ID: {msg_id}"),
             create_email_log_entry(from_email, recipient_list, subject, user, "aws-ses", msg_id)
 
     elif settings.USE_SMTP_EMAIL:
