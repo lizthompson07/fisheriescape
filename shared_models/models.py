@@ -164,7 +164,6 @@ class LatLongFields(models.Model):
         return mark_safe(my_str)
 
 
-# CONNECTED APPS: tickets, travel, projects, sci_fi
 class FiscalYear(models.Model):
     full = models.TextField(blank=True, null=True)
     short = models.TextField(blank=True, null=True)

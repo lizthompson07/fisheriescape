@@ -435,7 +435,8 @@ class ResourceDeleteFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpda
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
         return super().form_valid(form)
 
@@ -476,7 +477,8 @@ class ResourcePublicationFlagUpdateView(InventoryLoginRequiredMixin, CommonPopou
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
         return super().form_valid(form)
 
@@ -540,7 +542,8 @@ class ResourcePersonCreateView(CanModifyRequiredMixin, CreateView):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
             messages.success(self.request,
                              '{} has been added as {} and a notification email has been sent to them!'.format(
@@ -567,7 +570,8 @@ class ResourcePersonUpdateView(CanModifyRequiredMixin, UpdateView):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
             messages.success(self.request,
                              '{} has been added as {} and a notification email has been sent to them!'.format(
@@ -596,7 +600,8 @@ class ResourcePersonDeleteView(CanModifyRequiredMixin, DeleteView):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
             messages.success(self.request,
                              '{} has been removed as {} and a notification email has been sent to them!'.format(
@@ -1208,7 +1213,8 @@ def send_certification_request(request, person):
         subject=email.subject,
         html_message=email.message,
         from_email=email.from_email,
-        recipient_list=email.to_list
+        recipient_list=email.to_list,
+        user=self.request.user
     )
     my_person.user.correspondences.create(subject="Request for certification")
     messages.success(request, "the email has been sent and the correspondence has been logged!")

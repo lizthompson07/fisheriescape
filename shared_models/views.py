@@ -1152,7 +1152,8 @@ class UserCreateView(ExtendedAdminRequiredMixin, CommonPopoutFormView):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
             messages.success(self.request, gettext("The user '{}' was created and an email was sent".format(my_user.get_full_name())))
 

@@ -1194,7 +1194,8 @@ class Review(models.Model):
             subject=email.subject,
             html_message=email.message,
             from_email=email.from_email,
-            recipient_list=email.to_list
+            recipient_list=email.to_list,
+            user=request.user
         )
         self.approval_notification_email_sent = timezone.now()
         self.save()

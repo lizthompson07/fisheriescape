@@ -122,4 +122,5 @@ class Email:
     def send(self):
         custom_send_mail(
             email_instance=self,
+            user=self.request.user
         )

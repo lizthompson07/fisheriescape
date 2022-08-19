@@ -435,7 +435,8 @@ class EntryCreateView(iHubEditRequiredMixin, CommonCreateView):
             subject=email.subject,
             html_message=email.message,
             from_email=email.from_email,
-            recipient_list=email.to_list
+            recipient_list=email.to_list,
+            user=self.request.user
         )
         messages.success(self.request,
                          _("The entry has been submitted and an email has been sent to the Indigenous Hub Coordinator!"))

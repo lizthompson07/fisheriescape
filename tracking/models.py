@@ -113,10 +113,15 @@ class VisitSummary(models.Model):
         ordering = ('-date',)
         unique_together = [("date","application_name", "user"),]
 
-# class UserSummary(models.Model):
-#     application_name = models.CharField(max_length=100, blank=True, null=True)
-#     page_visits = models.IntegerField(default=0)
-#
-#     class Meta(object):
-#         ordering = ('user',)
-#         unique_together = [("user","application_name"),]
+
+class Email(models.Model):
+    from_email = models.CharField(blank=True, null=True, editable=False, max_length=250)
+    recipient_list = models.TextField(blank=True, null=True, editable=False)
+    subject = models.CharField(blank=True, null=True, editable=False, max_length=1000)
+    sent_at = models.DateTimeField(auto_now_add=True, editable=False)
+    sent_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='email_sent_by')
+    send_method = models.CharField(blank=True, null=True, editable=False, max_length=100)
+    msg_id = models.CharField(blank=True, null=True, editable=False, max_length=100)
+
+    class Meta(object):
+        ordering = ('-sent_at',)
