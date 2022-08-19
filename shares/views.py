@@ -223,7 +223,8 @@ def send_instructions(request, pk):
         subject=email.subject,
         html_message=email.message,
         from_email=email.from_email,
-        recipient_list=email.to_list
+        recipient_list=email.to_list,
+        user=self.request.user
     )
     messages.success(request, "An email has been sent to the user with setup instructions!")
 

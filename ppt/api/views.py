@@ -231,7 +231,8 @@ class ProjectYearViewSet(ModelViewSet):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=request.user
             )
             return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
         elif qp.get("unsubmit"):
@@ -374,7 +375,8 @@ class StaffViewSet(ModelViewSet):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user,
             )
         super().perform_update(serializer)
 
@@ -387,7 +389,8 @@ class StaffViewSet(ModelViewSet):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
 
 
