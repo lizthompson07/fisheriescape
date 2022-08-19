@@ -62,6 +62,25 @@ class CommonCreateViewHelp(CommonCreateView):
         return context
 
 
+class CommonUpdateViewHelp(CommonUpdateView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = utils.get_help_text_dict(self.model)
+
+        # if the UserMode table has this user in "edit" mode provide the
+        # link to the dialog to manage help text via the manage_help_url
+        # and provide the model name the help text will be assigned to.
+        # The generic_form_with_help_text.html from the shared_models app
+        # will provide the field name and together you have the required
+        # model and field needed to make an entry in the Help Text table.
+        if self.request.user.maret_user.mode == 2:
+            context['manage_help_url'] = "maret:manage_help_text"
+            context['model_name'] = self.model.__name__
+
+        return context
+
+
 # This is the dialog presented to the user to enter help text for a given model/field
 # it uses the Create View to both create entries and update them. Accessed via the manage_help_url.
 #
@@ -204,7 +223,7 @@ class PersonCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
         return HttpResponseRedirect(reverse_lazy('maret:person_detail', kwargs={'pk': object.id}))
 
 
-class PersonUpdateView(AuthorRequiredMixin, CommonUpdateView):
+class PersonUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
     model = ml_models.Person
     form_class = forms.PersonForm
     parent_crumb = {"title": gettext_lazy("Person"), "url": reverse_lazy("maret:person_list")}
@@ -347,7 +366,7 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
         return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': self.object.id}))
 
 
-class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateView):
+class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
     model = models.Interaction
     form_class = forms.InteractionForm
     home_url_name = "maret:index"
@@ -545,7 +564,7 @@ class CommitteeDeleteView(AuthorRequiredMixin, CommonDeleteView):
         return {"title": self.get_object(), "url": reverse("maret:committee_detail", args=[self.get_object().id])}
 
 
-class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateView):
+class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
     model = models.Committee
     form_class = forms.CommitteeForm
     home_url_name = "maret:index"
@@ -605,8 +624,9 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     h1 = gettext_lazy("New Organization")
 
     def form_valid(self, form):
-        object = form.save(commit=False)
-        object.last_modified_by = self.request.user
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
+        obj.save()
         super().form_valid(form)
 
         ext_org = None
@@ -679,7 +699,7 @@ class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
         return context
 
 
-class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateView):
+class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
     model = ml_models.Organization
     template_name = 'maret/form.html'
     form_class = forms.OrganizationForm
