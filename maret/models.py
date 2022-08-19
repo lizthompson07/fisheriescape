@@ -152,7 +152,7 @@ class Committee(models.Model):
                                                   limit_choices_to={"region__name": "National"}
                                                   )
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=12,
-                                   verbose_name="Role of highest level DFO participant")
+                                   verbose_name="Highest level DFO participant")
     first_nation_participation = models.BooleanField(default=False,
                                                      verbose_name=_("Indigenous community/organization participation?"))
     municipal_participation = models.BooleanField(default=False,
@@ -172,7 +172,7 @@ class Committee(models.Model):
                                             default=1)
     are_tor = models.BooleanField(default=False, verbose_name=_("Are there terms of reference?"))
     location_of_tor = models.TextField(blank=True, null=True, verbose_name=_("Location of terms of reference"))
-    main_actions = models.TextField(default="-----", verbose_name=_("Main actions"))
+    main_actions = models.TextField(default="-----", verbose_name=_("Role of committee / working group"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("Comments"))
     last_modified = models.DateTimeField(auto_now=True, blank=True, null=True,
                                          verbose_name=_("date last modified"))
@@ -208,7 +208,7 @@ class Interaction(models.Model):
     committee = models.ForeignKey(Committee, blank=True, null=True, on_delete=models.DO_NOTHING,
                                   verbose_name="Committee / Working Group", related_name="committee_interactions")
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=None,
-                                   verbose_name="Role of highest level DFO participant")
+                                   verbose_name="Highest level DFO participant")
     dfo_liaison = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_liaison",
                                          verbose_name=_("DFO Maritimes Region liaison"))
     other_dfo_participants = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_participants",
@@ -253,7 +253,7 @@ class Interaction(models.Model):
                                         verbose_name=_("Main Topic(s) of discussion"))
     species = models.ManyToManyField(Species, blank=True, related_name="species",
                                      verbose_name=_("Main species of discussion"))
-    action_items = models.TextField(default="-----", verbose_name=_("Main actions"))
+    action_items = models.TextField(default="-----", verbose_name=_("Main results"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("Comments"))
     last_modified = models.DateTimeField(auto_now=True, blank=True, null=True,
                                          verbose_name=_("date last modified"))
