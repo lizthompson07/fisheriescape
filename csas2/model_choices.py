@@ -23,11 +23,11 @@ language_choices = (
 
 request_status_choices = (
     (10, _("Draft")),
-    (20, _("Under client review")),  # client submits request
-    (25, _("Awaiting changes")),
+    (20, _("Under Client Approval")),  # client submits request
+    (25, _("Awaiting Changes")),
 
-    (30, _("Ready for CSAS review")),  # client review is complete
-    (40, _("Under CSAS review")),  # review is created by coordinator
+    (30, _("Ready for CSAS Review")),  # client review is complete
+    (40, _("Under CSAS Review")),  # review is created by coordinator
 
     # all status below here should correspond to review decision choice + 40
     (41, _("Reviewed")),  # coordinator approves

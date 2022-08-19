@@ -37,7 +37,7 @@
       <div v-else>
 
         <div v-if="requestReviewers.length" class="m-5">
-          <p class="lead">{% trans "CSAS Requests attending your Review" %} (${requestReviewers.length})</p>
+          <p class="lead">{% trans "CSAS Requests awaiting your Review" %} (${requestReviewers.length})</p>
           <div>
             <table class="table table-sm">
               <thead>
@@ -67,12 +67,12 @@
         </div>
 
         <div v-if="torReviewers.length" class="m-5">
-          <p class="lead">{% trans "Terms of Reference CSAS Requests attending your Review" %} (${torReviewers.length})</p>
+          <p class="lead">{% trans "Terms of Reference CSAS Requests awaiting your Review" %} (${torReviewers.length})</p>
           <div>
             <table class="table table-sm">
               <thead>
               <tr>
-                <th class="w-10"></th>
+                <th class="w-15"></th>
                 <th class="">{% trans "Process Name" %}</th>
                 <th class="w-20">{% trans "Scope/Type" %}</th>
                 <th class="w-10">{% trans "Your Role" %}</th>
