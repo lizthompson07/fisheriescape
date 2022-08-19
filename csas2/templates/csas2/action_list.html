@@ -124,6 +124,34 @@
         </div>
 
 
+
+        <div v-if="rescopings.length" class="m-5">
+          <p class="lead">{% trans "CSAS Requests Flagged for Re-scoping" %} (${withdrawals.length})</p>
+          <div>
+            <table class="table table-sm">
+              <thead>
+              <tr>
+                <th class="w-15"></th>
+                <th class="">{% trans "Title" %}</th>
+                <th class="w-15">{% trans "CSAS Office" %}</th>
+                <th class="w-10">{% trans "Status" %}</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-for="(n, index) in rescopings" :key="`w${n.id}`">
+                <td>
+                  <a class="btn btn-warning btn-sm" :href="`/csas-sccs/requests/${n.id}/view/`" target="_blank">{% trans "Re-scope" %}</a>
+                </td>
+                <td> ${n.title}</td>
+                <td> ${n.office}</td>
+                <td><span v-html="n.status_display_html"></span></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
       </div>
     </div>
   </div>
@@ -178,6 +206,11 @@
       withdrawals() {
         if (this.currentUser.id) {
           return this.currentUser.withdrawals
+        } else return [];
+      },
+      rescopings() {
+        if (this.currentUser.id) {
+          return this.currentUser.rescopings
         } else return [];
       }
 

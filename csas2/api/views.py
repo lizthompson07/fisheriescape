@@ -77,6 +77,7 @@ class CurrentUserAPIView(APIView):
             data["request_reviewers"] = serializers.RequestReviewerSerializerFull(items["request_reviewers"], many=True).data
             data["tor_reviewers"] = serializers.ToRReviewerSerializerFull(items["tor_reviewers"], many=True).data
             data["withdrawals"] = serializers.CSASRequestSerializer(items["withdrawals"], many=True).data
+            data["rescopings"] = serializers.CSASRequestSerializer(items["rescopings"], many=True).data
         return Response(data)
 
 

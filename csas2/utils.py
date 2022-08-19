@@ -669,18 +669,13 @@ def get_action_items(user):
     tor_qs = user.torreviewer_reviews.filter(status=30)
     request_qs = user.requestreviewer_reviews.filter(status=30)
     withdraw_qs = user.csas_client_requests.filter(status=42)
+    rescoping_qs = models.CSASRequest.objects.filter(status=43).filter(Q(office__coordinator=user) | Q(office__advisors=user)).distinct()
+
     payload = dict(
         tor_reviewers=tor_qs,
         request_reviewers=request_qs,
         withdrawals=withdraw_qs,
-        count=tor_qs.count() + request_qs.count() + withdraw_qs.count(),
+        rescopings=rescoping_qs,
+        count=tor_qs.count() + request_qs.count() + withdraw_qs.count() + rescoping_qs.count(),
     )
     return payload
-
-
-
-
-
-
-
-
