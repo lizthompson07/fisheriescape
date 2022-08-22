@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-18 15:23-0300\n"
+"POT-Creation-Date: 2022-08-22 12:21-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -18,7 +18,7 @@ msgstr "La date de début du voyage doit survenir après la date de fin."
 msgid "You must supply either a project, project year or status report"
 msgstr ""
 
-#: .\ppt\api\views.py:196 .\ppt\api\views.py:260
+#: .\ppt\api\views.py:196 .\ppt\api\views.py:261
 msgid "This endpoint cannot be used without a query param"
 msgstr ""
 
@@ -266,7 +266,7 @@ msgstr ""
 msgid "fiscal year"
 msgstr "exercice fiscal"
 
-#: .\ppt\models.py:111 .\ppt\models.py:1353
+#: .\ppt\models.py:111 .\ppt\models.py:1354
 msgid "region"
 msgstr ""
 
@@ -640,7 +640,7 @@ msgid "amount (CAD)"
 msgstr "montant (CAD)"
 
 #: .\ppt\models.py:731 .\ppt\models.py:871 .\ppt\models.py:901
-#: .\ppt\models.py:1276
+#: .\ppt\models.py:1277
 msgid "description"
 msgstr "description"
 
@@ -748,12 +748,12 @@ msgstr "Ressources humaines"
 msgid "Contracts, Leases, Services"
 msgstr "Contrats, baux, services"
 
-#: .\ppt\models.py:852 .\ppt\models.py:898 .\ppt\models.py:1390
+#: .\ppt\models.py:852 .\ppt\models.py:898 .\ppt\models.py:1391
 #: .\ppt\test\test_models.py:483 .\ppt\test\test_models.py:584
 msgid "Other"
 msgstr "Autre"
 
-#: .\ppt\models.py:866 .\ppt\models.py:1273 .\ppt\utils.py:184
+#: .\ppt\models.py:866 .\ppt\models.py:1274 .\ppt\utils.py:184
 #: .\ppt\utils.py:582 .\ppt\views.py:212 .\ppt\views.py:213 .\ppt\views.py:950
 msgid "name"
 msgstr "nom"
@@ -864,20 +864,20 @@ msgstr "pièce jointe"
 msgid "external URL"
 msgstr "URL externe"
 
-#: .\ppt\models.py:1045 .\ppt\models.py:1379 .\ppt\test\test_models.py:698
+#: .\ppt\models.py:1045 .\ppt\models.py:1380 .\ppt\test\test_models.py:698
 msgid "On-track"
 msgstr ""
 
-#: .\ppt\models.py:1046 .\ppt\models.py:1380 .\ppt\test\test_models.py:699
+#: .\ppt\models.py:1046 .\ppt\models.py:1381 .\ppt\test\test_models.py:699
 #, fuzzy
 msgid "Complete"
 msgstr "Commentaires"
 
-#: .\ppt\models.py:1047 .\ppt\models.py:1381 .\ppt\test\test_models.py:700
+#: .\ppt\models.py:1047 .\ppt\models.py:1382 .\ppt\test\test_models.py:700
 msgid "Encountering issues"
 msgstr ""
 
-#: .\ppt\models.py:1048 .\ppt\models.py:1320 .\ppt\models.py:1382
+#: .\ppt\models.py:1048 .\ppt\models.py:1321 .\ppt\models.py:1383
 #: .\ppt\test\test_models.py:701 .\ppt\test\test_models.py:966
 msgid "Aborted / cancelled"
 msgstr ""
@@ -969,19 +969,19 @@ msgstr ""
 msgid "National-level"
 msgstr "National"
 
-#: .\ppt\models.py:1117 .\ppt\models.py:1268
+#: .\ppt\models.py:1117 .\ppt\models.py:1269
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:23
 #: .\ppt\test\test_models.py:778 .\ppt\test\test_models.py:906
 msgid "High"
 msgstr ""
 
-#: .\ppt\models.py:1118 .\ppt\models.py:1267
+#: .\ppt\models.py:1118 .\ppt\models.py:1268
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:29
 #: .\ppt\test\test_models.py:779 .\ppt\test\test_models.py:905
 msgid "Medium"
 msgstr ""
 
-#: .\ppt\models.py:1119 .\ppt\models.py:1266
+#: .\ppt\models.py:1119 .\ppt\models.py:1267
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:35
 #: .\ppt\test\test_models.py:780 .\ppt\test\test_models.py:904
 msgid "Low"
@@ -1084,366 +1084,366 @@ msgstr ""
 msgid "total score"
 msgstr ""
 
-#: .\ppt\models.py:1247 .\ppt\test\test_models.py:870
+#: .\ppt\models.py:1248 .\ppt\test\test_models.py:870
 msgid "Milestone"
 msgstr "Jalons"
 
-#: .\ppt\models.py:1248 .\ppt\test\test_models.py:871
+#: .\ppt\models.py:1249 .\ppt\test\test_models.py:871
 msgid "Deliverable"
 msgstr ""
 
-#: .\ppt\models.py:1251
+#: .\ppt\models.py:1252
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:51
 #: .\ppt\test\test_models.py:879
 msgid "1-Very unlikely"
 msgstr ""
 
-#: .\ppt\models.py:1252
+#: .\ppt\models.py:1253
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:52
 #: .\ppt\test\test_models.py:880
 msgid "2-Unlikely"
 msgstr ""
 
-#: .\ppt\models.py:1253
+#: .\ppt\models.py:1254
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:53
 #: .\ppt\test\test_models.py:881
 msgid "3-Low"
 msgstr ""
 
-#: .\ppt\models.py:1254
+#: .\ppt\models.py:1255
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:54
 #: .\ppt\test\test_models.py:882
 msgid "4-Likely"
 msgstr ""
 
-#: .\ppt\models.py:1255
+#: .\ppt\models.py:1256
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:55
 #: .\ppt\test\test_models.py:883
 msgid "5-Almost certain"
 msgstr ""
 
-#: .\ppt\models.py:1258
+#: .\ppt\models.py:1259
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:42
 #: .\ppt\test\test_models.py:891
 msgid "1-Negligible"
 msgstr ""
 
-#: .\ppt\models.py:1259
+#: .\ppt\models.py:1260
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:34
 #: .\ppt\test\test_models.py:892
 msgid "2-Low"
 msgstr ""
 
-#: .\ppt\models.py:1260
+#: .\ppt\models.py:1261
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:26
 #: .\ppt\test\test_models.py:893
 msgid "3-Medium"
 msgstr ""
 
-#: .\ppt\models.py:1261
+#: .\ppt\models.py:1262
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:18
 #: .\ppt\test\test_models.py:894
 msgid "4-High"
 msgstr ""
 
-#: .\ppt\models.py:1262
+#: .\ppt\models.py:1263
 #: .\ppt\templates\ppt\project_detail\_risk_rating_diagram.html:10
 #: .\ppt\test\test_models.py:895
 msgid "5-Extreme"
 msgstr ""
 
-#: .\ppt\models.py:1274
+#: .\ppt\models.py:1275
 #, fuzzy
 msgid "Target start date (optional)"
 msgstr "Date d'achèvement prévue"
 
-#: .\ppt\models.py:1275
+#: .\ppt\models.py:1276
 #, fuzzy
 msgid "Target end date (optional)"
 msgstr "Date d'achèvement prévue"
 
-#: .\ppt\models.py:1277
+#: .\ppt\models.py:1278
 #, fuzzy
 #| msgid "responsibility center (if known)"
 msgid "responsible parties"
 msgstr "centre de responsabilité (s'il est connu)"
 
-#: .\ppt\models.py:1278
+#: .\ppt\models.py:1279
 #, fuzzy
 #| msgid "responsibility center (if known)"
 msgid "responsible party notes"
 msgstr "centre de responsabilité (s'il est connu)"
 
-#: .\ppt\models.py:1280
+#: .\ppt\models.py:1281
 msgid "Description of risks and their consequences"
 msgstr ""
 
-#: .\ppt\models.py:1281
+#: .\ppt\models.py:1282
 msgid "what will be the impact if the risks occurs"
 msgstr ""
 
-#: .\ppt\models.py:1283
+#: .\ppt\models.py:1284
 msgid "what is the likelihood of the risks occurring"
 msgstr ""
 
-#: .\ppt\models.py:1285
+#: .\ppt\models.py:1286
 msgid "what measures will be used to mitigate the risks"
 msgstr ""
 
-#: .\ppt\models.py:1286
+#: .\ppt\models.py:1287
 #, fuzzy
 msgid "parent activity"
 msgstr "Gérer les types d'employés"
 
-#: .\ppt\models.py:1308
+#: .\ppt\models.py:1309
 #, fuzzy
 msgid "ending {date}"
 msgstr "Financement"
 
-#: .\ppt\models.py:1310
+#: .\ppt\models.py:1311
 #, fuzzy
 #| msgid "fiscal year"
 msgid "starting {date}"
 msgstr "exercice fiscal"
 
-#: .\ppt\models.py:1318 .\ppt\test\test_models.py:964
+#: .\ppt\models.py:1319 .\ppt\test\test_models.py:964
 #, fuzzy
 msgid "In progress"
 msgstr "j'approuve"
 
-#: .\ppt\models.py:1319 .\ppt\test\test_models.py:965
+#: .\ppt\models.py:1320 .\ppt\test\test_models.py:965
 msgid "Completed"
 msgstr ""
 
-#: .\ppt\models.py:1325
+#: .\ppt\models.py:1326
 msgid "Notes"
 msgstr "Remarques"
 
-#: .\ppt\models.py:1334
+#: .\ppt\models.py:1335
 msgid "Update on "
 msgstr "Mise à jour sur"
 
-#: .\ppt\models.py:1350
+#: .\ppt\models.py:1351
 #, fuzzy
 #| msgid "file attachment"
 msgid "file attachment (English)"
 msgstr "pièce jointe"
 
-#: .\ppt\models.py:1351
+#: .\ppt\models.py:1352
 #, fuzzy
 #| msgid "file attachment"
 msgid "file attachment (French)"
 msgstr "pièce jointe"
 
-#: .\ppt\models.py:1378 .\ppt\models.py:1470
+#: .\ppt\models.py:1379 .\ppt\models.py:1471
 msgid "Unevaluated"
 msgstr ""
 
-#: .\ppt\models.py:1385
+#: .\ppt\models.py:1386
 #, fuzzy
 #| msgid "Report Details:"
 msgid "Daily"
 msgstr "Détails du rapport:"
 
-#: .\ppt\models.py:1386
+#: .\ppt\models.py:1387
 #, fuzzy
 #| msgid "Weekday"
 msgid "Weekly"
 msgstr "Jour de la semaine"
 
-#: .\ppt\models.py:1387
+#: .\ppt\models.py:1388
 msgid "Monthly"
 msgstr ""
 
-#: .\ppt\models.py:1388
+#: .\ppt\models.py:1389
 msgid "Annually"
 msgstr ""
 
-#: .\ppt\models.py:1389
+#: .\ppt\models.py:1390
 msgid "Irregular / as needed"
 msgstr ""
 
-#: .\ppt\models.py:1396 .\ppt\templates\ppt\explore_projects\_console.html:38
+#: .\ppt\models.py:1397 .\ppt\templates\ppt\explore_projects\_console.html:38
 #: .\ppt\templates\ppt\manage_projects\_console.html:158
 #: .\ppt\templates\ppt\project_detail\_dmas.html:19
 msgid "Title"
 msgstr "Titre"
 
-#: .\ppt\models.py:1396
+#: .\ppt\models.py:1397
 msgid "What is the title of the Data Management Agreement?"
 msgstr ""
 
-#: .\ppt\models.py:1397
+#: .\ppt\models.py:1398
 msgid "Who is the principal steward of this data?"
 msgstr ""
 
-#: .\ppt\models.py:1398
+#: .\ppt\models.py:1399
 msgid "i.e., who is the primary responsible party?"
 msgstr ""
 
-#: .\ppt\models.py:1401
+#: .\ppt\models.py:1402
 msgid "Who is responsible for creating and maintaining the metadata?"
 msgstr ""
 
-#: .\ppt\models.py:1402
+#: .\ppt\models.py:1403
 msgid "i.e., who is responsible for keeping metadata records up-to-date?"
 msgstr ""
 
-#: .\ppt\models.py:1403
+#: .\ppt\models.py:1404
 msgid "Describe the tools or processes that will be used to create metadata"
 msgstr ""
 
-#: .\ppt\models.py:1405
+#: .\ppt\models.py:1406
 msgid ""
 "e.g., Metadata Inventory app in DM Apps, DFO Enterprise Data Hub, Federal "
 "Geospatial Portal, stand-alone file, ..."
 msgstr ""
 
-#: .\ppt\models.py:1406
+#: .\ppt\models.py:1407
 msgid "Please provide any URLs to the metadata"
 msgstr ""
 
-#: .\ppt\models.py:1407
+#: .\ppt\models.py:1408
 msgid "Full link to any metadata records available online, if applicable"
 msgstr ""
 
-#: .\ppt\models.py:1408
+#: .\ppt\models.py:1409
 msgid "At what frequency should the metadata be updated? "
 msgstr ""
 
-#: .\ppt\models.py:1409
+#: .\ppt\models.py:1410
 msgid "What should be the expectation for how often the metadata is updated?"
 msgstr ""
 
-#: .\ppt\models.py:1410
+#: .\ppt\models.py:1411
 msgid "Justification for frequency:"
 msgstr ""
 
-#: .\ppt\models.py:1411
+#: .\ppt\models.py:1412
 msgid "What justification can be provided for the above selection?"
 msgstr ""
 
-#: .\ppt\models.py:1415
+#: .\ppt\models.py:1416
 msgid ""
 "Which storage solution(s) will be used to house the raw field data, "
 "processed data, and all other data products?"
 msgstr ""
 
-#: .\ppt\models.py:1416
+#: .\ppt\models.py:1417
 msgid "Justification for selection of storage solution(s)"
 msgstr ""
 
-#: .\ppt\models.py:1417
+#: .\ppt\models.py:1418
 msgid "Provide your rational for the selection(s) made above."
 msgstr ""
 
-#: .\ppt\models.py:1418
+#: .\ppt\models.py:1419
 msgid "What is the estimated storage space needed for the above?"
 msgstr ""
 
-#: .\ppt\models.py:1419
+#: .\ppt\models.py:1420
 msgid ""
 "This includes raw field data, processed data, and all other data products "
 "etc.)"
 msgstr ""
 
-#: .\ppt\models.py:1420
+#: .\ppt\models.py:1421
 msgid "What is the retention policy for the raw field data?"
 msgstr ""
 
-#: .\ppt\models.py:1421
+#: .\ppt\models.py:1422
 msgid ""
 "This would include instrument data, field sheets, physical samples etc. "
 "Please refer to the DFO EOS Retention Policy for clarification)"
 msgstr ""
 
-#: .\ppt\models.py:1422
+#: .\ppt\models.py:1423
 msgid "What is the retention policy for the data?"
 msgstr ""
 
-#: .\ppt\models.py:1423
+#: .\ppt\models.py:1424
 msgid "Please refer to the DFO EOS Retention Policy for clarification."
 msgstr ""
 
-#: .\ppt\models.py:1424
+#: .\ppt\models.py:1425
 msgid "What procedures will be taken to back-up/secure the data?"
 msgstr ""
 
-#: .\ppt\models.py:1426
+#: .\ppt\models.py:1427
 msgid ""
 "If using cloud storage, what is the estimated annual cost and who will be "
 "covering the cost? "
 msgstr ""
 
-#: .\ppt\models.py:1428
+#: .\ppt\models.py:1429
 msgid ""
 "e.g., cloud storage is estimated at $1000/yr and will be paid for under the "
 "the division manager's budget"
 msgstr ""
 
-#: .\ppt\models.py:1431
+#: .\ppt\models.py:1432
 msgid "Is the dataset subject to a data sharing agreement, MOU, etc.?"
 msgstr ""
 
-#: .\ppt\models.py:1433
+#: .\ppt\models.py:1434
 msgid "If yes, who are the counterparts for the agreement(s)?"
 msgstr ""
 
-#: .\ppt\models.py:1434
+#: .\ppt\models.py:1435
 msgid ""
 "please provide the name of the organization and the primary contact for each "
 "agreement."
 msgstr ""
 
-#: .\ppt\models.py:1435
+#: .\ppt\models.py:1436
 msgid "How soon after data collection will data be made available?"
 msgstr ""
 
-#: .\ppt\models.py:1436
+#: .\ppt\models.py:1437
 msgid ""
 "The answer provided will set the expectation for the open data publication "
 "frequency"
 msgstr ""
 
-#: .\ppt\models.py:1437
+#: .\ppt\models.py:1438
 msgid "Which open data publishing mechanism(s) will be used?"
 msgstr ""
 
-#: .\ppt\models.py:1438
+#: .\ppt\models.py:1439
 msgid ""
 "The best option is the Government of Canada's Open Data Platform however "
 "other platforms / publications are acceptable provided they are freely "
 "available to the general public."
 msgstr ""
 
-#: .\ppt\models.py:1440
+#: .\ppt\models.py:1441
 msgid "Additional comments to take into consideration (if applicable):"
 msgstr ""
 
-#: .\ppt\models.py:1443
+#: .\ppt\models.py:1444
 #, fuzzy
 msgid "Data Management Agreement"
 msgstr "Gestion de données"
 
-#: .\ppt\models.py:1471
+#: .\ppt\models.py:1472
 #, fuzzy
 msgid "Compliant"
 msgstr "Commentaires"
 
-#: .\ppt\models.py:1472
+#: .\ppt\models.py:1473
 msgid "Non-compliant"
 msgstr ""
 
-#: .\ppt\models.py:1478
+#: .\ppt\models.py:1479
 msgid "Will this be the final review of this agreement?"
 msgstr ""
 
-#: .\ppt\models.py:1479
+#: .\ppt\models.py:1480
 msgid ""
 "If so, please make sure to provide an explanation in the comments field."
 msgstr ""
 
-#: .\ppt\models.py:1480
+#: .\ppt\models.py:1481
 #, fuzzy
 #| msgid "Save comments"
 msgid "comments"

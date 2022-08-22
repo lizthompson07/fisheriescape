@@ -2,14 +2,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: App French\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-18 15:23-0300\n"
+"POT-Creation-Date: 2022-08-22 12:21-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr_CA\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: fr_CA\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 2.4.1\n"
 
@@ -26,36 +26,36 @@ msgid "day"
 msgstr "jour"
 
 #: .\csas2\api\serializers.py:812 .\csas2\api\serializers.py:885
-#: .\csas2\api\views.py:1012 .\csas2\api\views.py:1048
+#: .\csas2\api\views.py:1013 .\csas2\api\views.py:1049
 msgid "There has to be at least one approver in the queue!"
 msgstr "Il doit y avoir au moins un approbateur dans la file d'attente!"
 
-#: .\csas2\api\views.py:104
+#: .\csas2\api\views.py:105
 msgid "Sorry, you do not have permissions to withdraw this request"
 msgstr ""
 "Vous n'avez pas les autorisations nécessaires pour retirer cette demande"
 
-#: .\csas2\api\views.py:122 .\csas2\api\views.py:194 .\csas2\api\views.py:305
-#: .\csas2\api\views.py:405 .\csas2\api\views.py:668 .\csas2\api\views.py:998
+#: .\csas2\api\views.py:123 .\csas2\api\views.py:195 .\csas2\api\views.py:306
+#: .\csas2\api\views.py:406 .\csas2\api\views.py:669 .\csas2\api\views.py:999
 msgid "This endpoint cannot be used without a query param"
 msgstr ""
 "Ce point de terminaison ne peut pas être utilisé sans un paramètre de requête"
 
-#: .\csas2\api\views.py:142
+#: .\csas2\api\views.py:143
 msgid "You need to specify at least one query param."
 msgstr "Vous devez spécifier au moins un paramètre de requête."
 
-#: .\csas2\api\views.py:166
+#: .\csas2\api\views.py:167
 msgid "Cannot create a review of a request that is still in draft mode."
 msgstr ""
 "Impossible de créer un examen d'une demande qui est toujours en mode "
 "brouillon."
 
-#: .\csas2\api\views.py:193
+#: .\csas2\api\views.py:194
 msgid "Sorry, you do not have permissions to send this email"
 msgstr "Vous n'avez pas les autorisations nécessaires pour envoyer ce courriel"
 
-#: .\csas2\api\views.py:226
+#: .\csas2\api\views.py:227
 msgid ""
 "Cannot perform this action when there are more than 1 projects attached to a "
 "process"
@@ -63,7 +63,7 @@ msgstr ""
 "Impossible d'effectuer cette action lorsqu'il y a plus d'un projet attaché à "
 "un processus"
 
-#: .\csas2\api\views.py:242
+#: .\csas2\api\views.py:243
 msgid ""
 "Success! A new project in the PPT has been created and was linked to this "
 "CSAS Process"
@@ -71,17 +71,17 @@ msgstr ""
 "Succès ! Un nouveau projet a été créé dans l'outil de planification de "
 "project et a été lié à ce processus SCAS"
 
-#: .\csas2\api\views.py:247
+#: .\csas2\api\views.py:248
 msgid "Success! the linked project in the PPT has been updated"
 msgstr ""
 "Succès ! Le projet lié dans l'outil de planification de project a été mis à "
 "jour"
 
-#: .\csas2\api\views.py:326
+#: .\csas2\api\views.py:327
 msgid "A request to have this process posted has already occurred."
 msgstr "Une demande de publication de ce processus a déjà eu lieu."
 
-#: .\csas2\api\views.py:332
+#: .\csas2\api\views.py:333
 msgid ""
 "Success! Your request for a posting has been sent to the National CSAS "
 "Office."
@@ -89,19 +89,19 @@ msgstr ""
 "Succès! Votre demande de publication a été envoyée au bureau national du "
 "SCAS."
 
-#: .\csas2\api\views.py:445 .\csas2\api\views.py:554 .\csas2\api\views.py:584
+#: .\csas2\api\views.py:446 .\csas2\api\views.py:555 .\csas2\api\views.py:585
 msgid "You need to specify a meeting"
 msgstr "Vous devez spécifier une réunion"
 
-#: .\csas2\api\views.py:471 .\csas2\api\views.py:492
+#: .\csas2\api\views.py:472 .\csas2\api\views.py:493
 msgid "You need to specify a process"
 msgstr "Vous devez spécifier un processus"
 
-#: .\csas2\api\views.py:599
+#: .\csas2\api\views.py:600
 msgid "You need to specify a csas process"
 msgstr "Vous devez spécifier un processus SCAS"
 
-#: .\csas2\api\views.py:610
+#: .\csas2\api\views.py:611
 msgid ""
 "Success! Your request for a publication number has been sent to the National "
 "CSAS Office."
@@ -109,21 +109,21 @@ msgstr ""
 "Succès ! Votre demande pour un numéro de publication a été envoyée au bureau "
 "national du SCAS."
 
-#: .\csas2\api\views.py:612
+#: .\csas2\api\views.py:613
 msgid "A publication number has already been requested."
 msgstr "Un numéro de publication a déjà été demandé."
 
-#: .\csas2\api\views.py:629
+#: .\csas2\api\views.py:630
 msgid "You must be a CSAS staff member to do this."
 msgstr "Pour faire cela, vous devez être un membre du personnel du SCAS."
 
-#: .\csas2\api\views.py:654
+#: .\csas2\api\views.py:655
 msgid "Cannot generate a pub number if there is no anticipated posting date."
 msgstr ""
 "Il est impossible de générer un numéro de publication s'il n'y a pas de date "
 "d'affichage prévue."
 
-#: .\csas2\api\views.py:659
+#: .\csas2\api\views.py:660
 msgid ""
 "Cannot guess at the due date because the document type has not pre-"
 "configuration. Please talk to a national CSAS administrator to have this "
@@ -133,7 +133,7 @@ msgstr ""
 "pas été pré-configuré. Veuillez vous consulter avec un administrateur "
 "national du SCAS pour faire corriger ce problème!"
 
-#: .\csas2\api\views.py:662
+#: .\csas2\api\views.py:663
 msgid ""
 "Cannot guess at the due date because there are no connected meetings to this "
 "document!"
@@ -141,7 +141,7 @@ msgstr ""
 "Impossible de deviner la date d'échéance car il n'y a pas de réunions liées "
 "à ce document!"
 
-#: .\csas2\api\views.py:665
+#: .\csas2\api\views.py:666
 msgid ""
 "Cannot guess at the due date because none of the connected meeting have end "
 "dates!"
@@ -149,15 +149,15 @@ msgstr ""
 "Impossible de deviner la date d'échéance car aucune des réunions connectées "
 "n'a de date de fin!"
 
-#: .\csas2\api\views.py:685 .\csas2\reports.py:328 .\csas2\utils.py:417
+#: .\csas2\api\views.py:686 .\csas2\reports.py:328 .\csas2\utils.py:417
 msgid "chair"
 msgstr "président(e)"
 
-#: .\csas2\api\views.py:710 .\csas2\api\views.py:736
+#: .\csas2\api\views.py:711 .\csas2\api\views.py:737
 msgid "You need to specify a document"
 msgstr "Vous devez spécifier un document"
 
-#: .\csas2\api\views.py:821
+#: .\csas2\api\views.py:822
 msgid "external"
 msgstr "externe"
 
@@ -262,6 +262,7 @@ msgstr "A un processus?"
 #: .\csas2\templates\csas2\action_list.html:49
 #: .\csas2\templates\csas2\action_list.html:79
 #: .\csas2\templates\csas2\action_list.html:109
+#: .\csas2\templates\csas2\action_list.html:137
 #: .\csas2\templates\csas2\emails\somp.html:49
 #: .\csas2\templates\csas2\meeting_detail\_somp.html:56
 #: .\csas2\templates\csas2\process_detail\main.html:109
@@ -592,19 +593,19 @@ msgid "Draft"
 msgstr "Ébauche"
 
 #: .\csas2\model_choices.py:26
-msgid "Under client review"
-msgstr "En cours de revision par le client"
+msgid "Under Client Approval"
+msgstr "En cours d'approbation par le client"
 
-#: .\csas2\model_choices.py:27 .\csas2\model_choices.py:85
-msgid "Awaiting changes"
+#: .\csas2\model_choices.py:27
+msgid "Awaiting Changes"
 msgstr "En attente de changements"
 
 #: .\csas2\model_choices.py:29
-msgid "Ready for CSAS review"
+msgid "Ready for CSAS Review"
 msgstr "Prêt pour la révision par le SCAS"
 
 #: .\csas2\model_choices.py:30
-msgid "Under CSAS review"
+msgid "Under CSAS Review"
 msgstr "En cours de révision par le SCAS"
 
 #: .\csas2\model_choices.py:33
@@ -639,7 +640,7 @@ msgstr "Présélectionner"
 msgid "Return to client"
 msgstr "Retourne au client"
 
-#: .\csas2\model_choices.py:45
+#: .\csas2\model_choices.py:45 .\csas2\templates\csas2\action_list.html:143
 msgid "Re-scope"
 msgstr "Re-cadrer"
 
@@ -707,6 +708,10 @@ msgstr "Complet"
 #: .\csas2\model_choices.py:84
 msgid "Under review"
 msgstr "En cours de révision"
+
+#: .\csas2\model_choices.py:85
+msgid "Awaiting changes"
+msgstr "En attente de changements"
 
 #: .\csas2\model_choices.py:86
 #: .\csas2\templates\csas2\document_detail\_tracking_process.html:71
@@ -1891,11 +1896,12 @@ msgid "refresh list!"
 msgstr "rafraîchir la liste!"
 
 #: .\csas2\templates\csas2\action_list.html:40
-msgid "CSAS Requests attending your Review"
+msgid "CSAS Requests awaiting your Review"
 msgstr "Demandes SCAS en attente de votre examen"
 
 #: .\csas2\templates\csas2\action_list.html:46
 #: .\csas2\templates\csas2\action_list.html:107
+#: .\csas2\templates\csas2\action_list.html:135
 #: .\csas2\templates\csas2\process_detail\main.html:291
 #: .\csas2\templates\csas2\process_reviews\main.html:60 .\csas2\utils.py:413
 msgid "Title"
@@ -1903,6 +1909,7 @@ msgstr "Titre"
 
 #: .\csas2\templates\csas2\action_list.html:47
 #: .\csas2\templates\csas2\action_list.html:108
+#: .\csas2\templates\csas2\action_list.html:136
 msgid "CSAS Office"
 msgstr "Bureau du SCAS"
 
@@ -1922,7 +1929,7 @@ msgid "Review Now!"
 msgstr "Réviser maintenant!"
 
 #: .\csas2\templates\csas2\action_list.html:70
-msgid "Terms of Reference CSAS Requests attending your Review"
+msgid "Terms of Reference CSAS Requests awaiting your Review"
 msgstr "Cadre de référence des demandes SCAS en attente de votre examen"
 
 #: .\csas2\templates\csas2\action_list.html:76
@@ -1940,6 +1947,10 @@ msgstr "Demandes SCAS signalées pour retrait"
 #: .\csas2\templates\csas2\action_list.html:115
 msgid "Withdraw"
 msgstr "Retirer"
+
+#: .\csas2\templates\csas2\action_list.html:129
+msgid "CSAS Requests Flagged for Re-scoping"
+msgstr "Demandes SCAS signalées pour retrait"
 
 #: .\csas2\templates\csas2\base\_app_title.html:2
 msgid "CSAS"
@@ -2067,7 +2078,7 @@ msgstr "Modifier"
 #: .\csas2\templates\csas2\meeting_detail\main.html:62
 #: .\csas2\templates\csas2\person_detail.html:15
 #: .\csas2\templates\csas2\process_detail\main.html:59
-#: .\csas2\templates\csas2\request_detail\_reviewers.html:131
+#: .\csas2\templates\csas2\request_detail\_reviewers.html:127
 #: .\csas2\templates\csas2\request_detail\main.html:84
 #: .\csas2\templates\csas2\todo_list.html:60
 #: .\csas2\templates\csas2\todo_list.html:108
@@ -2391,19 +2402,18 @@ msgstr "Bureau principal"
 msgid "There are no documents linked to this meeting."
 msgstr "Il n'y a pas de documents liés à cette réunion."
 
-#: .\csas2\templates\csas2\emails\tor\review_awaiting.html:54
+#: .\csas2\templates\csas2\emails\tor\review_awaiting.html:55
 #: .\csas2\templates\csas2\emails\tor\review_reminder.html:29
-#: .\csas2\templates\csas2\emails\tor\review_reminder.html:55
-#: .\csas2\templates\csas2\request_detail\_reviewers.html:14
+#: .\csas2\templates\csas2\emails\tor\review_reminder.html:56
 #: .\csas2\templates\csas2\tor\_reviewers.html:18
 msgid ""
 "http://intra.dfo-mpo.gc.ca/csas-sccs/GuidePol/Approval-Approbation-Pol-eng."
 "html"
 msgstr ""
 
-#: .\csas2\templates\csas2\emails\tor\review_awaiting.html:91
-#: .\csas2\templates\csas2\emails\tor\review_reminder.html:69
-#: .\csas2\templates\csas2\emails\tor\review_reminder.html:95
+#: .\csas2\templates\csas2\emails\tor\review_awaiting.html:93
+#: .\csas2\templates\csas2\emails\tor\review_reminder.html:70
+#: .\csas2\templates\csas2\emails\tor\review_reminder.html:97
 msgid ""
 "http://intra.dfo-mpo.gc.ca/csas-sccs/guidepol/approval-approbation-pol-fra."
 "html"
@@ -3328,36 +3338,31 @@ msgstr ""
 "Le processus d'approbation commencera dès que la demande de SCAS sera "
 "soumise."
 
-#: .\csas2\templates\csas2\request_detail\_reviewers.html:15
-#: .\csas2\templates\csas2\tor\_reviewers.html:19
-msgid "CSAS Policy on Review and Approval of Documents"
-msgstr "Politique du SCAS sur l'examen et l'approbation des documents"
-
-#: .\csas2\templates\csas2\request_detail\_reviewers.html:57
-#: .\csas2\templates\csas2\request_detail\_reviewers.html:119
+#: .\csas2\templates\csas2\request_detail\_reviewers.html:53
+#: .\csas2\templates\csas2\request_detail\_reviewers.html:115
 #: .\csas2\templates\csas2\tor\_reviewers.html:60
 #: .\csas2\templates\csas2\tor\_reviewers.html:122
 msgid "Review duration:"
 msgstr "Durée de l'examen:"
 
-#: .\csas2\templates\csas2\request_detail\_reviewers.html:57
-#: .\csas2\templates\csas2\request_detail\_reviewers.html:119
+#: .\csas2\templates\csas2\request_detail\_reviewers.html:53
+#: .\csas2\templates\csas2\request_detail\_reviewers.html:115
 #: .\csas2\templates\csas2\tor\_reviewers.html:60
 #: .\csas2\templates\csas2\tor\_reviewers.html:122
 msgid "days"
 msgstr "jours"
 
-#: .\csas2\templates\csas2\request_detail\_reviewers.html:92
+#: .\csas2\templates\csas2\request_detail\_reviewers.html:88
 #: .\csas2\templates\csas2\tor\_reviewers.html:95
 msgid "Start typing to search for a user"
 msgstr "Commencez à taper pour rechercher un utilisateur"
 
-#: .\csas2\templates\csas2\request_detail\_reviewers.html:141
+#: .\csas2\templates\csas2\request_detail\_reviewers.html:137
 msgid "No approvers or recommenders have been added to this CSAS Request."
 msgstr ""
 "Aucun approbateurs ou recommendeur n'a été invité à cette demande du SCAS."
 
-#: .\csas2\templates\csas2\request_detail\_reviewers.html:146
+#: .\csas2\templates\csas2\request_detail\_reviewers.html:142
 #: .\csas2\templates\csas2\tor\_reviewers.html:156
 msgid "Add an approver"
 msgstr "Ajouter un approbateur"
@@ -3706,7 +3711,7 @@ msgstr "Console d'examen des demandes SCAS"
 #, python-format
 msgid ""
 "\n"
-"          By submitted this request, you will commence approvals.\n"
+"          By submitting this request, you will commence approvals.\n"
 "          Once approvals are complete, the request will be automatically "
 "forwarded to the %(office)s CSAS Office.\n"
 "        "
@@ -3753,13 +3758,13 @@ msgstr ""
 #: .\csas2\templates\csas2\request_submit.html:57
 msgid ""
 "\n"
-"          The appropriate authority (e.g., director) has been listed as an "
-"approver in the approval queue:\n"
+"          Ensure the appropriate authority (e.g., director) has been listed "
+"as an approver in the approval queue:\n"
 "        "
 msgstr ""
 "\n"
 "L'autorité compétente (par exemple, le directeur) a été inscrite comme "
-"approbateur dans la file d'attente d'approbation: "
+"approbateur dans la file d'attente d'approbation : "
 
 #: .\csas2\templates\csas2\request_submit.html:73
 msgid "Yes they have."
@@ -3824,6 +3829,10 @@ msgid ""
 msgstr ""
 "Avant que le processus d'approbation ne soit lancé, le comité directeur doit "
 "avoir vu et accepté le cadre de référence."
+
+#: .\csas2\templates\csas2\tor\_reviewers.html:19
+msgid "CSAS Policy on Review and Approval of Documents"
+msgstr "Politique du SCAS sur l'examen et l'approbation des documents"
 
 #: .\csas2\templates\csas2\tor\_reviewers.html:144
 msgid "No approvers have been added to this Terms of Reference."

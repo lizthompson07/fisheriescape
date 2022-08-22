@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iHub - traduction 2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-18 15:23-0300\n"
+"POT-Creation-Date: 2022-08-22 12:21-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -506,7 +506,7 @@ msgstr "Accueil"
 
 #: .\ihub\templates\ihub\base\_nav_left_auth.html:8
 #: .\ihub\templates\ihub\index.html:27 .\ihub\views.py:361 .\ihub\views.py:369
-#: .\ihub\views.py:408 .\ihub\views.py:422 .\ihub\views.py:455
+#: .\ihub\views.py:408 .\ihub\views.py:422 .\ihub\views.py:456
 msgid "Entries"
 msgstr "Entrées"
 
@@ -844,7 +844,7 @@ msgstr "Nouveau membre de l'organisation"
 msgid "New Entry"
 msgstr "Nouvelle entrée"
 
-#: .\ihub\views.py:441
+#: .\ihub\views.py:442
 msgid ""
 "The entry has been submitted and an email has been sent to the Indigenous "
 "Hub Coordinator!"
@@ -852,23 +852,23 @@ msgstr ""
 "L'entrée à été soumise et un courriel a été envoyé au coordonnateur du Hub "
 "RPA!"
 
-#: .\ihub\views.py:492
+#: .\ihub\views.py:493
 msgid "The note has been successfully deleted from the entry."
 msgstr "La note a été supprimée de l'entrée avec succès."
 
-#: .\ihub\views.py:503
+#: .\ihub\views.py:504
 msgid "New Entry Person"
 msgstr "Ajouter une personne"
 
-#: .\ihub\views.py:523
+#: .\ihub\views.py:524
 msgid "The person has been successfully deleted from the entry."
 msgstr "La personne a été supprimée de l'entrée avec succès."
 
-#: .\ihub\views.py:553
+#: .\ihub\views.py:554
 msgid "The file has been successfully deleted from the entry."
 msgstr "Le fichier a été supprimé de l'entrée avec succès."
 
-#: .\ihub\views.py:634
+#: .\ihub\views.py:635
 msgid "Engagement Update Log – Government of Canada"
 msgstr "Mise à jour de la mobilisation - Gouvernement du Canada"
 
