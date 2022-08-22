@@ -151,6 +151,10 @@ class Committee(models.Model):
                                                   verbose_name=_("Participating National Headquarters sectors"),
                                                   limit_choices_to={"region__name": "National"}
                                                   )
+    lead_national_sector = models.ForeignKey(shared_models.Sector, related_name="committee_lead_sector",
+                                             blank=True, null=True, verbose_name=_("Lead National sector"),
+                                             limit_choices_to={"region__name": "National"}, on_delete=models.DO_NOTHING,
+                                             )
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=12,
                                    verbose_name="Highest level DFO participant")
     first_nation_participation = models.BooleanField(default=False,
@@ -239,7 +243,10 @@ class Interaction(models.Model):
                                                   blank=True, verbose_name=_("Participating National Headquarters sectors"),
                                                   limit_choices_to={"region__name": "National"}
                                                   )
-
+    lead_national_sector = models.ForeignKey(shared_models.Sector, related_name="interaction_lead_sector",
+                                             blank=True, null=True, verbose_name=_("Lead National sector"),
+                                             limit_choices_to={"region__name": "National"}, on_delete=models.DO_NOTHING
+                                             )
     other_dfo_areas = models.ManyToManyField(AreaOffice, related_name="interaction_dfo_area",
                                              blank=True, verbose_name=_("Other participating DFO Maritimes Region area offices")
                                              )
