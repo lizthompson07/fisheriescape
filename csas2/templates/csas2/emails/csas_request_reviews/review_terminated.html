@@ -36,16 +36,11 @@ button a {
     This is an automated message to inform you that your review for the below CSAS Request has been withdrawn.
   </p>
 
-  <table>
-    <tr>
-      <th>Title</th>
-      <td>
-        <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.csas_request.id %}">
-          {{ object.csas_request.title }}
-        </a>
-      </td>
-    </tr>
-  </table>
+  <p>
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.csas_request.id %}">
+      {{ object.csas_request.title }}
+    </a>
+  </p>
   <br>
 
   <hr>
