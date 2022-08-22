@@ -90,7 +90,7 @@ class SoMPEmail(Email):
 class NewRequestEmail(Email):
     email_template_path = 'csas2/emails/new_request.html'
     subject_en = 'CSAS request submitted for client approvals'
-    subject_fr = "Une demande de SCAS a été soumise pour des approbations côté client"
+    subject_fr = "Une demande de SCAS a été soumise pour approbation côté client"
 
     def get_recipient_list(self):
         # should go to all emails associated with csas office
