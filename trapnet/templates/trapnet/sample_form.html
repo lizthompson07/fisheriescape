@@ -7,7 +7,7 @@
 
 {% block form_fields %}
 
-  {% if not object or object.sample_type == 1 %}
+  {% if not object or object.sample_type != 2 %}
     {% echo "disabled" as electro_disabled_var %}
     {% trans "These fields are only for electrofishing samples" as electro_tip %}
   {% endif %}
@@ -82,11 +82,11 @@
     </div>
   </div>
 
-  {% if object.sample_type == 1 %}
+  {% if object.sample_type == 1 or object.sample_type == 3 %}
     <div class="card info-card mb-5">
       <div class="card-header bg-primary text-light">
         <h4 class="card-title">
-          {% trans "Rotary Screw Trap Specific" %}
+          {% trans "Rotary Screw Trap / Trap Net Specific" %}
         </h4>
       </div>
       <div class="card-body">
