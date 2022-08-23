@@ -385,8 +385,9 @@ def financial_project_summary_data(project):
 
             # allocated funds:
             for review in models.Review.objects.filter(project_year__project=project):
-                my_dict["allocated_om"] += review.allocated_budget
-            my_dict["alloated_total"] =  my_dict["om"]
+                if review.allocated_budget:
+                    my_dict["allocated_om"] += review.allocated_budget
+            my_dict["alloated_total"] = my_dict["om"]
 
             my_list.append(my_dict)
 

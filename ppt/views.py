@@ -112,7 +112,7 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         'fiscal year',
         'title',
         # 'section',
-        'default_funding_source',
+        'funding_sources_list',
         'functional_group',
         'lead_staff',
         'status',
@@ -146,7 +146,7 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
             'id',
             'fiscal year',
             'title',
-            'default_funding_source',
+            'funding_sources_list',
             'status',
         ]
         return context
