@@ -221,6 +221,13 @@ class Sample(CoordinatesModel):
     def get_absolute_url(self):
         return reverse("scuba:sample_detail", args=[self.pk])
 
+    @property
+    def is_data_entry_complete(self):
+        for dive in self.dives.all():
+            if not dive.has_all_sections:
+                return False
+        return True
+
 
 class Dive(MetadataFields):
     heading_choices = (
@@ -272,6 +279,13 @@ class Dive(MetadataFields):
     @property
     def dive_distance(self):
         return self.sample.distance
+
+    @property
+    def has_all_sections(self):
+        for choice in Section.interval_choices:
+            if not self.sections.filter(interval=choice[0]).exists():
+                return False
+        return True
 
 
 class Section(MetadataFields):

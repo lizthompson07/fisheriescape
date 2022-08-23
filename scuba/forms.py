@@ -122,10 +122,10 @@ class SectionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         klass = "form-control form-control-sm"
 
-        self.fields["interval"].widget.attrs = {"v-model": "sectionToEdit.interval", "ref": "top_of_form", "@change": "unsavedSectionWork=true",
+        self.fields["interval"].widget.attrs = {"v-model": "sectionToEdit.interval", "@change": "unsavedSectionWork=true",
                                                 "class": klass} #":disabled": "sectionToEdit.id",}
         self.fields["depth_ft"].widget.attrs = {"v-model": "sectionToEdit.depth_ft", "min": 0, "@change": "unsavedSectionWork=true", "step": "0.01",
-                                                "class": klass}
+                                                "class": klass, "ref": "top_of_form",}
         self.fields["percent_sand"].widget.attrs = {"v-model": "sectionToEdit.percent_sand", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
                                                     "step": "0.01", "class": klass}
         self.fields["percent_mud"].widget.attrs = {"v-model": "sectionToEdit.percent_mud", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
