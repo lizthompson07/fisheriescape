@@ -7,14 +7,17 @@
         }
     }
 
-    function toggleNHQSectors(){
-        let region_array = $("#id_other_dfo_regions :selected").map(function(i, el) {
+    function toggleNHQSectors() {
+        let region_array = $("#id_other_dfo_regions :selected").map(function (i, el) {
             return $(el).text();
         }).get();
         if (region_array.includes("National") || ($("#id_lead_region :selected").text() == "National")) {
             $('#dfo_national_sectors_div').show();
+            $('#lead_national_sector_div').show();
         } else {
             $('#dfo_national_sectors_div').hide();
+            $('#lead_national_sector_div').hide();
+
         }
     }
 

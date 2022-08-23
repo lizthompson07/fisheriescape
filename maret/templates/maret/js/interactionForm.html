@@ -7,6 +7,8 @@
         let $date_of_meeting = $("#date_of_meeting_div");
         let $dfo_liaison = $("#dfo_liaison_div");
         let $dfo_role = $("#dfo_role_div");
+        let dfo_national_sectors = $("#dfo_national_sectors_div");
+        let lead_national_sector = $("#lead_national_sector_div");
         let lead_region = $("#lead_region_div");
         let $other_dfo_participants = $("#other_dfo_participants_div");
         let $external_contact = $("#external_contact_div");
@@ -33,6 +35,10 @@
         $dfo_role.show();
         $("#id_dfo_role").prop("required", false);
         $other_dfo_participants.show();
+        $("#dfo_national_sectors").prop("required", false);
+        dfo_national_sectors.show();
+        $("#lead_national_sector").prop("required", false);
+        lead_national_sector.show();
         $("#id_lead_region").prop("required", false);
         lead_region.show();
         $("#id_other_dfo_participants").prop("required", false);
@@ -61,6 +67,12 @@
 
             $dfo_role.show();
             $("#id_dfo_role").prop("required", false);
+
+            $("#dfo_national_sectors").prop("required", false);
+            dfo_national_sectors.hide();
+
+            $("#lead_national_sector").prop("required", false);
+            lead_national_sector.hide();
 
             lead_region.hide();
             $("#id_lead_region").prop("required", false);
@@ -129,8 +141,10 @@
         }).get();
         if (region_array.includes("National") || ($("#id_lead_region :selected").text() == "National")) {
             $('#dfo_national_sectors_div').show();
+            $('#lead_national_sector_div').show();
         } else {
             $('#dfo_national_sectors_div').hide();
+            $('#lead_national_sector_div').hide();
         }
 
 
