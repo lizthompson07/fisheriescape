@@ -27,10 +27,10 @@
           <slot name="body">
             <div>
               <span v-if="fundsAvailable >= 0">
-                There are ${fundsAvailable | currencyFormat} of ${allocation.amount | currencyFormat} to distribute.
+                $${fundsAvailable | currencyFormat} of $${allocation.amount | currencyFormat} are available to distribute.
               </span>
               <span v-else class="major-error">
-                There are ${fundsAvailable | currencyFormat} of ${allocation.amount | currencyFormat} to distribute.
+                $${fundsAvailable | currencyFormat} of $${allocation.amount | currencyFormat} are available to distribute.
               </span>
             </div>
             <table class="table table-sm w-75">

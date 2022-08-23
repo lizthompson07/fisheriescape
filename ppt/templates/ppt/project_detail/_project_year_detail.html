@@ -126,16 +126,29 @@
 
 
 {% include "ppt/project_detail/_staff.html" %}
+
+<div class="mb-5 pointy" @click="collapseProjectYearFinances = !collapseProjectYearFinances">
+    <div class="mb-2 neighbours">
+    <p class="lead">
+      {% trans "Project Year Finances" %}
+      <span v-if="!collapseProjectYearFinances" class="ml-1 mdi mdi-toggle-switch-off text-primary"></span>
+      <span v-else class="ml-1 mdi mdi-toggle-switch"></span>
+    </p>
+  </div>
+</div>
+<div v-if="!collapseProjectYearFinances">
+  {% include "ppt/project_detail/_om_costs.html" %}
+  {% include "ppt/project_detail/_capital_costs.html" %}
+  {% include "ppt/project_detail/_salary_allocations.html" %}
+  {% include "ppt/project_detail/_om_allocations.html" %}
+  {% include "ppt/project_detail/_capital_allocations.html" %}
+  {% include "ppt/project_detail/_financials.html" %}
+</div>
+
 {% include "ppt/project_detail/_activities.html" %}
-{% include "ppt/project_detail/_om_costs.html" %}
-{% include "ppt/project_detail/_capital_costs.html" %}
-{% include "ppt/project_detail/_salary_allocations.html" %}
-{% include "ppt/project_detail/_om_allocations.html" %}
-{% include "ppt/project_detail/_capital_allocations.html" %}
 {% include "ppt/project_detail/_collaborations.html" %}
 {% include "ppt/project_detail/_files.html" %}
 {% include "ppt/project_detail/_status_reports.html" %}
-{% include "ppt/project_detail/_financials.html" %}
 
 
 {##}
