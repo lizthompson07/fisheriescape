@@ -4,6 +4,7 @@ from ppt import models
 
 
 def allocation_mover():
+    return 0
     with transaction.atomic():
         for rev in models.Review.objects.all():
             if rev.allocated_budget:
