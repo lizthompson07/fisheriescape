@@ -25,6 +25,7 @@ DiverFormset = modelformset_factory(
     extra=1,
 )
 
+
 class SpeciesForm(forms.ModelForm):
     class Meta:
         model = models.Species
@@ -123,24 +124,32 @@ class SectionForm(forms.ModelForm):
         klass = "form-control form-control-sm"
 
         self.fields["interval"].widget.attrs = {"v-model": "sectionToEdit.interval", "@change": "unsavedSectionWork=true",
-                                                "class": klass} #":disabled": "sectionToEdit.id",}
+                                                "class": klass}  # ":disabled": "sectionToEdit.id",}
+
+        self.fields["not_sampled"].widget.attrs = {"v-model": "sectionToEdit.not_sampled", "@change": "unsavedSectionWork=true",
+                                                   }
+        self.fields["reason_not_sampled"].widget.attrs = {"v-model": "sectionToEdit.reason_not_sampled", "@change": "unsavedSectionWork=true",
+                                                          "class": klass, ":disabled": "!sectionToEdit.not_sampled"}
+        self.fields["rock_crab_presence"].widget.attrs = {"v-model": "sectionToEdit.rock_crab_presence", "@change": "unsavedSectionWork=true",
+                                                          "class": klass, ":disabled": "sectionToEdit.not_sampled"}
         self.fields["depth_ft"].widget.attrs = {"v-model": "sectionToEdit.depth_ft", "min": 0, "@change": "unsavedSectionWork=true", "step": "0.01",
-                                                "class": klass, "ref": "top_of_form",}
+                                                "class": klass, "ref": "top_of_form", ":disabled": "sectionToEdit.not_sampled"}
         self.fields["percent_sand"].widget.attrs = {"v-model": "sectionToEdit.percent_sand", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
-                                                    "step": "0.01", "class": klass}
+                                                    "step": "0.01", "class": klass, ":disabled": "sectionToEdit.not_sampled"}
         self.fields["percent_mud"].widget.attrs = {"v-model": "sectionToEdit.percent_mud", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
-                                                   "step": "0.01", "class": klass}
+                                                   "step": "0.01", "class": klass, ":disabled": "sectionToEdit.not_sampled"}
         self.fields["percent_hard"].widget.attrs = {"v-model": "sectionToEdit.percent_hard", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
-                                                    "step": "0.01", "class": klass}
+                                                    "step": "0.01", "class": klass, ":disabled": "sectionToEdit.not_sampled"}
         self.fields["percent_algae"].widget.attrs = {"v-model": "sectionToEdit.percent_algae", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
-                                                     "step": "0.01", "class": klass}
+                                                     "step": "0.01", "class": klass, ":disabled": "sectionToEdit.not_sampled"}
         self.fields["percent_gravel"].widget.attrs = {"v-model": "sectionToEdit.percent_gravel", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
-                                                      "step": "0.01", "class": klass}
+                                                      "step": "0.01", "class": klass, ":disabled": "sectionToEdit.not_sampled"}
         self.fields["percent_cobble"].widget.attrs = {"v-model": "sectionToEdit.percent_cobble", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
-                                                      "step": "0.01", "class": klass}
+                                                      "step": "0.01", "class": klass, ":disabled": "sectionToEdit.not_sampled"}
         self.fields["percent_boulder"].widget.attrs = {"v-model": "sectionToEdit.percent_boulder", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
-                                                      "step": "0.01", "class": klass}
-        self.fields["comment"].widget.attrs = {"v-model": "sectionToEdit.comment", "@change": "unsavedSectionWork=true", "row": 3, "class": klass}
+                                                       "step": "0.01", "class": klass, ":disabled": "sectionToEdit.not_sampled"}
+        self.fields["comment"].widget.attrs = {"v-model": "sectionToEdit.comment", "@change": "unsavedSectionWork=true", "row": 3,
+                                               "class": klass, ":disabled": "sectionToEdit.not_sampled"}
 
 
 class ObservationForm(forms.ModelForm):

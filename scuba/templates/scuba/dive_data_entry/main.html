@@ -69,7 +69,7 @@
             </tr>
             </thead>
             <tbody v-for="(section, index) in sections">
-            <tr
+            <tr :class="{greyed:section.not_sampled}"
               v-for="obs, index1 in section.observations"
             >
 
@@ -94,7 +94,7 @@
                 </button>
               </td>
             </tr>
-            <tr v-if="!section.observations.length">
+            <tr v-if="!section.observations.length" :class="{greyed:section.not_sampled}">
               <td v-html="section.interval_display"></td>
               <td v-html="section.depth_ft"></td>
               <td v-html="section.substrate_profile" style="width: 100px"></td>
@@ -147,13 +147,13 @@
 
                 <input
                   v-if="unsavedSectionWork"
-                  :disabled="totalPercentage!='100%'"
+                  :disabled="totalPercentage!='100%' && !sectionToEdit.not_sampled"
                   type="submit"
                   value="{% trans "Save Section (Enter)" %}"
-                  class="btn btn-primary">
+                  class="btn btn-primary m-3">
               </form>
             </div>
-            <div v-if="sectionToEdit.id && !unsavedSectionWork" class="col table-bordered">
+            <div v-if="sectionToEdit.id && !unsavedSectionWork && !sectionToEdit.not_sampled" class="col table-bordered">
               <p class="h3 mb-3">{% trans "New Observation" %}</p>
               <ul class="ml-1">
                 <li>Use Tab / Shift-Tab to navigate up and down</li>
@@ -285,6 +285,12 @@
           let endpoint = `/api/scuba/sections/?dive=${diveId}`;
           apiService(endpoint)
               .then(response => {
+                for (const section of response) {
+                  for (const sectionKey in section) {
+                    if (section[sectionKey] === null) section[sectionKey] = '';
+                  }
+                }
+
                 this.sections = response;
                 this.loadingSections = false;
                 this.$nextTick(() => {
@@ -377,6 +383,11 @@
         submitSectionForm() {
           this.sectionFormErrors = null
           // this is an update
+
+          for (const sectionToEditKey in this.sectionToEdit) {
+            if (this.sectionToEdit[sectionToEditKey] === "") this.sectionToEdit[sectionToEditKey] = null;
+          }
+
           if (this.sectionToEdit.id) {
             let endpoint = `/api/scuba/sections/${this.sectionToEdit.id}/`;
             apiService(endpoint, "PUT", this.sectionToEdit)
