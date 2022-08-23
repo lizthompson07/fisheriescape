@@ -36,7 +36,7 @@
                         {% for field in field_list %}
                             {% if field == "committee" %}
                                 {# only include committee field if interaction is type committee/working group: #}
-                                {% if object.interaction_type == 4 %}
+                                {% if object.interaction_type == 4 or object.is_committee %}
                                     <tr>
                                         <th>{% get_verbose_label object field %}</th>
                                         <td>
