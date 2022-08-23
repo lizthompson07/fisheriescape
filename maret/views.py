@@ -358,6 +358,7 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
             self.object.external_organization.set(committee.external_organization.all())
             self.object.species.set(committee.species.all())
             self.object.lead_region = committee.lead_region
+            self.object.lead_national_sector = committee.lead_national_sector
             self.object.branch = committee.branch
             self.object.division = committee.division
             self.object.area_office = committee.area_office
@@ -396,6 +397,7 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
             self.object.external_contact.set(committee.external_contact.all())
             self.object.external_organization.set(committee.external_organization.all())
             self.object.lead_region = committee.lead_region
+            self.object.lead_national_sector = committee.lead_national_sector
             self.object.branch = committee.branch
             self.object.division = committee.division
             self.object.area_office = committee.area_office
