@@ -31,7 +31,11 @@
             <th @click="sort('{{ field }}')" class="clickable W-35">
               {% get_verbose_label random_project field %}
             </th>
-          {% elif "funding" in field or "functional" in field %}
+          {% elif "funding" in field %}
+            <th @click="sort('{{ field }}')" style="width: 150px" class="clickable">
+              {% trans "Funding Sources" %}
+            </th>
+          {% elif "functional" in field %}
             <th @click="sort('{{ field }}')" style="width: 150px" class="clickable">
               {% get_verbose_label random_project field %}
             </th>
@@ -107,7 +111,7 @@
           </a>
         </td>
 
-        <td>${p.project.default_funding_source}</td>
+        <td>${p.funding_sources_list}</td>
         <td>${p.project.functional_group}</td>
         <td v-if="showColumnLeads">${p.project.lead_staff}</td>
         <td>

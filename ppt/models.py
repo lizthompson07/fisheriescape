@@ -354,33 +354,37 @@ class Project(models.Model):
             return mark_safe(textile(self.client_information.tdescription))
 
     def get_funding_sources(self):
-        # look through all expenses and compile a unique list of funding sources (for all years of project)
-        my_list = []
+        # look through all expenses and allocations and compile a unique list of funding sources (for all years of project)
+        my_dict = {}
         for year in self.years.all():
             for item in year.staff_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
-
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
             for item in year.omcost_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
             for item in year.capitalcost_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
             for item in year.salaryallocation_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
             for item in year.omallocation_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
             for item in year.capitalallocation_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
-            return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
+
+        sorted_list = sorted(my_dict.items(), key=lambda item: item[1], reverse=True)
+        sorted_list = [tup[0] for tup in sorted_list]
+        if self.default_funding_source not in sorted_list:
+            sorted_list.append(self.default_funding_source)
+        return sorted_list
 
     @property
     def is_acrdp(self):
@@ -640,32 +644,37 @@ class ProjectYear(models.Model):
             return listrify(self.existing_project_codes.all())
 
     def get_funding_sources(self):
-        # look through all expenses and compile a unique list of funding sources
-        my_list = []
+        # look through all expenses and allocations and compile a unique list of funding sources
+        my_dict = {}
         for item in self.staff_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
         for item in self.omcost_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
         for item in self.capitalcost_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
         for item in self.salaryallocation_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
         for item in self.omallocation_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
         for item in self.capitalallocation_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
-        return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
+
+        sorted_list = sorted(my_dict.items(), key=lambda item: item[1], reverse=True)
+        sorted_list = [tup[0] for tup in sorted_list]
+        if self.project.default_funding_source not in sorted_list:
+            sorted_list.append(self.project.default_funding_source)
+        return sorted_list
 
     @property
     def formatted_status(self):
