@@ -30,11 +30,11 @@ request_status_choices = (
     (40, _("Under CSAS Review")),  # review is created by coordinator
 
     # all status below here should correspond to review decision choice + 40
-    (41, _("Reviewed")),  # coordinator approves
+    (41, _("Screened-in")),  # coordinator approves
     (42, _("Flagged")),  # client (coordinator) withdraws
-    (43, _("Re-scoping")),  # coordinator want to rescope the request
+    (43, _("Re-scoping")),  # coordinator want to re-scope the request
 
-    (70, _("Accepted")),
+    (70, _("Attached to Process")),
     (80, _("Fulfilled")),
     (99, _("Withdrawn")),
 )
