@@ -34,7 +34,7 @@ request_status_choices = (
     (42, _("Flagged")),  # client (coordinator) withdraws
     (43, _("Re-scoping")),  # coordinator want to re-scope the request
 
-    (70, _("Attached to Process")),
+    (70, _("In Process")),
     (80, _("Fulfilled")),
     (99, _("Withdrawn")),
 )
