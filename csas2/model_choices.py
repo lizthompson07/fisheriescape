@@ -58,7 +58,7 @@ process_scope_choices = (
 )
 
 process_type_choices = (
-    (1, _('Advisory Meeting')),
+    (1, _('Science Advisory Meeting')),
     (2, _('Science Response Process')),
 )
 
