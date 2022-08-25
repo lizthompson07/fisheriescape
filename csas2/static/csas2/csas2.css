@@ -90,12 +90,12 @@ h1 {
     background-color: #63ffce;
     color: #000000;
 }
-.reviewed {
+.screened-in {
     background-color: #63ceff;
     color: #000000;
 }
 
-.accepted, .approved, .posted, .confirmed, .complete, .final {
+.accepted, .approved, .posted, .confirmed, .complete, .final, .attached-to-process {
     background-color: #d5faae;
 }
 
