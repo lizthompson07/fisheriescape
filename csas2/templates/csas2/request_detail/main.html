@@ -78,7 +78,7 @@
           @click="withdrawRequest" class="btn btn-sm btn-severe">{% trans "Withdraw This Request" %}
         </button>
         <a
-          v-else-if="canModify && canSubmit.allowed"
+          v-else-if="canModify && canUnsubmit"
           class="btn btn-sm btn-danger"
           href="{% url 'csas2:request_delete' object.id %}">
           {% trans "Delete" %}

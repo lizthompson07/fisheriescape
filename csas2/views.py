@@ -536,6 +536,7 @@ class CSASRequestCloneUpdateView(CSASRequestUpdateView):
         new_obj.old_id = None
         new_obj.uuid = None
         new_obj.ref_number = None
+        new_obj.created_at = timezone.now()
         new_obj.created_by = self.request.user
         new_obj.save()
 
