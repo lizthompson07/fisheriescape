@@ -12,7 +12,7 @@
 </style>
 
 <em>
-  *** un message français suivra
+  *** un message français suit
 </em>
 <br><br>
 
@@ -22,7 +22,8 @@
   </p>
   <p>
     This is an automated message to notify you that a new request,
-    <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.id %}">{{ object.title }}</a>, has been added to the CSAS tracking tool.
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.id %}">{{ object.title }}</a>, has been submitted in
+    the CSAS tracking tool and that the client approvals process has begun.
   </p>
 {% endlanguage %}
 
@@ -40,7 +41,7 @@
   <p>
     Ceci est un message automatisé pour vous informer qu'une nouvelle demande,
     <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.id %}">{{ object.title }}</a>,
-    a été ajoutée à l'outil de suivi SCCS.
+    a été soumis en l'outil de suivi SCAS et que le processus d'approbation côté clients a commencé.
   </p>
 {% endlanguage %}
 

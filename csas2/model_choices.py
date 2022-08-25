@@ -22,17 +22,21 @@ language_choices = (
 )
 
 request_status_choices = (
-    (1, _("Draft")),
-    (2, _("Submitted")),  # client submits request
-    (3, _("Ready for review")),  # signed PDF uploaded (should only be temporary while approval mod. not in app)
-    (4, _("Under review")),  # review is created by coordinator
-    (5, _("Fulfilled")),
-    (6, _("Withdrawn")),
+    (10, _("Draft")),
+    (20, _("Under Client Approval")),  # client submits request
+    (25, _("Awaiting Changes")),
 
-    # all status below here should correspond to review decision choice + 10
-    (11, _("Reviewed")),  # coordinator approves
-    (12, _("Flagged")),  # client (coordinator) withdraws
-    (13, _("Re-scoping")),  # coordinator want to rescope the request
+    (30, _("Ready for CSAS Review")),  # client review is complete
+    (40, _("Under CSAS Review")),  # review is created by coordinator
+
+    # all status below here should correspond to review decision choice + 40
+    (41, _("Screened-in")),  # coordinator approves
+    (42, _("Flagged")),  # client (coordinator) withdraws
+    (43, _("Re-scoping")),  # coordinator want to re-scope the request
+
+    (70, _("In Process")),
+    (80, _("Fulfilled")),
+    (99, _("Withdrawn")),
 )
 
 request_decision_choices = (
@@ -54,7 +58,7 @@ process_scope_choices = (
 )
 
 process_type_choices = (
-    (1, _('Advisory Meeting')),
+    (1, _('Science Advisory Meeting')),
     (2, _('Science Response Process')),
 )
 
@@ -84,22 +88,27 @@ tor_status_choices = (
     (50, _("Posted")),
 )
 
-tor_review_decision_choices = (
+review_decision_choices = (
     (1, _("Accept")),
     (2, _("Request changes")),
+)
+
+review_status_choices = (
+    (10, _("Draft")),
+    (20, _("Queued")),
+    (30, _("Pending")),
+    (40, _("Complete")),
 )
 
 tor_review_role_choices = (
     (1, _("Approver")),
     (2, _("Reviewer")),
 )
+request_review_role_choices = (
+    (1, _("Approver")),
+    (2, _("Recommender")),
+)
 
-tor_review_status_choices = (
-        (10, _("Draft")),
-        (20, _("Queued")),
-        (30, _("Pending")),
-        (40, _("Complete")),
-    )
 
 def get_process_status_choices():
     return [(item["value"], item["text"]) for item in process_status_dict]
