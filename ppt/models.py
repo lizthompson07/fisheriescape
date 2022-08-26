@@ -734,16 +734,6 @@ class GenericCost(models.Model):
     class Meta:
         abstract = True
 
-    @property
-    def om_amount(self):
-        OM_FACTOR = 1.27
-        if type(self).__name__ == "SalaryAllocation":
-            return self.amount * OM_FACTOR
-        elif hasattr(self, "employee_type"):
-            if self.employee_type.cost_type_choices == 1:
-                return self.amount * OM_FACTOR
-        return self.amount
-
 
 class GenericAllocation(GenericCost):
     # not actually a cost, but uses same fields
