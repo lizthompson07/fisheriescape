@@ -6,19 +6,11 @@
     <h3>
       {% trans "Approver Queue" %}
     </h3>
-    <ul v-if="!tor.submission_date" class="lead text-danger">
+    <ul v-if="!request.submission_date" class="lead text-danger">
       <li>
-
-        {% trans "The approval process will begin once the ToR is submitted." %}
-      </li>
-      <li>
-        {% trans "Before the approval process is started, the steering committee should have seen and agreed to the ToR." %}
+        {% trans "The approval process will begin once the CSAS Request is submitted." %}
       </li>
     </ul>
-    <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/GuidePol/Approval-Approbation-Pol-eng.html" %}" target="_blank">
-      {% trans "CSAS Policy on Review and Approval of Documents" %}
-    </a>
-
   </div>
   <div class="card-body">
     <div class="card-text">
@@ -33,8 +25,9 @@
           <table class="table table-sm">
             <thead>
             <tr>
-              <th class="w-10" v-if="![35,40,50].includes(tor.status)"></th>
+              <th class="w-10" v-if="request.status < 30"></th>
               <th v-else></th>
+
               <th class="w-20">${ reviewerLabels.user }</th>
               <th class="w-15">${ reviewerLabels.role }</th>
               <th class="w-10">${ reviewerLabels.status }</th>
@@ -45,7 +38,7 @@
             </thead>
 
             {# display body #}
-            <tbody v-if="!canEditReviewers || tor.status >= 35">
+            <tbody v-if="!canModify || request.status >= 30">
             <tr v-for="item in reviewers" :key="item.id">
               <td></td>
               <td>${item.user_display|nz }</td>
@@ -141,17 +134,10 @@
           </table>
         </div>
         <div v-else>
-          <em>{% trans "No approvers have been added to this Terms of Reference." %}</em>
+          <em>{% trans "No approvers or recommenders have been added to this CSAS Request." %}</em>
         </div>
 
-        <div v-if="errorReviewer" class="alert alert-danger py-1 mt-3 w-75" role="alert">
-          <p class="mb-0">
-            <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
-            <span class="h6">${errorReviewer}</span>
-          </p>
-        </div>
-
-        <div v-if="canEditReviewers && ![35,40,50].includes(tor.status)" class="mt-3">
+        <div v-if="canModify && request.status <= 30" class="mt-3">
           <button @click="addReviewer" class="btn btn-sm btn-success text-light">
             <span class="mdi mdi-plus text-light mr-1"></span>{% trans "Add an approver" %}
           </button>

@@ -1,0 +1,68 @@
+{% load verbose_names %}
+{% load i18n %}
+<style>
+.email-table {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+    padding-left: 5px;
+    padding-right: 2px;
+}
+
+</style>
+
+<em>
+  *** un message français suit
+</em>
+<br><br>
+
+{% language 'en' %}
+  <p>
+    Hello,
+  </p>
+  <p>
+    This is an automated message to notify you that the CSAS Request approval is complete for the request entitled,
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.id %}">{{ object.title }}</a>.
+  </p>
+
+  <p>
+    The request is now ready to be reviewed by the regional CSAS office.
+  </p>
+
+{% endlanguage %}
+
+<p>
+  With thanks,
+  <br><br>
+  DM Apps
+</p>
+
+<hr>
+<p>
+  Bonjour,
+</p>
+{% language 'fr' %}
+  <p>
+    Il s'agit d'un message automatisé pour vous informer que l'approbation de la demandes de SCAS intitulé
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.id %}">{{ object.title }}</a> est terminée.
+  </p>
+
+  <p>
+    La demande est maintenant prête à être examinée par le bureau régionale du SCAS.
+  </p>
+
+{% endlanguage %}
+
+<p>
+  Cordialement,
+  <br><br>
+  Applis GD
+</p>
+
+
+
+
+
+
+
+

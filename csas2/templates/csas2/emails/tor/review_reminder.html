@@ -17,7 +17,7 @@
 </style>
 
 <em>
-  *** un message français suivra
+  *** un message français suit
 </em>
 <br><br>
 
@@ -25,8 +25,9 @@
   <p>
     Hello {{ object.user }},
     <br><br>
-    A Canadian Science Advisory Secretariat (CSAS) Terms of Reference is awaiting your {% if object.role == 1 %} approval {% else %} review {% endif %} in the
-    DM Apps - CSAS Tracking Tool.
+    This is a friendly reminder that a CSAS Terms of Reference has been awaiting your {% if object.role == 1 %} approval {% else %} review {% endif %}
+    for {{ object.review_duration }} days. Per the <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/GuidePol/Approval-Approbation-Pol-eng.html" %}">policy</a>,
+    the review/approval is to be completed within ten days following receipt.
   </p>
 
   <p><b>Title:</b><br>{{ object.tor.process.tname }}</p>
@@ -40,7 +41,7 @@
         <table cellspacing="0" cellpadding="0">
           <tr>
             <td class=”button” bgcolor="#01c020">
-              <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}" target="_blank" class="button-a">
+              <a href="{{ SITE_FULL_URL }}{% url 'csas2:action_list' %}" target="_blank" class="button-a">
                 Click here to review the Terms of Reference!
               </a>
             </td>
@@ -49,6 +50,7 @@
       </td>
     </tr>
   </table>
+  <br>
 
   <p>
     <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/GuidePol/Approval-Approbation-Pol-eng.html" %}">
@@ -63,7 +65,10 @@
   <p>
     Bonjour {{ object.user }} :
     <br><br>
-    Une cadre de référence attend votre {% if object.role == 1 %} approbation {% else %} evaluation {% endif %} dans l'outil de suivi SCAS de l’Applis GD.
+    Ceci est un rappel amical qu'une cadre de référence du CSAS attend votre {% if object.role == 1 %} approbation {% else %} révision {% endif %}
+    pendant {{ object.review_duration }} jours. Conformément à
+    <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/guidepol/approval-approbation-pol-fra.html" %}">la politique</a>,
+    l'examen/l'approbation doit être effectuée au cours des dix jours suivant la réception.
   </p>
 
   <p><b>Titre:</b><br>{{ object.tor.process.tname }}</p>
@@ -77,8 +82,8 @@
         <table cellspacing="0" cellpadding="0">
           <tr>
             <td class=”button” bgcolor="#01c020">
-              <a href="{{ SITE_FULL_URL }}{% url 'csas2:tor_detail' object.tor.id %}" target="_blank" class="button-a">
-                Cliquer ici pour consulter le cadre de reference !
+              <a href="{{ SITE_FULL_URL }}{% url 'csas2:action_list' %}" target="_blank" class="button-a">
+                Cliquer ici pour consulter le cadre de référence !
               </a>
             </td>
           </tr>
@@ -86,10 +91,11 @@
       </td>
     </tr>
   </table>
+  <br>
 
   <p>
     <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/guidepol/approval-approbation-pol-fra.html" %}">
-      SCAS politique sur l’examen et l’approbation de documents
+      Politique du SCAS sur l’examen et l’approbation de documents
     </a>
   </p>
 

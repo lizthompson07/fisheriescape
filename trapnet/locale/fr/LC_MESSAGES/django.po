@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-22 11:33-0300\n"
+"POT-Creation-Date: 2022-08-25 12:25-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -199,39 +199,43 @@ msgstr ""
 msgid "Electrofishing"
 msgstr ""
 
-#: .\trapnet\model_choices.py:50
-msgid "Open"
+#: .\trapnet\model_choices.py:47
+msgid "Trap Net"
 msgstr ""
 
 #: .\trapnet\model_choices.py:51
+msgid "Open"
+msgstr ""
+
+#: .\trapnet\model_choices.py:52
 msgid "Closed"
 msgstr ""
 
-#: .\trapnet\model_choices.py:55
+#: .\trapnet\model_choices.py:56
 msgid "Standard pulse "
 msgstr ""
 
-#: .\trapnet\model_choices.py:56
+#: .\trapnet\model_choices.py:57
 msgid "Direct current"
 msgstr ""
 
-#: .\trapnet\model_choices.py:57
+#: .\trapnet\model_choices.py:58
 msgid "Burst of pulses"
 msgstr ""
 
-#: .\trapnet\model_choices.py:61
+#: .\trapnet\model_choices.py:62
 msgid "Fry"
 msgstr ""
 
-#: .\trapnet\model_choices.py:62
+#: .\trapnet\model_choices.py:63
 msgid "Parr"
 msgstr ""
 
-#: .\trapnet\model_choices.py:66
+#: .\trapnet\model_choices.py:67
 msgid "scale"
 msgstr ""
 
-#: .\trapnet\model_choices.py:67
+#: .\trapnet\model_choices.py:68
 msgid "length-frequency"
 msgstr ""
 
@@ -915,7 +919,7 @@ msgid ""
 msgstr ""
 
 #: .\trapnet\templates\trapnet\sample_form.html:89
-msgid "Rotary Screw Trap Specific"
+msgid "Rotary Screw Trap / Trap Net Specific"
 msgstr ""
 
 #: .\trapnet\templates\trapnet\sample_form.html:136
