@@ -570,7 +570,10 @@ var app = new Vue({
               } else if (this.currentSort === "id") {
                   if (a["project"]["id"] < b["project"]["id"]) return -1 * modifier;
                   if (a["project"]["id"] > b["project"]["id"]) return 1 * modifier;
-              } else if (this.projectYears[0][this.currentSort] == null) {
+              } else if (this.currentSort === "functional_group") {
+                  if (a["project"]["functional_group"] < b["project"]["functional_group"]) return -1 * modifier;
+                  if (a["project"]["functional_group"] > b["project"]["functional_group"]) return 1 * modifier;
+              } else if (this.projectYears[0][this.currentSort] == null ) {
                   if (a["project"][this.currentSort] < b["project"][this.currentSort]) return -1 * modifier;
                   if (a["project"][this.currentSort] > b["project"][this.currentSort]) return 1 * modifier;
               } else {

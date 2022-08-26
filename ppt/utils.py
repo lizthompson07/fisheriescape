@@ -352,8 +352,9 @@ def financial_project_year_summary_data(project_year):
 
 def financial_project_summary_data(project):
     my_list = []
-    if project.get_funding_sources():
-        for fs in project.get_funding_sources():
+    funding_source_list = project.get_funding_sources()
+    if funding_source_list:
+        for fs in funding_source_list:
             my_dict = dict()
             my_dict["type"] = fs.get_funding_source_type_display()
             my_dict["name"] = str(fs)
@@ -385,8 +386,8 @@ def financial_project_summary_data(project):
 
             # allocated funds:
             for review in models.Review.objects.filter(project_year__project=project):
-                my_dict["allocated_om"] += review.allocated_budget
-            my_dict["alloated_total"] =  my_dict["om"]
+                my_dict["allocated_om"] += nz(review.allocated_budget, 0)
+            my_dict["alloated_total"] = my_dict["om"]
 
             my_list.append(my_dict)
 
@@ -424,7 +425,6 @@ def multiple_financial_project_year_summary_data(project_years):
                     elif staff.employee_type.cost_type == 2:
                         my_dict["om"] += nz(staff.amount, 0)
 
-
             # O&M costs
             for cost in models.OMCost.objects.filter(funding_source=fs, project_year=py):
                 my_dict["om"] += nz(cost.amount, 0)
@@ -439,8 +439,7 @@ def multiple_financial_project_year_summary_data(project_years):
             if fs in py.get_funding_sources():
                 my_dict["py_count"] += 1
                 if hasattr(py, "review"):
-                    if py.review.allocated_budget:
-                        my_dict["allocated_om"] += py.review.allocated_budget
+                    my_dict["allocated_om"] += nz(py.review.allocated_budget, 0)
             my_dict["allocated_total"] = my_dict["allocated_om"]
 
         my_list.append(my_dict)

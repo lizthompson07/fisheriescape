@@ -67,7 +67,7 @@
         {% for section in object.sections.all %}
           <tbody>
           {% for obs in section.observations.all %}
-            <tr>
+            <tr class="{% if section.not_sampled %}greyed{% endif %}">
               {% if forloop.counter == 1 %}
                 {% for field in section_field_list %}
                   {% if field == "comment" %}
@@ -103,7 +103,7 @@
               {% endfor %}
             </tr>
           {% empty %}
-            <tr>
+            <tr class="{% if section.not_sampled %}greyed{% endif %}">
               {% for field in section_field_list %}
                 {% if field == "comment" %}
                   <td style="width: 10%" class="text-center">
@@ -122,6 +122,7 @@
               <td>---</td>
               <td>---</td>
               <td>---</td>
+              <td></td>
               <td></td>
 
             </tr>

@@ -143,7 +143,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     years = ProjectYearSerializerLITE(many=True, read_only=True)
     has_unsubmitted_years = serializers.SerializerMethodField()
     section = serializers.StringRelatedField()
-    functional_group = serializers.StringRelatedField()
+    functional_group = serializers.SerializerMethodField()
     default_funding_source = serializers.StringRelatedField()
     lead_staff = serializers.SerializerMethodField()
     start_year_display = serializers.SerializerMethodField()
@@ -153,6 +153,12 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def get_section_display(self, instance):
         return instance.section.full_name
+
+    def get_functional_group(self, instance):
+        if instance.functional_group:
+            return instance.functional_group.__str__()
+        else:
+            return ""
 
     def get_funding_sources_display(self, instance):
         if instance.funding_sources.exists():
@@ -202,6 +208,7 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     other_lab_support_needs_html = serializers.SerializerMethodField()
     it_needs_html = serializers.SerializerMethodField()
     default_funding_source_id = serializers.SerializerMethodField()
+    funding_sources_list = serializers.SerializerMethodField()
     formatted_status = serializers.SerializerMethodField()
     allocated_budget = serializers.SerializerMethodField()
     review_score_percentage = serializers.SerializerMethodField()
@@ -341,6 +348,9 @@ class ProjectYearSerializer(serializers.ModelSerializer):
 
     def get_default_funding_source_id(self, instance):
         return instance.project.default_funding_source_id
+
+    def get_funding_sources_list(self, instance):
+        return ", ".join([fs.__str__() for fs in instance.get_funding_sources()])
 
     def get_formatted_status(self, instance):
         return instance.formatted_status
