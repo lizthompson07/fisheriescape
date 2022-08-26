@@ -139,6 +139,22 @@
                 <td class="text-left" v-html="request.status_display_html"></td>
               </tr>
               <tr>
+                <th>
+                  {% trans "Connected processes" %}
+                </th>
+                <td>
+                  {% if object.processes.exists %}
+                    {% for process in object.processes.all %}
+                      <div>
+                        {{ process.status_display }} &rarr; <a href="{% url 'csas2:process_detail' process.id %}">{{ process }} ({{ process.id }})</a>
+                      </div>
+                    {% endfor %}
+                  {% else %}
+                    <em>{% trans "There are no processes attached to this request." %}</em>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
                 <th class="text-left">{% trans "is carry over?" %}</th>
                 <td class="text-left">${request.is_carry_over|yesNo}</td>
               </tr>
@@ -231,22 +247,7 @@
               {#                {% endif %}#}
               {#              </td>#}
               {#            </tr>#}
-              <tr>
-                <th>
-                  {% trans "Connected processes" %}
-                </th>
-                <td>
-                  {% if object.processes.exists %}
-                    {% for process in object.processes.all %}
-                      <div>
-                        {{ process.status_display }} &rarr; <a href="{% url 'csas2:process_detail' process.id %}">{{ process }} ({{ process.id }})</a>
-                      </div>
-                    {% endfor %}
-                  {% else %}
-                    <em>{% trans "There are no processes attached to this request." %}</em>
-                  {% endif %}
-                </td>
-              </tr>
+
               <tr>
                 <th class="text-left">{% trans "Metadata" %}</th>
                 <td class="text-left" v-html="request.metadata"></td>
