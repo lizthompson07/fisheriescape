@@ -75,7 +75,7 @@ h1 {
     background-color: #e3aefa;
 }
 
-.in-progress, .review, .under-csas-review {
+.in-progress, .review, .under-csas-review, .under-review {
     color: white;
     background-color: #4c6fc6;
 }
@@ -95,7 +95,7 @@ h1 {
     color: #000000;
 }
 
-.accepted, .approved, .posted, .confirmed, .complete, .final, .in-process {
+.accepted, .approved, .posted, .confirmed, .complete, .final, .refer-to-process {
     background-color: #d5faae;
 }
 
