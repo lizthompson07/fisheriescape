@@ -382,7 +382,7 @@ class Project(models.Model):
 
         sorted_list = sorted(my_dict.items(), key=lambda item: item[1], reverse=True)
         sorted_list = [tup[0] for tup in sorted_list]
-        if self.default_funding_source not in sorted_list:
+        if self.default_funding_source not in sorted_list and self.default_funding_source is not None:
             sorted_list.append(self.default_funding_source)
         return sorted_list
 
@@ -672,7 +672,7 @@ class ProjectYear(models.Model):
 
         sorted_list = sorted(my_dict.items(), key=lambda item: item[1], reverse=True)
         sorted_list = [tup[0] for tup in sorted_list]
-        if self.project.default_funding_source not in sorted_list:
+        if self.project.default_funding_source not in sorted_list and self.project.default_funding_source is not None:
             sorted_list.append(self.project.default_funding_source)
         return sorted_list
 
