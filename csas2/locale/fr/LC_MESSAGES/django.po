@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: App French\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-25 12:25-0300\n"
+"POT-Creation-Date: 2022-08-26 13:21-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -622,8 +622,10 @@ msgid "Re-scoping"
 msgstr "Re-cadrage"
 
 #: .\csas2\model_choices.py:37
-msgid "In Process"
-msgstr "En cours"
+#, fuzzy
+#| msgid "New CSAS Process"
+msgid "Refer to Process"
+msgstr "Processus de SCAS"
 
 #: .\csas2\model_choices.py:38
 msgid "Fulfilled"
@@ -2343,8 +2345,8 @@ msgstr "Il n'y a pas de reunions liées à ce document."
 #: .\csas2\templates\csas2\document_detail\main.html:201
 #: .\csas2\templates\csas2\meeting_detail\main.html:164
 #: .\csas2\templates\csas2\process_detail\main.html:209
-#: .\csas2\templates\csas2\request_detail\main.html:251
-#: .\csas2\templates\csas2\request_detail\main.html:294
+#: .\csas2\templates\csas2\request_detail\main.html:252
+#: .\csas2\templates\csas2\request_detail\main.html:295
 msgid "Metadata"
 msgstr "Métadonnées"
 
@@ -3422,62 +3424,62 @@ msgstr "Continuer l'examen"
 msgid "Request Detail"
 msgstr "Détails de la demande"
 
-#: .\csas2\templates\csas2\request_detail\main.html:142 .\csas2\utils.py:357
-msgid "is carry over?"
-msgstr "est un report?"
-
-#: .\csas2\templates\csas2\request_detail\main.html:156
-msgid "Center for Science Advice"
-msgstr "Centre des avis scientifiques"
-
-#: .\csas2\templates\csas2\request_detail\main.html:164 .\csas2\utils.py:362
-msgid "Multiregional / multisector?"
-msgstr "Multirégional / multisectoriel?"
-
-#: .\csas2\templates\csas2\request_detail\main.html:172
-msgid "Assistance from DFO Science"
-msgstr "Aide du Secteur des sciences du MPO"
-
-#: .\csas2\templates\csas2\request_detail\main.html:192
-msgid "Client funding?"
-msgstr "Financement des clients?"
-
-#: .\csas2\templates\csas2\request_detail\main.html:196
-msgid "Client prioritization and rationale"
-msgstr "Priorisation du client et justification"
-
-#: .\csas2\templates\csas2\request_detail\main.html:236
-msgid "Connected processes"
+#: .\csas2\templates\csas2\request_detail\main.html:143
+msgid "Connected process(es)"
 msgstr "Processus connectés"
 
-#: .\csas2\templates\csas2\request_detail\main.html:246
+#: .\csas2\templates\csas2\request_detail\main.html:153
 msgid "There are no processes attached to this request."
 msgstr "Il n'y a pas de processus attachés à cette demande."
 
-#: .\csas2\templates\csas2\request_detail\main.html:264
+#: .\csas2\templates\csas2\request_detail\main.html:158 .\csas2\utils.py:357
+msgid "is carry over?"
+msgstr "est un report?"
+
+#: .\csas2\templates\csas2\request_detail\main.html:172
+msgid "Center for Science Advice"
+msgstr "Centre des avis scientifiques"
+
+#: .\csas2\templates\csas2\request_detail\main.html:180 .\csas2\utils.py:362
+msgid "Multiregional / multisector?"
+msgstr "Multirégional / multisectoriel?"
+
+#: .\csas2\templates\csas2\request_detail\main.html:188
+msgid "Assistance from DFO Science"
+msgstr "Aide du Secteur des sciences du MPO"
+
+#: .\csas2\templates\csas2\request_detail\main.html:208
+msgid "Client funding?"
+msgstr "Financement des clients?"
+
+#: .\csas2\templates\csas2\request_detail\main.html:212
+msgid "Client prioritization and rationale"
+msgstr "Priorisation du client et justification"
+
+#: .\csas2\templates\csas2\request_detail\main.html:265
 msgid "CSAS Review"
 msgstr "Examen du SCAS"
 
-#: .\csas2\templates\csas2\request_detail\main.html:403
+#: .\csas2\templates\csas2\request_detail\main.html:404
 msgid "Are you sure you want to withdraw this request?"
 msgstr "Êtes-vous certain de vouloir supprimer cette demande?"
 
-#: .\csas2\templates\csas2\request_detail\main.html:403
+#: .\csas2\templates\csas2\request_detail\main.html:404
 msgid "WARNING: This action cannot be reversed."
 msgstr "ATTENTION : Cette action ne peut pas être inversée."
 
-#: .\csas2\templates\csas2\request_detail\main.html:418
+#: .\csas2\templates\csas2\request_detail\main.html:419
 #: .\csas2\templates\csas2\request_reviews\main.html:234
 #: .\csas2\templates\csas2\request_reviews\main_trans OLD.html:215
 msgid "Are you certain you want to delete this review?"
 msgstr "Êtes-vous certain de vouloir supprimer cet examen?"
 
-#: .\csas2\templates\csas2\request_detail\main.html:520
+#: .\csas2\templates\csas2\request_detail\main.html:521
 #: .\csas2\templates\csas2\tor\main.html:228
 msgid "Are you sure you want to remove this reviewer?"
 msgstr "Êtes-vous certain de vouloir supprimer cet examinateur?"
 
-#: .\csas2\templates\csas2\request_detail\main.html:522
+#: .\csas2\templates\csas2\request_detail\main.html:523
 #: .\csas2\templates\csas2\tor\main.html:230
 msgid ""
 "WARNING: This reviewer's status is 'pending'. If you choose to continue, "
@@ -3487,16 +3489,16 @@ msgstr ""
 "choisissez de continuer, il recevra un message de notification pour "
 "l'informer de ce changement."
 
-#: .\csas2\templates\csas2\request_detail\main.html:572
+#: .\csas2\templates\csas2\request_detail\main.html:573
 msgid "All fields are mandatory before approvals and submission"
 msgstr "Tous les domaines sont obligatoires avant d'être approuvés et soumis"
 
-#: .\csas2\templates\csas2\request_detail\main.html:577
+#: .\csas2\templates\csas2\request_detail\main.html:578
 msgid "You do not have the necessary permissions to submit this request."
 msgstr ""
 "Vous n'avez pas les autorisations nécessaires pour soumettre cette demande."
 
-#: .\csas2\templates\csas2\request_detail\main.html:583
+#: .\csas2\templates\csas2\request_detail\main.html:584
 msgid ""
 "You must have at least one approver in the approval queue before submitting "
 "the request."
@@ -4378,6 +4380,9 @@ msgstr "Centre d'action"
 #: .\csas2\views.py:1401
 msgid "CSAS Reports"
 msgstr "Rapports du SCAS"
+
+#~ msgid "In Process"
+#~ msgstr "En cours"
 
 #~ msgid "Reviewed"
 #~ msgstr "Révisé"
