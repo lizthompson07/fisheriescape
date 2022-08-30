@@ -3485,7 +3485,7 @@ msgid ""
 "WARNING: This reviewer's status is 'pending'. If you choose to continue, "
 "they will receive a notification message to inform them about this change."
 msgstr ""
-"AVERTISSEMENT : Le statut de cet examinateur est \"en attente\". Si vous "
+"AVERTISSEMENT : Le statut de cet examinateur est 'en attente'. Si vous "
 "choisissez de continuer, il recevra un message de notification pour "
 "l'informer de ce changement."
 
