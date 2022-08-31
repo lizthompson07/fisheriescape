@@ -190,7 +190,6 @@ class PersonDetailView(UserRequiredMixin, CommonDetailView):
         "fax",
         "language",
         "notes",
-        "committee",
         "email_block",
         "date_last_modified",
         "last_modified_by",
