@@ -206,7 +206,7 @@ class Interaction(models.Model):
 
     )
 
-    description = models.CharField(max_length=255, default="N/A", verbose_name="Short Description")
+    description = models.CharField(max_length=255, default="N/A", verbose_name="Interaction Title")
     interaction_type = models.IntegerField(choices=interaction_type_choices, blank=True, null=True, default=None)
     is_committee = models.BooleanField(default=False, verbose_name=_("Committee or Working Group"), choices=YES_NO_CHOICES)
     committee = models.ForeignKey(Committee, blank=True, null=True, on_delete=models.DO_NOTHING,
