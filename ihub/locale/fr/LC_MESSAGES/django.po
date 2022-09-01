@@ -347,7 +347,7 @@ msgstr "Filtres"
 #: .\ihub\templates\ihub\_filters.html:22
 #: .\ihub\templates\ihub\user_list.html:46
 msgid "Filter"
-msgstr "Filtre"
+msgstr "Filtrer"
 
 #: .\ihub\templates\ihub\_filters.html:23
 #: .\ihub\templates\ihub\user_list.html:48

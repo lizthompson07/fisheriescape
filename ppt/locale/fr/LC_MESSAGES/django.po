@@ -2461,7 +2461,7 @@ msgstr "Veuillez sélectionner le rapport"
 
 #: .\ppt\templates\ppt\my_project_list.html:19
 msgid "Filter"
-msgstr "Filter"
+msgstr "Filtrer"
 
 #: .\ppt\templates\ppt\my_project_list.html:20
 #, fuzzy
