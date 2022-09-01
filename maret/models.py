@@ -120,12 +120,12 @@ class Committee(models.Model):
                                related_name="committee_branch", verbose_name=_("Lead DFO Maritimes Region branch"),
                                limit_choices_to=Q(region__name="Maritimes") & Q_HIDE_BRANCHES)
     division = models.ForeignKey(shared_models.Division, blank=True, null=True, on_delete=models.DO_NOTHING,
-                                 verbose_name=_("Division"))
+                                 verbose_name=_("Division within the specified lead branch"))
     area_office = models.ForeignKey(AreaOffice, blank=True, null=True, related_name="committee_area_office",
                                     on_delete=models.DO_NOTHING, verbose_name=_("Lead Maritimes Region area office"))
     area_office_program = models.ForeignKey(AreaOfficeProgram, blank=True, null=True,
                                             related_name="committee_area_office_program", on_delete=models.DO_NOTHING,
-                                            verbose_name=_("Program"))
+                                            verbose_name=_("Program within the specified lead area office"))
 
     # leaving this out for now because it may be a redundant filed included in the interactions model
     # role_dfo = models.IntegerField(choices=ROLE_DFO_CHOICES)
@@ -206,7 +206,7 @@ class Interaction(models.Model):
 
     )
 
-    description = models.CharField(max_length=255, default="N/A", verbose_name="Interaction Title")
+    description = models.CharField(max_length=255, default="N/A", verbose_name="Title of Interaction")
     interaction_type = models.IntegerField(choices=interaction_type_choices, blank=True, null=True, default=None)
     is_committee = models.BooleanField(default=False, verbose_name=_("Committee or Working Group"), choices=YES_NO_CHOICES)
     committee = models.ForeignKey(Committee, blank=True, null=True, on_delete=models.DO_NOTHING,
@@ -224,9 +224,9 @@ class Interaction(models.Model):
                                     on_delete=models.DO_NOTHING, verbose_name=_("Lead DFO Maritimes Region area office"))
     area_office_program = models.ForeignKey(AreaOfficeProgram, blank=True, null=True,
                                             related_name="interaction_area_office_program", on_delete=models.DO_NOTHING,
-                                            verbose_name=_("Program"))
+                                            verbose_name=_("Program within the specified lead area office"))
     division = models.ForeignKey(shared_models.Division, blank=True, null=True, on_delete=models.DO_NOTHING,
-                                 verbose_name=_("Division"))
+                                 verbose_name=_("Division within the specified lead branch"))
     other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="interaction_dfo_branch",
                                               blank=True, limit_choices_to=Q(region__name="Maritimes") & Q_HIDE_BRANCHES,
                                               verbose_name=_("Other participating DFO Maritimes Region branches")
