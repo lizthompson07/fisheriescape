@@ -283,3 +283,8 @@ label.filter {
 .pointy {
     cursor: pointer;
 }
+
+label.required::after {
+    content: ' *';
+    color: red;
+}

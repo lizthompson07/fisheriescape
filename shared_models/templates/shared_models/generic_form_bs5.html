@@ -20,11 +20,14 @@
           {% block form_field %}
              <div id="{{ field.name }}_div">
               {% block form_field_label %}
-                  {# adds required label to field #}
-                  {% if field.field.required %}
-                      {% bootstrap_label field.label label_class="required" label_for="id_"|add:field.name %}
-                  {% else %}
-                      {% bootstrap_label field.label label_for="id_"|add:field.name%}
+                  {% if not field.is_hidden %}
+
+                      {# adds required label to field #}
+                      {% if field.field.required %}
+                          {% bootstrap_label field.label label_class="required" label_for="id_"|add:field.name %}
+                      {% else %}
+                          {% bootstrap_label field.label label_for="id_"|add:field.name%}
+                      {% endif %}
                   {% endif %}
               {% endblock %}
 

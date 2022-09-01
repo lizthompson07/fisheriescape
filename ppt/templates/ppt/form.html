@@ -28,19 +28,17 @@
 {% endblock left_auth %}
 
 
-
-
 {% block form_field_label %}
   {{ block.super }}
 
-    {% if field.name|is_markdown_field %}
-      {% block markdown_icon %}
-        <a href="{% static 'markdown-cheatsheet-online.pdf' %}" data-toggle="tooltip" target="_blank" tabindex="-1"
-           title="{% trans "Markdown syntax is supported in this field" %}">
-          <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
-        </a>
-      {% endblock %}
-    {% endif %}
+  {% if field.name|is_markdown_field %}
+    {% block markdown_icon %}
+      <a href="{% static 'markdown-cheatsheet-online.pdf' %}" data-toggle="tooltip" target="_blank" tabindex="-1"
+         title="{% trans "Markdown syntax is supported in this field" %}">
+        <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
+      </a>
+    {% endblock %}
+  {% endif %}
 {% endblock %}
 
 
