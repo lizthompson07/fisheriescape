@@ -63,7 +63,10 @@ class TestAllFormsets(CommonTest):
     def test_view(self):
         for url in self.test_urls:
             self.assert_good_response(url)
-            self.assert_non_public_view(test_url=url, expected_template=self.expected_template, user=self.user)
+            if "help-texts" in url:
+                self.assert_non_public_view(test_url=url, expected_template='ppt/helptext_formset.html', user=self.user)
+            else:
+                self.assert_non_public_view(test_url=url, expected_template=self.expected_template, user=self.user)
 
     @tag('formsets', "submit")
     def test_submit(self):
