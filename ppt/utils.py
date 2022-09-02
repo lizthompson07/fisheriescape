@@ -2,6 +2,7 @@ from datetime import timedelta
 
 import pandas as pd
 from django.db.models import Sum, Q
+from django.http import JsonResponse
 from django.utils.translation import gettext as _, gettext_lazy
 
 from lib.templatetags.custom_filters import nz
@@ -9,12 +10,44 @@ from shared_models import models as shared_models
 from . import models
 
 
-def get_help_text_dict():
+def get_help_text_dict(model=None):
     my_dict = {}
-    for obj in models.HelpText.objects.all():
-        my_dict[obj.field_name] = str(obj)
+    if not model:
+        for obj in models.HelpText.objects.all():
+            my_dict[obj.field_name] = str(obj)
+    else:
+        # If a model is supplied get the fields specific to that model
+        for obj in models.HelpText.objects.filter(model=str(model.__name__)):
+            my_dict[obj.field_name] = str(obj)
 
     return my_dict
+
+
+def ajax_get_fields(request):
+    model_name = request.GET.get('model', None)
+
+    # use the model name passed from the web page to find the model in the apps models file
+    model = models.__dict__[model_name]
+
+    # use the retrieved model and get the doc string which is a string in the format
+    # SomeModelName(id, field1, field2, field3)
+    # remove the trailing parentheses, split the string up based on ', ', then drop the first element
+    # which is the model name and the id.
+    match = str(model.__dict__['__doc__']).replace(")", "").split(", ")[1:]
+    fields = list()
+    for f in match:
+        label = "---"
+        attr = getattr(model, f).field
+        if hasattr(attr, 'verbose_name'):
+            label = attr.verbose_name
+
+        fields.append([f, label])
+
+    data = {
+        'fields': fields
+    }
+
+    return JsonResponse(data)
 
 
 def in_ppt_regional_admin_group(user):

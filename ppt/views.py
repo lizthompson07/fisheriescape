@@ -72,6 +72,22 @@ class IndexTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
 
         return context
 
+# HELPTEXT
+class CommonCreateViewHelp(CommonCreateView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict(self.model)
+        return context
+
+
+class CommonUpdateViewHelp(CommonUpdateView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict(self.model)
+        return context
+
 
 # PROJECTS #
 ############
@@ -190,7 +206,7 @@ class MyProjectListView(PPTLoginRequiredMixin, CommonFilterView):
         return context
 
 
-class ProjectCreateView(PPTLoginRequiredMixin, CommonCreateView):
+class ProjectCreateView(PPTLoginRequiredMixin, CommonCreateViewHelp):
     model = models.Project
     form_class = forms.NewProjectForm
     home_url_name = "ppt:index"
@@ -304,7 +320,7 @@ class ProjectDetailView(PPTLoginRequiredMixin, CommonDetailView):
         return context
 
 
-class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonUpdateViewHelp):
     model = models.Project
     form_class = forms.ProjectForm
     template_name = 'ppt/project_form.html'
@@ -449,7 +465,7 @@ class ProjectReferencesDetailView(PPTLoginRequiredMixin, CommonDetailView):
 ################
 
 
-class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateView):
+class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateViewHelp):
     model = models.ProjectYear
     form_class = forms.ProjectYearForm
     home_url_name = "ppt:index"
@@ -485,7 +501,7 @@ class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateView):
         )
 
 
-class ProjectYearUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+class ProjectYearUpdateView(CanModifyProjectRequiredMixin, CommonUpdateViewHelp):
     model = models.ProjectYear
     form_class = forms.ProjectYearForm
     home_url_name = "ppt:index"
@@ -657,7 +673,7 @@ class FunctionalGroupListView(AdminRequiredMixin, CommonFilterView):
             search_term=Concat('name', Value(" "), 'nom', Value(" "), output_field=TextField()))
 
 
-class FunctionalGroupUpdateView(AdminRequiredMixin, CommonUpdateView):
+class FunctionalGroupUpdateView(AdminRequiredMixin, CommonUpdateViewHelp):
     model = models.FunctionalGroup
     form_class = forms.FunctionalGroupForm
     template_name = 'ppt/form.html'
@@ -666,7 +682,7 @@ class FunctionalGroupUpdateView(AdminRequiredMixin, CommonUpdateView):
     container_class = "container bg-light curvy"
 
 
-class FunctionalGroupCreateView(AdminRequiredMixin, CommonCreateView):
+class FunctionalGroupCreateView(AdminRequiredMixin, CommonCreateViewHelp):
     model = models.FunctionalGroup
     form_class = forms.FunctionalGroupForm
     success_url = reverse_lazy('ppt:group_list')
@@ -756,7 +772,7 @@ class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 
 
 class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'ppt/formset.html'
+    template_name = 'ppt/helptext_formset.html'
     h1 = "Manage Help Text"
     queryset = models.HelpText.objects.all()
     formset_class = forms.HelpTextFormset
@@ -961,7 +977,7 @@ class ReferenceMaterialListView(AdminRequiredMixin, CommonListView):
     container_class = "container bg-light curvy"
 
 
-class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateView):
+class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateViewHelp):
     model = models.ReferenceMaterial
     form_class = forms.ReferenceMaterialForm
     home_url_name = "ppt:index"
@@ -974,7 +990,7 @@ class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateView):
         return reverse("ppt:ref_mat_delete", args=[self.get_object().id])
 
 
-class ReferenceMaterialCreateView(AdminRequiredMixin, CommonCreateView):
+class ReferenceMaterialCreateView(AdminRequiredMixin, CommonCreateViewHelp):
     model = models.ReferenceMaterial
     form_class = forms.ReferenceMaterialForm
     home_url_name = "ppt:index"
@@ -1030,7 +1046,7 @@ class AdminStaffListView(AdminRequiredMixin, CommonFilterView):
         return qs
 
 
-class AdminStaffUpdateView(AdminRequiredMixin, CommonUpdateView):
+class AdminStaffUpdateView(AdminRequiredMixin, CommonUpdateViewHelp):
     '''This is really just for the admin view'''
     model = models.Staff
     template_name = 'ppt/admin_staff_form.html'
@@ -1148,7 +1164,7 @@ class StatusReportDetailView(PPTLoginRequiredMixin, CommonDetailView):
         return context
 
 
-class StatusReportUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+class StatusReportUpdateView(CanModifyProjectRequiredMixin, CommonUpdateViewHelp):
     model = models.StatusReport
     form_class = forms.StatusReportForm
     home_url_name = "ppt:index"
@@ -1209,7 +1225,7 @@ class StatusReportPrintDetailView(PPTLoginRequiredMixin, CommonDetailView):
 ########
 
 
-class DMACreateView(CanModifyProjectRequiredMixin, CommonCreateView):
+class DMACreateView(CanModifyProjectRequiredMixin, CommonCreateViewHelp):
     model = models.DMA
     form_class = forms.DMAForm
     home_url_name = "ppt:index"
@@ -1301,7 +1317,7 @@ class DMADetailView(PPTLoginRequiredMixin, CommonDetailView):
         return context
 
 
-class DMAUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+class DMAUpdateView(CanModifyProjectRequiredMixin, CommonUpdateViewHelp):
     model = models.DMA
     form_class = forms.DMAForm
     home_url_name = "ppt:index"
