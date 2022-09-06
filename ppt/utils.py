@@ -2,7 +2,8 @@ from datetime import timedelta
 
 import pandas as pd
 from django.db.models import Sum, Q
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
+from django.contrib.auth.models import User
 from django.utils.translation import gettext as _, gettext_lazy
 
 from lib.templatetags.custom_filters import nz
@@ -48,6 +49,29 @@ def ajax_get_fields(request):
     }
 
     return JsonResponse(data)
+
+
+def toggle_help_text_edit(request, user_id):
+    usr = User.objects.get(pk=user_id)
+
+    user_mode = None
+    # mode 1 is read only
+    mode = 1
+    if models.PPTAdminUser.objects.filter(user=usr):
+        user_mode = models.PPTAdminUser.objects.get(user=usr)
+        mode = user_mode.mode
+
+    # fancy math way of toggling between 1 and 2
+    mode = (mode % 2) + 1
+
+    if not user_mode:
+        user_mode = models.PPTAdminUser(user=usr)
+
+    user_mode.mode = mode
+    user_mode.save()
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
 
 
 def in_ppt_regional_admin_group(user):

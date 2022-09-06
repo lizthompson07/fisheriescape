@@ -30,7 +30,7 @@ from .utils import get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, \
     is_management_or_admin, \
     get_review_score_rubric, get_status_report_field_list, get_review_field_list, get_user_fte_breakdown, \
-    get_dma_field_list, get_dma_review_field_list, get_project_year_queryset
+    get_dma_field_list, get_dma_review_field_list, get_project_year_queryset, in_ppt_admin_group
 
 
 class IndexTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
@@ -78,6 +78,17 @@ class CommonCreateViewHelp(CommonCreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_text_dict'] = get_help_text_dict(self.model)
+
+        # if the UserMode table has this user in "edit" mode provide the
+        # link to the dialog to manage help text via the manage_help_url
+        # and provide the model name the help text will be assigned to.
+        # The generic_form_with_help_text.html from the shared_models app
+        # will provide the field name and together you have the required
+        # model and field needed to make an entry in the Help Text table.
+        if in_ppt_admin_group(self.request.user):
+            if self.request.user.ppt_admin_user.mode == 2:
+                context['manage_help_url'] = "ppt:manage_help_text"
+                context['model_name'] = self.model.__name__
         return context
 
 
@@ -86,7 +97,54 @@ class CommonUpdateViewHelp(CommonUpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_text_dict'] = get_help_text_dict(self.model)
+        # if the UserMode table has this user in "edit" mode provide the
+        # link to the dialog to manage help text via the manage_help_url
+        # and provide the model name the help text will be assigned to.
+        # The generic_form_with_help_text.html from the shared_models app
+        # will provide the field name and together you have the required
+        # model and field needed to make an entry in the Help Text table.
+        if in_ppt_admin_group(self.request.user):
+            if self.request.user.ppt_admin_user.mode == 2:
+                context['manage_help_url'] = "ppt:manage_help_text"
+                context['model_name'] = self.model.__name__
         return context
+
+
+# This is the dialog presented to the user to enter help text for a given model/field
+# it uses the Create View to both create entries and update them. Accessed via the manage_help_url.
+#
+# A point of failure may be if the (model, field_name) pair is not unique in the help text table.
+class HelpTextPopView(AdminRequiredMixin, CommonCreateView):
+    model = models.HelpText
+    form_class = forms.HelpTextPopForm
+    success_url = reverse_lazy("shared_models:close_me")
+    title = gettext_lazy("Update Help Text")
+
+    def get_initial(self):
+        if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
+            obj = self.model.objects.get(model=self.kwargs['model_name'], field_name=self.kwargs['field_name'])
+            return {
+                'model': self.kwargs['model_name'],
+                'field_name': self.kwargs['field_name'],
+                'eng_text': obj.eng_text,
+                'fra_text': obj.fra_text
+            }
+
+        return {
+            'model': self.kwargs['model_name'],
+            'field_name': self.kwargs['field_name'],
+        }
+
+    def form_valid(self, form):
+        if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
+            data = form.cleaned_data
+            obj = self.model.objects.get(model=self.kwargs['model_name'], field_name=self.kwargs['field_name'])
+            obj.eng_text = data['eng_text']
+            obj.fra_text = data['fra_text']
+            obj.save()
+            return HttpResponseRedirect(reverse_lazy("shared_models:close_me"))
+        else:
+            return super().form_valid(form)
 
 
 # PROJECTS #
@@ -768,7 +826,7 @@ class TagFormsetView(AdminRequiredMixin, CommonFormsetView):
 
 class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
     model = models.HelpText
-    success_url = reverse_lazy("ppt:manage_help_text")
+    success_url = reverse_lazy("ppt:manage_help_texts")
 
 
 class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
@@ -776,7 +834,7 @@ class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
     h1 = "Manage Help Text"
     queryset = models.HelpText.objects.all()
     formset_class = forms.HelpTextFormset
-    success_url = reverse_lazy("ppt:manage_help_text")
+    success_url = reverse_lazy("ppt:manage_help_texts")
     home_url_name = "ppt:index"
     delete_url_name = "ppt:delete_help_text"
     container_class = "container bg-light curvy"
