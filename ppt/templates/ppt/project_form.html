@@ -8,7 +8,7 @@
 
 
 {% block post_field_area %}
-{% if object.is_csrf %}
+  {% if object.is_csrf %}
     {% if field.name == "overview" %}
       <p class="p-1 mark">{% trans "words remaining (CSRF)" %}: <span class="blue-font" id="id_{{ field.name }}_word_count"></span></p>
     {% elif field.name == "objectives" %}

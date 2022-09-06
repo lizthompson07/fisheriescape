@@ -22,7 +22,7 @@ class TestAllFormsets(CommonTest):
             "manage_om_cats",
             "manage_employee_types",
             "manage_tags",
-            "manage_help_text",
+            "manage_help_texts",
             "manage_levels",
             "manage_themes",
             "manage-upcoming-dates",
