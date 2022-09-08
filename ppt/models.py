@@ -417,6 +417,13 @@ class Project(models.Model):
         else:
             return "<em>{}</em>".format(_("This project has no fiscal years added yet."))
 
+    def year_status(self, fiscal_year):
+        if fiscal_year:
+            py_qs = ProjectYear.objects.filter(fiscal_year_id=fiscal_year, project=self)
+            if py_qs:
+                return py_qs.get().get_status_display()
+        return None
+
 
 class ProjectYear(models.Model):
     status_choices = [

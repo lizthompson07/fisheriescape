@@ -2,6 +2,7 @@
 {% load verbose_names %}
 {% load i18n %}
 {% load custom_filters %}
+{% load custom_tags %}
 {% load static %}
 {% load bootstrap4 %}
 
@@ -73,6 +74,8 @@
           {% else %}
             <span>{{ my_val|yesno }}</span>
           {% endif %}
+        {% elif field.name == "status" %}
+          {% get_subset status_data object.id %}
         {% else %}
           {% get_field_value object field.name safe=True %}
         {% endif %}
