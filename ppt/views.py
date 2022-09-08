@@ -241,6 +241,7 @@ class MyProjectListView(PPTLoginRequiredMixin, CommonFilterView):
         {"name": 'start_date', "class": "", "width": "150px"},
         {"name": 'lead_staff', "class": "", "width": ""},
         {"name": 'fiscal_years_display|{}'.format(_("fiscal years")), "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
         {"name": 'has_unsubmitted_years|{}'.format("has unsubmitted years?"), "class": "", "width": ""},
         {"name": 'is_hidden|{}'.format(_("hidden?")), "class": "", "width": ""},
         {"name": 'updated_at', "class": "", "width": "150px"},
@@ -260,7 +261,15 @@ class MyProjectListView(PPTLoginRequiredMixin, CommonFilterView):
         context = super().get_context_data(**kwargs)
         orphens = models.Project.objects.filter(years__isnull=True, modified_by=self.request.user)
         context["orphens"] = orphens
-
+        status_dict = {}
+        context["fiscal_year"] = ""
+        fiscal_year = self.request.GET.get("fiscal_years")
+        if fiscal_year:
+            context["fiscal_year"] = shared_models.FiscalYear.objects.filter(pk=fiscal_year).get().__str__()
+        qs = self.get_queryset()
+        for proj in qs:
+            status_dict[proj.id] = proj.year_status(fiscal_year)
+        context["status_data"] = status_dict
         return context
 
 
