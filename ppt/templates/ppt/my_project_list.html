@@ -61,6 +61,21 @@
 
 {% endblock %}
 
+{% block head %}
+  {% for field in field_list %}
+      {% if field.name == "status" %}
+        {%  if fiscal_year %}
+          <th class="{{ field.class }}" {% if field.width %}style="width: {{ field.width }}"{% endif %}>
+            {% get_verbose_label random_object field.name %} ({{ fiscal_year }})
+          </th>
+        {% endif %}
+      {% else %}
+        <th class="{{ field.class }}" {% if field.width %}style="width: {{ field.width }}"{% endif %}>
+          {% get_verbose_label random_object field.name %}
+        </th>
+      {% endif %}
+  {% endfor %}
+{% endblock %}
 
 {% block table_tr %}
   {% url row_object_url_name object.id as my_url %}
@@ -75,7 +90,10 @@
             <span>{{ my_val|yesno }}</span>
           {% endif %}
         {% elif field.name == "status" %}
-          {% get_subset status_data object.id %}
+          {%  if fiscal_year %}
+            {% get_subset status_data object.id as my_val %}
+            <span class="{{ my_val|lower }} p-1">{{ my_val }}</span>
+          {% endif %}
         {% else %}
           {% get_field_value object field.name safe=True %}
         {% endif %}

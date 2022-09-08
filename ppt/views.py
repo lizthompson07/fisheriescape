@@ -263,7 +263,10 @@ class MyProjectListView(PPTLoginRequiredMixin, CommonFilterView):
         orphens = models.Project.objects.filter(years__isnull=True, modified_by=self.request.user)
         context["orphens"] = orphens
         status_dict = {}
+        context["fiscal_year"] = ""
         fiscal_year = self.request.GET.get("fiscal_years")
+        if fiscal_year:
+            context["fiscal_year"] = shared_models.FiscalYear.objects.filter(pk=fiscal_year).get().__str__()
         qs = self.get_queryset()
         for proj in qs:
             status_dict[proj.id] = proj.year_status(fiscal_year)
