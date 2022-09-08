@@ -255,8 +255,7 @@ class MyProjectListView(PPTLoginRequiredMixin, CommonFilterView):
 
     def get_queryset(self):
         project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
-        qs = models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title")
-        return qs
+        return models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
