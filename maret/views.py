@@ -342,6 +342,8 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["is_update_form"] = False
+
         context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
                               'maret/js/interactionForm.html']
 
@@ -384,24 +386,28 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
         context = super().get_context_data(**kwargs)
         context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
                               'maret/js/interactionForm.html']
+        context["is_update_form"] = True
         return context
 
     def form_valid(self, form):
         super(InteractionUpdateView, self).form_valid(form)
+        initial_committee = self.get_object().committee
         self.object = form.save()
+
         if self.object.is_committee or self.object.interaction_type == 4:
-            committee = self.object.committee
-            self.object.main_topic.set(committee.main_topic.all())
-            self.object.species.set(committee.species.all())
-            self.object.external_contact.set(committee.external_contact.all())
-            self.object.external_organization.set(committee.external_organization.all())
-            self.object.lead_region = committee.lead_region
-            self.object.lead_national_sector = committee.lead_national_sector
-            self.object.branch = committee.branch
-            self.object.division = committee.division
-            self.object.area_office = committee.area_office
-            self.object.area_office_program = committee.area_office_program
-            self.object.save()
+            if self.object.committee != initial_committee:
+                committee = self.object.committee
+                self.object.main_topic.set(committee.main_topic.all())
+                self.object.species.set(committee.species.all())
+                self.object.external_contact.set(committee.external_contact.all())
+                self.object.external_organization.set(committee.external_organization.all())
+                self.object.lead_region = committee.lead_region
+                self.object.lead_national_sector = committee.lead_national_sector
+                self.object.branch = committee.branch
+                self.object.division = committee.division
+                self.object.area_office = committee.area_office
+                self.object.area_office_program = committee.area_office_program
+                self.object.save()
         return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': self.object.id}))
 
 

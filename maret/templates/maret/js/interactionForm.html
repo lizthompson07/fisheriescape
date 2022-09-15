@@ -1,6 +1,8 @@
 <script type="application/javascript">
+    const updateForm = "{{ is_update_form }}";
 
     function updateFields() {
+
         let is_committee = $("#id_is_committee :selected").val() == "True";
 
         let $committee = $("#committee_div");
@@ -150,6 +152,11 @@
 
     }
 
+    $("#id_committee").change(function () {
+        if (updateForm === "True") {
+            updateFields();
+        }
+    });
     $("#id_is_committee").change(function () {
         updateFields();
         toggleAreaOfficeProgram();
@@ -165,7 +172,9 @@
     });
 
     $(document).ready(function () {
-        updateFields();
+        if (updateForm === "False") {
+          updateFields();
+        }
         toggleAreaOfficeProgram();
         toggleNHQSectors();
     });
