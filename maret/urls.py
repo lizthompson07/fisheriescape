@@ -22,6 +22,7 @@ urlpatterns = [
     path('person/new/', views.PersonCreateView.as_view(), name="person_new"),
     path('person/new/popout/', views.PersonCreateViewPopout.as_view(), name="person_new_pop"),
     path('person/<int:pk>/view/', views.PersonDetailView.as_view(), name="person_detail"),
+    path('person/report/', views.person_report, name="person_report"),
     path('person/<int:pk>/edit/', views.PersonUpdateView.as_view(), name="person_edit"),
     path('person/<int:pk>/edit/popout/', views.PersonUpdateViewPopout.as_view(), name="person_edit_pop"),
     path('person/<int:pk>/delete/', views.PersonDeleteView.as_view(), name="person_delete"),

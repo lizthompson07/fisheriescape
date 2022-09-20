@@ -4,7 +4,6 @@ import xlsxwriter
 from django.conf import settings
 from django.utils import timezone
 
-from lib.functions.custom_functions import listrify
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
 
 
@@ -130,6 +129,36 @@ class OrganizationReportMixin:
         ]
     title = "Filtered list of Maret Organizations"
     sheet_title = "Organizations"
+
+    def val(obj, field):
+        if "date_last_modified" in field:
+            val = obj.date_last_modified.strftime("%Y-%m-%d")
+        else:
+            val = str(get_field_value(obj, field))
+        return val
+
+
+class PersonReportMixin:
+    select_fk_fields = ["language", "last_modified_by"]
+    field_list = [
+        'id|Interaction Id',
+        "designation",
+        "first_name",
+        "last_name",
+        "phone_1",
+        "phone_2",
+        "email_1",
+        "email_2",
+        "cell",
+        "fax",
+        "language",
+        "notes",
+        "email_block",
+        "date_last_modified",
+        "last_modified_by",
+        ]
+    title = "Filtered list of Maret Contacts"
+    sheet_title = "Contacts"
 
     def val(obj, field):
         if "date_last_modified" in field:

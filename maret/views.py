@@ -4,7 +4,7 @@ import os
 
 from django.contrib.auth.decorators import login_required
 
-from maret.reports import InteractionReportMixin, CommitteeReportMixin, OrganizationReportMixin
+from maret.reports import InteractionReportMixin, CommitteeReportMixin, OrganizationReportMixin, PersonReportMixin
 from shared_models.views import CommonTemplateView, CommonFilterView, CommonCreateView, CommonFormsetView, \
     CommonDetailView, CommonDeleteView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
     CommonPopoutDeleteView, CommonHardDeleteView
@@ -179,6 +179,13 @@ class PersonListView(UserRequiredMixin, CommonFilterView):
     h1 = _("Contacts")
     container_class = "container-fluid"
 
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        filtered_ids = [person.pk for person in context["object_list"]]
+        context["report_url"] = reverse_lazy("maret:person_report") + "?ids=" + str(filtered_ids)
+        return context
+
 
 class PersonDetailView(UserRequiredMixin, CommonDetailView):
     model = ml_models.Person
@@ -307,6 +314,24 @@ class PersonDeleteView(AdminRequiredMixin, CommonDeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+@login_required()
+def person_report(request):
+    id_list = json.loads(request.GET.get("ids"))
+    qs = ml_models.Person.objects.filter(pk__in=id_list)
+
+    file_url = None
+    if qs:
+        file_url = reports.generate_maret_report(qs, PersonReportMixin)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="meret_person_report.xlsx"'
+
+            return response
+    raise Http404
+
+
 #######################################################
 # Interactions
 #######################################################
@@ -335,7 +360,7 @@ class InteractionListView(UserRequiredMixin, CommonFilterView):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
         filtered_ids = [interaction.pk for interaction in context["object_list"]]
-        context["report_url"] = reverse_lazy("maret:interaction_report", kwargs={"ids": filtered_ids})
+        context["report_url"] = reverse_lazy("maret:interaction_report") + "?ids=" + str(filtered_ids)
         return context
 
 
