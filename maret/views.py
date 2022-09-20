@@ -4,7 +4,7 @@ import os
 
 from django.contrib.auth.decorators import login_required
 
-from maret.reports import InteractionReportMixin, CommitteeReportMixin
+from maret.reports import InteractionReportMixin, CommitteeReportMixin, OrganizationReportMixin
 from shared_models.views import CommonTemplateView, CommonFilterView, CommonCreateView, CommonFormsetView, \
     CommonDetailView, CommonDeleteView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
     CommonPopoutDeleteView, CommonHardDeleteView
@@ -673,6 +673,11 @@ class OrganizationListView(UserRequiredMixin, CommonFilterView):
     row_object_url_name = "maret:org_detail"
     container_class = "container-fluid"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        filtered_ids = [org.pk for org in context["object_list"]]
+        context["report_url"] = reverse_lazy("maret:org_report") + "?ids=" + str(filtered_ids)
+        return context
 
 class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     model = ml_models.Organization
@@ -952,6 +957,24 @@ class OrganizationCueCard(PDFTemplateView):
         ]
         context["now"] = timezone.now()
         return context
+
+
+@login_required()
+def organization_report(request):
+    id_list = json.loads(request.GET.get("ids"))
+    qs = ml_models.Organization.objects.filter(pk__in=id_list)
+
+    file_url = None
+    if qs:
+        file_url = reports.generate_maret_report(qs, OrganizationReportMixin)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="meret_organization_report.xlsx"'
+
+            return response
+    raise Http404
 
 
 #######################################################

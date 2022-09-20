@@ -105,6 +105,40 @@ class CommitteeReportMixin:
             val = str(get_field_value(obj, field))
         return val
 
+
+class OrganizationReportMixin:
+    select_fk_fields = ["province", "last_modified_by"]
+    field_list = [
+        'id|Interaction Id',
+        'name_eng',
+        'former_name',
+        'abbrev',
+        'email',
+        'address',
+        'mailing_address',
+        'city',
+        'postal_code',
+        'province',
+        'phone',
+        'fax',
+        'grouping',
+        'regions',
+        'website',
+        'category',
+        'date_last_modified',
+        'last_modified_by'
+        ]
+    title = "Filtered list of Maret Organizations"
+    sheet_title = "Organizations"
+
+    def val(obj, field):
+        if "date_last_modified" in field:
+            val = obj.date_last_modified.strftime("%Y-%m-%d")
+        else:
+            val = str(get_field_value(obj, field))
+        return val
+
+
 def generate_maret_report(qs, mixin):
     qs = qs.select_related(*mixin.select_fk_fields)
     # figure out the filename
