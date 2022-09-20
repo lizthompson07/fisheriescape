@@ -1,11 +1,15 @@
+import json
 import math
+import os
+
+from django.contrib.auth.decorators import login_required
 
 from shared_models.views import CommonTemplateView, CommonFilterView, CommonCreateView, CommonFormsetView, \
     CommonDetailView, CommonDeleteView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
     CommonPopoutDeleteView, CommonHardDeleteView
 
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 
 from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
@@ -18,7 +22,7 @@ from django.urls import reverse_lazy, reverse
 
 from maret.utils import MaretBasicRequiredMixin, UserRequiredMixin, AuthorRequiredMixin, AdminRequiredMixin, \
     AdminOrSuperuserRequiredMixin
-from maret import models, filters, forms, utils
+from maret import models, filters, forms, utils, reports
 
 from masterlist import models as ml_models
 
@@ -326,6 +330,12 @@ class InteractionListView(UserRequiredMixin, CommonFilterView):
     row_object_url_name = "maret:interaction_detail"
     home_url_name = "maret:index"
 
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["filtered_ids"] = [interaction.pk for interaction in context["object_list"]]
+        return context
+
 
 class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     model = models.Interaction
@@ -462,6 +472,25 @@ class InteractionDeleteView(AuthorRequiredMixin, CommonDeleteView):
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("maret:interaction_detail", args=[self.get_object().id])}
+
+
+@login_required()
+def interaction_report(request):
+    id_list = json.loads(request.GET.get("ids"))
+    qs = models.Interaction.objects.filter(pk__in=id_list)
+
+    file_url = None
+    if qs:
+        file_url = reports.generate_interaction_report(qs)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="meret_interaction_report.xlsx"'
+
+            return response
+    raise Http404
+
 
 
 #######################################################
