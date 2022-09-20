@@ -8,23 +8,9 @@ from lib.functions.custom_functions import listrify
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
 
 
-def generate_interaction_report(qs):
-    qs = qs.select_related("committee", "branch", "area_office", "area_office_program", "division", "lead_region",
-                           "lead_national_sector", "last_modified_by")
-    # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
-    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
-    target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
-    # create workbook and worksheets
-    workbook = xlsxwriter.Workbook(target_file_path)
-
-    # create formatting variables
-    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
-    header_format = workbook.add_format(
-        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": False, 'border': 1, 'border_color': 'black', })
-
+class InteractionReportMixin:
+    select_fk_fields = ["committee", "branch", "area_office", "area_office_program", "division", "lead_region",
+                        "lead_national_sector", "last_modified_by"]
     field_list = [
         'id|Interaction Id',
         'interaction_type',
@@ -52,13 +38,97 @@ def generate_interaction_report(qs):
         'last_modified',
         'last_modified_by',
         ]
+    title = "Filtered list of Maret Interactions"
+    sheet_title = "Interactions"
+
+    def val(obj, field):
+        if "interaction_type" in field:
+            val = " --- "
+            if obj.interaction_type:
+                val = obj.get_interaction_type_display()
+        elif "date_of_meeting" in field:
+            val = obj.date_of_meeting.strftime("%Y-%m-%d")
+        elif "date_last_modified" in field:
+            val = obj.last_modified.strftime("%Y-%m-%d")
+        else:
+            val = str(get_field_value(obj, field))
+        return val
+
+
+class CommitteeReportMixin:
+    select_fk_fields = ["branch", "division", "area_office", "area_office_program", "division", "lead_region",
+                        "lead_national_sector", "last_modified_by"]
+    field_list = [
+        'id|Interaction Id',
+        'name',
+        'main_topic',
+        'species',
+        'lead_region',
+        'lead_national_sector',
+        'branch',
+        'division',
+        'area_office',
+        'area_office_program',
+        'is_dfo_chair',
+        'external_chair',
+        'dfo_liaison',
+        'other_dfo_branch',
+        'other_dfo_regions',
+        'dfo_national_sectors',
+        'other_dfo_areas',
+        'dfo_role',
+        'first_nation_participation',
+        'municipal_participation',
+        'provincial_participation',
+        'other_federal_participation',
+        'other_dfo_participants',
+        'meeting_frequency',
+        'are_tor',
+        'location_of_tor',
+        'area_office',
+        'main_actions',
+        'comments',
+        "last_modified",
+        "last_modified_by",
+        ]
+    title = "Filtered list of Maret Committees"
+    sheet_title = "Committees"
+
+    def val(obj, field):
+        if "meeting_frequency_choices" in field:
+            val = " --- "
+            if obj.meeting_frequency_choices:
+                val = obj.get_meeting_frequency_choices_display()
+        elif "date_last_modified" in field:
+            val = obj.last_modified.strftime("%Y-%m-%d")
+        else:
+            val = str(get_field_value(obj, field))
+        return val
+
+def generate_maret_report(qs, mixin):
+    qs = qs.select_related(*mixin.select_fk_fields)
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": False, 'border': 1, 'border_color': 'black', })
+
+    field_list = mixin.field_list
 
     # define the header
     header = [get_verbose_label(qs.first(), field) for field in field_list]
-    title = "Filtered list of Maret Interactions"
+    title = mixin.title
 
     # define a worksheet
-    my_ws = workbook.add_worksheet(name="Interactions")
+    my_ws = workbook.add_worksheet(name=mixin.sheet_title)
     my_ws.write(0, 0, title, title_format)
     my_ws.write_row(2, 0, header, header_format)
 
@@ -70,17 +140,7 @@ def generate_interaction_report(qs):
     for obj in qs:
         j = 0
         for field in field_list:
-            # set val:
-            if "interaction_type" in field:
-                val = " --- "
-                if obj.interaction_type:
-                    val = obj.get_interaction_type_display()
-            elif "date_of_meeting" in field:
-                val = obj.date_of_meeting.strftime("%Y-%m-%d")
-            elif "date_last_modified" in field:
-                val = obj.last_modified.strftime("%Y-%m-%d")
-            else:
-                val = str(get_field_value(obj, field))
+            val = mixin.val(obj, field)
             # write val:
             my_ws.write(i, j, val, normal_format)
 
@@ -102,6 +162,4 @@ def generate_interaction_report(qs):
 
     workbook.close()
     return target_url
-
-
 

@@ -41,6 +41,8 @@ urlpatterns = [
     path('committee/', views.CommitteeListView.as_view(), name="committee_list"),
     path('committee/new/', views.CommitteeCreateView.as_view(), name="committee_new"),
     path('committee/<int:pk>/view/', views.CommitteeDetailView.as_view(), name="committee_detail"),
+    path('committee/report/', views.committee_report, name="committee_report"),
+
     path('committee/<int:pk>/edit/', views.CommitteeUpdateView.as_view(), name="committee_edit"),
     path('committee/<int:pk>/delete/', views.CommitteeDeleteView.as_view(), name="committee_delete"),
 

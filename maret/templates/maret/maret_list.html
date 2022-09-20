@@ -20,7 +20,7 @@
 
 {% block new_object_button %}
   {{ block.super }}
-  <a href="{% url 'maret:interaction_report' %}?ids={{filtered_ids}}" class="btn btn-sm btn-success">
+  <a href="{{ report_url }}" class="btn btn-sm btn-success">
     {% trans "Download Report" %}
   </a>
 

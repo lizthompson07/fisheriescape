@@ -4,6 +4,7 @@ import os
 
 from django.contrib.auth.decorators import login_required
 
+from maret.reports import InteractionReportMixin, CommitteeReportMixin
 from shared_models.views import CommonTemplateView, CommonFilterView, CommonCreateView, CommonFormsetView, \
     CommonDetailView, CommonDeleteView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
     CommonPopoutDeleteView, CommonHardDeleteView
@@ -333,7 +334,8 @@ class InteractionListView(UserRequiredMixin, CommonFilterView):
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
-        context["filtered_ids"] = [interaction.pk for interaction in context["object_list"]]
+        filtered_ids = [interaction.pk for interaction in context["object_list"]]
+        context["report_url"] = reverse_lazy("maret:interaction_report", kwargs={"ids": filtered_ids})
         return context
 
 
@@ -481,7 +483,7 @@ def interaction_report(request):
 
     file_url = None
     if qs:
-        file_url = reports.generate_interaction_report(qs)
+        file_url = reports.generate_maret_report(qs, InteractionReportMixin)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -490,7 +492,6 @@ def interaction_report(request):
 
             return response
     raise Http404
-
 
 
 #######################################################
@@ -522,6 +523,8 @@ class CommitteeListView(UserRequiredMixin, CommonFilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['scripts'] = ['maret/js/divisionFilter.html']
+        filtered_ids = [committee.pk for committee in context["object_list"]]
+        context["report_url"] = reverse_lazy("maret:committee_report") + "?ids=" + str(filtered_ids)
         return context
 
 
@@ -623,6 +626,24 @@ class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
         context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
                               'maret/js/committeeForm.html']
         return context
+
+
+@login_required()
+def committee_report(request):
+    id_list = json.loads(request.GET.get("ids"))
+    qs = models.Committee.objects.filter(pk__in=id_list)
+
+    file_url = None
+    if qs:
+        file_url = reports.generate_maret_report(qs, CommitteeReportMixin)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="meret_committee_report.xlsx"'
+
+            return response
+    raise Http404
 
 
 #######################################################
