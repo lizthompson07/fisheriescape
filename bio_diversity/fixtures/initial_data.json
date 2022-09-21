@@ -2657,7 +2657,8 @@
         },
         "model": "bio_diversity.instdetcode",
         "pk": 1
-    }, {
+    },
+    {
         "fields": {
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-06-16",
@@ -2716,7 +2717,20 @@
         },
         "model": "bio_diversity.loccode",
         "pk": 8
-    }, {
+    },
+    {
+        "fields": {
+            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+            "created_date": "2022-09-21",
+            "description_en": "Generic Collections site",
+            "description_fr": "",
+            "name": "Collections Site",
+            "nom": null
+        },
+        "model": "bio_diversity.loccode",
+        "pk": 9
+    },
+    {
         "fields": {
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
             "created_date": "2021-05-18",

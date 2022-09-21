@@ -1,5 +1,6 @@
 import json
 import os
+import traceback
 from copy import deepcopy
 from datetime import datetime, time
 import decimal
@@ -2217,7 +2218,8 @@ def round_no_nan(data, precision):
 def common_err_parser(err):
     err_msg = err.__str__()
     if issubclass(type(err), ObjectDoesNotExist):
-        err_msg = "Could not find a {} object from worksheet in database.".format(err.__str__().split(" ")[0])
+        err_msg = "Could not find a {} object from worksheet in database.\n\n".format(err.__str__().split(" ")[0])
+        err_msg = err_msg + traceback.format_exc()
     return err_msg
 
 
