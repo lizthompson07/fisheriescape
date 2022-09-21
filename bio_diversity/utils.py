@@ -179,16 +179,6 @@ class DataParser:
                 self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
 
 
-def bio_diverisity_authorized(user):
-    # return user.is_user and user.groups.filter(name='bio_diversity_user').exists()
-    return user.groups.filter(name='bio_diversity_user').exists() or bio_diverisity_admin(user)
-
-
-def bio_diverisity_admin(user):
-    # return user.is_authenticated and user.groups.filter(name='bio_diversity_admin').exists()
-    return user.groups.filter(name='bio_diversity_admin').exists()
-
-
 def in_bio_diversity_admin_group(user):
     if user:
         return bool(hasattr(user, "bio_user") and user.bio_user.is_admin)
@@ -196,12 +186,12 @@ def in_bio_diversity_admin_group(user):
 
 def in_bio_diversity_author_group(user):
     if user:
-        return bool(hasattr(user, "bio_user") and (user.bio_user.is_author or user.bio_user.is_admin))
+        return bool(hasattr(user, "bio_user") and (user.bio_user.is_author or in_bio_diversity_admin_group(user)))
 
 
 def in_bio_diversity_user_group(user):
     if user:
-        return bool(hasattr(user, "bio_user") and (user.bio_user.is_user or user.bio_user.is_admin))
+        return bool(hasattr(user, "bio_user") and (user.bio_user.is_user or in_bio_diversity_author_group(user)))
 
 
 def get_comment_keywords_dict():
