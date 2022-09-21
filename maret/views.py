@@ -2,7 +2,7 @@ import json
 import math
 import os
 
-from django.contrib.auth.decorators import login_required
+from django.views import View
 
 from maret.reports import InteractionReportMixin, CommitteeReportMixin, OrganizationReportMixin, PersonReportMixin
 from shared_models.views import CommonTemplateView, CommonFilterView, CommonCreateView, CommonFormsetView, \
@@ -314,22 +314,22 @@ class PersonDeleteView(AdminRequiredMixin, CommonDeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-@login_required()
-def person_report(request):
-    id_list = json.loads(request.GET.get("ids"))
-    qs = ml_models.Person.objects.filter(pk__in=id_list)
+class PersonReportView(UserRequiredMixin, View):
+    def get(self, request):
+        id_list = json.loads(request.GET.get("ids"))
+        qs = ml_models.Person.objects.filter(pk__in=id_list)
 
-    file_url = None
-    if qs:
-        file_url = reports.generate_maret_report(qs, PersonReportMixin)
+        file_url = None
+        if qs:
+            file_url = reports.generate_maret_report(qs, PersonReportMixin)
 
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="meret_person_report.xlsx"'
+        if os.path.exists(file_url):
+            with open(file_url, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = f'inline; filename="meret_person_report.xlsx"'
 
-            return response
-    raise Http404
+                return response
+        raise Http404
 
 
 #######################################################
@@ -501,22 +501,22 @@ class InteractionDeleteView(AuthorRequiredMixin, CommonDeleteView):
         return {"title": self.get_object(), "url": reverse("maret:interaction_detail", args=[self.get_object().id])}
 
 
-@login_required()
-def interaction_report(request):
-    id_list = json.loads(request.GET.get("ids"))
-    qs = models.Interaction.objects.filter(pk__in=id_list)
+class InteractionReportView(UserRequiredMixin, View):
+    def get(self, request):
+        id_list = json.loads(request.GET.get("ids"))
+        qs = models.Interaction.objects.filter(pk__in=id_list)
 
-    file_url = None
-    if qs:
-        file_url = reports.generate_maret_report(qs, InteractionReportMixin)
+        file_url = None
+        if qs:
+            file_url = reports.generate_maret_report(qs, InteractionReportMixin)
 
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="meret_interaction_report.xlsx"'
+        if os.path.exists(file_url):
+            with open(file_url, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = f'inline; filename="meret_interaction_report.xlsx"'
 
-            return response
-    raise Http404
+                return response
+        raise Http404
 
 
 #######################################################
@@ -653,22 +653,22 @@ class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
         return context
 
 
-@login_required()
-def committee_report(request):
-    id_list = json.loads(request.GET.get("ids"))
-    qs = models.Committee.objects.filter(pk__in=id_list)
+class CommitteeReportView(UserRequiredMixin, View):
+    def get(self, request):
+        id_list = json.loads(request.GET.get("ids"))
+        qs = models.Committee.objects.filter(pk__in=id_list)
 
-    file_url = None
-    if qs:
-        file_url = reports.generate_maret_report(qs, CommitteeReportMixin)
+        file_url = None
+        if qs:
+            file_url = reports.generate_maret_report(qs, CommitteeReportMixin)
 
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="meret_committee_report.xlsx"'
+        if os.path.exists(file_url):
+            with open(file_url, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = f'inline; filename="meret_committee_report.xlsx"'
 
-            return response
-    raise Http404
+                return response
+        raise Http404
 
 
 #######################################################
@@ -984,22 +984,22 @@ class OrganizationCueCard(PDFTemplateView):
         return context
 
 
-@login_required()
-def organization_report(request):
-    id_list = json.loads(request.GET.get("ids"))
-    qs = ml_models.Organization.objects.filter(pk__in=id_list)
+class OrganizationReportView(UserRequiredMixin, View):
+    def get(self, request):
+        id_list = json.loads(request.GET.get("ids"))
+        qs = ml_models.Organization.objects.filter(pk__in=id_list)
 
-    file_url = None
-    if qs:
-        file_url = reports.generate_maret_report(qs, OrganizationReportMixin)
+        file_url = None
+        if qs:
+            file_url = reports.generate_maret_report(qs, OrganizationReportMixin)
 
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="meret_organization_report.xlsx"'
+        if os.path.exists(file_url):
+            with open(file_url, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = f'inline; filename="meret_organization_report.xlsx"'
 
-            return response
-    raise Http404
+                return response
+        raise Http404
 
 
 #######################################################

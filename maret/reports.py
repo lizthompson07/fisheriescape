@@ -41,14 +41,16 @@ class InteractionReportMixin:
     sheet_title = "Interactions"
 
     def val(obj, field):
+        val = " --- "
         if "interaction_type" in field:
-            val = " --- "
             if obj.interaction_type:
                 val = obj.get_interaction_type_display()
         elif "date_of_meeting" in field:
-            val = obj.date_of_meeting.strftime("%Y-%m-%d")
-        elif "date_last_modified" in field:
-            val = obj.last_modified.strftime("%Y-%m-%d")
+            if obj.date_of_meeting:
+                val = obj.date_of_meeting.strftime("%Y-%m-%d")
+        elif "last_modified" == field:
+            if obj.last_modified:
+                val = obj.last_modified.strftime("%Y-%m-%d")
         else:
             val = str(get_field_value(obj, field))
         return val
