@@ -7,7 +7,9 @@ from bio_diversity.test import BioFactoryFloor
 from shared_models.test.common_tests import CommonTest
 
 from bio_diversity.views import CommonCreate, CommonDetails, CommonUpdate, GenericList
+from shares.models import User
 from .. import views
+from ..models import BioUser
 
 faker = Faker()
 
@@ -21,12 +23,27 @@ def setup_view(view, request, *args, **kwargs):
     return view
 
 
+class CommonBioTest(CommonTest):
+
+    # use when an admin user needs to be logged in.
+    def login_bio_admin_user(self):
+        user = self.get_and_login_user()
+        BioUser(user=user, is_admin=True).save()
+        return user
+
+    # use when an author user needs to be logged in.
+    def login_bio_author_user(self):
+        user = self.get_and_login_user()
+        BioUser(user=user, is_author=True).save()
+        return user
+
+
 class MockCommonCreate(views.CommonCreate):
     pass
 
 
 @tag('CreateCommon')
-class TestCommonCreate(CommonTest):
+class TestCommonCreate(CommonBioTest):
 
     def setUp(self):
         self.view = MockCommonCreate()
@@ -37,7 +54,7 @@ class TestCommonCreate(CommonTest):
         request = req_faq.get(None)
 
         # create and login a user to be expected by the inital function
-        user = self.get_and_login_user(in_group="bio_diversity_admin")
+        user = self.login_bio_admin_user()
         request.user = user
 
         setup_view(self.view, request)
@@ -50,13 +67,13 @@ class TestCommonCreate(CommonTest):
 
 
 @tag("Anidc")
-class TestAnidcCreateView(CommonTest):
+class TestAnidcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.AnidcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_anidc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.AnidcCreate, CommonCreate)
@@ -75,13 +92,13 @@ class TestAnidcCreateView(CommonTest):
 
 
 @tag("Anidc")
-class TestAnidcDetailView(CommonTest):
+class TestAnidcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.AnidcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_anidc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.AnidcDetails, CommonDetails)
@@ -112,12 +129,12 @@ class TestAnidcDetailView(CommonTest):
 
 
 @tag("Anidc")
-class TestAnidcListView(CommonTest):
+class TestAnidcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_anidc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.AnidcList, GenericList)
@@ -132,13 +149,13 @@ class TestAnidcListView(CommonTest):
 
 
 @tag("Anidc")
-class AnidcUpdateView(CommonTest):
+class AnidcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.AnidcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_anidc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.AnidcUpdate, CommonUpdate)
@@ -158,13 +175,13 @@ class AnidcUpdateView(CommonTest):
 
 
 @tag("Anix")
-class TestAnixCreateView(CommonTest):
+class TestAnixCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.AnixFactory()
         self.test_url = reverse_lazy('bio_diversity:create_anix')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.AnixCreate, CommonCreate)
@@ -183,13 +200,13 @@ class TestAnixCreateView(CommonTest):
 
 
 @tag("Anix")
-class TestAnixDetailView(CommonTest):
+class TestAnixDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.AnixFactory()
         self.test_url = reverse_lazy('bio_diversity:details_anix', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.AnixDetails, CommonDetails)
@@ -217,12 +234,12 @@ class TestAnixDetailView(CommonTest):
 
 
 @tag("Anix")
-class TestAnixListView(CommonTest):
+class TestAnixListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_anix')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.AnixList, GenericList)
@@ -237,13 +254,13 @@ class TestAnixListView(CommonTest):
 
 
 @tag("Anix")
-class AnixUpdateView(CommonTest):
+class AnixUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.AnixFactory()
         self.test_url = reverse_lazy('bio_diversity:update_anix', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.AnixUpdate, CommonUpdate)
@@ -263,13 +280,13 @@ class AnixUpdateView(CommonTest):
 
 
 @tag("Adsc")
-class TestAdscCreateView(CommonTest):
+class TestAdscCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.AdscFactory()
         self.test_url = reverse_lazy('bio_diversity:create_adsc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.AdscCreate, CommonCreate)
@@ -288,13 +305,13 @@ class TestAdscCreateView(CommonTest):
 
 
 @tag("Adsc")
-class TestAdscDetailView(CommonTest):
+class TestAdscDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.AdscFactory()
         self.test_url = reverse_lazy('bio_diversity:details_adsc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.AdscDetails, CommonDetails)
@@ -322,12 +339,12 @@ class TestAdscDetailView(CommonTest):
 
 
 @tag("Adsc")
-class TestAdscListView(CommonTest):
+class TestAdscListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_adsc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.AdscList, GenericList)
@@ -342,13 +359,13 @@ class TestAdscListView(CommonTest):
 
 
 @tag("Adsc")
-class AdscUpdateView(CommonTest):
+class AdscUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.AdscFactory()
         self.test_url = reverse_lazy('bio_diversity:update_adsc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.AdscUpdate, CommonUpdate)
@@ -368,13 +385,13 @@ class AdscUpdateView(CommonTest):
 
 
 @tag("Cnt")
-class TestCntCreateView(CommonTest):
+class TestCntCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CntFactory()
         self.test_url = reverse_lazy('bio_diversity:create_cnt')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CntCreate, CommonCreate)
@@ -393,13 +410,13 @@ class TestCntCreateView(CommonTest):
 
 
 @tag("Cnt")
-class TestCntDetailView(CommonTest):
+class TestCntDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CntFactory()
         self.test_url = reverse_lazy('bio_diversity:details_cnt', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CntDetails, CommonDetails)
@@ -428,12 +445,12 @@ class TestCntDetailView(CommonTest):
 
 
 @tag("Cnt")
-class TestCntListView(CommonTest):
+class TestCntListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_cnt')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CntList, GenericList)
@@ -448,13 +465,13 @@ class TestCntListView(CommonTest):
 
 
 @tag("Cnt")
-class CntUpdateView(CommonTest):
+class CntUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CntFactory()
         self.test_url = reverse_lazy('bio_diversity:update_cnt', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CntUpdate, CommonUpdate)
@@ -474,13 +491,13 @@ class CntUpdateView(CommonTest):
 
 
 @tag("Cntc")
-class TestCntcCreateView(CommonTest):
+class TestCntcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CntcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_cntc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CntcCreate, CommonCreate)
@@ -499,13 +516,13 @@ class TestCntcCreateView(CommonTest):
 
 
 @tag("Cntc")
-class TestCntcDetailView(CommonTest):
+class TestCntcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CntcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_cntc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CntcDetails, CommonDetails)
@@ -532,12 +549,12 @@ class TestCntcDetailView(CommonTest):
 
 
 @tag("Cntc")
-class TestCntcListView(CommonTest):
+class TestCntcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_cntc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CntcList, GenericList)
@@ -552,13 +569,13 @@ class TestCntcListView(CommonTest):
 
 
 @tag("Cntc")
-class CntcUpdateView(CommonTest):
+class CntcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CntcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_cntc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CntcUpdate, CommonUpdate)
@@ -578,13 +595,13 @@ class CntcUpdateView(CommonTest):
 
 
 @tag("Cntd")
-class TestCntdCreateView(CommonTest):
+class TestCntdCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CntdFactory()
         self.test_url = reverse_lazy('bio_diversity:create_cntd')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CntdCreate, CommonCreate)
@@ -603,13 +620,13 @@ class TestCntdCreateView(CommonTest):
 
 
 @tag("Cntd")
-class TestCntdDetailView(CommonTest):
+class TestCntdDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CntdFactory()
         self.test_url = reverse_lazy('bio_diversity:details_cntd', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CntdDetails, CommonDetails)
@@ -638,12 +655,12 @@ class TestCntdDetailView(CommonTest):
 
 
 @tag("Cntd")
-class TestCntdListView(CommonTest):
+class TestCntdListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_cntd')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -661,13 +678,13 @@ class TestCntdListView(CommonTest):
 
 
 @tag("Cntd")
-class CntdUpdateView(CommonTest):
+class CntdUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CntdFactory()
         self.test_url = reverse_lazy('bio_diversity:update_cntd', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -687,13 +704,13 @@ class CntdUpdateView(CommonTest):
 
 
 @tag("Coll")
-class TestCollCreateView(CommonTest):
+class TestCollCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CollFactory()
         self.test_url = reverse_lazy('bio_diversity:create_coll')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CollCreate, CommonCreate)
@@ -712,13 +729,13 @@ class TestCollCreateView(CommonTest):
 
 
 @tag("Coll")
-class TestCollDetailView(CommonTest):
+class TestCollDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CollFactory()
         self.test_url = reverse_lazy('bio_diversity:details_coll', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CollDetails, CommonDetails)
@@ -745,12 +762,12 @@ class TestCollDetailView(CommonTest):
 
 
 @tag("Coll")
-class TestCollListView(CommonTest):
+class TestCollListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_coll')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CollList, GenericList)
@@ -765,13 +782,13 @@ class TestCollListView(CommonTest):
 
 
 @tag("Coll")
-class CollUpdateView(CommonTest):
+class CollUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CollFactory()
         self.test_url = reverse_lazy('bio_diversity:update_coll', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CollUpdate, CommonUpdate)
@@ -791,13 +808,13 @@ class CollUpdateView(CommonTest):
 
 
 @tag("Contdc")
-class TestContdcCreateView(CommonTest):
+class TestContdcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ContdcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_contdc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ContdcCreate, CommonCreate)
@@ -816,13 +833,13 @@ class TestContdcCreateView(CommonTest):
 
 
 @tag("Contdc")
-class TestContdcDetailView(CommonTest):
+class TestContdcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ContdcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_contdc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ContdcDetails, CommonDetails)
@@ -853,12 +870,12 @@ class TestContdcDetailView(CommonTest):
 
 
 @tag("Contdc")
-class TestContdcListView(CommonTest):
+class TestContdcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_contdc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ContdcList, GenericList)
@@ -873,13 +890,13 @@ class TestContdcListView(CommonTest):
 
 
 @tag("Contdc")
-class ContdcUpdateView(CommonTest):
+class ContdcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ContdcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_contdc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ContdcUpdate, CommonUpdate)
@@ -899,13 +916,13 @@ class ContdcUpdateView(CommonTest):
 
 
 @tag("Contx")
-class TestContxCreateView(CommonTest):
+class TestContxCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ContxFactory()
         self.test_url = reverse_lazy('bio_diversity:create_contx')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ContxCreate, CommonCreate)
@@ -924,13 +941,13 @@ class TestContxCreateView(CommonTest):
 
 
 @tag("Contx")
-class TestContxDetailView(CommonTest):
+class TestContxDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ContxFactory()
         self.test_url = reverse_lazy('bio_diversity:details_contx', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ContxDetails, CommonDetails)
@@ -960,12 +977,12 @@ class TestContxDetailView(CommonTest):
 
 
 @tag("Contx")
-class TestContxListView(CommonTest):
+class TestContxListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_contx')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ContxList, GenericList)
@@ -980,13 +997,13 @@ class TestContxListView(CommonTest):
 
 
 @tag("Contx")
-class ContxUpdateView(CommonTest):
+class ContxUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ContxFactory()
         self.test_url = reverse_lazy('bio_diversity:update_contx', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ContxUpdate, CommonUpdate)
@@ -1006,13 +1023,13 @@ class ContxUpdateView(CommonTest):
 
 
 @tag("Cdsc")
-class TestCdscCreateView(CommonTest):
+class TestCdscCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CdscFactory()
         self.test_url = reverse_lazy('bio_diversity:create_cdsc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CdscCreate, CommonCreate)
@@ -1031,13 +1048,13 @@ class TestCdscCreateView(CommonTest):
 
 
 @tag("Cdsc")
-class TestCdscDetailView(CommonTest):
+class TestCdscDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CdscFactory()
         self.test_url = reverse_lazy('bio_diversity:details_cdsc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CdscDetails, CommonDetails)
@@ -1065,12 +1082,12 @@ class TestCdscDetailView(CommonTest):
 
 
 @tag("Cdsc")
-class TestCdscListView(CommonTest):
+class TestCdscListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_cdsc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CdscList, GenericList)
@@ -1085,13 +1102,13 @@ class TestCdscListView(CommonTest):
 
 
 @tag("Cdsc")
-class CdscUpdateView(CommonTest):
+class CdscUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CdscFactory()
         self.test_url = reverse_lazy('bio_diversity:update_cdsc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CdscUpdate, CommonUpdate)
@@ -1111,13 +1128,13 @@ class CdscUpdateView(CommonTest):
 
 
 @tag("Cup")
-class TestCupCreateView(CommonTest):
+class TestCupCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CupFactory()
         self.test_url = reverse_lazy('bio_diversity:create_cup')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CupCreate, CommonCreate)
@@ -1136,13 +1153,13 @@ class TestCupCreateView(CommonTest):
 
 
 @tag("Cup")
-class TestCupDetailView(CommonTest):
+class TestCupDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CupFactory()
         self.test_url = reverse_lazy('bio_diversity:details_cup', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CupDetails, CommonDetails)
@@ -1169,12 +1186,12 @@ class TestCupDetailView(CommonTest):
 
 
 @tag("Cup")
-class TestCupListView(CommonTest):
+class TestCupListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_cup')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CupList, GenericList)
@@ -1189,13 +1206,13 @@ class TestCupListView(CommonTest):
 
 
 @tag("Cup")
-class CupUpdateView(CommonTest):
+class CupUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CupFactory()
         self.test_url = reverse_lazy('bio_diversity:update_cup', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CupUpdate, CommonUpdate)
@@ -1215,13 +1232,13 @@ class CupUpdateView(CommonTest):
 
 
 @tag("Cupd")
-class TestCupdCreateView(CommonTest):
+class TestCupdCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CupdFactory()
         self.test_url = reverse_lazy('bio_diversity:create_cupd')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CupdCreate, CommonCreate)
@@ -1240,13 +1257,13 @@ class TestCupdCreateView(CommonTest):
 
 
 @tag("Cupd")
-class TestCupdDetailView(CommonTest):
+class TestCupdDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CupdFactory()
         self.test_url = reverse_lazy('bio_diversity:details_cupd', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CupdDetails, CommonDetails)
@@ -1277,12 +1294,12 @@ class TestCupdDetailView(CommonTest):
 
 
 @tag("Cupd")
-class TestCupdListView(CommonTest):
+class TestCupdListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_cupd')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CupdList, GenericList)
@@ -1297,13 +1314,13 @@ class TestCupdListView(CommonTest):
 
 
 @tag("Cupd")
-class CupdUpdateView(CommonTest):
+class CupdUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.CupdFactory()
         self.test_url = reverse_lazy('bio_diversity:update_cupd', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.CupdUpdate, CommonUpdate)
@@ -1324,12 +1341,12 @@ class CupdUpdateView(CommonTest):
 
 
 @tag("Data")
-class TestDataCreateView(CommonTest):
+class TestDataCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:create_data')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.DataCreate, CommonCreate)
@@ -1344,12 +1361,12 @@ class TestDataCreateView(CommonTest):
 
 
 @tag("Data")
-class TestDataCreateView(CommonTest):
+class TestDataCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:create_data')
         self.expected_template = 'shared_models/data_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.DrawCreate, CommonCreate)
@@ -1364,13 +1381,13 @@ class TestDataCreateView(CommonTest):
 
 
 @tag("Draw")
-class TestDrawCreateView(CommonTest):
+class TestDrawCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.DrawFactory()
         self.test_url = reverse_lazy('bio_diversity:create_draw')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.DrawCreate, CommonCreate)
@@ -1389,13 +1406,13 @@ class TestDrawCreateView(CommonTest):
 
 
 @tag("Draw")
-class TestDrawDetailView(CommonTest):
+class TestDrawDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.DrawFactory()
         self.test_url = reverse_lazy('bio_diversity:details_draw', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.DrawDetails, CommonDetails)
@@ -1422,12 +1439,12 @@ class TestDrawDetailView(CommonTest):
 
 
 @tag("Draw")
-class TestDrawListView(CommonTest):
+class TestDrawListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_draw')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.DrawList, GenericList)
@@ -1442,13 +1459,13 @@ class TestDrawListView(CommonTest):
 
 
 @tag("Draw")
-class DrawUpdateView(CommonTest):
+class DrawUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.DrawFactory()
         self.test_url = reverse_lazy('bio_diversity:update_draw', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.DrawUpdate, CommonUpdate)
@@ -1468,13 +1485,13 @@ class DrawUpdateView(CommonTest):
 
 
 @tag("Env")
-class TestEnvCreateView(CommonTest):
+class TestEnvCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvFactory()
         self.test_url = reverse_lazy('bio_diversity:create_env')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvCreate, CommonCreate)
@@ -1493,13 +1510,13 @@ class TestEnvCreateView(CommonTest):
 
 
 @tag("Env")
-class TestEnvDetailView(CommonTest):
+class TestEnvDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvFactory()
         self.test_url = reverse_lazy('bio_diversity:details_env', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvDetails, CommonDetails)
@@ -1529,12 +1546,12 @@ class TestEnvDetailView(CommonTest):
 
 
 @tag("Env")
-class TestEnvListView(CommonTest):
+class TestEnvListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_env')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvList, GenericList)
@@ -1549,13 +1566,13 @@ class TestEnvListView(CommonTest):
 
 
 @tag("Env")
-class EnvUpdateView(CommonTest):
+class EnvUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvFactory()
         self.test_url = reverse_lazy('bio_diversity:update_env', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvUpdate, CommonUpdate)
@@ -1575,13 +1592,13 @@ class EnvUpdateView(CommonTest):
 
 
 @tag("Envc")
-class TestEnvcCreateView(CommonTest):
+class TestEnvcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_envc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvcCreate, CommonCreate)
@@ -1600,13 +1617,13 @@ class TestEnvcCreateView(CommonTest):
 
 
 @tag("Envc")
-class TestEnvcDetailView(CommonTest):
+class TestEnvcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_envc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvcDetails, CommonDetails)
@@ -1637,12 +1654,12 @@ class TestEnvcDetailView(CommonTest):
 
 
 @tag("Envc")
-class TestEnvcListView(CommonTest):
+class TestEnvcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_envc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvcList, GenericList)
@@ -1657,13 +1674,13 @@ class TestEnvcListView(CommonTest):
 
 
 @tag("Envc")
-class EnvcUpdateView(CommonTest):
+class EnvcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_envc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvcUpdate, CommonUpdate)
@@ -1683,13 +1700,13 @@ class EnvcUpdateView(CommonTest):
 
 
 @tag("Envcf")
-class TestEnvcfCreateView(CommonTest):
+class TestEnvcfCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvcfFactory()
         self.test_url = reverse_lazy('bio_diversity:create_envcf')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvcfCreate, CommonCreate)
@@ -1708,13 +1725,13 @@ class TestEnvcfCreateView(CommonTest):
 
 
 @tag("Envcf")
-class TestEnvcfDetailView(CommonTest):
+class TestEnvcfDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvcfFactory()
         self.test_url = reverse_lazy('bio_diversity:details_envcf', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvcfDetails, CommonDetails)
@@ -1739,12 +1756,12 @@ class TestEnvcfDetailView(CommonTest):
 
 
 @tag("Envcf")
-class TestEnvcfListView(CommonTest):
+class TestEnvcfListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_envcf')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvcfList, GenericList)
@@ -1759,13 +1776,13 @@ class TestEnvcfListView(CommonTest):
 
 
 @tag("Envcf")
-class EnvcfUpdateView(CommonTest):
+class EnvcfUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvcfFactory()
         self.test_url = reverse_lazy('bio_diversity:update_envcf', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvcfUpdate, CommonUpdate)
@@ -1785,13 +1802,13 @@ class EnvcfUpdateView(CommonTest):
 
 
 @tag("Envsc")
-class TestEnvscCreateView(CommonTest):
+class TestEnvscCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvscFactory()
         self.test_url = reverse_lazy('bio_diversity:create_envsc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvscCreate, CommonCreate)
@@ -1810,13 +1827,13 @@ class TestEnvscCreateView(CommonTest):
 
 
 @tag("Envsc")
-class TestEnvscDetailView(CommonTest):
+class TestEnvscDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvscFactory()
         self.test_url = reverse_lazy('bio_diversity:details_envsc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvscDetails, CommonDetails)
@@ -1844,12 +1861,12 @@ class TestEnvscDetailView(CommonTest):
 
 
 @tag("Envsc")
-class TestEnvscListView(CommonTest):
+class TestEnvscListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_envsc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvscList, GenericList)
@@ -1864,13 +1881,13 @@ class TestEnvscListView(CommonTest):
 
 
 @tag("Envsc")
-class EnvscUpdateView(CommonTest):
+class EnvscUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvscFactory()
         self.test_url = reverse_lazy('bio_diversity:update_envsc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvscUpdate, CommonUpdate)
@@ -1890,13 +1907,13 @@ class EnvscUpdateView(CommonTest):
 
 
 @tag("Envt")
-class TestEnvtCreateView(CommonTest):
+class TestEnvtCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvtFactory()
         self.test_url = reverse_lazy('bio_diversity:create_envt')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvtCreate, CommonCreate)
@@ -1915,13 +1932,13 @@ class TestEnvtCreateView(CommonTest):
 
 
 @tag("Envt")
-class TestEnvtDetailView(CommonTest):
+class TestEnvtDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvtFactory()
         self.test_url = reverse_lazy('bio_diversity:details_envt', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvtDetails, CommonDetails)
@@ -1933,12 +1950,12 @@ class TestEnvtDetailView(CommonTest):
     def test_context(self):
         context_vars = [
             "envtc_id",
-            "lot_num", 
-            "amt", 
-            "unit_id", 
-            "duration", 
-            "comments", 
-            "created_by", 
+            "lot_num",
+            "amt",
+            "unit_id",
+            "duration",
+            "comments",
+            "created_by",
             "created_date",
         ]
         self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
@@ -1950,12 +1967,12 @@ class TestEnvtDetailView(CommonTest):
 
 
 @tag("Envt")
-class TestEnvtListView(CommonTest):
+class TestEnvtListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_envt')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvtList, GenericList)
@@ -1970,13 +1987,13 @@ class TestEnvtListView(CommonTest):
 
 
 @tag("Envt")
-class EnvtUpdateView(CommonTest):
+class EnvtUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvtFactory()
         self.test_url = reverse_lazy('bio_diversity:update_envt', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvtUpdate, CommonUpdate)
@@ -1996,13 +2013,13 @@ class EnvtUpdateView(CommonTest):
 
 
 @tag("Envtc")
-class TestEnvtcCreateView(CommonTest):
+class TestEnvtcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvtcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_envtc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvtcCreate, CommonCreate)
@@ -2021,13 +2038,13 @@ class TestEnvtcCreateView(CommonTest):
 
 
 @tag("Envtc")
-class TestEnvtcDetailView(CommonTest):
+class TestEnvtcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvtcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_envtc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvtcDetails, CommonDetails)
@@ -2056,12 +2073,12 @@ class TestEnvtcDetailView(CommonTest):
 
 
 @tag("Envtc")
-class TestEnvtcListView(CommonTest):
+class TestEnvtcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_envtc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvtcList, GenericList)
@@ -2076,13 +2093,13 @@ class TestEnvtcListView(CommonTest):
 
 
 @tag("Envtc")
-class EnvtcUpdateView(CommonTest):
+class EnvtcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EnvtcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_envtc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EnvtcUpdate, CommonUpdate)
@@ -2102,13 +2119,13 @@ class EnvtcUpdateView(CommonTest):
 
 
 @tag("Evnt")
-class TestEvntCreateView(CommonTest):
+class TestEvntCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EvntFactory()
         self.test_url = reverse_lazy('bio_diversity:create_evnt')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntCreate, CommonCreate)
@@ -2127,13 +2144,13 @@ class TestEvntCreateView(CommonTest):
 
 
 @tag("Evnt")
-class TestEvntDetailView(CommonTest):
+class TestEvntDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EvntFactory()
         self.test_url = reverse_lazy('bio_diversity:details_evnt', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntDetails, CommonDetails)
@@ -2161,12 +2178,12 @@ class TestEvntDetailView(CommonTest):
 
 
 @tag("Evnt")
-class TestEvntListView(CommonTest):
+class TestEvntListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_evnt')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntList, GenericList)
@@ -2181,13 +2198,13 @@ class TestEvntListView(CommonTest):
 
 
 @tag("Evnt")
-class EvntUpdateView(CommonTest):
+class EvntUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EvntFactory()
         self.test_url = reverse_lazy('bio_diversity:update_evnt', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntUpdate, CommonUpdate)
@@ -2207,13 +2224,13 @@ class EvntUpdateView(CommonTest):
 
 
 @tag("Evntc")
-class TestEvntcCreateView(CommonTest):
+class TestEvntcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EvntcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_evntc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntcCreate, CommonCreate)
@@ -2232,13 +2249,13 @@ class TestEvntcCreateView(CommonTest):
 
 
 @tag("Evntc")
-class TestEvntcDetailView(CommonTest):
+class TestEvntcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EvntcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_evntc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntcDetails, CommonDetails)
@@ -2265,12 +2282,12 @@ class TestEvntcDetailView(CommonTest):
 
 
 @tag("Evntc")
-class TestEvntcListView(CommonTest):
+class TestEvntcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_evntc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntcList, GenericList)
@@ -2285,13 +2302,13 @@ class TestEvntcListView(CommonTest):
 
 
 @tag("Evntc")
-class EvntcUpdateView(CommonTest):
+class EvntcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EvntcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_evntc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntcUpdate, CommonUpdate)
@@ -2311,13 +2328,13 @@ class EvntcUpdateView(CommonTest):
 
 
 @tag("Evntf")
-class TestEvntfCreateView(CommonTest):
+class TestEvntfCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EvntfFactory()
         self.test_url = reverse_lazy('bio_diversity:create_evntf')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntfCreate, CommonCreate)
@@ -2336,13 +2353,13 @@ class TestEvntfCreateView(CommonTest):
 
 
 @tag("Evntf")
-class TestEvntfDetailView(CommonTest):
+class TestEvntfDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EvntfFactory()
         self.test_url = reverse_lazy('bio_diversity:details_evntf', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntfDetails, CommonDetails)
@@ -2369,12 +2386,12 @@ class TestEvntfDetailView(CommonTest):
 
 
 @tag("Evntf")
-class TestEvntfListView(CommonTest):
+class TestEvntfListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_evntf')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntfList, GenericList)
@@ -2389,13 +2406,13 @@ class TestEvntfListView(CommonTest):
 
 
 @tag("Evntf")
-class EvntfUpdateView(CommonTest):
+class EvntfUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EvntfFactory()
         self.test_url = reverse_lazy('bio_diversity:update_evntf', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntfUpdate, CommonUpdate)
@@ -2415,13 +2432,13 @@ class EvntfUpdateView(CommonTest):
 
 
 @tag("Evntfc")
-class TestEvntfcCreateView(CommonTest):
+class TestEvntfcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EvntfcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_evntfc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntfcCreate, CommonCreate)
@@ -2440,13 +2457,13 @@ class TestEvntfcCreateView(CommonTest):
 
 
 @tag("Evntfc")
-class TestEvntfcDetailView(CommonTest):
+class TestEvntfcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EvntfcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_evntfc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntfcDetails, CommonDetails)
@@ -2473,12 +2490,12 @@ class TestEvntfcDetailView(CommonTest):
 
 
 @tag("Evntfc")
-class TestEvntfcListView(CommonTest):
+class TestEvntfcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_evntfc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntfcList, GenericList)
@@ -2493,13 +2510,13 @@ class TestEvntfcListView(CommonTest):
 
 
 @tag("Evntfc")
-class EvntfcUpdateView(CommonTest):
+class EvntfcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.EvntfcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_evntfc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.EvntfcUpdate, CommonUpdate)
@@ -2519,13 +2536,13 @@ class EvntfcUpdateView(CommonTest):
 
 
 @tag("Facic")
-class TestFacicCreateView(CommonTest):
+class TestFacicCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FacicFactory()
         self.test_url = reverse_lazy('bio_diversity:create_facic')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FacicCreate, CommonCreate)
@@ -2544,13 +2561,13 @@ class TestFacicCreateView(CommonTest):
 
 
 @tag("Facic")
-class TestFacicDetailView(CommonTest):
+class TestFacicDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FacicFactory()
         self.test_url = reverse_lazy('bio_diversity:details_facic', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FacicDetails, CommonDetails)
@@ -2577,12 +2594,12 @@ class TestFacicDetailView(CommonTest):
 
 
 @tag("Facic")
-class TestFacicListView(CommonTest):
+class TestFacicListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_facic')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FacicList, GenericList)
@@ -2597,13 +2614,13 @@ class TestFacicListView(CommonTest):
 
 
 @tag("Facic")
-class FacicUpdateView(CommonTest):
+class FacicUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FacicFactory()
         self.test_url = reverse_lazy('bio_diversity:update_facic', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FacicUpdate, CommonUpdate)
@@ -2623,13 +2640,13 @@ class FacicUpdateView(CommonTest):
 
 
 @tag("Fecu")
-class TestFecuCreateView(CommonTest):
+class TestFecuCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FecuFactory()
         self.test_url = reverse_lazy('bio_diversity:create_fecu')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FecuCreate, CommonCreate)
@@ -2648,13 +2665,13 @@ class TestFecuCreateView(CommonTest):
 
 
 @tag("Fecu")
-class TestFecuDetailView(CommonTest):
+class TestFecuDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FecuFactory()
         self.test_url = reverse_lazy('bio_diversity:details_fecu', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FecuDetails, CommonDetails)
@@ -2685,12 +2702,12 @@ class TestFecuDetailView(CommonTest):
 
 
 @tag("Fecu")
-class TestFecuListView(CommonTest):
+class TestFecuListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_fecu')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FecuList, GenericList)
@@ -2705,13 +2722,13 @@ class TestFecuListView(CommonTest):
 
 
 @tag("Fecu")
-class FecuUpdateView(CommonTest):
+class FecuUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FecuFactory()
         self.test_url = reverse_lazy('bio_diversity:update_fecu', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FecuUpdate, CommonUpdate)
@@ -2731,13 +2748,13 @@ class FecuUpdateView(CommonTest):
 
 
 @tag("Feed")
-class TestFeedCreateView(CommonTest):
+class TestFeedCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FeedFactory()
         self.test_url = reverse_lazy('bio_diversity:create_feed')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FeedCreate, CommonCreate)
@@ -2756,13 +2773,13 @@ class TestFeedCreateView(CommonTest):
 
 
 @tag("Feed")
-class TestFeedDetailView(CommonTest):
+class TestFeedDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FeedFactory()
         self.test_url = reverse_lazy('bio_diversity:details_feed', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FeedDetails, CommonDetails)
@@ -2792,12 +2809,12 @@ class TestFeedDetailView(CommonTest):
 
 
 @tag("Feed")
-class TestFeedListView(CommonTest):
+class TestFeedListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_feed')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FeedList, GenericList)
@@ -2812,13 +2829,13 @@ class TestFeedListView(CommonTest):
 
 
 @tag("Feed")
-class FeedUpdateView(CommonTest):
+class FeedUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FeedFactory()
         self.test_url = reverse_lazy('bio_diversity:update_feed', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FeedUpdate, CommonUpdate)
@@ -2838,13 +2855,13 @@ class FeedUpdateView(CommonTest):
 
 
 @tag("Feedc")
-class TestFeedcCreateView(CommonTest):
+class TestFeedcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FeedcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_feedc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FeedcCreate, CommonCreate)
@@ -2863,13 +2880,13 @@ class TestFeedcCreateView(CommonTest):
 
 
 @tag("Feedc")
-class TestFeedcDetailView(CommonTest):
+class TestFeedcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FeedcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_feedc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FeedcDetails, CommonDetails)
@@ -2897,12 +2914,12 @@ class TestFeedcDetailView(CommonTest):
 
 
 @tag("Feedc")
-class TestFeedcListView(CommonTest):
+class TestFeedcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_feedc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FeedcList, GenericList)
@@ -2917,13 +2934,13 @@ class TestFeedcListView(CommonTest):
 
 
 @tag("Feedc")
-class FeedcUpdateView(CommonTest):
+class FeedcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FeedcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_feedc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FeedcUpdate, CommonUpdate)
@@ -2943,13 +2960,13 @@ class FeedcUpdateView(CommonTest):
 
 
 @tag("Feedm")
-class TestFeedmCreateView(CommonTest):
+class TestFeedmCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FeedmFactory()
         self.test_url = reverse_lazy('bio_diversity:create_feedm')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FeedmCreate, CommonCreate)
@@ -2968,13 +2985,13 @@ class TestFeedmCreateView(CommonTest):
 
 
 @tag("Feedm")
-class TestFeedmDetailView(CommonTest):
+class TestFeedmDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FeedmFactory()
         self.test_url = reverse_lazy('bio_diversity:details_feedm', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FeedmDetails, CommonDetails)
@@ -3001,12 +3018,12 @@ class TestFeedmDetailView(CommonTest):
 
 
 @tag("Feedm")
-class TestFeedmListView(CommonTest):
+class TestFeedmListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_feedm')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FeedmList, GenericList)
@@ -3021,13 +3038,13 @@ class TestFeedmListView(CommonTest):
 
 
 @tag("Feedm")
-class FeedmUpdateView(CommonTest):
+class FeedmUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.FeedmFactory()
         self.test_url = reverse_lazy('bio_diversity:update_feedm', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.FeedmUpdate, CommonUpdate)
@@ -3047,13 +3064,13 @@ class FeedmUpdateView(CommonTest):
 
 
 @tag("Grp")
-class TestGrpCreateView(CommonTest):
+class TestGrpCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.GrpFactory()
         self.test_url = reverse_lazy('bio_diversity:create_grp')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.GrpCreate, CommonCreate)
@@ -3072,13 +3089,13 @@ class TestGrpCreateView(CommonTest):
 
 
 @tag("Grp")
-class TestGrpDetailView(CommonTest):
+class TestGrpDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.GrpFactory()
         self.test_url = reverse_lazy('bio_diversity:details_grp', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.GrpDetails, CommonDetails)
@@ -3106,12 +3123,12 @@ class TestGrpDetailView(CommonTest):
 
 
 @tag("Grp")
-class TestGrpListView(CommonTest):
+class TestGrpListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_grp')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.GrpList, GenericList)
@@ -3126,13 +3143,13 @@ class TestGrpListView(CommonTest):
 
 
 @tag("Grp")
-class GrpUpdateView(CommonTest):
+class GrpUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.GrpFactory()
         self.test_url = reverse_lazy('bio_diversity:update_grp', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.GrpUpdate, CommonUpdate)
@@ -3152,13 +3169,13 @@ class GrpUpdateView(CommonTest):
 
 
 @tag("Grpd")
-class TestGrpdCreateView(CommonTest):
+class TestGrpdCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.GrpdFactory()
         self.test_url = reverse_lazy('bio_diversity:create_grpd')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.GrpdCreate, CommonCreate)
@@ -3177,13 +3194,13 @@ class TestGrpdCreateView(CommonTest):
 
 
 @tag("Grpd")
-class TestGrpdDetailView(CommonTest):
+class TestGrpdDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.GrpdFactory()
         self.test_url = reverse_lazy('bio_diversity:details_grpd', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.GrpdDetails, CommonDetails)
@@ -3211,12 +3228,12 @@ class TestGrpdDetailView(CommonTest):
 
 
 @tag("Grpd")
-class TestGrpdListView(CommonTest):
+class TestGrpdListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_grpd')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.GrpdList, GenericList)
@@ -3231,13 +3248,13 @@ class TestGrpdListView(CommonTest):
 
 
 @tag("Grpd")
-class GrpdUpdateView(CommonTest):
+class GrpdUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.GrpdFactory()
         self.test_url = reverse_lazy('bio_diversity:update_grpd', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.GrpdUpdate, CommonUpdate)
@@ -3257,13 +3274,13 @@ class GrpdUpdateView(CommonTest):
 
 
 @tag("Heat")
-class TestHeatCreateView(CommonTest):
+class TestHeatCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.HeatFactory()
         self.test_url = reverse_lazy('bio_diversity:create_heat')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.HeatCreate, CommonCreate)
@@ -3282,13 +3299,13 @@ class TestHeatCreateView(CommonTest):
 
 
 @tag("Heat")
-class TestHeatDetailView(CommonTest):
+class TestHeatDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.HeatFactory()
         self.test_url = reverse_lazy('bio_diversity:details_heat', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.HeatDetails, CommonDetails)
@@ -3315,12 +3332,12 @@ class TestHeatDetailView(CommonTest):
 
 
 @tag("Heat")
-class TestHeatListView(CommonTest):
+class TestHeatListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_heat')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.HeatList, GenericList)
@@ -3335,13 +3352,13 @@ class TestHeatListView(CommonTest):
 
 
 @tag("Heat")
-class HeatUpdateView(CommonTest):
+class HeatUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.HeatFactory()
         self.test_url = reverse_lazy('bio_diversity:update_heat', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.HeatUpdate, CommonUpdate)
@@ -3361,13 +3378,13 @@ class HeatUpdateView(CommonTest):
 
 
 @tag("Heatd")
-class TestHeatdCreateView(CommonTest):
+class TestHeatdCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.HeatdFactory()
         self.test_url = reverse_lazy('bio_diversity:create_heatd')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.HeatdCreate, CommonCreate)
@@ -3386,13 +3403,13 @@ class TestHeatdCreateView(CommonTest):
 
 
 @tag("Heatd")
-class TestHeatdDetailView(CommonTest):
+class TestHeatdDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.HeatdFactory()
         self.test_url = reverse_lazy('bio_diversity:details_heatd', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.HeatdDetails, CommonDetails)
@@ -3423,12 +3440,12 @@ class TestHeatdDetailView(CommonTest):
 
 
 @tag("Heatd")
-class TestHeatdListView(CommonTest):
+class TestHeatdListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_heatd')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.HeatdList, GenericList)
@@ -3443,13 +3460,13 @@ class TestHeatdListView(CommonTest):
 
 
 @tag("Heatd")
-class HeatdUpdateView(CommonTest):
+class HeatdUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.HeatdFactory()
         self.test_url = reverse_lazy('bio_diversity:update_heatd', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.HeatdUpdate, CommonUpdate)
@@ -3469,13 +3486,13 @@ class HeatdUpdateView(CommonTest):
 
 
 @tag("Img")
-class TestImgCreateView(CommonTest):
+class TestImgCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ImgFactory()
         self.test_url = reverse_lazy('bio_diversity:create_img')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ImgCreate, CommonCreate)
@@ -3494,13 +3511,13 @@ class TestImgCreateView(CommonTest):
 
 
 @tag("Img")
-class TestImgDetailView(CommonTest):
+class TestImgDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ImgFactory()
         self.test_url = reverse_lazy('bio_diversity:details_img', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ImgDetails, CommonDetails)
@@ -3526,12 +3543,12 @@ class TestImgDetailView(CommonTest):
 
 
 @tag("Img")
-class TestImgListView(CommonTest):
+class TestImgListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_img')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ImgList, GenericList)
@@ -3546,13 +3563,13 @@ class TestImgListView(CommonTest):
 
 
 @tag("Img")
-class ImgUpdateView(CommonTest):
+class ImgUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ImgFactory()
         self.test_url = reverse_lazy('bio_diversity:update_img', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ImgUpdate, CommonUpdate)
@@ -3572,13 +3589,13 @@ class ImgUpdateView(CommonTest):
 
 
 @tag("Imgc")
-class TestImgcCreateView(CommonTest):
+class TestImgcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ImgcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_imgc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ImgcCreate, CommonCreate)
@@ -3597,13 +3614,13 @@ class TestImgcCreateView(CommonTest):
 
 
 @tag("Imgc")
-class TestImgcDetailView(CommonTest):
+class TestImgcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ImgcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_imgc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ImgcDetails, CommonDetails)
@@ -3630,12 +3647,12 @@ class TestImgcDetailView(CommonTest):
 
 
 @tag("Imgc")
-class TestImgcListView(CommonTest):
+class TestImgcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_imgc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ImgcList, GenericList)
@@ -3650,13 +3667,13 @@ class TestImgcListView(CommonTest):
 
 
 @tag("Imgc")
-class ImgcUpdateView(CommonTest):
+class ImgcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ImgcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_imgc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ImgcUpdate, CommonUpdate)
@@ -3676,13 +3693,13 @@ class ImgcUpdateView(CommonTest):
 
 
 @tag("Indv")
-class TestIndvCreateView(CommonTest):
+class TestIndvCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.IndvFactory()
         self.test_url = reverse_lazy('bio_diversity:create_indv')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvCreate, CommonCreate)
@@ -3701,13 +3718,13 @@ class TestIndvCreateView(CommonTest):
 
 
 @tag("Indv")
-class TestIndvDetailView(CommonTest):
+class TestIndvDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.IndvFactory()
         self.test_url = reverse_lazy('bio_diversity:details_indv', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvDetails, CommonDetails)
@@ -3737,12 +3754,12 @@ class TestIndvDetailView(CommonTest):
 
 
 @tag("Indv")
-class TestIndvListView(CommonTest):
+class TestIndvListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_indv')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvList, GenericList)
@@ -3757,13 +3774,13 @@ class TestIndvListView(CommonTest):
 
 
 @tag("Indv")
-class IndvUpdateView(CommonTest):
+class IndvUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.IndvFactory()
         self.test_url = reverse_lazy('bio_diversity:update_indv', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvUpdate, CommonUpdate)
@@ -3783,13 +3800,13 @@ class IndvUpdateView(CommonTest):
 
 
 @tag("Indvd")
-class TestIndvdCreateView(CommonTest):
+class TestIndvdCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.IndvdFactory()
         self.test_url = reverse_lazy('bio_diversity:create_indvd')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvdCreate, CommonCreate)
@@ -3808,13 +3825,13 @@ class TestIndvdCreateView(CommonTest):
 
 
 @tag("Indvd")
-class TestIndvdDetailView(CommonTest):
+class TestIndvdDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.IndvdFactory()
         self.test_url = reverse_lazy('bio_diversity:details_indvd', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvdDetails, CommonDetails)
@@ -3842,12 +3859,12 @@ class TestIndvdDetailView(CommonTest):
 
 
 @tag("Indvd")
-class TestIndvdListView(CommonTest):
+class TestIndvdListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_indvd')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvdList, GenericList)
@@ -3862,13 +3879,13 @@ class TestIndvdListView(CommonTest):
 
 
 @tag("Indvd")
-class IndvdUpdateView(CommonTest):
+class IndvdUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.IndvdFactory()
         self.test_url = reverse_lazy('bio_diversity:update_indvd', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvdUpdate, CommonUpdate)
@@ -3888,13 +3905,13 @@ class IndvdUpdateView(CommonTest):
 
 
 @tag("Indvt")
-class TestIndvtCreateView(CommonTest):
+class TestIndvtCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.IndvtFactory()
         self.test_url = reverse_lazy('bio_diversity:create_indvt')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvtCreate, CommonCreate)
@@ -3913,13 +3930,13 @@ class TestIndvtCreateView(CommonTest):
 
 
 @tag("Indvt")
-class TestIndvtDetailView(CommonTest):
+class TestIndvtDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.IndvtFactory()
         self.test_url = reverse_lazy('bio_diversity:details_indvt', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvtDetails, CommonDetails)
@@ -3947,12 +3964,12 @@ class TestIndvtDetailView(CommonTest):
 
 
 @tag("Indvt")
-class TestIndvtListView(CommonTest):
+class TestIndvtListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_indvt')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvtList, GenericList)
@@ -3967,13 +3984,13 @@ class TestIndvtListView(CommonTest):
 
 
 @tag("Indvt")
-class IndvtUpdateView(CommonTest):
+class IndvtUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.IndvtFactory()
         self.test_url = reverse_lazy('bio_diversity:update_indvt', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvtUpdate, CommonUpdate)
@@ -3993,13 +4010,13 @@ class IndvtUpdateView(CommonTest):
 
 
 @tag("Indvtc")
-class TestIndvtcCreateView(CommonTest):
+class TestIndvtcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.IndvtcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_indvtc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvtcCreate, CommonCreate)
@@ -4018,13 +4035,13 @@ class TestIndvtcCreateView(CommonTest):
 
 
 @tag("Indvtc")
-class TestIndvtcDetailView(CommonTest):
+class TestIndvtcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.IndvtcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_indvtc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvtcDetails, CommonDetails)
@@ -4053,12 +4070,12 @@ class TestIndvtcDetailView(CommonTest):
 
 
 @tag("Indvtc")
-class TestIndvtcListView(CommonTest):
+class TestIndvtcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_indvtc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvtcList, GenericList)
@@ -4073,13 +4090,13 @@ class TestIndvtcListView(CommonTest):
 
 
 @tag("Indvtc")
-class IndvtcUpdateView(CommonTest):
+class IndvtcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.IndvtcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_indvtc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.IndvtcUpdate, CommonUpdate)
@@ -4099,13 +4116,13 @@ class IndvtcUpdateView(CommonTest):
 
 
 @tag("Inst")
-class TestInstCreateView(CommonTest):
+class TestInstCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.InstFactory()
         self.test_url = reverse_lazy('bio_diversity:create_inst')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstCreate, CommonCreate)
@@ -4124,13 +4141,13 @@ class TestInstCreateView(CommonTest):
 
 
 @tag("Inst")
-class TestInstDetailView(CommonTest):
+class TestInstDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.InstFactory()
         self.test_url = reverse_lazy('bio_diversity:details_inst', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstDetails, CommonDetails)
@@ -4156,12 +4173,12 @@ class TestInstDetailView(CommonTest):
 
 
 @tag("Inst")
-class TestInstListView(CommonTest):
+class TestInstListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_inst')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstList, GenericList)
@@ -4176,13 +4193,13 @@ class TestInstListView(CommonTest):
 
 
 @tag("Inst")
-class InstUpdateView(CommonTest):
+class InstUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.InstFactory()
         self.test_url = reverse_lazy('bio_diversity:update_inst', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstUpdate, CommonUpdate)
@@ -4202,13 +4219,13 @@ class InstUpdateView(CommonTest):
 
 
 @tag("Instc")
-class TestInstcCreateView(CommonTest):
+class TestInstcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.InstcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_instc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcCreate, CommonCreate)
@@ -4227,13 +4244,13 @@ class TestInstcCreateView(CommonTest):
 
 
 @tag("Instc")
-class TestInstcDetailView(CommonTest):
+class TestInstcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.InstcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_instc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcDetails, CommonDetails)
@@ -4260,12 +4277,12 @@ class TestInstcDetailView(CommonTest):
 
 
 @tag("Instc")
-class TestInstcListView(CommonTest):
+class TestInstcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_instc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcList, GenericList)
@@ -4280,13 +4297,13 @@ class TestInstcListView(CommonTest):
 
 
 @tag("Instc")
-class InstcUpdateView(CommonTest):
+class InstcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.InstcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_instc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -4306,13 +4323,13 @@ class InstcUpdateView(CommonTest):
 
 
 @tag("Instd")
-class TestInstdCreateView(CommonTest):
+class TestInstdCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.InstdFactory()
         self.test_url = reverse_lazy('bio_diversity:create_instd')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstdCreate, CommonCreate)
@@ -4331,13 +4348,13 @@ class TestInstdCreateView(CommonTest):
 
 
 @tag("Instd")
-class TestInstdDetailView(CommonTest):
+class TestInstdDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.InstdFactory()
         self.test_url = reverse_lazy('bio_diversity:details_instd', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstdDetails, CommonDetails)
@@ -4367,12 +4384,12 @@ class TestInstdDetailView(CommonTest):
 
 
 @tag("Instd")
-class TestInstdListView(CommonTest):
+class TestInstdListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_instd')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstdList, GenericList)
@@ -4387,13 +4404,13 @@ class TestInstdListView(CommonTest):
 
 
 @tag("Instd")
-class InstdUpdateView(CommonTest):
+class InstdUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.InstdFactory()
         self.test_url = reverse_lazy('bio_diversity:update_instd', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstdUpdate, CommonUpdate)
@@ -4413,13 +4430,13 @@ class InstdUpdateView(CommonTest):
 
 
 @tag("Instdc")
-class TestInstdcCreateView(CommonTest):
+class TestInstdcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.InstdcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_instdc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstdcCreate, CommonCreate)
@@ -4438,13 +4455,13 @@ class TestInstdcCreateView(CommonTest):
 
 
 @tag("Instdc")
-class TestInstdcDetailView(CommonTest):
+class TestInstdcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.InstdcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_instdc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstdcDetails, CommonDetails)
@@ -4471,12 +4488,12 @@ class TestInstdcDetailView(CommonTest):
 
 
 @tag("Instdc")
-class TestInstdcListView(CommonTest):
+class TestInstdcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_instdc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -4494,13 +4511,13 @@ class TestInstdcListView(CommonTest):
 
 
 @tag("Instdc")
-class InstdcUpdateView(CommonTest):
+class InstdcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.InstdcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_instdc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -4520,13 +4537,13 @@ class InstdcUpdateView(CommonTest):
 
 
 @tag("Loc")
-class TestLocCreateView(CommonTest):
+class TestLocCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LocFactory()
         self.test_url = reverse_lazy('bio_diversity:create_loc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.LocCreate, CommonCreate)
@@ -4545,13 +4562,13 @@ class TestLocCreateView(CommonTest):
 
 
 @tag("Loc")
-class TestLocDetailView(CommonTest):
+class TestLocDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LocFactory()
         self.test_url = reverse_lazy('bio_diversity:details_loc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.LocDetails, CommonDetails)
@@ -4583,12 +4600,12 @@ class TestLocDetailView(CommonTest):
 
 
 @tag("Loc")
-class TestLocListView(CommonTest):
+class TestLocListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_loc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -4606,13 +4623,13 @@ class TestLocListView(CommonTest):
 
 
 @tag("Loc")
-class LocUpdateView(CommonTest):
+class LocUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LocFactory()
         self.test_url = reverse_lazy('bio_diversity:update_loc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -4632,13 +4649,13 @@ class LocUpdateView(CommonTest):
 
 
 @tag("Locc")
-class TestLoccCreateView(CommonTest):
+class TestLoccCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LoccFactory()
         self.test_url = reverse_lazy('bio_diversity:create_locc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.LoccCreate, CommonCreate)
@@ -4657,13 +4674,13 @@ class TestLoccCreateView(CommonTest):
 
 
 @tag("Locc")
-class TestLoccDetailView(CommonTest):
+class TestLoccDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LoccFactory()
         self.test_url = reverse_lazy('bio_diversity:details_locc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.LoccDetails, CommonDetails)
@@ -4690,12 +4707,12 @@ class TestLoccDetailView(CommonTest):
 
 
 @tag("Locc")
-class TestLoccListView(CommonTest):
+class TestLoccListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_locc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -4713,13 +4730,13 @@ class TestLoccListView(CommonTest):
 
 
 @tag("Locc")
-class LoccUpdateView(CommonTest):
+class LoccUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LoccFactory()
         self.test_url = reverse_lazy('bio_diversity:update_locc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -4739,13 +4756,13 @@ class LoccUpdateView(CommonTest):
 
 
 @tag("Locd")
-class TestLocdCreateView(CommonTest):
+class TestLocdCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LocdFactory()
         self.test_url = reverse_lazy('bio_diversity:create_locd')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.LocdCreate, CommonCreate)
@@ -4764,13 +4781,13 @@ class TestLocdCreateView(CommonTest):
 
 
 @tag("Locd")
-class TestLocdDetailView(CommonTest):
+class TestLocdDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LocdFactory()
         self.test_url = reverse_lazy('bio_diversity:details_locd', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.LocdDetails, CommonDetails)
@@ -4783,12 +4800,12 @@ class TestLocdDetailView(CommonTest):
         context_vars = [
             "locdc_id",
             "loc_id",
-            "det_val", 
-            "ldsc_id", 
-            "qual_id", 
-            "detail_date", 
-            "comments", 
-            "created_by", 
+            "det_val",
+            "ldsc_id",
+            "qual_id",
+            "detail_date",
+            "comments",
+            "created_by",
             "created_date",
         ]
         self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
@@ -4800,12 +4817,12 @@ class TestLocdDetailView(CommonTest):
 
 
 @tag("Locd")
-class TestLocdListView(CommonTest):
+class TestLocdListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_locd')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -4823,13 +4840,13 @@ class TestLocdListView(CommonTest):
 
 
 @tag("Locd")
-class LocdUpdateView(CommonTest):
+class LocdUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LocdFactory()
         self.test_url = reverse_lazy('bio_diversity:update_locd', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -4849,13 +4866,13 @@ class LocdUpdateView(CommonTest):
 
 
 @tag("Locdc")
-class TestLocdcCreateView(CommonTest):
+class TestLocdcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LocdcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_locdc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.LocdcCreate, CommonCreate)
@@ -4874,13 +4891,13 @@ class TestLocdcCreateView(CommonTest):
 
 
 @tag("Locdc")
-class TestLocdcDetailView(CommonTest):
+class TestLocdcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LocdcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_locdc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.LocdcDetails, CommonDetails)
@@ -4911,12 +4928,12 @@ class TestLocdcDetailView(CommonTest):
 
 
 @tag("Locdc")
-class TestLocdcListView(CommonTest):
+class TestLocdcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_locdc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -4934,13 +4951,13 @@ class TestLocdcListView(CommonTest):
 
 
 @tag("Locdc")
-class LocdcUpdateView(CommonTest):
+class LocdcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LocdcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_locdc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -4960,13 +4977,13 @@ class LocdcUpdateView(CommonTest):
 
 
 @tag("Ldsc")
-class TestLdscCreateView(CommonTest):
+class TestLdscCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LdscFactory()
         self.test_url = reverse_lazy('bio_diversity:create_ldsc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.LdscCreate, CommonCreate)
@@ -4985,13 +5002,13 @@ class TestLdscCreateView(CommonTest):
 
 
 @tag("Ldsc")
-class TestLdscDetailView(CommonTest):
+class TestLdscDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LdscFactory()
         self.test_url = reverse_lazy('bio_diversity:details_ldsc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.LdscDetails, CommonDetails)
@@ -5018,12 +5035,12 @@ class TestLdscDetailView(CommonTest):
 
 
 @tag("Ldsc")
-class TestLdscListView(CommonTest):
+class TestLdscListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_ldsc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -5041,13 +5058,13 @@ class TestLdscListView(CommonTest):
 
 
 @tag("Ldsc")
-class LdscUpdateView(CommonTest):
+class LdscUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.LdscFactory()
         self.test_url = reverse_lazy('bio_diversity:update_ldsc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -5067,13 +5084,13 @@ class LdscUpdateView(CommonTest):
 
 
 @tag("Move")
-class TestMoveCreateView(CommonTest):
+class TestMoveCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.MoveFactory()
         self.test_url = reverse_lazy('bio_diversity:create_move')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.MoveCreate, CommonCreate)
@@ -5092,13 +5109,13 @@ class TestMoveCreateView(CommonTest):
 
 
 @tag("Move")
-class TestMoveDetailView(CommonTest):
+class TestMoveDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.MoveFactory()
         self.test_url = reverse_lazy('bio_diversity:details_move', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.MoveDetails, CommonDetails)
@@ -5122,12 +5139,12 @@ class TestMoveDetailView(CommonTest):
 
 
 @tag("Move")
-class TestMoveListView(CommonTest):
+class TestMoveListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_move')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -5145,13 +5162,13 @@ class TestMoveListView(CommonTest):
 
 
 @tag("Move")
-class MoveUpdateView(CommonTest):
+class MoveUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.MoveFactory()
         self.test_url = reverse_lazy('bio_diversity:update_move', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -5171,13 +5188,13 @@ class MoveUpdateView(CommonTest):
 
 
 @tag("Orga")
-class TestOrgaCreateView(CommonTest):
+class TestOrgaCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.OrgaFactory()
         self.test_url = reverse_lazy('bio_diversity:create_orga')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.OrgaCreate, CommonCreate)
@@ -5196,13 +5213,13 @@ class TestOrgaCreateView(CommonTest):
 
 
 @tag("Orga")
-class TestOrgaDetailView(CommonTest):
+class TestOrgaDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.OrgaFactory()
         self.test_url = reverse_lazy('bio_diversity:details_orga', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.OrgaDetails, CommonDetails)
@@ -5229,12 +5246,12 @@ class TestOrgaDetailView(CommonTest):
 
 
 @tag("Orga")
-class TestOrgaListView(CommonTest):
+class TestOrgaListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_orga')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -5252,13 +5269,13 @@ class TestOrgaListView(CommonTest):
 
 
 @tag("Orga")
-class OrgaUpdateView(CommonTest):
+class OrgaUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.OrgaFactory()
         self.test_url = reverse_lazy('bio_diversity:update_orga', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -5278,13 +5295,13 @@ class OrgaUpdateView(CommonTest):
 
 
 @tag("Pair")
-class TestPairCreateView(CommonTest):
+class TestPairCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.PairFactory()
         self.test_url = reverse_lazy('bio_diversity:create_pair')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.PairCreate, CommonCreate)
@@ -5303,13 +5320,13 @@ class TestPairCreateView(CommonTest):
 
 
 @tag("Pair")
-class TestPairDetailView(CommonTest):
+class TestPairDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.PairFactory()
         self.test_url = reverse_lazy('bio_diversity:details_pair', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.PairDetails, CommonDetails)
@@ -5337,12 +5354,12 @@ class TestPairDetailView(CommonTest):
 
 
 @tag("Pair")
-class TestPairListView(CommonTest):
+class TestPairListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_pair')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -5360,13 +5377,13 @@ class TestPairListView(CommonTest):
 
 
 @tag("Pair")
-class PairUpdateView(CommonTest):
+class PairUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.PairFactory()
         self.test_url = reverse_lazy('bio_diversity:update_pair', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -5386,13 +5403,13 @@ class PairUpdateView(CommonTest):
 
 
 @tag("Perc")
-class TestPercCreateView(CommonTest):
+class TestPercCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.PercFactory()
         self.test_url = reverse_lazy('bio_diversity:create_perc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.PercCreate, CommonCreate)
@@ -5411,13 +5428,13 @@ class TestPercCreateView(CommonTest):
 
 
 @tag("Perc")
-class TestPercDetailView(CommonTest):
+class TestPercDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.PercFactory()
         self.test_url = reverse_lazy('bio_diversity:details_perc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.PercDetails, CommonDetails)
@@ -5443,12 +5460,12 @@ class TestPercDetailView(CommonTest):
 
 
 @tag("Perc")
-class TestPercListView(CommonTest):
+class TestPercListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_perc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -5466,13 +5483,13 @@ class TestPercListView(CommonTest):
 
 
 @tag("Perc")
-class PercUpdateView(CommonTest):
+class PercUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.PercFactory()
         self.test_url = reverse_lazy('bio_diversity:update_perc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -5492,13 +5509,13 @@ class PercUpdateView(CommonTest):
 
 
 @tag("Prio")
-class TestPrioCreateView(CommonTest):
+class TestPrioCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.PrioFactory()
         self.test_url = reverse_lazy('bio_diversity:create_prio')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.PrioCreate, CommonCreate)
@@ -5517,13 +5534,13 @@ class TestPrioCreateView(CommonTest):
 
 
 @tag("Prio")
-class TestPrioDetailView(CommonTest):
+class TestPrioDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.PrioFactory()
         self.test_url = reverse_lazy('bio_diversity:details_prio', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.PrioDetails, CommonDetails)
@@ -5550,12 +5567,12 @@ class TestPrioDetailView(CommonTest):
 
 
 @tag("Prio")
-class TestPrioListView(CommonTest):
+class TestPrioListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_prio')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.PrioList, GenericList)
@@ -5570,13 +5587,13 @@ class TestPrioListView(CommonTest):
 
 
 @tag("Prio")
-class PrioUpdateView(CommonTest):
+class PrioUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.PrioFactory()
         self.test_url = reverse_lazy('bio_diversity:update_prio', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.PrioUpdate, CommonUpdate)
@@ -5596,13 +5613,13 @@ class PrioUpdateView(CommonTest):
 
 
 @tag("Prog")
-class TestProgCreateView(CommonTest):
+class TestProgCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProgFactory()
         self.test_url = reverse_lazy('bio_diversity:create_prog')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ProgCreate, CommonCreate)
@@ -5621,13 +5638,13 @@ class TestProgCreateView(CommonTest):
 
 
 @tag("Prog")
-class TestProgDetailView(CommonTest):
+class TestProgDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProgFactory()
         self.test_url = reverse_lazy('bio_diversity:details_prog', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ProgDetails, CommonDetails)
@@ -5658,12 +5675,12 @@ class TestProgDetailView(CommonTest):
 
 
 @tag("Prog")
-class TestProgListView(CommonTest):
+class TestProgListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_prog')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -5681,13 +5698,13 @@ class TestProgListView(CommonTest):
 
 
 @tag("Prog")
-class ProgUpdateView(CommonTest):
+class ProgUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProgFactory()
         self.test_url = reverse_lazy('bio_diversity:update_prog', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -5707,13 +5724,13 @@ class ProgUpdateView(CommonTest):
 
 
 @tag("Proga")
-class TestProgaCreateView(CommonTest):
+class TestProgaCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProgaFactory()
         self.test_url = reverse_lazy('bio_diversity:create_proga')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ProgaCreate, CommonCreate)
@@ -5732,13 +5749,13 @@ class TestProgaCreateView(CommonTest):
 
 
 @tag("Proga")
-class TestProgaDetailView(CommonTest):
+class TestProgaDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProgaFactory()
         self.test_url = reverse_lazy('bio_diversity:details_proga', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ProgaDetails, CommonDetails)
@@ -5763,12 +5780,12 @@ class TestProgaDetailView(CommonTest):
 
 
 @tag("Proga")
-class TestProgaListView(CommonTest):
+class TestProgaListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_proga')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -5786,13 +5803,13 @@ class TestProgaListView(CommonTest):
 
 
 @tag("Proga")
-class ProgaUpdateView(CommonTest):
+class ProgaUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProgaFactory()
         self.test_url = reverse_lazy('bio_diversity:update_proga', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -5812,13 +5829,13 @@ class ProgaUpdateView(CommonTest):
 
 
 @tag("Prot")
-class TestProtCreateView(CommonTest):
+class TestProtCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProtFactory()
         self.test_url = reverse_lazy('bio_diversity:create_prot')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ProtCreate, CommonCreate)
@@ -5837,13 +5854,13 @@ class TestProtCreateView(CommonTest):
 
 
 @tag("Prot")
-class TestProtDetailView(CommonTest):
+class TestProtDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProtFactory()
         self.test_url = reverse_lazy('bio_diversity:details_prot', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ProtDetails, CommonDetails)
@@ -5873,12 +5890,12 @@ class TestProtDetailView(CommonTest):
 
 
 @tag("Prot")
-class TestProtListView(CommonTest):
+class TestProtListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_prot')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -5896,13 +5913,13 @@ class TestProtListView(CommonTest):
 
 
 @tag("Prot")
-class ProtUpdateView(CommonTest):
+class ProtUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProtFactory()
         self.test_url = reverse_lazy('bio_diversity:update_prot', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -5922,13 +5939,13 @@ class ProtUpdateView(CommonTest):
 
 
 @tag("Protc")
-class TestProtcCreateView(CommonTest):
+class TestProtcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProtcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_protc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ProtcCreate, CommonCreate)
@@ -5947,13 +5964,13 @@ class TestProtcCreateView(CommonTest):
 
 
 @tag("Protc")
-class TestProtcDetailView(CommonTest):
+class TestProtcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProtcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_protc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ProtcDetails, CommonDetails)
@@ -5980,12 +5997,12 @@ class TestProtcDetailView(CommonTest):
 
 
 @tag("Protc")
-class TestProtcListView(CommonTest):
+class TestProtcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_protc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -6003,13 +6020,13 @@ class TestProtcListView(CommonTest):
 
 
 @tag("Protc")
-class ProtcUpdateView(CommonTest):
+class ProtcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProtcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_protc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -6029,13 +6046,13 @@ class ProtcUpdateView(CommonTest):
 
 
 @tag("Protf")
-class TestProtfCreateView(CommonTest):
+class TestProtfCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProtfFactory()
         self.test_url = reverse_lazy('bio_diversity:create_protf')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ProtfCreate, CommonCreate)
@@ -6054,13 +6071,13 @@ class TestProtfCreateView(CommonTest):
 
 
 @tag("Protf")
-class TestProtfDetailView(CommonTest):
+class TestProtfDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProtfFactory()
         self.test_url = reverse_lazy('bio_diversity:details_protf', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.ProtfDetails, CommonDetails)
@@ -6086,12 +6103,12 @@ class TestProtfDetailView(CommonTest):
 
 
 @tag("Protf")
-class TestProtfListView(CommonTest):
+class TestProtfListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_protf')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -6109,13 +6126,13 @@ class TestProtfListView(CommonTest):
 
 
 @tag("Protf")
-class ProtfUpdateView(CommonTest):
+class ProtfUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.ProtfFactory()
         self.test_url = reverse_lazy('bio_diversity:update_protf', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -6135,13 +6152,13 @@ class ProtfUpdateView(CommonTest):
 
 
 @tag("Qual")
-class TestQualCreateView(CommonTest):
+class TestQualCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.QualFactory()
         self.test_url = reverse_lazy('bio_diversity:create_qual')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.QualCreate, CommonCreate)
@@ -6160,13 +6177,13 @@ class TestQualCreateView(CommonTest):
 
 
 @tag("Qual")
-class TestQualDetailView(CommonTest):
+class TestQualDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.QualFactory()
         self.test_url = reverse_lazy('bio_diversity:details_qual', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.QualDetails, CommonDetails)
@@ -6193,12 +6210,12 @@ class TestQualDetailView(CommonTest):
 
 
 @tag("Qual")
-class TestQualListView(CommonTest):
+class TestQualListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_qual')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.QualList, GenericList)
@@ -6213,13 +6230,13 @@ class TestQualListView(CommonTest):
 
 
 @tag("Qual")
-class QualUpdateView(CommonTest):
+class QualUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.QualFactory()
         self.test_url = reverse_lazy('bio_diversity:update_qual', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.QualUpdate, CommonUpdate)
@@ -6239,13 +6256,13 @@ class QualUpdateView(CommonTest):
 
 
 @tag("Relc")
-class TestRelcCreateView(CommonTest):
+class TestRelcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.RelcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_relc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.RelcCreate, CommonCreate)
@@ -6264,13 +6281,13 @@ class TestRelcCreateView(CommonTest):
 
 
 @tag("Relc")
-class TestRelcDetailView(CommonTest):
+class TestRelcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.RelcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_relc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.RelcDetails, CommonDetails)
@@ -6297,12 +6314,12 @@ class TestRelcDetailView(CommonTest):
 
 
 @tag("Relc")
-class TestRelcListView(CommonTest):
+class TestRelcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_relc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -6320,13 +6337,13 @@ class TestRelcListView(CommonTest):
 
 
 @tag("Relc")
-class RelcUpdateView(CommonTest):
+class RelcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.RelcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_relc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -6346,13 +6363,13 @@ class RelcUpdateView(CommonTest):
 
 
 @tag("Rive")
-class TestRiveCreateView(CommonTest):
+class TestRiveCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.RiveFactory()
         self.test_url = reverse_lazy('bio_diversity:create_rive')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.RiveCreate, CommonCreate)
@@ -6371,13 +6388,13 @@ class TestRiveCreateView(CommonTest):
 
 
 @tag("Rive")
-class TestRiveDetailView(CommonTest):
+class TestRiveDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.RiveFactory()
         self.test_url = reverse_lazy('bio_diversity:details_rive', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.RiveDetails, CommonDetails)
@@ -6404,12 +6421,12 @@ class TestRiveDetailView(CommonTest):
 
 
 @tag("Rive")
-class TestRiveListView(CommonTest):
+class TestRiveListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_rive')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -6427,13 +6444,13 @@ class TestRiveListView(CommonTest):
 
 
 @tag("Rive")
-class RiveUpdateView(CommonTest):
+class RiveUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.RiveFactory()
         self.test_url = reverse_lazy('bio_diversity:update_rive', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -6453,13 +6470,13 @@ class RiveUpdateView(CommonTest):
 
 
 @tag("Role")
-class TestRoleCreateView(CommonTest):
+class TestRoleCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.RoleFactory()
         self.test_url = reverse_lazy('bio_diversity:create_role')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.RoleCreate, CommonCreate)
@@ -6478,13 +6495,13 @@ class TestRoleCreateView(CommonTest):
 
 
 @tag("Role")
-class TestRoleDetailView(CommonTest):
+class TestRoleDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.RoleFactory()
         self.test_url = reverse_lazy('bio_diversity:details_role', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.RoleDetails, CommonDetails)
@@ -6511,12 +6528,12 @@ class TestRoleDetailView(CommonTest):
 
 
 @tag("Role")
-class TestRoleListView(CommonTest):
+class TestRoleListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_role')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -6534,13 +6551,13 @@ class TestRoleListView(CommonTest):
 
 
 @tag("Role")
-class RoleUpdateView(CommonTest):
+class RoleUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.RoleFactory()
         self.test_url = reverse_lazy('bio_diversity:update_role', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -6560,13 +6577,13 @@ class RoleUpdateView(CommonTest):
 
 
 @tag("amp")
-class TestSampCreateView(CommonTest):
+class TestSampCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SampFactory()
         self.test_url = reverse_lazy('bio_diversity:create_samp')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SampCreate, CommonCreate)
@@ -6585,13 +6602,13 @@ class TestSampCreateView(CommonTest):
 
 
 @tag("Samp")
-class TestSampDetailView(CommonTest):
+class TestSampDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SampFactory()
         self.test_url = reverse_lazy('bio_diversity:details_samp', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SampDetails, CommonDetails)
@@ -6619,12 +6636,12 @@ class TestSampDetailView(CommonTest):
 
 
 @tag("Samp")
-class TestSampListView(CommonTest):
+class TestSampListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_samp')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -6642,13 +6659,13 @@ class TestSampListView(CommonTest):
 
 
 @tag("Samp")
-class SampUpdateView(CommonTest):
+class SampUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SampFactory()
         self.test_url = reverse_lazy('bio_diversity:update_samp', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -6668,13 +6685,13 @@ class SampUpdateView(CommonTest):
 
 
 @tag("Sampc")
-class TestSampcCreateView(CommonTest):
+class TestSampcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SampcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_sampc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SampcCreate, CommonCreate)
@@ -6693,13 +6710,13 @@ class TestSampcCreateView(CommonTest):
 
 
 @tag("Sampc")
-class TestSampcDetailView(CommonTest):
+class TestSampcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SampcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_sampc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SampcDetails, CommonDetails)
@@ -6726,12 +6743,12 @@ class TestSampcDetailView(CommonTest):
 
 
 @tag("Sampc")
-class TestSampcListView(CommonTest):
+class TestSampcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_sampc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -6749,13 +6766,13 @@ class TestSampcListView(CommonTest):
 
 
 @tag("Sampc")
-class SampcUpdateView(CommonTest):
+class SampcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SampcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_sampc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -6775,13 +6792,13 @@ class SampcUpdateView(CommonTest):
 
 
 @tag("Sampd")
-class TestSampdCreateView(CommonTest):
+class TestSampdCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SampdFactory()
         self.test_url = reverse_lazy('bio_diversity:create_sampd')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SampdCreate, CommonCreate)
@@ -6800,13 +6817,13 @@ class TestSampdCreateView(CommonTest):
 
 
 @tag("Sampd")
-class TestSampdDetailView(CommonTest):
+class TestSampdDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SampdFactory()
         self.test_url = reverse_lazy('bio_diversity:details_sampd', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SampdDetails, CommonDetails)
@@ -6835,12 +6852,12 @@ class TestSampdDetailView(CommonTest):
 
 
 @tag("Sampd")
-class TestSampdListView(CommonTest):
+class TestSampdListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_sampd')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -6858,13 +6875,13 @@ class TestSampdListView(CommonTest):
 
 
 @tag("Sampd")
-class SampdUpdateView(CommonTest):
+class SampdUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SampdFactory()
         self.test_url = reverse_lazy('bio_diversity:update_sampd', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -6884,13 +6901,13 @@ class SampdUpdateView(CommonTest):
 
 
 @tag("Sire")
-class TestSireCreateView(CommonTest):
+class TestSireCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SireFactory()
         self.test_url = reverse_lazy('bio_diversity:create_sire')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SireCreate, CommonCreate)
@@ -6909,13 +6926,13 @@ class TestSireCreateView(CommonTest):
 
 
 @tag("Sire")
-class TestSireDetailView(CommonTest):
+class TestSireDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SireFactory()
         self.test_url = reverse_lazy('bio_diversity:details_sire', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SireDetails, CommonDetails)
@@ -6943,12 +6960,12 @@ class TestSireDetailView(CommonTest):
 
 
 @tag("Sire")
-class TestSireListView(CommonTest):
+class TestSireListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_sire')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -6966,13 +6983,13 @@ class TestSireListView(CommonTest):
 
 
 @tag("Sire")
-class SireUpdateView(CommonTest):
+class SireUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SireFactory()
         self.test_url = reverse_lazy('bio_diversity:update_sire', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -6992,13 +7009,13 @@ class SireUpdateView(CommonTest):
 
 
 @tag("Spwnd")
-class TestSpwndCreateView(CommonTest):
+class TestSpwndCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SpwndFactory()
         self.test_url = reverse_lazy('bio_diversity:create_spwnd')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SpwndCreate, CommonCreate)
@@ -7017,13 +7034,13 @@ class TestSpwndCreateView(CommonTest):
 
 
 @tag("Spwnd")
-class TestSpwndDetailView(CommonTest):
+class TestSpwndDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SpwndFactory()
         self.test_url = reverse_lazy('bio_diversity:details_spwnd', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SpwndDetails, CommonDetails)
@@ -7053,12 +7070,12 @@ class TestSpwndDetailView(CommonTest):
 
 
 @tag("Spwnd")
-class TestSpwndListView(CommonTest):
+class TestSpwndListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_spwnd')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SpwndList, GenericList)
@@ -7073,13 +7090,13 @@ class TestSpwndListView(CommonTest):
 
 
 @tag("Spwnd")
-class SpwndUpdateView(CommonTest):
+class SpwndUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SpwndFactory()
         self.test_url = reverse_lazy('bio_diversity:update_spwnd', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SpwndUpdate, CommonUpdate)
@@ -7100,13 +7117,13 @@ class SpwndUpdateView(CommonTest):
 
 
 @tag("Spwndc")
-class TestSpwndcCreateView(CommonTest):
+class TestSpwndcCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SpwndcFactory()
         self.test_url = reverse_lazy('bio_diversity:create_spwndc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SpwndcCreate, CommonCreate)
@@ -7125,13 +7142,13 @@ class TestSpwndcCreateView(CommonTest):
 
 
 @tag("Spwndc")
-class TestSpwndcDetailView(CommonTest):
+class TestSpwndcDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SpwndcFactory()
         self.test_url = reverse_lazy('bio_diversity:details_spwndc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SpwndcDetails, CommonDetails)
@@ -7162,12 +7179,12 @@ class TestSpwndcDetailView(CommonTest):
 
 
 @tag("Spwndc")
-class TestSpwndcListView(CommonTest):
+class TestSpwndcListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_spwndc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SpwndcList, GenericList)
@@ -7182,13 +7199,13 @@ class TestSpwndcListView(CommonTest):
 
 
 @tag("Spwndc")
-class SpwndcUpdateView(CommonTest):
+class SpwndcUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SpwndcFactory()
         self.test_url = reverse_lazy('bio_diversity:update_spwndc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SpwndcUpdate, CommonUpdate)
@@ -7208,13 +7225,13 @@ class SpwndcUpdateView(CommonTest):
 
 
 @tag("Spwnsc")
-class TestSpwnscCreateView(CommonTest):
+class TestSpwnscCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SpwnscFactory()
         self.test_url = reverse_lazy('bio_diversity:create_spwnsc')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SpwnscCreate, CommonCreate)
@@ -7233,13 +7250,13 @@ class TestSpwnscCreateView(CommonTest):
 
 
 @tag("Spwnsc")
-class TestSpwnscDetailView(CommonTest):
+class TestSpwnscDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SpwnscFactory()
         self.test_url = reverse_lazy('bio_diversity:details_spwnsc', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SpwnscDetails, CommonDetails)
@@ -7267,12 +7284,12 @@ class TestSpwnscDetailView(CommonTest):
 
 
 @tag("Spwnsc")
-class TestSpwnscListView(CommonTest):
+class TestSpwnscListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_spwnsc')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SpwnscList, GenericList)
@@ -7287,13 +7304,13 @@ class TestSpwnscListView(CommonTest):
 
 
 @tag("Spwnsc")
-class SpwnscUpdateView(CommonTest):
+class SpwnscUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SpwnscFactory()
         self.test_url = reverse_lazy('bio_diversity:update_spwnsc', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SpwnscUpdate, CommonUpdate)
@@ -7313,13 +7330,13 @@ class SpwnscUpdateView(CommonTest):
 
 
 @tag("Spec")
-class TestSpecCreateView(CommonTest):
+class TestSpecCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SpecFactory()
         self.test_url = reverse_lazy('bio_diversity:create_spec')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SpecCreate, CommonCreate)
@@ -7338,13 +7355,13 @@ class TestSpecCreateView(CommonTest):
 
 
 @tag("Spec")
-class TestSpecDetailView(CommonTest):
+class TestSpecDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SpecFactory()
         self.test_url = reverse_lazy('bio_diversity:details_spec', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SpecDetails, CommonDetails)
@@ -7370,12 +7387,12 @@ class TestSpecDetailView(CommonTest):
 
 
 @tag("Spec")
-class TestSpecListView(CommonTest):
+class TestSpecListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_spec')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -7393,13 +7410,13 @@ class TestSpecListView(CommonTest):
 
 
 @tag("Spec")
-class SpecUpdateView(CommonTest):
+class SpecUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SpecFactory()
         self.test_url = reverse_lazy('bio_diversity:update_spec', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -7419,13 +7436,13 @@ class SpecUpdateView(CommonTest):
 
 
 @tag("Stok")
-class TestStokCreateView(CommonTest):
+class TestStokCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.StokFactory()
         self.test_url = reverse_lazy('bio_diversity:create_stok')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.StokCreate, CommonCreate)
@@ -7444,13 +7461,13 @@ class TestStokCreateView(CommonTest):
 
 
 @tag("Stok")
-class TestStokDetailView(CommonTest):
+class TestStokDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.StokFactory()
         self.test_url = reverse_lazy('bio_diversity:details_stok', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.StokDetails, CommonDetails)
@@ -7477,12 +7494,12 @@ class TestStokDetailView(CommonTest):
 
 
 @tag("Stok")
-class TestStokListView(CommonTest):
+class TestStokListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_stok')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.StokList, GenericList)
@@ -7497,13 +7514,13 @@ class TestStokListView(CommonTest):
 
 
 @tag("Stok")
-class StokUpdateView(CommonTest):
+class StokUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.StokFactory()
         self.test_url = reverse_lazy('bio_diversity:update_stok', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.StokUpdate, CommonUpdate)
@@ -7523,13 +7540,13 @@ class StokUpdateView(CommonTest):
 
 
 @tag("Subr")
-class TestSubrCreateView(CommonTest):
+class TestSubrCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SubrFactory()
         self.test_url = reverse_lazy('bio_diversity:create_subr')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SubrCreate, CommonCreate)
@@ -7548,13 +7565,13 @@ class TestSubrCreateView(CommonTest):
 
 
 @tag("Subr")
-class TestSubrDetailView(CommonTest):
+class TestSubrDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SubrFactory()
         self.test_url = reverse_lazy('bio_diversity:details_subr', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.SubrDetails, CommonDetails)
@@ -7583,12 +7600,12 @@ class TestSubrDetailView(CommonTest):
 
 
 @tag("Subr")
-class TestSubrListView(CommonTest):
+class TestSubrListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_subr')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -7606,13 +7623,13 @@ class TestSubrListView(CommonTest):
 
 
 @tag("Subr")
-class SubrUpdateView(CommonTest):
+class SubrUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.SubrFactory()
         self.test_url = reverse_lazy('bio_diversity:update_subr', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -7632,13 +7649,13 @@ class SubrUpdateView(CommonTest):
 
 
 @tag("Tank")
-class TestTankCreateView(CommonTest):
+class TestTankCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TankFactory()
         self.test_url = reverse_lazy('bio_diversity:create_tank')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TankCreate, CommonCreate)
@@ -7657,13 +7674,13 @@ class TestTankCreateView(CommonTest):
 
 
 @tag("Tank")
-class TestTankDetailView(CommonTest):
+class TestTankDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TankFactory()
         self.test_url = reverse_lazy('bio_diversity:details_tank', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TankDetails, CommonDetails)
@@ -7691,12 +7708,12 @@ class TestTankDetailView(CommonTest):
 
 
 @tag("Tank")
-class TestTankListView(CommonTest):
+class TestTankListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_tank')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -7714,13 +7731,13 @@ class TestTankListView(CommonTest):
 
 
 @tag("Tank")
-class TankUpdateView(CommonTest):
+class TankUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TankFactory()
         self.test_url = reverse_lazy('bio_diversity:update_tank', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -7741,13 +7758,13 @@ class TankUpdateView(CommonTest):
 
 
 @tag("Tankd")
-class TestTankdCreateView(CommonTest):
+class TestTankdCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TankdFactory()
         self.test_url = reverse_lazy('bio_diversity:create_tankd')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TankdCreate, CommonCreate)
@@ -7766,13 +7783,13 @@ class TestTankdCreateView(CommonTest):
 
 
 @tag("Tankd")
-class TestTankdDetailView(CommonTest):
+class TestTankdDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TankdFactory()
         self.test_url = reverse_lazy('bio_diversity:details_tankd', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TankdDetails, CommonDetails)
@@ -7804,12 +7821,12 @@ class TestTankdDetailView(CommonTest):
 
 
 @tag("Tankd")
-class TestTankdListView(CommonTest):
+class TestTankdListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_tankd')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -7827,13 +7844,13 @@ class TestTankdListView(CommonTest):
 
 
 @tag("Tankd")
-class TankdUpdateView(CommonTest):
+class TankdUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TankdFactory()
         self.test_url = reverse_lazy('bio_diversity:update_tankd', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -7854,13 +7871,13 @@ class TankdUpdateView(CommonTest):
 
 
 @tag("Team")
-class TestTeamCreateView(CommonTest):
+class TestTeamCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TeamFactory()
         self.test_url = reverse_lazy('bio_diversity:create_team')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TeamCreate, CommonCreate)
@@ -7879,13 +7896,13 @@ class TestTeamCreateView(CommonTest):
 
 
 @tag("Team")
-class TestTeamDetailView(CommonTest):
+class TestTeamDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TeamFactory()
         self.test_url = reverse_lazy('bio_diversity:details_team', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TeamDetails, CommonDetails)
@@ -7910,12 +7927,12 @@ class TestTeamDetailView(CommonTest):
 
 
 @tag("Team")
-class TestTeamListView(CommonTest):
+class TestTeamListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_team')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -7933,13 +7950,13 @@ class TestTeamListView(CommonTest):
 
 
 @tag("Team")
-class TeamUpdateView(CommonTest):
+class TeamUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TeamFactory()
         self.test_url = reverse_lazy('bio_diversity:update_team', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -7960,13 +7977,13 @@ class TeamUpdateView(CommonTest):
 
 
 @tag("Tray")
-class TestTrayCreateView(CommonTest):
+class TestTrayCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TrayFactory()
         self.test_url = reverse_lazy('bio_diversity:create_tray')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TrayCreate, CommonCreate)
@@ -7985,13 +8002,13 @@ class TestTrayCreateView(CommonTest):
 
 
 @tag("Tray")
-class TestTrayDetailView(CommonTest):
+class TestTrayDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TrayFactory()
         self.test_url = reverse_lazy('bio_diversity:details_tray', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TrayDetails, CommonDetails)
@@ -8018,12 +8035,12 @@ class TestTrayDetailView(CommonTest):
 
 
 @tag("Tray")
-class TestTrayListView(CommonTest):
+class TestTrayListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_tray')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -8041,13 +8058,13 @@ class TestTrayListView(CommonTest):
 
 
 @tag("Tray")
-class TrayUpdateView(CommonTest):
+class TrayUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TrayFactory()
         self.test_url = reverse_lazy('bio_diversity:update_tray', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -8067,13 +8084,13 @@ class TrayUpdateView(CommonTest):
 
 
 @tag("Trayd")
-class TestTraydCreateView(CommonTest):
+class TestTraydCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TraydFactory()
         self.test_url = reverse_lazy('bio_diversity:create_trayd')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TraydCreate, CommonCreate)
@@ -8092,13 +8109,13 @@ class TestTraydCreateView(CommonTest):
 
 
 @tag("Trayd")
-class TestTraydDetailView(CommonTest):
+class TestTraydDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TraydFactory()
         self.test_url = reverse_lazy('bio_diversity:details_trayd', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TraydDetails, CommonDetails)
@@ -8129,12 +8146,12 @@ class TestTraydDetailView(CommonTest):
 
 
 @tag("Trayd")
-class TestTraydListView(CommonTest):
+class TestTraydListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_trayd')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -8152,13 +8169,13 @@ class TestTraydListView(CommonTest):
 
 
 @tag("Trayd")
-class TraydUpdateView(CommonTest):
+class TraydUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TraydFactory()
         self.test_url = reverse_lazy('bio_diversity:update_trayd', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -8178,13 +8195,13 @@ class TraydUpdateView(CommonTest):
 
 
 @tag("Trib")
-class TestTribCreateView(CommonTest):
+class TestTribCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TribFactory()
         self.test_url = reverse_lazy('bio_diversity:create_trib')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TribCreate, CommonCreate)
@@ -8203,13 +8220,13 @@ class TestTribCreateView(CommonTest):
 
 
 @tag("Trib")
-class TestTribDetailView(CommonTest):
+class TestTribDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TribFactory()
         self.test_url = reverse_lazy('bio_diversity:details_trib', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TribDetails, CommonDetails)
@@ -8237,12 +8254,12 @@ class TestTribDetailView(CommonTest):
 
 
 @tag("Trib")
-class TestTribListView(CommonTest):
+class TestTribListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_trib')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -8260,13 +8277,13 @@ class TestTribListView(CommonTest):
 
 
 @tag("Trib")
-class TribUpdateView(CommonTest):
+class TribUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TribFactory()
         self.test_url = reverse_lazy('bio_diversity:update_trib', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -8286,13 +8303,13 @@ class TribUpdateView(CommonTest):
 
 
 @tag("Trof")
-class TestTrofCreateView(CommonTest):
+class TestTrofCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TrofFactory()
         self.test_url = reverse_lazy('bio_diversity:create_trof')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TrofCreate, CommonCreate)
@@ -8311,13 +8328,13 @@ class TestTrofCreateView(CommonTest):
 
 
 @tag("Trof")
-class TestTrofDetailView(CommonTest):
+class TestTrofDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TrofFactory()
         self.test_url = reverse_lazy('bio_diversity:details_trof', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TrofDetails, CommonDetails)
@@ -8344,12 +8361,12 @@ class TestTrofDetailView(CommonTest):
 
 
 @tag("Trof")
-class TestTrofListView(CommonTest):
+class TestTrofListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_trof')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -8367,13 +8384,13 @@ class TestTrofListView(CommonTest):
 
 
 @tag("Trof")
-class TrofUpdateView(CommonTest):
+class TrofUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TrofFactory()
         self.test_url = reverse_lazy('bio_diversity:update_trof', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -8393,13 +8410,13 @@ class TrofUpdateView(CommonTest):
 
 
 @tag("Trofd")
-class TestTrofdCreateView(CommonTest):
+class TestTrofdCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TrofdFactory()
         self.test_url = reverse_lazy('bio_diversity:create_trofd')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TrofdCreate, CommonCreate)
@@ -8418,13 +8435,13 @@ class TestTrofdCreateView(CommonTest):
 
 
 @tag("Trofd")
-class TestTrofdDetailView(CommonTest):
+class TestTrofdDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TrofdFactory()
         self.test_url = reverse_lazy('bio_diversity:details_trofd', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.TrofdDetails, CommonDetails)
@@ -8455,12 +8472,12 @@ class TestTrofdDetailView(CommonTest):
 
 
 @tag("Trofd")
-class TestTrofdListView(CommonTest):
+class TestTrofdListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_trofd')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -8478,13 +8495,13 @@ class TestTrofdListView(CommonTest):
 
 
 @tag("Trofd")
-class TrofdUpdateView(CommonTest):
+class TrofdUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.TrofdFactory()
         self.test_url = reverse_lazy('bio_diversity:update_trofd', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
@@ -8504,13 +8521,13 @@ class TrofdUpdateView(CommonTest):
 
 
 @tag("Unit")
-class TestUnitCreateView(CommonTest):
+class TestUnitCreateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.UnitFactory()
         self.test_url = reverse_lazy('bio_diversity:create_unit')
         self.expected_template = 'shared_models/shared_entry_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.UnitCreate, CommonCreate)
@@ -8529,13 +8546,13 @@ class TestUnitCreateView(CommonTest):
 
 
 @tag("Unit")
-class TestUnitDetailView(CommonTest):
+class TestUnitDetailView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.UnitFactory()
         self.test_url = reverse_lazy('bio_diversity:details_unit', args=[self.instance.pk, ])
         self.expected_template = 'bio_diversity/bio_details.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.UnitDetails, CommonDetails)
@@ -8562,12 +8579,12 @@ class TestUnitDetailView(CommonTest):
 
 
 @tag("Unit")
-class TestUnitListView(CommonTest):
+class TestUnitListView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('bio_diversity:list_unit')
         self.expected_template = 'shared_models/shared_filter.html'
-        self.user = self.get_and_login_user()
+        self.user = self.login_bio_author_user()
 
     def test_view_class(self):
         # view
@@ -8585,13 +8602,13 @@ class TestUnitListView(CommonTest):
 
 
 @tag("Unit")
-class UnitUpdateView(CommonTest):
+class UnitUpdateView(CommonBioTest):
     def setUp(self):
         super().setUp()
         self.instance = BioFactoryFloor.UnitFactory()
         self.test_url = reverse_lazy('bio_diversity:update_unit', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/shared_models_update_form.html'
-        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+        self.user = self.login_bio_admin_user()
 
     def test_view_class(self):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
