@@ -32,6 +32,12 @@ class Profile(models.Model):
     def __str__(self):
         return "{}, {}".format(self.user.last_name, self.user.first_name)
 
+    @property
+    def full_name_and_section(self):
+        if self.section:
+            return f"{self.user.first_name} {self.user.last_name} ({self.section.name})"
+        return f"{self.user.first_name} {self.user.last_name}"
+
     class Meta:
         ordering = ['user__last_name', 'user__first_name']
 

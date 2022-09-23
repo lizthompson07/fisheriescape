@@ -186,6 +186,19 @@ class Committee(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def liaison_section_list(self):
+        outlist = [user.profile.full_name_and_section if user.profile else user.full_name for user in
+                   self.dfo_liaison.all()]
+        return outlist if outlist else ["---"]
+
+    @property
+    def other_participants_section_list(self):
+        outlist = [user.profile.full_name_and_section if user.profile else user.full_name for user in
+                   self.other_dfo_participants.all()]
+        return outlist if outlist else ["---"]
+
+
 
 class Interaction(models.Model):
     interaction_type_choices = (
@@ -269,6 +282,18 @@ class Interaction(models.Model):
 
     def __str__(self):
         return "{}: {}".format(self.pk, self.description)
+
+    @property
+    def liaison_section_list(self):
+        outlist = [user.profile.full_name_and_section if user.profile else user.full_name for user in
+                   self.dfo_liaison.all()]
+        return outlist if outlist else ["---"]
+
+    @property
+    def other_participants_section_list(self):
+        outlist = [user.profile.full_name_and_section if user.profile else user.full_name for user in
+                   self.other_dfo_participants.all()]
+        return outlist if outlist else ["---"]
 
 
 class OrganizationExtension(models.Model):

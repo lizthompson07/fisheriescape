@@ -35,7 +35,31 @@
                 <div class="card-body">
                     <table class="table table-sm ">
                         {% for field in field_list %}
-                            {% verbose_td_display object field %}
+                            {% if "dfo_liaison" in field %}
+                              <tr>
+                                <th>{% get_verbose_label object field %}</th>
+                                  <td>
+                                    {{ object.liaison_section_list|join:", " }}
+                                  </td>
+                              </tr>
+                            {% elif "other_dfo_participants" in field %}
+                              <tr>
+                                <th>{% get_verbose_label object field %}</th>
+                                  <td>
+                                    {{ object.other_participants_section_list|join:", " }}
+                                  </td>
+                              </tr>
+                            {% elif field == "last_modified_by" %}
+                              <tr>
+                                <th>{% get_verbose_label object field %}</th>
+                                  <td>
+                                    {{ object.last_modified_by.profile.full_name_and_section }}
+                                  </td>
+                              </tr>
+
+                            {% else %}
+                                {% verbose_td_display object field %}
+                            {% endif %}
                         {% endfor %}
                     </table>
                 </div>

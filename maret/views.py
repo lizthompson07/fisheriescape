@@ -485,7 +485,6 @@ class InteractionDetailView(UserRequiredMixin, CommonDetailView):
             'last_modified',
             'last_modified_by',
         ]
-
         return context
 
 
