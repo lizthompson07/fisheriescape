@@ -34,6 +34,7 @@ class InteractionReportMixin:
         'action_items',
         'comments',
         'external_organization',
+        'external_contact',
         'last_modified',
         'last_modified_by',
         ]
@@ -60,7 +61,7 @@ class CommitteeReportMixin:
     select_fk_fields = ["branch", "division", "area_office", "area_office_program", "division", "lead_region",
                         "lead_national_sector", "last_modified_by"]
     field_list = [
-        'id|Interaction Id',
+        'id|Committee Id',
         'name',
         'main_topic',
         'species',
@@ -89,6 +90,9 @@ class CommitteeReportMixin:
         'area_office',
         'main_actions',
         'comments',
+        'external_contact',
+        'external_organization',
+        'committee_interactions|Interaction(s)',
         "last_modified",
         "last_modified_by",
         ]
@@ -102,6 +106,10 @@ class CommitteeReportMixin:
                 val = obj.get_meeting_frequency_choices_display()
         elif "date_last_modified" in field:
             val = obj.last_modified.strftime("%Y-%m-%d")
+        elif "committee_interactions" in field:
+            val = " --- "
+            if obj.committee_interactions.first():
+                val = ", ".join([inter.__str__() for inter in obj.committee_interactions.all()])
         else:
             val = str(get_field_value(obj, field))
         return val
@@ -110,7 +118,7 @@ class CommitteeReportMixin:
 class OrganizationReportMixin:
     select_fk_fields = ["province", "last_modified_by"]
     field_list = [
-        'id|Interaction Id',
+        'id|Organization Id',
         'name_eng',
         'former_name',
         'abbrev',
@@ -126,6 +134,9 @@ class OrganizationReportMixin:
         'regions',
         'website',
         'category',
+        'organization_members|Member(s)',
+        'organization_interactions|Interaction(s)',
+        'organization_committees|Committees/Working groups(s)',
         'date_last_modified',
         'last_modified_by'
         ]
@@ -135,6 +146,18 @@ class OrganizationReportMixin:
     def val(obj, field):
         if "date_last_modified" in field:
             val = obj.date_last_modified.strftime("%Y-%m-%d")
+        elif "organization_members" in field:
+            val = " --- "
+            if obj.members.first():
+                val = ", ".join([member.person.full_name for member in obj.members.all()])
+        elif "organization_interactions" in field:
+            val = " --- "
+            if obj.interaction_ext_organization.first():
+                val = ", ".join([inter.__str__() for inter in obj.interaction_ext_organization.all()])
+        elif "organization_committees" in field:
+            val = " --- "
+            if obj.committee_ext_organization.first():
+                val = ", ".join([committee.__str__() for committee in obj.committee_ext_organization.all()])
         else:
             val = str(get_field_value(obj, field))
         return val
@@ -143,7 +166,7 @@ class OrganizationReportMixin:
 class PersonReportMixin:
     select_fk_fields = ["language", "last_modified_by"]
     field_list = [
-        'id|Interaction Id',
+        'id|Contact Id',
         "designation",
         "first_name",
         "last_name",
@@ -156,6 +179,9 @@ class PersonReportMixin:
         "language",
         "notes",
         "email_block",
+        "ogranizations | Organization Memberships",
+        "committee|Committees / Working Groups",
+        "interactions | Interactions",
         "date_last_modified",
         "last_modified_by",
         ]
@@ -165,6 +191,19 @@ class PersonReportMixin:
     def val(obj, field):
         if "date_last_modified" in field:
             val = obj.date_last_modified.strftime("%Y-%m-%d")
+        elif "ogranizations" in field:
+            val = " --- "
+            if obj.memberships.first():
+                val = ", ".join([membership.organization.__str__() for membership in obj.memberships.all()])
+        elif "interactions" in field:
+            val = " --- "
+            if obj.interaction_ext_contact.first():
+                val = ", ".join([interaction.__str__() for interaction in obj.interaction_ext_contact.all()])
+        elif "committee" in field:
+            val = " --- "
+            if obj.committee_ext_contact.first():
+                val = ", ".join(
+                    [committee.__str__() for committee in obj.committee_ext_contact.all()])
         else:
             val = str(get_field_value(obj, field))
         return val
