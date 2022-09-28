@@ -337,7 +337,7 @@ class PersonReportView(UserRequiredMixin, View):
 # Interactions
 #######################################################
 class InteractionListView(UserRequiredMixin, CommonFilterView):
-    template_name = 'maret/maret_list.html'
+    template_name = 'maret/interaction_list.html'
     queryset = models.Interaction.objects.all().distinct().annotate(
         search_term=Concat(
             'description', Value(' '),
