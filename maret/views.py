@@ -2,6 +2,7 @@ import json
 import math
 import os
 
+import shared_models.models
 from django.views import View
 
 from maret.reports import InteractionReportMixin, CommitteeReportMixin, OrganizationReportMixin, PersonReportMixin
@@ -1061,6 +1062,19 @@ class MemberDeleteView(AdminRequiredMixin, CommonPopoutDeleteView):
             return HttpResponseRedirect(reverse("maret:person_detail", args=[obj.pk, ]))
 
         return super().delete(request, *args, **kwargs)
+
+
+class UserDetailView(UserRequiredMixin, CommonDetailView):
+    model = shared_models.models.User
+    template_name = 'maret/user_detail.html'
+    field_list = [
+        "first_name",
+        "last_name",
+        "email",
+        "section",
+    ]
+    home_url_name = "maret:index"
+    parent_crumb = {}
 
 
 class CommonMaretFormset(AdminRequiredMixin, CommonFormsetView):

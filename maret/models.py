@@ -186,19 +186,6 @@ class Committee(models.Model):
     def __str__(self):
         return self.name
 
-    @property
-    def liaison_section_list(self):
-        outlist = [user.profile.full_name_and_section if user.profile else user.full_name for user in
-                   self.dfo_liaison.all()]
-        return outlist if outlist else ["---"]
-
-    @property
-    def other_participants_section_list(self):
-        outlist = [user.profile.full_name_and_section if user.profile else user.full_name for user in
-                   self.other_dfo_participants.all()]
-        return outlist if outlist else ["---"]
-
-
 
 class Interaction(models.Model):
     interaction_type_choices = (
@@ -283,18 +270,6 @@ class Interaction(models.Model):
     def __str__(self):
         return "{}: {}".format(self.pk, self.description)
 
-    @property
-    def liaison_section_list(self):
-        outlist = [user.profile.full_name_and_section if user.profile else user.full_name for user in
-                   self.dfo_liaison.all()]
-        return outlist if outlist else ["---"]
-
-    @property
-    def other_participants_section_list(self):
-        outlist = [user.profile.full_name_and_section if user.profile else user.full_name for user in
-                   self.other_dfo_participants.all()]
-        return outlist if outlist else ["---"]
-
 
 class OrganizationExtension(models.Model):
     organization = models.ForeignKey(ml_models.Organization, blank=False, null=False, default=1, related_name="ext_org",
@@ -321,7 +296,7 @@ class HelpText(models.Model):
     fra_text = models.TextField(blank=True, null=True, verbose_name=_("French text"))
 
     def __str__(self):
-        # check to see if a french value is given
+        # check to see if a French value is given
         if getattr(self, str(_("eng_text"))):
             return "{}".format(getattr(self, str(_("eng_text"))))
         # if there is no translated term, just pull from the english field
