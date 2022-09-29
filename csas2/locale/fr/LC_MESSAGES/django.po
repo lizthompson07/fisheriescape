@@ -2,16 +2,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: App French\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-26 13:21-0300\n"
+"POT-Creation-Date: 2022-08-31 12:57-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: fr_CA\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr_CA\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 3.1.1\n"
 
 #: .\csas2\api\serializers.py:171
 msgid ""
@@ -19,10 +19,9 @@ msgid ""
 "Process underway."
 msgstr ""
 "Le recommendation d'examen doit être retenue à la présélection s'il y a déjà "
-"un processus SCAS en cours."
+"un processus du SCAS en cours."
 
-#: .\csas2\api\serializers.py:210 .\csas2\models.py:1028
-#: .\csas2\models.py:1164
+#: .\csas2\api\serializers.py:210 .\csas2\models.py:1028 .\csas2\models.py:1164
 msgid "day"
 msgstr "jour"
 
@@ -33,8 +32,7 @@ msgstr "Il doit y avoir au moins un approbateur dans la file d'attente!"
 
 #: .\csas2\api\views.py:105
 msgid "Sorry, you do not have permissions to withdraw this request"
-msgstr ""
-"Vous n'avez pas les autorisations nécessaires pour retirer cette demande"
+msgstr "Désolé, vous n'avez pas l'autorisation de retirer cette demande"
 
 #: .\csas2\api\views.py:123 .\csas2\api\views.py:195 .\csas2\api\views.py:306
 #: .\csas2\api\views.py:406 .\csas2\api\views.py:669 .\csas2\api\views.py:999
@@ -70,7 +68,7 @@ msgid ""
 "CSAS Process"
 msgstr ""
 "Succès ! Un nouveau projet a été créé dans l'outil de planification de "
-"project et a été lié à ce processus SCAS"
+"project et a été lié à ce processus du SCAS"
 
 #: .\csas2\api\views.py:248
 msgid "Success! the linked project in the PPT has been updated"
@@ -100,7 +98,7 @@ msgstr "Vous devez spécifier un processus"
 
 #: .\csas2\api\views.py:600
 msgid "You need to specify a csas process"
-msgstr "Vous devez spécifier un processus SCAS"
+msgstr "Vous devez spécifier un processus du SCAS"
 
 #: .\csas2\api\views.py:611
 msgid ""
@@ -241,7 +239,7 @@ msgstr "Le titre contient OU numéro de référence"
 
 #: .\csas2\filters.py:54 .\csas2\models.py:241
 msgid "CSAS office"
-msgstr "Bureau de SCAS"
+msgstr "Bureau du SCAS"
 
 #: .\csas2\filters.py:55 .\csas2\filters.py:142
 msgid "Client region"
@@ -333,7 +331,7 @@ msgstr "Tout"
 
 #: .\csas2\filters.py:240
 msgid "Lead CSAS office"
-msgstr "Bureau SCAS principal"
+msgstr "Bureau principal du SCAS"
 
 #: .\csas2\filters.py:241
 msgid "Are dates approximate?"
@@ -408,7 +406,7 @@ msgstr "Section du MPO"
 #: .\csas2\views.py:319 .\csas2\views.py:415 .\csas2\views.py:443
 #: .\csas2\views.py:467
 msgid "CSAS Requests"
-msgstr "Demandes de SCAS"
+msgstr "Demandes du SCAS"
 
 #: .\csas2\forms.py:117
 msgid "leave blank for all"
@@ -428,7 +426,7 @@ msgstr "Vous devez inscrire un client pour cette demande!"
 
 #: .\csas2\forms.py:243
 msgid "Must enter a CSAS office for this request!"
-msgstr "Vous devez inscrire un bureau SCAS pour cette demande!"
+msgstr "Vous devez inscrire un bureau du SCAS pour cette demande!"
 
 #: .\csas2\forms.py:246
 msgid "Must enter a section for this request!"
@@ -622,10 +620,8 @@ msgid "Re-scoping"
 msgstr "Re-cadrage"
 
 #: .\csas2\model_choices.py:37
-#, fuzzy
-#| msgid "New CSAS Process"
 msgid "Refer to Process"
-msgstr "Processus de SCAS"
+msgstr "Se référer au processus"
 
 #: .\csas2\model_choices.py:38
 msgid "Fulfilled"
@@ -689,7 +685,7 @@ msgstr "Provisoire"
 
 #: .\csas2\model_choices.py:70
 msgid "On"
-msgstr "Marche"
+msgstr "Accepté"
 
 #: .\csas2\model_choices.py:72
 msgid "ToR Complete"
@@ -795,11 +791,11 @@ msgstr "Approuvé par le président"
 
 #: .\csas2\model_choices.py:186
 msgid "Under review by CSAS coordinator"
-msgstr "En cours de révision par le coordinateur SCAS"
+msgstr "En cours de révision par le coordinateur du SCAS"
 
 #: .\csas2\model_choices.py:187
 msgid "Approved by CSAS coordinator"
-msgstr "Approuvé par le coordinateur SCAS"
+msgstr "Approuvé par le coordinateur du SCAS"
 
 #: .\csas2\model_choices.py:188
 msgid "Under review by section head"
@@ -988,7 +984,7 @@ msgid ""
 "When exporting CSAS processes to projects, what should be the default "
 "section to use?"
 msgstr ""
-"Lors de l'exportation de processus SCAS vers des projets, quelle devrait "
+"Lors de l'exportation du processus du SCAS vers des projets, quelle devrait "
 "être la section par défaut à utiliser?"
 
 #: .\csas2\models.py:238
@@ -1143,7 +1139,7 @@ msgstr "numéro de référence"
 
 #: .\csas2\models.py:290 .\csas2\templates\csas2\todo_list.html:41
 msgid "CSAS Request"
-msgstr "Demande de SCAS"
+msgstr "Demande du SCAS"
 
 #: .\csas2\models.py:375 .\csas2\models.py:394 .\csas2\models.py:916
 msgid "no further details provided."
@@ -1215,11 +1211,11 @@ msgstr "portée"
 
 #: .\csas2\models.py:546 .\csas2\models.py:1206
 msgid "lead CSAS office"
-msgstr "bureau SCAS principal"
+msgstr "bureau principal du SCAS"
 
 #: .\csas2\models.py:548
 msgid "other CSAS offices"
-msgstr "autres bureaux SCAS"
+msgstr "autres bureaux du SCAS"
 
 #: .\csas2\models.py:549
 msgid "process editors"
@@ -1235,7 +1231,7 @@ msgstr ""
 
 #: .\csas2\models.py:552
 msgid "Connected CSAS requests"
-msgstr "Demandes SCAS connectées"
+msgstr "Demandes du SCAS connectées"
 
 #: .\csas2\models.py:553
 msgid "Target date to provide Science advice"
@@ -1444,7 +1440,7 @@ msgid ""
 "cannot post because the CSAS Process must have a Terms of Reference with a "
 "list of expected publications"
 msgstr ""
-"ne peut pas afficher parce que le processus SCAS doit avoir un cadre de "
+"ne peut pas afficher parce que le processus du SCAS doit avoir un cadre de "
 "référence avec une liste des publications attendues"
 
 #: .\csas2\models.py:945
@@ -1681,11 +1677,11 @@ msgstr "commentaire"
 
 #: .\csas2\models.py:1364
 msgid "date sent to CSAS coordinator"
-msgstr "date envoyée au coordinateur SCAS"
+msgstr "date envoyée au coordinateur du SCAS"
 
 #: .\csas2\models.py:1365
 msgid "date approved by CSAS coordinator"
-msgstr "date approuvée par le coordinateur SCAS"
+msgstr "date approuvée par le coordinateur du SCAS"
 
 #: .\csas2\models.py:1368
 msgid "section head"
@@ -1900,7 +1896,7 @@ msgstr "rafraîchir la liste!"
 
 #: .\csas2\templates\csas2\action_list.html:40
 msgid "CSAS Requests awaiting your Review"
-msgstr "Demandes SCAS en attente de votre examen"
+msgstr "Demandes du SCAS en attente de votre examen"
 
 #: .\csas2\templates\csas2\action_list.html:46
 #: .\csas2\templates\csas2\action_list.html:107
@@ -1945,7 +1941,7 @@ msgstr "Portée/Type"
 
 #: .\csas2\templates\csas2\action_list.html:101
 msgid "CSAS Requests Flagged for Withdrawal"
-msgstr "Demandes SCAS signalées pour retrait"
+msgstr "Demandes du SCAS signalées pour retrait"
 
 #: .\csas2\templates\csas2\action_list.html:115
 msgid "Withdraw"
@@ -1953,7 +1949,7 @@ msgstr "Retirer"
 
 #: .\csas2\templates\csas2\action_list.html:129
 msgid "CSAS Requests Flagged for Re-scoping"
-msgstr "Demandes SCAS signalées pour retrait"
+msgstr "Demandes du SCAS signalées pour être re-cadrer"
 
 #: .\csas2\templates\csas2\base\_app_title.html:2
 msgid "CSAS"
@@ -2173,7 +2169,7 @@ msgstr "Panneau de suivi"
 
 #: .\csas2\templates\csas2\document_detail\_tracking.html:26
 msgid "CSAS Process"
-msgstr "Processus de SCAS"
+msgstr "Processus du SCAS"
 
 #: .\csas2\templates\csas2\document_detail\_tracking.html:33
 msgid "Translation"
@@ -2345,8 +2341,8 @@ msgstr "Il n'y a pas de reunions liées à ce document."
 #: .\csas2\templates\csas2\document_detail\main.html:201
 #: .\csas2\templates\csas2\meeting_detail\main.html:164
 #: .\csas2\templates\csas2\process_detail\main.html:209
-#: .\csas2\templates\csas2\request_detail\main.html:252
-#: .\csas2\templates\csas2\request_detail\main.html:295
+#: .\csas2\templates\csas2\request_detail\main.html:249
+#: .\csas2\templates\csas2\request_detail\main.html:292
 msgid "Metadata"
 msgstr "Métadonnées"
 
@@ -2458,7 +2454,7 @@ msgstr "Demandes"
 
 #: .\csas2\templates\csas2\index.html:51
 msgid "Create, modify or view the status of a CSAS Request"
-msgstr "Créer, modifier ou consulter le statut d'une demande SCAS"
+msgstr "Créer, modifier ou consulter le statut d'une demande du SCAS"
 
 #: .\csas2\templates\csas2\index.html:52
 msgid "All requests"
@@ -2488,15 +2484,15 @@ msgstr "Processus"
 
 #: .\csas2\templates\csas2\index.html:70
 msgid "Create, modify or view the status of a CSAS Processes"
-msgstr "Créer, modifier ou consulter le statut d'un processus SCAS"
+msgstr "Créer, modifier ou consulter le statut d'un processus du SCAS"
 
 #: .\csas2\templates\csas2\index.html:71
 msgid "All CSAS processes"
-msgstr "Tout les processus SCAS"
+msgstr "Tout les processus du SCAS"
 
 #: .\csas2\templates\csas2\index.html:74
 msgid "CSAS processes connected to you"
-msgstr "Processus SCAS liés à vous"
+msgstr "Processus du SCAS liés à vous"
 
 #: .\csas2\templates\csas2\index.html:75
 msgid "New process"
@@ -2513,7 +2509,7 @@ msgstr "Documents"
 
 #: .\csas2\templates\csas2\index.html:89
 msgid "Find a CSAS Document"
-msgstr "Trouver un document SCAS"
+msgstr "Trouver un document du SCAS"
 
 #: .\csas2\templates\csas2\index.html:90
 msgid "All documents"
@@ -2521,7 +2517,7 @@ msgstr "Tout les documents"
 
 #: .\csas2\templates\csas2\index.html:93
 msgid "CSAS documents connected to you"
-msgstr "Documents SCAS liés à vous"
+msgstr "Documents du SCAS liés à vous"
 
 #: .\csas2\templates\csas2\index.html:100
 #: .\csas2\templates\csas2\process_detail\main.html:227
@@ -2531,7 +2527,7 @@ msgstr "Réunions"
 
 #: .\csas2\templates\csas2\index.html:101
 msgid "Find a CSAS Meeting"
-msgstr "Trouver une réunion SCAS"
+msgstr "Trouver une réunion du SCAS"
 
 #: .\csas2\templates\csas2\index.html:102
 msgid "All meetings"
@@ -2539,7 +2535,7 @@ msgstr "Tout les réunions"
 
 #: .\csas2\templates\csas2\index.html:105
 msgid "CSAS meetings connected to you"
-msgstr "Réunions SCAS liées à vous"
+msgstr "Réunions du SCAS liées à vous"
 
 #: .\csas2\templates\csas2\index.html:107
 msgid "Review multiple meetings"
@@ -2733,7 +2729,7 @@ msgstr "Annuler"
 
 #: .\csas2\templates\csas2\meeting_detail\components\invitee_importer.html:6
 msgid "Import invitees from another CSAS meeting"
-msgstr "Importer des invités d'une autre réunion SCAS"
+msgstr "Importer des invités d'une autre réunion du SCAS"
 
 #: .\csas2\templates\csas2\meeting_detail\components\invitee_importer.html:15
 msgid "Import Invitees"
@@ -3079,8 +3075,8 @@ msgstr "Identification du processus:"
 #: .\csas2\templates\csas2\process_detail\main.html:42
 msgid "Clone / Export this CSAS Process to the DM Apps Project Planning Tool"
 msgstr ""
-"Cloner / exporter ce processus SCAS vers l'outil de planification de projet "
-"DM Apps"
+"Cloner / exporter ce processus du SCAS vers l'outil de planification de "
+"projet DM Apps"
 
 #: .\csas2\templates\csas2\process_detail\main.html:44
 msgid "Export to PPT"
@@ -3183,7 +3179,7 @@ msgid ""
 "created based on this CSAS Process. \\n\\nDo you want to proceed?"
 msgstr ""
 "En continuant, un projet dans l'outil de planification de projet DM Apps "
-"sera créé sur la base de ce processus SCAS. \\n\\nVoulez-vous continuer?"
+"sera créé sur la base de ce processus du SCAS. \\n\\nVoulez-vous continuer?"
 
 #: .\csas2\templates\csas2\process_detail\main.html:353
 msgid ""
@@ -3194,7 +3190,7 @@ msgid ""
 msgstr ""
 "En poursuivant, les ACTIVITÉS et les MEMBRES DU PERSONNEL du projet dans "
 "l'outil de planification de projet DM Apps qui est actuellement lié à ce "
-"processus SCAS seront réinitialisés. \\n\\n Voulez-vous continuer?"
+"processus du SCAS seront réinitialisés. \\n\\n Voulez-vous continuer?"
 
 #: .\csas2\templates\csas2\process_detail\main.html:367
 msgid ""
@@ -3236,7 +3232,7 @@ msgstr "Président(s)"
 
 #: .\csas2\templates\csas2\process_postings.html:107
 msgid "CSAS coordinator"
-msgstr "Coordinateur SCAS"
+msgstr "Coordinateur du SCAS"
 
 #: .\csas2\templates\csas2\process_postings.html:115
 msgid "Meeting title (EN)"
@@ -3338,7 +3334,7 @@ msgstr "File d'attente des approbateurs"
 #: .\csas2\templates\csas2\request_detail\_reviewers.html:11
 msgid "The approval process will begin once the CSAS Request is submitted."
 msgstr ""
-"Le processus d'approbation commencera dès que la demande de SCAS sera "
+"Le processus d'approbation commencera dès que la demande du SCAS sera "
 "soumise."
 
 #: .\csas2\templates\csas2\request_detail\_reviewers.html:53
@@ -3428,58 +3424,54 @@ msgstr "Détails de la demande"
 msgid "Connected process(es)"
 msgstr "Processus connectés"
 
-#: .\csas2\templates\csas2\request_detail\main.html:153
+#: .\csas2\templates\csas2\request_detail\main.html:154
 msgid "There are no processes attached to this request."
 msgstr "Il n'y a pas de processus attachés à cette demande."
 
-#: .\csas2\templates\csas2\request_detail\main.html:158 .\csas2\utils.py:357
-msgid "is carry over?"
-msgstr "est un report?"
-
-#: .\csas2\templates\csas2\request_detail\main.html:172
+#: .\csas2\templates\csas2\request_detail\main.html:169
 msgid "Center for Science Advice"
 msgstr "Centre des avis scientifiques"
 
-#: .\csas2\templates\csas2\request_detail\main.html:180 .\csas2\utils.py:362
+#: .\csas2\templates\csas2\request_detail\main.html:177 .\csas2\utils.py:362
 msgid "Multiregional / multisector?"
 msgstr "Multirégional / multisectoriel?"
 
-#: .\csas2\templates\csas2\request_detail\main.html:188
+#: .\csas2\templates\csas2\request_detail\main.html:185
 msgid "Assistance from DFO Science"
 msgstr "Aide du Secteur des sciences du MPO"
 
-#: .\csas2\templates\csas2\request_detail\main.html:208
+#: .\csas2\templates\csas2\request_detail\main.html:205
 msgid "Client funding?"
 msgstr "Financement des clients?"
 
-#: .\csas2\templates\csas2\request_detail\main.html:212
+#: .\csas2\templates\csas2\request_detail\main.html:209
 msgid "Client prioritization and rationale"
 msgstr "Priorisation du client et justification"
 
-#: .\csas2\templates\csas2\request_detail\main.html:265
+#: .\csas2\templates\csas2\request_detail\main.html:262
 msgid "CSAS Review"
 msgstr "Examen du SCAS"
 
-#: .\csas2\templates\csas2\request_detail\main.html:404
+#: .\csas2\templates\csas2\request_detail\main.html:401
 msgid "Are you sure you want to withdraw this request?"
 msgstr "Êtes-vous certain de vouloir supprimer cette demande?"
 
-#: .\csas2\templates\csas2\request_detail\main.html:404
+#: .\csas2\templates\csas2\request_detail\main.html:401
 msgid "WARNING: This action cannot be reversed."
 msgstr "ATTENTION : Cette action ne peut pas être inversée."
 
-#: .\csas2\templates\csas2\request_detail\main.html:419
+#: .\csas2\templates\csas2\request_detail\main.html:416
 #: .\csas2\templates\csas2\request_reviews\main.html:234
 #: .\csas2\templates\csas2\request_reviews\main_trans OLD.html:215
 msgid "Are you certain you want to delete this review?"
 msgstr "Êtes-vous certain de vouloir supprimer cet examen?"
 
-#: .\csas2\templates\csas2\request_detail\main.html:521
+#: .\csas2\templates\csas2\request_detail\main.html:518
 #: .\csas2\templates\csas2\tor\main.html:228
 msgid "Are you sure you want to remove this reviewer?"
 msgstr "Êtes-vous certain de vouloir supprimer cet examinateur?"
 
-#: .\csas2\templates\csas2\request_detail\main.html:523
+#: .\csas2\templates\csas2\request_detail\main.html:520
 #: .\csas2\templates\csas2\tor\main.html:230
 msgid ""
 "WARNING: This reviewer's status is 'pending'. If you choose to continue, "
@@ -3489,16 +3481,16 @@ msgstr ""
 "choisissez de continuer, il recevra un message de notification pour "
 "l'informer de ce changement."
 
-#: .\csas2\templates\csas2\request_detail\main.html:573
+#: .\csas2\templates\csas2\request_detail\main.html:570
 msgid "All fields are mandatory before approvals and submission"
 msgstr "Tous les domaines sont obligatoires avant d'être approuvés et soumis"
 
-#: .\csas2\templates\csas2\request_detail\main.html:578
+#: .\csas2\templates\csas2\request_detail\main.html:575
 msgid "You do not have the necessary permissions to submit this request."
 msgstr ""
 "Vous n'avez pas les autorisations nécessaires pour soumettre cette demande."
 
-#: .\csas2\templates\csas2\request_detail\main.html:584
+#: .\csas2\templates\csas2\request_detail\main.html:581
 msgid ""
 "You must have at least one approver in the approval queue before submitting "
 "the request."
@@ -3585,8 +3577,8 @@ msgstr "Date de soumission"
 #, python-format
 msgid ""
 "\n"
-"      This PDF was generated by DM Apps &mdash; CSAS Tracking Tool on %(now)"
-"s\n"
+"      This PDF was generated by DM Apps &mdash; CSAS Tracking Tool on "
+"%(now)s\n"
 "    "
 msgstr ""
 "\n"
@@ -3664,7 +3656,7 @@ msgstr "supprimer l'examen"
 #: .\csas2\templates\csas2\request_reviews\_regular_table.html:261
 msgid "WARNING: This request does yet not have an associated CSAS process."
 msgstr ""
-"CAVERTISSEMENT : Cette demande n'a pas encore de processus SCAS associé."
+"CAVERTISSEMENT : Cette demande n'a pas encore de processus du SCAS associé."
 
 #: .\csas2\templates\csas2\request_reviews\_regular_table.html:266
 msgid "This review has an associated process."
@@ -3677,8 +3669,8 @@ msgstr "Cette demande n'a pas d'examen."
 #: .\csas2\templates\csas2\request_reviews\_regular_table.html:274
 msgid ""
 "\n"
-"          Click <span class=\"text-primary pointy\" @click=\"primeReview(r)"
-"\"> HERE </span> to start one.\n"
+"          Click <span class=\"text-primary pointy\" @click="
+"\"primeReview(r)\"> HERE </span> to start one.\n"
 "        "
 msgstr ""
 "\n"
@@ -3708,7 +3700,7 @@ msgstr "Aucune demande trouvé..."
 
 #: .\csas2\templates\csas2\request_reviews\main_trans OLD.html:21
 msgid "Request Review Console"
-msgstr "Console d'examen des demandes SCAS"
+msgstr "Console d'examen des demandes du SCAS"
 
 #: .\csas2\templates\csas2\request_submit.html:18
 #, python-format
@@ -3722,7 +3714,7 @@ msgstr ""
 "\n"
 "En soumettant cette demande, vous commencerez les approbations.\n"
 "Une fois les approbations terminées, la demande sera automatiquement "
-"transmise au %(office)s bureau du SCAS."
+"transmise au %(office)s bureau du SCAS. "
 
 #: .\csas2\templates\csas2\request_submit.html:26
 #: .\csas2\templates\csas2\request_submit.html:39
@@ -3975,8 +3967,8 @@ msgid ""
 "You can modify this record because you are the CSAS coordinator for this "
 "region"
 msgstr ""
-"Vous pouvez modifier cet enregistrement car vous êtes le coordinateur SCAS "
-"pour cette région"
+"Vous pouvez modifier cet enregistrement car vous êtes le coordinateur du "
+"SCAS pour cette région"
 
 #: .\csas2\utils.py:170 .\csas2\utils.py:243
 msgid ""
@@ -4080,7 +4072,11 @@ msgstr ""
 
 #: .\csas2\utils.py:354
 msgid "request Id"
-msgstr "ID de la demande"
+msgstr "id de la demande"
+
+#: .\csas2\utils.py:357
+msgid "is carry over?"
+msgstr "est un report?"
 
 #: .\csas2\utils.py:364
 msgid "Assistance from DFO Science?"
@@ -4200,11 +4196,11 @@ msgstr "Mes demandes du SCAS"
 
 #: .\csas2\views.py:379
 msgid "CSAS Request Review Console"
-msgstr "Console d'examen des demandes SCAS"
+msgstr "Console d'examen des demandes du SCAS"
 
 #: .\csas2\views.py:396
 msgid "CSAS Process Review Console"
-msgstr "Console d'examen des processus SCAS"
+msgstr "Console d'examen des processus du SCAS"
 
 #: .\csas2\views.py:416 .\csas2\views.py:670
 msgid "Save"
@@ -4212,7 +4208,7 @@ msgstr "Sauver"
 
 #: .\csas2\views.py:417
 msgid "New CSAS Request"
-msgstr "Nouvelle demande de SCAS"
+msgstr "Nouvelle demande du SCAS"
 
 #: .\csas2\views.py:419 .\csas2\views.py:445
 msgid ""
@@ -4237,7 +4233,7 @@ msgstr "Souhaitez-vous soumettre la demande suivante?"
 
 #: .\csas2\views.py:513
 msgid "Clone a CSAS Request"
-msgstr "Cloner une demande de SCAS"
+msgstr "Cloner une demande du SCAS"
 
 #: .\csas2\views.py:514
 msgid "Please update the request details"
@@ -4245,7 +4241,7 @@ msgstr "Veuillez mettre à jour les détails de la demande"
 
 #: .\csas2\views.py:562
 msgid "New CSAS Request File"
-msgstr "Nouvelle demande de SCAS"
+msgstr "Nouvelle fichier d'une demande du SCAS"
 
 #: .\csas2\views.py:596 .\csas2\views.py:633
 msgid "CSAS Processes"
@@ -4257,7 +4253,7 @@ msgstr "type de consultation"
 
 #: .\csas2\views.py:604
 msgid "CSAS offices"
-msgstr "Bureaux de SCAS"
+msgstr "Bureaux du SCAS"
 
 #: .\csas2\views.py:606
 msgid "chair(s)"
@@ -4281,7 +4277,7 @@ msgstr "Le résume des produits de la réunion confirmé?"
 
 #: .\csas2\views.py:671
 msgid "New CSAS Process"
-msgstr "Processus de SCAS"
+msgstr "Processus du SCAS"
 
 #: .\csas2\views.py:716
 msgid ""
@@ -4359,7 +4355,7 @@ msgstr ""
 
 #: .\csas2\views.py:1187
 msgid "CSAS Meeting Review Console"
-msgstr "Console d'examen des demandes SCAS"
+msgstr "Console d'examen des réunions du SCCS"
 
 #: .\csas2\views.py:1268
 msgid "My Docs"

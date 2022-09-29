@@ -6,7 +6,7 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'inventory:dm_home' %}">Data Management Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'inventory:index' %}">Data Management Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'inventory:dm_custodian_list' %}">All Custodians</a></li>
             <li class="breadcrumb-item"><a href="{% url 'inventory:dm_custodian_detail' person.user.id %}">{{ person.full_name }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">Edit details</li>

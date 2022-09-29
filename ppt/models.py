@@ -27,10 +27,18 @@ YES_NO_CHOICES = (
 
 
 class PPTAdminUser(models.Model):
+    mode_choices = (
+        (1, "read"),
+        (2, "edit"),
+    )
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="ppt_admin_user", verbose_name=_("DM Apps user"))
     region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="projects_admin_user", on_delete=models.CASCADE, blank=True,
                                null=True)
     is_national_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
+
+    # admin users can toggle helptext edit mode on and off
+    mode = models.IntegerField(choices=mode_choices, default=1)
 
     def __str__(self):
         return self.user.get_full_name()
@@ -408,6 +416,13 @@ class Project(models.Model):
             return listrify([str(y) for y in self.years.all()])
         else:
             return "<em>{}</em>".format(_("This project has no fiscal years added yet."))
+
+    def year_status(self, fiscal_year):
+        if fiscal_year:
+            py_qs = ProjectYear.objects.filter(fiscal_year_id=fiscal_year, project=self)
+            if py_qs:
+                return py_qs.get().get_status_display()
+        return None
 
 
 class ProjectYear(models.Model):
