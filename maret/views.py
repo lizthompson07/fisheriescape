@@ -380,7 +380,6 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_update_form"] = False
 
         context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
                               'maret/js/interactionForm.html']
@@ -424,7 +423,6 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
         context = super().get_context_data(**kwargs)
         context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
                               'maret/js/interactionForm.html']
-        context["is_update_form"] = True
         return context
 
     def form_valid(self, form):
