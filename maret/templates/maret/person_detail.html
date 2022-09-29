@@ -42,20 +42,7 @@
                 <div class="card-body">
                     <table class="table table-sm">
                         {% for field in field_list %}
-                            {% if field == "committee" %}
-                            {% elif field == "phone_1" %}
-                                <tr>
-                                    <th class="w-25"> {% trans "Role" %} </th>
-                                    <td>
-                                        {% for ext_con in object.ext_con.all %}
-                                            {{ ext_con.role }}
-                                        {% endfor %}
-                                    </td>
-                                </tr>
-                                {% verbose_td_display object field th_width="25%" %}
-                            {% else %}
-                                {% verbose_td_display object field th_width="25%" %}
-                            {% endif %}
+                            {% verbose_td_display object field th_width="25%" %}
                         {% endfor %}
                     </table>
                 </div>

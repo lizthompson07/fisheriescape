@@ -72,7 +72,7 @@ class AdminIndexTemplateView(TemplateView):
     template_name = 'bio_diversity/admin_index.html'
 
     def get(self, request, *args, **kwargs):
-        if not utils.bio_diverisity_admin(self.request.user):
+        if not utils.in_bio_diversity_admin_group(self.request.user):
             return HttpResponseRedirect(reverse_lazy('accounts:login_required'))
         else:
             context = self.get_context_data(**kwargs)
@@ -81,7 +81,7 @@ class AdminIndexTemplateView(TemplateView):
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
-        context["auth"] = utils.bio_diverisity_admin(self.request.user)
+        context["auth"] = utils.in_bio_diversity_admin_group(self.request.user)
         return context
 
 
@@ -93,7 +93,7 @@ class CodesIndexTemplateView(TemplateView):
     template_name = 'bio_diversity/codes_index.html'
 
     def get(self, request, *args, **kwargs):
-        if not utils.bio_diverisity_admin(self.request.user):
+        if not utils.in_bio_diversity_admin_group(self.request.user):
             return HttpResponseRedirect(reverse_lazy('accounts:login_required'))
         else:
             context = self.get_context_data(**kwargs)
@@ -102,7 +102,7 @@ class CodesIndexTemplateView(TemplateView):
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
-        context["auth"] = utils.bio_diverisity_admin(self.request.user)
+        context["auth"] = utils.in_bio_diversity_admin_group(self.request.user)
         return context
 
 
@@ -114,7 +114,7 @@ class FacicIndexTemplateView(TemplateView):
     template_name = 'bio_diversity/facic_index.html'
 
     def get(self, request, *args, **kwargs):
-        if not utils.bio_diverisity_admin(self.request.user):
+        if not utils.in_bio_diversity_admin_group(self.request.user):
             return HttpResponseRedirect(reverse_lazy('accounts:login_required'))
         else:
             context = self.get_context_data(**kwargs)
@@ -123,7 +123,7 @@ class FacicIndexTemplateView(TemplateView):
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
-        context["auth"] = utils.bio_diverisity_admin(self.request.user)
+        context["auth"] = utils.in_bio_diversity_admin_group(self.request.user)
         return context
 
 
@@ -177,9 +177,9 @@ class CommonCreate(CommonAuthCreateView):
     # overrides the UserPassesTestMixin test to check that a user belongs to the bio_diversity_admin group
     def test_func(self):
         if self.admin_only:
-            return utils.bio_diverisity_admin(self.request.user)
+            return utils.in_bio_diversity_admin_group(self.request.user)
         else:
-            return utils.bio_diverisity_authorized(self.request.user)
+            return utils.in_bio_diversity_author_group(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -889,9 +889,9 @@ class CommonDetails(DetailView):
 
     def get_auth(self):
         if self.admin_only:
-            return utils.bio_diverisity_admin(self.request.user)
+            return utils.in_bio_diversity_admin_group(self.request.user)
         else:
-            return utils.bio_diverisity_authorized(self.request.user)
+            return utils.in_bio_diversity_user_group(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2881,9 +2881,9 @@ class CommonUpdate(CommonAuthUpdateView):
     # an object is editable
     def test_func(self):
         if self.admin_only:
-            return utils.bio_diverisity_admin(self.request.user)
+            return utils.in_bio_diversity_admin_group(self.request.user)
         else:
-            return utils.bio_diverisity_authorized(self.request.user)
+            return utils.in_bio_diversity_author_group(self.request.user)
 
     # Get context returns elements used on the page. Make sure when extending to call
     # context = super().get_context_data(**kwargs) so that elements created in the parent
@@ -3253,7 +3253,7 @@ class CommonLog(CommonTemplateView):
         return context
 
     def test_func(self):
-        return utils.bio_diverisity_authorized(self.request.user)
+        return utils.in_bio_diversity_user_group(self.request.user)
 
 
 class DataLog(CommonLog):
@@ -3819,7 +3819,7 @@ class PlotView(CommonTemplateView):
     title = "Plot view"
 
     def test_func(self):
-        return utils.bio_diverisity_authorized(self.request.user)
+        return utils.in_bio_diversity_user_group(self.request.user)
 
 
 class GrowthChartView(PlotView):

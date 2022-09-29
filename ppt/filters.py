@@ -62,7 +62,7 @@ class ProjectFilter(django_filters.FilterSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if kwargs.get("queryset"):
+        if kwargs.get(""):
             fy_ids = [py.fiscal_year_id for py in models.ProjectYear.objects.filter(project__in=kwargs.get("queryset"))]
             fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.filter(id__in=fy_ids)]
         else:

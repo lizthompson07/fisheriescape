@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.forms import modelformset_factory
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext, gettext_lazy
+import inspect
 
 from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
@@ -695,6 +696,19 @@ TagFormset = modelformset_factory(
 )
 
 
+class HelpTextPopForm(forms.ModelForm):
+
+    class Meta:
+        model = models.HelpText
+        fields = "__all__"
+        widgets = {
+            'model': forms.HiddenInput(),
+            'field_name': forms.HiddenInput(),
+            'eng_text': forms.Textarea(attrs={"rows": 2}),
+            'fra_text': forms.Textarea(attrs={"rows": 2}),
+        }
+
+
 class HelpTextForm(forms.ModelForm):
     class Meta:
         model = models.HelpText
@@ -703,6 +717,14 @@ class HelpTextForm(forms.ModelForm):
             'eng_text': forms.Textarea(attrs={"rows": 4}),
             'fra_text': forms.Textarea(attrs={"rows": 4}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        clsmembers = [(cls[0], cls[0]) for cls in inspect.getmembers(models, inspect.isclass)]
+        clsmembers.insert(0, (None, "----"))
+
+        self.fields['model'] = forms.ChoiceField(choices=clsmembers)
 
 
 HelpTextFormset = modelformset_factory(

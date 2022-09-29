@@ -18,12 +18,22 @@
       {% block form_fields %}
         {% for field in form %}
           {% block form_field %}
-            <div id="{{ field.name }}_div">
-              {% if field.field.required %}
-                {% bootstrap_field field placeholder="" label_class="required" %}
-              {% else %}
-                {% bootstrap_field field placeholder="" %}
-              {% endif %}
+             <div id="{{ field.name }}_div">
+              {% block form_field_label %}
+                  {% if not field.is_hidden %}
+                      {# adds required label to field #}
+                      {% if field.field.required %}
+                          {% bootstrap_label field.label label_class="required" label_for="id_"|add:field.name %}
+                      {% else %}
+                          {% bootstrap_label field.label label_for="id_"|add:field.name%}
+                      {% endif %}
+                  {% endif %}
+              {% endblock %}
+
+              {% bootstrap_field field placeholder="" show_label=False%}
+
+              {% block post_field_area%}
+              {% endblock %}
             </div>
           {% endblock %}
         {% endfor %}
