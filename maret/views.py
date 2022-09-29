@@ -5,7 +5,7 @@ import os
 import shared_models.models
 from django.views import View
 
-from maret.reports import InteractionReportMixin, CommitteeReportMixin, OrganizationReportMixin, PersonReportMixin
+from maret.reports import InteractionReport, CommitteeReport, OrganizationReport, PersonReport
 from shared_models.views import CommonTemplateView, CommonFilterView, CommonCreateView, CommonFormsetView, \
     CommonDetailView, CommonDeleteView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
     CommonPopoutDeleteView, CommonHardDeleteView
@@ -322,7 +322,7 @@ class PersonReportView(UserRequiredMixin, View):
 
         file_url = None
         if qs:
-            file_url = reports.generate_maret_report(qs, PersonReportMixin)
+            file_url = reports.generate_maret_report(qs, PersonReport)
 
         if os.path.exists(file_url):
             with open(file_url, 'rb') as fh:
@@ -508,7 +508,7 @@ class InteractionReportView(UserRequiredMixin, View):
 
         file_url = None
         if qs:
-            file_url = reports.generate_maret_report(qs, InteractionReportMixin)
+            file_url = reports.generate_maret_report(qs, InteractionReport)
 
         if os.path.exists(file_url):
             with open(file_url, 'rb') as fh:
@@ -660,7 +660,7 @@ class CommitteeReportView(UserRequiredMixin, View):
 
         file_url = None
         if qs:
-            file_url = reports.generate_maret_report(qs, CommitteeReportMixin)
+            file_url = reports.generate_maret_report(qs, CommitteeReport)
 
         if os.path.exists(file_url):
             with open(file_url, 'rb') as fh:
@@ -991,7 +991,7 @@ class OrganizationReportView(UserRequiredMixin, View):
 
         file_url = None
         if qs:
-            file_url = reports.generate_maret_report(qs, OrganizationReportMixin)
+            file_url = reports.generate_maret_report(qs, OrganizationReport)
 
         if os.path.exists(file_url):
             with open(file_url, 'rb') as fh:

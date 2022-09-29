@@ -7,41 +7,54 @@ from django.utils import timezone
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
 
 
-class InteractionReportMixin:
-    select_fk_fields = ["committee", "branch", "area_office", "area_office_program", "division", "lead_region",
-                        "lead_national_sector", "last_modified_by"]
-    field_list = [
-        'id|Interaction Id',
-        'interaction_type',
-        'is_committee',
-        'committee',
-        'dfo_role',
-        'dfo_liaison',
-        'other_dfo_participants',
-        'date_of_meeting',
-        'main_topic',
-        'species',
-        'lead_region',
-        'lead_national_sector',
-        'branch',
-        'division',
-        'area_office',
-        'area_office_program',
-        'other_dfo_branch',
-        'other_dfo_regions',
-        'dfo_national_sectors',
-        'other_dfo_areas',
-        'action_items',
-        'comments',
-        'external_organization',
-        'external_contact',
-        'last_modified',
-        'last_modified_by',
-        ]
-    title = "Filtered list of Maret Interactions"
-    sheet_title = "Interactions"
+class ReportLoader:
+    def __init__(self):
+        self.field_list = []
+        self.select_fk_fields = []
+        self.title = ""
+        self.sheet_title = ""
 
-    def val(obj, field):
+    def val(self, obj, field):
+        out_val = obj[field]
+        return out_val
+
+
+class InteractionReport:
+    def __init__(self):
+        self.select_fk_fields = ["committee", "branch", "area_office", "area_office_program", "division", "lead_region",
+                                 "lead_national_sector", "last_modified_by"]
+        self.field_list = [
+            'id|Interaction Id',
+            'interaction_type',
+            'is_committee',
+            'committee',
+            'dfo_role',
+            'dfo_liaison',
+            'other_dfo_participants',
+            'date_of_meeting',
+            'main_topic',
+            'species',
+            'lead_region',
+            'lead_national_sector',
+            'branch',
+            'division',
+            'area_office',
+            'area_office_program',
+            'other_dfo_branch',
+            'other_dfo_regions',
+            'dfo_national_sectors',
+            'other_dfo_areas',
+            'action_items',
+            'comments',
+            'external_organization',
+            'external_contact',
+            'last_modified',
+            'last_modified_by',
+            ]
+        self.title = "Filtered list of Maret Interactions"
+        self.sheet_title = "Interactions"
+
+    def val(self, obj, field):
         val = " --- "
         if "interaction_type" in field:
             if obj.interaction_type:
@@ -57,49 +70,50 @@ class InteractionReportMixin:
         return val
 
 
-class CommitteeReportMixin:
-    select_fk_fields = ["branch", "division", "area_office", "area_office_program", "division", "lead_region",
-                        "lead_national_sector", "last_modified_by"]
-    field_list = [
-        'id|Committee Id',
-        'name',
-        'main_topic',
-        'species',
-        'lead_region',
-        'lead_national_sector',
-        'branch',
-        'division',
-        'area_office',
-        'area_office_program',
-        'is_dfo_chair',
-        'external_chair',
-        'dfo_liaison',
-        'other_dfo_branch',
-        'other_dfo_regions',
-        'dfo_national_sectors',
-        'other_dfo_areas',
-        'dfo_role',
-        'first_nation_participation',
-        'municipal_participation',
-        'provincial_participation',
-        'other_federal_participation',
-        'other_dfo_participants',
-        'meeting_frequency',
-        'are_tor',
-        'location_of_tor',
-        'area_office',
-        'main_actions',
-        'comments',
-        'external_contact',
-        'external_organization',
-        'committee_interactions|Interaction(s)',
-        "last_modified",
-        "last_modified_by",
-        ]
-    title = "Filtered list of Maret Committees"
-    sheet_title = "Committees"
+class CommitteeReport:
+    def __init__(self):
+        self.select_fk_fields = ["branch", "division", "area_office", "area_office_program", "division", "lead_region",
+                                 "lead_national_sector", "last_modified_by"]
+        self.field_list = [
+            'id|Committee Id',
+            'name',
+            'main_topic',
+            'species',
+            'lead_region',
+            'lead_national_sector',
+            'branch',
+            'division',
+            'area_office',
+            'area_office_program',
+            'is_dfo_chair',
+            'external_chair',
+            'dfo_liaison',
+            'other_dfo_branch',
+            'other_dfo_regions',
+            'dfo_national_sectors',
+            'other_dfo_areas',
+            'dfo_role',
+            'first_nation_participation',
+            'municipal_participation',
+            'provincial_participation',
+            'other_federal_participation',
+            'other_dfo_participants',
+            'meeting_frequency',
+            'are_tor',
+            'location_of_tor',
+            'area_office',
+            'main_actions',
+            'comments',
+            'external_contact',
+            'external_organization',
+            'committee_interactions|Interaction(s)',
+            "last_modified",
+            "last_modified_by",
+            ]
+        self.title = "Filtered list of Maret Committees"
+        self.sheet_title = "Committees"
 
-    def val(obj, field):
+    def val(self, obj, field):
         if "meeting_frequency_choices" in field:
             val = " --- "
             if obj.meeting_frequency_choices:
@@ -115,35 +129,36 @@ class CommitteeReportMixin:
         return val
 
 
-class OrganizationReportMixin:
-    select_fk_fields = ["province", "last_modified_by"]
-    field_list = [
-        'id|Organization Id',
-        'name_eng',
-        'former_name',
-        'abbrev',
-        'email',
-        'address',
-        'mailing_address',
-        'city',
-        'postal_code',
-        'province',
-        'phone',
-        'fax',
-        'grouping',
-        'regions',
-        'website',
-        'category',
-        'organization_members|Member(s)',
-        'organization_interactions|Interaction(s)',
-        'organization_committees|Committees/Working groups(s)',
-        'date_last_modified',
-        'last_modified_by'
-        ]
-    title = "Filtered list of Maret Organizations"
-    sheet_title = "Organizations"
+class OrganizationReport:
+    def __init__(self):
+        self.select_fk_fields = ["province", "last_modified_by"]
+        self.field_list = [
+            'id|Organization Id',
+            'name_eng',
+            'former_name',
+            'abbrev',
+            'email',
+            'address',
+            'mailing_address',
+            'city',
+            'postal_code',
+            'province',
+            'phone',
+            'fax',
+            'grouping',
+            'regions',
+            'website',
+            'category',
+            'organization_members|Member(s)',
+            'organization_interactions|Interaction(s)',
+            'organization_committees|Committees/Working groups(s)',
+            'date_last_modified',
+            'last_modified_by'
+            ]
+        self.title = "Filtered list of Maret Organizations"
+        self.sheet_title = "Organizations"
 
-    def val(obj, field):
+    def val(self, obj, field):
         if "date_last_modified" in field:
             val = obj.date_last_modified.strftime("%Y-%m-%d")
         elif "organization_members" in field:
@@ -163,32 +178,33 @@ class OrganizationReportMixin:
         return val
 
 
-class PersonReportMixin:
-    select_fk_fields = ["language", "last_modified_by"]
-    field_list = [
-        'id|Contact Id',
-        "designation",
-        "first_name",
-        "last_name",
-        "phone_1",
-        "phone_2",
-        "email_1",
-        "email_2",
-        "cell",
-        "fax",
-        "language",
-        "notes",
-        "email_block",
-        "ogranizations | Organization Memberships",
-        "committee|Committees / Working Groups",
-        "interactions | Interactions",
-        "date_last_modified",
-        "last_modified_by",
-        ]
-    title = "Filtered list of Maret Contacts"
-    sheet_title = "Contacts"
+class PersonReport:
+    def __init__(self):
+        self.select_fk_fields = ["language", "last_modified_by"]
+        self.field_list = [
+            'id|Contact Id',
+            "designation",
+            "first_name",
+            "last_name",
+            "phone_1",
+            "phone_2",
+            "email_1",
+            "email_2",
+            "cell",
+            "fax",
+            "language",
+            "notes",
+            "email_block",
+            "ogranizations | Organization Memberships",
+            "committee|Committees / Working Groups",
+            "interactions | Interactions",
+            "date_last_modified",
+            "last_modified_by",
+            ]
+        self.title = "Filtered list of Maret Contacts"
+        self.sheet_title = "Contacts"
 
-    def val(obj, field):
+    def val(self, obj, field):
         if "date_last_modified" in field:
             val = obj.date_last_modified.strftime("%Y-%m-%d")
         elif "ogranizations" in field:
@@ -209,8 +225,9 @@ class PersonReportMixin:
         return val
 
 
-def generate_maret_report(qs, mixin):
-    qs = qs.select_related(*mixin.select_fk_fields)
+def generate_maret_report(qs, report_loader):
+    report_class = report_loader()
+    qs = qs.select_related(*report_class.select_fk_fields)
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -225,14 +242,14 @@ def generate_maret_report(qs, mixin):
         {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
     normal_format = workbook.add_format({"align": 'left', "text_wrap": False, 'border': 1, 'border_color': 'black', })
 
-    field_list = mixin.field_list
+    field_list = report_class.field_list
 
     # define the header
     header = [get_verbose_label(qs.first(), field) for field in field_list]
-    title = mixin.title
+    title = report_class.title
 
     # define a worksheet
-    my_ws = workbook.add_worksheet(name=mixin.sheet_title)
+    my_ws = workbook.add_worksheet(name=report_class.sheet_title)
     my_ws.write(0, 0, title, title_format)
     my_ws.write_row(2, 0, header, header_format)
 
@@ -244,7 +261,7 @@ def generate_maret_report(qs, mixin):
     for obj in qs:
         j = 0
         for field in field_list:
-            val = mixin.val(obj, field)
+            val = report_class.val(obj, field)
             # write val:
             my_ws.write(i, j, val, normal_format)
 
