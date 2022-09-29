@@ -1,11 +1,17 @@
+import json
 import math
+import os
 
+import shared_models.models
+from django.views import View
+
+from maret.reports import InteractionReport, CommitteeReport, OrganizationReport, PersonReport
 from shared_models.views import CommonTemplateView, CommonFilterView, CommonCreateView, CommonFormsetView, \
     CommonDetailView, CommonDeleteView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
     CommonPopoutDeleteView, CommonHardDeleteView
 
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 
 from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
@@ -18,7 +24,7 @@ from django.urls import reverse_lazy, reverse
 
 from maret.utils import MaretBasicRequiredMixin, UserRequiredMixin, AuthorRequiredMixin, AdminRequiredMixin, \
     AdminOrSuperuserRequiredMixin
-from maret import models, filters, forms, utils
+from maret import models, filters, forms, utils, reports
 
 from masterlist import models as ml_models
 
@@ -174,6 +180,13 @@ class PersonListView(UserRequiredMixin, CommonFilterView):
     h1 = _("Contacts")
     container_class = "container-fluid"
 
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        filtered_ids = [person.pk for person in context["object_list"]]
+        context["report_url"] = reverse_lazy("maret:person_report") + "?ids=" + str(filtered_ids)
+        return context
+
 
 class PersonDetailView(UserRequiredMixin, CommonDetailView):
     model = ml_models.Person
@@ -302,11 +315,29 @@ class PersonDeleteView(AdminRequiredMixin, CommonDeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+class PersonReportView(UserRequiredMixin, View):
+    def get(self, request):
+        id_list = json.loads(request.GET.get("ids"))
+        qs = ml_models.Person.objects.filter(pk__in=id_list)
+
+        file_url = None
+        if qs:
+            file_url = reports.generate_maret_report(qs, PersonReport)
+
+        if os.path.exists(file_url):
+            with open(file_url, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = f'inline; filename="meret_person_report.xlsx"'
+
+                return response
+        raise Http404
+
+
 #######################################################
 # Interactions
 #######################################################
 class InteractionListView(UserRequiredMixin, CommonFilterView):
-    template_name = 'maret/maret_list.html'
+    template_name = 'maret/interaction_list.html'
     queryset = models.Interaction.objects.all().distinct().annotate(
         search_term=Concat(
             'description', Value(' '),
@@ -326,6 +357,13 @@ class InteractionListView(UserRequiredMixin, CommonFilterView):
     row_object_url_name = "maret:interaction_detail"
     home_url_name = "maret:index"
 
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        filtered_ids = [interaction.pk for interaction in context["object_list"]]
+        context["report_url"] = reverse_lazy("maret:interaction_report") + "?ids=" + str(filtered_ids)
+        return context
+
 
 class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     model = models.Interaction
@@ -342,6 +380,7 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
                               'maret/js/interactionForm.html']
 
@@ -388,20 +427,23 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
 
     def form_valid(self, form):
         super(InteractionUpdateView, self).form_valid(form)
+        initial_committee = self.get_object().committee
         self.object = form.save()
+
         if self.object.is_committee or self.object.interaction_type == 4:
-            committee = self.object.committee
-            self.object.main_topic.set(committee.main_topic.all())
-            self.object.species.set(committee.species.all())
-            self.object.external_contact.set(committee.external_contact.all())
-            self.object.external_organization.set(committee.external_organization.all())
-            self.object.lead_region = committee.lead_region
-            self.object.lead_national_sector = committee.lead_national_sector
-            self.object.branch = committee.branch
-            self.object.division = committee.division
-            self.object.area_office = committee.area_office
-            self.object.area_office_program = committee.area_office_program
-            self.object.save()
+            if self.object.committee != initial_committee:
+                committee = self.object.committee
+                self.object.main_topic.set(committee.main_topic.all())
+                self.object.species.set(committee.species.all())
+                self.object.external_contact.set(committee.external_contact.all())
+                self.object.external_organization.set(committee.external_organization.all())
+                self.object.lead_region = committee.lead_region
+                self.object.lead_national_sector = committee.lead_national_sector
+                self.object.branch = committee.branch
+                self.object.division = committee.division
+                self.object.area_office = committee.area_office
+                self.object.area_office_program = committee.area_office_program
+                self.object.save()
         return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': self.object.id}))
 
 
@@ -442,7 +484,6 @@ class InteractionDetailView(UserRequiredMixin, CommonDetailView):
             'last_modified',
             'last_modified_by',
         ]
-
         return context
 
 
@@ -456,6 +497,24 @@ class InteractionDeleteView(AuthorRequiredMixin, CommonDeleteView):
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("maret:interaction_detail", args=[self.get_object().id])}
+
+
+class InteractionReportView(UserRequiredMixin, View):
+    def get(self, request):
+        id_list = json.loads(request.GET.get("ids"))
+        qs = models.Interaction.objects.filter(pk__in=id_list)
+
+        file_url = None
+        if qs:
+            file_url = reports.generate_maret_report(qs, InteractionReport)
+
+        if os.path.exists(file_url):
+            with open(file_url, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = f'inline; filename="meret_interaction_report.xlsx"'
+
+                return response
+        raise Http404
 
 
 #######################################################
@@ -487,6 +546,8 @@ class CommitteeListView(UserRequiredMixin, CommonFilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['scripts'] = ['maret/js/divisionFilter.html']
+        filtered_ids = [committee.pk for committee in context["object_list"]]
+        context["report_url"] = reverse_lazy("maret:committee_report") + "?ids=" + str(filtered_ids)
         return context
 
 
@@ -590,6 +651,24 @@ class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
         return context
 
 
+class CommitteeReportView(UserRequiredMixin, View):
+    def get(self, request):
+        id_list = json.loads(request.GET.get("ids"))
+        qs = models.Committee.objects.filter(pk__in=id_list)
+
+        file_url = None
+        if qs:
+            file_url = reports.generate_maret_report(qs, CommitteeReport)
+
+        if os.path.exists(file_url):
+            with open(file_url, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = f'inline; filename="meret_committee_report.xlsx"'
+
+                return response
+        raise Http404
+
+
 #######################################################
 # Organization
 #######################################################
@@ -617,6 +696,11 @@ class OrganizationListView(UserRequiredMixin, CommonFilterView):
     row_object_url_name = "maret:org_detail"
     container_class = "container-fluid"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        filtered_ids = [org.pk for org in context["object_list"]]
+        context["report_url"] = reverse_lazy("maret:org_report") + "?ids=" + str(filtered_ids)
+        return context
 
 class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     model = ml_models.Organization
@@ -898,6 +982,24 @@ class OrganizationCueCard(PDFTemplateView):
         return context
 
 
+class OrganizationReportView(UserRequiredMixin, View):
+    def get(self, request):
+        id_list = json.loads(request.GET.get("ids"))
+        qs = ml_models.Organization.objects.filter(pk__in=id_list)
+
+        file_url = None
+        if qs:
+            file_url = reports.generate_maret_report(qs, OrganizationReport)
+
+        if os.path.exists(file_url):
+            with open(file_url, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = f'inline; filename="meret_organization_report.xlsx"'
+
+                return response
+        raise Http404
+
+
 #######################################################
 # Organization Memberships
 #######################################################
@@ -958,6 +1060,19 @@ class MemberDeleteView(AdminRequiredMixin, CommonPopoutDeleteView):
             return HttpResponseRedirect(reverse("maret:person_detail", args=[obj.pk, ]))
 
         return super().delete(request, *args, **kwargs)
+
+
+class UserDetailView(UserRequiredMixin, CommonDetailView):
+    model = shared_models.models.User
+    template_name = 'maret/user_detail.html'
+    field_list = [
+        "first_name",
+        "last_name",
+        "email",
+        "section",
+    ]
+    home_url_name = "maret:index"
+    parent_crumb = {}
 
 
 class CommonMaretFormset(AdminRequiredMixin, CommonFormsetView):

@@ -42,7 +42,18 @@
                 <div class="card-body">
                     <table class="table table-sm">
                         {% for field in field_list %}
-                            {% verbose_td_display object field th_width="25%" %}
+                           {% if field == "last_modified_by" %}
+                              <tr>
+                                <th>{% get_verbose_label object field %}</th>
+                                <td>
+                                    {% if object.last_modified_by.id %}
+                                        <a href="{% url 'maret:user_detail' object.last_modified_by.id %}">{% get_field_value object field %}</a>
+                                    {% endif %}
+                                </td>
+                              </tr>
+                           {% else %}
+                              {% verbose_td_display object field th_width="25%" %}
+                           {% endif %}
                         {% endfor %}
                     </table>
                 </div>
