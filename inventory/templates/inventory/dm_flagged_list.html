@@ -6,7 +6,7 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'inventory:dm_home' %}">Data Management Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'inventory:index' %}">Data Management Home</a></li>
             <li class="breadcrumb-item active" aria-current="page">{% if view.kwargs.flag_type == "deletion" %} Flagged
                 for
                 Deletion {% elif view.kwargs.flag_type == "publication" %} Flagged for Publication{% endif %}</li>
