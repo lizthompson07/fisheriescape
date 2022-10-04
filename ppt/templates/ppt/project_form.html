@@ -195,7 +195,92 @@
         resetFields()
       }
     });
+  {% elif object.is_csrf %}
+      var $csrf_fy = $("#id_csrf_fiscal_year")
+      // client info is the priorities field
+      var $client_information = $("#id_client_information")
+      let clientInformationObj = {{ client_information_json|safe }};
+
+       $(document).ready(function () {
+           // Stuff to do as soon as the DOM is ready
+           toggleCSRFFields();
+           filterCSRFPriorities();
+       });
+
+      $csrf_fy.change(function () {
+          toggleCSRFFields();
+          filterCSRFPriorities();
+
+      });
+
+      function filterCSRFPriorities() {
+          // define options based on fiscal year selection
+          if ($csrf_fy.val() == '2024') {
+              var newOptions = {"---": ""};
+              for (var i = 0; i < Object.keys(clientInformationObj).length; i++) {
+                  var key = Object.keys(clientInformationObj)[i];
+                  var searchTerm = $csrf_fy.val();
+                  if (clientInformationObj[key].fiscal_year == searchTerm) {
+                      newOptions[clientInformationObj[key].display] = key
+                  }
+              }
+              $client_information.empty(); // remove old options
+              $.each(newOptions, function (key, value) {
+                  $client_information.append($("<option></option>")
+                      .attr("value", value).text(key));
+              });
+          } else {
+              // add all options
+              var newOptions = {"---": ""};
+              for (var i = 0; i < Object.keys(clientInformationObj).length; i++) {
+                  var key = Object.keys(clientInformationObj)[i];
+                  newOptions[clientInformationObj[key].display] = key
+              }
+              $client_information.empty(); // remove old options
+              $.each(newOptions, function (key, value) {
+                  $client_information.append($("<option></option>")
+                      .attr("value", value).text(key));
+              });
+          }
+
+          // sort the options
+          // https://stackoverflow.com/questions/12073270/sorting-options-elements-alphabetically-using-jquery
+          var options = $('#id_client_information option');
+          var arr = options.map(function (_, o) {
+              return {t: $(o).text(), v: o.value};
+          }).get();
+          arr.sort(function (o1, o2) {
+              return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0;
+          });
+          options.each(function (i, o) {
+              o.value = arr[i].v;
+              $(o).text(arr[i].t);
+          });
+
+          $client_information.trigger("chosen:updated");
+
+      }
+
+
+      function toggleCSRFFields() {
+          // if the CSRF fiscal year is 2023-2024, set fields as follows:
+          if ($csrf_fy.val() == '2024') {
+              $("#overview_div").hide()
+              $("#second_priority_div").hide()
+              $("#innovation_div").hide()
+              $("#other_funding_div").hide()
+              $("#objectives_div").hide()
+          } else {
+              $("#overview_div").show()
+              $("#second_priority_div").show()
+              $("#innovation_div").show()
+              $("#other_funding_div").show()
+              $("#objectives_div").show()
+          }
+      }
+
   {% endif %}
+
   </script>
 
 {% endblock %}

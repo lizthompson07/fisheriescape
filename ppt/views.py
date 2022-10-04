@@ -400,6 +400,14 @@ class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonUpdateViewHelp):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_text_dict'] = get_help_text_dict()
+
+        client_information_dict = {}
+        for ci in models.CSRFClientInformation.objects.all().order_by("name", ):
+            client_information_dict[ci.id] = {}
+            client_information_dict[ci.id]["display"] = str(ci.csrf_priority)
+            client_information_dict[ci.id]["fiscal_year"] = ci.fiscal_year.id
+        context['client_information_json'] = json.dumps(client_information_dict)
+
         return context
 
     def get_initial(self):
