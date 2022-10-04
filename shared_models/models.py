@@ -615,7 +615,7 @@ class Cruise(MetadataFields):
     mission_number = models.CharField(max_length=255, verbose_name=_("Mission Number"), unique=True)
     mission_name = models.CharField(max_length=255, verbose_name=_("Mission Name"))
     description = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Description"))
-    purpose = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Purpose"))
+    purpose = models.TextField(null=True, blank=True, verbose_name=_("Purpose"))
     chief_scientist = models.CharField(max_length=255, verbose_name=_("Chief Scientist"))
     samplers = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Samplers"))
     start_date = models.DateTimeField(null=True, blank=True, verbose_name=_("Start Date"))
