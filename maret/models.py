@@ -296,7 +296,7 @@ class HelpText(models.Model):
     fra_text = models.TextField(blank=True, null=True, verbose_name=_("French text"))
 
     def __str__(self):
-        # check to see if a french value is given
+        # check to see if a French value is given
         if getattr(self, str(_("eng_text"))):
             return "{}".format(getattr(self, str(_("eng_text"))))
         # if there is no translated term, just pull from the english field
