@@ -229,7 +229,7 @@ class Project(models.Model):
                                          verbose_name=_("CSRF application fiscal year"),  related_name="csrf_projects")
 
     client_information = models.ForeignKey(CSRFClientInformation, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                           verbose_name=_("Additional info supplied by client (#1) (CSRF)"), related_name="projects")
+                                           verbose_name=_("Specific Client Question"), related_name="projects")
     second_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, blank=True, null=True,
                                         verbose_name=_("Linkage to second priority (CSRF)"), related_name="projects")
 

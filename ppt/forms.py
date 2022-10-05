@@ -189,8 +189,6 @@ class ProjectForm(forms.ModelForm):
                 self.fields["innovation"].label = str(_("Describe how the project will generate or promote innovation (CSRF)"))
                 self.fields["other_funding"].label = str(
                     _("Provide any additional information on the other sources of funding relevant to the project (e.g. type of in-kind contribution) (CSRF)"))
-                self.fields["client_information"].label += " " + str(_("SEE PRIORITIES DOCUMENT"))
-                self.fields["second_priority"].label += " " + str(_("SEE PRIORITIES DOCUMENT"))
             elif kwargs.get("instance").is_sara:
                 specialized_fields = [
                     # CSRF
@@ -869,7 +867,7 @@ class CSRFClientInformationForm(forms.ModelForm):
 CSRFClientInformationFormset = modelformset_factory(
     model=models.CSRFClientInformation,
     form=CSRFClientInformationForm,
-    extra=1,
+    extra=3,
 )
 
 
