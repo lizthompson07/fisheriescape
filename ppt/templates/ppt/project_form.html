@@ -199,8 +199,6 @@
       var $csrf_fy = $("#id_csrf_fiscal_year")
       // client info is the priorities field
       var $client_information = $("#id_client_information")
-      var $clientInformationLabel = $("#client_information_div").children('label').eq(0)
-      var originalLabel = $clientInformationLabel.text()
       let clientInformationObj = {{ client_information_json|safe }};
 
        $(document).ready(function () {
@@ -217,6 +215,7 @@
 
       function filterCSRFPriorities() {
           // stack exchange function to readd the arrows: https://stackoverflow.com/questions/5796718/html-entity-decode
+          var element = document.createElement('div');
           function decodeHTMLEntities (str) {
               if(str && typeof str === 'string') {
                   // strip script/html tags
@@ -231,7 +230,6 @@
 
           // define options based on fiscal year selection
           if ($csrf_fy.val() == '2024') {
-              $clientInformationLabel.text('Specific Client Question')
               $client_information.prop("required", true);
 
               var newOptions = {"---": ""};
@@ -248,7 +246,6 @@
                       .attr("value", value).text(key));
               });
           } else {
-              $clientInformationLabel.text(originalLabel)
               $client_information.prop("required", false);
 
               // add all options
