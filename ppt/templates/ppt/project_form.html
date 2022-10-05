@@ -199,6 +199,8 @@
       var $csrf_fy = $("#id_csrf_fiscal_year")
       // client info is the priorities field
       var $client_information = $("#id_client_information")
+      var $clientInformationLabel = $("#client_information_div").children('label').eq(0)
+      var originalLabel = $clientInformationLabel.text()
       let clientInformationObj = {{ client_information_json|safe }};
 
        $(document).ready(function () {
@@ -216,6 +218,7 @@
       function filterCSRFPriorities() {
           // define options based on fiscal year selection
           if ($csrf_fy.val() == '2024') {
+              $clientInformationLabel.text('CSRF Priority')
               var newOptions = {"---": ""};
               for (var i = 0; i < Object.keys(clientInformationObj).length; i++) {
                   var key = Object.keys(clientInformationObj)[i];
@@ -230,11 +233,12 @@
                       .attr("value", value).text(key));
               });
           } else {
+              $clientInformationLabel.text(originalLabel)
               // add all options
               var newOptions = {"---": ""};
               for (var i = 0; i < Object.keys(clientInformationObj).length; i++) {
                   var key = Object.keys(clientInformationObj)[i];
-                  newOptions[clientInformationObj[key].display] = key
+                  newOptions[clientInformationObj[key].ci_display] = key
               }
               $client_information.empty(); // remove old options
               $.each(newOptions, function (key, value) {
@@ -264,18 +268,19 @@
 
       function toggleCSRFFields() {
           // if the CSRF fiscal year is 2023-2024, set fields as follows:
+          $("#overview_div").show()
+          $("#second_priority_div").show()
+          $("#innovation_div").show()
+          $("#other_funding_div").show()
+          $("#objectives_div").show()
           if ($csrf_fy.val() == '2024') {
-              $("#overview_div").hide()
-              $("#second_priority_div").hide()
-              $("#innovation_div").hide()
-              $("#other_funding_div").hide()
-              $("#objectives_div").hide()
-          } else {
-              $("#overview_div").show()
-              $("#second_priority_div").show()
-              $("#innovation_div").show()
-              $("#other_funding_div").show()
-              $("#objectives_div").show()
+              {% if object.year_status_dict.2024 == "Draft" or object.year_status_dict.2024 == None %}
+                  $("#overview_div").hide()
+                  $("#second_priority_div").hide()
+                  $("#innovation_div").hide()
+                  $("#other_funding_div").hide()
+                  $("#objectives_div").hide()
+              {% endif %}
           }
       }
 

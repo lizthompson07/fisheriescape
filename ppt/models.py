@@ -427,6 +427,13 @@ class Project(models.Model):
                 return py_qs.get().get_status_display()
         return None
 
+    @property
+    def year_status_dict(self):
+        status_dict = {}
+        for py in self.years.all():
+            status_dict[py.fiscal_year_id] = py.get_status_display()
+        return status_dict
+
 
 class ProjectYear(models.Model):
     status_choices = [
