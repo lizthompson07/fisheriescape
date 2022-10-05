@@ -93,7 +93,7 @@ class CSRFClientInformation(Lookup):
         first_part = first_part.replace(":", "")
         if len(first_part) > 90:
             first_part = first_part[:90]
-        return mark_safe(f'{self.csrf_priority.code} &rarr; {first_part}...')
+        return mark_safe(f'{self.csrf_priority.code}: {first_part}...')
 
     @property
     def quickname_fr(self):
@@ -101,7 +101,7 @@ class CSRFClientInformation(Lookup):
         first_part = first_part.replace(":", "")
         if len(first_part) > 90:
             first_part = first_part[:90]
-        return mark_safe(f'{self.csrf_priority.code} &rarr; {first_part}...')
+        return mark_safe(f'{self.csrf_priority.code}: {first_part}...')
 
     class Meta:
         ordering = ['csrf_priority__code', "name"]
