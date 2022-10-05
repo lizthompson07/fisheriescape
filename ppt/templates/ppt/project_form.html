@@ -216,6 +216,19 @@
       });
 
       function filterCSRFPriorities() {
+          // stack exchange function to readd the arrows: https://stackoverflow.com/questions/5796718/html-entity-decode
+          function decodeHTMLEntities (str) {
+              if(str && typeof str === 'string') {
+                  // strip script/html tags
+                  str = str.replace(/<script[^>]*>([\S\s]*?)<\/script>/gmi, '');
+                  str = str.replace(/<\/?\w(?:[^"'>]|"[^"]*"|'[^']*')*>/gmi, '');
+                  element.innerHTML = str;
+                  str = element.textContent;
+                  element.textContent = '';
+              }
+              return str;
+          }
+
           // define options based on fiscal year selection
           if ($csrf_fy.val() == '2024') {
               $clientInformationLabel.text('Specific Client Question')
@@ -226,7 +239,7 @@
                   var key = Object.keys(clientInformationObj)[i];
                   var searchTerm = $csrf_fy.val();
                   if (clientInformationObj[key].fiscal_year == searchTerm) {
-                      newOptions[clientInformationObj[key].display] = key
+                      newOptions[decodeHTMLEntities(clientInformationObj[key].display)] = key
                   }
               }
               $client_information.empty(); // remove old options
@@ -242,7 +255,7 @@
               var newOptions = {"---": ""};
               for (var i = 0; i < Object.keys(clientInformationObj).length; i++) {
                   var key = Object.keys(clientInformationObj)[i];
-                  newOptions[clientInformationObj[key].display] = key
+                  newOptions[decodeHTMLEntities(clientInformationObj[key].display)] = key
               }
               $client_information.empty(); // remove old options
               $.each(newOptions, function (key, value) {
