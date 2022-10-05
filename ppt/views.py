@@ -405,7 +405,11 @@ class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonUpdateViewHelp):
         for ci in models.CSRFClientInformation.objects.all().order_by("name", ):
             client_information_dict[ci.id] = {}
             client_information_dict[ci.id]["display"] = str(ci)
-            client_information_dict[ci.id]["fiscal_year"] = ci.fiscal_year.id
+            if ci.fiscal_year:
+                client_information_dict[ci.id]["fiscal_year"] = ci.fiscal_year.id
+            else:
+                client_information_dict[ci.id]["fiscal_year"] = None
+
         context['client_information_json'] = json.dumps(client_information_dict)
 
         return context
