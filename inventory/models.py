@@ -314,7 +314,7 @@ class Resource(models.Model):
     date_last_modified = models.DateTimeField(auto_now=True, editable=False)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
     flagged_4_deletion = models.BooleanField(default=False)
-    flagged_4_publication = models.BooleanField(default=False)
+    flagged_4_publication = models.BooleanField(default=False, verbose_name=_("Flagged for Publication"))
     completedness_report = models.TextField(blank=True, null=True, verbose_name=_("completedness report"))
     completedness_rating = models.FloatField(blank=True, null=True, verbose_name=_("completedness rating"))
     translation_needed = models.BooleanField(default=True, verbose_name=_("translation needed"))
