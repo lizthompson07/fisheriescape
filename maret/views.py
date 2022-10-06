@@ -349,7 +349,7 @@ class InteractionListView(UserRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'description', "class": "", "width": ""},
         {"name": 'interaction_type', "class": "", "width": ""},
-        {"name": 'date_of_meeting', "class": "", "width": ""},
+        {"name": 'date_of_meeting|Date of interaction (YYYY-MM-DD)', "class": "", "width": ""},
         {"name": 'main_topic', "class": "", "width": ""},
         {"name": 'species', "class": "", "width": ""},
     ]
