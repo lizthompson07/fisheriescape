@@ -268,7 +268,7 @@ class Interaction(models.Model):
                                          verbose_name=_("last modified by"))
 
     def __str__(self):
-        return "{}: {}".format(self.pk, self.description)
+        return "{}".format(self.description)
 
 
 class OrganizationExtension(models.Model):
