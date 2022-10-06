@@ -195,7 +195,102 @@
         resetFields()
       }
     });
+  {% elif object.is_csrf %}
+      var $csrf_fy = $("#id_csrf_fiscal_year")
+      // client info is the priorities field
+      var $client_information = $("#id_client_information")
+      let clientInformationObj = {{ client_information_json|safe }};
+
+       $(document).ready(function () {
+           // Stuff to do as soon as the DOM is ready
+           toggleCSRFFields();
+           filterCSRFPriorities();
+       });
+
+      $csrf_fy.change(function () {
+          toggleCSRFFields();
+          filterCSRFPriorities();
+
+      });
+
+      function filterCSRFPriorities() {
+          // stack exchange function to readd the arrows: https://stackoverflow.com/questions/5796718/html-entity-decode
+          var element = document.createElement('div');
+          function decodeHTMLEntities (str) {
+              if(str && typeof str === 'string') {
+                  // strip script/html tags
+                  str = str.replace(/<script[^>]*>([\S\s]*?)<\/script>/gmi, '');
+                  str = str.replace(/<\/?\w(?:[^"'>]|"[^"]*"|'[^']*')*>/gmi, '');
+                  element.innerHTML = str;
+                  str = element.textContent;
+                  element.textContent = '';
+              }
+              return str;
+          }
+
+          // define options based on fiscal year selection
+          if ($csrf_fy.val() == '2024') {
+              $client_information.prop("required", true);
+
+              var newOptions = {"---": ""};
+              for (var i = 0; i < Object.keys(clientInformationObj).length; i++) {
+                  var key = Object.keys(clientInformationObj)[i];
+                  var searchTerm = $csrf_fy.val();
+                  if (clientInformationObj[key].fiscal_year == searchTerm) {
+                      newOptions[decodeHTMLEntities(clientInformationObj[key].display)] = key
+                  }
+              }
+              $client_information.empty(); // remove old options
+              $.each(newOptions, function (key, value) {
+                  $client_information.append($("<option></option>")
+                      .attr("value", value).text(key));
+              });
+          } else {
+              $client_information.prop("required", false);
+
+              // add all options
+              var newOptions = {"---": ""};
+              for (var i = 0; i < Object.keys(clientInformationObj).length; i++) {
+                  var key = Object.keys(clientInformationObj)[i];
+                  newOptions[decodeHTMLEntities(clientInformationObj[key].display)] = key
+              }
+              $client_information.empty(); // remove old options
+              $.each(newOptions, function (key, value) {
+                  $client_information.append($("<option></option>")
+                      .attr("value", value).text(key));
+              });
+          }
+
+          // sort the options
+          // https://stackoverflow.com/questions/12073270/sorting-options-elements-alphabetically-using-jquery
+          var options = $('#id_client_information option');
+          var arr = options.map(function (_, o) {
+              return {t: $(o).text(), v: o.value};
+          }).get();
+          arr.sort(function (o1, o2) {
+              return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0;
+          });
+          options.each(function (i, o) {
+              o.value = arr[i].v;
+              $(o).text(arr[i].t);
+          });
+
+          $client_information.trigger("chosen:updated");
+
+      }
+
+      function toggleCSRFFields() {
+          // if the CSRF fiscal year is 2023-2024, set fields as follows:
+          $("#second_priority_div").show()
+          $("#objectives_div").show()
+          if ($csrf_fy.val() == '2024') {
+              $("#second_priority_div").hide()
+              $("#objectives_div").hide()
+          }
+      }
+
   {% endif %}
+
   </script>
 
 {% endblock %}

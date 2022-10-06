@@ -225,8 +225,11 @@ class Project(models.Model):
     experimental_protocol = models.TextField(blank=True, null=True, verbose_name=_("experimental protocol (ACRDP)"))
 
     # CSRF fields
+    csrf_fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("CSRF application fiscal year (CSRF)"),  related_name="csrf_projects")
+
     client_information = models.ForeignKey(CSRFClientInformation, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                           verbose_name=_("Additional info supplied by client (#1) (CSRF)"), related_name="projects")
+                                           verbose_name=_("Specific Client Question (CSRF)"), related_name="projects")
     second_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, blank=True, null=True,
                                         verbose_name=_("Linkage to second priority (CSRF)"), related_name="projects")
 
@@ -803,7 +806,7 @@ class Staff(GenericCost):
     ]
     employee_type = models.ForeignKey(EmployeeType, on_delete=models.DO_NOTHING, verbose_name=_("employee type"))
     is_lead = models.BooleanField(default=False, verbose_name=_("project lead"), choices=((True, _("yes")), (False, _("no"))))
-    is_primary_lead = models.BooleanField(default=False, verbose_name=_("primary project lead"), choices=((True, _("yes")), (False, _("no"))))
+    is_primary_lead = models.BooleanField(default=False, verbose_name=_("primary project contact"), choices=((True, _("yes")), (False, _("no"))))
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"),
                              related_name="staff_instances2")
     name = models.CharField(max_length=255, verbose_name=_("Person name (leave blank if user is selected)"), blank=True, null=True)

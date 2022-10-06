@@ -14,7 +14,7 @@ chosen_js = {"class": "chosen-select-contains"}
 
 
 class InteractionFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search (Description, Comments)"),
+    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search (Title of Interaction, Main results, Comments)"),
                                             lookup_expr='icontains', widget=forms.TextInput())
 
     class Meta:
@@ -64,7 +64,7 @@ class InteractionFilter(django_filters.FilterSet):
 
 
 class CommitteeFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search Committee Name"),
+    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search (committee/working group name, role, and comments)"),
                                             lookup_expr='icontains', widget=forms.TextInput())
 
     external_chair_contact = django_filters.ModelMultipleChoiceFilter(

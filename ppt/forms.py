@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.forms import modelformset_factory
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext, gettext_lazy
 import inspect
@@ -127,6 +128,7 @@ class ProjectForm(forms.ModelForm):
                     'rationale',
                     'experimental_protocol',
                     # CSRF
+                    'csrf_fiscal_year',
                     'client_information',
                     'second_priority',
                     'objectives',
@@ -142,6 +144,7 @@ class ProjectForm(forms.ModelForm):
             elif kwargs.get("instance").is_acrdp:
                 specialized_fields = [
                     # CSRF
+                    'csrf_fiscal_year',
                     'client_information',
                     'second_priority',
                     'objectives',
@@ -169,6 +172,15 @@ class ProjectForm(forms.ModelForm):
                 ]
                 for field in specialized_fields:
                     del self.fields[field]
+
+                csrf_fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.filter(id__gte=2021)]
+                csrf_fy_choices.insert(0, tuple((None, "---")))
+
+                self.fields['csrf_fiscal_year'].choices = csrf_fy_choices
+
+                if not kwargs.get("instance").client_information:
+                    self.initial["csrf_fiscal_year"] = fiscal_year(timezone.now(), sap_style=True) + 1
+
                 self.fields["overview"].label = str(
                     _("Provide a brief overview of the project outlining how it specifically addresses the priority identified "))
                 self.fields["objectives"].label = str(_("Describe the objective(s) of the project (CSRF)"))
@@ -177,11 +189,10 @@ class ProjectForm(forms.ModelForm):
                 self.fields["innovation"].label = str(_("Describe how the project will generate or promote innovation (CSRF)"))
                 self.fields["other_funding"].label = str(
                     _("Provide any additional information on the other sources of funding relevant to the project (e.g. type of in-kind contribution) (CSRF)"))
-                self.fields["client_information"].label += " " + str(_("SEE PRIORITIES DOCUMENT"))
-                self.fields["second_priority"].label += " " + str(_("SEE PRIORITIES DOCUMENT"))
             elif kwargs.get("instance").is_sara:
                 specialized_fields = [
                     # CSRF
+                    'csrf_fiscal_year',
                     'client_information',
                     'second_priority',
                     'objectives',
@@ -856,7 +867,7 @@ class CSRFClientInformationForm(forms.ModelForm):
 CSRFClientInformationFormset = modelformset_factory(
     model=models.CSRFClientInformation,
     form=CSRFClientInformationForm,
-    extra=1,
+    extra=3,
 )
 
 
