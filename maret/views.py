@@ -225,14 +225,14 @@ class PersonCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
         }
 
     def form_valid(self, form):
-        object = form.save(commit=False)
-        object.last_modified_by = self.request.user
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
         super().form_valid(form)
 
         ext_con = None
         fields = form.cleaned_data
 
-        return HttpResponseRedirect(reverse_lazy('maret:person_detail', kwargs={'pk': object.id}))
+        return HttpResponseRedirect(reverse_lazy('maret:person_detail', kwargs={'pk': obj.id}))
 
 
 class PersonUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
@@ -721,21 +721,21 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
         fields = form.cleaned_data
         if fields['area']:
             if not ext_org:
-                ext_org = models.OrganizationExtension(organization=object)
+                ext_org = models.OrganizationExtension(organization=obj)
                 ext_org.save()
             ext_org.area.set(fields['area'])
             ext_org.save()
 
         if fields['category']:
             if not ext_org:
-                ext_org = models.OrganizationExtension(organization=object)
+                ext_org = models.OrganizationExtension(organization=obj)
                 ext_org.save()
             ext_org.category.set(fields['category'])
             ext_org.save()
 
         if fields['asc_province']:
             if not ext_org:
-                ext_org = models.OrganizationExtension(organization=object)
+                ext_org = models.OrganizationExtension(organization=obj)
                 ext_org.save()
             ext_org.associated_provinces.set(fields['asc_province'])
             ext_org.save()
@@ -746,7 +746,7 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
                 committee.external_organization.add(object)
                 committee.save()
 
-        return HttpResponseRedirect(reverse_lazy('maret:org_detail', kwargs={'pk': object.id}))
+        return HttpResponseRedirect(reverse_lazy('maret:org_detail', kwargs={'pk': obj.id}))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
