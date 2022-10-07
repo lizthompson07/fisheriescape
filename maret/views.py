@@ -237,6 +237,16 @@ class PersonUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
     template_name = "maret/form.html"
     h1 = gettext_lazy("Contact")
 
+    def get_initial(self):
+        committees = []
+        if models.Committee.objects.filter(external_contact__in=[self.object]):
+            committees_qs = models.Committee.objects.filter(external_contact__in=[self.object])
+            committees = [c.pk for c in committees_qs]
+
+        return {
+            'committee': committees,
+        }
+
     def form_valid(self, form):
         obj = form.save(commit=False)
         if obj.locked_by_ihub:
