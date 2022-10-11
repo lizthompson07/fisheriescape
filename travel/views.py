@@ -1251,7 +1251,7 @@ def export_request_list(request):
 @user_passes_test(is_adm_or_admin, login_url='/accounts/denied/?app=travel')
 def export_upcoming_trips(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
-    file_url = reports.generate_upcoming_trip_list(site_url)
+    file_url = reports.generate_upcoming_trip_list(site_url, query=request.GET)
     export_file_name = '{} {}.xlsx'.format(_("upcoming trips"), timezone.now().strftime("%Y-%m-%d"))
 
     if settings.AZURE_STORAGE_ACCOUNT_NAME:

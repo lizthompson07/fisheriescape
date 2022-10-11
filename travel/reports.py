@@ -16,6 +16,7 @@ from lib.templatetags.custom_filters import currency
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
 from shared_models import models as shared_models
 from . import models, utils
+from .filters import TripFilter
 
 
 def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, trip=None, user=None, from_date=None, to_date=None):
@@ -383,7 +384,7 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
     return target_url
 
 
-def generate_upcoming_trip_list(site_url):
+def generate_upcoming_trip_list(site_url, query):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp.xlsx"
@@ -401,7 +402,11 @@ def generate_upcoming_trip_list(site_url):
     date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
 
     # get the trip list
-    trip_list = models.Trip.objects.filter(start_date__gte=timezone.now())
+    qs = models.Trip.objects.filter(start_date__gte=timezone.now())
+    trip_list = TripFilter(query, qs).qs
+    s = query.get("search")
+    if s and s != "":
+        trip_list = qs.filter(Q(name__icontains=s) | Q(nom__icontains=s) | Q(location__icontains=s))
 
     field_list = [
         "fiscal_year",
