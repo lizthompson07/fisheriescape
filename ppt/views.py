@@ -30,7 +30,7 @@ from .utils import get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, \
     is_management_or_admin, \
     get_review_score_rubric, get_status_report_field_list, get_review_field_list, get_user_fte_breakdown, \
-    get_dma_field_list, get_dma_review_field_list, get_project_year_queryset
+    get_dma_field_list, get_dma_review_field_list, get_project_year_queryset, in_ppt_admin_group
 
 
 class IndexTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
@@ -72,6 +72,80 @@ class IndexTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
 
         return context
 
+# HELPTEXT
+class CommonCreateViewHelp(CommonCreateView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict(self.model)
+
+        # if the UserMode table has this user in "edit" mode provide the
+        # link to the dialog to manage help text via the manage_help_url
+        # and provide the model name the help text will be assigned to.
+        # The generic_form_with_help_text.html from the shared_models app
+        # will provide the field name and together you have the required
+        # model and field needed to make an entry in the Help Text table.
+        if in_ppt_admin_group(self.request.user):
+            if self.request.user.ppt_admin_user.mode == 2:
+                context['manage_help_url'] = "ppt:manage_help_text"
+                context['model_name'] = self.model.__name__
+        return context
+
+
+class CommonUpdateViewHelp(CommonUpdateView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict(self.model)
+        # if the UserMode table has this user in "edit" mode provide the
+        # link to the dialog to manage help text via the manage_help_url
+        # and provide the model name the help text will be assigned to.
+        # The generic_form_with_help_text.html from the shared_models app
+        # will provide the field name and together you have the required
+        # model and field needed to make an entry in the Help Text table.
+        if in_ppt_admin_group(self.request.user):
+            if self.request.user.ppt_admin_user.mode == 2:
+                context['manage_help_url'] = "ppt:manage_help_text"
+                context['model_name'] = self.model.__name__
+        return context
+
+
+# This is the dialog presented to the user to enter help text for a given model/field
+# it uses the Create View to both create entries and update them. Accessed via the manage_help_url.
+#
+# A point of failure may be if the (model, field_name) pair is not unique in the help text table.
+class HelpTextPopView(AdminRequiredMixin, CommonCreateView):
+    model = models.HelpText
+    form_class = forms.HelpTextPopForm
+    success_url = reverse_lazy("shared_models:close_me")
+    title = gettext_lazy("Update Help Text")
+
+    def get_initial(self):
+        if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
+            obj = self.model.objects.get(model=self.kwargs['model_name'], field_name=self.kwargs['field_name'])
+            return {
+                'model': self.kwargs['model_name'],
+                'field_name': self.kwargs['field_name'],
+                'eng_text': obj.eng_text,
+                'fra_text': obj.fra_text
+            }
+
+        return {
+            'model': self.kwargs['model_name'],
+            'field_name': self.kwargs['field_name'],
+        }
+
+    def form_valid(self, form):
+        if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
+            data = form.cleaned_data
+            obj = self.model.objects.get(model=self.kwargs['model_name'], field_name=self.kwargs['field_name'])
+            obj.eng_text = data['eng_text']
+            obj.fra_text = data['fra_text']
+            obj.save()
+            return HttpResponseRedirect(reverse_lazy("shared_models:close_me"))
+        else:
+            return super().form_valid(form)
+
 
 # PROJECTS #
 ############
@@ -112,7 +186,7 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         'fiscal year',
         'title',
         # 'section',
-        'default_funding_source',
+        'funding_sources_list',
         'functional_group',
         'lead_staff',
         'status',
@@ -146,7 +220,7 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
             'id',
             'fiscal year',
             'title',
-            'default_funding_source',
+            'funding_sources_list',
             'status',
         ]
         return context
@@ -167,6 +241,7 @@ class MyProjectListView(PPTLoginRequiredMixin, CommonFilterView):
         {"name": 'start_date', "class": "", "width": "150px"},
         {"name": 'lead_staff', "class": "", "width": ""},
         {"name": 'fiscal_years_display|{}'.format(_("fiscal years")), "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
         {"name": 'has_unsubmitted_years|{}'.format("has unsubmitted years?"), "class": "", "width": ""},
         {"name": 'is_hidden|{}'.format(_("hidden?")), "class": "", "width": ""},
         {"name": 'updated_at', "class": "", "width": "150px"},
@@ -186,11 +261,19 @@ class MyProjectListView(PPTLoginRequiredMixin, CommonFilterView):
         context = super().get_context_data(**kwargs)
         orphens = models.Project.objects.filter(years__isnull=True, modified_by=self.request.user)
         context["orphens"] = orphens
-
+        status_dict = {}
+        context["fiscal_year"] = ""
+        fiscal_year = self.request.GET.get("fiscal_years")
+        if fiscal_year:
+            context["fiscal_year"] = shared_models.FiscalYear.objects.filter(pk=fiscal_year).get().__str__()
+        qs = self.get_queryset()
+        for proj in qs:
+            status_dict[proj.id] = proj.year_status(fiscal_year)
+        context["status_data"] = status_dict
         return context
 
 
-class ProjectCreateView(PPTLoginRequiredMixin, CommonCreateView):
+class ProjectCreateView(PPTLoginRequiredMixin, CommonCreateViewHelp):
     model = models.Project
     form_class = forms.NewProjectForm
     home_url_name = "ppt:index"
@@ -304,7 +387,7 @@ class ProjectDetailView(PPTLoginRequiredMixin, CommonDetailView):
         return context
 
 
-class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonUpdateViewHelp):
     model = models.Project
     form_class = forms.ProjectForm
     template_name = 'ppt/project_form.html'
@@ -317,6 +400,18 @@ class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_text_dict'] = get_help_text_dict()
+
+        client_information_dict = {}
+        for ci in models.CSRFClientInformation.objects.all().order_by("name", ):
+            client_information_dict[ci.id] = {}
+            client_information_dict[ci.id]["display"] = str(ci)
+            if ci.fiscal_year:
+                client_information_dict[ci.id]["fiscal_year"] = ci.fiscal_year.id
+            else:
+                client_information_dict[ci.id]["fiscal_year"] = None
+
+        context['client_information_json'] = json.dumps(client_information_dict)
+
         return context
 
     def get_initial(self):
@@ -449,7 +544,7 @@ class ProjectReferencesDetailView(PPTLoginRequiredMixin, CommonDetailView):
 ################
 
 
-class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateView):
+class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateViewHelp):
     model = models.ProjectYear
     form_class = forms.ProjectYearForm
     home_url_name = "ppt:index"
@@ -485,7 +580,7 @@ class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateView):
         )
 
 
-class ProjectYearUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+class ProjectYearUpdateView(CanModifyProjectRequiredMixin, CommonUpdateViewHelp):
     model = models.ProjectYear
     form_class = forms.ProjectYearForm
     home_url_name = "ppt:index"
@@ -657,7 +752,7 @@ class FunctionalGroupListView(AdminRequiredMixin, CommonFilterView):
             search_term=Concat('name', Value(" "), 'nom', Value(" "), output_field=TextField()))
 
 
-class FunctionalGroupUpdateView(AdminRequiredMixin, CommonUpdateView):
+class FunctionalGroupUpdateView(AdminRequiredMixin, CommonUpdateViewHelp):
     model = models.FunctionalGroup
     form_class = forms.FunctionalGroupForm
     template_name = 'ppt/form.html'
@@ -666,7 +761,7 @@ class FunctionalGroupUpdateView(AdminRequiredMixin, CommonUpdateView):
     container_class = "container bg-light curvy"
 
 
-class FunctionalGroupCreateView(AdminRequiredMixin, CommonCreateView):
+class FunctionalGroupCreateView(AdminRequiredMixin, CommonCreateViewHelp):
     model = models.FunctionalGroup
     form_class = forms.FunctionalGroupForm
     success_url = reverse_lazy('ppt:group_list')
@@ -752,15 +847,15 @@ class TagFormsetView(AdminRequiredMixin, CommonFormsetView):
 
 class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
     model = models.HelpText
-    success_url = reverse_lazy("ppt:manage_help_text")
+    success_url = reverse_lazy("ppt:manage_help_texts")
 
 
 class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'ppt/formset.html'
+    template_name = 'ppt/helptext_formset.html'
     h1 = "Manage Help Text"
     queryset = models.HelpText.objects.all()
     formset_class = forms.HelpTextFormset
-    success_url = reverse_lazy("ppt:manage_help_text")
+    success_url = reverse_lazy("ppt:manage_help_texts")
     home_url_name = "ppt:index"
     delete_url_name = "ppt:delete_help_text"
     container_class = "container bg-light curvy"
@@ -961,7 +1056,7 @@ class ReferenceMaterialListView(AdminRequiredMixin, CommonListView):
     container_class = "container bg-light curvy"
 
 
-class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateView):
+class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateViewHelp):
     model = models.ReferenceMaterial
     form_class = forms.ReferenceMaterialForm
     home_url_name = "ppt:index"
@@ -974,7 +1069,7 @@ class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateView):
         return reverse("ppt:ref_mat_delete", args=[self.get_object().id])
 
 
-class ReferenceMaterialCreateView(AdminRequiredMixin, CommonCreateView):
+class ReferenceMaterialCreateView(AdminRequiredMixin, CommonCreateViewHelp):
     model = models.ReferenceMaterial
     form_class = forms.ReferenceMaterialForm
     home_url_name = "ppt:index"
@@ -1030,7 +1125,7 @@ class AdminStaffListView(AdminRequiredMixin, CommonFilterView):
         return qs
 
 
-class AdminStaffUpdateView(AdminRequiredMixin, CommonUpdateView):
+class AdminStaffUpdateView(AdminRequiredMixin, CommonUpdateViewHelp):
     '''This is really just for the admin view'''
     model = models.Staff
     template_name = 'ppt/admin_staff_form.html'
@@ -1148,7 +1243,7 @@ class StatusReportDetailView(PPTLoginRequiredMixin, CommonDetailView):
         return context
 
 
-class StatusReportUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+class StatusReportUpdateView(CanModifyProjectRequiredMixin, CommonUpdateViewHelp):
     model = models.StatusReport
     form_class = forms.StatusReportForm
     home_url_name = "ppt:index"
@@ -1209,7 +1304,7 @@ class StatusReportPrintDetailView(PPTLoginRequiredMixin, CommonDetailView):
 ########
 
 
-class DMACreateView(CanModifyProjectRequiredMixin, CommonCreateView):
+class DMACreateView(CanModifyProjectRequiredMixin, CommonCreateViewHelp):
     model = models.DMA
     form_class = forms.DMAForm
     home_url_name = "ppt:index"
@@ -1301,7 +1396,7 @@ class DMADetailView(PPTLoginRequiredMixin, CommonDetailView):
         return context
 
 
-class DMAUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+class DMAUpdateView(CanModifyProjectRequiredMixin, CommonUpdateViewHelp):
     model = models.DMA
     form_class = forms.DMAForm
     home_url_name = "ppt:index"

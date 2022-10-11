@@ -252,7 +252,7 @@ class DistributionIndvParser(DataParser):
         self.relm_locdc_id = models.LocationDetCode.objects.filter(name="Release Method").get()
         self.acclimation_locdc_id = models.LocationDetCode.objects.filter(name="Acclimation Time").get()
         self.lifestage_anidc_id = models.AnimalDetCode.objects.filter(name="Lifestage").get()
-        self.locc_id = models.LocCode.objects.filter(name__icontains="Distribution site").get()
+        self.locc_id = models.LocCode.objects.filter(name__icontains="Distribution Site").get()
         self.sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
         self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
         self.weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()

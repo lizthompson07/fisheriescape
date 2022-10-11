@@ -164,7 +164,6 @@ class LatLongFields(models.Model):
         return mark_safe(my_str)
 
 
-# CONNECTED APPS: tickets, travel, projects, sci_fi
 class FiscalYear(models.Model):
     full = models.TextField(blank=True, null=True)
     short = models.TextField(blank=True, null=True)
@@ -615,10 +614,10 @@ class Cruise(MetadataFields):
     institute = models.ForeignKey(Institute, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="cruises")
     mission_number = models.CharField(max_length=255, verbose_name=_("Mission Number"), unique=True)
     mission_name = models.CharField(max_length=255, verbose_name=_("Mission Name"))
-    description = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Description"))
-    purpose = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Purpose"))
+    description = models.TextField(null=True, blank=True, verbose_name=_("Description"))
+    purpose = models.TextField(null=True, blank=True, verbose_name=_("Purpose"))
     chief_scientist = models.CharField(max_length=255, verbose_name=_("Chief Scientist"))
-    samplers = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Samplers"))
+    samplers = models.TextField(null=True, blank=True, verbose_name=_("Samplers"))
     start_date = models.DateTimeField(null=True, blank=True, verbose_name=_("Start Date"))
     end_date = models.DateTimeField(null=True, blank=True, verbose_name=_("End Date"))
     probe = models.ForeignKey(Probe, null=True, blank=True, on_delete=models.DO_NOTHING, editable=False)

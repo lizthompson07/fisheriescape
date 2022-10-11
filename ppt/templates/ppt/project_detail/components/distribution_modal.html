@@ -27,10 +27,10 @@
           <slot name="body">
             <div>
               <span v-if="fundsAvailable >= 0">
-                There are ${fundsAvailable | currencyFormat} of ${allocation.amount | currencyFormat} to distribute.
+                $${fundsAvailable | currencyFormat} of $${allocation.amount | currencyFormat} are available to distribute.
               </span>
               <span v-else class="major-error">
-                There are ${fundsAvailable | currencyFormat} of ${allocation.amount | currencyFormat} to distribute.
+                $${fundsAvailable | currencyFormat} of $${allocation.amount | currencyFormat} are available to distribute.
               </span>
             </div>
             <table class="table table-sm w-75">
@@ -39,6 +39,7 @@
                 <th v-if="allocation_type!='staff'">Category</th>
                 <th v-if="allocation_type=='staff'">Name</th>
                 <th v-if="allocation_type=='staff'">Level</th>
+                <th v-if="allocation_type=='staff'">Employee Type</th>
                 <th>Funding Source</th>
                 <th>Amount Requested</th>
                 <th>Allocation</th>
@@ -49,6 +50,7 @@
                   <td v-if="allocation_type!='staff'">${c.category_display}</td>
                   <td v-if="allocation_type=='staff'">${c.smart_name}</td>
                   <td v-if="allocation_type=='staff'">${c.level_display}</td>
+                  <td v-if="allocation_type=='staff'">${c.employee_type_display}</td>
 
                   <td>${c.funding_source_display}</td>
                   <td>${c.amount}</td>

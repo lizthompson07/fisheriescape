@@ -2,6 +2,8 @@ from datetime import timedelta
 
 import pandas as pd
 from django.db.models import Sum, Q
+from django.http import JsonResponse, HttpResponseRedirect
+from django.contrib.auth.models import User
 from django.utils.translation import gettext as _, gettext_lazy
 
 from lib.templatetags.custom_filters import nz
@@ -9,12 +11,67 @@ from shared_models import models as shared_models
 from . import models
 
 
-def get_help_text_dict():
+def get_help_text_dict(model=None):
     my_dict = {}
-    for obj in models.HelpText.objects.all():
-        my_dict[obj.field_name] = str(obj)
+    if not model:
+        for obj in models.HelpText.objects.all():
+            my_dict[obj.field_name] = str(obj)
+    else:
+        # If a model is supplied get the fields specific to that model
+        for obj in models.HelpText.objects.filter(model=str(model.__name__)):
+            my_dict[obj.field_name] = str(obj)
 
     return my_dict
+
+
+def ajax_get_fields(request):
+    model_name = request.GET.get('model', None)
+
+    # use the model name passed from the web page to find the model in the apps models file
+    model = models.__dict__[model_name]
+
+    # use the retrieved model and get the doc string which is a string in the format
+    # SomeModelName(id, field1, field2, field3)
+    # remove the trailing parentheses, split the string up based on ', ', then drop the first element
+    # which is the model name and the id.
+    match = str(model.__dict__['__doc__']).replace(")", "").split(", ")[1:]
+    fields = list()
+    for f in match:
+        label = "---"
+        attr = getattr(model, f).field
+        if hasattr(attr, 'verbose_name'):
+            label = attr.verbose_name
+
+        fields.append([f, label])
+
+    data = {
+        'fields': fields
+    }
+
+    return JsonResponse(data)
+
+
+def toggle_help_text_edit(request, user_id):
+    usr = User.objects.get(pk=user_id)
+
+    user_mode = None
+    # mode 1 is read only
+    mode = 1
+    if models.PPTAdminUser.objects.filter(user=usr):
+        user_mode = models.PPTAdminUser.objects.get(user=usr)
+        mode = user_mode.mode
+
+    # fancy math way of toggling between 1 and 2
+    mode = (mode % 2) + 1
+
+    if not user_mode:
+        user_mode = models.PPTAdminUser(user=usr)
+
+    user_mode.mode = mode
+    user_mode.save()
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
 
 
 def in_ppt_regional_admin_group(user):
@@ -352,8 +409,9 @@ def financial_project_year_summary_data(project_year):
 
 def financial_project_summary_data(project):
     my_list = []
-    if project.get_funding_sources():
-        for fs in project.get_funding_sources():
+    funding_source_list = project.get_funding_sources()
+    if funding_source_list:
+        for fs in funding_source_list:
             my_dict = dict()
             my_dict["type"] = fs.get_funding_source_type_display()
             my_dict["name"] = str(fs)
@@ -385,8 +443,8 @@ def financial_project_summary_data(project):
 
             # allocated funds:
             for review in models.Review.objects.filter(project_year__project=project):
-                my_dict["allocated_om"] += review.allocated_budget
-            my_dict["alloated_total"] =  my_dict["om"]
+                my_dict["allocated_om"] += nz(review.allocated_budget, 0)
+            my_dict["alloated_total"] = my_dict["om"]
 
             my_list.append(my_dict)
 
@@ -424,7 +482,6 @@ def multiple_financial_project_year_summary_data(project_years):
                     elif staff.employee_type.cost_type == 2:
                         my_dict["om"] += nz(staff.amount, 0)
 
-
             # O&M costs
             for cost in models.OMCost.objects.filter(funding_source=fs, project_year=py):
                 my_dict["om"] += nz(cost.amount, 0)
@@ -439,8 +496,7 @@ def multiple_financial_project_year_summary_data(project_years):
             if fs in py.get_funding_sources():
                 my_dict["py_count"] += 1
                 if hasattr(py, "review"):
-                    if py.review.allocated_budget:
-                        my_dict["allocated_om"] += py.review.allocated_budget
+                    my_dict["allocated_om"] += nz(py.review.allocated_budget, 0)
             my_dict["allocated_total"] = my_dict["allocated_om"]
 
         my_list.append(my_dict)
@@ -481,10 +537,11 @@ def get_project_field_list(project):
 
         # csrf fields
         'overview' if is_csrf else None,
+        'csrf_fiscal_year|{}'.format(_("CSRF Application Year")) if is_csrf else None,
         'csrf_theme|{}'.format(_("CSRF Research Area")) if is_csrf else None,
         'csrf_sub_theme|{}'.format(_("CSRF Research Field")) if is_csrf else None,
         'csrf_priority|{}'.format(_("CSRF Research priority")) if is_csrf else None,
-        'client_information_html|{}'.format(_("Additional info supplied by client")) if is_csrf else None,
+        'client_information_html|{}'.format(_("Specific Client Question")) if is_csrf else None,
         'second_priority' if is_csrf else None,
         'objectives_html|{}'.format(_("project objectives (CSRF)")) if is_csrf else None,
         'innovation_html|{}'.format(_("innovation (CSRF)")) if is_csrf else None,
@@ -1101,7 +1158,9 @@ def get_staff_summary(staff_df, summary_type, summary_cols=None, na_value="---")
 
         # count occurences of summary type based off original df
         output_df = staff_df.copy()
-        output_df = output_df.drop_duplicates(subset=['user', summary_type])
+        # hideous drop duplicates to make Nan's distinct
+        output_df = output_df[(~output_df.duplicated(subset=['user', summary_type])) | (output_df[['user']].isnull().any(axis=1))]
+
         output_df.loc[:, summary_type] = output_df[summary_type].fillna(value=na_value)
         output_summary = pd.DataFrame(output_df[summary_type].value_counts())
 

@@ -1,4 +1,5 @@
 import os
+from copy import deepcopy
 from datetime import datetime
 from datetime import timedelta
 
@@ -488,11 +489,17 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.updated_by = self.request.user
-        if obj.submission_date:
-            obj.submission_date = None
+
+        is_submitted = True if obj.submission_date else False
+
+        # if submitted, then unsubmit but only if admin or owner
+        if is_submitted:
+            if utils.can_unsubmit_request(self.request.user, obj.id):
+                obj.unsubmit()
         else:
-            obj.submission_date = timezone.now()
-        obj.save()
+            obj.submit()
+
+        utils.request_approval_seeker(obj, self.request)
 
         # if the request was just submitted, send an email
         if obj.submission_date:
@@ -521,14 +528,27 @@ class CSASRequestCloneUpdateView(CSASRequestUpdateView):
 
     def form_valid(self, form):
         new_obj = form.save(commit=False)
+        old_obj = models.CSASRequest.objects.get(pk=new_obj.pk)
+
         new_obj.pk = None
         new_obj.status = 1
         new_obj.submission_date = None
         new_obj.old_id = None
         new_obj.uuid = None
         new_obj.ref_number = None
+        new_obj.created_at = timezone.now()
         new_obj.created_by = self.request.user
         new_obj.save()
+
+        # for each reviewer of old request, clone into new request...
+        for old_reviewer in old_obj.reviewers.all():
+            new_reviewer = deepcopy(old_reviewer)
+            new_reviewer.csas_request = new_obj
+            new_reviewer.pk = None
+            new_reviewer.comments = None
+            new_reviewer.save()
+            new_reviewer.reset()
+
         return HttpResponseRedirect(reverse_lazy("csas2:request_detail", args=[new_obj.id]))
 
 
@@ -905,9 +925,9 @@ class TermsOfReferenceSubmitView(TermsOfReferenceUpdateView):
     def get_h1(self):
         my_object = self.get_object()
         if my_object.submission_date:
-            return _("Do you wish to un-submit the following Terms of Reference?")
+            return _("Do you wish to un-submit this Terms of Reference?")
         else:
-            return _("Do you wish to submit the following Terms of Reference?")
+            return _("Do you wish to submit this Terms of Reference?")
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("csas2:tor_detail", args=[self.get_object().id])}
@@ -1359,6 +1379,17 @@ class ToDoListTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     template_name = 'csas2/todo_list.html'
     home_url_name = "csas2:index"
     h1 = gettext_lazy("To Do List")
+
+
+class ActionListTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
+    template_name = 'csas2/action_list.html'
+    home_url_name = "csas2:index"
+    h1 = gettext_lazy("Action Central")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object"] = utils.get_action_items(self.request.user)
+        return context
 
 
 # reports #

@@ -134,4 +134,36 @@ class CanModifyToRReviewerOrReadOnly(permissions.BasePermission):
                 is_current_reviewer = False
                 if obj.tor.current_reviewer:
                     is_current_reviewer = obj.tor.current_reviewer.user == request.user
-                return is_current_reviewer or (can_modify and obj.can_be_modified)
+
+                # three ways to get object permissions:
+                # 1) you are the current reviewer
+                # 2) you can edit records and the record is editable or
+                # 3) you can edit records and you are trying to delete a reviewer whose status is 'pending' (i.e. skipping)
+                return is_current_reviewer or (can_modify and obj.can_be_modified) or (can_modify and obj.status == 30 and request.method == "DELETE")
+
+
+
+class CanModifyRequestReviewerOrReadOnly(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        if not request.user.is_authenticated:
+            return False
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        else:
+            if isinstance(obj, models.RequestReviewer):
+                can_modify = can_modify_request(request.user, obj.csas_request_id)
+                is_current_reviewer = False
+                if obj.csas_request.current_reviewer:
+                    is_current_reviewer = obj.csas_request.current_reviewer.user == request.user
+
+                # three ways to get object permissions:
+                # 1) you are the current reviewer
+                # 2) you can edit records and the record is editable or
+                # 3) you can edit records and you are trying to delete a reviewer whose status is 'pending' (i.e. skipping)
+                return is_current_reviewer or (can_modify and obj.can_be_modified) or (can_modify and obj.status == 30 and request.method == "DELETE")

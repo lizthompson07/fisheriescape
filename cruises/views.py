@@ -160,7 +160,6 @@ class CruiseDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
         'samplers',
         'time_period|{}'.format(gettext_lazy("time period")),
         'end_date',
-        'probe',
         'area_of_operation',
         'number_of_profiles',
         'meds_id',

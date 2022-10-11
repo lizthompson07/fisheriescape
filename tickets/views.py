@@ -481,7 +481,8 @@ class FollowUpUpdateView(LoginRequiredMixin, CommonPopoutUpdateView):
             subject=email.subject,
             html_message=email.message,
             from_email=email.from_email,
-            recipient_list=email.to_list
+            recipient_list=email.to_list,
+            user=self.request.user
         )
 
         # github

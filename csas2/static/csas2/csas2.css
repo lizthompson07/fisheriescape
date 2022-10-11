@@ -66,16 +66,16 @@ h1 {
     background-color: #ffff9d;
 }
 
-.submitted, .on, .queued {
+.submitted,.under-client-approval, .on, .queued {
     background-color: #009fdb;
     color: white;
 }
 
-.finalization, .tentative, .ready-for-review, .pending, .awaiting-posting {
+.finalization, .tentative, .ready-for-csas-review, .pending, .awaiting-posting {
     background-color: #e3aefa;
 }
 
-.in-progress, .review, .under-review {
+.in-progress, .review, .under-csas-review, .under-review {
     color: white;
     background-color: #4c6fc6;
 }
@@ -90,12 +90,12 @@ h1 {
     background-color: #63ffce;
     color: #000000;
 }
-.reviewed {
+.screened-in {
     background-color: #63ceff;
     color: #000000;
 }
 
-.accepted, .approved, .posted, .confirmed, .complete, .final {
+.accepted, .approved, .posted, .confirmed, .complete, .final, .refer-to-process {
     background-color: #d5faae;
 }
 
@@ -283,6 +283,12 @@ label.filter {
 .btn-success {
     background-color: #08830d;
 }
+
+.btn-severe {
+    background-color: #600104;
+    color: white;
+}
+
 
 .btn-purple {
     background-color: #b64aff;

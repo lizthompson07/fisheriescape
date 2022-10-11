@@ -27,10 +27,18 @@ YES_NO_CHOICES = (
 
 
 class PPTAdminUser(models.Model):
+    mode_choices = (
+        (1, "read"),
+        (2, "edit"),
+    )
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="ppt_admin_user", verbose_name=_("DM Apps user"))
     region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="projects_admin_user", on_delete=models.CASCADE, blank=True,
                                null=True)
     is_national_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
+
+    # admin users can toggle helptext edit mode on and off
+    mode = models.IntegerField(choices=mode_choices, default=1)
 
     def __str__(self):
         return self.user.get_full_name()
@@ -217,8 +225,11 @@ class Project(models.Model):
     experimental_protocol = models.TextField(blank=True, null=True, verbose_name=_("experimental protocol (ACRDP)"))
 
     # CSRF fields
+    csrf_fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("CSRF application fiscal year (CSRF)"),  related_name="csrf_projects")
+
     client_information = models.ForeignKey(CSRFClientInformation, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                           verbose_name=_("Additional info supplied by client (#1) (CSRF)"), related_name="projects")
+                                           verbose_name=_("Specific Client Question (CSRF)"), related_name="projects")
     second_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, blank=True, null=True,
                                         verbose_name=_("Linkage to second priority (CSRF)"), related_name="projects")
 
@@ -354,33 +365,37 @@ class Project(models.Model):
             return mark_safe(textile(self.client_information.tdescription))
 
     def get_funding_sources(self):
-        # look through all expenses and compile a unique list of funding sources (for all years of project)
-        my_list = []
+        # look through all expenses and allocations and compile a unique list of funding sources (for all years of project)
+        my_dict = {}
         for year in self.years.all():
             for item in year.staff_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
-
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
             for item in year.omcost_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
             for item in year.capitalcost_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
             for item in year.salaryallocation_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
             for item in year.omallocation_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
             for item in year.capitalallocation_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
-            return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
+
+        sorted_list = sorted(my_dict.items(), key=lambda item: item[1], reverse=True)
+        sorted_list = [tup[0] for tup in sorted_list]
+        if self.default_funding_source not in sorted_list and self.default_funding_source is not None:
+            sorted_list.append(self.default_funding_source)
+        return sorted_list
 
     @property
     def is_acrdp(self):
@@ -404,6 +419,13 @@ class Project(models.Model):
             return listrify([str(y) for y in self.years.all()])
         else:
             return "<em>{}</em>".format(_("This project has no fiscal years added yet."))
+
+    def year_status(self, fiscal_year):
+        if fiscal_year:
+            py_qs = ProjectYear.objects.filter(fiscal_year_id=fiscal_year, project=self)
+            if py_qs:
+                return py_qs.get().get_status_display()
+        return None
 
 
 class ProjectYear(models.Model):
@@ -640,32 +662,37 @@ class ProjectYear(models.Model):
             return listrify(self.existing_project_codes.all())
 
     def get_funding_sources(self):
-        # look through all expenses and compile a unique list of funding sources
-        my_list = []
+        # look through all expenses and allocations and compile a unique list of funding sources
+        my_dict = {}
         for item in self.staff_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
         for item in self.omcost_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
         for item in self.capitalcost_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
         for item in self.salaryallocation_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
         for item in self.omallocation_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
         for item in self.capitalallocation_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
-        return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
+
+        sorted_list = sorted(my_dict.items(), key=lambda item: item[1], reverse=True)
+        sorted_list = [tup[0] for tup in sorted_list]
+        if self.project.default_funding_source not in sorted_list and self.project.default_funding_source is not None:
+            sorted_list.append(self.project.default_funding_source)
+        return sorted_list
 
     @property
     def formatted_status(self):
@@ -779,7 +806,7 @@ class Staff(GenericCost):
     ]
     employee_type = models.ForeignKey(EmployeeType, on_delete=models.DO_NOTHING, verbose_name=_("employee type"))
     is_lead = models.BooleanField(default=False, verbose_name=_("project lead"), choices=((True, _("yes")), (False, _("no"))))
-    is_primary_lead = models.BooleanField(default=False, verbose_name=_("primary project lead"), choices=((True, _("yes")), (False, _("no"))))
+    is_primary_lead = models.BooleanField(default=False, verbose_name=_("primary project contact"), choices=((True, _("yes")), (False, _("no"))))
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"),
                              related_name="staff_instances2")
     name = models.CharField(max_length=255, verbose_name=_("Person name (leave blank if user is selected)"), blank=True, null=True)
@@ -1194,7 +1221,8 @@ class Review(models.Model):
             subject=email.subject,
             html_message=email.message,
             from_email=email.from_email,
-            recipient_list=email.to_list
+            recipient_list=email.to_list,
+            user=request.user
         )
         self.approval_notification_email_sent = timezone.now()
         self.save()

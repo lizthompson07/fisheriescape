@@ -2,6 +2,7 @@
 {% load static %}
 {% load custom_filters %}
 {% load verbose_names %}
+{% load i18n %}
 
 {% block jquery_import %}
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -15,10 +16,20 @@
         {{ block.super }}
     </div>
 {% endblock %}
+
 {% block filter %}{% endblock %}
+
+{% block new_object_button %}
+  {{ block.super }}
+  <a href="{{ report_url }}" class="btn btn-sm btn-success">
+    {% trans "Download Report" %}
+  </a>
+{% endblock %}
+
 {% block table_td %}
     {% get_field_value object field.name safe=True %}
 {% endblock %}
+
 {% block body_js %}
     {{ block.super }}
     {% for script in scripts %}
