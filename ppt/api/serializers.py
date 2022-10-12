@@ -152,7 +152,10 @@ class ProjectSerializer(serializers.ModelSerializer):
     section_display = serializers.SerializerMethodField()
 
     def get_section_display(self, instance):
-        return instance.section.full_name
+        if instance.section:
+            return instance.section.full_name
+        else:
+            return ""
 
     def get_functional_group(self, instance):
         if instance.functional_group:
