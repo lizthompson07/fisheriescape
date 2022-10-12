@@ -218,21 +218,16 @@ class PersonCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     template_name = "maret/form.html"
     h1 = gettext_lazy("New Contact")
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-            'created_by': self.request.user
-        }
-
     def form_valid(self, form):
-        object = form.save(commit=False)
-        object.last_modified_by = self.request.user
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
+        obj.created_by = self.request.user
         super().form_valid(form)
 
         ext_con = None
         fields = form.cleaned_data
 
-        return HttpResponseRedirect(reverse_lazy('maret:person_detail', kwargs={'pk': object.id}))
+        return HttpResponseRedirect(reverse_lazy('maret:person_detail', kwargs={'pk': obj.id}))
 
 
 class PersonUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
@@ -243,9 +238,13 @@ class PersonUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
     h1 = gettext_lazy("Contact")
 
     def get_initial(self):
+        committees = []
+        if models.Committee.objects.filter(external_contact__in=[self.object]):
+            committees_qs = models.Committee.objects.filter(external_contact__in=[self.object])
+            committees = [c.pk for c in committees_qs]
 
         return {
-            'last_modified_by': self.request.user,
+            'committee': committees,
         }
 
     def form_valid(self, form):
@@ -275,11 +274,13 @@ class PersonCreateViewPopout(AuthorRequiredMixin, CommonPopoutCreateView):
     form_class = forms.PersonForm
     h1 = gettext_lazy("New Contact")
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-            'created_by': self.request.user
-        }
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
+        obj.created_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
+
 
 
 class PersonUpdateViewPopout(AuthorRequiredMixin, CommonPopoutUpdateView):
@@ -289,10 +290,11 @@ class PersonUpdateViewPopout(AuthorRequiredMixin, CommonPopoutUpdateView):
     template_name = 'shared_models/generic_popout_form.html'
     h1 = gettext_lazy("Contact")
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-        }
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
 
 
 class PersonDeleteView(AdminRequiredMixin, CommonDeleteView):
@@ -349,7 +351,7 @@ class InteractionListView(UserRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'description', "class": "", "width": ""},
         {"name": 'interaction_type', "class": "", "width": ""},
-        {"name": 'date_of_meeting', "class": "", "width": ""},
+        {"name": 'date_of_meeting|Date of interaction (YYYY-MM-DD)', "class": "", "width": ""},
         {"name": 'main_topic', "class": "", "width": ""},
         {"name": 'species', "class": "", "width": ""},
     ]
@@ -372,12 +374,6 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     template_name = "maret/form.html"
     h1 = gettext_lazy("New Interaction")
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-            'created_by': self.request.user
-        }
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -388,7 +384,10 @@ class InteractionCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
 
     def form_valid(self, form):
         super(InteractionCreateView, self).form_valid(form)
-        self.object = form.save()
+        self.object = form.save(commit=False)
+        self.object.last_modified_by = self.request.user
+        self.object.created_by = self.request.user
+        self.object.save()
         if self.object.is_committee or self.object.interaction_type == 4:
             committee = self.object.committee
             self.object.main_topic.set(committee.main_topic.all())
@@ -416,9 +415,6 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("maret:interaction_detail", args=[self.get_object().id])}
 
-    def get_initial(self):
-        return {'last_modified_by': self.request.user}
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['scripts'] = ['maret/js/divisionFilter.html', 'maret/js/areaOfficeProgramFilter.html',
@@ -428,23 +424,25 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
     def form_valid(self, form):
         super(InteractionUpdateView, self).form_valid(form)
         initial_committee = self.get_object().committee
-        self.object = form.save()
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
+        obj.save()
 
-        if self.object.is_committee or self.object.interaction_type == 4:
-            if self.object.committee != initial_committee:
-                committee = self.object.committee
-                self.object.main_topic.set(committee.main_topic.all())
-                self.object.species.set(committee.species.all())
-                self.object.external_contact.set(committee.external_contact.all())
-                self.object.external_organization.set(committee.external_organization.all())
-                self.object.lead_region = committee.lead_region
-                self.object.lead_national_sector = committee.lead_national_sector
-                self.object.branch = committee.branch
-                self.object.division = committee.division
-                self.object.area_office = committee.area_office
-                self.object.area_office_program = committee.area_office_program
-                self.object.save()
-        return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': self.object.id}))
+        if obj.is_committee or obj.interaction_type == 4:
+            if obj.committee != initial_committee:
+                committee = obj.committee
+                obj.main_topic.set(committee.main_topic.all())
+                obj.species.set(committee.species.all())
+                obj.external_contact.set(committee.external_contact.all())
+                obj.external_organization.set(committee.external_organization.all())
+                obj.lead_region = committee.lead_region
+                obj.lead_national_sector = committee.lead_national_sector
+                obj.branch = committee.branch
+                obj.division = committee.division
+                obj.area_office = committee.area_office
+                obj.area_office_program = committee.area_office_program
+                obj.save()
+        return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': obj.id}))
 
 
 class InteractionDetailView(UserRequiredMixin, CommonDetailView):
@@ -561,9 +559,14 @@ class CommitteeCreateView(UserRequiredMixin, CommonCreateViewHelp):
     def get_initial(self):
         return {
             'branch': 0,
-            'last_modified_by': self.request.user,
-            'created_by': self.request.user
         }
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
+        obj.created_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -641,8 +644,11 @@ class CommitteeUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("maret:committee_detail", args=[self.get_object().id])}
 
-    def get_initial(self):
-        return {'last_modified_by': self.request.user}
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -721,21 +727,21 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
         fields = form.cleaned_data
         if fields['area']:
             if not ext_org:
-                ext_org = models.OrganizationExtension(organization=object)
+                ext_org = models.OrganizationExtension(organization=obj)
                 ext_org.save()
             ext_org.area.set(fields['area'])
             ext_org.save()
 
         if fields['category']:
             if not ext_org:
-                ext_org = models.OrganizationExtension(organization=object)
+                ext_org = models.OrganizationExtension(organization=obj)
                 ext_org.save()
             ext_org.category.set(fields['category'])
             ext_org.save()
 
         if fields['asc_province']:
             if not ext_org:
-                ext_org = models.OrganizationExtension(organization=object)
+                ext_org = models.OrganizationExtension(organization=obj)
                 ext_org.save()
             ext_org.associated_provinces.set(fields['asc_province'])
             ext_org.save()
@@ -743,10 +749,10 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
         if fields['committee']:
             for committee_pk in fields["committee"]:
                 committee = models.Committee.objects.get(pk=committee_pk)
-                committee.external_organization.add(object)
+                committee.external_organization.add(obj.pk)
                 committee.save()
 
-        return HttpResponseRedirect(reverse_lazy('maret:org_detail', kwargs={'pk': object.id}))
+        return HttpResponseRedirect(reverse_lazy('maret:org_detail', kwargs={'pk': obj.id}))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -814,7 +820,6 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
             committees = [c.pk for c in committees_qs]
 
         return {
-            'last_modified_by': self.request.user,
             'area': areas,
             'category': category,
             'committee': committees,
@@ -827,6 +832,7 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
             messages.error(self.request, _("This record can only be modified through iHub"))
             return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.pk, ]))
 
+        obj.last_modified_by = self.request.user
         obj.save()
 
         ext_org = None
@@ -1015,7 +1021,6 @@ class MemberCreateView(AuthorRequiredMixin, CommonPopoutCreateView):
         org = ml_models.Organization.objects.get(pk=self.kwargs['org'])
         return {
             'organization': org,
-            'last_modified_by': self.request.user,
         }
 
     def form_valid(self, form):
@@ -1024,6 +1029,7 @@ class MemberCreateView(AuthorRequiredMixin, CommonPopoutCreateView):
             messages.error(self.request, _("This record can only be modified through iHub"))
             return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.organization.pk, ]))
 
+        obj.last_modified_by = self.request.user
         obj.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -1035,17 +1041,13 @@ class MemberUpdateView(AuthorRequiredMixin, CommonPopoutUpdateView):
     width = 1000
     height = 800
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-        }
-
     def form_valid(self, form):
         obj = form.save(commit=False)
         if obj.organization.locked_by_ihub:
             messages.error(self.request, _("This record can only be modified through iHub"))
             return HttpResponseRedirect(reverse("maret:org_detail", args=[obj.organization.pk, ]))
 
+        obj.last_modified_by = self.request.user
         obj.save()
         return HttpResponseRedirect(self.get_success_url())
 
