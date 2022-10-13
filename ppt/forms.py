@@ -408,6 +408,8 @@ class StaffForm(forms.ModelForm):
         self.fields["funding_source"].choices = funding_source_choices
         self.fields["role"].widget.attrs = {"v-model": "staff.role", "rows": "4", ":disabled": "!isCSRF"}
         self.fields["expertise"].widget.attrs = {"v-model": "staff.expertise", "rows": "4", ":disabled": "!isCSRF"}
+        self.fields["allocated_source"].widget = forms.HiddenInput()
+        self.fields["allocated_amount"].widget = forms.HiddenInput()
 
 
 class OMCostForm(forms.ModelForm):
@@ -426,6 +428,8 @@ class OMCostForm(forms.ModelForm):
         funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
         self.fields["funding_source"].choices = funding_source_choices
+        self.fields["allocated_source"].widget = forms.HiddenInput()
+        self.fields["allocated_amount"].widget = forms.HiddenInput()
 
 
 class CapitalCostForm(forms.ModelForm):
@@ -446,6 +450,8 @@ class CapitalCostForm(forms.ModelForm):
         funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
         self.fields["funding_source"].choices = funding_source_choices
+        self.fields["allocated_source"].widget = forms.HiddenInput()
+        self.fields["allocated_amount"].widget = forms.HiddenInput()
 
 
 class SalaryAllocationForm(forms.ModelForm):
