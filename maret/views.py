@@ -955,9 +955,14 @@ class OrganizationCueCard(PDFTemplateView):
             'notes',
         ]
 
+        # determine how many rows, cols for the table
+        num_cols = 4
+        context["contact_table_cols"] = range(0, num_cols)
+        context["contact_table_rows"] = range(0, math.ceil(org.members.count() / num_cols))
+
         # determine how many rows for the table
-        context["contact_table_rows"] = range(0, math.ceil(org.members.count() / 4))
-        context["one_to_four"] = range(0, 4)
+        context["interaction_table_cols"] = range(0, num_cols)
+        context["interaction_table_rows"] = range(0, math.ceil(org.interaction_ext_organization.count() / num_cols))
 
         context["entry_field_list_1"] = [
             'fiscal_year',

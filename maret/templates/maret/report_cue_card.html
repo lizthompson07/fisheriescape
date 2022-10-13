@@ -65,6 +65,7 @@
     </td>
 </table>
 <hr>
+
 <h2>
     {% trans "Extended Organization Information" %}
 </h2>
@@ -116,8 +117,8 @@
 
     {% for row in contact_table_rows %}
         <tr>
-            {% for cell in one_to_four %}
-                {% with row|multiply:4|add:cell as pos %}
+            {% for col in contact_table_cols %}
+                {% with row|multiply:4|add:col as pos %}
                     {% get_subset org.members.all pos as member %}
                     <td>
                         <p>
@@ -186,6 +187,34 @@
     {% endfor %}
 
 {% endif %}
+
+<hr>
+
+
+<h2>
+    {% trans "List of MarET Interactions" %}
+</h2>
+
+
+<table>
+    {% for row in interaction_table_rows %}
+        <tr>
+            {% for col in interaction_table_cols %}
+                {% with row|multiply:4|add:col as pos %}
+                    {% get_subset org.interaction_ext_organization.all pos as interaction %}
+                    <td>
+                        <p>
+                            <b>{{ interaction.description }}</b><br>
+                            {{ interaction.committee }}<br>
+                            {{ interaction.date_of_meeting|date:'Y-m-d' }}<br><br>
+                        </p>
+                    </td>
+                {% endwith %}
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>
+
 
 <p>
     <em style="font-size: 10px">
