@@ -270,7 +270,7 @@ class CSASRequest(MetadataFields):
                                          choices=model_choices.prioritization_choices)
     prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("What is the rationale behind the prioritization?"))
     tags = models.ManyToManyField(SubjectMatter, blank=True, verbose_name=_("keyword tags"), limit_choices_to={"is_csas_request_tag": True})
-    editors = models.ManyToManyField(User, blank=True, verbose_name=_("editors"), related_name="request_editors",
+    editors = models.ManyToManyField(User, blank=True, verbose_name=_("request editors"), related_name="request_editors",
                                      help_text=_("A list of DFO staff, in addition to the primary client, who has permission to edit the draft CSAS request."))
 
     # non-editable fields
