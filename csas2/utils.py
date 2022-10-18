@@ -130,7 +130,7 @@ def is_editor(user, process_id):
 def is_client(user, request_id):
     if user.id:
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
-        return csas_request.client == user
+        return csas_request.client == user or csas_request.editors.filter(id=user.id).exists()
 
 
 def is_creator(user, request_id):

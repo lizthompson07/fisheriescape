@@ -626,14 +626,14 @@ class Cruise(MetadataFields):
     meds_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("MEDS ID"))
     season = models.IntegerField(null=True, blank=True)
     vessel = models.ForeignKey(Vessel, on_delete=models.DO_NOTHING, related_name="cruises", blank=True, null=True)
-    west_bound_longitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_(
-        "West Bound Longitude"))  # , verbose_name="Westernmost longitude of the sampling (decimal degrees, negative for Western Hemisphere longitude)")
-    east_bound_longitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_(
-        "East Bound Longitude"))  # , verbose_name="Easternmost longitude of the sampling (decimal degrees, negative for Western Hemisphere longitude)")
-    north_bound_latitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_(
-        "North Bound Latitude"))  # , verbose_name="Northernmost latitude of the sampling (decimal degrees, negative for Southern Hemisphere latitude)")
-    south_bound_latitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_(
-        "South Bound Latitude"))  # , verbose_name="Southernmost latitude of the sampling (decimal degrees, negative for Southern Hemisphere latitude)")
+    west_bound_longitude = models.FloatField(null=True, blank=True, verbose_name=_(
+        "West Bound Longitude"), help_text=_("Westernmost longitude of the sampling (decimal degrees, negative for Western Hemisphere longitude)"))
+    east_bound_longitude = models.FloatField(null=True, blank=True, verbose_name=_(
+        "East Bound Longitude"), help_text=_("Easternmost longitude of the sampling (decimal degrees, negative for Western Hemisphere longitude)"))
+    north_bound_latitude = models.FloatField(null=True, blank=True, verbose_name=_(
+        "North Bound Latitude"), help_text=_("Northernmost latitude of the sampling (decimal degrees, negative for Southern Hemisphere latitude)"))
+    south_bound_latitude = models.FloatField(null=True, blank=True, verbose_name=_(
+        "South Bound Latitude"), help_text=_("Southernmost latitude of the sampling (decimal degrees, negative for Southern Hemisphere latitude)"))
     funding_agency_name = models.CharField(max_length=255, null=True, blank=True,
                                            verbose_name=_("funding agency name"))  # , verbose_name="Funding agency of the data collection")
     funding_project_title = models.CharField(max_length=255, null=True, blank=True,

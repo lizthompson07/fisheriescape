@@ -177,6 +177,7 @@ class CSASRequestForm(forms.ModelForm):
         model = models.CSASRequest
         fields = [
             'client',
+            'editors',
             'section',
             'office',
             'language',
@@ -214,6 +215,7 @@ class CSASRequestForm(forms.ModelForm):
             'rationale_for_timeline': forms.Textarea(attrs=rows3),
             'prioritization_text': forms.Textarea(attrs=rows3),
             'tags': forms.SelectMultiple(attrs=chosen_js),
+            'editors': forms.SelectMultiple(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
