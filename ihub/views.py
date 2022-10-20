@@ -632,7 +632,7 @@ class ReportSearchFormView(iHubBasicMixin, FormView):
     form_class = forms.ReportSearchForm
 
     def get_initial(self):
-        return {"report_title": _("Engagement Update Log – Government of Canada")}
+        return {"report_title": _("Activity Log – Government of Canada")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
