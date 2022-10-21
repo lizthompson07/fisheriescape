@@ -146,11 +146,9 @@ var app = new Vue({
                 contactList.push(py.primary_contact_email)
               }
           }
-          console.log(contactList)
           for (const email of contactList) {
               url = url.concat(email, ';')
           }
-          console.log(url)
           var win = window.open(url, '_blank');
 
       }
