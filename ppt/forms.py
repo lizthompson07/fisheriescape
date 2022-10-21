@@ -617,6 +617,7 @@ class ReviewForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields["checklist_file"].widget.attrs = {"v-on:change": "onChecklistFileChange", "ref": "checklistFile"}
         self.fields["general_comment"].widget.attrs["v-model"] = "project_year.review.general_comment"
         self.fields["comments_for_staff"].widget.attrs["v-model"] = "project_year.review.comments_for_staff"
         self.fields["review_email_update"].widget.attrs["v-model"] = "project_year.review.review_email_update"
