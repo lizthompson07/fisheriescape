@@ -1123,6 +1123,11 @@ class StatusReport(models.Model):
             return mark_safe(markdown(self.major_issues))
 
 
+def ref_mat_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return f'projects/{filename}'
+
+
 class Review(models.Model):
     approval_status_choices = (
         (1, _("Approved")),
@@ -1174,6 +1179,9 @@ class Review(models.Model):
     approval_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
     review_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
     approver_comment = models.TextField(blank=True, null=True, verbose_name=_("Approver comments (shared with project leads)"))
+
+    checklist_file = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("Feedback Checklist"),
+                                      blank=True, null=True)
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -1367,11 +1375,6 @@ class ActivityUpdate(MetadataFields):
     def notes_html(self):
         if self.notes:
             return mark_safe(markdown(self.notes))
-
-
-def ref_mat_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return f'projects/{filename}'
 
 
 class ReferenceMaterial(SimpleLookup):
