@@ -1,18 +1,18 @@
 {% load i18n %}
 <li class="nav-item"><a class="nav-link" href="{% url 'herring:index' %}">Home</a></li>
-
+{##}
 {# Samples #}
-<li class="nav-item dropdown">
-  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-     aria-haspopup="true" aria-expanded="false">
-    Samples
-  </a>
-  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-    <div class="dropdown-divider"></div>
-    <a class="dropdown-item" href="{% url 'herring:sample_new' %}">New</a>
-    <a class="dropdown-item" href="{% url 'herring:sample_list' %}">Search</a>
-  </div>
-</li>
+{#<li class="nav-item dropdown">#}
+{#  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"#}
+{#     aria-haspopup="true" aria-expanded="false">#}
+{#    Samples#}
+{#  </a>#}
+{#  <div class="dropdown-menu" aria-labelledby="navbarDropdown">#}
+{#    <div class="dropdown-divider"></div>#}
+{#    <a class="dropdown-item" href="{% url 'herring:sample_new' %}">New</a>#}
+{#    <a class="dropdown-item" href="{% url 'herring:sample_list' %}">Search</a>#}
+{#  </div>#}
+{#</li>#}
 
 {# Reports #}
 <li class="nav-item"><a class="nav-link" href="{% url 'herring:report_search' %}">Reports</a></li>

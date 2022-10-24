@@ -20,7 +20,7 @@ from numpy import arange
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
-from shared_models.views import CommonFormsetView, CommonHardDeleteView
+from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonListView, CommonTemplateView
 from . import filters
 from . import forms
 from . import models
@@ -44,7 +44,7 @@ class HerringUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteV
     success_url = reverse_lazy("herring:manage_herring_users")
 
 
-class IndexView(HerringBasicMixin,TemplateView):
+class IndexView(HerringBasicMixin,CommonTemplateView):
     template_name = 'herring/index.html'
     h1 = "Home"
 
@@ -835,15 +835,16 @@ def export_hdet(request, year):
 # ADMIN #
 #########
 
-class CheckUsageListView(HerringAdminAccessRequired, ListView):
+class CheckUsageListView(HerringAdmin, CommonListView):
+    h1 = "Modified Fish Details"
     template_name = "herring/check_usage.html"
+    home_url_name = "herring:index"
     model = models.FishDetail
-
     # show only the top twenty results
     queryset = model.objects.all().order_by('-last_modified_date')[:50]
 
 
-class ImportFileView(HerringAdminAccessRequired, CreateView):
+class ImportFileView(HerringAdmin, CreateView):
     model = models.File
     fields = "__all__"
 
@@ -1017,7 +1018,7 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
 # SAMPLER #
 ###########
 
-class SamplerListView(HerringAdminAccessRequired, FilterView):
+class SamplerListView(HerringAdmin, FilterView):
     template_name = "herring/sampler_list.html"
     filterset_class = filters.SamplerFilter
     queryset = models.Sampler.objects.annotate(
@@ -1032,7 +1033,7 @@ class SamplerListView(HerringAdminAccessRequired, FilterView):
         return context
 
 
-class SamplerDetailView(HerringAdminAccessRequired, DetailView):
+class SamplerDetailView(HerringAdmin, DetailView):
     model = models.Sampler
 
     def get_context_data(self, **kwargs):
@@ -1045,7 +1046,7 @@ class SamplerDetailView(HerringAdminAccessRequired, DetailView):
         return context
 
 
-class SamplerUpdateView(HerringAdminAccessRequired, UpdateView):
+class SamplerUpdateView(HerringAdmin, UpdateView):
     model = models.Sampler
     form_class = forms.SamplerForm
 
@@ -1053,7 +1054,7 @@ class SamplerUpdateView(HerringAdminAccessRequired, UpdateView):
         return reverse_lazy("herring:sampler_detail", kwargs={"pk": self.get_object().id})
 
 
-class SamplerCreateView(HerringAdminAccessRequired, CreateView):
+class SamplerCreateView(HerringAdmin, CreateView):
     model = models.Sampler
     form_class = forms.SamplerForm
 
@@ -1062,7 +1063,7 @@ class SamplerCreateView(HerringAdminAccessRequired, CreateView):
         return HttpResponseRedirect(reverse_lazy("herring:sampler_detail", kwargs={"pk": my_object.id}))
 
 
-class SamplerDeleteView(HerringAdminAccessRequired, DeleteView):
+class SamplerDeleteView(HerringAdmin, DeleteView):
     model = models.Sampler
     permission_required = "__all__"
     success_url = reverse_lazy('herring:sampler_list')

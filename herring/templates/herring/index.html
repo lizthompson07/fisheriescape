@@ -2,51 +2,38 @@
 {% load bootstrap4 %}
 {% load static %}
 {% load i18n %}
+
+{% block crumbs %}{% endblock %}
+{% block title_area %}{% endblock %}
+
 {% block subcontent %}
 
-{{ is_admin }}
+  <div class="jumbotron">
 
-  <div class="container">
-    <br>
-    <div class="container">
-      <div class="jumbotron">
-
-        <div class="float-left mr-5">
-          <img src="{% static 'herring/Herman_Hermann.png' %}" alt="" width="200px">
-        </div>
-        <div class="">
-          <div class="float-right">
-            <img src="{% static "herring/herring.png" %}" width="300" alt="..." class="py-0">
-          </div>
-          <div class="mb-3">
-            <h1 class="three-em">HERMAN</h1>
-          </div>
-          <br>
-          <hr>
-          <h3>Gulf Region's <b>He</b>rring and Gaspereau P<b>r</b>ogra<b>m</b> for D<b>a</b>ta E<b>n</b>try</h3>
-          <br>
-          <p>Welcome back, {{ user.first_name }}!</p>
-        </div>
+    <div class="float-left mr-5">
+      <img src="{% static 'herring/Herman_Hermann.png' %}" alt="" width="200px">
+    </div>
+    <div class="">
+      <div class="float-right">
+        <img src="{% static "herring/herring.png" %}" width="300" alt="..." class="py-0">
       </div>
-
+      <div class="mb-3">
+        <h1 class="three-em">HERMAN</h1>
+      </div>
+      <br>
+      <hr>
+      <h3>Gulf Region's <b>He</b>rring and Gaspereau P<b>r</b>ogra<b>m</b> for D<b>a</b>ta E<b>n</b>try</h3>
+      <br>
+      <p>Welcome back, {{ user.first_name }}!</p>
     </div>
-    <div align="center">
-      <a href="{% url 'herring:sample_list' %}" class="btn btn-primary">Samples</a>
-    </div>
-
-    {% load static %}
-    <div align="center">
-      <table cellpadding="15px">
-        <tr>
-          <td></td>
-        </tr>
-
-      </table>
-
-    </div>
-
-
   </div>
+
+  <div>
+    <a href="{% url 'herring:sample_list' %}" class="btn btn-primary"><span class="mdi mdi-magnify text-light mr-1"></span>Find a Sample</a>
+    <a href="{% url 'herring:sample_list' %}" class="btn btn-success"><span class="mdi mdi-plus text-light mr-1"></span>New Sample</a>
+  </div>
+
+
 
 {% endblock %}
 

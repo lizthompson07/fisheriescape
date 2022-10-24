@@ -2,17 +2,17 @@
 {% load static %}
 
 {% block bug_create %}
-    {% include "edna/base/_bug_url.html" %}
+    {% include "herring/base/_bug_url.html" %}
 {% endblock bug_create %}
 
 {% block title %}
-    {% include "edna/base/_app_title.html" %}
+    {% include "herring/base/_app_title.html" %}
     {% block subtitle %} - {{ subtitle }}{% endblock %}
 {% endblock title %}
 
 {% block header %}
     {{ block.super }}
-    {% include "edna/base/_style.html" %}
+    {% include "herring/base/_style.html" %}
 {% endblock %}
 
 {% block body %}
@@ -20,5 +20,5 @@
 {% endblock body %}
 
 {% block left_auth %}
-    {% include "edna/base/_nav_left_auth.html" %}
+    {% include "herring/base/_nav_left_auth.html" %}
 {% endblock left_auth %}
