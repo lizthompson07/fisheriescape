@@ -48,6 +48,9 @@ class Sampler(models.Model):
     def full_name(self):
         return str(self)
 
+    @property
+    def sample_count(self):
+        return self.samples.count()
 
 class District(models.Model):
     # Choices for province
@@ -196,7 +199,6 @@ class Sample(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                                          related_name="last_modified_by_samples")
 
-    # uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID")
 
     @property
     def lf_count(self):

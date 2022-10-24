@@ -1,4 +1,4 @@
-{% extends "herring/herring_base.html" %}
+{% extends "herring/base.html" %}
 
 {% load bootstrap4 %}
 {% load verbose_names %}
@@ -59,12 +59,12 @@
         <br><br>
         <div class="row">
             <div class="col">
-                {% include "herring/_sample_detail.html" %}
-                {% include "herring/_sample_length_frequency.html" %}
+                {% include "herring/sample_detail/_detail.html" %}
+                {% include "herring/sample_detail/_lf.html" %}
             </div>
             <div class="col">
-                {% include "herring/_sample_qc.html" %}
-                {% include "herring/_sample_fish_detail.html" %}
+                {% include "herring/sample_detail/_qc.html" %}
+                {% include "herring/sample_detail/_fish_detail.html" %}
             </div>
         </div>
 

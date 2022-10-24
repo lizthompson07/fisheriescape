@@ -22,6 +22,11 @@ class HerringBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
         context["is_crud_user"] = is_crud_user(self.request.user)
         return context
 
+
+class HerringAccess(HerringBasicMixin):
+    pass
+
+
 class HerringAdmin(HerringBasicMixin):
     def test_func(self):
         return is_admin(self.request.user)
