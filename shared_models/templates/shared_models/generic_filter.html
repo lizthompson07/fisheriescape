@@ -10,20 +10,22 @@
   {% trans 'New' as default_new_btn_text %}
   {% if filter %}
     {% block filter %}
-      <form class="form {% block extra_filter_classes %}{% endblock %}" action="." method="get" id="filter-form">
-        <div class="row">
-          {% for field in filter.form %}
+      <div class="{% block filter_div_classes %}{% endblock %}">
+        <form class="form {% block extra_filter_classes %}{% endblock %}" action="." method="get" id="filter-form">
+          <div class="row">
+            {% for field in filter.form %}
+              <div class="col">
+                {% bootstrap_field field placeholder="" size="small" %}
+              </div>
+            {% endfor %}
             <div class="col">
-              {% bootstrap_field field placeholder="" size="small" %}
+              <br>
+              <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+              <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
             </div>
-          {% endfor %}
-          <div class="col">
-            <br>
-            <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
-            <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     {% endblock %}
     <br>
     {% if paginate_by %}

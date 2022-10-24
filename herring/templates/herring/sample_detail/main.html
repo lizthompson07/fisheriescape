@@ -4,103 +4,81 @@
 {% load verbose_names %}
 {% load static %}
 
-{% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="{% url 'herring:index' %}">
-                    Home
-                </a>
-            </li>
-            <li class="breadcrumb-item">
-                <a href="{% url 'herring:sample_list' %}">
-                    Sample List
-                </a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-                Sample Detail
-            </li>
 
-        </ol>
-    </nav>
+{% block subcontent %}
 
-    <div class="container">
-
-        <div class="neighbours">
-            <h1>{{ object.get_type_display|title }} {{ object.id }} </h1>
-        </div>
-        <div class="neighbours float-right">
-            <a class="btn btn-sm btn-secondary" href="{% url 'herring:move_sample_next' object.id %}">Move to Next Sample Id</a>
-        </div>
-        <br>
-        <div class="btn-group">
-            <a class="btn btn-warning" href="{% url 'herring:sample_edit' object.id %}">Edit</a>
-            <a class="btn btn-danger" href="{% url 'herring:sample_delete' object.id %}">Delete</a>
-        </div>
+  <div class="neighbours float-right">
+    <a class="btn btn-sm btn-secondary" href="{% url 'herring:move_sample_next' object.id %}">Move to Next Sample Id</a>
+  </div>
+  <br>
+  <div class="btn-group">
+    <a class="btn btn-warning" href="{% url 'herring:sample_edit' object.id %}">Edit</a>
+    <a class="btn btn-danger" href="{% url 'herring:sample_delete' object.id %}">Delete</a>
+  </div>
 
 
-        <div class='btn-group'>
-            {% if object.length_frequencies.count > 0 %}
-                <a class="btn btn-outline-primary" href="#"
-                   onclick="return popitup('{% url 'herring:lf_wizard_confirmation' object.id %}','popoutWindow0')">Re-enter Length
-                    Frequencies</a>
-            {% else %}
-                <a class="btn btn-outline-primary" href="#"
-                   onclick="return popitup('{% url 'herring:lf_wizard_setup' object.id %}','popoutWindow0')">Enter Length Frequencies</a>
-            {% endif %}
+  <div class='btn-group'>
+    {% if object.length_frequencies.count > 0 %}
+      <a class="btn btn-outline-primary" href="#"
+         onclick="return popitup('{% url 'herring:lf_wizard_confirmation' object.id %}','popoutWindow0')">Re-enter Length
+        Frequencies</a>
+    {% else %}
+      <a class="btn btn-outline-primary" href="#"
+         onclick="return popitup('{% url 'herring:lf_wizard_setup' object.id %}','popoutWindow0')">Enter Length Frequencies</a>
+    {% endif %}
 
-            {% if sample.lab_processing_complete %}
-                <a class="btn btn-outline-primary" href="{% url 'herring:lab_sample_confirmation' object.id %}">Enter Lab Measurements</a>
-            {% else %}
-                <a class="btn btn-outline-primary" href="{% url 'herring:fishboard_test_form' object.id %}">Enter Lab Measurements</a>
-            {% endif %}
-        </div>
+    {% if sample.lab_processing_complete %}
+      <a class="btn btn-outline-primary" href="{% url 'herring:lab_sample_confirmation' object.id %}">Enter Lab Measurements</a>
+    {% else %}
+      <a class="btn btn-outline-primary" href="{% url 'herring:fishboard_test_form' object.id %}">Enter Lab Measurements</a>
+    {% endif %}
+  </div>
 
-        <br><br>
-        <div class="row">
-            <div class="col">
-                {% include "herring/sample_detail/_detail.html" %}
-                {% include "herring/sample_detail/_lf.html" %}
-            </div>
-            <div class="col">
-                {% include "herring/sample_detail/_qc.html" %}
-                {% include "herring/sample_detail/_fish_detail.html" %}
-            </div>
-        </div>
-
+  <br><br>
+  <div class="row">
+    <div class="col">
+      {% include "herring/sample_detail/_detail.html" %}
+      {% include "herring/sample_detail/_lf.html" %}
     </div>
+    <div class="col">
+      {% include "herring/sample_detail/_qc.html" %}
+      {% include "herring/sample_detail/_fish_detail.html" %}
+    </div>
+  </div>
 
-    <script type="text/javascript" src="{% static "js/herring/quality_control.js" %}"></script>
+  </div>
 
-    <script type="text/javascript">
-        window.name = "portSampleDetail"
-        var lengthFrequencySum = Number({{sum_count}});
+  <script type="text/javascript" src="{% static "js/herring/quality_control.js" %}"></script>
 
-        {% if object.total_fish_measured %}
-            var totalFishMeasured = Number({{object.total_fish_measured}});
-        {%else%}
-            var totalFishMeasured = 0;
-        {%endif%}
+  <script type="text/javascript">
+  window.name = "portSampleDetail"
+  var lengthFrequencySum = Number({{sum_count}});
 
-        {% if object.lab_processing_complete %}
-            var labProcessingComplete = true;
-        {%else%}
-            var labProcessingComplete = false;
-        {%endif%}
+  {% if object.total_fish_measured %}
+    var totalFishMeasured = Number({{object.total_fish_measured}});
+  {%else%}
+    var totalFishMeasured = 0;
+  {%endif%}
 
-        {% if object.otolith_processing_complete %}
-            var otolithProcessingComplete = true;
-        {%else%}
-            var otolithProcessingComplete = false;
-        {%endif%}
+  {% if object.lab_processing_complete %}
+    var labProcessingComplete = true;
+  {%else%}
+    var labProcessingComplete = false;
+  {%endif%}
 
-        $(document).ready(function () {
-            testMandatoryFields("port_sample");
-            test205(lengthFrequencySum, totalFishMeasured);
-            test231(labProcessingComplete);
-            test232(otolithProcessingComplete);
-        });
+  {% if object.otolith_processing_complete %}
+    var otolithProcessingComplete = true;
+  {%else%}
+    var otolithProcessingComplete = false;
+  {%endif%}
+
+  $(document).ready(function () {
+    testMandatoryFields("port_sample");
+    test205(lengthFrequencySum, totalFishMeasured);
+    test231(labProcessingComplete);
+    test232(otolithProcessingComplete);
+  });
 
 
-    </script>
-{% endblock content %}
+  </script>
+{% endblock %}

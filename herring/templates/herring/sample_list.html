@@ -5,6 +5,8 @@
 
 {% block table_td %}
 
+{#  {% if "sample_date" in field.name %}#}
+{#    {{ object.sample_date|date:"F d, Y" }}#}
   {% if "fish_processed" in field.name %}
     {{ object.fish_details.count }}
   {% elif "date_processed" in field.name %}

@@ -9,6 +9,10 @@ from django.utils.safestring import mark_safe
 chosen_js = {"class": "chosen-select-contains"}
 
 
+class FileForm(forms.Form):
+    file = forms.FileField(label="File to import", required=True)
+
+
 class HerringUserForm(forms.ModelForm):
     class Meta:
         model = models.HerringUser
@@ -46,65 +50,58 @@ class SampleForm(forms.ModelForm):
 
     class Meta:
         model = models.Sample
-        fields = "__all__"
         exclude = ['old_id', 'season', "tests", "length_frequencies", 'lab_processing_complete', "otolith_processing_complete", 'district']
         labels = {
-            # 'sampler':mark_safe("Sampler (<a href='#' id='add_sampler' >add</a>)"),
-            # 'district':mark_safe("District (<a href='#' >search</a>)"),
             'vessel_cfvn': "Vessel CFVN",
-            # 'survey_id': "Survey ID",
         }
         attr_dict = {"class": "tab", }
 
         widgets = {
-            'remarks': forms.Textarea(attrs={'rows': '5', "class": "tab", }),
             'sample_date': forms.DateInput(attrs={'type': 'date', "class": "tab", }),
-            'creation_date': forms.HiddenInput(),
-            'created_by': forms.HiddenInput(),
-            'last_modified_date': forms.HiddenInput(),
-            'last_modified_by': forms.HiddenInput(),
-            # 'sampling_protocol':forms.HiddenInput(),
-            'latitude_n': forms.TextInput(attrs=attr_dict),
-            'longitude_w': forms.TextInput(attrs=attr_dict),
-            # 'vessel_cfvn':forms.TextInput(),
-            'sampler_ref_number': forms.TextInput(attrs=attr_dict),
-            'sampler': forms.Select(attrs=attr_dict),
-            'port': forms.Select(attrs=attr_dict),
-            'fishing_area': forms.Select(attrs=attr_dict),
-            'gear': forms.Select(attrs=attr_dict),
-            'experimental_net_used': forms.Select(attrs=attr_dict),
-            'vessel_cfvn': forms.TextInput(attrs=attr_dict),
-            'mesh_size': forms.Select(attrs=attr_dict),
-            'catch_weight_lbs': forms.NumberInput(attrs=attr_dict),
-            'sample_weight_lbs': forms.NumberInput(attrs=attr_dict),
-            'total_fish_measured': forms.NumberInput(attrs=attr_dict),
-            'total_fish_preserved': forms.NumberInput(attrs=attr_dict),
+
+
+            # 'creation_date': forms.HiddenInput(),
+            # 'remarks': forms.Textarea(attrs={'rows': '5', "class": "tab", }),
+            # 'created_by': forms.HiddenInput(),
+            # 'last_modified_date': forms.HiddenInput(),
+            # 'last_modified_by': forms.HiddenInput(),
+            # # 'sampling_protocol':forms.HiddenInput(),
+            # 'latitude_n': forms.TextInput(attrs=attr_dict),
+            # 'longitude_w': forms.TextInput(attrs=attr_dict),
+            # # 'vessel_cfvn':forms.TextInput(),
+            # 'sampler_ref_number': forms.TextInput(attrs=attr_dict),
+            # 'sampler': forms.Select(attrs=attr_dict),
+            # 'port': forms.Select(attrs=attr_dict),
+            # 'fishing_area': forms.Select(attrs=attr_dict),
+            # 'gear': forms.Select(attrs=attr_dict),
+            # 'experimental_net_used': forms.Select(attrs=attr_dict),
+            # 'vessel_cfvn': forms.TextInput(attrs=attr_dict),
+            # 'mesh_size': forms.Select(attrs=attr_dict),
+            # 'catch_weight_lbs': forms.NumberInput(attrs=attr_dict),
+            # 'sample_weight_lbs': forms.NumberInput(attrs=attr_dict),
+            # 'total_fish_measured': forms.NumberInput(attrs=attr_dict),
+            # 'total_fish_preserved': forms.NumberInput(attrs=attr_dict),
         }
 
 
 class SampleFishMeasuredForm(forms.ModelForm):
     class Meta:
         model = models.Sample
-        fields = ["total_fish_measured", "last_modified_by"]
+        fields = ["total_fish_measured"]
         labels = {
             # 'district':mark_safe("District (<a href='#' >search</a>)"),
             # 'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
         }
-        widgets = {
-            'last_modified_by': forms.HiddenInput(),
-        }
+
 
 
 class SampleFishPreservedForm(forms.ModelForm):
     class Meta:
         model = models.Sample
-        fields = ["total_fish_preserved", "last_modified_by"]
+        fields = ["total_fish_preserved"]
         labels = {
             # 'district':mark_safe("District (<a href='#' >search</a>)"),
             # 'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
-        }
-        widgets = {
-            'last_modified_by': forms.HiddenInput(),
         }
 
 
@@ -170,13 +167,8 @@ class LabSampleForm(forms.ModelForm):
             "gonad_weight",
             "parasite",
             "remarks",
-            "lab_sampler",
-            "last_modified_by",
             "test_204_accepted",
             "test_207_accepted",
-            # "test_302_accepted",
-            # "test_305_accepted",
-            # "test_308_accepted",
         ]
 
         attr_dict = {"class": "mandatory"}
@@ -190,14 +182,9 @@ class LabSampleForm(forms.ModelForm):
             "gonad_weight": forms.NumberInput(attrs=attr_dict),
             "parasite": forms.Select(attrs=attr_dict),
             "remarks": forms.Textarea(attrs={"rows": "3"}),
-            "lab_sampler": forms.HiddenInput(attrs=attr_dict),
-            "last_modified_by": forms.HiddenInput(),
 
             "test_204_accepted": forms.TextInput(attrs=attr_dict_1),
             "test_207_accepted": forms.TextInput(attrs=attr_dict_1),
-            # "test_302_accepted":forms.TextInput(attrs=attr_dict_1),
-            # "test_305_accepted":forms.TextInput(attrs=attr_dict_1),
-            # "test_308_accepted":forms.TextInput(attrs=attr_dict_1),
         }
 
 
@@ -207,17 +194,12 @@ class OtolithForm(forms.ModelForm):
 
     class Meta:
         model = models.FishDetail
-        # exclude = ["lab_processed_date", "otolith_processed_date"]
         fields = [
-            "otolith_sampler",
             "annulus_count",
             "otolith_season",
             "fish_length",
-            # "otolith_image_remote_filepath",
             "remarks",
-            "last_modified_by",
             "test_209_accepted",
-            # "test_311_accepted",
         ]
         labels = {
             "otolith_image_remote_filepath": "Image filepath",
@@ -230,8 +212,6 @@ class OtolithForm(forms.ModelForm):
         widgets = {
             "fish_length": forms.HiddenInput(),
             "remarks": forms.Textarea(attrs={"rows": 3}),
-            "otolith_sampler": forms.HiddenInput(attrs=attr_dict),
-            "last_modified_by": forms.HiddenInput(),
             "annulus_count": forms.TextInput(attrs=attr_dict),
             "otolith_season": forms.Select(attrs=attr_dict),
 

@@ -52,6 +52,7 @@ class Sampler(models.Model):
     def sample_count(self):
         return self.samples.count()
 
+
 class District(models.Model):
     # Choices for province
     NS = 1
@@ -158,8 +159,8 @@ class Sample(models.Model):
     SEA = 2
 
     SAMPLE_TYPE_CHOICES = (
-        (PORT, 'Port sample'),
-        (SEA, 'Sea sample'),
+        (PORT, 'Port'),
+        (SEA, 'Sea'),
     )
 
     season_type_choices = (
@@ -174,8 +175,8 @@ class Sample(models.Model):
     district = models.ForeignKey(District, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     port = models.ForeignKey(shared_models.Port, related_name="herring_samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     survey_id = models.CharField(max_length=50, null=True, blank=True, verbose_name="survey identifier")
-    latitude_n = models.CharField(max_length=50, null=True, blank=True, verbose_name="Latitude (N)")
-    longitude_w = models.CharField(max_length=50, null=True, blank=True, verbose_name="Longitude (W)")
+    latitude_n = models.FloatField(null=True, blank=True, verbose_name="Latitude")
+    longitude_w = models.FloatField(null=True, blank=True, verbose_name="Longitude")
     fishing_area = models.ForeignKey(FishingArea, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     gear = models.ForeignKey(Gear, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     experimental_net_used = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
@@ -192,13 +193,12 @@ class Sample(models.Model):
     length_frequencies = models.ManyToManyField(to=LengthBin, through='LengthFrequency')
     lab_processing_complete = models.BooleanField(default=False)
     otolith_processing_complete = models.BooleanField(default=False)
-    creation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                   related_name="created_by_samples")
-    last_modified_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                         related_name="last_modified_by_samples")
 
+    # not editable
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="created_by_samples", editable=False)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="last_modified_by_samples", editable=False)
+    creation_date = models.DateTimeField(auto_now_add=True, editable=False)
+    last_modified_date = models.DateTimeField(auto_now=True, editable=False)
 
     @property
     def lf_count(self):
@@ -249,7 +249,7 @@ class Sample(models.Model):
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return "{} {}".format(_("Sample"), self.id)
+        return "{} {} {}".format(self.get_type_display(), _("Sample"), self.id)
 
 
 class Maturity(models.Model):
@@ -292,10 +292,7 @@ class FishDetail(models.Model):
                                  blank=True)
     gonad_weight = models.FloatField(null=True, blank=True)
     parasite = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
-    lab_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                    related_name="lab_sampler_fish_details")
-    otolith_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                        related_name="otolith_sampler_fish_details")
+
     lab_processed_date = models.DateTimeField(blank=True, null=True)
     annulus_count = models.IntegerField(null=True, blank=True)
     otolith_season = models.ForeignKey(OtolithSeason, related_name="fish_details", on_delete=models.DO_NOTHING,
@@ -315,12 +312,18 @@ class FishDetail(models.Model):
     test_311_accepted = models.CharField(max_length=5, null=True, blank=True)  # annulus count within probable range
 
     remarks = models.TextField(null=True, blank=True)
-    creation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                   related_name="created_by_details")
-    last_modified_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                         related_name="last_modified_by_details")
+
+    # non-editable
+    creation_date = models.DateTimeField(auto_now_add=True, editable=False)
+    last_modified_date = models.DateTimeField(auto_now=True, editable=False)
+
+    created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="created_by_details", editable=False)
+    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="last_modified_by_details",
+                                         editable=False)
+    otolith_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="otolith_sampler_fish_details",
+                                        editable=False)
+    lab_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="lab_sampler_fish_details",
+                                    editable=False)
 
     class Meta:
         unique_together = (('sample', 'fish_number'),)
@@ -357,39 +360,3 @@ class LengthFrequency(models.Model):
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return 'temp_file/{0}'.format(filename)
-
-
-class File(models.Model):
-    file = models.FileField(upload_to=file_directory_path, null=True, blank=True)
-
-
-@receiver(models.signals.post_delete, sender=File)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `MediaFile` object is deleted.
-    """
-    if instance.file:
-        if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
-
-
-@receiver(models.signals.pre_save, sender=File)
-def auto_delete_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `MediaFile` object is updated
-    with new file.
-    """
-    if not instance.pk:
-        return False
-
-    try:
-        old_file = File.objects.get(pk=instance.pk).file
-    except File.DoesNotExist:
-        return False
-
-    new_file = instance.file
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)

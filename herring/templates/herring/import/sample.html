@@ -1,14 +1,13 @@
-{% extends 'herring/herring_base.html' %}
+{% extends 'herring/form.html' %}
 {% load static %}
 {% load i18n %}
 {% load bootstrap4 %}
 
-{% block content %}
 
-    <div class="container-fluid">
-        <h1>
-            Andes Sample Import Form:
-        </h1>
+
+
+{% block pre_form_div %}
+
         <ul>
             <li>
                 the file must be in csv format
@@ -251,35 +250,11 @@
                 </td>
                 <td class="good center-col">yes</td>
             </tr>
-            {#            <tr>#}
-            {#                <td></td>#}
-            {#                <td><em></em></td>#}
-            {#            </tr>#}
 
         </table>
 
 
-        <br><br>
 
-        <form method="post" class="form" enctype="multipart/form-data">
-            {% csrf_token %}
-            {% for field in form %}
 
-                {#                <h2 class="bad center-col">WARNING: running this function will overwrite any existing points in this record.</h2>#}
-                <h3>Please select the file to upload:</h3>
-                {{ field }}
-            {% endfor %}
 
-            <br>
-            <br>
-
-            <button type="submit" class="btn btn-success">Submit</button>
-            <br>
-            <br>
-            <a class="btn btn-secondary" href="#" onclick="window.close()">Cancel</a>
-
-        </form>
-
-    </div>
-
-{% endblock content %}
+{% endblock %}

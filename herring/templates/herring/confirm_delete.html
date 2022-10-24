@@ -1,5 +1,4 @@
-{% extends "shared_models/generic_filter.html" %}
-{% load verbose_names %}
+{% extends "shared_models/generic_confirm_delete.html" %}
 
 {% block jquery_import %}
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -27,20 +26,4 @@
   {% include "herring/base/_nav_left_auth.html" %}
 {% endblock left_auth %}
 
-{% block table_td %}
-  {% get_field_value object field.name safe=True %}
-{% endblock %}
 
-{% block body_js %}
-  {% if DEBUG %}
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
-  {% else %}
-    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
-  {% endif %}
-
-
-{% endblock %}
-
-{% block filter_div_classes %}
-  table-bordered p-2
-{% endblock %}
