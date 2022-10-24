@@ -268,6 +268,11 @@
 
           <table class="table table-sm">
             <tr>
+              <th class="text-left w-25" v-html="reviewLabels.ref_number"></th>
+              <td class="text-left">${request.review.ref_number }</td>
+            </tr>
+
+            <tr>
               <th class="text-left w-25" v-html="reviewLabels.is_valid"></th>
               <td class="text-left">${request.review.is_valid_display }</td>
             </tr>
