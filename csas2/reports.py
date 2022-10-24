@@ -337,6 +337,7 @@ def generate_process_list(processes, site_url):
         'client_regions|{}'.format(_("client regions")),
         'client_sectors|{}'.format(_("client sectors")),
         'client_sections|{}'.format(_("client sections")),
+        'connected request(s)'
     ]
 
     # define the header
@@ -375,6 +376,15 @@ def generate_process_list(processes, site_url):
                                 url=f'{site_url}/{reverse("csas2:process_detail", args=[obj.id])}',
                                 string=f"{my_val}",
                                 cell_format=hyperlink_format)
+            elif "connected" in field:
+                requests = obj.csas_requests.all()
+                if requests.count() == 1:
+                    my_ws.write_url(i, j,
+                                    url=f'{site_url}/{reverse("csas2:request_detail", args=[requests.first().id])}',
+                                    string=f"{requests.first()} ({requests.first().id})",
+                                    cell_format=hyperlink_format)
+                elif requests.exists():
+                    my_ws.write(i, j, listrify([f"{r} ({r.id})" for r in requests], "\n"), normal_format)
             else:
                 my_val = str(get_field_value(obj, field))
                 my_ws.write(i, j, my_val, normal_format)
