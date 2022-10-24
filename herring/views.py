@@ -20,67 +20,56 @@ from numpy import arange
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
+from shared_models.views import CommonFormsetView, CommonHardDeleteView
 from . import filters
 from . import forms
 from . import models
 from . import reports
+from .mixins import SuperuserOrAdminRequiredMixin, HerringBasicMixin, HerringAdmin, HerringCRUD
 
 
-# Create your views here.
-
-def in_herring_group(user):
-    if user:
-        return user.groups.filter(name='herring_access').count() != 0
-
-
-def in_herring_admin_group(user):
-    if user:
-        return user.groups.filter(name='herring_admin').count() != 0
-
-
-class HerringAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return in_herring_admin_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/?app=herring')
-        return super().dispatch(request, *args, **kwargs)
+class HerringUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
+    template_name = 'herring/formset.html'
+    h1 = "Manage Herring Users"
+    queryset = models.HerringUser.objects.all()
+    formset_class = forms.HerringUserFormset
+    success_url_name = "herring:manage_herring_users"
+    home_url_name = "herring:index"
+    delete_url_name = "herring:delete_herring_user"
+    container_class = "container bg-light curvy"
 
 
-class HerringAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return in_herring_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/?app=herring')
-        return super().dispatch(request, *args, **kwargs)
+class HerringUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
+    model = models.HerringUser
+    success_url = reverse_lazy("herring:manage_herring_users")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_herring_group, login_url='/accounts/denied/?app=herring')
-def index(request):
-    return render(request, 'herring/index.html')
+class IndexView(HerringBasicMixin,TemplateView):
+    template_name = 'herring/index.html'
+    h1 = "Home"
 
-
-# class IndexView(AnonymousRequiredMixin,TemplateView):
-#     template_name = 'herring/index.html'
-# group_required = [u"herring_access",]
-
-
-class CloserTemplateView(TemplateView):
-    template_name = 'herring/close_me.html'
 
 
 # SAMPLER #
 ###########
 
-class SamplerPopoutCreateView(HerringAccessRequired, CreateView):
+
+class SamplerFormsetView(HerringAdmin, CommonFormsetView):
+    template_name = 'herring/formset.html'
+    h1 = "Manage Samplers"
+    queryset = models.Sampler.objects.all()
+    formset_class = forms.SamplerFormset
+    success_url_name = "herring:manage_samplers"
+    home_url_name = "herring:index"
+    delete_url_name = "herring:delete_sampler"
+
+class SamplerHardDeleteView(HerringAdmin, CommonHardDeleteView):
+    model = models.Sampler
+    success_url = reverse_lazy("herring:manage_samplers")
+
+
+
+class SamplerPopoutCreateView(HerringCRUD, CreateView):
     template_name = 'herring/sampler_form_popout.html'
     model = models.Sampler
     form_class = forms.SamplerForm
@@ -90,7 +79,7 @@ class SamplerPopoutCreateView(HerringAccessRequired, CreateView):
         return HttpResponseRedirect(reverse_lazy("herring:close_sampler", kwargs={"sampler": object.id}))
 
 
-class SamplerCloseTemplateView(HerringAccessRequired, TemplateView):
+class SamplerCloseTemplateView(HerringCRUD, TemplateView):
     template_name = 'herring/sampler_close.html'
 
     def get_context_data(self, **kwargs):
@@ -102,7 +91,7 @@ class SamplerCloseTemplateView(HerringAccessRequired, TemplateView):
 
 # SAMPLE #
 ##########
-class SampleFilterView(HerringAccessRequired, FilterView):
+class SampleFilterView(HerringCRUD, FilterView):
     filterset_class = filters.SampleFilter
     template_name = "herring/sample_filter.html"
 
@@ -130,7 +119,7 @@ class SampleFilterView(HerringAccessRequired, FilterView):
     #     return kwargs
 
 
-class SampleCreateView(HerringAccessRequired, CreateView):
+class SampleCreateView(HerringCRUD, CreateView):
     template_name = 'herring/sample_form.html'
     form_class = forms.SampleForm
     model = models.Sample
@@ -177,13 +166,13 @@ class SampleCreateView(HerringAccessRequired, CreateView):
         return context
 
 
-class SampleDeleteView(HerringAccessRequired, DeleteView):
+class SampleDeleteView(HerringCRUD, DeleteView):
     template_name = 'herring/sample_confirm_delete.html'
     model = models.Sample
     success_url = reverse_lazy("herring:sample_list")
 
 
-class SampleUpdateView(HerringAccessRequired, UpdateView):
+class SampleUpdateView(HerringCRUD, UpdateView):
     template_name = 'herring/sample_form.html'
     form_class = forms.SampleForm
     model = models.Sample
@@ -225,7 +214,7 @@ class SampleUpdateView(HerringAccessRequired, UpdateView):
         return context
 
 
-class SamplePopoutUpdateView(HerringAccessRequired, UpdateView):
+class SamplePopoutUpdateView(HerringCRUD, UpdateView):
     template_name = 'herring/sample_form_popout.html'
     model = models.Sample
 
@@ -245,7 +234,7 @@ class SamplePopoutUpdateView(HerringAccessRequired, UpdateView):
         return HttpResponseRedirect(reverse("herring:close_me"))
 
 
-class SampleDetailView(HerringAccessRequired, DetailView):
+class SampleDetailView(HerringCRUD, DetailView):
     template_name = 'herring/sample_detail.html'
     model = models.Sample
 
@@ -367,11 +356,11 @@ def move_sample_next(request, sample):
 # Length Frequeny wizard #
 ##########################
 
-class LengthFrquencyWizardConfirmation(HerringAccessRequired, TemplateView):
+class LengthFrquencyWizardConfirmation(HerringCRUD, TemplateView):
     template_name = 'herring/length_freq_wizard_confirmation.html'
 
 
-class LengthFrquencyWizardSetupFormView(HerringAccessRequired, FormView):
+class LengthFrquencyWizardSetupFormView(HerringCRUD, FormView):
     template_name = 'herring/length_freq_wizard_setup.html'
     form_class = forms.LengthFrquencyWizardSetupForm
 
@@ -391,7 +380,7 @@ class LengthFrquencyWizardSetupFormView(HerringAccessRequired, FormView):
         }))
 
 
-class LengthFrquencyWizardFormView(HerringAccessRequired, FormView):
+class LengthFrquencyWizardFormView(HerringCRUD, FormView):
     template_name = 'herring/length_freq_wizard.html'
     form_class = forms.LengthFrquencyWizardForm
 
@@ -415,7 +404,7 @@ class LengthFrquencyWizardFormView(HerringAccessRequired, FormView):
             }))
 
 
-class LengthFrquencyUpdateView(HerringAccessRequired, UpdateView):
+class LengthFrquencyUpdateView(HerringCRUD, UpdateView):
     model = models.LengthFrequency
     template_name = 'herring/length_freq_wizard.html'
     fields = ["count"]
@@ -431,7 +420,7 @@ class LengthFrquencyUpdateView(HerringAccessRequired, UpdateView):
 # FISH DETAIL #
 ##############
 
-class FishDetailView(HerringAccessRequired, DetailView):
+class FishDetailView(HerringCRUD, DetailView):
     template_name = 'herring/fish_detail.html'
     model = models.FishDetail
 
@@ -440,7 +429,7 @@ class FishDetailView(HerringAccessRequired, DetailView):
         return context
 
 
-class FishCreateView(HerringAccessRequired, CreateView):
+class FishCreateView(HerringCRUD, CreateView):
     template_name = 'herring/fish_form.html'
     form_class = forms.FishForm
     model = models.FishDetail
@@ -453,7 +442,7 @@ class FishCreateView(HerringAccessRequired, CreateView):
         }
 
 
-class FishUpdateView(HerringAccessRequired, UpdateView):
+class FishUpdateView(HerringCRUD, UpdateView):
     template_name = 'herring/fish_form.html'
     form_class = forms.FishForm
     model = models.FishDetail
@@ -464,7 +453,7 @@ class FishUpdateView(HerringAccessRequired, UpdateView):
         }
 
 
-class FishDeleteView(HerringAccessRequired, DeleteView):
+class FishDeleteView(HerringCRUD, DeleteView):
     template_name = 'herring/fish_confirm_delete.html'
     model = models.FishDetail
 
@@ -474,7 +463,7 @@ class FishDeleteView(HerringAccessRequired, DeleteView):
 
 # lab samples
 
-class LabSampleConfirmation(HerringAccessRequired, TemplateView):
+class LabSampleConfirmation(HerringCRUD, TemplateView):
     template_name = 'herring/lab_sample_confirmation.html'
 
 
@@ -494,11 +483,11 @@ def lab_sample_primer(request, sample):
     }))
 
 
-class FishboardTestView(HerringAccessRequired, TemplateView):
+class FishboardTestView(HerringCRUD, TemplateView):
     template_name = 'herring/fishboard_test_form.html'
 
 
-class LabSampleUpdateView(HerringAccessRequired, UpdateView):
+class LabSampleUpdateView(HerringCRUD, UpdateView):
     template_name = 'herring/lab_sample_form.html'
     model = models.FishDetail
     form_class = forms.LabSampleForm
@@ -582,7 +571,7 @@ def delete_fish_detail(request, sample, pk):
 
 # Otolith
 
-class OtolithUpdateView(HerringAccessRequired, UpdateView):
+class OtolithUpdateView(HerringCRUD, UpdateView):
     template_name = 'herring/otolith_form.html'
     model = models.FishDetail
     form_class = forms.OtolithForm
@@ -702,7 +691,7 @@ def move_record(request, sample, type, direction, current_id):
 ###########
 
 
-class ReportSearchFormView(HerringAccessRequired, FormView):
+class ReportSearchFormView(HerringCRUD, FormView):
     template_name = 'herring/report_search.html'
 
     form_class = forms.ReportSearchForm
@@ -738,7 +727,7 @@ class ReportSearchFormView(HerringAccessRequired, FormView):
             return HttpResponseRedirect(reverse("herring:report_search"))
 
 
-class ProgressReportListView(HerringAccessRequired, ListView):
+class ProgressReportListView(HerringCRUD, ListView):
     template_name = 'herring/report_progress_list.html'
 
     def get_queryset(self):

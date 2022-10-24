@@ -1,11 +1,28 @@
 from django import forms
 from django.core import validators
+from django.forms import modelformset_factory
 from django.utils import timezone
 
 from . import models
 from django.utils.safestring import mark_safe
 
 chosen_js = {"class": "chosen-select-contains"}
+
+
+class HerringUserForm(forms.ModelForm):
+    class Meta:
+        model = models.HerringUser
+        fields = "__all__"
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+HerringUserFormset = modelformset_factory(
+    model=models.HerringUser,
+    form=HerringUserForm,
+    extra=1,
+)
 
 
 class SamplerForm(forms.ModelForm):
@@ -15,6 +32,13 @@ class SamplerForm(forms.ModelForm):
         widgets = {
             'notes': forms.Textarea(attrs={'rows': '3'}),
         }
+
+
+SamplerFormset = modelformset_factory(
+    model=models.Sampler,
+    form=SamplerForm,
+    extra=1,
+)
 
 
 class SampleForm(forms.ModelForm):
