@@ -442,6 +442,10 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
                 obj.area_office = committee.area_office
                 obj.area_office_program = committee.area_office_program
                 obj.save()
+
+        if not obj.is_committee and obj.committee is not None:
+            obj.committee = None
+            obj.save()
         return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': obj.id}))
 
 
