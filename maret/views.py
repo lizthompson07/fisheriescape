@@ -630,7 +630,7 @@ class CommitteeDeleteView(AuthorRequiredMixin, CommonDeleteView):
     grandparent_crumb = {"title": gettext_lazy("Committees / Working Groups"),
                          "url": reverse_lazy("maret:committee_list")}
     template_name = "maret/confirm_delete.html"
-    delete_protection = False
+    delete_protection = True
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("maret:committee_detail", args=[self.get_object().id])}
