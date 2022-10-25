@@ -183,7 +183,7 @@ class PersonListView(UserRequiredMixin, CommonFilterView):
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
-        filtered_ids = [person.pk for person in context["object_list"]]
+        filtered_ids = [person.pk for person in self.queryset]
         context["report_url"] = reverse_lazy("maret:person_report") + "?ids=" + str(filtered_ids)
         return context
 
@@ -708,7 +708,7 @@ class OrganizationListView(UserRequiredMixin, CommonFilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        filtered_ids = [org.pk for org in context["object_list"]]
+        filtered_ids = [org.pk for org in self.queryset]
         context["report_url"] = reverse_lazy("maret:org_report") + "?ids=" + str(filtered_ids)
         return context
 
