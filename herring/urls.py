@@ -13,15 +13,22 @@ urlpatterns = [
     path('settings/samplers/', views.SamplerFormsetView.as_view(), name="manage_samplers"),
     path('settings/sampler/<int:pk>/delete/', views.SamplerHardDeleteView.as_view(), name="delete_sampler"),
 
+    path('settings/gears/', views.GearFormsetView.as_view(), name="manage_gears"),
+    path('settings/gear/<int:pk>/delete/', views.GearHardDeleteView.as_view(), name="delete_gear"),
 
-    # SAMPLER #
-    ###########
-    path('sampler/new/pop/', views.SamplerPopoutCreateView.as_view(), name="sampler_new_pop"),
-    path('sample/sampler/<int:sampler>/close/', views.SamplerCloseTemplateView.as_view(), name="close_sampler"),
+    path('settings/fishing-areas/', views.FishingAreaFormsetView.as_view(), name="manage_fishing_areas"),
+    path('settings/fishing-area/<int:pk>/delete/', views.FishingAreaHardDeleteView.as_view(), name="delete_fishing_area"),
+
+    path('settings/mesh-sizes/', views.MeshSizeFormsetView.as_view(), name="manage_mesh_sizes"),
+    path('settings/mesh-size/<int:pk>/delete/', views.MeshSizeHardDeleteView.as_view(), name="delete_mesh_size"),
+
+    path('settings/ports/', views.PortFormsetView.as_view(), name="manage_ports"),
+    path('settings/port/<int:pk>/delete/', views.PortHardDeleteView.as_view(), name="delete_port"),
 
     # SAMPLE #
     ##########
     path('samples/', views.SampleFilterView.as_view(), name="sample_list"),
+    path('samples/search/', views.SampleSearchFormView.as_view(), name="sample_search"),
     path('samples/new/', views.SampleCreateView.as_view(), name="sample_new"),
     path('samples/<int:pk>/detail/', views.SampleDetailView.as_view(), name="sample_detail"),
     path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),

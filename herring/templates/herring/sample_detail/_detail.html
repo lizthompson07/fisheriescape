@@ -15,7 +15,7 @@
 <p>
     <span class="">Expected number of length frequencies: </span>
     <span class="value"> {{ object.total_fish_measured }}</span>
-    <a href="#" pop-href="{% url 'herring:sample_edit_pop' object.id "measured" %}" data-toggle="tooltip" data-placement="top"
+    <a href="{% url 'herring:sample_edit' object.id %}#id_total_fish_measured" data-toggle="tooltip" data-placement="top"
        title="Edit the number of fish measured">
         <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
     </a>
@@ -31,7 +31,7 @@
     <span class="value"> {{ object.total_fish_preserved }}</span>
 
 
-    <a href="#" pop-href="{% url 'herring:sample_edit_pop' object.id "preserved" %}" data-toggle="tooltip" data-placement="top"
+    <a href="{% url 'herring:sample_edit' object.id %}#id_total_fish_preserved" data-toggle="tooltip" data-placement="top"
        title="Edit the  number of fish preserved" class="badge badge-light">
         <img src="{% static "/admin/img/icon-changelink.svg" %}" alt="">
     </a>
@@ -46,7 +46,7 @@
 
 <table class="table table-sm table-striped" style="font-size: small;">
     {% for field in field_list %}
-        {% verbose_td_display object field %}
+        {% verbose_td_display object field th_width="35%" %}
 
     {% endfor %}
 

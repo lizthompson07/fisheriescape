@@ -30,7 +30,13 @@
       <a class="dropdown-item" href="{% url 'herring:import' "sample" %}">Import Sample Data from Andes</a>
       <a class="dropdown-item" href="{% url 'herring:import' "lf" %}">Import LF Data from Andes</a>
       <a class="dropdown-item" href="{% url 'herring:import' "detail" %}">Import Fish Detail Data from Andes</a>
+
+      <a class="dropdown-item" href="{% url 'herring:manage_ports' %}">Manage Ports</a>
       <a class="dropdown-item" href="{% url 'herring:manage_samplers' %}">Manage Samplers</a>
+      <a class="dropdown-item" href="{% url 'herring:manage_gears' %}">Manage Gear Types</a>
+      <a class="dropdown-item" href="{% url 'herring:manage_fishing_areas' %}">Manage Fishing Areas</a>
+      <a class="dropdown-item" href="{% url 'herring:manage_mesh_sizes' %}">Manage Mesh Sizes</a>
+
       <a class="dropdown-item" href="{% url 'herring:manage_herring_users' %}" target="_blank">
         {% trans "HERMAN User Permissions" %}
       </a>

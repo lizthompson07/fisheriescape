@@ -8,11 +8,8 @@ class SampleFilter(django_filters.FilterSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.filters['sampling_protocol'].label = 'Protocol'
-        self.filters['id'].label = 'Sample #'
-        # self.filters['SampleDate'].label = 'Sample collection date'
+        self.filters['id'].label = 'Sample ID'
         self.filters['season'].label = 'Year'
-        self.filters['sampler_ref_number'].label = "Sampler ref. no."
         self.filters['experimental_net_used'].label = "Experimental?"
         self.filters['survey_id__icontains'].label = "Survey identifier (any part)"
 

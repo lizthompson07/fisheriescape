@@ -168,33 +168,38 @@ class Sample(models.Model):
         (2, "fall"),
     )
 
-    type = models.IntegerField(blank=True, null=True, choices=SAMPLE_TYPE_CHOICES)
+    type = models.IntegerField(blank=True, null=True, choices=SAMPLE_TYPE_CHOICES, verbose_name=_("Sample type"))
     sample_date = models.DateTimeField()
-    sampler_ref_number = models.IntegerField(verbose_name="Sampler's reference number / set number", blank=True, null=True)
+    sampler_ref_number = models.IntegerField(verbose_name="field reference number", blank=True, null=True,
+                                             help_text="This might be a sampler's reference number or a set number from a survey")
     sampler = models.ForeignKey(Sampler, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
-    district = models.ForeignKey(District, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
+
     port = models.ForeignKey(shared_models.Port, related_name="herring_samples", on_delete=models.DO_NOTHING, null=True, blank=True)
-    survey_id = models.CharField(max_length=50, null=True, blank=True, verbose_name="survey identifier")
-    latitude_n = models.FloatField(null=True, blank=True, verbose_name="Latitude")
-    longitude_w = models.FloatField(null=True, blank=True, verbose_name="Longitude")
+    survey_id = models.CharField(max_length=50, null=True, blank=True, verbose_name="survey identifier",
+                                 help_text="Usually the mission number of the survey from which the sample came.")
+    latitude_n = models.FloatField(null=True, blank=True, verbose_name="Latitude", help_text="In decimal degrees, e.g., 48.67789")
+    longitude_w = models.FloatField(null=True, blank=True, verbose_name="Longitude", help_text="In decimal degrees, e.g., -64.57819")
     fishing_area = models.ForeignKey(FishingArea, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     gear = models.ForeignKey(Gear, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     experimental_net_used = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
-    vessel_cfvn = models.IntegerField(null=True, blank=True)
+    vessel_cfvn = models.IntegerField(null=True, blank=True, verbose_name=_("vessel CFVN"))
     mesh_size = models.ForeignKey(MeshSize, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
-    catch_weight_lbs = models.FloatField(null=True, blank=True, verbose_name="Catch weight (lbs)")
-    sample_weight_lbs = models.FloatField(null=True, blank=True, verbose_name="Sample weight (lbs)")
-    total_fish_measured = models.IntegerField(null=True, blank=True)
-    total_fish_preserved = models.IntegerField(null=True, blank=True)
+    catch_weight_lbs = models.FloatField(null=True, blank=True, verbose_name="Catch weight (lbs)",
+                                         help_text="Total weight of the catch from which the sample was collected")
+    sample_weight_lbs = models.FloatField(null=True, blank=True, verbose_name="Sample weight (lbs)", help_text="Total weight of the sample collected")
+    total_fish_measured = models.IntegerField(null=True, blank=True, help_text="How many specimens were measured?")
+    total_fish_preserved = models.IntegerField(null=True, blank=True, help_text="How many specimens were collected?")
     remarks = models.TextField(null=True, blank=True)
-    old_id = models.CharField(max_length=100, null=True, blank=True)
-    season = models.IntegerField(null=True, blank=True, verbose_name=_("year"))
-    season_type = models.IntegerField(null=True, blank=True, choices=season_type_choices, editable=False, verbose_name=_("season"))
-    length_frequencies = models.ManyToManyField(to=LengthBin, through='LengthFrequency')
-    lab_processing_complete = models.BooleanField(default=False)
-    otolith_processing_complete = models.BooleanField(default=False)
 
     # not editable
+    district = models.ForeignKey(District, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True, editable=False) # this field should be deleted
+    old_id = models.CharField(max_length=100, null=True, blank=True, editable=False)
+    season = models.IntegerField(null=True, blank=True, verbose_name=_("year"), editable=False)
+    season_type = models.IntegerField(null=True, blank=True, choices=season_type_choices, editable=False, verbose_name=_("season"))
+    length_frequencies = models.ManyToManyField(to=LengthBin, through='LengthFrequency', editable=False)
+    lab_processing_complete = models.BooleanField(default=False, editable=False)
+    otolith_processing_complete = models.BooleanField(default=False, editable=False)
+
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="created_by_samples", editable=False)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="last_modified_by_samples", editable=False)
     creation_date = models.DateTimeField(auto_now_add=True, editable=False)

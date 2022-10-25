@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
 
+from dm_apps.settings import MAPBOX_API_KEY
 from herring.utils import can_read, is_admin, is_crud_user
 
 
@@ -20,6 +21,7 @@ class HerringBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
         context = super().get_context_data(**kwargs)
         context["is_admin"] = is_admin(self.request.user)
         context["is_crud_user"] = is_crud_user(self.request.user)
+        context['mapbox_api_key'] = MAPBOX_API_KEY
         return context
 
 

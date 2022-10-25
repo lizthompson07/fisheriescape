@@ -300,3 +300,7 @@ label.filter {
     -webkit-transform: scale(1.1);
     transform: scale(1.1);
 }
+
+#filter-form{
+    font-size: 10px;
+}

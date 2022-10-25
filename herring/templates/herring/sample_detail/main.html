@@ -4,6 +4,19 @@
 {% load verbose_names %}
 {% load static %}
 
+{% block header %}
+  {{ block.super }}
+
+  <style>
+  /* Set the size of the div element that contains the map */
+  #map {
+      height: 200px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
+
+{% endblock %}
+
 
 {% block subcontent %}
 
@@ -41,12 +54,12 @@
       {% include "herring/sample_detail/_lf.html" %}
     </div>
     <div class="col">
+      {% include "herring/sample_detail/_map.html" %}
       {% include "herring/sample_detail/_qc.html" %}
       {% include "herring/sample_detail/_fish_detail.html" %}
     </div>
   </div>
 
-  </div>
 
   <script type="text/javascript" src="{% static "js/herring/quality_control.js" %}"></script>
 

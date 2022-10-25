@@ -1,8 +1,10 @@
 from django import forms
 from django.core import validators
 from django.forms import modelformset_factory
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 
+from shared_models.models import Port
 from . import models
 from django.utils.safestring import mark_safe
 
@@ -29,59 +31,34 @@ HerringUserFormset = modelformset_factory(
 )
 
 
-class SamplerForm(forms.ModelForm):
-    class Meta:
-        model = models.Sampler
-        fields = "__all__"
-        widgets = {
-            'notes': forms.Textarea(attrs={'rows': '3'}),
-        }
-
-
-SamplerFormset = modelformset_factory(
-    model=models.Sampler,
-    form=SamplerForm,
-    extra=1,
-)
-
-
 class SampleForm(forms.ModelForm):
     do_another = forms.IntegerField(required=False, widget=forms.HiddenInput())
 
     class Meta:
         model = models.Sample
-        exclude = ['old_id', 'season', "tests", "length_frequencies", 'lab_processing_complete', "otolith_processing_complete", 'district']
-        labels = {
-            'vessel_cfvn': "Vessel CFVN",
-        }
-        attr_dict = {"class": "tab", }
-
+        fields = "__all__"
         widgets = {
             'sample_date': forms.DateInput(attrs={'type': 'date', "class": "tab", }),
+            'sampler': forms.Select(attrs=chosen_js),
+            'port': forms.Select(attrs=chosen_js),
+            'fishing_area': forms.Select(attrs=chosen_js),
+            'mesh_size': forms.Select(attrs=chosen_js),
+            'gear': forms.Select(attrs=chosen_js),
 
-
-            # 'creation_date': forms.HiddenInput(),
-            # 'remarks': forms.Textarea(attrs={'rows': '5', "class": "tab", }),
-            # 'created_by': forms.HiddenInput(),
-            # 'last_modified_date': forms.HiddenInput(),
-            # 'last_modified_by': forms.HiddenInput(),
-            # # 'sampling_protocol':forms.HiddenInput(),
-            # 'latitude_n': forms.TextInput(attrs=attr_dict),
-            # 'longitude_w': forms.TextInput(attrs=attr_dict),
-            # # 'vessel_cfvn':forms.TextInput(),
-            # 'sampler_ref_number': forms.TextInput(attrs=attr_dict),
-            # 'sampler': forms.Select(attrs=attr_dict),
-            # 'port': forms.Select(attrs=attr_dict),
-            # 'fishing_area': forms.Select(attrs=attr_dict),
-            # 'gear': forms.Select(attrs=attr_dict),
-            # 'experimental_net_used': forms.Select(attrs=attr_dict),
-            # 'vessel_cfvn': forms.TextInput(attrs=attr_dict),
-            # 'mesh_size': forms.Select(attrs=attr_dict),
-            # 'catch_weight_lbs': forms.NumberInput(attrs=attr_dict),
-            # 'sample_weight_lbs': forms.NumberInput(attrs=attr_dict),
-            # 'total_fish_measured': forms.NumberInput(attrs=attr_dict),
-            # 'total_fish_preserved': forms.NumberInput(attrs=attr_dict),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        help_texts = {
+            "gear": f"You can manage the list of gear types <a href='{reverse_lazy('herring:manage_gears')}'>here</a>",
+            "mesh_size": f"You can manage the list of mesh sizes <a href='{reverse_lazy('herring:manage_mesh_sizes')}'>here</a>",
+            "fishing_area": f"You can manage the list of fishing ares <a href='{reverse_lazy('herring:manage_fishing_areas')}'>here</a>",
+            "sampler": f"You can manage the list of samplers <a href='{reverse_lazy('herring:manage_samplers')}'>here</a>",
+        }
+
+        for key in help_texts:
+            self.fields[key].help_text = help_texts[key]
 
 
 class SampleFishMeasuredForm(forms.ModelForm):
@@ -92,7 +69,6 @@ class SampleFishMeasuredForm(forms.ModelForm):
             # 'district':mark_safe("District (<a href='#' >search</a>)"),
             # 'vessel':mark_safe("Vessel CFVN (<a href='#' >add</a>)"),
         }
-
 
 
 class SampleFishPreservedForm(forms.ModelForm):
@@ -241,3 +217,71 @@ class ReportSearchForm(forms.Form):
         year_choices = [(y["season"], y["season"]) for y in models.Sample.objects.order_by("-season").values('season').distinct()]
 
         self.fields['year'] = forms.ChoiceField(required=True, choices=year_choices)
+
+
+class SamplerForm(forms.ModelForm):
+    class Meta:
+        model = models.Sampler
+        fields = "__all__"
+        widgets = {
+            'notes': forms.Textarea(attrs={'rows': '3'}),
+        }
+
+
+SamplerFormset = modelformset_factory(
+    model=models.Sampler,
+    form=SamplerForm,
+    extra=1,
+)
+
+
+class GearForm(forms.ModelForm):
+    class Meta:
+        model = models.Gear
+        fields = "__all__"
+
+
+GearFormset = modelformset_factory(
+    model=models.Gear,
+    form=GearForm,
+    extra=1,
+)
+
+
+class FishingAreaForm(forms.ModelForm):
+    class Meta:
+        model = models.FishingArea
+        fields = "__all__"
+
+
+FishingAreaFormset = modelformset_factory(
+    model=models.FishingArea,
+    form=FishingAreaForm,
+    extra=1,
+)
+
+
+class MeshSizeForm(forms.ModelForm):
+    class Meta:
+        model = models.MeshSize
+        fields = "__all__"
+
+
+MeshSizeFormset = modelformset_factory(
+    model=models.MeshSize,
+    form=MeshSizeForm,
+    extra=1,
+)
+
+
+class PortForm(forms.ModelForm):
+    class Meta:
+        model = Port
+        fields = "__all__"
+
+
+PortFormset = modelformset_factory(
+    model= Port,
+    form=PortForm,
+    extra=1,
+)

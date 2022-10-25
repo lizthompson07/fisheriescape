@@ -26,29 +26,29 @@
   {% include "herring/base/_nav_left_auth.html" %}
 {% endblock left_auth %}
 
-
-{% block form_field %}
-
-  {% if "latitude_n" in field.name %}
-
-    <div class="row">
-      <div class="col">
-        {% bootstrap_field form.latitude_n %}
-      </div>
-      <div class="col">
-        {% bootstrap_field form.longitude_w %}
-      </div>
-    </div>
-
-
-
-  {% elif "longitude_w" in field.name %}
+{##}
+{#{% block form_field %}#}
+{##}
+{#  {% if "latitude_n" in field.name %}#}
+{##}
+{#    <div class="row">#}
+{#      <div class="col">#}
+{#        {% bootstrap_field form.latitude_n %}#}
+{#      </div>#}
+{#      <div class="col">#}
+{#        {% bootstrap_field form.longitude_w %}#}
+{#      </div>#}
+{#    </div>#}
+{##}
+{##}
+{##}
+{#  {% elif "longitude_w" in field.name %}#}
     {# do nothing #}
-
-
-  {% else %}
-    {% bootstrap_field field placeholder="" %}
-
-  {% endif %}
-
-{% endblock %}
+{##}
+{##}
+{#  {% else %}#}
+{#    {% bootstrap_field field placeholder="" %}#}
+{##}
+{#  {% endif %}#}
+{##}
+{#{% endblock %}#}
