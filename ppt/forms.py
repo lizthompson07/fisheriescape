@@ -353,6 +353,7 @@ class StaffForm(forms.ModelForm):
         "name",
         "employee_type",
         "is_lead",
+        "is_primary_lead",
         "funding_source",
         "amount",
         "level",
@@ -376,6 +377,7 @@ class StaffForm(forms.ModelForm):
         self.fields["amount"].widget.attrs = {"v-model": "staff.amount", ":disabled": "disableAmountField"}
         self.fields["funding_source"].widget.attrs = {"v-model": "staff.funding_source"}
         self.fields["is_lead"].widget.attrs = {"v-model": "staff.is_lead", "@change": "adjustStaffFields", }
+        self.fields["is_primary_lead"].widget.attrs = {"v-model": "staff.is_primary_lead", "@change": "adjustStaffFields", }
 
         self.fields["employee_type"].widget.attrs = {"v-model": "staff.employee_type", "@change": "adjustStaffFields"}
         self.fields["level"].widget.attrs = {"v-model": "staff.level", ":disabled": "disableLevelField"}
@@ -415,7 +417,7 @@ class OMCostForm(forms.ModelForm):
 
 
 class CapitalCostForm(forms.ModelForm):
-    field_order = ["category", "funding_source", "description", "amount"]
+    field_order = ["category", "funding_source", "description", "amount", "allocated_amount", "allocated_source"]
 
     class Meta:
         model = models.CapitalCost
@@ -424,9 +426,62 @@ class CapitalCostForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["amount"].widget.attrs = {"v-model": "capital_cost.amount"}
+        self.fields["allocated_amount"].widget.attrs = {"v-model": "capital_cost.allocated_amount"}
+        self.fields["allocated_source"].widget.attrs = {"v-model": "capital_cost.allocated_source"}
         self.fields["funding_source"].widget.attrs = {"v-model": "capital_cost.funding_source"}
         self.fields["description"].widget.attrs = {"v-model": "capital_cost.description"}
         self.fields["category"].widget.attrs = {"v-model": "capital_cost.category"}
+        funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
+        funding_source_choices.insert(0, tuple((None, "---")))
+        self.fields["funding_source"].choices = funding_source_choices
+
+
+class SalaryAllocationForm(forms.ModelForm):
+    field_order = ["funding_source", "description", "amount"]
+
+    class Meta:
+        model = models.SalaryAllocation
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["amount"].widget.attrs = {"v-model": "salary_allocation.amount"}
+        self.fields["funding_source"].widget.attrs = {"v-model": "salary_allocation.funding_source"}
+        self.fields["description"].widget.attrs = {"v-model": "salary_allocation.description"}
+        funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
+        funding_source_choices.insert(0, tuple((None, "---")))
+        self.fields["funding_source"].choices = funding_source_choices
+
+
+class OMAllocationForm(forms.ModelForm):
+    field_order = ["funding_source", "description", "amount"]
+
+    class Meta:
+        model = models.OMAllocation
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["amount"].widget.attrs = {"v-model": "om_allocation.amount"}
+        self.fields["funding_source"].widget.attrs = {"v-model": "om_allocation.funding_source"}
+        self.fields["description"].widget.attrs = {"v-model": "om_allocation.description"}
+        funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
+        funding_source_choices.insert(0, tuple((None, "---")))
+        self.fields["funding_source"].choices = funding_source_choices
+
+
+class CapitalAllocationForm(forms.ModelForm):
+    field_order = ["funding_source", "description", "amount"]
+
+    class Meta:
+        model = models.CapitalAllocation
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["amount"].widget.attrs = {"v-model": "capital_allocation.amount"}
+        self.fields["funding_source"].widget.attrs = {"v-model": "capital_allocation.funding_source"}
+        self.fields["description"].widget.attrs = {"v-model": "capital_allocation.description"}
         funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
         self.fields["funding_source"].choices = funding_source_choices

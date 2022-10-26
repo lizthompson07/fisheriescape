@@ -1032,10 +1032,10 @@ def resource_citation_add(request, resource, citation):
     my_resource = models.Resource.objects.get(pk=resource)
 
     if my_resource.citations2.filter(pk=citation).count() > 0:
-        messages.warning(request, "'{}' has already been added as a citation.".format(my_citation.title))
+        messages.warning(request, "'{}' has already been added as a citation.".format(my_citation.tname))
     else:
         my_resource.citations2.add(citation)
-        messages.success(request, "'{}' has been added as a citation.".format(my_citation.title))
+        messages.success(request, "'{}' has been added as a citation.".format(my_citation.tname))
 
     return HttpResponseRedirect(reverse('inventory:resource_citation_filter', kwargs={'resource': resource}))
 
@@ -1045,7 +1045,7 @@ def resource_citation_delete(request, resource, citation):
     my_resource = models.Resource.objects.get(pk=resource)
 
     my_resource.citations2.remove(citation)
-    messages.success(request, "'{}' has been removed.".format(my_citation.title))
+    messages.success(request, "'{}' has been removed.".format(my_citation.tname))
 
     return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': resource}))
 
@@ -1096,7 +1096,6 @@ class CitationCreateView(InventoryLoginRequiredMixin, CreateView):
     def form_valid(self, form):
         self.object = form.save()
         my_resource = models.Resource.objects.get(pk=self.kwargs['resource']).citations2.add(self.object.id)
-        messages.success(self.request, "'{}' has been added as a citation.".format(self.object.title))
         return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': self.kwargs['resource']}))
 
 
@@ -1104,7 +1103,7 @@ class CitationCreateView(InventoryLoginRequiredMixin, CreateView):
 def citation_delete(request, resource, citation):
     my_citation = shared_models.Citation.objects.get(pk=citation)
     my_citation.delete()
-    messages.success(request, "'{}' has been removed from the database.".format(my_citation.title))
+    messages.success(request, "'{}' has been removed from the database.".format(my_citation.tname))
     return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': resource}))
 
 

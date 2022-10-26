@@ -244,7 +244,7 @@ def get_funding_sources(all=False):
     return [(fs.id, str(fs)) for fs in models.FundingSource.objects.all()]
 
 
-def get_user_fte_breakdown(user, fiscal_year_id, staff_instance_qs=None, fiscal_year=None):
+def get_user_fte_breakdown(user, fiscal_year_id, staff_instance_qs=None, fiscal_year=None, filtered_si_qs=None):
     if staff_instance_qs:
         staff_instances = staff_instance_qs
     else:
@@ -287,13 +287,29 @@ def get_user_fte_breakdown(user, fiscal_year_id, staff_instance_qs=None, fiscal_
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
     my_dict['submitted_unapproved'] = nz(staff_instances.filter(
-        project_year__status__in=[2, 3]
+        project_year__status__in=[2, 3, 6]
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
     my_dict['approved'] = nz(staff_instances.filter(
         project_year__status=4
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
+    if filtered_si_qs:
+        my_dict['filtered_draft'] = nz(filtered_si_qs.filter(
+            project_year__status=1
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
+
+        my_dict['filtered_submitted_unapproved'] = nz(filtered_si_qs.filter(
+            project_year__status__in=[2, 3, 6]
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
+
+        my_dict['filtered_approved'] = nz(filtered_si_qs.filter(
+            project_year__status=4
+        ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
+    else:
+        my_dict['filtered_draft'] = None
+        my_dict['filtered_submitted_unapproved'] = None
+        my_dict['filtered_approved'] = None
     return my_dict
 
 
@@ -344,6 +360,9 @@ def financial_project_summary_data(project):
             my_dict["salary"] = 0
             my_dict["om"] = 0
             my_dict["capital"] = 0
+            my_dict["allocated_salary"] = 0
+            my_dict["allocated_om"] = 0
+            my_dict["allocated_capital"] = 0
 
             # first calc for staff
             for staff in models.Staff.objects.filter(funding_source=fs, project_year__project=project):
@@ -364,6 +383,11 @@ def financial_project_summary_data(project):
 
             my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
 
+            # allocated funds:
+            for review in models.Review.objects.filter(project_year__project=project):
+                my_dict["allocated_om"] += review.allocated_budget
+            my_dict["alloated_total"] =  my_dict["om"]
+
             my_list.append(my_dict)
 
     return my_list
@@ -382,9 +406,13 @@ def multiple_financial_project_year_summary_data(project_years):
         my_dict = dict()
         my_dict["type"] = fs.get_funding_source_type_display()
         my_dict["name"] = str(fs)
+        my_dict["py_count"] = 0
         my_dict["salary"] = 0
         my_dict["om"] = 0
         my_dict["capital"] = 0
+        my_dict["allocated_salary"] = 0
+        my_dict["allocated_om"] = 0
+        my_dict["allocated_capital"] = 0
 
         for py in project_years:
             # first calc for staff
@@ -396,6 +424,7 @@ def multiple_financial_project_year_summary_data(project_years):
                     elif staff.employee_type.cost_type == 2:
                         my_dict["om"] += nz(staff.amount, 0)
 
+
             # O&M costs
             for cost in models.OMCost.objects.filter(funding_source=fs, project_year=py):
                 my_dict["om"] += nz(cost.amount, 0)
@@ -405,6 +434,14 @@ def multiple_financial_project_year_summary_data(project_years):
                 my_dict["capital"] += nz(cost.amount, 0)
 
             my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+
+            # allocated funds and count pys if py is part of funding group
+            if fs in py.get_funding_sources():
+                my_dict["py_count"] += 1
+                if hasattr(py, "review"):
+                    if py.review.allocated_budget:
+                        my_dict["allocated_om"] += py.review.allocated_budget
+            my_dict["allocated_total"] = my_dict["allocated_om"]
 
         my_list.append(my_dict)
 
@@ -544,6 +581,7 @@ def get_staff_field_list():
     my_list = [
         'smart_name|{}'.format(_("name")),
         'funding_source',
+        'is_primary_lead',
         'is_lead',
         'employee_type',
         'level',
@@ -552,6 +590,7 @@ def get_staff_field_list():
         # 'overtime_description',
         # 'student_program',
         'amount',
+        'allocated_amount',
     ]
     return my_list
 
@@ -578,6 +617,8 @@ def get_om_field_list():
         'description',
         'funding_source',
         'amount',
+        'allocated_amount',
+
     ]
     return my_list
 
@@ -588,6 +629,17 @@ def get_capital_field_list():
         'description',
         'funding_source',
         'amount',
+        'allocated_amount',
+    ]
+    return my_list
+
+
+def get_allocation_field_list():
+    my_list = [
+        'description',
+        'funding_source',
+        'amount',
+        'distributed_amount',
     ]
     return my_list
 
@@ -1035,22 +1087,27 @@ def get_project_year_queryset(request):
     return qs.distinct()
 
 
-def get_staff_summary(staff_df, summary_type, summary_cols=['summary_col', 'draft', 'submitted_unapproved', 'approved']):
+def get_staff_summary(staff_df, summary_type, summary_cols=None, na_value="---"):
+    # Selects classified FTE week columns and performs a group by with the summary type column.
+    if summary_cols is None:
+        summary_cols = ['draft', 'submitted_unapproved', 'approved'] + [summary_type]
     output_summary = None
     if summary_type in staff_df.columns and not staff_df.empty:
         # sum FTE weeks based on type
         summary_df = staff_df.copy()
-        # split any summary type value into two rows: PC-02, PC-03 becomes two rows: [PC-02], [PC-03]
-        summary_df = summary_df.assign(summary_col=summary_df[summary_type].str.split(', ')).explode(summary_type)
-        # spliting the rows creates a list col, extract values from this:
-        summary_df['summary_col'] = summary_df['summary_col'].apply(', '.join)
         summary_df = summary_df[summary_cols]
-        summary_df = summary_df.groupby('summary_col').sum()
+        summary_df.loc[:, summary_type] = summary_df[summary_type].fillna(value=na_value)
+        summary_df = summary_df.groupby(summary_type).sum()
 
-        # count FTE weeks based on type
-        output_summary = pd.DataFrame(staff_df[summary_type].str.split(', ').explode().value_counts())
+        # count occurences of summary type based off original df
+        output_df = staff_df.copy()
+        output_df = output_df.drop_duplicates(subset=['user', summary_type])
+        output_df.loc[:, summary_type] = output_df[summary_type].fillna(value=na_value)
+        output_summary = pd.DataFrame(output_df[summary_type].value_counts())
 
         output_summary = output_summary.join(summary_df)
         output_summary = output_summary.fillna('')
+        output_summary.rename(columns={summary_type: 'count'}, inplace=True)
+
         output_summary = output_summary.reset_index().to_dict('records')
     return output_summary

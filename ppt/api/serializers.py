@@ -211,6 +211,9 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     om_costs = serializers.SerializerMethodField()
     salary_costs = serializers.SerializerMethodField()
     capital_costs = serializers.SerializerMethodField()
+    om_allocations = serializers.SerializerMethodField()
+    salary_allocations = serializers.SerializerMethodField()
+    capital_allocations = serializers.SerializerMethodField()
     project_codes = serializers.SerializerMethodField()
     project_user_choices = serializers.SerializerMethodField()
     parent_activity_choices = serializers.SerializerMethodField()
@@ -239,6 +242,15 @@ class ProjectYearSerializer(serializers.ModelSerializer):
 
     def get_om_costs(self, instance):
         return instance.om_costs
+    
+    def get_capital_allocations(self, instance):
+        return instance.capital_allocations
+
+    def get_salary_allocations(self, instance):
+        return instance.salary_allocations
+
+    def get_om_allocations(self, instance):
+        return instance.om_allocations
 
     def get_status_class(self, instance):
         return slugify(instance.get_status_display())
@@ -371,7 +383,7 @@ class OMCostSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     funding_source_display = serializers.SerializerMethodField()
-    om_category_display = serializers.SerializerMethodField()
+    category_display = serializers.SerializerMethodField()
     project_year_id = serializers.SerializerMethodField()
     category_type = serializers.SerializerMethodField()
     project_id = serializers.SerializerMethodField()
@@ -382,7 +394,7 @@ class OMCostSerializer(serializers.ModelSerializer):
     def get_funding_source_display(self, instance):
         return str(instance.funding_source)
 
-    def get_om_category_display(self, instance):
+    def get_category_display(self, instance):
         return instance.om_category.tname
 
     def get_project_year_id(self, instance):
@@ -409,6 +421,38 @@ class CapitalCostSerializer(serializers.ModelSerializer):
 
     def get_project_year_id(self, instance):
         return instance.project_year_id
+
+
+class AllocationSerializer(serializers.ModelSerializer):
+    funding_source_display = serializers.SerializerMethodField()
+    project_year_id = serializers.SerializerMethodField()
+    distributed_amount = serializers.SerializerMethodField()
+
+    def get_funding_source_display(self, instance):
+        return str(instance.funding_source)
+
+    def get_project_year_id(self, instance):
+        return instance.project_year_id
+
+    def get_distributed_amount(self, instance):
+        return instance.distributed_amount
+
+class SalaryAllocationSerializer(AllocationSerializer):
+    class Meta:
+        model = models.SalaryAllocation
+        fields = "__all__"
+
+
+class OMAllocationSerializer(AllocationSerializer):
+    class Meta:
+        model = models.OMAllocation
+        fields = "__all__"
+
+
+class CapitalAllocationSerializer(AllocationSerializer):
+    class Meta:
+        model = models.CapitalAllocation
+        fields = "__all__"
 
 
 class ActivitySerializer(serializers.ModelSerializer):

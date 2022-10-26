@@ -8,6 +8,9 @@ router.register(r'project-years', views.ProjectYearViewSet)
 router.register(r'staff', views.StaffViewSet)
 router.register(r'om-costs', views.OMCostViewSet)
 router.register(r'capital-costs', views.CapitalCostViewSet)
+router.register(r'salary-allocations', views.SalaryAllocationViewSet)
+router.register(r'om-allocations', views.OMAllocationViewSet)
+router.register(r'capital-allocations', views.CapitalAllocationViewSet)
 router.register(r'activities', views.ActivityViewSet)
 router.register(r'collaborations', views.CollaborationViewSet)
 router.register(r'status-reports', views.StatusReportViewSet)
@@ -23,6 +26,7 @@ urlpatterns = [
     # functional api views
     path("ppt/user/", views.CurrentUserAPIView.as_view(), name="ppt-current-user"),  # tested
     path("ppt/fte-breakdown/", views.FTEBreakdownAPIView.as_view(), name="ppt-fte-breakdown"),  # tested
+    path("ppt/staffing/", views.StaffingAPIView.as_view(), name="ppt-staffing"),
     path("ppt/financials/", views.FinancialsAPIView.as_view(), name="ppt-financials"),
     path("ppt/get-dates/", views.GetDatesAPIView.as_view(), name="ppt-get-dates"),
 

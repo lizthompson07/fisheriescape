@@ -22,7 +22,7 @@
 
   {% if object.allocated_budget %}
     <p>
-      The amount of budget allocated to this project year is ${{ object.allocated_budget|currency }}.
+      The amount of O&M funding allocated to this project year is ${{ object.allocated_budget|currency }}.
     </p>
   {% endif %}
 
@@ -43,11 +43,9 @@
 
   {% if object.allocated_budget %}
     <p>
-      The amount of budget allocated to this project year is ${{ object.allocated_budget|currency }}.
+      The amount of O&M funding allocated to this project year is ${{ object.allocated_budget|currency }}.
     </p>
   {% endif %}
-
-
 
 {% elif object.approval_status == 0 %}
 
@@ -113,7 +111,7 @@
 
   {% if object.allocated_budget %}
     <p>
-      Le montant du budget alloué à cette année du projet est de {{ object.allocated_budget|currency:True }}.
+      Le montant du exploitation et maintenance alloué à cette année du projet est de {{ object.allocated_budget|currency:True }}.
     </p>
   {% endif %}
 
@@ -130,9 +128,10 @@
     a été recommendé par l'équipe de gestion des sciences!
   </p>
 
+
   {% if object.allocated_budget %}
     <p>
-      Le montant du budget alloué à cette année du projet est de {{ object.allocated_budget|currency:True }}.
+      Le montant du exploitation et maintenance alloué à cette année du projet est de {{ object.allocated_budget|currency:True }}.
     </p>
   {% endif %}
 

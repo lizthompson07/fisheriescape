@@ -217,8 +217,6 @@ class ProjectListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/project_list.html'
     filterset_class = filters.ProjectFilter
     model = models.Project
-    #queryset = models.Project.objects.annotate(
-        #search_term=Concat('id', 'agreement_number', 'name', 'project_description', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -263,14 +261,12 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'ecosystem_type',
             'lake_system',
             'watershed',
-            'management_area',
+            'other_site_info',
             'salmon_life_stage',
             'aquaculture_license_number',
             'water_license_number',
             'hatchery_name',
             'DFO_tenure',
-
-            'project_categorization',
 
             'project_stage',
             'project_type',
@@ -282,18 +278,19 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'project_purpose',
             'category_comments',
 
+            # Place holder for header
             'project_links',
 
             'DFO_link',
             'DFO_program_reference',
             'government_organization',
-            'policy_program_connection',
 
+            # Place holder for header
             'project_contacts',
 
             'DFO_project_authority',
             'DFO_area_chief',
-            'DFO_AAA',
+            'DFO_IAA',
             'DFO_resource_manager',
             'funding_recipient',
             'first_nation',
@@ -305,6 +302,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'partner',
             'partner_contact',
 
+            # Place holder for header
             'costing',
 
             'agreement_database',
@@ -314,6 +312,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'agreement_type',
             'lead_organization',
 
+            # Place holder for header
             'funding_year',
 
             'date_last_modified',
@@ -377,7 +376,8 @@ class ObjectiveListView(SpotAccessRequiredMixin, FilterView):
             'activity_title',
             'species|Species',
             'location',
-            'sample_outcome|Sampling Outcome'
+            'sample_outcome|Sampling Outcome',
+            'report_outcome|Reporting Outcome',
         ]
         return context
 
@@ -400,15 +400,14 @@ class ObjectiveDetailView(SpotAccessRequiredMixin, DetailView):
             'location',
             'sil_requirement',
 
+            'sample_outcome_placeholder',
+
             'expected_results',
             'dfo_report',
 
-            'outcomes_contact',
+            'reporting_outcome_placeholder',
+
             'outcomes_comment',
-            'outcome_barrier',
-            'capacity_building',
-            'key_lesson',
-            'missed_opportunities',
 
             'date_last_modified',
             'last_modified_by',
@@ -476,8 +475,6 @@ class MethodListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/method_list.html'
     filterset_class = filters.MethodFilter
     model = models.Method
-    queryset = models.Method.objects.annotate(
-    search_term = Concat('project', 'knowledge_consideration', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -503,7 +500,6 @@ class MethodDetailView(SpotAccessRequiredMixin, DetailView):
             'planning_method_type',
             'field_work_method_type',
             'sample_processing_method_type',
-            'knowledge_consideration',
 
             'scale_processing_location',
             'otolith_processing_location',
@@ -1470,8 +1466,8 @@ class ProjectCloneView(ProjectUpdateView):
         for dac in old_obj.DFO_area_chief.all():
             new_obj.DFO_area_chief.add(dac)
 
-        for daa in old_obj.DFO_AAA.all():
-            new_obj.DFO_AAA.add(daa)
+        for daa in old_obj.DFO_IAA.all():
+            new_obj.DFO_IAA.add(daa)
 
         for drm in old_obj.DFO_resource_manager.all():
             new_obj.DFO_resource_manager.add(drm)

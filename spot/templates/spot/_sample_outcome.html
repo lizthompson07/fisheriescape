@@ -5,13 +5,13 @@
 
 <div class="">
     <h4>
-        {% trans "Select Sample Outcome:" %}
+        {% trans "Select Monitoring/Sample Outcome:" %}
     </h4>
 </div>
 
 {% if object.sample_outcome.count == 0 %}
     <em>
-        {% trans "No Sample Outcomes have been entered" %}
+        {% trans "No Monitoring/Sample Outcomes have been entered" %}
 
     </em><br>
 {% else %}
@@ -23,6 +23,12 @@
             <th style="width: 120px">
                 {% trans "Was Sampling Outcome Met?" %}
             </th>
+            <th style="width: 120px">
+                {% trans "Outcome Quality" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Outcome Comment" %}
+            </th>
         </tr>
         <tbody>
         {% for obj in object.sample_outcome.all %}
@@ -32,6 +38,12 @@
                 </td>
                 <td>
                     {{ obj.outcome_delivered }}
+                </td>
+                <td>
+                    {{ obj.outcome_quality }}
+                </td>
+                <td>
+                    {{ obj.sample_outcome_comment }}
                 </td>
             </tr>
         {% endfor %}

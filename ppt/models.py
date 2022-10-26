@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
+from django.core.exceptions import ValidationError
 from markdown import markdown
 from textile import textile
 
@@ -367,6 +368,18 @@ class Project(models.Model):
             for item in year.capitalcost_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
                     my_list.append(item.funding_source)
+
+            for item in year.salaryallocation_set.all():
+                if item.funding_source and item.amount and item.amount > 0:
+                    my_list.append(item.funding_source)
+
+            for item in year.omallocation_set.all():
+                if item.funding_source and item.amount and item.amount > 0:
+                    my_list.append(item.funding_source)
+
+            for item in year.capitalallocation_set.all():
+                if item.funding_source and item.amount and item.amount > 0:
+                    my_list.append(item.funding_source)
             return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
 
     @property
@@ -533,6 +546,20 @@ class ProjectYear(models.Model):
         return my_list
 
     @property
+    def allocations(self):
+        om_qry = self.omallocation_set
+        capital_qry = self.capitalallocation_set
+        staff_qry = self.salaryallocation_set
+        my_list = []
+        if om_qry.exists():
+            my_list.extend([c for c in om_qry.all()])
+        if capital_qry.exists():
+            my_list.extend([c for c in capital_qry.all()])
+        if staff_qry.exists():
+            my_list.extend([c for c in staff_qry.all()])
+        return my_list
+
+    @property
     def om_costs(self):
         return nz(self.omcost_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
 
@@ -543,6 +570,18 @@ class ProjectYear(models.Model):
     @property
     def capital_costs(self):
         return nz(self.capitalcost_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
+
+    @property
+    def om_allocations(self):
+        return nz(self.omallocation_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
+
+    @property
+    def salary_allocations(self):
+        return nz(self.salaryallocation_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
+
+    @property
+    def capital_allocations(self):
+        return nz(self.capitalallocation_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
 
     def add_all_om_costs(self):
         for obj in OMCategory.objects.all():
@@ -614,6 +653,18 @@ class ProjectYear(models.Model):
         for item in self.capitalcost_set.all():
             if item.funding_source and item.amount and item.amount > 0:
                 my_list.append(item.funding_source)
+
+        for item in self.salaryallocation_set.all():
+            if item.funding_source and item.amount and item.amount > 0:
+                my_list.append(item.funding_source)
+
+        for item in self.omallocation_set.all():
+            if item.funding_source and item.amount and item.amount > 0:
+                my_list.append(item.funding_source)
+
+        for item in self.capitalallocation_set.all():
+            if item.funding_source and item.amount and item.amount > 0:
+                my_list.append(item.funding_source)
         return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
 
     @property
@@ -667,12 +718,45 @@ class GenericCost(models.Model):
     amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        if not self.amount: self.amount = 0
-
+        if not self.amount:
+            self.amount = 0
         super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
+
+
+class GenericAllocation(GenericCost):
+    # not actually a cost, but uses same fields
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+
+    def __str__(self):
+        return f"{self.funding_source}"
+
+    class Meta:
+        abstract = True
+        ordering = ['funding_source', ]
+
+
+class OMAllocation(GenericAllocation):
+    @property
+    def distributed_amount(self):
+        amt_dict = OMCost.objects.filter(allocated_source=self).aggregate(Sum('allocated_amount'))
+        return amt_dict["allocated_amount__sum"]
+
+
+class CapitalAllocation(GenericAllocation):
+    @property
+    def distributed_amount(self):
+        amt_dict = CapitalCost.objects.filter(allocated_source=self).aggregate(Sum('allocated_amount'))
+        return amt_dict["allocated_amount__sum"]
+
+
+class SalaryAllocation(GenericAllocation):
+    @property
+    def distributed_amount(self):
+        amt_dict = Staff.objects.filter(allocated_source=self).aggregate(Sum('allocated_amount'))
+        return amt_dict["allocated_amount__sum"]
 
 
 class EmployeeType(SimpleLookup):
@@ -695,6 +779,7 @@ class Staff(GenericCost):
     ]
     employee_type = models.ForeignKey(EmployeeType, on_delete=models.DO_NOTHING, verbose_name=_("employee type"))
     is_lead = models.BooleanField(default=False, verbose_name=_("project lead"), choices=((True, _("yes")), (False, _("no"))))
+    is_primary_lead = models.BooleanField(default=False, verbose_name=_("primary project lead"), choices=((True, _("yes")), (False, _("no"))))
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"),
                              related_name="staff_instances2")
     name = models.CharField(max_length=255, verbose_name=_("Person name (leave blank if user is selected)"), blank=True, null=True)
@@ -707,11 +792,21 @@ class Staff(GenericCost):
     role = models.TextField(blank=True, null=True, verbose_name=_("role in the project"))  # CSRF
     expertise = models.TextField(blank=True, null=True, verbose_name=_("key expertise"))  # CSRF
 
+    allocated_amount = models.FloatField(default=0, verbose_name=_("amount allocated (CAD)"), blank=True, null=True)
+    allocated_source = models.ForeignKey(SalaryAllocation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("Allocation Source"))
+
+    def save(self, *args, **kwargs):
+        if not self.allocated_amount:
+            self.allocated_amount = 0
+            self.allocated_source = None
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.smart_name
 
     class Meta:
-        ordering = ['-is_lead', 'employee_type', 'level']
+        ordering = ['-is_primary_lead', '-is_lead', 'employee_type', 'level']
         unique_together = [('project_year', 'user'), ]
 
     @property
@@ -734,6 +829,12 @@ class Staff(GenericCost):
             return self.user.get_full_name() if self.user else self.name
         else:
             return "---"
+
+    def clean(self, *args, **kwargs):
+        if self.is_primary_lead:
+            if Staff.objects.filter(is_primary_lead=True, project_year=self.project_year).count():
+                raise ValidationError("There can only be one primary lead per project year.")
+        super(Staff, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         if self.user:
@@ -769,9 +870,18 @@ class OMCost(GenericCost):
     om_category = models.ForeignKey(OMCategory, on_delete=models.DO_NOTHING, related_name="om_costs", verbose_name=_("category"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
 
+    allocated_amount = models.FloatField(default=0, verbose_name=_("amount allocated (CAD)"), blank=True, null=True)
+    allocated_source = models.ForeignKey(OMAllocation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("Allocation Source"))
     @property
     def category_type(self):
         return self.om_category.get_group_display()
+
+    def save(self, *args, **kwargs):
+        if not self.allocated_amount:
+            self.allocated_amount = 0
+            self.allocated_source = None
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.om_category}"
@@ -790,13 +900,22 @@ class CapitalCost(GenericCost):
     category = models.IntegerField(choices=category_choices, verbose_name=_("category"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
 
+    allocated_amount = models.FloatField(default=0, verbose_name=_("amount allocated (CAD)"), blank=True, null=True)
+    allocated_source = models.ForeignKey(CapitalAllocation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("Allocation Source"))
+
+    def save(self, *args, **kwargs):
+        if not self.allocated_amount:
+            self.allocated_amount = 0
+            self.allocated_source = None
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.display
 
     @property
     def display(self):
         return f"{self.get_category_display()}"
-
 
     class Meta:
         ordering = ['category', ]

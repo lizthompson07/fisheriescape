@@ -183,19 +183,22 @@ class CruiseDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
         track_list = list()
 
         # check for any track files
-        for file in cruise.files.filter(caption__icontains="track"):
-            csv_reader = csv.DictReader(StringIO(file.file.read().decode('utf-8')))
-            for row in csv_reader:
-                latitude = None
-                longitude = None
-                for key in row:
-                    if "lat" in key:
-                        latitude = row[key]
-                    if "lng" in key or "long" in key:
-                        longitude = row[key]
-                if latitude and longitude:
-                    track_list.append([latitude, longitude])
-            file.file.close()
+        try:
+            for file in cruise.files.filter(caption__icontains="track"):
+                csv_reader = csv.DictReader(StringIO(file.file.read().decode('utf-8')))
+                for row in csv_reader:
+                    latitude = None
+                    longitude = None
+                    for key in row:
+                        if "lat" in key:
+                            latitude = row[key]
+                        if "lng" in key or "long" in key:
+                            longitude = row[key]
+                    if latitude and longitude:
+                        track_list.append([latitude, longitude])
+                file.file.close()
+        except:
+            pass
         context["track_list"] = track_list
         return context
 
