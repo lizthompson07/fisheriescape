@@ -504,6 +504,15 @@ def get_py_funding_source_details(project_year, funding_source):
 def multiple_financial_project_year_summary_data(project_years):
     my_list = []
 
+    # select related fields:
+    project_years = project_years.select_related("project", "project__section", "fiscal_year")\
+        .prefetch_related('staff_set__funding_source',
+                          'omcost_set__funding_source',
+                          'capitalcost_set__funding_source',
+                          'salaryallocation_set__funding_source',
+                          'omallocation_set__funding_source',
+                          'capitalallocation_set__funding_source')
+
     fs_list = list()
     # first get funding source list
     for py in project_years:
