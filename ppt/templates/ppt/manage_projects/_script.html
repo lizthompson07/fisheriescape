@@ -1,6 +1,7 @@
 {% load i18n %}
 
 {% include "ppt/manage_projects/components/staff_projects_list.html" %}
+{% include "ppt/manage_projects/components/finance_projects_list.html" %}
 {% include "ppt/manage_projects/components/review_modal.html" %}
 {% include "ppt/project_detail/components/salary_allocation_modal.html" %}
 {% include "ppt/project_detail/components/om_allocation_modal.html" %}
@@ -522,6 +523,18 @@ var app = new Vue({
     },
     toggleShowFilteredProjects(staff) {
       staff.showFilteredProjects = !staff.showFilteredProjects
+      this.$forceUpdate()
+    },
+    toggleShowCapitalProjects(funding_source) {
+      funding_source.showCapitalProjects = !funding_source.showCapitalProjects
+      this.$forceUpdate()
+    },
+    toggleShowOMProjects(funding_source) {
+      funding_source.showOMProjects = !funding_source.showOMProjects
+      this.$forceUpdate()
+    },
+    toggleShowSalaryProjects(funding_source) {
+      funding_source.showSalaryProjects = !funding_source.showSalaryProjects
       this.$forceUpdate()
     },
     generateReports(url, tag) {
