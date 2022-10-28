@@ -3,8 +3,8 @@
 {% load custom_filters %}
 {% load project_filters %}
 {% load static %}
-<!-- template for the modal component -->
-<script type="text/x-template" id="distribution-modal-template">
+
+<script type="text/x-template" id="salary-distribution-modal-template">
 <transition name="modal">
   <div class="modal-mask">
     <div class="modal-wrapper">
@@ -35,30 +35,29 @@
             </div>
             <table class="table table-sm w-75">
               <thead>
-                <th v-if="allocation_type=='om-costs'">Category Type</th>
-                <th v-if="allocation_type!='staff'">Category</th>
-                <th v-if="allocation_type=='staff'">Name</th>
-                <th v-if="allocation_type=='staff'">Level</th>
-                <th v-if="allocation_type=='staff'">Employee Type</th>
+                <th>Category</th>
+                <th>Name</th>
+                <th>Level</th>
+                <th>Employee Type</th>
                 <th>Funding Source</th>
                 <th>Amount Requested</th>
                 <th>Allocation</th>
               </thead>
               <tbody>
                 <tr v-for="c in costs">
-                  <td v-if="allocation_type=='om-costs'">${c.category_type}</td>
-                  <td v-if="allocation_type!='staff'">${c.category_display}</td>
-                  <td v-if="allocation_type=='staff'">${c.smart_name}</td>
-                  <td v-if="allocation_type=='staff'">${c.level_display}</td>
-                  <td v-if="allocation_type=='staff'">${c.employee_type_display}</td>
+                  <template  v-if="c.cost_type_choice == 1">
+                    <td>${c.category_display}</td>
+                    <td>${c.smart_name}</td>
+                    <td>${c.level_display}</td>
+                    <td>${c.employee_type_display}</td>
 
-                  <td>${c.funding_source_display}</td>
-                  <td>${c.amount}</td>
-                  <td v-if="c.allocated_source === null || c.allocated_source === allocation.id">
-                    <input type="number" v-model="c.allocated_amount" @change="updateCost(c)">
-                  </td>
-                  <td v-else>${c.allocated_amount}</td>
-
+                    <td>${c.funding_source_display}</td>
+                    <td>${c.amount}</td>
+                    <td v-if="c.allocated_source === null || c.allocated_source === allocation.id">
+                      <input type="number" v-model="c.allocated_amount" @change="updateCost(c)">
+                    </td>
+                    <td v-else>${c.allocated_amount}</td>
+                  </template >
                 </tr>
               </tbody>
             </table>
@@ -80,8 +79,8 @@
 
 
 <script type="application/javascript">
-Vue.component("distribution-modal", {
-  template: "#distribution-modal-template",
+Vue.component("salary-distribution-modal", {
+  template: "#salary-distribution-modal-template",
   delimiters: ["${", "}"],
   props: {
     allocation: {
@@ -90,10 +89,6 @@ Vue.component("distribution-modal", {
     },
     costs: {
       type: Array,
-      required: true
-    },
-    allocation_type:{
-      type: String,
       required: true
     },
   },
@@ -121,7 +116,7 @@ Vue.component("distribution-modal", {
     },
     updateCost(cost) {
       cost.allocated_source = this.allocation.id;
-      apiService(`/api/ppt/${this.allocation_type}/${cost.id}/`, "PUT", cost).then(data => {
+      apiService(`/api/ppt/staff/${cost.id}/`, "PUT", cost).then(data => {
         cost = data
       })
     },

@@ -443,7 +443,8 @@ def financial_project_summary_data(project):
 
             # allocated funds:
             for review in models.Review.objects.filter(project_year__project=project):
-                my_dict["allocated_om"] += nz(review.allocated_budget, 0)
+                if project.default_funding_source == fs:
+                    my_dict["allocated_om"] += nz(review.allocated_budget, 0)
             my_dict["allocated_total_in_om"] = my_dict["allocated_om"]
 
             my_list.append(my_dict)
@@ -497,7 +498,8 @@ def get_py_funding_source_details(project_year, funding_source):
         py_dict["allocated_salary"] += nz(allocation.amount, 0)
 
     if hasattr(project_year, "review"):
-        py_dict["allocated_om"] += nz(project_year.review.allocated_budget, 0)
+        if project_year.project.default_funding_source == funding_source:
+            py_dict["allocated_om"] += nz(project_year.review.allocated_budget, 0)
 
     return py_dict
 

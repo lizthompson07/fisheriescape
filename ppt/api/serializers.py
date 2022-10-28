@@ -378,6 +378,7 @@ class StaffSerializer(serializers.ModelSerializer):
     funding_source_display = serializers.SerializerMethodField()
     student_program_display = serializers.SerializerMethodField()
     project_year_obj = serializers.SerializerMethodField()
+    cost_type_choice = serializers.SerializerMethodField()
 
     def get_project_year_obj(self, instance):
         return ProjectYearSerializerLITE(instance.project_year).data
@@ -396,6 +397,9 @@ class StaffSerializer(serializers.ModelSerializer):
 
     def get_student_program_display(self, instance):
         return instance.get_student_program_display()
+
+    def get_cost_type_choice(self, instance):
+        return instance.employee_type.cost_type if instance.employee_type else None
 
 
 class OMCostSerializer(serializers.ModelSerializer):
