@@ -39,7 +39,7 @@
           {% trans "Requested Capital" %}
         </th>
         <th class="w150">
-          {% trans "Total" %}
+          {% trans "Total (Converted to  O&M)" %}
         </th>
         <th v-if="showColumnSalary" class="w150">
           {% trans "Allocated Salary (excluding FTE)" %}
@@ -51,7 +51,7 @@
           {% trans "Allocated Capital" %}
         </th>
         <th class="w150">
-          {% trans "Allocated Total" %}
+          {% trans "Allocated Total (Converted to  O&M)" %}
         </th>
       </tr>
       <tbody>
@@ -62,11 +62,11 @@
         <td v-if="showColumnSalary">${fs.salary |currencyFormat|zero2NullMark}</td>
         <td v-if="showColumnOM">${fs.om|currencyFormat|zero2NullMark}</td>
         <td v-if="showColumnCapital">${fs.capital|currencyFormat|zero2NullMark}</td>
-        <td>${fs.total|currencyFormat|zero2NullMark}</td>
+        <td>${fs.total_in_om|currencyFormat|zero2NullMark}</td>
         <td v-if="showColumnSalary">${fs.allocated_salary |currencyFormat|zero2NullMark}</td>
         <td v-if="showColumnOM">${fs.allocated_om|currencyFormat|zero2NullMark}</td>
         <td v-if="showColumnCapital">${fs.allocated_capital|currencyFormat|zero2NullMark}</td>
-        <td>${fs.allocated_total|currencyFormat|zero2NullMark}</td>
+        <td>${fs.allocated_total_in_om|currencyFormat|zero2NullMark}</td>
       </tr>
 
       <tr>
@@ -76,11 +76,11 @@
         <td v-if="showColumnSalary" class="font-weight-bold">${financial_totals.salary |currencyFormat|zero2NullMark}</td>
         <td v-if="showColumnOM" class="font-weight-bold">${financial_totals.om|currencyFormat|zero2NullMark}</td>
         <td v-if="showColumnCapital" class="font-weight-bold">${financial_totals.capital|currencyFormat|zero2NullMark}</td>
-        <td class="font-weight-bold">${financial_totals.total|currencyFormat|zero2NullMark}</td>
+        <td class="font-weight-bold">${financial_totals.total_in_om|currencyFormat|zero2NullMark}</td>
         <td v-if="showColumnSalary" class="font-weight-bold">${financial_totals.allocated_salary |currencyFormat|zero2NullMark}</td>
         <td v-if="showColumnOM" class="font-weight-bold">${financial_totals.allocated_om|currencyFormat|zero2NullMark}</td>
         <td v-if="showColumnCapital" class="font-weight-bold">${financial_totals.allocated_capital|currencyFormat|zero2NullMark}</td>
-        <td class="font-weight-bold">${financial_totals.allocated_total|currencyFormat|zero2NullMark}</td>
+        <td class="font-weight-bold">${financial_totals.allocated_total_in_om|currencyFormat|zero2NullMark}</td>
       </tr>
 
       </tbody>
@@ -152,10 +152,10 @@
         </td>
       </tr>
       <tr>
-        <td class="font-weight-bold">{% trans "Total" %}</td>
-        <td class="font-weight-bold">${fs.total |currencyFormat|zero2NullMark}</td>
-        <td class="font-weight-bold">${fs.allocated_total |currencyFormat|zero2NullMark}</td>
-        <td class="font-weight-bold">${fs.allocated_total - fs.total |currencyFormat|zero2NullMark}</td>
+        <td class="font-weight-bold">{% trans "Total (Converted to O&M)" %}</td>
+        <td class="font-weight-bold">${fs.total_in_om |currencyFormat|zero2NullMark}</td>
+        <td class="font-weight-bold">${fs.allocated_total_in_om |currencyFormat|zero2NullMark}</td>
+        <td class="font-weight-bold">${fs.allocated_total_in_om - fs.total_in_om |currencyFormat|zero2NullMark}</td>
       </tr>
     </table>
   </div>

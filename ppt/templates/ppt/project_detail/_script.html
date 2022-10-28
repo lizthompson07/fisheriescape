@@ -637,14 +637,14 @@ var app = new Vue({
         salary: 0,
         om: 0,
         capital: 0,
-        total: 0,
+        total_in_om: 0,
       }
       if (this.financials) {
         for (var i = 0; i < this.financials.length; i++) {
           myObj.salary += this.financials[i].salary
           myObj.om += this.financials[i].om
           myObj.capital += this.financials[i].capital
-          myObj.total += this.financials[i].total
+          myObj.total_in_om += this.financials[i].total_in_om
         }
       }
       return myObj
@@ -654,14 +654,14 @@ var app = new Vue({
         salary: 0,
         om: 0,
         capital: 0,
-        total: 0,
+        total_in_om: 0,
       }
       if (this.project_financials) {
         for (var i = 0; i < this.project_financials.length; i++) {
           myObj.salary += this.project_financials[i].salary
           myObj.om += this.project_financials[i].om
           myObj.capital += this.project_financials[i].capital
-          myObj.total += this.project_financials[i].total
+          myObj.total_in_om += this.project_financials[i].total_in_om
         }
       }
       return myObj

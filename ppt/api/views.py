@@ -197,7 +197,15 @@ class ProjectViewSet(ModelViewSet):
 
 
 class ProjectYearViewSet(ModelViewSet):
-    queryset = models.ProjectYear.objects.all().order_by("start_date")
+    queryset = models.ProjectYear.objects.all().order_by("start_date")\
+        .select_related("project", "project__section", "fiscal_year","project__functional_group",
+                        "project__default_funding_source", "project__activity_type")\
+        .prefetch_related('staff_set__funding_source',
+                          'omcost_set__funding_source',
+                          'capitalcost_set__funding_source',
+                          'salaryallocation_set__funding_source',
+                          'omallocation_set__funding_source',
+                          'capitalallocation_set__funding_source')
     serializer_class = serializers.ProjectYearSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
     pagination_class = pagination.StandardResultsSetPagination

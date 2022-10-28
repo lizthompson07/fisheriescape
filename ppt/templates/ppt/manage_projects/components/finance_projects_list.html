@@ -8,7 +8,7 @@
 <ul>
   <li v-for="(py, index) in fs.capital_pys">
     <span v-html="py.status_display"></span> &rarr;
-    <span v-html="py.year_name"></span>
+    <span v-html="py.year_display"></span>
     -
     <a v-html="py.title" href="#" @click="goProjectDetail(py)"></a>
     (<span v-html="py.section"></span>) &rarr;
@@ -41,7 +41,7 @@ Vue.component("capital-project-table", {
 <ul>
   <li v-for="(py, index) in fs.om_pys">
     <span v-html="py.status_display"></span> &rarr;
-    <span v-html="py.year_name"></span>
+    <span v-html="py.year_display"></span>
     -
     <a v-html="py.title" href="#" @click="goProjectDetail(py)"></a>
     (<span v-html="py.section"></span>) &rarr;
@@ -76,7 +76,7 @@ Vue.component("om-project-table", {
 <ul>
   <li v-for="(py, index) in fs.salary_pys">
     <span v-html="py.status_display"></span> &rarr;
-    <span v-html="py.year_name"></span>
+    <span v-html="py.year_display"></span>
     -
     <a v-html="py.title" href="#" @click="goProjectDetail(py)"></a>
     (<span v-html="py.section"></span>) &rarr;

@@ -400,7 +400,7 @@ def financial_project_year_summary_data(project_year):
         for cost in project_year.capitalcost_set.filter(funding_source=fs):
             my_dict["capital"] += nz(cost.amount, 0)
 
-        my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+        my_dict["total_in_om"] = models.SALARY_TO_OM_FACTOR * my_dict["salary"] + my_dict["om"] + my_dict["capital"]
 
         my_list.append(my_dict)
 
@@ -439,12 +439,12 @@ def financial_project_summary_data(project):
             for cost in models.CapitalCost.objects.filter(funding_source=fs, project_year__project=project):
                 my_dict["capital"] += nz(cost.amount, 0)
 
-            my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+            my_dict["total_in_om"] = models.SALARY_TO_OM_FACTOR * my_dict["salary"] + my_dict["om"] + my_dict["capital"]
 
             # allocated funds:
             for review in models.Review.objects.filter(project_year__project=project):
                 my_dict["allocated_om"] += nz(review.allocated_budget, 0)
-            my_dict["alloated_total"] = my_dict["om"]
+            my_dict["allocated_total_in_om"] = my_dict["allocated_om"]
 
             my_list.append(my_dict)
 
@@ -462,7 +462,7 @@ def get_py_funding_source_details(project_year, funding_source):
     py_dict["allocated_capital"] = 0
     py_dict["allocated_om"] = 0
     py_dict["allocated_salary"] = 0
-    py_dict["allocated_review"] = 0
+    py_dict["allocated_om_allocations"] = 0
     py_dict["status_display"] = project_year.formatted_status
     py_dict["year_display"] = str(project_year.fiscal_year)
     py_dict["title"] = project_year.project.title
@@ -490,13 +490,14 @@ def get_py_funding_source_details(project_year, funding_source):
         py_dict["allocated_capital"] += nz(allocation.amount, 0)
 
     for allocation in models.OMAllocation.objects.filter(funding_source=funding_source, project_year=project_year):
-        py_dict["allocated_om"] += nz(allocation.amount, 0)
+        # this is what will get used, once the allocated budget field is removed from approvals.
+        py_dict["allocated_om_allocations"] += nz(allocation.amount, 0)
 
     for allocation in models.SalaryAllocation.objects.filter(funding_source=funding_source, project_year=project_year):
         py_dict["allocated_salary"] += nz(allocation.amount, 0)
 
     if hasattr(project_year, "review"):
-        py_dict["allocated_review"] += nz(project_year.review.allocated_budget, 0)
+        py_dict["allocated_om"] += nz(project_year.review.allocated_budget, 0)
 
     return py_dict
 
@@ -553,8 +554,8 @@ def multiple_financial_project_year_summary_data(project_years):
                         if py_financial_dict not in fs_dict["{}_pys".format(financial_category)]:
                             fs_dict["{}_pys".format(financial_category)].append(py_financial_dict)
 
-        fs_dict["total"] = fs_dict["salary"] + fs_dict["om"] + fs_dict["capital"]
-        fs_dict["allocated_total"] = fs_dict["allocated_salary"] + fs_dict["allocated_om"] + fs_dict["allocated_capital"]
+        fs_dict["total_in_om"] = models.SALARY_TO_OM_FACTOR * fs_dict["salary"] + fs_dict["om"] + fs_dict["capital"]
+        fs_dict["allocated_total_in_om"] = models.SALARY_TO_OM_FACTOR * fs_dict["allocated_salary"] + fs_dict["allocated_om"] + fs_dict["allocated_capital"]
 
         my_list.append(fs_dict)
 
