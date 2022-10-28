@@ -31,14 +31,7 @@
 
 
   <div class='btn-group'>
-    {% if object.length_frequencies.count > 0 %}
-      <a class="btn btn-outline-primary" href="#"
-         onclick="return popitup('{% url 'herring:lf_wizard_confirmation' object.id %}','popoutWindow0')">Re-enter Length
-        Frequencies</a>
-    {% else %}
-      <a class="btn btn-outline-primary" href="#"
-         onclick="return popitup('{% url 'herring:lf_wizard_setup' object.id %}','popoutWindow0')">Enter Length Frequencies</a>
-    {% endif %}
+    <a class="btn btn-outline-primary" href="{% url 'herring:lf' object.id %}">Enter Length Frequencies</a>
 
     {% if sample.lab_processing_complete %}
       <a class="btn btn-outline-primary" href="{% url 'herring:lab_sample_confirmation' object.id %}">Enter Lab Measurements</a>

@@ -413,9 +413,23 @@ def move_sample_next(request, sample):
 # Length Frequeny wizard #
 ##########################
 
-class LengthFrquencyWizardConfirmation(HerringCRUD, TemplateView):
-    template_name = 'herring/length_freq_wizard_confirmation.html'
+class LengthFrequencyDataEntryView(HerringCRUD, CommonTemplateView):
+    h1 = "Length Frequency Data Entry"
+    template_name = 'herring/lf.html'
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
 
+    def get_sample(self):
+        return get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
+
+    def get_parent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["sample"] = self.get_sample()
+        return context
 
 class LengthFrquencyWizardSetupFormView(HerringCRUD, FormView):
     template_name = 'herring/length_freq_wizard_setup.html'

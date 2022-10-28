@@ -33,17 +33,12 @@ urlpatterns = [
     path('samples/<int:pk>/detail/', views.SampleDetailView.as_view(), name="sample_detail"),
     path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
     path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
-    path('samples/<int:pk>/edit-fish-<str:type>/', views.SamplePopoutUpdateView.as_view(), name="sample_edit_pop"),
     path('samples/go-to-next/from-sample/<int:sample>', views.move_sample_next, name="move_sample_next"),
 
     # Length Frequency #
     ####################
-    path('samples/<int:sample>/length-frequency-wizard-setup/', views.LengthFrquencyWizardSetupFormView.as_view(), name="lf_wizard_setup"),
-    path('samples/<int:sample>/length-frequency-wizard-confirmation/', views.LengthFrquencyWizardConfirmation.as_view(), name="lf_wizard_confirmation"),
-    path('samples/<int:sample>/from/<str:from_length>cm/to/<str:to_length>cm/on/<str:current_length>/', views.LengthFrquencyWizardFormView.as_view(),
-         name="lf_wizard"),
-    path('samples/<int:sample>/length-frequency-correction-at-<str:current_length>cm/<int:pk>/', views.LengthFrquencyUpdateView.as_view(),
-         name="lf_wizard_correction"),
+    path('samples/<int:sample>/length-frequencies/', views.LengthFrequencyDataEntryView.as_view(), name="lf"),
+
 
     # FISH DETAIL #
     ##############

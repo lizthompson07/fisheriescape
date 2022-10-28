@@ -3,7 +3,7 @@ from rest_framework import permissions
 from ..utils import is_crud_user
 
 
-class eDNACRUDOrReadOnly(permissions.BasePermission):
+class herringCRUDOrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
