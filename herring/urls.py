@@ -39,22 +39,22 @@ urlpatterns = [
     ####################
     path('samples/<int:sample>/length-frequencies/', views.LengthFrequencyDataEntryView.as_view(), name="lf"),
 
-
     # FISH DETAIL #
     ##############
-    path('samples/<int:sample>/fish/<int:pk>/view/', views.FishDetailView.as_view(), name="fish_detail"),
-    path('samples/<int:sample>/fish/new/', views.FishCreateView.as_view(), name="fish_create"),
-    path('samples/<int:sample>/fish/<int:pk>/edit/', views.FishUpdateView.as_view(), name="fish_update"),
-    path('samples/<int:sample>/fish/<int:pk>/delete/', views.FishDeleteView.as_view(), name="fish_delete"),
+    path('fish/<int:pk>/view/', views.FishDetailView.as_view(), name="fish_detail"),
+    path('fish/<int:pk>/edit/', views.FishUpdateView.as_view(), name="fish_update"),
+    path('fish/<int:pk>/delete/', views.FishDeleteView.as_view(), name="fish_delete"),
+
     # Lab
-    path('samples/<int:sample>/lab-sample-confirmation', views.LabSampleConfirmation.as_view(), name="lab_sample_confirmation"),
-    path('samples/<int:sample>/new-lab-sample', views.lab_sample_primer, name="lab_sample_primer"),
-    path('samples/<int:sample>/lab/fish/<int:pk>/', views.LabSampleUpdateView.as_view(), name="lab_sample_form"),
-    path('samples/<int:sample>/fish-board-test/', views.FishboardTestView.as_view(), name="fishboard_test_form"),
-    path('samples/<int:sample>/delete/<int:pk>/', views.delete_fish_detail, name="delete_fish_detail"),
+    path('lab/samples/<int:sample>/fish-board-test/', views.FishboardTestView.as_view(), name="fishboard_test_form"),
+    path('lab/samples/<int:sample>/lab-sample-confirmation', views.LabSampleConfirmation.as_view(), name="lab_sample_confirmation"),
+    path('lab/samples/<int:sample>/new-lab-sample', views.lab_sample_primer, name="lab_sample_primer"),
+    path('lab/fish/<int:pk>/', views.LabSampleUpdateView.as_view(), name="lab_sample_form"),
+    path('lab/fish/v2/<int:pk>/', views.LabSampleUpdateViewV2.as_view(), name="lab_sample_form_v2"),
+    path('lab/delete/<int:pk>/', views.FishDetailHardDeleteView.as_view(), name="delete_fish_detail"),
 
     # Otolith
-    path('samples/<int:sample>/otolith/fish/<int:pk>/', views.OtolithUpdateView.as_view(), name="otolith_form"),
+    path('otolith/fish/<int:pk>/', views.OtolithUpdateView.as_view(), name="otolith_form"),
     # path('samples/<int:sample>/otolith/fish/<int:pk>/', views.OtolithUpdateView.as_view(), name ="otolith_form"),
 
     # SHARED #

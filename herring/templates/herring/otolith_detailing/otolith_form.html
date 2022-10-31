@@ -1,4 +1,4 @@
-{% extends "herring/herring_base.html" %}
+{% extends "herring/base.html" %}
 
 {% load bootstrap4 %}
 {% load verbose_names %}
@@ -27,7 +27,7 @@
 
         <div class="row">
             <div class="col-5">
-                {% include "herring/_lab_sample_metadata.html" %}
+                {% include "herring/lab_detailing/_lab_sample_metadata.html" %}
 
                 <h4>Otolith Detail:</h4>
                 <div class="btn-group ">
@@ -70,7 +70,7 @@
 
             </div>
             <div class="col-5">
-                {% include "herring/_otolith_qc.html" %}
+                {% include "herring/otolith_detailing/_otolith_qc.html" %}
                 <br>
                 <h4>Shortcuts:</h4>
                 <table class="table table-sm table-bordered" style="width: 65%;">
@@ -110,7 +110,7 @@
         </div>
     </div>
 
-    {% include "herring/_otolith_modal.html" %}
+    {% include "herring/otolith_detailing/_otolith_modal.html" %}
 
 
 

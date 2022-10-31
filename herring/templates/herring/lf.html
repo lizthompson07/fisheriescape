@@ -126,7 +126,7 @@
             })
       },
       purgeLFs() {
-        var userInput = confirm("Are you sure you want to overwrite the existing length frequencies?");
+        var userInput = confirm("Are you sure you want to overwrite the existing length frequencies?\n\nWARNING: This will delete all the existing length-frequency data for this sample");
         if (userInput) {
           this.loading = true;
           apiService(`/api/herman/samples/${this.sampleId}/?purge=true`, "POST")

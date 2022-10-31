@@ -23,24 +23,38 @@
   <div class="neighbours float-right">
     <a class="btn btn-sm btn-secondary" href="{% url 'herring:move_sample_next' object.id %}">Move to Next Sample Id</a>
   </div>
-  <br>
-  <div class="btn-group">
+
+
+  <div class="btn-group mb-3">
     <a class="btn btn-warning" href="{% url 'herring:sample_edit' object.id %}">Edit</a>
     <a class="btn btn-danger" href="{% url 'herring:sample_delete' object.id %}">Delete</a>
-  </div>
 
 
-  <div class='btn-group'>
     <a class="btn btn-outline-primary" href="{% url 'herring:lf' object.id %}">Enter Length Frequencies</a>
 
-    {% if sample.lab_processing_complete %}
-      <a class="btn btn-outline-primary" href="{% url 'herring:lab_sample_confirmation' object.id %}">Enter Lab Measurements</a>
-    {% else %}
-      <a class="btn btn-outline-primary" href="{% url 'herring:fishboard_test_form' object.id %}">Enter Lab Measurements</a>
-    {% endif %}
+    <div class="dropdown">
+      <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+        Enter Lab Measurements
+      </a>
+
+      <div class="dropdown-menu">
+        {% if sample.lab_processing_complete %}
+          <a class="dropdown-item" href="{% url 'herring:lab_sample_confirmation' object.id %}?version=1">Old Version</a>
+        {% else %}
+          <a class="dropdown-item" href="{% url 'herring:fishboard_test_form' object.id %}">Old Version</a>
+        {% endif %}
+
+        {% if sample.lab_processing_complete %}
+          <a class="dropdown-item" href="{% url 'herring:lab_sample_confirmation' object.id %}?version=2">New Version</a>
+        {% else %}
+          <a class="dropdown-item" href="{% url 'herring:lab_sample_primer' object.id %}?version=2">New Version</a>
+        {% endif %}
+      </div>
+    </div>
+
+
   </div>
 
-  <br><br>
   <div class="row">
     <div class="col">
       {% include "herring/sample_detail/_detail.html" %}

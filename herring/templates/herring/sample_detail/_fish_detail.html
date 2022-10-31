@@ -25,12 +25,12 @@
         {% for d in object.fish_details.all  %}
         <tr class='clickable-row' data-href='#'>
           <td>
-            <a href="{% url 'herring:fish_detail' object.id d.id %}">
+            <a href="{% url 'herring:fish_detail' d.id %}">
               Fish {{d.fish_number}}
             </a>
           </td>
           <td align="center">
-            <a href="{% url 'herring:lab_sample_form' object.id d.id %}">
+            <a href="{% url 'herring:lab_sample_form' d.id %}">
               {% if d.lab_processed_date%}
               <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
               {% else %}
@@ -40,7 +40,7 @@
           </td>
           <td align="center">
             {% if d.lab_processed_date%}
-              <a href="{% url 'herring:otolith_form' object.id d.id %}">
+              <a href="{% url 'herring:otolith_form' d.id %}">
                 {% if d.otolith_processed_date%}
                 <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
                 {% else %}

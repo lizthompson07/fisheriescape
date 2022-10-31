@@ -18,18 +18,22 @@
     <h5><em>From Sample:</em></h5>
     <table width="100%">
       {% for freq in object.length_frequency_objects.all %}
-        <tr>
-          <td width="15%">{{ freq.length_bin }}&nbsp;</td>
-          <td>
-            <div class="progress">
-              <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                   aria-valuenow="{{ freq.count }}" aria-valuemin="0" aria-valuemax="{{ max_count }}"
-                   style="width: {{ freq.count|divide:max_count|percentage }}">
-                {{ freq.count }}
+        {% if freq.count != 0 %}
+
+          <tr>
+            <td width="15%">{{ freq.length_bin }}&nbsp;</td>
+            <td>
+              <div class="progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                     aria-valuenow="{{ freq.count }}" aria-valuemin="0" aria-valuemax="{{ max_count }}"
+                     style="width: {{ freq.count|divide:max_count|percentage }}">
+                  {{ freq.count }}
+                </div>
               </div>
-            </div>
-          </td>
-        </tr>
+            </td>
+          </tr>
+        {% endif %}
+
       {% endfor %}
       <tr>
         <td><b>TOTAL:</b></td>

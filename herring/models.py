@@ -1,14 +1,12 @@
-import os
-
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.db import models
-from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from shared_models import models as shared_models
+from shared_models.utils import get_metadata_string
 
 # Choices for YesNo
 YESNO_CHOICES = (
@@ -192,7 +190,8 @@ class Sample(models.Model):
     remarks = models.TextField(null=True, blank=True)
 
     # not editable
-    district = models.ForeignKey(District, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True, editable=False) # this field should be deleted
+    district = models.ForeignKey(District, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 editable=False)  # this field should be deleted
     old_id = models.CharField(max_length=100, null=True, blank=True, editable=False)
     season = models.IntegerField(null=True, blank=True, verbose_name=_("year"), editable=False)
     season_type = models.IntegerField(null=True, blank=True, choices=season_type_choices, editable=False, verbose_name=_("season"))
@@ -226,8 +225,8 @@ class Sample(models.Model):
         self.last_modified_date = timezone.now()
 
         # set lab_processing_complete
-        ## first test if there are enough or two many fish...
-        if not self.fish_details.count() == self.total_fish_preserved:
+        ## first test if there are enough or too many fish...
+        if self.fish_details.exists() and not self.fish_details.count() >= self.total_fish_preserved:
             # then there is no chance for being comeplete
             self.lab_processing_complete = False
             self.otolith_processing_complete = False
@@ -329,6 +328,13 @@ class FishDetail(models.Model):
                                         editable=False)
     lab_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="lab_sampler_fish_details",
                                     editable=False)
+
+    @property
+    def metadata(self):
+        return get_metadata_string(self.creation_date, self.created_by, self.last_modified_date, self.last_modified_by)
+
+    def __str__(self):
+        return f"Fish detail {self.id}"
 
     class Meta:
         unique_together = (('sample', 'fish_number'),)
