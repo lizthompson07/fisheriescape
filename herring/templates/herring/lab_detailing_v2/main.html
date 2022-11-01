@@ -1,23 +1,117 @@
 {% extends "herring/base.html" %}
 {% load bootstrap4 %}
 {% load static %}
-{% block title_area %}{% endblock %}
+{% block title_area %}
+  <h1>
+    Detailing of Fish #{{ object.fish_number }}
+  </h1>
+{% endblock %}
+
+{% block header %}
+  {{ block.super }}
+
+  <style>
+
+  {% if not is_last %}
+      body {
+          background-color: wheat;
+      }
+  {% endif %}
+  </style>
+{% endblock %}
 
 
 {% block subcontent %}
 
-  <div class="">
+  <div id="app"
+       @keydown.page-down.prevent="goNext"
+       @keydown.page-up.prevent="goPrev"
+       @keydown.esc.prevent="goBack"
+  >
 
-    <div class="row">
-      <div class="col-2">
-        <h1>
-          Fish #{{ object.fish_number }}
-        </h1>
+    <div v-if="isLoading" class="loading mb-3 mt-3 mt-5">
+      <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+        <span class="sr-only"></span>
+      </div>
+    </div>
+    <div v-else>
+
+      <div class="mb-3">
+        {% if prev_url %}
+          <a ref="prev" href="{{ prev_url }}" class="btn btn-primary">Previous (Page Up)</a>
+        {% else %}
+          <a ref="prev" disabled href="#" class="btn btn-primary disabled">Previous (Page Up)</a>
+        {% endif %}
+        <a ref="next" href="{{ next_url }}" class="btn btn-primary">{% if is_last %}New{% else %}Next{% endif %} (Page Down)</a>
+        <a ref="back" href="{% url 'herring:sample_detail' object.sample.id %}" class="btn btn-secondary">Back (Esc)</a>
+
       </div>
 
+      <div class="row">
+        <div class="col">
+          <table class="table">
+
+            <tbody>
+
+            <tr>
+              <th class="w-25"> Fish unique Id</th>
+              <td> {{ object.id }} </td>
+            </tr>
+            <tr>
+              <th> Sample Id</th>
+              <td> {{ object.sample.id }} </td>
+            </tr>
+            <tr>
+              <th> Collected by</th>
+              <td> {{ object.sample.sampler.first_name }} {{ object.sample.sampler.last_name }} </td>
+            </tr>
+            <tr>
+              <th> Collected on</th>
+              <td> {{ object.sample.sample_date|date:"F d, Y" }} </td>
+            </tr>
+            <tr>
+              <th> Field reference number</th>
+              <td> {{ object.sample.sampler_ref_number }} </td>
+            </tr>
+
+            <tr v-for="field, index in fields">
+              <th class="text-primary">${labels[field]}</th>
+
+              <td v-if="!selectFields.includes(field)">
+                <input @change="update(field)" class="form-control" :ref="`cell_${field}`" v-model="fish[field]">
+              </td>
+              <td v-else>
+                <select class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @change="update(field)">
+                  <option :value="null">-----</option>
+                  <option v-for="c, index in choices[field]" :value="c.value" :key="`choice_${field}_${index}`">${c.text}</option>
+                </select>
+
+
+              </td>
+
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col">
+          <h3>Flags</h3>
+
+          <div v-if="fish.id">
+
+            <div class="lead" v-for="f, index in fish.flags" :key="`flag_${f.id}`">
+              <div v-if="f.is_accepted">
+                <span class="mdi mdi-flag mr-3"></span> ${f.flag_definition_display}
+              </div>
+              <div v-else class="text-danger">
+                <span class="mdi mdi-flag mr-3 text-danger"></span> ${f.flag_definition_display}
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
     </div>
-
-
   </div>
 
 
@@ -26,10 +120,128 @@
 
 
 
-
 {% block body_js %}
-  {{ block.super }}
+  {% include "_vuejs_import.html" %}
+
+  <script type="application/javascript">
+
+  let audio = new Audio("{% static "/sounds/success.wav" %}");
+  let fishId = {{ object.id }};
+
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      fishId,
+      loading: {
+        meta: true,
+        fish: true,
+      },
+      fish: {},
+      labels: {},
+      fields: [
+        "fish_length",
+        "fish_weight",
+        "sex",
+        "maturity",
+        "gonad_weight",
+        "parasite",
+        "remarks",
+      ],
+      choices: {
+        sex: [],
+        maturity: [],
+        parasite: [],
+      }
+    },
+    methods: {
+      goNext() {
+        this.$refs.next.click()
+      },
+      goPrev() {
+        this.$refs.prev.click()
+      },
+      goBack() {
+        this.$refs.back.click()
+      },
+      get() {
+        this.loading.fish = true;
+        apiService(`/api/herman/fish-details/${this.fishId}`, "GET")
+            .then(response => {
+              this.fish = response;
+              this.loading.fish = false
+              this.$nextTick(() => {
+                {#this.$refs.cell_fish_length[0].select()#}
+              })
+            })
+      },
+      update(field) {
+        var data = {};
+        data[field] = this.fish[field]
+        apiService(`/api/herman/fish-details/${this.fishId}/`, "PATCH", data)
+            .then(response => {
+              if (!response.id) {
+                alert(groomJSON(response));
+                this.$refs[`cell_${field}`][0].select()
+              } else {
+                this.fish = response;
+                audio.play();
+                var nextField0 = this.$refs[`cell_${this.fields[this.fields.indexOf(field) + 1]}`]
+                if (nextField0) {
+                  var nextField = nextField0[0]
+                  if (nextField.type === "select-one") nextField.focus()
+                  else nextField.select()
+                }
+              }
 
 
+            })
+      },
+      getMetadata() {
+        apiService(`/api/herman/model-metas/?app_name=herring&model_name=FishDetail`).then(data => {
+          this.labels = data.labels;
+          this.choices.parasite = data.parasite_choices;
+          this.choices.sex = data.sex_choices;
+          this.choices.maturity = data.maturity_choices;
+          this.loading.meta = false;
+        });
+      },
+    },
+    filters: {
+      nz: vueFiltersObject["nz"],
+      yesNo: vueFiltersObject["yesNo"],
+      floatformat: vueFiltersObject["floatformat"],
+    },
+    computed: {
+      isLoading() {
+        for (const loadingKey in this.loading) {
+          if (this.loading[loadingKey]) return true;
+        }
+        return false;
+      },
+      selectFields() {
+        var payload = [];
+        for (const choicesKey in this.choices) {
+          payload.push(choicesKey);
+        }
+        return payload
+      }
+    },
+    created() {
+      this.getMetadata();
+      this.get();
+    },
+    watch: {
+      isLoading(newState, oldState) {
+        if (!newState) {
+          this.$nextTick(() => {
+            this.$refs.cell_fish_length[0].select()
+            speak("ready.")
+          })
+        }
+      },
+    }
+  });
+  </script>
 
 {% endblock %}

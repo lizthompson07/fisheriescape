@@ -1,12 +1,9 @@
 from django import forms
-from django.core import validators
 from django.forms import modelformset_factory
-from django.urls import reverse, reverse_lazy
-from django.utils import timezone
+from django.urls import reverse_lazy
 
 from shared_models.models import Port
 from . import models
-from django.utils.safestring import mark_safe
 
 chosen_js = {"class": "chosen-select-contains"}
 
@@ -280,8 +277,8 @@ class PortForm(forms.ModelForm):
         fields = "__all__"
 
 
-PortFormset = modelformset_factory(
-    model= Port,
-    form=PortForm,
-    extra=1,
-)
+class SpeciesForm(forms.ModelForm):
+    class Meta:
+        model = models.Species
+        fields = "__all__"
+

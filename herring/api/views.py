@@ -8,9 +8,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from shared_models.api.views import SharedModelMetadataAPIView
 from . import serializers
 from .permissions import herringCRUDOrReadOnly
 from .. import models
+from ..utils import make_fish_flags
 
 
 # USER
@@ -33,6 +35,18 @@ class LengthFrequencyViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['sample', ]
 
+
+class FishDetailViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.FishDetailSerializer
+    permission_classes = [herringCRUDOrReadOnly]
+    queryset = models.FishDetail.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['sample', ]
+
+
+    def perform_update(self, serializer):
+        obj = serializer.save()
+        make_fish_flags(obj, self.request.user)
 
 class SampleViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.LengthFrequencySerializer
@@ -67,3 +81,13 @@ class SampleViewSet(viewsets.ModelViewSet):
                 raise ValidationError(f"Sorry, something went wrong: {e}")
 
         raise ValidationError(_("This endpoint cannot be used without a query param"))
+
+
+
+
+class HerringModelMetadataAPIView(SharedModelMetadataAPIView):
+    def get_data(self):
+        data = super().get_data()
+        model = self.get_model()
+
+        return data

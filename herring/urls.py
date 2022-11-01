@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 app_name = 'herring'
@@ -7,23 +8,34 @@ urlpatterns = [
     # path('', views.IndexView.as_view(), name ="index" ),
     path('', views.IndexView.as_view(), name="index"),
 
-    path('settings/users/', views.HerringUserFormsetView.as_view(), name="manage_herring_users"),
-    path('settings/users/<int:pk>/delete/', views.HerringUserHardDeleteView.as_view(), name="delete_herring_user"),
+    path('settings/users/', views.HerringUserFormsetView.as_view(), name="manage_herring_users"),  # tested
+    path('settings/users/<int:pk>/delete/', views.HerringUserHardDeleteView.as_view(), name="delete_herring_user"),  # tested
 
-    path('settings/samplers/', views.SamplerFormsetView.as_view(), name="manage_samplers"),
-    path('settings/sampler/<int:pk>/delete/', views.SamplerHardDeleteView.as_view(), name="delete_sampler"),
+    path('settings/samplers/', views.SamplerFormsetView.as_view(), name="manage_samplers"),  # tested
+    path('settings/sampler/<int:pk>/delete/', views.SamplerHardDeleteView.as_view(), name="delete_sampler"),  # tested
 
-    path('settings/gears/', views.GearFormsetView.as_view(), name="manage_gears"),
-    path('settings/gear/<int:pk>/delete/', views.GearHardDeleteView.as_view(), name="delete_gear"),
+    path('settings/gears/', views.GearFormsetView.as_view(), name="manage_gears"),  # tested
+    path('settings/gear/<int:pk>/delete/', views.GearHardDeleteView.as_view(), name="delete_gear"),  # tested
 
-    path('settings/fishing-areas/', views.FishingAreaFormsetView.as_view(), name="manage_fishing_areas"),
-    path('settings/fishing-area/<int:pk>/delete/', views.FishingAreaHardDeleteView.as_view(), name="delete_fishing_area"),
+    path('settings/fishing-areas/', views.FishingAreaFormsetView.as_view(), name="manage_fishing_areas"),  # tested
+    path('settings/fishing-area/<int:pk>/delete/', views.FishingAreaHardDeleteView.as_view(), name="delete_fishing_area"),  # tested
 
-    path('settings/mesh-sizes/', views.MeshSizeFormsetView.as_view(), name="manage_mesh_sizes"),
-    path('settings/mesh-size/<int:pk>/delete/', views.MeshSizeHardDeleteView.as_view(), name="delete_mesh_size"),
+    path('settings/mesh-sizes/', views.MeshSizeFormsetView.as_view(), name="manage_mesh_sizes"),  # tested
+    path('settings/mesh-size/<int:pk>/delete/', views.MeshSizeHardDeleteView.as_view(), name="delete_mesh_size"),  # tested
 
-    path('settings/ports/', views.PortFormsetView.as_view(), name="manage_ports"),
-    path('settings/port/<int:pk>/delete/', views.PortHardDeleteView.as_view(), name="delete_port"),
+    # species
+    path('species/', views.SpeciesListView.as_view(), name="species_list"),  # tested
+    path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),  # tested
+    path('species/edit/<int:pk>/', views.SpeciesUpdateView.as_view(), name="species_edit"),  # tested
+    path('species/delete/<int:pk>/', views.SpeciesDeleteView.as_view(), name="species_delete"),  # tested
+    path('species/view/<int:pk>/', views.SpeciesDetailView.as_view(), name="species_detail"),  # tested
+
+    # port
+    path('ports/', views.PortListView.as_view(), name="port_list"),  # tested
+    path('ports/new/', views.PortCreateView.as_view(), name="port_new"),  # tested
+    path('ports/edit/<int:pk>/', views.PortUpdateView.as_view(), name="port_edit"),  # tested
+    path('ports/delete/<int:pk>/', views.PortDeleteView.as_view(), name="port_delete"),  # tested
+    path('ports/view/<int:pk>/', views.PortDetailView.as_view(), name="port_detail"),  # tested
 
     # SAMPLE #
     ##########

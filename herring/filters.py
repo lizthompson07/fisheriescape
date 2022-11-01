@@ -1,7 +1,18 @@
 import django_filters
 from django import forms
+from django.utils.translation import gettext_lazy
 
 from . import models
+
+
+class SpeciesFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label=gettext_lazy("Search term"), lookup_expr='icontains',
+                                            widget=forms.TextInput())
+
+
+class PortFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label=gettext_lazy("Search term"), lookup_expr='icontains',
+                                            widget=forms.TextInput())
 
 
 class SampleFilter(django_filters.FilterSet):
@@ -17,6 +28,7 @@ class SampleFilter(django_filters.FilterSet):
         model = models.Sample
         fields = {
             'id': ['exact'],
+            'species': ['exact'],
             'season': ['exact'],
             'season_type': ['exact'],
             'sampler_ref_number': ['exact'],

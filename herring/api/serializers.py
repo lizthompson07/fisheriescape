@@ -1,10 +1,6 @@
 from django.contrib.auth.models import User
-from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.utils.translation import gettext as _
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
-from lib.functions.custom_functions import listrify
 from .. import models
 
 
@@ -25,3 +21,20 @@ class SampleSerializer(serializers.ModelSerializer):
         model = models.Sample
         fields = "__all__"
 
+
+class FishDetailFlagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.FishDetailFlag
+        fields = "__all__"
+
+    flag_definition_display = serializers.SerializerMethodField()
+
+    def get_flag_definition_display(self, instance):
+        return instance.get_flag_definition_display()
+
+class FishDetailSerializer(serializers.ModelSerializer):
+    flags = FishDetailFlagSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.FishDetail
+        fields = "__all__"

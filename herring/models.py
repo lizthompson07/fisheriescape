@@ -3,9 +3,12 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from herring import flag_definitions
 from shared_models import models as shared_models
+from shared_models.models import MetadataFields, SimpleLookup
 from shared_models.utils import get_metadata_string
 
 # Choices for YesNo
@@ -26,6 +29,58 @@ class HerringUser(models.Model):
 
     class Meta:
         ordering = ["-is_admin", "user__first_name", ]
+
+
+class Species(SimpleLookup):
+    length_type_choices = (
+        (1, "total"),
+        (2, "fork"),
+    )
+    aphia_id = models.IntegerField(verbose_name="WoRMS AphiaID", unique=True)
+    scientific_name = models.CharField(max_length=255, blank=True, null=True)
+    length_type = models.IntegerField(verbose_name="length type", choices=length_type_choices, default=1)
+
+    a_male = models.FloatField(blank=True, null=True, verbose_name=_("length weight A (male)"),
+                               help_text=_("The A regression coefficient in the relationship between male length and weight."), )
+    b_male = models.FloatField(blank=True, null=True, verbose_name=_("length weight B (male)"),
+                               help_text=_("The B regression coefficient in the relationship between male length and weight."), )
+    a_female = models.FloatField(blank=True, null=True, verbose_name=_("length weight A (female)"),
+                                 help_text=_("The A regression coefficient in the relationship between female length and weight."), )
+    b_female = models.FloatField(blank=True, null=True, verbose_name=_("length weight B (female)"),
+                                 help_text=_("The B regression coefficient in the relationship between female length and weight."), )
+    a_unk = models.FloatField(blank=True, null=True, verbose_name=_("length weight A (unspecified)"),
+                              help_text=_("The A regression coefficient in the relationship between length and weight for unspecified sex."), )
+    b_unk = models.FloatField(blank=True, null=True, verbose_name=_("length weight B (unspecified)"),
+                              help_text=_("The A regression coefficient in the relationship between length and weight for unspecified sex."), )
+
+    max_length = models.IntegerField(verbose_name="maximum length", help_text=_("Any observations beyond this mark will prompt a warning"), blank=True,
+                                     null=True)
+    max_weight = models.IntegerField(verbose_name="maximum fish weight", help_text=_("Any observations beyond this mark will prompt a warning"), blank=True,
+                                     null=True)
+    max_gonad_weight = models.IntegerField(verbose_name="maximum gonad weight", help_text=_("Any observations beyond this mark will prompt a warning"),
+                                           blank=True, null=True)
+    max_annulus_count = models.IntegerField(verbose_name="maximum annulus count", help_text=_("Any observations beyond this mark will prompt a warning"),
+                                            blank=True, null=True)
+
+    @property
+    def coef_display(self):
+        if self.a_unk or self.a_male or self.a_female or self.b_unk or self.b_male or self.b_female:
+            payload = "<table class='table table-sm table-bordered'><tr><th></th><th>A</th><th>B</th></tr>"
+            if self.a_unk or self.b_unk:
+                payload += "<tr><th>{}</th><td>{}</td><td>{}</td></tr>".format(_("Unspecified"), self.a_unk, self.b_unk)
+            if self.a_male or self.b_male:
+                payload += "<tr><th>{}</th><td>{}</td><td>{}</td></tr>".format(_("Male"), self.a_male, self.b_male)
+            if self.a_female or self.b_female:
+                payload += "<tr><th>{}</th><td>{}</td><td>{}</td></tr>".format(_("Female"), self.a_female, self.b_female)
+            payload += f"</table>"
+            return mark_safe(payload)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = _("species")
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
 
 class Sampler(models.Model):
@@ -167,6 +222,9 @@ class Sample(models.Model):
     )
 
     type = models.IntegerField(blank=True, null=True, choices=SAMPLE_TYPE_CHOICES, verbose_name=_("Sample type"))
+
+    # TODO this should be made mandatory ASAP !!!
+    species = models.ForeignKey(Species, related_name="samples", on_delete=models.DO_NOTHING, blank=True, null=True)
     sample_date = models.DateTimeField()
     sampler_ref_number = models.IntegerField(verbose_name="field reference number", blank=True, null=True,
                                              help_text="This might be a sampler's reference number or a set number from a survey")
@@ -253,7 +311,7 @@ class Sample(models.Model):
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return "{} {} {}".format(self.get_type_display(), _("Sample"), self.id)
+        return "{} {} {} - {}".format(self.get_type_display(), _("Sample"), self.id, self.species)
 
 
 class Maturity(models.Model):
@@ -289,20 +347,17 @@ def img_file_name(instance, filename):
 class FishDetail(models.Model):
     sample = models.ForeignKey(Sample, related_name="fish_details", on_delete=models.CASCADE)
     fish_number = models.IntegerField()
-    fish_length = models.FloatField(null=True, blank=True)
-    fish_weight = models.FloatField(null=True, blank=True)
+    fish_length = models.FloatField(null=True, blank=True, verbose_name=_("length (mm)"))
+    fish_weight = models.FloatField(null=True, blank=True, verbose_name=_("fish weight (g)"))
     sex = models.ForeignKey(Sex, related_name="fish_details", on_delete=models.DO_NOTHING, null=True, blank=True)
-    maturity = models.ForeignKey(Maturity, related_name="fish_details", on_delete=models.DO_NOTHING, null=True,
-                                 blank=True)
-    gonad_weight = models.FloatField(null=True, blank=True)
+    maturity = models.ForeignKey(Maturity, related_name="fish_details", on_delete=models.DO_NOTHING, null=True, blank=True)
+    gonad_weight = models.FloatField(null=True, blank=True, verbose_name=_("gonad weight (g)"))
     parasite = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
 
-    lab_processed_date = models.DateTimeField(blank=True, null=True)
     annulus_count = models.IntegerField(null=True, blank=True)
     otolith_season = models.ForeignKey(OtolithSeason, related_name="fish_details", on_delete=models.DO_NOTHING,
                                        null=True, blank=True)
     otolith_image_remote_filepath = models.CharField(max_length=2000, blank=True, null=True)
-    otolith_processed_date = models.DateTimeField(blank=True, null=True)
 
     test_204_accepted = models.CharField(max_length=5, null=True, blank=True)  # ligh_length:fish_weight
     test_207_accepted = models.CharField(max_length=5, null=True,
@@ -318,16 +373,26 @@ class FishDetail(models.Model):
     remarks = models.TextField(null=True, blank=True)
 
     # non-editable
+    otolith_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="otolith_sampler_fish_details",
+                                        editable=False)
+    lab_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="lab_sampler_fish_details",
+                                    editable=False)
     creation_date = models.DateTimeField(auto_now_add=True, editable=False)
     last_modified_date = models.DateTimeField(auto_now=True, editable=False)
 
     created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="created_by_details", editable=False)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="last_modified_by_details",
                                          editable=False)
-    otolith_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="otolith_sampler_fish_details",
-                                        editable=False)
-    lab_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="lab_sampler_fish_details",
-                                    editable=False)
+
+    # calc
+    is_empty = models.BooleanField(default=True, editable=False)
+    lab_processed_date = models.DateTimeField(blank=True, null=True)
+    otolith_processed_date = models.DateTimeField(blank=True, null=True)
+
+    @property
+    def get_is_empty(self):
+        return not (
+                self.fish_length or self.fish_weight or self.sex or self.maturity or self.gonad_weight or self.parasite or self.annulus_count or self.otolith_season)
 
     @property
     def metadata(self):
@@ -355,6 +420,8 @@ class FishDetail(models.Model):
                 self.otolith_processed_date = timezone.now()
         else:
             self.otolith_processed_date = None
+
+        self.is_empty = self.get_is_empty
         super().save(*args, **kwargs)
 
 
@@ -371,3 +438,13 @@ class LengthFrequency(models.Model):
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return 'temp_file/{0}'.format(filename)
+
+
+class FishDetailFlag(MetadataFields):
+    fish_detail = models.ForeignKey(FishDetail, on_delete=models.CASCADE, related_name='flags')
+    flag_definition = models.IntegerField(choices=flag_definitions.as_choices())
+    is_accepted = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = (('fish_detail', 'flag_definition'),)
+        ordering = ('fish_detail', 'flag_definition')
