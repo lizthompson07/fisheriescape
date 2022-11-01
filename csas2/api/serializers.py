@@ -51,6 +51,11 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     prioritization_display_short = serializers.SerializerMethodField()
     coordinator = serializers.SerializerMethodField()
     tags_display = serializers.SerializerMethodField()
+    editors_display = serializers.SerializerMethodField()
+
+    def get_editors_display(self, instance):
+        if instance.editors.exists():
+            return listrify(instance.editors.all())
 
     def get_tags_display(self, instance):
         if instance.tags.exists():

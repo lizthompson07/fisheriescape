@@ -135,6 +135,25 @@ var app = new Vue({
       url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
       var win = window.open(url, '_blank');
     },
+    goEmailLeads() {
+      let userInput = true;
+      if (this.count > 50) userInput = confirm(`You are about to generate an  email for a large number of project leads (i.e., ${this.count} project leads). Are you sure you want to continue?`);
+      if (userInput) {
+          let url = 'mailto:?bcc='
+          let contactList = []
+          for (const py of this.projectYears) {
+              if (py.primary_contact_email && !contactList.includes(py.primary_contact_email) ) {
+                contactList.push(py.primary_contact_email)
+              }
+          }
+          for (const email of contactList) {
+              url = url.concat(email, ';')
+          }
+          var win = window.open(url, '_blank');
+
+      }
+
+    },
     goDMADetail(dma) {
       url = `/ppt/dmas/${dma.id}/view/`;
       var win = window.open(url, '_blank');

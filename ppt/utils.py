@@ -629,6 +629,7 @@ def get_review_field_list():
         'approval_level',
         'approver_comment',
         'allocated_budget',
+        'checklist_file',
         'metadata',
     ]
     return my_list

@@ -40,7 +40,7 @@
         <table class="show-bottom-border show-top-border">
           <tr>
             <td class="w20p">{% trans "Period Covered" %}</td>
-            <td class="data">{{ parent.trip.start_date|date:"F d, Y" }} to {{ parent.trip.end_date|date:"F d, Y" }}</td>
+            <td class="data">{{ parent.travellers.first.start_date|date:"F d, Y" }} to {{ parent.travellers.first.end_date|date:"F d, Y" }}</td>
             <td class="w20p">{% trans "Plan Number (Optional)" %}</td>
             <td class="data">{{ parent.trip.plan_number|nz }}</td>
           </tr>

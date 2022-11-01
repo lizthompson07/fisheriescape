@@ -152,7 +152,10 @@ class ProjectSerializer(serializers.ModelSerializer):
     section_display = serializers.SerializerMethodField()
 
     def get_section_display(self, instance):
-        return instance.section.full_name
+        if instance.section:
+            return instance.section.full_name
+        else:
+            return ""
 
     def get_functional_group(self, instance):
         if instance.functional_group:
@@ -215,6 +218,7 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     review_score_fraction = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
+    primary_contact_email = serializers.SerializerMethodField()
     om_costs = serializers.SerializerMethodField()
     salary_costs = serializers.SerializerMethodField()
     capital_costs = serializers.SerializerMethodField()
@@ -258,6 +262,13 @@ class ProjectYearSerializer(serializers.ModelSerializer):
 
     def get_om_allocations(self, instance):
         return instance.om_allocations
+
+    def get_primary_contact_email(self, instance):
+        primary_contact = instance.staff_set.filter(is_primary_lead=True).first()
+        if primary_contact:
+            if primary_contact.user:
+                return primary_contact.user.email
+        return None
 
     def get_status_class(self, instance):
         return slugify(instance.get_status_display())

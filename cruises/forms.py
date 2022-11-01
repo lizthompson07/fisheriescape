@@ -110,3 +110,7 @@ HelpTextFormset = modelformset_factory(
     form=HelpTextForm,
     extra=1,
 )
+
+
+class FileImportForm(forms.Form):
+    temp_file = forms.FileField(label="File to import")
