@@ -712,6 +712,7 @@ class OrganizationListView(UserRequiredMixin, CommonFilterView):
         context["report_url"] = reverse_lazy("maret:org_report") + "?ids=" + str(filtered_ids)
         return context
 
+
 class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     model = ml_models.Organization
     template_name = 'maret/form.html'
@@ -964,9 +965,36 @@ class OrganizationCueCard(PDFTemplateView):
         context["contact_table_cols"] = range(0, num_cols)
         context["contact_table_rows"] = range(0, math.ceil(org.members.count() / num_cols))
 
-        # determine how many rows for the table
-        context["interaction_table_cols"] = range(0, num_cols)
-        context["interaction_table_rows"] = range(0, math.ceil(org.interaction_ext_organization.count() / num_cols))
+        context["interaction_field_list_1"] = [
+            'interaction_type',
+            'is_committee',
+            'committee',
+            'date_of_meeting',
+            'main_topic',
+            'species']
+        context["interaction_field_list_2"] = [
+            'lead_region',
+            'lead_national_sector',
+            'branch',
+            'division',
+            'area_office',
+            'area_office_program'
+        ]
+        context["interaction_field_list_3"] = [
+            'other_dfo_branch',
+            'other_dfo_areas',
+            'other_dfo_regions',
+            'dfo_national_sectors',
+            'dfo_role',
+            'external_organization'
+        ]
+        context["interaction_field_list_4"] = [
+            'external_contact',
+            'dfo_liaison',
+            'other_dfo_participants',
+            'action_items',
+            'comments',
+        ]
 
         context["entry_field_list_1"] = [
             'fiscal_year',

@@ -196,24 +196,43 @@
 </h2>
 
 
-<table>
-    {% for row in interaction_table_rows %}
-        <tr>
-            {% for col in interaction_table_cols %}
-                {% with row|multiply:4|add:col as pos %}
-                    {% get_subset org.interaction_ext_organization.all pos as interaction %}
-                    <td>
-                        <p>
-                            <b>{{ interaction.description }}</b><br>
-                            {{ interaction.committee }}<br>
-                            {{ interaction.date_of_meeting|date:'Y-m-d' }}<br><br>
-                        </p>
-                    </td>
-                {% endwith %}
-            {% endfor %}
-        </tr>
+{% if not org.interaction_ext_organization.count %}
+    <em>
+        {% trans "There are no MarET interactions to display for this organization" %}
+    </em>
+
+{% else %}
+    {% for interaction in org.interaction_ext_organization.all %}
+        <span style="font-size: 18px; font-style: italic">{{ interaction.description }}</span>
+        <table>
+            <td>
+                {% for field in interaction_field_list_1 %}
+                    {% verbose_field_display interaction field %}
+                {% endfor %}
+                <br>
+            </td>
+            <td>
+                {% for field in interaction_field_list_2 %}
+                    {% verbose_field_display interaction field %}
+                {% endfor %}
+                <br>
+            </td>
+            <td>
+                {% for field in interaction_field_list_3 %}
+                    {% verbose_field_display interaction field  %}
+                {% endfor %}
+                <br>
+            </td>
+            <td>
+                {% for field in interaction_field_list_4 %}
+                    {% verbose_field_display interaction field %}
+                {% endfor %}
+                <br>
+            </td>
+        </table>
     {% endfor %}
-</table>
+
+{% endif %}
 
 
 <p>
