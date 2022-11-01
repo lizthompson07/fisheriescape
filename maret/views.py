@@ -965,13 +965,50 @@ class OrganizationCueCard(PDFTemplateView):
         context["contact_table_cols"] = range(0, num_cols)
         context["contact_table_rows"] = range(0, math.ceil(org.members.count() / num_cols))
 
+        context["committee_field_list_1"] = [
+            'main_topic',
+            'species',
+            'lead_region',
+            'lead_national_sector',
+            'branch',
+            'division',
+            'area_office'
+            ]
+        context["committee_field_list_2"] = [
+            'area_office_program',
+            'other_dfo_branch',
+            'other_dfo_areas',
+            'other_dfo_regions',
+            'dfo_national_sectors',
+            'dfo_role',
+            'is_dfo_chair',
+        ]
+        context["committee_field_list_3"] = [
+            'external_chair',
+            'external_contact',
+            'external_organization',
+            'dfo_liaison',
+            'other_dfo_participants',
+            'first_nation_participation',
+            'municipal_participation',
+        ]
+        context["committee_field_list_4"] = [
+            'provincial_participation',
+            'other_federal_participation',
+            'meeting_frequency',
+            'are_tor',
+            'location_of_tor',
+            'main_actions',
+            'comments'
+        ]
         context["interaction_field_list_1"] = [
             'interaction_type',
             'is_committee',
             'committee',
             'date_of_meeting',
             'main_topic',
-            'species']
+            'species'
+        ]
         context["interaction_field_list_2"] = [
             'lead_region',
             'lead_national_sector',
@@ -995,7 +1032,6 @@ class OrganizationCueCard(PDFTemplateView):
             'action_items',
             'comments',
         ]
-
         context["entry_field_list_1"] = [
             'fiscal_year',
             'initial_date',
