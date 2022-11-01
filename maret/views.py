@@ -329,7 +329,7 @@ class PersonReportView(UserRequiredMixin, View):
         if os.path.exists(file_url):
             with open(file_url, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-                response['Content-Disposition'] = f'inline; filename="meret_person_report.xlsx"'
+                response['Content-Disposition'] = f'inline; filename="MarET_person_report.xlsx"'
 
                 return response
         raise Http404
@@ -513,7 +513,7 @@ class InteractionReportView(UserRequiredMixin, View):
         if os.path.exists(file_url):
             with open(file_url, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-                response['Content-Disposition'] = f'inline; filename="meret_interaction_report.xlsx"'
+                response['Content-Disposition'] = f'inline; filename="MarET_interaction_report.xlsx"'
 
                 return response
         raise Http404
@@ -673,7 +673,7 @@ class CommitteeReportView(UserRequiredMixin, View):
         if os.path.exists(file_url):
             with open(file_url, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-                response['Content-Disposition'] = f'inline; filename="meret_committee_report.xlsx"'
+                response['Content-Disposition'] = f'inline; filename="MarET_committee_report.xlsx"'
 
                 return response
         raise Http404
@@ -1009,7 +1009,7 @@ class OrganizationReportView(UserRequiredMixin, View):
         if os.path.exists(file_url):
             with open(file_url, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-                response['Content-Disposition'] = f'inline; filename="meret_organization_report.xlsx"'
+                response['Content-Disposition'] = f'inline; filename="MarET_organization_report.xlsx"'
 
                 return response
         raise Http404
