@@ -183,7 +183,7 @@ class PersonListView(UserRequiredMixin, CommonFilterView):
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
-        filtered_ids = [person.pk for person in context["object_list"]]
+        filtered_ids = [person.pk for person in self.queryset]
         context["report_url"] = reverse_lazy("maret:person_report") + "?ids=" + str(filtered_ids)
         return context
 
@@ -329,7 +329,7 @@ class PersonReportView(UserRequiredMixin, View):
         if os.path.exists(file_url):
             with open(file_url, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-                response['Content-Disposition'] = f'inline; filename="meret_person_report.xlsx"'
+                response['Content-Disposition'] = f'inline; filename="MarET_person_report.xlsx"'
 
                 return response
         raise Http404
@@ -442,6 +442,10 @@ class InteractionUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
                 obj.area_office = committee.area_office
                 obj.area_office_program = committee.area_office_program
                 obj.save()
+
+        if not obj.is_committee and obj.committee is not None:
+            obj.committee = None
+            obj.save()
         return HttpResponseRedirect(reverse_lazy('maret:interaction_detail', kwargs={'pk': obj.id}))
 
 
@@ -509,7 +513,7 @@ class InteractionReportView(UserRequiredMixin, View):
         if os.path.exists(file_url):
             with open(file_url, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-                response['Content-Disposition'] = f'inline; filename="meret_interaction_report.xlsx"'
+                response['Content-Disposition'] = f'inline; filename="MarET_interaction_report.xlsx"'
 
                 return response
         raise Http404
@@ -626,7 +630,7 @@ class CommitteeDeleteView(AuthorRequiredMixin, CommonDeleteView):
     grandparent_crumb = {"title": gettext_lazy("Committees / Working Groups"),
                          "url": reverse_lazy("maret:committee_list")}
     template_name = "maret/confirm_delete.html"
-    delete_protection = False
+    delete_protection = True
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("maret:committee_detail", args=[self.get_object().id])}
@@ -669,7 +673,7 @@ class CommitteeReportView(UserRequiredMixin, View):
         if os.path.exists(file_url):
             with open(file_url, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-                response['Content-Disposition'] = f'inline; filename="meret_committee_report.xlsx"'
+                response['Content-Disposition'] = f'inline; filename="MarET_committee_report.xlsx"'
 
                 return response
         raise Http404
@@ -704,9 +708,10 @@ class OrganizationListView(UserRequiredMixin, CommonFilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        filtered_ids = [org.pk for org in context["object_list"]]
+        filtered_ids = [org.pk for org in self.queryset]
         context["report_url"] = reverse_lazy("maret:org_report") + "?ids=" + str(filtered_ids)
         return context
+
 
 class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
     model = ml_models.Organization
@@ -955,10 +960,78 @@ class OrganizationCueCard(PDFTemplateView):
             'notes',
         ]
 
-        # determine how many rows for the table
-        context["contact_table_rows"] = range(0, math.ceil(org.members.count() / 4))
-        context["one_to_four"] = range(0, 4)
+        # determine how many rows, cols for the table
+        num_cols = 4
+        context["contact_table_cols"] = range(0, num_cols)
+        context["contact_table_rows"] = range(0, math.ceil(org.members.count() / num_cols))
 
+        context["committee_field_list_1"] = [
+            'main_topic',
+            'species',
+            'lead_region',
+            'lead_national_sector',
+            'branch',
+            'division',
+            'area_office'
+            ]
+        context["committee_field_list_2"] = [
+            'area_office_program',
+            'other_dfo_branch',
+            'other_dfo_areas',
+            'other_dfo_regions',
+            'dfo_national_sectors',
+            'dfo_role',
+            'is_dfo_chair',
+        ]
+        context["committee_field_list_3"] = [
+            'external_chair',
+            'external_contact',
+            'external_organization',
+            'dfo_liaison',
+            'other_dfo_participants',
+            'first_nation_participation',
+            'municipal_participation',
+        ]
+        context["committee_field_list_4"] = [
+            'provincial_participation',
+            'other_federal_participation',
+            'meeting_frequency',
+            'are_tor',
+            'location_of_tor',
+            'main_actions',
+            'comments'
+        ]
+        context["interaction_field_list_1"] = [
+            'interaction_type',
+            'is_committee',
+            'committee',
+            'date_of_meeting',
+            'main_topic',
+            'species'
+        ]
+        context["interaction_field_list_2"] = [
+            'lead_region',
+            'lead_national_sector',
+            'branch',
+            'division',
+            'area_office',
+            'area_office_program'
+        ]
+        context["interaction_field_list_3"] = [
+            'other_dfo_branch',
+            'other_dfo_areas',
+            'other_dfo_regions',
+            'dfo_national_sectors',
+            'dfo_role',
+            'external_organization'
+        ]
+        context["interaction_field_list_4"] = [
+            'external_contact',
+            'dfo_liaison',
+            'other_dfo_participants',
+            'action_items',
+            'comments',
+        ]
         context["entry_field_list_1"] = [
             'fiscal_year',
             'initial_date',
@@ -1000,7 +1073,7 @@ class OrganizationReportView(UserRequiredMixin, View):
         if os.path.exists(file_url):
             with open(file_url, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-                response['Content-Disposition'] = f'inline; filename="meret_organization_report.xlsx"'
+                response['Content-Disposition'] = f'inline; filename="MarET_organization_report.xlsx"'
 
                 return response
         raise Http404

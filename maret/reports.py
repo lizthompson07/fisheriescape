@@ -25,12 +25,10 @@ class InteractionReport:
                                  "lead_national_sector", "last_modified_by"]
         self.field_list = [
             'id|Interaction Id',
+            'description',
             'interaction_type',
             'is_committee',
             'committee',
-            'dfo_role',
-            'dfo_liaison',
-            'other_dfo_participants',
             'date_of_meeting',
             'main_topic',
             'species',
@@ -41,13 +39,16 @@ class InteractionReport:
             'area_office',
             'area_office_program',
             'other_dfo_branch',
+            'other_dfo_areas',
             'other_dfo_regions',
             'dfo_national_sectors',
-            'other_dfo_areas',
-            'action_items',
-            'comments',
+            'dfo_role',
             'external_organization',
             'external_contact',
+            'dfo_liaison',
+            'other_dfo_participants',
+            'action_items',
+            'comments',
             'last_modified',
             'last_modified_by',
             ]
@@ -85,27 +86,26 @@ class CommitteeReport:
             'division',
             'area_office',
             'area_office_program',
-            'is_dfo_chair',
-            'external_chair',
-            'dfo_liaison',
             'other_dfo_branch',
+            'other_dfo_areas',
             'other_dfo_regions',
             'dfo_national_sectors',
-            'other_dfo_areas',
             'dfo_role',
+            'is_dfo_chair',
+            'external_chair',
+            'external_contact',
+            'external_organization',
+            'dfo_liaison',
+            'other_dfo_participants',
             'first_nation_participation',
             'municipal_participation',
             'provincial_participation',
             'other_federal_participation',
-            'other_dfo_participants',
             'meeting_frequency',
             'are_tor',
             'location_of_tor',
-            'area_office',
             'main_actions',
             'comments',
-            'external_contact',
-            'external_organization',
             'committee_interactions|Interaction(s)',
             "last_modified",
             "last_modified_by",
@@ -135,9 +135,10 @@ class OrganizationReport:
         self.field_list = [
             'id|Organization Id',
             'name_eng',
-            'former_name',
+            'ext_org__category|Category',
+            'grouping',
             'abbrev',
-            'email',
+            'ext_org__email|Email',
             'address',
             'mailing_address',
             'city',
@@ -145,13 +146,15 @@ class OrganizationReport:
             'province',
             'phone',
             'fax',
-            'grouping',
+            'notes',
+            'ext_org__area|Area(s)',
             'regions',
+            'ext_org__associated_provinces|Associated Provinces',
+            'organization_committees|Committees/Working groups(s)',
+            'former_name',
             'website',
-            'category',
             'organization_members|Member(s)',
             'organization_interactions|Interaction(s)',
-            'organization_committees|Committees/Working groups(s)',
             'date_last_modified',
             'last_modified_by'
             ]
@@ -159,20 +162,23 @@ class OrganizationReport:
         self.sheet_title = "Organizations"
 
     def val(self, obj, field):
+        val = " --- "
         if "date_last_modified" in field:
             val = obj.date_last_modified.strftime("%Y-%m-%d")
         elif "organization_members" in field:
-            val = " --- "
             if obj.members.first():
                 val = ", ".join([member.person.full_name for member in obj.members.all()])
         elif "organization_interactions" in field:
-            val = " --- "
             if obj.interaction_ext_organization.first():
                 val = ", ".join([inter.__str__() for inter in obj.interaction_ext_organization.all()])
         elif "organization_committees" in field:
-            val = " --- "
             if obj.committee_ext_organization.first():
                 val = ", ".join([committee.__str__() for committee in obj.committee_ext_organization.all()])
+        elif "ext_org__" in field:
+            if obj.ext_org.first():
+                # replace this with field.removeprefix once python 3.9 hits.
+                ext_org_field = field[len("ext_org__"):]
+                val = str(get_field_value(obj.ext_org.first(), ext_org_field))
         else:
             val = str(get_field_value(obj, field))
         return val
@@ -188,15 +194,15 @@ class PersonReport:
             "last_name",
             "phone_1",
             "phone_2",
+            "cell",
             "email_1",
             "email_2",
-            "cell",
             "fax",
             "language",
             "notes",
+            "committee|Committees / Working Groups",
             "email_block",
             "ogranizations | Organization Memberships",
-            "committee|Committees / Working Groups",
             "interactions | Interactions",
             "date_last_modified",
             "last_modified_by",
@@ -205,18 +211,16 @@ class PersonReport:
         self.sheet_title = "Contacts"
 
     def val(self, obj, field):
+        val = " --- "
         if "date_last_modified" in field:
             val = obj.date_last_modified.strftime("%Y-%m-%d")
         elif "ogranizations" in field:
-            val = " --- "
             if obj.memberships.first():
                 val = ", ".join([membership.organization.__str__() for membership in obj.memberships.all()])
         elif "interactions" in field:
-            val = " --- "
             if obj.interaction_ext_contact.first():
                 val = ", ".join([interaction.__str__() for interaction in obj.interaction_ext_contact.all()])
         elif "committee" in field:
-            val = " --- "
             if obj.committee_ext_contact.first():
                 val = ", ".join(
                     [committee.__str__() for committee in obj.committee_ext_contact.all()])
