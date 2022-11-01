@@ -135,9 +135,10 @@ class OrganizationReport:
         self.field_list = [
             'id|Organization Id',
             'name_eng',
-            'former_name',
+            'ext_org__category|Category',
+            'grouping',
             'abbrev',
-            'email',
+            'ext_org__email|Email',
             'address',
             'mailing_address',
             'city',
@@ -145,13 +146,15 @@ class OrganizationReport:
             'province',
             'phone',
             'fax',
-            'grouping',
+            'notes',
+            'ext_org__area|Area(s)',
             'regions',
+            'ext_org__associated_provinces|Associated Provinces',
+            'organization_committees|Committees/Working groups(s)',
+            'former_name',
             'website',
-            'category',
             'organization_members|Member(s)',
             'organization_interactions|Interaction(s)',
-            'organization_committees|Committees/Working groups(s)',
             'date_last_modified',
             'last_modified_by'
             ]
@@ -159,20 +162,23 @@ class OrganizationReport:
         self.sheet_title = "Organizations"
 
     def val(self, obj, field):
+        val = " --- "
         if "date_last_modified" in field:
             val = obj.date_last_modified.strftime("%Y-%m-%d")
         elif "organization_members" in field:
-            val = " --- "
             if obj.members.first():
                 val = ", ".join([member.person.full_name for member in obj.members.all()])
         elif "organization_interactions" in field:
-            val = " --- "
             if obj.interaction_ext_organization.first():
                 val = ", ".join([inter.__str__() for inter in obj.interaction_ext_organization.all()])
         elif "organization_committees" in field:
-            val = " --- "
             if obj.committee_ext_organization.first():
                 val = ", ".join([committee.__str__() for committee in obj.committee_ext_organization.all()])
+        elif "ext_org__" in field:
+            if obj.ext_org.first():
+                # replace this with field.removeprefix once python 3.9 hits.
+                ext_org_field = field[len("ext_org__"):]
+                val = str(get_field_value(obj.ext_org.first(), ext_org_field))
         else:
             val = str(get_field_value(obj, field))
         return val
@@ -205,18 +211,16 @@ class PersonReport:
         self.sheet_title = "Contacts"
 
     def val(self, obj, field):
+        val = " --- "
         if "date_last_modified" in field:
             val = obj.date_last_modified.strftime("%Y-%m-%d")
         elif "ogranizations" in field:
-            val = " --- "
             if obj.memberships.first():
                 val = ", ".join([membership.organization.__str__() for membership in obj.memberships.all()])
         elif "interactions" in field:
-            val = " --- "
             if obj.interaction_ext_contact.first():
                 val = ", ".join([interaction.__str__() for interaction in obj.interaction_ext_contact.all()])
         elif "committee" in field:
-            val = " --- "
             if obj.committee_ext_contact.first():
                 val = ", ".join(
                     [committee.__str__() for committee in obj.committee_ext_contact.all()])
