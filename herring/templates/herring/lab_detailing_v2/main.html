@@ -23,10 +23,13 @@
 
 {% block subcontent %}
 
-  <div id="app"
+  <div id="app" v-cloak
        @keydown.page-down.prevent="goNext"
        @keydown.page-up.prevent="goPrev"
+       @keydown.up.prevent="goUp"
+       @keydown.down.prevent="goDown"
        @keydown.esc.prevent="goBack"
+       @keydown.home.prevent="goBack"
   >
 
     <div v-if="isLoading" class="loading mb-3 mt-3 mt-5">
@@ -35,6 +38,10 @@
       </div>
     </div>
     <div v-else>
+
+      <div v-if="fish.lab_processed_date" class="float-right">
+        <img src="{% static "/admin/img/icon-yes.svg" %}" alt="" width="75px">
+      </div>
 
       <div class="mb-3">
         {% if prev_url %}
@@ -48,7 +55,7 @@
       </div>
 
       <div class="row">
-        <div class="col">
+        <div class="col-7">
           <table class="table">
 
             <tbody>
@@ -78,10 +85,10 @@
               <th class="text-primary">${labels[field]}</th>
 
               <td v-if="!selectFields.includes(field)">
-                <input @change="update(field)" class="form-control" :ref="`cell_${field}`" v-model="fish[field]">
+                <input @change="update(field)" class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @focusin="currentField=field">
               </td>
               <td v-else>
-                <select class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @change="update(field)">
+                <select class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @change="update(field)" @focusin="currentField=field">
                   <option :value="null">-----</option>
                   <option v-for="c, index in choices[field]" :value="c.value" :key="`choice_${field}_${index}`">${c.text}</option>
                 </select>
@@ -94,17 +101,31 @@
           </table>
         </div>
         <div class="col">
-          <h3>Flags</h3>
 
-          <div v-if="fish.id">
-
-            <div class="lead" v-for="f, index in fish.flags" :key="`flag_${f.id}`">
-              <div v-if="f.is_accepted">
-                <span class="mdi mdi-flag mr-3"></span> ${f.flag_definition_display}
-              </div>
-              <div v-else class="text-danger">
-                <span class="mdi mdi-flag mr-3 text-danger"></span> ${f.flag_definition_display}
-              </div>
+          <div v-if="fish.id && fish.flags.length">
+            <h3>Flags</h3>
+            <table>
+              <tr v-for="f, index in fish.flags" :key="`flag_${f.id}`">
+                <td class="lead py-3">
+                  <span v-if="f.is_accepted" class="mdi mdi-flag mr-3"></span>
+                  <span v-else class="mdi mdi-flag mr-3 text-danger"></span>
+                </td>
+                <td>
+                  <div v-if="f.is_accepted" class="lead">
+                    ${f.flag_definition_display}
+                  </div>
+                  <div v-else class="text-danger lead">
+                    ${f.flag_definition_display}
+                  </div>
+                  <div class="text-muted">
+                    ${f.custom_message}
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div v-else>
+            <div class="text-center">
             </div>
 
           </div>
@@ -127,12 +148,14 @@
 
   let audio = new Audio("{% static "/sounds/success.wav" %}");
   let fishId = {{ object.id }};
+  let isLast = {{is_last|yesno:"true;false"|lower}};
 
   var app = new Vue({
     el: '#app',
     delimiters: ["${", "}"],
     data: {
       fishId,
+      isLast,
       loading: {
         meta: true,
         fish: true,
@@ -148,6 +171,7 @@
         "parasite",
         "remarks",
       ],
+      currentField: "fish_length",
       choices: {
         sex: [],
         maturity: [],
@@ -164,6 +188,20 @@
       goBack() {
         this.$refs.back.click()
       },
+      goUp() {
+        prevField = this.fields[this.fields.indexOf(this.currentField) - 1]
+        var prevFieldRef = this.$refs[`cell_${prevField}`]
+        if (prevFieldRef) this.focusElement(prevFieldRef[0]);
+      },
+      goDown() {
+        nextField = this.fields[this.fields.indexOf(this.currentField) + 1]
+        var nextFieldRef = this.$refs[`cell_${nextField}`]
+        if (nextFieldRef) this.focusElement(nextFieldRef[0]);
+      },
+      focusElement(el) {
+        if (el.type === "select-one") el.focus()
+        else el.select()
+      },
       get() {
         this.loading.fish = true;
         apiService(`/api/herman/fish-details/${this.fishId}`, "GET")
@@ -173,6 +211,8 @@
               this.$nextTick(() => {
                 {#this.$refs.cell_fish_length[0].select()#}
               })
+              this.dealWithFlags();
+
             })
       },
       update(field) {
@@ -185,18 +225,40 @@
                 this.$refs[`cell_${field}`][0].select()
               } else {
                 this.fish = response;
-                audio.play();
-                var nextField0 = this.$refs[`cell_${this.fields[this.fields.indexOf(field) + 1]}`]
-                if (nextField0) {
-                  var nextField = nextField0[0]
-                  if (nextField.type === "select-one") nextField.focus()
-                  else nextField.select()
+                var contiune = this.dealWithFlags();
+                if (contiune) {
+                  audio.play();
+                  var nextFieldRef = this.$refs[`cell_${this.fields[this.fields.indexOf(field) + 1]}`]
+                  if (nextFieldRef) this.focusElement(nextFieldRef[0]);
+                  // Deal with the flags
                 }
               }
-
-
             })
       },
+      dealWithFlags() {
+        if (this.unacceptedFlags.length) {
+          if (this.unacceptedFlags.length === 1) speak("Warning!" + this.unacceptedFlags[0].flag_definition_display)
+          else speak("Warning!")
+          for (const flag of this.unacceptedFlags) {
+            msg = flag.flag_definition_display + "\n\n" + flag.custom_message + "\n\nAre you confident in your measurements? \n\nPress [y] for YES or [n] for NO."
+            var reply = prompt(msg)
+            if (reply.toLowerCase().includes("y")) {
+              apiService(`/api/herman/flags/${flag.id}/`, "PATCH", {is_accepted: true}).then(response => {
+                this.$set(this.fish.flags, this.fish.flags.indexOf(flag), response);
+              })
+            } else {
+              var currentFieldRef = this.$refs[`cell_${this.currentField}`];
+              if (currentFieldRef) this.focusElement(currentFieldRef[0]);
+              console.log(this.currentField, currentFieldRef)
+              return false
+            }
+          }
+        }
+        return true
+
+
+      },
+
       getMetadata() {
         apiService(`/api/herman/model-metas/?app_name=herring&model_name=FishDetail`).then(data => {
           this.labels = data.labels;
@@ -225,6 +287,15 @@
           payload.push(choicesKey);
         }
         return payload
+      },
+      unacceptedFlags() {
+        var payload = [];
+        if (this.fish.id) {
+          for (const flag of this.fish.flags) {
+            if (!flag.is_accepted) payload.push(flag);
+          }
+        }
+        return payload
       }
     },
     created() {
@@ -236,7 +307,7 @@
         if (!newState) {
           this.$nextTick(() => {
             this.$refs.cell_fish_length[0].select()
-            speak("ready.")
+            if (this.isLast) speak("ready.");
           })
         }
       },

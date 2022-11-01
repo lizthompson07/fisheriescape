@@ -6,6 +6,7 @@ router = DefaultRouter()
 router.register(r'length-frequencies', views.LengthFrequencyViewSet)
 router.register(r'samples', views.SampleViewSet)
 router.register(r'fish-details', views.FishDetailViewSet)
+router.register(r'flags', views.FishDetailFlagViewSet)
 
 urlpatterns = [
     path("herman/", include(router.urls)),  # tested

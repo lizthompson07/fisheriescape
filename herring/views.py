@@ -163,7 +163,8 @@ class SpeciesDetailView(HerringAccess, CommonDetailView):
         'scientific_name',
         'aphia_id',
         'length_type',
-        'coef_display|Display of A+B coefficients',
+        'a',
+        'b',
         'max_length',
         'max_weight',
         'max_gonad_weight',
@@ -654,7 +655,7 @@ class LabSampleUpdateView(HerringCRUD, CommonUpdateView):
 class LabSampleUpdateViewV2(HerringCRUD, CommonDetailView):
     template_name = 'herring/lab_detailing_v2/main.html'
     model = models.FishDetail
-    container_class = "container-fluid"
+    container_class = "container"
     home_url_name = "herring:index"
     grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
 

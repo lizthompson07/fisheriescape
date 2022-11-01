@@ -43,10 +43,16 @@ class FishDetailViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['sample', ]
 
-
     def perform_update(self, serializer):
-        obj = serializer.save()
-        make_fish_flags(obj, self.request.user)
+        obj = serializer.save(lab_sampler=self.request.user)
+        make_fish_flags(obj, obj.lab_sampler)
+
+
+class FishDetailFlagViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.FishDetailFlagSerializer
+    permission_classes = [herringCRUDOrReadOnly]
+    queryset = models.FishDetailFlag.objects.all()
+
 
 class SampleViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.LengthFrequencySerializer
@@ -66,7 +72,7 @@ class SampleViewSet(viewsets.ModelViewSet):
                 min_len = float(request.data.get("min"))
                 max_len = float(request.data.get("max"))
                 bin_int = float(request.data.get("int"))
-                num = int((max_len - min_len) / bin_int)+1
+                num = int((max_len - min_len) / bin_int) + 1
 
                 for i in np.linspace(min_len, max_len, num):
                     # create a new lf
@@ -81,8 +87,6 @@ class SampleViewSet(viewsets.ModelViewSet):
                 raise ValidationError(f"Sorry, something went wrong: {e}")
 
         raise ValidationError(_("This endpoint cannot be used without a query param"))
-
-
 
 
 class HerringModelMetadataAPIView(SharedModelMetadataAPIView):

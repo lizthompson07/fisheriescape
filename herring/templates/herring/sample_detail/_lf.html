@@ -19,9 +19,8 @@
     <table width="100%">
       {% for freq in object.length_frequency_objects.all %}
         {% if freq.count != 0 %}
-
           <tr>
-            <td width="15%">{{ freq.length_bin }}&nbsp;</td>
+            <td class="w-15">{{ freq.length_bin }}&nbsp;</td>
             <td>
               <div class="progress">
                 <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
@@ -59,19 +58,20 @@
 {% else %}
   <table width="100%" style="font-size: small">
     {% for bin in bin_list %}
-      <tr>
-        <td width="15%">{{ bin }} cm&nbsp;</td>
-        <td>
-          <div class="progress">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                 aria-valuenow="bin_dict|lookup:bin" aria-valuemin="0" aria-valuemax="{{ max_fish_detail_count }}"
-                 style="width: {{ bin_dict|lookup:bin|divide:max_fish_detail_count|percentage }}">
-              {{ bin_dict|lookup:bin }}
+      {% if bin_dict|lookup:bin != 0 %}
+        <tr>
+          <td class="w-15">{{ bin }} cm&nbsp;</td>
+          <td>
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                   aria-valuenow="bin_dict|lookup:bin" aria-valuemin="0" aria-valuemax="{{ max_fish_detail_count }}"
+                   style="width: {{ bin_dict|lookup:bin|divide:max_fish_detail_count|percentage }}">
+                {{ bin_dict|lookup:bin }}
+              </div>
             </div>
-          </div>
-        </td>
-
-      </tr>
+          </td>
+        </tr>
+      {% endif %}
     {% endfor %}
     <tr>
       <td><b>TOTAL:</b></td>

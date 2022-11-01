@@ -1,9 +1,9 @@
 from django.contrib import auth
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from herring import flag_definitions
@@ -39,20 +39,10 @@ class Species(SimpleLookup):
     aphia_id = models.IntegerField(verbose_name="WoRMS AphiaID", unique=True)
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     length_type = models.IntegerField(verbose_name="length type", choices=length_type_choices, default=1)
-
-    a_male = models.FloatField(blank=True, null=True, verbose_name=_("length weight A (male)"),
-                               help_text=_("The A regression coefficient in the relationship between male length and weight."), )
-    b_male = models.FloatField(blank=True, null=True, verbose_name=_("length weight B (male)"),
-                               help_text=_("The B regression coefficient in the relationship between male length and weight."), )
-    a_female = models.FloatField(blank=True, null=True, verbose_name=_("length weight A (female)"),
-                                 help_text=_("The A regression coefficient in the relationship between female length and weight."), )
-    b_female = models.FloatField(blank=True, null=True, verbose_name=_("length weight B (female)"),
-                                 help_text=_("The B regression coefficient in the relationship between female length and weight."), )
-    a_unk = models.FloatField(blank=True, null=True, verbose_name=_("length weight A (unspecified)"),
-                              help_text=_("The A regression coefficient in the relationship between length and weight for unspecified sex."), )
-    b_unk = models.FloatField(blank=True, null=True, verbose_name=_("length weight B (unspecified)"),
-                              help_text=_("The A regression coefficient in the relationship between length and weight for unspecified sex."), )
-
+    a = models.FloatField(blank=True, null=True, verbose_name=_("length-weight A"),
+                          help_text=_("The A regression coefficient in the relationship between length and weight for unspecified sex."), )
+    b = models.FloatField(blank=True, null=True, verbose_name=_("length-weight B"),
+                          help_text=_("The A regression coefficient in the relationship between length and weight for unspecified sex."), )
     max_length = models.IntegerField(verbose_name="maximum length", help_text=_("Any observations beyond this mark will prompt a warning"), blank=True,
                                      null=True)
     max_weight = models.IntegerField(verbose_name="maximum fish weight", help_text=_("Any observations beyond this mark will prompt a warning"), blank=True,
@@ -61,19 +51,6 @@ class Species(SimpleLookup):
                                            blank=True, null=True)
     max_annulus_count = models.IntegerField(verbose_name="maximum annulus count", help_text=_("Any observations beyond this mark will prompt a warning"),
                                             blank=True, null=True)
-
-    @property
-    def coef_display(self):
-        if self.a_unk or self.a_male or self.a_female or self.b_unk or self.b_male or self.b_female:
-            payload = "<table class='table table-sm table-bordered'><tr><th></th><th>A</th><th>B</th></tr>"
-            if self.a_unk or self.b_unk:
-                payload += "<tr><th>{}</th><td>{}</td><td>{}</td></tr>".format(_("Unspecified"), self.a_unk, self.b_unk)
-            if self.a_male or self.b_male:
-                payload += "<tr><th>{}</th><td>{}</td><td>{}</td></tr>".format(_("Male"), self.a_male, self.b_male)
-            if self.a_female or self.b_female:
-                payload += "<tr><th>{}</th><td>{}</td><td>{}</td></tr>".format(_("Female"), self.a_female, self.b_female)
-            payload += f"</table>"
-            return mark_safe(payload)
 
     class Meta:
         ordering = ['name']
@@ -347,14 +324,14 @@ def img_file_name(instance, filename):
 class FishDetail(models.Model):
     sample = models.ForeignKey(Sample, related_name="fish_details", on_delete=models.CASCADE)
     fish_number = models.IntegerField()
-    fish_length = models.FloatField(null=True, blank=True, verbose_name=_("length (mm)"))
-    fish_weight = models.FloatField(null=True, blank=True, verbose_name=_("fish weight (g)"))
+    fish_length = models.FloatField(null=True, blank=True, verbose_name=_("length (mm)"), validators=(MinValueValidator(0),))
+    fish_weight = models.FloatField(null=True, blank=True, verbose_name=_("fish weight (g)"), validators=(MinValueValidator(0),))
     sex = models.ForeignKey(Sex, related_name="fish_details", on_delete=models.DO_NOTHING, null=True, blank=True)
     maturity = models.ForeignKey(Maturity, related_name="fish_details", on_delete=models.DO_NOTHING, null=True, blank=True)
-    gonad_weight = models.FloatField(null=True, blank=True, verbose_name=_("gonad weight (g)"))
+    gonad_weight = models.FloatField(null=True, blank=True, verbose_name=_("gonad weight (g)"), validators=(MinValueValidator(0),))
     parasite = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
 
-    annulus_count = models.IntegerField(null=True, blank=True)
+    annulus_count = models.IntegerField(null=True, blank=True, validators=(MinValueValidator(0),))
     otolith_season = models.ForeignKey(OtolithSeason, related_name="fish_details", on_delete=models.DO_NOTHING,
                                        null=True, blank=True)
     otolith_image_remote_filepath = models.CharField(max_length=2000, blank=True, null=True)
@@ -410,13 +387,13 @@ class FishDetail(models.Model):
 
     def save(self, *args, **kwargs):
         self.last_modified_date = timezone.now()
-        if self.fish_length and self.fish_weight and self.sex and self.maturity and self.gonad_weight != None and self.lab_sampler:
-            if self.lab_processed_date == None:
+        if None not in (self.fish_length, self.fish_weight, self.sex, self.maturity, self.gonad_weight, self.lab_sampler):
+            if not self.lab_processed_date:
                 self.lab_processed_date = timezone.now()
         else:
             self.lab_processed_date = None
-        if self.otolith_sampler and self.annulus_count is not None and self.otolith_season:
-            if self.otolith_processed_date == None:
+        if None not in (self.otolith_sampler, self.annulus_count, self.otolith_season):
+            if not self.otolith_processed_date:
                 self.otolith_processed_date = timezone.now()
         else:
             self.otolith_processed_date = None
