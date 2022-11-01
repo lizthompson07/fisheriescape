@@ -50,7 +50,6 @@ var app = new Vue({
     allocation2Distribute: {},
     costs2Fund: [],
     omStaff2Fund: [],
-    type2distribute: "",
     modalAllocation: {},
     modalErrors: null,
     showModal: {
@@ -569,7 +568,7 @@ var app = new Vue({
       this.modalErrors = null
       this.allocation2Distribute = {}
       this.costs2Fund = []
-      this.type2distribute = ""
+      this.omStaff2Fund = []
       if (projectYear) {
         this.$nextTick(() => {
           this.getProjectYear(projectYear.id)

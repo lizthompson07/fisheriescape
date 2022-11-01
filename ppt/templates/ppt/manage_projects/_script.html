@@ -90,7 +90,7 @@ var app = new Vue({
     p2Update: {},
     allocation2Distribute: {},
     costs2Fund: [],
-    type2distribute: "",
+    omStaff2Fund: [],
     allocationProjectYear: {},
     modalAllocation: {},
     modalErrors: null,
@@ -101,7 +101,9 @@ var app = new Vue({
       salary_allocation: false,
       om_allocation: false,
       capital_allocation: false,
-      distribution: false,
+      capital_distribution: false,
+      om_distribution: false,
+      salary_distribution: false,
     },
 
   },
@@ -486,18 +488,35 @@ var app = new Vue({
     },
 
     openDistributionModal(allocation, type) {
-      this.allocation2Distribute = allocation;
-      this.type2distribute = type;
-      let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
-      apiService(endpoint)
-          .then(response => {
-              if (type === "staff") {
-                this.costs2Fund = response;
-              } else {
-                this.costs2Fund = response.results;
-              }
-          })
-      this.showModal['distribution'] = true;
+        this.allocation2Distribute = allocation;
+        if (type === "staff") {
+            let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
+            apiService(endpoint)
+                .then(response => {
+                    this.costs2Fund = response;
+                })
+            this.showModal['salary_distribution'] = true;
+        } else if (type === "capital-costs") {
+            let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
+            apiService(endpoint)
+                .then(response => {
+                    this.costs2Fund = response.results;
+                })
+            this.showModal['capital_distribution'] = true;
+
+        } else if (type === "om-costs") {
+            let omEndpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
+            apiService(omEndpoint)
+                .then(response => {
+                    this.costs2Fund = response.results;
+                })
+            let staffEndpoint = `/api/ppt/staff/?project_year=${allocation.project_year}`;
+            apiService(staffEndpoint)
+                .then(response => {
+                    this.omStaff2Fund = response;
+                })
+            this.showModal['om_distribution'] = true;
+        }
     },
 
     closeModal(updatedProjectYear) {
