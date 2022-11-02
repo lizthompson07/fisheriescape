@@ -9,12 +9,6 @@
   {{ block.super }}
 
   <style>
-
-  {% if not is_last %}
-      body {
-          background-color: wheat;
-      }
-  {% endif %}
   </style>
 {% endblock %}
 
@@ -33,7 +27,7 @@
 
     <div class="mb-3">
       <div v-if="fish.otolith_processed_date" class="float-right">
-        <img src="{% static "/admin/img/icon-yes.svg" %}" alt="" width="75px">
+        <img src="{% static "/admin/img/icon-yes.svg" %}" alt="" width="100px">
       </div>
       <h1>
         Otolith Processing of Fish #{{ object.fish_number }}
@@ -61,7 +55,13 @@
         {% else %}
           <a ref="prev" disabled href="#" class="btn btn-primary disabled">Previous (Page Up)</a>
         {% endif %}
-        <a ref="next" href="{{ next_url }}" class="btn btn-primary">{% if is_last %}New{% else %}Next{% endif %} (Page Down)</a>
+
+        {% if next_url %}
+          <a ref="next" href="{{ next_url }}" class="btn btn-primary">Next (Page Down)</a>
+        {% else %}
+          <a ref="next" disabled href="#" class="btn btn-primary disabled">Next (Page Down)</a>
+        {% endif %}
+
         <a ref="back" href="{% url 'herring:sample_detail' object.sample.id %}" class="btn btn-secondary">Back (Esc)</a>
 
 
@@ -284,11 +284,10 @@
       },
       dealWithFlags() {
         if (this.unacceptedFlags.length) {
-          if (this.unacceptedFlags.length === 1) speak("Warning!" + this.unacceptedFlags[0].flag_definition_display)
           for (const flag of this.unacceptedFlags) {
             msg = flag.flag_definition_display + "\n\n" + flag.custom_message + "\n\nAre you confident in your measurements? \n\nPress [y] for YES or [n] for NO."
             var reply = prompt(msg)
-            if (reply.toLowerCase().includes("y")) {
+            if (reply && reply.toLowerCase().includes("y")) {
               apiService(`/api/herman/flags/${flag.id}/`, "PATCH", {is_accepted: true}).then(response => {
                 this.$set(this.fish.flags, this.fish.flags.indexOf(flag), response);
               })

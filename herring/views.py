@@ -767,7 +767,7 @@ class LabSampleConfirmation(HerringCRUD, CommonTemplateView):
         return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
 
 
-def lab_sample_primer(request, sample, otolith=False):
+def lab_sample_primer(request, sample):
     # figure out what the fish number is
     my_sample = models.Sample.objects.get(pk=sample)
 
@@ -781,6 +781,7 @@ def lab_sample_primer(request, sample, otolith=False):
 
     # create new instance of FishDetail with appropriate primed detail
     my_fishy = models.FishDetail.objects.create(created_by=request.user, sample_id=sample, fish_number=fish_number)
+    otolith = request.GET.get("otolith")
     if otolith:
         return HttpResponseRedirect(reverse('herring:otolith_form', args=[my_fishy.id]))
     else:
@@ -827,13 +828,13 @@ class OtolithUpdateView(HerringCRUD, CommonDetailView):
         mode = self.request.GET.get('mode')
 
         try:
-            next_url = reverse("herring:otolith_form", args=[id_list[current_index + 1]]) + f"?mode={mode}"
+            next_url = reverse("herring:otolith_form", args=[id_list[current_index + 1]])
         except IndexError:
-            next_url = reverse("herring:lab_sample_primer", args=[obj.sample.id]) + f"?version=2&mode={mode}"
+            next_url = None
             is_last = True
 
         if current_index != 0:
-            prev_url = reverse("herring:otolith_form", args=[id_list[current_index - 1]]) + f"?mode={mode}"
+            prev_url = reverse("herring:otolith_form", args=[id_list[current_index - 1]]) + "?otolith=true"
         else:
             prev_url = None
 
