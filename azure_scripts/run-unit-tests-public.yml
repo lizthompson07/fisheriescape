@@ -1,14 +1,14 @@
 pool:
-  vmImage: 'Ubuntu 18.04'
+  vmImage: 'Ubuntu 20.04'
 
 trigger:
   - None
 
 steps:
   - task: UsePythonVersion@0
-    displayName: 'Use Python 3.8'
+    displayName: 'Use Python 3.10'
     inputs:
-      versionSpec: 3.8
+      versionSpec: 3.10
 
   - script: |
       # install pre-requisites
