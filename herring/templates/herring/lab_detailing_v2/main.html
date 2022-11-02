@@ -28,6 +28,7 @@
        @keydown.down.prevent="goDown"
        @keydown.esc.prevent="goBack"
        @keydown.home.prevent="goBack"
+       @keydown.f2.prevent="toggleMode"
   >
 
     <div class="mb-3">
@@ -57,11 +58,15 @@
         <a ref="next" href="{{ next_url }}" class="btn btn-primary">{% if is_last %}New{% else %}Next{% endif %} (Page Down)</a>
         <a ref="back" href="{% url 'herring:sample_detail' object.sample.id %}" class="btn btn-secondary">Back (Esc)</a>
 
+
+        <a v-if="mode!=='fmb'" ref="modeToggle" href="?mode=fmb" class="btn btn-warning">FMB Mode (F2)</a>
+        <a v-else ref="modeToggle" href="?mode=normal" class="btn btn-warning">Normal Mode (F2)</a>
+
       </div>
 
       <div class="row">
         <div class="col-6">
-          <table class="table">
+          <table class="table table-sm">
 
             <tbody>
 
@@ -85,23 +90,41 @@
               <th> Field reference number</th>
               <td> {{ object.sample.sampler_ref_number }} </td>
             </tr>
+            <template v-if="mode==='fmb'">
+              <tr>
+                <th class="text-primary">Fish Measuring Board Input</th>
+                <td>
+                  <input @change="fmbUpdate()" class="form-control" :ref="`cell_fmb_input`" v-model="fmbInput">
+                </td>
+              </tr>
+              <tr v-for="field, index in fields">
+                <th class="text-primary">${labels[field]}</th>
+                <td v-if="!selectFields.includes(field)">
+                  <input @change="update(field)" class="form-control" disabled :ref="`cell_${field}`" v-model="fish[field]" @focusin="currentField=field">
+                </td>
+                <td v-else>
+                  <select class="form-control" disabled :ref="`cell_${field}`" v-model="fish[field]" @change="update(field)" @focusin="currentField=field">
+                    <option :value="null">-----</option>
+                    <option v-for="c, index in choices[field]" :value="c.value" :key="`choice_${field}_${index}`">${c.text}</option>
+                  </select>
+                </td>
+              </tr>
+            </template>
 
-            <tr v-for="field, index in fields">
-              <th class="text-primary">${labels[field]}</th>
-
-              <td v-if="!selectFields.includes(field)">
-                <input @change="update(field)" class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @focusin="currentField=field">
-              </td>
-              <td v-else>
-                <select class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @change="update(field)" @focusin="currentField=field">
-                  <option :value="null">-----</option>
-                  <option v-for="c, index in choices[field]" :value="c.value" :key="`choice_${field}_${index}`">${c.text}</option>
-                </select>
-
-
-              </td>
-
-            </tr>
+            <template v-else>
+              <tr v-for="field, index in fields">
+                <th class="text-primary">${labels[field]}</th>
+                <td v-if="!selectFields.includes(field)">
+                  <input @change="update(field)" class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @focusin="currentField=field">
+                </td>
+                <td v-else>
+                  <select class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @change="update(field)" @focusin="currentField=field">
+                    <option :value="null">-----</option>
+                    <option v-for="c, index in choices[field]" :value="c.value" :key="`choice_${field}_${index}`">${c.text}</option>
+                  </select>
+                </td>
+              </tr>
+            </template>
             </tbody>
           </table>
         </div>
@@ -176,7 +199,8 @@
         sex: [],
         maturity: [],
         parasite: [],
-      }
+      },
+      mode: "normal"
     },
     methods: {
       goNext() {
@@ -184,6 +208,9 @@
       },
       goPrev() {
         this.$refs.prev.click()
+      },
+      toggleMode() {
+        this.$refs.modeToggle.click()
       },
       goBack() {
         this.$refs.back.click()
@@ -209,7 +236,6 @@
               this.fish = response;
               this.loading.fish = false
               this.$nextTick(() => {
-                {#this.$refs.cell_fish_length[0].select()#}
               })
               this.dealWithFlags();
 
@@ -237,32 +263,42 @@
       },
       fmbUpdate() {
         let data = {};
+        let field;
         // this is where we will have to do some very ugly hardcoding...
         // if we are using a special fish measuring board, there will be prefixes that accompany the values being passed
-        if (input.match(/ruler1/gi)) {
-          field = "fish_length";
-          data[field] = this.fmbInput.toLowerCase().replace("ruler1", "").trim();
-        } else if (input.match(/sex/gi)) {
-          data[field] = this.fmbInput.toLowerCase().replace("ruler1", "").trim();
-        } else {
-          data[field] = input;
+        if (this.fmbInput.match(/ruler1/gi)) {
+          data["fish_length"] = this.fmbInput.toLowerCase().replace("ruler1", "").trim();
+        } else if (this.fmbInput.match(/sex/gi)) {
+          let strSex = this.fmbInput.toLowerCase().replace("sex", "").trim();
+          if (strSex === 'male') data["sex"] = 1;
+          else if (strSex === 'female') data["sex"] = 2;
+          else if (strSex === 'h') data["sex"] = 3;
+          else if (strSex === 'u') data["sex"] = 9;
+        } else if (this.fmbInput.match(/parasites/gi)) {
+          let strParasite = this.fmbInput.toLowerCase().replace("parasites", "").trim();
+          if (strParasite === 'y') data["parasite"] = 1;
+          else if (strParasite === 'n') data["parasite"] = 0;
+        } else if (this.fmbInput.match(/gonad/gi) || this.fmbInput.match(/scale_2/gi)) {
+          // 'EXAMPLE:  Enter Gonad wt 50.1 || Scale_2 50.0001 g
+          data["gonad_weight"] = this.fmbInput.toLowerCase().trim().replace("enter gonad wt", "").replace("scale_2", "").replace("g", "");
+        } else if (this.fmbInput.match(/fish wt/gi) || this.fmbInput.match(/scale_1/gi)) {
+          // 'EXAMPLE:  Scale_1 1000.000 g __OR__ Enter Fish wt 1000
+          data["fish_weight"] = this.fmbInput.toLowerCase().trim().replace("enter fish wt", "").replace("scale_1", "").replace("g", "");
+        } else if (this.fmbInput.match(/enter maturity/gi)) {
+          // 'EXAMPLE:  Enter Maturity 1
+          data["maturity"] = this.fmbInput.toLowerCase().trim().replace("enter maturity", "");
         }
 
         apiService(`/api/herman/fish-details/${this.fishId}/`, "PATCH", data)
             .then(response => {
-              if (!response.id) {
-                alert(groomJSON(response));
-                this.$refs[`cell_${field}`][0].select()
-              } else {
+              this.fmbInput = null;
+              if (!response.id) alert(groomJSON(response));
+              else {
                 this.fish = response;
                 var contiune = this.dealWithFlags();
-                if (contiune) {
-                  audio.play();
-                  var nextFieldRef = this.$refs[`cell_${this.fields[this.fields.indexOf(field) + 1]}`]
-                  if (nextFieldRef) this.focusElement(nextFieldRef[0]);
-                  // Deal with the flags
-                }
+                if (contiune) audio.play();
               }
+              this.$refs.cell_fmb_input.select()
             })
       },
       dealWithFlags() {
@@ -279,14 +315,11 @@
             } else {
               var currentFieldRef = this.$refs[`cell_${this.currentField}`];
               if (currentFieldRef) this.focusElement(currentFieldRef[0]);
-              console.log(this.currentField, currentFieldRef)
               return false
             }
           }
         }
         return true
-
-
       },
 
       getMetadata() {
@@ -331,19 +364,18 @@
     created() {
       let uri = window.location.search.substring(1);
       let params = new URLSearchParams(uri);
-      let mode = params.get("mode");
-      console.log(mode)
+      this.mode = params.get("mode");
       this.getMetadata();
       this.get();
 
-      
-      
+
     },
     watch: {
       isLoading(newState, oldState) {
         if (!newState) {
           this.$nextTick(() => {
-            this.$refs.cell_fish_length[0].select()
+            if (this.mode === 'fmb') this.$refs.cell_fmb_input.select();
+            else this.$refs.cell_fish_length[0].select();
             if (this.isLast) speak("ready.");
           })
         }

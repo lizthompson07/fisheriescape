@@ -674,15 +674,16 @@ class LabSampleUpdateViewV2(HerringCRUD, CommonDetailView):
         current_index = id_list.index(obj.id)
 
         is_last = False
+        mode = self.request.GET.get('mode')
 
         try:
-            next_url = reverse("herring:lab_sample_form_v2", args=[id_list[current_index + 1]])
+            next_url = reverse("herring:lab_sample_form_v2", args=[id_list[current_index + 1]]) + f"?mode={mode}"
         except IndexError:
-            next_url = reverse("herring:lab_sample_primer", args=[obj.sample.id]) + "?version=2"
+            next_url = reverse("herring:lab_sample_primer", args=[obj.sample.id]) + f"?version=2&mode={mode}"
             is_last = True
 
         if current_index != 0:
-            prev_url = reverse("herring:lab_sample_form_v2", args=[id_list[current_index - 1]])
+            prev_url = reverse("herring:lab_sample_form_v2", args=[id_list[current_index - 1]]) + f"?mode={mode}"
         else:
             prev_url = None
 
@@ -781,8 +782,9 @@ def lab_sample_primer(request, sample):
     # create new instance of FishDetail with appropriate primed detail
     my_fishy = models.FishDetail.objects.create(created_by=request.user, sample_id=sample, fish_number=fish_number)
     version = request.GET.get("version")
+    mode = request.GET.get("mode")
     if version and version == "2":
-        return HttpResponseRedirect(reverse('herring:lab_sample_form_v2', args=[my_fishy.id]))
+        return HttpResponseRedirect(reverse('herring:lab_sample_form_v2', args=[my_fishy.id]) + f"?mode={mode}")
     return HttpResponseRedirect(reverse('herring:lab_sample_form', args=[my_fishy.id]))
 
 
