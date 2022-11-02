@@ -15,7 +15,7 @@
 {% else %}
 <div class="row">
   <div class="col">
-    <table class='table table-sm table-bordered' style="width:" >
+    <table class='table table-sm table-bordered'>
       <thead>
         <th >#</th>
         <th style="text-align: center;">Lab</th>
@@ -30,7 +30,7 @@
             </a>
           </td>
           <td align="center">
-            <a href="{% url 'herring:lab_sample_form' d.id %}">
+            <a href="{% url 'herring:lab_sample_form_v2' d.id %}">
               {% if d.lab_processed_date%}
               <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
               {% else %}

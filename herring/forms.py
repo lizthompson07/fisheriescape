@@ -196,16 +196,21 @@ class OtolithForm(forms.ModelForm):
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = [
         (1, "Progress Report"),
-        (6, "Pretty sample export (csv)"),
-        (2, "Pretty fish detail export (csv)"),
-        (4, "Export hlog file (csv)"),
-        (3, "Export hlen file (csv)"),
-        (5, "Export hdet file (csv)"),
+        (6, "Sample export (csv)"),
+        (7, "Length frequency export (csv)"),
+        (2, "Fish detail export (csv)"),
+        (None, " "),
+        (None, "-----------   FOR HERRING ORACLE DB  --------------"),
+        (None, " "),
+
+        (4, "Export herring hlog file (csv)"),
+        (3, "Export herring hlen file (csv)"),
+        (5, "Export herring hdet file (csv)"),
     ]
     REPORT_CHOICES.insert(0, (None, "------"))
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-
+    species = forms.ModelChoiceField(required=False, queryset=models.Species.objects.all())
     field_order = ["report", "year"]
 
     def __init__(self, *args, **kwargs):

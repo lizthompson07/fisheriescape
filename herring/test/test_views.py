@@ -3,10 +3,9 @@ from django.urls import reverse_lazy
 from faker import Factory
 
 from shared_models.models import Port
-from .common_tests import CommonHerringTest as CommonTest
-from shared_models.views import CommonCreateView, CommonFilterView, CommonUpdateView, CommonDeleteView, CommonDetailView, CommonFormView, \
-    CommonPopoutCreateView, CommonPopoutDeleteView, CommonPopoutUpdateView
+from shared_models.views import CommonCreateView, CommonFilterView, CommonUpdateView, CommonDeleteView, CommonDetailView
 from . import FactoryFloor
+from .common_tests import CommonHerringTest as CommonTest
 from .. import views, models
 
 faker = Factory.create()
@@ -150,8 +149,6 @@ class TestSpeciesUpdateView(CommonTest):
         self.assert_correct_url("herring:species_edit", f"/en/herman/species/edit/{self.instance.pk}/", [self.instance.pk])
 
 
-
-
 class TestPortCreateView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -290,4 +287,139 @@ class TestPortUpdateView(CommonTest):
         self.assert_correct_url("herring:port_edit", f"/en/herman/ports/edit/{self.instance.pk}/", [self.instance.pk])
 
 
+class TestSampleCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('herring:sample_new')
+        self.expected_template = 'herring/sample_form.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
 
+    @tag("Sample", "sample_new", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.SampleCreateView, CommonCreateView)
+
+    @tag("Sample", "sample_new", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Sample", "sample_new", "submit")
+    def test_submit(self):
+        data = FactoryFloor.SampleFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("Sample", "sample_new", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:sample_new", f"/en/herman/samples/new/")
+
+
+class TestSampleDeleteView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.SampleFactory()
+        self.test_url = reverse_lazy('herring:sample_delete', args=[self.instance.pk, ])
+        self.expected_template = 'herring/confirm_delete.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("Sample", "sample_delete", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.SampleDeleteView, CommonDeleteView)
+
+    @tag("Sample", "sample_delete", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Sample", "sample_delete", "submit")
+    def test_submit(self):
+        data = FactoryFloor.SampleFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.Sample.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("Sample", "sample_delete", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:sample_delete", f"/en/herman/samples/{self.instance.pk}/delete/", [self.instance.pk])
+
+
+class TestSampleDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.SampleFactory()
+        self.test_url = reverse_lazy('herring:sample_detail', args=[self.instance.pk, ])
+        self.expected_template = 'herring/sample_detail/main.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("Sample", "sample_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.SampleDetailView, CommonDetailView)
+
+    @tag("Sample", "sample_detail", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Sample", "sample_detail", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:sample_detail", f"/en/herman/samples/{self.instance.pk}/detail/", [self.instance.pk])
+
+
+class TestSampleListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('herring:sample_list')
+        self.expected_template = 'herring/sample_list.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("Sample", "sample_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.SampleFilterView, CommonFilterView)
+
+    @tag("Sample", "sample_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Sample", "sample_list", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("Sample", "sample_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:sample_list", f"/en/herman/samples/")
+
+
+class TestSampleUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.SampleFactory()
+        self.test_url = reverse_lazy('herring:sample_edit', args=[self.instance.pk, ])
+        self.expected_template = 'herring/sample_form.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("Sample", "sample_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.SampleUpdateView, CommonUpdateView)
+
+    @tag("Sample", "sample_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Sample", "sample_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.SampleFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("Sample", "sample_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:sample_edit", f"/en/herman/samples/{self.instance.pk}/edit/", [self.instance.pk])

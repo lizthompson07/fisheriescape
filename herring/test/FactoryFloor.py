@@ -1,4 +1,5 @@
 import factory
+from django.utils import timezone
 from faker import Factory
 
 from shared_models.models import Port
@@ -94,20 +95,37 @@ class HerringUserFactory(factory.django.DjangoModelFactory):
         }
 
 
+class SampleFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Sample
+
+    species = factory.SubFactory(SpeciesFactory)
+    type = factory.lazy_attribute(lambda o: faker.pyint(1, 100))
+    sample_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'species': SpeciesFactory().id,
+            'type': faker.pyint(1, 2),
+            'sample_date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
+        }
+
+
 class PortFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Port
 
-    province_code = factory.lazy_attribute(lambda o: str(faker.pyint(1,5)))
-    district_code = factory.lazy_attribute(lambda o: str(faker.pyint(10,99)))
-    port_code = factory.lazy_attribute(lambda o: str(faker.pyint(10,99)))
+    province_code = factory.lazy_attribute(lambda o: str(faker.pyint(1, 5)))
+    district_code = factory.lazy_attribute(lambda o: str(faker.pyint(10, 99)))
+    port_code = factory.lazy_attribute(lambda o: str(faker.pyint(10, 99)))
     port_name = factory.lazy_attribute(lambda o: faker.catch_phrase())
 
     @staticmethod
     def get_valid_data():
         return {
-            'province_code': str(faker.pyint(1,5)),
-            'district_code': str(faker.pyint(10,99)),
-            'port_code': str(faker.pyint(10,99)),
+            'province_code': str(faker.pyint(1, 5)),
+            'district_code': str(faker.pyint(10, 99)),
+            'port_code': str(faker.pyint(10, 99)),
             'port_name': faker.word(),
         }

@@ -909,19 +909,24 @@ class ReportSearchFormView(HerringCRUD, FormView):
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
         year = int(form.cleaned_data["year"])
+        species = int(form.cleaned_data["species"].id)
 
         if report == 1:
-            return HttpResponseRedirect(reverse("herring:progress_report_detail", kwargs={'year': year}))
+            return HttpResponseRedirect(reverse("herring:progress_report_detail") + f"?year={year}&species={species}")
         elif report == 2:
-            return HttpResponseRedirect(reverse("herring:export_fish_detail", kwargs={'year': year}))
-        elif report == 3:
-            return HttpResponseRedirect(reverse("herring:export_hlen", kwargs={'year': year}))
-        elif report == 4:
-            return HttpResponseRedirect(reverse("herring:export_hlog", kwargs={'year': year}))
-        elif report == 5:
-            return HttpResponseRedirect(reverse("herring:export_hdet", kwargs={'year': year}))
+            return HttpResponseRedirect(reverse("herring:export_fish_detail") + f"?year={year}&species={species}")
+
         elif report == 6:
-            return HttpResponseRedirect(reverse("herring:export_sample_report", kwargs={'year': year}))
+            return HttpResponseRedirect(reverse("herring:export_sample_report") + f"?year={year}&species={species}")
+        elif report == 7:
+            return HttpResponseRedirect(reverse("herring:export_lf_report") + f"?year={year}&species={species}")
+
+        elif report == 3:
+            return HttpResponseRedirect(reverse("herring:export_hlen") + f"?year={year}")
+        elif report == 4:
+            return HttpResponseRedirect(reverse("herring:export_hlog") + f"?year={year}")
+        elif report == 5:
+            return HttpResponseRedirect(reverse("herring:export_hdet") + f"?year={year}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("herring:report_search"))
@@ -932,7 +937,6 @@ class ProgressReportListView(HerringCRUD, CommonListView):
     template_name = 'herring/progress_list.html'
     container_class = "container-fluid"
     row_object_url_name = "herring:sample_detail"
-    h1 = "Annual Progress Report"
     field_list = [
         {"name": 'season', },
         {"name": 'id|Sample Id', },
@@ -946,14 +950,17 @@ class ProgressReportListView(HerringCRUD, CommonListView):
         {"name": '|Lab processed', },
         {"name": '|Otoliths processed', },
     ]
+    
+    def get_h1(self):
+        return f"Annual Progress Report - {get_object_or_404(models.Species, pk=self.request.GET.get('species'))}"
 
     def get_queryset(self):
-        return models.Sample.objects.filter(season=self.kwargs["year"]).order_by("sample_date")
+        return models.Sample.objects.filter(season=self.request.GET.get("year"), species_id=self.request.GET.get("species") ).order_by("sample_date")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        qs = models.Sample.objects.filter(season=self.kwargs["year"])
+        qs = self.get_queryset()
 
         # sum of samples
         context["sample_sum"] = qs.count
@@ -1007,32 +1014,47 @@ class ProgressReportListView(HerringCRUD, CommonListView):
         return context
 
 
-def export_progress_report(request, year):
-    response = reports.generate_progress_report(year)
+def export_progress_report(request):
+    year = request.GET.get("year")
+    species = request.GET.get("species")
+    response = reports.generate_progress_report(year, species)
     return response
 
 
-def export_fish_detail(request, year):
-    response = reports.generate_fish_detail_report(year)
+def export_fish_detail(request):
+    year = request.GET.get("year")
+    species = request.GET.get("species")
+    response = reports.generate_fish_detail_report(year, species)
     return response
 
 
-def export_sample_report(request, year):
-    response = reports.generate_sample_report(year)
+def export_lf_report(request):
+    year = request.GET.get("year")
+    species = request.GET.get("species")
+    response = reports.generate_lf_report(year, species)
+    return response
+
+def export_sample_report(request):
+    year = request.GET.get("year")
+    species = request.GET.get("species")
+    response = reports.generate_sample_report(year, species)
     return response
 
 
-def export_hlog(request, year):
+def export_hlog(request):
+    year = request.GET.get("year")
     response = reports.generate_hlog(year)
     return response
 
 
-def export_hlen(request, year):
+def export_hlen(request):
+    year = request.GET.get("year")
     response = reports.generate_hlen(year)
     return response
 
 
-def export_hdet(request, year):
+def export_hdet(request):
+    year = request.GET.get("year")
     # we will want to let the user know if there is a fish that has not been fully processed in the lab
     fishies = models.FishDetail.objects.filter(sample__season=year, lab_processed_date__isnull=True).order_by("sample__sample_date",
                                                                                                               "fish_number")

@@ -40,11 +40,11 @@ urlpatterns = [
     # SAMPLE #
     ##########
     path('samples/', views.SampleFilterView.as_view(), name="sample_list"),
-    path('samples/search/', views.SampleSearchFormView.as_view(), name="sample_search"),
     path('samples/new/', views.SampleCreateView.as_view(), name="sample_new"),
-    path('samples/<int:pk>/detail/', views.SampleDetailView.as_view(), name="sample_detail"),
     path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
+    path('samples/<int:pk>/detail/', views.SampleDetailView.as_view(), name="sample_detail"),
     path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
+    path('samples/search/', views.SampleSearchFormView.as_view(), name="sample_search"),
     path('samples/go-to-next/from-sample/<int:sample>', views.move_sample_next, name="move_sample_next"),
 
     # Length Frequency #
@@ -77,13 +77,14 @@ urlpatterns = [
     # PROGRESS REPORT #
     ###################
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    path('progress-report/<int:year>/', views.ProgressReportListView.as_view(), name="progress_report_detail"),
-    path('progress-report/<int:year>/export/', views.export_progress_report, name="export_progress_report"),
-    path('report/fish-detail/<int:year>/', views.export_fish_detail, name="export_fish_detail"),
-    path('report/sample/<int:year>/', views.export_sample_report, name="export_sample_report"),
-    path('hlen/<int:year>/export', views.export_hlen, name="export_hlen"),
-    path('hlog/<int:year>/export', views.export_hlog, name="export_hlog"),
-    path('hdet/<int:year>/export', views.export_hdet, name="export_hdet"),
+    path('progress-report/', views.ProgressReportListView.as_view(), name="progress_report_detail"),
+    path('progress-report/export/', views.export_progress_report, name="export_progress_report"),
+    path('report/sample/', views.export_sample_report, name="export_sample_report"),
+    path('report/lf/', views.export_lf_report, name="export_lf_report"),
+    path('report/fish-detail/', views.export_fish_detail, name="export_fish_detail"),
+    path('hlen/export', views.export_hlen, name="export_hlen"),
+    path('hlog/export', views.export_hlog, name="export_hlog"),
+    path('hdet/export', views.export_hdet, name="export_hdet"),
 
     # IMPORTS #
     ###########

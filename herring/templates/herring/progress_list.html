@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block new_object_button %}
-  <a href="{% url 'herring:export_progress_report' view.kwargs.year %}" class="btn btn-success btn-sm">Export Spreadsheet</a>
+  <a href="{% url 'herring:export_progress_report' %}?year={{ request.GET.year }}&species={{ request.GET.species }}" class="btn btn-success btn-sm">Export Spreadsheet</a>
 {% endblock %}
 
 {% block table_body_0 %}

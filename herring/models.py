@@ -375,12 +375,6 @@ class FishDetail(models.Model):
     def metadata(self):
         return get_metadata_string(self.creation_date, self.created_by, self.last_modified_date, self.last_modified_by)
 
-    @property
-    def seasonality(self):
-        if self.sample.sample_date.month > 7:
-            return "fall"
-        return "spring"
-
     def __str__(self):
         return f"Fish detail {self.id}"
 
