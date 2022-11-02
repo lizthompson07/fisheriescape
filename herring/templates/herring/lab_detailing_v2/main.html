@@ -2,9 +2,7 @@
 {% load bootstrap4 %}
 {% load static %}
 {% block title_area %}
-  <h1>
-    Detailing of Fish #{{ object.fish_number }}
-  </h1>
+
 {% endblock %}
 
 {% block header %}
@@ -32,6 +30,16 @@
        @keydown.home.prevent="goBack"
   >
 
+    <div class="mb-3">
+      <div v-if="fish.lab_processed_date" class="float-right">
+        <img src="{% static "/admin/img/icon-yes.svg" %}" alt="" width="75px">
+      </div>
+      <h1>
+        Detailing of Fish #{{ object.fish_number }}
+      </h1>
+    </div>
+
+
     <div v-if="isLoading" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
         <span class="sr-only"></span>
@@ -39,9 +47,6 @@
     </div>
     <div v-else>
 
-      <div v-if="fish.lab_processed_date" class="float-right">
-        <img src="{% static "/admin/img/icon-yes.svg" %}" alt="" width="75px">
-      </div>
 
       <div class="mb-3">
         {% if prev_url %}
@@ -55,7 +60,7 @@
       </div>
 
       <div class="row">
-        <div class="col-7">
+        <div class="col-6">
           <table class="table">
 
             <tbody>
@@ -102,7 +107,7 @@
         </div>
         <div class="col">
 
-          <div v-if="fish.id && fish.flags.length">
+          <div v-if="fish.id && fish.flags.length" class="mb-5">
             <h3>Flags</h3>
             <table>
               <tr v-for="f, index in fish.flags" :key="`flag_${f.id}`">
@@ -124,12 +129,6 @@
               </tr>
             </table>
           </div>
-          <div v-else>
-            <div class="text-center">
-            </div>
-
-          </div>
-
         </div>
       </div>
     </div>
@@ -161,6 +160,7 @@
         fish: true,
       },
       fish: {},
+      fmbInput: null,
       labels: {},
       fields: [
         "fish_length",
@@ -218,6 +218,36 @@
       update(field) {
         var data = {};
         data[field] = this.fish[field]
+        apiService(`/api/herman/fish-details/${this.fishId}/`, "PATCH", data)
+            .then(response => {
+              if (!response.id) {
+                alert(groomJSON(response));
+                this.$refs[`cell_${field}`][0].select()
+              } else {
+                this.fish = response;
+                var contiune = this.dealWithFlags();
+                if (contiune) {
+                  audio.play();
+                  var nextFieldRef = this.$refs[`cell_${this.fields[this.fields.indexOf(field) + 1]}`]
+                  if (nextFieldRef) this.focusElement(nextFieldRef[0]);
+                  // Deal with the flags
+                }
+              }
+            })
+      },
+      fmbUpdate() {
+        let data = {};
+        // this is where we will have to do some very ugly hardcoding...
+        // if we are using a special fish measuring board, there will be prefixes that accompany the values being passed
+        if (input.match(/ruler1/gi)) {
+          field = "fish_length";
+          data[field] = this.fmbInput.toLowerCase().replace("ruler1", "").trim();
+        } else if (input.match(/sex/gi)) {
+          data[field] = this.fmbInput.toLowerCase().replace("ruler1", "").trim();
+        } else {
+          data[field] = input;
+        }
+
         apiService(`/api/herman/fish-details/${this.fishId}/`, "PATCH", data)
             .then(response => {
               if (!response.id) {
