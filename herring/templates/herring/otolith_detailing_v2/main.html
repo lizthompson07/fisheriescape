@@ -1,0 +1,372 @@
+{% extends "herring/base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% block title_area %}
+
+{% endblock %}
+
+{% block header %}
+  {{ block.super }}
+
+  <style>
+
+  {% if not is_last %}
+      body {
+          background-color: wheat;
+      }
+  {% endif %}
+  </style>
+{% endblock %}
+
+
+{% block subcontent %}
+
+  <div id="app" v-cloak
+       @keydown.page-down.prevent="goNext"
+       @keydown.page-up.prevent="goPrev"
+       @keydown.up.prevent="goUp"
+       @keydown.down.prevent="goDown"
+       @keydown.esc.prevent="goBack"
+       @keydown.home.prevent="goBack"
+       @keydown.f1.prevent="togglePreview"
+  >
+
+    <div class="mb-3">
+      <div v-if="fish.otolith_processed_date" class="float-right">
+        <img src="{% static "/admin/img/icon-yes.svg" %}" alt="" width="75px">
+      </div>
+      <h1>
+        Otolith Processing of Fish #{{ object.fish_number }}
+      </h1>
+
+      <div class="alert {% if object.seasonality == "fall" %}alert-warning{% else %}alert-success{% endif %} w-45" role="alert">
+        <h2 class="alert-heading font-weight-bold">
+          This is a {{ object.seasonality }} fish.
+        </h2>
+      </div>
+    </div>
+
+
+    <div v-if="isLoading" class="loading mb-3 mt-3 mt-5">
+      <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+        <span class="sr-only"></span>
+      </div>
+    </div>
+    <div v-else>
+
+
+      <div class="mb-3">
+        {% if prev_url %}
+          <a ref="prev" href="{{ prev_url }}" class="btn btn-primary">Previous (Page Up)</a>
+        {% else %}
+          <a ref="prev" disabled href="#" class="btn btn-primary disabled">Previous (Page Up)</a>
+        {% endif %}
+        <a ref="next" href="{{ next_url }}" class="btn btn-primary">{% if is_last %}New{% else %}Next{% endif %} (Page Down)</a>
+        <a ref="back" href="{% url 'herring:sample_detail' object.sample.id %}" class="btn btn-secondary">Back (Esc)</a>
+
+
+        <button @click="preview=!preview" ref="toggle_button" class="btn btn-warning">
+          <span v-if="preview">Hide Fish Details (F1)</span>
+          <span v-else>Show Fish Details (F1)</span>
+        </button>
+
+      </div>
+
+      <div class="row">
+        <div class="col-6">
+          <table class="table table-sm">
+
+            <tbody>
+
+            <tr>
+              <th class="w-25"> Fish unique Id</th>
+              <td> {{ object.id }} </td>
+            </tr>
+            <tr>
+              <th> Sample Id</th>
+              <td> {{ object.sample.id }} </td>
+            </tr>
+            <tr>
+              <th> Collected by</th>
+              <td> {{ object.sample.sampler.first_name }} {{ object.sample.sampler.last_name }} </td>
+            </tr>
+            <tr>
+              <th> Collected on</th>
+              <td> {{ object.sample.sample_date|date:"F d, Y" }} </td>
+            </tr>
+            <tr>
+              <th> Field reference number</th>
+              <td> {{ object.sample.sampler_ref_number }} </td>
+            </tr>
+            <tr>
+              <th> ${labels.lab_sampler}</th>
+              <td> ${ fish.lab_sampler }</td>
+            </tr>
+            <tr>
+              <th> ${labels.otolith_sampler}</th>
+              <td> ${fish.otolith_sampler}</td>
+            </tr>
+
+
+            <template>
+              <tr v-for="field, index in fields" :key="`field_${index}`">
+                <th class="text-primary">${labels[field]}</th>
+                <td v-if="!selectFields.includes(field)">
+                  <input @change="update(field)" class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @focusin="currentField=field">
+                  <small class="text-muted">Use code -99 for uncountable</small>
+                </td>
+                <td v-else>
+                  <select class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @change="update(field)" @focusin="currentField=field">
+                    <option :value="null">-----</option>
+                    <option v-for="c, index in choices[field]" :value="c.value" :key="`choice_${field}_${index}`">${c.text}</option>
+                  </select>
+                </td>
+              </tr>
+            </template>
+
+            <template v-if="preview">
+              <tr v-for="field, index in previewFields" :key="`pfield_${index}`">
+                <th class="text-muted">${labels[field]}</th>
+                <td v-if="!selectFields.includes(field)">
+                  <input disabled @change="update(field)" class="form-control"  v-model="fish[field]" >
+                </td>
+                <td v-else>
+                  <select disabled class="form-control" v-model="fish[field]" >
+                    <option :value="null">-----</option>
+                    <option v-for="c, index in choices[field]" :value="c.value" :key="`choice_${field}_${index}`">${c.text}</option>
+                  </select>
+                </td>
+              </tr>
+            </template>
+
+
+            </tbody>
+          </table>
+        </div>
+        <div class="col">
+
+
+
+          <div v-if="fish.id && relevantFlags.length" class="mb-5">
+            <h3>Flags</h3>
+            <table>
+              <tr v-for="f, index in relevantFlags" :key="`flag_${f.id}`">
+                <td class="lead py-3">
+                  <span v-if="f.is_accepted" class="mdi mdi-flag mr-3"></span>
+                  <span v-else class="mdi mdi-flag mr-3 text-danger"></span>
+                </td>
+                <td>
+                  <div v-if="f.is_accepted" class="lead">
+                    ${f.flag_definition_display}
+                  </div>
+                  <div v-else class="text-danger lead">
+                    ${f.flag_definition_display}
+                  </div>
+                  <div class="text-muted">
+                    ${f.custom_message}
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+{% endblock %}
+
+
+
+{% block body_js %}
+  {% include "_vuejs_import.html" %}
+
+  <script type="application/javascript">
+
+  let audio = new Audio("{% static "/sounds/success.wav" %}");
+  let fishId = {{ object.id }};
+  let isLast = {{is_last|yesno:"true;false"|lower}};
+
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      fishId,
+      isLast,
+      loading: {
+        meta: true,
+        fish: true,
+      },
+      preview: false,
+      fish: {},
+      labels: {},
+      fields: [
+        'annulus_count',
+        'otolith_season',
+      ],
+      previewFields: [
+        "fish_length",
+        "fish_weight",
+        "sex",
+        "maturity",
+        "gonad_weight",
+        "parasite",
+        "remarks",
+      ],
+      currentField: "annulus_count",
+      choices: {
+        otolith_season: [],
+        sex: [],
+        maturity: [],
+        parasite: [],
+      },
+    },
+    methods: {
+      goNext() {
+        this.$refs.next.click()
+      },
+      togglePreview() {
+        this.$refs.toggle_button.click()
+      },
+      goPrev() {
+        this.$refs.prev.click()
+      },
+      goBack() {
+        this.$refs.back.click()
+      },
+      goUp() {
+        prevField = this.fields[this.fields.indexOf(this.currentField) - 1]
+        var prevFieldRef = this.$refs[`cell_${prevField}`]
+        if (prevFieldRef) this.focusElement(prevFieldRef[0]);
+      },
+      goDown() {
+        nextField = this.fields[this.fields.indexOf(this.currentField) + 1]
+        var nextFieldRef = this.$refs[`cell_${nextField}`]
+        if (nextFieldRef) this.focusElement(nextFieldRef[0]);
+      },
+      focusElement(el) {
+        if (el.type === "select-one") el.focus()
+        else el.select()
+      },
+      get() {
+        this.loading.fish = true;
+        apiService(`/api/herman/fish-details/${this.fishId}`, "GET")
+            .then(response => {
+              this.fish = response;
+              this.loading.fish = false
+              this.$nextTick(() => {
+              })
+              this.dealWithFlags();
+
+            })
+      },
+      update(field) {
+        var data = {};
+        data[field] = this.fish[field]
+        apiService(`/api/herman/fish-details/${this.fishId}/?otolith=true`, "PATCH", data)
+            .then(response => {
+              if (!response.id) {
+                alert(groomJSON(response));
+                this.$refs[`cell_${field}`][0].select()
+              } else {
+                this.fish = response;
+                var contiune = this.dealWithFlags();
+                if (contiune) {
+                  audio.play();
+                  var nextFieldRef = this.$refs[`cell_${this.fields[this.fields.indexOf(field) + 1]}`]
+                  if (nextFieldRef) this.focusElement(nextFieldRef[0]);
+                  // Deal with the flags
+                }
+              }
+            })
+      },
+      dealWithFlags() {
+        if (this.unacceptedFlags.length) {
+          if (this.unacceptedFlags.length === 1) speak("Warning!" + this.unacceptedFlags[0].flag_definition_display)
+          for (const flag of this.unacceptedFlags) {
+            msg = flag.flag_definition_display + "\n\n" + flag.custom_message + "\n\nAre you confident in your measurements? \n\nPress [y] for YES or [n] for NO."
+            var reply = prompt(msg)
+            if (reply.toLowerCase().includes("y")) {
+              apiService(`/api/herman/flags/${flag.id}/`, "PATCH", {is_accepted: true}).then(response => {
+                this.$set(this.fish.flags, this.fish.flags.indexOf(flag), response);
+              })
+            } else {
+              var currentFieldRef = this.$refs[`cell_${this.currentField}`];
+              if (currentFieldRef) this.focusElement(currentFieldRef[0]);
+              return false
+            }
+          }
+        }
+        return true
+      },
+
+      getMetadata() {
+        apiService(`/api/herman/model-metas/?app_name=herring&model_name=FishDetail`).then(data => {
+          this.labels = data.labels;
+          this.choices.otolith_season = data.otolith_season_choices;
+          this.choices.parasite = data.parasite_choices;
+          this.choices.sex = data.sex_choices;
+          this.choices.maturity = data.maturity_choices;
+          this.loading.meta = false;
+        });
+      },
+    },
+    filters: {
+      nz: vueFiltersObject["nz"],
+      yesNo: vueFiltersObject["yesNo"],
+      floatformat: vueFiltersObject["floatformat"],
+    },
+    computed: {
+      isLoading() {
+        for (const loadingKey in this.loading) {
+          if (this.loading[loadingKey]) return true;
+        }
+        return false;
+      },
+      selectFields() {
+        var payload = [];
+        for (const choicesKey in this.choices) {
+          payload.push(choicesKey);
+        }
+        return payload
+      },
+      relevantFlags() {
+        var payload = [];
+        if (this.fish.id) {
+          for (const flag of this.fish.flags) {
+            if (flag.flag_definition === 4 || flag.flag_definition === 12) payload.push(flag);
+          }
+        }
+        return payload
+      },
+      unacceptedFlags() {
+        var payload = [];
+        if (this.fish.id) {
+          for (const flag of this.relevantFlags) {
+            if (!flag.is_accepted) payload.push(flag);
+          }
+        }
+        return payload
+      }
+    },
+    created() {
+      this.getMetadata();
+      this.get();
+
+
+    },
+    watch: {
+      isLoading(newState, oldState) {
+        if (!newState) {
+          this.$nextTick(() => {
+            this.$refs.cell_annulus_count[0].select();
+          })
+        }
+      },
+    }
+  });
+  </script>
+
+{% endblock %}

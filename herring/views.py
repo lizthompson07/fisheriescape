@@ -767,7 +767,7 @@ class LabSampleConfirmation(HerringCRUD, CommonTemplateView):
         return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
 
 
-def lab_sample_primer(request, sample):
+def lab_sample_primer(request, sample, otolith=False):
     # figure out what the fish number is
     my_sample = models.Sample.objects.get(pk=sample)
 
@@ -781,11 +781,14 @@ def lab_sample_primer(request, sample):
 
     # create new instance of FishDetail with appropriate primed detail
     my_fishy = models.FishDetail.objects.create(created_by=request.user, sample_id=sample, fish_number=fish_number)
-    version = request.GET.get("version")
-    mode = request.GET.get("mode")
-    if version and version == "2":
-        return HttpResponseRedirect(reverse('herring:lab_sample_form_v2', args=[my_fishy.id]) + f"?mode={mode}")
-    return HttpResponseRedirect(reverse('herring:lab_sample_form', args=[my_fishy.id]))
+    if otolith:
+        return HttpResponseRedirect(reverse('herring:otolith_form', args=[my_fishy.id]))
+    else:
+        version = request.GET.get("version")
+        mode = request.GET.get("mode")
+        if version and version == "2":
+            return HttpResponseRedirect(reverse('herring:lab_sample_form_v2', args=[my_fishy.id]) + f"?mode={mode}")
+        return HttpResponseRedirect(reverse('herring:lab_sample_form', args=[my_fishy.id]))
 
 
 # this view should have a progress bar and a button to get started. also should display any issues and messages about the input.
@@ -799,71 +802,46 @@ class FishDetailHardDeleteView(HerringCRUD, CommonHardDeleteView):
 
 
 # Otolith
-
-class OtolithUpdateView(HerringCRUD, UpdateView):
-    template_name = 'herring/otolith_detailing/otolith_form.html'
+class OtolithUpdateView(HerringCRUD, CommonDetailView):
+    template_name = 'herring/otolith_detailing_v2/main.html'
     model = models.FishDetail
-    form_class = forms.OtolithForm
+    container_class = "container"
     home_url_name = "herring:index"
+    grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+
+    def get_sample(self):
+        return self.get_object().sample
+
+    def get_parent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # pass in the tests
-        tests = models.Test.objects.filter(
-            Q(id=200) | Q(id=206) | Q(id=209) | Q(id=210) | Q(id=211) | Q(id=309) | Q(id=310)).order_by(
-            "id")
-        context['tests'] = tests
+        obj = self.get_object()
 
-        # determine the progress of data entry
-        ## there are 2 fields: len, wt, g_wt, sex, mat, parasite; HOWEVER parasites are only looked at from sea samples
-        progress = 0
-        if self.object.annulus_count:
-            progress = progress + 1
-        if self.object.otolith_season:
-            progress = progress + 1
-        total_tests = 2
+        # determine if this is the first or last record
+        id_list = [f.id for f in models.FishDetail.objects.filter(sample_id=obj.sample).order_by("id")]
+        current_index = id_list.index(obj.id)
 
-        context['progress'] = progress
-        context['total_tests'] = total_tests
+        is_last = False
+        mode = self.request.GET.get('mode')
 
-        # provide some context about the position of the current record
         try:
-            next_fishy = \
-                models.FishDetail.objects.filter(sample=self.object.sample, fish_number=self.object.fish_number + 1)[0]
-        except Exception as e:
-            print(e)
-        else:
-            context['next_fish_id'] = next_fishy.id
+            next_url = reverse("herring:otolith_form", args=[id_list[current_index + 1]]) + f"?mode={mode}"
+        except IndexError:
+            next_url = reverse("herring:lab_sample_primer", args=[obj.sample.id]) + f"?version=2&mode={mode}"
+            is_last = True
 
-        context["prev_record"] = reverse("herring:move_record",
-                                         kwargs={'sample': self.object.sample.id, "type": "otolith",
-                                                 "direction": "prev", "current_id": self.object.id})
-        context["next_record"] = reverse("herring:move_record",
-                                         kwargs={'sample': self.object.sample.id, "type": "otolith",
-                                                 "direction": "next", "current_id": self.object.id})
-        context["home"] = reverse("herring:sample_detail", kwargs={'pk': self.object.sample.id, })
+        if current_index != 0:
+            prev_url = reverse("herring:otolith_form", args=[id_list[current_index - 1]]) + f"?mode={mode}"
+        else:
+            prev_url = None
+
+        context["next_url"] = next_url
+        context["prev_url"] = prev_url
+        context["is_last"] = is_last
 
         return context
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.last_modified_by = self.request.user
-        obj.otolith_sampler = self.request.user
-        obj.save()
-
-        if form.cleaned_data["where_to"] == "home":
-            return HttpResponseRedirect(reverse("herring:sample_detail", kwargs={'pk': obj.sample.id, }))
-        elif form.cleaned_data["where_to"] == "prev":
-            return HttpResponseRedirect(reverse("herring:move_record",
-                                                kwargs={'sample': obj.sample.id, "type": "otolith",
-                                                        "direction": "prev", "current_id": obj.id}))
-        elif form.cleaned_data["where_to"] == "next":
-            return HttpResponseRedirect(reverse("herring:move_record",
-                                                kwargs={'sample': obj.sample.id, "type": "otolith",
-                                                        "direction": "next", "current_id": obj.id}))
-        else:
-            return HttpResponseRedirect(
-                reverse("herring:otolith_form", kwargs={'sample': obj.sample.id, 'pk': obj.id}))
 
 
 # SHARED #

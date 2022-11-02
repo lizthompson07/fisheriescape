@@ -331,7 +331,7 @@ class FishDetail(models.Model):
     gonad_weight = models.FloatField(null=True, blank=True, verbose_name=_("gonad weight (g)"), validators=(MinValueValidator(0),))
     parasite = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
 
-    annulus_count = models.IntegerField(null=True, blank=True, validators=(MinValueValidator(0),))
+    annulus_count = models.IntegerField(null=True, blank=True)
     otolith_season = models.ForeignKey(OtolithSeason, related_name="fish_details", on_delete=models.DO_NOTHING,
                                        null=True, blank=True)
     otolith_image_remote_filepath = models.CharField(max_length=2000, blank=True, null=True)
@@ -374,6 +374,12 @@ class FishDetail(models.Model):
     @property
     def metadata(self):
         return get_metadata_string(self.creation_date, self.created_by, self.last_modified_date, self.last_modified_by)
+
+    @property
+    def seasonality(self):
+        if self.sample.sample_date.month > 7:
+            return "fall"
+        return "spring"
 
     def __str__(self):
         return f"Fish detail {self.id}"

@@ -67,6 +67,8 @@ class FishDetailFlagSerializer(serializers.ModelSerializer):
 class FishDetailSerializer(serializers.ModelSerializer):
     flags = FishDetailFlagSerializer(many=True, read_only=True)
     species = serializers.SerializerMethodField()
+    lab_sampler = serializers.StringRelatedField()
+    otolith_sampler = serializers.StringRelatedField()
 
     def get_species(self, instance):
         return SpeciesSerializer(instance.sample.species).data

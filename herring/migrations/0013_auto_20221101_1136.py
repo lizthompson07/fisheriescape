@@ -39,11 +39,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='fishdetail',
-            name='annulus_count',
-            field=models.IntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(0)]),
-        ),
-        migrations.AlterField(
-            model_name='fishdetail',
             name='fish_length',
             field=models.FloatField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(0)], verbose_name='length (mm)'),
         ),

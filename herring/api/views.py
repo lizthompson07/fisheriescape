@@ -44,7 +44,10 @@ class FishDetailViewSet(viewsets.ModelViewSet):
     filterset_fields = ['sample', ]
 
     def perform_update(self, serializer):
-        obj = serializer.save(lab_sampler=self.request.user)
+        if self.request.query_params.get("otolith"):
+            obj = serializer.save(otolith_sampler=self.request.user)
+        else:
+            obj = serializer.save(lab_sampler=self.request.user)
         make_fish_flags(obj, obj.lab_sampler)
 
 
