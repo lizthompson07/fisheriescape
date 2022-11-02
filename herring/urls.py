@@ -5,8 +5,7 @@ from . import views
 app_name = 'herring'
 
 urlpatterns = [
-    # path('', views.IndexView.as_view(), name ="index" ),
-    path('', views.IndexView.as_view(), name="index"),
+    path('', views.IndexView.as_view(), name="index"), # tested
 
     path('settings/users/', views.HerringUserFormsetView.as_view(), name="manage_herring_users"),  # tested
     path('settings/users/<int:pk>/delete/', views.HerringUserHardDeleteView.as_view(), name="delete_herring_user"),  # tested
@@ -39,17 +38,17 @@ urlpatterns = [
 
     # SAMPLE #
     ##########
-    path('samples/', views.SampleFilterView.as_view(), name="sample_list"),
-    path('samples/new/', views.SampleCreateView.as_view(), name="sample_new"),
-    path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
-    path('samples/<int:pk>/detail/', views.SampleDetailView.as_view(), name="sample_detail"),
-    path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
-    path('samples/search/', views.SampleSearchFormView.as_view(), name="sample_search"),
-    path('samples/go-to-next/from-sample/<int:sample>', views.move_sample_next, name="move_sample_next"),
+    path('samples/', views.SampleFilterView.as_view(), name="sample_list"),  # tested
+    path('samples/new/', views.SampleCreateView.as_view(), name="sample_new"),  # tested
+    path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),  # tested
+    path('samples/<int:pk>/detail/', views.SampleDetailView.as_view(), name="sample_detail"),  # tested
+    path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),  # tested
+    path('samples/search/', views.SampleSearchFormView.as_view(), name="sample_search"),  # tested
+    path('samples/go-to-next/from-sample/<int:sample>', views.move_sample_next, name="move_sample_next"),   # tested
 
     # Length Frequency #
     ####################
-    path('samples/<int:sample>/length-frequencies/', views.LengthFrequencyDataEntryView.as_view(), name="lf"),
+    path('samples/<int:sample>/length-frequencies/', views.LengthFrequencyDataEntryView.as_view(), name="lf"), # tested
 
     # FISH DETAIL #
     ##############

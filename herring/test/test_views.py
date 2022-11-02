@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from faker import Factory
 
 from shared_models.models import Port
-from shared_models.views import CommonCreateView, CommonFilterView, CommonUpdateView, CommonDeleteView, CommonDetailView
+from shared_models.views import CommonCreateView, CommonFilterView, CommonUpdateView, CommonDeleteView, CommonDetailView, CommonFormView, CommonTemplateView
 from . import FactoryFloor
 from .common_tests import CommonHerringTest as CommonTest
 from .. import views, models
@@ -423,3 +423,90 @@ class TestSampleUpdateView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("herring:sample_edit", f"/en/herman/samples/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+class TestSampleSearchView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('herring:sample_search')
+        self.expected_template = 'herring/form.html'
+        self.user = self.get_and_login_user(is_read_only=True)
+
+    @tag("Sample", "sample_search", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.SampleSearchFormView, CommonFormView)
+
+    @tag("Sample", "sample_search", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Sample", "sample_search", "submit")
+    def test_submit(self):
+        data = {}
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("Sample", "sample_search", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:sample_search", f"/en/herman/samples/search/")
+
+
+class TestLengthFrequencyDataEntryView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.SampleFactory()
+        self.test_url = reverse_lazy('herring:lf', args=[self.instance.pk, ])
+        self.expected_template = 'herring/lf.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("LengthFrequency", "lf", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.LengthFrequencyDataEntryView, CommonTemplateView)
+
+    @tag("LengthFrequency", "lf", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("LengthFrequency", "lf", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:lf", f"/en/herman/samples/{self.instance.pk}/length-frequencies/", [self.instance.pk])
+
+
+class TestIndex(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('herring:index')
+        self.expected_template = 'herring/index.html'
+        self.user = self.get_and_login_user(is_read_only=True)
+
+    @tag("Index", "index", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.IndexView, CommonTemplateView)
+
+    @tag("Index", "index", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Index", "index", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:index", f"/en/herman/")
+
+
+class TestMoveNextSample(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.SampleFactory()
+        self.test_url = reverse_lazy('herring:move_sample_next', args=[self.instance.pk, ])
+        self.user = self.get_and_login_user(is_read_only=True)
+
+    @tag("Index", "index", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, user=self.user, expected_code=302)
+
+

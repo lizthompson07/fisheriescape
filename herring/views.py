@@ -5,6 +5,7 @@ from datetime import datetime
 from io import StringIO
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q, Value, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
@@ -13,7 +14,7 @@ from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy
-from django.views.generic import UpdateView, FormView
+from django.views.generic import FormView
 from numpy import arange
 
 from lib.functions.custom_functions import listrify
@@ -27,6 +28,7 @@ from . import forms
 from . import models
 from . import reports
 from .mixins import SuperuserOrAdminRequiredMixin, HerringBasicMixin, HerringAdmin, HerringCRUD, HerringAccess
+from .utils import can_read
 
 
 class HerringUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
@@ -509,6 +511,8 @@ class SampleUpdateView(HerringCRUD, CommonUpdateView):
         return super().form_valid(form)
 
 
+@login_required(login_url='/accounts/login/')
+@user_passes_test(can_read, login_url='/accounts/denied/')
 def move_sample_next(request, sample):
     # shared vars
     message_end = "You are at the last sample."
@@ -950,12 +954,12 @@ class ProgressReportListView(HerringCRUD, CommonListView):
         {"name": '|Lab processed', },
         {"name": '|Otoliths processed', },
     ]
-    
+
     def get_h1(self):
         return f"Annual Progress Report - {get_object_or_404(models.Species, pk=self.request.GET.get('species'))}"
 
     def get_queryset(self):
-        return models.Sample.objects.filter(season=self.request.GET.get("year"), species_id=self.request.GET.get("species") ).order_by("sample_date")
+        return models.Sample.objects.filter(season=self.request.GET.get("year"), species_id=self.request.GET.get("species")).order_by("sample_date")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1033,6 +1037,7 @@ def export_lf_report(request):
     species = request.GET.get("species")
     response = reports.generate_lf_report(year, species)
     return response
+
 
 def export_sample_report(request):
     year = request.GET.get("year")
