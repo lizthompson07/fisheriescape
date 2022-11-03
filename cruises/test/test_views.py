@@ -420,7 +420,7 @@ class TestInstrumentDetailView(CommonTest):
         self.instance = FactoryFloor.InstrumentFactory()
         self.test_url = reverse_lazy('cruises:instrument_detail', args=[self.instance.pk, ])
         self.expected_template = 'cruises/instrument_detail.html'
-        self.user = self.get_and_login_user()
+        self.user = self.get_and_login_user(in_group="oceanography_admin")
 
     @tag("Instrument", "instrument_detail", "view")
     def test_view_class(self):

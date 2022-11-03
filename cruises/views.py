@@ -160,17 +160,18 @@ class CruiseCreateView(OceanographyAccessRequiredMixin, CommonCreateView):
         vessel_str = str(init_dict.get("vessel"))
         institute_str = str(init_dict.get("institute"))
 
-        if start_dts:
+        if start_dts and start_dts != "None":
+            print(start_dts)
             parts = start_dts.split(" ")
             start_dts = parts[0] + " " + parts[1] + "+" + parts[2].replace(":", "")
             init_dict["start_date"] = datetime.strptime(start_dts, "%Y-%m-%d %H:%M:%S%z")
 
-        if end_dts:
+        if end_dts and end_dts != "None":
             parts = end_dts.split(" ")
             end_dts = parts[0] + " " + parts[1] + "+" + parts[2].replace(":", "")
             init_dict["end_date"] = datetime.strptime(end_dts, "%Y-%m-%d %H:%M:%S%z")
 
-        if vessel_str:
+        if vessel_str and vessel_str != "None":
             vessels = shared_models.Vessel.objects.all()
             best_fit = {"vessel": None, "dist": 9999}
             for v in vessels:
