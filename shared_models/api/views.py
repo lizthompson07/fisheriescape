@@ -217,6 +217,11 @@ class SharedModelMetadataAPIView(APIView):
             for field in model._meta.get_fields():
                 if hasattr(field, "choices") and getattr(field, "choices"):
                     data[f'{field.name}_choices'] = [dict(text=c[1], value=c[0]) for c in getattr(field, "choices")]
+                elif field.many_to_one:
+                    if field.related_model.objects.count() < 20:
+                        data[f'{field.name}_choices'] = [dict(text=str(c), value=c.id) for c in field.related_model.objects.all()]
+
+
         return data
 
     def get(self, request):

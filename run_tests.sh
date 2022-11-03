@@ -216,3 +216,18 @@ printf "########################################################################
 printf "\n"
 python3.8 manage.py test -b grais.test
 echo "FINISHED RUNNING TESTS FOR: grais"
+
+
+
+printf "\n"
+printf "\n"
+printf "\n"
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+echo "RUNNING TESTS FOR: herring"
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+python3.8 manage.py test -b herring.test
+echo "FINISHED RUNNING TESTS FOR: herman"
