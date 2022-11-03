@@ -45,3 +45,7 @@ python manage.py test -b fisheriescape.test --keepdb
 
 :: run tests for grais
 python manage.py test -b grais.test --keepdb
+
+
+:: run tests for herring
+python manage.py test -b herring.test --keepdb

@@ -2,252 +2,338 @@ import collections
 import csv
 import math
 from datetime import datetime
+from io import StringIO
 
-import requests
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Q, TextField
+from django.db.models import Q, Value, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView, ListView
-from django_filters.views import FilterView
+from django.utils.translation import gettext_lazy
+from django.views.generic import FormView
 from numpy import arange
 
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
+from shared_models.models import Port
+from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonListView, CommonTemplateView, CommonFilterView, CommonDetailView, CommonFormView, \
+    CommonCreateView, CommonDeleteView, CommonUpdateView
 from . import filters
 from . import forms
 from . import models
 from . import reports
+from .mixins import SuperuserOrAdminRequiredMixin, HerringBasicMixin, HerringAdmin, HerringCRUD, HerringAccess
+from .utils import can_read, is_crud_user
 
 
-# Create your views here.
-
-def in_herring_group(user):
-    if user:
-        return user.groups.filter(name='herring_access').count() != 0
-
-
-def in_herring_admin_group(user):
-    if user:
-        return user.groups.filter(name='herring_admin').count() != 0
-
-
-class HerringAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return in_herring_admin_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/?app=herring')
-        return super().dispatch(request, *args, **kwargs)
+class HerringUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
+    template_name = 'herring/formset.html'
+    h1 = "Manage Herring Users"
+    queryset = models.HerringUser.objects.all()
+    formset_class = forms.HerringUserFormset
+    success_url_name = "herring:manage_herring_users"
+    home_url_name = "herring:index"
+    delete_url_name = "herring:delete_herring_user"
+    container_class = "container bg-light curvy"
 
 
-class HerringAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return in_herring_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/?app=herring')
-        return super().dispatch(request, *args, **kwargs)
+class HerringUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
+    model = models.HerringUser
+    success_url = reverse_lazy("herring:manage_herring_users")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_herring_group, login_url='/accounts/denied/?app=herring')
-def index(request):
-    return render(request, 'herring/index.html')
+class IndexView(HerringBasicMixin, CommonTemplateView):
+    template_name = 'herring/index.html'
+    h1 = "Home"
 
 
-# class IndexView(AnonymousRequiredMixin,TemplateView):
-#     template_name = 'herring/index.html'
-# group_required = [u"herring_access",]
-
-
-class CloserTemplateView(TemplateView):
-    template_name = 'herring/close_me.html'
-
-
-# SAMPLER #
+# Settings #
 ###########
 
-class SamplerPopoutCreateView(HerringAccessRequired, CreateView):
-    template_name = 'herring/sampler_form_popout.html'
+
+class SamplerFormsetView(HerringAdmin, CommonFormsetView):
+    template_name = 'herring/formset.html'
+    h1 = "Manage Samplers"
+    queryset = models.Sampler.objects.all()
+    formset_class = forms.SamplerFormset
+    success_url_name = "herring:manage_samplers"
+    home_url_name = "herring:index"
+    delete_url_name = "herring:delete_sampler"
+    post_display_fields = ["sample_count|Number of samples collected"]
+
+
+class SamplerHardDeleteView(HerringAdmin, CommonHardDeleteView):
     model = models.Sampler
-    form_class = forms.SamplerForm
-
-    def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse_lazy("herring:close_sampler", kwargs={"sampler": object.id}))
+    success_url = reverse_lazy("herring:manage_samplers")
 
 
-class SamplerCloseTemplateView(HerringAccessRequired, TemplateView):
-    template_name = 'herring/sampler_close.html'
+class GearFormsetView(HerringAdmin, CommonFormsetView):
+    template_name = 'herring/formset.html'
+    h1 = "Manage Gear Types"
+    queryset = models.Gear.objects.all()
+    formset_class = forms.GearFormset
+    success_url_name = "herring:manage_gears"
+    home_url_name = "herring:index"
+    delete_url_name = "herring:delete_gear"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        object = models.Sampler.objects.get(pk=self.kwargs["sampler"])
-        context["object"] = object
-        return context
+
+class GearHardDeleteView(HerringAdmin, CommonHardDeleteView):
+    model = models.Gear
+    success_url = reverse_lazy("herring:manage_gears")
+
+
+class FishingAreaFormsetView(HerringAdmin, CommonFormsetView):
+    template_name = 'herring/formset.html'
+    h1 = "Manage Fishing Areas"
+    queryset = models.FishingArea.objects.all()
+    formset_class = forms.FishingAreaFormset
+    success_url_name = "herring:manage_fishing_areas"
+    home_url_name = "herring:index"
+    delete_url_name = "herring:delete_fishing_area"
+
+
+class FishingAreaHardDeleteView(HerringAdmin, CommonHardDeleteView):
+    model = models.FishingArea
+    success_url = reverse_lazy("herring:manage_fishing_areas")
+
+
+class MeshSizeFormsetView(HerringAdmin, CommonFormsetView):
+    template_name = 'herring/formset.html'
+    h1 = "Manage Mesh Sizes"
+    queryset = models.MeshSize.objects.all()
+    formset_class = forms.MeshSizeFormset
+    success_url_name = "herring:manage_mesh_sizes"
+    home_url_name = "herring:index"
+    delete_url_name = "herring:delete_mesh_size"
+
+
+class MeshSizeHardDeleteView(HerringAdmin, CommonHardDeleteView):
+    model = models.MeshSize
+    success_url = reverse_lazy("herring:manage_mesh_sizes")
+
+
+# species #
+###########
+
+class SpeciesListView(HerringAccess, CommonFilterView):
+    template_name = 'herring/list.html'
+    filterset_class = filters.SpeciesFilter
+    home_url_name = "herring:index"
+    new_object_url = reverse_lazy("herring:species_new")
+    row_object_url_name = row_ = "herring:species_detail"
+    container_class = "container"
+    field_list = [
+        {"name": 'name'},
+        {"name": 'nom'},
+        {"name": 'scientific_name'},
+        {"name": 'aphia_id'},
+        {"name": 'length_type'},
+    ]
+
+    def get_queryset(self):
+        return models.Species.objects.annotate(
+            search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+
+
+class SpeciesCreateView(HerringCRUD, CommonCreateView):
+    model = models.Species
+    form_class = forms.SpeciesForm
+    success_url = reverse_lazy('herring:species_list')
+    template_name = 'herring/form.html'
+    home_url_name = "herring:index"
+    parent_crumb = {"title": gettext_lazy("Species"), "url": reverse_lazy("herring:species_list")}
+    container_class = "container curvy"
+
+
+class SpeciesDetailView(HerringAccess, CommonDetailView):
+    model = models.Species
+    template_name = 'herring/detail.html'
+    edit_url_name = "herring:species_edit"
+    delete_url_name = "herring:species_delete"
+    home_url_name = "herring:index"
+    parent_crumb = {"title": gettext_lazy("Species"), "url": reverse_lazy("herring:species_list")}
+    container_class = "container curvy"
+    field_list = [
+        'id',
+        'name',
+        'nom',
+        'scientific_name',
+        'aphia_id',
+        'length_type',
+        'a',
+        'b',
+        'max_length',
+        'max_weight',
+        'max_gonad_weight',
+        'max_annulus_count',
+    ]
+
+
+class SpeciesUpdateView(HerringCRUD, CommonUpdateView):
+    model = models.Species
+    form_class = forms.SpeciesForm
+    template_name = 'herring/form.html'
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": gettext_lazy("Species"), "url": reverse_lazy("herring:species_list")}
+    container_class = "container curvy"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("herring:species_detail", args=[self.get_object().id])}
+
+
+class SpeciesDeleteView(HerringCRUD, CommonDeleteView):
+    model = models.Species
+    success_url = reverse_lazy('herring:species_list')
+    success_message = 'The Specie was successfully deleted!'
+    template_name = 'herring/confirm_delete.html'
+    container_class = "container curvy"
+    delete_protection = False
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": gettext_lazy("Species"), "url": reverse_lazy("herring:species_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("herring:species_detail", args=[self.get_object().id])}
+
+
+# port #
+########
+
+class PortListView(HerringAdmin, CommonFilterView):
+    template_name = 'herring/list.html'
+    filterset_class = filters.PortFilter
+    home_url_name = "herring:index"
+    new_object_url = reverse_lazy("herring:port_new")
+    row_object_url_name = row_ = "herring:port_detail"
+    container_class = "container"
+    paginate_by = 20
+    field_list = [
+        {"name": 'port_name'},
+        {"name": 'full_code|full code'},
+    ]
+
+    def get_queryset(self):
+        return Port.objects.annotate(
+            search_term=Concat('province_code', 'district_code', 'port_code', Value(" "), 'port_name', output_field=TextField()))
+
+
+class PortCreateView(HerringAdmin, CommonCreateView):
+    model = Port
+    form_class = forms.PortForm
+    success_url = reverse_lazy('herring:port_list')
+    template_name = 'herring/form.html'
+    home_url_name = "herring:index"
+    parent_crumb = {"title": gettext_lazy("Ports"), "url": reverse_lazy("herring:port_list")}
+    container_class = "container curvy"
+
+
+class PortDetailView(HerringAdmin, CommonDetailView):
+    model = Port
+    template_name = 'herring/detail.html'
+    edit_url_name = "herring:port_edit"
+    delete_url_name = "herring:port_delete"
+    home_url_name = "herring:index"
+    parent_crumb = {"title": gettext_lazy("Ports"), "url": reverse_lazy("herring:port_list")}
+    container_class = "container curvy"
+    field_list = [
+        'id',
+        'name',
+        'nom',
+    ]
+
+
+class PortUpdateView(HerringAdmin, CommonUpdateView):
+    model = Port
+    form_class = forms.PortForm
+    template_name = 'herring/form.html'
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": gettext_lazy("Ports"), "url": reverse_lazy("herring:port_list")}
+    container_class = "container curvy"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("herring:port_detail", args=[self.get_object().id])}
+
+
+class PortDeleteView(HerringAdmin, CommonDeleteView):
+    model = Port
+    success_url = reverse_lazy('herring:port_list')
+    success_message = 'The Port was successfully deleted!'
+    template_name = 'herring/confirm_delete.html'
+    container_class = "container curvy"
+    delete_protection = False
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": gettext_lazy("Ports"), "url": reverse_lazy("herring:port_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("herring:port_detail", args=[self.get_object().id])}
 
 
 # SAMPLE #
 ##########
-class SampleFilterView(HerringAccessRequired, FilterView):
+class SampleFilterView(HerringAccess, CommonFilterView):
+    home_url_name = "herring:index"
     filterset_class = filters.SampleFilter
-    template_name = "herring/sample_filter.html"
+    template_name = "herring/sample_list.html"
+    container_class = "container-fluid"
+    row_object_url_name = "herring:sample_detail"
+    paginate_by = 100
+    h1 = "Herring and Gaspereau Samples"
+    new_object_url = reverse_lazy("herring:sample_new")
+    field_list = [
+        {"name": 'id', },
+        {"name": 'species', },
+        {"name": 'type', },
+        {"name": 'sample_date', },
+        {"name": "sampler_ref_number"},
+        {"name": 'survey_id', },
+        {"name": 'sampler', },
+        {"name": 'port', },
+        {"name": 'experimental_net_used', },
+        {"name": 'fish_processed|# Fish processed', },
+        {"name": 'date_processed|Date processed<br>(yyyy-mm-dd)', },
+        {"name": 'lab_complete|Lab complete', },
+        {"name": 'otoliths_complete|Otoliths complete', },
+    ]
 
     def get_queryset(self):
         return models.Sample.objects.all().order_by("sample_date")
 
+
+class SampleSearchFormView(HerringAccess, CommonFormView):
+    h1 = "Find a Sample"
+    home_url_name = "herring:index"
+    template_name = 'herring/form.html'
+    submit_text = f"<span class='mr-1 mdi mdi-magnify'></span>Search"
+    form_class = forms.FileForm
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['field_list'] = [
-            'id',
-            'type',
-            'sample_date',
-            'sampler_ref_number',
-            'survey_id',
-            'sampler',
-            'port',
-            'experimental_net_used',
-            'total_fish_preserved',
-        ]
+        context["form"] = filters.SampleFilter().form
+        context["form"].initial = dict(season=timezone.now().year)
         return context
-    # def get_filterset_kwargs(self, filterset_class):
-    #     kwargs = super().get_filterset_kwargs(filterset_class)
-    #     if kwargs["data"] is None:
-    #         kwargs["data"] = {"season": timezone.now().year }
-    #     return kwargs
 
+    def form_invalid(self, form):
+        qs = filters.SampleFilter(data=form.data).qs
+        if qs.count() == 1:
+            return HttpResponseRedirect(reverse("herring:sample_detail", args=[qs.first().id]))
+        elif not qs.exists():
+            messages.error(self.request, "Sorry, there were no samples found using those search criteria")
 
-class SampleCreateView(HerringAccessRequired, CreateView):
-    template_name = 'herring/sample_form.html'
-    form_class = forms.SampleForm
-    model = models.Sample
-
-    def get_initial(self):
-        return {
-            'created_by': self.request.user,
-            'last_modified_by': self.request.user,
-            'do_another': 1,
-        }
-
-    def form_valid(self, form):
-        object = form.save()
-        # port_sample_tests(object)
-        if form.cleaned_data["do_another"] == 1:
-            return HttpResponseRedirect(reverse_lazy('herring:sample_new'))
+            return HttpResponseRedirect(reverse("herring:sample_search"))
         else:
-            return HttpResponseRedirect(reverse_lazy('herring:sample_list'))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # get a list of ports
-        port_list = ['<a href="#" class="port_insert" code={}>{}</a>'.format(p.id, p) for p in shared_models.Port.objects.all()]
-        context['port_list'] = port_list
-
-        # get a list of samplers
-        sampler_list = []
-        for s in models.Sampler.objects.all():
-            if s.first_name:
-                first = s.first_name.replace("'", "")
-            else:
-                first = None
-
-            if s.last_name:
-                last = s.last_name.replace("'", "")
-            else:
-                last = None
-
-            html_insert = '<a href="#" class="sampler_insert" code={id}>{first} {last}</a>'.format(id=s.id, first=first,
-                                                                                                   last=last)
-            sampler_list.append(html_insert)
-        context['sampler_list'] = sampler_list
-        return context
+            params = listrify([f"{d}={form.data[d]}" for d in form.data if "token" not in d], separator="&")
+            return HttpResponseRedirect(reverse("herring:sample_list") + f"?{params}")
 
 
-class SampleDeleteView(HerringAccessRequired, DeleteView):
-    template_name = 'herring/sample_confirm_delete.html'
+class SampleDetailView(HerringCRUD, CommonDetailView):
+    template_name = 'herring/sample_detail/main.html'
     model = models.Sample
-    success_url = reverse_lazy("herring:sample_list")
-
-
-class SampleUpdateView(HerringAccessRequired, UpdateView):
-    template_name = 'herring/sample_form.html'
-    form_class = forms.SampleForm
-    model = models.Sample
-
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-        }
-
-    def form_valid(self, form):
-        # port_sample_tests(self.object)
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # get a list of districts
-        # get a list of ports
-        port_list = ['<a href="#" class="port_insert" code={}>{}</a>'.format(p.id, p) for p in shared_models.Port.objects.all()]
-        context['port_list'] = port_list
-
-        # get a list of samplers
-        sampler_list = []
-        for s in models.Sampler.objects.all():
-            if s.first_name:
-                first = s.first_name.replace("'", "")
-            else:
-                first = None
-
-            if s.last_name:
-                last = s.last_name.replace("'", "")
-            else:
-                last = None
-
-            html_insert = '<a href="#" class="sampler_insert" code={id}>{first} {last}</a>'.format(id=s.id, first=first,
-                                                                                                   last=last)
-            sampler_list.append(html_insert)
-        context['sampler_list'] = sampler_list
-        return context
-
-
-class SamplePopoutUpdateView(HerringAccessRequired, UpdateView):
-    template_name = 'herring/sample_form_popout.html'
-    model = models.Sample
-
-    def get_form_class(self):
-        if self.kwargs["type"] == "measured":
-            return forms.SampleFishMeasuredForm
-        elif self.kwargs["type"] == "preserved":
-            return forms.SampleFishPreservedForm
-
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-        }
-
-    def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse("herring:close_me"))
-
-
-class SampleDetailView(HerringAccessRequired, DetailView):
-    template_name = 'herring/sample_detail.html'
-    model = models.Sample
+    home_url_name = "herring:index"
+    parent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -256,6 +342,7 @@ class SampleDetailView(HerringAccessRequired, DetailView):
         tests = models.Test.objects.filter(Q(id=205) | Q(id=230) | Q(id=231) | Q(id=232))
         context['tests'] = tests
         context['field_list'] = [
+            'species',
             'type',
             'sample_date',
             'sampler_ref_number',
@@ -332,14 +419,100 @@ class SampleDetailView(HerringAccessRequired, DetailView):
         # provide a list of fish detail lab_processed_dates
         for fishy in self.object.fish_details.all():
             fishy.save()
+            # delete any empty fish details
+            if fishy.is_empty:
+                fishy.delete()
         # resave the sample instance to run thought sample save method
         self.object.save()
-        print(self.object.lab_processing_complete)
         # now conduct the test
 
         return context
 
 
+class SampleCreateView(HerringCRUD, CommonCreateView):
+    template_name = 'herring/sample_form.html'
+    form_class = forms.SampleForm
+    model = models.Sample
+    home_url_name = "herring:index"
+    parent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+
+    def get_initial(self):
+        return {
+
+            'do_another': 1,
+        }
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+
+        obj.created_by = self.request.user
+        obj.last_modified_by = self.request.user
+        obj.save()
+
+        # port_sample_tests(object)
+        if form.cleaned_data["do_another"] == 1:
+            return HttpResponseRedirect(reverse_lazy('herring:sample_new'))
+        else:
+            return HttpResponseRedirect(reverse_lazy('herring:sample_list'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # get a list of ports
+        port_list = ['<a href="#" class="port_insert" code={}>{}</a>'.format(p.id, p) for p in shared_models.Port.objects.all()]
+        context['port_list'] = port_list
+
+        # get a list of samplers
+        sampler_list = []
+        for s in models.Sampler.objects.all():
+            if s.first_name:
+                first = s.first_name.replace("'", "")
+            else:
+                first = None
+
+            if s.last_name:
+                last = s.last_name.replace("'", "")
+            else:
+                last = None
+
+            html_insert = '<a href="#" class="sampler_insert" code={id}>{first} {last}</a>'.format(id=s.id, first=first,
+                                                                                                   last=last)
+            sampler_list.append(html_insert)
+        context['sampler_list'] = sampler_list
+        return context
+
+
+class SampleDeleteView(HerringCRUD, CommonDeleteView):
+    template_name = 'herring/confirm_delete.html'
+    model = models.Sample
+    success_url = reverse_lazy("herring:sample_list")
+    delete_protection = False
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("herring:sample_detail", args=[self.get_object().id])}
+
+
+class SampleUpdateView(HerringCRUD, CommonUpdateView):
+    template_name = 'herring/sample_form.html'
+    form_class = forms.SampleForm
+    model = models.Sample
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("herring:sample_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        # port_sample_tests(self.object)
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
+        return super().form_valid(form)
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(can_read, login_url='/accounts/denied/')
 def move_sample_next(request, sample):
     # shared vars
     message_end = "You are at the last sample."
@@ -367,141 +540,54 @@ def move_sample_next(request, sample):
 # Length Frequeny wizard #
 ##########################
 
-class LengthFrquencyWizardConfirmation(HerringAccessRequired, TemplateView):
-    template_name = 'herring/length_freq_wizard_confirmation.html'
+class LengthFrequencyDataEntryView(HerringCRUD, CommonTemplateView):
+    h1 = "Length Frequency Data Entry"
+    template_name = 'herring/lf.html'
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
 
+    def get_sample(self):
+        return get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
 
-class LengthFrquencyWizardSetupFormView(HerringAccessRequired, FormView):
-    template_name = 'herring/length_freq_wizard_setup.html'
-    form_class = forms.LengthFrquencyWizardSetupForm
+    def get_parent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
 
-    def form_valid(self, form):
-        sample = int(self.kwargs["sample"])
-        from_length = str(form.cleaned_data['minimum_length'])
-        to_length = str(form.cleaned_data['maximum_length'])
-
-        # Delete any existing length frequency data associated with this sample
-        models.LengthFrequency.objects.filter(sample_id=sample).delete()
-
-        return HttpResponseRedirect(reverse('herring:lf_wizard', kwargs={
-            "sample": sample,
-            "from_length": from_length,
-            "to_length": to_length,
-            "current_length": from_length,
-        }))
-
-
-class LengthFrquencyWizardFormView(HerringAccessRequired, FormView):
-    template_name = 'herring/length_freq_wizard.html'
-    form_class = forms.LengthFrquencyWizardForm
-
-    def form_valid(self, form):
-        sample = int(self.kwargs["sample"])
-        from_length = float(self.kwargs['from_length'])
-        to_length = float(self.kwargs['to_length'])
-        current_length = float(self.kwargs['current_length'])
-        models.LengthFrequency.objects.create(sample_id=sample, length_bin_id=current_length,
-                                              count=form.cleaned_data['count'])
-
-        if current_length == to_length:
-            # port_sample_tests(models.Sample.objects.get(pk=sample))
-            return HttpResponseRedirect(reverse('herring:close_me'))
-        else:
-            return HttpResponseRedirect(reverse('herring:lf_wizard', kwargs={
-                "sample": sample,
-                "from_length": from_length,
-                "to_length": to_length,
-                "current_length": str(current_length + 0.5)
-            }))
-
-
-class LengthFrquencyUpdateView(HerringAccessRequired, UpdateView):
-    model = models.LengthFrequency
-    template_name = 'herring/length_freq_wizard.html'
-    fields = ["count"]
-
-    # form_class = forms.LengthFrquencyWizardForm
-
-    def form_valid(self, form):
-        object = form.save()
-        # port_sample_tests(object.sample)
-        return HttpResponseRedirect(reverse('herring:close_me'))
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["sample"] = self.get_sample()
+        return context
 
 
 # FISH DETAIL #
 ##############
 
-class FishDetailView(HerringAccessRequired, DetailView):
-    template_name = 'herring/fish_detail.html'
-    model = models.FishDetail
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-
-class FishCreateView(HerringAccessRequired, CreateView):
-    template_name = 'herring/fish_form.html'
-    form_class = forms.FishForm
-    model = models.FishDetail
-
-    def get_initial(self):
-        return {
-            'sample': self.kwargs['sample'],
-            'created_by': self.request.user,
-            'last_modified_by': self.request.user,
-        }
-
-
-class FishUpdateView(HerringAccessRequired, UpdateView):
-    template_name = 'herring/fish_form.html'
-    form_class = forms.FishForm
-    model = models.FishDetail
-
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-        }
-
-
-class FishDeleteView(HerringAccessRequired, DeleteView):
-    template_name = 'herring/fish_confirm_delete.html'
-    model = models.FishDetail
-
-    def get_success_url(self):
-        return reverse_lazy('herring:sample_detail', kwargs={'pk': self.kwargs['sample']})
-
-
-# lab samples
-
-class LabSampleConfirmation(HerringAccessRequired, TemplateView):
-    template_name = 'herring/lab_sample_confirmation.html'
-
-
-def lab_sample_primer(request, sample):
-    # figure out what the fish number is
-    my_sample = models.Sample.objects.get(pk=sample)
-    if my_sample.fish_details.count() == 0:
-        fish_number = 1
-    else:
-        fish_number = my_sample.fish_details.order_by("fish_number").last().fish_number + 1
-
-    # create new instance of FishDetail with appropriate primed detail
-    my_fishy = models.FishDetail.objects.create(created_by=request.user, sample_id=sample, fish_number=fish_number)
-    return HttpResponseRedirect(reverse('herring:lab_sample_form', kwargs={
-        "sample": sample,
-        "pk": my_fishy.id,
-    }))
-
-
-class FishboardTestView(HerringAccessRequired, TemplateView):
+class FishboardTestView(HerringCRUD, CommonTemplateView):
+    h1 = "Electronic Fish Board Initialization"
+    h3 = "Please follow the instructions below:"
     template_name = 'herring/fishboard_test_form.html'
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+
+    def get_sample(self):
+        return get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
+
+    def get_parent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
 
 
-class LabSampleUpdateView(HerringAccessRequired, UpdateView):
-    template_name = 'herring/lab_sample_form.html'
+class LabSampleUpdateView(HerringCRUD, CommonUpdateView):
+    template_name = 'herring/lab_detailing/main.html'
     model = models.FishDetail
     form_class = forms.LabSampleForm
+    container_class = "container-fluid"
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+
+    def get_sample(self):
+        return self.get_object().sample
+
+    def get_parent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -538,7 +624,7 @@ class LabSampleUpdateView(HerringAccessRequired, UpdateView):
         # determine if this is the last sample in the series
         ## populate a list with all fish detail ids
         id_list = []
-        for f in models.FishDetail.objects.filter(sample_id=self.kwargs["sample"]).order_by("id"):
+        for f in models.FishDetail.objects.filter(sample=self.get_sample()).order_by("id"):
             id_list.append(f.id)
 
         ##determine if this fish is on the leading edge
@@ -546,108 +632,222 @@ class LabSampleUpdateView(HerringAccessRequired, UpdateView):
             context['last_record'] = True
         return context
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-            'lab_sampler': self.request.user,
-        }
-
     def form_valid(self, form):
-        object = form.save()
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
+        obj.lab_sampler = self.request.user
+        obj.save()
+
         print(form.cleaned_data["where_to"])
         if form.cleaned_data["where_to"] == "home":
-            return HttpResponseRedirect(reverse("herring:sample_detail", kwargs={'pk': object.sample.id, }))
+            return HttpResponseRedirect(reverse("herring:sample_detail", kwargs={'pk': obj.sample.id, }))
         elif form.cleaned_data["where_to"] == "prev":
             return HttpResponseRedirect(reverse("herring:move_record",
-                                                kwargs={'sample': object.sample.id, "type": "lab", "direction": "prev",
-                                                        "current_id": object.id}))
+                                                kwargs={'sample': obj.sample.id, "type": "lab", "direction": "prev",
+                                                        "current_id": obj.id}))
         elif form.cleaned_data["where_to"] == "next":
             return HttpResponseRedirect(reverse("herring:move_record",
-                                                kwargs={'sample': object.sample.id, "type": "lab", "direction": "next",
-                                                        "current_id": object.id}))
+                                                kwargs={'sample': obj.sample.id, "type": "lab", "direction": "next",
+                                                        "current_id": obj.id}))
         elif form.cleaned_data["where_to"] == "new":
-            return HttpResponseRedirect(reverse("herring:lab_sample_primer", kwargs={'sample': object.sample.id, }))
+            return HttpResponseRedirect(reverse("herring:lab_sample_primer", kwargs={'sample': obj.sample.id, }))
         else:
             return HttpResponseRedirect(
-                reverse("herring:lab_sample_form", kwargs={'sample': object.sample.id, 'pk': object.id}))
+                reverse("herring:lab_sample_form", kwargs={'pk': obj.id}))
+
+
+class LabSampleUpdateViewV2(HerringCRUD, CommonDetailView):
+    template_name = 'herring/lab_detailing_v2/main.html'
+    model = models.FishDetail
+    container_class = "container"
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+
+    def get_sample(self):
+        return self.get_object().sample
+
+    def get_parent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        obj = self.get_object()
+
+        # determine if this is the first or last record
+        id_list = [f.id for f in models.FishDetail.objects.filter(sample_id=obj.sample).order_by("id")]
+        current_index = id_list.index(obj.id)
+
+        is_last = False
+        mode = self.request.GET.get('mode')
+
+        try:
+            next_url = reverse("herring:lab_sample_form_v2", args=[id_list[current_index + 1]]) + f"?mode={mode}"
+        except IndexError:
+            next_url = reverse("herring:lab_sample_primer", args=[obj.sample.id]) + f"?version=2&mode={mode}"
+            is_last = True
+
+        if current_index != 0:
+            prev_url = reverse("herring:lab_sample_form_v2", args=[id_list[current_index - 1]]) + f"?mode={mode}"
+        else:
+            prev_url = None
+
+        context["next_url"] = next_url
+        context["prev_url"] = prev_url
+        context["is_last"] = is_last
+
+        return context
+
+
+class FishDetailView(HerringCRUD, CommonDetailView):
+    template_name = 'herring/fish_detail.html'
+    model = models.FishDetail
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+
+    def get_sample(self):
+        return self.get_object().sample
+
+    def get_parent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class FishUpdateView(HerringCRUD, CommonUpdateView):
+    template_name = 'herring/form.html'
+    form_class = forms.FishForm
+    model = models.FishDetail
+    home_url_name = "herring:index"
+    greatgrandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+
+    def get_sample(self):
+        return self.get_object().sample
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("herring:fish_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
+        return super().form_valid(form)
+
+
+class FishDeleteView(HerringCRUD, CommonDeleteView):
+    template_name = 'herring/confirm_delete.html'
+    model = models.FishDetail
+    home_url_name = "herring:index"
+    greatgrandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+
+    def get_sample(self):
+        return self.get_object().sample
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("herring:fish_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
+
+    def get_success_url(self):
+        return self.get_grandparent_crumb()["url"]
+
+
+# lab samples
+
+class LabSampleConfirmation(HerringCRUD, CommonTemplateView):
+    template_name = 'herring/lab_sample_confirmation.html'
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+    h1 = "Warning"
+
+    def get_sample(self):
+        return get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
+
+    def get_parent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(is_crud_user, login_url='/accounts/denied/')
+def lab_sample_primer(request, sample):
+    # figure out what the fish number is
+    my_sample = models.Sample.objects.get(pk=sample)
+
+    # delete any empty fish
+    my_sample.fish_details.filter(is_empty=True).delete()
+
+    try:
+        fish_number = my_sample.fish_details.order_by("fish_number").last().fish_number + 1
+    except AttributeError:
+        fish_number = 1
+
+    # create new instance of FishDetail with appropriate primed detail
+    my_fishy = models.FishDetail.objects.create(created_by=request.user, sample_id=sample, fish_number=fish_number)
+    otolith = request.GET.get("otolith")
+    if otolith:
+        return HttpResponseRedirect(reverse('herring:otolith_form', args=[my_fishy.id]))
+    else:
+        version = request.GET.get("version")
+        mode = request.GET.get("mode")
+        if version and version == "2":
+            return HttpResponseRedirect(reverse('herring:lab_sample_form_v2', args=[my_fishy.id]) + f"?mode={mode}")
+        return HttpResponseRedirect(reverse('herring:lab_sample_form', args=[my_fishy.id]))
 
 
 # this view should have a progress bar and a button to get started. also should display any issues and messages about the input.
 
-def delete_fish_detail(request, sample, pk):
-    fishy = models.FishDetail.objects.get(pk=pk)
-    fishy.delete()
-    return HttpResponseRedirect(reverse("herring:sample_detail", kwargs={"pk": sample}))
+
+class FishDetailHardDeleteView(HerringCRUD, CommonHardDeleteView):
+    model = models.FishDetail
+
+    def get_success_url(self):
+        HttpResponseRedirect(reverse("herring:sample_detail", kwargs={"pk": self.kwargs["pk"]}))
 
 
 # Otolith
-
-class OtolithUpdateView(HerringAccessRequired, UpdateView):
-    template_name = 'herring/otolith_form.html'
+class OtolithUpdateView(HerringCRUD, CommonDetailView):
+    template_name = 'herring/otolith_detailing_v2/main.html'
     model = models.FishDetail
-    form_class = forms.OtolithForm
+    container_class = "container"
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+
+    def get_sample(self):
+        return self.get_object().sample
+
+    def get_parent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # pass in the tests
-        tests = models.Test.objects.filter(
-            Q(id=200) | Q(id=206) | Q(id=209) | Q(id=210) | Q(id=211) | Q(id=309) | Q(id=310)).order_by(
-            "id")
-        context['tests'] = tests
+        obj = self.get_object()
 
-        # determine the progress of data entry
-        ## there are 2 fields: len, wt, g_wt, sex, mat, parasite; HOWEVER parasites are only looked at from sea samples
-        progress = 0
-        if self.object.annulus_count:
-            progress = progress + 1
-        if self.object.otolith_season:
-            progress = progress + 1
-        total_tests = 2
+        # determine if this is the first or last record
+        id_list = [f.id for f in models.FishDetail.objects.filter(sample_id=obj.sample).order_by("id")]
+        current_index = id_list.index(obj.id)
 
-        context['progress'] = progress
-        context['total_tests'] = total_tests
+        is_last = False
+        mode = self.request.GET.get('mode')
 
-        # provide some context about the position of the current record
         try:
-            next_fishy = \
-                models.FishDetail.objects.filter(sample=self.object.sample, fish_number=self.object.fish_number + 1)[0]
-        except Exception as e:
-            print(e)
-        else:
-            context['next_fish_id'] = next_fishy.id
+            next_url = reverse("herring:otolith_form", args=[id_list[current_index + 1]])
+        except IndexError:
+            next_url = None
+            is_last = True
 
-        context["prev_record"] = reverse("herring:move_record",
-                                         kwargs={'sample': self.object.sample.id, "type": "otolith",
-                                                 "direction": "prev", "current_id": self.object.id})
-        context["next_record"] = reverse("herring:move_record",
-                                         kwargs={'sample': self.object.sample.id, "type": "otolith",
-                                                 "direction": "next", "current_id": self.object.id})
-        context["home"] = reverse("herring:sample_detail", kwargs={'pk': self.object.sample.id, })
+        if current_index != 0:
+            prev_url = reverse("herring:otolith_form", args=[id_list[current_index - 1]]) + "?otolith=true"
+        else:
+            prev_url = None
+
+        context["next_url"] = next_url
+        context["prev_url"] = prev_url
+        context["is_last"] = is_last
 
         return context
-
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-            'otolith_sampler': self.request.user,
-        }
-
-    def form_valid(self, form):
-        object = form.save()
-
-        if form.cleaned_data["where_to"] == "home":
-            return HttpResponseRedirect(reverse("herring:sample_detail", kwargs={'pk': object.sample.id, }))
-        elif form.cleaned_data["where_to"] == "prev":
-            return HttpResponseRedirect(reverse("herring:move_record",
-                                                kwargs={'sample': object.sample.id, "type": "otolith",
-                                                        "direction": "prev", "current_id": object.id}))
-        elif form.cleaned_data["where_to"] == "next":
-            return HttpResponseRedirect(reverse("herring:move_record",
-                                                kwargs={'sample': object.sample.id, "type": "otolith",
-                                                        "direction": "next", "current_id": object.id}))
-        else:
-            return HttpResponseRedirect(
-                reverse("herring:otolith_form", kwargs={'sample': object.sample.id, 'pk': object.id}))
 
 
 # SHARED #
@@ -662,14 +862,8 @@ def move_record(request, sample, type, direction, current_id):
     elif type == "otolith":
         viewname = "herring:otolith_form"
 
-    # prime a listto store ids
-    id_list = []
-
-    record_count = models.FishDetail.objects.filter(sample_id=sample).count()
-
-    # populate a list with all fish detail ids
-    for f in models.FishDetail.objects.filter(sample_id=sample).order_by("id"):
-        id_list.append(f.id)
+    # prime a list to store ids
+    id_list = [f.id for f in models.FishDetail.objects.filter(sample_id=sample).order_by("id")]
 
     # figure out where the current record is within recordset
     current_index = id_list.index(current_id)
@@ -692,7 +886,7 @@ def move_record(request, sample, type, direction, current_id):
             messages.success(request, message_end)
             return HttpResponseRedirect(reverse(viewname=viewname, kwargs={'sample': sample, "pk": current_id, }))
 
-        # othersise move forward 1
+        # otherwise move forward 1
         else:
             target_id = id_list[current_index + 1]
             return HttpResponseRedirect(reverse(viewname=viewname, kwargs={'sample': sample, "pk": target_id}))
@@ -702,9 +896,9 @@ def move_record(request, sample, type, direction, current_id):
 ###########
 
 
-class ReportSearchFormView(HerringAccessRequired, FormView):
-    template_name = 'herring/report_search.html'
-
+class ReportSearchFormView(HerringAccess, FormView):
+    template_name = 'herring/reports.html'
+    home_url_name = "herring:index"
     form_class = forms.ReportSearchForm
 
     def get_initial(self):
@@ -720,34 +914,58 @@ class ReportSearchFormView(HerringAccessRequired, FormView):
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
         year = int(form.cleaned_data["year"])
+        species = int(form.cleaned_data["species"].id)
 
         if report == 1:
-            return HttpResponseRedirect(reverse("herring:progress_report_detail", kwargs={'year': year}))
+            return HttpResponseRedirect(reverse("herring:progress_report_detail") + f"?year={year}&species={species}")
         elif report == 2:
-            return HttpResponseRedirect(reverse("herring:export_fish_detail", kwargs={'year': year}))
-        elif report == 3:
-            return HttpResponseRedirect(reverse("herring:export_hlen", kwargs={'year': year}))
-        elif report == 4:
-            return HttpResponseRedirect(reverse("herring:export_hlog", kwargs={'year': year}))
-        elif report == 5:
-            return HttpResponseRedirect(reverse("herring:export_hdet", kwargs={'year': year}))
+            return HttpResponseRedirect(reverse("herring:export_fish_detail") + f"?year={year}&species={species}")
+
         elif report == 6:
-            return HttpResponseRedirect(reverse("herring:export_sample_report", kwargs={'year': year}))
+            return HttpResponseRedirect(reverse("herring:export_sample_report") + f"?year={year}&species={species}")
+        elif report == 7:
+            return HttpResponseRedirect(reverse("herring:export_lf_report") + f"?year={year}&species={species}")
+
+        elif report == 3:
+            return HttpResponseRedirect(reverse("herring:export_hlen") + f"?year={year}")
+        elif report == 4:
+            return HttpResponseRedirect(reverse("herring:export_hlog") + f"?year={year}")
+        elif report == 5:
+            return HttpResponseRedirect(reverse("herring:export_hdet") + f"?year={year}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("herring:report_search"))
 
 
-class ProgressReportListView(HerringAccessRequired, ListView):
-    template_name = 'herring/report_progress_list.html'
+class ProgressReportListView(HerringCRUD, CommonListView):
+    home_url_name = "herring:index"
+    template_name = 'herring/progress_list.html'
+    container_class = "container-fluid"
+    row_object_url_name = "herring:sample_detail"
+    field_list = [
+        {"name": 'season', },
+        {"name": 'id|Sample Id', },
+        {"name": 'type', },
+        {"name": 'sample_date', },
+        {"name": "sampler_ref_number"},
+        {"name": 'sampler', },
+        {"name": '|# fish measured (from sheet)', },
+        {"name": '|# fish measured (from LF)', },
+        {"name": '|Fish preserved', },
+        {"name": '|Lab processed', },
+        {"name": '|Otoliths processed', },
+    ]
+
+    def get_h1(self):
+        return f"Annual Progress Report - {get_object_or_404(models.Species, pk=self.request.GET.get('species'))}"
 
     def get_queryset(self):
-        return models.Sample.objects.filter(season=self.kwargs["year"]).order_by("sample_date")
+        return models.Sample.objects.filter(season=self.request.GET.get("year"), species_id=self.request.GET.get("species")).order_by("sample_date")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        qs = models.Sample.objects.filter(season=self.kwargs["year"])
+        qs = self.get_queryset()
 
         # sum of samples
         context["sample_sum"] = qs.count
@@ -801,32 +1019,48 @@ class ProgressReportListView(HerringAccessRequired, ListView):
         return context
 
 
-def export_progress_report(request, year):
-    response = reports.generate_progress_report(year)
+def export_progress_report(request):
+    year = request.GET.get("year")
+    species = request.GET.get("species")
+    response = reports.generate_progress_report(year, species)
     return response
 
 
-def export_fish_detail(request, year):
-    response = reports.generate_fish_detail_report(year)
+def export_fish_detail(request):
+    year = request.GET.get("year")
+    species = request.GET.get("species")
+    response = reports.generate_fish_detail_report(year, species)
     return response
 
 
-def export_sample_report(request, year):
-    response = reports.generate_sample_report(year)
+def export_lf_report(request):
+    year = request.GET.get("year")
+    species = request.GET.get("species")
+    response = reports.generate_lf_report(year, species)
     return response
 
 
-def export_hlog(request, year):
+def export_sample_report(request):
+    year = request.GET.get("year")
+    species = request.GET.get("species")
+    response = reports.generate_sample_report(year, species)
+    return response
+
+
+def export_hlog(request):
+    year = request.GET.get("year")
     response = reports.generate_hlog(year)
     return response
 
 
-def export_hlen(request, year):
+def export_hlen(request):
+    year = request.GET.get("year")
     response = reports.generate_hlen(year)
     return response
 
 
-def export_hdet(request, year):
+def export_hdet(request):
+    year = request.GET.get("year")
     # we will want to let the user know if there is a fish that has not been fully processed in the lab
     fishies = models.FishDetail.objects.filter(sample__season=year, lab_processed_date__isnull=True).order_by("sample__sample_date",
                                                                                                               "fish_number")
@@ -846,34 +1080,41 @@ def export_hdet(request, year):
 # ADMIN #
 #########
 
-class CheckUsageListView(HerringAdminAccessRequired, ListView):
+class CheckUsageListView(HerringAdmin, CommonListView):
+    h1 = "Modified Fish Details"
     template_name = "herring/check_usage.html"
+    home_url_name = "herring:index"
     model = models.FishDetail
-
     # show only the top twenty results
     queryset = model.objects.all().order_by('-last_modified_date')[:50]
 
 
-class ImportFileView(HerringAdminAccessRequired, CreateView):
-    model = models.File
+class ImportFileView(HerringAdmin, CommonFormView):
     fields = "__all__"
+    home_url_name = "herring:index"
+    form_class = forms.FileForm
+    is_multipart_form_data = True
+
+    def get_h1(self):
+        if self.kwargs.get("type") == "sample":
+            return 'Import Sample Data from ANDES'
+        elif self.kwargs.get("type") == "lf":
+            return 'Import Length Frequency Data from ANDES'
+        elif self.kwargs.get("type") == 'detail':
+            return 'Import Detail Data from ANDES'
 
     def get_template_names(self):
         if self.kwargs.get("type") == "sample":
-            return 'herring/sample_file_import_form.html'
+            return 'herring/import/sample.html'
         if self.kwargs.get("type") == "lf":
-            return 'herring/lf_file_import_form.html'
+            return 'herring/import/lf.html'
         if self.kwargs.get("type") == 'detail':
-            return 'herring/detail_file_import_form.html'
+            return 'herring/import/detail.html'
 
     def form_valid(self, form):
-        my_object = form.save()
-        # now we need to do some magic with the file...
-
-        # load the file
-        url = self.request.META.get("HTTP_ORIGIN") + my_object.file.url
-        r = requests.get(url)
-        csv_reader = csv.DictReader(r.text.splitlines())
+        temp_file = form.files['file']
+        temp_file.seek(0)
+        csv_reader = csv.DictReader(StringIO(temp_file.read().decode('utf-8')))
 
         i = 0
         # loop through each row of the csv file
@@ -881,9 +1122,11 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
             # what to do if we are importing a sample data export..
             if self.kwargs.get("type") == "sample":
                 # each row will represent a sample
-                # we only want herring.. so if there is a species field, it should be clupea ...
-                species_name = row.get("species")
-                if not species_name or species_name.lower().startswith("clupea"):
+                # if there is no speices, no sense continuing
+                species_aphia_id = row.get("species")
+
+                if species_aphia_id and models.Species.objects.filter(aphia_id=species_aphia_id).exists():
+                    species = models.Species.objects.get(aphia_id=species_aphia_id)
                     sample_qs = models.Sample.objects.filter(old_id=row.get("uuid"))
 
                     # let's get or create a sample based on the uuid
@@ -897,6 +1140,7 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
 
                     # let's do this easy stuff in one shot:
                     my_sample.type = row.get("type")
+                    my_sample.species = species
                     my_sample.survey_id = nz(row.get("survey_id"), None)
                     my_sample.sampler_ref_number = nz(row.get("sampler_ref_number"), None)
                     my_sample.latitude_n = nz(row.get("latitude_n"), None)
@@ -952,7 +1196,8 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
                                 new_sampler = models.Sampler.objects.create(first_name=sedna_sampler[1], last_name=sedna_sampler[0])
                                 my_sample.sampler = new_sampler
                     else:
-                        herm_sampler = models.Sampler.objects.get(pk=29)  # sampler = UNKNOWN
+                        herm_sampler, created = models.Sampler.objects.get_or_create(last_name="UNKNOWN")  # sampler = UNKNOWN
+                        my_sample.sampler = herm_sampler
 
                     # FISHING AREA
                     # since this is more fundamental, let's crush the script is not found
@@ -1021,64 +1266,4 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
             i += 1
 
         # clear the file in my object
-        my_object.delete()
-        return HttpResponseRedirect(reverse_lazy('herring:index'))
-
-
-# SAMPLER #
-###########
-
-class SamplerListView(HerringAdminAccessRequired, FilterView):
-    template_name = "herring/sampler_list.html"
-    filterset_class = filters.SamplerFilter
-    queryset = models.Sampler.objects.annotate(
-        search_term=Concat('first_name', 'last_name', output_field=TextField()))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['my_object'] = models.Sampler.objects.first()
-        context["field_list"] = [
-            'full_name|Sampler name',
-        ]
-        return context
-
-
-class SamplerDetailView(HerringAdminAccessRequired, DetailView):
-    model = models.Sampler
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'first_name',
-            'last_name',
-            'notes',
-        ]
-        return context
-
-
-class SamplerUpdateView(HerringAdminAccessRequired, UpdateView):
-    model = models.Sampler
-    form_class = forms.SamplerForm
-
-    def get_success_url(self):
-        return reverse_lazy("herring:sampler_detail", kwargs={"pk": self.get_object().id})
-
-
-class SamplerCreateView(HerringAdminAccessRequired, CreateView):
-    model = models.Sampler
-    form_class = forms.SamplerForm
-
-    def form_valid(self, form):
-        my_object = form.save()
-        return HttpResponseRedirect(reverse_lazy("herring:sampler_detail", kwargs={"pk": my_object.id}))
-
-
-class SamplerDeleteView(HerringAdminAccessRequired, DeleteView):
-    model = models.Sampler
-    permission_required = "__all__"
-    success_url = reverse_lazy('herring:sampler_list')
-    success_message = 'The sampler was successfully deleted!'
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+        return HttpResponseRedirect(reverse('herring:index'))

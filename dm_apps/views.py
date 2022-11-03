@@ -173,7 +173,7 @@ def get_app_dict(request):
     try:
         app_dict["herring"] = {
             "title": _("HERMAN"),
-            "description": _("The Herring Program for Data Entry."),
+            "description": _("The Herring and Gaspereau Program for Data Entry."),
             "status": "production",
             "access": "permission-required",
             "url": reverse('herring:index'),
