@@ -133,12 +133,12 @@ def get_app_dict(request):
 
     try:
         app_dict["cars"] = {
-            "title": _("Vehicle RSVP"),
-            "description": _("Science Vehicle Reservation System"),
+            "title": _("Gulf RSVPs"),
+            "description": _("Beeep Beeep!!!"),
             "status": "dev",
             "access": "login-required",
             "url": reverse('cars:index'),
-            "icon_path": 'img/icons/vehicle.png',
+            "icon_path": 'img/icons/calendar.png',
             "region": "regional",
         }
     except NoReverseMatch:
@@ -426,19 +426,6 @@ def get_app_dict(request):
             "url": reverse('maret:index'),
             "icon_path": 'img/icons/plug.svg',
             "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
-        app_dict["projects"] = {
-            "title": _("Project Planning (ARCHIVE ONLY)"),
-            "description": _("Tool for the tracking, development and coordination of science project workplans."),
-            "status": "production",
-            "access": "login-required",
-            "url": reverse('projects:index'),
-            "icon_path": 'img/icons/scope.svg',
-            "region": "all",
         }
     except NoReverseMatch:
         pass
