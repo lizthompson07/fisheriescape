@@ -63,11 +63,6 @@ steps:
     displayName: 'Tests for cruises'
 
   - script: |
-      python manage.py test -b whalebrary.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for whalebrary'
-
-  - script: |
       python manage.py test --exclude-tag=Functional -b bio_diversity.test
     condition: succeededOrFailed()
     displayName: 'Tests for biodiversity'
@@ -87,7 +82,7 @@ steps:
     condition: succeededOrFailed()
     displayName: 'Tests for grAIS'
 
-#  - script: |
-#      python manage.py test -b fisheriescape.test
-#    condition: succeededOrFailed()
-#    displayName: 'Tests for fisheriescape'
+  - script: |
+      python manage.py test -b herring.test
+    condition: succeededOrFailed()
+    displayName: 'Tests for HERMAN'
