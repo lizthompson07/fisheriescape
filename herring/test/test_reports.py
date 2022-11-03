@@ -33,12 +33,11 @@ class TestReportSearchFormView(CommonTest):
 class TestReports(CommonTest):
     def setUp(self):
         super().setUp()
-        fish = FactoryFloor.SamplerFactory()
+        fish = FactoryFloor.FishDetailFactory(fish_number=100)
         sample = fish.sample
-        year = sample.season
 
         for x in range(1, 10):
-            fish = FactoryFloor.SamplerFactory(sample=sample)
+            fish = FactoryFloor.FishDetailFactory(sample=sample, fish_number=x)
 
         for l in models.LengthBin.objects.all()[:30]:
             lf = FactoryFloor.LengthFrequencyFactory(sample=sample, length_bin=l)
@@ -46,13 +45,14 @@ class TestReports(CommonTest):
         activate('en')
 
         self.test_urls = [
-            reverse_lazy('herring:export_progress_report'),
-            reverse_lazy('herring:export_sample_report'),
-            reverse_lazy('herring:export_lf_report'),
-            reverse_lazy('herring:export_fish_detail'),
-            reverse_lazy('herring:export_hlen'),
-            reverse_lazy('herring:export_hlog'),
-            reverse_lazy('herring:export_hdet'),
+            reverse_lazy('herring:progress_report_detail') + f"?year={sample.season}&species={sample.species.id}",
+            reverse_lazy('herring:export_progress_report') + f"?year={sample.season}&species={sample.species.id}",
+            reverse_lazy('herring:export_sample_report') + f"?year={sample.season}&species={sample.species.id}",
+            reverse_lazy('herring:export_lf_report') + f"?year={sample.season}&species={sample.species.id}",
+            reverse_lazy('herring:export_fish_detail') + f"?year={sample.season}&species={sample.species.id}",
+            reverse_lazy('herring:export_hlen') + f"?year={sample.season}",
+            reverse_lazy('herring:export_hlog') + f"?year={sample.season}",
+            reverse_lazy('herring:export_hdet') + f"?year={sample.season}",
         ]
 
 

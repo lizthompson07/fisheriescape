@@ -1,4 +1,5 @@
 import os
+import urllib.parse
 
 from django.conf import settings
 from django.contrib.messages import get_messages
@@ -119,6 +120,11 @@ class CommonTest(TestCase):
         for l in locales:
             activate(l)
             login_url = f"{self.login_url_base}{test_url}" if not login_search_term else login_search_term
+            # if there is any query params, we have to percent-encode them
+            if len(login_url.split("?")) > 2:
+                find_str = "?" + login_url.split("?")[-1]
+                replace_str = urllib.parse.quote("?" + login_url.split("?")[-1])
+                login_url = login_url.replace(find_str, replace_str)
 
             # PART 1: try accessing with an Anonymous user
 

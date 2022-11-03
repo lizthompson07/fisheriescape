@@ -1068,7 +1068,7 @@ def export_hdet(request):
     if fishies.exists():
         mylist = []
         for fish in fishies:
-            mylist.append(f"<a href='{reverse('herring:fish_detail', args=[fish.sample.id, fish.id])}'>{fish.fish_number}</a>")
+            mylist.append(f"<a href='{reverse('herring:fish_detail', args=[fish.id])}'>{fish.fish_number}</a>")
         messages.warning(request, mark_safe(
             f'Warning: There are incomplete fish detail records in this query. Those fish will not be returned in the HDET file. {listrify(mylist)}'
         ))

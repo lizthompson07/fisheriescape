@@ -743,22 +743,6 @@ class TestProgressReportListView(CommonTest):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("ProgressReport", "progress_report_detail", "context")
-    def test_context(self):
-        context_vars = [
-            "sample_sum",
-            "fish_sum",
-            "sample_sum_lab_complete",
-            "fish_sum_lab_complete",
-            "sample_sum_lab_remaining",
-            "fish_sum_lab_remaining",
-            "sample_sum_oto_complete",
-            "fish_sum_oto_complete",
-            "sample_sum_oto_remaining",
-            "fish_sum_oto_remaining",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
     @tag("ProgressReport", "progress_report_detail", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
