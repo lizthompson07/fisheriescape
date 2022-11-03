@@ -130,20 +130,6 @@ printf "\n"
 python3.8 manage.py test -b whalebrary.test
 echo "FINISHED RUNNING TESTS FOR: whalebrary"
 
-printf "\n"
-printf "\n"
-printf "\n"
-printf "\n"
-printf "#############################################################################################################################"
-printf "\n"
-echo "RUNNING TESTS FOR: bio_diversity"
-printf "\n"
-printf "#############################################################################################################################"
-printf "\n"
-python3.8 manage.py test --exclude-tag=Functional -b bio_diversity.test
-echo "FINISHED RUNNING TESTS FOR: bio_diversity"
-
-
 
 printf "\n"
 printf "\n"

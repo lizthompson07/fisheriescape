@@ -25,9 +25,6 @@ python manage.py test -b csas.test --keepdb
 :: run tests for cruises
 python manage.py test -b cruises.test --keepdb
 
-:: run tests for bio_diversity
-python manage.py test --exclude-tag=Functional -b bio_diversity.test --keepdb
-
 :: run tests for scuba
 python manage.py test -b scuba.test --keepdb
 
