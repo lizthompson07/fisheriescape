@@ -88,6 +88,7 @@ def make_fish_flags(fish, user):
     length = fish.fish_length
     weight = fish.fish_weight
     gonad_weight = fish.gonad_weight
+    gonad_sub_sample_weight = fish.gonad_sub_sample_weight
     maturity = fish.maturity_id
     annuli = fish.annulus_count
 
@@ -135,3 +136,9 @@ def make_fish_flags(fish, user):
         FishDetailFlag.objects.get_or_create(flag_definition=12, **kwargs)
     elif None not in (length, annuli):
         fish.flags.filter(flag_definition=12).delete()
+
+    # 12: "unexpected fish length to number of annuli ratio."
+    if None not in (gonad_weight, gonad_sub_sample_weight) and (gonad_sub_sample_weight >= gonad_weight):
+        FishDetailFlag.objects.get_or_create(flag_definition=13, **kwargs)
+    elif None not in (gonad_weight, gonad_sub_sample_weight):
+        fish.flags.filter(flag_definition=13).delete()

@@ -310,7 +310,7 @@
         var payload = [];
         if (this.fish.id) {
           for (const flag of this.fish.flags) {
-            //if (flag.flag_definition === 4 || flag.flag_definition === 12) payload.push(flag);
+            if (flag.flag_definition === 13) payload.push(flag);
           }
         }
         return payload

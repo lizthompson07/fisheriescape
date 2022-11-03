@@ -15,6 +15,7 @@ flag_definitions = {
     10: "Unexpected fish length to weight ratio.",
     11: "Unexpected gonad weight to somatic weight to maturity level combination.",
     12: "Unexpected fish length to number of annuli ratio.",
+    13: "The gonad sub-sample weight must be smaller than the total gonad weight",
 }
 
 

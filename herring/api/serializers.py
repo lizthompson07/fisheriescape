@@ -50,6 +50,8 @@ class FishDetailFlagSerializer(serializers.ModelSerializer):
             return f'The maximum probably gonad weight for this species is {instance.fish_detail.sample.species.max_gonad_weight}g'
         elif instance.flag_definition == 4:
             return f'The maximum probably annulus count for this species is {instance.fish_detail.sample.species.max_annulus_count}'
+        elif instance.flag_definition == 13:
+            return f'The gonad sub-sample weight must be smaller than {instance.fish_detail.gonad_weight}g'
         elif instance.flag_definition > 4:
             max_min_lookup = get_max_mins(instance.fish_detail)
             if max_min_lookup.get(instance.flag_definition) and None not in [max_min_lookup.get(instance.flag_definition)["min"],
