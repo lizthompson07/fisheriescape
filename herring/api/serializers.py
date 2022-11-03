@@ -71,6 +71,7 @@ class FishDetailSerializer(serializers.ModelSerializer):
     species = serializers.SerializerMethodField()
     lab_sampler = serializers.StringRelatedField()
     otolith_sampler = serializers.StringRelatedField()
+    egg_sampler = serializers.StringRelatedField()
 
     def get_species(self, instance):
         return SpeciesSerializer(instance.sample.species).data
