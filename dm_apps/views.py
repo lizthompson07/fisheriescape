@@ -275,19 +275,6 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["staff"] = {
-            "title": _("Staff Planning Tool"),
-            "description": _("Tool for staff planning."),
-            "status": "dev",
-            "access": "login-required",
-            "url": reverse('staff:index'),
-            "icon_path": 'img/icons/staff.svg',
-            "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
         app_dict["sar_search"] = {
             "title": _("SAR Search"),
             "description": _("Species at Risk Search Tool."),
