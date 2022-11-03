@@ -5,7 +5,7 @@ from . import views
 app_name = 'herring'
 
 urlpatterns = [
-    path('', views.IndexView.as_view(), name="index"), # tested
+    path('', views.IndexView.as_view(), name="index"),  # tested
 
     path('settings/users/', views.HerringUserFormsetView.as_view(), name="manage_herring_users"),  # tested
     path('settings/users/<int:pk>/delete/', views.HerringUserHardDeleteView.as_view(), name="delete_herring_user"),  # tested
@@ -44,34 +44,32 @@ urlpatterns = [
     path('samples/<int:pk>/detail/', views.SampleDetailView.as_view(), name="sample_detail"),  # tested
     path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),  # tested
     path('samples/search/', views.SampleSearchFormView.as_view(), name="sample_search"),  # tested
-    path('samples/go-to-next/from-sample/<int:sample>', views.move_sample_next, name="move_sample_next"),   # tested
+    path('samples/go-to-next/from-sample/<int:sample>', views.move_sample_next, name="move_sample_next"),  # tested
 
     # Length Frequency #
     ####################
-    path('samples/<int:sample>/length-frequencies/', views.LengthFrequencyDataEntryView.as_view(), name="lf"), # tested
+    path('samples/<int:sample>/length-frequencies/', views.LengthFrequencyDataEntryView.as_view(), name="lf"),  # tested
 
     # FISH DETAIL #
     ##############
-    path('fish/<int:pk>/view/', views.FishDetailView.as_view(), name="fish_detail"),
-    path('fish/<int:pk>/edit/', views.FishUpdateView.as_view(), name="fish_update"),
-    path('fish/<int:pk>/delete/', views.FishDeleteView.as_view(), name="fish_delete"),
+    path('fish/<int:pk>/view/', views.FishDetailView.as_view(), name="fish_detail"),  # tested
+    path('fish/<int:pk>/edit/', views.FishUpdateView.as_view(), name="fish_update"),  # tested
+    path('fish/<int:pk>/delete/', views.FishDeleteView.as_view(), name="fish_delete"),  # tested
 
     # Lab
-    path('lab/samples/<int:sample>/fish-board-test/', views.FishboardTestView.as_view(), name="fishboard_test_form"),
-    path('lab/samples/<int:sample>/lab-sample-confirmation', views.LabSampleConfirmation.as_view(), name="lab_sample_confirmation"),
-    path('lab/samples/<int:sample>/new-lab-sample', views.lab_sample_primer, name="lab_sample_primer"),
-    path('lab/fish/<int:pk>/', views.LabSampleUpdateView.as_view(), name="lab_sample_form"),
-    path('lab/fish/v2/<int:pk>/', views.LabSampleUpdateViewV2.as_view(), name="lab_sample_form_v2"),
-    path('lab/delete/<int:pk>/', views.FishDetailHardDeleteView.as_view(), name="delete_fish_detail"),
+    path('lab/samples/<int:sample>/fish-board-test/', views.FishboardTestView.as_view(), name="fishboard_test_form"),# tested
+    path('lab/samples/<int:sample>/lab-sample-confirmation/', views.LabSampleConfirmation.as_view(), name="lab_sample_confirmation"),# tested
+    path('lab/samples/<int:sample>/new-lab-sample/', views.lab_sample_primer, name="lab_sample_primer"),# tested
+    path('lab/fish/v2/<int:pk>/', views.LabSampleUpdateViewV2.as_view(), name="lab_sample_form_v2"), # tested
 
-    # Otolith
-    path('otolith/fish/<int:pk>/', views.OtolithUpdateView.as_view(), name="otolith_form"),
-    # path('samples/<int:sample>/otolith/fish/<int:pk>/', views.OtolithUpdateView.as_view(), name ="otolith_form"),
-
-    # SHARED #
-    ##########
+    # if delete one, delete the other
+    path('lab/fish/<int:pk>/', views.LabSampleUpdateView.as_view(), name="lab_sample_form"), # tested
+    path('lab/delete/<int:pk>/', views.FishDetailHardDeleteView.as_view(), name="delete_fish_detail"), # tested
     path('sample/<int:sample>/<str:type>/<str:direction>/<int:current_id>/', views.move_record, name="move_record"),
     path('sample/<int:sample>/<str:type>/<str:direction>/', views.move_record, name="move_record"),
+
+    # Otolith
+    path('otolith/fish/<int:pk>/', views.OtolithUpdateView.as_view(), name="otolith_form"), # tested
 
     # PROGRESS REPORT #
     ###################

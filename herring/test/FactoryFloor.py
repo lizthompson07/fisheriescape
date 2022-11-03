@@ -129,3 +129,35 @@ class PortFactory(factory.django.DjangoModelFactory):
             'port_code': str(faker.pyint(10, 99)),
             'port_name': faker.word(),
         }
+
+
+class FishDetailFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.FishDetail
+
+    sample = factory.SubFactory(SampleFactory)
+    fish_number = factory.lazy_attribute(lambda o: faker.pyint(1, 100))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'sample': SampleFactory().id,
+            'fish_number': faker.pyint(1, 100),
+        }
+
+
+class LengthFrequencyFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.LengthFrequency
+
+    sample = factory.SubFactory(SampleFactory)
+    length_bin = factory.lazy_attribute(lambda o: models.LengthBin.objects.all()[faker.random_int(0, models.LengthBin.objects.count() - 1)])
+    count = factory.lazy_attribute(lambda o: faker.pyint(1, 100))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'sample': SampleFactory().id,
+            'length_bin': models.LengthBin.objects.all()[faker.random_int(0, models.LengthBin.objects.count() - 1)],
+            'count': faker.pyint(1, 100),
+        }

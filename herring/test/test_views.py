@@ -3,7 +3,8 @@ from django.urls import reverse_lazy
 from faker import Factory
 
 from shared_models.models import Port
-from shared_models.views import CommonCreateView, CommonFilterView, CommonUpdateView, CommonDeleteView, CommonDetailView, CommonFormView, CommonTemplateView
+from shared_models.views import CommonCreateView, CommonFilterView, CommonUpdateView, CommonDeleteView, CommonDetailView, CommonFormView, CommonTemplateView, \
+    CommonListView
 from . import FactoryFloor
 from .common_tests import CommonHerringTest as CommonTest
 from .. import views, models
@@ -510,3 +511,278 @@ class TestMoveNextSample(CommonTest):
         self.assert_non_public_view(test_url=self.test_url, user=self.user, expected_code=302)
 
 
+class TestFishDetailDeleteView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FishDetailFactory()
+        self.test_url = reverse_lazy('herring:fish_delete', args=[self.instance.pk, ])
+        self.expected_template = 'herring/confirm_delete.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("FishDetail", "fish_delete", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FishDeleteView, CommonDeleteView)
+
+    @tag("FishDetail", "fish_delete", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FishDetail", "fish_delete", "submit")
+    def test_submit(self):
+        data = FactoryFloor.FishDetailFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.FishDetail.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("FishDetail", "fish_delete", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:fish_delete", f"/en/herman/fish/{self.instance.pk}/delete/", [self.instance.pk])
+
+
+class TestFishDetailDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FishDetailFactory()
+        self.test_url = reverse_lazy('herring:fish_detail', args=[self.instance.pk, ])
+        self.expected_template = 'herring/fish_detail.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("FishDetail", "fish_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FishDetailView, CommonDetailView)
+
+    @tag("FishDetail", "fish_detail", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FishDetail", "fish_detail", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:fish_detail", f"/en/herman/fish/{self.instance.pk}/view/", [self.instance.pk])
+
+
+class TestFishDetailUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FishDetailFactory()
+        self.test_url = reverse_lazy('herring:fish_update', args=[self.instance.pk, ])
+        self.expected_template = 'herring/form.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("FishDetail", "fish_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FishUpdateView, CommonUpdateView)
+
+    @tag("FishDetail", "fish_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FishDetail", "fish_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.FishDetailFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("FishDetail", "fish_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:fish_update", f"/en/herman/fish/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+class TestFishboardTemplateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.SampleFactory()
+        self.test_url = reverse_lazy('herring:fishboard_test_form', args=[self.instance.id])
+        self.expected_template = 'herring/fishboard_test_form.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("Index", "index", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.IndexView, CommonTemplateView)
+
+    @tag("Index", "index", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Index", "index", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:fishboard_test_form", f"/en/herman/lab/samples/{self.instance.pk}/fish-board-test/", [self.instance.pk])
+
+
+class TestLabSampleConfirmation(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.SampleFactory()
+        self.test_url = reverse_lazy('herring:lab_sample_confirmation', args=[self.instance.id])
+        self.expected_template = 'herring/lab_sample_confirmation.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("Index", "index", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.IndexView, CommonTemplateView)
+
+    @tag("Index", "index", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Index", "index", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:lab_sample_confirmation", f"/en/herman/lab/samples/{self.instance.pk}/lab-sample-confirmation/", [self.instance.pk])
+
+
+class TestLabSamplePrimer(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.SampleFactory()
+        self.test_url = reverse_lazy('herring:lab_sample_primer', args=[self.instance.pk, ])
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("Index", "index", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, user=self.user, expected_code=302)
+
+
+class TestLabUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FishDetailFactory()
+        self.test_url = reverse_lazy('herring:lab_sample_form', args=[self.instance.pk, ])
+        self.expected_template = 'herring/lab_detailing/main.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("FishDetail", "fish_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.LabSampleUpdateView, CommonUpdateView)
+
+    @tag("FishDetail", "fish_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FishDetail", "fish_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.FishDetailFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("FishDetail", "fish_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:lab_sample_form", f"/en/herman/lab/fish/{self.instance.pk}/", [self.instance.pk])
+
+
+class TestLabUpdateViewV2(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FishDetailFactory()
+        self.test_url = reverse_lazy('herring:lab_sample_form_v2', args=[self.instance.pk, ])
+        self.expected_template = 'herring/lab_detailing_v2/main.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("FishDetail", "fish_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.LabSampleUpdateViewV2, CommonDetailView)
+
+    @tag("FishDetail", "fish_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FishDetail", "fish_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:lab_sample_form_v2", f"/en/herman/lab/fish/v2/{self.instance.pk}/", [self.instance.pk])
+
+
+class TestOtolithUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FishDetailFactory()
+        self.test_url = reverse_lazy('herring:otolith_form', args=[self.instance.pk, ])
+        self.expected_template = 'herring/otolith_detailing_v2/main.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("FishDetail", "fish_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.OtolithUpdateView, CommonDetailView)
+
+    @tag("FishDetail", "fish_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FishDetail", "fish_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:otolith_form", f"/en/herman/otolith/fish/{self.instance.pk}/", [self.instance.pk])
+
+
+class TestProgressReportListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.SampleFactory()
+        self.test_url = reverse_lazy('herring:progress_report_detail') + f"?species={self.instance.species.id}&year={self.instance.season}"
+        self.expected_template = 'herring/progress_list.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("ProgressReport", "progress_report_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ProgressReportListView, CommonListView)
+
+    @tag("ProgressReport", "progress_report_detail", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ProgressReport", "progress_report_detail", "context")
+    def test_context(self):
+        context_vars = [
+            "sample_sum",
+            "fish_sum",
+            "sample_sum_lab_complete",
+            "fish_sum_lab_complete",
+            "sample_sum_lab_remaining",
+            "fish_sum_lab_remaining",
+            "sample_sum_oto_complete",
+            "fish_sum_oto_complete",
+            "sample_sum_oto_remaining",
+            "fish_sum_oto_remaining",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("ProgressReport", "progress_report_detail", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:progress_report_detail", f"/en/herman/progress-report/")
+
+
+class TestCheckUsageListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FishDetailFactory()
+        self.test_url = reverse_lazy('herring:check_usage', args=[])
+        self.expected_template = 'herring/check_usage.html'
+        self.user = self.get_and_login_user(is_admin=True)
+
+    @tag("CheckUsage", "check_usage", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.CheckUsageListView, CommonListView)
+
+    @tag("CheckUsage", "check_usage", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("CheckUsage", "check_usage", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:check_usage", f"/en/herman/check-usage/")

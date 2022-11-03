@@ -28,7 +28,7 @@ from . import forms
 from . import models
 from . import reports
 from .mixins import SuperuserOrAdminRequiredMixin, HerringBasicMixin, HerringAdmin, HerringCRUD, HerringAccess
-from .utils import can_read
+from .utils import can_read, is_crud_user
 
 
 class HerringUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
@@ -770,7 +770,8 @@ class LabSampleConfirmation(HerringCRUD, CommonTemplateView):
     def get_parent_crumb(self):
         return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
 
-
+@login_required(login_url='/accounts/login/')
+@user_passes_test(is_crud_user, login_url='/accounts/denied/')
 def lab_sample_primer(request, sample):
     # figure out what the fish number is
     my_sample = models.Sample.objects.get(pk=sample)
@@ -803,7 +804,7 @@ class FishDetailHardDeleteView(HerringCRUD, CommonHardDeleteView):
     model = models.FishDetail
 
     def get_success_url(self):
-        HttpResponseRedirect(reverse("herring:sample_detail", kwargs={"pk": self.args[0]}))
+        HttpResponseRedirect(reverse("herring:sample_detail", kwargs={"pk": self.kwargs["pk"]}))
 
 
 # Otolith
@@ -895,7 +896,7 @@ def move_record(request, sample, type, direction, current_id):
 ###########
 
 
-class ReportSearchFormView(HerringCRUD, FormView):
+class ReportSearchFormView(HerringAccess, FormView):
     template_name = 'herring/reports.html'
     home_url_name = "herring:index"
     form_class = forms.ReportSearchForm

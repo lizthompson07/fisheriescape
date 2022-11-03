@@ -45,7 +45,6 @@ class TestHerringUserFormsets(CommonTest):
             self.assert_success_url(url, data=data)
 
 
-
 class TestHerringUserHardDeleteViews(CommonTest):
     def setUp(self):
         super().setUp()
@@ -89,6 +88,49 @@ class TestHerringUserHardDeleteViews(CommonTest):
             # confirm the object has been deleted
             self.assertNotIn(d["obj"], type(d["obj"]).objects.all())
 
+
+class TestFishDetailHardDeleteViews(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.starter_dicts = [
+            {"model": models.FishDetail, "url_name": "delete_fish_detail", "view": views.FishDetailHardDeleteView},
+        ]
+        self.test_dicts = list()
+
+        self.user = self.get_and_login_user(is_admin=True)
+        for d in self.starter_dicts:
+            new_d = d
+            m = d["model"]
+            obj = FactoryFloor.FishDetailFactory()
+            new_d["obj"] = obj
+            new_d["url"] = reverse_lazy("herring:" + d["url_name"], kwargs={"pk": obj.id})
+            self.test_dicts.append(new_d)
+
+    @tag('hard_delete', "view")
+    def test_view_class(self):
+        for d in self.test_dicts:
+            self.assert_inheritance(d["view"], views.HerringCRUD)
+            self.assert_inheritance(d["view"], CommonHardDeleteView)
+
+    @tag('hard_delete', "access")
+    def test_view(self):
+        for d in self.test_dicts:
+            self.assert_good_response(d["url"])
+            # only have one chance to test this url
+            self.assert_non_public_view(test_url=d["url"], user=self.user, expected_code=302, locales=["en"])
+
+    @tag('hard_delete', "delete")
+    def test_delete(self):
+        # need to be an admin user to do this
+        self.get_and_login_user(user=self.user)
+        for d in self.test_dicts:
+            # start off to confirm the object exists
+            self.assertIn(d["obj"], type(d["obj"]).objects.all())
+            # visit the url
+            activate("en")
+            self.client.get(d["url"])
+            # confirm the object has been deleted
+            self.assertNotIn(d["obj"], type(d["obj"]).objects.all())
 
 
 class TestAllFormsets(CommonTest):
