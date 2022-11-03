@@ -873,23 +873,23 @@ def move_record(request, sample, type, direction, current_id):
         # if at beginning, cannot go further back!
         if current_index == 0:
             messages.success(request, message_start)
-            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={'sample': sample, "pk": current_id, }))
+            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={"pk": current_id, }))
         # otherwise, just move backwards 1
         else:
             target_id = id_list[current_index - 1]
-            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={'sample': sample, "pk": target_id}))
+            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={ "pk": target_id}))
 
     # PageDown
     elif direction == "next":
         # if you are at the end of the recordset, there is nowhere to go!
         if current_id == id_list[-1]:
             messages.success(request, message_end)
-            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={'sample': sample, "pk": current_id, }))
+            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={"pk": current_id, }))
 
         # otherwise move forward 1
         else:
             target_id = id_list[current_index + 1]
-            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={'sample': sample, "pk": target_id}))
+            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={ "pk": target_id}))
 
 
 # REPORTS #

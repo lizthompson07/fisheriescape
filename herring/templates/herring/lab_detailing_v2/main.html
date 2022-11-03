@@ -297,6 +297,8 @@
                 this.fish = response;
                 var contiune = this.dealWithFlags();
                 if (contiune) audio.play();
+                if (!this.fish.lab_processed_date) speak("ready.");
+                else speak("fish complete.");
               }
               this.$refs.cell_fmb_input.select()
             })

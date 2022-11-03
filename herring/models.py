@@ -387,7 +387,11 @@ class FishDetail(models.Model):
 
     def save(self, *args, **kwargs):
         self.last_modified_date = timezone.now()
-        if None not in (self.fish_length, self.fish_weight, self.sex, self.maturity, self.gonad_weight, self.lab_sampler):
+
+        required_fields = [self.fish_length, self.fish_weight, self.sex, self.maturity, self.gonad_weight, self.lab_sampler]
+        if self.sample.type == 2:
+            required_fields.append(self.parasite)
+        if None not in required_fields:
             if not self.lab_processed_date:
                 self.lab_processed_date = timezone.now()
         else:
