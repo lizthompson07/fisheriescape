@@ -726,6 +726,29 @@ class TestOtolithUpdateView(CommonTest):
         self.assert_correct_url("herring:otolith_form", f"/en/herman/otolith/fish/{self.instance.pk}/", [self.instance.pk])
 
 
+class TestEggUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FishDetailFactory()
+        self.test_url = reverse_lazy('herring:egg_form', args=[self.instance.pk, ])
+        self.expected_template = 'herring/egg_detailing/main.html'
+        self.user = self.get_and_login_user(is_crud_user=True)
+
+    @tag("FishDetail", "fish_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.OtolithUpdateView, CommonDetailView)
+
+    @tag("FishDetail", "fish_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FishDetail", "fish_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("herring:egg_form", f"/en/herman/egg/sample/{self.instance.pk}/", [self.instance.pk])
+
+
 class TestProgressReportListView(CommonTest):
     def setUp(self):
         super().setUp()

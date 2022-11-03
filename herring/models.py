@@ -331,10 +331,17 @@ class FishDetail(models.Model):
     gonad_weight = models.FloatField(null=True, blank=True, verbose_name=_("gonad weight (g)"), validators=(MinValueValidator(0),))
     parasite = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
 
+    # otolith
     annulus_count = models.IntegerField(null=True, blank=True)
     otolith_season = models.ForeignKey(OtolithSeason, related_name="fish_details", on_delete=models.DO_NOTHING,
                                        null=True, blank=True)
     otolith_image_remote_filepath = models.CharField(max_length=2000, blank=True, null=True)
+
+    # eggs
+    gonad_sub_sample_weight = models.FloatField(null=True, blank=True, verbose_name=_("gonad sub-sample weight (g)"))
+    gonad_count = models.IntegerField(blank=True, null=True, verbose_name=_("gonad count"))
+    gonad_photo_id = models.CharField(max_length=2000, blank=True, null=True, verbose_name=_("photo ID (20 eggs)"))
+
 
     test_204_accepted = models.CharField(max_length=5, null=True, blank=True)  # ligh_length:fish_weight
     test_207_accepted = models.CharField(max_length=5, null=True,
@@ -354,6 +361,8 @@ class FishDetail(models.Model):
                                         editable=False)
     lab_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="lab_sampler_fish_details",
                                     editable=False)
+    egg_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="egg_sampler_fish_details",
+                                    editable=False)
     creation_date = models.DateTimeField(auto_now_add=True, editable=False)
     last_modified_date = models.DateTimeField(auto_now=True, editable=False)
 
@@ -365,6 +374,7 @@ class FishDetail(models.Model):
     is_empty = models.BooleanField(default=True, editable=False)
     lab_processed_date = models.DateTimeField(blank=True, null=True)
     otolith_processed_date = models.DateTimeField(blank=True, null=True)
+    egg_processed_date = models.DateTimeField(blank=True, null=True)
 
     @property
     def get_is_empty(self):
@@ -387,7 +397,7 @@ class FishDetail(models.Model):
 
     def save(self, *args, **kwargs):
         self.last_modified_date = timezone.now()
-
+        # lab
         required_fields = [self.fish_length, self.fish_weight, self.sex, self.maturity, self.gonad_weight, self.lab_sampler]
         if self.sample.type == 2:
             required_fields.append(self.parasite)
@@ -396,11 +406,20 @@ class FishDetail(models.Model):
                 self.lab_processed_date = timezone.now()
         else:
             self.lab_processed_date = None
+
+        # otoliths
         if None not in (self.otolith_sampler, self.annulus_count, self.otolith_season):
             if not self.otolith_processed_date:
                 self.otolith_processed_date = timezone.now()
         else:
             self.otolith_processed_date = None
+
+        # egg
+        if None not in (self.egg_sampler, self.gonad_sub_sample_weight, self.gonad_count, self.gonad_photo_id):
+            if not self.egg_processed_date:
+                self.egg_processed_date = timezone.now()
+        else:
+            self.egg_processed_date = None
 
         self.is_empty = self.get_is_empty
         super().save(*args, **kwargs)

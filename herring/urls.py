@@ -57,38 +57,41 @@ urlpatterns = [
     path('fish/<int:pk>/delete/', views.FishDeleteView.as_view(), name="fish_delete"),  # tested
 
     # Lab
-    path('lab/samples/<int:sample>/fish-board-test/', views.FishboardTestView.as_view(), name="fishboard_test_form"),# tested
-    path('lab/samples/<int:sample>/lab-sample-confirmation/', views.LabSampleConfirmation.as_view(), name="lab_sample_confirmation"),# tested
-    path('lab/samples/<int:sample>/new-lab-sample/', views.lab_sample_primer, name="lab_sample_primer"),# tested
-    path('lab/fish/v2/<int:pk>/', views.LabSampleUpdateViewV2.as_view(), name="lab_sample_form_v2"), # tested
+    path('lab/samples/<int:sample>/fish-board-test/', views.FishboardTestView.as_view(), name="fishboard_test_form"),  # tested
+    path('lab/samples/<int:sample>/lab-sample-confirmation/', views.LabSampleConfirmation.as_view(), name="lab_sample_confirmation"),  # tested
+    path('lab/samples/<int:sample>/new-lab-sample/', views.lab_sample_primer, name="lab_sample_primer"),  # tested
+    path('lab/fish/v2/<int:pk>/', views.LabSampleUpdateViewV2.as_view(), name="lab_sample_form_v2"),  # tested
 
     # if delete one, delete the other
-    path('lab/fish/<int:pk>/', views.LabSampleUpdateView.as_view(), name="lab_sample_form"), # tested
-    path('lab/delete/<int:pk>/', views.FishDetailHardDeleteView.as_view(), name="delete_fish_detail"), # tested
+    path('lab/fish/<int:pk>/', views.LabSampleUpdateView.as_view(), name="lab_sample_form"),  # tested
+    path('lab/delete/<int:pk>/', views.FishDetailHardDeleteView.as_view(), name="delete_fish_detail"),  # tested
     path('sample/<int:sample>/<str:type>/<str:direction>/<int:current_id>/', views.move_record, name="move_record"),
     path('sample/<int:sample>/<str:type>/<str:direction>/', views.move_record, name="move_record"),
 
     # Otolith
-    path('otolith/fish/<int:pk>/', views.OtolithUpdateView.as_view(), name="otolith_form"), # tested
+    path('otolith/fish/<int:pk>/', views.OtolithUpdateView.as_view(), name="otolith_form"),  # tested
+
+    # Egg
+    path('egg/sample/<int:pk>/', views.EggUpdateView.as_view(), name="egg_form"),  # tested
 
     # PROGRESS REPORT #
     ###################
-    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    path('progress-report/', views.ProgressReportListView.as_view(), name="progress_report_detail"),
-    path('progress-report/export/', views.export_progress_report, name="export_progress_report"),
-    path('report/sample/', views.export_sample_report, name="export_sample_report"),
-    path('report/lf/', views.export_lf_report, name="export_lf_report"),
-    path('report/fish-detail/', views.export_fish_detail, name="export_fish_detail"),
-    path('hlen/export', views.export_hlen, name="export_hlen"),
-    path('hlog/export', views.export_hlog, name="export_hlog"),
-    path('hdet/export', views.export_hdet, name="export_hdet"),
+    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),  # tested
+    path('progress-report/', views.ProgressReportListView.as_view(), name="progress_report_detail"),  # tested
+    path('progress-report/export/', views.export_progress_report, name="export_progress_report"),  # tested
+    path('report/sample/', views.export_sample_report, name="export_sample_report"),  # tested
+    path('report/lf/', views.export_lf_report, name="export_lf_report"),  # tested
+    path('report/fish-detail/', views.export_fish_detail, name="export_fish_detail"),  # tested
+    path('hlen/export', views.export_hlen, name="export_hlen"),  # tested
+    path('hlog/export', views.export_hlog, name="export_hlog"),  # tested
+    path('hdet/export', views.export_hdet, name="export_hdet"),  # tested
 
     # IMPORTS #
     ###########
-    path('import-from-csv/<str:type>/', views.ImportFileView.as_view(), name="import"),
+    path('import-from-csv/<str:type>/', views.ImportFileView.as_view(), name="import"),  # tested
 
     # ADMIN #
     #########
-    path('check-usage/', views.CheckUsageListView.as_view(), name="check_usage"),
+    path('check-usage/', views.CheckUsageListView.as_view(), name="check_usage"),  # tested
 
 ]

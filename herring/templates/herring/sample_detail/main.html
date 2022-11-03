@@ -50,6 +50,10 @@
           <a class="dropdown-item" href="{% url 'herring:lab_sample_primer' object.id %}?version=2">New Version</a>
         {% endif %}
       </div>
+
+      <a class="btn btn-outline-primary" href="{% url 'herring:egg_form' object.id %}">Enter Egg Details</a>
+
+
     </div>
 
 

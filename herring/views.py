@@ -850,6 +850,22 @@ class OtolithUpdateView(HerringCRUD, CommonDetailView):
         return context
 
 
+
+# Egg
+class EggUpdateView(HerringCRUD, CommonDetailView):
+    template_name = 'herring/egg_detailing/main.html'
+    model = models.Sample
+    container_class = "container"
+    home_url_name = "herring:index"
+    grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("herring:sample_detail", args=[self.get_object().id])}
+
+
+
+
 # SHARED #
 ##########
 def move_record(request, sample, type, direction, current_id):
