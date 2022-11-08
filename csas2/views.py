@@ -1156,8 +1156,12 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
 
         # now for the piece about NCR email
         if obj.is_posted and hasattr(obj, "tor") and \
-                (old_obj.name != obj.name or old_obj.nom != obj.nom or old_obj.location != obj.location
-                 or old_obj.tor_display_dates != obj.tor_display_dates or old_obj.expected_publications_en != obj.expected_publications_en):
+                (old_obj.name != obj.name or old_obj.nom != obj.nom or
+                 old_obj.location != obj.location or
+                 old_obj.tor_display_dates != obj.tor_display_dates or
+                 old_obj.expected_publications_en != obj.expected_publications_en
+                ):
+            print("sending meeting change notification email!")
             email = emails.UpdatedMeetingEmail(self.request, obj, old_obj)
             email.send()
         return HttpResponseRedirect(self.get_success_url())
