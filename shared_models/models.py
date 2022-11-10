@@ -163,6 +163,14 @@ class LatLongFields(models.Model):
             my_str = format_coordinates(point.x, point.y, output_format="dd", sep="|")
         return mark_safe(my_str)
 
+    @property
+    def coordinates_br(self):
+        my_str = "---"
+        point = self.get_point()
+        if point:
+            my_str = format_coordinates(point.x, point.y, output_format="dd", sep="<br>")
+        return mark_safe(my_str)
+
 
 class FiscalYear(models.Model):
     full = models.TextField(blank=True, null=True)
