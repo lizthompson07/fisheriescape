@@ -210,7 +210,6 @@ class SpeciesDetailView(TrapNetBasicMixin, CommonDetailView):
         'code',
         'common_name_eng',
         'common_name_fre',
-        'life_stage',
         'abbrev',
         'scientific_name',
         'tsn',
@@ -312,9 +311,10 @@ class RiverDetailView(TrapNetBasicMixin, CommonDetailView):
             'stream_order',
             'elevation_m',
             'province.abbrev_eng',
-            'latitude_n',
-            'longitude_w',
+            'latitude',
+            'longitude',
             'directions',
+            'notes',
         ]
         context['my_site_object'] = models.RiverSite.objects.first()
         return context
@@ -399,10 +399,10 @@ class RiverSiteDetailView(TrapNetBasicMixin, CommonDetailView):
         'stream_order',
         'elevation_m',
         'province.abbrev_eng',
-        'latitude',
-        'longitude',
+        'coordinates',
+        'epsg_id',
         'directions',
-        'exclude_data_from_site',
+        'notes',
         'metadata',
     ]
 
@@ -432,7 +432,7 @@ class SampleListView(TrapNetBasicMixin, CommonFilterView):
     model = models.Sample
     filterset_class = filters.SampleFilter
     template_name = 'trapnet/sample_list.html'
-    queryset = models.Sample.objects.filter(site__exclude_data_from_site=False)
+    queryset = models.Sample.objects.all()
     new_object_url_name = "trapnet:sample_new"
     row_object_url_name = "trapnet:sample_detail"
     home_url_name = "trapnet:index"
