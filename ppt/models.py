@@ -25,6 +25,7 @@ YES_NO_CHOICES = (
     (False, gettext("No")),
 )
 
+# This factor is how many OM dollars 1 dollar of salary is worth.  So Total (in OM) = OM + SALARY * FACTOR
 SALARY_TO_OM_FACTOR = 1.27
 
 
@@ -742,8 +743,6 @@ class ProjectYear(models.Model):
 
 
 class GenericCost(models.Model):
-    # This factor is how many OM dollars 1 dollar of salary is worth.  So Total (OM) = OM + SALARY * FACTOR
-
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, verbose_name=_("project year"))
     funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, verbose_name=_("funding source"), default=1)
     amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
