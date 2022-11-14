@@ -1,0 +1,108 @@
+{% extends "herring/base.html" %}
+
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load static %}
+
+{% block header %}
+  {{ block.super }}
+
+  <style>
+  /* Set the size of the div element that contains the map */
+  #map {
+      height: 200px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
+
+{% endblock %}
+
+
+{% block subcontent %}
+
+  <div class="neighbours float-right">
+    <a class="btn btn-sm btn-secondary" href="{% url 'herring:move_sample_next' object.id %}">Move to Next Sample Id</a>
+  </div>
+
+
+  <div class="btn-group mb-3">
+    <a class="btn btn-warning" href="{% url 'herring:sample_edit' object.id %}">Edit</a>
+    <a class="btn btn-danger" href="{% url 'herring:sample_delete' object.id %}">Delete</a>
+
+
+    <a class="btn btn-outline-primary" href="{% url 'herring:lf' object.id %}">Enter Length Frequencies</a>
+
+    <div class="dropdown">
+      <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+        Enter Lab Measurements
+      </a>
+
+      <div class="dropdown-menu">
+        {% if sample.lab_processing_complete %}
+          <a class="dropdown-item" href="{% url 'herring:lab_sample_confirmation' object.id %}?version=1">Old Version</a>
+        {% else %}
+          <a class="dropdown-item" href="{% url 'herring:fishboard_test_form' object.id %}">Old Version</a>
+        {% endif %}
+
+        {% if sample.lab_processing_complete %}
+          <a class="dropdown-item" href="{% url 'herring:lab_sample_confirmation' object.id %}?version=2">New Version</a>
+        {% else %}
+          <a class="dropdown-item" href="{% url 'herring:lab_sample_primer' object.id %}?version=2">New Version</a>
+        {% endif %}
+      </div>
+
+      <a class="btn btn-outline-primary" href="{% url 'herring:egg_form' object.id %}">Enter Egg Details</a>
+
+
+    </div>
+
+
+  </div>
+
+  <div class="row">
+    <div class="col">
+      {% include "herring/sample_detail/_detail.html" %}
+      {% include "herring/sample_detail/_lf.html" %}
+    </div>
+    <div class="col">
+      {% include "herring/sample_detail/_map.html" %}
+      {% include "herring/sample_detail/_qc.html" %}
+      {% include "herring/sample_detail/_fish_detail.html" %}
+    </div>
+  </div>
+
+
+  <script type="text/javascript" src="{% static "js/herring/quality_control.js" %}"></script>
+
+  <script type="text/javascript">
+  window.name = "portSampleDetail"
+  var lengthFrequencySum = Number({{sum_count}});
+
+  {% if object.total_fish_measured %}
+    var totalFishMeasured = Number({{object.total_fish_measured}});
+  {%else%}
+    var totalFishMeasured = 0;
+  {%endif%}
+
+  {% if object.lab_processing_complete %}
+    var labProcessingComplete = true;
+  {%else%}
+    var labProcessingComplete = false;
+  {%endif%}
+
+  {% if object.otolith_processing_complete %}
+    var otolithProcessingComplete = true;
+  {%else%}
+    var otolithProcessingComplete = false;
+  {%endif%}
+
+  $(document).ready(function () {
+    testMandatoryFields("port_sample");
+    test205(lengthFrequencySum, totalFishMeasured);
+    test231(labProcessingComplete);
+    test232(otolithProcessingComplete);
+  });
+
+
+  </script>
+{% endblock %}

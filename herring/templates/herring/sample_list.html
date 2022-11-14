@@ -1,0 +1,36 @@
+{% extends "herring/list.html" %}
+{% load static %}
+{% load custom_filters %}
+{% block table_class %}
+  {{ block.super }}
+  sortable
+{% endblock %}
+
+{% block table_td %}
+
+  {#  {% if "sample_date" in field.name %}#}
+  {#    {{ object.sample_date|date:"F d, Y" }}#}
+  {% if "fish_processed" in field.name %}
+    {{ object.fish_details.count }}
+  {% elif "date_processed" in field.name %}
+    {{ object.fish_details.last.lab_processed_date|date:"Y-m-d"|nz:"---" }}
+  {% elif "lab_complete" in field.name %}
+    {% if object.lab_processing_complete %}
+      <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
+    {% else %}
+      <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
+    {% endif %}
+
+  {% elif "otoliths_complete" in field.name %}
+    {% if object.otolith_processing_complete %}
+      <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
+    {% else %}
+      <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
+    {% endif %}
+
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+
+
+{% endblock %}

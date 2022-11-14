@@ -17,7 +17,7 @@ from dm_apps.utils import get_timezone_time
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
-from shared_models.models import MetadataFields, SimpleLookup
+from shared_models.models import MetadataFields, SimpleLookup, LatLongFields
 from shared_models.utils import remove_nulls
 from trapnet import model_choices
 
@@ -48,26 +48,20 @@ class CodeModel(SimpleLookup):
         abstract = True
 
 
-class RiverSite(MetadataFields):
+class RiverSite(MetadataFields, LatLongFields):
     name = models.CharField(max_length=255, verbose_name=_("site name"))
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='river_sites', blank=False, null=True)
     stream_order = models.IntegerField(blank=True, null=True)
     elevation_m = models.FloatField(blank=True, null=True, verbose_name=_("elevation (m)"))
-    latitude = models.FloatField(blank=True, null=True)
-    longitude = models.FloatField(blank=True, null=True)
-    epsg_id = models.CharField(max_length=255, blank=True, null=True)
+    epsg_id = models.CharField(max_length=255, default="WGS84", verbose_name=_("EPSG"))
     coordinate_resolution = models.FloatField(blank=True, null=True)
     coordinate_precision = models.FloatField(blank=True, null=True)
     coordinate_accuracy = models.FloatField(blank=True, null=True)
     directions = models.TextField(blank=True, null=True)
-    exclude_data_from_site = models.BooleanField(default=False, verbose_name=_("Exclude all data from this site?"))
+    notes = models.TextField(blank=True, null=True)
 
     # non-editable
     river = models.ForeignKey(shared_models.River, on_delete=models.DO_NOTHING, related_name='sites', editable=False)
-
-    def get_point(self):
-        if self.latitude and self.longitude:
-            return Point(self.latitude, self.longitude)
 
     def __str__(self):
         try:
@@ -125,7 +119,7 @@ class Species(MetadataFields):
 
 class Electrofisher(SimpleLookup):
     model_number = models.CharField(max_length=255, blank=True, null=True)
-    serial_number = models.CharField(max_length=255, blank=True, null=True)
+    serial_number = models.CharField(max_length=255, blank=True, null=True, unique=True)
 
     def __str__(self):
         return f"{self.tname} (s/n: {nz(self.serial_number, '---')})"
@@ -139,7 +133,6 @@ class Sample(MetadataFields):
     departure_date = models.DateTimeField(verbose_name="departure date/time")
     samplers = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
-    season = models.IntegerField(null=True, blank=True)
 
     # electro
     crew_probe = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (probe)"))
@@ -224,9 +217,11 @@ class Sample(MetadataFields):
     updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_updated_by')
 
     # non-editable
+    season = models.IntegerField(null=True, blank=True, editable=False)
     is_reviewed = models.BooleanField(default=False, editable=False, verbose_name=_("Has been reviewed?"))
     reviewed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_reviewed_by')
     reviewed_at = models.DateTimeField(blank=True, null=True, editable=False)
+    old_id = models.CharField(max_length=25, null=True, blank=True, editable=False, unique=True)
 
     @property
     def julian_day(self):

@@ -41,7 +41,7 @@ class SampleForm(forms.ModelForm):
 
     class Meta:
         model = models.Sample
-        exclude = ['season']
+        fields = "__all__"
         widgets = {
             "site": forms.Select(attrs=chosen_js),
             "samplers": forms.Textarea(attrs={"rows": "2", }),
