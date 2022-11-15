@@ -189,7 +189,7 @@ class TestUtils(CommonTest):
         self.assertEqual(data[0]["salary"], 4000)
         self.assertEqual(data[0]["om"], 4000)
         self.assertEqual(data[0]["capital"], 2000)
-        self.assertEqual(data[0]["total"], 10000)
+        self.assertEqual(data[0]["total_in_om"], 6000 + models.SALARY_TO_OM_FACTOR * 4000)
 
         # now let's test out to project-wide function using multiple years
         FactoryFloor.OMCostFactory(project_year=project_year2, amount=1000, funding_source=funding_source)  # om
@@ -202,7 +202,7 @@ class TestUtils(CommonTest):
         self.assertEqual(data[0]["salary"], 8000)
         self.assertEqual(data[0]["om"], 8000)
         self.assertEqual(data[0]["capital"], 4000)
-        self.assertEqual(data[0]["total"], 20000)
+        self.assertEqual(data[0]["total_in_om"], 12000 + models.SALARY_TO_OM_FACTOR * 8000)
 
         # now we add a second funding source
         funding_source_2 = FactoryFloor.FundingSourceFactory()
