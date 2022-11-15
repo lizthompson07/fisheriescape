@@ -11,7 +11,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext
-from shapely.geometry import Point
 
 from dm_apps.utils import get_timezone_time
 from lib.functions.custom_functions import listrify
@@ -149,18 +148,18 @@ class Sample(MetadataFields):
     bank_length_left = models.FloatField(null=True, blank=True, verbose_name=_("bank length - left (m)"))
     bank_length_right = models.FloatField(null=True, blank=True, verbose_name=_("bank length - right (m)"))
     width_lower = models.FloatField(null=True, blank=True, verbose_name=_("width - lower (m)"))
-    depth_1_lower = models.IntegerField(null=True, blank=True, verbose_name=_("depth #1 - lower (cm)"))
-    depth_2_lower = models.IntegerField(null=True, blank=True, verbose_name=_("depth #2 - lower (cm)"))
-    depth_3_lower = models.IntegerField(null=True, blank=True, verbose_name=_("depth #3 - lower (cm)"))
+    depth_1_lower = models.FloatField(null=True, blank=True, verbose_name=_("depth #1 - lower (cm)"))
+    depth_2_lower = models.FloatField(null=True, blank=True, verbose_name=_("depth #2 - lower (cm)"))
+    depth_3_lower = models.FloatField(null=True, blank=True, verbose_name=_("depth #3 - lower (cm)"))
     width_middle = models.FloatField(null=True, blank=True, verbose_name=_("width - middle (m)"))
-    depth_1_middle = models.IntegerField(null=True, blank=True, verbose_name=_("depth #1 - middle (cm)"))
-    depth_2_middle = models.IntegerField(null=True, blank=True, verbose_name=_("depth #2 - middle (cm)"))
-    depth_3_middle = models.IntegerField(null=True, blank=True, verbose_name=_("depth #3 - middle (cm)"))
+    depth_1_middle = models.FloatField(null=True, blank=True, verbose_name=_("depth #1 - middle (cm)"))
+    depth_2_middle = models.FloatField(null=True, blank=True, verbose_name=_("depth #2 - middle (cm)"))
+    depth_3_middle = models.FloatField(null=True, blank=True, verbose_name=_("depth #3 - middle (cm)"))
     width_upper = models.FloatField(null=True, blank=True, verbose_name=_("width - upper (m)"))
-    depth_1_upper = models.IntegerField(null=True, blank=True, verbose_name=_("depth #1 - upper (cm)"))
-    depth_2_upper = models.IntegerField(null=True, blank=True, verbose_name=_("depth #2 - upper (cm)"))
-    depth_3_upper = models.IntegerField(null=True, blank=True, verbose_name=_("depth #3 - upper (cm)"))
-    max_depth = models.IntegerField(null=True, blank=True, verbose_name=_("max depth (cm)"), help_text=_("max depth found within the whole site"))
+    depth_1_upper = models.FloatField(null=True, blank=True, verbose_name=_("depth #1 - upper (cm)"))
+    depth_2_upper = models.FloatField(null=True, blank=True, verbose_name=_("depth #2 - upper (cm)"))
+    depth_3_upper = models.FloatField(null=True, blank=True, verbose_name=_("depth #3 - upper (cm)"))
+    max_depth = models.FloatField(null=True, blank=True, verbose_name=_("max depth (cm)"), help_text=_("max depth found within the whole site"))
 
     # temp/climate data
     air_temp_arrival = models.FloatField(null=True, blank=True, verbose_name="air temperature on arrival(°C)")
@@ -180,20 +179,23 @@ class Sample(MetadataFields):
     water_temp_trap_c = models.FloatField(null=True, blank=True, verbose_name="water temperature at trap (°C)")
     water_cond = models.FloatField(null=True, blank=True, verbose_name="specific conductivity (µS)",
                                    help_text=_("The measurement is to 1 decimal place in micro siemens (µS)"))
-    overhanging_veg_left = models.IntegerField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Left"))
-    overhanging_veg_right = models.IntegerField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Right"))
+    water_ph = models.FloatField(null=True, blank=True, verbose_name="water acidity (pH)")
+    overhanging_veg_left = models.FloatField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Left"),
+                                             validators=(MinValueValidator(0), MaxValueValidator(100)))
+    overhanging_veg_right = models.FloatField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Right"),
+                                              validators=(MinValueValidator(0), MaxValueValidator(100)))
     max_overhanging_veg_left = models.FloatField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Left"))
     max_overhanging_veg_right = models.FloatField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Right"))
 
     # substrate
-    percent_fine = models.IntegerField(blank=True, null=True, verbose_name=_("fine silt or clay"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_sand = models.IntegerField(blank=True, null=True, verbose_name=_("sand"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_gravel = models.IntegerField(blank=True, null=True, verbose_name=_("gravel"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_pebble = models.IntegerField(blank=True, null=True, verbose_name=_("pebble"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_cobble = models.IntegerField(blank=True, null=True, verbose_name=_("cobble"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_rocks = models.IntegerField(blank=True, null=True, verbose_name=_("rocks"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_boulder = models.IntegerField(blank=True, null=True, verbose_name=_("boulder"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_bedrock = models.IntegerField(blank=True, null=True, verbose_name=_("bedrock"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_fine = models.FloatField(blank=True, null=True, verbose_name=_("fine silt or clay"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_sand = models.FloatField(blank=True, null=True, verbose_name=_("sand"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_gravel = models.FloatField(blank=True, null=True, verbose_name=_("gravel"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_pebble = models.FloatField(blank=True, null=True, verbose_name=_("pebble"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_cobble = models.FloatField(blank=True, null=True, verbose_name=_("cobble"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_rocks = models.FloatField(blank=True, null=True, verbose_name=_("rocks"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_boulder = models.FloatField(blank=True, null=True, verbose_name=_("boulder"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_bedrock = models.FloatField(blank=True, null=True, verbose_name=_("bedrock"), validators=(MinValueValidator(0), MaxValueValidator(100)))
 
     # rst
     rpm_arrival = models.FloatField(null=True, blank=True, verbose_name="RPM at start")
@@ -203,6 +205,7 @@ class Sample(MetadataFields):
     operating_condition_comment = models.CharField(max_length=255, blank=True, null=True)
 
     # ef
+    seine_type = models.IntegerField(blank=True, null=True, choices=model_choices.seine_type_choices, verbose_name=_("type of seine"))
     site_type = models.IntegerField(blank=True, null=True, choices=model_choices.site_type_choices, verbose_name=_("type of site"))
     electrofisher = models.ForeignKey(Electrofisher, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("electrofisher"), blank=True,
                                       null=True)
@@ -213,10 +216,9 @@ class Sample(MetadataFields):
     electrofisher_pulse_type = models.IntegerField(blank=True, null=True, choices=model_choices.pulse_type_choices, verbose_name=_("type of pulse"))
     duty_cycle = models.IntegerField(blank=True, null=True, verbose_name=_("duty cycle (%)"), validators=(MinValueValidator(0), MaxValueValidator(100)))
 
+    # non-editable
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_created_by')
     updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_updated_by')
-
-    # non-editable
     season = models.IntegerField(null=True, blank=True, editable=False)
     is_reviewed = models.BooleanField(default=False, editable=False, verbose_name=_("Has been reviewed?"))
     reviewed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_reviewed_by')

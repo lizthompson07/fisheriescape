@@ -138,7 +138,14 @@
       </div>
       <div class="card-body">
 
-        {% bootstrap_field form.site_type placeholder="" %}
+        <div class="row">
+          <div class="col">
+            {% bootstrap_field form.site_type placeholder="" %}
+          </div>
+          <div class="col">
+            {% bootstrap_field form.seine_type placeholder="" %}
+          </div>
+        </div>
 
         <label for="">{% trans "Site characterization % (0-100)" %}</label>
         <table class="table table-bordered w-75">

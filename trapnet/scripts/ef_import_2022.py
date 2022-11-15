@@ -1,10 +1,12 @@
 import csv
 import datetime
 import os
+import statistics
 
 from django.conf import settings
 from django.utils.timezone import get_current_timezone, make_aware
 
+from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from shared_models.models import River, FishingArea, Province
 from trapnet import models
@@ -75,6 +77,18 @@ def run_river_checks():
                 models.RiverSite.objects.create(**kwargs)
 
 
+def add_note(notes, key, value):
+    mystr = str()
+    if len(notes):
+        mystr += "\n\n"
+    if key and value:
+        mystr += f"{key}: {value}"
+    else:
+        mystr += f"{key}"
+    notes += mystr
+    return notes
+
+
 def run_process_samples():
     efisher_lookup = get_efisher_lookup()
 
@@ -95,6 +109,7 @@ def run_process_samples():
                     if r[key] in ['', "NA"]:  # if there is a null value of any kind, replace with NoneObject
                         r[key] = None
 
+                notes = str()  # start over with a blank string for notes
                 river = River.objects.get(cgndb=r["CGNDB"])
                 site = models.RiverSite.objects.get(name__iexact=r["SITE"], river=river)
                 raw_date = r["SITE_EVENT_DATE"]
@@ -110,7 +125,7 @@ def run_process_samples():
                     # only continue if this is not a duplicate sample
                     if models.Sample.objects.filter(old_id=old_id).exists():
                         writer.writerow([r[key] for key in r] + [
-                            f"The record seems to be a duplicate entry: {start_date.year}-{start_date.month}-{start_date.day} @ site '{site}'"])
+                            f"The record seems to be a duplicate: {start_date.year}-{start_date.month}-{start_date.day} @ site {site}"])
                     else:
                         efisher = efisher_lookup[r["ELECTROFISHER_TYPE"]]
                         if efisher:
@@ -128,64 +143,112 @@ def run_process_samples():
                             "electrofisher": efisher,
                             "bank_length_left": r["LENGTH_LEFT_BANK"],
                             "bank_length_right": r["LENGTH_RIGHT_BANK"],
+                            "width_lower": r["WIDTH_LOWER"],
+                            "width_middle": r["WIDTH_MIDDLE"],
+                            "width_upper": r["WIDTH_UPPER"],
+                            "depth_1_lower": r["DEPTHA1"],
+                            "depth_2_lower": r["DEPTHA2"],
+                            "depth_3_lower": r["DEPTHA3"],
+                            "depth_1_middle": r["DEPTHB1"],
+                            "depth_2_middle": r["DEPTHB2"],
+                            "depth_3_middle": r["DEPTHB3"],
+                            "depth_1_upper": r["DEPTHC1"],
+                            "depth_2_upper": r["DEPTHC2"],
+                            "depth_3_upper": r["DEPTHC3"],
+                            "max_depth": r["DEPTH_MAX"],
+                            "air_temp_arrival": r["AIR_TEMPERATURE"],
+                            "water_cond": r["WATER_CONDUCTIVITY"],
+                            "water_ph": r["WATER_PH"],
+
+                            "percent_fine": r["SUB_TYPE_FINES"],
+                            "percent_sand": r["SUB_TYPE_SAND"],
+                            "percent_gravel": r["SUB_TYPE_GRAVEL"],
+                            "percent_pebble": r["SUB_TYPE_PEBBLE"],
+                            "percent_cobble": r["SUB_TYPE_COBBLE"],
+                            "percent_rocks": r["SUB_TYPE_ROCKS"],
+                            "percent_boulder": r["SUB_TYPE_BOULDER"],
+                            "percent_bedrock": r["SUB_TYPE_BEDROCK"],
+                            "overhanging_veg_left": r["L_BK_OVERHANGING_VEG"],
+                            "overhanging_veg_right": r["R_BK_OVERHANGING_VEG"],
+                            "max_overhanging_veg_left": r["MAX_OVERHANG_L_BK"],
+                            "max_overhanging_veg_right": r["MAX_OVERHANG_R_BK"],
+                            "electrofisher_voltage": r["ELECTROFISHER_FREQUENCY"],
+                            "electrofisher_frequency": r["ELECTROFISHER_VOLTAGE"],
+                            "site_type": 2 if r["BARRIER_PRESENT"] else 1,
+                            "crew_probe": r["CREW_PROBE"],
+                            "crew_seine": r["CREW_SEINE"],
+                            "crew_dipnet": r["CREW_DIPNET"],
                         }
 
-                        models.Sample.objects.create(**kwargs)
+                        # deal with the extra samplers
+                        extras = str()
+                        if r["CREW_BUCKET"]:
+                            extras = f'BUCKET: {r["CREW_BUCKET"]} / '
+                        if r["CREW_RECORDER"]:
+                            extras = f'RECORDER: {r["CREW_RECORDER"]} / '
+                        others = [
+                            r["CREW_OTHER1"],
+                            r["CREW_OTHER2"],
+                            r["CREW_OTHER3"],
+                            r["CREW_OTHER4"],
+                            r["CREW_OTHER5"],
+                        ]
+                        while None in others: others.remove(None)
+                        if len(others):
+                            extras = f'OTHERS: {listrify(others)}'
 
-                        # "samplers"
-                        # "notes"
-                        # "crew_probe"
-                        # "crew_seine"
-                        # "crew_dipnet"
-                        # "crew_extras"
-                        # "width_lower"
-                        # "depth_1_lower"
-                        # "depth_2_lower"
-                        # "depth_3_lower"
-                        # "width_middle"
-                        # "depth_1_middle"
-                        # "depth_2_middle"
-                        # "depth_3_middle"
-                        # "width_upper"
-                        # "depth_1_upper"
-                        # "depth_2_upper"
-                        # "depth_3_upper"
-                        # "max_depth"
-                        # "air_temp_arrival"
-                        # "min_air_temp"
-                        # "max_air_temp"
-                        # "percent_cloud_cover"
-                        # "precipitation_category"
-                        # "precipitation_comment"
-                        # "wind_speed"
-                        # "wind_direction"
-                        # "water_depth_m"
-                        # "water_level_delta_m"
-                        # "discharge_m3_sec"
-                        # "water_temp_c"
-                        # "water_temp_trap_c"
-                        # "water_cond"
-                        # "overhanging_veg_left"
-                        # "overhanging_veg_right"
-                        # "max_overhanging_veg_left"
-                        # "max_overhanging_veg_right"
-                        # "percent_fine"
-                        # "percent_sand"
-                        # "percent_gravel"
-                        # "percent_pebble"
-                        # "percent_cobble"
-                        # "percent_rocks"
-                        # "percent_boulder"
-                        # "percent_bedrock"
-                        # "site_type"
-                        # "electrofisher"
-                        # "electrofisher_voltage"
-                        # "electrofisher_output_low"
-                        # "electrofisher_output_high"
-                        # "electrofisher_frequency"
-                        # "electrofisher_pulse_type"
-                        # "duty_cycle":123
-                    # }
+                        if extras.endswith(" / "):
+                            extras = extras[:-3]
+                        kwargs["crew_extras"] = extras
+
+                        # there is a bit of a pickle concerning efisher current / output
+                        # in the masterfile, there are two columns, CURRENT and OUTPUT. It is not clear what the differences are between these two.
+                        # it seems like output column sometimes contains some arbitrary measure of power that is associated with a particular electrofisher
+                        # and other times it contains things that look like amps (e.g. < 5)
+                        # finally, in modern times we collect two values (high and low) but here we will have only 1 value. accordingly, we will use this value to populate both fields
+                        output = None
+                        if r["ELECTROFISHER_CURRENT"]:
+                            output = r["ELECTROFISHER_CURRENT"]
+                        elif r["ELECTROFISHER_OUTPUT"] and float(r["ELECTROFISHER_OUTPUT"]) < 5:
+                            output = r["ELECTROFISHER_OUTPUT"]
+
+                        kwargs["electrofisher_output_low"] = output
+                        kwargs["electrofisher_output_high"] = output
+
+                        # water temp can be a bit complicated because the masterlist has many measurements but we will be taking just one in dmapps
+                        # we will take an average of all measurements
+                        temps = [
+                            r["WATER_TEMPERATURE_ARRIVAL"],
+                            r["WATER_TEMPERATURE_DEPART"],
+                            r["WATER_TEMP1"],
+                            r["WATER_TEMP2"],
+                            r["WATER_TEMP3"],
+                        ]
+                        while None in temps: temps.remove(None)
+                        while 0 in temps: temps.remove(0)
+
+                        if len(temps):
+                            kwargs["water_temp_c"] = statistics.mean([float(t) for t in temps])
+                            if len(temps) > 1:
+                                notes = add_note(notes, "WATER TEMPERATURE",
+                                             f"The mean of the following water temperature measurements were used: {listrify(temps)}")
+
+                        # there is no field for DEPTH_LAYOUT_TYPE in dmapps, so we will just make a note
+                        if r["DEPTH_LAYOUT_TYPE"]:
+                            notes = add_note(notes, "DEPTH_LAYOUT_TYPE", r["DEPTH_LAYOUT_TYPE"])
+
+                        # there is no field for MESH_SIZE in dmapps, so we will just make a note
+                        if r["MESH_SIZE"]:
+                            notes = add_note(notes, "MESH_SIZE", r["MESH_SIZE"])
+
+                        # append any remarks from the masterfile
+                        if r["REMARK"]:
+                            notes = add_note(notes, "ADDITIONAL REMARKS", r["REMARK"])
+
+                        if len(notes):
+                            kwargs["notes"] = notes
+
+                        models.Sample.objects.create(**kwargs)
 
 
 def run_process_fish():
