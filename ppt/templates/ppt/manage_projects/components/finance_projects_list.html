@@ -30,7 +30,7 @@ Vue.component("capital-project-table", {
   },
   methods: {
     goProjectDetail(projectYear) {
-      url = `/ppt/projects/${projectYear.project}/view/?project_year=${projectYear.id}`;
+      url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
       var win = window.open(url, '_blank');
     },
   }
@@ -65,7 +65,7 @@ Vue.component("om-project-table", {
   },
   methods: {
     goProjectDetail(projectYear) {
-      url = `/ppt/projects/${projectYear.project}/view/?project_year=${projectYear.id}`;
+      url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
       var win = window.open(url, '_blank');
     },
   }
@@ -97,7 +97,7 @@ Vue.component("salary-project-table", {
   },
   methods: {
     goProjectDetail(projectYear) {
-      url = `/ppt/projects/${projectYear.project}/view/?project_year=${projectYear.id}`;
+      url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
       var win = window.open(url, '_blank');
     },
   }
