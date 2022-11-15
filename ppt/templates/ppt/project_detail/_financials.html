@@ -35,7 +35,7 @@
           {% trans "Capital" %}
         </th>
         <th class="w150">
-          {% trans "Total" %}
+          {% trans "Total (Converted to O&M)" %}
         </th>
       </tr>
       <tbody>
@@ -45,7 +45,7 @@
         <td>${fs.salary |currencyFormat|zero2NullMark}</td>
         <td>${fs.om|currencyFormat|zero2NullMark}</td>
         <td>${fs.capital|currencyFormat|zero2NullMark}</td>
-        <td>${fs.total|currencyFormat|zero2NullMark}</td>
+        <td>${fs.total_in_om|currencyFormat|zero2NullMark}</td>
       </tr>
 
       <tr>
@@ -54,7 +54,7 @@
         <td>${financial_totals.salary |currencyFormat|zero2NullMark}</td>
         <td>${financial_totals.om|currencyFormat|zero2NullMark}</td>
         <td>${financial_totals.capital|currencyFormat|zero2NullMark}</td>
-        <td>${financial_totals.total|currencyFormat|zero2NullMark}</td>
+        <td>${financial_totals.total_in_om|currencyFormat|zero2NullMark}</td>
       </tr>
 
       </tbody>

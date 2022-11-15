@@ -25,6 +25,9 @@ YES_NO_CHOICES = (
     (False, gettext("No")),
 )
 
+# This factor is how many OM dollars 1 dollar of salary is worth.  So Total (in OM) = OM + SALARY * FACTOR
+SALARY_TO_OM_FACTOR = 1.27
+
 
 class PPTAdminUser(models.Model):
     mode_choices = (
