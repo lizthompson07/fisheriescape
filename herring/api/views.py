@@ -60,9 +60,9 @@ class FishDetailFlagViewSet(viewsets.ModelViewSet):
 
 
 class SampleViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.LengthFrequencySerializer
+    serializer_class = serializers.SampleSerializer
     permission_classes = [herringCRUDOrReadOnly]
-    queryset = models.LengthFrequency.objects.all()
+    queryset = models.Sample.objects.all()
 
     def post(self, request, pk):
         self.check_permissions(request)

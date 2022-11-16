@@ -40,7 +40,7 @@
     </div>
     <div v-else>
       <div class="mb-3">
-        <a ref="back" href="{% url 'herring:sample_detail' object.id %}" class="btn btn-secondary">Back (Esc)</a>
+        <a ref="back" href="{% url 'herring:index' %}" class="btn btn-secondary">Back (Esc)</a>
 
         <button ref="next" @click='get' class="btn btn-primary">New Fish (Page Down)</button>
 
@@ -63,19 +63,19 @@
             </tr>
             <tr>
               <th> Sample Id</th>
-              <td> {{ object.id }} </td>
+              <td><a :href="`/herman/samples/${sample.id}/detail/`">${ sample.display }</a></td>
             </tr>
             <tr>
               <th> Collected by</th>
-              <td> {{ object.sampler.first_name }} {{ object.sampler.last_name }} </td>
+              <td> ${ sample.sampler }</td>
             </tr>
             <tr>
               <th> Collected on</th>
-              <td> {{ object.sample_date|date:"F d, Y" }} </td>
+              <td> ${ sample.sample_date }</td>
             </tr>
             <tr>
               <th> Field reference number</th>
-              <td> {{ object.sampler_ref_number }} </td>
+              <td> ${ sample.sampler_ref_number }</td>
             </tr>
             <tr>
               <th> ${labels.lab_sampler}</th>
@@ -153,19 +153,19 @@
 
   <script type="application/javascript">
 
-  let sampleId = {{ object.id }};
 
   var app = new Vue({
     el: '#app',
     delimiters: ["${", "}"],
     data: {
-      sampleId,
+      startingFishId: null,
       loading: {
         meta: true,
         fish: true,
       },
       preview: true,
       fish: {},
+      sample: {},
       labels: {},
       fields: [
         'gonad_sub_sample_weight',
@@ -215,22 +215,27 @@
         else el.select()
       },
       get() {
-        let fishId = prompt("Please enter the HERMAN fish ID:")
+        let fishId;
+        if (this.startingFishId) {
+          fishId = this.startingFishId;
+          this.startingFishId = null;
+        } else fishId = prompt("Please enter the HERMAN fish ID:");
+
         if (fishId) {
           this.loading.fish = true;
           apiService(`/api/herman/fish-details/${fishId}`, "GET")
               .then(response => {
                 if (!response || !response.id) {
                   alert("There is no fish that exists with this ID.")
-                }
-                // check to make sure the fish is part of the sample
-                else if (response.sample !== this.sampleId) {
-                  alert("WARNING! This fish does not belong to this sample !!!")
                 } else {
-                  this.fish = response;
-                  this.$nextTick(() => {
-                  })
-                  this.dealWithFlags();
+                  apiService(`/api/herman/samples/${response.sample}`, "GET")
+                      .then(response2 => {
+                        this.fish = response;
+                        this.sample = response2;
+                        this.$nextTick(() => {
+                        })
+                        this.dealWithFlags();
+                      })
                 }
                 this.loading.fish = false
               })
@@ -326,6 +331,9 @@
       }
     },
     created() {
+      let uri = window.location.search.substring(1);
+      let params = new URLSearchParams(uri);
+      this.startingFishId = params.get("fish_id");
       this.getMetadata();
       this.get();
 

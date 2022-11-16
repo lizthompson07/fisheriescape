@@ -51,6 +51,7 @@ class Species(SimpleLookup):
                                            blank=True, null=True)
     max_annulus_count = models.IntegerField(verbose_name="maximum annulus count", help_text=_("Any observations beyond this mark will prompt a warning"),
                                             blank=True, null=True)
+    use_fmb = models.BooleanField(default=False, verbose_name=_("use fish measuring board by default"))
 
     class Meta:
         ordering = ['name']
@@ -330,6 +331,7 @@ class FishDetail(models.Model):
     maturity = models.ForeignKey(Maturity, related_name="fish_details", on_delete=models.DO_NOTHING, null=True, blank=True)
     gonad_weight = models.FloatField(null=True, blank=True, verbose_name=_("gonad weight (g)"), validators=(MinValueValidator(0),))
     parasite = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
+    will_count_eggs = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
 
     # otolith
     annulus_count = models.IntegerField(null=True, blank=True)

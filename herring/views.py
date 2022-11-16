@@ -770,6 +770,7 @@ class LabSampleConfirmation(HerringCRUD, CommonTemplateView):
     def get_parent_crumb(self):
         return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
 
+
 @login_required(login_url='/accounts/login/')
 @user_passes_test(is_crud_user, login_url='/accounts/denied/')
 def lab_sample_primer(request, sample):
@@ -792,6 +793,10 @@ def lab_sample_primer(request, sample):
     else:
         version = request.GET.get("version")
         mode = request.GET.get("mode")
+        if not mode:
+            if my_fishy.sample.species.use_fmb:
+                mode = "fmb"
+
         if version and version == "2":
             return HttpResponseRedirect(reverse('herring:lab_sample_form_v2', args=[my_fishy.id]) + f"?mode={mode}")
         return HttpResponseRedirect(reverse('herring:lab_sample_form', args=[my_fishy.id]))
@@ -850,20 +855,13 @@ class OtolithUpdateView(HerringCRUD, CommonDetailView):
         return context
 
 
-
 # Egg
-class EggUpdateView(HerringCRUD, CommonDetailView):
+class EggUpdateView(HerringCRUD, CommonTemplateView):
+    h1 = "Egg Detailing"
     template_name = 'herring/egg_detailing/main.html'
-    model = models.Sample
     container_class = "container"
     home_url_name = "herring:index"
-    grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
-
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse("herring:sample_detail", args=[self.get_object().id])}
-
-
+    # parent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
 
 
 # SHARED #
@@ -893,7 +891,7 @@ def move_record(request, sample, type, direction, current_id):
         # otherwise, just move backwards 1
         else:
             target_id = id_list[current_index - 1]
-            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={ "pk": target_id}))
+            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={"pk": target_id}))
 
     # PageDown
     elif direction == "next":
@@ -905,7 +903,7 @@ def move_record(request, sample, type, direction, current_id):
         # otherwise move forward 1
         else:
             target_id = id_list[current_index + 1]
-            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={ "pk": target_id}))
+            return HttpResponseRedirect(reverse(viewname=viewname, kwargs={"pk": target_id}))
 
 
 # REPORTS #

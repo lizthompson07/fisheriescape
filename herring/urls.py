@@ -72,7 +72,7 @@ urlpatterns = [
     path('otolith/fish/<int:pk>/', views.OtolithUpdateView.as_view(), name="otolith_form"),  # tested
 
     # Egg
-    path('egg/sample/<int:pk>/', views.EggUpdateView.as_view(), name="egg_form"),  # tested
+    path('egg-detailing/', views.EggUpdateView.as_view(), name="egg_form"),  # tested
 
     # PROGRESS REPORT #
     ###################

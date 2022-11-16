@@ -192,6 +192,7 @@
         "maturity",
         "gonad_weight",
         "parasite",
+        "will_count_eggs",
         "remarks",
       ],
       currentField: "fish_length",
@@ -199,6 +200,7 @@
         sex: [],
         maturity: [],
         parasite: [],
+        will_count_eggs: [],
       },
       mode: "normal"
     },
@@ -267,41 +269,66 @@
         // this is where we will have to do some very ugly hardcoding...
         // if we are using a special fish measuring board, there will be prefixes that accompany the values being passed
         if (this.fmbInput.match(/ruler1/gi)) {
-          data["fish_length"] = this.fmbInput.toLowerCase().replace("ruler1", "").trim();
+          field = "fish_length";
+          data[field] = this.fmbInput.toLowerCase().replace("ruler1", "").trim();
         } else if (this.fmbInput.match(/sex/gi)) {
+          field = "sex";
           let strSex = this.fmbInput.toLowerCase().replace("sex", "").trim();
-          if (strSex === 'male') data["sex"] = 1;
-          else if (strSex === 'female') data["sex"] = 2;
-          else if (strSex === 'h') data["sex"] = 3;
-          else if (strSex === 'u') data["sex"] = 9;
+          if (strSex === 'male') data[field] = 1;
+          else if (strSex === 'female') data[field] = 2;
+          else if (strSex === 'h') data[field] = 3;
+          else if (strSex === 'u') data[field] = 9;
         } else if (this.fmbInput.match(/parasites/gi)) {
+          field = "parasite";
           let strParasite = this.fmbInput.toLowerCase().replace("parasites", "").trim();
-          if (strParasite === 'y') data["parasite"] = 1;
-          else if (strParasite === 'n') data["parasite"] = 0;
+          if (strParasite === 'y') data[field] = 1;
+          else if (strParasite === 'n') data[field] = 0;
         } else if (this.fmbInput.match(/gonad/gi) || this.fmbInput.match(/scale_2/gi)) {
+          field = "gonad_weight";
           // 'EXAMPLE:  Enter Gonad wt 50.1 || Scale_2 50.0001 g
-          data["gonad_weight"] = this.fmbInput.toLowerCase().trim().replace("enter gonad wt", "").replace("scale_2", "").replace("g", "");
+          data[field] = this.fmbInput.toLowerCase().trim().replace("enter gonad wt", "").replace("scale_2", "").replace("g", "");
         } else if (this.fmbInput.match(/fish wt/gi) || this.fmbInput.match(/scale_1/gi)) {
           // 'EXAMPLE:  Scale_1 1000.000 g __OR__ Enter Fish wt 1000
-          data["fish_weight"] = this.fmbInput.toLowerCase().trim().replace("enter fish wt", "").replace("scale_1", "").replace("g", "");
+          field = "fish_weight";
+          data[field] = this.fmbInput.toLowerCase().trim().replace("enter fish wt", "").replace("scale_1", "").replace("g", "");
         } else if (this.fmbInput.match(/enter maturity/gi)) {
           // 'EXAMPLE:  Enter Maturity 1
-          data["maturity"] = this.fmbInput.toLowerCase().trim().replace("enter maturity", "");
+          field = "maturity";
+          data[field] = this.fmbInput.toLowerCase().trim().replace("enter maturity", "");
+        } else if (this.fmbInput.match(/egg/gi)) {
+          // 'EXAMPLE:  egg
+          field = "will_count_eggs";
+          if (!this.fish[field]) data[field] = 1;
+          else data[field] = 0;
         }
 
-        apiService(`/api/herman/fish-details/${this.fishId}/`, "PATCH", data)
-            .then(response => {
-              this.fmbInput = null;
-              if (!response.id) alert(groomJSON(response));
-              else {
-                this.fish = response;
-                var contiune = this.dealWithFlags();
-                if (contiune) audio.play();
-                if (!this.fish.lab_processed_date) speak("ready.");
-                else speak("fish complete.");
-              }
-              this.$refs.cell_fmb_input.select()
-            })
+        let proceed = true;
+        // check to see if this will overwrite something already there!
+        if (this.fish[field]) {
+          let msg = "Do you want to overwrite the existing data in this field? Press [y] for YES or [n] for NO.";
+          let msgLite = "do you want to overwrite?";
+          let userInput;
+          speak(msgLite);
+          while (userInput !== "y" && userInput !== "n") userInput = prompt(msg).toLocaleLowerCase();
+          proceed = userInput !== 'n';
+        }
+
+        if (proceed) {
+          apiService(`/api/herman/fish-details/${this.fishId}/`, "PATCH", data)
+              .then(response => {
+                this.fmbInput = null;
+                if (!response.id) alert(groomJSON(response));
+                else {
+                  this.fish = response;
+                  var contiune = this.dealWithFlags();
+                  if (contiune) audio.play();
+                  if (!this.fish.lab_processed_date) speak("ready.");
+                  else speak("fish complete.");
+                }
+                this.$refs.cell_fmb_input.select()
+              })
+        } else this.fmbInput = null;
+
       },
       dealWithFlags() {
         if (this.unacceptedFlags.length) {
@@ -326,10 +353,12 @@
 
       getMetadata() {
         apiService(`/api/herman/model-metas/?app_name=herring&model_name=FishDetail`).then(data => {
+          console.log(data)
           this.labels = data.labels;
           this.choices.parasite = data.parasite_choices;
           this.choices.sex = data.sex_choices;
           this.choices.maturity = data.maturity_choices;
+          this.choices.will_count_eggs = data.will_count_eggs_choices;
           this.loading.meta = false;
         });
       },

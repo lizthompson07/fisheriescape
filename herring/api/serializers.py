@@ -24,6 +24,16 @@ class SpeciesSerializer(serializers.ModelSerializer):
 
 
 class SampleSerializer(serializers.ModelSerializer):
+    sampler = serializers.StringRelatedField()
+    sample_date = serializers.SerializerMethodField()
+    display = serializers.SerializerMethodField()
+
+    def get_display(self, instance):
+        return str(instance)
+
+    def get_sample_date(self, instance):
+        return instance.sample_date.strftime("%Y-%m-%d")
+
     class Meta:
         model = models.Sample
         fields = "__all__"

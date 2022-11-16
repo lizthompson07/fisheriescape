@@ -51,8 +51,6 @@
         {% endif %}
       </div>
 
-      <a class="btn btn-outline-primary" href="{% url 'herring:egg_form' object.id %}">Enter Egg Details</a>
-
 
     </div>
 
@@ -72,7 +70,12 @@
   </div>
 
 
-  <script type="text/javascript" src="{% static "js/herring/quality_control.js" %}"></script>
+{% endblock %}
+
+
+{% block body_js %}
+
+  <script src="{% static "herring/quality_control.js" %}?version=2"></script>
 
   <script type="text/javascript">
   window.name = "portSampleDetail"
@@ -102,7 +105,6 @@
     test231(labProcessingComplete);
     test232(otolithProcessingComplete);
   });
-
 
   </script>
 {% endblock %}
