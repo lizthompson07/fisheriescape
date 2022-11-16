@@ -221,6 +221,13 @@ class Sample(CoordinatesModel):
     def get_absolute_url(self):
         return reverse("scuba:sample_detail", args=[self.pk])
 
+    @property
+    def is_data_entry_complete(self):
+        for dive in self.dives.all():
+            if not dive.has_all_sections:
+                return False
+        return True
+
 
 class Dive(MetadataFields):
     heading_choices = (
@@ -273,6 +280,13 @@ class Dive(MetadataFields):
     def dive_distance(self):
         return self.sample.distance
 
+    @property
+    def has_all_sections(self):
+        for choice in Section.interval_choices:
+            if not self.sections.filter(interval=choice[0]).exists():
+                return False
+        return True
+
 
 class Section(MetadataFields):
     interval_choices = (
@@ -298,9 +312,24 @@ class Section(MetadataFields):
         (20, "20 (95-100m)"),
     )
 
+    no_sample_choices = (
+        (1, "1 - Complex"),
+        (2, "2 - Other (e.g. low on air, bad visibility)"),
+    )
+    rock_crab_choices = (
+        (None, "NA"),
+        (0, "0 - no rock crab detected"),
+        (1, "1 - rock crab detected"),
+    )
+
     dive = models.ForeignKey(Dive, related_name='sections', on_delete=models.CASCADE, verbose_name=_("dive"))
     interval = models.IntegerField(verbose_name=_("5m interval [1-20]"), validators=(MinValueValidator(1), MaxValueValidator(20)), choices=interval_choices)
+
+    not_sampled = models.BooleanField(default=False, verbose_name=_("section not sampled?"))
+    reason_not_sampled = models.IntegerField(verbose_name=_("reason section was not sampled"), choices=no_sample_choices, blank=True, null=True)
+
     depth_ft = models.FloatField(verbose_name=_("depth (ft)"), blank=True, null=True)
+
     percent_algae = models.FloatField(default=0, verbose_name=_("algae [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     percent_sand = models.FloatField(default=0, verbose_name=_("sand [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     percent_mud = models.FloatField(default=0, verbose_name=_("mud [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
@@ -308,6 +337,9 @@ class Section(MetadataFields):
     percent_gravel = models.FloatField(default=0, verbose_name=_("gravel [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     percent_cobble = models.FloatField(default=0, verbose_name=_("cobble [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     percent_boulder = models.FloatField(default=0, verbose_name=_("boulder [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+
+    rock_crab_presence = models.IntegerField(verbose_name=_("rock crab detection code"), choices=rock_crab_choices, blank=True, null=True)
+
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 
     def __str__(self):

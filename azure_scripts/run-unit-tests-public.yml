@@ -1,14 +1,14 @@
 pool:
-  vmImage: 'Ubuntu 18.04'
+  vmImage: 'Ubuntu 20.04'
 
 trigger:
   - None
 
 steps:
   - task: UsePythonVersion@0
-    displayName: 'Use Python 3.8'
+    displayName: 'Use Python 3.10'
     inputs:
-      versionSpec: 3.8
+      versionSpec: 3.10
 
   - script: |
       # install pre-requisites
@@ -63,16 +63,6 @@ steps:
     displayName: 'Tests for cruises'
 
   - script: |
-      python manage.py test -b whalebrary.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for whalebrary'
-
-  - script: |
-      python manage.py test --exclude-tag=Functional -b bio_diversity.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for biodiversity'
-
-  - script: |
       python manage.py test -b scuba.test
     condition: succeededOrFailed()
     displayName: 'Tests for scuba'
@@ -87,7 +77,7 @@ steps:
     condition: succeededOrFailed()
     displayName: 'Tests for grAIS'
 
-#  - script: |
-#      python manage.py test -b fisheriescape.test
-#    condition: succeededOrFailed()
-#    displayName: 'Tests for fisheriescape'
+  - script: |
+      python manage.py test -b herring.test
+    condition: succeededOrFailed()
+    displayName: 'Tests for HERMAN'

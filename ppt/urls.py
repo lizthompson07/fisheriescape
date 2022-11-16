@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import views, utils
 
 app_name = 'ppt'
 
@@ -69,7 +69,11 @@ urlpatterns = [
     path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),  # tested
     path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),  # tested
 
-    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_text"),  # tested
+    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_texts"),  # tested
+    path('settings/help-texts/<str:model_name>/<str:field_name>/', views.HelpTextPopView.as_view(),
+         name="manage_help_text"),
+    path('ajax/get_fields/', utils.ajax_get_fields, name='ajax_get_fields'),
+    path('settings/toggle-help-texts/<int:user_id>', utils.toggle_help_text_edit, name="toggle_edit_help_texts"),
     path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),  # tested
 
     path('settings/levels/', views.LevelFormsetView.as_view(), name="manage_levels"),  # tested

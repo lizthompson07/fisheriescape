@@ -32,22 +32,22 @@ APP_DICT = {
     'csas2': dict(name="Canadian Science Advisory Secretariat v2.0"),  # dependency on ppt
     'masterlist': dict(name='Masterlist'),
     'ihub': dict(name='iHub'),  # dependency on masterlist
+    'maret': dict(name="Maret"),  # dependency on masterlist, ihub
     'shares': dict(name='Gulf Shares'),
     'travel': dict(name='Travel Management System'),  # beware, the staff ids will have to be changed below for cloud instances of app
     'sar_search': dict(name="SAR Search"),
     'spot': dict(name='Grants & Contributions (Spot)'),  # dependency on masterlist, sar_search
-    'ios2': dict(name='Instruments'),
     'publications': dict(name="Project Publications Inventory"),
     'trapnet': dict(name="TrapNet"),
     'whalesdb': dict(name="Whale Equipment Deployment Inventory"),
-    'vault': dict(name="Marine Megafauna Media Vault"),
     'whalebrary': dict(name="Whalebrary Marine Mammal Tools"),
     'shiny': dict(name="DM Apps Shiny App Collection"),
-    'bio_diversity': dict(name="Biodiversity"),
-    'maret': dict(name="Maret"),
-    'fisheriescape': dict(name="Fisheries Landscape Tool"),
     'res': dict(name="SE-RES Career Progression Dossier App"),
-    'cars': dict(name="Science Vehicle Reservation System"),
+    'cars': dict(name="Gulf RSVP"),
+    'fisheriescape': dict(name="Fisheries Landscape Tool"),
+    # 'ios2': dict(name='Instruments'),
+    # 'vault': dict(name="Marine Megafauna Media Vault"),
+    # 'bio_diversity': dict(name="Biodiversity"),
 }
 
 # Deal with fake apps...

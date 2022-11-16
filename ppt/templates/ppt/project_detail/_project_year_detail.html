@@ -114,6 +114,13 @@
           {% elif "scale_score_html" in field %}
             <td v-if="projectYear.review.scale_score" v-html='projectYear.review.scale_score_html'></td>
             <td v-else>-----</td>
+          {% elif "checklist_file" in field %}
+             <td class="">
+              <a v-if="projectYear.review.checklist_file" :href="projectYear.review.checklist_file" target="_blank">
+                <span class="mdi mdi-attachment h5" ></span>
+              </a>
+              <p v-else>---</p>
+            </td>
           {% else %}
             <td v-html='projectYear.review.{{ field }}'></td>
           {% endif %}
@@ -125,17 +132,41 @@
 </div>
 
 
-{% include "ppt/project_detail/_staff.html" %}
+<div class="mb-5 pointy" @click="collapseProjectYearCosts = !collapseProjectYearCosts">
+    <div class="mb-2 neighbours">
+    <p class="lead">
+      {% trans "Project Year Resource Request" %}
+      <span v-if="!collapseProjectYearCosts" class="ml-1 mdi mdi-toggle-switch-off text-primary"></span>
+      <span v-else class="ml-1 mdi mdi-toggle-switch"></span>
+    </p>
+  </div>
+</div>
+<div v-if="!collapseProjectYearCosts">
+  {% include "ppt/project_detail/_staff.html" %}
+  {% include "ppt/project_detail/_om_costs.html" %}
+  {% include "ppt/project_detail/_capital_costs.html" %}
+</div>
+
+<div class="mb-5 pointy" @click="collapseProjectYearAllocations = !collapseProjectYearAllocations">
+    <div class="mb-2 neighbours">
+    <p class="lead">
+      {% trans "Project Year Allocations" %}
+      <span v-if="!collapseProjectYearAllocations" class="ml-1 mdi mdi-toggle-switch-off text-primary"></span>
+      <span v-else class="ml-1 mdi mdi-toggle-switch"></span>
+    </p>
+  </div>
+</div>
+<div v-if="!collapseProjectYearAllocations">
+  {% include "ppt/project_detail/_salary_allocations.html" %}
+  {% include "ppt/project_detail/_om_allocations.html" %}
+  {% include "ppt/project_detail/_capital_allocations.html" %}
+</div>
+
+{% include "ppt/project_detail/_financials.html" %}
 {% include "ppt/project_detail/_activities.html" %}
-{% include "ppt/project_detail/_om_costs.html" %}
-{% include "ppt/project_detail/_capital_costs.html" %}
-{% include "ppt/project_detail/_salary_allocations.html" %}
-{% include "ppt/project_detail/_om_allocations.html" %}
-{% include "ppt/project_detail/_capital_allocations.html" %}
 {% include "ppt/project_detail/_collaborations.html" %}
 {% include "ppt/project_detail/_files.html" %}
 {% include "ppt/project_detail/_status_reports.html" %}
-{% include "ppt/project_detail/_financials.html" %}
 
 
 {##}

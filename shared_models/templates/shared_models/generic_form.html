@@ -18,12 +18,22 @@
       {% block form_fields %}
         {% for field in form %}
           {% block form_field %}
-            <div id="{{ field.name }}_div">
-              {% if field.field.required %}
-                {% bootstrap_field field placeholder="" label_class="required" %}
-              {% else %}
-                {% bootstrap_field field placeholder="" %}
-              {% endif %}
+             <div id="{{ field.name }}_div">
+              {% block form_field_label %}
+                  {% if not field.is_hidden %}
+                      {# adds required label to field #}
+                      {% if field.field.required %}
+                          {% bootstrap_label field.label label_class="required" label_for="id_"|add:field.name %}
+                      {% else %}
+                          {% bootstrap_label field.label label_for="id_"|add:field.name%}
+                      {% endif %}
+                  {% endif %}
+              {% endblock %}
+
+              {% bootstrap_field field placeholder="" show_label=False%}
+
+              {% block post_field_area%}
+              {% endblock %}
             </div>
           {% endblock %}
         {% endfor %}
@@ -35,9 +45,9 @@
           {% trans "Cancel" as default_cancel_text %}
           {% echo request.META.HTTP_REFERER as default_cancel_url %}
           <span data-toggle="tooltip" title="{% block submit_btn_tip_text %}{% endblock %}">
-            <input type="submit" class="btn btn-lg {% block submit_btn_class %}{{ submit_btn_class|nz:"btn-warning" }}{% endblock %}" id="submit-btn"
+            <button type="submit" class="btn btn-lg {% block submit_btn_class %}{{ submit_btn_class|nz:"btn-warning" }}{% endblock %}" id="submit-btn"
               {% block submit_btn_props %}{% endblock %}
-                   value="{{ submit_text|nz:default_submit_text }}">
+            >{{ submit_text|nz:default_submit_text|safe }}</button>
             <a class="gone disabled btn btn-lg btn-warning" id="thinking-btn">
               <div class="spinner-border spinner-border-sm" role="status"><span class="sr-only">Loading...</span></div>
             </a>

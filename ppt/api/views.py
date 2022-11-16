@@ -197,7 +197,15 @@ class ProjectViewSet(ModelViewSet):
 
 
 class ProjectYearViewSet(ModelViewSet):
-    queryset = models.ProjectYear.objects.all().order_by("start_date")
+    queryset = models.ProjectYear.objects.all().order_by("start_date")\
+        .select_related("project", "project__section", "fiscal_year","project__functional_group",
+                        "project__default_funding_source", "project__activity_type")\
+        .prefetch_related('staff_set__funding_source',
+                          'omcost_set__funding_source',
+                          'capitalcost_set__funding_source',
+                          'salaryallocation_set__funding_source',
+                          'omallocation_set__funding_source',
+                          'capitalallocation_set__funding_source')
     serializer_class = serializers.ProjectYearSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
     pagination_class = pagination.StandardResultsSetPagination
@@ -231,7 +239,8 @@ class ProjectYearViewSet(ModelViewSet):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=request.user
             )
             return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
         elif qp.get("unsubmit"):
@@ -374,7 +383,8 @@ class StaffViewSet(ModelViewSet):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user,
             )
         super().perform_update(serializer)
 
@@ -387,7 +397,8 @@ class StaffViewSet(ModelViewSet):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
 
 

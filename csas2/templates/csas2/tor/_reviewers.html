@@ -9,7 +9,7 @@
     <ul v-if="!tor.submission_date" class="lead text-danger">
       <li>
 
-      {% trans "The approval process will begin once the ToR is submitted." %}
+        {% trans "The approval process will begin once the ToR is submitted." %}
       </li>
       <li>
         {% trans "Before the approval process is started, the steering committee should have seen and agreed to the ToR." %}
@@ -33,24 +33,34 @@
           <table class="table table-sm">
             <thead>
             <tr>
-              <th></th>
-              <th class="w-25">${ reviewerLabels.user }</th>
-              <th>${ reviewerLabels.role }</th>
-              <th>${ reviewerLabels.status }</th>
-              <th>${ reviewerLabels.decision }</th>
-              <th>${ reviewerLabels.decision_date }</th>
+              <th class="w-10" v-if="![35,40,50].includes(tor.status)"></th>
+              <th v-else></th>
+              <th class="w-20">${ reviewerLabels.user }</th>
+              <th class="w-15">${ reviewerLabels.role }</th>
+              <th class="w-10">${ reviewerLabels.status }</th>
+              <th class="w-10">${ reviewerLabels.decision }</th>
+              <th class="w-15">${ reviewerLabels.decision_date }</th>
               <th class="w-35">${ reviewerLabels.comments }</th>
             </tr>
             </thead>
 
             {# display body #}
-            <tbody v-if="!canEditReviewers">
+            <tbody v-if="!canEditReviewers || tor.status >= 35">
             <tr v-for="item in reviewers" :key="item.id">
               <td></td>
               <td>${item.user_display|nz }</td>
-              <td><span :class="item.status_class + ' px-1 py-1'">${item.status_display }</span></td>
               <td>${item.role_display|nz }</td>
-              <td>${item.decision_display|nz }</td>
+              <td>
+                <span :class="item.status_class + ' px-1 py-1'">${item.status_display }</span>
+              </td>
+              <td>
+                ${item.decision_display }
+                {# if the status is pending or complete, show the duration of the review #}
+                <span v-if="[30,40].includes(item.status)" class="mdi mdi-clock-outline helper text-primary"
+                      data-toggle="tooltip" :title="`{% trans "Review duration:" %} ${item.review_duration} {% trans "days" %}`"
+                ></span>
+                <span v-else> --- </span>
+              </td>
               <td>${item.decision_date_display |nz }</td>
               <td v-if="item.comments_html" v-html="item.comments_html"></td>
               <td v-else>---</td>
@@ -61,8 +71,8 @@
             <tbody v-else>
             <tr v-for="(item, index) in reviewers" :key="item.id">
               <td>
-                <div v-if="tor.status && tor.status === 10">
-                  <button class="btn btn-xs" v-if="index!==0" @click="moveReviewer(item, 'up')">
+                <div v-if="item.can_be_modified">
+                  <button class="btn btn-xs" v-if="index!==0 && !isNextReviewer(item)" @click="moveReviewer(item, 'up')">
                     <span class="mdi mdi-arrow-up-bold-circle-outline h5"></span>
                   </button>
                   <span v-else style="margin-right: 37px"></span>
@@ -102,15 +112,24 @@
                 >
                 </v-select>
               </td>
-              <td><span :class="item.status_class + ' px-1 py-1'">${item.status_display }</span></td>
-              <td>${item.decision_display|nz }</td>
+              <td>
+                <span :class="item.status_class + ' px-1 py-1'">${item.status_display }</span>
+              </td>
+              <td>
+                ${item.decision_display }
+                {# if the status is pending or complete, show the duration of the review #}
+                <span v-if="[30,40].includes(item.status)" class="mdi mdi-clock-outline helper text-primary"
+                      data-toggle="tooltip" :title="`{% trans "Review duration:" %} ${item.review_duration} {% trans "days" %}`"
+                ></span>
+                <span v-else> --- </span>
+              </td>
               <td>${item.decision_date_display |nz }</td>
               <td v-if="item.comments_html" v-html="item.comments_html"></td>
               <td v-else>---</td>
 
               <td style="width:75px">
                 <button
-                  v-if="item.can_be_modified"
+                  v-if="item.can_be_modified || item.status === 30 "
                   @click="deleteReviewer(item)"
                   class="btn btn-sm btn-outline-dark py-0 px-1" data-toggle="tooltip" title="{% trans "Delete" %}">
                   <span class="mdi mdi-delete text-dark"></span>

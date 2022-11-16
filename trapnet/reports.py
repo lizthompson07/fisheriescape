@@ -244,10 +244,10 @@ def generate_electro_juv_salmon_report(year, fishing_areas, rivers):
 
 def generate_entry_report(year, sites):
     if year != "None":
-        qs = models.Entry.objects.filter(sample__season=year).filter(sample__site__exclude_data_from_site=False)
+        qs = models.Entry.objects.filter(sample__season=year).all()
         filename = "entry_report_{}.csv".format(year)
     else:
-        qs = models.Entry.objects.all().filter(sample__site__exclude_data_from_site=False)
+        qs = models.Entry.objects.all().all()
         filename = "entry_report_all_years.csv"
 
     if sites != "None":
@@ -450,10 +450,10 @@ def generate_open_data_ver_1_report(year, sites):
 
     # It is important that we remove any samples taken at MAtapedia River since these data do not belong to us.
     if year != "None":
-        qs = models.Entry.objects.filter(sample__season=year).filter(sample__site__exclude_data_from_site=False)
+        qs = models.Entry.objects.filter(sample__season=year).all()
         filename = "open_data_ver1_report_{}.csv".format(year)
     else:
-        qs = models.Entry.objects.all().filter(sample__site__exclude_data_from_site=False)
+        qs = models.Entry.objects.all().all()
         filename = "open_data_ver1_report_all_years.csv"
 
     if sites != "None":
@@ -548,7 +548,7 @@ def generate_open_data_ver_1_wms_report(lang):
     Simple report for web mapping service on FGP
     """
     # It is important that we remove any samples taken at MAtapedia River since these data do not belong to us.
-    qs = models.Entry.objects.all().filter(sample__site__exclude_data_from_site=False)
+    qs = models.Entry.objects.all()
     filename = "site_summary_report_eng.csv" if lang == 1 else "site_summary_report_fra.csv"
 
     # Create the HttpResponse object with the appropriate CSV header.

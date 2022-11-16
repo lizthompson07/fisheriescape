@@ -55,6 +55,11 @@
                   <th class="w-35">{% get_verbose_label object "percent_cloud_cover" %}</th>
                   <td>{{ object.percent_cloud_cover|percentage:0 }}</td>
                 </tr>
+              {% elif field == "notes" %}
+                <tr>
+                  <th>{% get_verbose_label object "notes" %}</th>
+                  <td>{% get_field_value object "notes" to_html=True %}</td>
+                </tr>
               {% else %}
                 {% verbose_td_display object field display_time=True %}
               {% endif %}
@@ -132,7 +137,7 @@
 
   <div class="mb-5">
 
-    {% if object.sample_type == 1 %}
+    {% if object.sample_type == 1 or object.sample_type == 3 %}
       <div class="card">
         <div class="card-header lead">
           <div class="float-right">

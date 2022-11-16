@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iHub - traduction 2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-22 11:33-0300\n"
+"POT-Creation-Date: 2022-10-13 09:34-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -41,53 +41,53 @@ msgstr "Le nom contiens"
 msgid "Click to select a date.."
 msgstr "Cliquez pour sélectionner une date..."
 
-#: .\ihub\forms.py:140
+#: .\ihub\forms.py:141
 msgid "Capacity Report (Excel Spreadsheet)"
 msgstr "Rapport sur les capacités (tableur excel)"
 
-#: .\ihub\forms.py:141
+#: .\ihub\forms.py:142
 msgid "Organizational Report / Cue Card (PDF)"
 msgstr "Rapport sur l'organisation (PDF)"
 
-#: .\ihub\forms.py:142
+#: .\ihub\forms.py:143
 msgid "iHub Summary Report"
 msgstr "Rapport sommaire du iHub"
 
-#: .\ihub\forms.py:143
+#: .\ihub\forms.py:144
 msgid "Engagement Update Log"
 msgstr "Mises à jour de la mobilisation"
 
-#: .\ihub\forms.py:144
+#: .\ihub\forms.py:145
 msgid "Consultation Instructions (PDF)"
 msgstr "Instructions de consultation (PDF)"
 
-#: .\ihub\forms.py:145
+#: .\ihub\forms.py:146
 msgid "Consultation Instructions - Mail Merge (xlsx)"
 msgstr "Instructions de consultations (Liste de courriels)"
 
-#: .\ihub\forms.py:146
+#: .\ihub\forms.py:147
 #, fuzzy
 #| msgid "Consultation Roles"
 msgid "Consultation Report (xlsx)"
 msgstr "Rôles de consultation"
 
-#: .\ihub\forms.py:169 .\ihub\forms.py:177 .\ihub\models.py:202
+#: .\ihub\forms.py:170 .\ihub\forms.py:178 .\ihub\models.py:219
 msgid "Internal"
 msgstr "Note interne"
 
-#: .\ihub\forms.py:170 .\ihub\forms.py:178
+#: .\ihub\forms.py:171 .\ihub\forms.py:179
 msgid "Internal (** for internal reports only)"
 msgstr ""
 
-#: .\ihub\forms.py:171 .\ihub\models.py:201
+#: .\ihub\forms.py:172 .\ihub\models.py:218
 msgid "Follow-up (*)"
 msgstr "Suivi (*)"
 
-#: .\ihub\forms.py:304
+#: .\ihub\forms.py:305
 msgid "DFO employee"
 msgstr "Employé du MPO"
 
-#: .\ihub\forms.py:333
+#: .\ihub\forms.py:334
 msgid "Select a contact"
 msgstr "Sélectionner un contact"
 
@@ -103,188 +103,204 @@ msgstr "Oui"
 msgid "No"
 msgstr "Non"
 
-#: .\ihub\models.py:46 .\ihub\models.py:47
+#: .\ihub\models.py:39
+msgid "DM Apps user"
+msgstr ""
+
+#: .\ihub\models.py:40
+#, fuzzy
+#| msgid "iHub Administrator"
+msgid "app administrator?"
+msgstr "Administrateur"
+
+#: .\ihub\models.py:41
+#, fuzzy
+#| msgid "Read / write permissions"
+msgid "Edit permissions?"
+msgstr "Permission(s) en lecture/écriture"
+
+#: .\ihub\models.py:63 .\ihub\models.py:64
 msgid "abbreviation (French)"
 msgstr "Abbréviation en français"
 
-#: .\ihub\models.py:60
+#: .\ihub\models.py:77
 msgid "title"
 msgstr "Titre"
 
-#: .\ihub\models.py:61
+#: .\ihub\models.py:78
 msgid "location"
 msgstr "endroit"
 
-#: .\ihub\models.py:62
+#: .\ihub\models.py:79
 msgid "proponent"
 msgstr "Promoteur"
 
-#: .\ihub\models.py:64
+#: .\ihub\models.py:81
 msgid "organizations"
 msgstr "Organisations"
 
-#: .\ihub\models.py:65
+#: .\ihub\models.py:82
 msgid "initial activity date"
 msgstr "Début de l'activité"
 
-#: .\ihub\models.py:66
+#: .\ihub\models.py:83
 msgid "response requested by"
 msgstr ""
 
-#: .\ihub\models.py:67
+#: .\ihub\models.py:84
 msgid "anticipated end date"
 msgstr "Fin de l'activité"
 
-#: .\ihub\models.py:68
+#: .\ihub\models.py:85
 msgid "is an FAA required?"
 msgstr ""
 
-#: .\ihub\models.py:69
+#: .\ihub\models.py:86
 msgid "has an FAA been issued?"
 msgstr ""
 
-#: .\ihub\models.py:70 .\ihub\models.py:211 .\ihub\reports.py:192
-#: .\ihub\reports.py:436
+#: .\ihub\models.py:87 .\ihub\models.py:228 .\ihub\reports.py:202
+#: .\ihub\reports.py:446
 msgid "status"
 msgstr "Statut"
 
-#: .\ihub\models.py:72
+#: .\ihub\models.py:89
 msgid "DFO sectors"
 msgstr "Division du MPO"
 
-#: .\ihub\models.py:74 .\ihub\reports.py:202 .\ihub\reports.py:446
+#: .\ihub\models.py:91 .\ihub\reports.py:212 .\ihub\reports.py:456
 msgid "Entry Type"
 msgstr "Type de saisie"
 
-#: .\ihub\models.py:75
+#: .\ihub\models.py:92
 msgid "regions"
 msgstr "régions"
 
-#: .\ihub\models.py:76
+#: .\ihub\models.py:93
 msgid "response deadline"
 msgstr ""
 
-#: .\ihub\models.py:80
+#: .\ihub\models.py:97
 msgid "funding program"
 msgstr "Programme de financement"
 
-#: .\ihub\models.py:81
+#: .\ihub\models.py:98
 msgid "fiscal year/multiyear"
 msgstr "Année(s) fiscale(s)"
 
-#: .\ihub\models.py:82
+#: .\ihub\models.py:99
 msgid "is funding needed?"
 msgstr "Financement nécessaire?"
 
-#: .\ihub\models.py:84
+#: .\ihub\models.py:101
 msgid "funding purpose"
 msgstr "But du financement"
 
-#: .\ihub\models.py:85
+#: .\ihub\models.py:102
 msgid "funding requested"
 msgstr "Financement demandé"
 
-#: .\ihub\models.py:86
+#: .\ihub\models.py:103
 msgid "funding approved"
 msgstr "Financement approuvé"
 
-#: .\ihub\models.py:87
+#: .\ihub\models.py:104
 msgid "amount transferred"
 msgstr "Montant transféré"
 
-#: .\ihub\models.py:88
+#: .\ihub\models.py:105
 msgid "amount lapsed"
 msgstr "Montant non utilisé"
 
-#: .\ihub\models.py:90
+#: .\ihub\models.py:107
 msgid "does any funding need to be recovered?"
 msgstr "Est-ce que du financement doit être récupéré?"
 
-#: .\ihub\models.py:93
+#: .\ihub\models.py:110
 msgid "date last modified"
 msgstr "Dernière modification"
 
-#: .\ihub\models.py:94
+#: .\ihub\models.py:111
 msgid "date created"
 msgstr "Crée le"
 
-#: .\ihub\models.py:95
+#: .\ihub\models.py:112
 msgid "last modified by"
 msgstr "Dernière modification par"
 
-#: .\ihub\models.py:96
+#: .\ihub\models.py:113
 msgid "created by"
 msgstr "Crée par"
 
-#: .\ihub\models.py:157
+#: .\ihub\models.py:174
 msgid "Lead"
 msgstr "Responsable"
 
-#: .\ihub\models.py:158
+#: .\ihub\models.py:175
 msgid "Contact"
 msgstr "Contact"
 
-#: .\ihub\models.py:159
+#: .\ihub\models.py:176
 msgid "Support"
 msgstr "En support"
 
-#: .\ihub\models.py:162
+#: .\ihub\models.py:179
 msgid "User"
 msgstr "Utilisateur"
 
-#: .\ihub\models.py:163
+#: .\ihub\models.py:180
 msgid "name"
 msgstr "nom"
 
-#: .\ihub\models.py:165
+#: .\ihub\models.py:182
 msgid "role"
 msgstr "rôle"
 
-#: .\ihub\models.py:198
+#: .\ihub\models.py:215
 msgid "Action"
 msgstr "Action"
 
-#: .\ihub\models.py:199
+#: .\ihub\models.py:216
 msgid "Next step"
 msgstr "Prochaine étape"
 
-#: .\ihub\models.py:200
+#: .\ihub\models.py:217
 msgid "Comment"
 msgstr "Commentaire"
 
-#: .\ihub\models.py:209
+#: .\ihub\models.py:226
 msgid "author"
 msgstr "auteur"
 
-#: .\ihub\models.py:244
+#: .\ihub\models.py:261
 msgid "caption"
 msgstr "légende"
 
-#: .\ihub\models.py:246
+#: .\ihub\models.py:263
 msgid "file"
 msgstr "fichier"
 
-#: .\ihub\models.py:247
+#: .\ihub\models.py:264
 msgid "date uploaded"
 msgstr "mis en ligne le"
 
-#: .\ihub\reports.py:93 .\ihub\reports.py:301
+#: .\ihub\reports.py:103 .\ihub\reports.py:311
 msgid "Amount outstanding"
 msgstr "Montant impayé"
 
-#: .\ihub\reports.py:180 .\ihub\reports.py:424
+#: .\ihub\reports.py:190 .\ihub\reports.py:434
 msgid "GRAND TOTAL:"
 msgstr "Grand total :"
 
-#: .\ihub\reports.py:188 .\ihub\reports.py:432
+#: .\ihub\reports.py:198 .\ihub\reports.py:442
 msgid "Funding requested"
 msgstr "Financement demandé"
 
-#: .\ihub\reports.py:292
+#: .\ihub\reports.py:302
 msgid "DFO Contacts"
 msgstr "Contact au MPO"
 
-#: .\ihub\reports.py:293 .\ihub\templates\ihub\_instructions.html:138
+#: .\ihub\reports.py:303 .\ihub\templates\ihub\_instructions.html:138
 #: .\ihub\templates\ihub\_members.html:25
 #: .\ihub\templates\ihub\organization_detail.html:71
 msgid "Notes"
@@ -331,7 +347,7 @@ msgstr "Filtres"
 #: .\ihub\templates\ihub\_filters.html:22
 #: .\ihub\templates\ihub\user_list.html:46
 msgid "Filter"
-msgstr "Filtre"
+msgstr "Filtrer"
 
 #: .\ihub\templates\ihub\_filters.html:23
 #: .\ihub\templates\ihub\user_list.html:48
@@ -462,8 +478,8 @@ msgstr "(Ajouter une personne)"
 
 #: .\ihub\templates\ihub\_people.html:12
 #: .\ihub\templates\ihub\base\_nav_left_auth.html:11
-#: .\ihub\templates\ihub\index.html:35 .\ihub\views.py:114 .\ihub\views.py:136
-#: .\ihub\views.py:144 .\ihub\views.py:174 .\ihub\views.py:203
+#: .\ihub\templates\ihub\index.html:35 .\ihub\views.py:66 .\ihub\views.py:88
+#: .\ihub\views.py:96 .\ihub\views.py:126 .\ihub\views.py:155
 msgid "Contacts"
 msgstr "Contacts"
 
@@ -489,14 +505,14 @@ msgid "Home"
 msgstr "Accueil"
 
 #: .\ihub\templates\ihub\base\_nav_left_auth.html:8
-#: .\ihub\templates\ihub\index.html:27 .\ihub\views.py:409 .\ihub\views.py:417
-#: .\ihub\views.py:456 .\ihub\views.py:470 .\ihub\views.py:503
+#: .\ihub\templates\ihub\index.html:27 .\ihub\views.py:361 .\ihub\views.py:369
+#: .\ihub\views.py:408 .\ihub\views.py:422 .\ihub\views.py:456
 msgid "Entries"
 msgstr "Entrées"
 
 #: .\ihub\templates\ihub\base\_nav_left_auth.html:14
-#: .\ihub\templates\ihub\index.html:40 .\ihub\views.py:278 .\ihub\views.py:301
-#: .\ihub\views.py:320 .\ihub\views.py:337
+#: .\ihub\templates\ihub\index.html:40 .\ihub\views.py:230 .\ihub\views.py:253
+#: .\ihub\views.py:272 .\ihub\views.py:289
 msgid "Organizations"
 msgstr "Organisations"
 
@@ -504,48 +520,50 @@ msgstr "Organisations"
 msgid "Reports"
 msgstr "Rapports"
 
-#: .\ihub\templates\ihub\base\_nav_left_auth.html:27
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:26
 msgid "Settings"
 msgstr "Paramètres"
 
-#: .\ihub\templates\ihub\base\_nav_left_auth.html:31
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:30
 msgid "Manage Sectors"
 msgstr "Modifier les divisions"
 
-#: .\ihub\templates\ihub\base\_nav_left_auth.html:34
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:33
 msgid "Manage Organizations"
 msgstr "Modifier les organisations"
 
-#: .\ihub\templates\ihub\base\_nav_left_auth.html:37
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:36
 msgid "Manage Statuses"
 msgstr "Modifier les statuts"
 
-#: .\ihub\templates\ihub\base\_nav_left_auth.html:40
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:39
 msgid "Manage Entry Types"
 msgstr "Modifier les types d'entrées"
 
-#: .\ihub\templates\ihub\base\_nav_left_auth.html:43
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:42
 msgid "Manage Funding Purposes"
 msgstr "Modifier les activités financées"
 
-#: .\ihub\templates\ihub\base\_nav_left_auth.html:46
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:45
 msgid "Manage Reserves"
 msgstr "Modifier les réserves"
 
-#: .\ihub\templates\ihub\base\_nav_left_auth.html:49
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:48
 msgid "Manage Nations"
 msgstr "Modifier les Nations"
 
-#: .\ihub\templates\ihub\base\_nav_left_auth.html:52
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:51
 msgid "Manage Funding Programs"
 msgstr "Modifier les programmes de financement"
 
-#: .\ihub\templates\ihub\base\_nav_left_auth.html:55
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:54
 msgid "Manage Relationship Ratings"
 msgstr "Modifier la qualité de la relation"
 
-#: .\ihub\templates\ihub\base\_nav_left_auth.html:58
-msgid "Manage User Permissions"
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:57
+#, fuzzy
+#| msgid "Manage User Permissions"
+msgid "User Permissions"
 msgstr "Modifier les permissions des utilisateurs"
 
 #: .\ihub\templates\ihub\entry_detail.html:19
@@ -778,11 +796,11 @@ msgstr "Administrateur"
 msgid "Read / write permissions"
 msgstr "Permission(s) en lecture/écriture"
 
-#: .\ihub\views.py:87
+#: .\ihub\views.py:39
 msgid "home"
 msgstr "Accueil"
 
-#: .\ihub\views.py:90
+#: .\ihub\views.py:42
 msgid ""
 "Please note that only <b>unclassified information</b> may be entered into "
 "this application."
@@ -790,43 +808,43 @@ msgstr ""
 "Veuillez noter que seules <b>informations non classifiées</b> peuvent être "
 "saisies dans cette application."
 
-#: .\ihub\views.py:104
+#: .\ihub\views.py:56
 msgid "full name"
 msgstr "Nom complet"
 
-#: .\ihub\views.py:108
+#: .\ihub\views.py:60
 msgid "last updated"
 msgstr "dernière mise à jour"
 
-#: .\ihub\views.py:133 .\ihub\views.py:275 .\ihub\views.py:436
+#: .\ihub\views.py:85 .\ihub\views.py:227 .\ihub\views.py:388
 msgid "metadata"
 msgstr "Métadonnées"
 
-#: .\ihub\views.py:175 .\ihub\views.py:188
+#: .\ihub\views.py:127 .\ihub\views.py:140
 msgid "New Contact"
 msgstr "Nouveau contact"
 
-#: .\ihub\views.py:232
+#: .\ihub\views.py:184
 msgid "Full address"
 msgstr "Adresse complète"
 
-#: .\ihub\views.py:233
+#: .\ihub\views.py:185
 msgid "Audio recording"
 msgstr "Enregistrement de la prononciation"
 
-#: .\ihub\views.py:322
+#: .\ihub\views.py:274
 msgid "New Organization"
 msgstr "Nouvelle organisation"
 
-#: .\ihub\views.py:352
+#: .\ihub\views.py:304
 msgid "New Organization Member"
 msgstr "Nouveau membre de l'organisation"
 
-#: .\ihub\views.py:472
+#: .\ihub\views.py:424
 msgid "New Entry"
 msgstr "Nouvelle entrée"
 
-#: .\ihub\views.py:489
+#: .\ihub\views.py:442
 msgid ""
 "The entry has been submitted and an email has been sent to the Indigenous "
 "Hub Coordinator!"
@@ -834,23 +852,23 @@ msgstr ""
 "L'entrée à été soumise et un courriel a été envoyé au coordonnateur du Hub "
 "RPA!"
 
-#: .\ihub\views.py:540
+#: .\ihub\views.py:493
 msgid "The note has been successfully deleted from the entry."
 msgstr "La note a été supprimée de l'entrée avec succès."
 
-#: .\ihub\views.py:551
+#: .\ihub\views.py:504
 msgid "New Entry Person"
 msgstr "Ajouter une personne"
 
-#: .\ihub\views.py:571
+#: .\ihub\views.py:524
 msgid "The person has been successfully deleted from the entry."
 msgstr "La personne a été supprimée de l'entrée avec succès."
 
-#: .\ihub\views.py:601
+#: .\ihub\views.py:554
 msgid "The file has been successfully deleted from the entry."
 msgstr "Le fichier a été supprimé de l'entrée avec succès."
 
-#: .\ihub\views.py:682
+#: .\ihub\views.py:635
 msgid "Engagement Update Log – Government of Canada"
 msgstr "Mise à jour de la mobilisation - Gouvernement du Canada"
 

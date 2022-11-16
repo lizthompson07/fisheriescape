@@ -36,6 +36,8 @@ def is_markdown_field(value):
         # status report
         'major_accomplishments',
         'major_issues',
+        'excess_funds_comment',
+        'insuficient_funds_comment',
 
         # activity update
         'notes',

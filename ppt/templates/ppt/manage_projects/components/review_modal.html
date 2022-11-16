@@ -161,6 +161,24 @@
                 </div>
                 <hr>
 
+                <p class="text-muted">{{ review_form.checklist_file.label }}</p>
+                <div class="row mb-3">
+                  <div class="col">
+                    {% bootstrap_field review_form.checklist_file size='small' show_label=False %}
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <div v-if="isOldReview">
+                    <div v-if="project_year.review.checklist_file">
+                      {% trans "Current feedback form:" %}
+                      <a v-if="project_year.review.checklist_file" :href="project_year.review.checklist_file" target="_blank">
+                        <span class="mdi mdi-attachment h5" ></span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <hr>
+
                 <p class="text-muted">{{ review_form.general_comment.label }}</p>
                 <div class="row mb-3">
                   <div class="col">
@@ -242,6 +260,12 @@ Vue.component("modal", {
       errors: null,
       loading: false,
       rubric: reviewRubric,
+      // files
+      checklistFileToUpload: null,
+      checklistFile: {
+        name: null,
+        external_url: null,
+      },
     }
   },
   methods: {
@@ -284,28 +308,50 @@ Vue.component("modal", {
 
       if (this.isOldReview) {
         let endpoint = `/api/ppt/reviews/${this.project_year.review.id}/`;
-        apiService(endpoint, "PUT", this.project_year.review).then(response => {
-          if (response.id) this.$emit('close', this.project_year)
+        // if there is a file attribute, delete it since we send back the file through a separate request
+        if (this.project_year.review.checklist_file) delete this.project_year.review.checklist_file
+        apiService(endpoint, "PATCH", this.project_year.review).then(response => {
+          if (response.id) {
+            if (this.checklistFileToUpload) {
+                let fileEndpoint = `/api/ppt/reviews/${response.id}/`;
+                fileApiService(fileEndpoint, "PATCH", "checklist_file", this.checklistFileToUpload).then((fileResponse) => {
+                    console.log(fileResponse)
+                })
+                this.checklistFileToUpload = null
+            }
+            this.$emit('close', this.project_year)
+          }
           else {
-                        this.errors = groomJSON(response);
+            this.errors = groomJSON(response);
             this.loading = false
-
           }
         })
       } else {
         let endpoint = `/api/ppt/reviews/`;
         this.project_year.review.project_year=this.project_year.id;
+        // if there is a file attribute, delete it since we send back the file through a separate request
+        if (this.project_year.review.checklist_file) delete this.project_year.review.checklist_file
         apiService(endpoint, "POST", this.project_year.review).then(response => {
           if (response.id) {
             this.project_year.review = response
+            if (this.checklistFileToUpload) {
+              let fileEndpoint = `/api/ppt/reviews/${response.id}/`;
+              fileApiService(fileEndpoint, "PATCH", "checklist_file", this.checklistFileToUpload).then((fileResponse) => {
+                  console.log(fileResponse)
+              })
+              this.checklistFileToUpload = null
+            }
+
             this.$emit('close', this.project_year)
           } else {
-                        this.errors = groomJSON(response);
+            this.errors = groomJSON(response);
             this.loading = false
-
           }
         })
       }
+    },
+    onChecklistFileChange() {
+      this.checklistFileToUpload = this.$refs.checklistFile.files[0];
     },
   },
   computed: {

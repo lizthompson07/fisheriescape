@@ -45,6 +45,7 @@ def get_sample_field_list(sample=None):
         'samplers' if is_rst else None,
 
         'site_type' if is_electro else None,
+        'seine_type' if is_electro else None,
         'site_profile|{}'.format(_("site profile")) if is_electro else None,
         'substrate_profile|{}'.format(_("substrate profile")) if is_electro else None,
         'crew_display|{}'.format(_("crew")) if is_electro else None,

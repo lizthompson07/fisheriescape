@@ -80,6 +80,7 @@
                 <a class="dropdown-item clickable" @click="goReport('basic')">{% trans "Projects Export (short form)" %}</a>
                 <a class="dropdown-item clickable" @click="goReport('long')">{% trans "Projects Export (long form)" %}</a>
                 <a class="dropdown-item clickable" @click="goReport('costs')">{% trans "Project Costs Export" %}</a>
+                <a class="dropdown-item clickable" @click="goEmailLeads()">{% trans "Email Primary Project Leads" %}</a>
               </div>
             </div>
           </div>
@@ -105,8 +106,12 @@
     <capital-allocation-modal v-if="showModal.capital_allocation" @submit-allocation="submitModalAllocation"
                               @close="closeModal" :year="allocationProjectYear" :errors="modalErrors"
                               :parent_allocation="modalAllocation"></capital-allocation-modal>
-    <distribution-modal v-if="showModal.distribution" @close="closeModal" :allocation="allocation2Distribute"
-                        :costs="costs2Fund" :allocation_type="type2distribute"></distribution-modal>
+    <capital-distribution-modal v-if="showModal.capital_distribution" @close="closeModal" :allocation="allocation2Distribute"
+                        :costs="costs2Fund"></capital-distribution-modal>
+    <om-distribution-modal v-if="showModal.om_distribution" @close="closeModal" :allocation="allocation2Distribute"
+                        :costs="costs2Fund" :staff="omStaff2Fund"></om-distribution-modal>
+    <salary-distribution-modal v-if="showModal.salary_distribution" @close="closeModal" :allocation="allocation2Distribute"
+                        :costs="costs2Fund"></salary-distribution-modal>
 
   </div>
 

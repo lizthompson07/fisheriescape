@@ -91,6 +91,15 @@ if settings.INSTALLED_APPS.count("sar_search"):
     urlpatterns.append(
         path('api/', include('sar_search.api.urls')),
     )
+if settings.INSTALLED_APPS.count("maret"):
+    urlpatterns.append(
+        path('api/', include('maret.api.urls')),
+    )
+if settings.INSTALLED_APPS.count("herring"):
+    urlpatterns.append(
+        path('api/', include('herring.api.urls')),
+    )
+
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),

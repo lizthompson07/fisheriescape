@@ -2687,6 +2687,18 @@
         },
         "model": "bio_diversity.loccode",
         "pk": 8
+    },
+    {
+        "fields": {
+            "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+            "created_date": "2022-09-21",
+            "description_en": "Generic Collections site",
+            "description_fr": "",
+            "name": "Collections Site",
+            "nom": null
+        },
+        "model": "bio_diversity.loccode",
+        "pk": 11
     }, {
         "fields": {
             "created_by": "quentin.stoyel@dfo-mpo.gc.ca",

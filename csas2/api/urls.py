@@ -20,6 +20,7 @@ router.register(r'doc-tracking', views.DocumentTrackingViewSet)
 router.register(r'people', views.PersonViewSet)
 router.register(r'tors', views.ToRViewSet)
 router.register(r'tor-reviewers', views.ToRReviewerViewSet)
+router.register(r'request-reviewers', views.RequestReviewerViewSet)
 
 
 urlpatterns = [

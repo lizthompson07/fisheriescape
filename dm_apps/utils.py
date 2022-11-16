@@ -96,7 +96,7 @@ def get_db_connection_dict():
     return my_dict
 
 
-def custom_send_mail(subject=None, html_message=None, from_email=None, recipient_list=None, text_message=None, email_instance=None):
+def custom_send_mail(subject=None, html_message=None, from_email=None, recipient_list=None, text_message=None, email_instance=None, user=None):
     """
     The role of this function is to handle the sending of an email message based on the configuration of the project setting.py file.
     - If settings.USE_SENDGRID = True, the mail will be sent with the python sendgrid package using the sendgrid REST api
@@ -132,6 +132,7 @@ def custom_send_mail(subject=None, html_message=None, from_email=None, recipient
         mail.add_personalization(to_list)
         try:
             sg.send(mail)
+            create_email_log_entry(from_email, recipient_list, subject, user, "sendgrid")
         except BadRequestsError:
             print("bad request. email not sent")
 
@@ -178,8 +179,9 @@ def custom_send_mail(subject=None, html_message=None, from_email=None, recipient
         except ClientError as e:
             print(e.response['Error']['Message'])
         else:
-            print("Email sent! Message ID:"),
-            print(response['MessageId'])
+            msg_id = response['MessageId']
+            # print(f"Email sent! Message ID: {msg_id}"),
+            create_email_log_entry(from_email, recipient_list, subject, user, "aws-ses", msg_id)
 
     elif settings.USE_SMTP_EMAIL:
         django_send_mail(
@@ -190,13 +192,30 @@ def custom_send_mail(subject=None, html_message=None, from_email=None, recipient
             recipient_list=recipient_list,
             fail_silently=False
         )
-
+        create_email_log_entry(from_email, recipient_list, subject, user, "smtp")
     else:
         print('No email configuration present in application...')
         if email_instance:
             print(email_instance)
         else:
             print("FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(from_email, recipient_list, subject, html_message))
+        create_email_log_entry(from_email, recipient_list, subject, user, "console")
+
+
+def create_email_log_entry(from_email, recipient_list, subject, user, send_method, msg_id=None):
+    try:
+        # make an entry in the system email table
+        from tracking import models as tracking_models
+        tracking_models.Email.objects.create(
+            from_email=from_email,
+            recipient_list=recipient_list,
+            subject=subject,
+            sent_by=user,
+            send_method=send_method,
+            msg_id=msg_id,
+        )
+    except:
+        print("failed to create an entry in the email log table.")
 
 
 def compare_strings(str1, str2):

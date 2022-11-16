@@ -2,6 +2,7 @@
 {% load verbose_names %}
 {% load i18n %}
 {% load custom_filters %}
+{% load custom_tags %}
 {% load static %}
 {% load bootstrap4 %}
 
@@ -60,23 +61,52 @@
 
 {% endblock %}
 
+{% block head %}
+  {% for field in field_list %}
+      {% if field.name == "status" %}
+        {%  if fiscal_year %}
+          <th class="{{ field.class }}" {% if field.width %}style="width: {{ field.width }}"{% endif %}>
+            {% get_verbose_label random_object field.name %} ({{ fiscal_year }})
+          </th>
+        {% endif %}
+      {% else %}
+        <th class="{{ field.class }}" {% if field.width %}style="width: {{ field.width }}"{% endif %}>
+          {% get_verbose_label random_object field.name %}
+        </th>
+      {% endif %}
+  {% endfor %}
+{% endblock %}
 
 {% block table_tr %}
   {% url row_object_url_name object.id as my_url %}
   <tr {% if row_object_url_name %} href="{{ my_url }}"{% endif %}>
     {% for field in field_list %}
-      <td class="{{ field.class }}">
-        {% if "unsubmitted" in field.name %}
-          {% get_field_value object field.name as my_val %}
-          {% if my_val %}
-            <span class="py-1 px-1 highlight">{{ my_val|yesno }}</span>
-          {% else %}
-            <span>{{ my_val|yesno }}</span>
+      {% if field.name == "status" %}
+          {% if fiscal_year %}
+            {% get_subset status_data object.id as my_val %}
+            <td class="{{ field.class }}">
+              <span class="{{ my_val|lower }} p-1">{{ my_val }}</span>
+            </td>
           {% endif %}
-        {% else %}
-          {% get_field_value object field.name safe=True %}
-        {% endif %}
-      </td>
+      {% else %}
+        <td class="{{ field.class }}">
+          {% if "unsubmitted" in field.name %}
+            {% get_field_value object field.name as my_val %}
+            {% if my_val %}
+              <span class="py-1 px-1 highlight">{{ my_val|yesno }}</span>
+            {% else %}
+              <span>{{ my_val|yesno }}</span>
+            {% endif %}
+          {% elif field.name == "status" %}
+            {% if fiscal_year %}
+              {% get_subset status_data object.id as my_val %}
+              <span class="{{ my_val|lower }} p-1">{{ my_val }}</span>
+            {% endif %}
+          {% else %}
+            {% get_field_value object field.name safe=True %}
+          {% endif %}
+        </td>
+      {% endif %}
     {% endfor %}
   </tr>
 {% endblock %}

@@ -75,6 +75,14 @@ def get_status_report_field_list():
         # print(e)
         return []
 
+@register.simple_tag
+def get_status_report_short_field_list():
+    try:
+        return utils.get_status_report_short_field_list()
+    except Exception as e:
+        # print(e)
+        return []
+
 
 @register.simple_tag
 def get_activity_update_field_list():

@@ -44,11 +44,17 @@ status_choices = (
 sample_type_choices = (
     (1, _("Rotary Screw Trap")),
     (2, _("Electrofishing")),
+    (3, _("Trap Net")),
 )
 
 site_type_choices = (
     (1, _("Open")),
     (2, _("Closed")),
+)
+
+seine_type_choices = (
+    (1, _("2 man lip seine (3m wide X 1m high)")),
+    (2, _("1 man seine (1m wide X 1m high)")),
 )
 
 pulse_type_choices = (

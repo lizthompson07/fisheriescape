@@ -61,13 +61,13 @@ class ElectrofishingParser(DataParser):
             self.river_dict[river_name] = models.RiverCode.objects.filter(name__icontains=river_name).get()
 
         if cleaned_data["evntc_id"].__str__() == "Electrofishing":
-            self.locc_id = models.LocCode.objects.filter(name__icontains="Electrofishing site").get()
+            self.locc_id = models.LocCode.objects.filter(name__icontains="Electrofishing Site").get()
         elif cleaned_data["evntc_id"].__str__() == "Smolt Wheel Collection":
-            self.locc_id = models.LocCode.objects.filter(name__icontains="Smolt Wheel site").get()
+            self.locc_id = models.LocCode.objects.filter(name__icontains="Smolt Wheel Site").get()
         elif cleaned_data["evntc_id"].__str__() == "Bypass Collection":
-            self.locc_id = models.LocCode.objects.filter(name__icontains="Bypass site").get()
+            self.locc_id = models.LocCode.objects.filter(name__icontains="Bypass Site").get()
         else:
-            self.locc_id = models.LocCode.objects.filter(name__icontains="Collections site").get()
+            self.locc_id = models.LocCode.objects.filter(name__icontains="Collections Site").get()
         self.data_dict = self.data.to_dict("records")
 
     def row_parser(self, row):

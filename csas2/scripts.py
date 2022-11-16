@@ -160,7 +160,7 @@ def digest_csv():
                     r.submission_date = submission_date
                     r.save()
 
-                #if there is a reference ID, we will create a review
+                # if there is a reference ID, we will create a review
                 if ref:
                     review, created = models.CSASRequestReview.objects.get_or_create(ref_number=ref, csas_request=r)
                     if created:
@@ -188,7 +188,6 @@ def check_tor():
             tor.save()
 
 
-
 def transfer_postings():
     for p in models.Process.objects.filter(is_posted=True):
 
@@ -204,3 +203,25 @@ def transfer_postings():
         else:
             print(f'success on process {p.id}')
 
+
+def adjust_request_statuses():
+    for r in models.CSASRequest.objects.all():
+        if r.status == 1:  # Draft"))
+            r.status = 10
+        elif r.status == 2:  # Submitted"))
+            r.status = 20
+        elif r.status == 3:  # Ready for review
+            r.status = 30
+        elif r.status == 4:  # Under review"
+            r.status = 40
+        elif r.status == 5:  # Fulfilled"))
+            r.status = 80
+        elif r.status == 6:  # Withdrawn"))
+            r.status = 99
+        elif r.status == 11:  # Reviewed"))
+            r.status = 41
+        elif r.status == 12:  # Flagged"))
+            r.status = 42
+        elif r.status == 13:  # Re-scoping
+            r.status = 43
+        r.save()
