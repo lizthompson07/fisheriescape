@@ -1,11 +1,14 @@
 {% load i18n %}
 
 {% include "ppt/manage_projects/components/staff_projects_list.html" %}
+{% include "ppt/manage_projects/components/finance_projects_list.html" %}
 {% include "ppt/manage_projects/components/review_modal.html" %}
 {% include "ppt/project_detail/components/salary_allocation_modal.html" %}
 {% include "ppt/project_detail/components/om_allocation_modal.html" %}
 {% include "ppt/project_detail/components/capital_allocation_modal.html" %}
-{% include "ppt/project_detail/components/distribution_modal.html" %}
+{% include "ppt/project_detail/components/capital_distribution_modal.html" %}
+{% include "ppt/project_detail/components/om_distribution_modal.html" %}
+{% include "ppt/project_detail/components/salary_distribution_modal.html" %}
 
 <script type="application/javascript">
 Vue.component('v-select', VueSelect.VueSelect);
@@ -87,7 +90,7 @@ var app = new Vue({
     p2Update: {},
     allocation2Distribute: {},
     costs2Fund: [],
-    type2distribute: "",
+    omStaff2Fund: [],
     allocationProjectYear: {},
     modalAllocation: {},
     modalErrors: null,
@@ -98,7 +101,9 @@ var app = new Vue({
       salary_allocation: false,
       om_allocation: false,
       capital_allocation: false,
-      distribution: false,
+      capital_distribution: false,
+      om_distribution: false,
+      salary_distribution: false,
     },
 
   },
@@ -483,18 +488,35 @@ var app = new Vue({
     },
 
     openDistributionModal(allocation, type) {
-      this.allocation2Distribute = allocation;
-      this.type2distribute = type;
-      let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
-      apiService(endpoint)
-          .then(response => {
-              if (type === "staff") {
-                this.costs2Fund = response;
-              } else {
-                this.costs2Fund = response.results;
-              }
-          })
-      this.showModal['distribution'] = true;
+        this.allocation2Distribute = allocation;
+        if (type === "staff") {
+            let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
+            apiService(endpoint)
+                .then(response => {
+                    this.costs2Fund = response;
+                })
+            this.showModal['salary_distribution'] = true;
+        } else if (type === "capital-costs") {
+            let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
+            apiService(endpoint)
+                .then(response => {
+                    this.costs2Fund = response.results;
+                })
+            this.showModal['capital_distribution'] = true;
+
+        } else if (type === "om-costs") {
+            let omEndpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
+            apiService(omEndpoint)
+                .then(response => {
+                    this.costs2Fund = response.results;
+                })
+            let staffEndpoint = `/api/ppt/staff/?project_year=${allocation.project_year}`;
+            apiService(staffEndpoint)
+                .then(response => {
+                    this.omStaff2Fund = response;
+                })
+            this.showModal['om_distribution'] = true;
+        }
     },
 
     closeModal(updatedProjectYear) {
@@ -522,6 +544,18 @@ var app = new Vue({
     },
     toggleShowFilteredProjects(staff) {
       staff.showFilteredProjects = !staff.showFilteredProjects
+      this.$forceUpdate()
+    },
+    toggleShowCapitalProjects(funding_source) {
+      funding_source.showCapitalProjects = !funding_source.showCapitalProjects
+      this.$forceUpdate()
+    },
+    toggleShowOMProjects(funding_source) {
+      funding_source.showOMProjects = !funding_source.showOMProjects
+      this.$forceUpdate()
+    },
+    toggleShowSalaryProjects(funding_source) {
+      funding_source.showSalaryProjects = !funding_source.showSalaryProjects
       this.$forceUpdate()
     },
     generateReports(url, tag) {
@@ -669,22 +703,22 @@ var app = new Vue({
         salary: 0,
         om: 0,
         capital: 0,
-        total: 0,
+        total_in_om: 0,
         allocated_salary: 0,
         allocated_om: 0,
         allocated_capital: 0,
-        allocated_total: 0,
+        allocated_total_in_om: 0,
       }
       if (this.financials) {
         for (var i = 0; i < this.financials.length; i++) {
           myObj.salary += this.financials[i].salary
           myObj.om += this.financials[i].om
           myObj.capital += this.financials[i].capital
-          myObj.total += this.financials[i].total
+          myObj.total_in_om += this.financials[i].total_in_om
           myObj.allocated_salary += this.financials[i].allocated_salary
           myObj.allocated_om += this.financials[i].allocated_om
           myObj.allocated_capital += this.financials[i].allocated_capital
-          myObj.allocated_total += this.financials[i].allocated_total
+          myObj.allocated_total_in_om += this.financials[i].allocated_total_in_om
         }
       }
       return myObj

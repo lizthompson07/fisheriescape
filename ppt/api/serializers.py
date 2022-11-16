@@ -378,6 +378,7 @@ class StaffSerializer(serializers.ModelSerializer):
     funding_source_display = serializers.SerializerMethodField()
     student_program_display = serializers.SerializerMethodField()
     project_year_obj = serializers.SerializerMethodField()
+    cost_type_choice = serializers.SerializerMethodField()
 
     def get_project_year_obj(self, instance):
         return ProjectYearSerializerLITE(instance.project_year).data
@@ -396,6 +397,9 @@ class StaffSerializer(serializers.ModelSerializer):
 
     def get_student_program_display(self, instance):
         return instance.get_student_program_display()
+
+    def get_cost_type_choice(self, instance):
+        return instance.employee_type.cost_type if instance.employee_type else None
 
 
 class OMCostSerializer(serializers.ModelSerializer):
@@ -587,12 +591,20 @@ class StatusReportSerializer(serializers.ModelSerializer):
     supporting_resources = serializers.SerializerMethodField()
     major_accomplishments_html = serializers.SerializerMethodField()
     major_issues_html = serializers.SerializerMethodField()
+    excess_funds_comment_html = serializers.SerializerMethodField()
+    insuficient_funds_comment_html = serializers.SerializerMethodField()
 
     def get_major_accomplishments_html(self, instance):
         return instance.major_accomplishments_html
 
     def get_major_issues_html(self, instance):
         return instance.major_issues_html
+
+    def get_excess_funds_comment_html(self, instance):
+        return instance.excess_funds_comment_html
+
+    def get_insuficient_funds_comment_html(self, instance):
+        return instance.insuficient_funds_comment_html
 
     def get_target_completion_date_display(self, instance):
         if instance.target_completion_date:

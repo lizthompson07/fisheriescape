@@ -400,7 +400,7 @@ def financial_project_year_summary_data(project_year):
         for cost in project_year.capitalcost_set.filter(funding_source=fs):
             my_dict["capital"] += nz(cost.amount, 0)
 
-        my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+        my_dict["total_in_om"] = models.SALARY_TO_OM_FACTOR * my_dict["salary"] + my_dict["om"] + my_dict["capital"]
 
         my_list.append(my_dict)
 
@@ -424,7 +424,7 @@ def financial_project_summary_data(project):
 
             # first calc for staff
             for staff in models.Staff.objects.filter(funding_source=fs, project_year__project=project):
-                # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
+                # Split staff based on om vs salary type
                 if not staff.employee_type.exclude_from_rollup:
                     if staff.employee_type.cost_type == 1:
                         my_dict["salary"] += nz(staff.amount, 0)
@@ -439,20 +439,82 @@ def financial_project_summary_data(project):
             for cost in models.CapitalCost.objects.filter(funding_source=fs, project_year__project=project):
                 my_dict["capital"] += nz(cost.amount, 0)
 
-            my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+            my_dict["total_in_om"] = models.SALARY_TO_OM_FACTOR * my_dict["salary"] + my_dict["om"] + my_dict["capital"]
 
             # allocated funds:
             for review in models.Review.objects.filter(project_year__project=project):
-                my_dict["allocated_om"] += nz(review.allocated_budget, 0)
-            my_dict["alloated_total"] = my_dict["om"]
+                if project.default_funding_source == fs:
+                    my_dict["allocated_om"] += nz(review.allocated_budget, 0)
+            my_dict["allocated_total_in_om"] = my_dict["allocated_om"]
 
             my_list.append(my_dict)
 
     return my_list
 
 
+def get_py_funding_source_details(project_year, funding_source):
+    py_dict = dict()
+    py_dict["id"] = project_year.id
+    py_dict["project"] = {"id": project_year.project.id}
+    py_dict["has_fs"] = False
+    py_dict["capital"] = 0
+    py_dict["om"] = 0
+    py_dict["salary"] = 0
+    py_dict["allocated_capital"] = 0
+    py_dict["allocated_om"] = 0
+    py_dict["allocated_salary"] = 0
+    py_dict["allocated_om_allocations"] = 0
+    py_dict["status_display"] = project_year.formatted_status
+    py_dict["year_display"] = str(project_year.fiscal_year)
+    py_dict["title"] = project_year.project.title
+    py_dict["section"] = str(project_year.project.section)
+
+    if funding_source in project_year.get_funding_sources():
+        py_dict["has_fs"] = True
+
+    # Capital costs
+    for cost in models.CapitalCost.objects.filter(funding_source=funding_source, project_year=project_year):
+        py_dict["capital"] += nz(cost.amount, 0)
+
+    # Salary + OM costs:
+    for cost in models.OMCost.objects.filter(funding_source=funding_source, project_year=project_year):
+        py_dict["om"] += nz(cost.amount, 0)
+
+    for staff in models.Staff.objects.filter(funding_source=funding_source, project_year=project_year):
+        if not staff.employee_type.exclude_from_rollup:
+            if staff.employee_type.cost_type == 1:
+                py_dict["salary"] += nz(staff.amount, 0)
+            elif staff.employee_type.cost_type == 2:
+                py_dict["om"] += nz(staff.amount, 0)
+
+    for allocation in models.CapitalAllocation.objects.filter(funding_source=funding_source, project_year=project_year):
+        py_dict["allocated_capital"] += nz(allocation.amount, 0)
+
+    for allocation in models.OMAllocation.objects.filter(funding_source=funding_source, project_year=project_year):
+        # this is what will get used, once the allocated budget field is removed from approvals.
+        py_dict["allocated_om_allocations"] += nz(allocation.amount, 0)
+
+    for allocation in models.SalaryAllocation.objects.filter(funding_source=funding_source, project_year=project_year):
+        py_dict["allocated_salary"] += nz(allocation.amount, 0)
+
+    if hasattr(project_year, "review"):
+        if project_year.project.default_funding_source == funding_source:
+            py_dict["allocated_om"] += nz(project_year.review.allocated_budget, 0)
+
+    return py_dict
+
+
 def multiple_financial_project_year_summary_data(project_years):
     my_list = []
+
+    # select related fields:
+    project_years = project_years.select_related("project", "project__section", "fiscal_year")\
+        .prefetch_related('staff_set__funding_source',
+                          'omcost_set__funding_source',
+                          'capitalcost_set__funding_source',
+                          'salaryallocation_set__funding_source',
+                          'omallocation_set__funding_source',
+                          'capitalallocation_set__funding_source')
 
     fs_list = list()
     # first get funding source list
@@ -461,45 +523,43 @@ def multiple_financial_project_year_summary_data(project_years):
     funding_sources = models.FundingSource.objects.filter(id__in=fs_list)
 
     for fs in funding_sources:
-        my_dict = dict()
-        my_dict["type"] = fs.get_funding_source_type_display()
-        my_dict["name"] = str(fs)
-        my_dict["py_count"] = 0
-        my_dict["salary"] = 0
-        my_dict["om"] = 0
-        my_dict["capital"] = 0
-        my_dict["allocated_salary"] = 0
-        my_dict["allocated_om"] = 0
-        my_dict["allocated_capital"] = 0
+        fs_dict = dict()
+        fs_dict["type"] = fs.get_funding_source_type_display()
+        fs_dict["name"] = str(fs)
+        fs_dict["py_count"] = 0
+
+        fs_dict["salary"] = 0
+        fs_dict["allocated_salary"] = 0
+        fs_dict["salary_pys"] = []
+
+        fs_dict["om"] = 0
+        fs_dict["allocated_om"] = 0
+        fs_dict["om_pys"] = []
+
+        fs_dict["capital"] = 0
+        fs_dict["allocated_capital"] = 0
+        fs_dict["capital_pys"] = []
 
         for py in project_years:
-            # first calc for staff
-            for staff in models.Staff.objects.filter(funding_source=fs, project_year=py):
-                # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
-                if not staff.employee_type.exclude_from_rollup:
-                    if staff.employee_type.cost_type == 1:
-                        my_dict["salary"] += nz(staff.amount, 0)
-                    elif staff.employee_type.cost_type == 2:
-                        my_dict["om"] += nz(staff.amount, 0)
+            py_financial_dict = get_py_funding_source_details(py, fs)
+            if py_financial_dict["has_fs"]:
+                fs_dict["py_count"] += 1
+                financial_categories = ["om", "capital", "salary"]
+                for financial_category in financial_categories:
+                    # sum finances from all project years, for each category
+                    if py_financial_dict[financial_category]:
+                        fs_dict[financial_category] += py_financial_dict[financial_category]
+                        if py_financial_dict not in fs_dict["{}_pys".format(financial_category)]:
+                            fs_dict["{}_pys".format(financial_category)].append(py_financial_dict)
+                    if py_financial_dict["allocated_{}".format(financial_category)]:
+                        fs_dict["allocated_{}".format(financial_category)] += py_financial_dict["allocated_{}".format(financial_category)]
+                        if py_financial_dict not in fs_dict["{}_pys".format(financial_category)]:
+                            fs_dict["{}_pys".format(financial_category)].append(py_financial_dict)
 
-            # O&M costs
-            for cost in models.OMCost.objects.filter(funding_source=fs, project_year=py):
-                my_dict["om"] += nz(cost.amount, 0)
+        fs_dict["total_in_om"] = models.SALARY_TO_OM_FACTOR * fs_dict["salary"] + fs_dict["om"] + fs_dict["capital"]
+        fs_dict["allocated_total_in_om"] = models.SALARY_TO_OM_FACTOR * fs_dict["allocated_salary"] + fs_dict["allocated_om"] + fs_dict["allocated_capital"]
 
-            # Capital costs
-            for cost in models.CapitalCost.objects.filter(funding_source=fs, project_year=py):
-                my_dict["capital"] += nz(cost.amount, 0)
-
-            my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
-
-            # allocated funds and count pys if py is part of funding group
-            if fs in py.get_funding_sources():
-                my_dict["py_count"] += 1
-                if hasattr(py, "review"):
-                    my_dict["allocated_om"] += nz(py.review.allocated_budget, 0)
-            my_dict["allocated_total"] = my_dict["allocated_om"]
-
-        my_list.append(my_dict)
+        my_list.append(fs_dict)
 
     return my_list
 
@@ -736,6 +796,12 @@ def get_status_report_field_list():
         'major_accomplishments_html|{}'.format(_("major accomplishments")),
         'major_issues_html|{}'.format(_("major issues")),
         'target_completion_date',
+        'excess_funds',
+        'excess_funds_amt',
+        'excess_funds_comment_html|{}'.format(_("suggested uses for remaining funds")),
+        'insuficient_funds',
+        'insuficient_funds_amt',
+        'insuficient_funds_comment_html|{}'.format(_("additional funding requested description")),
         'general_comment',
         'supporting_resources|{}'.format(_("supporting resources")),
         'section_head_comment',
@@ -744,6 +810,21 @@ def get_status_report_field_list():
     ]
     return my_list
 
+def get_status_report_short_field_list():
+    my_list = [
+        'report_number|{}'.format("number"),
+        'status',
+        'target_completion_date',
+        'excess_funds',
+        'excess_funds_amt',
+        'insuficient_funds',
+        'insuficient_funds_amt',
+        'general_comment',
+        'supporting_resources|{}'.format(_("supporting resources")),
+        'section_head_reviewed',
+        'metadata',
+    ]
+    return my_list
 
 def get_dma_field_list():
     my_list = [
