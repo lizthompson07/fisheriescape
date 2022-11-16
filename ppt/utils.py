@@ -796,6 +796,12 @@ def get_status_report_field_list():
         'major_accomplishments_html|{}'.format(_("major accomplishments")),
         'major_issues_html|{}'.format(_("major issues")),
         'target_completion_date',
+        'excess_funds',
+        'excess_funds_amt',
+        'excess_funds_comment_html|{}'.format(_("suggested uses for remaining funds")),
+        'insuficient_funds',
+        'insuficient_funds_amt',
+        'insuficient_funds_comment_html|{}'.format(_("additional funding requested description")),
         'general_comment',
         'supporting_resources|{}'.format(_("supporting resources")),
         'section_head_comment',
@@ -804,6 +810,21 @@ def get_status_report_field_list():
     ]
     return my_list
 
+def get_status_report_short_field_list():
+    my_list = [
+        'report_number|{}'.format("number"),
+        'status',
+        'target_completion_date',
+        'excess_funds',
+        'excess_funds_amt',
+        'insuficient_funds',
+        'insuficient_funds_amt',
+        'general_comment',
+        'supporting_resources|{}'.format(_("supporting resources")),
+        'section_head_reviewed',
+        'metadata',
+    ]
+    return my_list
 
 def get_dma_field_list():
     my_list = [

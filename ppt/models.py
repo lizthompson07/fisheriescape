@@ -1081,6 +1081,12 @@ class StatusReport(models.Model):
     status = models.IntegerField(default=3, editable=True, choices=status_choices)
     major_accomplishments = models.TextField(blank=True, null=True, verbose_name=_("major accomplishments"))
     major_issues = models.TextField(blank=True, null=True, verbose_name=_("major issues encountered"))
+    excess_funds = models.BooleanField(default=False, verbose_name=_("are there remaining funds?"))
+    excess_funds_amt = models.IntegerField(default=0, blank=True, null=True, verbose_name=_("remaining funds amount"))
+    excess_funds_comment = models.TextField(blank=True, null=True, verbose_name=_("suggested uses for remaining funds"))
+    insuficient_funds = models.BooleanField(default=False, verbose_name=_("do you wish to request additional funding?"))
+    insuficient_funds_amt = models.IntegerField(default=0, blank=True, null=True, verbose_name=_("additional funding request amount"))
+    insuficient_funds_comment = models.TextField(blank=True, null=True, verbose_name=_("additional funding request description"))
     target_completion_date = models.DateTimeField(blank=True, null=True, verbose_name=_("target completion date"))
     rationale_for_modified_completion_date = models.TextField(blank=True, null=True, verbose_name=_(
         "rationale for a modified completion date"))
@@ -1124,6 +1130,17 @@ class StatusReport(models.Model):
     def major_issues_html(self):
         if self.major_issues:
             return mark_safe(markdown(self.major_issues))
+
+    @property
+    def excess_funds_comment_html(self):
+        if self.excess_funds_comment:
+            return mark_safe(markdown(self.excess_funds_comment))
+
+    @property
+    def insuficient_funds_comment_html(self):
+        if self.insuficient_funds_comment:
+            return mark_safe(markdown(self.insuficient_funds_comment))
+
 
 
 def ref_mat_directory_path(instance, filename):

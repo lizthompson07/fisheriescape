@@ -591,12 +591,20 @@ class StatusReportSerializer(serializers.ModelSerializer):
     supporting_resources = serializers.SerializerMethodField()
     major_accomplishments_html = serializers.SerializerMethodField()
     major_issues_html = serializers.SerializerMethodField()
+    excess_funds_comment_html = serializers.SerializerMethodField()
+    insuficient_funds_comment_html = serializers.SerializerMethodField()
 
     def get_major_accomplishments_html(self, instance):
         return instance.major_accomplishments_html
 
     def get_major_issues_html(self, instance):
         return instance.major_issues_html
+
+    def get_excess_funds_comment_html(self, instance):
+        return instance.excess_funds_comment_html
+
+    def get_insuficient_funds_comment_html(self, instance):
+        return instance.insuficient_funds_comment_html
 
     def get_target_completion_date_display(self, instance):
         if instance.target_completion_date:
