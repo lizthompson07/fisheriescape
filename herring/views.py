@@ -856,12 +856,51 @@ class OtolithUpdateView(HerringCRUD, CommonDetailView):
 
 
 # Egg
-class EggUpdateView(HerringCRUD, CommonTemplateView):
-    h1 = "Egg Detailing"
-    template_name = 'herring/egg_detailing/main.html'
+class EggUpdateView(HerringCRUD, CommonDetailView):
+    template_name = 'herring/egg_detailing_v2/main.html'
+    model = models.FishDetail
     container_class = "container"
     home_url_name = "herring:index"
-    # parent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+    grandparent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+
+    def get_sample(self):
+        return self.get_object().sample
+
+    def get_parent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse("herring:sample_detail", args=[self.get_sample().id])}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        obj = self.get_object()
+
+        # determine if this is the first or last record
+        id_list = [f.id for f in models.FishDetail.objects.filter(sample_id=obj.sample, will_count_eggs=True).order_by("id")]
+        try:
+            current_index = id_list.index(obj.id)
+        except ValueError:
+            id_list.append(obj.id)
+            id_list.sort()
+            current_index = id_list.index(obj.id)
+
+
+        is_last = False
+
+        try:
+            next_url = reverse("herring:egg_form", args=[id_list[current_index + 1]])
+        except IndexError:
+            next_url = None
+            is_last = True
+
+        if current_index != 0:
+            prev_url = reverse("herring:egg_form", args=[id_list[current_index - 1]]) + "?egg=true"
+        else:
+            prev_url = None
+
+        context["next_url"] = next_url
+        context["prev_url"] = prev_url
+        context["is_last"] = is_last
+
+        return context
 
 
 # SHARED #

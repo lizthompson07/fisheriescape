@@ -68,11 +68,9 @@ urlpatterns = [
     path('sample/<int:sample>/<str:type>/<str:direction>/<int:current_id>/', views.move_record, name="move_record"),
     path('sample/<int:sample>/<str:type>/<str:direction>/', views.move_record, name="move_record"),
 
-    # Otolith
+    # Otolith & egg
     path('otolith/fish/<int:pk>/', views.OtolithUpdateView.as_view(), name="otolith_form"),  # tested
-
-    # Egg
-    path('egg-detailing/', views.EggUpdateView.as_view(), name="egg_form"),  # tested
+    path('egg/fish/<int:pk>/', views.EggUpdateView.as_view(), name="egg_form"),  # tested
 
     # PROGRESS REPORT #
     ###################

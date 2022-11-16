@@ -343,7 +343,7 @@ class FishDetail(models.Model):
     gonad_sub_sample_weight = models.FloatField(null=True, blank=True, verbose_name=_("gonad sub-sample weight (g)"))
     gonad_count = models.IntegerField(blank=True, null=True, verbose_name=_("gonad count"))
     gonad_photo_id = models.CharField(max_length=2000, blank=True, null=True, verbose_name=_("photo ID (20 eggs)"))
-
+    gonad_photo_magnification = models.FloatField(blank=True, null=True, verbose_name=_("photo magnification"))
 
     test_204_accepted = models.CharField(max_length=5, null=True, blank=True)  # ligh_length:fish_weight
     test_207_accepted = models.CharField(max_length=5, null=True,
@@ -381,7 +381,10 @@ class FishDetail(models.Model):
     @property
     def get_is_empty(self):
         return not (
-                self.fish_length or self.fish_weight or self.sex or self.maturity or self.gonad_weight or self.parasite or self.annulus_count or self.otolith_season)
+                self.fish_length or self.fish_weight or self.sex or self.maturity or self.gonad_weight or self.parasite
+                or self.annulus_count or self.otolith_season
+                or self.gonad_sub_sample_weight or self.will_count_eggs or self.gonad_photo_id or self.gonad_count
+        )
 
     @property
     def metadata(self):
@@ -417,7 +420,7 @@ class FishDetail(models.Model):
             self.otolith_processed_date = None
 
         # egg
-        if None not in (self.egg_sampler, self.gonad_sub_sample_weight, self.gonad_count, self.gonad_photo_id):
+        if None not in (self.egg_sampler, self.gonad_sub_sample_weight, self.gonad_count, self.gonad_photo_id, self.gonad_photo_magnification):
             if not self.egg_processed_date:
                 self.egg_processed_date = timezone.now()
         else:

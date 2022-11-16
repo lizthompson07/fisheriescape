@@ -45,7 +45,7 @@
 
           <td class="text-center">
             {% if d.will_count_eggs %}
-              <a href="{% url 'herring:egg_form' %}?fish_id={{ d.id }}">
+              <a href="{% url 'herring:egg_form' d.id %}">
                 {% if d.egg_processed_date %}
                   <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
                 {% else %}

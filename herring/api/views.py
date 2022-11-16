@@ -47,7 +47,7 @@ class FishDetailViewSet(viewsets.ModelViewSet):
         if self.request.query_params.get("otolith"):
             obj = serializer.save(otolith_sampler=self.request.user)
         elif self.request.query_params.get("egg"):
-            obj = serializer.save(egg_sampler=self.request.user)
+            obj = serializer.save(egg_sampler=self.request.user, will_count_eggs=True)
         else:
             obj = serializer.save(lab_sampler=self.request.user)
         make_fish_flags(obj, obj.lab_sampler)

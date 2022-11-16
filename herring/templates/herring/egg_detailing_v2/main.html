@@ -16,19 +16,22 @@
 {% block subcontent %}
 
   <div id="app" v-cloak
-       @keydown.page-down.prevent="get"
+       @keydown.page-down.prevent="goNext"
+       @keydown.page-up.prevent="goPrev"
        @keydown.up.prevent="goUp"
        @keydown.down.prevent="goDown"
        @keydown.esc.prevent="goBack"
        @keydown.home.prevent="goBack"
        @keydown.f1.prevent="togglePreview"
+       @keydown.end.prevent="jump"
   >
+
     <div class="mb-3">
-      <div v-if="fish.egg_processed_date" class="float-right">
+      <div v-if="fish.otolith_processed_date" class="float-right">
         <img src="{% static "/admin/img/icon-yes.svg" %}" alt="" width="100px">
       </div>
       <h1>
-        Egg Detailing
+        Egg Detail - Fish Id #{{ object.id }}
       </h1>
     </div>
 
@@ -39,43 +42,58 @@
       </div>
     </div>
     <div v-else>
+
+
       <div class="mb-3">
-        <a ref="back" href="{% url 'herring:index' %}" class="btn btn-secondary">Back (Esc)</a>
+        {% if prev_url %}
+          <a ref="prev" href="{{ prev_url }}" class="btn btn-primary">Previous (Page Up)</a>
+        {% else %}
+          <a ref="prev" disabled href="#" class="btn btn-primary disabled">Previous (Page Up)</a>
+        {% endif %}
 
-        <button ref="next" @click='get' class="btn btn-primary">New Fish (Page Down)</button>
+        {% if next_url %}
+          <a ref="next" href="{{ next_url }}" class="btn btn-primary">Next (Page Down)</a>
+        {% else %}
+          <a ref="next" disabled href="#" class="btn btn-primary disabled">Next (Page Down)</a>
+        {% endif %}
 
-        <button v-if="fish.id" @click="preview=!preview" ref="toggle_button" class="btn btn-warning">
+        <button ref="jump" @click="jump" class="btn btn-dark">Jump To (End)</button>
+
+        <a ref="back" href="{% url 'herring:sample_detail' object.sample.id %}" class="btn btn-secondary">Back (Esc)</a>
+
+
+        <button @click="preview=!preview" ref="toggle_button" class="btn btn-warning">
           <span v-if="preview">Hide Fish Details (F1)</span>
           <span v-else>Show Fish Details (F1)</span>
         </button>
 
       </div>
 
-      <div v-if="fish.id" class="row">
-        <div class="col-8">
+      <div class="row">
+        <div class="col-6">
           <table class="table table-sm">
 
             <tbody>
 
             <tr>
-              <th class="w-25"> Fish unique Id</th>
-              <td>${ fish.id }</td>
+              <th class="w-35"> Fish unique Id</th>
+              <td> {{ object.id }} </td>
             </tr>
             <tr>
               <th> Sample Id</th>
-              <td><a :href="`/herman/samples/${sample.id}/detail/`">${ sample.display }</a></td>
+              <td> {{ object.sample.id }} </td>
             </tr>
             <tr>
               <th> Collected by</th>
-              <td> ${ sample.sampler }</td>
+              <td> {{ object.sample.sampler.first_name }} {{ object.sample.sampler.last_name }} </td>
             </tr>
             <tr>
               <th> Collected on</th>
-              <td> ${ sample.sample_date }</td>
+              <td> {{ object.sample.sample_date|date:"F d, Y" }} </td>
             </tr>
             <tr>
               <th> Field reference number</th>
-              <td> ${ sample.sampler_ref_number }</td>
+              <td> {{ object.sample.sampler_ref_number }} </td>
             </tr>
             <tr>
               <th> ${labels.lab_sampler}</th>
@@ -85,7 +103,6 @@
               <th> ${labels.egg_sampler}</th>
               <td> ${fish.egg_sampler}</td>
             </tr>
-
 
             <template v-if="preview">
               <tr v-for="field, index in previewFields" :key="`pfield_${index}`">
@@ -101,6 +118,7 @@
                 </td>
               </tr>
             </template>
+
             <template>
               <tr v-for="field, index in fields" :key="`field_${index}`">
                 <th class="text-primary">${labels[field]}</th>
@@ -110,11 +128,12 @@
               </tr>
             </template>
 
-
             </tbody>
           </table>
         </div>
         <div class="col">
+
+
           <div v-if="fish.id && relevantFlags.length" class="mb-5">
             <h3>Flags</h3>
             <table>
@@ -153,24 +172,28 @@
 
   <script type="application/javascript">
 
+  let audio = new Audio("{% static "/sounds/success.wav" %}");
+  let fishId = {{ object.id }};
+  let isLast = {{is_last|yesno:"true;false"|lower}};
 
   var app = new Vue({
     el: '#app',
     delimiters: ["${", "}"],
     data: {
-      startingFishId: null,
+      fishId,
+      isLast,
       loading: {
         meta: true,
         fish: true,
       },
       preview: true,
       fish: {},
-      sample: {},
       labels: {},
       fields: [
         'gonad_sub_sample_weight',
         'gonad_count',
         'gonad_photo_id',
+        'gonad_photo_magnification',
       ],
       previewFields: [
         "fish_length",
@@ -179,7 +202,7 @@
         "maturity",
         "gonad_weight",
       ],
-      currentField: "gonad_sub_sample_weight",
+      currentField: "field_gonad_sub_sample_weight",
     },
     methods: {
       goNext() {
@@ -209,38 +232,40 @@
         else el.select()
       },
       get() {
-        let fishId;
-        if (this.startingFishId) {
-          fishId = this.startingFishId;
-          this.startingFishId = null;
-        } else fishId = prompt("Please enter the HERMAN fish ID:");
+        this.loading.fish = true;
+        apiService(`/api/herman/fish-details/${this.fishId}`, "GET")
+            .then(response => {
+              this.fish = response;
+              this.loading.fish = false
+              this.$nextTick(() => {
+              })
+              this.dealWithFlags();
 
+            })
+      },
+      jump() {
+        let fishId = prompt("Please enter the HERMAN fish ID:");
         if (fishId) {
-          this.loading.fish = true;
           apiService(`/api/herman/fish-details/${fishId}`, "GET")
               .then(response => {
                 if (!response || !response.id) {
                   alert("There is no fish that exists with this ID.")
                 } else {
-                  apiService(`/api/herman/samples/${response.sample}`, "GET")
-                      .then(response2 => {
-                        this.fish = response;
-                        this.sample = response2;
-                        this.$nextTick(() => {
-                        })
-                        this.dealWithFlags();
-                      })
+                  // what if this is a fish from another sample... We should at least warn the user
+                  let proceed = true;
+                  if (response.sample !== this.fish.sample) {
+                    proceed = confirm("You are moving to a fish in another sample. \n\nAre you sure you want to continue?");
+                  }
+                  if (proceed) window.location.href = `/herman/egg/fish/${fishId}/`;
                 }
-                this.loading.fish = false
               })
-        } else {
-          this.loading.fish = false
         }
       },
+
       update(field) {
         var data = {};
         data[field] = this.fish[field]
-        apiService(`/api/herman/fish-details/${this.fish.id}/?egg=true`, "PATCH", data)
+        apiService(`/api/herman/fish-details/${this.fishId}/?egg=true`, "PATCH", data)
             .then(response => {
               if (!response.id) {
                 alert(groomJSON(response));
@@ -249,6 +274,7 @@
                 this.fish = response;
                 var contiune = this.dealWithFlags();
                 if (contiune) {
+                  audio.play();
                   var nextFieldRef = this.$refs[`cell_${this.fields[this.fields.indexOf(field) + 1]}`]
                   if (nextFieldRef) this.focusElement(nextFieldRef[0]);
                   // Deal with the flags
@@ -278,10 +304,6 @@
       getMetadata() {
         apiService(`/api/herman/model-metas/?app_name=herring&model_name=FishDetail`).then(data => {
           this.labels = data.labels;
-          this.choices.otolith_season = data.otolith_season_choices;
-          this.choices.parasite = data.parasite_choices;
-          this.choices.sex = data.sex_choices;
-          this.choices.maturity = data.maturity_choices;
           this.loading.meta = false;
         });
       },
@@ -325,9 +347,6 @@
       }
     },
     created() {
-      let uri = window.location.search.substring(1);
-      let params = new URLSearchParams(uri);
-      this.startingFishId = params.get("fish_id");
       this.getMetadata();
       this.get();
 
