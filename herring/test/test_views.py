@@ -731,7 +731,7 @@ class TestEggUpdateView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.FishDetailFactory()
         self.test_url = reverse_lazy('herring:egg_form', args=[self.instance.pk, ])
-        self.expected_template = 'herring/egg_detailing/main.html'
+        self.expected_template = 'herring/egg_detailing_v2/main.html'
         self.user = self.get_and_login_user(is_crud_user=True)
 
     @tag("FishDetail", "fish_edit", "view")
@@ -746,7 +746,7 @@ class TestEggUpdateView(CommonTest):
     @tag("FishDetail", "fish_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("herring:egg_form", f"/en/herman/egg/sample/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url("herring:egg_form", f"/en/herman/egg/fish/{self.instance.pk}/", [self.instance.pk])
 
 
 class TestProgressReportListView(CommonTest):
