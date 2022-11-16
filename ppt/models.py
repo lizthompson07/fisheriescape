@@ -1082,10 +1082,10 @@ class StatusReport(models.Model):
     major_accomplishments = models.TextField(blank=True, null=True, verbose_name=_("major accomplishments"))
     major_issues = models.TextField(blank=True, null=True, verbose_name=_("major issues encountered"))
     excess_funds = models.BooleanField(default=False, verbose_name=_("are there remaining funds?"))
-    excess_funds_amt = models.IntegerField(blank=True, null=True, verbose_name=_("remaining funds amount"))
+    excess_funds_amt = models.IntegerField(default=0, blank=True, null=True, verbose_name=_("remaining funds amount"))
     excess_funds_comment = models.TextField(blank=True, null=True, verbose_name=_("suggested uses for remaining funds"))
     insuficient_funds = models.BooleanField(default=False, verbose_name=_("do you wish to request additional funding?"))
-    insuficient_funds_amt = models.IntegerField(blank=True, null=True, verbose_name=_("additional funding request amount"))
+    insuficient_funds_amt = models.IntegerField(default=0, blank=True, null=True, verbose_name=_("additional funding request amount"))
     insuficient_funds_comment = models.TextField(blank=True, null=True, verbose_name=_("additional funding request description"))
     target_completion_date = models.DateTimeField(blank=True, null=True, verbose_name=_("target completion date"))
     rationale_for_modified_completion_date = models.TextField(blank=True, null=True, verbose_name=_(
