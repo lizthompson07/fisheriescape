@@ -553,6 +553,12 @@ class StatusReportForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["status"].widget.attrs = {"v-model": "status_report.status"}
+        self.fields["excess_funds"].widget.attrs = {"v-model": "status_report.excess_funds"}
+        self.fields["excess_funds_amt"].widget.attrs = {"v-model": "status_report.excess_funds_amt"}
+        self.fields["excess_funds_comment"].widget.attrs = {"v-model": "status_report.excess_funds_comment", "rows": "4"}
+        self.fields["insuficient_funds"].widget.attrs = {"v-model": "status_report.insuficient_funds"}
+        self.fields["insuficient_funds_amt"].widget.attrs = {"v-model": "status_report.insuficient_funds_amt"}
+        self.fields["insuficient_funds_comment"].widget.attrs = {"v-model": "status_report.insuficient_funds_comment", "rows": "4"}
         self.fields["major_accomplishments"].widget.attrs = {"v-model": "status_report.major_accomplishments", "rows": "4"}
         self.fields["major_accomplishments"].label = _("Major accomplishments (this can be left blank if reported at the activity level")
         self.fields["major_issues"].widget.attrs = {"v-model": "status_report.major_issues", "rows": "4"}
