@@ -33,12 +33,14 @@ var app = new Vue({
         reviews: false,
         approvals: false,
         DMAs: false,
+        statusReports: false,
     },
-    {# showTab keys must match tabAPIsLoaded keys #}
+    {# tabAPILoading keys must be in showTab #}
     tabAPILoading: {
         staffList: true,
         financialSummary: true,
         DMAs: true,
+        statusReports: false,
     },
     showStaffList: false,
     showFinancialSummary: false,
@@ -61,6 +63,7 @@ var app = new Vue({
     staff_level_summary: [],
     staff_funding_summary: [],
     dmas: [],
+    statusReports: [],
     financials: [],
     next: null,
     previous: null,
@@ -248,6 +251,11 @@ var app = new Vue({
       if (this.filter.section) endpoint += `project__section=${this.filter.section}&`;
       return endpoint
     },
+    getStatusReportFilterString() {
+      let endpoint = "";
+      if (this.project_year_id_list) endpoint += `project_years=${this.project_year_id_list}&`;
+      return endpoint
+    },
     getProjectYearsEndpoint(pageSize = 25) {
       endpoint = `/api/ppt/project-years/`;
       // apply filters
@@ -258,6 +266,12 @@ var app = new Vue({
       endpoint = `/api/ppt/dmas/`;
       // apply filters
       endpoint += `?page_size=${pageSize}&` + this.getDMAFilterString()
+      return endpoint
+    },
+    getStatusReportEndpoint(pageSize = 25) {
+      endpoint = `/api/ppt/status-reports/`;
+      // apply filters
+      endpoint += `?page_size=${pageSize}&` + this.getStatusReportFilterString()
       return endpoint
     },
     getProjectYears(endpoint, pageSize = 25) {
@@ -341,6 +355,7 @@ var app = new Vue({
       else if (name === "reviews") this.showTab.reviews = true;
       else if (name === "approvals") this.showTab.approvals = true;
       else if (name === "dmas") this.showTab.DMAs = true;
+      else if (name === "statusReports") this.showTab.statusReports = true;
       this.loadActiveTab();
     },
 
@@ -350,9 +365,13 @@ var app = new Vue({
               if (tabKey === "staffList"){ this.getStaff() }
               if (tabKey === "financialSummary"){ this.getFinancials() }
               if (tabKey === "DMAs"){ this.getDMAs() }
+              if (tabKey === "statusReports"){
+                  this.getStatusReports()
+              }
           }
       }
     },
+
     getStaff() {
       this.tabAPILoading.staffList = true;
       this.errorTooBigStaff = false
@@ -400,12 +419,20 @@ var app = new Vue({
     },
     getDMAs() {
       this.tabAPILoading.DMAs = true;
-      // first get the full list of project years
       let endpoint1 = this.getDMAEndpoint()
       apiService(endpoint1)
           .then(response => {
             this.tabAPILoading.DMAs = false;
             this.dmas = response;
+          })
+    },
+    getStatusReports() {
+      this.tabAPILoading.statusReports = true;
+      let endpoint1 = this.getStatusReportEndpoint()
+      apiService(endpoint1)
+          .then(response => {
+            this.tabAPILoading.statusReports = false;
+            this.statusReports = response;
           })
     },
     getFinancials() {
@@ -728,6 +755,13 @@ var app = new Vue({
               }
             }
           return false;
+        }
+    },
+    project_year_id_list() {
+        if (this.projectYears) {
+            return this.projectYears.map(py => py.id)
+        } else {
+            return []
         }
     },
 
