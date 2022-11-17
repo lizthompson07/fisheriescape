@@ -38,7 +38,7 @@
 
 
       <td class="{% if sample.lab_processing_complete %}good{% else %}bad{% endif %}">
-        {{ sample.lab_complete_fish.count }} of {{ sample.total_fish_preserved }}
+        {{ sample.lab_complete_fish.count }} of {{ sample.total_fish_preserved|nz:0 }}
         {% if sample.fish_details.last.lab_processed_date %}
           ({{ sample.fish_details.last.lab_processed_date|date:"Y-m-d" }})
         {% endif %}
@@ -52,11 +52,11 @@
           {% endif %}
         </td>
       {% else %}
-        <td>n/a</td>
+        <td></td>
       {% endif %}
 
       <td class="{% if sample.otolith_processing_complete %}good{% else %}bad{% endif %}">
-        {{ sample.oto_complete_fish.count }} of {{ sample.total_fish_preserved }}
+        {{ sample.oto_complete_fish.count }} of {{ sample.total_fish_preserved|nz:0 }}
         {% if sample.fish_details.last.otolith_processed_date %}
           ({{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }})
         {% endif %}
@@ -89,26 +89,26 @@
 
     <tr>
       <td>Lab complete</td>
-      <td>{{ sample_sum_lab_complete }} of {{ sample_sum }}</td>
+      <td>{{ sample_sum_lab_complete|nz:0 }} of {{ sample_sum|nz:0 }}</td>
       <td>{{ sample_sum_lab_complete|divide:sample_sum|percentage:1 }}</td>
-      <td>{{ fish_sum_lab_complete }} of {{ fish_sum }}</td>
+      <td>{{ fish_sum_lab_complete|nz:0 }} of {{ fish_sum|nz:0 }}</td>
       <td>{{ fish_sum_lab_complete|divide:fish_sum|percentage:1 }}</td>
     </tr>
 
     <tr>
       <td>Egg complete</td>
-      <td>{{ sample_sum_egg_complete }} of {{ sample_sum_with_eggs }} </td>
+      <td>{{ sample_sum_egg_complete|nz:0 }} of {{ sample_sum_with_eggs|nz:0 }} </td>
       <td>{{ sample_sum_egg_complete|divide:sample_sum_with_eggs|percentage:1 }}</td>
-      <td>{{ fish_sum_egg_complete }} of {{ fish_egg_sum }}</td>
+      <td>{{ fish_sum_egg_complete|nz:0 }} of {{ fish_egg_sum|nz:0 }}</td>
       <td>{{ fish_sum_egg_complete|divide:fish_egg_sum|percentage:1 }}</td>
       {#      <td>{{ fish_egg_sum }}</td>#}
     </tr>
 
     <tr>
       <td>Otolith complete</td>
-      <td>{{ sample_sum_oto_complete }} of {{ sample_sum }} </td>
+      <td>{{ sample_sum_oto_complete|nz:0 }} of {{ sample_sum|nz:0 }} </td>
       <td>{{ sample_sum_oto_complete|divide:sample_sum|percentage:1 }}</td>
-      <td>{{ fish_sum_oto_complete }} of {{ fish_sum }}</td>
+      <td>{{ fish_sum_oto_complete|nz:0 }} of {{ fish_sum|nz:0 }}</td>
       <td>{{ fish_sum_oto_complete|divide:fish_sum|percentage:1 }}</td>
     </tr>
 

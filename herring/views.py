@@ -405,12 +405,7 @@ class SampleDetailView(HerringCRUD, CommonDetailView):
             context['max_fish_detail_count'] = max_fish_detail_count
             context['sum_fish_detail_count'] = sum_fish_detail_count
 
-        # provide a list of fish detail lab_processed_dates
-        for fishy in self.object.fish_details.all():
-            fishy.save()
-            # delete any empty fish details
-            if fishy.is_empty:
-                fishy.delete()
+        self.object.fish_details.filter(is_empty=True).delete()
 
         return context
 
@@ -1010,7 +1005,8 @@ class ProgressReportListView(HerringCRUD, CommonListView):
 
         # sum of samples
         context["sample_sum"] = qs.count
-        context["sample_sum_with_eggs"] = qs.filter(fish_details__will_count_eggs=True).distinct().count()
+        qs_with_eggs = qs.filter(fish_details__will_count_eggs=True).distinct()
+        context["sample_sum_with_eggs"] = qs_with_eggs.count()
 
         # sum of fish
         running_total = 0
@@ -1023,12 +1019,12 @@ class ProgressReportListView(HerringCRUD, CommonListView):
 
         # sum of samples COMPLETE
         context["sample_sum_lab_complete"] = qs.filter(lab_processing_complete=True).count()
-        context["sample_sum_egg_complete"] = qs.filter(egg_processing_complete=True).count()
+        context["sample_sum_egg_complete"] = qs.filter(egg_processing_complete=True, fish_details__will_count_eggs=True).distinct().count()
 
         # sum of fish COMPLETE
         running_total = 0
         for sample in qs.filter(lab_processing_complete=True):
-            running_total = running_total + sample.total_fish_preserved
+            running_total = running_total + nz(sample.total_fish_preserved,0)
         context["fish_sum_lab_complete"] = running_total
 
         # sum of samples REMAINING
@@ -1050,7 +1046,7 @@ class ProgressReportListView(HerringCRUD, CommonListView):
         for sample in qs.filter(otolith_processing_complete=True):
             running_total = running_total + nz(sample.total_fish_preserved, 0)
         context["fish_sum_oto_complete"] = running_total
-        context["fish_sum_egg_complete"] = models.FishDetail.objects.filter(egg_processed_date__isnull=False).count()
+        context["fish_sum_egg_complete"] = models.FishDetail.objects.filter(egg_processed_date__isnull=False, sample__in=qs_with_eggs).distinct().count()
 
         # sum of samples REMAINING
         context["sample_sum_oto_remaining"] = qs.filter(otolith_processing_complete=False).count

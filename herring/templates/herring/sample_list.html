@@ -20,15 +20,19 @@
     {% else %}
       <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
     {% endif %}
-    ({{ object.lab_complete_fish.count }} of {{ object.total_fish_preserved }})
+    ({{ object.lab_complete_fish.count }} of {{ object.total_fish_preserved|nz:0 }})
 
   {% elif "egg_complete" in field.name %}
-    {% if object.egg_processing_complete %}
-      <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
-    {% else %}
-      <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
+
+
+    {% if object.total_egg_fish.exists %}
+      {% if object.egg_processing_complete %}
+        <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
+      {% else %}
+        <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
+      {% endif %}
+      ({{ object.egg_complete_fish.count }} of {{ object.total_egg_fish.count }})
     {% endif %}
-    ({{ object.egg_complete_fish.count }} of {{ object.total_egg_fish.count }})
 
 
   {% elif "otoliths_complete" in field.name %}
@@ -37,7 +41,7 @@
     {% else %}
       <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
     {% endif %}
-    ({{ object.oto_complete_fish.count }} of {{ object.total_fish_preserved }})
+    ({{ object.oto_complete_fish.count }} of {{ object.total_fish_preserved|nz:0 }})
 
   {% else %}
     {{ block.super }}
