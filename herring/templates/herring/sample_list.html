@@ -10,16 +10,26 @@
 
   {#  {% if "sample_date" in field.name %}#}
   {#    {{ object.sample_date|date:"F d, Y" }}#}
-  {% if "fish_processed" in field.name %}
-    {{ object.fish_details.count }}
-  {% elif "date_processed" in field.name %}
+
+  {% if "date_processed" in field.name %}
     {{ object.fish_details.last.lab_processed_date|date:"Y-m-d"|nz:"---" }}
   {% elif "lab_complete" in field.name %}
+
     {% if object.lab_processing_complete %}
       <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
     {% else %}
       <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
     {% endif %}
+    ({{ object.lab_complete_fish.count }} of {{ object.total_fish_preserved }})
+
+  {% elif "egg_complete" in field.name %}
+    {% if object.egg_processing_complete %}
+      <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
+    {% else %}
+      <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
+    {% endif %}
+    ({{ object.egg_complete_fish.count }} of {{ object.total_egg_fish.count }})
+
 
   {% elif "otoliths_complete" in field.name %}
     {% if object.otolith_processing_complete %}
@@ -27,6 +37,7 @@
     {% else %}
       <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
     {% endif %}
+    ({{ object.oto_complete_fish.count }} of {{ object.total_fish_preserved }})
 
   {% else %}
     {{ block.super }}

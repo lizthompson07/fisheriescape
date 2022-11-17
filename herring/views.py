@@ -293,9 +293,9 @@ class SampleFilterView(HerringAccess, CommonFilterView):
         {"name": 'sampler', },
         {"name": 'port', },
         {"name": 'experimental_net_used', },
-        {"name": 'fish_processed|# Fish processed', },
         {"name": 'date_processed|Date processed<br>(yyyy-mm-dd)', },
         {"name": 'lab_complete|Lab complete', },
+        {"name": 'egg_complete|Egg complete', },
         {"name": 'otoliths_complete|Otoliths complete', },
     ]
 
@@ -990,8 +990,7 @@ class ProgressReportListView(HerringCRUD, CommonListView):
         {"name": 'sample_date', },
         {"name": "sampler_ref_number"},
         {"name": 'sampler', },
-        {"name": '|# fish measured (from sheet)', },
-        {"name": '|# fish measured (from LF)', },
+        {"name": '|Measured fish (sheet vs. histogram)', },
         {"name": '|Fish preserved', },
         {"name": '|Lab processed', },
         {"name": '|Eggs processed', },
@@ -1017,11 +1016,13 @@ class ProgressReportListView(HerringCRUD, CommonListView):
         for sample in qs:
             running_total = running_total + nz(sample.total_fish_preserved, 0)
         context["fish_sum"] = running_total
+        context["fish_egg_sum"] = models.FishDetail.objects.filter(sample__in=qs, will_count_eggs=True).count()
 
         # LAB PROCESSING
 
         # sum of samples COMPLETE
-        context["sample_sum_lab_complete"] = qs.filter(lab_processing_complete=True).count
+        context["sample_sum_lab_complete"] = qs.filter(lab_processing_complete=True).count()
+        context["sample_sum_egg_complete"] = qs.filter(egg_processing_complete=True).count()
 
         # sum of fish COMPLETE
         running_total = 0
@@ -1048,6 +1049,7 @@ class ProgressReportListView(HerringCRUD, CommonListView):
         for sample in qs.filter(otolith_processing_complete=True):
             running_total = running_total + nz(sample.total_fish_preserved, 0)
         context["fish_sum_oto_complete"] = running_total
+        context["fish_sum_egg_complete"] = models.FishDetail.objects.filter(egg_processed_date__isnull=False).count()
 
         # sum of samples REMAINING
         context["sample_sum_oto_remaining"] = qs.filter(otolith_processing_complete=False).count

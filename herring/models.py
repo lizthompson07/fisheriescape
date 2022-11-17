@@ -238,6 +238,22 @@ class Sample(models.Model):
     last_modified_date = models.DateTimeField(auto_now=True, editable=False)
 
     @property
+    def lab_complete_fish(self):
+        return self.fish_details.filter(lab_processed_date__isnull=False)
+
+    @property
+    def oto_complete_fish(self):
+        return self.fish_details.filter(otolith_processed_date__isnull=False)
+
+    @property
+    def egg_complete_fish(self):
+        return self.fish_details.filter(egg_processed_date__isnull=False)
+
+    @property
+    def total_egg_fish(self):
+        return self.fish_details.filter(will_count_eggs=True)
+
+    @property
     def is_complete(self):
 
         if not (self.type and self.sample_date and self.sampler and self.sampler_ref_number and self.total_fish_measured and self.total_fish_preserved):
