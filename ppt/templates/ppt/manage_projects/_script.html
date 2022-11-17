@@ -34,6 +34,12 @@ var app = new Vue({
         approvals: false,
         DMAs: false,
     },
+    {# showTab keys must match tabAPIsLoaded keys #}
+    tabAPILoading: {
+        staffList: true,
+        financialSummary: true,
+        DMAs: true,
+    },
     showStaffList: false,
     showFinancialSummary: false,
     showReviews: false,
@@ -45,11 +51,8 @@ var app = new Vue({
     currentSortTable: "",
 
     projects_loading: true,
-    staff_loading: true,
-    dma_loading: true,
     errorTooBigStaff: false,
     errorTooSmallStaff: false,
-    financial_loading: true,
     errorTooBigFinancial: false,
     errorTooSmallFinancial: false,
     projectYears: [],
@@ -268,9 +271,11 @@ var app = new Vue({
               this.next = response.next;
               this.previous = response.previous;
               this.count = response.count;
-              this.getStaff()
-              this.getFinancials()
-              this.getDMAs()
+              // make all tabs reload with new list
+              for (const tabLoadingKey in this.tabAPILoading) {
+                this.tabAPILoading[tabLoadingKey] = true;
+              }
+              this.loadActiveTab();
             }
           })
     },
@@ -330,26 +335,37 @@ var app = new Vue({
       for (const showTabKey in this.showTab) {
         this.showTab[showTabKey] = false;
       }
-      if (name === "project") this.showTab. projectList = true;
+      if (name === "project") this.showTab.projectList = true;
       else if (name === "staff") this.showTab.staffList = true;
       else if (name === "financial") this.showTab.financialSummary = true;
       else if (name === "reviews") this.showTab.reviews = true;
       else if (name === "approvals") this.showTab.approvals = true;
       else if (name === "dmas") this.showTab.DMAs = true;
+      this.loadActiveTab();
+    },
+
+    loadActiveTab(){
+      for (const tabKey in this.showTab) {
+          if (this.showTab[tabKey] && this.tabAPILoading[tabKey]) {
+              if (tabKey === "staffList"){ this.getStaff() }
+              if (tabKey === "financialSummary"){ this.getFinancials() }
+              if (tabKey === "DMAs"){ this.getDMAs() }
+          }
+      }
     },
     getStaff() {
-      this.staff_loading = true;
+      this.tabAPILoading.staffList = true;
       this.errorTooBigStaff = false
       this.errorTooSmallStaff = false
       this.errorNoFiscalYear = false
       if (!this.filter.fiscal_year) {
-        this.staff_loading = false;
+        this.tabAPILoading.staffList = false;
         this.errorNoFiscalYear = true;
       } else if (!this.projectYears.length) {
-        this.staff_loading = false;
+        this.tabAPILoading.staffList = false;
         this.errorTooSmallStaff = true;
       } else if (this.count > 150) {
-        this.staff_loading = false;
+        this.tabAPILoading.staffList = false;
         this.errorTooBigStaff = true;
       } else {
         // first get the full list of project years
@@ -370,7 +386,7 @@ var app = new Vue({
                   let endpoint2 = `/api/ppt/staffing/?year=${this.filter.fiscal_year}&ids=${pyIds}`;
                   apiService(endpoint2)
                       .then(response => {
-                        this.staff_loading = false;
+                        this.tabAPILoading.staffList = false;
                         this.staff = response.results;
                         this.staff_level_summary = response.level_summary;
                         this.staff_type_summary = response.type_summary;
@@ -383,25 +399,25 @@ var app = new Vue({
       }
     },
     getDMAs() {
-      this.dma_loading = true;
+      this.tabAPILoading.DMAs = true;
       // first get the full list of project years
       let endpoint1 = this.getDMAEndpoint()
       apiService(endpoint1)
           .then(response => {
-            this.dma_loading = false;
+            this.tabAPILoading.DMAs = false;
             this.dmas = response;
           })
     },
     getFinancials() {
-      this.financial_loading = true;
+      this.tabAPILoading.financialSummary = true;
       this.errorTooBigFinancial = false
       this.errorTooSmallFinancial = false
 
       if (!this.projectYears.length) {
-        this.financial_loading = false;
+        this.tabAPILoading.financialSummary = false;
         this.errorTooSmallFinancial = true;
       } else if (this.count > 200) {
-        this.financial_loading = false;
+        this.tabAPILoading.financialSummary = false;
         this.errorTooBigFinancial = true;
       } else {
         // first get the full list of project years
@@ -421,7 +437,7 @@ var app = new Vue({
                   let endpoint2 = `/api/ppt/financials/?ids=${pyIds}`;
                   apiService(endpoint2)
                       .then(response => {
-                        this.financial_loading = false;
+                        this.tabAPILoading.financialSummary = false;
                         this.financials = response;
                       })
                 }
@@ -699,6 +715,19 @@ var app = new Vue({
                 if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
                 return 0;
             });
+        }
+    },
+
+    console_loading() {
+        if (this.projects_loading) {
+            return true;
+        } else {
+            for (const showTabKey in this.showTab) {
+              if (this.showTab[showTabKey] && this.tabAPILoading[showTabKey]) {
+                  return true;
+              }
+            }
+          return false;
         }
     },
 
