@@ -16,7 +16,7 @@
 
 {% block table_body_0 %}
   {% for sample in object_list %}
-    <tr href="{% url 'herring:sample_detail' sample.id %}">
+    <tr newtab href="{% url 'herring:sample_detail' sample.id %}">
       <td>{{ sample.season }}</td>
       <td>{{ sample.id }}</td>
       <td>{{ sample.get_type_display }}</td>
@@ -34,7 +34,6 @@
         ({{ sample.lf_count }} / {{ sample.total_fish_measured|nz:0 }})
       </td>
 
-      <td>{{ sample.total_fish_preserved }}</td>
 
 
       <td class="{% if sample.lab_processing_complete %}good{% else %}bad{% endif %}">
@@ -47,8 +46,8 @@
       {% if sample.total_egg_fish.exists %}
         <td class="{% if sample.egg_processing_complete %}good{% else %}bad{% endif %}">
           {{ sample.egg_complete_fish.count }} of {{ sample.total_egg_fish.count }}
-          {% if sample.fish_details.last.egg_processed_date %}
-            ({{ sample.fish_details.last.egg_processed_date|date:"Y-m-d" }})
+          {% if sample.total_egg_fish.last.egg_processed_date %}
+            ({{ sample.total_egg_fish.last.egg_processed_date|date:"Y-m-d" }})
           {% endif %}
         </td>
       {% else %}

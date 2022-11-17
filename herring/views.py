@@ -929,10 +929,11 @@ def move_record(request, sample, type, direction, current_id):
 ###########
 
 
-class ReportSearchFormView(HerringAccess, FormView):
+class ReportSearchFormView(HerringAccess, CommonFormView):
     template_name = 'herring/reports.html'
     home_url_name = "herring:index"
     form_class = forms.ReportSearchForm
+    h1 = "Reports"
 
     def get_initial(self):
         # default the year to the year of the latest samples
@@ -986,7 +987,6 @@ class ProgressReportListView(HerringCRUD, CommonListView):
         {"name": "sampler_ref_number"},
         {"name": 'sampler', },
         {"name": '|Measured fish (sheet vs. histogram)', },
-        {"name": '|Fish preserved', },
         {"name": '|Lab processed', },
         {"name": '|Eggs processed', },
         {"name": '|Otoliths processed', },
