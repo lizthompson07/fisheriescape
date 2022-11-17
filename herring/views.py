@@ -986,7 +986,7 @@ class ProgressReportListView(HerringCRUD, CommonListView):
         {"name": 'sample_date', },
         {"name": "sampler_ref_number"},
         {"name": 'sampler', },
-        {"name": '|Measured fish (sheet vs. histogram)', },
+        {"name": '|Lengths (measured vs. histogram)', },
         {"name": '|Lab processed', },
         {"name": '|Eggs processed', },
         {"name": '|Otoliths processed', },

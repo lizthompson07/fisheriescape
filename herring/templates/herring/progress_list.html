@@ -25,15 +25,10 @@
       <td>{{ sample.sampler }}</td>
 
 
-      <td>
-        {% if sample.total_fish_measured|nz:0 == sample.lf_count %}
-          <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
-        {% else %}
-          <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
-        {% endif %}
-        ({{ sample.lf_count }} / {{ sample.total_fish_measured|nz:0 }})
-      </td>
 
+      <td class="{% if sample.total_fish_measured|nz:0 == sample.lf_count %}good{% else %}bad{% endif %}">
+        {{ sample.lf_count }} vs. {{ sample.total_fish_measured|nz:0 }}
+      </td>
 
 
       <td class="{% if sample.lab_processing_complete %}good{% else %}bad{% endif %}">
