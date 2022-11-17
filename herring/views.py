@@ -967,7 +967,10 @@ class ReportSearchFormView(HerringAccess, FormView):
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
         year = int(form.cleaned_data["year"])
-        species = int(form.cleaned_data["species"].id)
+        try:
+            species = int(form.cleaned_data["species"].id)
+        except AttributeError:
+            species = None
 
         if report == 1:
             return HttpResponseRedirect(reverse("herring:progress_report_detail") + f"?year={year}&species={species}")
