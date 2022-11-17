@@ -26,7 +26,14 @@ var app = new Vue({
     errorNoFiscalYear: false,
     loadingReport: false,
 
-    showProjectList: true,
+    showTab: {
+        projectList: true,
+        staffList: false,
+        financialSummary: false,
+        reviews: false,
+        approvals: false,
+        DMAs: false,
+    },
     showStaffList: false,
     showFinancialSummary: false,
     showReviews: false,
@@ -274,19 +281,61 @@ var app = new Vue({
         }
       })
     },
+    submitProjectYear(projectYear, action) {
+      if (action === "submit" || action === "unsubmit") {
+        if (action === "submit") msg = submitMsg
+        else msg = unsubmitMsg
+        userInput = confirm(msg + projectYear.display_name)
+        if (userInput) {
+          let endpoint = `/api/ppt/project-years/${projectYear.id}/?${action}=true`;
+          apiService(endpoint, "POST")
+              .then(response => {
+                this.$set(this.projectYears, this.projectYears.indexOf(projectYear), response);
+              })
+        }
+      }
+    },
+    comingSoon() {
+      alert("this feature is coming soon!")
+    },
+    sort(s, table="sortedProjectYears") {
+      // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
+      //if s == current sort, reverse
+      if (s === this.currentSort) {
+        this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
+      }
+      this.currentSort = s;
+      this.currentSortTable = table;
+    },
+    clearProjectYears() {
+      this.projectYears = []
+      this.next = null
+      this.count = 0
+    },
+    loadMoreResults() {
+      if (this.next) {
+        this.getProjectYears(this.next)
+      }
+    },
+    clearFilters() {
+      this.filter = {};
+      this.updateResults()
+    },
+    updateResults() {
+      this.clearProjectYears();
+      this.getProjectYears();
+      this.getFilterData();
+    },
     changeTabs(name) {
-      this.showProjectList = false;
-      this.showStaffList = false;
-      this.showFinancialSummary = false;
-      this.showReviews = false;
-      this.showApprovals = false;
-      this.showDMAs = false;
-      if (name === "project") this.showProjectList = true;
-      else if (name === "staff") this.showStaffList = true;
-      else if (name === "financial") this.showFinancialSummary = true;
-      else if (name === "reviews") this.showReviews = true;
-      else if (name === "approvals") this.showApprovals = true;
-      else if (name === "dmas") this.showDMAs = true;
+      for (const showTabKey in this.showTab) {
+        this.showTab[showTabKey] = false;
+      }
+      if (name === "project") this.showTab. projectList = true;
+      else if (name === "staff") this.showTab.staffList = true;
+      else if (name === "financial") this.showTab.financialSummary = true;
+      else if (name === "reviews") this.showTab.reviews = true;
+      else if (name === "approvals") this.showTab.approvals = true;
+      else if (name === "dmas") this.showTab.DMAs = true;
     },
     getStaff() {
       this.staff_loading = true;
@@ -380,51 +429,6 @@ var app = new Vue({
 
             })
       }
-    },
-    submitProjectYear(projectYear, action) {
-      if (action === "submit" || action === "unsubmit") {
-        if (action === "submit") msg = submitMsg
-        else msg = unsubmitMsg
-        userInput = confirm(msg + projectYear.display_name)
-        if (userInput) {
-          let endpoint = `/api/ppt/project-years/${projectYear.id}/?${action}=true`;
-          apiService(endpoint, "POST")
-              .then(response => {
-                this.$set(this.projectYears, this.projectYears.indexOf(projectYear), response);
-              })
-        }
-      }
-    },
-    comingSoon() {
-      alert("this feature is coming soon!")
-    },
-    sort(s, table="sortedProjectYears") {
-      // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
-      //if s == current sort, reverse
-      if (s === this.currentSort) {
-        this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
-      }
-      this.currentSort = s;
-      this.currentSortTable = table;
-    },
-    clearProjectYears() {
-      this.projectYears = []
-      this.next = null
-      this.count = 0
-    },
-    loadMoreResults() {
-      if (this.next) {
-        this.getProjectYears(this.next)
-      }
-    },
-    clearFilters() {
-      this.filter = {};
-      this.updateResults()
-    },
-    updateResults() {
-      this.clearProjectYears();
-      this.getProjectYears();
-      this.getFilterData();
     },
     openReviewModal(projectYear, which = "review") {
       this.projectYear2Review = projectYear;
