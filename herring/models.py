@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from herring import flag_definitions
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.models import MetadataFields, SimpleLookup
 from shared_models.utils import get_metadata_string
@@ -290,7 +291,7 @@ class Sample(models.Model):
         ## first test if there are enough or too many fish...
         fish_count = self.fish_details.all().count()
 
-        if fish_count < self.total_fish_preserved:
+        if fish_count < nz(self.total_fish_preserved, 0):
             # then there is no chance for being complete
             self.lab_processing_complete = False
             self.otolith_processing_complete = False

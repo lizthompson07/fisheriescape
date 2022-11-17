@@ -26,50 +26,41 @@
 
 
       <td>
-        {% if sample.total_fish_measured == sample.lf_count %}
+        {% if sample.total_fish_measured|nz:0 == sample.lf_count %}
           <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
         {% else %}
           <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
         {% endif %}
-        ({{ sample.lf_count }} / {{ sample.total_fish_measured }})
+        ({{ sample.lf_count }} / {{ sample.total_fish_measured|nz:0 }})
       </td>
-
 
       <td>{{ sample.total_fish_preserved }}</td>
 
 
+      <td class="{% if sample.lab_processing_complete %}good{% else %}bad{% endif %}">
+        {{ sample.lab_complete_fish.count }} of {{ sample.total_fish_preserved }}
+        {% if sample.fish_details.last.lab_processed_date %}
+          ({{ sample.fish_details.last.lab_processed_date|date:"Y-m-d" }})
+        {% endif %}
+      </td>
 
-
-      {% if sample.lab_processing_complete %}
-        <td class="good">
-          {{ sample.fish_details.last.lab_processed_date|date:"Y-m-d" }}
+      {% if sample.total_egg_fish.exists %}
+        <td class="{% if sample.egg_processing_complete %}good{% else %}bad{% endif %}">
+          {{ sample.egg_complete_fish.count }} of {{ sample.total_egg_fish.count }}
+          {% if sample.fish_details.last.egg_processed_date %}
+            ({{ sample.fish_details.last.egg_processed_date|date:"Y-m-d" }})
+          {% endif %}
         </td>
       {% else %}
-        <td class="bad">
-          {{ sample.fish_details.last.lab_processed_date|date:"Y-m-d" }}
-        </td>
+        <td>n/a</td>
       {% endif %}
 
-      {% if sample.egg_processing_complete %}
-        <td class="good">
-          {{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }}
-        </td>
-      {% else %}
-        <td class="bad">
-          {{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }}
-        </td>
-      {% endif %}
-
-
-      {% if sample.otolith_processing_complete %}
-        <td class="good">
-          {{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }}
-        </td>
-      {% else %}
-        <td class="bad">
-          {{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }}
-        </td>
-      {% endif %}
+      <td class="{% if sample.otolith_processing_complete %}good{% else %}bad{% endif %}">
+        {{ sample.oto_complete_fish.count }} of {{ sample.total_fish_preserved }}
+        {% if sample.fish_details.last.otolith_processed_date %}
+          ({{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }})
+        {% endif %}
+      </td>
 
 
     </tr>
@@ -106,11 +97,11 @@
 
     <tr>
       <td>Egg complete</td>
-      <td>{{ sample_sum_egg_complete }} of {{ sample_sum }} </td>
-      <td>{{ sample_sum_egg_complete|divide:sample_sum|percentage:1 }}</td>
+      <td>{{ sample_sum_egg_complete }} of {{ sample_sum_with_eggs }} </td>
+      <td>{{ sample_sum_egg_complete|divide:sample_sum_with_eggs|percentage:1 }}</td>
       <td>{{ fish_sum_egg_complete }} of {{ fish_egg_sum }}</td>
       <td>{{ fish_sum_egg_complete|divide:fish_egg_sum|percentage:1 }}</td>
-{#      <td>{{ fish_egg_sum }}</td>#}
+      {#      <td>{{ fish_egg_sum }}</td>#}
     </tr>
 
     <tr>

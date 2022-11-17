@@ -124,6 +124,7 @@
                 <th class="text-primary">${labels[field]}</th>
                 <td>
                   <input @change="update(field)" class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @focusin="currentField=field">
+                <small v-if="field === 'gonad_photo_magnification'" class="text-muted">Use code 99 for when magnification is absent</small>
                 </td>
               </tr>
             </template>

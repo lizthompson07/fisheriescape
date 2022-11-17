@@ -1010,6 +1010,7 @@ class ProgressReportListView(HerringCRUD, CommonListView):
 
         # sum of samples
         context["sample_sum"] = qs.count
+        context["sample_sum_with_eggs"] = qs.filter(fish_details__will_count_eggs=True).distinct().count()
 
         # sum of fish
         running_total = 0
