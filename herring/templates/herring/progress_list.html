@@ -36,6 +36,17 @@
         </td>
       {% endif %}
 
+       {% if sample.egg_processing_complete %}
+        <td class="good">
+          {{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }}
+        </td>
+      {% else %}
+        <td class="bad">
+          {{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }}
+        </td>
+      {% endif %}
+
+
       {% if sample.otolith_processing_complete %}
         <td class="good">
           {{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }}

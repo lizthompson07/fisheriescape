@@ -6,7 +6,7 @@ from io import StringIO
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import Q, Value, TextField
+from django.db.models import Q, Value, TextField, Max, Sum
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -334,6 +334,32 @@ class SampleDetailView(HerringCRUD, CommonDetailView):
     model = models.Sample
     home_url_name = "herring:index"
     parent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+    field_list = [
+        'species',
+        'type',
+        'sample_date',
+        'sampler_ref_number',
+        'sampler',
+        'port',
+        'survey_id',
+        'latitude_n',
+        'longitude_w',
+        'fishing_area',
+        'gear',
+        'experimental_net_used',
+        'vessel_cfvn',
+        'mesh_size',
+        'catch_weight_lbs',
+        'sample_weight_lbs',
+        'total_fish_measured',
+        'total_fish_preserved',
+        'old_id',
+        'remarks',
+        'created_by',
+        'creation_date',
+        'last_modified_by',
+        'last_modified_date',
+    ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -341,49 +367,12 @@ class SampleDetailView(HerringCRUD, CommonDetailView):
         # pass in the tests
         tests = models.Test.objects.filter(Q(id=205) | Q(id=230) | Q(id=231) | Q(id=232))
         context['tests'] = tests
-        context['field_list'] = [
-            'species',
-            'type',
-            'sample_date',
-            'sampler_ref_number',
-            'sampler',
-            'port',
-            'survey_id',
-            'latitude_n',
-            'longitude_w',
-            'fishing_area',
-            'gear',
-            'experimental_net_used',
-            'vessel_cfvn',
-            'mesh_size',
-            'catch_weight_lbs',
-            'sample_weight_lbs',
-            'total_fish_measured',
-            'total_fish_preserved',
-            'old_id',
-            'remarks',
-            'created_by',
-            'creation_date',
-            'last_modified_by',
-            'last_modified_date',
-        ]
 
         # create a list of length freq counts FOR SAMPLE
         if self.object.length_frequency_objects.count() > 0:
-            count_list = []
-            for obj in self.object.length_frequency_objects.all():
-                count_list.append(obj.count)
+            context['max_count'] = self.object.length_frequency_objects.aggregate(max=Max("count"))["max"]
+            context['sum_count'] = self.object.length_frequency_objects.aggregate(sum=Sum("count"))["sum"]
 
-            # add the max count as context
-            context['max_count'] = max(count_list)
-
-            # add the sum as context
-            context['sum_count'] = sum(count_list)
-
-            # add the phrase to read
-            playback_string = "Reading back frequency counts. "
-            playback_string = playback_string + ", ".join(str(count) for count in count_list)
-            context['playback_string'] = playback_string
 
         # create a list of length freq counts FISH DETAILs
         length_list = []
@@ -422,9 +411,6 @@ class SampleDetailView(HerringCRUD, CommonDetailView):
             # delete any empty fish details
             if fishy.is_empty:
                 fishy.delete()
-        # resave the sample instance to run thought sample save method
-        self.object.save()
-        # now conduct the test
 
         return context
 
@@ -882,7 +868,6 @@ class EggUpdateView(HerringCRUD, CommonDetailView):
             id_list.sort()
             current_index = id_list.index(obj.id)
 
-
         is_last = False
 
         try:
@@ -1009,6 +994,7 @@ class ProgressReportListView(HerringCRUD, CommonListView):
         {"name": '|# fish measured (from LF)', },
         {"name": '|Fish preserved', },
         {"name": '|Lab processed', },
+        {"name": '|Eggs processed', },
         {"name": '|Otoliths processed', },
     ]
 
