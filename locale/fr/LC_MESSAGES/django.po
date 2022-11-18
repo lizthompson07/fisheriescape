@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-18 10:42-0400\n"
+"POT-Creation-Date: 2022-11-18 12:17-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -2405,12 +2405,19 @@ msgid "Research Scientist Dossier Tracking Application"
 msgstr ""
 
 #: .\dm_apps\views.py:136
-msgid "Gulf RSVPs"
-msgstr ""
+#, fuzzy
+msgid "Gulf Science Field Planning Tool"
+msgstr "Planification de projets"
 
 #: .\dm_apps\views.py:137
-msgid "Beeep Beeep!!!"
+#, fuzzy
+#| msgid ""
+#| "Tool for the tracking, development and coordination of science project "
+#| "workplans."
+msgid "Tool used for the planning and coordindation of field work"
 msgstr ""
+"Outil de suivi, de développement et de coordination de plans de travail de "
+"projets scientifiques."
 
 #: .\dm_apps\views.py:150
 #, fuzzy
