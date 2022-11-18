@@ -8,7 +8,7 @@ from . import views
 
 urlpatterns = [
     # path("cars/", include(router.urls)),
-    path("cars/reservations-for-calendar/", views.CalendarRSVPListAPIView.as_view(), name="cars-rsvp-cal"),
+    path("field-work/reservations-for-calendar/", views.CalendarRSVPListAPIView.as_view(), name="cars-rsvp-cal"),
 
 
 ]
