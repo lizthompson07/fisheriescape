@@ -131,7 +131,9 @@ class Electrofisher(SimpleLookup):
 class Sample(MetadataFields):
     site = models.ForeignKey(RiverSite, related_name='samples', on_delete=models.DO_NOTHING)
     sample_type = models.IntegerField(choices=model_choices.sample_type_choices)
-
+    monitoring_program = models.ForeignKey(MonitoringProgram, on_delete=models.DO_NOTHING, verbose_name=_("monitoring program"),
+                                           help_text=_("The sample was collected under which monitoring program"), related_name="samples", blank=False,
+                                           null=True)
     arrival_date = models.DateTimeField(verbose_name="arrival date/time")
     departure_date = models.DateTimeField(verbose_name="departure date/time")
     samplers = models.TextField(blank=True, null=True)

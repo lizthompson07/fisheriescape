@@ -39,6 +39,7 @@ class SampleFilter(django_filters.FilterSet):
             'site': ['exact'],
             'sample_type': ['exact'],
             'observations__species': ['exact'],
+            'monitoring_program': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
