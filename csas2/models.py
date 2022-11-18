@@ -1212,23 +1212,28 @@ class Document(MetadataFields):
     title_fr = models.CharField(max_length=255, verbose_name=_("title (French)"), blank=True, null=True)
     title_in = models.CharField(max_length=255, verbose_name=_("title (Inuktitut)"), blank=True, null=True)
     year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("Publication Year"))
-    pages = models.IntegerField(null=True, blank=True, verbose_name=_("pages"))
 
-    # file (should be able to get size as well!
-    file_en = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (en)"))
-    file_fr = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (fr)"))
-
-    url_en = models.URLField(verbose_name=_("document url (en)"), blank=True, null=True, max_length=2000)
-    url_fr = models.URLField(verbose_name=_("document url (fr)"), blank=True, null=True, max_length=2000)
-
-    dev_link_en = models.URLField(_("dev link (en)"), max_length=2000, blank=True, null=True)
-    dev_link_fr = models.URLField(_("dev link (fr)"), max_length=2000, blank=True, null=True)
+    pages_en = models.IntegerField(null=True, blank=True, verbose_name=_("pages (en)"))
+    pages_fr = models.IntegerField(null=True, blank=True, verbose_name=_("pages (fr)"))
 
     ekme_gcdocs_en = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("EKME# / GCDocs (en)"))
     ekme_gcdocs_fr = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("EKME# / GCDocs (fr)"))
 
+    dev_link_en = models.URLField(_("dev link (en)"), max_length=2000, blank=True, null=True)
+    dev_link_fr = models.URLField(_("dev link (fr)"), max_length=2000, blank=True, null=True)
+
+    url_en = models.URLField(verbose_name=_("document url (en)"), blank=True, null=True, max_length=2000)
+    url_fr = models.URLField(verbose_name=_("document url (fr)"), blank=True, null=True, max_length=2000)
+
+    pdf_size_kb_en = models.IntegerField(blank=True, null=True, verbose_name=_("size of PDF (en)"))
+    pdf_size_kb_fr = models.IntegerField(blank=True, null=True, verbose_name=_("size of PDF (fr)"))
+
     lib_cat_en = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (en)"))
     lib_cat_fr = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (fr)"))
+
+    # file (should be able to get size as well!
+    file_en = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (en)"))
+    file_fr = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (fr)"))
 
     # non-editable
     due_date = models.DateTimeField(null=True, blank=True, verbose_name=_("document due date"), editable=False)
