@@ -349,7 +349,7 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
             qs = qs.filter(id__in=csas_requests)
         else:
             if fiscal_year:
-                qs = qs.filter(fiscal_year_id=fiscal_year)
+                qs = qs.filter(advice_fiscal_year_id=fiscal_year)
             if request_status:
                 qs = qs.filter(status=request_status)
             if region:
