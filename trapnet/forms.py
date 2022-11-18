@@ -321,3 +321,16 @@ TrapNetUserFormset = modelformset_factory(
     form=TrapNetUserForm,
     extra=1,
 )
+
+
+class MonitoringProgramForm(forms.ModelForm):
+    class Meta:
+        model = models.MonitoringProgram
+        fields = "__all__"
+
+
+MonitoringProgramFormset = modelformset_factory(
+    model=models.MonitoringProgram,
+    form=MonitoringProgramForm,
+    extra=1,
+)

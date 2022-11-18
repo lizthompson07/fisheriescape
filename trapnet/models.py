@@ -16,7 +16,7 @@ from dm_apps.utils import get_timezone_time
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
-from shared_models.models import MetadataFields, SimpleLookup, LatLongFields
+from shared_models.models import MetadataFields, SimpleLookup, LatLongFields, Lookup
 from shared_models.utils import remove_nulls
 from trapnet import model_choices
 
@@ -70,6 +70,10 @@ class RiverSite(MetadataFields, LatLongFields):
 
     class Meta:
         ordering = ['river', 'name']
+
+
+class MonitoringProgram(Lookup):
+    pass
 
 
 class LifeStage(CodeModel):
